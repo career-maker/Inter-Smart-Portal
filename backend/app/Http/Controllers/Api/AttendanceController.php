@@ -97,7 +97,7 @@ class AttendanceController extends Controller
 
         $attendance->update([
             'check_out_time' => $now,
-            'total_working_minutes' => $workingMinutes
+            'total_working_minutes' => (int) round($workingMinutes)
         ]);
 
         return response()->json([
@@ -156,7 +156,7 @@ class AttendanceController extends Controller
 
         $openBreak->update([
             'break_end' => $now,
-            'total_break_minutes' => $breakMinutes
+            'total_break_minutes' => (int) round($breakMinutes)
         ]);
 
         return response()->json([
