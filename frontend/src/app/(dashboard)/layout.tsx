@@ -71,39 +71,8 @@ export default function DashboardLayout({
             <img src="/logo.png" alt="Intersmart Logo" className="h-10 w-auto object-contain" />
           </Link>
 
-          {/* Desktop Nav — scrollable */}
-          <nav className="hidden md:flex gap-1 overflow-x-auto flex-1 mx-4 no-scrollbar">
-            {NAV_LINKS.filter(link => {
-              if (link.href === '/hall') {
-                return user?.role === 'Super Admin' || user?.role === 'Team Lead';
-              }
-              if (link.href === '/holidays' || link.href === '/reports') {
-                return user?.role === 'Super Admin' || user?.role === 'HR';
-              }
-              if (link.href === '/settings' || link.href === '/audit-logs') {
-                return user?.role === 'Super Admin';
-              }
-              return true;
-            }).map(({ href, label }) => {
-              const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  className={`text-sm font-medium px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${
-                    active
-                      ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:text-foreground hover:bg-gray-100"
-                  }`}
-                >
-                  {label}
-                </Link>
-              );
-            })}
-          </nav>
-
           {/* User Menu */}
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-3 shrink-0 ml-auto">
             <NotificationDropdown />
             
             <div className="hidden sm:flex flex-col items-end">
@@ -114,24 +83,25 @@ export default function DashboardLayout({
             </div>
             <button
               onClick={handleLogout}
-              className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-red-600 transition-colors px-2 py-1.5 rounded-lg hover:bg-red-50"
+              className="hidden sm:flex items-center gap-1.5 text-sm text-muted-foreground hover:text-red-600 transition-colors px-2 py-1.5 rounded-lg hover:bg-red-50"
             >
               <LogOut className="h-4 w-4" />
-              <span className="hidden sm:inline">Logout</span>
+              <span>Logout</span>
             </button>
-            {/* Mobile menu toggle */}
+            {/* Universal Hamburger menu toggle */}
             <button
-              className="md:hidden p-1.5 rounded-lg hover:bg-gray-100"
+              className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
-              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {mobileMenuOpen ? <X className="h-6 w-6 text-gray-700" /> : <Menu className="h-6 w-6 text-gray-700" />}
             </button>
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Universal Dropdown Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t bg-white px-4 pb-3 grid grid-cols-2 gap-1">
+          <div className="absolute top-16 right-0 w-full md:w-80 bg-white border-b md:border-l md:border-b shadow-lg z-40 max-h-[calc(100vh-4rem)] overflow-y-auto">
+            <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
             {NAV_LINKS.filter(link => {
               if (link.href === '/hall') {
                 return user?.role === 'Super Admin' || user?.role === 'Team Lead';
@@ -139,7 +109,7 @@ export default function DashboardLayout({
               if (link.href === '/holidays' || link.href === '/reports') {
                 return user?.role === 'Super Admin' || user?.role === 'HR';
               }
-              if (link.href === '/settings' || link.href === '/audit-logs') {
+              if (link.href === '/settings' || link.href === '/audit-logs' || link.href === '/profile-requests') {
                 return user?.role === 'Super Admin';
               }
               return true;
@@ -150,7 +120,7 @@ export default function DashboardLayout({
                   key={href}
                   href={href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`text-sm font-medium px-3 py-2 rounded-lg transition-colors ${
+                  className={`text-sm font-medium px-4 py-3 rounded-lg transition-colors ${
                     active
                       ? "bg-primary/10 text-primary"
                       : "text-muted-foreground hover:text-foreground hover:bg-gray-100"
@@ -160,6 +130,16 @@ export default function DashboardLayout({
                 </Link>
               );
             })}
+            <div className="sm:hidden col-span-full mt-2 pt-2 border-t">
+               <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center justify-center gap-1.5 text-sm text-red-600 transition-colors px-4 py-3 rounded-lg hover:bg-red-50"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Logout</span>
+               </button>
+            </div>
+            </div>
           </div>
         )}
       </header>

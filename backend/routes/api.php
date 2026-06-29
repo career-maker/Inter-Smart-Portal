@@ -16,6 +16,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
     
+    // Employee Profile Edit Requests
+    Route::get('/me/profile/request', [\App\Http\Controllers\Api\ProfileUpdateRequestController::class, 'currentRequest']);
+    Route::post('/me/profile/request', [\App\Http\Controllers\Api\ProfileUpdateRequestController::class, 'storeRequest']);
+
     // Employee Routes
     Route::middleware(['role:Super Admin|Team Lead|HR'])->group(function () {
         Route::apiResource('employees', \App\Http\Controllers\Api\EmployeeController::class);
@@ -47,6 +51,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('settings', [\App\Http\Controllers\Api\SystemSettingController::class, 'index']);
         Route::post('settings', [\App\Http\Controllers\Api\SystemSettingController::class, 'store']);
         Route::get('audit-logs', [\App\Http\Controllers\Api\AuditLogController::class, 'index']);
+        
+        // Profile Approvals
+        Route::get('profile-requests', [\App\Http\Controllers\Api\ProfileUpdateRequestController::class, 'index']);
+        Route::post('profile-requests/{profileRequest}/approve', [\App\Http\Controllers\Api\ProfileUpdateRequestController::class, 'approve']);
+        Route::post('profile-requests/{profileRequest}/reject', [\App\Http\Controllers\Api\ProfileUpdateRequestController::class, 'reject']);
     });
     
     // Employee Leave Routes
