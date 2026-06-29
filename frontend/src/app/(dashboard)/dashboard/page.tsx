@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { format, parseISO } from "date-fns";
+import { DotLottiePlayer } from "@dotlottie/react-player";
 
 export default function DashboardPage() {
   const user = useAuthStore((state) => state.user);
@@ -113,8 +114,9 @@ export default function DashboardPage() {
               <p className="text-sm font-medium text-gray-500 mb-1">
                 {format(time, "EEEE, d MMMM yyyy")} • {format(time, "h:mm a")}
               </p>
-              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-gray-900">
-                {greeting}, {profile.first_name} 👋
+              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-gray-900 flex items-center">
+                {greeting}, {profile.first_name} 
+                <DotLottiePlayer src="https://lottie.host/5ec233ff-2cb3-499c-ac94-906625aeb28f/JZM0rMFaWb.lottie" autoplay loop style={{ width: '60px', height: '60px', marginLeft: '12px', display: 'inline-block' }} />
               </h1>
               <div className="flex flex-wrap items-center gap-2 md:gap-3 mt-3">
                 <span className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
@@ -426,8 +428,9 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
               <p className="text-sm font-medium text-indigo-200 mb-1">
                 {format(time, "EEEE, d MMMM yyyy")} • {format(time, "h:mm a")}
               </p>
-              <h1 className="text-3xl font-extrabold tracking-tight">
-                {greeting}, {profile.first_name} (Admin) 👋
+              <h1 className="text-3xl font-extrabold tracking-tight flex items-center">
+                {greeting}, {profile.first_name} (Admin) 
+                <DotLottiePlayer src="https://lottie.host/5ec233ff-2cb3-499c-ac94-906625aeb28f/JZM0rMFaWb.lottie" autoplay loop style={{ width: '60px', height: '60px', marginLeft: '12px', display: 'inline-block' }} />
               </h1>
             </div>
           </div>
