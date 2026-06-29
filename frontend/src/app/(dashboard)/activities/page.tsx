@@ -54,7 +54,7 @@ export default function ActivitiesPage() {
       <div className="flex items-center gap-4 mb-6">
         <Link 
           href="/dashboard" 
-          className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-500 hover:text-cyan-600 hover:bg-cyan-50 transition-colors"
+          className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-500 hover:text-cyan-600 hover:bg-cyan-50/70 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
         </Link>
@@ -67,10 +67,10 @@ export default function ActivitiesPage() {
         </div>
       </div>
 
-      <div className="bg-white rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,235,100,0.9)] p-6">
+      <div className="bg-white rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.05)] backdrop-blur-2xl border border-white/60 p-6">
         <div className="space-y-6">
           {data?.data.map((act: any, i: number) => (
-            <div key={i} className="flex items-start gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100">
+            <div key={i} className="flex items-start gap-4 p-4 rounded-xl hover:bg-gray-50/70 transition-colors border border-transparent hover:border-gray-100">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${act.type === 'leave' ? 'bg-orange-100 text-orange-600' : act.type === 'user' ? 'bg-emerald-100 text-emerald-600' : 'bg-blue-100 text-blue-600'}`}>
                 {act.type === 'leave' ? <Palmtree className="w-5 h-5"/> : act.type === 'user' ? <UserCircle className="w-5 h-5"/> : <BookOpen className="w-5 h-5"/>}
               </div>
@@ -94,7 +94,7 @@ export default function ActivitiesPage() {
             <button 
               onClick={() => setPage(p => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="px-4 py-2 text-sm font-semibold text-cyan-700 bg-cyan-50 rounded-lg disabled:opacity-50 hover:bg-cyan-100 transition-colors"
+              className="px-4 py-2 text-sm font-semibold text-cyan-700 bg-cyan-50/70 rounded-lg disabled:opacity-50 hover:bg-cyan-100 transition-colors"
             >
               Previous
             </button>
@@ -104,7 +104,7 @@ export default function ActivitiesPage() {
             <button 
               onClick={() => setPage(p => Math.min(data.last_page, p + 1))}
               disabled={page === data.last_page}
-              className="px-4 py-2 text-sm font-semibold text-cyan-700 bg-cyan-50 rounded-lg disabled:opacity-50 hover:bg-cyan-100 transition-colors"
+              className="px-4 py-2 text-sm font-semibold text-cyan-700 bg-cyan-50/70 rounded-lg disabled:opacity-50 hover:bg-cyan-100 transition-colors"
             >
               Next
             </button>

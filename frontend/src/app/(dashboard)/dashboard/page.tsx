@@ -71,7 +71,7 @@ export default function DashboardPage() {
   if (error || !data) {
     return (
       <div className="flex justify-center items-center h-[70vh]">
-        <div className="bg-red-50 text-red-700 p-6 rounded-xl border border-red-100 max-w-md text-center">
+        <div className="bg-red-50/70 text-red-700 p-6 rounded-xl border border-red-100 max-w-md text-center">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
           <h2 className="text-lg font-bold mb-2">Error Loading Dashboard</h2>
           <p className="text-sm">{error || "No data received from server."}</p>
@@ -147,18 +147,18 @@ export default function DashboardPage() {
 
       {/* Employee KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 mt-2">
-        <KPICard title="Pending Leaves" value={leave_metrics.pending_leaves} icon={FileText} color="bg-indigo-500" href="/leaves" />
+        <KPICard title="Pending Leaves" value={leave_metrics.pending_leaves} icon={FileText} color="bg-indigo-50/700" href="/leaves" />
         <KPICard 
           title="On Leave Today" 
           value={leave_metrics.employees_on_leave_today} 
           icon={Palmtree} 
-          color="bg-emerald-500" 
+          color="bg-emerald-50/700" 
           onClick={() => setLeaveModalData({
             title: "On Leave Today",
             list: leave_metrics.employees_on_leave_today_list || []
           })} 
         />
-        <KPICard title="Sick Leaves" value={leave_metrics.sick_leave_balance} icon={AlertCircle} color="bg-rose-500" href="/leaves" />
+        <KPICard title="Sick Leaves" value={leave_metrics.sick_leave_balance} icon={AlertCircle} color="bg-rose-50/700" href="/leaves" />
       </div>
 
       {/* 
@@ -168,7 +168,7 @@ export default function DashboardPage() {
       */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {/* Updates Widget */}
-        <div className="bg-blue-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,235,100,0.9)] p-6">
+        <div className="bg-blue-50/70 rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.05)] backdrop-blur-2xl border border-white/60 p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold text-gray-900 flex items-center gap-2">
               <Megaphone className="w-4 h-4 text-blue-500" />
@@ -182,7 +182,7 @@ export default function DashboardPage() {
             ) : (
               widgets.company_updates.slice(0, 3).map((update: any, idx: number) => (
                 <div key={idx} className="flex gap-3 items-start">
-                  <div className="w-2 h-2 mt-1.5 rounded-full bg-blue-500 shrink-0"></div>
+                  <div className="w-2 h-2 mt-1.5 rounded-full bg-blue-50/700 shrink-0"></div>
                   <div>
                     <p className="text-sm font-medium text-gray-900 leading-tight">{update.title}</p>
                     <p className="text-xs text-gray-500 mt-0.5">{format(parseISO(update.created_at), "MMM d, yyyy")}</p>
@@ -194,7 +194,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Celebrations Widget (Anniversaries Only) */}
-        <div className="bg-pink-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,235,100,0.9)] p-6">
+        <div className="bg-pink-50/70 rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.05)] backdrop-blur-2xl border border-white/60 p-6">
           <h3 className="font-bold text-pink-700 flex items-center gap-2 mb-4">
             <PartyPopper className="w-5 h-5" />
             Work Anniversaries
@@ -307,7 +307,7 @@ export default function DashboardPage() {
           ========================================
         */}
         <div className="lg:col-span-4 space-y-8">
-          <div className="bg-emerald-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,235,100,0.9)] p-6 md:p-8 sticky top-24">
+          <div className="bg-emerald-50/70 rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.05)] backdrop-blur-2xl border border-white/60 p-6 md:p-8 sticky top-24">
             <h2 className="text-lg font-bold text-emerald-800 mb-6 flex items-center gap-2">
               <CalendarDays className="w-5 h-5" />
               Leave Summary
@@ -353,7 +353,7 @@ export default function DashboardPage() {
 
               {/* Pending visual (optional, but good for UI) */}
               {leave_metrics.pending_leaves > 0 && (
-                <div className="mt-4 bg-orange-50 border border-orange-100 rounded-xl p-3 flex items-center gap-3 text-orange-800">
+                <div className="mt-4 bg-orange-50/70 border border-orange-100 rounded-xl p-3 flex items-center gap-3 text-orange-800">
                   <Clock className="w-5 h-5 shrink-0" />
                   <span className="text-sm font-medium">Your {leave_metrics.pending_leaves} leave request(s) are pending approval</span>
                 </div>
@@ -363,7 +363,7 @@ export default function DashboardPage() {
               <div className="pt-6">
                 <Link 
                   href="/leaves/apply" 
-                  className="w-full flex items-center justify-center gap-2 bg-amber-400 text-slate-900 font-bold py-4 px-6 rounded-2xl hover:bg-amber-500 hover:shadow-xl hover:shadow-amber-400/20 transition-all duration-300 hover:-translate-y-0.5"
+                  className="w-full flex items-center justify-center gap-2 bg-amber-400 text-slate-900 font-bold py-4 px-6 rounded-2xl hover:bg-amber-50/700 hover:shadow-xl hover:shadow-amber-400/20 transition-all duration-300 hover:-translate-y-0.5"
                 >
                   <Palmtree className="w-5 h-5" />
                   Apply for Leave
@@ -420,7 +420,7 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
               You have:
             </p>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-indigo-500/30 group-hover:bg-indigo-500/50 transition-colors flex items-center justify-center text-indigo-200 shrink-0 shadow-sm border border-indigo-400/50">
+              <div className="w-10 h-10 rounded-full bg-indigo-50/700/30 group-hover:bg-indigo-50/700/50 transition-colors flex items-center justify-center text-indigo-200 shrink-0 shadow-sm border border-indigo-400/50">
                 <FileText className="w-5 h-5 group-hover:scale-110 transition-transform" />
               </div>
               <div className="leading-tight pr-4">
@@ -435,14 +435,14 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
 
       {/* KPI Cards (4 cols) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <KPICard title="Employees" value={kpis.total_employees} trend={kpis.trends.employees} icon={UserCircle} color="bg-blue-500" href="/employees" />
-        <KPICard title="Present" value={kpis.present_today} trend={kpis.trends.attendance} icon={Building2} color="bg-emerald-500" href="/attendance" />
+        <KPICard title="Employees" value={kpis.total_employees} trend={kpis.trends.employees} icon={UserCircle} color="bg-blue-50/700" href="/employees" />
+        <KPICard title="Present" value={kpis.present_today} trend={kpis.trends.attendance} icon={Building2} color="bg-emerald-50/700" href="/attendance" />
         <KPICard 
           title="On Leave" 
           value={kpis.on_leave_today} 
           trend="" 
           icon={Palmtree} 
-          color="bg-orange-500" 
+          color="bg-orange-50/700" 
           onClick={() => setLeaveModalData({
             title: "On Leave Today",
             list: kpis.on_leave_today_list || []
@@ -453,7 +453,7 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
           value={kpis.wfh_today} 
           trend="" 
           icon={Home} 
-          color="bg-teal-500" 
+          color="bg-teal-50/700" 
           onClick={() => setLeaveModalData({
             title: "Working From Home Today",
             list: kpis.wfh_today_list || []
@@ -468,7 +468,7 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
       */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 mt-6">
         {/* Announcements */}
-        <div className="bg-indigo-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,235,100,0.9)] p-6">
+        <div className="bg-indigo-50/70 rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.05)] backdrop-blur-2xl border border-white/60 p-6">
           <h2 className="text-lg font-bold text-indigo-800 mb-5 flex items-center gap-2">
             <Megaphone className="w-5 h-5" />
             Company Announcements
@@ -479,7 +479,7 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
               ) : (
                 widgets.company_updates.map((update: any, idx: number) => (
                   <div key={idx} className="flex gap-3 items-start border-b border-indigo-100/50 pb-3 last:border-0 last:pb-0">
-                    <div className="w-2 h-2 mt-1.5 rounded-full bg-indigo-500 shrink-0"></div>
+                    <div className="w-2 h-2 mt-1.5 rounded-full bg-indigo-50/700 shrink-0"></div>
                     <div>
                       <p className="text-sm font-medium text-gray-900 leading-tight">{update.title}</p>
                       <p className="text-xs text-gray-500 mt-0.5">{format(new Date(update.created_at), "MMM d, yyyy")}</p>
@@ -491,7 +491,7 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
         </div>
 
         {/* Employee Engagement Widgets */}
-        <div className="bg-pink-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,235,100,0.9)] p-6">
+        <div className="bg-pink-50/70 rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.05)] backdrop-blur-2xl border border-white/60 p-6">
           <h2 className="text-lg font-bold text-pink-800 mb-5 flex items-center gap-2">
             <PartyPopper className="w-5 h-5" />
             Celebrations
@@ -534,10 +534,10 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
              {/* Quick Actions (Moved from right side to main area) */}
-             <QuickActionCard href="/leaves" icon={Palmtree} title="Leaves" color="text-emerald-600 bg-emerald-50" />
-             <QuickActionCard href="/announcements" icon={Megaphone} title="Updates" color="text-blue-600 bg-blue-50" />
-             <QuickActionCard href="/documents" icon={Download} title="Downloads" color="text-rose-600 bg-rose-50" />
-             <QuickActionCard href="/policies" icon={BookOpen} title="Policies" color="text-cyan-600 bg-cyan-50" />
+             <QuickActionCard href="/leaves" icon={Palmtree} title="Leaves" color="text-emerald-600 bg-emerald-50/70" />
+             <QuickActionCard href="/announcements" icon={Megaphone} title="Updates" color="text-blue-600 bg-blue-50/70" />
+             <QuickActionCard href="/documents" icon={Download} title="Downloads" color="text-rose-600 bg-rose-50/70" />
+             <QuickActionCard href="/policies" icon={BookOpen} title="Policies" color="text-cyan-600 bg-cyan-50/70" />
              
              <Link 
               href="/hall" 
@@ -556,7 +556,7 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
           </div>
 
           {/* Activity Feed */}
-          <div className="bg-cyan-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,235,100,0.9)] p-6">
+          <div className="bg-cyan-50/70 rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.05)] backdrop-blur-2xl border border-white/60 p-6">
             <h2 className="text-lg font-bold text-cyan-800 mb-5 flex items-center gap-2">
               <Activity className="w-5 h-5" />
               Recent Activity
@@ -610,7 +610,7 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
 
 
           {/* Upcoming Holidays */}
-          <div className="bg-rose-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,235,100,0.9)] p-6">
+          <div className="bg-rose-50/70 rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.05)] backdrop-blur-2xl border border-white/60 p-6">
             <h2 className="text-lg font-bold text-rose-800 mb-5 flex items-center gap-2">
               <CalendarDays className="w-5 h-5" />
               Upcoming Holidays
@@ -620,7 +620,7 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
               {widgets.upcoming_holidays.map((h: any, i: number) => (
                 <div key={i} className="flex justify-between items-center">
                   <span className="text-sm font-medium text-gray-900">{h.name}</span>
-                  <span className="text-xs font-semibold text-rose-600 bg-rose-50 px-2 py-1 rounded-md">
+                  <span className="text-xs font-semibold text-rose-600 bg-rose-50/70 px-2 py-1 rounded-md">
                     {format(new Date(h.date), "MMM d")}
                   </span>
                 </div>
@@ -629,17 +629,17 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
           </div>
 
           {/* Leave Summary (Reused from regular dashboard) */}
-           <div className="bg-emerald-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,235,100,0.9)] p-6">
+           <div className="bg-emerald-50/70 rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.05)] backdrop-blur-2xl border border-white/60 p-6">
             <h2 className="text-lg font-bold text-emerald-800 mb-6 flex items-center gap-2">
               <CalendarDays className="w-5 h-5" />
               Company Leave Overview
             </h2>
             <div className="space-y-4">
-               <div className="flex justify-between items-center bg-gray-50 p-4 rounded-xl">
+               <div className="flex justify-between items-center bg-gray-50/70 p-4 rounded-xl">
                  <span className="text-sm font-semibold text-gray-600">Pending Requests</span>
                  <span className="text-xl font-bold text-gray-900">{kpis.pending_requests}</span>
                </div>
-               <div className="flex justify-between items-center bg-gray-50 p-4 rounded-xl">
+               <div className="flex justify-between items-center bg-gray-50/70 p-4 rounded-xl">
                  <span className="text-sm font-semibold text-gray-600">On Leave Today</span>
                  <span className="text-xl font-bold text-gray-900">{kpis.on_leave_today}</span>
                </div>
@@ -660,7 +660,7 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
               <p className="text-sm text-gray-500 text-center py-4">No employees to show.</p>
             ) : (
               leaveModalData?.list.map((item: any, idx: number) => (
-                <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+                <div key={idx} className="flex items-center justify-between p-3 bg-gray-50/70 rounded-xl border border-gray-100">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
                       {item.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2)}
@@ -681,9 +681,9 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
 }
 
 function KPICard({ title, value, trend, icon: Icon, color, href, onClick }: any) {
-  const bgColor = color.replace('bg-', 'bg-').replace('-500', '-50');
+  const bgColor = color.replace('bg-', 'bg-').replace('-500', '-50/70');
   const CardContent = (
-    <div className={`${bgColor} rounded-3xl p-6 shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,235,100,0.9)] relative overflow-hidden h-full ${(href || onClick) ? 'hover:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.06),inset_-4px_-4px_8px_rgba(255,235,100,0.9)] transition-all cursor-pointer group' : ''}`}>
+    <div className={`${bgColor} rounded-3xl p-6 shadow-[0_8px_32px_rgba(0,0,0,0.05)] backdrop-blur-2xl border border-white/60 relative overflow-hidden h-full ${(href || onClick) ? 'hover:bg-white/40 hover:shadow-[0_8px_32px_rgba(0,0,0,0.1)] transition-all cursor-pointer group' : ''}`}>
       <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${color.replace('bg-', 'from-').replace('-500', '-200')} to-transparent rounded-bl-full -mr-4 -mt-4 opacity-30`}></div>
       <div className="flex justify-between items-start relative z-10">
         <div>
@@ -715,19 +715,19 @@ function KPICard({ title, value, trend, icon: Icon, color, href, onClick }: any)
 }
 
 function QuickActionCard({ href, icon: Icon, title, color }: any) {
-  // color is e.g. "text-emerald-600 bg-emerald-50"
+  // color is e.g. "text-emerald-600 bg-emerald-50/70"
   return (
-    <Link href={href} className={`${color} rounded-3xl p-4 flex flex-col items-center justify-center gap-2 shadow-[4px_4px_10px_rgba(0,0,0,0.06),-4px_-4px_10px_rgba(255,235,100,0.9)] hover:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.06),inset_-3px_-3px_6px_rgba(255,235,100,0.9)] transition-all text-center`}>
+    <Link href={href} className={`${color} rounded-3xl p-4 flex flex-col items-center justify-center gap-2 shadow-[0_4px_20px_rgba(0,0,0,0.05)] backdrop-blur-2xl border border-white/60 hover:bg-white/40 hover:shadow-[0_4px_20px_rgba(0,0,0,0.1)] transition-all text-center`}>
       <Icon className="w-6 h-6" />
       <span className="text-xs font-bold">{title}</span>
     </Link>
   );
 }
 
-function EngagementCard({ title, items, icon: Icon, colorClass = "bg-orange-50 text-orange-600" }: any) {
+function EngagementCard({ title, items, icon: Icon, colorClass = "bg-orange-50/70 text-orange-600" }: any) {
   const bg = colorClass.split(' ')[0];
   return (
-    <div className={`${bg} rounded-3xl p-5 shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,235,100,0.9)]`}>
+    <div className={`${bg} rounded-3xl p-5 shadow-[0_8px_32px_rgba(0,0,0,0.05)] backdrop-blur-2xl border border-white/60`}>
       <h3 className={`font-bold ${colorClass.split(' ')[1]} text-sm flex items-center gap-2 mb-3`}>
         <Icon className="w-5 h-5" />
         {title}
@@ -750,7 +750,7 @@ function EngagementCard({ title, items, icon: Icon, colorClass = "bg-orange-50 t
 
 function UpcomingBirthdaysWidget({ items }: { items: any[] }) {
   return (
-    <div className="bg-fuchsia-50 rounded-3xl p-6 shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,235,100,0.9)] w-full">
+    <div className="bg-fuchsia-50/70 rounded-3xl p-6 shadow-[0_8px_32px_rgba(0,0,0,0.05)] backdrop-blur-2xl border border-white/60 w-full">
       <h3 className="font-bold text-fuchsia-700 flex items-center gap-2 mb-5">
         <Gift className="w-5 h-5" />
         Upcoming Birthdays
@@ -762,7 +762,7 @@ function UpcomingBirthdaysWidget({ items }: { items: any[] }) {
           items.map((b: any, idx: number) => (
             <div key={idx} className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-white shadow-[inset_2px_2px_5px_rgba(0,0,0,0.05),inset_-2px_-2px_5px_rgba(255,235,100,0.9)] text-fuchsia-600 flex items-center justify-center font-bold text-sm shrink-0">
+                <div className="w-10 h-10 rounded-2xl bg-white shadow-sm border border-white/50 backdrop-blur-md bg-white/50 text-fuchsia-600 flex items-center justify-center font-bold text-sm shrink-0">
                   {b.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2)}
                 </div>
                 <div>
@@ -773,7 +773,7 @@ function UpcomingBirthdaysWidget({ items }: { items: any[] }) {
               <div className="flex flex-col items-end gap-1">
                 <span className="text-xs font-bold text-gray-700">{format(new Date(b.date), "MMM d")}</span>
                 {b.days_remaining === 0 ? (
-                  <span className="text-[10px] uppercase tracking-wider font-bold bg-fuchsia-500 text-white px-2 py-0.5 rounded-lg shadow-sm">Today!</span>
+                  <span className="text-[10px] uppercase tracking-wider font-bold bg-fuchsia-50/700 text-white px-2 py-0.5 rounded-lg shadow-sm">Today!</span>
                 ) : (
                   <span className="text-[10px] uppercase tracking-wider font-bold bg-white text-fuchsia-600 px-2 py-0.5 rounded-lg shadow-sm">In {b.days_remaining} d</span>
                 )}
@@ -788,12 +788,12 @@ function UpcomingBirthdaysWidget({ items }: { items: any[] }) {
 
 function MenuCard({ href, icon: Icon, title, subtitle, color, className = "" }: any) {
   const colors: Record<string, { bg: string, text: string }> = {
-    emerald: { bg: 'bg-emerald-50', text: 'text-emerald-600' },
-    blue: { bg: 'bg-blue-50', text: 'text-blue-600' },
-    violet: { bg: 'bg-violet-50', text: 'text-violet-600' },
-    amber: { bg: 'bg-amber-50', text: 'text-amber-600' },
-    rose: { bg: 'bg-rose-50', text: 'text-rose-600' },
-    cyan: { bg: 'bg-cyan-50', text: 'text-cyan-600' },
+    emerald: { bg: 'bg-emerald-50/70', text: 'text-emerald-600' },
+    blue: { bg: 'bg-blue-50/70', text: 'text-blue-600' },
+    violet: { bg: 'bg-violet-50/70', text: 'text-violet-600' },
+    amber: { bg: 'bg-amber-50/70', text: 'text-amber-600' },
+    rose: { bg: 'bg-rose-50/70', text: 'text-rose-600' },
+    cyan: { bg: 'bg-cyan-50/70', text: 'text-cyan-600' },
     slate: { bg: 'bg-slate-100', text: 'text-slate-700' },
   };
 
@@ -801,10 +801,10 @@ function MenuCard({ href, icon: Icon, title, subtitle, color, className = "" }: 
 
   return (
     <Link href={href} className={`block ${className}`}>
-      <div className={`${style.bg} rounded-3xl p-5 h-full shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,235,100,0.9)] hover:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.06),inset_-4px_-4px_8px_rgba(255,235,100,0.9)] transition-all duration-300 group relative overflow-hidden`}>
+      <div className={`${style.bg} rounded-3xl p-5 h-full shadow-[0_8px_32px_rgba(0,0,0,0.05)] backdrop-blur-2xl border border-white/60 hover:bg-white/40 hover:shadow-[0_8px_32px_rgba(0,0,0,0.1)] transition-all duration-300 group relative overflow-hidden`}>
         <div className={`absolute top-0 right-0 w-24 h-24 bg-white/40 rounded-bl-full -mr-4 -mt-4 opacity-50`}></div>
         <div className="relative z-10">
-          <div className={`w-10 h-10 rounded-2xl bg-white flex items-center justify-center mb-4 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.05),inset_-2px_-2px_5px_rgba(255,235,100,0.9)] group-hover:scale-95 transition-transform`}>
+          <div className={`w-10 h-10 rounded-2xl bg-white flex items-center justify-center mb-4 shadow-sm border border-white/50 backdrop-blur-md bg-white/50 group-hover:scale-95 transition-transform`}>
             <Icon className={`w-5 h-5 ${style.text}`} />
           </div>
           <h3 className="font-bold text-gray-900 text-sm leading-tight mb-1">{title}</h3>
