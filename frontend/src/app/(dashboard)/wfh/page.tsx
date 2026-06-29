@@ -72,12 +72,18 @@ export default function WfhPage() {
     }
   }
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'Approved': return <Badge className="bg-green-100 text-green-800 hover:bg-green-100"><CheckCircle className="w-3 h-3 mr-1"/> Approved</Badge>;
-      case 'Rejected': return <Badge className="bg-red-100 text-red-800 hover:bg-red-100"><XCircle className="w-3 h-3 mr-1"/> Rejected</Badge>;
-      default: return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100"><Clock className="w-3 h-3 mr-1"/> Pending</Badge>;
+  const getStatusBadge = (req: any) => {
+    if (req.status === 'Approved') return <Badge className="bg-green-100 text-green-800 hover:bg-green-100"><CheckCircle className="w-3 h-3 mr-1"/> Approved</Badge>;
+    if (req.status === 'Rejected') return <Badge className="bg-red-100 text-red-800 hover:bg-red-100"><XCircle className="w-3 h-3 mr-1"/> Rejected</Badge>;
+    
+    let pendingText = 'Pending';
+    if (req.tl_status === 'Pending') {
+      pendingText = 'Pending TL Approval';
+    } else if (req.admin_status === 'Pending') {
+      pendingText = 'Pending Admin Approval';
     }
+    
+    return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100"><Clock className="w-3 h-3 mr-1"/> {pendingText}</Badge>;
   };
 
   return (
@@ -145,7 +151,7 @@ export default function WfhPage() {
                         <p className="text-sm text-muted-foreground mt-2">{req.reason}</p>
                       </div>
                       <div className="mt-4 sm:mt-0 flex flex-col items-end gap-2">
-                        {getStatusBadge(req.status)}
+                        {getStatusBadge(req)}
                         {req.remarks && (
                           <p className="text-xs text-muted-foreground max-w-[200px] text-right truncate">
                             Note: {req.remarks}

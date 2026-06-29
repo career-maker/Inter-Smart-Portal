@@ -35,12 +35,18 @@ export default function LeavesPage() {
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'Approved': return <Badge className="bg-green-100 text-green-800 hover:bg-green-100"><CheckCircle className="w-3 h-3 mr-1"/> Approved</Badge>;
-      case 'Rejected': return <Badge className="bg-red-100 text-red-800 hover:bg-red-100"><XCircle className="w-3 h-3 mr-1"/> Rejected</Badge>;
-      default: return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100"><Clock className="w-3 h-3 mr-1"/> Pending</Badge>;
+  const getStatusBadge = (req: any) => {
+    if (req.status === 'Approved') return <Badge className="bg-green-100 text-green-800 hover:bg-green-100"><CheckCircle className="w-3 h-3 mr-1"/> Approved</Badge>;
+    if (req.status === 'Rejected') return <Badge className="bg-red-100 text-red-800 hover:bg-red-100"><XCircle className="w-3 h-3 mr-1"/> Rejected</Badge>;
+    
+    let pendingText = 'Pending';
+    if (req.tl_status === 'Pending') {
+      pendingText = 'Pending TL Approval';
+    } else if (req.admin_status === 'Pending') {
+      pendingText = 'Pending Admin Approval';
     }
+    
+    return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100"><Clock className="w-3 h-3 mr-1"/> {pendingText}</Badge>;
   };
 
   return (
@@ -112,7 +118,7 @@ export default function LeavesPage() {
                       </td>
                       <td className="px-6 py-4">{req.days} Day(s)</td>
                       <td className="px-6 py-4 max-w-[200px] truncate">{req.reason}</td>
-                      <td className="px-6 py-4">{getStatusBadge(req.status)}</td>
+                      <td className="px-6 py-4">{getStatusBadge(req)}</td>
                     </tr>
                   ))}
                 </tbody>

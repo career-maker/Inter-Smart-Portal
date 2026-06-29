@@ -21,20 +21,29 @@ class LeaveRequestController extends Controller
 
         // Employees see their own. Team Leads see their team's. Admins/HR see all.
         if ($user->hasRole('Super Admin') || $user->hasRole('HR')) {
-            // No restriction
+            if ($request->has('status') && $request->status === 'Pending') {
+                $query->where('admin_status', 'Pending')
+                      ->whereIn('tl_status', ['Approved', 'Not Required']);
+            } elseif ($request->has('status')) {
+                $query->where('status', $request->status);
+            }
         } elseif ($user->hasRole('Team Lead')) {
             // Team leads see their own and their team members
             $teamId = $user->team_id;
             $query->whereHas('user', function ($q) use ($teamId) {
                 $q->where('team_id', $teamId);
             });
+            if ($request->has('status') && $request->status === 'Pending') {
+                $query->where('tl_status', 'Pending');
+            } elseif ($request->has('status')) {
+                $query->where('status', $request->status);
+            }
         } else {
             // Everyone else (Employee) only sees their own
             $query->where('user_id', $user->id);
-        }
-
-        if ($request->has('status')) {
-            $query->where('status', $request->status);
+            if ($request->has('status')) {
+                $query->where('status', $request->status);
+            }
         }
 
         return response()->json([
@@ -82,6 +91,28 @@ class LeaveRequestController extends Controller
             $balance->total_leaves_taken += $days;
             $balance->save();
 
+            // Set up tl_status and admin_status
+            $tlStatus = 'Pending';
+            $adminStatus = 'Not Required';
+            
+            // If it's multi-day
+            if ($rawDays > 1) {
+                $adminStatus = 'Pending';
+            }
+            
+            // If the user is a Team Lead, they don't need TL approval, just Super Admin
+            if ($user->hasRole('Team Lead')) {
+                $tlStatus = 'Not Required';
+                $adminStatus = 'Pending';
+            }
+            
+            // If the user is Super Admin, they don't need TL approval, maybe auto approve?
+            // Assuming Super Admin can apply and it's pending for another Super Admin or themselves
+            if ($user->hasRole('Super Admin') || $user->hasRole('HR')) {
+                $tlStatus = 'Not Required';
+                $adminStatus = 'Pending';
+            }
+
             // Create Request
             $leaveRequest = LeaveRequest::create([
                 'user_id' => $user->id,
@@ -90,7 +121,9 @@ class LeaveRequestController extends Controller
                 'end_date' => $data['end_date'],
                 'days' => $days,
                 'reason' => $data['reason'],
-                'status' => 'Pending'
+                'status' => 'Pending',
+                'tl_status' => $tlStatus,
+                'admin_status' => $adminStatus,
             ]);
 
             DB::commit();
@@ -131,13 +164,17 @@ class LeaveRequestController extends Controller
 
         DB::beginTransaction();
         try {
-            $leaveRequest->update([
-                'status' => $data['status'],
-                'approved_by' => $user->id,
-                'rejection_reason' => $data['rejection_reason'] ?? null
-            ]);
+            $status = $data['status']; // 'Approved' or 'Rejected'
+            
+            if ($status === 'Rejected') {
+                $leaveRequest->update([
+                    'status' => 'Rejected',
+                    'tl_status' => $user->hasRole('Team Lead') ? 'Rejected' : $leaveRequest->tl_status,
+                    'admin_status' => ($user->hasRole('Super Admin') || $user->hasRole('HR')) ? 'Rejected' : $leaveRequest->admin_status,
+                    'approved_by' => $user->id,
+                    'rejection_reason' => $data['rejection_reason'] ?? null
+                ]);
 
-            if ($data['status'] === 'Rejected') {
                 // Refund the balance
                 $balance = LeaveBalance::where('user_id', $leaveRequest->user_id)->first();
                 $leaveType = $leaveRequest->leaveType;
@@ -152,6 +189,23 @@ class LeaveRequestController extends Controller
                     $balance->total_leaves_taken -= $days;
                     $balance->save();
                 }
+            } else if ($status === 'Approved') {
+                if ($user->hasRole('Team Lead') && !$user->hasRole('Super Admin') && !$user->hasRole('HR')) {
+                    $leaveRequest->tl_status = 'Approved';
+                    
+                    if ($leaveRequest->admin_status === 'Not Required') {
+                        $leaveRequest->status = 'Approved';
+                        $leaveRequest->approved_by = $user->id;
+                    }
+                } else if ($user->hasRole('Super Admin') || $user->hasRole('HR')) {
+                    $leaveRequest->admin_status = 'Approved';
+                    
+                    if ($leaveRequest->tl_status === 'Approved' || $leaveRequest->tl_status === 'Not Required') {
+                        $leaveRequest->status = 'Approved';
+                    }
+                    $leaveRequest->approved_by = $user->id;
+                }
+                $leaveRequest->save();
             }
 
             DB::commit();
