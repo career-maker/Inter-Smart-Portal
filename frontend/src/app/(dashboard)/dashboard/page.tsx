@@ -28,13 +28,14 @@ import {
 import Link from "next/link";
 import { format, parseISO } from "date-fns";
 import { DotLottiePlayer } from "@dotlottie/react-player";
-
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 export default function DashboardPage() {
   const user = useAuthStore((state) => state.user);
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [time, setTime] = useState(new Date());
+  const [leaveModalData, setLeaveModalData] = useState<{title: string, list: any[]} | null>(null);
 
   useEffect(() => {
     const interval = setInterval(() => setTime(new Date()), 60000);
@@ -146,7 +147,16 @@ export default function DashboardPage() {
       {/* Employee KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 mt-2">
         <KPICard title="Pending Leaves" value={leave_metrics.pending_leaves} icon={FileText} color="bg-indigo-500" href="/leaves" />
-        <KPICard title="On Leave Today" value={leave_metrics.employees_on_leave_today} icon={Palmtree} color="bg-emerald-500" href="/leaves" />
+        <KPICard 
+          title="On Leave Today" 
+          value={leave_metrics.employees_on_leave_today} 
+          icon={Palmtree} 
+          color="bg-emerald-500" 
+          onClick={() => setLeaveModalData({
+            title: "On Leave Today",
+            list: leave_metrics.employees_on_leave_today_list || []
+          })} 
+        />
         <KPICard title="Sick Leaves" value={leave_metrics.sick_leave_balance} icon={AlertCircle} color="bg-rose-500" href="/leaves" />
       </div>
 
@@ -432,8 +442,28 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <KPICard title="Employees" value={kpis.total_employees} trend={kpis.trends.employees} icon={UserCircle} color="bg-blue-500" href="/employees" />
         <KPICard title="Present" value={kpis.present_today} trend={kpis.trends.attendance} icon={Building2} color="bg-emerald-500" href="/attendance" />
-        <KPICard title="On Leave" value={kpis.on_leave_today} trend="" icon={Palmtree} color="bg-orange-500" href="/leaves/approvals" />
-        <KPICard title="WFH" value={kpis.wfh_today} trend="" icon={Home} color="bg-teal-500" href="/leaves/approvals" />
+        <KPICard 
+          title="On Leave" 
+          value={kpis.on_leave_today} 
+          trend="" 
+          icon={Palmtree} 
+          color="bg-orange-500" 
+          onClick={() => setLeaveModalData({
+            title: "On Leave Today",
+            list: kpis.on_leave_today_list || []
+          })} 
+        />
+        <KPICard 
+          title="WFH" 
+          value={kpis.wfh_today} 
+          trend="" 
+          icon={Home} 
+          color="bg-teal-500" 
+          onClick={() => setLeaveModalData({
+            title: "Working From Home Today",
+            list: kpis.wfh_today_list || []
+          })} 
+        />
       </div>
 
       {/* 12-Column Layout */}
@@ -561,36 +591,66 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
 
         </div>
       </div>
+
+      {/* Leave Details Modal */}
+      <Dialog open={!!leaveModalData} onOpenChange={(open) => !open && setLeaveModalData(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{leaveModalData?.title}</DialogTitle>
+          </DialogHeader>
+          <div className="max-h-[60vh] overflow-y-auto space-y-3 mt-4">
+            {leaveModalData?.list.length === 0 ? (
+              <p className="text-sm text-gray-500 text-center py-4">No employees to show.</p>
+            ) : (
+              leaveModalData?.list.map((item: any, idx: number) => (
+                <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
+                      {item.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2)}
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-gray-900">{item.name}</p>
+                      <p className="text-xs text-gray-500">{item.leave_type}</p>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
 
-function KPICard({ title, value, trend, icon: Icon, color, href }: any) {
+function KPICard({ title, value, trend, icon: Icon, color, href, onClick }: any) {
   const CardContent = (
-    <div className={`bg-gray-50 rounded-2xl p-6 h-full transition-all duration-300 relative overflow-hidden group ${
-      href 
-        ? 'shadow-[6px_6px_12px_#d1d5db,-6px_-6px_12px_#ffffff] hover:shadow-[inset_4px_4px_8px_#d1d5db,inset_-4px_-4px_8px_#ffffff] cursor-pointer' 
-        : 'shadow-[6px_6px_12px_#d1d5db,-6px_-6px_12px_#ffffff]'
-    }`}>
+    <div className={`bg-white rounded-2xl p-6 shadow-sm border border-gray-100 relative overflow-hidden h-full ${(href || onClick) ? 'hover:shadow-md hover:border-gray-300 transition-all cursor-pointer group' : ''}`}>
+      <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${color.replace('bg-', 'from-').replace('-500', '-50')} to-white rounded-bl-full -mr-4 -mt-4 opacity-50`}></div>
       <div className="flex justify-between items-start relative z-10">
         <div>
-          <p className="text-sm font-semibold text-gray-500 mb-1">{title}</p>
-          <h3 className="text-3xl font-black text-gray-900">{value}</h3>
-          {trend !== undefined && trend !== null && trend !== "" && (
-            <p className={`text-xs font-bold mt-2 flex items-center gap-1 ${String(trend).startsWith('+') ? 'text-emerald-600' : 'text-rose-600'}`}>
-              {String(trend).startsWith('+') ? '▲' : '▼'} {trend} from yesterday
-            </p>
-          )}
+          <p className="text-sm font-bold text-gray-500 mb-1">{title}</p>
+          <h3 className="text-3xl font-black text-gray-900 tracking-tight">{value}</h3>
         </div>
-        <div className={`w-12 h-12 rounded-xl ${color} text-white flex items-center justify-center shadow-[4px_4px_8px_#d1d5db] ${href ? 'group-hover:scale-95' : ''} transition-transform`}>
+        <div className={`w-12 h-12 rounded-2xl ${color} text-white flex items-center justify-center shadow-sm ${(href || onClick) ? 'group-hover:scale-110 transition-transform' : ''}`}>
           <Icon className="w-6 h-6" />
         </div>
       </div>
+      {trend && (
+        <div className={`mt-4 text-xs font-bold ${trend.startsWith('+') ? 'text-emerald-600' : 'text-rose-600'} flex items-center`}>
+          <span className="mr-1">{trend.startsWith('+') ? '▲' : '▼'}</span>
+          {trend} from yesterday
+        </div>
+      )}
     </div>
   );
 
-  if (href) {
+  if (href && !onClick) {
     return <Link href={href} className="block h-full">{CardContent}</Link>;
+  }
+
+  if (onClick) {
+    return <div onClick={onClick} className="block h-full w-full text-left">{CardContent}</div>;
   }
 
   return CardContent;

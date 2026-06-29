@@ -69,17 +69,26 @@ class DashboardController extends Controller
             ->where('status', 'Pending')
             ->count();
 
-        $employeesOnLeaveToday = LeaveRequest::where('status', 'Approved')
+        $employeesOnLeaveTodayRequests = LeaveRequest::with('user:id,first_name,last_name', 'leaveType:id,name')
+            ->where('status', 'Approved')
             ->where('start_date', '<=', $todayStr)
             ->where('end_date', '>=', $todayStr)
-            ->count();
+            ->get();
+
+        $employeesOnLeaveTodayList = $employeesOnLeaveTodayRequests->map(function ($req) {
+            return [
+                'name' => $req->user->first_name . ' ' . $req->user->last_name,
+                'leave_type' => $req->leaveType ? $req->leaveType->name : 'Leave'
+            ];
+        });
 
         $leaveMetrics = [
             'casual_leave_balance' => $casualLeaveBalance,
             'sick_leave_balance' => $sickLeaveBalance,
             'total_leaves_taken' => $totalLeavesTaken,
             'pending_leaves' => $pendingLeaves,
-            'employees_on_leave_today' => $employeesOnLeaveToday,
+            'employees_on_leave_today' => $employeesOnLeaveTodayRequests->count(),
+            'employees_on_leave_today_list' => $employeesOnLeaveTodayList,
         ];
 
         // 3. Widgets: Upcoming Holidays
@@ -238,23 +247,39 @@ class DashboardController extends Controller
                 $attendanceTrend = round((($presentToday - $presentYesterday) / $presentYesterday) * 100);
             }
             
-            $onLeaveToday = LeaveRequest::whereHas('leaveType', function ($query) {
+            $onLeaveTodayRequests = LeaveRequest::with('user:id,first_name,last_name', 'leaveType:id,name')
+                ->whereHas('leaveType', function ($query) {
                     $query->where('name', 'not like', '%Work From Home%')
                           ->where('name', 'not like', '%WFH%');
                 })
                 ->where('status', 'Approved')
                 ->where('start_date', '<=', $todayStr)
                 ->where('end_date', '>=', $todayStr)
-                ->count();
+                ->get();
+            $onLeaveToday = $onLeaveTodayRequests->count();
+            $onLeaveTodayList = $onLeaveTodayRequests->map(function ($req) {
+                return [
+                    'name' => $req->user->first_name . ' ' . $req->user->last_name,
+                    'leave_type' => $req->leaveType ? $req->leaveType->name : 'Leave'
+                ];
+            });
 
-            $wfhToday = LeaveRequest::whereHas('leaveType', function ($query) {
+            $wfhTodayRequests = LeaveRequest::with('user:id,first_name,last_name', 'leaveType:id,name')
+                ->whereHas('leaveType', function ($query) {
                     $query->where('name', 'like', '%Work From Home%')
                           ->orWhere('name', 'like', '%WFH%');
                 })
                 ->where('status', 'Approved')
                 ->where('start_date', '<=', $todayStr)
                 ->where('end_date', '>=', $todayStr)
-                ->count();
+                ->get();
+            $wfhToday = $wfhTodayRequests->count();
+            $wfhTodayList = $wfhTodayRequests->map(function ($req) {
+                return [
+                    'name' => $req->user->first_name . ' ' . $req->user->last_name,
+                    'leave_type' => $req->leaveType ? $req->leaveType->name : 'WFH'
+                ];
+            });
                 
             $pendingGlobalRequests = LeaveRequest::where('status', 'Pending')->count();
             
@@ -305,7 +330,9 @@ class DashboardController extends Controller
                     'total_employees' => $totalEmployees,
                     'present_today' => $presentToday,
                     'on_leave_today' => $onLeaveToday,
+                    'on_leave_today_list' => $onLeaveTodayList,
                     'wfh_today' => $wfhToday,
+                    'wfh_today_list' => $wfhTodayList,
                     'pending_requests' => $pendingGlobalRequests,
                     'trends' => [
                         'employees' => '+2%',
