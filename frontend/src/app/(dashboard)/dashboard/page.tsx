@@ -116,7 +116,7 @@ export default function DashboardPage() {
               </p>
               <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-gray-900 flex items-center">
                 {greeting}, {profile.first_name} 
-                <DotLottiePlayer src="https://lottie.host/5ec233ff-2cb3-499c-ac94-906625aeb28f/JZM0rMFaWb.lottie" autoplay loop style={{ width: '60px', height: '60px', marginLeft: '12px', display: 'inline-block' }} />
+                <DotLottiePlayer src="https://lottie.host/5ec233ff-2cb3-499c-ac94-906625aeb28f/JZM0rMFaWb.lottie" autoplay loop style={{ width: '120px', height: '120px', marginLeft: '12px', display: 'inline-block' }} />
               </h1>
               <div className="flex flex-wrap items-center gap-2 md:gap-3 mt-3">
                 <span className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
@@ -430,7 +430,7 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
               </p>
               <h1 className="text-3xl font-extrabold tracking-tight flex items-center">
                 {greeting}, {profile.first_name} (Admin) 
-                <DotLottiePlayer src="https://lottie.host/5ec233ff-2cb3-499c-ac94-906625aeb28f/JZM0rMFaWb.lottie" autoplay loop style={{ width: '60px', height: '60px', marginLeft: '12px', display: 'inline-block' }} />
+                <DotLottiePlayer src="https://lottie.host/5ec233ff-2cb3-499c-ac94-906625aeb28f/JZM0rMFaWb.lottie" autoplay loop style={{ width: '120px', height: '120px', marginLeft: '12px', display: 'inline-block' }} />
               </h1>
             </div>
           </div>
