@@ -11,15 +11,12 @@ class LeaveBalanceController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $year = date('Y');
 
-        $balances = LeaveBalance::with('leaveType')
-            ->where('user_id', $user->id)
-            ->where('year', $year)
-            ->get();
+        // The leave_balances table only has user_id and balance columns (no year or leave_type_id)
+        $balance = LeaveBalance::where('user_id', $user->id)->first();
 
         return response()->json([
-            'data' => $balances
+            'data' => $balance
         ]);
     }
 }

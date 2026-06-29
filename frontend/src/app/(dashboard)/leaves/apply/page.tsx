@@ -73,9 +73,13 @@ export default function ApplyLeavePage() {
       }
 
       try {
-        const dashRes = await api.get("/dashboard");
-        // Make absolutely sure leaveMetrics is truthy, fallback to 0s
-        const metrics = dashRes.data?.leave_metrics || {
+        const dashRes = await api.get("/leave-balances");
+        const data = dashRes.data?.data;
+        const metrics = data ? {
+          sick_leave_balance: data.sick_leave_balance || 0,
+          casual_leave_balance: data.casual_leave_balance || 0,
+          total_leaves_taken: data.total_leaves_taken || 0
+        } : {
           sick_leave_balance: 0,
           casual_leave_balance: 0,
           total_leaves_taken: 0
