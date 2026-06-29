@@ -430,10 +430,10 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
 
       {/* KPI Cards (4 cols) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <KPICard title="Employees" value={kpis.total_employees} trend={kpis.trends.employees} icon={UserCircle} color="bg-blue-500" />
-        <KPICard title="Present" value={kpis.present_today} trend={kpis.trends.attendance} icon={Building2} color="bg-emerald-500" />
-        <KPICard title="On Leave" value={kpis.on_leave_today} trend="" icon={Palmtree} color="bg-orange-500" />
-        <KPICard title="WFH" value={kpis.wfh_today} trend="" icon={Home} color="bg-teal-500" />
+        <KPICard title="Employees" value={kpis.total_employees} trend={kpis.trends.employees} icon={UserCircle} color="bg-blue-500" href="/employees" />
+        <KPICard title="Present" value={kpis.present_today} trend={kpis.trends.attendance} icon={Building2} color="bg-emerald-500" href="/attendance" />
+        <KPICard title="On Leave" value={kpis.on_leave_today} trend="" icon={Palmtree} color="bg-orange-500" href="/leaves/approvals" />
+        <KPICard title="WFH" value={kpis.wfh_today} trend="" icon={Home} color="bg-teal-500" href="/leaves/approvals" />
       </div>
 
       {/* 12-Column Layout */}
