@@ -294,26 +294,20 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Celebrations Widget */}
+            {/* Celebrations Widget (Anniversaries Only) */}
             <div className="bg-gradient-to-br from-pink-50 to-purple-50 rounded-2xl shadow-sm border border-pink-100 p-5">
               <h3 className="font-bold text-gray-900 flex items-center gap-2 mb-4">
                 <PartyPopper className="w-4 h-4 text-pink-500" />
-                Celebrations
+                Work Anniversaries
               </h3>
               <div className="space-y-4">
-                {widgets.birthdays.length === 0 && widgets.anniversaries.length === 0 && (
-                  <p className="text-sm text-gray-500">No celebrations this week.</p>
+                {widgets.anniversaries.length === 0 && (
+                  <p className="text-sm text-gray-500">No work anniversaries this week.</p>
                 )}
-                {widgets.birthdays.map((b: any, idx: number) => (
-                  <div key={`b-${idx}`} className="flex items-center justify-between text-sm">
-                    <span className="font-medium text-gray-800">🎂 {b.name}</span>
-                    <span className="text-pink-600 font-semibold text-xs bg-pink-100 px-2 py-1 rounded-md">{format(parseISO(b.date), "MMM d")}</span>
-                  </div>
-                ))}
                 {widgets.anniversaries.map((a: any, idx: number) => (
                   <div key={`a-${idx}`} className="flex items-center justify-between text-sm">
                     <span className="font-medium text-gray-800">🎉 {a.name} ({a.years}Y)</span>
-                    <span className="text-purple-600 font-semibold text-xs bg-purple-100 px-2 py-1 rounded-md">{format(parseISO(a.date), "MMM d")}</span>
+                    <span className="text-purple-600 font-semibold text-xs bg-purple-100 px-2 py-1 rounded-md">{format(new Date(a.date), "MMM d")}</span>
                   </div>
                 ))}
               </div>
@@ -326,7 +320,8 @@ export default function DashboardPage() {
           RIGHT: DASHBOARD SUMMARY (4 Cols)
           ========================================
         */}
-        <div className="lg:col-span-4">
+        <div className="lg:col-span-4 space-y-8">
+          <UpcomingBirthdaysWidget items={widgets.upcoming_birthdays} />
           <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 p-6 md:p-8 sticky top-24">
             <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
               <CalendarDays className="w-5 h-5 text-indigo-500" />
@@ -390,10 +385,6 @@ export default function DashboardPage() {
                 </Link>
               </div>
             </div>
-          </div>
-
-          <div className="mt-8">
-            <UpcomingBirthdaysWidget items={widgets.upcoming_birthdays} />
           </div>
 
         </div>
@@ -488,8 +479,7 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
             <PartyPopper className="w-5 h-5 text-pink-500" />
             Employee Engagement
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <EngagementCard title="Today's Birthdays" items={widgets.birthdays} icon={Gift} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <EngagementCard title="Work Anniversaries" items={widgets.anniversaries} icon={Award} />
             <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-5 border border-amber-100 flex flex-col justify-center items-center text-center">
               <Award className="w-10 h-10 text-amber-500 mb-2" />
@@ -599,8 +589,6 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
                </div>
             </div>
           </div>
-
-          <UpcomingBirthdaysWidget items={widgets.upcoming_birthdays} />
 
         </div>
       </div>
