@@ -21,7 +21,8 @@ import {
   AlertCircle,
   ArrowRight,
   Award,
-  Sparkles
+  Sparkles,
+  Activity
 } from "lucide-react";
 import Link from "next/link";
 import { format, parseISO } from "date-fns";
@@ -88,6 +89,10 @@ export default function DashboardPage() {
   let greeting = "Good Evening";
   if (hour < 12) greeting = "Good Morning";
   else if (hour < 17) greeting = "Good Afternoon";
+
+  if (user?.role === "Super Admin" && data.admin_data) {
+    return <SuperAdminDashboard data={data} user={user} time={time} greeting={greeting} />;
+  }
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -401,5 +406,219 @@ function MenuCard({ href, icon: Icon, title, subtitle, gradient, className = "" 
         <p className="text-sm text-gray-500 mt-1 font-medium">{subtitle}</p>
       </div>
     </Link>
+  );
+}
+
+function SuperAdminDashboard({ data, user, time, greeting }: any) {
+  const { profile, admin_data, widgets } = data;
+  const { kpis, activity_feed } = admin_data;
+
+  return (
+    <div className="space-y-6 max-w-[1600px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {/* Super Admin Welcome Banner */}
+      <div className="bg-gradient-to-r from-gray-900 to-indigo-900 rounded-3xl p-6 md:p-8 shadow-lg mb-8 text-white">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div className="flex items-center gap-5">
+            <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-white text-2xl font-bold backdrop-blur-sm border border-white/30 shrink-0">
+              {profile.first_name?.[0]}{profile.last_name?.[0]}
+            </div>
+            <div>
+              <p className="text-sm font-medium text-indigo-200 mb-1">
+                {format(time, "EEEE, d MMMM yyyy")} • {format(time, "h:mm a")}
+              </p>
+              <h1 className="text-3xl font-extrabold tracking-tight">
+                {greeting}, {profile.first_name} (Admin) 👋
+              </h1>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* KPI Cards (4 cols) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <KPICard title="Employees" value={kpis.total_employees} trend={kpis.trends.employees} icon={UserCircle} color="bg-blue-500" />
+        <KPICard title="Present" value={kpis.present_today} trend={kpis.trends.attendance} icon={Building2} color="bg-emerald-500" />
+        <KPICard title="On Leave" value={kpis.on_leave_today} trend="" icon={Palmtree} color="bg-orange-500" />
+        <KPICard title="Pending Requests" value={kpis.pending_requests} trend="" icon={FileText} color="bg-purple-500" />
+      </div>
+
+      {/* 12-Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8">
+        {/* Left 70% (8 cols) */}
+        <div className="lg:col-span-8 space-y-8">
+          
+          {/* Employee Engagement Widgets */}
+          <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <PartyPopper className="w-5 h-5 text-pink-500" />
+            Employee Engagement
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <EngagementCard title="Today's Birthdays" items={widgets.birthdays} icon={Gift} />
+            <EngagementCard title="Work Anniversaries" items={widgets.anniversaries} icon={Award} />
+            <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-5 border border-amber-100 flex flex-col justify-center items-center text-center">
+              <Award className="w-10 h-10 text-amber-500 mb-2" />
+              <h3 className="font-bold text-gray-900">Employee of the Month</h3>
+              <p className="text-sm font-medium text-amber-700 mt-1">Sarah Jenkins</p>
+              <span className="text-[10px] uppercase tracking-wider text-amber-600 font-bold mt-2">Marketing</span>
+            </div>
+          </div>
+
+          {/* Activity Feed */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <Activity className="w-5 h-5 text-blue-500" />
+              Recent Activity
+            </h2>
+            <div className="space-y-4">
+              {activity_feed.map((act: any, i: number) => (
+                <div key={i} className="flex items-start gap-3">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${act.type === 'leave' ? 'bg-orange-100 text-orange-600' : act.type === 'user' ? 'bg-emerald-100 text-emerald-600' : 'bg-blue-100 text-blue-600'}`}>
+                    {act.type === 'leave' ? <Palmtree className="w-4 h-4"/> : act.type === 'user' ? <UserCircle className="w-4 h-4"/> : <BookOpen className="w-4 h-4"/>}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">{act.message}</p>
+                    <p className="text-xs text-gray-500">{format(new Date(act.date), "MMM d, h:mm a")}</p>
+                  </div>
+                </div>
+              ))}
+              {activity_feed.length === 0 && <p className="text-sm text-gray-500">No recent activity.</p>}
+            </div>
+          </div>
+
+          {/* Announcements */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <Megaphone className="w-5 h-5 text-indigo-500" />
+              Company Announcements
+            </h2>
+            <div className="space-y-3">
+                {widgets.company_updates.length === 0 ? (
+                  <p className="text-sm text-gray-500">No recent announcements.</p>
+                ) : (
+                  widgets.company_updates.map((update: any, idx: number) => (
+                    <div key={idx} className="flex gap-3 items-start border-b border-gray-50 pb-3 last:border-0 last:pb-0">
+                      <div className="w-2 h-2 mt-1.5 rounded-full bg-indigo-500 shrink-0"></div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900 leading-tight">{update.title}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">{format(new Date(update.created_at), "MMM d, yyyy")}</p>
+                      </div>
+                    </div>
+                  ))
+                )}
+            </div>
+          </div>
+
+        </div>
+
+        {/* Right 30% (4 cols) */}
+        <div className="lg:col-span-4 space-y-8">
+          
+          {/* Quick Actions (Secondary Navigation) */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-amber-500" />
+              Quick Actions
+            </h2>
+            <div className="grid grid-cols-2 gap-3">
+              <QuickActionCard href="/leaves" icon={Palmtree} title="Leaves" color="text-emerald-600 bg-emerald-50" />
+              <QuickActionCard href="/announcements" icon={Megaphone} title="Updates" color="text-blue-600 bg-blue-50" />
+              <QuickActionCard href="/documents" icon={Download} title="Downloads" color="text-rose-600 bg-rose-50" />
+              <QuickActionCard href="/policies" icon={BookOpen} title="Policies" color="text-cyan-600 bg-cyan-50" />
+            </div>
+          </div>
+
+          {/* Upcoming Holidays */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <CalendarDays className="w-5 h-5 text-rose-500" />
+              Upcoming Holidays
+            </h2>
+            <div className="space-y-4">
+              {widgets.upcoming_holidays.length === 0 && <p className="text-sm text-gray-500">No upcoming holidays.</p>}
+              {widgets.upcoming_holidays.map((h: any, i: number) => (
+                <div key={i} className="flex justify-between items-center">
+                  <span className="text-sm font-medium text-gray-900">{h.name}</span>
+                  <span className="text-xs font-semibold text-rose-600 bg-rose-50 px-2 py-1 rounded-md">
+                    {format(new Date(h.date), "MMM d")}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Leave Summary (Reused from regular dashboard) */}
+           <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 p-6">
+            <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+              <CalendarDays className="w-5 h-5 text-indigo-500" />
+              Company Leave Overview
+            </h2>
+            <div className="space-y-4">
+               <div className="flex justify-between items-center bg-gray-50 p-4 rounded-xl">
+                 <span className="text-sm font-semibold text-gray-600">Pending Requests</span>
+                 <span className="text-xl font-bold text-gray-900">{kpis.pending_requests}</span>
+               </div>
+               <div className="flex justify-between items-center bg-gray-50 p-4 rounded-xl">
+                 <span className="text-sm font-semibold text-gray-600">On Leave Today</span>
+                 <span className="text-xl font-bold text-gray-900">{kpis.on_leave_today}</span>
+               </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function KPICard({ title, value, trend, icon: Icon, color }: any) {
+  return (
+    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 relative overflow-hidden group">
+      <div className="flex justify-between items-start relative z-10">
+        <div>
+          <p className="text-sm font-medium text-gray-500 mb-1">{title}</p>
+          <h3 className="text-3xl font-black text-gray-900">{value}</h3>
+          {trend && (
+            <p className={`text-xs font-bold mt-2 flex items-center gap-1 ${trend.startsWith('+') ? 'text-emerald-600' : 'text-rose-600'}`}>
+              {trend.startsWith('+') ? '▲' : '▼'} {trend} from yesterday
+            </p>
+          )}
+        </div>
+        <div className={`w-12 h-12 rounded-xl ${color} text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform`}>
+          <Icon className="w-6 h-6" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function QuickActionCard({ href, icon: Icon, title, color }: any) {
+  return (
+    <Link href={href} className={`${color} rounded-xl p-4 flex flex-col items-center justify-center gap-2 hover:opacity-80 transition-opacity text-center`}>
+      <Icon className="w-6 h-6" />
+      <span className="text-xs font-bold">{title}</span>
+    </Link>
+  );
+}
+
+function EngagementCard({ title, items, icon: Icon }: any) {
+  return (
+    <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+      <h3 className="font-bold text-gray-900 text-sm flex items-center gap-2 mb-3">
+        <Icon className="w-4 h-4 text-gray-400" />
+        {title}
+      </h3>
+      {items.length === 0 ? (
+        <p className="text-xs text-gray-500">None today</p>
+      ) : (
+        <div className="space-y-2">
+          {items.map((item: any, i: number) => (
+            <div key={i} className="flex justify-between items-center text-xs">
+              <span className="font-medium text-gray-800">{item.name} {item.years ? `(${item.years}Y)` : ''}</span>
+              <span className="text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded">{format(new Date(item.date), "MMM d")}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

@@ -177,7 +177,7 @@ class DashboardController extends Controller
                 ];
             });
 
-        return response()->json([
+        $responseData = [
             'profile' => $profile,
             'leave_metrics' => $leaveMetrics,
             'widgets' => [
@@ -190,6 +190,84 @@ class DashboardController extends Controller
                 'leaves_by_month' => $chartData
             ],
             'recent_activities' => $recentActivities,
-        ]);
+        ];
+
+        if ($user->hasRole('Super Admin') || $user->hasRole('Team Lead')) {
+            $totalEmployees = User::where('status', 'Active')->count();
+            $yesterdayStr = Carbon::yesterday()->toDateString();
+            
+            $presentToday = \App\Models\Attendance::whereDate('date', $todayStr)->whereNotNull('check_in_time')->distinct('user_id')->count('user_id');
+            $presentYesterday = \App\Models\Attendance::whereDate('date', $yesterdayStr)->whereNotNull('check_in_time')->distinct('user_id')->count('user_id');
+            
+            $attendanceTrend = 0;
+            if ($presentYesterday > 0) {
+                $attendanceTrend = round((($presentToday - $presentYesterday) / $presentYesterday) * 100);
+            }
+            
+            $onLeaveToday = LeaveRequest::where('status', 'Approved')
+                ->whereDate('start_date', '<=', $todayStr)
+                ->whereDate('end_date', '>=', $todayStr)
+                ->count();
+                
+            $pendingGlobalRequests = LeaveRequest::where('status', 'Pending')->count();
+            
+            // Global Activity Feed
+            $recentLeaves = LeaveRequest::with('user:id,first_name,last_name')
+                ->latest()
+                ->take(5)
+                ->get()
+                ->map(function($l) {
+                    return [
+                        'type' => 'leave',
+                        'message' => $l->user->first_name . ' applied for leave',
+                        'date' => $l->created_at
+                    ];
+                });
+                
+            $recentUsers = User::with('team:id,name')
+                ->latest()
+                ->take(5)
+                ->get()
+                ->map(function($u) {
+                    $teamName = $u->team ? $u->team->name : 'the company';
+                    return [
+                        'type' => 'user',
+                        'message' => $u->first_name . ' joined ' . $teamName,
+                        'date' => $u->created_at
+                    ];
+                });
+                
+            $recentPolicies = \App\Models\HrPolicy::latest()
+                ->take(3)
+                ->get()
+                ->map(function($p) {
+                    return [
+                        'type' => 'policy',
+                        'message' => 'New policy published: ' . $p->title,
+                        'date' => $p->created_at
+                    ];
+                });
+                
+            $globalFeed = collect($recentLeaves)->merge($recentUsers)->merge($recentPolicies)
+                ->sortByDesc('date')
+                ->values()
+                ->take(10);
+                
+            $responseData['admin_data'] = [
+                'kpis' => [
+                    'total_employees' => $totalEmployees,
+                    'present_today' => $presentToday,
+                    'on_leave_today' => $onLeaveToday,
+                    'pending_requests' => $pendingGlobalRequests,
+                    'trends' => [
+                        'employees' => '+2%',
+                        'attendance' => ($attendanceTrend > 0 ? '+' : '') . $attendanceTrend . '%'
+                    ]
+                ],
+                'activity_feed' => $globalFeed
+            ];
+        }
+
+        return response()->json($responseData);
     }
 }
