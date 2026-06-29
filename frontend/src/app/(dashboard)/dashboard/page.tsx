@@ -162,6 +162,61 @@ export default function DashboardPage() {
 
       {/* 
         ========================================
+        ENGAGEMENT SECTION: Updates, Celebrations, Birthdays
+        ========================================
+      */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        {/* Updates Widget */}
+        <div className="bg-blue-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.9)] p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-bold text-gray-900 flex items-center gap-2">
+              <Megaphone className="w-4 h-4 text-blue-500" />
+              Latest Updates
+            </h3>
+            <Link href="/announcements" className="text-xs font-semibold text-blue-600 hover:underline">View All</Link>
+          </div>
+          <div className="space-y-3">
+            {widgets.company_updates.length === 0 ? (
+              <p className="text-sm text-gray-500">No recent announcements.</p>
+            ) : (
+              widgets.company_updates.slice(0, 3).map((update: any, idx: number) => (
+                <div key={idx} className="flex gap-3 items-start">
+                  <div className="w-2 h-2 mt-1.5 rounded-full bg-blue-500 shrink-0"></div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 leading-tight">{update.title}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{format(parseISO(update.created_at), "MMM d, yyyy")}</p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Celebrations Widget (Anniversaries Only) */}
+        <div className="bg-pink-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.9)] p-6">
+          <h3 className="font-bold text-pink-700 flex items-center gap-2 mb-4">
+            <PartyPopper className="w-5 h-5" />
+            Work Anniversaries
+          </h3>
+          <div className="space-y-4">
+            {widgets.anniversaries.length === 0 && (
+              <p className="text-sm text-gray-500">No work anniversaries this week.</p>
+            )}
+            {widgets.anniversaries.map((a: any, idx: number) => (
+              <div key={`a-${idx}`} className="flex items-center justify-between text-sm">
+                <span className="font-medium text-gray-800">🎉 {a.name} ({a.years}Y)</span>
+                <span className="text-purple-600 font-semibold text-xs bg-purple-100 px-2 py-1 rounded-md">{format(new Date(a.date), "MMM d")}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Upcoming Birthdays Widget */}
+        <UpcomingBirthdaysWidget items={widgets.upcoming_birthdays} />
+      </div>
+
+      {/* 
+        ========================================
         MAIN CONTENT SPLIT (Left: Menu, Right: Metrics)
         ========================================
       */}
@@ -222,74 +277,26 @@ export default function DashboardPage() {
               className="md:col-span-2 lg:col-span-1"
             />
             
-            {(user?.role === "Super Admin" || user?.role === "Team Lead") && (
-              <Link 
-                href="/hall" 
-                className="md:col-span-3 lg:col-span-2 group relative overflow-hidden rounded-3xl p-6 bg-slate-900 text-white shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.8)] hover:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.2),inset_-4px_-4px_8px_rgba(255,255,255,0.1)] transition-all duration-300"
-              >
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-white/10 transition-colors"></div>
-                <div className="relative z-10 flex items-center justify-between h-full">
-                  <div className="space-y-1">
+            <Link 
+              href="/hall" 
+              className="md:col-span-3 lg:col-span-2 group relative overflow-hidden rounded-3xl p-6 bg-slate-900 text-white shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.8)] hover:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.2),inset_-4px_-4px_8px_rgba(255,255,255,0.1)] transition-all duration-300"
+            >
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-white/10 transition-colors"></div>
+              <div className="relative z-10 flex items-center justify-between h-full">
+                <div className="space-y-1">
+                  {(user?.role === "Super Admin" || user?.role === "Team Lead") && (
                     <div className="flex items-center gap-2 text-gray-400">
                       <Building2 className="w-5 h-5" />
                       <span className="text-sm font-bold uppercase tracking-wider">Management Only</span>
                     </div>
-                    <h3 className="text-2xl font-black tracking-tight">View The Hall</h3>
-                  </div>
-                  <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center shadow-[inset_2px_2px_5px_rgba(0,0,0,0.2),inset_-2px_-2px_5px_rgba(255,255,255,0.1)] group-hover:scale-95 transition-transform">
-                    <ArrowRight className="w-6 h-6" />
-                  </div>
+                  )}
+                  <h3 className="text-2xl font-black tracking-tight">View The Hall</h3>
                 </div>
-              </Link>
-            )}
-          </div>
-
-          {/* LOWER LEFT: UPDATES & CELEBRATIONS WIDGETS */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
-            {/* Updates Widget */}
-            <div className="bg-blue-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.9)] p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold text-gray-900 flex items-center gap-2">
-                  <Megaphone className="w-4 h-4 text-blue-500" />
-                  Latest Updates
-                </h3>
-                <Link href="/announcements" className="text-xs font-semibold text-blue-600 hover:underline">View All</Link>
+                <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center shadow-[inset_2px_2px_5px_rgba(0,0,0,0.2),inset_-2px_-2px_5px_rgba(255,255,255,0.1)] group-hover:scale-95 transition-transform">
+                  <ArrowRight className="w-6 h-6" />
+                </div>
               </div>
-              <div className="space-y-3">
-                {widgets.company_updates.length === 0 ? (
-                  <p className="text-sm text-gray-500">No recent announcements.</p>
-                ) : (
-                  widgets.company_updates.slice(0, 3).map((update: any, idx: number) => (
-                    <div key={idx} className="flex gap-3 items-start">
-                      <div className="w-2 h-2 mt-1.5 rounded-full bg-blue-500 shrink-0"></div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-900 leading-tight">{update.title}</p>
-                        <p className="text-xs text-gray-500 mt-0.5">{format(parseISO(update.created_at), "MMM d, yyyy")}</p>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-
-            {/* Celebrations Widget (Anniversaries Only) */}
-            <div className="bg-pink-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.9)] p-6">
-              <h3 className="font-bold text-pink-700 flex items-center gap-2 mb-4">
-                <PartyPopper className="w-5 h-5" />
-                Work Anniversaries
-              </h3>
-              <div className="space-y-4">
-                {widgets.anniversaries.length === 0 && (
-                  <p className="text-sm text-gray-500">No work anniversaries this week.</p>
-                )}
-                {widgets.anniversaries.map((a: any, idx: number) => (
-                  <div key={`a-${idx}`} className="flex items-center justify-between text-sm">
-                    <span className="font-medium text-gray-800">🎉 {a.name} ({a.years}Y)</span>
-                    <span className="text-purple-600 font-semibold text-xs bg-purple-100 px-2 py-1 rounded-md">{format(new Date(a.date), "MMM d")}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            </Link>
           </div>
         </div>
 
@@ -299,7 +306,6 @@ export default function DashboardPage() {
           ========================================
         */}
         <div className="lg:col-span-4 space-y-8">
-          <UpcomingBirthdaysWidget items={widgets.upcoming_birthdays} />
           <div className="bg-emerald-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.9)] p-6 md:p-8 sticky top-24">
             <h2 className="text-lg font-bold text-emerald-800 mb-6 flex items-center gap-2">
               <CalendarDays className="w-5 h-5" />
@@ -449,24 +455,98 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
         />
       </div>
 
+      {/* 
+        ========================================
+        ENGAGEMENT SECTION: Updates, Celebrations, Birthdays
+        ========================================
+      */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 mt-6">
+        {/* Announcements */}
+        <div className="bg-indigo-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.9)] p-6">
+          <h2 className="text-lg font-bold text-indigo-800 mb-5 flex items-center gap-2">
+            <Megaphone className="w-5 h-5" />
+            Company Announcements
+          </h2>
+          <div className="space-y-3">
+              {widgets.company_updates.length === 0 ? (
+                <p className="text-sm text-gray-500">No recent announcements.</p>
+              ) : (
+                widgets.company_updates.map((update: any, idx: number) => (
+                  <div key={idx} className="flex gap-3 items-start border-b border-indigo-100/50 pb-3 last:border-0 last:pb-0">
+                    <div className="w-2 h-2 mt-1.5 rounded-full bg-indigo-500 shrink-0"></div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900 leading-tight">{update.title}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">{format(new Date(update.created_at), "MMM d, yyyy")}</p>
+                    </div>
+                  </div>
+                ))
+              )}
+          </div>
+        </div>
+
+        {/* Employee Engagement Widgets */}
+        <div className="bg-pink-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.9)] p-6">
+          <h2 className="text-lg font-bold text-pink-800 mb-5 flex items-center gap-2">
+            <PartyPopper className="w-5 h-5" />
+            Celebrations
+          </h2>
+          <div className="space-y-4">
+            <h3 className="font-bold text-pink-700 text-sm flex items-center gap-2">
+              <Award className="w-4 h-4" />
+              Work Anniversaries
+            </h3>
+            {widgets.anniversaries.length === 0 ? (
+              <p className="text-xs text-gray-500 font-medium">None today</p>
+            ) : (
+              <div className="space-y-3">
+                {widgets.anniversaries.map((item: any, i: number) => (
+                  <div key={i} className="flex justify-between items-center text-xs">
+                    <span className="font-bold text-gray-800">{item.name} {item.years ? `(${item.years}Y)` : ''}</span>
+                    <span className="text-pink-600 bg-white/60 px-2 py-1 rounded-md shadow-sm font-semibold">{format(new Date(item.date), "MMM d")}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            <div className="mt-4 pt-4 border-t border-pink-100">
+               <h3 className="font-bold text-amber-600 text-sm flex items-center gap-2 mb-2">
+                  <Award className="w-4 h-4" />
+                  Employee of the Month
+               </h3>
+               <p className="text-sm font-medium text-gray-800">Sarah Jenkins <span className="text-[10px] uppercase tracking-wider text-amber-600 font-bold ml-2 bg-amber-100 px-1 rounded">Marketing</span></p>
+            </div>
+          </div>
+        </div>
+
+        <UpcomingBirthdaysWidget items={widgets.upcoming_birthdays} />
+      </div>
+
       {/* 12-Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8">
         {/* Left 70% (8 cols) */}
         <div className="lg:col-span-8 space-y-8">
           
-          {/* Employee Engagement Widgets */}
-          <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-            <PartyPopper className="w-5 h-5 text-pink-500" />
-            Employee Engagement
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <EngagementCard title="Work Anniversaries" items={widgets.anniversaries} icon={Award} />
-            <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-5 border border-amber-100 flex flex-col justify-center items-center text-center">
-              <Award className="w-10 h-10 text-amber-500 mb-2" />
-              <h3 className="font-bold text-gray-900">Employee of the Month</h3>
-              <p className="text-sm font-medium text-amber-700 mt-1">Sarah Jenkins</p>
-              <span className="text-[10px] uppercase tracking-wider text-amber-600 font-bold mt-2">Marketing</span>
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+             {/* Quick Actions (Moved from right side to main area) */}
+             <QuickActionCard href="/leaves" icon={Palmtree} title="Leaves" color="text-emerald-600 bg-emerald-50" />
+             <QuickActionCard href="/announcements" icon={Megaphone} title="Updates" color="text-blue-600 bg-blue-50" />
+             <QuickActionCard href="/documents" icon={Download} title="Downloads" color="text-rose-600 bg-rose-50" />
+             <QuickActionCard href="/policies" icon={BookOpen} title="Policies" color="text-cyan-600 bg-cyan-50" />
+             
+             <Link 
+              href="/hall" 
+              className="lg:col-span-2 group relative overflow-hidden rounded-3xl p-6 bg-slate-900 text-white shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.8)] hover:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.2),inset_-4px_-4px_8px_rgba(255,255,255,0.1)] transition-all duration-300"
+            >
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-white/10 transition-colors"></div>
+              <div className="relative z-10 flex items-center justify-between h-full">
+                <div className="space-y-1">
+                  <h3 className="text-xl font-black tracking-tight">View The Hall</h3>
+                </div>
+                <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center shadow-[inset_2px_2px_5px_rgba(0,0,0,0.2),inset_-2px_-2px_5px_rgba(255,255,255,0.1)] group-hover:scale-95 transition-transform">
+                  <ArrowRight className="w-5 h-5" />
+                </div>
+              </div>
+            </Link>
           </div>
 
           {/* Activity Feed */}
@@ -491,49 +571,11 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
             </div>
           </div>
 
-          {/* Announcements */}
-          <div className="bg-indigo-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.9)] p-6">
-            <h2 className="text-lg font-bold text-indigo-800 mb-5 flex items-center gap-2">
-              <Megaphone className="w-5 h-5" />
-              Company Announcements
-            </h2>
-            <div className="space-y-3">
-                {widgets.company_updates.length === 0 ? (
-                  <p className="text-sm text-gray-500">No recent announcements.</p>
-                ) : (
-                  widgets.company_updates.map((update: any, idx: number) => (
-                    <div key={idx} className="flex gap-3 items-start border-b border-gray-50 pb-3 last:border-0 last:pb-0">
-                      <div className="w-2 h-2 mt-1.5 rounded-full bg-indigo-500 shrink-0"></div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-900 leading-tight">{update.title}</p>
-                        <p className="text-xs text-gray-500 mt-0.5">{format(new Date(update.created_at), "MMM d, yyyy")}</p>
-                      </div>
-                    </div>
-                  ))
-                )}
-            </div>
-          </div>
-
         </div>
 
         {/* Right 30% (4 cols) */}
         <div className="lg:col-span-4 space-y-8">
-          
-          <UpcomingBirthdaysWidget items={widgets.upcoming_birthdays} />
 
-          {/* Quick Actions (Secondary Navigation) */}
-          <div className="bg-amber-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.9)] p-6">
-            <h2 className="text-lg font-bold text-amber-800 mb-5 flex items-center gap-2">
-              <Sparkles className="w-5 h-5" />
-              Quick Actions
-            </h2>
-            <div className="grid grid-cols-2 gap-3">
-              <QuickActionCard href="/leaves" icon={Palmtree} title="Leaves" color="text-emerald-600 bg-emerald-50" />
-              <QuickActionCard href="/announcements" icon={Megaphone} title="Updates" color="text-blue-600 bg-blue-50" />
-              <QuickActionCard href="/documents" icon={Download} title="Downloads" color="text-rose-600 bg-rose-50" />
-              <QuickActionCard href="/policies" icon={BookOpen} title="Policies" color="text-cyan-600 bg-cyan-50" />
-            </div>
-          </div>
 
           {/* Upcoming Holidays */}
           <div className="bg-rose-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.9)] p-6">

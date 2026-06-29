@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, AlertTriangle } from "lucide-react";
 import api from "@/services/api";
 
 import { Button } from "@/components/ui/button";
@@ -46,6 +46,38 @@ export default function ApplyLeavePage() {
       reason: "",
     },
   });
+
+  const leaveTypeId = form.watch("leave_type_id");
+  const startDate = form.watch("start_date");
+  const endDate = form.watch("end_date");
+  const [impact, setImpact] = useState<any>(null);
+  const [isCalculating, setIsCalculating] = useState(false);
+
+  useEffect(() => {
+    if (leaveTypeId && startDate && endDate) {
+      const fetchImpact = async () => {
+        setIsCalculating(true);
+        try {
+          const res = await api.post("/leaves/calculate", {
+            leave_type_id: leaveTypeId,
+            start_date: startDate,
+            end_date: endDate
+          });
+          setImpact(res.data);
+        } catch (e) {
+          console.error(e);
+          setImpact(null);
+        } finally {
+          setIsCalculating(false);
+        }
+      };
+      
+      const timeout = setTimeout(fetchImpact, 500);
+      return () => clearTimeout(timeout);
+    } else {
+      setImpact(null);
+    }
+  }, [leaveTypeId, startDate, endDate]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -99,6 +131,11 @@ export default function ApplyLeavePage() {
   }, []);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (impact?.is_unpaid) {
+      const proceed = window.confirm(`Warning: ${impact.unpaid_reason}\n\nThis leave will be marked as UNPAID. Do you want to proceed anyway?`);
+      if (!proceed) return;
+    }
+
     setIsLoading(true);
     try {
       await api.post("/leave-requests", values);
@@ -185,6 +222,22 @@ export default function ApplyLeavePage() {
                   <FormMessage />
                 </FormItem>
               )} />
+              
+              {isCalculating && <p className="text-sm text-gray-500">Calculating leave impact...</p>}
+              {impact && (
+                <div className={`p-4 rounded-md border ${impact.is_unpaid ? 'bg-amber-50 border-amber-200' : 'bg-emerald-50 border-emerald-200'}`}>
+                  <h4 className={`font-semibold flex items-center gap-2 ${impact.is_unpaid ? 'text-amber-800' : 'text-emerald-800'}`}>
+                    {impact.is_unpaid && <AlertTriangle className="w-4 h-4" />}
+                    Leave Summary
+                  </h4>
+                  <ul className="mt-2 text-sm text-gray-700 space-y-1">
+                    <li><strong>Requested Days:</strong> {impact.actual_leave_days}</li>
+                    {impact.sandwich_leave_days > 0 && <li><strong>Sandwich Days:</strong> {impact.sandwich_leave_days}</li>}
+                    <li><strong>Status:</strong> {impact.is_unpaid ? <span className="text-red-600 font-bold">Unpaid (LWP)</span> : <span className="text-emerald-600 font-bold">Paid</span>}</li>
+                    {impact.unpaid_reason && <li><strong>Reason:</strong> {impact.unpaid_reason}</li>}
+                  </ul>
+                </div>
+              )}
 
               <div className="flex justify-end gap-4 border-t pt-6">
                 <Button type="button" variant="outline" onClick={() => router.push("/leaves")}>Cancel</Button>

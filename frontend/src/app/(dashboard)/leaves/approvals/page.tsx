@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Check, X, Calendar, User } from "lucide-react";
+import { Check, X, Calendar, User, Edit } from "lucide-react";
 import api from "@/services/api";
+import { useAuthStore } from "@/store/auth";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -13,6 +14,8 @@ export default function ApprovalsPage() {
   const [leaveRequests, setLeaveRequests] = useState<any[]>([]);
   const [wfhRequests, setWfhRequests] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuthStore();
+  const isSuperAdmin = user?.role === 'Super Admin';
 
   useEffect(() => {
     fetchRequests();
@@ -60,6 +63,32 @@ export default function ApprovalsPage() {
     }
   };
 
+  const handleOverride = async (id: number, currentUnpaid: boolean, currentDays: number) => {
+    const isUnpaidStr = window.prompt("Is this leave Unpaid (LWP)? Enter 'yes' or 'no':", currentUnpaid ? "yes" : "no");
+    if (isUnpaidStr === null) return;
+    const isUnpaid = isUnpaidStr.toLowerCase().trim() === 'yes';
+
+    const daysStr = window.prompt("Enter actual leave days to deduct:", currentDays.toString());
+    if (daysStr === null) return;
+    const days = parseFloat(daysStr);
+    if (isNaN(days)) return alert("Invalid number.");
+
+    const remarks = window.prompt("Enter remarks for this override (Required):");
+    if (!remarks) return alert("Remarks are mandatory.");
+
+    try {
+      await api.put(`/leave-requests/${id}/override`, {
+        is_unpaid: isUnpaid,
+        actual_leave_days: days,
+        remarks: remarks
+      });
+      alert("Override successful!");
+      fetchRequests();
+    } catch (e: any) {
+      alert(e.response?.data?.message || "Error processing override");
+    }
+  };
+
   const RequestCard = ({ req, type }: { req: any, type: 'leave' | 'wfh' }) => (
     <Card className="shadow-sm border-l-4 border-l-primary">
       <CardContent className="p-6">
@@ -84,10 +113,21 @@ export default function ApprovalsPage() {
                 <span className="font-medium text-xs text-muted-foreground block mb-1">REASON</span>
                 {req.reason}
               </p>
+              {type === 'leave' && req.is_unpaid && (
+                <div className="mt-3 p-3 bg-red-50 text-red-800 border border-red-200 rounded text-sm">
+                  <strong>⚠️ Marked as Unpaid (LWP)</strong>
+                  {req.unpaid_reason && <p className="mt-1 text-xs">{req.unpaid_reason}</p>}
+                </div>
+              )}
             </div>
           </div>
 
           <div className="flex gap-2 w-full md:w-auto mt-4 md:mt-0">
+            {isSuperAdmin && type === 'leave' && (
+              <Button variant="outline" className="flex-1 md:flex-none border-blue-200 text-blue-700 hover:bg-blue-50 hover:text-blue-800" onClick={() => handleOverride(req.id, req.is_unpaid, req.actual_leave_days ?? req.days)}>
+                <Edit className="mr-2 h-4 w-4" /> Override
+              </Button>
+            )}
             <Button variant="outline" className="flex-1 md:flex-none border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800" onClick={() => handleAction(type, req.id, 'Rejected')}>
               <X className="mr-2 h-4 w-4" /> Reject
             </Button>
