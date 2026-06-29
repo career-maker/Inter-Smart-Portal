@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import api from "@/services/api";
-import { toast } from "sonner";
 import { UserCircle, ShieldAlert, CheckCircle2, Clock } from "lucide-react";
 
 export default function MyProfilePage() {
@@ -61,9 +60,9 @@ export default function MyProfilePage() {
     try {
       const response = await api.post("/me/profile/request", formData);
       setPendingRequest(response.data.data);
-      toast.success("Profile update request submitted for approval.");
+      alert("Profile update request submitted for approval.");
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to submit request.");
+      alert(error.response?.data?.message || "Failed to submit request.");
     } finally {
       setSaving(false);
     }

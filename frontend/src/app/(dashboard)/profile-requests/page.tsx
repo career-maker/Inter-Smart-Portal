@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import api from "@/services/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import { ClipboardEdit, CheckCircle, XCircle } from "lucide-react";
 
 export default function ProfileRequestsPage() {
@@ -17,7 +16,7 @@ export default function ProfileRequestsPage() {
       const response = await api.get("/profile-requests");
       setRequests(response.data.data);
     } catch (error) {
-      toast.error("Failed to load profile requests");
+      alert("Failed to load profile requests");
     } finally {
       setLoading(false);
     }
@@ -31,10 +30,10 @@ export default function ProfileRequestsPage() {
     setProcessing(id);
     try {
       await api.post(`/profile-requests/${id}/approve`);
-      toast.success("Request approved and profile updated");
+      alert("Request approved and profile updated");
       setRequests(requests.filter(r => r.id !== id));
     } catch (error) {
-      toast.error("Failed to approve request");
+      alert("Failed to approve request");
     } finally {
       setProcessing(null);
     }
@@ -44,10 +43,10 @@ export default function ProfileRequestsPage() {
     setProcessing(id);
     try {
       await api.post(`/profile-requests/${id}/reject`);
-      toast.success("Request rejected");
+      alert("Request rejected");
       setRequests(requests.filter(r => r.id !== id));
     } catch (error) {
-      toast.error("Failed to reject request");
+      alert("Failed to reject request");
     } finally {
       setProcessing(null);
     }
