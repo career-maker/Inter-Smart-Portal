@@ -8,6 +8,15 @@ export interface User {
   email: string;
   role: string;
   permissions: string[];
+  employee_id?: string;
+  designation?: string;
+  profile_photo_path?: string;
+  phone?: string;
+  emergency_contact?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
 }
 
 interface AuthState {
