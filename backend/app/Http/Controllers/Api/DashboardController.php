@@ -284,9 +284,11 @@ class DashboardController extends Controller
             $pendingGlobalRequests = LeaveRequest::where('status', 'Pending')->count();
             
             // Global Activity Feed
+            $twoDaysAgo = \Carbon\Carbon::today()->subDays(2);
+            
             $recentLeaves = LeaveRequest::with('user:id,first_name,last_name')
+                ->where('created_at', '>=', $twoDaysAgo)
                 ->latest()
-                ->take(5)
                 ->get()
                 ->map(function($l) {
                     return [
@@ -297,8 +299,8 @@ class DashboardController extends Controller
                 });
                 
             $recentUsers = User::with('team:id,name')
+                ->where('created_at', '>=', $twoDaysAgo)
                 ->latest()
-                ->take(5)
                 ->get()
                 ->map(function($u) {
                     $teamName = $u->team ? $u->team->name : 'the company';
@@ -309,8 +311,8 @@ class DashboardController extends Controller
                     ];
                 });
                 
-            $recentPolicies = \App\Models\HrPolicy::latest()
-                ->take(3)
+            $recentPolicies = \App\Models\HrPolicy::where('created_at', '>=', $twoDaysAgo)
+                ->latest()
                 ->get()
                 ->map(function($p) {
                     return [
@@ -322,8 +324,7 @@ class DashboardController extends Controller
                 
             $globalFeed = collect($recentLeaves)->merge($recentUsers)->merge($recentPolicies)
                 ->sortByDesc('date')
-                ->values()
-                ->take(10);
+                ->values();
                 
             $responseData['admin_data'] = [
                 'kpis' => [
@@ -344,5 +345,54 @@ class DashboardController extends Controller
         }
 
         return response()->json($responseData);
+    }
+
+    public function activities(Request $request)
+    {
+        $recentLeaves = \App\Models\LeaveRequest::with('user:id,first_name,last_name')
+            ->get()
+            ->map(function($l) {
+                return [
+                    'type' => 'leave',
+                    'message' => $l->user->first_name . ' applied for leave',
+                    'date' => $l->created_at
+                ];
+            });
+            
+        $recentUsers = \App\Models\User::with('team:id,name')
+            ->get()
+            ->map(function($u) {
+                $teamName = $u->team ? $u->team->name : 'the company';
+                return [
+                    'type' => 'user',
+                    'message' => $u->first_name . ' joined ' . $teamName,
+                    'date' => $u->created_at
+                ];
+            });
+            
+        $recentPolicies = \App\Models\HrPolicy::get()
+            ->map(function($p) {
+                return [
+                    'type' => 'policy',
+                    'message' => 'New policy published: ' . $p->title,
+                    'date' => $p->created_at
+                ];
+            });
+            
+        $globalFeed = collect($recentLeaves)->merge($recentUsers)->merge($recentPolicies)
+            ->sortByDesc('date')
+            ->values();
+
+        $page = \Illuminate\Pagination\Paginator::resolveCurrentPage() ?: 1;
+        $perPage = 15;
+        $paginatedItems = new \Illuminate\Pagination\LengthAwarePaginator(
+            $globalFeed->forPage($page, $perPage)->values(),
+            $globalFeed->count(),
+            $perPage,
+            $page,
+            ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath()]
+        );
+
+        return response()->json($paginatedItems);
     }
 }

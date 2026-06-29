@@ -93,6 +93,7 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // Dashboard Data
     Route::get('dashboard', [\App\Http\Controllers\Api\DashboardController::class, 'index']);
+    Route::get('activities', [\App\Http\Controllers\Api\DashboardController::class, 'activities']);
 
     // Calendar & Holidays
     Route::get('calendar', [\App\Http\Controllers\Api\CalendarController::class, 'index']);

@@ -382,6 +382,11 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
   const { profile, admin_data, widgets } = data;
   const { kpis, activity_feed } = admin_data;
   const [leaveModalData, setLeaveModalData] = useState<{title: string, list: any[]} | null>(null);
+  
+  const [activityPage, setActivityPage] = useState(1);
+  const activityPerPage = 5;
+  const totalActivityPages = Math.ceil(activity_feed.length / activityPerPage);
+  const paginatedActivity = activity_feed.slice((activityPage - 1) * activityPerPage, activityPage * activityPerPage);
 
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -556,7 +561,7 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
               Recent Activity
             </h2>
             <div className="space-y-4">
-              {activity_feed.map((act: any, i: number) => (
+              {paginatedActivity.map((act: any, i: number) => (
                 <div key={i} className="flex items-start gap-3">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${act.type === 'leave' ? 'bg-orange-100 text-orange-600' : act.type === 'user' ? 'bg-emerald-100 text-emerald-600' : 'bg-blue-100 text-blue-600'}`}>
                     {act.type === 'leave' ? <Palmtree className="w-4 h-4"/> : act.type === 'user' ? <UserCircle className="w-4 h-4"/> : <BookOpen className="w-4 h-4"/>}
@@ -567,7 +572,33 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
                   </div>
                 </div>
               ))}
-              {activity_feed.length === 0 && <p className="text-sm text-gray-500">No recent activity.</p>}
+              {activity_feed.length === 0 && <p className="text-sm text-gray-500">No recent activity in the last 2 days.</p>}
+              
+              {/* Pagination */}
+              {totalActivityPages > 1 && (
+                <div className="flex items-center justify-between pt-2">
+                  <button 
+                    onClick={() => setActivityPage(p => Math.max(1, p - 1))}
+                    disabled={activityPage === 1}
+                    className="text-xs font-semibold text-cyan-600 disabled:opacity-50"
+                  >
+                    Previous
+                  </button>
+                  <span className="text-xs text-gray-500">Page {activityPage} of {totalActivityPages}</span>
+                  <button 
+                    onClick={() => setActivityPage(p => Math.min(totalActivityPages, p + 1))}
+                    disabled={activityPage === totalActivityPages}
+                    className="text-xs font-semibold text-cyan-600 disabled:opacity-50"
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
+              
+              {/* View All Link */}
+              <Link href="/activities" className="block text-center pt-3 border-t border-cyan-100 mt-2 text-sm font-bold text-cyan-700 hover:underline">
+                View All Activities →
+              </Link>
             </div>
           </div>
 
