@@ -103,7 +103,7 @@ export default function DashboardPage() {
         HEADER: Personalized Dashboard
         ========================================
       */}
-      <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 mb-8">
+      <div className="bg-white rounded-3xl p-5 md:p-6 shadow-sm border border-gray-100 mb-6">
         <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-8">
           {/* Left: Avatar, Greeting, Date */}
           <div className="flex items-center gap-5 md:gap-6">
@@ -114,9 +114,11 @@ export default function DashboardPage() {
               <p className="text-sm font-medium text-gray-500 mb-1">
                 {format(time, "EEEE, d MMMM yyyy")} • {format(time, "h:mm a")}
               </p>
-              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-gray-900 flex items-center">
+              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-gray-900 flex items-center relative w-fit">
                 {greeting}, {profile.first_name} 
-                <DotLottiePlayer src="https://lottie.host/5ec233ff-2cb3-499c-ac94-906625aeb28f/JZM0rMFaWb.lottie" autoplay loop style={{ width: '120px', height: '120px', marginLeft: '12px', marginTop: '-30px', marginBottom: '-30px', display: 'inline-block' }} />
+                <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 pointer-events-none">
+                  <DotLottiePlayer src="https://lottie.host/5ec233ff-2cb3-499c-ac94-906625aeb28f/JZM0rMFaWb.lottie" autoplay loop style={{ width: '120px', height: '120px' }} />
+                </div>
               </h1>
               <div className="flex flex-wrap items-center gap-2 md:gap-3 mt-3">
                 <span className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
@@ -418,7 +420,7 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Super Admin Welcome Banner */}
-      <div className="bg-gradient-to-r from-gray-900 to-indigo-900 rounded-3xl p-6 md:p-8 shadow-lg mb-8 text-white">
+      <div className="bg-gradient-to-r from-gray-900 to-indigo-900 rounded-3xl p-5 md:p-6 shadow-lg mb-6 text-white">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div className="flex items-center gap-5">
             <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-white text-2xl font-bold backdrop-blur-sm border border-white/30 shrink-0">
@@ -428,9 +430,11 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
               <p className="text-sm font-medium text-indigo-200 mb-1">
                 {format(time, "EEEE, d MMMM yyyy")} • {format(time, "h:mm a")}
               </p>
-              <h1 className="text-3xl font-extrabold tracking-tight flex items-center">
+              <h1 className="text-3xl font-extrabold tracking-tight flex items-center relative w-fit">
                 {greeting}, {profile.first_name} (Admin) 
-                <DotLottiePlayer src="https://lottie.host/5ec233ff-2cb3-499c-ac94-906625aeb28f/JZM0rMFaWb.lottie" autoplay loop style={{ width: '120px', height: '120px', marginLeft: '12px', marginTop: '-30px', marginBottom: '-30px', display: 'inline-block' }} />
+                <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 pointer-events-none">
+                  <DotLottiePlayer src="https://lottie.host/5ec233ff-2cb3-499c-ac94-906625aeb28f/JZM0rMFaWb.lottie" autoplay loop style={{ width: '120px', height: '120px' }} />
+                </div>
               </h1>
             </div>
           </div>
