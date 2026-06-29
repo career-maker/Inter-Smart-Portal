@@ -597,25 +597,31 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
   );
 }
 
-function KPICard({ title, value, trend, icon: Icon, color }: any) {
-  return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 relative overflow-hidden group">
+function KPICard({ title, value, trend, icon: Icon, color, href }: any) {
+  const CardContent = (
+    <div className={`bg-white rounded-2xl p-6 shadow-sm border border-gray-100 relative overflow-hidden h-full ${href ? 'hover:shadow-md hover:border-gray-200 transition-all cursor-pointer group' : ''}`}>
       <div className="flex justify-between items-start relative z-10">
         <div>
           <p className="text-sm font-medium text-gray-500 mb-1">{title}</p>
           <h3 className="text-3xl font-black text-gray-900">{value}</h3>
-          {trend && (
-            <p className={`text-xs font-bold mt-2 flex items-center gap-1 ${trend.startsWith('+') ? 'text-emerald-600' : 'text-rose-600'}`}>
-              {trend.startsWith('+') ? '▲' : '▼'} {trend} from yesterday
+          {trend !== undefined && trend !== null && trend !== "" && (
+            <p className={`text-xs font-bold mt-2 flex items-center gap-1 ${String(trend).startsWith('+') ? 'text-emerald-600' : 'text-rose-600'}`}>
+              {String(trend).startsWith('+') ? '▲' : '▼'} {trend} from yesterday
             </p>
           )}
         </div>
-        <div className={`w-12 h-12 rounded-xl ${color} text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform`}>
+        <div className={`w-12 h-12 rounded-xl ${color} text-white flex items-center justify-center shadow-md ${href ? 'group-hover:scale-110' : ''} transition-transform`}>
           <Icon className="w-6 h-6" />
         </div>
       </div>
     </div>
   );
+
+  if (href) {
+    return <Link href={href} className="block h-full">{CardContent}</Link>;
+  }
+
+  return CardContent;
 }
 
 function QuickActionCard({ href, icon: Icon, title, color }: any) {
