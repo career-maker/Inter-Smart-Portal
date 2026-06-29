@@ -26,8 +26,31 @@ export default function LeavesPage() {
         api.get("/leave-balances"),
         api.get("/leave-requests")
       ]);
-      setBalances(balRes.data.data);
-      setRequests(reqRes.data.data.data);
+      
+      const balanceData = balRes.data.data;
+      if (balanceData) {
+        setBalances([
+          {
+            id: 1,
+            leave_type: { name: 'Casual Leave' },
+            total_days: 12, // standard annual allowance
+            used_days: 12 - (balanceData.casual_leave_balance || 0)
+          },
+          {
+            id: 2,
+            leave_type: { name: 'Sick Leave' },
+            total_days: 12,
+            used_days: 12 - (balanceData.sick_leave_balance || 0)
+          }
+        ]);
+      } else {
+        setBalances([
+          { id: 1, leave_type: { name: 'Casual Leave' }, total_days: 12, used_days: 0 },
+          { id: 2, leave_type: { name: 'Sick Leave' }, total_days: 12, used_days: 0 }
+        ]);
+      }
+
+      setRequests(reqRes.data.data?.data || []);
     } catch (e) {
       console.error(e);
     } finally {
