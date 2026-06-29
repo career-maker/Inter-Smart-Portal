@@ -25,20 +25,23 @@ class AttendanceController extends Controller
             ->first();
 
         if (!$attendance) {
-            return response()->json(['status' => 'Not Checked In']);
+            return response()->json(['status' => 'Not Checked In', 'attendance' => null]);
         }
 
+        $status = 'Checked In';
         if ($attendance->check_out_time) {
-            return response()->json(['status' => 'Checked Out']);
+            $status = 'Checked Out';
+        } else {
+            $openBreak = $attendance->breaks()->whereNull('break_end')->first();
+            if ($openBreak) {
+                $status = 'On Break';
+            }
         }
 
-        // Check if there's an open break
-        $openBreak = $attendance->breaks()->whereNull('break_end')->first();
-        if ($openBreak) {
-            return response()->json(['status' => 'On Break', 'break_id' => $openBreak->id]);
-        }
-
-        return response()->json(['status' => 'Checked In', 'attendance_id' => $attendance->id]);
+        return response()->json([
+            'status' => $status,
+            'attendance' => new AttendanceResource($attendance)
+        ]);
     }
 
     public function checkIn(Request $request)

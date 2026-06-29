@@ -29,6 +29,8 @@ import Link from "next/link";
 import { format, parseISO } from "date-fns";
 import { DotLottiePlayer } from "@dotlottie/react-player";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AttendanceWidget } from "@/components/dashboard/AttendanceWidget";
+
 export default function DashboardPage() {
   const user = useAuthStore((state) => state.user);
   const [data, setData] = useState<any>(null);
@@ -144,6 +146,8 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      <AttendanceWidget />
 
       {/* Employee KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 mt-2">
