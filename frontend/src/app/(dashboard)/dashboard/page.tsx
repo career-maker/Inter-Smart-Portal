@@ -460,13 +460,12 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
         </div>
       </div>
 
-      {/* KPI Cards (5 cols) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+      {/* KPI Cards (4 cols) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <KPICard title="Employees" value={kpis.total_employees} trend={kpis.trends.employees} icon={UserCircle} color="bg-blue-500" />
         <KPICard title="Present" value={kpis.present_today} trend={kpis.trends.attendance} icon={Building2} color="bg-emerald-500" />
         <KPICard title="On Leave" value={kpis.on_leave_today} trend="" icon={Palmtree} color="bg-orange-500" />
         <KPICard title="WFH" value={kpis.wfh_today} trend="" icon={Home} color="bg-teal-500" />
-        <KPICard title="Pending Requests" value={kpis.pending_requests} trend="" icon={FileText} color="bg-purple-500" />
       </div>
 
       {/* 12-Column Layout */}
@@ -539,6 +538,8 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
         {/* Right 30% (4 cols) */}
         <div className="lg:col-span-4 space-y-8">
           
+          <UpcomingBirthdaysWidget items={widgets.upcoming_birthdays} />
+
           {/* Quick Actions (Secondary Navigation) */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
