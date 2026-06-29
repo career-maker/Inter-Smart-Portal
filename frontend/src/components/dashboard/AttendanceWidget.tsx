@@ -4,9 +4,9 @@ import { useState, useEffect } from "react";
 import { Play, Square, Coffee, CheckCircle, Clock } from "lucide-react";
 import api from "@/services/api";
 
-export function AttendanceWidget() {
-  const [data, setData] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
+export function AttendanceWidget({ initialData }: { initialData?: any }) {
+  const [data, setData] = useState<any>(initialData || null);
+  const [isLoading, setIsLoading] = useState(!initialData);
   const [actionLoading, setActionLoading] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
@@ -22,8 +22,13 @@ export function AttendanceWidget() {
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (initialData) {
+      setData(initialData);
+      setIsLoading(false);
+    } else {
+      fetchData();
+    }
+  }, [initialData]);
 
   useEffect(() => {
     if (!data?.attendance || data.status === 'Not Checked In') {

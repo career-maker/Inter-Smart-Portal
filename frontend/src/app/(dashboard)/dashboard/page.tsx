@@ -147,7 +147,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <AttendanceWidget />
+      <AttendanceWidget initialData={data.attendance_widget_data} />
 
       {/* Employee KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 mt-2">

@@ -43,15 +43,29 @@ class DashboardController extends Controller
         $todayAttendance = \App\Models\Attendance::where('user_id', $user->id)
             ->where('date', $todayStr)
             ->first();
-            
         $profile['attendance_status'] = 'Not Punched In';
+        $attendanceWidgetStatus = 'Not Checked In';
+        
         if ($todayAttendance) {
             if ($todayAttendance->check_out_time) {
                 $profile['attendance_status'] = 'Punched Out';
+                $attendanceWidgetStatus = 'Checked Out';
             } else {
-                $profile['attendance_status'] = 'Punched In';
+                $openBreak = $todayAttendance->breaks()->whereNull('break_end')->first();
+                if ($openBreak) {
+                    $profile['attendance_status'] = 'On Break';
+                    $attendanceWidgetStatus = 'On Break';
+                } else {
+                    $profile['attendance_status'] = 'Punched In';
+                    $attendanceWidgetStatus = 'Checked In';
+                }
             }
         }
+
+        $attendanceWidgetData = [
+            'status' => $attendanceWidgetStatus,
+            'attendance' => $todayAttendance ? new \App\Http\Resources\AttendanceResource($todayAttendance) : null
+        ];
 
         // 2. Leave Metrics
         $currentYear = Carbon::now()->year;
@@ -221,6 +235,7 @@ class DashboardController extends Controller
 
         $responseData = [
             'profile' => $profile,
+            'attendance_widget_data' => $attendanceWidgetData,
             'leave_metrics' => $leaveMetrics,
             'widgets' => [
                 'upcoming_holidays' => $upcomingHolidays,
