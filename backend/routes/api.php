@@ -117,9 +117,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/{id}', [\App\Http\Controllers\Api\NotificationController::class, 'destroy']);
     });
 
-    // View The Hall (Admin & Team Lead only)
-    Route::middleware(['role:Super Admin|Team Lead'])->group(function () {
-        Route::get('hall', [\App\Http\Controllers\Api\HallController::class, 'index']);
-    });
+    // View The Hall (All authenticated users can view)
+    Route::get('hall', [\App\Http\Controllers\Api\HallController::class, 'index']);
 });
 

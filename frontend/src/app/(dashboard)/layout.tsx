@@ -64,7 +64,7 @@ export default function DashboardLayout({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50/30">
+    <div className="min-h-screen bg-yellow-50">
       <header className="bg-white border-b sticky top-0 z-30 shadow-sm">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           {/* Logo */}
@@ -104,9 +104,6 @@ export default function DashboardLayout({
           <div className="absolute top-16 right-0 w-full md:w-80 bg-white border-b md:border-l md:border-b shadow-lg z-40 max-h-[calc(100vh-4rem)] overflow-y-auto">
             <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
             {NAV_LINKS.filter(link => {
-              if (link.href === '/hall') {
-                return user?.role === 'Super Admin' || user?.role === 'Team Lead';
-              }
               if (link.href === '/holidays' || link.href === '/reports') {
                 return user?.role === 'Super Admin' || user?.role === 'HR';
               }

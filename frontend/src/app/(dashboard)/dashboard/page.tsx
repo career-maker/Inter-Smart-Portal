@@ -105,18 +105,19 @@ export default function DashboardPage() {
         HEADER: Personalized Dashboard
         ========================================
       */}
-      <div className="rounded-3xl p-5 md:p-6 shadow-sm border border-yellow-300 mb-6" style={{ background: 'linear-gradient(135deg, #F4B400 0%, #FFD54F 100%)', color: '#4A4A4A' }}>
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 lg:gap-8">
+      <div className="rounded-3xl p-5 md:p-6 shadow-lg mb-6 bg-gradient-to-br from-slate-900 to-indigo-950 text-white relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 lg:gap-8 relative z-10">
           {/* Left: Avatar, Greeting, Date */}
           <div className="flex items-center gap-5 md:gap-6">
-            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/20 flex items-center justify-center text-[#4A4A4A] text-xl md:text-2xl font-bold shadow-sm shrink-0 border border-white/40">
+            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/10 flex items-center justify-center text-white text-xl md:text-2xl font-bold shadow-sm shrink-0 border border-white/20">
               {profile.first_name?.[0]}{profile.last_name?.[0]}
             </div>
             <div>
-              <p className="text-sm font-medium text-[#4A4A4A]/80 mb-1">
+              <p className="text-sm font-medium text-slate-300 mb-1">
                 {format(time, "EEEE, d MMMM yyyy")} • {format(time, "h:mm a")}
               </p>
-              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-[#4A4A4A] flex items-center">
+              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white flex items-center">
                 {greeting}, {profile.first_name} 
                 <div className="relative w-[60px] h-[60px] ml-2 shrink-0">
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
@@ -125,7 +126,7 @@ export default function DashboardPage() {
                 </div>
               </h1>
               <div className="flex flex-wrap items-center gap-2 md:gap-3 mt-3">
-                <span className="inline-flex items-center gap-1.5 bg-white/30 text-[#4A4A4A] px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
+                <span className="inline-flex items-center gap-1.5 bg-white/10 text-white backdrop-blur-sm border border-white/20 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
                   {profile.designation}
                 </span>
                 <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm ${

@@ -24,11 +24,7 @@ export default function HallPage() {
   const [statusFilter, setStatusFilter] = useState("all");
 
   useEffect(() => {
-    // Access control
-    if (user && user.role !== "Super Admin" && user.role !== "Team Lead") {
-      router.push("/dashboard");
-      return;
-    }
+    if (!user) return;
     fetchHallData();
   }, [user]);
 
