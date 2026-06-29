@@ -52,14 +52,15 @@ export default function DashboardLayout({
   if (!isHydrated) return null;
   if (!isAuthenticated) return null;
 
-  const handleLogout = async () => {
-    try {
-      const api = (await import("@/services/api")).default;
-      await api.post("/logout");
-    } catch (_) {}
+  const handleLogout = () => {
     logout();
     localStorage.removeItem("token");
     router.push("/login");
+    
+    // Fire and forget API call so UI doesn't hang
+    import("@/services/api").then(({ default: api }) => {
+      api.post("/logout").catch(() => {});
+    });
   };
 
   return (

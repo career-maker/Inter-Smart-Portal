@@ -109,16 +109,15 @@ export default function ApplyLeavePage() {
               <FormField control={form.control} name="leave_type_id" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Leave Type *</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {leaveTypes.map(t => <SelectItem key={t.id} value={t.id.toString()}>{t.name}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <select
+                      className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      {...field}
+                    >
+                      <option value="" disabled>Select type</option>
+                      {leaveTypes.map(t => <option key={t.id} value={t.id.toString()}>{t.name}</option>)}
+                    </select>
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
