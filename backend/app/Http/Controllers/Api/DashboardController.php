@@ -124,13 +124,14 @@ class DashboardController extends Controller
         // 6. Charts: Leave usage by month for the current year
         $leaveRequests = LeaveRequest::where('user_id', $user->id)
             ->where('status', 'Approved')
-            ->whereYear('start_date', $currentYear)
-            ->get(['start_date', 'days']);
+            ->whereYear('leave_date', $currentYear)
+            ->get(['leave_date', 'duration_type']);
 
         $monthlyLeaves = array_fill(1, 12, 0); // Initialize all months to 0
         foreach ($leaveRequests as $req) {
-            $month = (int) Carbon::parse($req->start_date)->format('n');
-            $monthlyLeaves[$month] += $req->days;
+            $month = (int) Carbon::parse($req->leave_date)->format('n');
+            $days = $req->duration_type === 'Full' ? 1 : 0.5;
+            $monthlyLeaves[$month] += $days;
         }
 
         $chartData = [];
