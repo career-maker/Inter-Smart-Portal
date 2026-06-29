@@ -104,18 +104,18 @@ export default function DashboardPage() {
         HEADER: Personalized Dashboard
         ========================================
       */}
-      <div className="bg-white rounded-3xl p-5 md:p-6 shadow-sm border border-gray-100 mb-6">
+      <div className="rounded-3xl p-5 md:p-6 shadow-sm border border-yellow-300 mb-6" style={{ background: 'linear-gradient(135deg, #F4B400 0%, #FFD54F 100%)', color: '#4A4A4A' }}>
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 lg:gap-8">
           {/* Left: Avatar, Greeting, Date */}
           <div className="flex items-center gap-5 md:gap-6">
-            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xl md:text-2xl font-bold shadow-lg shrink-0">
+            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/20 flex items-center justify-center text-[#4A4A4A] text-xl md:text-2xl font-bold shadow-sm shrink-0 border border-white/40">
               {profile.first_name?.[0]}{profile.last_name?.[0]}
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-500 mb-1">
+              <p className="text-sm font-medium text-[#4A4A4A]/80 mb-1">
                 {format(time, "EEEE, d MMMM yyyy")} • {format(time, "h:mm a")}
               </p>
-              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-gray-900 flex items-center">
+              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-[#4A4A4A] flex items-center">
                 {greeting}, {profile.first_name} 
                 <div className="relative w-[60px] h-[60px] ml-2 shrink-0">
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
@@ -124,15 +124,15 @@ export default function DashboardPage() {
                 </div>
               </h1>
               <div className="flex flex-wrap items-center gap-2 md:gap-3 mt-3">
-                <span className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
+                <span className="inline-flex items-center gap-1.5 bg-white/30 text-[#4A4A4A] px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
                   {profile.designation}
                 </span>
                 <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm ${
                   profile.attendance_status === 'Punched In' 
-                    ? 'bg-emerald-100 text-emerald-700'
+                    ? 'bg-emerald-100 text-emerald-800'
                     : profile.attendance_status === 'Punched Out'
-                    ? 'bg-orange-100 text-orange-700'
-                    : 'bg-rose-100 text-rose-700'
+                    ? 'bg-orange-100 text-orange-800'
+                    : 'bg-rose-100 text-rose-800'
                 }`}>
                   <Clock className="w-3.5 h-3.5" />
                   {profile.attendance_status}
@@ -142,39 +142,39 @@ export default function DashboardPage() {
           </div>
           
           {/* Right: Quick Summary Badges */}
-          <div className="flex flex-col justify-center bg-gray-50 rounded-2xl p-5 border border-gray-100 w-full lg:w-auto">
-            <p className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-amber-500" />
+          <div className="flex flex-col justify-center bg-white/20 rounded-2xl p-5 border border-white/40 w-full lg:w-auto shadow-sm">
+            <p className="text-sm font-bold text-[#4A4A4A] mb-3 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-[#4A4A4A]" />
               You have:
             </p>
             <div className="flex flex-col sm:flex-row gap-4 lg:gap-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 shrink-0">
+                <div className="w-10 h-10 rounded-full bg-white/40 flex items-center justify-center text-indigo-700 shrink-0 shadow-sm border border-white/50">
                   <FileText className="w-5 h-5" />
                 </div>
                 <div className="leading-tight">
-                  <p className="text-lg font-black text-gray-900">{leave_metrics.pending_leaves}</p>
-                  <p className="text-xs font-medium text-gray-500">Pending Approvals</p>
+                  <p className="text-lg font-black text-[#4A4A4A]">{leave_metrics.pending_leaves}</p>
+                  <p className="text-xs font-bold text-[#4A4A4A]/80">Pending Approvals</p>
                 </div>
               </div>
-              <div className="w-px h-10 bg-gray-200 hidden sm:block"></div>
+              <div className="w-px h-10 bg-white/40 hidden sm:block"></div>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
+                <div className="w-10 h-10 rounded-full bg-white/40 flex items-center justify-center text-emerald-700 shrink-0 shadow-sm border border-white/50">
                   <Palmtree className="w-5 h-5" />
                 </div>
                 <div className="leading-tight">
-                  <p className="text-lg font-black text-gray-900">{leave_metrics.employees_on_leave_today}</p>
-                  <p className="text-xs font-medium text-gray-500">On Leave Today</p>
+                  <p className="text-lg font-black text-[#4A4A4A]">{leave_metrics.employees_on_leave_today}</p>
+                  <p className="text-xs font-bold text-[#4A4A4A]/80">On Leave Today</p>
                 </div>
               </div>
-              <div className="w-px h-10 bg-gray-200 hidden sm:block"></div>
+              <div className="w-px h-10 bg-white/40 hidden sm:block"></div>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
+                <div className="w-10 h-10 rounded-full bg-white/40 flex items-center justify-center text-blue-700 shrink-0 shadow-sm border border-white/50">
                   <Megaphone className="w-5 h-5" />
                 </div>
                 <div className="leading-tight">
-                  <p className="text-lg font-black text-gray-900">{widgets.company_updates.length}</p>
-                  <p className="text-xs font-medium text-gray-500">Announcements</p>
+                  <p className="text-lg font-black text-[#4A4A4A]">{widgets.company_updates.length}</p>
+                  <p className="text-xs font-bold text-[#4A4A4A]/80">Announcements</p>
                 </div>
               </div>
             </div>
@@ -448,6 +448,24 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
               </h1>
             </div>
           </div>
+          
+          {/* Right: Quick Summary Badges */}
+          <div className="flex flex-col justify-center bg-white/10 rounded-2xl p-4 md:p-5 border border-white/20 w-full md:w-auto shadow-sm">
+            <p className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-amber-400" />
+              You have:
+            </p>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-indigo-500/30 flex items-center justify-center text-indigo-200 shrink-0 shadow-sm border border-indigo-400/50">
+                <FileText className="w-5 h-5" />
+              </div>
+              <div className="leading-tight pr-4">
+                <p className="text-xl font-black text-white">{kpis.pending_requests}</p>
+                <p className="text-xs font-medium text-indigo-200 uppercase tracking-wider mt-0.5">Pending Requests</p>
+              </div>
+            </div>
+          </div>
+          
         </div>
       </div>
 
