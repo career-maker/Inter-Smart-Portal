@@ -354,7 +354,7 @@ export default function DashboardPage() {
               {leave_metrics.pending_leaves > 0 && (
                 <div className="mt-4 bg-orange-50 border border-orange-100 rounded-xl p-3 flex items-center gap-3 text-orange-800">
                   <Clock className="w-5 h-5 shrink-0" />
-                  <span className="text-sm font-medium">You have {leave_metrics.pending_leaves} pending request(s)</span>
+                  <span className="text-sm font-medium">Your {leave_metrics.pending_leaves} leave request(s) are pending approval</span>
                 </div>
               )}
 
