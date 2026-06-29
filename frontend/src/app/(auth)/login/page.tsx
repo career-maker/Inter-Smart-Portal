@@ -52,7 +52,10 @@ export default function LoginPage() {
             ))}
           </div>
         </div>
-        <p className="text-slate-600 text-sm">© 2026 Intersmart. All rights reserved.</p>
+        <div>
+          <p className="text-slate-600 text-sm">© 2026 Intersmart. All rights reserved.</p>
+          <p className="text-slate-600 text-sm mt-1">Developed By Team QA</p>
+        </div>
       </div>
 
       {/* Right login form */}
@@ -144,6 +147,10 @@ export default function LoginPage() {
               </a>{" "}
               for assistance.
             </p>
+          </div>
+          <div className="mt-8 text-center lg:hidden">
+            <p className="text-slate-600 text-sm">© 2026 Intersmart. All rights reserved.</p>
+            <p className="text-slate-600 text-sm mt-1">Developed By Team QA</p>
           </div>
         </div>
       </div>
