@@ -391,6 +391,11 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
+
+          <div className="mt-8">
+            <UpcomingBirthdaysWidget items={widgets.upcoming_birthdays} />
+          </div>
+
         </div>
 
       </div>
@@ -577,6 +582,8 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
             </div>
           </div>
 
+          <UpcomingBirthdaysWidget items={widgets.upcoming_birthdays} />
+
         </div>
       </div>
     </div>
@@ -632,6 +639,44 @@ function EngagementCard({ title, items, icon: Icon }: any) {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function UpcomingBirthdaysWidget({ items }: { items: any[] }) {
+  return (
+    <div className="bg-gradient-to-br from-pink-50 to-purple-50 rounded-2xl shadow-sm border border-pink-100 p-5 w-full">
+      <h3 className="font-bold text-gray-900 flex items-center gap-2 mb-4">
+        <Gift className="w-5 h-5 text-pink-500" />
+        Upcoming Birthdays
+      </h3>
+      <div className="space-y-4">
+        {!items || items.length === 0 ? (
+          <p className="text-sm text-gray-500">No upcoming birthdays.</p>
+        ) : (
+          items.map((b: any, idx: number) => (
+            <div key={idx} className="flex items-center justify-between p-3 bg-white/60 rounded-xl border border-white">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-pink-100 text-pink-600 flex items-center justify-center font-bold text-sm shrink-0">
+                  {b.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2)}
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-gray-900">{b.name}</p>
+                  <p className="text-xs text-gray-500">{b.designation || 'Employee'} • {b.department}</p>
+                </div>
+              </div>
+              <div className="flex flex-col items-end gap-1">
+                <span className="text-xs font-semibold text-gray-600">{format(new Date(b.date), "MMM d")}</span>
+                {b.days_remaining === 0 ? (
+                  <span className="text-[10px] uppercase tracking-wider font-bold bg-pink-500 text-white px-2 py-0.5 rounded-full">Today!</span>
+                ) : (
+                  <span className="text-[10px] uppercase tracking-wider font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">In {b.days_remaining} days</span>
+                )}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import api from "@/services/api";
-import { Save, Loader2, Server, Shield, Mail, Building } from "lucide-react";
+import { Save, Loader2, Server, Shield, Mail, Building, LayoutDashboard } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import { useRouter } from "next/navigation";
 
@@ -62,6 +62,7 @@ export default function SettingsPage() {
 
   const tabs = [
     { id: "company", label: "Company Profile", icon: Building },
+    { id: "dashboard", label: "Dashboard Widgets", icon: LayoutDashboard },
     { id: "smtp", label: "SMTP Configuration", icon: Mail },
     { id: "security", label: "Security & Backup", icon: Shield },
     { id: "system", label: "System Maintenance", icon: Server },
@@ -138,6 +139,26 @@ export default function SettingsPage() {
                         onChange={(e) => handleChange("support_email", e.target.value)}
                         className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
                       />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "dashboard" && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium border-b pb-2">Dashboard Widgets</h3>
+                  <div className="grid gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Upcoming Birthdays Lookahead (Days)</label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="365"
+                        value={settings.upcoming_birthdays_days || "30"}
+                        onChange={(e) => handleChange("upcoming_birthdays_days", e.target.value)}
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+                      />
+                      <p className="text-xs text-muted-foreground">Number of days to look ahead for upcoming employee birthdays (default: 30).</p>
                     </div>
                   </div>
                 </div>

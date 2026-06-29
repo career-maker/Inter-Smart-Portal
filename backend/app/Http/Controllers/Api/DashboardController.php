@@ -143,6 +143,38 @@ class DashboardController extends Controller
         $birthdays = $celebrations['birthdays'];
         $anniversaries = $celebrations['anniversaries'];
 
+        $upcomingDays = (int) (\App\Models\SystemSetting::where('key', 'upcoming_birthdays_days')->value('value') ?? 30);
+        $upcomingBirthdays = [];
+        
+        $today = Carbon::today();
+        $targetDate = Carbon::today()->addDays($upcomingDays);
+        
+        $fullUsers = User::with('team:id,name')->where('status', 'Active')->get(['id', 'first_name', 'last_name', 'dob', 'designation', 'team_id']);
+        
+        foreach ($fullUsers as $u) {
+            if ($u->dob) {
+                $dobThisYear = Carbon::parse($u->dob)->setYear($today->year);
+                
+                // If birthday has passed this year, check next year
+                if ($dobThisYear->isBefore($today)) {
+                    $dobThisYear->addYear();
+                }
+
+                if ($dobThisYear->between($today, $targetDate)) {
+                    $daysRemaining = $today->diffInDays($dobThisYear);
+                    $upcomingBirthdays[] = [
+                        'name' => "{$u->first_name} {$u->last_name}",
+                        'designation' => $u->designation,
+                        'department' => $u->team ? $u->team->name : 'Unassigned',
+                        'date' => $dobThisYear->toDateString(),
+                        'days_remaining' => $daysRemaining,
+                    ];
+                }
+            }
+        }
+        
+        usort($upcomingBirthdays, fn($a, $b) => $a['days_remaining'] <=> $b['days_remaining']);
+
         // 6. Charts: Leave usage by month for the current year
         $leaveRequests = LeaveRequest::where('user_id', $user->id)
             ->where('status', 'Approved')
@@ -186,6 +218,7 @@ class DashboardController extends Controller
                 'company_updates' => $latestUpdates,
                 'birthdays' => $birthdays,
                 'anniversaries' => $anniversaries,
+                'upcoming_birthdays' => $upcomingBirthdays,
             ],
             'charts' => [
                 'leaves_by_month' => $chartData
