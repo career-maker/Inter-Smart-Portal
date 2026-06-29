@@ -34,7 +34,7 @@ export default function AttendancePage() {
         api.get("/attendance")
       ]);
       setStatusData(statusRes.data);
-      setHistory(historyRes.data.data.data);
+      setHistory(historyRes.data.data || []);
     } catch (e) {
       console.error(e);
     } finally {

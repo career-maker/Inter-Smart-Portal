@@ -177,8 +177,6 @@ class AttendanceController extends Controller
             $query->with('user');
         }
 
-        return response()->json([
-            'data' => AttendanceResource::collection($query->orderBy('date', 'desc')->paginate(15))
-        ]);
+        return AttendanceResource::collection($query->orderBy('date', 'desc')->paginate(15));
     }
 }
