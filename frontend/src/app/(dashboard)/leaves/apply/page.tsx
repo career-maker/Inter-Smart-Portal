@@ -110,7 +110,13 @@ export default function ApplyLeavePage() {
                 <FormItem>
                   <FormLabel>Leave Type *</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl><SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger></FormControl>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select type">
+                          {field.value ? leaveTypes.find(t => t.id.toString() === field.value)?.name : "Select type"}
+                        </SelectValue>
+                      </SelectTrigger>
+                    </FormControl>
                     <SelectContent>
                       {leaveTypes.map(t => <SelectItem key={t.id} value={t.id.toString()}>{t.name}</SelectItem>)}
                     </SelectContent>
