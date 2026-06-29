@@ -37,6 +37,21 @@ class DashboardController extends Controller
             'service_duration' => $serviceDuration,
         ];
 
+        // Add Attendance Status
+        $todayStr = Carbon::today()->toDateString();
+        $todayAttendance = \App\Models\Attendance::where('user_id', $user->id)
+            ->whereDate('date', $todayStr)
+            ->first();
+            
+        $profile['attendance_status'] = 'Not Punched In';
+        if ($todayAttendance) {
+            if ($todayAttendance->check_out_time) {
+                $profile['attendance_status'] = 'Punched Out';
+            } else {
+                $profile['attendance_status'] = 'Punched In';
+            }
+        }
+
         // 2. Leave Metrics
         $currentYear = Carbon::now()->year;
         
@@ -53,11 +68,17 @@ class DashboardController extends Controller
             ->where('status', 'Pending')
             ->count();
 
+        $employeesOnLeaveToday = LeaveRequest::where('status', 'Approved')
+            ->whereDate('start_date', '<=', $todayStr)
+            ->whereDate('end_date', '>=', $todayStr)
+            ->count();
+
         $leaveMetrics = [
             'casual_leave_balance' => $casualLeaveBalance,
             'sick_leave_balance' => $sickLeaveBalance,
             'total_leaves_taken' => $totalLeavesTaken,
             'pending_leaves' => $pendingLeaves,
+            'employees_on_leave_today' => $employeesOnLeaveToday,
         ];
 
         // 3. Widgets: Upcoming Holidays

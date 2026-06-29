@@ -31,6 +31,12 @@ export default function DashboardPage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const interval = setInterval(() => setTime(new Date()), 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -77,52 +83,91 @@ export default function DashboardPage() {
   }
 
   const { profile, leave_metrics, widgets } = data;
+  
+  const hour = time.getHours();
+  let greeting = "Good Evening";
+  if (hour < 12) greeting = "Good Morning";
+  else if (hour < 17) greeting = "Good Afternoon";
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
       
       {/* 
         ========================================
-        HEADER: Team Left, Duration Right
+        HEADER: Personalized Dashboard
         ========================================
       */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b pb-6 border-gray-200">
-        <div className="space-y-1.5">
-          <div className="flex items-center gap-2">
-            {profile.team && profile.team !== 'Unassigned' && (
-              <span className="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm">
-                <Building2 className="w-3.5 h-3.5" />
-                {profile.team}
-              </span>
-            )}
-            <span className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
-              {profile.designation}
-            </span>
+      <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 mb-8">
+        <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-8">
+          {/* Left: Avatar, Greeting, Date */}
+          <div className="flex items-center gap-5 md:gap-6">
+            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xl md:text-2xl font-bold shadow-lg shrink-0">
+              {profile.first_name?.[0]}{profile.last_name?.[0]}
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500 mb-1">
+                {format(time, "EEEE, d MMMM yyyy")} • {format(time, "h:mm a")}
+              </p>
+              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-gray-900">
+                {greeting}, {profile.first_name} 👋
+              </h1>
+              <div className="flex flex-wrap items-center gap-2 md:gap-3 mt-3">
+                <span className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
+                  {profile.designation}
+                </span>
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm ${
+                  profile.attendance_status === 'Punched In' 
+                    ? 'bg-emerald-100 text-emerald-700'
+                    : profile.attendance_status === 'Punched Out'
+                    ? 'bg-orange-100 text-orange-700'
+                    : 'bg-rose-100 text-rose-700'
+                }`}>
+                  <Clock className="w-3.5 h-3.5" />
+                  {profile.attendance_status}
+                </span>
+              </div>
+            </div>
           </div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 mt-2">
-            Welcome back, {profile.first_name}!
-          </h1>
+          
+          {/* Right: Quick Summary Badges */}
+          <div className="flex flex-col justify-center bg-gray-50 rounded-2xl p-5 border border-gray-100 w-full xl:w-auto">
+            <p className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-amber-500" />
+              You have:
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 lg:gap-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 shrink-0">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <div className="leading-tight">
+                  <p className="text-lg font-black text-gray-900">{leave_metrics.pending_leaves}</p>
+                  <p className="text-xs font-medium text-gray-500">Pending Approvals</p>
+                </div>
+              </div>
+              <div className="w-px h-10 bg-gray-200 hidden sm:block"></div>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
+                  <Palmtree className="w-5 h-5" />
+                </div>
+                <div className="leading-tight">
+                  <p className="text-lg font-black text-gray-900">{leave_metrics.employees_on_leave_today}</p>
+                  <p className="text-xs font-medium text-gray-500">On Leave Today</p>
+                </div>
+              </div>
+              <div className="w-px h-10 bg-gray-200 hidden sm:block"></div>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
+                  <Megaphone className="w-5 h-5" />
+                </div>
+                <div className="leading-tight">
+                  <p className="text-lg font-black text-gray-900">{widgets.company_updates.length}</p>
+                  <p className="text-xs font-medium text-gray-500">Announcements</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        
-        {profile.service_duration && (
-          <div className="relative group overflow-hidden bg-gradient-to-r from-emerald-600 to-teal-700 text-white px-6 py-3.5 rounded-2xl shadow-xl shadow-emerald-500/20 self-stretch md:self-auto flex items-center gap-4 border border-emerald-400/30 transition-transform duration-300 hover:-translate-y-0.5">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-110 transition-transform duration-500"></div>
-            
-            <div className="relative z-10 flex items-center justify-center w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30 shadow-inner group-hover:rotate-12 transition-transform duration-500">
-              <Award className="w-6 h-6 text-amber-300 drop-shadow-md" />
-            </div>
-            
-            <div className="relative z-10 flex flex-col">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-100 flex items-center gap-1">
-                <Sparkles className="w-3 h-3 text-amber-300" />
-                Milestone
-              </span>
-              <span className="text-sm font-medium leading-tight mt-0.5">
-                You have been with Intersmart for <strong className="font-extrabold text-white text-base tracking-tight">{profile.service_duration}</strong>
-              </span>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* 
