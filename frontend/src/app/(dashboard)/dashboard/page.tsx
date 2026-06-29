@@ -409,21 +409,21 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
           </div>
           
           {/* Right: Quick Summary Badges */}
-          <div className="flex flex-col justify-center bg-white/10 rounded-2xl p-4 md:p-5 border border-white/20 w-full md:w-auto shadow-sm">
+          <Link href="/leaves/approvals" className="block flex flex-col justify-center bg-white/10 hover:bg-white/20 transition-colors rounded-2xl p-4 md:p-5 border border-white/20 hover:border-white/40 w-full md:w-auto shadow-sm cursor-pointer group">
             <p className="text-sm font-bold text-white mb-3 flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-amber-400" />
               You have:
             </p>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-indigo-500/30 flex items-center justify-center text-indigo-200 shrink-0 shadow-sm border border-indigo-400/50">
-                <FileText className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-full bg-indigo-500/30 group-hover:bg-indigo-500/50 transition-colors flex items-center justify-center text-indigo-200 shrink-0 shadow-sm border border-indigo-400/50">
+                <FileText className="w-5 h-5 group-hover:scale-110 transition-transform" />
               </div>
               <div className="leading-tight pr-4">
                 <p className="text-xl font-black text-white">{kpis.pending_requests}</p>
                 <p className="text-xs font-medium text-indigo-200 uppercase tracking-wider mt-0.5">Pending Requests</p>
               </div>
             </div>
-          </div>
+          </Link>
           
         </div>
       </div>
