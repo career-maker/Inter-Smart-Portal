@@ -168,7 +168,7 @@ export default function DashboardPage() {
       */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {/* Updates Widget */}
-        <div className="bg-blue-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.3)] p-6">
+        <div className="bg-blue-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,235,100,0.9)] p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold text-gray-900 flex items-center gap-2">
               <Megaphone className="w-4 h-4 text-blue-500" />
@@ -194,7 +194,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Celebrations Widget (Anniversaries Only) */}
-        <div className="bg-pink-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.3)] p-6">
+        <div className="bg-pink-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,235,100,0.9)] p-6">
           <h3 className="font-bold text-pink-700 flex items-center gap-2 mb-4">
             <PartyPopper className="w-5 h-5" />
             Work Anniversaries
@@ -307,7 +307,7 @@ export default function DashboardPage() {
           ========================================
         */}
         <div className="lg:col-span-4 space-y-8">
-          <div className="bg-emerald-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.3)] p-6 md:p-8 sticky top-24">
+          <div className="bg-emerald-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,235,100,0.9)] p-6 md:p-8 sticky top-24">
             <h2 className="text-lg font-bold text-emerald-800 mb-6 flex items-center gap-2">
               <CalendarDays className="w-5 h-5" />
               Leave Summary
@@ -468,7 +468,7 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
       */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 mt-6">
         {/* Announcements */}
-        <div className="bg-indigo-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.3)] p-6">
+        <div className="bg-indigo-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,235,100,0.9)] p-6">
           <h2 className="text-lg font-bold text-indigo-800 mb-5 flex items-center gap-2">
             <Megaphone className="w-5 h-5" />
             Company Announcements
@@ -491,7 +491,7 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
         </div>
 
         {/* Employee Engagement Widgets */}
-        <div className="bg-pink-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.3)] p-6">
+        <div className="bg-pink-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,235,100,0.9)] p-6">
           <h2 className="text-lg font-bold text-pink-800 mb-5 flex items-center gap-2">
             <PartyPopper className="w-5 h-5" />
             Celebrations
@@ -556,7 +556,7 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
           </div>
 
           {/* Activity Feed */}
-          <div className="bg-cyan-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.3)] p-6">
+          <div className="bg-cyan-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,235,100,0.9)] p-6">
             <h2 className="text-lg font-bold text-cyan-800 mb-5 flex items-center gap-2">
               <Activity className="w-5 h-5" />
               Recent Activity
@@ -610,7 +610,7 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
 
 
           {/* Upcoming Holidays */}
-          <div className="bg-rose-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.3)] p-6">
+          <div className="bg-rose-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,235,100,0.9)] p-6">
             <h2 className="text-lg font-bold text-rose-800 mb-5 flex items-center gap-2">
               <CalendarDays className="w-5 h-5" />
               Upcoming Holidays
@@ -629,7 +629,7 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
           </div>
 
           {/* Leave Summary (Reused from regular dashboard) */}
-           <div className="bg-emerald-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.3)] p-6">
+           <div className="bg-emerald-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,235,100,0.9)] p-6">
             <h2 className="text-lg font-bold text-emerald-800 mb-6 flex items-center gap-2">
               <CalendarDays className="w-5 h-5" />
               Company Leave Overview
@@ -683,7 +683,7 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
 function KPICard({ title, value, trend, icon: Icon, color, href, onClick }: any) {
   const bgColor = color.replace('bg-', 'bg-').replace('-500', '-50');
   const CardContent = (
-    <div className={`${bgColor} rounded-3xl p-6 shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.3)] relative overflow-hidden h-full ${(href || onClick) ? 'hover:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.06),inset_-4px_-4px_8px_rgba(255,255,255,0.3)] transition-all cursor-pointer group' : ''}`}>
+    <div className={`${bgColor} rounded-3xl p-6 shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,235,100,0.9)] relative overflow-hidden h-full ${(href || onClick) ? 'hover:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.06),inset_-4px_-4px_8px_rgba(255,235,100,0.9)] transition-all cursor-pointer group' : ''}`}>
       <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${color.replace('bg-', 'from-').replace('-500', '-200')} to-transparent rounded-bl-full -mr-4 -mt-4 opacity-30`}></div>
       <div className="flex justify-between items-start relative z-10">
         <div>
@@ -717,7 +717,7 @@ function KPICard({ title, value, trend, icon: Icon, color, href, onClick }: any)
 function QuickActionCard({ href, icon: Icon, title, color }: any) {
   // color is e.g. "text-emerald-600 bg-emerald-50"
   return (
-    <Link href={href} className={`${color} rounded-3xl p-4 flex flex-col items-center justify-center gap-2 shadow-[4px_4px_10px_rgba(0,0,0,0.06),-4px_-4px_10px_rgba(255,255,255,0.3)] hover:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.06),inset_-3px_-3px_6px_rgba(255,255,255,0.3)] transition-all text-center`}>
+    <Link href={href} className={`${color} rounded-3xl p-4 flex flex-col items-center justify-center gap-2 shadow-[4px_4px_10px_rgba(0,0,0,0.06),-4px_-4px_10px_rgba(255,235,100,0.9)] hover:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.06),inset_-3px_-3px_6px_rgba(255,235,100,0.9)] transition-all text-center`}>
       <Icon className="w-6 h-6" />
       <span className="text-xs font-bold">{title}</span>
     </Link>
@@ -727,7 +727,7 @@ function QuickActionCard({ href, icon: Icon, title, color }: any) {
 function EngagementCard({ title, items, icon: Icon, colorClass = "bg-orange-50 text-orange-600" }: any) {
   const bg = colorClass.split(' ')[0];
   return (
-    <div className={`${bg} rounded-3xl p-5 shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.3)]`}>
+    <div className={`${bg} rounded-3xl p-5 shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,235,100,0.9)]`}>
       <h3 className={`font-bold ${colorClass.split(' ')[1]} text-sm flex items-center gap-2 mb-3`}>
         <Icon className="w-5 h-5" />
         {title}
@@ -750,7 +750,7 @@ function EngagementCard({ title, items, icon: Icon, colorClass = "bg-orange-50 t
 
 function UpcomingBirthdaysWidget({ items }: { items: any[] }) {
   return (
-    <div className="bg-fuchsia-50 rounded-3xl p-6 shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.3)] w-full">
+    <div className="bg-fuchsia-50 rounded-3xl p-6 shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,235,100,0.9)] w-full">
       <h3 className="font-bold text-fuchsia-700 flex items-center gap-2 mb-5">
         <Gift className="w-5 h-5" />
         Upcoming Birthdays
@@ -762,7 +762,7 @@ function UpcomingBirthdaysWidget({ items }: { items: any[] }) {
           items.map((b: any, idx: number) => (
             <div key={idx} className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-white shadow-[inset_2px_2px_5px_rgba(0,0,0,0.05),inset_-2px_-2px_5px_rgba(255,255,255,0.3)] text-fuchsia-600 flex items-center justify-center font-bold text-sm shrink-0">
+                <div className="w-10 h-10 rounded-2xl bg-white shadow-[inset_2px_2px_5px_rgba(0,0,0,0.05),inset_-2px_-2px_5px_rgba(255,235,100,0.9)] text-fuchsia-600 flex items-center justify-center font-bold text-sm shrink-0">
                   {b.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2)}
                 </div>
                 <div>
@@ -801,10 +801,10 @@ function MenuCard({ href, icon: Icon, title, subtitle, color, className = "" }: 
 
   return (
     <Link href={href} className={`block ${className}`}>
-      <div className={`${style.bg} rounded-3xl p-5 h-full shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.3)] hover:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.06),inset_-4px_-4px_8px_rgba(255,255,255,0.3)] transition-all duration-300 group relative overflow-hidden`}>
+      <div className={`${style.bg} rounded-3xl p-5 h-full shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,235,100,0.9)] hover:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.06),inset_-4px_-4px_8px_rgba(255,235,100,0.9)] transition-all duration-300 group relative overflow-hidden`}>
         <div className={`absolute top-0 right-0 w-24 h-24 bg-white/40 rounded-bl-full -mr-4 -mt-4 opacity-50`}></div>
         <div className="relative z-10">
-          <div className={`w-10 h-10 rounded-2xl bg-white flex items-center justify-center mb-4 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.05),inset_-2px_-2px_5px_rgba(255,255,255,0.3)] group-hover:scale-95 transition-transform`}>
+          <div className={`w-10 h-10 rounded-2xl bg-white flex items-center justify-center mb-4 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.05),inset_-2px_-2px_5px_rgba(255,235,100,0.9)] group-hover:scale-95 transition-transform`}>
             <Icon className={`w-5 h-5 ${style.text}`} />
           </div>
           <h3 className="font-bold text-gray-900 text-sm leading-tight mb-1">{title}</h3>

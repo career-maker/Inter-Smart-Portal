@@ -67,7 +67,7 @@ export default function ActivitiesPage() {
         </div>
       </div>
 
-      <div className="bg-white rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.3)] p-6">
+      <div className="bg-white rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,235,100,0.9)] p-6">
         <div className="space-y-6">
           {data?.data.map((act: any, i: number) => (
             <div key={i} className="flex items-start gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100">
