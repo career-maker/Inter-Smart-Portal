@@ -205,7 +205,20 @@ class DashboardController extends Controller
                 $attendanceTrend = round((($presentToday - $presentYesterday) / $presentYesterday) * 100);
             }
             
-            $onLeaveToday = LeaveRequest::where('status', 'Approved')
+            $onLeaveToday = LeaveRequest::whereHas('leaveType', function ($query) {
+                    $query->where('name', 'not like', '%Work From Home%')
+                          ->where('name', 'not like', '%WFH%');
+                })
+                ->where('status', 'Approved')
+                ->where('start_date', '<=', $todayStr)
+                ->where('end_date', '>=', $todayStr)
+                ->count();
+
+            $wfhToday = LeaveRequest::whereHas('leaveType', function ($query) {
+                    $query->where('name', 'like', '%Work From Home%')
+                          ->orWhere('name', 'like', '%WFH%');
+                })
+                ->where('status', 'Approved')
                 ->where('start_date', '<=', $todayStr)
                 ->where('end_date', '>=', $todayStr)
                 ->count();
@@ -259,6 +272,7 @@ class DashboardController extends Controller
                     'total_employees' => $totalEmployees,
                     'present_today' => $presentToday,
                     'on_leave_today' => $onLeaveToday,
+                    'wfh_today' => $wfhToday,
                     'pending_requests' => $pendingGlobalRequests,
                     'trends' => [
                         'employees' => '+2%',

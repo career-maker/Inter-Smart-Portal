@@ -18,6 +18,7 @@ import {
   ChevronRight,
   Gift,
   PartyPopper,
+  Home,
   AlertCircle,
   ArrowRight,
   Award,
@@ -445,11 +446,12 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
         </div>
       </div>
 
-      {/* KPI Cards (4 cols) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* KPI Cards (5 cols) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
         <KPICard title="Employees" value={kpis.total_employees} trend={kpis.trends.employees} icon={UserCircle} color="bg-blue-500" />
         <KPICard title="Present" value={kpis.present_today} trend={kpis.trends.attendance} icon={Building2} color="bg-emerald-500" />
         <KPICard title="On Leave" value={kpis.on_leave_today} trend="" icon={Palmtree} color="bg-orange-500" />
+        <KPICard title="WFH" value={kpis.wfh_today} trend="" icon={Home} color="bg-teal-500" />
         <KPICard title="Pending Requests" value={kpis.pending_requests} trend="" icon={FileText} color="bg-purple-500" />
       </div>
 
