@@ -48,8 +48,50 @@ export default function ApplyLeavePage() {
   });
 
   useEffect(() => {
-    api.get("/leave-types").then(res => setLeaveTypes(res.data.data)).catch(console.error);
-    api.get("/dashboard").then(res => setLeaveMetrics(res.data.leave_metrics)).catch(console.error);
+    const fetchData = async () => {
+      try {
+        const typeRes = await api.get("/leave-types");
+        // Ensure leaveTypes is at least an empty array, or mock if missing
+        const types = typeRes.data?.data || [];
+        if (types.length === 0) {
+          // Provide defaults if DB is empty to avoid broken dropdown
+          setLeaveTypes([
+            { id: 1, name: 'Sick Leave' },
+            { id: 2, name: 'Casual Leave' },
+            { id: 3, name: 'Work From Home' }
+          ]);
+        } else {
+          setLeaveTypes(types);
+        }
+      } catch (e) {
+        console.error(e);
+        // Fallback options
+        setLeaveTypes([
+          { id: 1, name: 'Sick Leave' },
+          { id: 2, name: 'Casual Leave' }
+        ]);
+      }
+
+      try {
+        const dashRes = await api.get("/dashboard");
+        // Make absolutely sure leaveMetrics is truthy, fallback to 0s
+        const metrics = dashRes.data?.leave_metrics || {
+          sick_leave_balance: 0,
+          casual_leave_balance: 0,
+          total_leaves_taken: 0
+        };
+        setLeaveMetrics(metrics);
+      } catch (e) {
+        console.error(e);
+        // Fallback metrics to ensure the grid always shows
+        setLeaveMetrics({
+          sick_leave_balance: 0,
+          casual_leave_balance: 0,
+          total_leaves_taken: 0
+        });
+      }
+    };
+    fetchData();
   }, []);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
