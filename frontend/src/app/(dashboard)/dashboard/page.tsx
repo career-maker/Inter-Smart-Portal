@@ -176,67 +176,67 @@ export default function DashboardPage() {
               icon={Palmtree} 
               title="Leaves & WFH" 
               subtitle="Apply & view status"
-              gradient="from-emerald-400 to-teal-500" 
+              color="emerald" 
             />
             <MenuCard 
               href="/announcements" 
               icon={Megaphone} 
               title="Updates" 
               subtitle="Company news"
-              gradient="from-blue-400 to-indigo-500" 
+              color="blue" 
             />
             <MenuCard 
               href="/calendar" 
               icon={CalendarDays} 
               title="Leave Calendar" 
               subtitle="Your schedule"
-              gradient="from-violet-400 to-purple-500" 
+              color="violet" 
             />
             <MenuCard 
               href="/documents" 
               icon={FileText} 
               title="Request HR Documents" 
               subtitle="Request letters"
-              gradient="from-amber-400 to-orange-500" 
+              color="amber" 
             />
             <MenuCard 
               href="/documents" 
               icon={Download} 
               title="Downloads" 
               subtitle="Approved files"
-              gradient="from-rose-400 to-pink-500" 
+              color="rose" 
             />
             <MenuCard 
               href="/policies" 
               icon={BookOpen} 
               title="HR Policies" 
               subtitle="Rules & guidelines"
-              gradient="from-cyan-400 to-blue-500" 
+              color="cyan" 
             />
             <MenuCard 
               href="/profile" 
               icon={UserCircle} 
               title="My Profile" 
               subtitle="View details"
-              gradient="from-slate-600 to-gray-700" 
+              color="slate" 
               className="md:col-span-2 lg:col-span-1"
             />
             
             {(user?.role === "Super Admin" || user?.role === "Team Lead") && (
               <Link 
                 href="/hall" 
-                className="md:col-span-3 lg:col-span-2 group relative overflow-hidden rounded-2xl p-6 bg-gradient-to-br from-gray-900 to-gray-800 text-white shadow-xl shadow-gray-900/20 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-gray-700"
+                className="md:col-span-3 lg:col-span-2 group relative overflow-hidden rounded-3xl p-6 bg-slate-900 text-white shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.8)] hover:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.2),inset_-4px_-4px_8px_rgba(255,255,255,0.1)] transition-all duration-300"
               >
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-white/10 transition-colors"></div>
                 <div className="relative z-10 flex items-center justify-between h-full">
                   <div className="space-y-1">
-                    <div className="flex items-center gap-2 text-gray-300">
+                    <div className="flex items-center gap-2 text-gray-400">
                       <Building2 className="w-5 h-5" />
-                      <span className="text-sm font-medium uppercase tracking-wider">Management Only</span>
+                      <span className="text-sm font-bold uppercase tracking-wider">Management Only</span>
                     </div>
-                    <h3 className="text-2xl font-bold">View The Hall</h3>
+                    <h3 className="text-2xl font-black tracking-tight">View The Hall</h3>
                   </div>
-                  <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
+                  <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center shadow-[inset_2px_2px_5px_rgba(0,0,0,0.2),inset_-2px_-2px_5px_rgba(255,255,255,0.1)] group-hover:scale-95 transition-transform">
                     <ArrowRight className="w-6 h-6" />
                   </div>
                 </div>
@@ -247,7 +247,7 @@ export default function DashboardPage() {
           {/* LOWER LEFT: UPDATES & CELEBRATIONS WIDGETS */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
             {/* Updates Widget */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+            <div className="bg-blue-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.9)] p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-bold text-gray-900 flex items-center gap-2">
                   <Megaphone className="w-4 h-4 text-blue-500" />
@@ -273,9 +273,9 @@ export default function DashboardPage() {
             </div>
 
             {/* Celebrations Widget (Anniversaries Only) */}
-            <div className="bg-gradient-to-br from-pink-50 to-purple-50 rounded-2xl shadow-sm border border-pink-100 p-5">
-              <h3 className="font-bold text-gray-900 flex items-center gap-2 mb-4">
-                <PartyPopper className="w-4 h-4 text-pink-500" />
+            <div className="bg-pink-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.9)] p-6">
+              <h3 className="font-bold text-pink-700 flex items-center gap-2 mb-4">
+                <PartyPopper className="w-5 h-5" />
                 Work Anniversaries
               </h3>
               <div className="space-y-4">
@@ -300,9 +300,9 @@ export default function DashboardPage() {
         */}
         <div className="lg:col-span-4 space-y-8">
           <UpcomingBirthdaysWidget items={widgets.upcoming_birthdays} />
-          <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 p-6 md:p-8 sticky top-24">
-            <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <CalendarDays className="w-5 h-5 text-indigo-500" />
+          <div className="bg-emerald-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.9)] p-6 md:p-8 sticky top-24">
+            <h2 className="text-lg font-bold text-emerald-800 mb-6 flex items-center gap-2">
+              <CalendarDays className="w-5 h-5" />
               Leave Summary
             </h2>
             
@@ -369,24 +369,6 @@ export default function DashboardPage() {
 
       </div>
     </div>
-  );
-}
-
-function MenuCard({ href, icon: Icon, title, subtitle, gradient, className = "" }: any) {
-  return (
-    <Link 
-      href={href} 
-      className={`relative group overflow-hidden rounded-2xl p-5 md:p-6 bg-white shadow-sm border border-gray-100 hover:shadow-xl hover:shadow-blue-900/5 transition-all duration-300 hover:-translate-y-1 ${className}`}
-    >
-      <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${gradient} opacity-10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:opacity-20 transition-opacity`}></div>
-      <div className="relative z-10">
-        <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center text-white mb-4 shadow-md`}>
-          <Icon className="w-6 h-6" />
-        </div>
-        <h3 className="font-bold text-gray-900 text-lg leading-tight">{title}</h3>
-        <p className="text-sm text-gray-500 mt-1 font-medium">{subtitle}</p>
-      </div>
-    </Link>
   );
 }
 
@@ -487,9 +469,9 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
           </div>
 
           {/* Activity Feed */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <Activity className="w-5 h-5 text-blue-500" />
+          <div className="bg-cyan-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.9)] p-6">
+            <h2 className="text-lg font-bold text-cyan-800 mb-5 flex items-center gap-2">
+              <Activity className="w-5 h-5" />
               Recent Activity
             </h2>
             <div className="space-y-4">
@@ -509,9 +491,9 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
           </div>
 
           {/* Announcements */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <Megaphone className="w-5 h-5 text-indigo-500" />
+          <div className="bg-indigo-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.9)] p-6">
+            <h2 className="text-lg font-bold text-indigo-800 mb-5 flex items-center gap-2">
+              <Megaphone className="w-5 h-5" />
               Company Announcements
             </h2>
             <div className="space-y-3">
@@ -539,9 +521,9 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
           <UpcomingBirthdaysWidget items={widgets.upcoming_birthdays} />
 
           {/* Quick Actions (Secondary Navigation) */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-amber-500" />
+          <div className="bg-amber-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.9)] p-6">
+            <h2 className="text-lg font-bold text-amber-800 mb-5 flex items-center gap-2">
+              <Sparkles className="w-5 h-5" />
               Quick Actions
             </h2>
             <div className="grid grid-cols-2 gap-3">
@@ -553,9 +535,9 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
           </div>
 
           {/* Upcoming Holidays */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <CalendarDays className="w-5 h-5 text-rose-500" />
+          <div className="bg-rose-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.9)] p-6">
+            <h2 className="text-lg font-bold text-rose-800 mb-5 flex items-center gap-2">
+              <CalendarDays className="w-5 h-5" />
               Upcoming Holidays
             </h2>
             <div className="space-y-4">
@@ -572,9 +554,9 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
           </div>
 
           {/* Leave Summary (Reused from regular dashboard) */}
-           <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 p-6">
-            <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <CalendarDays className="w-5 h-5 text-indigo-500" />
+           <div className="bg-emerald-50 rounded-3xl shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.9)] p-6">
+            <h2 className="text-lg font-bold text-emerald-800 mb-6 flex items-center gap-2">
+              <CalendarDays className="w-5 h-5" />
               Company Leave Overview
             </h2>
             <div className="space-y-4">
@@ -624,15 +606,16 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
 }
 
 function KPICard({ title, value, trend, icon: Icon, color, href, onClick }: any) {
+  const bgColor = color.replace('bg-', 'bg-').replace('-500', '-50');
   const CardContent = (
-    <div className={`bg-white rounded-2xl p-6 shadow-sm border border-gray-100 relative overflow-hidden h-full ${(href || onClick) ? 'hover:shadow-md hover:border-gray-300 transition-all cursor-pointer group' : ''}`}>
-      <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${color.replace('bg-', 'from-').replace('-500', '-50')} to-white rounded-bl-full -mr-4 -mt-4 opacity-50`}></div>
+    <div className={`${bgColor} rounded-3xl p-6 shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.9)] relative overflow-hidden h-full ${(href || onClick) ? 'hover:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.06),inset_-4px_-4px_8px_rgba(255,255,255,0.9)] transition-all cursor-pointer group' : ''}`}>
+      <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${color.replace('bg-', 'from-').replace('-500', '-200')} to-transparent rounded-bl-full -mr-4 -mt-4 opacity-30`}></div>
       <div className="flex justify-between items-start relative z-10">
         <div>
-          <p className="text-sm font-bold text-gray-500 mb-1">{title}</p>
+          <p className="text-sm font-bold text-gray-600 mb-1">{title}</p>
           <h3 className="text-3xl font-black text-gray-900 tracking-tight">{value}</h3>
         </div>
-        <div className={`w-12 h-12 rounded-2xl ${color} text-white flex items-center justify-center shadow-sm ${(href || onClick) ? 'group-hover:scale-110 transition-transform' : ''}`}>
+        <div className={`w-12 h-12 rounded-2xl ${color} text-white flex items-center justify-center shadow-sm ${(href || onClick) ? 'group-hover:scale-95 transition-transform' : ''}`}>
           <Icon className="w-6 h-6" />
         </div>
       </div>
@@ -657,29 +640,31 @@ function KPICard({ title, value, trend, icon: Icon, color, href, onClick }: any)
 }
 
 function QuickActionCard({ href, icon: Icon, title, color }: any) {
+  // color is e.g. "text-emerald-600 bg-emerald-50"
   return (
-    <Link href={href} className={`${color} rounded-xl p-4 flex flex-col items-center justify-center gap-2 hover:opacity-80 transition-opacity text-center`}>
+    <Link href={href} className={`${color} rounded-3xl p-4 flex flex-col items-center justify-center gap-2 shadow-[4px_4px_10px_rgba(0,0,0,0.06),-4px_-4px_10px_rgba(255,255,255,0.9)] hover:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.06),inset_-3px_-3px_6px_rgba(255,255,255,0.9)] transition-all text-center`}>
       <Icon className="w-6 h-6" />
       <span className="text-xs font-bold">{title}</span>
     </Link>
   );
 }
 
-function EngagementCard({ title, items, icon: Icon }: any) {
+function EngagementCard({ title, items, icon: Icon, colorClass = "bg-orange-50 text-orange-600" }: any) {
+  const bg = colorClass.split(' ')[0];
   return (
-    <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
-      <h3 className="font-bold text-gray-900 text-sm flex items-center gap-2 mb-3">
-        <Icon className="w-4 h-4 text-gray-400" />
+    <div className={`${bg} rounded-3xl p-5 shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.9)]`}>
+      <h3 className={`font-bold ${colorClass.split(' ')[1]} text-sm flex items-center gap-2 mb-3`}>
+        <Icon className="w-5 h-5" />
         {title}
       </h3>
       {items.length === 0 ? (
-        <p className="text-xs text-gray-500">None today</p>
+        <p className="text-xs text-gray-500 font-medium">None today</p>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-3">
           {items.map((item: any, i: number) => (
             <div key={i} className="flex justify-between items-center text-xs">
-              <span className="font-medium text-gray-800">{item.name} {item.years ? `(${item.years}Y)` : ''}</span>
-              <span className="text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded">{format(new Date(item.date), "MMM d")}</span>
+              <span className="font-bold text-gray-800">{item.name} {item.years ? `(${item.years}Y)` : ''}</span>
+              <span className="text-gray-600 bg-white/60 px-2 py-1 rounded-md shadow-sm font-semibold">{format(new Date(item.date), "MMM d")}</span>
             </div>
           ))}
         </div>
@@ -690,32 +675,32 @@ function EngagementCard({ title, items, icon: Icon }: any) {
 
 function UpcomingBirthdaysWidget({ items }: { items: any[] }) {
   return (
-    <div className="bg-gradient-to-br from-pink-50 to-purple-50 rounded-2xl shadow-sm border border-pink-100 p-5 w-full">
-      <h3 className="font-bold text-gray-900 flex items-center gap-2 mb-4">
-        <Gift className="w-5 h-5 text-pink-500" />
+    <div className="bg-fuchsia-50 rounded-3xl p-6 shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.9)] w-full">
+      <h3 className="font-bold text-fuchsia-700 flex items-center gap-2 mb-5">
+        <Gift className="w-5 h-5" />
         Upcoming Birthdays
       </h3>
       <div className="space-y-4">
         {!items || items.length === 0 ? (
-          <p className="text-sm text-gray-500">No upcoming birthdays.</p>
+          <p className="text-sm text-gray-500 font-medium">No upcoming birthdays.</p>
         ) : (
           items.map((b: any, idx: number) => (
-            <div key={idx} className="flex items-center justify-between p-3 bg-white/60 rounded-xl border border-white">
+            <div key={idx} className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-pink-100 text-pink-600 flex items-center justify-center font-bold text-sm shrink-0">
+                <div className="w-10 h-10 rounded-2xl bg-white shadow-[inset_2px_2px_5px_rgba(0,0,0,0.05),inset_-2px_-2px_5px_rgba(255,255,255,0.9)] text-fuchsia-600 flex items-center justify-center font-bold text-sm shrink-0">
                   {b.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2)}
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-gray-900">{b.name}</p>
-                  <p className="text-xs text-gray-500">{b.designation || 'Employee'} • {b.department}</p>
+                  <p className="text-sm font-bold text-gray-900 leading-tight">{b.name}</p>
+                  <p className="text-xs text-gray-600 font-medium">{b.designation || 'Employee'} • {b.department}</p>
                 </div>
               </div>
               <div className="flex flex-col items-end gap-1">
-                <span className="text-xs font-semibold text-gray-600">{format(new Date(b.date), "MMM d")}</span>
+                <span className="text-xs font-bold text-gray-700">{format(new Date(b.date), "MMM d")}</span>
                 {b.days_remaining === 0 ? (
-                  <span className="text-[10px] uppercase tracking-wider font-bold bg-pink-500 text-white px-2 py-0.5 rounded-full">Today!</span>
+                  <span className="text-[10px] uppercase tracking-wider font-bold bg-fuchsia-500 text-white px-2 py-0.5 rounded-lg shadow-sm">Today!</span>
                 ) : (
-                  <span className="text-[10px] uppercase tracking-wider font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">In {b.days_remaining} days</span>
+                  <span className="text-[10px] uppercase tracking-wider font-bold bg-white text-fuchsia-600 px-2 py-0.5 rounded-lg shadow-sm">In {b.days_remaining} d</span>
                 )}
               </div>
             </div>
@@ -723,5 +708,34 @@ function UpcomingBirthdaysWidget({ items }: { items: any[] }) {
         )}
       </div>
     </div>
+  );
+}
+
+function MenuCard({ href, icon: Icon, title, subtitle, color, className = "" }: any) {
+  const colors: Record<string, { bg: string, text: string }> = {
+    emerald: { bg: 'bg-emerald-50', text: 'text-emerald-600' },
+    blue: { bg: 'bg-blue-50', text: 'text-blue-600' },
+    violet: { bg: 'bg-violet-50', text: 'text-violet-600' },
+    amber: { bg: 'bg-amber-50', text: 'text-amber-600' },
+    rose: { bg: 'bg-rose-50', text: 'text-rose-600' },
+    cyan: { bg: 'bg-cyan-50', text: 'text-cyan-600' },
+    slate: { bg: 'bg-slate-100', text: 'text-slate-700' },
+  };
+
+  const style = colors[color] || colors.blue;
+
+  return (
+    <Link href={href} className={`block ${className}`}>
+      <div className={`${style.bg} rounded-3xl p-5 h-full shadow-[6px_6px_12px_rgba(0,0,0,0.06),-6px_-6px_12px_rgba(255,255,255,0.9)] hover:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.06),inset_-4px_-4px_8px_rgba(255,255,255,0.9)] transition-all duration-300 group relative overflow-hidden`}>
+        <div className={`absolute top-0 right-0 w-24 h-24 bg-white/40 rounded-bl-full -mr-4 -mt-4 opacity-50`}></div>
+        <div className="relative z-10">
+          <div className={`w-10 h-10 rounded-2xl bg-white flex items-center justify-center mb-4 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.05),inset_-2px_-2px_5px_rgba(255,255,255,0.9)] group-hover:scale-95 transition-transform`}>
+            <Icon className={`w-5 h-5 ${style.text}`} />
+          </div>
+          <h3 className="font-bold text-gray-900 text-sm leading-tight mb-1">{title}</h3>
+          <p className="text-xs text-gray-600 font-medium">{subtitle}</p>
+        </div>
+      </div>
+    </Link>
   );
 }
