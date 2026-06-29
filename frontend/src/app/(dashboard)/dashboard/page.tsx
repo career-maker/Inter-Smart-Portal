@@ -140,46 +140,14 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
-          
-          {/* Right: Quick Summary Badges */}
-          <div className="flex flex-col justify-center bg-white/20 rounded-2xl p-5 border border-white/40 w-full lg:w-auto shadow-sm">
-            <p className="text-sm font-bold text-[#4A4A4A] mb-3 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#4A4A4A]" />
-              You have:
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 lg:gap-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-white/40 flex items-center justify-center text-indigo-700 shrink-0 shadow-sm border border-white/50">
-                  <FileText className="w-5 h-5" />
-                </div>
-                <div className="leading-tight">
-                  <p className="text-lg font-black text-[#4A4A4A]">{leave_metrics.pending_leaves}</p>
-                  <p className="text-xs font-bold text-[#4A4A4A]/80">Pending Approvals</p>
-                </div>
-              </div>
-              <div className="w-px h-10 bg-white/40 hidden sm:block"></div>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-white/40 flex items-center justify-center text-emerald-700 shrink-0 shadow-sm border border-white/50">
-                  <Palmtree className="w-5 h-5" />
-                </div>
-                <div className="leading-tight">
-                  <p className="text-lg font-black text-[#4A4A4A]">{leave_metrics.employees_on_leave_today}</p>
-                  <p className="text-xs font-bold text-[#4A4A4A]/80">On Leave Today</p>
-                </div>
-              </div>
-              <div className="w-px h-10 bg-white/40 hidden sm:block"></div>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-white/40 flex items-center justify-center text-blue-700 shrink-0 shadow-sm border border-white/50">
-                  <Megaphone className="w-5 h-5" />
-                </div>
-                <div className="leading-tight">
-                  <p className="text-lg font-black text-[#4A4A4A]">{widgets.company_updates.length}</p>
-                  <p className="text-xs font-bold text-[#4A4A4A]/80">Announcements</p>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
+      </div>
+
+      {/* Employee KPI Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 mt-2">
+        <KPICard title="Pending Leaves" value={leave_metrics.pending_leaves} icon={FileText} color="bg-indigo-500" href="/leaves" />
+        <KPICard title="On Leave Today" value={leave_metrics.employees_on_leave_today} icon={Palmtree} color="bg-emerald-500" href="/leaves" />
+        <KPICard title="Sick Leaves" value={leave_metrics.sick_leave_balance} icon={AlertCircle} color="bg-rose-500" href="/leaves" />
       </div>
 
       {/* 
@@ -599,10 +567,14 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
 
 function KPICard({ title, value, trend, icon: Icon, color, href }: any) {
   const CardContent = (
-    <div className={`bg-white rounded-2xl p-6 shadow-sm border border-gray-100 relative overflow-hidden h-full ${href ? 'hover:shadow-md hover:border-gray-200 transition-all cursor-pointer group' : ''}`}>
+    <div className={`bg-gray-50 rounded-2xl p-6 h-full transition-all duration-300 relative overflow-hidden group ${
+      href 
+        ? 'shadow-[6px_6px_12px_#d1d5db,-6px_-6px_12px_#ffffff] hover:shadow-[inset_4px_4px_8px_#d1d5db,inset_-4px_-4px_8px_#ffffff] cursor-pointer' 
+        : 'shadow-[6px_6px_12px_#d1d5db,-6px_-6px_12px_#ffffff]'
+    }`}>
       <div className="flex justify-between items-start relative z-10">
         <div>
-          <p className="text-sm font-medium text-gray-500 mb-1">{title}</p>
+          <p className="text-sm font-semibold text-gray-500 mb-1">{title}</p>
           <h3 className="text-3xl font-black text-gray-900">{value}</h3>
           {trend !== undefined && trend !== null && trend !== "" && (
             <p className={`text-xs font-bold mt-2 flex items-center gap-1 ${String(trend).startsWith('+') ? 'text-emerald-600' : 'text-rose-600'}`}>
@@ -610,7 +582,7 @@ function KPICard({ title, value, trend, icon: Icon, color, href }: any) {
             </p>
           )}
         </div>
-        <div className={`w-12 h-12 rounded-xl ${color} text-white flex items-center justify-center shadow-md ${href ? 'group-hover:scale-110' : ''} transition-transform`}>
+        <div className={`w-12 h-12 rounded-xl ${color} text-white flex items-center justify-center shadow-[4px_4px_8px_#d1d5db] ${href ? 'group-hover:scale-95' : ''} transition-transform`}>
           <Icon className="w-6 h-6" />
         </div>
       </div>
