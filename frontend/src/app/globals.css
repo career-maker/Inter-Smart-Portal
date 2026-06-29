@@ -143,6 +143,14 @@
   background: transparent; 
 }
 
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 ::-webkit-scrollbar-thumb {
   background: theme('colors.amber.400'); 
   border-radius: 10px;

@@ -67,7 +67,7 @@ export default function DashboardLayout({
           </Link>
 
           {/* Desktop Nav — scrollable */}
-          <nav className="hidden md:flex gap-1 overflow-x-auto flex-1 mx-4">
+          <nav className="hidden md:flex gap-1 overflow-x-auto flex-1 mx-4 no-scrollbar">
             {NAV_LINKS.filter(link => {
               if (link.href === '/hall') {
                 return user?.role === 'Super Admin' || user?.role === 'Team Lead';
