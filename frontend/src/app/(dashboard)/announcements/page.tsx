@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import {
-  Megaphone, Pin, Plus, Pencil, Trash2, Loader2, Calendar, Clock, Tag, X
+  Megaphone, Pin, Plus, Pencil, Trash2, Loader2, Calendar, Clock, Tag, X, Check
 } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
@@ -12,27 +12,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectSeparator
 } from "@/components/ui/select";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter
 } from "@/components/ui/dialog";
-
-const CATEGORIES = [
-  "Company Announcement", "Birthday", "Work Anniversary", "Holiday Notice",
-  "Emergency Notice", "Event Invitation", "Training Program", "Policy Update"
-];
-
-const CATEGORY_STYLES: Record<string, { badge: string; card: string }> = {
-  "Birthday":             { badge: "bg-pink-100 text-pink-700 border-pink-200",      card: "border-l-pink-400" },
-  "Work Anniversary":     { badge: "bg-purple-100 text-purple-700 border-purple-200", card: "border-l-purple-400" },
-  "Company Announcement": { badge: "bg-blue-100 text-blue-700 border-blue-200",      card: "border-l-blue-400" },
-  "Holiday Notice":       { badge: "bg-green-100 text-green-700 border-green-200",   card: "border-l-green-400" },
-  "Emergency Notice":     { badge: "bg-red-100 text-red-700 border-red-200",         card: "border-l-red-500" },
-  "Event Invitation":     { badge: "bg-amber-100 text-amber-700 border-amber-200",   card: "border-l-amber-400" },
-  "Training Program":     { badge: "bg-teal-100 text-teal-700 border-teal-200",      card: "border-l-teal-400" },
-  "Policy Update":        { badge: "bg-slate-100 text-slate-700 border-slate-200",   card: "border-l-slate-400" },
-};
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://127.0.0.1:8765";
 
@@ -41,6 +25,7 @@ export default function AnnouncementsPage() {
   const isAdmin = user?.role === "Super Admin" || user?.role === "HR";
 
   const [announcements, setAnnouncements] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
   const [editTarget, setEditTarget] = useState<any>(null);
@@ -55,7 +40,15 @@ export default function AnnouncementsPage() {
   const [expiresAt, setExpiresAt] = useState("");
   const imageRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => { fetchAnnouncements(); }, []);
+  // Inline Category creation state
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [creatingCategory, setCreatingCategory] = useState(false);
+
+  useEffect(() => { 
+    fetchAnnouncements(); 
+    fetchCategories();
+  }, []);
 
   const fetchAnnouncements = async () => {
     setIsLoading(true);
@@ -66,10 +59,36 @@ export default function AnnouncementsPage() {
     finally { setIsLoading(false); }
   };
 
+  const fetchCategories = async () => {
+    try {
+      const res = await api.get("/announcement-categories");
+      setCategories(res.data.data || []);
+    } catch (e) { console.error(e); }
+  };
+
+  const handleCreateCategory = async () => {
+    if (!newCategoryName.trim()) return;
+    setCreatingCategory(true);
+    try {
+      const res = await api.post("/announcement-categories", { name: newCategoryName.trim() });
+      const newCat = res.data.data;
+      setCategories([...categories, newCat]);
+      setCategory(newCat.name);
+      setIsAddingCategory(false);
+      setNewCategoryName("");
+    } catch (e: any) {
+      alert(e.response?.data?.message || "Error creating category.");
+    } finally {
+      setCreatingCategory(false);
+    }
+  };
+
   const openCreate = () => {
     setEditTarget(null);
     setTitle(""); setContent(""); setCategory(""); setIsPinned(false);
     setScheduledAt(""); setExpiresAt("");
+    setIsAddingCategory(false);
+    setNewCategoryName("");
     setShowDialog(true);
   };
 
@@ -81,6 +100,8 @@ export default function AnnouncementsPage() {
     setIsPinned(ann.is_pinned);
     setScheduledAt(ann.scheduled_at ? ann.scheduled_at.slice(0, 16) : "");
     setExpiresAt(ann.expires_at ? ann.expires_at.slice(0, 16) : "");
+    setIsAddingCategory(false);
+    setNewCategoryName("");
     setShowDialog(true);
   };
 
@@ -158,7 +179,9 @@ export default function AnnouncementsPage() {
       ) : (
         <div className="space-y-4">
           {announcements.map((ann) => {
-            const style = CATEGORY_STYLES[ann.category] || { badge: "bg-gray-100 text-gray-700 border-gray-200", card: "border-l-gray-400" };
+            const catObj = categories.find(c => c.name === ann.category);
+            const style = catObj ? { badge: catObj.badge_style, card: catObj.card_style } : { badge: "bg-gray-100 text-gray-700 border-gray-200", card: "border-l-gray-400" };
+            
             return (
               <div
                 key={ann.id}
@@ -244,12 +267,41 @@ export default function AnnouncementsPage() {
             </div>
             <div>
               <Label>Category</Label>
-              <Select value={category} onValueChange={(val) => setCategory(val as string)}>
-                <SelectTrigger className="mt-1"><SelectValue placeholder="Select category..." /></SelectTrigger>
-                <SelectContent>
-                  {CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              {isAddingCategory ? (
+                <div className="flex items-center gap-2 mt-1">
+                  <Input 
+                    placeholder="New category name..." 
+                    value={newCategoryName}
+                    onChange={(e) => setNewCategoryName(e.target.value)}
+                    autoFocus
+                  />
+                  <Button size="icon" variant="ghost" onClick={() => setIsAddingCategory(false)} disabled={creatingCategory}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                  <Button size="icon" onClick={handleCreateCategory} disabled={!newCategoryName.trim() || creatingCategory}>
+                    {creatingCategory ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                  </Button>
+                </div>
+              ) : (
+                <Select value={category} onValueChange={(val) => {
+                  if (val === "ADD_NEW") {
+                    setIsAddingCategory(true);
+                  } else {
+                    setCategory(val);
+                  }
+                }}>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder="Select category..." /></SelectTrigger>
+                  <SelectContent>
+                    {categories.map(c => <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>)}
+                    <SelectSeparator />
+                    <SelectItem value="ADD_NEW" className="font-semibold text-blue-600 focus:text-blue-700">
+                      <div className="flex items-center">
+                        <Plus className="h-4 w-4 mr-2" /> Add New Category
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
             </div>
             <div>
               <Label>Content</Label>
@@ -298,7 +350,7 @@ export default function AnnouncementsPage() {
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setShowDialog(false)}>Cancel</Button>
-            <Button onClick={submitForm} disabled={actionLoading || !title || !content || !category}>
+            <Button onClick={submitForm} disabled={actionLoading || !title || !content || !category || isAddingCategory}>
               {actionLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {editTarget ? "Save Changes" : "Publish Announcement"}
             </Button>

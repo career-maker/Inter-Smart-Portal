@@ -99,6 +99,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('announcements', [\App\Http\Controllers\Api\AnnouncementController::class, 'store']);
     Route::put('announcements/{announcement}', [\App\Http\Controllers\Api\AnnouncementController::class, 'update']);
     Route::delete('announcements/{announcement}', [\App\Http\Controllers\Api\AnnouncementController::class, 'destroy']);
+    
+    // Announcement Categories
+    Route::get('announcement-categories', [\App\Http\Controllers\Api\AnnouncementCategoryController::class, 'index']);
+    Route::post('announcement-categories', [\App\Http\Controllers\Api\AnnouncementCategoryController::class, 'store']);
 
     // Notifications
     Route::prefix('notifications')->group(function () {
