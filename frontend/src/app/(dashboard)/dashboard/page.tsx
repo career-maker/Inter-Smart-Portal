@@ -104,7 +104,7 @@ export default function DashboardPage() {
         ========================================
       */}
       <div className="bg-white rounded-3xl p-5 md:p-6 shadow-sm border border-gray-100 mb-6">
-        <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-8">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 lg:gap-8">
           {/* Left: Avatar, Greeting, Date */}
           <div className="flex items-center gap-5 md:gap-6">
             <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xl md:text-2xl font-bold shadow-lg shrink-0">
@@ -141,7 +141,7 @@ export default function DashboardPage() {
           </div>
           
           {/* Right: Quick Summary Badges */}
-          <div className="flex flex-col justify-center bg-gray-50 rounded-2xl p-5 border border-gray-100 w-full xl:w-auto">
+          <div className="flex flex-col justify-center bg-gray-50 rounded-2xl p-5 border border-gray-100 w-full lg:w-auto">
             <p className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-amber-500" />
               You have:
