@@ -287,7 +287,7 @@ export default function AnnouncementsPage() {
                   if (val === "ADD_NEW") {
                     setIsAddingCategory(true);
                   } else {
-                    setCategory(val);
+                    setCategory(val || "");
                   }
                 }}>
                   <SelectTrigger className="mt-1"><SelectValue placeholder="Select category..." /></SelectTrigger>
