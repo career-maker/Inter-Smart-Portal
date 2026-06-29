@@ -82,24 +82,28 @@ class DashboardController extends Controller
         ];
 
         // 3. Widgets: Upcoming Holidays
-        $upcomingHolidays = Holiday::where('date', '>=', Carbon::today())
-            ->orderBy('date', 'asc')
-            ->take(5)
-            ->get(['name', 'date']);
+        $upcomingHolidays = Cache::remember('dashboard_upcoming_holidays', now()->addHours(24), function () {
+            return Holiday::where('date', '>=', Carbon::today())
+                ->orderBy('date', 'asc')
+                ->take(5)
+                ->get(['name', 'date']);
+        });
 
         // 4. Widgets: Latest Company Updates
-        $latestUpdates = Announcement::where(function ($query) {
-                $query->whereNull('expires_at')
-                      ->orWhere('expires_at', '>', Carbon::now());
-            })
-            ->where(function ($query) {
-                $query->whereNull('scheduled_at')
-                      ->orWhere('scheduled_at', '<=', Carbon::now());
-            })
-            ->orderBy('is_pinned', 'desc')
-            ->orderBy('created_at', 'desc')
-            ->take(5)
-            ->get(['title', 'category', 'created_at', 'is_pinned']);
+        $latestUpdates = Cache::remember('dashboard_latest_updates', now()->addMinutes(10), function () {
+            return Announcement::where(function ($query) {
+                    $query->whereNull('expires_at')
+                          ->orWhere('expires_at', '>', Carbon::now());
+                })
+                ->where(function ($query) {
+                    $query->whereNull('scheduled_at')
+                          ->orWhere('scheduled_at', '<=', Carbon::now());
+                })
+                ->orderBy('is_pinned', 'desc')
+                ->orderBy('created_at', 'desc')
+                ->take(5)
+                ->get(['title', 'category', 'created_at', 'is_pinned']);
+        });
 
         // 5. Celebrations (Birthdays & Anniversaries in next 7 days)
         $celebrations = Cache::remember('dashboard_celebrations', now()->addHours(24), function () {
@@ -143,24 +147,28 @@ class DashboardController extends Controller
         $anniversaries = $celebrations['anniversaries'];
 
         // 6. Charts: Leave usage by month for the current year
-        $leaveRequests = LeaveRequest::where('user_id', $user->id)
-            ->where('status', 'Approved')
-            ->whereYear('start_date', $currentYear)
-            ->get(['start_date', 'days']);
+        // Cache this per user since it only updates when they take a leave
+        $chartData = Cache::remember('dashboard_leave_chart_' . $user->id . '_' . $currentYear, now()->addHours(24), function () use ($user, $currentYear) {
+            $leaveRequests = LeaveRequest::where('user_id', $user->id)
+                ->where('status', 'Approved')
+                ->whereYear('start_date', $currentYear)
+                ->get(['start_date', 'days']);
 
-        $monthlyLeaves = array_fill(1, 12, 0); // Initialize all months to 0
-        foreach ($leaveRequests as $req) {
-            $month = (int) Carbon::parse($req->start_date)->format('n');
-            $monthlyLeaves[$month] += $req->days;
-        }
+            $monthlyLeaves = array_fill(1, 12, 0); 
+            foreach ($leaveRequests as $req) {
+                $month = (int) Carbon::parse($req->start_date)->format('n');
+                $monthlyLeaves[$month] += $req->days;
+            }
 
-        $chartData = [];
-        for ($m = 1; $m <= 12; $m++) {
-            $chartData[] = [
-                'name' => Carbon::create()->month($m)->format('M'),
-                'leaves' => $monthlyLeaves[$m]
-            ];
-        }
+            $data = [];
+            for ($m = 1; $m <= 12; $m++) {
+                $data[] = [
+                    'name' => Carbon::create()->month($m)->format('M'),
+                    'leaves' => $monthlyLeaves[$m]
+                ];
+            }
+            return $data;
+        });
 
         // 7. Recent Activities
         $recentActivities = $request->user()->notifications()
@@ -193,7 +201,10 @@ class DashboardController extends Controller
         ];
 
         if ($user->hasRole('Super Admin') || $user->hasRole('Team Lead')) {
-            $totalEmployees = User::where('status', 'Active')->count();
+            $totalEmployees = Cache::remember('admin_total_employees', now()->addMinutes(60), function() {
+                return User::where('status', 'Active')->count();
+            });
+            
             $yesterdayStr = Carbon::yesterday()->toDateString();
             
             $presentToday = \App\Models\Attendance::whereDate('date', $todayStr)->whereNotNull('check_in_time')->distinct('user_id')->count('user_id');
@@ -212,46 +223,48 @@ class DashboardController extends Controller
             $pendingGlobalRequests = LeaveRequest::where('status', 'Pending')->count();
             
             // Global Activity Feed
-            $recentLeaves = LeaveRequest::with('user:id,first_name,last_name')
-                ->latest()
-                ->take(5)
-                ->get()
-                ->map(function($l) {
-                    return [
-                        'type' => 'leave',
-                        'message' => $l->user->first_name . ' applied for leave',
-                        'date' => $l->created_at
-                    ];
-                });
-                
-            $recentUsers = User::with('team:id,name')
-                ->latest()
-                ->take(5)
-                ->get()
-                ->map(function($u) {
-                    $teamName = $u->team ? $u->team->name : 'the company';
-                    return [
-                        'type' => 'user',
-                        'message' => $u->first_name . ' joined ' . $teamName,
-                        'date' => $u->created_at
-                    ];
-                });
-                
-            $recentPolicies = \App\Models\HrPolicy::latest()
-                ->take(3)
-                ->get()
-                ->map(function($p) {
-                    return [
-                        'type' => 'policy',
-                        'message' => 'New policy published: ' . $p->title,
-                        'date' => $p->created_at
-                    ];
-                });
-                
-            $globalFeed = collect($recentLeaves)->merge($recentUsers)->merge($recentPolicies)
-                ->sortByDesc('date')
-                ->values()
-                ->take(10);
+            $globalFeed = Cache::remember('admin_global_feed', now()->addMinutes(10), function() {
+                $recentLeaves = LeaveRequest::with('user:id,first_name,last_name')
+                    ->latest()
+                    ->take(5)
+                    ->get()
+                    ->map(function($l) {
+                        return [
+                            'type' => 'leave',
+                            'message' => $l->user->first_name . ' applied for leave',
+                            'date' => $l->created_at
+                        ];
+                    });
+                    
+                $recentUsers = User::with('team:id,name')
+                    ->latest()
+                    ->take(5)
+                    ->get()
+                    ->map(function($u) {
+                        $teamName = $u->team ? $u->team->name : 'the company';
+                        return [
+                            'type' => 'user',
+                            'message' => $u->first_name . ' joined ' . $teamName,
+                            'date' => $u->created_at
+                        ];
+                    });
+                    
+                $recentPolicies = \App\Models\HrPolicy::latest()
+                    ->take(3)
+                    ->get()
+                    ->map(function($p) {
+                        return [
+                            'type' => 'policy',
+                            'message' => 'New policy published: ' . $p->title,
+                            'date' => $p->created_at
+                        ];
+                    });
+                    
+                return collect($recentLeaves)->merge($recentUsers)->merge($recentPolicies)
+                    ->sortByDesc('date')
+                    ->values()
+                    ->take(10);
+            });
                 
             $responseData['admin_data'] = [
                 'kpis' => [
