@@ -1,0 +1,103 @@
+<?php
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\AuthController;
+
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/me', [AuthController::class, 'me']);
+    
+    // Employee Routes
+    Route::middleware(['role:Super Admin|Team Lead|HR'])->group(function () {
+        Route::apiResource('employees', \App\Http\Controllers\Api\EmployeeController::class);
+        Route::post('employees/{employee}/password', [\App\Http\Controllers\Api\EmployeeController::class, 'updatePassword']);
+        Route::post('employees/{employee}/photo', [\App\Http\Controllers\Api\EmployeeController::class, 'updatePhoto']);
+        Route::post('employees/{employee}/status', [\App\Http\Controllers\Api\EmployeeController::class, 'updateStatus']);
+        
+        // Team Routes
+        Route::apiResource('teams', \App\Http\Controllers\Api\TeamController::class);
+        Route::post('teams/{team}/members', [\App\Http\Controllers\Api\TeamController::class, 'syncMembers']);
+        
+        // Admin/HR Leave Configuration
+        Route::apiResource('leave-types', \App\Http\Controllers\Api\LeaveTypeController::class)->except(['index', 'show']);
+        
+        // Reports
+        Route::prefix('reports')->group(function () {
+            Route::get('employees', [\App\Http\Controllers\Api\ReportController::class, 'employees']);
+            Route::get('leaves', [\App\Http\Controllers\Api\ReportController::class, 'leaves']);
+            Route::get('leave-balances', [\App\Http\Controllers\Api\ReportController::class, 'leaveBalances']);
+        });
+        
+        // Approvals (Team Leads & Admins)
+        Route::post('leave-requests/{leaveRequest}/status', [\App\Http\Controllers\Api\LeaveRequestController::class, 'updateStatus']);
+        Route::post('wfh-requests/{wfhRequest}/status', [\App\Http\Controllers\Api\WfhRequestController::class, 'updateStatus']);
+    });
+    
+    // Super Admin Routes
+    Route::middleware(['role:Super Admin'])->group(function () {
+        Route::get('settings', [\App\Http\Controllers\Api\SystemSettingController::class, 'index']);
+        Route::post('settings', [\App\Http\Controllers\Api\SystemSettingController::class, 'store']);
+        Route::get('audit-logs', [\App\Http\Controllers\Api\AuditLogController::class, 'index']);
+    });
+    
+    // Employee Leave Routes
+    Route::get('leave-types', [\App\Http\Controllers\Api\LeaveTypeController::class, 'index']);
+    Route::get('leave-types/{leaveType}', [\App\Http\Controllers\Api\LeaveTypeController::class, 'show']);
+    Route::get('leave-balances', [\App\Http\Controllers\Api\LeaveBalanceController::class, 'index']);
+    Route::apiResource('leave-requests', \App\Http\Controllers\Api\LeaveRequestController::class)->only(['index', 'store']);
+    Route::apiResource('wfh-requests', \App\Http\Controllers\Api\WfhRequestController::class)->only(['index', 'store']);
+    
+    // Attendance Routes
+    Route::prefix('attendance')->group(function () {
+        Route::get('status', [\App\Http\Controllers\Api\AttendanceController::class, 'status']);
+        Route::post('check-in', [\App\Http\Controllers\Api\AttendanceController::class, 'checkIn']);
+        Route::post('check-out', [\App\Http\Controllers\Api\AttendanceController::class, 'checkOut']);
+        Route::post('break-start', [\App\Http\Controllers\Api\AttendanceController::class, 'startBreak']);
+        Route::post('break-end', [\App\Http\Controllers\Api\AttendanceController::class, 'endBreak']);
+        Route::get('/', [\App\Http\Controllers\Api\AttendanceController::class, 'index']);
+    });
+    
+    // Document Requests (all authenticated users can submit/view own)
+    Route::get('document-requests', [\App\Http\Controllers\Api\DocumentRequestController::class, 'index']);
+    Route::post('document-requests', [\App\Http\Controllers\Api\DocumentRequestController::class, 'store']);
+    
+    // HR/Admin: Upload fulfilled document
+    Route::post('document-requests/{documentRequest}/upload', [\App\Http\Controllers\Api\DocumentRequestController::class, 'upload']);
+    
+    // HR Policies (all can read, admin/HR can write)
+    Route::get('hr-policies', [\App\Http\Controllers\Api\HrPolicyController::class, 'index']);
+    Route::post('hr-policies', [\App\Http\Controllers\Api\HrPolicyController::class, 'store']);
+    Route::delete('hr-policies/{hrPolicy}', [\App\Http\Controllers\Api\HrPolicyController::class, 'destroy']);
+    
+    // Dashboard Data
+    Route::get('dashboard', [\App\Http\Controllers\Api\DashboardController::class, 'index']);
+
+    // Calendar & Holidays
+    Route::get('calendar', [\App\Http\Controllers\Api\CalendarController::class, 'index']);
+    Route::apiResource('holidays', \App\Http\Controllers\Api\HolidayController::class)->except(['create', 'edit', 'show']);
+
+    // Announcements (all can read, admin can manage)
+    Route::get('announcements', [\App\Http\Controllers\Api\AnnouncementController::class, 'index']);
+    Route::post('announcements', [\App\Http\Controllers\Api\AnnouncementController::class, 'store']);
+    Route::put('announcements/{announcement}', [\App\Http\Controllers\Api\AnnouncementController::class, 'update']);
+    Route::delete('announcements/{announcement}', [\App\Http\Controllers\Api\AnnouncementController::class, 'destroy']);
+
+    // Notifications
+    Route::prefix('notifications')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Api\NotificationController::class, 'index']);
+        Route::get('/unread', [\App\Http\Controllers\Api\NotificationController::class, 'unread']);
+        Route::post('/mark-as-read/{id?}', [\App\Http\Controllers\Api\NotificationController::class, 'markAsRead']);
+        Route::delete('/{id}', [\App\Http\Controllers\Api\NotificationController::class, 'destroy']);
+    });
+
+    // View The Hall (Admin & Team Lead only)
+    Route::middleware(['role:Super Admin|Team Lead'])->group(function () {
+        Route::get('hall', [\App\Http\Controllers\Api\HallController::class, 'index']);
+    });
+});
+
