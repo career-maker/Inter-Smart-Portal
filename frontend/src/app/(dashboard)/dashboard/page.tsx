@@ -375,6 +375,7 @@ export default function DashboardPage() {
 function SuperAdminDashboard({ data, user, time, greeting }: any) {
   const { profile, admin_data, widgets } = data;
   const { kpis, activity_feed } = admin_data;
+  const [leaveModalData, setLeaveModalData] = useState<{title: string, list: any[]} | null>(null);
 
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
