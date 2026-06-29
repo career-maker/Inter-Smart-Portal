@@ -114,10 +114,12 @@ export default function DashboardPage() {
               <p className="text-sm font-medium text-gray-500 mb-1">
                 {format(time, "EEEE, d MMMM yyyy")} • {format(time, "h:mm a")}
               </p>
-              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-gray-900 flex items-center relative w-fit">
+              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-gray-900 flex items-center">
                 {greeting}, {profile.first_name} 
-                <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 pointer-events-none">
-                  <DotLottiePlayer src="https://lottie.host/5ec233ff-2cb3-499c-ac94-906625aeb28f/JZM0rMFaWb.lottie" autoplay loop style={{ width: '120px', height: '120px' }} />
+                <div className="relative w-[60px] h-[60px] ml-2 shrink-0">
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+                    <DotLottiePlayer src="https://lottie.host/5ec233ff-2cb3-499c-ac94-906625aeb28f/JZM0rMFaWb.lottie" autoplay loop style={{ width: '120px', height: '120px' }} />
+                  </div>
                 </div>
               </h1>
               <div className="flex flex-wrap items-center gap-2 md:gap-3 mt-3">
@@ -430,10 +432,12 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
               <p className="text-sm font-medium text-indigo-200 mb-1">
                 {format(time, "EEEE, d MMMM yyyy")} • {format(time, "h:mm a")}
               </p>
-              <h1 className="text-3xl font-extrabold tracking-tight flex items-center relative w-fit">
+              <h1 className="text-3xl font-extrabold tracking-tight flex items-center">
                 {greeting}, {profile.first_name} (Admin) 
-                <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 pointer-events-none">
-                  <DotLottiePlayer src="https://lottie.host/5ec233ff-2cb3-499c-ac94-906625aeb28f/JZM0rMFaWb.lottie" autoplay loop style={{ width: '120px', height: '120px' }} />
+                <div className="relative w-[60px] h-[60px] ml-2 shrink-0">
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+                    <DotLottiePlayer src="https://lottie.host/5ec233ff-2cb3-499c-ac94-906625aeb28f/JZM0rMFaWb.lottie" autoplay loop style={{ width: '120px', height: '120px' }} />
+                  </div>
                 </div>
               </h1>
             </div>
