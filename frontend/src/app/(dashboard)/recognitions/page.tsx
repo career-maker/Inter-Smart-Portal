@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
-import { 
-  Award, 
-  Plus, 
-  Trash2, 
-  ShieldCheck, 
+import {
+  Award,
+  Plus,
+  Trash2,
+  ShieldCheck,
   PowerOff,
   Power,
-  Users
+  Loader2
 } from "lucide-react";
 import api from "@/services/api";
 
@@ -27,11 +27,13 @@ export default function RecognitionsPage() {
   const [employees, setEmployees] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  
-  // Form State
+  const [submitting, setSubmitting] = useState(false);
+  const [togglingId, setTogglingId] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+
   const [formData, setFormData] = useState({
     user_id: "",
-    title_selection: "", // predefined title or 'custom'
+    title_selection: "",
     custom_title: "",
     icon: "🏆",
     start_date: "",
@@ -40,31 +42,38 @@ export default function RecognitionsPage() {
   });
 
   useEffect(() => {
-    fetchData();
+    fetchRecognitions();
+    fetchEmployees();
   }, []);
 
-  const fetchData = async () => {
+  const fetchRecognitions = async () => {
     try {
       setLoading(true);
-      const [recRes, empRes] = await Promise.all([
-        api.get("/recognitions"),
-        api.get("/employees")
-      ]);
-      setRecognitions(recRes.data.data);
-      setEmployees(empRes.data.data || []);
+      const res = await api.get("/recognitions");
+      setRecognitions(res.data.data);
     } catch (error) {
-      console.error("Failed to fetch data", error);
+      console.error("Failed to fetch recognitions", error);
     } finally {
       setLoading(false);
     }
   };
 
+  const fetchEmployees = async () => {
+    try {
+      const res = await api.get("/employees?per_page=200");
+      setEmployees(res.data.data || []);
+    } catch (error) {
+      console.error("Failed to fetch employees", error);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
     try {
       const isCustom = formData.title_selection === "custom";
       const title = isCustom ? formData.custom_title : formData.title_selection;
-      
+
       let icon = formData.icon;
       if (!isCustom) {
         const predefined = PREDEFINED_TITLES.find(t => t.title === formData.title_selection);
@@ -82,37 +91,48 @@ export default function RecognitionsPage() {
       });
 
       setShowModal(false);
-      setFormData({
-        user_id: "", title_selection: "", custom_title: "", icon: "🏆", start_date: "", end_date: "", description: ""
-      });
-      fetchData();
-    } catch (error) {
+      setFormData({ user_id: "", title_selection: "", custom_title: "", icon: "🏆", start_date: "", end_date: "", description: "" });
+      fetchRecognitions();
+    } catch (error: any) {
       console.error("Error creating recognition", error);
-      alert("Failed to create recognition.");
+      alert(error.response?.data?.message || "Failed to create recognition.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
   const toggleStatus = async (id: number) => {
+    setTogglingId(id);
     try {
       await api.put(`/recognitions/${id}/toggle`);
-      fetchData();
+      fetchRecognitions();
     } catch (error) {
       console.error("Error toggling status", error);
+    } finally {
+      setTogglingId(null);
     }
   };
 
   const deleteRecognition = async (id: number) => {
     if (!confirm("Are you sure you want to delete this recognition?")) return;
+    setDeletingId(id);
     try {
       await api.delete(`/recognitions/${id}`);
-      fetchData();
+      fetchRecognitions();
     } catch (error) {
       console.error("Error deleting", error);
+    } finally {
+      setDeletingId(null);
     }
   };
 
   if (loading) {
-    return <div className="p-8 text-center text-gray-500">Loading recognitions...</div>;
+    return (
+      <div className="flex items-center justify-center p-12 text-slate-400">
+        <Loader2 className="w-6 h-6 animate-spin mr-2" />
+        Loading recognitions...
+      </div>
+    );
   }
 
   return (
@@ -120,24 +140,24 @@ export default function RecognitionsPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2 text-white">
-            <Award className="w-6 h-6 text-indigo-600" />
+            <Award className="w-6 h-6 text-amber-400" />
             Employee Recognitions
           </h1>
-          <p className="text-sm text-gray-500 mt-1">Manage titles and awards for employees.</p>
+          <p className="text-sm text-slate-400 mt-1">Manage titles and awards for employees.</p>
         </div>
         <button
           onClick={() => setShowModal(true)}
-          className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition flex items-center gap-2"
+          className="bg-amber-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-amber-600 transition flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
           Assign Recognition
         </button>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="bg-white/5 text-slate-300 font-semibold border-b border-gray-100">
+            <thead className="bg-white/5 text-slate-300 font-semibold border-b border-white/10">
               <tr>
                 <th className="px-6 py-4">Employee</th>
                 <th className="px-6 py-4">Title</th>
@@ -146,35 +166,37 @@ export default function RecognitionsPage() {
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-white/5">
               {recognitions.map((rec) => {
                 const isActive = rec.is_active && new Date(rec.start_date) <= new Date() && new Date(rec.end_date) >= new Date();
-                
+                const isToggling = togglingId === rec.id;
+                const isDeleting = deletingId === rec.id;
+
                 return (
-                  <tr key={rec.id} className="hover:bg-gray-50/50 transition-colors">
+                  <tr key={rec.id} className="hover:bg-white/5 transition-colors">
                     <td className="px-6 py-4">
-                      <div className="font-semibold text-gray-900">{rec.user.first_name} {rec.user.last_name}</div>
-                      <div className="text-xs text-gray-500">{rec.user.employee_id}</div>
+                      <div className="font-semibold text-white">{rec.user?.first_name} {rec.user?.last_name}</div>
+                      <div className="text-xs text-slate-400">{rec.user?.employee_code}</div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-2 font-bold text-indigo-900">
+                      <div className="flex items-center gap-2 font-bold text-amber-300">
                         <span>{rec.icon}</span>
                         <span>{rec.title}</span>
-                        {rec.is_custom && <span className="text-[10px] bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded uppercase tracking-wider">Custom</span>}
+                        {rec.is_custom && <span className="text-[10px] bg-white/10 text-slate-300 px-1.5 py-0.5 rounded uppercase tracking-wider">Custom</span>}
                       </div>
-                      <div className="text-xs text-gray-500 mt-1 max-w-xs truncate" title={rec.description}>{rec.description}</div>
+                      <div className="text-xs text-slate-400 mt-1 max-w-xs truncate" title={rec.description}>{rec.description}</div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-gray-900">{format(new Date(rec.start_date), "MMM d, yyyy")}</div>
-                      <div className="text-gray-500 text-xs">to {format(new Date(rec.end_date), "MMM d, yyyy")}</div>
+                      <div className="text-slate-200">{format(new Date(rec.start_date), "MMM d, yyyy")}</div>
+                      <div className="text-slate-400 text-xs">to {format(new Date(rec.end_date), "MMM d, yyyy")}</div>
                     </td>
                     <td className="px-6 py-4 text-center">
                       {isActive ? (
-                        <span className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full text-xs font-bold">
+                        <span className="inline-flex items-center gap-1 bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-full text-xs font-bold">
                           <ShieldCheck className="w-3 h-3" /> Active
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs font-bold">
+                        <span className="inline-flex items-center gap-1 bg-white/10 text-slate-400 px-2 py-1 rounded-full text-xs font-bold">
                           Expired/Disabled
                         </span>
                       )}
@@ -182,17 +204,22 @@ export default function RecognitionsPage() {
                     <td className="px-6 py-4 text-right space-x-2">
                       <button
                         onClick={() => toggleStatus(rec.id)}
-                        className={`p-1.5 rounded-lg transition ${rec.is_active ? 'text-amber-600 hover:bg-amber-50' : 'text-emerald-600 hover:bg-emerald-50'}`}
+                        disabled={isToggling || isDeleting}
+                        className={`p-1.5 rounded-lg transition disabled:opacity-50 ${rec.is_active ? 'text-amber-400 hover:bg-amber-500/10' : 'text-emerald-400 hover:bg-emerald-500/10'}`}
                         title={rec.is_active ? "Disable" : "Enable"}
                       >
-                        {rec.is_active ? <PowerOff className="w-4 h-4" /> : <Power className="w-4 h-4" />}
+                        {isToggling
+                          ? <Loader2 className="w-4 h-4 animate-spin" />
+                          : rec.is_active ? <PowerOff className="w-4 h-4" /> : <Power className="w-4 h-4" />
+                        }
                       </button>
                       <button
                         onClick={() => deleteRecognition(rec.id)}
-                        className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition"
+                        disabled={isDeleting || isToggling}
+                        className="p-1.5 text-red-400 hover:bg-red-500/10 rounded-lg transition disabled:opacity-50"
                         title="Delete"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                       </button>
                     </td>
                   </tr>
@@ -200,7 +227,7 @@ export default function RecognitionsPage() {
               })}
               {recognitions.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                  <td colSpan={5} className="px-6 py-8 text-center text-slate-400">
                     No recognitions found.
                   </td>
                 </tr>
@@ -211,45 +238,50 @@ export default function RecognitionsPage() {
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-white rounded-2xl w-full max-w-lg shadow-xl my-8">
-            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white rounded-t-2xl z-10">
-              <h2 className="text-lg font-bold text-gray-900">Assign Recognition</h2>
-              <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">&times;</button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-slate-800 border border-white/10 rounded-2xl w-full max-w-lg shadow-xl my-8">
+            <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center sticky top-0 bg-slate-800 rounded-t-2xl z-10">
+              <h2 className="text-lg font-bold text-white">Assign Recognition</h2>
+              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
             </div>
-            
+
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Employee <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-semibold text-slate-300 mb-1">Employee <span className="text-red-400">*</span></label>
                 <select
                   required
                   value={formData.user_id}
-                  onChange={e => setFormData({...formData, user_id: e.target.value})}
-                  className="w-full border border-gray-300 rounded-lg p-2.5 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-sm"
+                  onChange={e => setFormData({ ...formData, user_id: e.target.value })}
+                  className="w-full border border-white/10 bg-slate-700 text-white rounded-lg p-2.5 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm"
                 >
-                  <option value="">Select Employee...</option>
+                  <option value="" className="bg-slate-700">Select Employee...</option>
                   {employees.map(emp => (
-                    <option key={emp.id} value={emp.id}>{emp.first_name} {emp.last_name} ({emp.employee_code})</option>
+                    <option key={emp.id} value={emp.id} className="bg-slate-700">
+                      {emp.first_name} {emp.last_name} ({emp.employee_code})
+                    </option>
                   ))}
                 </select>
+                {employees.length === 0 && (
+                  <p className="text-xs text-amber-400 mt-1">Loading employees...</p>
+                )}
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Recognition Title <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-semibold text-slate-300 mb-1">Recognition Title <span className="text-red-400">*</span></label>
                 <select
                   required
                   value={formData.title_selection}
-                  onChange={e => setFormData({...formData, title_selection: e.target.value})}
-                  className="w-full border border-gray-300 rounded-lg p-2.5 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-sm"
+                  onChange={e => setFormData({ ...formData, title_selection: e.target.value })}
+                  className="w-full border border-white/10 bg-slate-700 text-white rounded-lg p-2.5 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm"
                 >
-                  <option value="">Select a Title...</option>
+                  <option value="" className="bg-slate-700">Select a Title...</option>
                   <optgroup label="Predefined">
                     {PREDEFINED_TITLES.map(pt => (
-                      <option key={pt.title} value={pt.title}>{pt.icon} {pt.title}</option>
+                      <option key={pt.title} value={pt.title} className="bg-slate-700">{pt.icon} {pt.title}</option>
                     ))}
                   </optgroup>
                   <optgroup label="Other">
-                    <option value="custom">Custom Title...</option>
+                    <option value="custom" className="bg-slate-700">Custom Title...</option>
                   </optgroup>
                 </select>
               </div>
@@ -257,23 +289,23 @@ export default function RecognitionsPage() {
               {formData.title_selection === "custom" && (
                 <div className="grid grid-cols-4 gap-4">
                   <div className="col-span-3">
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">Custom Title Name <span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-semibold text-slate-300 mb-1">Custom Title Name <span className="text-red-400">*</span></label>
                     <input
                       required
                       type="text"
                       value={formData.custom_title}
-                      onChange={e => setFormData({...formData, custom_title: e.target.value})}
-                      className="w-full border border-gray-300 rounded-lg p-2.5 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-sm"
+                      onChange={e => setFormData({ ...formData, custom_title: e.target.value })}
+                      className="w-full border border-white/10 bg-slate-700 text-white rounded-lg p-2.5 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm"
                       placeholder="e.g. Sales Ninja"
                     />
                   </div>
                   <div className="col-span-1">
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">Emoji</label>
+                    <label className="block text-sm font-semibold text-slate-300 mb-1">Emoji</label>
                     <input
                       type="text"
                       value={formData.icon}
-                      onChange={e => setFormData({...formData, icon: e.target.value})}
-                      className="w-full border border-gray-300 rounded-lg p-2.5 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-sm text-center"
+                      onChange={e => setFormData({ ...formData, icon: e.target.value })}
+                      className="w-full border border-white/10 bg-slate-700 text-white rounded-lg p-2.5 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm text-center"
                     />
                   </div>
                 </div>
@@ -281,52 +313,55 @@ export default function RecognitionsPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Start Date <span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-semibold text-slate-300 mb-1">Start Date <span className="text-red-400">*</span></label>
                   <input
                     required
                     type="date"
                     value={formData.start_date}
-                    onChange={e => setFormData({...formData, start_date: e.target.value})}
-                    className="w-full border border-gray-300 rounded-lg p-2.5 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-sm"
+                    onChange={e => setFormData({ ...formData, start_date: e.target.value })}
+                    className="w-full border border-white/10 bg-slate-700 text-white rounded-lg p-2.5 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">End Date <span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-semibold text-slate-300 mb-1">End Date <span className="text-red-400">*</span></label>
                   <input
                     required
                     type="date"
                     value={formData.end_date}
-                    onChange={e => setFormData({...formData, end_date: e.target.value})}
-                    className="w-full border border-gray-300 rounded-lg p-2.5 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-sm"
+                    onChange={e => setFormData({ ...formData, end_date: e.target.value })}
+                    className="w-full border border-white/10 bg-slate-700 text-white rounded-lg p-2.5 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Appreciation Message <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-semibold text-slate-300 mb-1">Appreciation Message <span className="text-red-400">*</span></label>
                 <textarea
                   required
                   rows={3}
                   value={formData.description}
-                  onChange={e => setFormData({...formData, description: e.target.value})}
-                  className="w-full border border-gray-300 rounded-lg p-2.5 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-sm resize-none"
+                  onChange={e => setFormData({ ...formData, description: e.target.value })}
+                  className="w-full border border-white/10 bg-slate-700 text-white rounded-lg p-2.5 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm resize-none"
                   placeholder="For achieving the highest productivity score this week..."
                 />
               </div>
 
-              <div className="pt-4 flex justify-end gap-3 sticky bottom-0 bg-white py-2">
+              <div className="pt-4 flex justify-end gap-3 border-t border-white/10">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100 rounded-lg transition"
+                  disabled={submitting}
+                  className="px-4 py-2 text-sm font-semibold text-slate-300 border border-white/10 bg-white/5 hover:bg-white/10 rounded-lg transition disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 text-sm font-semibold bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg transition"
+                  disabled={submitting}
+                  className="px-4 py-2 text-sm font-semibold bg-amber-500 text-white hover:bg-amber-600 rounded-lg transition disabled:opacity-50 flex items-center gap-2"
                 >
-                  Assign Recognition
+                  {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
+                  {submitting ? "Saving..." : "Assign Recognition"}
                 </button>
               </div>
             </form>

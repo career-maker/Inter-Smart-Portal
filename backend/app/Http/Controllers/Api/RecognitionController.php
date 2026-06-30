@@ -12,7 +12,7 @@ class RecognitionController extends Controller
 {
     public function index()
     {
-        $recognitions = Recognition::with(['user:id,first_name,last_name,employee_id', 'creator:id,first_name,last_name'])
+        $recognitions = Recognition::with(['user:id,first_name,last_name,employee_code', 'creator:id,first_name,last_name'])
             ->orderBy('created_at', 'desc')
             ->get();
             
@@ -86,7 +86,7 @@ class RecognitionController extends Controller
     {
         $today = Carbon::today()->toDateString();
 
-        $recognitions = Recognition::with(['user:id,first_name,last_name,employee_id'])
+        $recognitions = Recognition::with(['user:id,first_name,last_name,employee_code'])
             ->where('is_active', true)
             ->whereDate('start_date', '<=', $today)
             ->whereDate('end_date', '>=', $today)
