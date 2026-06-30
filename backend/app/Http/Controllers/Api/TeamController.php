@@ -25,7 +25,18 @@ class TeamController extends Controller
 
     public function store(StoreTeamRequest $request)
     {
-        $team = Team::create($request->validated());
+        $data = $request->validated();
+        
+        // Auto-generate a unique team code from the name
+        $base = strtoupper(preg_replace('/[^A-Za-z]/', '', $data['name']));
+        $base = substr($base, 0, 4);
+        $code = $base . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+        while (Team::where('code', $code)->exists()) {
+            $code = $base . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+        }
+        $data['code'] = $code;
+        
+        $team = Team::create($data);
 
         return new TeamResource($team->load('teamLead')->loadCount('members'));
     }
