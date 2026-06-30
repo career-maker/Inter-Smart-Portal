@@ -7,6 +7,7 @@ import { useAuthStore } from "@/store/auth";
 import { LogOut, ChevronDown, Menu, X, ChevronRight, Home } from "lucide-react";
 import { NotificationDropdown } from "@/components/layout/NotificationDropdown";
 import { RecognitionTicker } from "@/components/layout/RecognitionTicker";
+import api from "@/services/api";
 
 const NAV_LINKS = [
   { href: "/dashboard",        label: "Dashboard" },
@@ -36,7 +37,7 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { isAuthenticated, user, logout } = useAuthStore();
+  const { isAuthenticated, user, logout, updateUser } = useAuthStore();
   const router = useRouter();
   const pathname = usePathname();
   const [isHydrated, setIsHydrated] = useState(false);
@@ -53,6 +54,14 @@ export default function DashboardLayout({
       router.push("/login");
     }
   }, [isHydrated, isAuthenticated, router]);
+
+  // Sync latest user data (including profile_photo_path) from backend on every mount
+  useEffect(() => {
+    if (!isHydrated || !isAuthenticated) return;
+    api.get("/me").then((res) => {
+      if (res.data?.user) updateUser(res.data.user);
+    }).catch(() => {});
+  }, [isHydrated, isAuthenticated]);
 
   if (!isHydrated) return null;
   if (!isAuthenticated) return null;
