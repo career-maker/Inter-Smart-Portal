@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from "@/store/auth";
-import { LogOut, ChevronDown, Menu, X } from "lucide-react";
+import { LogOut, ChevronDown, Menu, X, ChevronRight, Home } from "lucide-react";
 import { NotificationDropdown } from "@/components/layout/NotificationDropdown";
 import { RecognitionTicker } from "@/components/layout/RecognitionTicker";
 
@@ -147,6 +147,32 @@ export default function DashboardLayout({
       </header>
 
       <main className="max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8">
+        {pathname !== '/dashboard' && (
+          <div className="flex items-center flex-wrap gap-2 text-sm text-slate-400 mb-6 font-medium">
+            <Link href="/dashboard" className="hover:text-white transition-colors flex items-center gap-1.5">
+              <Home className="w-4 h-4" />
+              Dashboard
+            </Link>
+            {pathname.split('/').filter(p => p).map((path, index, array) => {
+              const href = '/' + array.slice(0, index + 1).join('/');
+              const isLast = index === array.length - 1;
+              const title = path.charAt(0).toUpperCase() + path.slice(1).replace(/-/g, ' ');
+              
+              return (
+                <div key={path} className="flex items-center gap-2">
+                  <ChevronRight className="w-4 h-4 text-slate-600" />
+                  {isLast ? (
+                    <span className="text-white">{title}</span>
+                  ) : (
+                    <Link href={href} className="hover:text-white transition-colors">
+                      {title}
+                    </Link>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
         {children}
       </main>
     </div>
