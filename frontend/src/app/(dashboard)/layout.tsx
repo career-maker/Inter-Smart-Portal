@@ -67,7 +67,7 @@ export default function DashboardLayout({
   };
 
   return (
-    <div className="min-h-screen bg-[#F4B400]">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <RecognitionTicker />
       <header className="bg-white border-b sticky top-0 z-30 shadow-sm">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">

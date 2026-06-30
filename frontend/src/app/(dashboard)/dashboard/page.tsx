@@ -142,19 +142,19 @@ export default function DashboardPage() {
         HEADER: Personalized Dashboard
         ========================================
       */}
-      <div className="rounded-3xl p-5 md:p-6 shadow-lg mb-6 bg-gradient-to-br from-slate-900 to-indigo-950 text-white relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
+      <div className="rounded-3xl p-5 md:p-6 shadow-lg mb-6 bg-[#F4B400] text-slate-900 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 lg:gap-8 relative z-10">
           {/* Left: Avatar, Greeting, Date */}
           <div className="flex items-center gap-5 md:gap-6">
-            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/10 flex items-center justify-center text-white text-xl md:text-2xl font-bold shadow-sm shrink-0 border border-white/20">
+            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/40 flex items-center justify-center text-slate-900 text-xl md:text-2xl font-bold shadow-sm shrink-0 border border-white/50">
               {profile.first_name?.[0]}{profile.last_name?.[0]}
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-300 mb-1">
+              <p className="text-sm font-medium text-slate-800/80 mb-1">
                 {format(time, "EEEE, d MMMM yyyy")} • {format(time, "h:mm a")}
               </p>
-              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white flex items-center">
+              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 flex items-center">
                 {greeting}, {profile.first_name} 
                 <div className="relative w-[60px] h-[60px] ml-2 shrink-0">
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
@@ -164,11 +164,11 @@ export default function DashboardPage() {
               </h1>
               <div className="flex flex-wrap items-center gap-2 md:gap-3 mt-3">
                 {profile.employee_code && (
-                  <span className="inline-flex items-center gap-1.5 bg-indigo-500/20 text-indigo-100 backdrop-blur-sm border border-indigo-400/30 px-3 py-1 rounded-full text-xs font-semibold tracking-wider shadow-sm">
+                  <span className="inline-flex items-center gap-1.5 bg-black/5 text-slate-900 backdrop-blur-sm border border-black/10 px-3 py-1 rounded-full text-xs font-semibold tracking-wider shadow-sm">
                     {profile.employee_code}
                   </span>
                 )}
-                <span className="inline-flex items-center gap-1.5 bg-white/10 text-white backdrop-blur-sm border border-white/20 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
+                <span className="inline-flex items-center gap-1.5 bg-black/5 text-slate-900 backdrop-blur-sm border border-black/10 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
                   {profile.designation}
                 </span>
                 <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm ${
@@ -309,7 +309,7 @@ export default function DashboardPage() {
             
             <Link 
               href="/hall" 
-              className="md:col-span-3 lg:col-span-2 group relative overflow-hidden rounded-3xl p-6 bg-slate-900 text-white shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.8)] hover:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.2),inset_-4px_-4px_8px_rgba(255,255,255,0.1)] transition-all duration-300"
+              className="md:col-span-3 lg:col-span-2 group relative overflow-hidden rounded-3xl p-6 bg-slate-800 text-white shadow-[6px_6px_12px_rgba(0,0,0,0.4),-6px_-6px_12px_rgba(255,255,255,0.05)] hover:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.4),inset_-4px_-4px_8px_rgba(255,255,255,0.05)] transition-all duration-300 border border-slate-700/50"
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-white/10 transition-colors"></div>
               <div className="relative z-10 flex items-center justify-between h-full">
@@ -418,17 +418,17 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Super Admin Welcome Banner */}
-      <div className="bg-gradient-to-r from-gray-900 to-indigo-900 rounded-3xl p-5 md:p-6 shadow-lg mb-6 text-white">
+      <div className="bg-[#F4B400] rounded-3xl p-5 md:p-6 shadow-lg mb-6 text-slate-900">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div className="flex items-center gap-5">
-            <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-white text-2xl font-bold backdrop-blur-sm border border-white/30 shrink-0">
+            <div className="w-16 h-16 rounded-full bg-white/40 flex items-center justify-center text-slate-900 text-2xl font-bold backdrop-blur-sm border border-white/50 shrink-0">
               {profile.first_name?.[0]}{profile.last_name?.[0]}
             </div>
             <div>
-              <p className="text-sm font-medium text-indigo-200 mb-1">
+              <p className="text-sm font-medium text-slate-800/80 mb-1">
                 {format(time, "EEEE, d MMMM yyyy")} • {format(time, "h:mm a")}
               </p>
-              <h1 className="text-3xl font-extrabold tracking-tight flex items-center">
+              <h1 className="text-3xl font-extrabold tracking-tight flex items-center text-slate-900">
                 {greeting}, {profile.first_name} (Admin) 
                 <div className="relative w-[60px] h-[60px] ml-2 shrink-0">
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
@@ -440,18 +440,18 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
           </div>
           
           {/* Right: Quick Summary Badges */}
-          <Link href="/leaves/approvals" className="block flex flex-col justify-center bg-white/10 hover:bg-white/20 transition-colors rounded-2xl p-4 md:p-5 border border-white/20 hover:border-white/40 w-full md:w-auto shadow-sm cursor-pointer group">
-            <p className="text-sm font-bold text-white mb-3 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-amber-400" />
+          <Link href="/leaves/approvals" className="block flex flex-col justify-center bg-black/5 hover:bg-black/10 transition-colors rounded-2xl p-4 md:p-5 border border-black/10 hover:border-black/20 w-full md:w-auto shadow-sm cursor-pointer group">
+            <p className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-slate-800" />
               You have:
             </p>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-indigo-50/700/30 group-hover:bg-indigo-50/700/50 transition-colors flex items-center justify-center text-indigo-200 shrink-0 shadow-sm border border-indigo-400/50">
+              <div className="w-10 h-10 rounded-full bg-white/50 group-hover:bg-white/70 transition-colors flex items-center justify-center text-slate-800 shrink-0 shadow-sm border border-white/60">
                 <FileText className="w-5 h-5 group-hover:scale-110 transition-transform" />
               </div>
               <div className="leading-tight pr-4">
-                <p className="text-xl font-black text-white">{kpis.pending_requests}</p>
-                <p className="text-xs font-medium text-indigo-200 uppercase tracking-wider mt-0.5">Pending Requests</p>
+                <p className="text-xl font-black text-slate-900">{kpis.pending_requests}</p>
+                <p className="text-xs font-bold text-slate-800/80 uppercase tracking-wider mt-0.5">Pending Requests</p>
               </div>
             </div>
           </Link>
@@ -568,7 +568,7 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
              
              <Link 
               href="/hall" 
-              className="lg:col-span-2 group relative overflow-hidden rounded-3xl p-6 bg-slate-900 text-white shadow-[6px_6px_12px_rgba(0,0,0,0.1),-6px_-6px_12px_rgba(255,255,255,0.8)] hover:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.2),inset_-4px_-4px_8px_rgba(255,255,255,0.1)] transition-all duration-300"
+              className="lg:col-span-2 group relative overflow-hidden rounded-3xl p-6 bg-slate-800 text-white shadow-[6px_6px_12px_rgba(0,0,0,0.4),-6px_-6px_12px_rgba(255,255,255,0.05)] hover:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.4),inset_-4px_-4px_8px_rgba(255,255,255,0.05)] transition-all duration-300 border border-slate-700/50"
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-white/10 transition-colors"></div>
               <div className="relative z-10 flex items-center justify-between h-full">
