@@ -184,6 +184,20 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
+          
+          {/* Right: Service Days */}
+          {profile.service_days !== undefined && profile.service_days !== null && (
+            <div className="bg-white/40 backdrop-blur-md border border-white/50 rounded-2xl p-4 md:p-5 shadow-sm text-center lg:text-right w-full lg:w-auto mt-4 lg:mt-0 flex flex-col justify-center">
+              <p className="text-xs md:text-sm font-bold text-slate-800/90 uppercase tracking-wider mb-1 flex items-center justify-center lg:justify-end gap-1.5">
+                <Sparkles className="w-4 h-4 text-slate-700" />
+                You are with Intersmart for
+              </p>
+              <div className="flex items-baseline justify-center lg:justify-end gap-1.5 text-slate-900 mt-1">
+                <span className="text-4xl md:text-5xl font-black tracking-tighter">{profile.service_days}</span>
+                <span className="text-lg md:text-xl font-extrabold tracking-tight">days</span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
