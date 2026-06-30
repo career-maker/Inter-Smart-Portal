@@ -64,7 +64,7 @@ export default function ApprovalsPage() {
   };
 
   const handleOverride = async (id: number, currentUnpaid: boolean, currentDays: number) => {
-    const isUnpaidStr = window.prompt("Is this leave Unpaid (LWP)? Enter 'yes' or 'no':", currentUnpaid ? "yes" : "no");
+    const isUnpaidStr = window.prompt("Is this leave Unpaid (LOP)? Enter 'yes' or 'no':", currentUnpaid ? "yes" : "no");
     if (isUnpaidStr === null) return;
     const isUnpaid = isUnpaidStr.toLowerCase().trim() === 'yes';
 
@@ -115,7 +115,7 @@ export default function ApprovalsPage() {
               </p>
               {type === 'leave' && req.is_unpaid && (
                 <div className="mt-3 p-3 bg-red-50 text-red-800 border border-red-200 rounded text-sm">
-                  <strong>⚠️ Marked as Unpaid (LWP)</strong>
+                  <strong>⚠️ Marked as Unpaid (LOP)</strong>
                   {req.unpaid_reason && <p className="mt-1 text-xs">{req.unpaid_reason}</p>}
                 </div>
               )}

@@ -579,10 +579,10 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
              {/* Quick Actions (Moved from right side to main area) */}
-             <QuickActionCard href="/leaves" icon={Palmtree} title="Leaves"  />
-             <QuickActionCard href="/announcements" icon={Megaphone} title="Updates"  />
-             <QuickActionCard href="/documents" icon={Download} title="Downloads"  />
-             <QuickActionCard href="/policies" icon={BookOpen} title="Policies"  />
+             <QuickActionCard href="/leaves" icon={Palmtree} title="Leaves" color="emerald" />
+             <QuickActionCard href="/announcements" icon={Megaphone} title="Updates" color="blue" />
+             <QuickActionCard href="/documents" icon={Download} title="Downloads" color="rose" />
+             <QuickActionCard href="/policies" icon={BookOpen} title="Policies" color="cyan" />
              
              <Link 
               href="/hall" 
@@ -771,11 +771,32 @@ function KPICard({ title, value, trend, icon: Icon, color, href, onClick }: any)
 }
 
 function QuickActionCard({ href, icon: Icon, title, color }: any) {
-  // color is e.g. "text-emerald-600 bg-emerald-50/70"
+  const iconAccent: Record<string, string> = {
+    emerald: 'bg-emerald-500/20 text-emerald-400',
+    blue:    'bg-blue-500/20 text-blue-400',
+    violet:  'bg-violet-500/20 text-violet-400',
+    amber:   'bg-amber-500/20 text-amber-400',
+    rose:    'bg-rose-500/20 text-rose-400',
+    cyan:    'bg-cyan-500/20 text-cyan-400',
+    slate:   'bg-slate-500/20 text-slate-300',
+  };
+  const accent = iconAccent[color] || iconAccent.blue;
+
   return (
-    <Link href={href} className={`${color} rounded-3xl p-4 flex flex-col items-center justify-center gap-2 shadow-[0_4px_20px_rgba(0,0,0,0.05)] backdrop-blur-2xl border border-white/60 hover:bg-white/40 hover:shadow-[0_4px_20px_rgba(0,0,0,0.1)] transition-all text-center`}>
-      <Icon className="w-6 h-6" />
-      <span className="text-xs font-bold">{title}</span>
+    <Link href={href}>
+      <div className="bg-slate-800 rounded-3xl p-5 h-full relative overflow-hidden
+        shadow-[6px_6px_14px_rgba(0,0,0,0.45),-6px_-6px_14px_rgba(255,255,255,0.04)]
+        hover:shadow-[inset_4px_4px_10px_rgba(0,0,0,0.45),inset_-4px_-4px_10px_rgba(255,255,255,0.04)]
+        border border-slate-700/50
+        transition-all duration-300 group flex flex-col items-start gap-3">
+        <div className="absolute top-0 right-0 w-20 h-20 bg-white/[0.03] rounded-bl-full -mr-4 -mt-4 group-hover:bg-white/[0.06] transition-colors" />
+        <div className={`w-10 h-10 rounded-2xl ${accent} flex items-center justify-center
+          shadow-[inset_2px_2px_5px_rgba(0,0,0,0.35),inset_-2px_-2px_5px_rgba(255,255,255,0.05)]
+          group-hover:scale-90 transition-transform duration-300 relative z-10`}>
+          <Icon className="w-5 h-5" />
+        </div>
+        <span className="text-sm font-bold text-white relative z-10">{title}</span>
+      </div>
     </Link>
   );
 }

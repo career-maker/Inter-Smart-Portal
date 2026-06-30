@@ -247,7 +247,7 @@ export default function ApplyLeavePage() {
                   <ul className="mt-2 text-sm text-gray-700 space-y-1">
                     <li><strong>Requested Days:</strong> {impact.actual_leave_days}</li>
                     {impact.sandwich_leave_days > 0 && <li><strong>Sandwich Days:</strong> {impact.sandwich_leave_days}</li>}
-                    <li><strong>Status:</strong> {impact.is_unpaid ? <span className="text-red-600 font-bold">Unpaid (LWP)</span> : <span className="text-emerald-600 font-bold">Paid</span>}</li>
+                    <li><strong>Status:</strong> {impact.is_unpaid ? <span className="text-red-600 font-bold">Unpaid (LOP)</span> : <span className="text-emerald-600 font-bold">Paid</span>}</li>
                     {impact.unpaid_reason && <li><strong>Reason:</strong> {impact.unpaid_reason}</li>}
                   </ul>
                 </div>
