@@ -188,13 +188,15 @@ export default function DashboardPage() {
             </div>
           </div>
           
-          {/* Right: Service Days */}
+          {/* Right: Service Days — animated neon pill */}
           {profile.service_stats && (
-            <div className="bg-white/10 backdrop-blur-md border border-amber-400/60 rounded-2xl p-4 md:p-5 text-center lg:text-right w-full lg:w-auto mt-4 lg:mt-0 flex flex-col justify-center shadow-[0_0_18px_rgba(251,191,36,0.5),0_0_40px_rgba(251,191,36,0.2),inset_0_0_12px_rgba(251,191,36,0.05)]">
-              <p className="text-sm md:text-base font-bold text-white tracking-wide flex flex-wrap items-center justify-center lg:justify-end gap-1.5">
-                <Sparkles className="w-5 h-5 text-amber-400" />
-                You have been with Intersmart for {profile.service_stats.years} Years {profile.service_stats.months} Months {profile.service_stats.days} Days
-              </p>
+            <div className="neon-pill-wrapper mt-4 lg:mt-0 w-full lg:w-auto shrink-0">
+              <div className="neon-pill-inner p-4 md:p-5 text-center lg:text-right">
+                <p className="text-sm md:text-base font-bold text-white tracking-wide flex flex-wrap items-center justify-center lg:justify-end gap-1.5">
+                  <Sparkles className="w-5 h-5 text-amber-400" />
+                  You have been with Intersmart for {profile.service_stats.years} Years {profile.service_stats.months} Months {profile.service_stats.days} Days
+                </p>
+              </div>
             </div>
           )}
         </div>
@@ -235,24 +237,43 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Celebrations Widget (Anniversaries Only) */}
-        <div className="premium-card p-6">
-          <h3 className="font-bold text-pink-300 flex items-center gap-2 mb-4">
-            <PartyPopper className="w-5 h-5" />
-            Work Anniversaries
-          </h3>
-          <div className="space-y-4">
-            {widgets.anniversaries.length === 0 && (
-              <p className="text-sm text-slate-400">No work anniversaries this week.</p>
-            )}
-            {widgets.anniversaries.map((a: any, idx: number) => (
-              <div key={`a-${idx}`} className="flex items-center justify-between text-sm">
-                <span className="font-medium text-white">🎉 {a.name} ({a.years}Y)</span>
-                <span className="text-purple-300 font-semibold text-xs bg-purple-500/30 px-2 py-1 rounded-md text-purple-300">{format(new Date(a.date), "MMM d")}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+        {/* Work Anniversaries — rotating, 14-day filter */}
+        {(() => {
+          const today = new Date(); today.setHours(0,0,0,0);
+          const filteredAnni = (widgets.anniversaries || []).filter((a: any) => {
+            const d = new Date(a.date); d.setHours(0,0,0,0);
+            const diff = Math.round((d.getTime() - today.getTime()) / 86400000);
+            return diff >= 0 && diff <= 14;
+          }).map((a: any) => {
+            const d = new Date(a.date); d.setHours(0,0,0,0);
+            return { ...a, days_remaining: Math.round((d.getTime() - today.getTime()) / 86400000) };
+          });
+          return (
+            <RotatingCard
+              title="Work Anniversaries"
+              icon={PartyPopper}
+              headerClass="text-pink-300"
+              items={filteredAnni}
+              emptyMessage="No work anniversaries in the next 2 weeks."
+              renderItem={(a) => (
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-bold text-white">🎉 {a.name}</p>
+                    <p className="text-xs text-slate-400 mt-0.5">{a.years} Year{a.years !== 1 ? 's' : ''} with Intersmart</p>
+                  </div>
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    <span className="text-xs font-bold text-slate-300">{format(new Date(a.date), "MMM d")}</span>
+                    {a.days_remaining === 0 ? (
+                      <span className="text-[10px] uppercase tracking-wider font-bold bg-pink-500/80 text-white px-2 py-0.5 rounded-lg">Today!</span>
+                    ) : (
+                      <span className="text-[10px] uppercase tracking-wider font-bold bg-pink-500/30 text-pink-300 px-2 py-0.5 rounded-lg">In {a.days_remaining} d</span>
+                    )}
+                  </div>
+                </div>
+              )}
+            />
+          );
+        })()}
 
         {/* Upcoming Birthdays Widget */}
         <UpcomingBirthdaysWidget items={widgets.upcoming_birthdays} />
@@ -551,39 +572,43 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
           </div>
         </div>
 
-        {/* Employee Engagement Widgets */}
-        <div className="premium-card p-6">
-          <h2 className="text-lg font-bold text-pink-300 mb-5 flex items-center gap-2">
-            <PartyPopper className="w-5 h-5" />
-            Celebrations
-          </h2>
-          <div className="space-y-4">
-            <h3 className="font-bold text-pink-300 text-sm flex items-center gap-2">
-              <Award className="w-4 h-4" />
-              Work Anniversaries
-            </h3>
-            {widgets.anniversaries.length === 0 ? (
-              <p className="text-xs text-slate-400 font-medium">None today</p>
-            ) : (
-              <div className="space-y-3">
-                {widgets.anniversaries.map((item: any, i: number) => (
-                  <div key={i} className="flex justify-between items-center text-xs">
-                    <span className="font-bold text-white">{item.name} {item.years ? `(${item.years}Y)` : ''}</span>
-                    <span className="text-pink-300 bg-white/60 px-2 py-1 rounded-md shadow-sm font-semibold">{format(new Date(item.date), "MMM d")}</span>
+        {/* Work Anniversaries — rotating, 14-day filter */}
+        {(() => {
+          const today = new Date(); today.setHours(0,0,0,0);
+          const filteredAnni = (widgets.anniversaries || []).filter((a: any) => {
+            const d = new Date(a.date); d.setHours(0,0,0,0);
+            const diff = Math.round((d.getTime() - today.getTime()) / 86400000);
+            return diff >= 0 && diff <= 14;
+          }).map((a: any) => {
+            const d = new Date(a.date); d.setHours(0,0,0,0);
+            return { ...a, days_remaining: Math.round((d.getTime() - today.getTime()) / 86400000) };
+          });
+          return (
+            <RotatingCard
+              title="Work Anniversaries"
+              icon={PartyPopper}
+              headerClass="text-pink-300"
+              items={filteredAnni}
+              emptyMessage="No work anniversaries in the next 2 weeks."
+              renderItem={(a) => (
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-bold text-white">🎉 {a.name}</p>
+                    <p className="text-xs text-slate-400 mt-0.5">{a.years} Year{a.years !== 1 ? 's' : ''} with Intersmart</p>
                   </div>
-                ))}
-              </div>
-            )}
-            
-            <div className="mt-4 pt-4 border-t border-white/10">
-               <h3 className="font-bold text-amber-300 text-sm flex items-center gap-2 mb-2">
-                  <Award className="w-4 h-4" />
-                  Employee of the Month
-               </h3>
-               <p className="text-sm font-medium text-white">Sarah Jenkins <span className="text-[10px] uppercase tracking-wider text-amber-300 font-bold ml-2 bg-amber-500/30 px-1 rounded text-amber-300">Marketing</span></p>
-            </div>
-          </div>
-        </div>
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    <span className="text-xs font-bold text-slate-300">{format(new Date(a.date), "MMM d")}</span>
+                    {a.days_remaining === 0 ? (
+                      <span className="text-[10px] uppercase tracking-wider font-bold bg-pink-500/80 text-white px-2 py-0.5 rounded-lg">Today!</span>
+                    ) : (
+                      <span className="text-[10px] uppercase tracking-wider font-bold bg-pink-500/30 text-pink-300 px-2 py-0.5 rounded-lg">In {a.days_remaining} d</span>
+                    )}
+                  </div>
+                </div>
+              )}
+            />
+          );
+        })()}
 
         <UpcomingBirthdaysWidget items={widgets.upcoming_birthdays} />
       </div>
@@ -841,44 +866,119 @@ function EngagementCard({ title, items, icon: Icon, colorClass = "bg-orange-50/7
   );
 }
 
-function UpcomingBirthdaysWidget({ items }: { items: any[] }) {
+// Auto-rotating card: shows one item at a time, fades every 3s, pauses on hover
+function RotatingCard({
+  title, icon: Icon, headerClass, items, emptyMessage, renderItem, cardHeight = 224
+}: {
+  title: string; icon: any; headerClass: string; items: any[];
+  emptyMessage: string; renderItem: (item: any) => React.ReactNode; cardHeight?: number;
+}) {
+  const [activeIdx, setActiveIdx] = useState(0);
+  const [visible, setVisible] = useState(true);
+  const [paused, setPaused] = useState(false);
+  const count = items.length;
+
+  // When items list changes, reset index
+  useEffect(() => { setActiveIdx(0); setVisible(true); }, [count]);
+
+  // Start fade-out every 3s
+  useEffect(() => {
+    if (count <= 1 || paused) return;
+    const t = setInterval(() => setVisible(false), 3000);
+    return () => clearInterval(t);
+  }, [count, paused]);
+
+  // When faded out, advance index then fade back in
+  useEffect(() => {
+    if (visible) return;
+    const t = setTimeout(() => {
+      setActiveIdx(prev => (prev + 1) % Math.max(1, count));
+      setVisible(true);
+    }, 350);
+    return () => clearTimeout(t);
+  }, [visible, count]);
+
+  const safeIdx = count > 0 ? activeIdx % count : 0;
+
   return (
-    <div className="premium-card p-6">
-      <h3 className="font-bold text-fuchsia-300 flex items-center gap-2 mb-5">
-        <Gift className="w-5 h-5" />
-        Upcoming Birthdays
+    <div
+      className="premium-card p-6 flex flex-col overflow-hidden"
+      style={{ height: `${cardHeight}px` }}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      <h3 className={`font-bold ${headerClass} flex items-center gap-2 mb-4 shrink-0`}>
+        <Icon className="w-5 h-5" />
+        {title}
       </h3>
-      <div className="space-y-4">
-        {!items || items.length === 0 ? (
-          <p className="text-sm text-slate-400 font-medium">No upcoming birthdays.</p>
+      <div className="flex-1 min-h-0 flex flex-col justify-between">
+        {count === 0 ? (
+          <p className="text-sm text-slate-400 font-medium">{emptyMessage}</p>
         ) : (
-          items.map((b: any, idx: number) => (
-            <div key={idx} className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <PhotoAvatar
-                  src={b.profile_photo_path}
-                  name={b.name}
-                  className="w-10 h-10 rounded-full border border-fuchsia-400/30 shrink-0 bg-fuchsia-500/20 text-sm"
-                  textClass="text-fuchsia-300"
-                />
-                <div>
-                  <p className="text-sm font-bold text-white leading-tight">{b.name}</p>
-                  <p className="text-xs text-slate-300 font-medium">{b.designation || 'Employee'} • {b.department}</p>
-                </div>
-              </div>
-              <div className="flex flex-col items-end gap-1">
-                <span className="text-xs font-bold text-slate-300">{format(new Date(b.date), "MMM d")}</span>
-                {b.days_remaining === 0 ? (
-                  <span className="text-[10px] uppercase tracking-wider font-bold bg-fuchsia-500/80 text-white px-2 py-0.5 rounded-lg shadow-sm">Today!</span>
-                ) : (
-                  <span className="text-[10px] uppercase tracking-wider font-bold bg-fuchsia-500/30 text-fuchsia-300 px-2 py-0.5 rounded-lg shadow-sm">In {b.days_remaining} d</span>
-                )}
-              </div>
+          <>
+            <div
+              className="flex-1"
+              style={{ opacity: visible ? 1 : 0, transition: 'opacity 0.35s ease' }}
+            >
+              {renderItem(items[safeIdx])}
             </div>
-          ))
+            {count > 1 && (
+              <div className="flex items-center gap-1.5 justify-center pt-3 shrink-0">
+                {items.map((_, i) => (
+                  <div
+                    key={i}
+                    onClick={() => { setVisible(false); setTimeout(() => { setActiveIdx(i); setVisible(true); }, 350); }}
+                    className="h-1.5 rounded-full cursor-pointer transition-all duration-300"
+                    style={{ width: i === safeIdx ? '14px' : '6px', background: i === safeIdx ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.2)' }}
+                  />
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
+  );
+}
+
+function UpcomingBirthdaysWidget({ items }: { items: any[] }) {
+  // Only show birthdays within the next 14 days
+  const filtered = (items || []).filter((b: any) =>
+    typeof b.days_remaining === 'number' && b.days_remaining >= 0 && b.days_remaining <= 14
+  );
+
+  return (
+    <RotatingCard
+      title="Upcoming Birthdays"
+      icon={Gift}
+      headerClass="text-fuchsia-300"
+      items={filtered}
+      emptyMessage="No upcoming birthdays in the next 2 weeks."
+      renderItem={(b) => (
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <PhotoAvatar
+              src={b.profile_photo_path}
+              name={b.name}
+              className="w-10 h-10 rounded-full border border-fuchsia-400/30 shrink-0 bg-fuchsia-500/20 text-sm"
+              textClass="text-fuchsia-300"
+            />
+            <div>
+              <p className="text-sm font-bold text-white leading-tight">{b.name}</p>
+              <p className="text-xs text-slate-300 font-medium">{b.designation || 'Employee'} • {b.department}</p>
+            </div>
+          </div>
+          <div className="flex flex-col items-end gap-1 shrink-0">
+            <span className="text-xs font-bold text-slate-300">{format(new Date(b.date), "MMM d")}</span>
+            {b.days_remaining === 0 ? (
+              <span className="text-[10px] uppercase tracking-wider font-bold bg-fuchsia-500/80 text-white px-2 py-0.5 rounded-lg">Today!</span>
+            ) : (
+              <span className="text-[10px] uppercase tracking-wider font-bold bg-fuchsia-500/30 text-fuchsia-300 px-2 py-0.5 rounded-lg">In {b.days_remaining} d</span>
+            )}
+          </div>
+        </div>
+      )}
+    />
   );
 }
 
