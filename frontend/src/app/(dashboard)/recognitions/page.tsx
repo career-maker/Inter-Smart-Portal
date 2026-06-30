@@ -51,7 +51,7 @@ export default function RecognitionsPage() {
         api.get("/employees")
       ]);
       setRecognitions(recRes.data.data);
-      setEmployees(empRes.data.employees || []);
+      setEmployees(empRes.data.data || []);
     } catch (error) {
       console.error("Failed to fetch data", error);
     } finally {
@@ -229,7 +229,7 @@ export default function RecognitionsPage() {
                 >
                   <option value="">Select Employee...</option>
                   {employees.map(emp => (
-                    <option key={emp.id} value={emp.id}>{emp.first_name} {emp.last_name} ({emp.employee_id})</option>
+                    <option key={emp.id} value={emp.id}>{emp.first_name} {emp.last_name} ({emp.employee_code})</option>
                   ))}
                 </select>
               </div>
