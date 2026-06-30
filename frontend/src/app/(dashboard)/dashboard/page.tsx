@@ -103,38 +103,12 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
       
-      {/* Active Recognition Premium Badge */}
+      {/* Active Recognition — Celebration Card */}
       {profile.active_recognition && (
-        <div className="rounded-3xl p-6 md:p-8 shadow-[0_20px_50px_rgba(234,179,8,0.2)] mb-6 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-900 relative overflow-hidden border border-yellow-200 group transition-all">
-          <div className="absolute top-0 right-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none mix-blend-overlay"></div>
-          <div className="absolute -top-24 -right-24 w-64 h-64 bg-white/30 blur-3xl rounded-full pointer-events-none group-hover:scale-110 transition-transform duration-700"></div>
-          
-          <div className="relative z-10 flex flex-col items-center text-center space-y-3">
-            <div className="flex items-center gap-3">
-              <span className="text-4xl animate-bounce">{profile.active_recognition.icon || '🏆'}</span>
-              <h2 className="text-2xl md:text-3xl font-black tracking-widest uppercase text-slate-900 drop-shadow-sm">
-                {profile.active_recognition.title}
-              </h2>
-              <span className="text-4xl animate-bounce" style={{ animationDelay: '0.2s' }}>{profile.active_recognition.icon || '🏆'}</span>
-            </div>
-            
-            <p className="text-lg md:text-xl font-bold text-slate-800">
-              Congratulations, {profile.first_name}!
-            </p>
-            
-            {profile.active_recognition.description && (
-              <p className="text-sm md:text-base font-medium text-slate-800/90 italic max-w-2xl mx-auto bg-white/20 px-4 py-2 rounded-xl backdrop-blur-sm shadow-inner">
-                "{profile.active_recognition.description}"
-              </p>
-            )}
-            
-            <div className="inline-block mt-4 bg-slate-900/10 px-4 py-1.5 rounded-full backdrop-blur-md border border-slate-900/10">
-              <p className="text-xs font-bold text-slate-800 tracking-wider">
-                VALID: {format(new Date(profile.active_recognition.start_date), "dd-MMM-yyyy")} TO {format(new Date(profile.active_recognition.end_date), "dd-MMM-yyyy")}
-              </p>
-            </div>
-          </div>
-        </div>
+        <CelebrationCard
+          recognition={profile.active_recognition}
+          firstName={profile.first_name}
+        />
       )}
 
       {/* 
@@ -983,6 +957,169 @@ function UpcomingBirthdaysWidget({ items }: { items: any[] }) {
         </div>
       )}
     />
+  );
+}
+
+function CelebrationCard({ recognition, firstName }: { recognition: any; firstName: string }) {
+  return (
+    <div
+      className="relative rounded-3xl overflow-hidden mb-6"
+      style={{
+        background: 'linear-gradient(135deg, #16213E 0%, #243B67 50%, #3B2F80 100%)',
+        boxShadow: '0 20px 60px rgba(67,56,202,0.35), 0 8px 24px rgba(0,0,0,0.4)',
+        border: '1px solid rgba(255,255,255,0.10)',
+      }}
+    >
+      {/* Floating particle layer */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
+        {[...Array(18)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute rounded-full"
+            style={{
+              width: `${4 + (i % 5) * 3}px`,
+              height: `${4 + (i % 5) * 3}px`,
+              background: i % 3 === 0
+                ? 'rgba(255,215,0,0.35)'
+                : i % 3 === 1
+                ? 'rgba(167,139,250,0.30)'
+                : 'rgba(255,255,255,0.18)',
+              left: `${(i * 47 + 11) % 100}%`,
+              top: `${(i * 31 + 7) % 100}%`,
+              animation: `float-particle ${3.5 + (i % 4) * 1.2}s ease-in-out ${(i * 0.4) % 3}s infinite alternate`,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Soft radial glow behind center */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{ background: 'radial-gradient(ellipse 60% 70% at 50% 50%, rgba(99,102,241,0.22) 0%, transparent 70%)' }}
+        aria-hidden
+      />
+
+      {/* Three-column layout: anim | content | anim */}
+      <div className="relative z-10 flex items-center gap-0">
+
+        {/* Left Lottie — hidden on mobile */}
+        <div className="hidden sm:flex items-center justify-center w-36 md:w-44 shrink-0 self-stretch">
+          <DotLottiePlayer
+            src="https://lottie.host/de999a51-b191-434c-8cb0-8e1844885ad7/IK6zp320mX.lottie"
+            autoplay
+            loop
+            style={{ width: '140px', height: '140px' }}
+          />
+        </div>
+
+        {/* Center: content */}
+        <div className="flex-1 flex flex-col items-center text-center py-8 px-4 md:px-8">
+
+          {/* Mobile-only top animation */}
+          <div className="flex sm:hidden justify-center mb-2">
+            <DotLottiePlayer
+              src="https://lottie.host/de999a51-b191-434c-8cb0-8e1844885ad7/IK6zp320mX.lottie"
+              autoplay
+              loop
+              style={{ width: '100px', height: '100px' }}
+            />
+          </div>
+
+          {/* Trophy icon — pulsing glow */}
+          <div
+            className="mb-4 text-5xl md:text-6xl"
+            style={{ animation: 'trophy-pulse 2s ease-in-out infinite' }}
+          >
+            {recognition.icon || '🏆'}
+          </div>
+
+          {/* Recognition title — glowing */}
+          <div
+            className="mb-3 px-5 py-2 rounded-2xl"
+            style={{
+              background: 'rgba(255,255,255,0.06)',
+              border: '1px solid rgba(255,215,0,0.25)',
+              boxShadow: '0 0 24px rgba(255,215,0,0.18), inset 0 1px 0 rgba(255,255,255,0.08)',
+              backdropFilter: 'blur(12px)',
+            }}
+          >
+            <h2
+              style={{
+                fontSize: 'clamp(1.25rem, 4vw, 2rem)',
+                fontWeight: 800,
+                color: '#FFD700',
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em',
+                textShadow: '0 0 24px rgba(255,215,0,0.55), 0 2px 4px rgba(0,0,0,0.4)',
+              }}
+            >
+              {recognition.title}
+            </h2>
+          </div>
+
+          {/* Name */}
+          <p
+            style={{
+              fontSize: 'clamp(1.1rem, 3vw, 1.5rem)',
+              fontWeight: 700,
+              color: '#FFFFFF',
+              textShadow: '0 2px 8px rgba(0,0,0,0.4)',
+            }}
+            className="mb-3"
+          >
+            Congratulations, {firstName}! 🎊
+          </p>
+
+          {/* Description */}
+          {recognition.description && (
+            <p
+              className="mb-5 italic max-w-lg text-sm md:text-base leading-relaxed px-4 py-3 rounded-xl"
+              style={{
+                color: 'rgba(255,255,255,0.85)',
+                background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.10)',
+                backdropFilter: 'blur(8px)',
+              }}
+            >
+              "{recognition.description}"
+            </p>
+          )}
+
+          {/* Validity badge */}
+          <div
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase"
+            style={{
+              background: 'rgba(255,255,255,0.08)',
+              border: '1px solid rgba(255,255,255,0.15)',
+              color: 'rgba(255,255,255,0.75)',
+              backdropFilter: 'blur(8px)',
+            }}
+          >
+            📅 Valid: {format(new Date(recognition.start_date), "dd MMM yyyy")} — {format(new Date(recognition.end_date), "dd MMM yyyy")}
+          </div>
+
+          {/* Mobile-only bottom animation */}
+          <div className="flex sm:hidden justify-center mt-2">
+            <DotLottiePlayer
+              src="https://lottie.host/64db1917-38b0-4233-8a8d-d109330691a5/O2ZACjATpn.lottie"
+              autoplay
+              loop
+              style={{ width: '100px', height: '100px' }}
+            />
+          </div>
+        </div>
+
+        {/* Right Lottie — hidden on mobile */}
+        <div className="hidden sm:flex items-center justify-center w-36 md:w-44 shrink-0 self-stretch">
+          <DotLottiePlayer
+            src="https://lottie.host/64db1917-38b0-4233-8a8d-d109330691a5/O2ZACjATpn.lottie"
+            autoplay
+            loop
+            style={{ width: '140px', height: '140px' }}
+          />
+        </div>
+      </div>
+    </div>
   );
 }
 
