@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useAuthStore } from "@/store/auth";
 import { LogOut, ChevronDown, Menu, X } from "lucide-react";
 import { NotificationDropdown } from "@/components/layout/NotificationDropdown";
+import { RecognitionTicker } from "@/components/layout/RecognitionTicker";
 
 const NAV_LINKS = [
   { href: "/dashboard",        label: "Dashboard" },
@@ -23,6 +24,7 @@ const NAV_LINKS = [
   { href: "/calendar",         label: "Calendar" },
   { href: "/holidays",         label: "Holidays" },
   { href: "/issues",           label: "Raise an Issue" },
+  { href: "/recognitions",     label: "Employee Recognitions" },
   { href: "/settings",         label: "Settings" },
   { href: "/audit-logs",       label: "Audit Logs" },
 ];
@@ -66,6 +68,7 @@ export default function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-[#F4B400]">
+      <RecognitionTicker />
       <header className="bg-white border-b sticky top-0 z-30 shadow-sm">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           {/* Logo */}
@@ -108,7 +111,7 @@ export default function DashboardLayout({
               if (link.href === '/holidays' || link.href === '/reports') {
                 return user?.role === 'Super Admin' || user?.role === 'HR';
               }
-              if (link.href === '/settings' || link.href === '/audit-logs' || link.href === '/profile-requests') {
+              if (link.href === '/settings' || link.href === '/audit-logs' || link.href === '/profile-requests' || link.href === '/recognitions') {
                 return user?.role === 'Super Admin';
               }
               return true;

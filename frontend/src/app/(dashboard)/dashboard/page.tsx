@@ -102,6 +102,40 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
       
+      {/* Active Recognition Premium Badge */}
+      {profile.active_recognition && (
+        <div className="rounded-3xl p-6 md:p-8 shadow-[0_20px_50px_rgba(234,179,8,0.2)] mb-6 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-900 relative overflow-hidden border border-yellow-200 group transition-all">
+          <div className="absolute top-0 right-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none mix-blend-overlay"></div>
+          <div className="absolute -top-24 -right-24 w-64 h-64 bg-white/30 blur-3xl rounded-full pointer-events-none group-hover:scale-110 transition-transform duration-700"></div>
+          
+          <div className="relative z-10 flex flex-col items-center text-center space-y-3">
+            <div className="flex items-center gap-3">
+              <span className="text-4xl animate-bounce">{profile.active_recognition.icon || '🏆'}</span>
+              <h2 className="text-2xl md:text-3xl font-black tracking-widest uppercase text-slate-900 drop-shadow-sm">
+                {profile.active_recognition.title}
+              </h2>
+              <span className="text-4xl animate-bounce" style={{ animationDelay: '0.2s' }}>{profile.active_recognition.icon || '🏆'}</span>
+            </div>
+            
+            <p className="text-lg md:text-xl font-bold text-slate-800">
+              Congratulations, {profile.first_name}!
+            </p>
+            
+            {profile.active_recognition.description && (
+              <p className="text-sm md:text-base font-medium text-slate-800/90 italic max-w-2xl mx-auto bg-white/20 px-4 py-2 rounded-xl backdrop-blur-sm shadow-inner">
+                "{profile.active_recognition.description}"
+              </p>
+            )}
+            
+            <div className="inline-block mt-4 bg-slate-900/10 px-4 py-1.5 rounded-full backdrop-blur-md border border-slate-900/10">
+              <p className="text-xs font-bold text-slate-800 tracking-wider">
+                VALID: {format(new Date(profile.active_recognition.start_date), "dd-MMM-yyyy")} TO {format(new Date(profile.active_recognition.end_date), "dd-MMM-yyyy")}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 
         ========================================
         HEADER: Personalized Dashboard

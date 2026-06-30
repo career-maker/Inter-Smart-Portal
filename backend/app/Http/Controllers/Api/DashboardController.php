@@ -29,6 +29,14 @@ class DashboardController extends Controller
             $serviceDuration = "{$diff->y} Years {$diff->m} Months {$diff->d} Days";
         }
 
+        $todayStr = Carbon::today()->toDateString();
+
+        $activeRecognition = \App\Models\Recognition::where('user_id', $user->id)
+            ->where('is_active', true)
+            ->whereDate('start_date', '<=', $todayStr)
+            ->whereDate('end_date', '>=', $todayStr)
+            ->first();
+
         $profile = [
             'first_name' => $user->first_name,
             'last_name' => $user->last_name,
@@ -36,10 +44,10 @@ class DashboardController extends Controller
             'designation' => $user->designation,
             'team' => $user->team->name ?? 'Unassigned',
             'service_duration' => $serviceDuration,
+            'active_recognition' => $activeRecognition,
         ];
 
         // Add Attendance Status
-        $todayStr = Carbon::today()->toDateString();
         $todayStr = Carbon::today()->toDateString();
         $todayAttendance = \App\Models\Attendance::where('user_id', $user->id)
             ->where('date', $todayStr)

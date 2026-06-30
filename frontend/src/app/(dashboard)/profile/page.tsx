@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import api from "@/services/api";
-import { UserCircle, ShieldAlert, CheckCircle2, Clock } from "lucide-react";
+import { UserCircle, ShieldAlert, CheckCircle2, Clock, Award } from "lucide-react";
 
 export default function MyProfilePage() {
   const { user } = useAuthStore();
@@ -189,29 +189,139 @@ export default function MyProfilePage() {
                 </div>
 
                 <div className="grid grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="city">City</Label>
-                    <Input id="city" name="city" value={formData.city} onChange={handleChange} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="state">State</Label>
-                    <Input id="state" name="state" value={formData.state} onChange={handleChange} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="zip">ZIP Code</Label>
-                    <Input id="zip" name="zip" value={formData.zip} onChange={handleChange} />
+        <div className="md:col-span-2 space-y-6">
+          <Card className="shadow-sm">
+            <CardHeader>
+              <CardTitle>Contact Information</CardTitle>
+              <CardDescription>
+                Any changes made here will be sent to the Super Admin for approval before going live.
+              </CardDescription>
+            </CardHeader>
+            
+            {pendingRequest ? (
+              <div className="p-6 pt-0 space-y-6">
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex gap-3 text-amber-800">
+                  <ShieldAlert className="h-5 w-5 shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="font-medium">Update Request Pending</h4>
+                    <p className="text-sm mt-1">You submitted a profile update request on {new Date(pendingRequest.created_at).toLocaleDateString()}. It is currently waiting for admin approval. You cannot make further edits until this is resolved.</p>
                   </div>
                 </div>
-              </CardContent>
-              <div className="px-6 pb-6 pt-2 flex justify-end">
-                <Button type="submit" disabled={saving}>
-                  {saving ? "Submitting..." : user?.role === 'Super Admin' ? "Save Changes" : "Submit for Approval"}
-                </Button>
               </div>
-            </form>
-          )}
-        </Card>
+            ) : (
+              <form onSubmit={handleSubmit}>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="first_name">First Name</Label>
+                      <Input id="first_name" name="first_name" value={formData.first_name} onChange={handleChange} disabled={user?.role !== 'Super Admin'} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="last_name">Last Name</Label>
+                      <Input id="last_name" name="last_name" value={formData.last_name} onChange={handleChange} disabled={user?.role !== 'Super Admin'} />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">Phone Number</Label>
+                      <Input id="phone" name="phone" value={formData.phone} onChange={handleChange} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="emergency_contact">Emergency Contact</Label>
+                      <Input id="emergency_contact" name="emergency_contact" value={formData.emergency_contact} onChange={handleChange} />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="address">Address Line</Label>
+                    <Input id="address" name="address" value={formData.address} onChange={handleChange} />
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="city">City</Label>
+                      <Input id="city" name="city" value={formData.city} onChange={handleChange} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="state">State</Label>
+                      <Input id="state" name="state" value={formData.state} onChange={handleChange} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="zip">ZIP Code</Label>
+                      <Input id="zip" name="zip" value={formData.zip} onChange={handleChange} />
+                    </div>
+                  </div>
+                </CardContent>
+                <div className="px-6 pb-6 pt-2 flex justify-end">
+                  <Button type="submit" disabled={saving}>
+                    {saving ? "Submitting..." : user?.role === 'Super Admin' ? "Save Changes" : "Submit for Approval"}
+                  </Button>
+                </div>
+              </form>
+            )}
+          </Card>
+
+          <RecognitionsHistory />
+        </div>
       </div>
     </div>
+  );
+}
+
+function RecognitionsHistory() {
+  const [recognitions, setRecognitions] = useState<any[]>([]);
+  
+  useEffect(() => {
+    const fetchRecs = async () => {
+      try {
+        const res = await api.get("/me/recognitions");
+        setRecognitions(res.data.data);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    fetchRecs();
+  }, []);
+
+  if (recognitions.length === 0) return null;
+
+  return (
+    <Card className="shadow-sm">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Award className="w-5 h-5 text-indigo-600" />
+          My Recognitions
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          {recognitions.map((rec: any, idx: number) => {
+            const isActive = rec.is_active && new Date(rec.start_date) <= new Date() && new Date(rec.end_date) >= new Date();
+            return (
+              <div key={idx} className={`p-4 rounded-xl border ${isActive ? 'bg-amber-50 border-amber-200' : 'bg-gray-50 border-gray-200'}`}>
+                <div className="flex justify-between items-start mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">{rec.icon}</span>
+                    <h4 className={`font-black tracking-wide uppercase ${isActive ? 'text-amber-700' : 'text-gray-700'}`}>{rec.title}</h4>
+                  </div>
+                  {isActive ? (
+                    <span className="text-[10px] font-bold bg-amber-200 text-amber-800 px-2 py-0.5 rounded-full uppercase tracking-wider">Active</span>
+                  ) : (
+                    <span className="text-[10px] font-bold bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full uppercase tracking-wider">Past</span>
+                  )}
+                </div>
+                {rec.description && (
+                  <p className="text-sm text-gray-600 italic mb-3">"{rec.description}"</p>
+                )}
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest">
+                  {new Date(rec.start_date).toLocaleDateString()} — {new Date(rec.end_date).toLocaleDateString()}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

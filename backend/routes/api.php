@@ -20,6 +20,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me/profile/request', [\App\Http\Controllers\Api\ProfileUpdateRequestController::class, 'currentRequest']);
     Route::post('/me/profile/request', [\App\Http\Controllers\Api\ProfileUpdateRequestController::class, 'storeRequest']);
     Route::put('/me/profile', [\App\Http\Controllers\Api\ProfileController::class, 'update']);
+    Route::get('/me/recognitions', [\App\Http\Controllers\Api\RecognitionController::class, 'myRecognitions']);
 
     // Employee Routes
     Route::middleware(['role:Super Admin|Team Lead|HR'])->group(function () {
@@ -125,6 +126,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{id}', [\App\Http\Controllers\Api\IssueController::class, 'show']);
         Route::post('/{id}/comments', [\App\Http\Controllers\Api\IssueController::class, 'addComment']);
         Route::put('/{id}/status', [\App\Http\Controllers\Api\IssueController::class, 'updateStatus']);
+    });
+
+    // Recognitions
+    Route::get('/active-recognitions', [\App\Http\Controllers\Api\RecognitionController::class, 'activeRecognitions']);
+    Route::middleware(['role:Super Admin'])->prefix('recognitions')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Api\RecognitionController::class, 'index']);
+        Route::post('/', [\App\Http\Controllers\Api\RecognitionController::class, 'store']);
+        Route::put('/{id}', [\App\Http\Controllers\Api\RecognitionController::class, 'update']);
+        Route::put('/{id}/toggle', [\App\Http\Controllers\Api\RecognitionController::class, 'toggleActive']);
+        Route::delete('/{id}', [\App\Http\Controllers\Api\RecognitionController::class, 'destroy']);
     });
 
     // View The Hall (All authenticated users can view)
