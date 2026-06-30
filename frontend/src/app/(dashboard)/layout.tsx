@@ -13,7 +13,7 @@ const NAV_LINKS = [
   { href: "/attendance",       label: "Attendance" },
   { href: "/announcements",    label: "Updates" },
   { href: "/employees",        label: "Employees" },
-  { href: "/teams",            label: "Teams" },
+  { href: "/teams",            label: "Departments" },
   { href: "/leaves",           label: "Leaves" },
   { href: "/wfh",              label: "WFH" },
   { href: "/leaves/approvals", label: "Approvals" },

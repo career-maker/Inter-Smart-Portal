@@ -127,68 +127,7 @@ export default function MyProfilePage() {
           </CardContent>
         </Card>
 
-        {/* Editable Contact Info */}
-        <Card className="md:col-span-2 shadow-sm">
-          <CardHeader>
-            <CardTitle>Contact Information</CardTitle>
-            <CardDescription>
-              Any changes made here will be sent to the Super Admin for approval before going live.
-            </CardDescription>
-          </CardHeader>
-          
-          {pendingRequest ? (
-            <div className="p-6 pt-0 space-y-6">
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex gap-3 text-amber-800">
-                <ShieldAlert className="h-5 w-5 shrink-0 mt-0.5" />
-                <div>
-                  <h4 className="font-medium">Update Request Pending</h4>
-                  <p className="text-sm mt-1">You submitted a profile update request on {new Date(pendingRequest.created_at).toLocaleDateString()}. It is currently waiting for admin approval. You cannot make further edits until this is resolved.</p>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wider">Requested Changes</h4>
-                <div className="grid grid-cols-2 gap-4">
-                  {Object.entries(pendingRequest.requested_data).map(([key, val]) => (
-                    <div key={key}>
-                      <Label className="text-muted-foreground capitalize">{key.replace('_', ' ')}</Label>
-                      <div className="font-medium">{String(val) || '—'}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit}>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="first_name">First Name</Label>
-                    <Input id="first_name" name="first_name" value={formData.first_name} onChange={handleChange} disabled={user?.role !== 'Super Admin'} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="last_name">Last Name</Label>
-                    <Input id="last_name" name="last_name" value={formData.last_name} onChange={handleChange} disabled={user?.role !== 'Super Admin'} />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number</Label>
-                    <Input id="phone" name="phone" value={formData.phone} onChange={handleChange} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="emergency_contact">Emergency Contact</Label>
-                    <Input id="emergency_contact" name="emergency_contact" value={formData.emergency_contact} onChange={handleChange} />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="address">Address Line</Label>
-                  <Input id="address" name="address" value={formData.address} onChange={handleChange} />
-                </div>
-
-                <div className="grid grid-cols-3 gap-4">
+        {/* Editable Contact Info & Recognitions */}
         <div className="md:col-span-2 space-y-6">
           <Card className="shadow-sm">
             <CardHeader>
@@ -205,6 +144,18 @@ export default function MyProfilePage() {
                   <div>
                     <h4 className="font-medium">Update Request Pending</h4>
                     <p className="text-sm mt-1">You submitted a profile update request on {new Date(pendingRequest.created_at).toLocaleDateString()}. It is currently waiting for admin approval. You cannot make further edits until this is resolved.</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wider">Requested Changes</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    {Object.entries(pendingRequest.requested_data).map(([key, val]) => (
+                      <div key={key}>
+                        <Label className="text-muted-foreground capitalize">{key.replace('_', ' ')}</Label>
+                        <div className="font-medium">{String(val) || '—'}</div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>

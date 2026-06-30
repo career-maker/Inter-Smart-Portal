@@ -59,21 +59,21 @@ export default function TeamsPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Teams</h1>
-          <p className="text-muted-foreground">Manage organizational departments and groups.</p>
+        <div className="flex items-center gap-3">
+          <Users className="h-8 w-8 text-primary" />
+          <h1 className="text-3xl font-bold tracking-tight">Departments</h1>
         </div>
         <Button onClick={() => router.push("/teams/create")}>
-          <Plus className="mr-2 h-4 w-4" /> Create Team
+          <Plus className="mr-2 h-4 w-4" /> Create Department
         </Button>
       </div>
 
       <div className="flex items-center gap-4 bg-white p-4 rounded-lg shadow-sm border">
-        <div className="relative flex-1 max-w-sm">
+        <div className="relative flex-1">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
-            placeholder="Search teams..."
+            placeholder="Search departments..."
             className="pl-8"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -82,9 +82,9 @@ export default function TeamsPage() {
       </div>
 
       {isLoading ? (
-        <div className="py-12 text-center text-muted-foreground">Loading...</div>
+        <div className="py-12 text-center text-muted-foreground">Loading departments...</div>
       ) : teams.length === 0 ? (
-        <div className="py-12 text-center text-muted-foreground bg-white border rounded-lg shadow-sm">No teams found.</div>
+        <div className="py-12 text-center text-muted-foreground bg-white border rounded-lg shadow-sm">No departments found.</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {teams.map((team) => (
