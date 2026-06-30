@@ -22,13 +22,19 @@ class DashboardController extends Controller
         $user = $request->user()->load(['team:id,name', 'roles:id,name']);
         
         // 1. User Profile & Service Duration
-        $joiningDate = $user->joining_date ? Carbon::parse($user->joining_date) : null;
+        $joiningDate = $user->joining_date ? Carbon::parse($user->joining_date) : Carbon::parse($user->created_at);
         $serviceDuration = null;
         $serviceDays = null;
+        $serviceStats = null;
         if ($joiningDate) {
             $diff = $joiningDate->diff(Carbon::now());
             $serviceDuration = "{$diff->y} Years {$diff->m} Months {$diff->d} Days";
             $serviceDays = $joiningDate->diffInDays(Carbon::now());
+            $serviceStats = [
+                'years' => $diff->y,
+                'months' => $diff->m,
+                'days' => $diff->d
+            ];
         }
 
         $todayStr = Carbon::today()->toDateString();
@@ -47,6 +53,7 @@ class DashboardController extends Controller
             'team' => $user->team->name ?? 'Unassigned',
             'service_duration' => $serviceDuration,
             'service_days' => $serviceDays,
+            'service_stats' => $serviceStats,
             'active_recognition' => $activeRecognition,
         ];
 

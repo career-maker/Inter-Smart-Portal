@@ -186,15 +186,31 @@ export default function DashboardPage() {
           </div>
           
           {/* Right: Service Days */}
-          {profile.service_days !== undefined && profile.service_days !== null && (
+          {profile.service_stats && (
             <div className="bg-white/40 backdrop-blur-md border border-white/50 rounded-2xl p-4 md:p-5 shadow-sm text-center lg:text-right w-full lg:w-auto mt-4 lg:mt-0 flex flex-col justify-center">
               <p className="text-xs md:text-sm font-bold text-slate-800/90 uppercase tracking-wider mb-1 flex items-center justify-center lg:justify-end gap-1.5">
                 <Sparkles className="w-4 h-4 text-slate-700" />
                 You are with Intersmart for
               </p>
-              <div className="flex items-baseline justify-center lg:justify-end gap-1.5 text-slate-900 mt-1">
-                <span className="text-4xl md:text-5xl font-black tracking-tighter">{profile.service_days}</span>
-                <span className="text-lg md:text-xl font-extrabold tracking-tight">days</span>
+              <div className="flex items-baseline justify-center lg:justify-end gap-1 text-slate-900 mt-1">
+                {profile.service_stats.years > 0 && (
+                  <>
+                    <span className="text-3xl md:text-4xl font-black tracking-tighter">{profile.service_stats.years}</span>
+                    <span className="text-sm md:text-base font-extrabold tracking-tight mr-2">years</span>
+                  </>
+                )}
+                {(profile.service_stats.months > 0 || profile.service_stats.years > 0) && (
+                  <>
+                    <span className="text-3xl md:text-4xl font-black tracking-tighter">{profile.service_stats.months}</span>
+                    <span className="text-sm md:text-base font-extrabold tracking-tight">months</span>
+                  </>
+                )}
+                {profile.service_stats.years === 0 && profile.service_stats.months === 0 && (
+                  <>
+                    <span className="text-3xl md:text-4xl font-black tracking-tighter">{profile.service_stats.days}</span>
+                    <span className="text-sm md:text-base font-extrabold tracking-tight">days</span>
+                  </>
+                )}
               </div>
             </div>
           )}
@@ -475,14 +491,14 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
 
       {/* KPI Cards (4 cols) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-        <KPICard title="Employees" value={kpis.total_employees} trend={kpis.trends.employees} icon={UserCircle} color="bg-blue-50/700" href="/employees" />
-        <KPICard title="Present" value={kpis.present_today} trend={kpis.trends.attendance} icon={Building2} color="bg-emerald-50/700" href="/attendance" />
+        <KPICard title="Employees" value={kpis.total_employees} trend={kpis.trends.employees} icon={UserCircle} color="bg-blue-500" href="/employees" />
+        <KPICard title="Present" value={kpis.present_today} trend={kpis.trends.attendance} icon={Building2} color="bg-emerald-500" href="/attendance" />
         <KPICard 
           title="On Leave" 
           value={kpis.on_leave_today} 
           trend="" 
           icon={Palmtree} 
-          color="bg-orange-50/700" 
+          color="bg-orange-500" 
           onClick={() => setLeaveModalData({
             title: "On Leave Today",
             list: kpis.on_leave_today_list || []
@@ -493,13 +509,13 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
           value={kpis.wfh_today} 
           trend="" 
           icon={Home} 
-          color="bg-teal-50/700" 
+          color="bg-teal-500" 
           onClick={() => setLeaveModalData({
             title: "Working From Home Today",
             list: kpis.wfh_today_list || []
           })} 
         />
-        <KPICard title="Open Issues" value={data.issue_metrics?.total_open || 0} trend="" icon={AlertCircle} color="bg-rose-50/700" href="/issues" />
+        <KPICard title="Open Issues" value={data.issue_metrics?.total_open || 0} trend="" icon={AlertCircle} color="bg-rose-500" href="/issues" />
       </div>
 
       {/* 
