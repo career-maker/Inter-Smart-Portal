@@ -80,8 +80,8 @@ export default function HallPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">View The Hall</h1>
-        <p className="text-muted-foreground">Today's organization-wide employee availability.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-white">View The Hall</h1>
+          <p className="text-slate-300">Today's organization-wide employee availability.</p>
         {data.is_holiday && (
           <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
             🎉 Today is a company holiday: {data.holiday_name}

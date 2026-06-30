@@ -85,8 +85,8 @@ export default function EditEmployeePage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Manage {employee.first_name}</h1>
-          <p className="text-muted-foreground">{employee.employee_id} • {employee.designation}</p>
+          <h1 className="text-3xl font-bold tracking-tight text-white">Manage {employee.first_name}</h1>
+          <p className="text-slate-300">{employee.employee_id} • {employee.designation}</p>
         </div>
       </div>
 

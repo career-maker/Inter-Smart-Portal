@@ -76,8 +76,8 @@ export default function LeavesPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Leave Management</h1>
-          <p className="text-muted-foreground">View your balances and apply for time off.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-white">Leave Management</h1>
+          <p className="text-slate-300">View your balances and apply for time off.</p>
         </div>
         <Button onClick={() => router.push("/leaves/apply")}>
           <Plus className="mr-2 h-4 w-4" /> Apply for Leave

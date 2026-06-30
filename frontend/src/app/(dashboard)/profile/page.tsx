@@ -84,8 +84,8 @@ export default function MyProfilePage() {
       <div className="flex items-center gap-3">
         <UserCircle className="h-8 w-8 text-primary" />
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">My Profile</h1>
-          <p className="text-muted-foreground">Manage your personal information.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-white">My Profile</h1>
+          <p className="text-slate-300">Manage your personal information.</p>
         </div>
       </div>
 

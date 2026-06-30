@@ -66,8 +66,8 @@ export default function CalendarPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Leave Calendar</h1>
-          <p className="text-muted-foreground">View your time off, WFH days, and company holidays.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-white">Leave Calendar</h1>
+          <p className="text-slate-300">View your time off, WFH days, and company holidays.</p>
         </div>
         
         <div className="flex items-center gap-2">

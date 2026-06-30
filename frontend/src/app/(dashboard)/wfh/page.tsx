@@ -89,8 +89,8 @@ export default function WfhPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Work From Home</h1>
-        <p className="text-muted-foreground">Submit and track your WFH requests.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-white">Work From Home</h1>
+          <p className="text-slate-300">Submit and track your WFH requests.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

@@ -111,8 +111,8 @@ export default function HolidaysPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Holiday Management</h1>
-          <p className="text-muted-foreground">Configure the company's annual holiday calendar.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-white">Holiday Management</h1>
+          <p className="text-slate-300">Configure the company's annual holiday calendar.</p>
         </div>
         <Button onClick={openNew}>
           <Plus className="h-4 w-4 mr-2" /> Add Holiday

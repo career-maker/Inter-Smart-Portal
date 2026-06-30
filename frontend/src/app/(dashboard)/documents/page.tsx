@@ -118,8 +118,8 @@ export default function DocumentsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Document Requests</h1>
-          <p className="text-muted-foreground">Request official documents from HR.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-white">Document Requests</h1>
+          <p className="text-slate-300">Request official documents from HR.</p>
         </div>
         <Button onClick={() => setShowRequestDialog(true)}>
           <Plus className="h-4 w-4 mr-2" /> Request Document

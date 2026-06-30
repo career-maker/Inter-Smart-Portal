@@ -144,8 +144,8 @@ export default function ApprovalsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Approvals Queue</h1>
-        <p className="text-muted-foreground">Review and process pending leave and WFH requests from your team.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-white">Approvals Queue</h1>
+          <p className="text-slate-300">Review and process pending leave and WFH requests from your team.</p>
       </div>
 
       <Tabs defaultValue="leaves" className="w-full">

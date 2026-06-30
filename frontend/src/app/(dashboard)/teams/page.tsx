@@ -61,7 +61,7 @@ export default function TeamsPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3">
           <Users className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight">Departments</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-white">Departments</h1>
         </div>
         <Button onClick={() => router.push("/teams/create")}>
           <Plus className="mr-2 h-4 w-4" /> Create Department

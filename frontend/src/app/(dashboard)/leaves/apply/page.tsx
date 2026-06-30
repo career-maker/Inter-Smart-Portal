@@ -158,8 +158,8 @@ export default function ApplyLeavePage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Apply for Leave</h1>
-          <p className="text-muted-foreground">Submit a time-off request for approval.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-white">Apply for Leave</h1>
+          <p className="text-slate-300">Submit a time-off request for approval.</p>
         </div>
       </div>
 

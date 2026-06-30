@@ -69,8 +69,8 @@ export default function AttendancePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Attendance</h1>
-        <p className="text-muted-foreground">Track your daily working hours and breaks.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-white">Attendance</h1>
+          <p className="text-slate-300">Track your daily working hours and breaks.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

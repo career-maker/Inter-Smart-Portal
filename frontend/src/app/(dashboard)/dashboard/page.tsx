@@ -154,7 +154,7 @@ export default function DashboardPage() {
               <p className="text-sm font-medium text-slate-800/80 mb-1">
                 {format(time, "EEEE, d MMMM yyyy")} • {format(time, "h:mm a")}
               </p>
-              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 flex items-center">
+              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight flex items-center text-white">
                 {greeting}, {profile.first_name} 
                 <div className="relative w-[60px] h-[60px] ml-2 shrink-0">
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
@@ -442,7 +442,7 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
               <p className="text-sm font-medium text-slate-800/80 mb-1">
                 {format(time, "EEEE, d MMMM yyyy")} • {format(time, "h:mm a")}
               </p>
-              <h1 className="text-3xl font-extrabold tracking-tight flex items-center text-slate-900">
+              <h1 className="text-3xl font-extrabold tracking-tight flex items-center text-white">
                 {greeting}, {profile.first_name} (Admin) 
                 <div className="relative w-[60px] h-[60px] ml-2 shrink-0">
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">

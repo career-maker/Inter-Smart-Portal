@@ -61,8 +61,8 @@ export default function ProfileRequestsPage() {
           <ClipboardEdit className="h-6 w-6" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Profile Edit Approvals</h1>
-          <p className="text-muted-foreground">Review and approve employee profile updates.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-white">Profile Edit Approvals</h1>
+          <p className="text-slate-300">Review and approve employee profile updates.</p>
         </div>
       </div>
 

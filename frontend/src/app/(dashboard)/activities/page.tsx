@@ -59,11 +59,11 @@ export default function ActivitiesPage() {
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
+          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3 text-white">
             <Activity className="w-8 h-8 text-cyan-600" />
             All Activities
           </h1>
-          <p className="text-muted-foreground mt-2">Organization-wide recent activity log.</p>
+          <p className="text-slate-300 mt-2">Organization-wide recent activity log.</p>
         </div>
       </div>
 

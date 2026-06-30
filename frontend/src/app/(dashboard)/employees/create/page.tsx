@@ -13,8 +13,8 @@ export default function CreateEmployeePage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Add Employee</h1>
-          <p className="text-muted-foreground">Create a new employee profile in the system.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-white">Add Employee</h1>
+          <p className="text-slate-300">Create a new employee profile in the system.</p>
         </div>
       </div>
       

@@ -106,7 +106,7 @@ export default function IssueDetailPage() {
           </Link>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold tracking-tight">#{issue.id} {issue.title}</h1>
+              <h1 className="text-2xl font-bold tracking-tight text-white">#{issue.id} {issue.title}</h1>
               <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${getStatusColor(issue.status)}`}>
                 {issue.status}
               </span>

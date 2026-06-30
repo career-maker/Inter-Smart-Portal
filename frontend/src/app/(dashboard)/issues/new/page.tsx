@@ -78,8 +78,8 @@ export default function NewIssuePage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Raise an Issue</h1>
-          <p className="text-muted-foreground">Submit a support request to the admin team.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-white">Raise an Issue</h1>
+          <p className="text-slate-300">Submit a support request to the admin team.</p>
         </div>
       </div>
 

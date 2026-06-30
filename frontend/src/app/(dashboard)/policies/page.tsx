@@ -119,8 +119,8 @@ export default function PoliciesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">HR Policies</h1>
-          <p className="text-muted-foreground">Browse and download company policies and guidelines.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-white">HR Policies</h1>
+          <p className="text-slate-300">Browse and download company policies and guidelines.</p>
         </div>
         {isAdmin && (
           <Button onClick={() => setShowUploadDialog(true)}>
