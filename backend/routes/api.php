@@ -8,6 +8,10 @@ Route::get('/ping', function () {
     return response()->json(['status' => 'alive']);
 });
 
+Route::get('/debug-employee', function () {
+    return new \App\Http\Resources\EmployeeResource(\App\Models\User::find(2));
+});
+
 Route::get('/photos/{path}', [\App\Http\Controllers\Api\EmployeeController::class, 'showPhoto'])->where('path', '.*');
 
 Route::post('/login', [AuthController::class, 'login']);

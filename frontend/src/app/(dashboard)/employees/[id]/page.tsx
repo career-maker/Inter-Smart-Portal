@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Camera, KeyRound } from "lucide-react";
 import api from "@/services/api";
+import { useAuthStore } from "@/store/auth";
 
 import { Button } from "@/components/ui/button";
 import EmployeeForm from "@/components/employees/EmployeeForm";
@@ -65,6 +66,13 @@ export default function EditEmployeePage() {
         headers: { "Content-Type": "multipart/form-data" }
       });
       setEmployee({ ...employee, profile_photo_path: response.data.profile_photo_path });
+      
+      // Update global auth store if the logged-in user is editing their own profile
+      const authStore = useAuthStore.getState();
+      if (authStore.user?.id.toString() === params.id.toString()) {
+        authStore.setUser({ ...authStore.user, profile_photo_path: response.data.profile_photo_path });
+      }
+      
       alert("Photo uploaded successfully");
     } catch (err: any) {
       alert("Failed to upload photo");
