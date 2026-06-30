@@ -849,28 +849,34 @@ function UpcomingBirthdaysWidget({ items }: { items: any[] }) {
 }
 
 function MenuCard({ href, icon: Icon, title, subtitle, color, className = "" }: any) {
-  const colors: Record<string, { bg: string, text: string }> = {
-    emerald: { bg: 'bg-emerald-50/70', text: 'text-emerald-600' },
-    blue: { bg: 'bg-blue-50/70', text: 'text-blue-600' },
-    violet: { bg: 'bg-violet-50/70', text: 'text-violet-600' },
-    amber: { bg: 'bg-amber-50/70', text: 'text-amber-300' },
-    rose: { bg: 'bg-rose-50/70', text: 'text-rose-600' },
-    cyan: { bg: 'bg-cyan-50/70', text: 'text-cyan-600' },
-    slate: { bg: 'bg-slate-100', text: 'text-slate-700' },
+  const iconAccent: Record<string, string> = {
+    emerald: 'bg-emerald-500/20 text-emerald-400',
+    blue:    'bg-blue-500/20 text-blue-400',
+    violet:  'bg-violet-500/20 text-violet-400',
+    amber:   'bg-amber-500/20 text-amber-400',
+    rose:    'bg-rose-500/20 text-rose-400',
+    cyan:    'bg-cyan-500/20 text-cyan-400',
+    slate:   'bg-slate-500/20 text-slate-300',
   };
 
-  const style = colors[color] || colors.blue;
+  const accent = iconAccent[color] || iconAccent.blue;
 
   return (
     <Link href={href} className={`block ${className}`}>
-      <div className={`${style.bg} rounded-3xl p-5 h-full shadow-[0_8px_32px_rgba(0,0,0,0.05)] backdrop-blur-2xl border border-white/60 hover:bg-white/40 hover:shadow-[0_8px_32px_rgba(0,0,0,0.1)] transition-all duration-300 group relative overflow-hidden`}>
-        <div className={`absolute top-0 right-0 w-24 h-24 bg-white/40 rounded-bl-full -mr-4 -mt-4 opacity-50`}></div>
+      <div className="bg-slate-800 rounded-3xl p-5 h-full relative overflow-hidden
+        shadow-[6px_6px_14px_rgba(0,0,0,0.45),-6px_-6px_14px_rgba(255,255,255,0.04)]
+        hover:shadow-[inset_4px_4px_10px_rgba(0,0,0,0.45),inset_-4px_-4px_10px_rgba(255,255,255,0.04)]
+        border border-slate-700/50
+        transition-all duration-300 group">
+        <div className="absolute top-0 right-0 w-20 h-20 bg-white/[0.03] rounded-bl-full -mr-4 -mt-4 group-hover:bg-white/[0.06] transition-colors" />
         <div className="relative z-10">
-          <div className={`w-10 h-10 rounded-2xl bg-white flex items-center justify-center mb-4 shadow-sm border border-white/50 backdrop-blur-md bg-white/50 group-hover:scale-95 transition-transform`}>
-            <Icon className={`w-5 h-5 ${style.text}`} />
+          <div className={`w-10 h-10 rounded-2xl ${accent} flex items-center justify-center mb-4
+            shadow-[inset_2px_2px_5px_rgba(0,0,0,0.35),inset_-2px_-2px_5px_rgba(255,255,255,0.05)]
+            group-hover:scale-90 transition-transform duration-300`}>
+            <Icon className="w-5 h-5" />
           </div>
           <h3 className="font-bold text-white text-sm leading-tight mb-1">{title}</h3>
-          <p className="text-xs text-slate-300 font-medium">{subtitle}</p>
+          <p className="text-xs text-slate-400 font-medium">{subtitle}</p>
         </div>
       </div>
     </Link>
