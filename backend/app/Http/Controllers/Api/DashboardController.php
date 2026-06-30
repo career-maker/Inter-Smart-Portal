@@ -123,6 +123,8 @@ class DashboardController extends Controller
             'pending_leaves' => $pendingLeaves,
             'employees_on_leave_today' => $employeesOnLeaveTodayRequests->count(),
             'employees_on_leave_today_list' => $employeesOnLeaveTodayList,
+            'is_in_probation' => $user->isInProbation(),
+            'probation_end_date' => $user->probationEndDate(),
         ];
 
         // 3. Widgets: Upcoming Holidays

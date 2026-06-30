@@ -48,6 +48,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('employees', [\App\Http\Controllers\Api\ReportController::class, 'employees']);
             Route::get('leaves', [\App\Http\Controllers\Api\ReportController::class, 'leaves']);
             Route::get('leave-balances', [\App\Http\Controllers\Api\ReportController::class, 'leaveBalances']);
+            Route::get('employee-list', [\App\Http\Controllers\Api\ReportController::class, 'allEmployeesForFilter']);
         });
         
         // Approvals (Team Leads & Admins)

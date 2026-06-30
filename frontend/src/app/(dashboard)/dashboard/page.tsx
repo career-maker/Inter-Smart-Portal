@@ -355,6 +355,13 @@ export default function DashboardPage() {
             </h2>
             
             <div className="space-y-6">
+              {/* Probation notice */}
+              {leave_metrics.is_in_probation && (
+                <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 text-amber-300 text-sm space-y-1">
+                  <p className="font-bold flex items-center gap-2">🔒 Currently Under Probation</p>
+                  <p className="text-amber-300/80 text-xs">Paid leave benefits will become active on <strong className="text-amber-200">{new Date(leave_metrics.probation_end_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</strong>. All leaves during probation are treated as Unpaid (LOP).</p>
+                </div>
+              )}
               {/* Casual Leave Indicator */}
               <div className="flex items-center justify-between group">
                 <div>

@@ -38,6 +38,24 @@ class User extends Authenticatable
         return $this->hasMany(WfhRequest::class);
     }
 
+    public function probationEndDate(): ?string
+    {
+        if ($this->probation_end_date) {
+            return $this->probation_end_date;
+        }
+        if ($this->joining_date) {
+            return \Carbon\Carbon::parse($this->joining_date)->addMonths(6)->toDateString();
+        }
+        return null;
+    }
+
+    public function isInProbation(): bool
+    {
+        $end = $this->probationEndDate();
+        if (!$end) return false;
+        return \Carbon\Carbon::parse($end)->isFuture();
+    }
+
     public function profilePhotoUrl(): ?string
     {
         if (!$this->profile_photo_path) return null;

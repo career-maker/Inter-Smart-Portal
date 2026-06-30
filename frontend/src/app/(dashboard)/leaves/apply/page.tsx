@@ -136,7 +136,12 @@ export default function ApplyLeavePage() {
   }, []);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (impact?.is_unpaid) {
+    if (impact?.is_probation) {
+      const proceed = window.confirm(
+        `Probation Period Notice\n\nYou are currently under probation.\n\nThis leave request will be treated as Unpaid Leave (LOP).\n\nPaid leave eligibility starts on: ${impact.probation_end_date ? new Date(impact.probation_end_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}\n\nDo you want to proceed?`
+      );
+      if (!proceed) return;
+    } else if (impact?.is_unpaid) {
       const proceed = window.confirm(`Warning: ${impact.unpaid_reason}\n\nThis leave will be marked as UNPAID. Do you want to proceed anyway?`);
       if (!proceed) return;
     }
@@ -234,23 +239,22 @@ export default function ApplyLeavePage() {
               
               {isCalculating && <p className="text-sm text-slate-400">Calculating leave impact...</p>}
               {impact && (
-                <div className={`p-4 rounded-xl border ${impact.is_unpaid ? 'bg-amber-500/15 border-amber-500/30' : 'bg-emerald-500/15 border-emerald-500/30'}`}>
-                  <h4 className={`font-semibold flex items-center gap-2 ${impact.is_unpaid ? 'text-amber-300' : 'text-emerald-300'}`}>
-                    {impact.is_unpaid && <AlertTriangle className="w-4 h-4" />}
-                    Leave Summary
+                <div className={`p-4 rounded-xl border ${impact.is_probation ? 'bg-orange-500/10 border-orange-500/30' : impact.is_unpaid ? 'bg-amber-500/15 border-amber-500/30' : 'bg-emerald-500/15 border-emerald-500/30'}`}>
+                  <h4 className={`font-semibold flex items-center gap-2 ${impact.is_probation ? 'text-orange-300' : impact.is_unpaid ? 'text-amber-300' : 'text-emerald-300'}`}>
+                    <AlertTriangle className="w-4 h-4" />
+                    {impact.is_probation ? 'Probation Period Notice' : 'Leave Summary'}
                   </h4>
                   <ul className="mt-2 text-sm text-slate-300 space-y-1">
-                    {impact.sandwich_leave_days > 0 ? (
+                    <li><strong className="text-white">Requested Leave Days:</strong> {impact.actual_leave_days}</li>
+                    {!impact.is_probation && impact.sandwich_leave_days > 0 && (
                       <>
-                        <li><strong className="text-white">Requested Leave Days:</strong> {impact.requested_working_days ?? (impact.actual_leave_days - impact.sandwich_leave_days)}</li>
-                        <li><strong className="text-white">Additional Sandwich Days:</strong> {impact.sandwich_leave_days}</li>
+                        <li><strong className="text-white">Requested Working Days:</strong> {impact.requested_working_days}</li>
+                        <li><strong className="text-white">Sandwich Days:</strong> {impact.sandwich_leave_days}</li>
                         <li><strong className="text-white">Total Leave Days:</strong> {impact.actual_leave_days}</li>
                       </>
-                    ) : (
-                      <li><strong className="text-white">Requested Days:</strong> {impact.actual_leave_days}</li>
                     )}
-                    <li><strong className="text-white">Status:</strong> {impact.is_unpaid ? <span className="text-red-400 font-bold">Unpaid (LOP)</span> : <span className="text-emerald-400 font-bold">Paid</span>}</li>
-                    {impact.unpaid_reason && <li><strong className="text-white">Reason:</strong> {impact.unpaid_reason}</li>}
+                    <li><strong className="text-white">Status:</strong> {impact.is_unpaid ? <span className="text-red-400 font-bold">Unpaid Leave (LOP)</span> : <span className="text-emerald-400 font-bold">Paid</span>}</li>
+                    {impact.unpaid_reason && <li className="text-slate-300"><strong className="text-white">Reason:</strong> {impact.unpaid_reason}</li>}
                   </ul>
                 </div>
               )}

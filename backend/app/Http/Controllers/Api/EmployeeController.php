@@ -60,8 +60,19 @@ class EmployeeController extends Controller
         $role = $data['role'] ?? 'Employee';
         unset($data['role']);
 
+        // Auto-calculate probation end date if not provided
+        if (empty($data['probation_end_date']) && !empty($data['joining_date'])) {
+            $data['probation_end_date'] = \Carbon\Carbon::parse($data['joining_date'])->addMonths(6)->toDateString();
+        }
+
         $user = User::create($data);
         $user->assignRole($role);
+
+        // Create a zero leave balance record for the new employee
+        \App\Models\LeaveBalance::firstOrCreate(
+            ['user_id' => $user->id],
+            ['casual_leave_balance' => 0, 'sick_leave_balance' => 0, 'cl_carry_forward' => 0, 'total_leaves_taken' => 0]
+        );
 
         // TODO: Fire EmployeeCreated event to send welcome email
 

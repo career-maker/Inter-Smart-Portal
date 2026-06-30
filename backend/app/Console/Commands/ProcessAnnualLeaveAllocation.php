@@ -25,6 +25,12 @@ class ProcessAnnualLeaveAllocation extends Command
 
         foreach ($activeUsers as $user) {
             try {
+                // Skip employees still in probation — they get prorated allocation when probation ends
+                if ($user->isInProbation()) {
+                    $this->line("  ⏭ Skipping {$user->first_name} {$user->last_name} (in probation until {$user->probationEndDate()})");
+                    continue;
+                }
+
                 $balance = LeaveBalance::firstOrCreate(
                     ['user_id' => $user->id],
                     ['casual_leave_balance' => 0, 'sick_leave_balance' => 0, 'cl_carry_forward' => 0]

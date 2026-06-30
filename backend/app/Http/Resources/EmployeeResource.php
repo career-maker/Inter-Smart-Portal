@@ -20,6 +20,8 @@ class EmployeeResource extends JsonResource
             'alternate_contact_number' => $this->alternate_contact_number,
             'designation' => $this->designation,
             'joining_date' => $this->joining_date,
+            'probation_end_date' => $this->probationEndDate(),
+            'is_in_probation' => $this->isInProbation(),
             'dob' => $this->dob,
             'gender' => $this->gender,
             'blood_group' => $this->blood_group,

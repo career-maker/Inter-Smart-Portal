@@ -70,6 +70,21 @@ class LeaveRequestController extends Controller
         $isCasual = str_contains(strtolower($leaveType->name ?? ''), 'casual');
         $isHalf   = str_contains(strtolower($leaveType->name ?? ''), 'half');
 
+        // Probation check — all leave during probation is unpaid
+        if ($user->isInProbation()) {
+            $probationEnd = $user->probationEndDate();
+            $totalDays = $startDate->diffInDays($endDate) + 1;
+            return [
+                'actual_leave_days'       => $totalDays,
+                'requested_working_days'  => $totalDays,
+                'sandwich_leave_days'     => 0,
+                'is_unpaid'               => true,
+                'unpaid_reason'           => "You are currently under probation. Paid leave benefits will be activated only after: " . Carbon::parse($probationEnd)->format('d M Y') . ".",
+                'is_probation'            => true,
+                'probation_end_date'      => $probationEnd,
+            ];
+        }
+
         $isUnpaid        = false;
         $unpaidReason    = null;
         $sandwichDays    = 0;
@@ -154,11 +169,12 @@ class LeaveRequestController extends Controller
         $actualLeaveDays = $baseWorkingDays + $sandwichDays;
 
         return [
-            'requested_working_days' => $baseWorkingDays,  // what the employee actually requested
-            'actual_leave_days'      => $actualLeaveDays,  // total including sandwich
+            'requested_working_days' => $baseWorkingDays,
+            'actual_leave_days'      => $actualLeaveDays,
             'sandwich_leave_days'    => $sandwichDays,
             'is_unpaid'              => $isUnpaid,
             'unpaid_reason'          => $unpaidReason,
+            'is_probation'           => false,
         ];
     }
 

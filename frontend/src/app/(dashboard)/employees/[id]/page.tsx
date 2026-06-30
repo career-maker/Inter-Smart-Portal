@@ -15,16 +15,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 function convertGoogleDriveUrl(url: string): string {
-  // Match: https://drive.google.com/file/d/FILE_ID/view...
-  const fileMatch = url.match(/drive\.google\.com\/file\/d\/([^/]+)/);
-  if (fileMatch) {
-    return `https://drive.google.com/uc?export=view&id=${fileMatch[1]}`;
-  }
-  // Match: https://drive.google.com/open?id=FILE_ID
+  // Extract FILE_ID from any Google Drive sharing URL format
+  const fileMatch = url.match(/drive\.google\.com\/file\/d\/([^/?]+)/);
+  if (fileMatch) return `https://drive.google.com/thumbnail?id=${fileMatch[1]}&sz=w500`;
   const openMatch = url.match(/drive\.google\.com\/open\?id=([^&]+)/);
-  if (openMatch) {
-    return `https://drive.google.com/uc?export=view&id=${openMatch[1]}`;
-  }
+  if (openMatch) return `https://drive.google.com/thumbnail?id=${openMatch[1]}&sz=w500`;
+  const idMatch = url.match(/[?&]id=([^&]+)/) ;
+  if (idMatch && url.includes('drive.google.com')) return `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w500`;
   return url;
 }
 
@@ -38,6 +35,7 @@ export default function EditEmployeePage() {
   const [photoUrl, setPhotoUrl] = useState("");
   const [urlLoading, setUrlLoading] = useState(false);
   const [urlSuccess, setUrlSuccess] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
   useEffect(() => {
     fetchEmployee();
@@ -113,6 +111,7 @@ export default function EditEmployeePage() {
         authStore.updateUser({ profile_photo_path: response.data.profile_photo_path });
       }
       setUrlSuccess(true);
+      setImgError(false);
       setPhotoUrl("");
       setTimeout(() => setUrlSuccess(false), 3000);
     } catch (err: any) {
@@ -155,15 +154,18 @@ export default function EditEmployeePage() {
             {/* Current photo preview */}
             <div className="bg-slate-800/80 border border-white/10 rounded-2xl p-6 flex flex-col items-center gap-4">
               <div className="h-28 w-28 rounded-full border-4 border-white/10 overflow-hidden bg-slate-700 flex items-center justify-center shrink-0">
-                {employee.profile_photo_path ? (
-                  <img src={employee.profile_photo_path} alt="Profile" className="h-full w-full object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
+                {employee.profile_photo_path && !imgError ? (
+                  <img src={employee.profile_photo_path} alt="Profile" className="h-full w-full object-cover" onError={() => setImgError(true)} />
                 ) : (
                   <Camera className="h-12 w-12 text-slate-500" />
                 )}
               </div>
               <p className="text-sm text-slate-400 text-center">
-                {employee.profile_photo_path ? "Current profile photo" : "No photo set"}
+                {imgError ? "Photo URL saved but could not load — ensure the file is publicly accessible" : employee.profile_photo_path ? "Current profile photo" : "No photo set"}
               </p>
+              {imgError && (
+                <p className="text-xs text-amber-400 text-center max-w-sm">Make sure the Google Drive file sharing is set to <strong>"Anyone with the link"</strong> can view.</p>
+              )}
             </div>
 
             {/* Mode toggle */}
