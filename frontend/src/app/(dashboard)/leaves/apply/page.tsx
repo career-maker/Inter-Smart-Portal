@@ -158,6 +158,11 @@ export default function ApplyLeavePage() {
     }
   }
 
+  const selectedLeaveType = leaveTypes.find(t => t.id.toString() === leaveTypeId?.toString());
+  const isCasualLeave = selectedLeaveType?.name === 'Casual Leave';
+  // Use local date instead of UTC to avoid timezone issues
+  const todayStr = new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
@@ -216,11 +221,11 @@ export default function ApplyLeavePage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <FormField control={form.control} name="start_date" render={({ field }) => (
-                  <FormItem><FormLabel>Start Date *</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>Start Date *</FormLabel><FormControl><Input type="date" min={isCasualLeave ? todayStr : undefined} {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
 
                 <FormField control={form.control} name="end_date" render={({ field }) => (
-                  <FormItem><FormLabel>End Date *</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>End Date *</FormLabel><FormControl><Input type="date" min={isCasualLeave ? todayStr : undefined} {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
               </div>
 
