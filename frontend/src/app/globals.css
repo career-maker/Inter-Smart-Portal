@@ -207,13 +207,16 @@ body {
     border-radius: 50%;
   }
 
-  /* ── Service Duration Pill: subtle breathing border glow ─ */
+  /* ── Service Duration Pill: glassmorphism + soft breathing border ── */
   .neon-pill-wrapper {
-    border-radius: 1rem;
-    border: 1px solid rgba(255, 215, 0, 0.40);
+    border-radius: 9999px;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
     box-shadow:
-      0 0 8px  rgba(255, 215, 0, 0.22),
-      0 0 16px rgba(255, 215, 0, 0.10);
+      0 8px 32px rgba(0, 0, 0, 0.14),
+      0 0 18px rgba(255, 255, 255, 0.06);
     animation: pill-breathe 3.5s ease-in-out infinite;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
@@ -221,31 +224,29 @@ body {
   .neon-pill-wrapper:hover {
     transform: scale(1.01);
     box-shadow:
-      0 0 14px rgba(255, 215, 0, 0.45),
-      0 0 28px rgba(255, 215, 0, 0.20);
+      0 10px 40px rgba(0, 0, 0, 0.20),
+      0 0 30px rgba(255, 255, 255, 0.12);
     animation-play-state: paused;
   }
 
   .neon-pill-inner {
-    border-radius: calc(1rem - 1px);
-    background: rgba(255, 255, 255, 0.09);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+    border-radius: 9999px;
+    background: transparent;
   }
 
   @keyframes pill-breathe {
     0%, 100% {
       box-shadow:
-        0 0 6px  rgba(255, 215, 0, 0.18),
-        0 0 12px rgba(255, 215, 0, 0.08);
-      border-color: rgba(255, 215, 0, 0.30);
+        0 8px 28px rgba(0, 0, 0, 0.10),
+        0 0 10px rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.20);
     }
     50% {
       box-shadow:
-        0 0 14px rgba(255, 215, 0, 0.42),
-        0 0 28px rgba(255, 215, 0, 0.20),
-        0 0 42px rgba(255, 215, 0, 0.08);
-      border-color: rgba(255, 215, 0, 0.62);
+        0 8px 32px rgba(0, 0, 0, 0.16),
+        0 0 22px rgba(255, 255, 255, 0.14),
+        0 0 40px rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.48);
     }
   }
 }
