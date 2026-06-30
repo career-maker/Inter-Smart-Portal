@@ -34,5 +34,8 @@ RUN sed -ri -e 's!/var/www/!/var/www/html/public!g' /etc/apache2/apache2.conf /e
 # Set proper permissions for Laravel
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Start Apache in the foreground
-CMD ["apache2-foreground"]
+# Create startup script that runs migrations and links storage before Apache starts
+RUN echo '#!/bin/bash\nset -e\nphp artisan storage:link --force 2>/dev/null || true\nphp artisan migrate --force 2>/dev/null || true\napache2-foreground' > /usr/local/bin/start.sh && chmod +x /usr/local/bin/start.sh
+
+# Start via script
+CMD ["/usr/local/bin/start.sh"]
