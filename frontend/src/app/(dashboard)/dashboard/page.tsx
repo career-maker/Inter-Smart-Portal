@@ -189,22 +189,6 @@ export default function DashboardPage() {
 
       <AttendanceWidget initialData={data.attendance_widget_data} />
 
-      {/* Employee KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 mt-2">
-        <KPICard title="Pending Leaves" value={leave_metrics.pending_leaves} icon={FileText} color="bg-indigo-50/700" href="/leaves" />
-        <KPICard 
-          title="On Leave Today" 
-          value={leave_metrics.employees_on_leave_today} 
-          icon={Palmtree} 
-          color="bg-emerald-50/700" 
-          onClick={() => setLeaveModalData({
-            title: "On Leave Today",
-            list: leave_metrics.employees_on_leave_today_list || []
-          })} 
-        />
-        <KPICard title="Sick Leaves" value={leave_metrics.sick_leave_balance} icon={AlertCircle} color="bg-rose-50/700" href="/leaves" />
-        <KPICard title="Support Issues" value={data.issue_metrics?.my_open || 0} icon={ShieldAlert} color="bg-blue-50/700" href="/issues" />
-      </div>
 
       {/* 
         ========================================
