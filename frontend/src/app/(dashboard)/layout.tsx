@@ -90,7 +90,12 @@ export default function DashboardLayout({
                 <span className="text-xs text-muted-foreground mt-0.5">{user?.role}</span>
               </div>
               <img 
-                src={user?.profile_photo_path || `https://ui-avatars.com/api/?name=${user?.first_name}+${user?.last_name}&background=f4b400&color=fff`} 
+                src={user?.profile_photo_path 
+                  ? (user.profile_photo_path.startsWith('http') 
+                    ? user.profile_photo_path 
+                    : `/api/photos/${user.profile_photo_path.replace(/^.*storage\//, '')}`)
+                  : `https://ui-avatars.com/api/?name=${user?.first_name}+${user?.last_name}&background=f4b400&color=fff`
+                } 
                 alt="Profile" 
                 className="w-8 h-8 rounded-full object-cover border border-gray-200"
               />

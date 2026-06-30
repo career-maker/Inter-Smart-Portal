@@ -177,10 +177,10 @@ export default function DashboardPage() {
                 </span>
                 <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm ${
                   profile.attendance_status === 'Punched In' 
-                    ? 'bg-emerald-100 text-emerald-800'
+                    ? 'bg-emerald-100 text-emerald-300'
                     : profile.attendance_status === 'Punched Out'
                     ? 'bg-orange-100 text-orange-800'
-                    : 'bg-rose-100 text-rose-800'
+                    : 'bg-rose-100 text-rose-300'
                 }`}>
                   <Clock className="w-3.5 h-3.5" />
                   {profile.attendance_status}
@@ -238,7 +238,7 @@ export default function DashboardPage() {
 
         {/* Celebrations Widget (Anniversaries Only) */}
         <div className="premium-card p-6">
-          <h3 className="font-bold text-pink-700 flex items-center gap-2 mb-4">
+          <h3 className="font-bold text-pink-300 flex items-center gap-2 mb-4">
             <PartyPopper className="w-5 h-5" />
             Work Anniversaries
           </h3>
@@ -248,8 +248,8 @@ export default function DashboardPage() {
             )}
             {widgets.anniversaries.map((a: any, idx: number) => (
               <div key={`a-${idx}`} className="flex items-center justify-between text-sm">
-                <span className="font-medium text-gray-800">🎉 {a.name} ({a.years}Y)</span>
-                <span className="text-purple-600 font-semibold text-xs bg-purple-100 px-2 py-1 rounded-md">{format(new Date(a.date), "MMM d")}</span>
+                <span className="font-medium text-white">🎉 {a.name} ({a.years}Y)</span>
+                <span className="text-purple-300 font-semibold text-xs bg-purple-500/30 px-2 py-1 rounded-md text-purple-300">{format(new Date(a.date), "MMM d")}</span>
               </div>
             ))}
           </div>
@@ -351,7 +351,7 @@ export default function DashboardPage() {
         */}
         <div className="lg:col-span-4 space-y-8">
           <div className="premium-card p-6">
-            <h2 className="text-lg font-bold text-emerald-800 mb-6 flex items-center gap-2">
+            <h2 className="text-lg font-bold text-emerald-300 mb-6 flex items-center gap-2">
               <CalendarDays className="w-5 h-5" />
               Leave Summary
             </h2>
@@ -368,7 +368,7 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <div className="h-px bg-gray-100 w-full"></div>
+              <div className="h-px bg-white/10 w-full"></div>
 
               {/* Sick Leave Indicator */}
               <div className="flex items-center justify-between group">
@@ -381,7 +381,7 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <div className="h-px bg-gray-100 w-full"></div>
+              <div className="h-px bg-white/10 w-full"></div>
 
               {/* Total Leaves Taken Indicator */}
               <div className="flex items-center justify-between group">
@@ -396,7 +396,7 @@ export default function DashboardPage() {
 
               {/* Pending visual (optional, but good for UI) */}
               {leave_metrics.pending_leaves > 0 && (
-                <div className="mt-4 bg-orange-50/70 border border-orange-100 rounded-xl p-3 flex items-center gap-3 text-orange-800">
+                <div className="mt-4 bg-orange-500/20 border border-orange-500/30 rounded-xl p-3 flex items-center gap-3 text-orange-300">
                   <Clock className="w-5 h-5 shrink-0" />
                   <span className="text-sm font-medium">Your {leave_metrics.pending_leaves} leave request(s) are pending approval</span>
                 </div>
@@ -405,7 +405,7 @@ export default function DashboardPage() {
               <div className="pt-6">
                 <Link 
                   href="/leaves/apply" 
-                  className="w-full flex items-center justify-center gap-2 bg-amber-400 text-slate-900 font-bold py-4 px-6 rounded-2xl hover:bg-amber-50/700 hover:shadow-xl hover:shadow-amber-400/20 transition-all duration-300 hover:-translate-y-0.5"
+                  className="w-full flex items-center justify-center gap-2 bg-amber-400 text-slate-900 font-bold py-4 px-6 rounded-2xl hover:bg-amber-300 hover:shadow-xl hover:shadow-amber-400/20 transition-all duration-300 hover:-translate-y-0.5"
                 >
                   <Palmtree className="w-5 h-5" />
                   Apply for Leave
@@ -510,7 +510,7 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 mt-6">
         {/* Announcements */}
         <div className="premium-card p-6">
-          <h2 className="text-lg font-bold text-indigo-800 mb-5 flex items-center gap-2">
+          <h2 className="text-lg font-bold text-indigo-300 mb-5 flex items-center gap-2">
             <Megaphone className="w-5 h-5" />
             Company Announcements
           </h2>
@@ -519,7 +519,7 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
                 <p className="text-sm text-slate-400">No recent announcements.</p>
               ) : (
                 widgets.company_updates.map((update: any, idx: number) => (
-                  <div key={idx} className="flex gap-3 items-start border-b border-indigo-100/50 pb-3 last:border-0 last:pb-0">
+                  <div key={idx} className="flex gap-3 items-start border-b border-white/10 pb-3 last:border-0 last:pb-0">
                     <div className="w-2 h-2 mt-1.5 rounded-full bg-indigo-50/700 shrink-0"></div>
                     <div>
                       <p className="text-sm font-medium text-white leading-tight">{update.title}</p>
@@ -533,12 +533,12 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
 
         {/* Employee Engagement Widgets */}
         <div className="premium-card p-6">
-          <h2 className="text-lg font-bold text-pink-800 mb-5 flex items-center gap-2">
+          <h2 className="text-lg font-bold text-pink-300 mb-5 flex items-center gap-2">
             <PartyPopper className="w-5 h-5" />
             Celebrations
           </h2>
           <div className="space-y-4">
-            <h3 className="font-bold text-pink-700 text-sm flex items-center gap-2">
+            <h3 className="font-bold text-pink-300 text-sm flex items-center gap-2">
               <Award className="w-4 h-4" />
               Work Anniversaries
             </h3>
@@ -548,19 +548,19 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
               <div className="space-y-3">
                 {widgets.anniversaries.map((item: any, i: number) => (
                   <div key={i} className="flex justify-between items-center text-xs">
-                    <span className="font-bold text-gray-800">{item.name} {item.years ? `(${item.years}Y)` : ''}</span>
-                    <span className="text-pink-600 bg-white/60 px-2 py-1 rounded-md shadow-sm font-semibold">{format(new Date(item.date), "MMM d")}</span>
+                    <span className="font-bold text-white">{item.name} {item.years ? `(${item.years}Y)` : ''}</span>
+                    <span className="text-pink-300 bg-white/60 px-2 py-1 rounded-md shadow-sm font-semibold">{format(new Date(item.date), "MMM d")}</span>
                   </div>
                 ))}
               </div>
             )}
             
-            <div className="mt-4 pt-4 border-t border-pink-100">
-               <h3 className="font-bold text-amber-600 text-sm flex items-center gap-2 mb-2">
+            <div className="mt-4 pt-4 border-t border-white/10">
+               <h3 className="font-bold text-amber-300 text-sm flex items-center gap-2 mb-2">
                   <Award className="w-4 h-4" />
                   Employee of the Month
                </h3>
-               <p className="text-sm font-medium text-gray-800">Sarah Jenkins <span className="text-[10px] uppercase tracking-wider text-amber-600 font-bold ml-2 bg-amber-100 px-1 rounded">Marketing</span></p>
+               <p className="text-sm font-medium text-white">Sarah Jenkins <span className="text-[10px] uppercase tracking-wider text-amber-300 font-bold ml-2 bg-amber-500/30 px-1 rounded text-amber-300">Marketing</span></p>
             </div>
           </div>
         </div>
@@ -598,7 +598,7 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
 
           {/* Activity Feed */}
           <div className="premium-card p-6">
-            <h2 className="text-lg font-bold text-cyan-800 mb-5 flex items-center gap-2">
+            <h2 className="text-lg font-bold text-cyan-300 mb-5 flex items-center gap-2">
               <Activity className="w-5 h-5" />
               Recent Activity
             </h2>
@@ -638,7 +638,7 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
               )}
               
               {/* View All Link */}
-              <Link href="/activities" className="block text-center pt-3 border-t border-cyan-100 mt-2 text-sm font-bold text-cyan-700 hover:underline">
+              <Link href="/activities" className="block text-center pt-3 border-t border-white/10 mt-2 text-sm font-bold text-cyan-700 hover:underline">
                 View All Activities →
               </Link>
             </div>
@@ -652,7 +652,7 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
 
           {/* Upcoming Holidays */}
           <div className="premium-card p-6">
-            <h2 className="text-lg font-bold text-rose-800 mb-5 flex items-center gap-2">
+            <h2 className="text-lg font-bold text-rose-300 mb-5 flex items-center gap-2">
               <CalendarDays className="w-5 h-5" />
               Upcoming Holidays
             </h2>
@@ -661,7 +661,7 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
               {widgets.upcoming_holidays.map((h: any, i: number) => (
                 <div key={i} className="flex justify-between items-center">
                   <span className="text-sm font-medium text-white">{h.name}</span>
-                  <span className="text-xs font-semibold text-rose-600 bg-rose-50/70 px-2 py-1 rounded-md">
+                  <span className="text-xs font-semibold text-rose-600 bg-rose-500/30 px-2 py-1 rounded-md text-rose-300">
                     {format(new Date(h.date), "MMM d")}
                   </span>
                 </div>
@@ -671,7 +671,7 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
 
           {/* Leave Summary (Reused from regular dashboard) */}
            <div className="premium-card p-6">
-            <h2 className="text-lg font-bold text-emerald-800 mb-6 flex items-center gap-2">
+            <h2 className="text-lg font-bold text-emerald-300 mb-6 flex items-center gap-2">
               <CalendarDays className="w-5 h-5" />
               Company Leave Overview
             </h2>
@@ -779,7 +779,7 @@ function EngagementCard({ title, items, icon: Icon, colorClass = "bg-orange-50/7
         <div className="space-y-3">
           {items.map((item: any, i: number) => (
             <div key={i} className="flex justify-between items-center text-xs">
-              <span className="font-bold text-gray-800">{item.name} {item.years ? `(${item.years}Y)` : ''}</span>
+              <span className="font-bold text-white">{item.name} {item.years ? `(${item.years}Y)` : ''}</span>
               <span className="text-slate-300 bg-white/60 px-2 py-1 rounded-md shadow-sm font-semibold">{format(new Date(item.date), "MMM d")}</span>
             </div>
           ))}
@@ -792,7 +792,7 @@ function EngagementCard({ title, items, icon: Icon, colorClass = "bg-orange-50/7
 function UpcomingBirthdaysWidget({ items }: { items: any[] }) {
   return (
     <div className="premium-card p-6">
-      <h3 className="font-bold text-fuchsia-700 flex items-center gap-2 mb-5">
+      <h3 className="font-bold text-fuchsia-300 flex items-center gap-2 mb-5">
         <Gift className="w-5 h-5" />
         Upcoming Birthdays
       </h3>
@@ -812,11 +812,11 @@ function UpcomingBirthdaysWidget({ items }: { items: any[] }) {
                 </div>
               </div>
               <div className="flex flex-col items-end gap-1">
-                <span className="text-xs font-bold text-gray-700">{format(new Date(b.date), "MMM d")}</span>
+                <span className="text-xs font-bold text-slate-300">{format(new Date(b.date), "MMM d")}</span>
                 {b.days_remaining === 0 ? (
-                  <span className="text-[10px] uppercase tracking-wider font-bold bg-fuchsia-50/700 text-white px-2 py-0.5 rounded-lg shadow-sm">Today!</span>
+                  <span className="text-[10px] uppercase tracking-wider font-bold bg-fuchsia-500/80 text-white px-2 py-0.5 rounded-lg shadow-sm">Today!</span>
                 ) : (
-                  <span className="text-[10px] uppercase tracking-wider font-bold bg-white text-fuchsia-600 px-2 py-0.5 rounded-lg shadow-sm">In {b.days_remaining} d</span>
+                  <span className="text-[10px] uppercase tracking-wider font-bold bg-fuchsia-500/30 text-fuchsia-300 px-2 py-0.5 rounded-lg shadow-sm">In {b.days_remaining} d</span>
                 )}
               </div>
             </div>
@@ -832,7 +832,7 @@ function MenuCard({ href, icon: Icon, title, subtitle, color, className = "" }: 
     emerald: { bg: 'bg-emerald-50/70', text: 'text-emerald-600' },
     blue: { bg: 'bg-blue-50/70', text: 'text-blue-600' },
     violet: { bg: 'bg-violet-50/70', text: 'text-violet-600' },
-    amber: { bg: 'bg-amber-50/70', text: 'text-amber-600' },
+    amber: { bg: 'bg-amber-50/70', text: 'text-amber-300' },
     rose: { bg: 'bg-rose-50/70', text: 'text-rose-600' },
     cyan: { bg: 'bg-cyan-50/70', text: 'text-cyan-600' },
     slate: { bg: 'bg-slate-100', text: 'text-slate-700' },
