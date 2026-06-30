@@ -192,10 +192,11 @@ export default function DashboardPage() {
           {profile.service_stats && (
             <div className="neon-pill-wrapper mt-4 lg:mt-0 w-full lg:w-auto shrink-0">
               <div className="neon-pill-inner px-6 py-3 text-center">
-                <p className="text-sm md:text-base font-bold text-white tracking-wide flex flex-wrap items-center justify-center gap-2 whitespace-nowrap">
+                <p className="text-sm md:text-base font-extrabold tracking-wide flex flex-wrap items-center justify-center gap-2 whitespace-nowrap"
+                   style={{ color: '#0F172A', textShadow: '0 1px 2px rgba(255,255,255,0.25)' }}>
                   <span className="text-base leading-none">🌟</span>
                   Growing Together for{" "}
-                  <span className="text-amber-200 font-extrabold">
+                  <span style={{ color: '#1E3A5F', fontWeight: 800 }}>
                     {profile.service_stats.years}Y {profile.service_stats.months}M {profile.service_stats.days}D
                   </span>
                 </p>
