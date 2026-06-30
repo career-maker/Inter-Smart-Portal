@@ -135,7 +135,7 @@ export default function TeamsPage() {
                   </div>
                 </div>
               </CardContent>
-              <CardFooter className="bg-gray-50/50 border-t px-6 py-3">
+              <CardFooter className="bg-transparent border-t px-6 py-3">
                 <div className="flex items-center text-sm text-muted-foreground">
                   <Users className="mr-2 h-4 w-4" />
                   {team.members_count} Members

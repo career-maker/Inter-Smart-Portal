@@ -100,7 +100,7 @@ export default function EditTeamPage() {
               <CardDescription>Select employees to assign to this team. Anyone not selected will be removed from the team.</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="border rounded-md max-h-96 overflow-y-auto mb-6 bg-gray-50/50">
+              <div className="border rounded-md max-h-96 overflow-y-auto mb-6 bg-white/5">
                 {allUsers.length === 0 ? (
                   <div className="p-4 text-center text-muted-foreground">No employees found in the system.</div>
                 ) : (

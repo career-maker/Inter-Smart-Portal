@@ -178,3 +178,25 @@ body {
 *::after {
   box-sizing: border-box;
 }
+
+@layer components {
+  .premium-card {
+    background: linear-gradient(135deg, #16213E 0%, #1F2A44 50%, #243B67 100%);
+    box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.35), -6px -6px 20px rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255,255,255,0.05);
+    backdrop-filter: blur(16px);
+    border-radius: 24px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .premium-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 14px 14px 40px rgba(0,0,0,0.4), -8px -8px 25px rgba(255,255,255,0.04);
+  }
+
+  .premium-icon-container {
+    background: rgba(255,255,255,0.08);
+    box-shadow: inset 2px 2px 6px rgba(255,255,255,0.03), inset -2px -2px 6px rgba(0,0,0,0.2);
+    border-radius: 50%;
+  }
+}

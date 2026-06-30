@@ -139,7 +139,7 @@ export default function MyProfilePage() {
             
             {pendingRequest ? (
               <div className="p-6 pt-0 space-y-6">
-                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex gap-3 text-amber-800">
+                <div className="premium-card p-4 flex gap-3 text-amber-800">
                   <ShieldAlert className="h-5 w-5 shrink-0 mt-0.5" />
                   <div>
                     <h4 className="font-medium">Update Request Pending</h4>
@@ -250,7 +250,7 @@ function RecognitionsHistory() {
           {recognitions.map((rec: any, idx: number) => {
             const isActive = rec.is_active && new Date(rec.start_date) <= new Date() && new Date(rec.end_date) >= new Date();
             return (
-              <div key={idx} className={`p-4 rounded-xl border ${isActive ? 'bg-amber-50 border-amber-200' : 'bg-gray-50 border-gray-200'}`}>
+              <div key={idx} className={`p-4 rounded-xl border ${isActive ? 'bg-white/10 border-white/20 text-white' : 'bg-white/5 border-white/10 text-slate-300'}`}>
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex items-center gap-2">
                     <span className="text-2xl">{rec.icon}</span>

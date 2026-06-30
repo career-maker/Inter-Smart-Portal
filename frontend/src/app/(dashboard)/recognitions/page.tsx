@@ -137,7 +137,7 @@ export default function RecognitionsPage() {
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="bg-gray-50 text-gray-600 font-semibold border-b border-gray-100">
+            <thead className="bg-white/5 text-slate-300 font-semibold border-b border-gray-100">
               <tr>
                 <th className="px-6 py-4">Employee</th>
                 <th className="px-6 py-4">Title</th>

@@ -89,7 +89,7 @@ function EditModal({
           )}
 
           {/* CL */}
-          <div className="bg-amber-50 rounded-xl p-4">
+          <div className="premium-card p-4">
             <label className="text-xs font-bold uppercase tracking-wider text-amber-700 mb-2 block">
               Casual Leave (Current Year)
             </label>
@@ -102,7 +102,7 @@ function EditModal({
           </div>
 
           {/* CL Carry Forward */}
-          <div className="bg-orange-50 rounded-xl p-4">
+          <div className="premium-card p-4">
             <label className="text-xs font-bold uppercase tracking-wider text-orange-700 mb-2 block">
               CL Carry Forward {employee.cl_carry_forward_year ? `(from ${employee.cl_carry_forward_year})` : ""}
             </label>
@@ -115,7 +115,7 @@ function EditModal({
           </div>
 
           {/* SL */}
-          <div className="bg-blue-50 rounded-xl p-4">
+          <div className="premium-card p-4">
             <label className="text-xs font-bold uppercase tracking-wider text-blue-700 mb-2 block">
               Sick Leave
             </label>

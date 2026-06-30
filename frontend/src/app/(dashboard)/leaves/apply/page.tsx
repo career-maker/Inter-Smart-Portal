@@ -184,7 +184,7 @@ export default function ApplyLeavePage() {
         </CardHeader>
         <CardContent>
           {leaveMetrics && (
-            <div className="mb-6 grid grid-cols-3 gap-4 bg-gray-50/50 border rounded-xl p-4">
+            <div className="mb-6 grid grid-cols-3 gap-4 bg-white/5 border-white/10 border rounded-xl p-4">
               <div className="text-center">
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Sick Leave</p>
                 <p className="text-2xl font-bold text-rose-600">{leaveMetrics.sick_leave_balance}</p>
@@ -239,7 +239,7 @@ export default function ApplyLeavePage() {
               
               {isCalculating && <p className="text-sm text-gray-500">Calculating leave impact...</p>}
               {impact && (
-                <div className={`p-4 rounded-md border ${impact.is_unpaid ? 'bg-amber-50 border-amber-200' : 'bg-emerald-50 border-emerald-200'}`}>
+                <div className={`p-4 rounded-md border ${impact.is_unpaid ? 'bg-amber-500/20 border-amber-500/30 text-amber-200' : 'bg-emerald-500/20 border-emerald-500/30 text-emerald-200'}`}>
                   <h4 className={`font-semibold flex items-center gap-2 ${impact.is_unpaid ? 'text-amber-800' : 'text-emerald-800'}`}>
                     {impact.is_unpaid && <AlertTriangle className="w-4 h-4" />}
                     Leave Summary

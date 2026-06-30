@@ -78,7 +78,7 @@ export default function ProfileRequestsPage() {
         <div className="grid gap-4">
           {requests.map(req => (
             <Card key={req.id} className="shadow-sm">
-              <CardHeader className="pb-3 border-b bg-gray-50/50">
+              <CardHeader className="pb-3 border-b bg-transparent">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <img 
@@ -100,7 +100,7 @@ export default function ProfileRequestsPage() {
                 <h4 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wider">Requested Changes</h4>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-6 mb-6">
                   {Object.entries(req.requested_data).map(([key, val]) => (
-                    <div key={key} className="bg-gray-50 p-3 rounded-lg border">
+                    <div key={key} className="bg-white/5 p-3 rounded-lg border border-white/10 text-slate-300">
                       <div className="text-xs text-muted-foreground capitalize mb-1">{key.replace('_', ' ')}</div>
                       <div className="font-medium">{String(val) || <span className="text-gray-400 italic">Empty</span>}</div>
                     </div>

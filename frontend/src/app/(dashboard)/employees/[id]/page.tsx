@@ -69,8 +69,8 @@ export default function EditEmployeePage() {
       
       // Update global auth store if the logged-in user is editing their own profile
       const authStore = useAuthStore.getState();
-      if (authStore.user?.id.toString() === params.id.toString()) {
-        authStore.setUser({ ...authStore.user, profile_photo_path: response.data.profile_photo_path });
+      if (params?.id && authStore.user?.id?.toString() === params.id.toString()) {
+        authStore.updateUser({ profile_photo_path: response.data.profile_photo_path });
       }
       
       alert("Photo uploaded successfully");
