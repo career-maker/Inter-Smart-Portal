@@ -818,8 +818,14 @@ function UpcomingBirthdaysWidget({ items }: { items: any[] }) {
           items.map((b: any, idx: number) => (
             <div key={idx} className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-white shadow-sm border border-white/50 backdrop-blur-md bg-white/50 text-fuchsia-600 flex items-center justify-center font-bold text-sm shrink-0">
-                  {b.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2)}
+                <div className="w-10 h-10 rounded-2xl overflow-hidden border border-white/20 shrink-0">
+                  {b.profile_photo_path ? (
+                    <img src={b.profile_photo_path} alt={b.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-white/10 text-fuchsia-300 flex items-center justify-center font-bold text-sm">
+                      {b.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2)}
+                    </div>
+                  )}
                 </div>
                 <div>
                   <p className="text-sm font-bold text-white leading-tight">{b.name}</p>

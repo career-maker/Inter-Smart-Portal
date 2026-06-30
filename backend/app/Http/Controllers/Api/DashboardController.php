@@ -194,12 +194,12 @@ class DashboardController extends Controller
         $today = Carbon::today();
         $targetDate = Carbon::today()->addDays($upcomingDays);
         
-        $fullUsers = User::with('team:id,name')->where('status', 'Active')->get(['id', 'first_name', 'last_name', 'dob', 'designation', 'team_id']);
-        
+        $fullUsers = User::with('team:id,name')->where('status', 'Active')->get(['id', 'first_name', 'last_name', 'dob', 'designation', 'team_id', 'profile_photo_path']);
+
         foreach ($fullUsers as $u) {
             if ($u->dob) {
                 $dobThisYear = Carbon::parse($u->dob)->setYear($today->year);
-                
+
                 // If birthday has passed this year, check next year
                 if ($dobThisYear->isBefore($today)) {
                     $dobThisYear->addYear();
@@ -213,6 +213,9 @@ class DashboardController extends Controller
                         'department' => $u->team ? $u->team->name : 'Unassigned',
                         'date' => $dobThisYear->toDateString(),
                         'days_remaining' => $daysRemaining,
+                        'profile_photo_path' => $u->profile_photo_path
+                            ? rtrim(config('app.url'), '/') . '/api/photos/' . str_replace('\\', '/', $u->profile_photo_path)
+                            : null,
                     ];
                 }
             }
