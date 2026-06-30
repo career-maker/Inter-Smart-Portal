@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             RolesAndPermissionsSeeder::class,
             TeamSeeder::class,
             UserSeeder::class,
+            LeaveTypesSeeder::class,
         ]);
     }
 }

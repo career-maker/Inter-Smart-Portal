@@ -12,12 +12,6 @@ class TeamSeeder extends Seeder
      */
     public function run(): void
     {
-
-        \App\Models\Team::create(['name' => 'Engineering', 'code' => 'ENG']);
-        \App\Models\Team::create(['name' => 'Human Resources', 'code' => 'HR']);
-        \App\Models\Team::create(['name' => 'Sales', 'code' => 'SALES']);
-    
-
         //
     }
 }
