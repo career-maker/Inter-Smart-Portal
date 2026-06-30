@@ -144,6 +144,7 @@ export default function ApplyLeavePage() {
     setIsLoading(true);
     try {
       await api.post("/leave-requests", values);
+      window.dispatchEvent(new Event('notifications-refresh'));
       router.push("/leaves");
       router.refresh();
     } catch (e: any) {
@@ -239,8 +240,15 @@ export default function ApplyLeavePage() {
                     Leave Summary
                   </h4>
                   <ul className="mt-2 text-sm text-slate-300 space-y-1">
-                    <li><strong className="text-white">Requested Days:</strong> {impact.actual_leave_days}</li>
-                    {impact.sandwich_leave_days > 0 && <li><strong className="text-white">Sandwich Days:</strong> {impact.sandwich_leave_days}</li>}
+                    {impact.sandwich_leave_days > 0 ? (
+                      <>
+                        <li><strong className="text-white">Requested Leave Days:</strong> {impact.requested_working_days ?? (impact.actual_leave_days - impact.sandwich_leave_days)}</li>
+                        <li><strong className="text-white">Additional Sandwich Days:</strong> {impact.sandwich_leave_days}</li>
+                        <li><strong className="text-white">Total Leave Days:</strong> {impact.actual_leave_days}</li>
+                      </>
+                    ) : (
+                      <li><strong className="text-white">Requested Days:</strong> {impact.actual_leave_days}</li>
+                    )}
                     <li><strong className="text-white">Status:</strong> {impact.is_unpaid ? <span className="text-red-400 font-bold">Unpaid (LOP)</span> : <span className="text-emerald-400 font-bold">Paid</span>}</li>
                     {impact.unpaid_reason && <li><strong className="text-white">Reason:</strong> {impact.unpaid_reason}</li>}
                   </ul>

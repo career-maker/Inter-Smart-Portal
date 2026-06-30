@@ -32,9 +32,12 @@ export function NotificationDropdown() {
 
   useEffect(() => {
     fetchUnread();
-    // In a real app we might use websockets here, for now we can poll every 60s
-    const interval = setInterval(fetchUnread, 60000);
-    return () => clearInterval(interval);
+    const interval = setInterval(fetchUnread, 15000);
+    window.addEventListener('notifications-refresh', fetchUnread);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('notifications-refresh', fetchUnread);
+    };
   }, []);
 
   const handleMarkAsRead = async (id: string, e: React.MouseEvent) => {
@@ -64,9 +67,8 @@ export function NotificationDropdown() {
       <DropdownMenuTrigger className="relative p-2 rounded-full hover:bg-gray-100 transition-colors focus:outline-none">
         <Bell className="h-5 w-5 text-gray-600" />
         {unreadCount > 0 && (
-          <span className="absolute top-1.5 right-1.5 flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 leading-none">
+            {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}
       </DropdownMenuTrigger>

@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\WfhRequest;
+use App\Models\User;
 use App\Http\Requests\StoreWfhRequest;
 use App\Http\Requests\UpdateLeaveStatusRequest;
+use App\Notifications\WfhRequestNotification;
 use Illuminate\Http\Request;
 
 class WfhRequestController extends Controller
@@ -74,6 +76,23 @@ class WfhRequestController extends Controller
             'admin_status' => $adminStatus,
         ]);
 
+        // Notify Super Admins and Team Lead
+        try {
+            $fullName = "{$user->first_name} {$user->last_name}";
+            $message  = "{$fullName} has submitted a WFH request ({$data['start_date']} to {$data['end_date']}).";
+            foreach (User::role('Super Admin')->get() as $admin) {
+                if ($admin->id !== $user->id) {
+                    $admin->notify(new WfhRequestNotification('submitted', $wfhRequest, $message));
+                }
+            }
+            if ($user->team_id) {
+                $tl = \App\Models\Team::find($user->team_id)?->teamLead;
+                if ($tl && $tl->id !== $user->id) {
+                    $tl->notify(new WfhRequestNotification('submitted', $wfhRequest, $message));
+                }
+            }
+        } catch (\Exception $e) {}
+
         return response()->json([
             'message' => 'WFH request applied successfully',
             'data' => $wfhRequest
@@ -132,6 +151,16 @@ class WfhRequestController extends Controller
             }
             $wfhRequest->save();
         }
+
+        // Notify employee of approval/rejection
+        try {
+            $actorName = "{$user->first_name} {$user->last_name}";
+            $event     = strtolower($data['status']);
+            $message   = $event === 'approved'
+                ? "Your WFH request has been approved by {$actorName}."
+                : "Your WFH request has been rejected by {$actorName}.";
+            $wfhRequest->user->notify(new WfhRequestNotification($event, $wfhRequest, $message));
+        } catch (\Exception $e) {}
 
         return response()->json([
             'message' => "WFH request {$data['status']} successfully",
