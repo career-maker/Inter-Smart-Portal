@@ -27,7 +27,7 @@ class EmployeeResource extends JsonResource
             'permanent_address' => $this->permanent_address,
             'current_address' => $this->current_address,
             'status' => $this->status,
-            'profile_photo_path' => $this->profile_photo_path ? request()->getSchemeAndHttpHost() . '/api/photos/' . str_replace('\\', '/', $this->profile_photo_path) : null,
+            'profile_photo_path' => $this->profile_photo_path ? rtrim(config('app.url'), '/') . '/api/photos/' . str_replace('\\', '/', $this->profile_photo_path) : null,
             'team_id' => $this->team_id,
             'team' => $this->whenLoaded('team', function () {
                 return [

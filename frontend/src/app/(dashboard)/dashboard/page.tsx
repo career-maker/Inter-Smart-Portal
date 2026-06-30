@@ -435,8 +435,12 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
       <div className="bg-[#F4B400] rounded-3xl p-5 md:p-6 shadow-lg mb-6 text-slate-900">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div className="flex items-center gap-5">
-            <div className="w-16 h-16 rounded-full bg-white/40 flex items-center justify-center text-slate-900 text-2xl font-bold backdrop-blur-sm border border-white/50 shrink-0">
-              {profile.first_name?.[0]}{profile.last_name?.[0]}
+            <div className="w-16 h-16 rounded-full bg-white/40 flex items-center justify-center text-slate-900 text-2xl font-bold backdrop-blur-sm border border-white/50 shrink-0 overflow-hidden">
+              {profile.profile_photo_path ? (
+                <img src={profile.profile_photo_path} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                <>{profile.first_name?.[0]}{profile.last_name?.[0]}</>
+              )}
             </div>
             <div>
               <p className="text-sm font-medium text-slate-800/80 mb-1">
@@ -722,36 +726,47 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
 }
 
 function KPICard({ title, value, trend, icon: Icon, color, href, onClick }: any) {
-  const bgColor = color.replace('bg-', 'bg-').replace('-500', '-50/70');
+  const accentMap: Record<string, { icon: string; border: string; glow: string }> = {
+    'bg-blue-500':    { icon: 'bg-blue-500/20 text-blue-400',     border: 'border-blue-500/25',    glow: 'shadow-blue-500/10' },
+    'bg-emerald-500': { icon: 'bg-emerald-500/20 text-emerald-400', border: 'border-emerald-500/25', glow: 'shadow-emerald-500/10' },
+    'bg-orange-500':  { icon: 'bg-orange-500/20 text-orange-400',  border: 'border-orange-500/25',  glow: 'shadow-orange-500/10' },
+    'bg-cyan-500':    { icon: 'bg-cyan-500/20 text-cyan-400',      border: 'border-cyan-500/25',    glow: 'shadow-cyan-500/10' },
+    'bg-rose-500':    { icon: 'bg-rose-500/20 text-rose-400',      border: 'border-rose-500/25',    glow: 'shadow-rose-500/10' },
+  };
+  const accent = accentMap[color] || accentMap['bg-blue-500'];
+
   const CardContent = (
-    <div className={`${bgColor} rounded-3xl p-6 shadow-[0_8px_32px_rgba(0,0,0,0.05)] backdrop-blur-2xl border border-white/60 relative overflow-hidden h-full ${(href || onClick) ? 'hover:bg-white/40 hover:shadow-[0_8px_32px_rgba(0,0,0,0.1)] transition-all cursor-pointer group' : ''}`}>
-      <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${color.replace('bg-', 'from-').replace('-500', '-200')} to-transparent rounded-bl-full -mr-4 -mt-4 opacity-30`}></div>
+    <div className={`
+      relative overflow-hidden h-full rounded-3xl p-6
+      bg-gradient-to-br from-slate-800/90 to-slate-900/90
+      shadow-[8px_8px_20px_rgba(0,0,0,0.5),-4px_-4px_12px_rgba(255,255,255,0.03)]
+      border ${accent.border}
+      backdrop-blur-xl
+      transition-all duration-300
+      ${(href || onClick) ? 'cursor-pointer group hover:shadow-[inset_6px_6px_14px_rgba(0,0,0,0.5),inset_-3px_-3px_10px_rgba(255,255,255,0.03)] hover:border-white/10' : ''}
+    `}>
       <div className="flex justify-between items-start relative z-10">
         <div>
-          <p className="text-sm font-bold text-slate-300 mb-1">{title}</p>
-          <h3 className="text-3xl font-black text-white tracking-tight">{value}</h3>
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">{title}</p>
+          <h3 className="text-4xl font-black text-white tracking-tight">{value}</h3>
         </div>
-        <div className={`w-12 h-12 rounded-2xl ${color} text-white flex items-center justify-center shadow-sm ${(href || onClick) ? 'group-hover:scale-95 transition-transform' : ''}`}>
-          <Icon className="w-6 h-6" />
+        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${accent.icon}
+          shadow-[inset_3px_3px_6px_rgba(0,0,0,0.3),inset_-2px_-2px_5px_rgba(255,255,255,0.04)]
+          ${(href || onClick) ? 'group-hover:scale-90 transition-transform duration-300' : ''}`}>
+          <Icon className="w-5 h-5" />
         </div>
       </div>
       {trend && (
-        <div className={`mt-4 text-xs font-bold ${trend.startsWith('+') ? 'text-emerald-600' : 'text-rose-600'} flex items-center`}>
-          <span className="mr-1">{trend.startsWith('+') ? '▲' : '▼'}</span>
+        <div className={`mt-4 text-xs font-bold flex items-center gap-1 ${trend.startsWith('+') ? 'text-emerald-400' : 'text-rose-400'}`}>
+          <span>{trend.startsWith('+') ? '▲' : '▼'}</span>
           {trend} from yesterday
         </div>
       )}
     </div>
   );
 
-  if (href && !onClick) {
-    return <Link href={href} className="block h-full">{CardContent}</Link>;
-  }
-
-  if (onClick) {
-    return <div onClick={onClick} className="block h-full w-full text-left">{CardContent}</div>;
-  }
-
+  if (href && !onClick) return <Link href={href} className="block h-full">{CardContent}</Link>;
+  if (onClick) return <div onClick={onClick} className="block h-full w-full text-left">{CardContent}</div>;
   return CardContent;
 }
 

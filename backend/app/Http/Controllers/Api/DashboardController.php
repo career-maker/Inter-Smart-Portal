@@ -55,6 +55,9 @@ class DashboardController extends Controller
             'service_days' => $serviceDays,
             'service_stats' => $serviceStats,
             'active_recognition' => $activeRecognition,
+            'profile_photo_path' => $user->profile_photo_path
+                ? rtrim(config('app.url'), '/') . '/api/photos/' . str_replace('\\', '/', $user->profile_photo_path)
+                : null,
         ];
 
         // Add Attendance Status

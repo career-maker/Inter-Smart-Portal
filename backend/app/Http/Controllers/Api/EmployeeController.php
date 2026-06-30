@@ -121,10 +121,10 @@ class EmployeeController extends Controller
         $employee->update(['profile_photo_path' => $path]);
 
         $webPath = str_replace('\\', '/', $path);
-        
+
         return response()->json([
             'message' => 'Photo updated successfully.',
-            'profile_photo_path' => request()->getSchemeAndHttpHost() . '/api/photos/' . $webPath
+            'profile_photo_path' => rtrim(config('app.url'), '/') . '/api/photos/' . $webPath
         ]);
     }
 
