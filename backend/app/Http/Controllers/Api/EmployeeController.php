@@ -111,9 +111,11 @@ class EmployeeController extends Controller
         $path = $request->file('photo')->store('profile-photos', 'public');
         $employee->update(['profile_photo_path' => $path]);
 
+        $webPath = str_replace('\\', '/', $path);
+        
         return response()->json([
             'message' => 'Photo updated successfully.',
-            'profile_photo_path' => request()->getSchemeAndHttpHost() . '/storage/' . $path
+            'profile_photo_path' => request()->getSchemeAndHttpHost() . '/storage/' . $webPath
         ]);
     }
 

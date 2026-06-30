@@ -44,7 +44,7 @@ class AuthController extends Controller
                 'role' => $user->roles->pluck('name')->first(),
                 'permissions' => $user->getAllPermissions()->pluck('name'),
                 'profile_photo_path' => $user->profile_photo_path
-                    ? request()->getSchemeAndHttpHost() . '/storage/' . $user->profile_photo_path
+                    ? request()->getSchemeAndHttpHost() . '/storage/' . str_replace('\\', '/', $user->profile_photo_path)
                     : null,
             ]
         ]);
@@ -65,7 +65,7 @@ class AuthController extends Controller
                 'role' => $user->roles->pluck('name')->first(),
                 'permissions' => $user->getAllPermissions()->pluck('name'),
                 'profile_photo_path' => $user->profile_photo_path
-                    ? request()->getSchemeAndHttpHost() . '/storage/' . $user->profile_photo_path
+                    ? request()->getSchemeAndHttpHost() . '/storage/' . str_replace('\\', '/', $user->profile_photo_path)
                     : null,
             ]
         ]);
