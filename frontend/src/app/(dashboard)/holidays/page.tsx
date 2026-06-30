@@ -2,55 +2,52 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import {
-  CalendarDays, Plus, Trash2, Edit, Loader2
-} from "lucide-react";
+import { CalendarDays, Plus, Trash2, Edit, Loader2, CheckCircle } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
+import { format } from "date-fns";
 
-import { Button } from "@/components/ui/button";
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+const HOLIDAY_TYPES = [
+  { value: "National Holiday",  label: "National Holiday",  cls: "bg-blue-500/20 text-blue-300" },
+  { value: "Festival Holiday",  label: "Festival Holiday",  cls: "bg-amber-500/20 text-amber-300" },
+  { value: "Company Holiday",   label: "Company Holiday",   cls: "bg-emerald-500/20 text-emerald-300" },
+  { value: "Optional Holiday",  label: "Optional Holiday",  cls: "bg-purple-500/20 text-purple-300" },
+];
+
+function TypeBadge({ type }: { type: string }) {
+  const t = HOLIDAY_TYPES.find((x) => x.value === type) ?? { cls: "bg-white/10 text-slate-300", label: type };
+  return <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${t.cls}`}>{t.label}</span>;
+}
 
 export default function HolidaysPage() {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
+  const isSuperAdmin = user?.role === "Super Admin" || user?.role === "HR";
 
   const [holidays, setHolidays] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
-
-  // Dialog state
   const [showDialog, setShowDialog] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
-  
-  // Form state
+
   const [name, setName] = useState("");
   const [date, setDate] = useState("");
-  const [type, setType] = useState("Public");
+  const [type, setType] = useState("National Holiday");
   const [description, setDescription] = useState("");
 
   useEffect(() => {
-    // Only Super Admin and HR can access this management page
-    if (user && user.role !== "Super Admin" && user.role !== "HR") {
+    if (user && !isSuperAdmin) {
       router.push("/calendar");
       return;
     }
     fetchHolidays();
-  }, [user, router]);
+  }, [user]);
 
   const fetchHolidays = async () => {
     setIsLoading(true);
     try {
       const res = await api.get("/holidays");
-      setHolidays(res.data.data);
+      setHolidays(res.data.data || []);
     } catch (e) {
       console.error(e);
     } finally {
@@ -60,13 +57,13 @@ export default function HolidaysPage() {
 
   const openNew = () => {
     setEditId(null);
-    setName(""); setDate(""); setType("Public"); setDescription("");
+    setName(""); setDate(""); setType("National Holiday"); setDescription("");
     setShowDialog(true);
   };
 
   const openEdit = (h: any) => {
     setEditId(h.id);
-    setName(h.name); setDate(h.date); setType(h.type); setDescription(h.description || "");
+    setName(h.name); setDate(h.date); setType(h.type || "National Holiday"); setDescription(h.description || "");
     setShowDialog(true);
   };
 
@@ -83,14 +80,16 @@ export default function HolidaysPage() {
       setShowDialog(false);
       fetchHolidays();
     } catch (e: any) {
-      alert(e.response?.data?.message || "Error saving holiday.");
+      const errors = e.response?.data?.errors;
+      const msg = errors ? Object.values(errors).flat().join("\n") : e.response?.data?.message || "Error saving holiday.";
+      alert(msg);
     } finally {
       setActionLoading(false);
     }
   };
 
   const deleteHoliday = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this holiday?")) return;
+    if (!confirm("Delete this holiday?")) return;
     try {
       await api.delete(`/holidays/${id}`);
       fetchHolidays();
@@ -99,10 +98,15 @@ export default function HolidaysPage() {
     }
   };
 
+  const fmtDate = (d: string) => {
+    try { return format(new Date(d + "T00:00:00"), "EEE, dd MMM yyyy"); }
+    catch { return d; }
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
       </div>
     );
   }
@@ -111,131 +115,160 @@ export default function HolidaysPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">Holiday Management</h1>
-          <p className="text-slate-300">Configure the company's annual holiday calendar.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-3">
+            <CalendarDays className="w-7 h-7 text-amber-400" /> Holiday Management
+          </h1>
+          <p className="text-slate-300 mt-1">Configure the company's annual holiday calendar.</p>
         </div>
-        <Button onClick={openNew}>
-          <Plus className="h-4 w-4 mr-2" /> Add Holiday
-        </Button>
+        <button
+          onClick={openNew}
+          className="flex items-center gap-2 px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-xl transition-colors"
+        >
+          <Plus className="h-4 w-4" /> Add Holiday
+        </button>
       </div>
 
-      <div className="bg-white border rounded-xl shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-gray-50/50 text-gray-500 font-medium border-b">
-              <tr>
-                <th className="px-6 py-4">Date</th>
-                <th className="px-6 py-4">Holiday Name</th>
-                <th className="px-6 py-4">Type</th>
-                <th className="px-6 py-4">Description</th>
-                <th className="px-6 py-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {holidays.length === 0 ? (
+      <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+        {holidays.length === 0 ? (
+          <div className="py-16 text-center text-slate-400 space-y-3">
+            <CalendarDays className="w-10 h-10 mx-auto text-slate-600" />
+            <p>No holidays configured yet.</p>
+            <button onClick={openNew} className="text-sm text-amber-400 hover:text-amber-300 underline underline-offset-2">
+              Add the first holiday
+            </button>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left">
+              <thead className="text-xs text-slate-400 uppercase bg-white/5 border-b border-white/10">
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-muted-foreground">
-                    No holidays configured yet.
-                  </td>
+                  <th className="px-6 py-3">Date</th>
+                  <th className="px-6 py-3">Holiday Name</th>
+                  <th className="px-6 py-3">Type</th>
+                  <th className="px-6 py-3">Description</th>
+                  <th className="px-6 py-3 text-right">Actions</th>
                 </tr>
-              ) : (
-                holidays.map((h: any) => (
-                  <tr key={h.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                      {new Date(h.date).toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {holidays.map((h: any) => (
+                  <tr key={h.id} className="hover:bg-white/5 transition-colors">
+                    <td className="px-6 py-4 text-slate-300 whitespace-nowrap font-mono text-xs">
+                      {fmtDate(h.date)}
                     </td>
-                    <td className="px-6 py-4 text-gray-800 font-medium">
-                      {h.name}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${
-                        h.type === 'Public' ? 'bg-blue-100 text-blue-700' :
-                        h.type === 'Company' ? 'bg-purple-100 text-purple-700' :
-                        'bg-orange-100 text-orange-700'
-                      }`}>
-                        {h.type}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-gray-500 max-w-xs truncate">
-                      {h.description || "-"}
-                    </td>
+                    <td className="px-6 py-4 font-semibold text-white">{h.name}</td>
+                    <td className="px-6 py-4"><TypeBadge type={h.type} /></td>
+                    <td className="px-6 py-4 text-slate-400 max-w-xs truncate">{h.description || "—"}</td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="sm" onClick={() => openEdit(h)}>
+                        <button
+                          onClick={() => openEdit(h)}
+                          className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+                        >
                           <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-600 hover:bg-red-50" onClick={() => deleteHoliday(h.id)}>
+                        </button>
+                        <button
+                          onClick={() => deleteHoliday(h.id)}
+                          className="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                        >
                           <Trash2 className="h-4 w-4" />
-                        </Button>
+                        </button>
                       </div>
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
-      <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>{editId ? "Edit Holiday" : "Add Holiday"}</DialogTitle>
-            <DialogDescription>
-              {editId ? "Update details for this holiday." : "Create a new company holiday."}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label>Holiday Name</Label>
-              <Input
-                className="mt-1"
-                placeholder="e.g. New Year's Day"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
+      {/* Add/Edit Dialog */}
+      {showDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowDialog(false)} />
+          <div className="relative w-full max-w-md bg-slate-800 border border-white/10 rounded-2xl shadow-2xl z-10">
+            <div className="px-6 py-5 border-b border-white/10">
+              <h2 className="text-lg font-bold text-white">{editId ? "Edit Holiday" : "Add Holiday"}</h2>
+              <p className="text-slate-400 text-sm mt-0.5">
+                {editId ? "Update details for this holiday." : "Add a new holiday to the calendar."}
+              </p>
             </div>
-            <div>
-              <Label>Date</Label>
-              <Input
-                className="mt-1 block"
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-              />
+            <div className="px-6 py-5 space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
+                  Holiday Name *
+                </label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g. Republic Day"
+                  className="w-full bg-slate-700 border border-white/10 text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 placeholder:text-slate-500 transition-colors"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
+                  Date *
+                </label>
+                <input
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="w-full bg-slate-700 border border-white/10 text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 transition-colors"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
+                  Holiday Type *
+                </label>
+                <select
+                  value={type}
+                  onChange={(e) => setType(e.target.value)}
+                  className="w-full bg-slate-700 border border-white/10 text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 transition-colors"
+                >
+                  {HOLIDAY_TYPES.map((t) => (
+                    <option key={t.value} value={t.value} className="bg-slate-700">
+                      {t.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
+                  Description <span className="text-slate-500 normal-case font-normal">(optional)</span>
+                </label>
+                <textarea
+                  rows={3}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Additional notes..."
+                  className="w-full bg-slate-700 border border-white/10 text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 placeholder:text-slate-500 resize-none transition-colors"
+                />
+              </div>
             </div>
-            <div>
-              <Label>Holiday Type</Label>
-              <Select value={type} onValueChange={(v) => setType(v as string)}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Select type..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Public">Public Holiday</SelectItem>
-                  <SelectItem value="Company">Company Holiday</SelectItem>
-                  <SelectItem value="Restricted">Restricted Holiday</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Description <span className="text-muted-foreground">(optional)</span></Label>
-              <Textarea
-                className="mt-1"
-                placeholder="Additional notes..."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
+            <div className="px-6 py-4 border-t border-white/10 flex gap-3 justify-end">
+              <button
+                onClick={() => setShowDialog(false)}
+                className="px-4 py-2 text-sm text-slate-300 border border-white/10 rounded-xl hover:bg-white/5 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={saveHoliday}
+                disabled={actionLoading || !name || !date || !type}
+                className="flex items-center gap-2 px-5 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {actionLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <CheckCircle className="w-4 h-4" />
+                )}
+                {editId ? "Update Holiday" : "Save Holiday"}
+              </button>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setShowDialog(false)}>Cancel</Button>
-            <Button onClick={saveHoliday} disabled={actionLoading || !name || !date || !type}>
-              {actionLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Save Holiday
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        </div>
+      )}
     </div>
   );
 }

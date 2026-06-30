@@ -1,47 +1,130 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from "@/store/auth";
-import { LogOut, ChevronDown, Menu, X, ChevronRight, Home } from "lucide-react";
+import {
+  LogOut, Menu, X, ChevronRight, Home, ChevronDown,
+  LayoutDashboard, CalendarCheck, Briefcase, UserCircle,
+  Users, ShieldCheck
+} from "lucide-react";
 import { NotificationDropdown } from "@/components/layout/NotificationDropdown";
 import { RecognitionTicker } from "@/components/layout/RecognitionTicker";
 import api from "@/services/api";
 
-const NAV_LINKS = [
-  { href: "/dashboard",        label: "Dashboard" },
-  { href: "/attendance",       label: "Attendance" },
-  { href: "/announcements",    label: "Updates" },
-  { href: "/employees",        label: "Employees" },
-  { href: "/teams",            label: "Departments" },
-  { href: "/leaves",           label: "Leaves" },
-  { href: "/leaves/apply",     label: "Apply Leave",      roles: ['Employee', 'Team Lead'] },
-  { href: "/wfh",              label: "WFH" },
-  { href: "/leaves/approvals", label: "Approvals" },
-  { href: "/documents",        label: "Documents" },
-  { href: "/policies",         label: "Policies" },
-  { href: "/reports",          label: "Reports" },
-  { href: "/hall",             label: "The Hall" },
-  { href: "/calendar",         label: "Calendar" },
-  { href: "/holidays",         label: "Holidays" },
-  { href: "/issues",           label: "Raise an Issue" },
-  { href: "/recognitions",     label: "Employee Recognitions" },
-  { href: "/leave-balances",   label: "Leave Balances",   roles: ['Super Admin'] },
-  { href: "/settings",         label: "Settings",         roles: ['Super Admin'] },
-  { href: "/audit-logs",       label: "Audit Logs",       roles: ['Super Admin'] },
+type NavItem = {
+  href: string;
+  label: string;
+  roles?: string[];
+};
+
+type NavGroup = {
+  id: string;
+  label: string;
+  icon: React.ElementType;
+  roles?: string[];   // if set, only these roles see the group
+  items: NavItem[];
+};
+
+type StandaloneLink = {
+  href: string;
+  label: string;
+  icon: React.ElementType;
+};
+
+const STANDALONE: StandaloneLink[] = [
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
 ];
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+const NAV_GROUPS: NavGroup[] = [
+  {
+    id: "leave-wfh",
+    label: "Leave & WFH",
+    icon: CalendarCheck,
+    items: [
+      { href: "/leaves",       label: "My Leaves" },
+      { href: "/leaves/apply", label: "Apply Leave", roles: ["Employee", "Team Lead"] },
+      { href: "/wfh",          label: "WFH Requests" },
+      { href: "/calendar",     label: "Leave Calendar" },
+    ],
+  },
+  {
+    id: "hr-services",
+    label: "HR Services",
+    icon: Briefcase,
+    items: [
+      { href: "/announcements", label: "Updates & Announcements" },
+      { href: "/documents",     label: "Request Documents" },
+      { href: "/policies",      label: "HR Policies" },
+      { href: "/holidays",      label: "Holidays", roles: ["Super Admin", "HR"] },
+    ],
+  },
+  {
+    id: "my-account",
+    label: "My Account",
+    icon: UserCircle,
+    items: [
+      { href: "/attendance",     label: "Attendance" },
+      { href: "/notifications",  label: "Notifications" },
+      { href: "/issues",         label: "Raise an Issue" },
+    ],
+  },
+  {
+    id: "people",
+    label: "People & Teams",
+    icon: Users,
+    items: [
+      { href: "/employees",    label: "Employees" },
+      { href: "/teams",        label: "Departments" },
+      { href: "/hall",         label: "The Hall" },
+      { href: "/leaves/approvals", label: "Leave Approvals", roles: ["Super Admin", "Team Lead", "HR"] },
+      { href: "/recognitions",     label: "Employee Recognitions", roles: ["Super Admin"] },
+    ],
+  },
+  {
+    id: "admin",
+    label: "Administration",
+    icon: ShieldCheck,
+    roles: ["Super Admin"],
+    items: [
+      { href: "/leave-balances", label: "Leave Balances" },
+      { href: "/reports",        label: "Reports" },
+      { href: "/audit-logs",     label: "Audit Logs" },
+      { href: "/settings",       label: "Settings" },
+    ],
+  },
+];
+
+function isItemVisible(item: NavItem, role: string) {
+  if (item.roles && !item.roles.includes(role)) return false;
+  return true;
+}
+
+function groupHasVisibleItems(group: NavGroup, role: string) {
+  if (group.roles && !group.roles.includes(role)) return false;
+  return group.items.some((item) => isItemVisible(item, role));
+}
+
+function pathBelongsToGroup(group: NavGroup, pathname: string) {
+  return group.items.some(
+    (item) => pathname === item.href || pathname.startsWith(item.href + "/")
+  );
+}
+
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, user, logout, updateUser } = useAuthStore();
   const router = useRouter();
   const pathname = usePathname();
   const [isHydrated, setIsHydrated] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [openGroup, setOpenGroup] = useState<string | null>(null);
+
+  // Determine which group should start open based on current path
+  useEffect(() => {
+    const active = NAV_GROUPS.find((g) => pathBelongsToGroup(g, pathname));
+    if (active) setOpenGroup(active.id);
+  }, [pathname]);
 
   useEffect(() => {
     setIsHydrated(useAuthStore.persist.hasHydrated());
@@ -50,12 +133,9 @@ export default function DashboardLayout({
   }, []);
 
   useEffect(() => {
-    if (isHydrated && !isAuthenticated) {
-      router.push("/login");
-    }
+    if (isHydrated && !isAuthenticated) router.push("/login");
   }, [isHydrated, isAuthenticated, router]);
 
-  // Sync latest user data (including profile_photo_path) from backend on every mount
   useEffect(() => {
     if (!isHydrated || !isAuthenticated) return;
     api.get("/me").then((res) => {
@@ -63,19 +143,24 @@ export default function DashboardLayout({
     }).catch(() => {});
   }, [isHydrated, isAuthenticated]);
 
-  if (!isHydrated) return null;
-  if (!isAuthenticated) return null;
+  if (!isHydrated || !isAuthenticated) return null;
+
+  const userRole = user?.role ?? "";
 
   const handleLogout = () => {
     logout();
     localStorage.removeItem("token");
     router.push("/login");
-    
-    // Fire and forget API call so UI doesn't hang
     import("@/services/api").then(({ default: api }) => {
       api.post("/logout").catch(() => {});
     });
   };
+
+  const toggleGroup = (id: string) => {
+    setOpenGroup((prev) => (prev === id ? null : id));
+  };
+
+  const closeMenu = () => setMenuOpen(false);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
@@ -87,10 +172,11 @@ export default function DashboardLayout({
             <img src="/logo.png" alt="Intersmart Logo" className="h-10 w-auto object-contain" />
           </Link>
 
-          {/* User Menu */}
+          {/* Right side */}
           <div className="flex items-center gap-3 shrink-0 ml-auto">
             <NotificationDropdown />
-            
+
+            {/* User info (desktop) */}
             <div className="hidden sm:flex items-center gap-3">
               <div className="flex flex-col items-end">
                 <span className="text-sm font-medium leading-none">
@@ -105,11 +191,13 @@ export default function DashboardLayout({
                     src={user.profile_photo_path}
                     alt=""
                     className="absolute inset-0 w-full h-full object-cover"
-                    onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                    onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
                   />
                 )}
               </div>
             </div>
+
+            {/* Logout (desktop) */}
             <button
               onClick={handleLogout}
               className="hidden sm:flex items-center gap-1.5 text-sm text-muted-foreground hover:text-red-600 transition-colors px-2 py-1.5 rounded-lg hover:bg-red-50"
@@ -117,89 +205,174 @@ export default function DashboardLayout({
               <LogOut className="h-4 w-4" />
               <span>Logout</span>
             </button>
-            {/* Universal Hamburger menu toggle */}
+
+            {/* Hamburger */}
             <button
               className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              onClick={() => setMenuOpen((v) => !v)}
+              aria-label="Toggle menu"
             >
-              {mobileMenuOpen ? <X className="h-6 w-6 text-gray-700" /> : <Menu className="h-6 w-6 text-gray-700" />}
+              {menuOpen ? <X className="h-6 w-6 text-gray-700" /> : <Menu className="h-6 w-6 text-gray-700" />}
             </button>
           </div>
         </div>
 
-        {/* Universal Dropdown Menu */}
-        {mobileMenuOpen && (
-          <div className="absolute top-16 right-0 w-full md:w-80 bg-white border-b md:border-l md:border-b shadow-lg z-40 max-h-[calc(100vh-4rem)] overflow-y-auto">
-            <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {NAV_LINKS.filter(link => {
-              // Role-restricted links defined inline
-              if (link.roles) {
-                return link.roles.includes(user?.role ?? '');
-              }
-              // Legacy restrictions
-              if (link.href === '/holidays' || link.href === '/reports') {
-                return user?.role === 'Super Admin' || user?.role === 'HR';
-              }
-              if (link.href === '/profile-requests' || link.href === '/recognitions') {
-                return user?.role === 'Super Admin';
-              }
-              return true;
-            }).map(({ href, label }) => {
-              const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`text-sm font-medium px-4 py-3 rounded-lg transition-colors ${
-                    active
-                      ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:text-foreground hover:bg-gray-100"
-                  }`}
-                >
-                  {label}
-                </Link>
-              );
-            })}
-            <div className="sm:hidden col-span-full mt-2 pt-2 border-t">
-               <button
-                  onClick={handleLogout}
-                  className="w-full flex items-center justify-center gap-1.5 text-sm text-red-600 transition-colors px-4 py-3 rounded-lg hover:bg-red-50"
-                >
-                  <LogOut className="h-4 w-4" />
-                  <span>Logout</span>
-               </button>
+        {/* ── Grouped navigation dropdown ── */}
+        {menuOpen && (
+          <>
+            {/* Backdrop for mobile */}
+            <div
+              className="fixed inset-0 top-16 bg-black/30 z-30 md:hidden"
+              onClick={closeMenu}
+            />
+            <div className="absolute top-16 right-0 w-full md:w-80 bg-slate-900 border-l border-b border-white/10 shadow-2xl z-40 max-h-[calc(100vh-4rem)] overflow-y-auto">
+
+              {/* User info for mobile */}
+              <div className="sm:hidden px-4 py-4 border-b border-white/10 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-amber-400 overflow-hidden flex items-center justify-center text-sm font-bold text-white relative shrink-0">
+                  <span>{user?.first_name?.[0]}{user?.last_name?.[0]}</span>
+                  {user?.profile_photo_path && (
+                    <img
+                      src={user.profile_photo_path}
+                      alt=""
+                      className="absolute inset-0 w-full h-full object-cover"
+                      onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                    />
+                  )}
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white">{user?.first_name} {user?.last_name}</p>
+                  <p className="text-xs text-slate-400">{user?.role}</p>
+                </div>
+              </div>
+
+              <nav className="py-2">
+                {/* Standalone links */}
+                {STANDALONE.map(({ href, label, icon: Icon }) => {
+                  const active = pathname === href;
+                  return (
+                    <Link
+                      key={href}
+                      href={href}
+                      onClick={closeMenu}
+                      className={`flex items-center gap-3 px-4 py-2.5 text-sm font-semibold transition-colors mx-2 rounded-xl ${
+                        active
+                          ? "bg-amber-500/20 text-amber-400"
+                          : "text-slate-300 hover:bg-white/5 hover:text-white"
+                      }`}
+                    >
+                      <Icon className="h-4 w-4 shrink-0" />
+                      {label}
+                    </Link>
+                  );
+                })}
+
+                {/* Grouped sections */}
+                {NAV_GROUPS.map((group) => {
+                  if (!groupHasVisibleItems(group, userRole)) return null;
+
+                  const visibleItems = group.items.filter((item) => isItemVisible(item, userRole));
+                  const isOpen = openGroup === group.id;
+                  const groupActive = pathBelongsToGroup(group, pathname);
+                  const GroupIcon = group.icon;
+
+                  return (
+                    <div key={group.id} className="mt-1">
+                      {/* Group header */}
+                      <button
+                        onClick={() => toggleGroup(group.id)}
+                        className={`w-full flex items-center justify-between gap-2 px-4 py-2.5 text-sm font-semibold transition-colors mx-2 rounded-xl ${
+                          groupActive && !isOpen
+                            ? "text-amber-400"
+                            : "text-slate-300 hover:text-white hover:bg-white/5"
+                        }`}
+                        style={{ width: "calc(100% - 1rem)" }}
+                      >
+                        <span className="flex items-center gap-3">
+                          <GroupIcon className="h-4 w-4 shrink-0" />
+                          {group.label}
+                        </span>
+                        <ChevronDown
+                          className={`h-4 w-4 shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+                        />
+                      </button>
+
+                      {/* Group items */}
+                      {isOpen && (
+                        <div className="mt-0.5 mb-1">
+                          {visibleItems.map((item) => {
+                            const active =
+                              pathname === item.href ||
+                              (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"));
+                            return (
+                              <Link
+                                key={item.href}
+                                href={item.href}
+                                onClick={closeMenu}
+                                className={`flex items-center gap-2 pl-11 pr-4 py-2 text-sm transition-colors mx-2 rounded-xl ${
+                                  active
+                                    ? "bg-amber-500/20 text-amber-400 font-semibold"
+                                    : "text-slate-400 hover:bg-white/5 hover:text-white"
+                                }`}
+                                style={{ width: "calc(100% - 1rem)" }}
+                              >
+                                <span className="w-1 h-1 rounded-full bg-current shrink-0 opacity-60" />
+                                {item.label}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+
+                {/* Divider + Logout (mobile) */}
+                <div className="mt-2 pt-2 border-t border-white/10 sm:hidden">
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center justify-center gap-2 text-sm text-red-400 px-4 py-3 rounded-xl hover:bg-red-500/10 transition-colors mx-2"
+                    style={{ width: "calc(100% - 1rem)" }}
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Logout
+                  </button>
+                </div>
+              </nav>
             </div>
-            </div>
-          </div>
+          </>
         )}
       </header>
 
       <main className="max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8">
-        {pathname !== '/dashboard' && (
+        {/* Breadcrumbs */}
+        {pathname !== "/dashboard" && (
           <div className="flex items-center flex-wrap gap-2 text-sm text-slate-400 mb-6 font-medium">
             <Link href="/dashboard" className="hover:text-white transition-colors flex items-center gap-1.5">
               <Home className="w-4 h-4" />
               Dashboard
             </Link>
-            {pathname.split('/').filter(p => p).map((path, index, array) => {
-              const href = '/' + array.slice(0, index + 1).join('/');
-              const isLast = index === array.length - 1;
-              const title = path.charAt(0).toUpperCase() + path.slice(1).replace(/-/g, ' ');
-              
-              return (
-                <div key={path} className="flex items-center gap-2">
-                  <ChevronRight className="w-4 h-4 text-slate-600" />
-                  {isLast ? (
-                    <span className="text-white">{title}</span>
-                  ) : (
-                    <Link href={href} className="hover:text-white transition-colors">
-                      {title}
-                    </Link>
-                  )}
-                </div>
-              );
-            })}
+            {pathname
+              .split("/")
+              .filter(Boolean)
+              .map((segment, index, array) => {
+                const href = "/" + array.slice(0, index + 1).join("/");
+                const isLast = index === array.length - 1;
+                const title =
+                  segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, " ");
+                return (
+                  <div key={segment + index} className="flex items-center gap-2">
+                    <ChevronRight className="w-4 h-4 text-slate-600" />
+                    {isLast ? (
+                      <span className="text-white">{title}</span>
+                    ) : (
+                      <Link href={href} className="hover:text-white transition-colors">
+                        {title}
+                      </Link>
+                    )}
+                  </div>
+                );
+              })}
           </div>
         )}
         {children}

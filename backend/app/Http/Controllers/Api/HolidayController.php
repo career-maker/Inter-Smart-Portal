@@ -10,9 +10,13 @@ use Illuminate\Support\Facades\Cache;
 
 class HolidayController extends Controller
 {
-    /**
-     * Display a listing of holidays.
-     */
+    private const ALLOWED_TYPES = [
+        'National Holiday',
+        'Festival Holiday',
+        'Company Holiday',
+        'Optional Holiday',
+    ];
+
     public function index(Request $request)
     {
         $holidays = Cache::remember('all_holidays', now()->addHours(24), function () {
@@ -21,20 +25,16 @@ class HolidayController extends Controller
         return response()->json(['data' => $holidays]);
     }
 
-    /**
-     * Store a newly created holiday in storage.
-     */
     public function store(Request $request)
     {
-        // Ensure user is Super Admin or HR
-        if (!in_array($request->user()->role, ['Super Admin', 'HR'])) {
+        if (!$request->user()->hasRole(['Super Admin', 'HR'])) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'date' => 'required|date',
-            'type' => 'required|string|in:Public,Restricted,Company',
+            'name'        => 'required|string|max:255',
+            'date'        => 'required|date',
+            'type'        => 'required|string|in:' . implode(',', self::ALLOWED_TYPES),
             'description' => 'nullable|string',
         ]);
 
@@ -43,31 +43,28 @@ class HolidayController extends Controller
         }
 
         $holiday = Holiday::create([
-            'name' => $request->name,
-            'date' => $request->date,
-            'type' => $request->type,
+            'name'        => $request->name,
+            'date'        => $request->date,
+            'type'        => $request->type,
             'description' => $request->description,
+            'created_by'  => $request->user()->id,
         ]);
 
         Cache::forget('all_holidays');
-        Cache::forget('dashboard_celebrations'); // In case holiday logic intertwines in future
 
         return response()->json(['message' => 'Holiday created successfully', 'data' => $holiday], 201);
     }
 
-    /**
-     * Update the specified holiday.
-     */
     public function update(Request $request, Holiday $holiday)
     {
-        if (!in_array($request->user()->role, ['Super Admin', 'HR'])) {
+        if (!$request->user()->hasRole(['Super Admin', 'HR'])) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'date' => 'required|date',
-            'type' => 'required|string|in:Public,Restricted,Company',
+            'name'        => 'required|string|max:255',
+            'date'        => 'required|date',
+            'type'        => 'required|string|in:' . implode(',', self::ALLOWED_TYPES),
             'description' => 'nullable|string',
         ]);
 
@@ -76,10 +73,11 @@ class HolidayController extends Controller
         }
 
         $holiday->update([
-            'name' => $request->name,
-            'date' => $request->date,
-            'type' => $request->type,
+            'name'        => $request->name,
+            'date'        => $request->date,
+            'type'        => $request->type,
             'description' => $request->description,
+            'updated_by'  => $request->user()->id,
         ]);
 
         Cache::forget('all_holidays');
@@ -87,17 +85,15 @@ class HolidayController extends Controller
         return response()->json(['message' => 'Holiday updated successfully', 'data' => $holiday]);
     }
 
-    /**
-     * Remove the specified holiday.
-     */
     public function destroy(Request $request, Holiday $holiday)
     {
-        if (!in_array($request->user()->role, ['Super Admin', 'HR'])) {
+        if (!$request->user()->hasRole(['Super Admin', 'HR'])) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
         $holiday->delete();
         Cache::forget('all_holidays');
+
         return response()->json(['message' => 'Holiday deleted successfully']);
     }
 }

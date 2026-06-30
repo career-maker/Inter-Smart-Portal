@@ -10,27 +10,18 @@ use Illuminate\Support\Str;
 
 class DocumentRequestController extends Controller
 {
-    /**
-     * List document requests.
-     * Employees see their own; Admin/HR/Lead see all.
-     */
     public function index(Request $request)
     {
-        $user = $request->user();
+        $user  = $request->user();
         $query = DocumentRequest::with(['user', 'uploads']);
 
         if ($user->hasRole('Employee')) {
             $query->where('user_id', $user->id);
         }
 
-        $requests = $query->orderBy('created_at', 'desc')->paginate(20);
-
-        return response()->json(['data' => $requests]);
+        return response()->json(['data' => $query->orderBy('created_at', 'desc')->paginate(20)]);
     }
 
-    /**
-     * Employee submits a new document request.
-     */
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -39,8 +30,6 @@ class DocumentRequestController extends Controller
         ]);
 
         $requestNumber = 'REQ-' . strtoupper(Str::random(6));
-
-        // Ensure unique request number
         while (DocumentRequest::where('request_number', $requestNumber)->exists()) {
             $requestNumber = 'REQ-' . strtoupper(Str::random(6));
         }
@@ -60,20 +49,38 @@ class DocumentRequestController extends Controller
     }
 
     /**
-     * HR/Admin uploads a fulfilled document for a request.
+     * HR/Admin fulfills a request — either by uploading a file, providing a URL, or both.
+     * At least one of file or document_url must be provided.
      */
     public function upload(Request $request, DocumentRequest $documentRequest)
     {
         $request->validate([
-            'file'     => ['required', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png', 'max:10240'],
-            'comments' => ['nullable', 'string'],
+            'file'         => ['nullable', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png', 'max:10240'],
+            'document_url' => ['nullable', 'url', 'max:2048'],
+            'comments'     => ['nullable', 'string'],
         ]);
 
-        $path = $request->file('file')->store('documents', 'public');
+        if (!$request->hasFile('file') && !$request->filled('document_url')) {
+            return response()->json([
+                'message' => 'Please upload a file or provide a document URL.'
+            ], 422);
+        }
+
+        $filePath    = null;
+        $documentUrl = null;
+
+        if ($request->hasFile('file')) {
+            $filePath = $request->file('file')->store('documents', 'public');
+        }
+
+        if ($request->filled('document_url')) {
+            $documentUrl = $request->document_url;
+        }
 
         DocumentUpload::create([
             'document_request_id' => $documentRequest->id,
-            'file_path'           => $path,
+            'file_path'           => $filePath,
+            'document_url'        => $documentUrl,
             'comments'            => $request->comments,
             'uploaded_by'         => $request->user()->id,
         ]);
@@ -81,7 +88,7 @@ class DocumentRequestController extends Controller
         $documentRequest->update(['status' => 'Uploaded']);
 
         return response()->json([
-            'message' => 'Document uploaded successfully.',
+            'message' => 'Document fulfilled successfully.',
             'data'    => $documentRequest->fresh(['uploads']),
         ]);
     }

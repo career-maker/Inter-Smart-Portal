@@ -13,18 +13,18 @@ export default function LeavesPage() {
 
   const [balances, setBalances] = useState<any[]>([]);
   const [requests, setRequests] = useState<any[]>([]);
+  const [pagination, setPagination] = useState<{ current_page: number; last_page: number; total: number } | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  useEffect(() => { fetchData(currentPage); }, [currentPage]);
 
-  const fetchData = async () => {
+  const fetchData = async (page = 1) => {
     setIsLoading(true);
     try {
       const [balRes, reqRes] = await Promise.all([
         api.get("/leave-balances"),
-        api.get("/leave-requests")
+        api.get(`/leave-requests?page=${page}`)
       ]);
 
       const balanceData = balRes.data.data;
@@ -47,13 +47,21 @@ export default function LeavesPage() {
         ]);
       }
 
-      const allRequests = reqRes.data.data?.data || [];
+      const paginatedRes = reqRes.data.data;
+      const allRequests = paginatedRes?.data || [];
       setRequests(
         allRequests.filter((r: any) => {
           const name = r.leave_type?.name?.toLowerCase() || "";
           return !name.includes("wfh") && !name.includes("work from home");
         })
       );
+      if (paginatedRes) {
+        setPagination({
+          current_page: paginatedRes.current_page,
+          last_page: paginatedRes.last_page,
+          total: paginatedRes.total,
+        });
+      }
     } catch (e) {
       console.error(e);
     } finally {
@@ -182,6 +190,31 @@ export default function LeavesPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {/* Pagination */}
+        {pagination && pagination.last_page > 1 && (
+          <div className="px-6 py-4 border-t border-white/10 flex items-center justify-between gap-4">
+            <span className="text-xs text-slate-400">
+              Page {pagination.current_page} of {pagination.last_page} &nbsp;·&nbsp; {pagination.total} request{pagination.total !== 1 ? "s" : ""}
+            </span>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={pagination.current_page === 1}
+                className="px-3 py-1.5 text-xs font-semibold text-slate-300 bg-white/5 rounded-lg disabled:opacity-40 hover:bg-white/10 transition"
+              >
+                Previous
+              </button>
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(pagination.last_page, p + 1))}
+                disabled={pagination.current_page === pagination.last_page}
+                className="px-3 py-1.5 text-xs font-semibold text-slate-300 bg-white/5 rounded-lg disabled:opacity-40 hover:bg-white/10 transition"
+              >
+                Next
+              </button>
+            </div>
           </div>
         )}
       </div>
