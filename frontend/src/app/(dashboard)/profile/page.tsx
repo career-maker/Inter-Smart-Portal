@@ -15,6 +15,8 @@ export default function MyProfilePage() {
   const [saving, setSaving] = useState(false);
   const [pendingRequest, setPendingRequest] = useState<any>(null);
   const [formData, setFormData] = useState({
+    first_name: "",
+    last_name: "",
     phone: "",
     emergency_contact: "",
     address: "",
@@ -26,6 +28,8 @@ export default function MyProfilePage() {
   useEffect(() => {
     if (user) {
       setFormData({
+        first_name: user.first_name || "",
+        last_name: user.last_name || "",
         phone: user.phone || "",
         emergency_contact: user.emergency_contact || "",
         address: user.address || "",
@@ -58,11 +62,16 @@ export default function MyProfilePage() {
     e.preventDefault();
     setSaving(true);
     try {
-      const response = await api.post("/me/profile/request", formData);
-      setPendingRequest(response.data.data);
-      alert("Profile update request submitted for approval.");
+      if (user?.role === "Super Admin") {
+        await api.put("/me/profile", formData);
+        alert("Profile updated successfully.");
+      } else {
+        const response = await api.post("/me/profile/request", formData);
+        setPendingRequest(response.data.data);
+        alert("Profile update request submitted for approval.");
+      }
     } catch (error: any) {
-      alert(error.response?.data?.message || "Failed to submit request.");
+      alert(error.response?.data?.message || "Failed to save profile.");
     } finally {
       setSaving(false);
     }
@@ -154,6 +163,17 @@ export default function MyProfilePage() {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
+                    <Label htmlFor="first_name">First Name</Label>
+                    <Input id="first_name" name="first_name" value={formData.first_name} onChange={handleChange} disabled={user?.role !== 'Super Admin'} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="last_name">Last Name</Label>
+                    <Input id="last_name" name="last_name" value={formData.last_name} onChange={handleChange} disabled={user?.role !== 'Super Admin'} />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
                     <Label htmlFor="phone">Phone Number</Label>
                     <Input id="phone" name="phone" value={formData.phone} onChange={handleChange} />
                   </div>
@@ -185,7 +205,7 @@ export default function MyProfilePage() {
               </CardContent>
               <div className="px-6 pb-6 pt-2 flex justify-end">
                 <Button type="submit" disabled={saving}>
-                  {saving ? "Submitting..." : "Submit for Approval"}
+                  {saving ? "Submitting..." : user?.role === 'Super Admin' ? "Save Changes" : "Submit for Approval"}
                 </Button>
               </div>
             </form>

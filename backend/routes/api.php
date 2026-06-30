@@ -19,6 +19,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Employee Profile Edit Requests
     Route::get('/me/profile/request', [\App\Http\Controllers\Api\ProfileUpdateRequestController::class, 'currentRequest']);
     Route::post('/me/profile/request', [\App\Http\Controllers\Api\ProfileUpdateRequestController::class, 'storeRequest']);
+    Route::put('/me/profile', [\App\Http\Controllers\Api\ProfileController::class, 'update']);
 
     // Employee Routes
     Route::middleware(['role:Super Admin|Team Lead|HR'])->group(function () {
