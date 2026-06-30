@@ -42,6 +42,7 @@ export default function ReportsPage() {
   const [loading, setLoading] = useState(false);
   const [reportData, setReportData] = useState<any[]>([]);
   const [generated, setGenerated] = useState(false);
+  const [genError, setGenError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState<{ col: string; dir: "asc" | "desc" }>({ col: "", dir: "asc" });
@@ -52,13 +53,13 @@ export default function ReportsPage() {
   }, []);
 
   useEffect(() => {
-    setReportData([]); setGenerated(false); setPage(1); setSearch("");
+    setReportData([]); setGenerated(false); setPage(1); setSearch(""); setGenError(null);
   }, [reportType, selectedUserId]);
 
   const handleSort = (col: string) => setSort(prev => ({ col, dir: prev.col === col && prev.dir === "asc" ? "desc" : "asc" }));
 
   const handleGenerate = async () => {
-    setLoading(true); setGenerated(false);
+    setLoading(true); setGenerated(false); setGenError(null);
     try {
       const params: any = {};
       if (selectedUserId !== "all") params.user_id = selectedUserId;
@@ -69,7 +70,10 @@ export default function ReportsPage() {
       const res = await api.get(`/reports/${reportType}`, { params });
       setReportData(res.data.data || []);
       setGenerated(true); setPage(1);
-    } catch (e) { console.error(e); }
+    } catch (e: any) {
+      console.error(e);
+      setGenError(e.response?.data?.message || "Failed to generate report. Please try again.");
+    }
     finally { setLoading(false); }
   };
 
@@ -151,7 +155,8 @@ export default function ReportsPage() {
         </>}
       </div>
 
-      {!generated && !loading && <div className="text-center py-16 text-slate-500">Select filters and click <strong className="text-slate-300">Generate Report</strong> to view data.</div>}
+      {!generated && !loading && !genError && <div className="text-center py-16 text-slate-500">Select filters and click <strong className="text-slate-300">Generate Report</strong> to view data.</div>}
+      {genError && <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400"><AlertCircle className="w-5 h-5 shrink-0" /><span className="text-sm">{genError}</span></div>}
       {generated && reportData.length === 0 && <div className="text-center py-16 text-slate-400 flex flex-col items-center gap-3"><AlertCircle className="w-10 h-10 text-slate-500" />No records found.</div>}
 
       {/* Single employee detailed view */}

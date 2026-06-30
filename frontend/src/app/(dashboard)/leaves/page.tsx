@@ -4,13 +4,13 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Calendar, Clock, CheckCircle, XCircle } from "lucide-react";
 import api from "@/services/api";
-
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { useAuthStore } from "@/store/auth";
 
 export default function LeavesPage() {
   const router = useRouter();
+  const { user } = useAuthStore();
+  const isSuperAdmin = user?.role === "Super Admin";
+
   const [balances, setBalances] = useState<any[]>([]);
   const [requests, setRequests] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -26,35 +26,34 @@ export default function LeavesPage() {
         api.get("/leave-balances"),
         api.get("/leave-requests")
       ]);
-      
+
       const balanceData = balRes.data.data;
-      if (balanceData) {
+      if (balanceData && !isSuperAdmin) {
         setBalances([
           {
             id: 1,
-            leave_type: { name: 'Casual Leave' },
-            total_days: 12, // standard annual allowance
-            used_days: 12 - (balanceData.casual_leave_balance || 0)
+            leave_type: { name: "Casual Leave" },
+            color: "text-emerald-400",
+            total_days: 12,
+            used_days: 12 - (balanceData.casual_leave_balance || 0),
           },
           {
             id: 2,
-            leave_type: { name: 'Sick Leave' },
+            leave_type: { name: "Sick Leave" },
+            color: "text-rose-400",
             total_days: 12,
-            used_days: 12 - (balanceData.sick_leave_balance || 0)
-          }
-        ]);
-      } else {
-        setBalances([
-          { id: 1, leave_type: { name: 'Casual Leave' }, total_days: 12, used_days: 0 },
-          { id: 2, leave_type: { name: 'Sick Leave' }, total_days: 12, used_days: 0 }
+            used_days: 12 - (balanceData.sick_leave_balance || 0),
+          },
         ]);
       }
 
       const allRequests = reqRes.data.data?.data || [];
-      setRequests(allRequests.filter((r: any) => {
-        const name = r.leave_type?.name?.toLowerCase() || '';
-        return !name.includes('wfh') && !name.includes('work from home');
-      }));
+      setRequests(
+        allRequests.filter((r: any) => {
+          const name = r.leave_type?.name?.toLowerCase() || "";
+          return !name.includes("wfh") && !name.includes("work from home");
+        })
+      );
     } catch (e) {
       console.error(e);
     } finally {
@@ -63,17 +62,28 @@ export default function LeavesPage() {
   };
 
   const getStatusBadge = (req: any) => {
-    if (req.status === 'Approved') return <Badge className="bg-green-100 text-green-800 hover:bg-green-100"><CheckCircle className="w-3 h-3 mr-1"/> Approved</Badge>;
-    if (req.status === 'Rejected') return <Badge className="bg-red-100 text-red-800 hover:bg-red-100"><XCircle className="w-3 h-3 mr-1"/> Rejected</Badge>;
-    
-    let pendingText = 'Pending';
-    if (req.tl_status === 'Pending') {
-      pendingText = 'Pending TL Approval';
-    } else if (req.admin_status === 'Pending') {
-      pendingText = 'Pending Admin Approval';
-    }
-    
-    return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100"><Clock className="w-3 h-3 mr-1"/> {pendingText}</Badge>;
+    if (req.status === "Approved")
+      return (
+        <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400">
+          <CheckCircle className="w-3 h-3" /> Approved
+        </span>
+      );
+    if (req.status === "Rejected")
+      return (
+        <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-red-500/20 text-red-400">
+          <XCircle className="w-3 h-3" /> Rejected
+        </span>
+      );
+
+    let pendingText = "Pending";
+    if (req.tl_status === "Pending") pendingText = "Pending TL";
+    else if (req.admin_status === "Pending") pendingText = "Pending Admin";
+
+    return (
+      <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-400">
+        <Clock className="w-3 h-3" /> {pendingText}
+      </span>
+    );
   };
 
   return (
@@ -81,79 +91,100 @@ export default function LeavesPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-white">Leave Management</h1>
-          <p className="text-slate-300">View your balances and apply for time off.</p>
+          <p className="text-slate-300">View your balances and leave history.</p>
         </div>
-        <Button onClick={() => router.push("/leaves/apply")}>
-          <Plus className="mr-2 h-4 w-4" /> Apply for Leave
-        </Button>
+        {!isSuperAdmin && (
+          <button
+            onClick={() => router.push("/leaves/apply")}
+            className="flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold rounded-xl transition-colors"
+          >
+            <Plus className="h-4 w-4" /> Apply for Leave
+          </button>
+        )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {balances.map((balance) => (
-          <Card key={balance.id} className="shadow-sm">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">{balance.leave_type.name}</CardTitle>
-              <CardDescription>Annual Allowance</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-end justify-between mt-2">
+      {/* Balance cards — only shown for non-Super Admin */}
+      {!isSuperAdmin && balances.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {balances.map((balance) => (
+            <div
+              key={balance.id}
+              className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md"
+            >
+              <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3">
+                {balance.leave_type.name}
+              </p>
+              <div className="flex items-end justify-between">
                 <div>
-                  <span className="text-4xl font-bold">{balance.total_days - balance.used_days}</span>
-                  <span className="text-muted-foreground ml-2">Remaining</span>
+                  <span className={`text-5xl font-black ${balance.color}`}>
+                    {balance.total_days - balance.used_days}
+                  </span>
+                  <span className="text-slate-400 ml-2 text-sm">Remaining</span>
                 </div>
-                <div className="text-sm text-muted-foreground text-right">
-                  <div>Total: {balance.total_days}</div>
-                  <div>Used: {balance.used_days}</div>
+                <div className="text-sm text-slate-500 text-right space-y-0.5">
+                  <div>Total: <span className="text-slate-300 font-medium">{balance.total_days}</span></div>
+                  <div>Used: <span className="text-slate-300 font-medium">{balance.used_days}</span></div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <Card className="shadow-sm">
-        <CardHeader>
-          <CardTitle>Recent Leave Requests</CardTitle>
-          <CardDescription>Your history of time-off requests.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="py-4 text-center">Loading...</div>
-          ) : requests.length === 0 ? (
-            <div className="py-8 text-center text-muted-foreground">You haven't requested any leaves yet.</div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left">
-                <thead className="text-xs text-gray-500 uppercase bg-gray-50 border-b">
-                  <tr>
-                    <th className="px-6 py-3">Type</th>
-                    <th className="px-6 py-3">Duration</th>
-                    <th className="px-6 py-3">Days</th>
-                    <th className="px-6 py-3">Reason</th>
-                    <th className="px-6 py-3">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {requests.map((req) => (
-                    <tr key={req.id} className="bg-white border-b hover:bg-gray-50">
-                      <td className="px-6 py-4 font-medium">{req.leave_type?.name}</td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center">
-                          <Calendar className="w-4 h-4 mr-2 text-gray-400" />
-                          {new Date(req.start_date).toLocaleDateString()} - {new Date(req.end_date).toLocaleDateString()}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">{req.days} Day(s)</td>
-                      <td className="px-6 py-4 max-w-[200px] truncate">{req.reason}</td>
-                      <td className="px-6 py-4">{getStatusBadge(req)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          ))}
+        </div>
+      )}
+
+      {/* Leave requests table */}
+      <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+        <div className="px-6 py-4 border-b border-white/10">
+          <h2 className="text-lg font-bold text-white">Recent Leave Requests</h2>
+          <p className="text-slate-400 text-sm mt-0.5">Your history of time-off requests.</p>
+        </div>
+        {isLoading ? (
+          <div className="py-12 text-center text-slate-400">Loading...</div>
+        ) : requests.length === 0 ? (
+          <div className="py-12 text-center text-slate-400">No leave requests found.</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left">
+              <thead className="text-xs text-slate-400 uppercase bg-white/5 border-b border-white/10">
+                <tr>
+                  {(user?.role === "Super Admin" || user?.role === "Team Lead") && (
+                    <th className="px-6 py-3">Employee</th>
+                  )}
+                  <th className="px-6 py-3">Type</th>
+                  <th className="px-6 py-3">Duration</th>
+                  <th className="px-6 py-3">Days</th>
+                  <th className="px-6 py-3">Reason</th>
+                  <th className="px-6 py-3">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {requests.map((req) => (
+                  <tr key={req.id} className="hover:bg-white/5 transition-colors">
+                    {(user?.role === "Super Admin" || user?.role === "Team Lead") && (
+                      <td className="px-6 py-4 text-slate-300 whitespace-nowrap">
+                        {req.user?.first_name} {req.user?.last_name}
+                      </td>
+                    )}
+                    <td className="px-6 py-4 font-semibold text-white whitespace-nowrap">
+                      {req.leave_type?.name}
+                    </td>
+                    <td className="px-6 py-4 text-slate-300 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4 text-slate-500 shrink-0" />
+                        {new Date(req.start_date).toLocaleDateString()} — {new Date(req.end_date).toLocaleDateString()}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-slate-300">
+                      {req.days_taken ?? req.actual_leave_days ?? "—"} Day(s)
+                    </td>
+                    <td className="px-6 py-4 text-slate-400 max-w-[200px] truncate">{req.reason}</td>
+                    <td className="px-6 py-4">{getStatusBadge(req)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
