@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth";
 import api from "@/services/api";
@@ -147,13 +147,12 @@ export default function DashboardPage() {
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 lg:gap-8 relative z-10">
           {/* Left: Avatar, Greeting, Date */}
           <div className="flex items-center gap-5 md:gap-6">
-            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/40 flex items-center justify-center text-slate-900 text-xl md:text-2xl font-bold shadow-sm shrink-0 border border-white/50 overflow-hidden">
-              {profile.profile_photo_path ? (
-                <img src={profile.profile_photo_path} alt="Profile" className="w-full h-full object-cover" />
-              ) : (
-                <>{profile.first_name?.[0]}{profile.last_name?.[0]}</>
-              )}
-            </div>
+            <PhotoAvatar
+              src={profile.profile_photo_path}
+              name={`${profile.first_name} ${profile.last_name}`}
+              className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/40 text-slate-900 text-xl md:text-2xl shadow-sm shrink-0 border border-white/50"
+              textClass="text-slate-900"
+            />
             <div>
               <p className="text-sm font-medium text-slate-800/80 mb-1">
                 {format(time, "EEEE, d MMMM yyyy")} • {format(time, "h:mm a")}
@@ -419,6 +418,24 @@ export default function DashboardPage() {
   );
 }
 
+// Avatar that always shows initials underneath — photo overlays on top, hidden on error
+function PhotoAvatar({ src, name, className = "", textClass = "" }: { src?: string|null; name: string; className?: string; textClass?: string }) {
+  const initials = name.split(' ').filter(Boolean).map(n => n[0]).join('').substring(0, 2).toUpperCase();
+  return (
+    <div className={`relative overflow-hidden flex items-center justify-center font-bold ${className}`}>
+      <span className={textClass}>{initials}</span>
+      {src && (
+        <img
+          src={src}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover"
+          onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+        />
+      )}
+    </div>
+  );
+}
+
 function SuperAdminDashboard({ data, user, time, greeting }: any) {
   const { profile, admin_data, widgets } = data;
   const { kpis, activity_feed } = admin_data;
@@ -435,13 +452,12 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
       <div className="bg-[#F4B400] rounded-3xl p-5 md:p-6 shadow-lg mb-6 text-slate-900">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div className="flex items-center gap-5">
-            <div className="w-16 h-16 rounded-full bg-white/40 flex items-center justify-center text-slate-900 text-2xl font-bold backdrop-blur-sm border border-white/50 shrink-0 overflow-hidden">
-              {profile.profile_photo_path ? (
-                <img src={profile.profile_photo_path} alt="Profile" className="w-full h-full object-cover" />
-              ) : (
-                <>{profile.first_name?.[0]}{profile.last_name?.[0]}</>
-              )}
-            </div>
+            <PhotoAvatar
+              src={profile.profile_photo_path}
+              name={`${profile.first_name} ${profile.last_name}`}
+              className="w-16 h-16 rounded-full bg-white/40 text-slate-900 text-2xl backdrop-blur-sm border border-white/50 shrink-0"
+              textClass="text-slate-900"
+            />
             <div>
               <p className="text-sm font-medium text-slate-800/80 mb-1">
                 {format(time, "EEEE, d MMMM yyyy")} • {format(time, "h:mm a")}
@@ -839,15 +855,12 @@ function UpcomingBirthdaysWidget({ items }: { items: any[] }) {
           items.map((b: any, idx: number) => (
             <div key={idx} className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full overflow-hidden border border-fuchsia-400/30 shrink-0 bg-fuchsia-500/20">
-                  {b.profile_photo_path ? (
-                    <img src={b.profile_photo_path} alt={b.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-fuchsia-300 font-bold text-sm">
-                      {b.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2)}
-                    </div>
-                  )}
-                </div>
+                <PhotoAvatar
+                  src={b.profile_photo_path}
+                  name={b.name}
+                  className="w-10 h-10 rounded-full border border-fuchsia-400/30 shrink-0 bg-fuchsia-500/20 text-sm"
+                  textClass="text-fuchsia-300"
+                />
                 <div>
                   <p className="text-sm font-bold text-white leading-tight">{b.name}</p>
                   <p className="text-xs text-slate-300 font-medium">{b.designation || 'Employee'} • {b.department}</p>

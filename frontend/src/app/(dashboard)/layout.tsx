@@ -98,16 +98,17 @@ export default function DashboardLayout({
                 </span>
                 <span className="text-xs text-muted-foreground mt-0.5">{user?.role}</span>
               </div>
-              <img 
-                src={user?.profile_photo_path 
-                  ? (user.profile_photo_path.startsWith('http') 
-                    ? user.profile_photo_path 
-                    : `/api/photos/${user.profile_photo_path.replace(/^.*storage\//, '')}`)
-                  : `https://ui-avatars.com/api/?name=${user?.first_name}+${user?.last_name}&background=f4b400&color=fff`
-                } 
-                alt="Profile" 
-                className="w-8 h-8 rounded-full object-cover border border-gray-200"
-              />
+              <div className="w-8 h-8 rounded-full border border-gray-200 bg-amber-400 overflow-hidden flex items-center justify-center text-xs font-bold text-white relative shrink-0">
+                <span>{user?.first_name?.[0]}{user?.last_name?.[0]}</span>
+                {user?.profile_photo_path && (
+                  <img
+                    src={user.profile_photo_path}
+                    alt=""
+                    className="absolute inset-0 w-full h-full object-cover"
+                    onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                  />
+                )}
+              </div>
             </div>
             <button
               onClick={handleLogout}
