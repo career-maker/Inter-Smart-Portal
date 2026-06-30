@@ -25,6 +25,11 @@ class User extends Authenticatable
         return $this->hasOne(LeaveBalance::class);
     }
     
+    // Alias for eager-loading in admin contexts
+    public function leaveBalance() {
+        return $this->hasOne(LeaveBalance::class);
+    }
+    
     public function leaveRequests() {
         return $this->hasMany(LeaveRequest::class);
     }

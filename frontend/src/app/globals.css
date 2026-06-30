@@ -165,3 +165,16 @@
   scrollbar-width: thin;
   scrollbar-color: theme('colors.amber.400') transparent;
 }
+
+/* ─── Prevent horizontal overflow ─────────────────────── */
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}

@@ -15,6 +15,7 @@ const NAV_LINKS = [
   { href: "/employees",        label: "Employees" },
   { href: "/teams",            label: "Departments" },
   { href: "/leaves",           label: "Leaves" },
+  { href: "/leaves/apply",     label: "Apply Leave",      roles: ['Employee', 'Team Lead'] },
   { href: "/wfh",              label: "WFH" },
   { href: "/leaves/approvals", label: "Approvals" },
   { href: "/documents",        label: "Documents" },
@@ -25,8 +26,9 @@ const NAV_LINKS = [
   { href: "/holidays",         label: "Holidays" },
   { href: "/issues",           label: "Raise an Issue" },
   { href: "/recognitions",     label: "Employee Recognitions" },
-  { href: "/settings",         label: "Settings" },
-  { href: "/audit-logs",       label: "Audit Logs" },
+  { href: "/leave-balances",   label: "Leave Balances",   roles: ['Super Admin'] },
+  { href: "/settings",         label: "Settings",         roles: ['Super Admin'] },
+  { href: "/audit-logs",       label: "Audit Logs",       roles: ['Super Admin'] },
 ];
 
 export default function DashboardLayout({
@@ -108,10 +110,15 @@ export default function DashboardLayout({
           <div className="absolute top-16 right-0 w-full md:w-80 bg-white border-b md:border-l md:border-b shadow-lg z-40 max-h-[calc(100vh-4rem)] overflow-y-auto">
             <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
             {NAV_LINKS.filter(link => {
+              // Role-restricted links defined inline
+              if (link.roles) {
+                return link.roles.includes(user?.role ?? '');
+              }
+              // Legacy restrictions
               if (link.href === '/holidays' || link.href === '/reports') {
                 return user?.role === 'Super Admin' || user?.role === 'HR';
               }
-              if (link.href === '/settings' || link.href === '/audit-logs' || link.href === '/profile-requests' || link.href === '/recognitions') {
+              if (link.href === '/profile-requests' || link.href === '/recognitions') {
                 return user?.role === 'Super Admin';
               }
               return true;

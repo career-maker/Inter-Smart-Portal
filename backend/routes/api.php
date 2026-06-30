@@ -61,12 +61,24 @@ Route::middleware('auth:sanctum')->group(function () {
         
         // Leave Overrides
         Route::put('leave-requests/{leaveRequest}/override', [\App\Http\Controllers\Api\LeaveRequestController::class, 'override']);
+        
+        // Manual trigger for annual leave allocation (also runs automatically Jan 1 via cron)
+        Route::post('admin/run-annual-allocation', function (\Illuminate\Http\Request $request) {
+            $year = $request->input('year', now()->year);
+            \Illuminate\Support\Facades\Artisan::call('leave:annual-allocation', ['--year' => $year]);
+            $output = \Illuminate\Support\Facades\Artisan::output();
+            return response()->json(['message' => 'Annual allocation processed.', 'output' => $output]);
+        });
     });
     
     // Employee Leave Routes
     Route::get('leave-types', [\App\Http\Controllers\Api\LeaveTypeController::class, 'index']);
     Route::get('leave-types/{leaveType}', [\App\Http\Controllers\Api\LeaveTypeController::class, 'show']);
+    // Leave Balance Routes
     Route::get('leave-balances', [\App\Http\Controllers\Api\LeaveBalanceController::class, 'index']);
+    Route::post('leave-balances/{userId}', [\App\Http\Controllers\Api\LeaveBalanceController::class, 'adjust']);
+    Route::get('leave-balance-audit-logs', [\App\Http\Controllers\Api\LeaveBalanceController::class, 'auditLogs']);
+
     Route::post('leaves/calculate', [\App\Http\Controllers\Api\LeaveRequestController::class, 'calculate']);
     Route::apiResource('leave-requests', \App\Http\Controllers\Api\LeaveRequestController::class)->only(['index', 'store']);
     Route::apiResource('wfh-requests', \App\Http\Controllers\Api\WfhRequestController::class)->only(['index', 'store']);

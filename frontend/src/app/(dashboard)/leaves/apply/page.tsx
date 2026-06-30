@@ -8,6 +8,7 @@ import * as z from "zod";
 import Link from "next/link";
 import { ArrowLeft, AlertTriangle } from "lucide-react";
 import api from "@/services/api";
+import { useAuthStore } from "@/store/auth";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -33,9 +34,17 @@ const formSchema = z.object({
 
 export default function ApplyLeavePage() {
   const router = useRouter();
+  const user = useAuthStore((s) => s.user);
   const [isLoading, setIsLoading] = useState(false);
   const [leaveTypes, setLeaveTypes] = useState<any[]>([]);
   const [leaveMetrics, setLeaveMetrics] = useState<any>(null);
+
+  // Super Admin cannot apply for leave
+  useEffect(() => {
+    if (user?.role === "Super Admin") {
+      router.replace("/leaves");
+    }
+  }, [user, router]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
