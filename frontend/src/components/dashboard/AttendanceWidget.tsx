@@ -98,52 +98,62 @@ export function AttendanceWidget({ initialData }: { initialData?: any }) {
   };
 
   if (isLoading) {
-    return <div className="bg-white/40 backdrop-blur-2xl border border-white/60 rounded-3xl p-6 shadow-[0_8px_32px_rgba(0,0,0,0.05)] animate-pulse h-48 mb-6"></div>;
+    return <div className="bg-gradient-to-br from-slate-800/90 to-slate-900/90 border border-white/[0.06] rounded-3xl p-6 shadow-[8px_8px_24px_rgba(0,0,0,0.5)] animate-pulse h-48 mb-6"></div>;
   }
 
   const totalBreakMins = data?.attendance?.breaks?.reduce((acc: number, b: any) => acc + (b.total_break_minutes || 0), 0) || 0;
   const breakDurationStr = totalBreakMins > 0 ? `${Math.floor(totalBreakMins / 60)}h ${totalBreakMins % 60}m` : '0m';
 
   return (
-    <div className="bg-white/40 backdrop-blur-2xl border border-white/60 rounded-3xl p-5 md:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.05)] text-gray-800 mb-6 relative overflow-hidden">
-      {/* Glassmorphism subtle glow */}
-      <div className="absolute -top-24 -right-24 w-48 h-48 bg-white/40 rounded-full blur-3xl pointer-events-none"></div>
-      
+    <div className="bg-gradient-to-br from-slate-800/90 to-slate-900/90 backdrop-blur-xl border border-white/[0.06] rounded-3xl p-5 md:p-6 shadow-[8px_8px_24px_rgba(0,0,0,0.5),-4px_-4px_12px_rgba(255,255,255,0.03)] mb-6 relative overflow-hidden">
+      <div className="absolute -top-16 -right-16 w-40 h-40 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
+
       <div className="flex items-center justify-between mb-5 relative z-10">
-        <h2 className="text-lg font-bold flex items-center gap-2">
-          <Clock className="w-5 h-5 text-cyan-700" />
+        <h2 className="text-lg font-bold text-white flex items-center gap-2">
+          <Clock className="w-5 h-5 text-cyan-400" />
           Today's Attendance
         </h2>
-        <span className={`px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm border ${
-          data?.status === 'Checked In' ? 'bg-green-100 text-green-700 border-green-200' :
-          data?.status === 'On Break' ? 'bg-amber-100 text-amber-700 border-amber-200' :
-          data?.status === 'Checked Out' ? 'bg-gray-100 text-gray-600 border-gray-200' :
-          'bg-red-50 text-red-600 border-red-100'
+        <span className={`px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border ${
+          data?.status === 'Checked In'  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' :
+          data?.status === 'On Break'    ? 'bg-amber-500/20 text-amber-300 border-amber-500/30' :
+          data?.status === 'Checked Out' ? 'bg-slate-500/20 text-slate-300 border-slate-500/30' :
+          'bg-rose-500/20 text-rose-300 border-rose-500/30'
         }`}>
           {data?.status || 'Not Checked In'}
         </span>
       </div>
 
       <div className="flex flex-col lg:flex-row items-center gap-6 relative z-10">
-        {/* Metrics Grid */}
+        {/* Metrics Grid — same KPI card style as Super Admin dashboard */}
         <div className="flex-1 w-full">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div className="bg-white/50 rounded-2xl p-4 border border-white/40 shadow-sm text-center">
-              <p className="text-xs text-gray-500 uppercase font-bold mb-1">Punch In</p>
-              <p className="font-bold text-lg text-gray-900">{formatTime(data?.attendance?.check_in_time)}</p>
+            {/* Punch In */}
+            <div className="bg-gradient-to-br from-slate-800/90 to-slate-900/90 rounded-2xl p-4 text-center
+              shadow-[8px_8px_20px_rgba(0,0,0,0.5),-4px_-4px_12px_rgba(255,255,255,0.03)]
+              border border-emerald-500/25 backdrop-blur-xl">
+              <p className="text-xs text-slate-400 uppercase font-bold tracking-widest mb-2">Punch In</p>
+              <p className="font-black text-lg text-white">{formatTime(data?.attendance?.check_in_time)}</p>
             </div>
-            <div className="bg-white/50 rounded-2xl p-4 border border-white/40 shadow-sm text-center">
-              <p className="text-xs text-gray-500 uppercase font-bold mb-1">Punch Out</p>
-              <p className="font-bold text-lg text-gray-900">{formatTime(data?.attendance?.check_out_time)}</p>
+            {/* Punch Out */}
+            <div className="bg-gradient-to-br from-slate-800/90 to-slate-900/90 rounded-2xl p-4 text-center
+              shadow-[8px_8px_20px_rgba(0,0,0,0.5),-4px_-4px_12px_rgba(255,255,255,0.03)]
+              border border-rose-500/25 backdrop-blur-xl">
+              <p className="text-xs text-slate-400 uppercase font-bold tracking-widest mb-2">Punch Out</p>
+              <p className="font-black text-lg text-white">{formatTime(data?.attendance?.check_out_time)}</p>
             </div>
-            <div className="bg-white/50 rounded-2xl p-4 border border-white/40 shadow-sm text-center">
-              <p className="text-xs text-gray-500 uppercase font-bold mb-1">Total Break</p>
-              <p className="font-bold text-lg text-gray-900">{breakDurationStr}</p>
+            {/* Total Break */}
+            <div className="bg-gradient-to-br from-slate-800/90 to-slate-900/90 rounded-2xl p-4 text-center
+              shadow-[8px_8px_20px_rgba(0,0,0,0.5),-4px_-4px_12px_rgba(255,255,255,0.03)]
+              border border-amber-500/25 backdrop-blur-xl">
+              <p className="text-xs text-slate-400 uppercase font-bold tracking-widest mb-2">Total Break</p>
+              <p className="font-black text-lg text-white">{breakDurationStr}</p>
             </div>
-            <div className="bg-white/50 rounded-2xl p-4 border border-white/40 shadow-sm text-center relative overflow-hidden group">
-              <div className="absolute inset-0 bg-cyan-50/50 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <p className="text-xs text-cyan-700 uppercase font-bold mb-1 relative z-10">Worked Time</p>
-              <p className="font-black text-xl text-cyan-800 font-mono tracking-tight relative z-10">{formatDuration(elapsedSeconds)}</p>
+            {/* Worked Time */}
+            <div className="bg-gradient-to-br from-slate-800/90 to-slate-900/90 rounded-2xl p-4 text-center
+              shadow-[8px_8px_20px_rgba(0,0,0,0.5),-4px_-4px_12px_rgba(255,255,255,0.03)]
+              border border-cyan-500/25 backdrop-blur-xl">
+              <p className="text-xs text-cyan-400 uppercase font-bold tracking-widest mb-2">Worked Time</p>
+              <p className="font-black text-xl text-cyan-300 font-mono tracking-tight">{formatDuration(elapsedSeconds)}</p>
             </div>
           </div>
         </div>
