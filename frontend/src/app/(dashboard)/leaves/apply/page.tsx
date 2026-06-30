@@ -10,7 +10,6 @@ import { ArrowLeft, AlertTriangle } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
 
-import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -18,12 +17,9 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 const formSchema = z.object({
   leave_type_id: z.string().min(1, "Please select a leave type"),
@@ -166,10 +162,8 @@ export default function ApplyLeavePage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/leaves">
-          <Button variant="outline" size="icon">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
+        <Link href="/leaves" className="p-2 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-slate-300 hover:text-white flex items-center justify-center">
+          <ArrowLeft className="h-4 w-4" />
         </Link>
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-white">Apply for Leave</h1>
@@ -177,25 +171,25 @@ export default function ApplyLeavePage() {
         </div>
       </div>
 
-      <Card className="max-w-2xl mx-auto shadow-sm">
-        <CardHeader>
-          <CardTitle>Leave Application Form</CardTitle>
-          <CardDescription>Your request will be sent to your Team Lead for approval. Ensure you have sufficient balance.</CardDescription>
-        </CardHeader>
-        <CardContent>
+      <div className="max-w-2xl mx-auto rounded-2xl bg-slate-800/80 border border-white/10 backdrop-blur-md shadow-[8px_8px_24px_rgba(0,0,0,0.4)]">
+        <div className="px-6 pt-6 pb-2">
+          <h2 className="text-xl font-semibold text-white">Leave Application Form</h2>
+          <p className="text-slate-400 text-sm mt-1">Your request will be sent to your Team Lead for approval. Ensure you have sufficient balance.</p>
+        </div>
+        <div className="px-6 pb-6">
           {leaveMetrics && (
-            <div className="mb-6 grid grid-cols-3 gap-4 bg-white/5 border-white/10 border rounded-xl p-4">
+            <div className="mb-6 grid grid-cols-3 gap-4 bg-white/5 border border-white/10 rounded-xl p-4">
               <div className="text-center">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Sick Leave</p>
-                <p className="text-2xl font-bold text-rose-600">{leaveMetrics.sick_leave_balance}</p>
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Sick Leave</p>
+                <p className="text-2xl font-bold text-rose-400">{leaveMetrics.sick_leave_balance}</p>
               </div>
-              <div className="text-center border-l border-r border-gray-200">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Casual Leave</p>
-                <p className="text-2xl font-bold text-emerald-600">{leaveMetrics.casual_leave_balance}</p>
+              <div className="text-center border-l border-r border-white/10">
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Casual Leave</p>
+                <p className="text-2xl font-bold text-emerald-400">{leaveMetrics.casual_leave_balance}</p>
               </div>
               <div className="text-center">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Taken</p>
-                <p className="text-2xl font-bold text-indigo-600">{leaveMetrics.total_leaves_taken}</p>
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Taken</p>
+                <p className="text-2xl font-bold text-indigo-400">{leaveMetrics.total_leaves_taken}</p>
               </div>
             </div>
           )}
@@ -205,14 +199,14 @@ export default function ApplyLeavePage() {
               
               <FormField control={form.control} name="leave_type_id" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Leave Type *</FormLabel>
+                  <FormLabel className="text-slate-300">Leave Type *</FormLabel>
                   <FormControl>
                     <select
-                      className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="flex h-10 w-full items-center justify-between rounded-md border border-white/10 bg-slate-700 text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 disabled:cursor-not-allowed disabled:opacity-50"
                       {...field}
                     >
-                      <option value="" disabled>Select type</option>
-                      {leaveTypes.map(t => <option key={t.id} value={t.id.toString()}>{t.name}</option>)}
+                      <option value="" disabled className="bg-slate-700 text-slate-400">Select type</option>
+                      {leaveTypes.map(t => <option key={t.id} value={t.id.toString()} className="bg-slate-700 text-white">{t.name}</option>)}
                     </select>
                   </FormControl>
                   <FormMessage />
@@ -221,46 +215,48 @@ export default function ApplyLeavePage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <FormField control={form.control} name="start_date" render={({ field }) => (
-                  <FormItem><FormLabel>Start Date *</FormLabel><FormControl><Input type="date" min={isCasualLeave ? todayStr : undefined} {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel className="text-slate-300">Start Date *</FormLabel><FormControl><Input type="date" min={isCasualLeave ? todayStr : undefined} {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
 
                 <FormField control={form.control} name="end_date" render={({ field }) => (
-                  <FormItem><FormLabel>End Date *</FormLabel><FormControl><Input type="date" min={isCasualLeave ? todayStr : undefined} {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel className="text-slate-300">End Date *</FormLabel><FormControl><Input type="date" min={isCasualLeave ? todayStr : undefined} {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
               </div>
 
               <FormField control={form.control} name="reason" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Reason *</FormLabel>
+                  <FormLabel className="text-slate-300">Reason *</FormLabel>
                   <FormControl><Textarea rows={4} placeholder="Please provide details..." {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
               
-              {isCalculating && <p className="text-sm text-gray-500">Calculating leave impact...</p>}
+              {isCalculating && <p className="text-sm text-slate-400">Calculating leave impact...</p>}
               {impact && (
-                <div className={`p-4 rounded-md border ${impact.is_unpaid ? 'bg-amber-500/20 border-amber-500/30 text-amber-200' : 'bg-emerald-500/20 border-emerald-500/30 text-emerald-200'}`}>
-                  <h4 className={`font-semibold flex items-center gap-2 ${impact.is_unpaid ? 'text-amber-800' : 'text-emerald-800'}`}>
+                <div className={`p-4 rounded-xl border ${impact.is_unpaid ? 'bg-amber-500/15 border-amber-500/30' : 'bg-emerald-500/15 border-emerald-500/30'}`}>
+                  <h4 className={`font-semibold flex items-center gap-2 ${impact.is_unpaid ? 'text-amber-300' : 'text-emerald-300'}`}>
                     {impact.is_unpaid && <AlertTriangle className="w-4 h-4" />}
                     Leave Summary
                   </h4>
-                  <ul className="mt-2 text-sm text-gray-700 space-y-1">
-                    <li><strong>Requested Days:</strong> {impact.actual_leave_days}</li>
-                    {impact.sandwich_leave_days > 0 && <li><strong>Sandwich Days:</strong> {impact.sandwich_leave_days}</li>}
-                    <li><strong>Status:</strong> {impact.is_unpaid ? <span className="text-red-600 font-bold">Unpaid (LOP)</span> : <span className="text-emerald-600 font-bold">Paid</span>}</li>
-                    {impact.unpaid_reason && <li><strong>Reason:</strong> {impact.unpaid_reason}</li>}
+                  <ul className="mt-2 text-sm text-slate-300 space-y-1">
+                    <li><strong className="text-white">Requested Days:</strong> {impact.actual_leave_days}</li>
+                    {impact.sandwich_leave_days > 0 && <li><strong className="text-white">Sandwich Days:</strong> {impact.sandwich_leave_days}</li>}
+                    <li><strong className="text-white">Status:</strong> {impact.is_unpaid ? <span className="text-red-400 font-bold">Unpaid (LOP)</span> : <span className="text-emerald-400 font-bold">Paid</span>}</li>
+                    {impact.unpaid_reason && <li><strong className="text-white">Reason:</strong> {impact.unpaid_reason}</li>}
                   </ul>
                 </div>
               )}
 
-              <div className="flex justify-end gap-4 border-t pt-6">
-                <Button type="button" variant="outline" onClick={() => router.push("/leaves")}>Cancel</Button>
-                <Button type="submit" disabled={isLoading}>{isLoading ? "Submitting..." : "Submit for Approval"}</Button>
+              <div className="flex justify-end gap-4 border-t border-white/10 pt-6">
+                <button type="button" onClick={() => router.push("/leaves")} className="px-5 py-2 rounded-lg text-sm font-medium text-slate-300 border border-white/10 bg-white/5 hover:bg-white/10 transition-colors">Cancel</button>
+                <button type="submit" disabled={isLoading} className="px-5 py-2 rounded-lg text-sm font-medium bg-amber-500 hover:bg-amber-600 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                  {isLoading ? "Submitting..." : "Submit for Approval"}
+                </button>
               </div>
             </form>
           </Form>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
