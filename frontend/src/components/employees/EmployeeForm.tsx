@@ -89,12 +89,15 @@ export default function EmployeeForm({ initialData, isEdit }: EmployeeFormProps)
   });
 
   useEffect(() => {
-    // We can fetch teams here or accept them as props. Mocking for now as per previous version
-    setTeams([
-      { id: 1, name: "Engineering" },
-      { id: 2, name: "Human Resources" },
-      { id: 3, name: "Sales" },
-    ]);
+    async function fetchTeams() {
+      try {
+        const res = await api.get("/teams");
+        setTeams(res.data.data || res.data || []);
+      } catch (error) {
+        console.error("Failed to fetch teams", error);
+      }
+    }
+    fetchTeams();
   }, []);
 
   const dob = useWatch({ control: form.control, name: "dob" });
