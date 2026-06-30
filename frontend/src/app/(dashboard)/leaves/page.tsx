@@ -50,7 +50,11 @@ export default function LeavesPage() {
         ]);
       }
 
-      setRequests(reqRes.data.data?.data || []);
+      const allRequests = reqRes.data.data?.data || [];
+      setRequests(allRequests.filter((r: any) => {
+        const name = r.leave_type?.name?.toLowerCase() || '';
+        return !name.includes('wfh') && !name.includes('work from home');
+      }));
     } catch (e) {
       console.error(e);
     } finally {

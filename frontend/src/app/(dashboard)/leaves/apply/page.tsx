@@ -88,24 +88,23 @@ export default function ApplyLeavePage() {
     const fetchData = async () => {
       try {
         const typeRes = await api.get("/leave-types");
-        // Ensure leaveTypes is at least an empty array, or mock if missing
-        const types = typeRes.data?.data || [];
+        const types = (typeRes.data?.data || []).filter((t: any) => {
+          const n = t.name?.toLowerCase() || '';
+          return !n.includes('wfh') && !n.includes('work from home');
+        });
         if (types.length === 0) {
-          // Provide defaults if DB is empty to avoid broken dropdown
           setLeaveTypes([
             { id: 1, name: 'Sick Leave' },
             { id: 2, name: 'Casual Leave' },
-            { id: 3, name: 'Work From Home' }
           ]);
         } else {
           setLeaveTypes(types);
         }
       } catch (e) {
         console.error(e);
-        // Fallback options
         setLeaveTypes([
           { id: 1, name: 'Sick Leave' },
-          { id: 2, name: 'Casual Leave' }
+          { id: 2, name: 'Casual Leave' },
         ]);
       }
 
