@@ -118,6 +118,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/{id}', [\App\Http\Controllers\Api\NotificationController::class, 'destroy']);
     });
 
+    // Issues / Helpdesk
+    Route::prefix('issues')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Api\IssueController::class, 'index']);
+        Route::post('/', [\App\Http\Controllers\Api\IssueController::class, 'store']);
+        Route::get('/{id}', [\App\Http\Controllers\Api\IssueController::class, 'show']);
+        Route::post('/{id}/comments', [\App\Http\Controllers\Api\IssueController::class, 'addComment']);
+        Route::put('/{id}/status', [\App\Http\Controllers\Api\IssueController::class, 'updateStatus']);
+    });
+
     // View The Hall (All authenticated users can view)
     Route::get('hall', [\App\Http\Controllers\Api\HallController::class, 'index']);
 });

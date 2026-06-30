@@ -22,6 +22,7 @@ const NAV_LINKS = [
   { href: "/hall",             label: "The Hall" },
   { href: "/calendar",         label: "Calendar" },
   { href: "/holidays",         label: "Holidays" },
+  { href: "/issues",           label: "Raise an Issue" },
   { href: "/settings",         label: "Settings" },
   { href: "/audit-logs",       label: "Audit Logs" },
 ];

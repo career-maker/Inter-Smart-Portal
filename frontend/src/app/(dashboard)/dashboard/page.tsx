@@ -368,7 +368,6 @@ export default function DashboardPage() {
                 </div>
               )}
 
-              {/* Massive CTA Button */}
               <div className="pt-6">
                 <Link 
                   href="/leaves/apply" 
@@ -376,6 +375,44 @@ export default function DashboardPage() {
                 >
                   <Palmtree className="w-5 h-5" />
                   Apply for Leave
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Issue Summary */}
+          <div className="bg-blue-50/70 rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.05)] backdrop-blur-2xl border border-white/60 p-6 md:p-8 mt-8">
+            <h2 className="text-lg font-bold text-blue-800 mb-6 flex items-center gap-2">
+              <AlertCircle className="w-5 h-5" />
+              My Support Issues
+            </h2>
+            
+            <div className="space-y-6">
+              <div className="flex items-center justify-between group">
+                <div>
+                  <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Open Issues</p>
+                  <p className="text-3xl font-black text-gray-900 mt-1">{data.issue_metrics?.my_open || 0}</p>
+                </div>
+                <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
+                  <AlertCircle className="w-6 h-6" />
+                </div>
+              </div>
+              <div className="h-px bg-gray-100 w-full"></div>
+              <div className="flex items-center justify-between group">
+                <div>
+                  <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Resolved</p>
+                  <p className="text-3xl font-black text-gray-900 mt-1">{data.issue_metrics?.my_resolved || 0}</p>
+                </div>
+                <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform">
+                  <Sparkles className="w-6 h-6" />
+                </div>
+              </div>
+              <div className="pt-6">
+                <Link 
+                  href="/issues" 
+                  className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white font-bold py-4 px-6 rounded-2xl hover:bg-blue-700 hover:shadow-xl hover:shadow-blue-600/20 transition-all duration-300 hover:-translate-y-0.5"
+                >
+                  View Helpdesk
                 </Link>
               </div>
             </div>
@@ -443,7 +480,7 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
       </div>
 
       {/* KPI Cards (4 cols) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         <KPICard title="Employees" value={kpis.total_employees} trend={kpis.trends.employees} icon={UserCircle} color="bg-blue-50/700" href="/employees" />
         <KPICard title="Present" value={kpis.present_today} trend={kpis.trends.attendance} icon={Building2} color="bg-emerald-50/700" href="/attendance" />
         <KPICard 
@@ -468,6 +505,7 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
             list: kpis.wfh_today_list || []
           })} 
         />
+        <KPICard title="Open Issues" value={data.issue_metrics?.total_open || 0} trend="" icon={AlertCircle} color="bg-rose-50/700" href="/issues" />
       </div>
 
       {/* 
