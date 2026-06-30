@@ -164,6 +164,20 @@ class EmployeeController extends Controller
         ]);
     }
 
+    public function updatePhotoUrl(Request $request, User $employee)
+    {
+        $request->validate([
+            'photo_url' => 'required|url|max:1000',
+        ]);
+
+        $employee->update(['profile_photo_path' => $request->photo_url]);
+
+        return response()->json([
+            'message'            => 'Photo URL saved successfully.',
+            'profile_photo_path' => $employee->profilePhotoUrl(),
+        ]);
+    }
+
     public function updateStatus(Request $request, User $employee)
     {
         $request->validate([

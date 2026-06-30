@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Camera, KeyRound } from "lucide-react";
+import { ArrowLeft, Camera, KeyRound, Link2, Upload, Loader2, CheckCircle2 } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
 
@@ -14,12 +14,30 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+function convertGoogleDriveUrl(url: string): string {
+  // Match: https://drive.google.com/file/d/FILE_ID/view...
+  const fileMatch = url.match(/drive\.google\.com\/file\/d\/([^/]+)/);
+  if (fileMatch) {
+    return `https://drive.google.com/uc?export=view&id=${fileMatch[1]}`;
+  }
+  // Match: https://drive.google.com/open?id=FILE_ID
+  const openMatch = url.match(/drive\.google\.com\/open\?id=([^&]+)/);
+  if (openMatch) {
+    return `https://drive.google.com/uc?export=view&id=${openMatch[1]}`;
+  }
+  return url;
+}
+
 export default function EditEmployeePage() {
   const params = useParams();
   const [employee, setEmployee] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [photoLoading, setPhotoLoading] = useState(false);
+  const [photoMode, setPhotoMode] = useState<"upload" | "url">("upload");
+  const [photoUrl, setPhotoUrl] = useState("");
+  const [urlLoading, setUrlLoading] = useState(false);
+  const [urlSuccess, setUrlSuccess] = useState(false);
 
   useEffect(() => {
     fetchEmployee();
@@ -81,6 +99,29 @@ export default function EditEmployeePage() {
     }
   };
 
+  const handlePhotoUrl = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!photoUrl.trim()) return;
+    setUrlLoading(true);
+    setUrlSuccess(false);
+    try {
+      const converted = convertGoogleDriveUrl(photoUrl.trim());
+      const response = await api.post(`/employees/${params.id}/photo-url`, { photo_url: converted });
+      setEmployee({ ...employee, profile_photo_path: response.data.profile_photo_path });
+      const authStore = useAuthStore.getState();
+      if (params?.id && authStore.user?.id?.toString() === params.id.toString()) {
+        authStore.updateUser({ profile_photo_path: response.data.profile_photo_path });
+      }
+      setUrlSuccess(true);
+      setPhotoUrl("");
+      setTimeout(() => setUrlSuccess(false), 3000);
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Failed to save photo URL.");
+    } finally {
+      setUrlLoading(false);
+    }
+  };
+
   if (isLoading) return <div className="p-8 text-center">Loading...</div>;
   if (!employee) return <div className="p-8 text-center">Employee not found.</div>;
 
@@ -110,36 +151,105 @@ export default function EditEmployeePage() {
         </TabsContent>
         
         <TabsContent value="photo">
-          <Card className="max-w-xl shadow-sm">
-            <CardHeader>
-              <CardTitle>Profile Photo</CardTitle>
-              <CardDescription>Update the employee's display picture.</CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col items-center gap-6">
-              <div className="h-32 w-32 rounded-full border-4 border-muted overflow-hidden bg-gray-100 flex items-center justify-center relative group">
+          <div className="max-w-xl space-y-6">
+            {/* Current photo preview */}
+            <div className="bg-slate-800/80 border border-white/10 rounded-2xl p-6 flex flex-col items-center gap-4">
+              <div className="h-28 w-28 rounded-full border-4 border-white/10 overflow-hidden bg-slate-700 flex items-center justify-center shrink-0">
                 {employee.profile_photo_path ? (
-                  <img src={employee.profile_photo_path} alt="Profile" className="h-full w-full object-cover" />
+                  <img src={employee.profile_photo_path} alt="Profile" className="h-full w-full object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
                 ) : (
-                  <Camera className="h-12 w-12 text-gray-400" />
+                  <Camera className="h-12 w-12 text-slate-500" />
                 )}
-                <div className="absolute inset-0 bg-black/50 hidden group-hover:flex items-center justify-center transition-all">
-                  <label htmlFor="photo-upload" className="cursor-pointer text-white text-sm font-medium flex flex-col items-center">
-                    <Camera className="h-6 w-6 mb-1" />
-                    Upload
-                  </label>
-                  <input 
-                    id="photo-upload" 
-                    type="file" 
-                    accept="image/*" 
-                    className="hidden" 
-                    onChange={handlePhotoUpload} 
-                    disabled={photoLoading}
-                  />
-                </div>
               </div>
-              {photoLoading && <p className="text-sm text-primary">Uploading photo...</p>}
-            </CardContent>
-          </Card>
+              <p className="text-sm text-slate-400 text-center">
+                {employee.profile_photo_path ? "Current profile photo" : "No photo set"}
+              </p>
+            </div>
+
+            {/* Mode toggle */}
+            <div className="flex rounded-xl border border-white/10 overflow-hidden bg-slate-800/60 p-1 gap-1">
+              <button
+                onClick={() => setPhotoMode("upload")}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${photoMode === "upload" ? "bg-amber-500 text-white shadow" : "text-slate-400 hover:text-white"}`}
+              >
+                <Upload className="w-4 h-4" />
+                Upload File
+              </button>
+              <button
+                onClick={() => setPhotoMode("url")}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${photoMode === "url" ? "bg-amber-500 text-white shadow" : "text-slate-400 hover:text-white"}`}
+              >
+                <Link2 className="w-4 h-4" />
+                Paste URL
+              </button>
+            </div>
+
+            {/* Upload File mode */}
+            {photoMode === "upload" && (
+              <div className="bg-slate-800/80 border border-white/10 rounded-2xl p-6">
+                <h3 className="text-sm font-semibold text-white mb-1">Upload from device</h3>
+                <p className="text-xs text-slate-400 mb-4">JPEG, PNG or GIF · Max 2 MB</p>
+                <label className={`flex flex-col items-center justify-center gap-3 border-2 border-dashed rounded-xl p-8 cursor-pointer transition-colors ${photoLoading ? "opacity-50 cursor-not-allowed border-white/10" : "border-white/20 hover:border-amber-500/60 hover:bg-amber-500/5"}`}>
+                  {photoLoading ? (
+                    <>
+                      <Loader2 className="w-8 h-8 text-amber-400 animate-spin" />
+                      <span className="text-sm text-slate-400">Uploading...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-8 h-8 text-slate-400" />
+                      <span className="text-sm font-medium text-slate-300">Click to choose a file</span>
+                    </>
+                  )}
+                  <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} disabled={photoLoading} />
+                </label>
+              </div>
+            )}
+
+            {/* Paste URL mode */}
+            {photoMode === "url" && (
+              <div className="bg-slate-800/80 border border-white/10 rounded-2xl p-6">
+                <h3 className="text-sm font-semibold text-white mb-1">Link from Google Drive or any public URL</h3>
+                <p className="text-xs text-slate-400 mb-4">
+                  Share the file publicly on Google Drive, copy the sharing link, and paste it below. Google Drive links are automatically converted to direct image URLs.
+                </p>
+                <form onSubmit={handlePhotoUrl} className="space-y-3">
+                  <div className="flex gap-2">
+                    <input
+                      type="url"
+                      value={photoUrl}
+                      onChange={e => { setPhotoUrl(e.target.value); setUrlSuccess(false); }}
+                      placeholder="https://drive.google.com/file/d/... or any image URL"
+                      className="flex-1 bg-slate-700 border border-white/10 text-white text-sm rounded-lg px-3 py-2.5 outline-none focus:border-amber-500 placeholder:text-slate-500"
+                      disabled={urlLoading}
+                    />
+                    <button
+                      type="submit"
+                      disabled={urlLoading || !photoUrl.trim()}
+                      className="px-4 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold disabled:opacity-50 flex items-center gap-2 shrink-0 transition-colors"
+                    >
+                      {urlLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : urlSuccess ? <CheckCircle2 className="w-4 h-4" /> : <Link2 className="w-4 h-4" />}
+                      {urlLoading ? "Saving..." : urlSuccess ? "Saved!" : "Save"}
+                    </button>
+                  </div>
+                  {urlSuccess && (
+                    <p className="text-xs text-emerald-400 flex items-center gap-1.5">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      Photo URL saved successfully. The preview above has been updated.
+                    </p>
+                  )}
+                  <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 text-xs text-blue-300 space-y-1">
+                    <p className="font-semibold text-blue-200">How to share from Google Drive:</p>
+                    <ol className="list-decimal list-inside space-y-0.5 text-blue-300/90">
+                      <li>Right-click the photo in Google Drive → Share</li>
+                      <li>Change access to <strong className="text-blue-200">"Anyone with the link"</strong></li>
+                      <li>Click <strong className="text-blue-200">Copy link</strong> and paste it above</li>
+                    </ol>
+                  </div>
+                </form>
+              </div>
+            )}
+          </div>
         </TabsContent>
         
         <TabsContent value="password">

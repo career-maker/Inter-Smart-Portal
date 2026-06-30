@@ -43,6 +43,12 @@ class User extends Authenticatable
         if (!$this->profile_photo_path) return null;
 
         $path = str_replace('\\', '/', $this->profile_photo_path);
+
+        // If already a full URL (e.g. Google Drive public link), return as-is
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            return $path;
+        }
+
         $supabaseUrl = config('services.supabase.url');
         $bucket      = config('services.supabase.storage_bucket');
 

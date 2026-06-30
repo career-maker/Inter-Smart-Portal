@@ -33,6 +33,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('employees', \App\Http\Controllers\Api\EmployeeController::class);
         Route::post('employees/{employee}/password', [\App\Http\Controllers\Api\EmployeeController::class, 'updatePassword']);
         Route::post('employees/{employee}/photo', [\App\Http\Controllers\Api\EmployeeController::class, 'updatePhoto']);
+        Route::post('employees/{employee}/photo-url', [\App\Http\Controllers\Api\EmployeeController::class, 'updatePhotoUrl']);
         Route::post('employees/{employee}/status', [\App\Http\Controllers\Api\EmployeeController::class, 'updateStatus']);
         
         // Team Routes
