@@ -147,8 +147,12 @@ export default function DashboardPage() {
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 lg:gap-8 relative z-10">
           {/* Left: Avatar, Greeting, Date */}
           <div className="flex items-center gap-5 md:gap-6">
-            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/40 flex items-center justify-center text-slate-900 text-xl md:text-2xl font-bold shadow-sm shrink-0 border border-white/50">
-              {profile.first_name?.[0]}{profile.last_name?.[0]}
+            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/40 flex items-center justify-center text-slate-900 text-xl md:text-2xl font-bold shadow-sm shrink-0 border border-white/50 overflow-hidden">
+              {profile.profile_photo_path ? (
+                <img src={profile.profile_photo_path} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                <>{profile.first_name?.[0]}{profile.last_name?.[0]}</>
+              )}
             </div>
             <div>
               <p className="text-sm font-medium text-slate-800/80 mb-1">

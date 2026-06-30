@@ -35,7 +35,7 @@ RUN sed -ri -e 's!/var/www/!/var/www/html/public!g' /etc/apache2/apache2.conf /e
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Create startup script that runs migrations and links storage before Apache starts
-RUN echo '#!/bin/bash\nset -e\nphp artisan storage:link --force 2>/dev/null || true\nphp artisan migrate --force 2>/dev/null || true\napache2-foreground' > /usr/local/bin/start.sh && chmod +x /usr/local/bin/start.sh
+RUN printf '#!/bin/bash\nset -e\ncd /var/www/html\nphp artisan storage:link --force 2>/dev/null || true\nphp artisan migrate --force\napache2-foreground\n' > /usr/local/bin/start.sh && chmod +x /usr/local/bin/start.sh
 
 # Start via script
 CMD ["/usr/local/bin/start.sh"]

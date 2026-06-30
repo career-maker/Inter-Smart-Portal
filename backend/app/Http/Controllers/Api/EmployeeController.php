@@ -113,7 +113,7 @@ class EmployeeController extends Controller
 
         return response()->json([
             'message' => 'Photo updated successfully.',
-            'profile_photo_path' => asset('storage/' . $path)
+            'profile_photo_path' => request()->getSchemeAndHttpHost() . '/storage/' . $path
         ]);
     }
 

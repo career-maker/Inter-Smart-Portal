@@ -40,8 +40,12 @@ class AuthController extends Controller
                 'first_name' => $user->first_name,
                 'last_name' => $user->last_name,
                 'email' => $user->email,
+                'designation' => $user->designation,
                 'role' => $user->roles->pluck('name')->first(),
                 'permissions' => $user->getAllPermissions()->pluck('name'),
+                'profile_photo_path' => $user->profile_photo_path
+                    ? request()->getSchemeAndHttpHost() . '/storage/' . $user->profile_photo_path
+                    : null,
             ]
         ]);
     }
@@ -57,8 +61,12 @@ class AuthController extends Controller
                 'first_name' => $user->first_name,
                 'last_name' => $user->last_name,
                 'email' => $user->email,
+                'designation' => $user->designation,
                 'role' => $user->roles->pluck('name')->first(),
                 'permissions' => $user->getAllPermissions()->pluck('name'),
+                'profile_photo_path' => $user->profile_photo_path
+                    ? request()->getSchemeAndHttpHost() . '/storage/' . $user->profile_photo_path
+                    : null,
             ]
         ]);
     }

@@ -82,11 +82,18 @@ export default function DashboardLayout({
           <div className="flex items-center gap-3 shrink-0 ml-auto">
             <NotificationDropdown />
             
-            <div className="hidden sm:flex flex-col items-end">
-              <span className="text-sm font-medium leading-none">
-                {user?.first_name} {user?.last_name}
-              </span>
-              <span className="text-xs text-muted-foreground mt-0.5">{user?.role}</span>
+            <div className="hidden sm:flex items-center gap-3">
+              <div className="flex flex-col items-end">
+                <span className="text-sm font-medium leading-none">
+                  {user?.first_name} {user?.last_name}
+                </span>
+                <span className="text-xs text-muted-foreground mt-0.5">{user?.role}</span>
+              </div>
+              <img 
+                src={user?.profile_photo_path || `https://ui-avatars.com/api/?name=${user?.first_name}+${user?.last_name}&background=f4b400&color=fff`} 
+                alt="Profile" 
+                className="w-8 h-8 rounded-full object-cover border border-gray-200"
+              />
             </div>
             <button
               onClick={handleLogout}
