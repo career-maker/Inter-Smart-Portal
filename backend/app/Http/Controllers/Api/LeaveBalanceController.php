@@ -21,7 +21,7 @@ class LeaveBalanceController extends Controller
         $user = $request->user();
 
         if ($user->hasRole('Super Admin')) {
-            // Return all active employees with their balances
+            // Return all active employees with their balances (or zeros if no balance record exists)
             $employees = User::where('status', 'Active')
                 ->whereDoesntHave('roles', fn($q) => $q->where('name', 'Super Admin'))
                 ->with('leaveBalance')
@@ -30,14 +30,14 @@ class LeaveBalanceController extends Controller
                     $balance = $emp->leaveBalance;
                     return [
                         'user_id'               => $emp->id,
-                        'name'                  => $emp->first_name . ' ' . $emp->last_name,
-                        'employee_code'         => $emp->employee_code,
-                        'designation'           => $emp->designation,
-                        'casual_leave_balance'  => $balance->casual_leave_balance ?? 0,
-                        'cl_carry_forward'      => $balance->cl_carry_forward ?? 0,
-                        'cl_carry_forward_year' => $balance->cl_carry_forward_year ?? null,
-                        'sick_leave_balance'    => $balance->sick_leave_balance ?? 0,
-                        'total_leaves_taken'    => $balance->total_leaves_taken ?? 0,
+                        'name'                  => trim($emp->first_name . ' ' . $emp->last_name),
+                        'employee_code'         => $emp->employee_code ?? '—',
+                        'designation'           => $emp->designation ?? '—',
+                        'casual_leave_balance'  => $balance ? (float)($balance->casual_leave_balance ?? 0) : 0,
+                        'cl_carry_forward'      => $balance ? (float)(data_get($balance, 'cl_carry_forward', 0)) : 0,
+                        'cl_carry_forward_year' => $balance ? data_get($balance, 'cl_carry_forward_year') : null,
+                        'sick_leave_balance'    => $balance ? (float)($balance->sick_leave_balance ?? 0) : 0,
+                        'total_leaves_taken'    => $balance ? (float)($balance->total_leaves_taken ?? 0) : 0,
                     ];
                 });
 

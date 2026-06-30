@@ -184,18 +184,21 @@ export default function LeaveBalancesPage() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [balRes, logRes] = await Promise.all([
-        api.get("/leave-balances"),
-        api.get("/leave-balance-audit-logs"),
-      ]);
+      const balRes = await api.get("/leave-balances");
       setEmployees(balRes.data.data || []);
+    } catch (e) {
+      console.error("Failed to load employee balances:", e);
+    }
+    try {
+      const logRes = await api.get("/leave-balance-audit-logs");
       setAuditLogs(logRes.data.data?.data || []);
     } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
+      // Audit log table may not exist yet (migration pending)
+      console.warn("Audit log not available yet:", e);
     }
+    setLoading(false);
   }, []);
+
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
