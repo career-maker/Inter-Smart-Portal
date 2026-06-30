@@ -188,30 +188,10 @@ export default function DashboardPage() {
           {/* Right: Service Days */}
           {profile.service_stats && (
             <div className="bg-white/40 backdrop-blur-md border border-white/50 rounded-2xl p-4 md:p-5 shadow-sm text-center lg:text-right w-full lg:w-auto mt-4 lg:mt-0 flex flex-col justify-center">
-              <p className="text-xs md:text-sm font-bold text-slate-800/90 uppercase tracking-wider mb-1 flex items-center justify-center lg:justify-end gap-1.5">
-                <Sparkles className="w-4 h-4 text-slate-700" />
-                You are with Intersmart for
+              <p className="text-sm md:text-base font-bold text-slate-800 tracking-wide flex flex-wrap items-center justify-center lg:justify-end gap-1.5">
+                <Sparkles className="w-5 h-5 text-amber-500" />
+                You have been with Intersmart for {profile.service_stats.years} Years {profile.service_stats.months} Months {profile.service_stats.days} Days
               </p>
-              <div className="flex items-baseline justify-center lg:justify-end gap-1 text-slate-900 mt-1">
-                {profile.service_stats.years > 0 && (
-                  <>
-                    <span className="text-3xl md:text-4xl font-black tracking-tighter">{profile.service_stats.years}</span>
-                    <span className="text-sm md:text-base font-extrabold tracking-tight mr-2">years</span>
-                  </>
-                )}
-                {(profile.service_stats.months > 0 || profile.service_stats.years > 0) && (
-                  <>
-                    <span className="text-3xl md:text-4xl font-black tracking-tighter">{profile.service_stats.months}</span>
-                    <span className="text-sm md:text-base font-extrabold tracking-tight">months</span>
-                  </>
-                )}
-                {profile.service_stats.years === 0 && profile.service_stats.months === 0 && (
-                  <>
-                    <span className="text-3xl md:text-4xl font-black tracking-tighter">{profile.service_stats.days}</span>
-                    <span className="text-sm md:text-base font-extrabold tracking-tight">days</span>
-                  </>
-                )}
-              </div>
             </div>
           )}
         </div>

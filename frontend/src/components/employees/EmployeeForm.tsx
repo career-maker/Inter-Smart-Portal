@@ -110,34 +110,6 @@ export default function EmployeeForm({ initialData, isEdit }: EmployeeFormProps)
     }
   }, [dob]);
 
-  const calculatedService = useMemo(() => {
-    if (!joiningDate) return "";
-    try {
-      const join = parseISO(joiningDate);
-      if (Number.isNaN(join.getTime()) || join > new Date()) return "Just joined";
-      const now = new Date();
-      
-      // Calculate years, months, days
-      let y = now.getFullYear() - join.getFullYear();
-      let m = now.getMonth() - join.getMonth();
-      let d = now.getDate() - join.getDate();
-
-      if (d < 0) {
-        m -= 1;
-        const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
-        d += prevMonth.getDate();
-      }
-      if (m < 0) {
-        y -= 1;
-        m += 12;
-      }
-      
-      return `You have been with Intersmart for ${y} Years ${m} Months ${d} Days`;
-    } catch {
-      return "";
-    }
-  }, [joiningDate]);
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     try {
@@ -289,11 +261,6 @@ export default function EmployeeForm({ initialData, isEdit }: EmployeeFormProps)
                   <FormItem><FormLabel>Joining Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
               </div>
-              {calculatedService && (
-                <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg text-sm font-semibold">
-                  {calculatedService}
-                </div>
-              )}
             </div>
 
             {!isEdit && (
