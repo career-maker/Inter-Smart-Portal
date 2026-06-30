@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'supabase' => [
+        'url'            => env('SUPABASE_URL'),           // e.g. https://xyz.supabase.co
+        'service_key'    => env('SUPABASE_SERVICE_KEY'),   // service_role secret key
+        'storage_bucket' => env('SUPABASE_STORAGE_BUCKET', 'intersmart-portal'),
+    ],
+
 ];

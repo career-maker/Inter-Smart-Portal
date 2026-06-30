@@ -43,9 +43,7 @@ class AuthController extends Controller
                 'designation' => $user->designation,
                 'role' => $user->roles->pluck('name')->first(),
                 'permissions' => $user->getAllPermissions()->pluck('name'),
-                'profile_photo_path' => $user->profile_photo_path
-                    ? rtrim(config('app.url'), '/') . '/api/photos/' . str_replace('\\', '/', $user->profile_photo_path)
-                    : null,
+                'profile_photo_path' => $user->profilePhotoUrl(),
             ]
         ]);
     }
@@ -64,9 +62,7 @@ class AuthController extends Controller
                 'designation' => $user->designation,
                 'role' => $user->roles->pluck('name')->first(),
                 'permissions' => $user->getAllPermissions()->pluck('name'),
-                'profile_photo_path' => $user->profile_photo_path
-                    ? rtrim(config('app.url'), '/') . '/api/photos/' . str_replace('\\', '/', $user->profile_photo_path)
-                    : null,
+                'profile_photo_path' => $user->profilePhotoUrl(),
             ]
         ]);
     }

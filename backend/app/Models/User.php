@@ -37,7 +37,24 @@ class User extends Authenticatable
     public function wfhRequests() {
         return $this->hasMany(WfhRequest::class);
     }
-    
+
+    public function profilePhotoUrl(): ?string
+    {
+        if (!$this->profile_photo_path) return null;
+
+        $path = str_replace('\\', '/', $this->profile_photo_path);
+        $supabaseUrl = config('services.supabase.url');
+        $bucket      = config('services.supabase.storage_bucket');
+
+        if ($supabaseUrl && $bucket) {
+            return "{$supabaseUrl}/storage/v1/object/public/{$bucket}/{$path}";
+        }
+
+        // Local dev fallback — served via /api/photos/ route
+        return rtrim(config('app.url'), '/') . '/api/photos/' . $path;
+    }
+
+
 
 
 

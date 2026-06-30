@@ -55,9 +55,7 @@ class DashboardController extends Controller
             'service_days' => $serviceDays,
             'service_stats' => $serviceStats,
             'active_recognition' => $activeRecognition,
-            'profile_photo_path' => $user->profile_photo_path
-                ? rtrim(config('app.url'), '/') . '/api/photos/' . str_replace('\\', '/', $user->profile_photo_path)
-                : null,
+            'profile_photo_path' => $user->profilePhotoUrl(),
         ];
 
         // Add Attendance Status
@@ -213,9 +211,7 @@ class DashboardController extends Controller
                         'department' => $u->team ? $u->team->name : 'Unassigned',
                         'date' => $dobThisYear->toDateString(),
                         'days_remaining' => $daysRemaining,
-                        'profile_photo_path' => $u->profile_photo_path
-                            ? rtrim(config('app.url'), '/') . '/api/photos/' . str_replace('\\', '/', $u->profile_photo_path)
-                            : null,
+                        'profile_photo_path' => $u->profilePhotoUrl(),
                     ];
                 }
             }

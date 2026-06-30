@@ -9,6 +9,7 @@ use App\Http\Requests\UpdateEmployeeRequest;
 use App\Http\Resources\EmployeeResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
 class EmployeeController extends Controller
@@ -113,6 +114,43 @@ class EmployeeController extends Controller
             'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
+        $supabaseUrl = config('services.supabase.url');
+        $serviceKey  = config('services.supabase.service_key');
+        $bucket      = config('services.supabase.storage_bucket');
+
+        if ($supabaseUrl && $serviceKey && $bucket) {
+            // Delete old photo from Supabase Storage
+            if ($employee->profile_photo_path) {
+                $oldPath = str_replace('\\', '/', $employee->profile_photo_path);
+                Http::withHeaders(['Authorization' => 'Bearer ' . $serviceKey])
+                    ->delete("{$supabaseUrl}/storage/v1/object/{$bucket}/{$oldPath}");
+            }
+
+            $ext      = $request->file('photo')->getClientOriginalExtension();
+            $fileName = 'profile-photos/' . uniqid() . '.' . $ext;
+            $mime     = $request->file('photo')->getMimeType();
+            $contents = file_get_contents($request->file('photo')->getRealPath());
+
+            $res = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $serviceKey,
+                'Content-Type'  => $mime,
+                'x-upsert'      => 'true',
+            ])->withBody($contents, $mime)
+              ->post("{$supabaseUrl}/storage/v1/object/{$bucket}/{$fileName}");
+
+            if (!$res->successful()) {
+                return response()->json(['message' => 'Failed to upload photo to storage: ' . $res->body()], 500);
+            }
+
+            $employee->update(['profile_photo_path' => $fileName]);
+
+            return response()->json([
+                'message'           => 'Photo updated successfully.',
+                'profile_photo_path' => $employee->profilePhotoUrl(),
+            ]);
+        }
+
+        // Local dev fallback — store on public disk
         if ($employee->profile_photo_path) {
             Storage::disk('public')->delete($employee->profile_photo_path);
         }
@@ -120,11 +158,9 @@ class EmployeeController extends Controller
         $path = $request->file('photo')->store('profile-photos', 'public');
         $employee->update(['profile_photo_path' => $path]);
 
-        $webPath = str_replace('\\', '/', $path);
-
         return response()->json([
-            'message' => 'Photo updated successfully.',
-            'profile_photo_path' => rtrim(config('app.url'), '/') . '/api/photos/' . $webPath
+            'message'           => 'Photo updated successfully.',
+            'profile_photo_path' => $employee->profilePhotoUrl(),
         ]);
     }
 
