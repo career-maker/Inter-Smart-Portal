@@ -207,64 +207,45 @@ body {
     border-radius: 50%;
   }
 
-  /* ── Neon Pill: animated rotating gold border ─────────── */
+  /* ── Service Duration Pill: subtle breathing border glow ─ */
   .neon-pill-wrapper {
-    position: relative;
     border-radius: 1rem;
-    padding: 2px;
-    overflow: hidden;
+    border: 1px solid rgba(255, 215, 0, 0.40);
     box-shadow:
-      0 0 12px rgba(255, 215, 0, 0.35),
-      0 0 28px rgba(255, 193, 7, 0.20);
-    transition: transform 0.35s ease, box-shadow 0.35s ease;
-    will-change: transform;
-  }
-
-  .neon-pill-wrapper::before {
-    content: '';
-    position: absolute;
-    width: 300%;
-    height: 300%;
-    top: -100%;
-    left: -100%;
-    background: conic-gradient(
-      from 0deg,
-      transparent      0deg,
-      #FFF8DC         25deg,
-      #FFD700         55deg,
-      #FFC107         80deg,
-      #FFD700        105deg,
-      #FFF8DC        130deg,
-      transparent    160deg,
-      transparent    360deg
-    );
-    animation: neon-border-spin 3.5s linear infinite;
-    will-change: transform;
+      0 0 8px  rgba(255, 215, 0, 0.22),
+      0 0 16px rgba(255, 215, 0, 0.10);
+    animation: pill-breathe 3.5s ease-in-out infinite;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
 
   .neon-pill-wrapper:hover {
-    transform: scale(1.02);
+    transform: scale(1.01);
     box-shadow:
-      0 0 20px rgba(255, 215, 0, 0.55),
-      0 0 45px rgba(255, 193, 7, 0.30),
-      0 0 70px rgba(255, 215, 0, 0.15);
-  }
-
-  .neon-pill-wrapper:hover::before {
-    animation-duration: 1.8s;
+      0 0 14px rgba(255, 215, 0, 0.45),
+      0 0 28px rgba(255, 215, 0, 0.20);
+    animation-play-state: paused;
   }
 
   .neon-pill-inner {
-    position: relative;
-    z-index: 1;
-    border-radius: calc(1rem - 2px);
-    background: rgba(255, 255, 255, 0.10);
+    border-radius: calc(1rem - 1px);
+    background: rgba(255, 255, 255, 0.09);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
   }
 
-  @keyframes neon-border-spin {
-    from { transform: rotate(0deg); }
-    to   { transform: rotate(360deg); }
+  @keyframes pill-breathe {
+    0%, 100% {
+      box-shadow:
+        0 0 6px  rgba(255, 215, 0, 0.18),
+        0 0 12px rgba(255, 215, 0, 0.08);
+      border-color: rgba(255, 215, 0, 0.30);
+    }
+    50% {
+      box-shadow:
+        0 0 14px rgba(255, 215, 0, 0.42),
+        0 0 28px rgba(255, 215, 0, 0.20),
+        0 0 42px rgba(255, 215, 0, 0.08);
+      border-color: rgba(255, 215, 0, 0.62);
+    }
   }
 }
