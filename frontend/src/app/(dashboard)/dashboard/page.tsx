@@ -190,9 +190,9 @@ export default function DashboardPage() {
           
           {/* Right: Service Days */}
           {profile.service_stats && (
-            <div className="bg-white/40 backdrop-blur-md border border-white/50 rounded-2xl p-4 md:p-5 shadow-sm text-center lg:text-right w-full lg:w-auto mt-4 lg:mt-0 flex flex-col justify-center">
-              <p className="text-sm md:text-base font-bold text-slate-800 tracking-wide flex flex-wrap items-center justify-center lg:justify-end gap-1.5">
-                <Sparkles className="w-5 h-5 text-amber-500" />
+            <div className="bg-white/10 backdrop-blur-md border border-amber-400/60 rounded-2xl p-4 md:p-5 text-center lg:text-right w-full lg:w-auto mt-4 lg:mt-0 flex flex-col justify-center shadow-[0_0_18px_rgba(251,191,36,0.5),0_0_40px_rgba(251,191,36,0.2),inset_0_0_12px_rgba(251,191,36,0.05)]">
+              <p className="text-sm md:text-base font-bold text-white tracking-wide flex flex-wrap items-center justify-center lg:justify-end gap-1.5">
+                <Sparkles className="w-5 h-5 text-amber-400" />
                 You have been with Intersmart for {profile.service_stats.years} Years {profile.service_stats.months} Months {profile.service_stats.days} Days
               </p>
             </div>
