@@ -509,7 +509,7 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
           value={kpis.wfh_today} 
           trend="" 
           icon={Home} 
-          color="bg-teal-500" 
+          color="bg-cyan-500" 
           onClick={() => setLeaveModalData({
             title: "Working From Home Today",
             list: kpis.wfh_today_list || []
