@@ -20,7 +20,7 @@ class TeamResource extends JsonResource
                     'first_name' => $this->teamLead->first_name,
                     'last_name' => $this->teamLead->last_name,
                     'email' => $this->teamLead->email,
-                    'profile_photo_path' => $this->teamLead->profile_photo_path ? request()->getSchemeAndHttpHost() . '/storage/' . str_replace('\\', '/', $this->teamLead->profile_photo_path) : null,
+                    'profile_photo_path' => $this->teamLead->profile_photo_path ? request()->getSchemeAndHttpHost() . '/api/photos/' . str_replace('\\', '/', $this->teamLead->profile_photo_path) : null,
                 ];
             }),
             'members_count' => $this->whenCounted('members'),

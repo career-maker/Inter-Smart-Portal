@@ -13,6 +13,15 @@ use Illuminate\Support\Facades\Storage;
 
 class EmployeeController extends Controller
 {
+    public function showPhoto($path)
+    {
+        $fullPath = storage_path('app/public/' . $path);
+        if (!file_exists($fullPath)) {
+            abort(404);
+        }
+        return response()->file($fullPath);
+    }
+
     public function index(Request $request)
     {
         $query = User::with(['team', 'roles']);
@@ -115,7 +124,7 @@ class EmployeeController extends Controller
         
         return response()->json([
             'message' => 'Photo updated successfully.',
-            'profile_photo_path' => request()->getSchemeAndHttpHost() . '/storage/' . $webPath
+            'profile_photo_path' => request()->getSchemeAndHttpHost() . '/api/photos/' . $webPath
         ]);
     }
 
