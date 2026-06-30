@@ -30,7 +30,8 @@ class HallController extends Controller
 
         // Get all approved leave requests covering today
         $leaveRequests = LeaveRequest::where('status', 'Approved')
-            ->where('leave_date', $todayStr)
+            ->where('start_date', '<=', $todayStr)
+            ->where('end_date', '>=', $todayStr)
             ->with('leaveType:id,name')
             ->get()
             ->keyBy('user_id');
