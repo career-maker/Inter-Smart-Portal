@@ -32,6 +32,7 @@ class DashboardController extends Controller
         $profile = [
             'first_name' => $user->first_name,
             'last_name' => $user->last_name,
+            'employee_code' => $user->employee_code,
             'designation' => $user->designation,
             'team' => $user->team->name ?? 'Unassigned',
             'service_duration' => $serviceDuration,

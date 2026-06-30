@@ -128,6 +128,11 @@ export default function DashboardPage() {
                 </div>
               </h1>
               <div className="flex flex-wrap items-center gap-2 md:gap-3 mt-3">
+                {profile.employee_code && (
+                  <span className="inline-flex items-center gap-1.5 bg-indigo-500/20 text-indigo-100 backdrop-blur-sm border border-indigo-400/30 px-3 py-1 rounded-full text-xs font-semibold tracking-wider shadow-sm">
+                    {profile.employee_code}
+                  </span>
+                )}
                 <span className="inline-flex items-center gap-1.5 bg-white/10 text-white backdrop-blur-sm border border-white/20 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
                   {profile.designation}
                 </span>
