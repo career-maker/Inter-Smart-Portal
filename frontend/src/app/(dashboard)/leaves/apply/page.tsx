@@ -118,22 +118,35 @@ export default function ApplyLeavePage() {
       <div className="max-w-2xl mx-auto">
 
         {/* Balance strip */}
-        {leaveMetrics && (
-          <div className="mb-6 grid grid-cols-3 gap-3 bg-white/5 border border-white/10 rounded-2xl p-4">
-            <div className="text-center">
-              <p className="text-xs text-slate-400 uppercase tracking-wider">Casual Leave</p>
-              <p className="text-2xl font-black text-emerald-400">{leaveMetrics.casual_leave_balance}</p>
+        {leaveMetrics && (() => {
+          const typeName = selectedType?.name?.toLowerCase() || "";
+          const isCasualSelected = typeName.includes("casual");
+          const isSickSelected   = typeName.includes("sick");
+          const afterCL = impact?.balance?.after_casual ?? leaveMetrics.casual_leave_balance;
+          const afterSL = impact?.balance?.after_sick   ?? leaveMetrics.sick_leave_balance;
+          return (
+            <div className="mb-6 grid grid-cols-3 gap-3 bg-white/5 border border-white/10 rounded-2xl p-4">
+              <div className={`text-center rounded-xl p-2 transition-all ${isCasualSelected ? "bg-emerald-500/10 ring-1 ring-emerald-500/40" : ""}`}>
+                <p className="text-xs text-slate-400 uppercase tracking-wider">Casual Leave</p>
+                <p className="text-2xl font-black text-emerald-400">{leaveMetrics.casual_leave_balance}</p>
+                {isCasualSelected && impact?.balance && (
+                  <p className="text-xs text-slate-400 mt-0.5">→ <span className="text-emerald-300 font-bold">{afterCL}</span> after</p>
+                )}
+              </div>
+              <div className={`text-center border-l border-white/10 rounded-xl p-2 transition-all ${isSickSelected ? "bg-rose-500/10 ring-1 ring-rose-500/40" : ""}`}>
+                <p className="text-xs text-slate-400 uppercase tracking-wider">Sick Leave</p>
+                <p className="text-2xl font-black text-rose-400">{leaveMetrics.sick_leave_balance}</p>
+                {isSickSelected && impact?.balance && (
+                  <p className="text-xs text-slate-400 mt-0.5">→ <span className="text-rose-300 font-bold">{afterSL}</span> after</p>
+                )}
+              </div>
+              <div className="text-center border-l border-white/10 p-2">
+                <p className="text-xs text-slate-400 uppercase tracking-wider">Total Taken</p>
+                <p className="text-2xl font-black text-indigo-400">{leaveMetrics.total_leaves_taken}</p>
+              </div>
             </div>
-            <div className="text-center border-l border-white/10">
-              <p className="text-xs text-slate-400 uppercase tracking-wider">Sick Leave</p>
-              <p className="text-2xl font-black text-rose-400">{leaveMetrics.sick_leave_balance}</p>
-            </div>
-            <div className="text-center border-l border-white/10">
-              <p className="text-xs text-slate-400 uppercase tracking-wider">Total Taken</p>
-              <p className="text-2xl font-black text-indigo-400">{leaveMetrics.total_leaves_taken}</p>
-            </div>
-          </div>
-        )}
+          );
+        })()}
 
         <div className="bg-slate-800/80 border border-white/10 rounded-2xl">
           <div className="px-6 pt-6 pb-2">
@@ -257,7 +270,7 @@ function LeaveSummaryCard({ impact, compact = false }: { impact: any; compact?: 
       </h4>
 
       <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
-        <SummaryRow label="Requested Working Days" value={impact.requested_working_days} />
+        <SummaryRow label="Requested Leave Days" value={impact.requested_working_days} />
         {impact.sandwich_leave_days > 0 && (
           <SummaryRow label="Sandwich Days" value={impact.sandwich_leave_days} sub="(weekends/holidays within leave)" />
         )}
