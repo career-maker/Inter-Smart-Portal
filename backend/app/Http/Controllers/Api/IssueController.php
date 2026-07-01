@@ -7,6 +7,7 @@ use App\Models\Issue;
 use App\Models\IssueComment;
 use App\Models\IssueAttachment;
 use App\Models\User;
+use App\Notifications\IssueNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,12 +16,11 @@ class IssueController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        
-        $query = Issue::with(['user:id,first_name,last_name,profile_photo_path,employee_id', 'assignedTo:id,first_name,last_name'])
+
+        $query = Issue::with(['user:id,first_name,last_name,profile_photo_path,employee_code'])
             ->withCount('comments');
 
         if ($user->hasRole('Super Admin')) {
-            // Super Admin can filter
             if ($request->has('status')) {
                 $query->where('status', $request->status);
             }
@@ -31,24 +31,21 @@ class IssueController extends Controller
                 $query->where('category', $request->category);
             }
         } else {
-            // Employee / Team Lead see their own issues
             $query->where('user_id', $user->id);
         }
 
-        $issues = $query->orderBy('created_at', 'desc')->get();
-
-        return response()->json(['data' => $issues]);
+        return response()->json(['data' => $query->orderBy('created_at', 'desc')->get()]);
     }
 
     public function show($id)
     {
         $user = Auth::user();
         $issue = Issue::with([
-            'user:id,first_name,last_name,profile_photo_path,employee_id',
+            'user:id,first_name,last_name,profile_photo_path,employee_code',
             'assignedTo:id,first_name,last_name',
             'comments.user:id,first_name,last_name,profile_photo_path',
             'comments.attachments',
-            'attachments'
+            'attachments',
         ])->findOrFail($id);
 
         if (!$user->hasRole('Super Admin') && $issue->user_id !== $user->id) {
@@ -61,31 +58,33 @@ class IssueController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'category' => 'required|string|max:255',
-            'priority' => 'required|string|in:Low,Medium,High,Critical',
-            'description' => 'required|string',
+            'title'          => 'required|string|max:255',
+            'category'       => 'required|string|max:255',
+            'priority'       => 'required|string|in:Low,Medium,High,Critical',
+            'description'    => 'required|string',
             'related_module' => 'nullable|string|max:255',
+            'attachment_link'=> 'nullable|url|max:2048',
         ]);
 
         $superAdmin = User::role('Super Admin')->first();
 
         $issue = Issue::create([
-            'user_id' => Auth::id(),
-            'title' => $validated['title'],
-            'category' => $validated['category'],
-            'priority' => $validated['priority'],
-            'description' => $validated['description'],
-            'related_module' => $validated['related_module'] ?? null,
-            'status' => 'Open',
-            'assigned_to' => $superAdmin ? $superAdmin->id : null,
+            'user_id'         => Auth::id(),
+            'title'           => $validated['title'],
+            'category'        => $validated['category'],
+            'priority'        => $validated['priority'],
+            'description'     => $validated['description'],
+            'related_module'  => $validated['related_module'] ?? null,
+            'attachment_link' => $validated['attachment_link'] ?? null,
+            'status'          => 'Open',
+            'assigned_to'     => $superAdmin ? $superAdmin->id : null,
         ]);
 
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {
                 $path = $file->store('issue-attachments', 'public');
                 IssueAttachment::create([
-                    'issue_id' => $issue->id,
+                    'issue_id'  => $issue->id,
                     'file_path' => $path,
                     'file_name' => $file->getClientOriginalName(),
                     'file_type' => $file->getClientMimeType(),
@@ -93,7 +92,23 @@ class IssueController extends Controller
             }
         }
 
-        return response()->json(['message' => 'Issue raised successfully.', 'data' => $issue]);
+        // Notify all Super Admins
+        try {
+            $submitter = Auth::user();
+            $fullName  = "{$submitter->first_name} {$submitter->last_name}";
+            $message   = "{$fullName} has raised a new issue: \"{$issue->title}\" (Priority: {$issue->priority})";
+
+            foreach (User::role('Super Admin')->get() as $admin) {
+                if ($admin->id !== $submitter->id) {
+                    $admin->notify(new IssueNotification($issue, $message));
+                }
+            }
+        } catch (\Exception $e) {}
+
+        return response()->json([
+            'message' => 'Issue raised successfully.',
+            'data'    => $issue->load(['attachments']),
+        ], 201);
     }
 
     public function addComment(Request $request, $id)
@@ -103,7 +118,7 @@ class IssueController extends Controller
         ]);
 
         $issue = Issue::findOrFail($id);
-        $user = Auth::user();
+        $user  = Auth::user();
 
         if (!$user->hasRole('Super Admin') && $issue->user_id !== $user->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
@@ -111,28 +126,27 @@ class IssueController extends Controller
 
         $comment = IssueComment::create([
             'issue_id' => $issue->id,
-            'user_id' => $user->id,
-            'comment' => $validated['comment'],
+            'user_id'  => $user->id,
+            'comment'  => $validated['comment'],
         ]);
 
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {
                 $path = $file->store('issue-attachments', 'public');
                 IssueAttachment::create([
-                    'issue_id' => $issue->id,
+                    'issue_id'         => $issue->id,
                     'issue_comment_id' => $comment->id,
-                    'file_path' => $path,
-                    'file_name' => $file->getClientOriginalName(),
-                    'file_type' => $file->getClientMimeType(),
+                    'file_path'        => $path,
+                    'file_name'        => $file->getClientOriginalName(),
+                    'file_type'        => $file->getClientMimeType(),
                 ]);
             }
         }
 
-        // If employee comments on resolved/closed issue, it might reopen or stay resolved depending on rules.
-        // The prompt says "Reopen a resolved issue if the problem still exists". 
-        // Let's assume there's an explicit status update for reopening, but we'll leave comment as just a comment for now.
-
-        return response()->json(['message' => 'Comment added successfully.', 'data' => $comment->load('attachments', 'user')]);
+        return response()->json([
+            'message' => 'Comment added successfully.',
+            'data'    => $comment->load('attachments', 'user'),
+        ]);
     }
 
     public function updateStatus(Request $request, $id)
@@ -142,9 +156,8 @@ class IssueController extends Controller
         ]);
 
         $issue = Issue::findOrFail($id);
-        $user = Auth::user();
+        $user  = Auth::user();
 
-        // Only Super Admin can change status freely, BUT Employee can reopen resolved issues
         if (!$user->hasRole('Super Admin')) {
             if ($validated['status'] === 'Open' && in_array($issue->status, ['Resolved', 'Closed'])) {
                 // Allow reopening
@@ -160,6 +173,15 @@ class IssueController extends Controller
             $issue->resolved_at = null;
         }
         $issue->save();
+
+        // Notify the issue submitter
+        try {
+            $actorName = "{$user->first_name} {$user->last_name}";
+            $msg = "Your issue \"{$issue->title}\" has been marked as {$validated['status']} by {$actorName}.";
+            if ($issue->user && $issue->user_id !== $user->id) {
+                $issue->user->notify(new IssueNotification($issue, $msg));
+            }
+        } catch (\Exception $e) {}
 
         return response()->json(['message' => 'Status updated successfully.', 'data' => $issue]);
     }

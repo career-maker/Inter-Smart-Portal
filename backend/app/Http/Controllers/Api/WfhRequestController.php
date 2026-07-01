@@ -77,6 +77,7 @@ class WfhRequestController extends Controller
         $wfhRequest = WfhRequest::create([
             'user_id'       => $user->id,
             'duration_type' => $data['duration_type'],
+            'wfh_date'      => $data['start_date'],  // legacy NOT NULL column fallback
             'start_date'    => $data['start_date'],
             'end_date'      => $endDate,
             'reason'        => $data['reason'],

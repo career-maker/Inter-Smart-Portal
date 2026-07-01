@@ -55,7 +55,7 @@ class EmployeeController extends Controller
     public function store(StoreEmployeeRequest $request)
     {
         $data = $request->validated();
-        $data['password'] = Hash::make($data['password']);
+        $data['password'] = Hash::make($data['password'] ?? 'Password@123');
 
         $role = $data['role'] ?? 'Employee';
         unset($data['role']);
@@ -87,13 +87,16 @@ class EmployeeController extends Controller
     public function update(UpdateEmployeeRequest $request, User $employee)
     {
         $data = $request->validated();
-        if (isset($data['role'])) {
-            unset($data['role']);
-        }
+        $role = $data['role'] ?? null;
+        unset($data['role']);
+
+        // Remove null values so we don't overwrite existing DB values with null
+        $data = array_filter($data, fn($v) => !is_null($v));
+
         $employee->update($data);
 
-        if ($request->has('role')) {
-            $employee->syncRoles([$request->role]);
+        if ($role) {
+            $employee->syncRoles([$role]);
         }
 
         return new EmployeeResource($employee->load(['team', 'roles']));

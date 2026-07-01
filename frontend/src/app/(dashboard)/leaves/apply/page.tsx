@@ -1,32 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import Link from "next/link";
-import { ArrowLeft, AlertTriangle } from "lucide-react";
+import { ArrowLeft, AlertTriangle, CheckCircle, Clock, Loader2, Link2 } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
-
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-
-const formSchema = z.object({
-  leave_type_id: z.string().min(1, "Please select a leave type"),
-  start_date: z.string().min(1, "Start date is required"),
-  end_date: z.string().min(1, "End date is required"),
-  reason: z.string().min(5, "Please provide a detailed reason"),
-});
 
 export default function ApplyLeavePage() {
   const router = useRouter();
@@ -34,140 +13,100 @@ export default function ApplyLeavePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [leaveTypes, setLeaveTypes] = useState<any[]>([]);
   const [leaveMetrics, setLeaveMetrics] = useState<any>(null);
+  const [showConfirm, setShowConfirm] = useState(false);
 
-  // Super Admin cannot apply for leave
-  useEffect(() => {
-    if (user?.role === "Super Admin") {
-      router.replace("/leaves");
-    }
-  }, [user, router]);
+  const [leaveTypeId, setLeaveTypeId] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [reason, setReason] = useState("");
+  const [attachmentLink, setAttachmentLink] = useState("");
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      leave_type_id: "",
-      start_date: "",
-      end_date: "",
-      reason: "",
-    },
-  });
-
-  const leaveTypeId = form.watch("leave_type_id");
-  const startDate = form.watch("start_date");
-  const endDate = form.watch("end_date");
   const [impact, setImpact] = useState<any>(null);
   const [isCalculating, setIsCalculating] = useState(false);
 
   useEffect(() => {
-    if (leaveTypeId && startDate && endDate) {
-      const fetchImpact = async () => {
-        setIsCalculating(true);
-        try {
-          const res = await api.post("/leaves/calculate", {
-            leave_type_id: leaveTypeId,
-            start_date: startDate,
-            end_date: endDate
-          });
-          setImpact(res.data);
-        } catch (e) {
-          console.error(e);
-          setImpact(null);
-        } finally {
-          setIsCalculating(false);
-        }
-      };
-      
-      const timeout = setTimeout(fetchImpact, 500);
-      return () => clearTimeout(timeout);
-    } else {
-      setImpact(null);
-    }
-  }, [leaveTypeId, startDate, endDate]);
+    if (user?.role === "Super Admin") router.replace("/leaves");
+  }, [user, router]);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const load = async () => {
       try {
         const typeRes = await api.get("/leave-types");
         const types = (typeRes.data?.data || []).filter((t: any) => {
-          const n = t.name?.toLowerCase() || '';
-          return !n.includes('wfh') && !n.includes('work from home');
+          const n = t.name?.toLowerCase() || "";
+          return !n.includes("wfh") && !n.includes("work from home");
         });
-        if (types.length === 0) {
-          setLeaveTypes([
-            { id: 1, name: 'Sick Leave' },
-            { id: 2, name: 'Casual Leave' },
-          ]);
-        } else {
-          setLeaveTypes(types);
-        }
-      } catch (e) {
-        console.error(e);
-        setLeaveTypes([
-          { id: 1, name: 'Sick Leave' },
-          { id: 2, name: 'Casual Leave' },
+        setLeaveTypes(types.length ? types : [
+          { id: 1, name: "Sick Leave" },
+          { id: 2, name: "Casual Leave" },
         ]);
+      } catch {
+        setLeaveTypes([{ id: 1, name: "Sick Leave" }, { id: 2, name: "Casual Leave" }]);
       }
-
       try {
-        const dashRes = await api.get("/leave-balances");
-        const data = dashRes.data?.data;
-        const metrics = data ? {
-          sick_leave_balance: data.sick_leave_balance || 0,
-          casual_leave_balance: data.casual_leave_balance || 0,
-          total_leaves_taken: data.total_leaves_taken || 0
-        } : {
-          sick_leave_balance: 0,
-          casual_leave_balance: 0,
-          total_leaves_taken: 0
-        };
-        setLeaveMetrics(metrics);
-      } catch (e) {
-        console.error(e);
-        // Fallback metrics to ensure the grid always shows
-        setLeaveMetrics({
-          sick_leave_balance: 0,
-          casual_leave_balance: 0,
-          total_leaves_taken: 0
-        });
+        const balRes = await api.get("/leave-balances");
+        const d = balRes.data?.data;
+        setLeaveMetrics(d ? {
+          casual_leave_balance: d.casual_leave_balance || 0,
+          cl_carry_forward: d.cl_carry_forward || 0,
+          sick_leave_balance: d.sick_leave_balance || 0,
+          total_leaves_taken: d.total_leaves_taken || 0,
+        } : { casual_leave_balance: 0, cl_carry_forward: 0, sick_leave_balance: 0, total_leaves_taken: 0 });
+      } catch {
+        setLeaveMetrics({ casual_leave_balance: 0, cl_carry_forward: 0, sick_leave_balance: 0, total_leaves_taken: 0 });
       }
     };
-    fetchData();
+    load();
   }, []);
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (impact?.is_probation) {
-      const proceed = window.confirm(
-        `Probation Period Notice\n\nYou are currently under probation.\n\nThis leave request will be treated as Unpaid Leave (LOP).\n\nPaid leave eligibility starts on: ${impact.probation_end_date ? new Date(impact.probation_end_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}\n\nDo you want to proceed?`
-      );
-      if (!proceed) return;
-    } else if (impact?.is_unpaid) {
-      const proceed = window.confirm(`Warning: ${impact.unpaid_reason}\n\nThis leave will be marked as UNPAID. Do you want to proceed anyway?`);
-      if (!proceed) return;
-    }
+  useEffect(() => {
+    if (!leaveTypeId || !startDate || !endDate) { setImpact(null); return; }
+    const t = setTimeout(async () => {
+      setIsCalculating(true);
+      try {
+        const res = await api.post("/leaves/calculate", { leave_type_id: leaveTypeId, start_date: startDate, end_date: endDate });
+        setImpact(res.data);
+      } catch { setImpact(null); }
+      finally { setIsCalculating(false); }
+    }, 500);
+    return () => clearTimeout(t);
+  }, [leaveTypeId, startDate, endDate]);
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!leaveTypeId || !startDate || !endDate || !reason.trim()) return;
+    setShowConfirm(true);
+  };
+
+  const confirmSubmit = async () => {
     setIsLoading(true);
+    setShowConfirm(false);
     try {
-      await api.post("/leave-requests", values);
-      window.dispatchEvent(new Event('notifications-refresh'));
+      await api.post("/leave-requests", {
+        leave_type_id: leaveTypeId,
+        start_date: startDate,
+        end_date: endDate,
+        reason,
+        ...(attachmentLink.trim() ? { attachment_link: attachmentLink.trim() } : {}),
+      });
+      window.dispatchEvent(new Event("notifications-refresh"));
       router.push("/leaves");
-      router.refresh();
     } catch (e: any) {
-      console.error(e);
       alert(e.response?.data?.message || "An error occurred while submitting the request.");
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
-  const selectedLeaveType = leaveTypes.find(t => t.id.toString() === leaveTypeId?.toString());
-  const isCasualLeave = selectedLeaveType?.name === 'Casual Leave';
-  // Use local date instead of UTC to avoid timezone issues
-  const todayStr = new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
+  const today = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split("T")[0];
+  const selectedType = leaveTypes.find(t => t.id.toString() === leaveTypeId?.toString());
+
+  const inputCls = "w-full bg-slate-700 border border-white/10 text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 placeholder:text-slate-500 transition-colors [color-scheme:dark]";
 
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/leaves" className="p-2 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-slate-300 hover:text-white flex items-center justify-center">
+        <Link href="/leaves" className="p-2 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-slate-300 hover:text-white">
           <ArrowLeft className="h-4 w-4" />
         </Link>
         <div>
@@ -176,98 +115,225 @@ export default function ApplyLeavePage() {
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto rounded-2xl bg-slate-800/80 border border-white/10 backdrop-blur-md shadow-[8px_8px_24px_rgba(0,0,0,0.4)]">
-        <div className="px-6 pt-6 pb-2">
-          <h2 className="text-xl font-semibold text-white">Leave Application Form</h2>
-          <p className="text-slate-400 text-sm mt-1">Your request will be sent to your Team Lead for approval. Ensure you have sufficient balance.</p>
-        </div>
-        <div className="px-6 pb-6">
-          {leaveMetrics && (
-            <div className="mb-6 grid grid-cols-3 gap-4 bg-white/5 border border-white/10 rounded-xl p-4">
-              <div className="text-center">
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Sick Leave</p>
-                <p className="text-2xl font-bold text-rose-400">{leaveMetrics.sick_leave_balance}</p>
+      <div className="max-w-2xl mx-auto">
+
+        {/* Balance strip */}
+        {leaveMetrics && (
+          <div className="mb-6 grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white/5 border border-white/10 rounded-2xl p-4">
+            <div className="text-center">
+              <p className="text-xs text-slate-400 uppercase tracking-wider">Casual Leave</p>
+              <p className="text-2xl font-black text-emerald-400">{leaveMetrics.casual_leave_balance}</p>
+            </div>
+            <div className="text-center border-l border-white/10">
+              <p className="text-xs text-slate-400 uppercase tracking-wider">CF Balance</p>
+              <p className="text-2xl font-black text-teal-400">{leaveMetrics.cl_carry_forward}</p>
+            </div>
+            <div className="text-center border-l border-white/10">
+              <p className="text-xs text-slate-400 uppercase tracking-wider">Sick Leave</p>
+              <p className="text-2xl font-black text-rose-400">{leaveMetrics.sick_leave_balance}</p>
+            </div>
+            <div className="text-center border-l border-white/10">
+              <p className="text-xs text-slate-400 uppercase tracking-wider">Total Taken</p>
+              <p className="text-2xl font-black text-indigo-400">{leaveMetrics.total_leaves_taken}</p>
+            </div>
+          </div>
+        )}
+
+        <div className="bg-slate-800/80 border border-white/10 rounded-2xl">
+          <div className="px-6 pt-6 pb-2">
+            <h2 className="text-xl font-semibold text-white">Leave Application Form</h2>
+            <p className="text-slate-400 text-sm mt-1">Your request will be sent for approval.</p>
+          </div>
+          <form onSubmit={handleSubmit} className="px-6 pb-6 space-y-5 mt-4">
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Leave Type *</label>
+              <select value={leaveTypeId} onChange={e => setLeaveTypeId(e.target.value)} required className={inputCls}>
+                <option value="" disabled className="bg-slate-700 text-slate-400">Select leave type...</option>
+                {leaveTypes.map(t => (
+                  <option key={t.id} value={t.id.toString()} className="bg-slate-700 text-white">{t.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Start Date *</label>
+                <input type="date" value={startDate} min={today} onChange={e => setStartDate(e.target.value)} required className={inputCls} />
               </div>
-              <div className="text-center border-l border-r border-white/10">
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Casual Leave</p>
-                <p className="text-2xl font-bold text-emerald-400">{leaveMetrics.casual_leave_balance}</p>
-              </div>
-              <div className="text-center">
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Taken</p>
-                <p className="text-2xl font-bold text-indigo-400">{leaveMetrics.total_leaves_taken}</p>
+              <div>
+                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">End Date *</label>
+                <input type="date" value={endDate} min={startDate || today} onChange={e => setEndDate(e.target.value)} required className={inputCls} />
               </div>
             </div>
-          )}
 
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              
-              <FormField control={form.control} name="leave_type_id" render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-slate-300">Leave Type *</FormLabel>
-                  <FormControl>
-                    <select
-                      className="flex h-10 w-full items-center justify-between rounded-md border border-white/10 bg-slate-700 text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 disabled:cursor-not-allowed disabled:opacity-50"
-                      {...field}
-                    >
-                      <option value="" disabled className="bg-slate-700 text-slate-400">Select type</option>
-                      {leaveTypes.map(t => <option key={t.id} value={t.id.toString()} className="bg-slate-700 text-white">{t.name}</option>)}
-                    </select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Reason *</label>
+              <textarea rows={4} value={reason} onChange={e => setReason(e.target.value)} required placeholder="Please provide a detailed reason..." className={`${inputCls} resize-none`} />
+            </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <FormField control={form.control} name="start_date" render={({ field }) => (
-                  <FormItem><FormLabel className="text-slate-300">Start Date *</FormLabel><FormControl><Input type="date" min={isCasualLeave ? todayStr : undefined} {...field} /></FormControl><FormMessage /></FormItem>
-                )} />
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center gap-2">
+                <Link2 className="w-3.5 h-3.5" /> Supporting Attachment Link <span className="text-slate-500 normal-case font-normal">(optional)</span>
+              </label>
+              <input type="url" value={attachmentLink} onChange={e => setAttachmentLink(e.target.value)} placeholder="Paste a Google Drive, OneDrive, Dropbox, or any document URL..." className={inputCls} />
+              <p className="text-xs text-slate-500 mt-1">Medical certificate, hospital report, travel ticket, etc.</p>
+            </div>
 
-                <FormField control={form.control} name="end_date" render={({ field }) => (
-                  <FormItem><FormLabel className="text-slate-300">End Date *</FormLabel><FormControl><Input type="date" min={isCasualLeave ? todayStr : undefined} {...field} /></FormControl><FormMessage /></FormItem>
-                )} />
+            {/* ── Leave Summary ── */}
+            {isCalculating && (
+              <div className="flex items-center gap-2 text-sm text-slate-400 py-2">
+                <Loader2 className="w-4 h-4 animate-spin" /> Calculating leave impact...
               </div>
-
-              <FormField control={form.control} name="reason" render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-slate-300">Reason *</FormLabel>
-                  <FormControl><Textarea rows={4} placeholder="Please provide details..." {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
-              
-              {isCalculating && <p className="text-sm text-slate-400">Calculating leave impact...</p>}
-              {impact && (
-                <div className={`p-4 rounded-xl border ${impact.is_probation ? 'bg-orange-500/10 border-orange-500/30' : impact.is_unpaid ? 'bg-amber-500/15 border-amber-500/30' : 'bg-emerald-500/15 border-emerald-500/30'}`}>
-                  <h4 className={`font-semibold flex items-center gap-2 ${impact.is_probation ? 'text-orange-300' : impact.is_unpaid ? 'text-amber-300' : 'text-emerald-300'}`}>
-                    <AlertTriangle className="w-4 h-4" />
-                    {impact.is_probation ? 'Probation Period Notice' : 'Leave Summary'}
-                  </h4>
-                  <ul className="mt-2 text-sm text-slate-300 space-y-1">
-                    <li><strong className="text-white">Requested Leave Days:</strong> {impact.actual_leave_days}</li>
-                    {!impact.is_probation && impact.sandwich_leave_days > 0 && (
-                      <>
-                        <li><strong className="text-white">Requested Working Days:</strong> {impact.requested_working_days}</li>
-                        <li><strong className="text-white">Sandwich Days:</strong> {impact.sandwich_leave_days}</li>
-                        <li><strong className="text-white">Total Leave Days:</strong> {impact.actual_leave_days}</li>
-                      </>
-                    )}
-                    <li><strong className="text-white">Status:</strong> {impact.is_unpaid ? <span className="text-red-400 font-bold">Unpaid Leave (LOP)</span> : <span className="text-emerald-400 font-bold">Paid</span>}</li>
-                    {impact.unpaid_reason && <li className="text-slate-300"><strong className="text-white">Reason:</strong> {impact.unpaid_reason}</li>}
-                  </ul>
-                </div>
-              )}
-
-              <div className="flex justify-end gap-4 border-t border-white/10 pt-6">
-                <button type="button" onClick={() => router.push("/leaves")} className="px-5 py-2 rounded-lg text-sm font-medium text-slate-300 border border-white/10 bg-white/5 hover:bg-white/10 transition-colors">Cancel</button>
-                <button type="submit" disabled={isLoading} className="px-5 py-2 rounded-lg text-sm font-medium bg-amber-500 hover:bg-amber-600 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                  {isLoading ? "Submitting..." : "Submit for Approval"}
-                </button>
+            )}
+            {impact && !impact.is_probation && (
+              <LeaveSummaryCard impact={impact} />
+            )}
+            {impact?.is_probation && (
+              <div className="p-4 rounded-xl bg-orange-500/10 border border-orange-500/30">
+                <p className="text-orange-300 font-semibold flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4" /> Probation Period Notice
+                </p>
+                <p className="text-sm text-slate-300 mt-1">{impact.unpaid_reason}</p>
               </div>
-            </form>
-          </Form>
+            )}
+
+            <div className="flex justify-end gap-4 border-t border-white/10 pt-5">
+              <button type="button" onClick={() => router.push("/leaves")} className="px-5 py-2 rounded-xl text-sm font-medium text-slate-300 border border-white/10 bg-white/5 hover:bg-white/10 transition-colors">
+                Cancel
+              </button>
+              <button type="submit" disabled={isLoading || !leaveTypeId || !startDate || !endDate || !reason.trim()} className="px-5 py-2 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-600 text-white disabled:opacity-50 transition-colors">
+                {isLoading ? "Submitting..." : "Review & Submit"}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
+
+      {/* ── Confirmation Popup ── */}
+      {showConfirm && impact && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowConfirm(false)} />
+          <div className="relative w-full max-w-lg bg-slate-800 border border-white/10 rounded-2xl shadow-2xl z-10 max-h-[90vh] overflow-y-auto">
+            <div className="px-6 py-5 border-b border-white/10">
+              <h2 className="text-lg font-bold text-white">Confirm Leave Request</h2>
+              <p className="text-slate-400 text-sm mt-0.5">Review your leave calculation before submitting.</p>
+            </div>
+            <div className="px-6 py-5">
+              <LeaveSummaryCard impact={impact} compact />
+              <div className="mt-4 pt-4 border-t border-white/10">
+                <p className="text-xs text-slate-400 mb-2">Leave Type: <span className="text-white">{selectedType?.name}</span> &nbsp;·&nbsp; {startDate} → {endDate}</p>
+                {attachmentLink && (
+                  <p className="text-xs text-slate-400">Attachment: <a href={attachmentLink} target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">{attachmentLink}</a></p>
+                )}
+              </div>
+            </div>
+            <div className="px-6 py-4 border-t border-white/10 flex gap-3 justify-end">
+              <button onClick={() => setShowConfirm(false)} className="px-4 py-2 text-sm text-slate-300 border border-white/10 rounded-xl hover:bg-white/5 transition-colors">
+                Cancel
+              </button>
+              <button onClick={confirmSubmit} disabled={isLoading} className="flex items-center gap-2 px-5 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-xl transition-colors disabled:opacity-50">
+                {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+                Submit Leave Request
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
+  );
+}
+
+function LeaveSummaryCard({ impact, compact = false }: { impact: any; compact?: boolean }) {
+  const hasLOP = impact.total_lop_days > 0;
+  const isPaid = !hasLOP;
+
+  const borderCls = impact.is_unpaid
+    ? "border-red-500/30 bg-red-500/5"
+    : impact.is_partial
+    ? "border-amber-500/30 bg-amber-500/5"
+    : "border-emerald-500/30 bg-emerald-500/5";
+
+  return (
+    <div className={`rounded-xl border p-4 space-y-3 ${borderCls}`}>
+      <h4 className="font-bold text-white text-sm flex items-center gap-2">
+        <AlertTriangle className="w-4 h-4 text-amber-400" /> Leave Summary
+      </h4>
+
+      <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+        <SummaryRow label="Requested Working Days" value={impact.requested_working_days} />
+        {impact.sandwich_leave_days > 0 && (
+          <SummaryRow label="Sandwich Days" value={impact.sandwich_leave_days} sub="(weekends/holidays within leave)" />
+        )}
+        <SummaryRow label="Total Leave Days" value={impact.actual_leave_days} bold />
+      </div>
+
+      <div className="border-t border-white/10 pt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+        {impact.paid_casual_leave > 0 && (
+          <SummaryRow label="Paid Casual Leave" value={`${impact.paid_casual_leave} Days`} color="text-emerald-400" />
+        )}
+        {impact.paid_sick_leave > 0 && (
+          <SummaryRow label="Paid Sick Leave" value={`${impact.paid_sick_leave} Days`} color="text-emerald-400" />
+        )}
+        {impact.total_lop_days > 0 && (
+          <div className="col-span-2">
+            <SummaryRow label="Unpaid Leave (LOP)" value={`${impact.total_lop_days} Days`} color="text-red-400" bold />
+            {impact.penalty_lop_days > 0 && (
+              <p className="text-xs text-slate-500 mt-0.5 pl-2">• {impact.penalty_lop_days} day(s) — Late application penalty</p>
+            )}
+            {impact.balance_lop_days > 0 && (
+              <p className="text-xs text-slate-500 mt-0.5 pl-2">• {impact.balance_lop_days} day(s) — Insufficient balance</p>
+            )}
+            {impact.sandwich_leave_days > 0 && (
+              <p className="text-xs text-slate-500 mt-0.5 pl-2">• {impact.sandwich_leave_days} day(s) — Sandwich days</p>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Balance after */}
+      {impact.balance && (
+        <div className="border-t border-white/10 pt-3">
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Balance After Approval</p>
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            <span className="text-slate-400">Remaining Casual Leave:</span>
+            <span className="text-white font-bold">{impact.balance.after_casual} Days</span>
+            <span className="text-slate-400">Remaining Sick Leave:</span>
+            <span className="text-white font-bold">{impact.balance.after_sick} Days</span>
+          </div>
+        </div>
+      )}
+
+      {/* Status */}
+      <div className="border-t border-white/10 pt-3">
+        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Status</p>
+        <p className={`font-bold text-sm ${impact.is_unpaid ? "text-red-400" : impact.is_partial ? "text-amber-400" : "text-emerald-400"}`}>
+          {impact.status_text || (impact.is_unpaid ? "Unpaid Leave (LOP)" : impact.is_partial ? "Partially Paid + LOP" : "Paid Leave")}
+        </p>
+      </div>
+
+      {/* Reasons */}
+      {impact.reasons && impact.reasons.length > 0 && (
+        <div className="border-t border-white/10 pt-3">
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Reasons</p>
+          <ul className="space-y-1">
+            {impact.reasons.map((r: string, i: number) => (
+              <li key={i} className="text-xs text-slate-300 flex items-start gap-2">
+                <span className="text-amber-400 mt-0.5">•</span> {r}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SummaryRow({ label, value, sub, color, bold }: { label: string; value: any; sub?: string; color?: string; bold?: boolean }) {
+  return (
+    <>
+      <span className="text-slate-400">{label}{sub && <span className="text-slate-500 text-xs"> {sub}</span>}:</span>
+      <span className={`font-semibold ${color || "text-white"} ${bold ? "font-black" : ""}`}>{value}</span>
+    </>
   );
 }

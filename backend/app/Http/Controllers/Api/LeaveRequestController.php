@@ -68,113 +68,155 @@ class LeaveRequestController extends Controller
         $today     = Carbon::today();
 
         $isCasual = str_contains(strtolower($leaveType->name ?? ''), 'casual');
+        $isSick   = str_contains(strtolower($leaveType->name ?? ''), 'sick');
         $isHalf   = str_contains(strtolower($leaveType->name ?? ''), 'half');
 
-        // Probation check — all leave during probation is unpaid
+        // Probation: all leave is LOP
         if ($user->isInProbation()) {
             $probationEnd = $user->probationEndDate();
-            $totalDays = $startDate->diffInDays($endDate) + 1;
+            $totalDays    = $startDate->diffInDays($endDate) + 1;
             return [
                 'actual_leave_days'       => $totalDays,
                 'requested_working_days'  => $totalDays,
                 'sandwich_leave_days'     => 0,
+                'penalty_lop_days'        => 0,
+                'paid_casual_leave'       => 0,
+                'paid_sick_leave'         => 0,
+                'balance_lop_days'        => $totalDays,
+                'total_lop_days'          => $totalDays,
                 'is_unpaid'               => true,
-                'unpaid_reason'           => "You are currently under probation. Paid leave benefits will be activated only after: " . Carbon::parse($probationEnd)->format('d M Y') . ".",
+                'has_lop'                 => true,
+                'is_partial'              => false,
+                'unpaid_reason'           => "You are under probation. Paid benefits activate after " . Carbon::parse($probationEnd)->format('d M Y') . ".",
+                'reasons'                 => ["You are currently under probation. All leave is Unpaid (LOP)."],
                 'is_probation'            => true,
                 'probation_end_date'      => $probationEnd,
+                'balance'                 => $this->getBalancePreview($user, 0, 0),
             ];
-        }
-
-        $isUnpaid        = false;
-        $unpaidReason    = null;
-        $sandwichDays    = 0;
-
-        // CL 3-day advance rule (only thing that can make CL unpaid)
-        if ($isCasual && $today->diffInDays($startDate, false) < 3) {
-            $isUnpaid     = true;
-            $unpaidReason = "Casual Leave must be applied at least 3 days before the leave date.";
         }
 
         $holidays         = Holiday::pluck('date')->map(fn($d) => Carbon::parse($d)->format('Y-m-d'))->toArray();
         $workingOverrides = WorkingDaysOverride::pluck('date')->map(fn($d) => Carbon::parse($d)->format('Y-m-d'))->toArray();
 
-        $totalDays           = 0;
-        $nonWorkingInRange   = 0;
-        $current             = $startDate->copy();
+        $isWorkingDay = function ($date) use ($holidays, $workingOverrides) {
+            $ds = $date->format('Y-m-d');
+            if (in_array($ds, $workingOverrides)) return true;
+            return !$date->isWeekend() && !in_array($ds, $holidays);
+        };
 
+        // Count working and non-working days in range
+        $workingDays     = 0;
+        $sandwichDays    = 0;
+        $current         = $startDate->copy();
         while ($current->lte($endDate)) {
-            $totalDays++;
-            $dateStr = $current->format('Y-m-d');
-            if (($current->isWeekend() || in_array($dateStr, $holidays)) && !in_array($dateStr, $workingOverrides)) {
-                $nonWorkingInRange++;
+            if ($isWorkingDay($current)) {
+                $workingDays++;
+            } else {
+                $sandwichDays++;
             }
             $current->addDay();
         }
 
-        $isWorkingDay = function ($date) use ($holidays, $workingOverrides) {
-            $dateStr = $date->format('Y-m-d');
-            if (in_array($dateStr, $workingOverrides)) return true;
-            if ($date->isWeekend() || in_array($dateStr, $holidays)) return false;
-            return true;
-        };
+        $baseWorkingDays = $isHalf ? ($workingDays * 0.5) : $workingDays;
 
-        $hasLeaveOn = function ($date) use ($user) {
-            return LeaveRequest::where('user_id', $user->id)
-                ->where('status', '!=', 'Rejected')
-                ->where(function ($q) use ($date) {
-                    $q->where('start_date', '<=', $date->format('Y-m-d'))
-                      ->where('end_date', '>=', $date->format('Y-m-d'));
-                })->exists();
-        };
+        // Reasons array
+        $reasons = [];
 
-        $actualWorkingDays = $totalDays - $nonWorkingInRange;
-        $baseWorkingDays   = $isHalf ? ($actualWorkingDays * 0.5) : $actualWorkingDays;
+        // ── Casual Leave logic ───────────────────────────────────
+        $penaltyDays   = 0;
+        $paidCL        = 0;
+        $paidSL        = 0;
+        $balanceLOP    = 0;
+        $lateApply     = false;
 
-        if ($nonWorkingInRange > 0) {
-            $sandwichDays = $nonWorkingInRange;
-            // Non-CL sandwich → LWP. CL is only affected by the 3-day rule above.
-            if (!$isCasual) {
-                $isUnpaid     = true;
-                $unpaidReason = $unpaidReason ?? "Leave encompasses company holidays or weekends (Sandwich Leave).";
+        if ($isCasual) {
+            $balance = \App\Models\LeaveBalance::where('user_id', $user->id)->first();
+            $clBalance = ($balance->casual_leave_balance ?? 0) + ($balance->cl_carry_forward ?? 0);
+
+            // 3-day advance rule: first 3 working days become penalty LOP
+            if ($today->diffInDays($startDate, false) < 3) {
+                $lateApply   = true;
+                $penaltyDays = min(3, $baseWorkingDays);
+                $reasons[]   = "Casual Leave applied less than 3 days before the leave start date. First {$penaltyDays} working day(s) will be Unpaid (LOP).";
             }
-        } else {
-            // Adjacent sandwich (only for non-CL)
-            if (!$isCasual) {
-                $prevDay          = $startDate->copy()->subDay();
-                $leftNonWorking   = 0;
-                while (!$isWorkingDay($prevDay)) {
-                    $leftNonWorking++;
-                    $prevDay->subDay();
-                }
-                if ($leftNonWorking > 0 && $hasLeaveOn($prevDay)) {
-                    $sandwichDays += $leftNonWorking;
-                    $isUnpaid      = true;
-                    $unpaidReason  = $unpaidReason ?? "Forms a sandwich with an existing previous leave.";
-                }
 
-                $nextDay          = $endDate->copy()->addDay();
-                $rightNonWorking  = 0;
-                while (!$isWorkingDay($nextDay)) {
-                    $rightNonWorking++;
-                    $nextDay->addDay();
+            $eligibleForPaid = $baseWorkingDays - $penaltyDays;
+
+            if ($eligibleForPaid > 0) {
+                $paidCL     = min($eligibleForPaid, $clBalance);
+                $balanceLOP = max(0, $eligibleForPaid - $paidCL);
+                if ($balanceLOP > 0) {
+                    $reasons[] = "Casual Leave balance is insufficient. {$balanceLOP} working day(s) will be Unpaid (LOP) due to insufficient balance.";
                 }
-                if ($rightNonWorking > 0 && $hasLeaveOn($nextDay)) {
-                    $sandwichDays += $rightNonWorking;
-                    $isUnpaid      = true;
-                    $unpaidReason  = $unpaidReason ?? "Forms a sandwich with an existing upcoming leave.";
-                }
+            }
+
+            if ($sandwichDays > 0) {
+                $reasons[] = "Sandwich Leave Policy applied: {$sandwichDays} weekend/holiday day(s) within your leave period are counted as Unpaid (LOP).";
+            }
+
+        } elseif ($isSick) {
+            $balance  = \App\Models\LeaveBalance::where('user_id', $user->id)->first();
+            $slBalance = $balance->sick_leave_balance ?? 0;
+
+            $paidSL     = min($baseWorkingDays, $slBalance);
+            $balanceLOP = max(0, $baseWorkingDays - $paidSL);
+            if ($balanceLOP > 0) {
+                $reasons[] = "Sick Leave balance is insufficient. {$balanceLOP} working day(s) will be Unpaid (LOP).";
+            }
+            if ($sandwichDays > 0) {
+                $reasons[] = "Sandwich Leave Policy: {$sandwichDays} day(s) within the period are Unpaid (LOP).";
+            }
+
+        } else {
+            // Other leave types: treat entirely as LOP
+            $balanceLOP = $baseWorkingDays;
+            if ($sandwichDays > 0) {
+                $reasons[] = "Sandwich Leave Policy: {$sandwichDays} non-working day(s) within the period are LOP.";
             }
         }
 
+        $totalLOP   = $penaltyDays + $balanceLOP + $sandwichDays;
+        $totalPaid  = $paidCL + $paidSL;
+        $isUnpaid   = $totalPaid === 0;
+        $isPartial  = $totalPaid > 0 && $totalLOP > 0;
+
         $actualLeaveDays = $baseWorkingDays + $sandwichDays;
+
+        $statusText = $isUnpaid ? 'Unpaid Leave (LOP)' : ($isPartial ? 'Partially Paid + LOP' : 'Paid Leave');
 
         return [
             'requested_working_days' => $baseWorkingDays,
-            'actual_leave_days'      => $actualLeaveDays,
             'sandwich_leave_days'    => $sandwichDays,
+            'actual_leave_days'      => $actualLeaveDays,
+            'penalty_lop_days'       => $penaltyDays,
+            'paid_casual_leave'      => $paidCL,
+            'paid_sick_leave'        => $paidSL,
+            'balance_lop_days'       => $balanceLOP,
+            'total_lop_days'         => $totalLOP,
             'is_unpaid'              => $isUnpaid,
-            'unpaid_reason'          => $unpaidReason,
+            'has_lop'                => $totalLOP > 0,
+            'is_partial'             => $isPartial,
+            'status_text'            => $statusText,
+            'unpaid_reason'          => count($reasons) > 0 ? implode(' ', $reasons) : null,
+            'reasons'                => $reasons,
             'is_probation'           => false,
+            'balance'                => $this->getBalancePreview($user, $paidCL, $paidSL),
+        ];
+    }
+
+    private function getBalancePreview($user, float $willDeductCL, float $willDeductSL): array
+    {
+        $balance = \App\Models\LeaveBalance::where('user_id', $user->id)->first();
+        if (!$balance) return [];
+        $cl  = $balance->casual_leave_balance ?? 0;
+        $cf  = $balance->cl_carry_forward ?? 0;
+        $sl  = $balance->sick_leave_balance ?? 0;
+        return [
+            'casual_leave'        => $cl,
+            'cl_carry_forward'    => $cf,
+            'sick_leave'          => $sl,
+            'after_casual'        => max(0, ($cl + $cf) - $willDeductCL),
+            'after_sick'          => max(0, $sl - $willDeductSL),
         ];
     }
 
@@ -212,38 +254,26 @@ class LeaveRequestController extends Controller
             return response()->json(['message' => 'Leave balance record not found'], 400);
         }
 
-        // Balance check (only for paid leaves)
-        if (!$isUnpaid) {
-            if ($leaveType && str_contains(strtolower($leaveType->name), 'casual')) {
-                $totalCL = $balance->casual_leave_balance + ($balance->cl_carry_forward ?? 0);
-                if ($totalCL < $days) {
-                    return response()->json(['message' => 'Insufficient casual leave balance'], 400);
-                }
-            } elseif ($leaveType && str_contains(strtolower($leaveType->name), 'sick')) {
-                if ($balance->sick_leave_balance < $days) {
-                    return response()->json(['message' => 'Insufficient sick leave balance'], 400);
-                }
-            }
-        }
+        // Use granular paid amounts from impact calculation
+        $paidCL    = $impact['paid_casual_leave'] ?? 0;
+        $paidSL    = $impact['paid_sick_leave']   ?? 0;
+        $totalLOP  = $impact['total_lop_days']    ?? 0;
 
         DB::beginTransaction();
         try {
-            if (!$isUnpaid) {
-                if ($leaveType && str_contains(strtolower($leaveType->name), 'casual')) {
-                    // Deduct from carry-forward first, then current balance
-                    $remaining   = $days;
-                    $carryForward = $balance->cl_carry_forward ?? 0;
-                    if ($carryForward > 0) {
-                        $fromCF = min($remaining, $carryForward);
-                        $balance->cl_carry_forward -= $fromCF;
-                        $remaining -= $fromCF;
-                    }
-                    if ($remaining > 0) {
-                        $balance->casual_leave_balance -= $remaining;
-                    }
-                } elseif ($leaveType && str_contains(strtolower($leaveType->name), 'sick')) {
-                    $balance->sick_leave_balance -= $days;
+            // Deduct only the paid portion from balances
+            if ($paidCL > 0) {
+                $carryForward = $balance->cl_carry_forward ?? 0;
+                if ($carryForward > 0) {
+                    $fromCF = min($paidCL, $carryForward);
+                    $balance->cl_carry_forward    -= $fromCF;
+                    $balance->casual_leave_balance -= max(0, $paidCL - $fromCF);
+                } else {
+                    $balance->casual_leave_balance -= $paidCL;
                 }
+            }
+            if ($paidSL > 0) {
+                $balance->sick_leave_balance -= $paidSL;
             }
             $balance->total_leaves_taken += $days;
             $balance->save();
@@ -274,6 +304,7 @@ class LeaveRequestController extends Controller
                 'end_date'               => $data['end_date'],
                 'days'                   => $days,
                 'reason'                 => $data['reason'],
+                'attachment_link'        => $data['attachment_link'] ?? null,
                 'status'                 => 'Pending',
                 'tl_status'              => $tlStatus,
                 'admin_status'           => $adminStatus,

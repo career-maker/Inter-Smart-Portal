@@ -75,10 +75,11 @@ const NAV_GROUPS: NavGroup[] = [
     label: "People & Teams",
     icon: Users,
     items: [
-      { href: "/employees",    label: "Employees" },
-      { href: "/teams",        label: "Departments" },
+      { href: "/employees",    label: "Employees",            roles: ["Super Admin", "HR"] },
+      { href: "/teams",        label: "Departments",          roles: ["Super Admin", "HR"] },
       { href: "/hall",         label: "The Hall" },
       { href: "/leaves/approvals", label: "Leave Approvals", roles: ["Super Admin", "Team Lead", "HR"] },
+      { href: "/leaves/approvals", label: "My Requests",     roles: ["Employee"] },
       { href: "/recognitions",     label: "Employee Recognitions", roles: ["Super Admin"] },
     ],
   },

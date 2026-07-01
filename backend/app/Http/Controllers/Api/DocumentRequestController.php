@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\DocumentRequest;
 use App\Models\DocumentUpload;
+use App\Models\User;
+use App\Notifications\DocumentRequestNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -41,6 +43,18 @@ class DocumentRequestController extends Controller
             'description'    => $data['description'] ?? null,
             'status'         => 'Pending',
         ]);
+
+        // Notify Super Admins
+        try {
+            $submitter = $request->user();
+            $fullName  = "{$submitter->first_name} {$submitter->last_name}";
+            $message   = "{$fullName} has requested: {$docRequest->subject} ({$docRequest->request_number})";
+            foreach (User::role('Super Admin')->get() as $admin) {
+                if ($admin->id !== $submitter->id) {
+                    $admin->notify(new DocumentRequestNotification($docRequest, $message));
+                }
+            }
+        } catch (\Exception $e) {}
 
         return response()->json([
             'message' => 'Document request submitted successfully.',
