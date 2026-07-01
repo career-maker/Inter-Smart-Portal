@@ -1,23 +1,18 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('wfh_requests', function (Blueprint $table) {
-            // wfh_date was NOT NULL with no default — new records use start_date/end_date instead
-            $table->date('wfh_date')->nullable()->change();
-        });
+        // wfh_date was NOT NULL — make nullable via raw SQL (no doctrine/dbal needed)
+        DB::statement('ALTER TABLE wfh_requests ALTER COLUMN wfh_date DROP NOT NULL');
     }
 
     public function down(): void
     {
-        Schema::table('wfh_requests', function (Blueprint $table) {
-            $table->date('wfh_date')->nullable(false)->change();
-        });
+        DB::statement('ALTER TABLE wfh_requests ALTER COLUMN wfh_date SET NOT NULL');
     }
 };
