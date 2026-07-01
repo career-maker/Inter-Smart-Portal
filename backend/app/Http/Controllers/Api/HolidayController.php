@@ -27,10 +27,6 @@ class HolidayController extends Controller
 
     public function store(Request $request)
     {
-        if (!$request->user()->hasRole(['Super Admin', 'HR'])) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
         $validator = Validator::make($request->all(), [
             'name'        => 'required|string|max:255',
             'date'        => 'required|date',
@@ -57,10 +53,6 @@ class HolidayController extends Controller
 
     public function update(Request $request, Holiday $holiday)
     {
-        if (!$request->user()->hasRole(['Super Admin', 'HR'])) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
         $validator = Validator::make($request->all(), [
             'name'        => 'required|string|max:255',
             'date'        => 'required|date',
@@ -87,10 +79,6 @@ class HolidayController extends Controller
 
     public function destroy(Request $request, Holiday $holiday)
     {
-        if (!$request->user()->hasRole(['Super Admin', 'HR'])) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
         $holiday->delete();
         Cache::forget('all_holidays');
 

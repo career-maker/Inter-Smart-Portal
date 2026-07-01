@@ -117,9 +117,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('dashboard', [\App\Http\Controllers\Api\DashboardController::class, 'index']);
     Route::get('activities', [\App\Http\Controllers\Api\DashboardController::class, 'activities']);
 
-    // Calendar & Holidays
+    // Calendar & Holidays (all authenticated users can view)
     Route::get('calendar', [\App\Http\Controllers\Api\CalendarController::class, 'index']);
-    Route::apiResource('holidays', \App\Http\Controllers\Api\HolidayController::class)->except(['create', 'edit', 'show']);
+    Route::get('holidays', [\App\Http\Controllers\Api\HolidayController::class, 'index']);
+
+    // Holiday management — Super Admin & HR only
+    Route::middleware(['role:Super Admin|HR'])->group(function () {
+        Route::post('holidays', [\App\Http\Controllers\Api\HolidayController::class, 'store']);
+        Route::put('holidays/{holiday}', [\App\Http\Controllers\Api\HolidayController::class, 'update']);
+        Route::delete('holidays/{holiday}', [\App\Http\Controllers\Api\HolidayController::class, 'destroy']);
+    });
 
     // Announcements (all can read, admin can manage)
     Route::get('announcements', [\App\Http\Controllers\Api\AnnouncementController::class, 'index']);
