@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Activity, Palmtree, UserCircle, BookOpen, Loader2 } from "lucide-react";
 import api from "@/services/api";
+import { PageLoader } from "@/components/ui/PageLoader";
 import { useAuthStore } from "@/store/auth";
 import { format } from "date-fns";
 import Link from "next/link";
@@ -41,13 +42,7 @@ export default function ActivitiesPage() {
     }
   };
 
-  if (!data && isLoading) {
-    return (
-      <div className="flex justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
+  if (!data && isLoading) return <PageLoader />;
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">

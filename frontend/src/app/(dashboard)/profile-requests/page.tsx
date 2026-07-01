@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { PageLoader } from "@/components/ui/PageLoader";
 import api from "@/services/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -52,7 +53,7 @@ export default function ProfileRequestsPage() {
     }
   };
 
-  if (loading) return <div className="p-8 text-center">Loading requests...</div>;
+  if (loading) return <PageLoader />;
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">

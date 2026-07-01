@@ -1,5 +1,6 @@
 "use client";
 
+import { PageLoader } from "@/components/ui/PageLoader";
 import { useState, useEffect, useRef } from "react";
 import {
   Megaphone, Pin, Plus, Pencil, Trash2, Loader2, Calendar, Clock, Tag, X, Check

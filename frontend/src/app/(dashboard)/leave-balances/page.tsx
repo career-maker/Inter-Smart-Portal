@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { PageLoader } from "@/components/ui/PageLoader";
 import { useAuthStore } from "@/store/auth";
 import api from "@/services/api";
 import {
@@ -207,13 +208,7 @@ export default function LeaveBalancesPage() {
     e.employee_code?.toLowerCase().includes(search.toLowerCase())
   );
 
-  if (loading) {
-    return (
-      <div className="flex justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
-      </div>
-    );
-  }
+  if (loading) return <PageLoader />;
 
   return (
     <div className="space-y-6">

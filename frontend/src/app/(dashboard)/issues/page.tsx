@@ -1,5 +1,6 @@
 "use client";
 
+import { PageLoader } from "@/components/ui/PageLoader";
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/auth";
 import api from "@/services/api";

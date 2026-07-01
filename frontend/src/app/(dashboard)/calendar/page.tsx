@@ -1,5 +1,6 @@
 "use client";
 
+import { PageLoader } from "@/components/ui/PageLoader";
 import { useState, useEffect } from "react";
 import {
   ChevronLeft, ChevronRight, Loader2, Calendar as CalendarIcon, Info

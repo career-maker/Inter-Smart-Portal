@@ -1,5 +1,6 @@
 "use client";
 
+import { PageLoader } from "@/components/ui/PageLoader";
 import { useState, useEffect, useRef } from "react";
 import { BookOpen, Upload, Trash2, Loader2, FileText, Search } from "lucide-react";
 import api from "@/services/api";

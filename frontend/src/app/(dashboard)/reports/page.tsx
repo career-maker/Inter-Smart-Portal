@@ -1,5 +1,6 @@
 "use client";
 
+import { PageLoader } from "@/components/ui/PageLoader";
 import { useEffect, useState, useMemo } from "react";
 import { useAuthStore } from "@/store/auth";
 import { FileText, Users, CalendarDays, BarChart3, Download, Printer, Search, ChevronUp, ChevronDown, Loader2, AlertCircle } from "lucide-react";

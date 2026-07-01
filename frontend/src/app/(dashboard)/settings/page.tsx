@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import api from "@/services/api";
 import { Save, Loader2, Server, Shield, Mail, Building, LayoutDashboard } from "lucide-react";
+import { PageLoader } from "@/components/ui/PageLoader";
 import { useAuthStore } from "@/store/auth";
 import { useRouter } from "next/navigation";
 
@@ -52,13 +53,7 @@ export default function SettingsPage() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-96">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
+  if (loading) return <PageLoader />;
 
   const tabs = [
     { id: "company", label: "Company Profile", icon: Building },

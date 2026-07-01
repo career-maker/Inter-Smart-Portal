@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { PageLoader } from "@/components/ui/PageLoader";
 import { useAuthStore } from "@/store/auth";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -77,7 +78,7 @@ export default function MyProfilePage() {
     }
   };
 
-  if (!user || loading) return <div className="p-8 text-center">Loading...</div>;
+  if (!user || loading) return <PageLoader />;
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">

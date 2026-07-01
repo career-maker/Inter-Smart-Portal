@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import api from "@/services/api";
 import { Loader2, Clock, User, Activity } from "lucide-react";
+import { PageLoader } from "@/components/ui/PageLoader";
 import { useAuthStore } from "@/store/auth";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
@@ -33,13 +34,7 @@ export default function AuditLogsPage() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-96">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
+  if (loading) return <PageLoader />;
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">

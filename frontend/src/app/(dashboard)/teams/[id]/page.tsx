@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { PageLoader } from "@/components/ui/PageLoader";
 import Link from "next/link";
 import { ArrowLeft, Users } from "lucide-react";
 import api from "@/services/api";
@@ -66,7 +67,7 @@ export default function EditTeamPage() {
     }
   };
 
-  if (isLoading) return <div className="p-8 text-center">Loading...</div>;
+  if (isLoading) return <PageLoader />;
   if (!team) return <div className="p-8 text-center">Team not found.</div>;
 
   return (

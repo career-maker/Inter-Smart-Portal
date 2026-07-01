@@ -1,5 +1,6 @@
 "use client";
 
+import { PageLoader } from "@/components/ui/PageLoader";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Search, MoreHorizontal, FileEdit, Trash2, Ban, CheckCircle } from "lucide-react";

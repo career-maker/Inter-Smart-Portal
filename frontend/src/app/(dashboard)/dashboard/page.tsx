@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { PageLoader } from "@/components/ui/PageLoader";
 import { useAuthStore } from "@/store/auth";
 import api from "@/services/api";
 import {
@@ -60,16 +61,7 @@ export default function DashboardPage() {
     fetchDashboard();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-[70vh]">
-        <div className="relative flex justify-center items-center">
-          <div className="absolute animate-ping w-16 h-16 rounded-full bg-primary/30"></div>
-          <div className="w-8 h-8 rounded-full bg-primary shadow-lg shadow-primary/50"></div>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <PageLoader />;
 
   if (error || !data) {
     return (

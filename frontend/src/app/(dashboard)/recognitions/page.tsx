@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { PageLoader } from "@/components/ui/PageLoader";
 import { format } from "date-fns";
 import {
   Award,
@@ -126,14 +127,7 @@ export default function RecognitionsPage() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center p-12 text-slate-400">
-        <Loader2 className="w-6 h-6 animate-spin mr-2" />
-        Loading recognitions...
-      </div>
-    );
-  }
+  if (loading) return <PageLoader />;
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
