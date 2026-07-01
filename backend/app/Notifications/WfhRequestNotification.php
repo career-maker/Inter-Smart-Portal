@@ -26,12 +26,14 @@ class WfhRequestNotification extends Notification
             'rejected'  => 'WFH Rejected',
         ];
 
+        $actionUrl = in_array($this->event, ['submitted', 'tl_approved']) ? '/leaves/approvals' : '/wfh';
+
         return [
             'title'          => $titles[$this->event] ?? 'WFH Update',
             'message'        => $this->message,
             'event'          => $this->event,
             'wfh_request_id' => $this->wfhRequest->id,
-            'action_url'     => '/wfh',
+            'action_url'     => $actionUrl,
         ];
     }
 }

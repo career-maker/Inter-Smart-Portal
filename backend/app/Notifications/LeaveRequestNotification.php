@@ -27,12 +27,16 @@ class LeaveRequestNotification extends Notification
             'cancelled' => 'Leave Cancelled',
         ];
 
+        // Approver notifications (submitted) → approvals page
+        // Employee notifications (approved/rejected) → their own leaves list
+        $actionUrl = $this->event === 'submitted' ? '/leaves/approvals' : '/leaves';
+
         return [
             'title'            => $titles[$this->event] ?? 'Leave Update',
             'message'          => $this->message,
             'event'            => $this->event,
             'leave_request_id' => $this->leaveRequest->id,
-            'action_url'       => '/leaves',
+            'action_url'       => $actionUrl,
         ];
     }
 }
