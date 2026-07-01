@@ -119,14 +119,10 @@ export default function ApplyLeavePage() {
 
         {/* Balance strip */}
         {leaveMetrics && (
-          <div className="mb-6 grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white/5 border border-white/10 rounded-2xl p-4">
+          <div className="mb-6 grid grid-cols-3 gap-3 bg-white/5 border border-white/10 rounded-2xl p-4">
             <div className="text-center">
               <p className="text-xs text-slate-400 uppercase tracking-wider">Casual Leave</p>
               <p className="text-2xl font-black text-emerald-400">{leaveMetrics.casual_leave_balance}</p>
-            </div>
-            <div className="text-center border-l border-white/10">
-              <p className="text-xs text-slate-400 uppercase tracking-wider">CF Balance</p>
-              <p className="text-2xl font-black text-teal-400">{leaveMetrics.cl_carry_forward}</p>
             </div>
             <div className="text-center border-l border-white/10">
               <p className="text-xs text-slate-400 uppercase tracking-wider">Sick Leave</p>
