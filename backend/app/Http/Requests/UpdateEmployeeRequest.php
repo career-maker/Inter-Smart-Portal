@@ -12,6 +12,15 @@ class UpdateEmployeeRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        // Treat every empty string as null so nullable rules work correctly
+        // and date/email fields don't receive "" which PostgreSQL rejects
+        $this->merge(
+            collect($this->all())->map(fn($v) => $v === '' ? null : $v)->toArray()
+        );
+    }
+
     public function rules(): array
     {
         $userId = $this->route('employee');
@@ -21,7 +30,7 @@ class UpdateEmployeeRequest extends FormRequest
             'first_name'                 => ['sometimes', 'nullable', 'string', 'max:100'],
             'last_name'                  => ['sometimes', 'nullable', 'string', 'max:100'],
             'email'                      => ['sometimes', 'nullable', 'email', Rule::unique('users')->ignore($userId)],
-            'personal_email'             => ['sometimes', 'nullable', 'email'],
+            'personal_email'             => ['sometimes', 'nullable', 'string', 'email', 'max:255'],
             'contact_number'             => ['sometimes', 'nullable', 'string', 'max:20'],
             'alternate_contact_number'   => ['sometimes', 'nullable', 'string', 'max:20'],
             'designation'                => ['sometimes', 'nullable', 'string', 'max:100'],

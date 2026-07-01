@@ -11,6 +11,13 @@ class StoreEmployeeRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $this->merge(
+            collect($this->all())->map(fn($v) => $v === '' ? null : $v)->toArray()
+        );
+    }
+
     public function rules(): array
     {
         return [

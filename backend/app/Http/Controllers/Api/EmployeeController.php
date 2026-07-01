@@ -90,7 +90,9 @@ class EmployeeController extends Controller
         $role = $data['role'] ?? null;
         unset($data['role']);
 
-        // Remove null values so we don't overwrite existing DB values with null
+        // Treat empty strings as null (blank form fields) then strip nulls
+        // so we never overwrite existing DB values with empty/null
+        $data = array_map(fn($v) => ($v === '' ? null : $v), $data);
         $data = array_filter($data, fn($v) => !is_null($v));
 
         $employee->update($data);
