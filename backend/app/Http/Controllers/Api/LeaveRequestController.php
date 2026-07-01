@@ -76,121 +76,161 @@ class LeaveRequestController extends Controller
             $probationEnd = $user->probationEndDate();
             $totalDays    = $startDate->diffInDays($endDate) + 1;
             return [
-                'actual_leave_days'       => $totalDays,
-                'requested_working_days'  => $totalDays,
-                'sandwich_leave_days'     => 0,
-                'penalty_lop_days'        => 0,
-                'paid_casual_leave'       => 0,
-                'paid_sick_leave'         => 0,
-                'balance_lop_days'        => $totalDays,
-                'total_lop_days'          => $totalDays,
-                'is_unpaid'               => true,
-                'has_lop'                 => true,
-                'is_partial'              => false,
-                'unpaid_reason'           => "You are under probation. Paid benefits activate after " . Carbon::parse($probationEnd)->format('d M Y') . ".",
-                'reasons'                 => ["You are currently under probation. All leave is Unpaid (LOP)."],
-                'is_probation'            => true,
-                'probation_end_date'      => $probationEnd,
-                'balance'                 => $this->getBalancePreview($user, 0, 0),
+                'actual_leave_days'      => $totalDays,
+                'requested_working_days' => $totalDays,
+                'sandwich_leave_days'    => 0,
+                'penalty_lop_days'       => 0,
+                'paid_casual_leave'      => 0,
+                'paid_sick_leave'        => 0,
+                'balance_lop_days'       => $totalDays,
+                'total_lop_days'         => $totalDays,
+                'is_unpaid'              => true,
+                'has_lop'                => true,
+                'is_partial'             => false,
+                'unpaid_reason'          => "You are under probation. Paid benefits activate after " . Carbon::parse($probationEnd)->format('d M Y') . ".",
+                'reasons'                => ["You are currently under probation. All leave is Unpaid (LOP)."],
+                'is_probation'           => true,
+                'probation_end_date'     => $probationEnd,
+                'balance'                => $this->getBalancePreview($user, 0, 0),
             ];
         }
 
-        $holidays         = Holiday::pluck('date')->map(fn($d) => Carbon::parse($d)->format('Y-m-d'))->toArray();
-        $workingOverrides = WorkingDaysOverride::pluck('date')->map(fn($d) => Carbon::parse($d)->format('Y-m-d'))->toArray();
+        // Load ALL configured holidays from DB (includes weekends stored as holidays,
+        // company holidays, public holidays, festival holidays, etc.)
+        $holidays        = Holiday::pluck('date')
+                                  ->map(fn($d) => Carbon::parse($d)->format('Y-m-d'))
+                                  ->toArray();
+        $workingOverrides = WorkingDaysOverride::pluck('date')
+                                  ->map(fn($d) => Carbon::parse($d)->format('Y-m-d'))
+                                  ->toArray();
 
-        $isWorkingDay = function ($date) use ($holidays, $workingOverrides) {
+        $isWorkingDay = function (Carbon $date) use ($holidays, $workingOverrides): bool {
             $ds = $date->format('Y-m-d');
             if (in_array($ds, $workingOverrides)) return true;
+            // A day is non-working if it is a weekend OR exists in the holiday table
             return !$date->isWeekend() && !in_array($ds, $holidays);
         };
 
-        // Count working and non-working days in range
-        $workingDays     = 0;
-        $sandwichDays    = 0;
-        $current         = $startDate->copy();
+        // ── Day-by-day walk ─────────────────────────────────────────────────
+        // For Casual Leave we apply a per-day 3-calendar-day advance-notice check
+        // and track sandwich contamination:
+        //   If working day W is penalized, and only non-working days follow W
+        //   before the next working day X, then X is also LOP (same continuous
+        //   sandwich block). Contamination does NOT cascade past X.
+        $totalWorkingDays = 0;
+        $sandwichDays     = 0;
+        $penaltyDays      = 0;  // LOP: late-notice + sandwich contamination
+        $eligibleDays     = 0;  // Working days eligible for paid CL / SL
+
+        $lastWorkingWasPenalty    = false;
+        $sandwichSinceLastPenalty = false;
+
+        $current = $startDate->copy();
         while ($current->lte($endDate)) {
             if ($isWorkingDay($current)) {
-                $workingDays++;
+                $totalWorkingDays++;
+
+                if ($isCasual) {
+                    // Calendar days from today (application date) to this working day
+                    $advance = $today->diffInDays($current, false);
+                    $directPenalty = ($advance < 3);
+
+                    if ($directPenalty) {
+                        $penaltyDays++;
+                        $lastWorkingWasPenalty    = true;
+                        $sandwichSinceLastPenalty = false;
+                    } elseif ($lastWorkingWasPenalty && $sandwichSinceLastPenalty) {
+                        // Sandwich contamination: this working day immediately follows
+                        // a run of non-working days that immediately follow a penalized
+                        // working day — it belongs to the same continuous leave block.
+                        $penaltyDays++;
+                        $lastWorkingWasPenalty    = false; // contamination stops here
+                        $sandwichSinceLastPenalty = false;
+                    } else {
+                        $eligibleDays++;
+                        $lastWorkingWasPenalty    = false;
+                        $sandwichSinceLastPenalty = false;
+                    }
+                } else {
+                    // SL and other types: no advance-notice penalty
+                    $eligibleDays++;
+                }
             } else {
+                // Non-working (weekend or any holiday in the DB) → sandwich day
                 $sandwichDays++;
-            }
-            $current->addDay();
-        }
-
-        $baseWorkingDays = $isHalf ? ($workingDays * 0.5) : $workingDays;
-
-        // Reasons array
-        $reasons = [];
-
-        // ── Casual Leave logic ───────────────────────────────────
-        $penaltyDays   = 0;
-        $paidCL        = 0;
-        $paidSL        = 0;
-        $balanceLOP    = 0;
-        $lateApply     = false;
-
-        if ($isCasual) {
-            $balance = \App\Models\LeaveBalance::where('user_id', $user->id)->first();
-            $clBalance = ($balance->casual_leave_balance ?? 0) + ($balance->cl_carry_forward ?? 0);
-
-            // 3-day advance rule: first 3 working days become penalty LOP
-            if ($today->diffInDays($startDate, false) < 3) {
-                $lateApply   = true;
-                $penaltyDays = min(3, $baseWorkingDays);
-                $reasons[]   = "Casual Leave applied less than 3 days before the leave start date. First {$penaltyDays} working day(s) will be Unpaid (LOP).";
-            }
-
-            $eligibleForPaid = $baseWorkingDays - $penaltyDays;
-
-            if ($eligibleForPaid > 0) {
-                $paidCL     = min($eligibleForPaid, $clBalance);
-                $balanceLOP = max(0, $eligibleForPaid - $paidCL);
-                if ($balanceLOP > 0) {
-                    $reasons[] = "Casual Leave balance is insufficient. {$balanceLOP} working day(s) will be Unpaid (LOP) due to insufficient balance.";
+                if ($isCasual && $lastWorkingWasPenalty) {
+                    $sandwichSinceLastPenalty = true;
                 }
             }
 
+            $current->addDay();
+        }
+
+        $multiplier      = $isHalf ? 0.5 : 1.0;
+        $baseWorkingDays = $totalWorkingDays * $multiplier;
+        $penaltyLOP      = $penaltyDays      * $multiplier;
+        $eligibleBase    = $eligibleDays     * $multiplier;
+
+        $reasons    = [];
+        $paidCL     = 0;
+        $paidSL     = 0;
+        $balanceLOP = 0;
+
+        if ($isCasual) {
+            $balance   = \App\Models\LeaveBalance::where('user_id', $user->id)->first();
+            $clBalance = (($balance->casual_leave_balance ?? 0) + ($balance->cl_carry_forward ?? 0));
+
+            // Paid CL is allocated only to eligible (non-penalized) working days
+            $paidCL     = min($eligibleBase, $clBalance);
+            $balanceLOP = max(0, $eligibleBase - $paidCL);
+
+            if ($penaltyDays > 0) {
+                $reasons[] = "Applied less than 3 calendar days before the leave start date. {$penaltyLOP} working day(s) are Unpaid (LOP) due to late notice.";
+            }
             if ($sandwichDays > 0) {
-                $reasons[] = "Sandwich Leave Policy applied: {$sandwichDays} weekend/holiday day(s) within your leave period are counted as Unpaid (LOP).";
+                $reasons[] = "Sandwich Leave Policy: {$sandwichDays} non-working day(s) (weekends/company holidays) between your leave dates are counted as Unpaid (LOP).";
+            }
+            if ($balanceLOP > 0) {
+                $reasons[] = "Insufficient Casual Leave balance. {$balanceLOP} eligible working day(s) are Unpaid (LOP) due to exhausted balance.";
             }
 
         } elseif ($isSick) {
-            $balance  = \App\Models\LeaveBalance::where('user_id', $user->id)->first();
+            $balance   = \App\Models\LeaveBalance::where('user_id', $user->id)->first();
             $slBalance = $balance->sick_leave_balance ?? 0;
 
-            $paidSL     = min($baseWorkingDays, $slBalance);
-            $balanceLOP = max(0, $baseWorkingDays - $paidSL);
-            if ($balanceLOP > 0) {
-                $reasons[] = "Sick Leave balance is insufficient. {$balanceLOP} working day(s) will be Unpaid (LOP).";
-            }
+            $paidSL     = min($eligibleBase, $slBalance);
+            $balanceLOP = max(0, $eligibleBase - $paidSL);
+
             if ($sandwichDays > 0) {
-                $reasons[] = "Sandwich Leave Policy: {$sandwichDays} day(s) within the period are Unpaid (LOP).";
+                $reasons[] = "Sandwich Leave Policy: {$sandwichDays} non-working day(s) (weekends/company holidays) between your leave dates are counted as Unpaid (LOP).";
+            }
+            if ($balanceLOP > 0) {
+                $reasons[] = "Insufficient Sick Leave balance. {$balanceLOP} working day(s) are Unpaid (LOP) due to exhausted balance.";
             }
 
         } else {
-            // Other leave types: treat entirely as LOP
-            $balanceLOP = $baseWorkingDays;
+            $balanceLOP = $eligibleBase;
             $typeName   = $leaveType->name ?? 'This leave type';
-            $reasons[]  = "{$typeName} does not have a paid balance. All {$baseWorkingDays} working day(s) will be deducted as Loss of Pay (LOP).";
+            $reasons[]  = "{$typeName} does not have a paid balance. All {$baseWorkingDays} working day(s) will be Unpaid (LOP).";
             if ($sandwichDays > 0) {
-                $reasons[] = "Sandwich Leave Policy: {$sandwichDays} non-working day(s) within the period are also counted as LOP.";
+                $reasons[] = "Sandwich Leave Policy: {$sandwichDays} non-working day(s) within the period are also Unpaid (LOP).";
             }
         }
 
-        $totalLOP   = $penaltyDays + $balanceLOP + $sandwichDays;
-        $totalPaid  = $paidCL + $paidSL;
-        $isUnpaid   = $totalPaid === 0;
-        $isPartial  = $totalPaid > 0 && $totalLOP > 0;
-
+        $totalLOP        = $penaltyLOP + $balanceLOP + $sandwichDays;
+        $totalPaid       = $paidCL + $paidSL;
+        $isUnpaid        = ($totalPaid == 0);
+        $isPartial       = ($totalPaid > 0 && $totalLOP > 0);
         $actualLeaveDays = $baseWorkingDays + $sandwichDays;
-
-        $statusText = $isUnpaid ? 'Unpaid Leave (LOP)' : ($isPartial ? 'Partially Paid + LOP' : 'Paid Leave');
+        $statusText      = $isUnpaid
+                           ? 'Unpaid Leave (LOP)'
+                           : ($isPartial ? 'Partially Paid + LOP' : 'Paid Leave');
 
         return [
             'requested_working_days' => $baseWorkingDays,
             'sandwich_leave_days'    => $sandwichDays,
             'actual_leave_days'      => $actualLeaveDays,
-            'penalty_lop_days'       => $penaltyDays,
+            'penalty_lop_days'       => $penaltyLOP,
             'paid_casual_leave'      => $paidCL,
             'paid_sick_leave'        => $paidSL,
             'balance_lop_days'       => $balanceLOP,
