@@ -170,8 +170,10 @@ class LeaveRequestController extends Controller
         } else {
             // Other leave types: treat entirely as LOP
             $balanceLOP = $baseWorkingDays;
+            $typeName   = $leaveType->name ?? 'This leave type';
+            $reasons[]  = "{$typeName} does not have a paid balance. All {$baseWorkingDays} working day(s) will be deducted as Loss of Pay (LOP).";
             if ($sandwichDays > 0) {
-                $reasons[] = "Sandwich Leave Policy: {$sandwichDays} non-working day(s) within the period are LOP.";
+                $reasons[] = "Sandwich Leave Policy: {$sandwichDays} non-working day(s) within the period are also counted as LOP.";
             }
         }
 
