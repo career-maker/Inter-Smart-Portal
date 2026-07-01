@@ -131,9 +131,12 @@ class LeaveRequestController extends Controller
                 $totalWorkingDays++;
 
                 if ($isCasual) {
-                    // Calendar days from today (application date) to this working day
-                    $advance = $today->diffInDays($current, false);
-                    $directPenalty = ($advance < 3);
+                    // Calendar days between today (application date) and this working day.
+                    // Using absolute diff (always positive) avoids Carbon signed-diff
+                    // direction ambiguity that would make all future days appear as < 3.
+                    // For valid leaves (start >= today) this equals (current - today) in days.
+                    $advanceDays   = $current->diffInDays($today); // absolute, no sign issue
+                    $directPenalty = ($advanceDays < 3);
 
                     if ($directPenalty) {
                         $penaltyDays++;
