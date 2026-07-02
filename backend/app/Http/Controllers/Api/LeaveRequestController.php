@@ -304,44 +304,29 @@ class LeaveRequestController extends Controller
         $paidSL    = $impact['paid_sick_leave']   ?? 0;
         $totalLOP  = $impact['total_lop_days']    ?? 0;
 
+        // Determine workflow statuses
+        $tlStatus    = 'Pending';
+        $adminStatus = 'Not Required';
+
+        if ($isSingleDay || $rawDays > 1 || $isUnpaid) {
+            $adminStatus = 'Pending';
+        }
+
+        if ($user->hasRole('Team Lead')) {
+            $tlStatus    = 'Not Required';
+            $adminStatus = 'Pending';
+        }
+
+        if ($user->hasRole('Super Admin') || $user->hasRole('HR')) {
+            $tlStatus    = 'Not Required';
+            $adminStatus = 'Pending';
+        }
+
         DB::beginTransaction();
         try {
-            // Deduct only the paid portion from balances
-            if ($paidCL > 0) {
-                $carryForward = $balance->cl_carry_forward ?? 0;
-                if ($carryForward > 0) {
-                    $fromCF = min($paidCL, $carryForward);
-                    $balance->cl_carry_forward    -= $fromCF;
-                    $balance->casual_leave_balance -= max(0, $paidCL - $fromCF);
-                } else {
-                    $balance->casual_leave_balance -= $paidCL;
-                }
-            }
-            if ($paidSL > 0) {
-                $balance->sick_leave_balance -= $paidSL;
-            }
-            $balance->total_leaves_taken += $days;
-            $balance->save();
-
-            // Determine workflow statuses
-            $tlStatus    = 'Pending';
-            $adminStatus = 'Not Required';
-
-            // Single-day: both TL and Admin are notified; either can approve
-            if ($isSingleDay || $rawDays > 1 || $isUnpaid) {
-                $adminStatus = 'Pending';
-            }
-
-            if ($user->hasRole('Team Lead')) {
-                $tlStatus    = 'Not Required';
-                $adminStatus = 'Pending';
-            }
-
-            if ($user->hasRole('Super Admin') || $user->hasRole('HR')) {
-                $tlStatus    = 'Not Required';
-                $adminStatus = 'Pending';
-            }
-
+            // Balance is NOT deducted at submission — it is deducted when the leave
+            // is fully approved. Paid amounts are stored here so the approval step
+            // knows exactly how many days to deduct (carry-forward first, then current).
             $leaveRequest = LeaveRequest::create([
                 'user_id'                => $user->id,
                 'leave_type_id'          => $data['leave_type_id'],
@@ -357,6 +342,8 @@ class LeaveRequestController extends Controller
                 'unpaid_reason'          => $impact['unpaid_reason'],
                 'sandwich_leave_days'    => $impact['sandwich_leave_days'],
                 'actual_leave_days'      => $days,
+                'paid_casual_leave'      => $paidCL,
+                'paid_sick_leave'        => $paidSL,
             ]);
 
             DB::commit();
@@ -443,20 +430,8 @@ class LeaveRequestController extends Controller
                     'rejection_reason' => $data['rejection_reason'] ?? null,
                 ]);
 
-                // Refund balance
-                $balance   = LeaveBalance::where('user_id', $leaveRequest->user_id)->first();
-                $leaveType = $leaveRequest->leaveType;
-                $days      = $leaveRequest->days;
-
-                if ($balance && $leaveType && !$leaveRequest->is_unpaid) {
-                    if (str_contains(strtolower($leaveType->name), 'casual')) {
-                        $balance->casual_leave_balance += $days;
-                    } elseif (str_contains(strtolower($leaveType->name), 'sick')) {
-                        $balance->sick_leave_balance += $days;
-                    }
-                    $balance->total_leaves_taken -= $days;
-                    $balance->save();
-                }
+                // No balance change on rejection — balance is only deducted at approval,
+                // so there is nothing to refund here.
 
                 // Notify employee
                 $this->notifyEmployee($leaveRequest, $user, 'rejected');
@@ -489,6 +464,30 @@ class LeaveRequestController extends Controller
                 $leaveRequest->save();
 
                 if ($leaveRequest->status === 'Approved') {
+                    // Deduct leave balance now that the leave is fully approved.
+                    // Carry-forward CL is consumed first (per policy section 9).
+                    $balance  = LeaveBalance::where('user_id', $leaveRequest->user_id)->first();
+                    $paidCL   = $leaveRequest->paid_casual_leave ?? 0;
+                    $paidSL   = $leaveRequest->paid_sick_leave   ?? 0;
+
+                    if ($balance && ($paidCL > 0 || $paidSL > 0)) {
+                        if ($paidCL > 0) {
+                            $carryForward = $balance->cl_carry_forward ?? 0;
+                            if ($carryForward > 0) {
+                                $fromCF = min($paidCL, $carryForward);
+                                $balance->cl_carry_forward     -= $fromCF;
+                                $balance->casual_leave_balance -= max(0, $paidCL - $fromCF);
+                            } else {
+                                $balance->casual_leave_balance -= $paidCL;
+                            }
+                        }
+                        if ($paidSL > 0) {
+                            $balance->sick_leave_balance -= $paidSL;
+                        }
+                        $balance->total_leaves_taken += ($leaveRequest->actual_leave_days ?? $leaveRequest->days);
+                        $balance->save();
+                    }
+
                     $this->notifyEmployee($leaveRequest, $user, 'approved');
                 }
             }
