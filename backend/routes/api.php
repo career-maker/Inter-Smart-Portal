@@ -12,23 +12,6 @@ Route::get('/debug-employee', function () {
     return new \App\Http\Resources\EmployeeResource(\App\Models\User::find(2));
 });
 
-Route::get('/debug-logs', function () {
-    if (request()->query('key') !== 'antigravity-debug') {
-        return response()->json(['error' => 'Unauthorized'], 401);
-    }
-    $logPath = storage_path('logs');
-    $files = glob($logPath . '/*.log');
-    if (empty($files)) {
-        return response()->json(['message' => 'No log files found']);
-    }
-    usort($files, fn($a, $b) => filemtime($b) <=> filemtime($a));
-    $latestFile = $files[0];
-    
-    $lines = file($latestFile);
-    $lastLines = array_slice($lines, -150);
-    return response(implode("", $lastLines), 200, ['Content-Type' => 'text/plain']);
-});
-
 Route::get('/photos/{path}', [\App\Http\Controllers\Api\EmployeeController::class, 'showPhoto'])->where('path', '.*');
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -138,8 +121,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('calendar', [\App\Http\Controllers\Api\CalendarController::class, 'index']);
     Route::get('holidays', [\App\Http\Controllers\Api\HolidayController::class, 'index']);
 
-    // Holiday management — Super Admin only
-    Route::middleware(['role:Super Admin'])->group(function () {
+    // Holiday management — Super Admin & HR only
+    Route::middleware(['role:Super Admin|HR'])->group(function () {
         Route::post('holidays', [\App\Http\Controllers\Api\HolidayController::class, 'store']);
         Route::put('holidays/{holiday}', [\App\Http\Controllers\Api\HolidayController::class, 'update']);
         Route::delete('holidays/{holiday}', [\App\Http\Controllers\Api\HolidayController::class, 'destroy']);

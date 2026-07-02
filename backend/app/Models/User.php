@@ -17,6 +17,8 @@ class User extends Authenticatable
 
     protected $guarded = [];
 
+    protected $guard_name = 'web';
+
     public function team() {
         return $this->belongsTo(Team::class);
     }
