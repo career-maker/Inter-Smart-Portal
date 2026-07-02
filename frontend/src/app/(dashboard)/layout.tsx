@@ -43,10 +43,11 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Leave & WFH",
     icon: CalendarCheck,
     items: [
-      { href: "/leaves",       label: "My Leaves" },
-      { href: "/leaves/apply", label: "Apply Leave", roles: ["Employee", "Team Lead"] },
-      { href: "/wfh",          label: "WFH Requests" },
-      { href: "/calendar",     label: "Leave Calendar" },
+      { href: "/leaves",           label: "My Leaves" },
+      { href: "/leaves/apply",     label: "Apply Leave", roles: ["Employee", "Team Lead"] },
+      { href: "/wfh",              label: "WFH Requests" },
+      { href: "/calendar",         label: "Leave Calendar" },
+      { href: "/leaves/approvals", label: "Leave Approvals", roles: ["Super Admin", "Team Lead"] },
     ],
   },
   {
@@ -75,12 +76,12 @@ const NAV_GROUPS: NavGroup[] = [
     label: "People & Teams",
     icon: Users,
     items: [
-      { href: "/employees",    label: "Employees",            roles: ["Super Admin", "HR"] },
-      { href: "/teams",        label: "Departments",          roles: ["Super Admin", "HR"] },
-      { href: "/hall",         label: "The Hall" },
-      { href: "/leaves/approvals", label: "Leave Approvals", roles: ["Super Admin", "Team Lead", "HR"] },
-      { href: "/leaves/approvals", label: "My Requests",     roles: ["Employee"] },
-      { href: "/recognitions",     label: "Manage Awards",       roles: ["Super Admin"] },
+      { href: "/employees",        label: "Employees",            roles: ["Super Admin", "HR"] },
+      { href: "/teams",            label: "Departments",          roles: ["Super Admin", "HR"] },
+      { href: "/hall",             label: "The Hall" },
+      { href: "/leaves/approvals", label: "Leave Approvals",      roles: ["HR"] },
+      { href: "/leaves/approvals", label: "My Requests",          roles: ["Employee"] },
+      { href: "/recognitions",     label: "Manage Awards",        roles: ["Super Admin"] },
       { href: "/recognitions/leaderboard", label: "Recognition Leaderboard" },
     ],
   },
@@ -303,9 +304,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       {isOpen && (
                         <div className="mt-0.5 mb-1">
                           {visibleItems.map((item) => {
-                            const active =
-                              pathname === item.href ||
-                              (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"));
+                            const hasExactMatch = visibleItems.some((i) => pathname === i.href);
+                            const active = hasExactMatch
+                              ? pathname === item.href
+                              : pathname === item.href ||
+                                (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"));
                             return (
                               <Link
                                 key={item.href}

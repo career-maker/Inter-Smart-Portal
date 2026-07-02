@@ -124,7 +124,7 @@ export function CertificateModal({ recognition, employeeName, onClose }: Certifi
               borderRadius: 12,
               padding: "10px 24px",
             }}>
-              <span style={{ fontSize: 28 }}>⚡</span>
+              <img src="/logo.png" alt="Logo" style={{ height: "30px", width: "auto", objectFit: "contain" }} />
               <span style={{
                 fontSize: 22,
                 fontWeight: 900,
@@ -278,10 +278,7 @@ export function CertificateModal({ recognition, employeeName, onClose }: Certifi
                 </p>
               </div>
               <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.15em", margin: 0, fontFamily: "'Arial', sans-serif" }}>
-                Authorized Signature
-              </p>
-              <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 11, marginTop: 4, fontFamily: "'Arial', sans-serif" }}>
-                Inter Smart Management
+                Approved By HR
               </p>
             </div>
           </div>
