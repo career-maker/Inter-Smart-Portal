@@ -24,13 +24,15 @@ interface AchievementFlipCardProps {
 
 export function AchievementFlipCard({ recognition, employeeName, firstName }: AchievementFlipCardProps) {
   const [showCert, setShowCert] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(false);
 
   return (
     <>
       {/* Flip Card Container */}
       <div
-        className="achievement-flip-card"
-        style={{ width: "100%", height: "100%", minHeight: 220, perspective: "1000px" }}
+        className={`achievement-flip-card ${isFlipped ? "flipped" : ""}`}
+        style={{ width: "100%", height: "220px", perspective: "1000px" }}
+        onClick={() => setIsFlipped(!isFlipped)}
       >
         <div className="achievement-flip-card-inner">
           {/* ── BACK (shown first visually — due to rotateY) ── */}
@@ -214,17 +216,21 @@ export function AchievementFlipCard({ recognition, employeeName, firstName }: Ac
       <style>{`
         .achievement-flip-card {
           cursor: pointer;
+          transform-style: preserve-3d;
+          -webkit-transform-style: preserve-3d;
         }
         .achievement-flip-card-inner {
           position: relative;
           width: 100%;
           height: 100%;
           transform-style: preserve-3d;
+          -webkit-transform-style: preserve-3d;
           transition: transform 400ms cubic-bezier(0.4, 0, 0.2, 1);
           border-radius: 20px;
           box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06);
         }
-        .achievement-flip-card:hover .achievement-flip-card-inner {
+        .achievement-flip-card:hover .achievement-flip-card-inner,
+        .achievement-flip-card.flipped .achievement-flip-card-inner {
           transform: rotateY(180deg);
         }
         .achievement-flip-card-front,
@@ -236,10 +242,13 @@ export function AchievementFlipCard({ recognition, employeeName, firstName }: Ac
           border-radius: 20px;
           overflow: hidden;
           background-color: #151c2c;
+          transform: translate3d(0, 0, 0);
+          -webkit-transform: translate3d(0, 0, 0);
         }
         /* Back is the "info side" — rotated 180 so it faces us on hover */
         .achievement-flip-card-back {
-          transform: rotateY(180deg);
+          transform: rotateY(180deg) translate3d(0, 0, 0);
+          -webkit-transform: rotateY(180deg) translate3d(0, 0, 0);
           display: flex;
           align-items: center;
           justify-content: center;
