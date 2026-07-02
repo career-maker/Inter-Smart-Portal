@@ -224,12 +224,18 @@ CRITICAL INSTRUCTIONS:
                     ]);
                 }
 
+                $geminiError = $response->json('error.message') ?? $response->body();
+                \Illuminate\Support\Facades\Log::error('Gemini API error', [
+                    'status' => $response->status(),
+                    'body' => $geminiError,
+                ]);
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Cloud AI service (Gemini) returned an error: ' . ($response->json('error.message') ?? $response->body())
+                    'message' => 'Cloud AI service (Gemini) returned an error: ' . $geminiError
                 ], 502);
 
             } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Gemini connection error', ['msg' => $e->getMessage()]);
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Could not connect to the Cloud AI service: ' . $e->getMessage()

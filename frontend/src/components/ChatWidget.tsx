@@ -82,10 +82,13 @@ export default function ChatWidget() {
       };
       setMessages((prev) => [...prev, botMsg]);
     } catch (e: any) {
-      console.error(e);
+      console.error("Chat error:", e?.response?.data ?? e?.message ?? e);
+      const backendMsg = e.response?.data?.message || e.response?.data?.error;
+      const httpStatus = e.response?.status;
       setErrorMsg(
-        e.response?.data?.message ||
-          "Could not connect to the AI assistant. Please verify that GEMINI_API_KEY is configured in your server environment."
+        backendMsg
+          ? `Error (${httpStatus}): ${backendMsg}`
+          : "Could not connect to the AI assistant. Check the browser console for details."
       );
     } finally {
       setIsLoading(false);
