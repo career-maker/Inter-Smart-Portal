@@ -387,25 +387,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         )}
         {children}
       </main>
-      {process.env.NEXT_PUBLIC_CHATBASE_ID && (
-        <Script
-          id="chatbase-widget"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.chatbaseConfig = { chatbotId: "${process.env.NEXT_PUBLIC_CHATBASE_ID}" };
-            `,
-          }}
-        />
-      )}
-      {process.env.NEXT_PUBLIC_CHATBASE_ID && (
-        <Script
-          src="https://www.chatbase.co/embed.min.js"
-          id="chatbase-sdk"
-          data-chatbot-id={process.env.NEXT_PUBLIC_CHATBASE_ID}
-          strategy="afterInteractive"
-        />
-      )}
+      {/* Chatbase AI Assistant Widget */}
+      <Script
+        id="chatbase-config"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{
+          __html: `window.chatbaseConfig = { chatbotId: "NWjkUsLKs1X83cNdAnodJ" };`,
+        }}
+      />
+      <Script
+        src="https://www.chatbase.co/embed.min.js"
+        id="chatbase-sdk"
+        data-chatbot-id="NWjkUsLKs1X83cNdAnodJ"
+        strategy="afterInteractive"
+      />
     </div>
   );
 }
