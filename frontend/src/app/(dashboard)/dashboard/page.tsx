@@ -160,7 +160,7 @@ export default function DashboardPage() {
                   <span className="block">{greeting},</span>
                   <span className="inline-flex items-center gap-2 mt-1.5">
                     <span className="text-[#FEB800]">{profile.first_name}</span>
-                    <span className="relative w-[40px] h-[40px] shrink-0 inline-block">
+                    <span className="relative w-[40px] h-[40px] shrink-0 inline-block ml-3">
                       <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none block">
                         <DotLottiePlayer 
                           src="https://lottie.host/5ec233ff-2cb3-499c-ac94-906625aeb28f/JZM0rMFaWb.lottie" 
@@ -559,7 +559,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                 <span className="block">{greeting},</span>
                 <span className="inline-flex items-center gap-2 mt-1.5">
                   <span className="text-[#FEB800]">{profile.first_name} (Admin)</span>
-                  <span className="relative w-[40px] h-[40px] shrink-0 inline-block">
+                  <span className="relative w-[40px] h-[40px] shrink-0 inline-block ml-3">
                     <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none block">
                       <DotLottiePlayer 
                         src="https://lottie.host/5ec233ff-2cb3-499c-ac94-906625aeb28f/JZM0rMFaWb.lottie" 
