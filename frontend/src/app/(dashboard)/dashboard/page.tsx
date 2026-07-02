@@ -98,6 +98,8 @@ export default function DashboardPage() {
     return <SuperAdminDashboard data={data} user={user} time={time} greeting={greeting} />;
   }
 
+  const hasActiveRec = !!profile.active_recognition;
+
   return (
     <div
       className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500"
