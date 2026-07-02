@@ -39,15 +39,23 @@ class AnnouncementController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->validate([
+        $rules = [
             'title'        => ['required', 'string', 'max:255'],
             'content'      => ['required', 'string'],
             'category'     => ['required', 'string'],
             'is_pinned'    => ['boolean'],
             'scheduled_at' => ['nullable', 'date'],
-            'expires_at'   => ['nullable', 'date', 'after:scheduled_at'],
+            'expires_at'   => ['nullable', 'date'],
             'image'        => ['nullable', 'image', 'max:5120'],
-        ]);
+        ];
+
+        if ($request->filled('scheduled_at') && $request->filled('expires_at')) {
+            $rules['expires_at'][] = 'after:scheduled_at';
+        } elseif ($request->filled('expires_at')) {
+            $rules['expires_at'][] = 'after:now';
+        }
+
+        $data = $request->validate($rules);
 
         $imagePath = null;
         if ($request->hasFile('image')) {
