@@ -33,7 +33,7 @@ class CalendarController extends Controller
             $events[] = [
                 'id' => 'h_' . $h->id,
                 'title' => $h->name,
-                'date' => $h->date,
+                'date' => $h->date ? \Carbon\Carbon::parse($h->date)->format('Y-m-d') : null,
                 'type' => 'Holiday',
                 'status' => 'Approved', // implicitly
             ];

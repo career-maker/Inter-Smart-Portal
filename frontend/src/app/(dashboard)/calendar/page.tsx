@@ -50,24 +50,24 @@ export default function CalendarPage() {
   const paddingDays = Array.from({ length: firstDayOfMonth }).map((_, i) => i);
 
   const getEventsForDay = (date: Date) => {
-    // Format the current calendar day as YYYY-MM-DD string to avoid UTC timezone drift
     const dayStr = format(date, 'yyyy-MM-dd');
     return events.filter(e => {
-      const eventStart = e.date; // already YYYY-MM-DD string from API
+      if (!e.date) return false;
+      const eventStart = e.date.split(' ')[0].split('T')[0];
       if (!e.end_date) return eventStart === dayStr;
-      const eventEnd = e.end_date;
+      const eventEnd = e.end_date.split(' ')[0].split('T')[0];
       return dayStr >= eventStart && dayStr <= eventEnd;
     });
   };
 
   const getEventStyle = (event: any) => {
-    if (event.type === 'Holiday') return "bg-purple-100 text-purple-700 border-purple-200";
-    if (event.type === 'WFH') return "bg-blue-100 text-blue-700 border-blue-200";
+    if (event.type === 'Holiday') return "bg-purple-500/20 text-purple-300 border-purple-500/30";
+    if (event.type === 'WFH') return "bg-blue-500/20 text-blue-300 border-blue-500/30";
     
     // It's a Leave
-    if (event.status === 'Approved') return "bg-green-100 text-green-700 border-green-200";
-    if (event.status === 'Rejected') return "bg-red-100 text-red-700 border-red-200";
-    return "bg-amber-100 text-amber-700 border-amber-200"; // Pending
+    if (event.status === 'Approved') return "bg-emerald-500/20 text-emerald-300 border-emerald-500/30";
+    if (event.status === 'Rejected') return "bg-red-500/20 text-red-300 border-red-500/30";
+    return "bg-amber-500/20 text-amber-300 border-amber-500/30"; // Pending
   };
 
   return (
@@ -79,18 +79,18 @@ export default function CalendarPage() {
         </div>
         
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={goToToday}>Today</Button>
-          <div className="flex items-center bg-white border rounded-lg">
-            <Button variant="ghost" size="icon" onClick={prevMonth} className="rounded-r-none border-r"><ChevronLeft className="h-4 w-4" /></Button>
-            <div className="w-32 text-center font-semibold text-sm">
+          <Button variant="outline" onClick={goToToday} className="border-white/10 bg-white/5 text-white hover:bg-white/10">Today</Button>
+          <div className="flex items-center bg-white/5 border border-white/10 rounded-xl">
+            <Button variant="ghost" size="icon" onClick={prevMonth} className="rounded-r-none border-r border-white/10 text-slate-300 hover:text-white hover:bg-white/10"><ChevronLeft className="h-4 w-4" /></Button>
+            <div className="w-32 text-center font-semibold text-sm text-white">
               {format(currentDate, 'MMMM yyyy')}
             </div>
-            <Button variant="ghost" size="icon" onClick={nextMonth} className="rounded-l-none border-l"><ChevronRight className="h-4 w-4" /></Button>
+            <Button variant="ghost" size="icon" onClick={nextMonth} className="rounded-l-none border-l border-white/10 text-slate-300 hover:text-white hover:bg-white/10"><ChevronRight className="h-4 w-4" /></Button>
           </div>
         </div>
       </div>
 
-      <div className="flex gap-4 items-center text-sm bg-white p-3 rounded-lg border shadow-sm flex-wrap">
+      <div className="flex gap-4 items-center text-sm bg-white/5 border border-white/10 p-4 rounded-2xl flex-wrap text-slate-300">
         <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-purple-500"></span> Company Holiday</div>
         <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-green-500"></span> Approved Leave</div>
         <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-amber-500"></span> Pending Leave</div>
@@ -98,25 +98,25 @@ export default function CalendarPage() {
         <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-red-500"></span> Rejected Leave</div>
       </div>
 
-      <div className="bg-white border rounded-xl shadow-sm overflow-hidden relative">
+      <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden relative backdrop-blur-md">
         {isLoading && (
-          <div className="absolute inset-0 bg-white/50 backdrop-blur-sm z-10 flex items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm z-10 flex items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-amber-500" />
           </div>
         )}
         
-        <div className="grid grid-cols-7 border-b bg-gray-50/50">
+        <div className="grid grid-cols-7 border-b border-white/10 bg-white/5">
           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-            <div key={day} className="py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            <div key={day} className="py-3 text-center text-xs font-semibold text-slate-400 uppercase tracking-wider">
               {day}
             </div>
           ))}
         </div>
         
-        <div className="grid grid-cols-7 auto-rows-[120px]">
+        <div className="grid grid-cols-7 auto-rows-[120px] bg-slate-900/10">
           {/* Empty cells for days before the 1st */}
           {paddingDays.map(i => (
-            <div key={`empty-${i}`} className="border-b border-r bg-gray-50/30 p-2" />
+            <div key={`empty-${i}`} className="border-b border-r border-white/10 bg-white/[0.02] p-2" />
           ))}
           
           {/* Actual days */}
@@ -128,10 +128,10 @@ export default function CalendarPage() {
             return (
               <div 
                 key={day.toString()} 
-                className={`border-b border-r p-2 flex flex-col gap-1 transition-colors hover:bg-gray-50/50 ${!isCurrentMonth ? 'opacity-50 bg-gray-50/50' : ''}`}
+                className={`border-b border-r border-white/10 p-2 flex flex-col gap-1 transition-colors hover:bg-white/[0.04] ${!isCurrentMonth ? 'opacity-30' : ''}`}
               >
                 <div className="flex justify-end">
-                  <span className={`text-xs font-medium w-6 h-6 flex items-center justify-center rounded-full ${today ? 'bg-primary text-primary-foreground' : 'text-gray-500'}`}>
+                  <span className={`text-xs font-medium w-6 h-6 flex items-center justify-center rounded-full ${today ? 'bg-amber-500 text-white font-bold' : 'text-slate-400'}`}>
                     {format(day, 'd')}
                   </span>
                 </div>
@@ -141,7 +141,7 @@ export default function CalendarPage() {
                     <div 
                       key={event.id}
                       title={`${event.title} (${event.status})`}
-                      className={`text-[10px] leading-tight px-1.5 py-1 rounded border truncate font-medium cursor-help ${getEventStyle(event)}`}
+                      className={`text-[10px] leading-tight px-1.5 py-1 rounded border truncate font-semibold cursor-help ${getEventStyle(event)}`}
                     >
                       {event.title}
                     </div>
