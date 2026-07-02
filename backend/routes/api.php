@@ -12,6 +12,23 @@ Route::get('/debug-employee', function () {
     return new \App\Http\Resources\EmployeeResource(\App\Models\User::find(2));
 });
 
+Route::get('/debug-logs', function () {
+    if (request()->query('key') !== 'antigravity-debug') {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+    $logPath = storage_path('logs');
+    $files = glob($logPath . '/*.log');
+    if (empty($files)) {
+        return response()->json(['message' => 'No log files found']);
+    }
+    usort($files, fn($a, $b) => filemtime($b) <=> filemtime($a));
+    $latestFile = $files[0];
+    
+    $lines = file($latestFile);
+    $lastLines = array_slice($lines, -150);
+    return response(implode("", $lastLines), 200, ['Content-Type' => 'text/plain']);
+});
+
 Route::get('/photos/{path}', [\App\Http\Controllers\Api\EmployeeController::class, 'showPhoto'])->where('path', '.*');
 
 Route::post('/login', [AuthController::class, 'login']);
