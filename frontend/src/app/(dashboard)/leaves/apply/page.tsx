@@ -25,6 +25,9 @@ export default function ApplyLeavePage() {
   const [impact, setImpact] = useState<any>(null);
   const [isCalculating, setIsCalculating] = useState(false);
 
+  const [existingLeaves, setExistingLeaves] = useState<any[]>([]);
+  const [overlapError, setOverlapError] = useState<string | null>(null);
+
   useEffect(() => {
     if (user?.role === "Super Admin") router.replace("/leaves");
   }, [user, router]);
@@ -56,9 +59,38 @@ export default function ApplyLeavePage() {
       } catch {
         setLeaveMetrics({ casual_leave_balance: 0, cl_carry_forward: 0, sick_leave_balance: 0, total_leaves_taken: 0 });
       }
+      try {
+        const reqRes = await api.get("/leave-requests");
+        setExistingLeaves(reqRes.data?.data?.data || []);
+      } catch (err) {
+        console.error("Failed to load existing requests", err);
+      }
     };
     load();
   }, []);
+
+  useEffect(() => {
+    if (!startDate) {
+      setOverlapError(null);
+      return;
+    }
+    const s = new Date(startDate);
+    const e = new Date(endDate || startDate);
+
+    const overlap = existingLeaves.find((r: any) => {
+      if (r.status !== "Approved" && r.status !== "Pending") return false;
+      const rs = new Date(r.start_date);
+      const re = new Date(r.end_date);
+      return (s <= re && e >= rs);
+    });
+
+    if (overlap) {
+      const type = overlap.leave_type?.name || "leave";
+      setOverlapError(`You have an overlapping ${type} request (${overlap.start_date} to ${overlap.end_date}) in this range.`);
+    } else {
+      setOverlapError(null);
+    }
+  }, [startDate, endDate, existingLeaves]);
 
   // Auto-fill end date when start date changes; also lock end date for half-day
   const handleStartDateChange = (val: string) => {
@@ -288,11 +320,21 @@ export default function ApplyLeavePage() {
               </div>
             )}
 
+            {overlapError && (
+              <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-start gap-2.5">
+                <AlertTriangle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-rose-300 font-semibold">Overlapping Leave Request</p>
+                  <p className="text-sm text-slate-300 mt-1">{overlapError}</p>
+                </div>
+              </div>
+            )}
+
             <div className="flex justify-end gap-4 border-t border-white/10 pt-5">
               <button type="button" onClick={() => router.push("/leaves")} className="px-5 py-2 rounded-xl text-sm font-medium text-slate-300 border border-white/10 bg-white/5 hover:bg-white/10 transition-colors">
                 Cancel
               </button>
-              <button type="submit" disabled={isLoading || !leaveTypeId || !startDate || !endDate || !reason.trim()} className="px-5 py-2 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-600 text-white disabled:opacity-50 transition-colors">
+              <button type="submit" disabled={isLoading || !leaveTypeId || !startDate || !endDate || !reason.trim() || !!overlapError} className="px-5 py-2 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-600 text-white disabled:opacity-50 transition-colors">
                 {isLoading ? "Submitting..." : "Review & Submit"}
               </button>
             </div>

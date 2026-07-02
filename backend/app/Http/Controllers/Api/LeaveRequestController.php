@@ -344,6 +344,24 @@ class LeaveRequestController extends Controller
             $targetUser = \App\Models\User::find($request->user_id) ?? $targetUser;
         }
 
+        $overlap = LeaveRequest::where('user_id', $targetUser->id)
+            ->whereIn('status', ['Pending', 'Approved'])
+            ->where(function($q) use ($request) {
+                $q->whereBetween('start_date', [$request->start_date, $request->end_date])
+                  ->orWhereBetween('end_date', [$request->start_date, $request->end_date])
+                  ->orWhere(function($sq) use ($request) {
+                      $sq->where('start_date', '<=', $request->start_date)
+                         ->where('end_date', '>=', $request->end_date);
+                  });
+            })
+            ->first();
+
+        if ($overlap) {
+            return response()->json([
+                'message' => 'You have already applied for leave on some dates within this range (' . $overlap->start_date . ' to ' . $overlap->end_date . ').'
+            ], 422);
+        }
+
         return response()->json(
             $this->calculateLeaveImpact(
                 $targetUser,
@@ -358,6 +376,25 @@ class LeaveRequestController extends Controller
     {
         $user      = $request->user();
         $data      = $request->validated();
+
+        $overlap = LeaveRequest::where('user_id', $user->id)
+            ->whereIn('status', ['Pending', 'Approved'])
+            ->where(function($q) use ($data) {
+                $q->whereBetween('start_date', [$data['start_date'], $data['end_date']])
+                  ->orWhereBetween('end_date', [$data['start_date'], $data['end_date']])
+                  ->orWhere(function($sq) use ($data) {
+                      $sq->where('start_date', '<=', $data['start_date'])
+                         ->where('end_date', '>=', $data['end_date']);
+                  });
+            })
+            ->first();
+
+        if ($overlap) {
+            return response()->json([
+                'message' => 'You have already applied for leave on some dates within this range (' . $overlap->start_date . ' to ' . $overlap->end_date . ').'
+            ], 422);
+        }
+
         $leaveType = \App\Models\LeaveType::find($data['leave_type_id']);
         $durationType = $data['duration_type'] ?? 'Full';
         $impact    = $this->calculateLeaveImpact($user, $data['leave_type_id'], $data['start_date'], $data['end_date'], $durationType);
