@@ -743,21 +743,21 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Casual Leaves</p>
-                  <p className="text-2xl font-black text-white mt-1">{data.user_data.leave_metrics.casual_leave_balance}</p>
+                  <p className="text-2xl font-black text-white mt-1">{data.leave_metrics?.casual_leave_balance ?? 0}</p>
                 </div>
               </div>
               <div className="h-px bg-white/10 w-full"></div>
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Sick Leaves</p>
-                  <p className="text-2xl font-black text-white mt-1">{data.user_data.leave_metrics.sick_leave_balance}</p>
+                  <p className="text-2xl font-black text-white mt-1">{data.leave_metrics?.sick_leave_balance ?? 0}</p>
                 </div>
               </div>
               <div className="h-px bg-white/10 w-full"></div>
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Total Taken</p>
-                  <p className="text-2xl font-black text-white mt-1">{data.user_data.leave_metrics.total_leaves_taken}</p>
+                  <p className="text-2xl font-black text-white mt-1">{data.leave_metrics?.total_leaves_taken ?? 0}</p>
                 </div>
               </div>
               <div className="pt-2">
