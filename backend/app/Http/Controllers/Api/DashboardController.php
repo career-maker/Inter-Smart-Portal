@@ -319,7 +319,28 @@ class DashboardController extends Controller
                 ];
             });
                 
-            $pendingGlobalRequests = LeaveRequest::where('status', 'Pending')->count();
+            $pendingGlobalRequests = 0;
+            if ($user->hasRole('Super Admin') || $user->hasRole('HR')) {
+                $pendingLeaves = LeaveRequest::where('admin_status', 'Pending')
+                    ->where('status', 'Pending')
+                    ->where(function ($q) {
+                        $q->whereIn('tl_status', ['Approved', 'Not Required'])
+                          ->orWhereColumn('start_date', 'end_date');
+                    })->count();
+                $pendingWfh = \App\Models\WfhRequest::where('admin_status', 'Pending')
+                    ->whereIn('tl_status', ['Approved', 'Not Required'])
+                    ->where('status', 'Pending')->count();
+                $pendingGlobalRequests = $pendingLeaves + $pendingWfh;
+            } elseif ($user->hasRole('Team Lead')) {
+                $teamId = $user->team_id;
+                $pendingLeaves = LeaveRequest::whereHas('user', fn($q) => $q->where('team_id', $teamId))
+                    ->where('tl_status', 'Pending')
+                    ->where('status', 'Pending')->count();
+                $pendingWfh = \App\Models\WfhRequest::whereHas('user', fn($q) => $q->where('team_id', $teamId))
+                    ->where('tl_status', 'Pending')
+                    ->where('status', 'Pending')->count();
+                $pendingGlobalRequests = $pendingLeaves + $pendingWfh;
+            }
             
             // Global Activity Feed
             $twoDaysAgo = \Carbon\Carbon::today()->subDays(2);
