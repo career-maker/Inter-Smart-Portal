@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, AlertTriangle, CheckCircle, Clock, Loader2, Link2 } from "lucide-react";
@@ -60,20 +60,37 @@ export default function ApplyLeavePage() {
     load();
   }, []);
 
+  // Auto-fill end date when start date changes; also lock end date for half-day
+  const handleStartDateChange = (val: string) => {
+    setStartDate(val);
+    // Always auto-fill end date to start date; for half-day this is the only allowed value
+    setEndDate(val);
+  };
+
+  const handleLeaveTypeChange = (val: string) => {
+    setLeaveTypeId(val);
+    // If switching to half-day, lock end date to start date
+    const type = leaveTypes.find((t: any) => t.id.toString() === val);
+    if (type?.name?.toLowerCase().includes("half") && startDate) {
+      setEndDate(startDate);
+    }
+  };
+
   useEffect(() => {
     if (!leaveTypeId || !startDate || !endDate) { setImpact(null); return; }
     const t = setTimeout(async () => {
       setIsCalculating(true);
       try {
         const payload: any = { leave_type_id: leaveTypeId, start_date: startDate, end_date: endDate };
-        if (selectedType?.name?.toLowerCase().includes("half")) payload.duration_type = durationType;
+        const type = leaveTypes.find((t: any) => t.id.toString() === leaveTypeId?.toString());
+        if (type?.name?.toLowerCase().includes("half")) payload.duration_type = durationType;
         const res = await api.post("/leaves/calculate", payload);
         setImpact(res.data);
       } catch { setImpact(null); }
       finally { setIsCalculating(false); }
     }, 500);
     return () => clearTimeout(t);
-  }, [leaveTypeId, startDate, endDate, durationType, selectedType]);
+  }, [leaveTypeId, startDate, endDate, durationType, leaveTypes]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,7 +109,8 @@ export default function ApplyLeavePage() {
         reason,
         ...(attachmentLink.trim() ? { attachment_link: attachmentLink.trim() } : {}),
       };
-      if (selectedType?.name?.toLowerCase().includes("half")) payload.duration_type = durationType;
+      const type = leaveTypes.find((t: any) => t.id.toString() === leaveTypeId?.toString());
+      if (type?.name?.toLowerCase().includes("half")) payload.duration_type = durationType;
       await api.post("/leave-requests", payload);
       window.dispatchEvent(new Event("notifications-refresh"));
       router.push("/leaves");
@@ -104,7 +122,8 @@ export default function ApplyLeavePage() {
   };
 
   const today = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split("T")[0];
-  const selectedType = leaveTypes.find(t => t.id.toString() === leaveTypeId?.toString());
+  const selectedType = leaveTypes.find((t: any) => t.id.toString() === leaveTypeId?.toString());
+  const isHalfDayType = selectedType?.name?.toLowerCase().includes("half");
 
   const inputCls = "w-full bg-slate-700 border border-white/10 text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 placeholder:text-slate-500 transition-colors [color-scheme:dark]";
 
@@ -165,7 +184,7 @@ export default function ApplyLeavePage() {
 
             <div>
               <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Leave Type *</label>
-              <select value={leaveTypeId} onChange={e => setLeaveTypeId(e.target.value)} required className={inputCls}>
+              <select value={leaveTypeId} onChange={e => handleLeaveTypeChange(e.target.value)} required className={inputCls}>
                 <option value="" disabled className="bg-slate-700 text-slate-400">Select leave type...</option>
                 {leaveTypes.map(t => (
                   <option key={t.id} value={t.id.toString()} className="bg-slate-700 text-white">{t.name}</option>
@@ -183,15 +202,32 @@ export default function ApplyLeavePage() {
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-4">
+            {/* Date pickers — end date hidden for half-day (forced single day) */}
+            <div className={isHalfDayType ? "" : "grid grid-cols-2 gap-4"}>
               <div>
                 <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Start Date *</label>
-                <input type="date" value={startDate} min={today} onChange={e => setStartDate(e.target.value)} required className={inputCls} />
+                <input
+                  type="date"
+                  value={startDate}
+                  min={today}
+                  onChange={e => handleStartDateChange(e.target.value)}
+                  required
+                  className={inputCls}
+                />
               </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">End Date *</label>
-                <input type="date" value={endDate} min={startDate || today} onChange={e => setEndDate(e.target.value)} required className={inputCls} />
-              </div>
+              {!isHalfDayType && (
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">End Date *</label>
+                  <input
+                    type="date"
+                    value={endDate}
+                    min={startDate || today}
+                    onChange={e => setEndDate(e.target.value)}
+                    required
+                    className={inputCls}
+                  />
+                </div>
+              )}
             </div>
 
             <div>

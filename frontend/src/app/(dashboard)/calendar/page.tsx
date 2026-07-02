@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { 
   format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, 
-  isSameMonth, isSameDay, parseISO, isToday
+  isSameMonth, isToday
 } from "date-fns";
 import api from "@/services/api";
 
@@ -50,15 +50,13 @@ export default function CalendarPage() {
   const paddingDays = Array.from({ length: firstDayOfMonth }).map((_, i) => i);
 
   const getEventsForDay = (date: Date) => {
+    // Format the current calendar day as YYYY-MM-DD string to avoid UTC timezone drift
+    const dayStr = format(date, 'yyyy-MM-dd');
     return events.filter(e => {
-      const start = parseISO(e.date);
-      if (!e.end_date) return isSameDay(start, date);
-      const end = parseISO(e.end_date);
-      // Reset hours to 0 to compare dates safely
-      const d = new Date(date); d.setHours(0,0,0,0);
-      const s = new Date(start); s.setHours(0,0,0,0);
-      const ed = new Date(end); ed.setHours(0,0,0,0);
-      return d >= s && d <= ed;
+      const eventStart = e.date; // already YYYY-MM-DD string from API
+      if (!e.end_date) return eventStart === dayStr;
+      const eventEnd = e.end_date;
+      return dayStr >= eventStart && dayStr <= eventEnd;
     });
   };
 
