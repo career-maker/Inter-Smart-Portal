@@ -157,7 +157,7 @@ export default function DashboardPage() {
                   {format(time, "EEEE, d MMMM yyyy")} • {format(time, "h:mm a")}
                 </p>
                 <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight flex items-center text-white">
-                  {greeting}, {profile.first_name}
+                  {greeting}, <span className="text-[#FEB800]">{profile.first_name}</span>
                   <div className="relative w-[60px] h-[60px] ml-2 shrink-0">
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
                       <DotLottiePlayer src="https://lottie.host/5ec233ff-2cb3-499c-ac94-906625aeb28f/JZM0rMFaWb.lottie" autoplay loop style={{ width: '120px', height: '120px' }} />
@@ -537,7 +537,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                 {format(time, "EEEE, d MMMM yyyy")} • {format(time, "h:mm a")}
               </p>
               <h1 className="text-3xl font-extrabold tracking-tight flex items-center text-white">
-                {greeting}, {profile.first_name} (Admin) 
+                {greeting}, <span className="text-[#FEB800]">{profile.first_name} (Admin)</span>
                 <div className="relative w-[60px] h-[60px] ml-2 shrink-0">
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
                     <DotLottiePlayer src="https://lottie.host/5ec233ff-2cb3-499c-ac94-906625aeb28f/JZM0rMFaWb.lottie" autoplay loop style={{ width: '120px', height: '120px' }} />
