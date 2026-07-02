@@ -80,8 +80,29 @@ class LeaveRequestController extends Controller
             }
         }
 
+        // Filtered Totals
+        // Clone the query to calculate totals before sorting and paginating
+        $totalQuery = clone $query;
+        // Only count approved leaves for totals
+        $totalQuery->where('status', 'Approved');
+
+        $filteredTotals = [
+            'casual' => (float) (clone $totalQuery)->whereHas('leaveType', function ($q) {
+                $q->whereRaw('LOWER(name) LIKE ?', ['%casual%']);
+            })->sum(\DB::raw('COALESCE(actual_leave_days, days, 0)')),
+            
+            'sick' => (float) (clone $totalQuery)->whereHas('leaveType', function ($q) {
+                $q->whereRaw('LOWER(name) LIKE ?', ['%sick%']);
+            })->sum(\DB::raw('COALESCE(actual_leave_days, days, 0)')),
+            
+            'lop' => (float) (clone $totalQuery)->where('is_unpaid', true)->sum(\DB::raw('COALESCE(actual_leave_days, days, 0)')),
+            
+            'total' => (float) (clone $totalQuery)->sum(\DB::raw('COALESCE(actual_leave_days, days, 0)')),
+        ];
+
         return response()->json([
-            'data' => $query->orderBy('created_at', 'desc')->paginate(10)
+            'data' => $query->orderBy('created_at', 'desc')->paginate(10),
+            'filtered_totals' => $filteredTotals
         ]);
     }
 

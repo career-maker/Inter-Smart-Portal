@@ -21,6 +21,7 @@ export default function LeavesPage() {
   const [filterType, setFilterType] = useState("");
   const [filterFromDate, setFilterFromDate] = useState("");
   const [filterToDate, setFilterToDate] = useState("");
+  const [filteredTotals, setFilteredTotals] = useState<any>(null);
 
   useEffect(() => {
     fetchData(currentPage);
@@ -46,12 +47,13 @@ export default function LeavesPage() {
         api.get(`/leave-requests?${queryParams}`)
       ]);
 
+      const filtered = reqRes.data.filtered_totals;
+      setFilteredTotals(filtered || null);
+
       const balanceData = balRes.data.data;
       if (balanceData && !isSuperAdmin) {
         const clBalance  = (balanceData.casual_leave_balance || 0) + (balanceData.cl_carry_forward || 0);
         const slBalance  = balanceData.sick_leave_balance || 0;
-        const totalTaken = balanceData.total_leaves_taken || 0;
-        const clUsed     = Math.max(0, totalTaken - slBalance); // best-effort split; we just show remaining directly
         setBalances([
           {
             id: 1,
@@ -59,7 +61,7 @@ export default function LeavesPage() {
             color: "text-emerald-400",
             remaining: clBalance,
             cl_carry_forward: balanceData.cl_carry_forward || 0,
-            total_taken: totalTaken,
+            total_taken: filtered?.casual ?? 0,
           },
           {
             id: 2,
@@ -67,7 +69,7 @@ export default function LeavesPage() {
             color: "text-rose-400",
             remaining: slBalance,
             cl_carry_forward: 0,
-            total_taken: totalTaken,
+            total_taken: filtered?.sick ?? 0,
           },
         ]);
       }
@@ -158,11 +160,35 @@ export default function LeavesPage() {
                   )}
                 </div>
                 <div className="text-sm text-slate-500 text-right space-y-0.5">
-                  <div>Total Taken: <span className="text-slate-300 font-medium">{balance.total_taken}</span></div>
+                  <div>
+                    {!!(filterType || filterFromDate || filterToDate) ? "Taken (Filtered): " : "Total Taken: "}
+                    <span className="text-slate-300 font-medium">{balance.total_taken} Day(s)</span>
+                  </div>
                 </div>
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {filteredTotals && !!(filterType || filterFromDate || filterToDate) && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-5 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md">
+          <div className="text-center p-2">
+            <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-1">Filtered Casual</p>
+            <p className="text-xl font-black text-emerald-400">{filteredTotals.casual} Day(s)</p>
+          </div>
+          <div className="text-center border-t md:border-t-0 md:border-l border-white/10 p-2">
+            <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-1">Filtered Sick</p>
+            <p className="text-xl font-black text-rose-400">{filteredTotals.sick} Day(s)</p>
+          </div>
+          <div className="text-center border-t md:border-t-0 md:border-l border-white/10 p-2">
+            <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-1">Filtered LOP</p>
+            <p className="text-xl font-black text-rose-500">{filteredTotals.lop} Day(s)</p>
+          </div>
+          <div className="text-center border-t md:border-t-0 md:border-l border-white/10 p-2">
+            <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-1">Filtered Total</p>
+            <p className="text-xl font-black text-amber-500">{filteredTotals.total} Day(s)</p>
+          </div>
         </div>
       )}
 
