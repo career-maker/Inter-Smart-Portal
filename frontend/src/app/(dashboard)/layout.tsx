@@ -12,6 +12,7 @@ import {
 import { NotificationDropdown } from "@/components/layout/NotificationDropdown";
 import { RecognitionTicker } from "@/components/layout/RecognitionTicker";
 import api from "@/services/api";
+import ChatWidget from "@/components/ChatWidget";
 
 type NavItem = {
   href: string;
@@ -386,6 +387,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         )}
         {children}
       </main>
+      <ChatWidget />
     </div>
   );
 }

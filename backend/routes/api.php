@@ -140,6 +140,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('announcement-categories', [\App\Http\Controllers\Api\AnnouncementCategoryController::class, 'index']);
     Route::post('announcement-categories', [\App\Http\Controllers\Api\AnnouncementCategoryController::class, 'store']);
 
+    // AI Chatbot Route
+    Route::post('chat', [\App\Http\Controllers\Api\ChatController::class, 'store']);
+
     // Notifications
     Route::prefix('notifications')->group(function () {
         Route::get('/', [\App\Http\Controllers\Api\NotificationController::class, 'index']);
