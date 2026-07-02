@@ -9,6 +9,23 @@ class LeaveRequest extends Model
 
     protected $guarded = [];
 
+    protected $appends = ['duration_type'];
+
+    public function getDurationTypeAttribute()
+    {
+        $name = strtolower($this->leaveType->name ?? '');
+        if (str_contains($name, 'morning')) {
+            return 'Half-Morning';
+        }
+        if (str_contains($name, 'afternoon')) {
+            return 'Half-Afternoon';
+        }
+        if (str_contains($name, 'half')) {
+            return 'Half-Morning'; // default fallback for half day
+        }
+        return 'Full';
+    }
+
     public function user() {
         return $this->belongsTo(User::class);
     }

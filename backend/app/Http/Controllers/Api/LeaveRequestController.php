@@ -217,11 +217,9 @@ class LeaveRequestController extends Controller
                     ->whereIn('status', ['Approved', 'Pending'])
                     ->where('start_date', '<=', $checkPre->toDateString())
                     ->where('end_date', '>=', $checkPre->toDateString())
-                    ->where(function($q) {
-                        // To form a preceding sandwich, the previous leave must border the weekend (Full or Half-Afternoon)
-                        $q->whereNull('duration_type')
-                          ->orWhere('duration_type', 'Full')
-                          ->orWhere('duration_type', 'Half-Afternoon');
+                    ->whereHas('leaveType', function($q) {
+                        // Previous leave must NOT be a Morning-only half day (so it must be Full or Afternoon)
+                        $q->where('name', 'NOT LIKE', '%Morning%');
                     })
                     ->exists();
                 if ($hasPreLeave) {
@@ -407,7 +405,6 @@ class LeaveRequestController extends Controller
                 'leave_type_id'          => $data['leave_type_id'],
                 'start_date'             => $data['start_date'],
                 'end_date'               => $data['end_date'],
-                'duration_type'          => $durationType,
                 'days'                   => $days,
                 'reason'                 => $data['reason'],
                 'attachment_link'        => $data['attachment_link'] ?? null,
@@ -774,7 +771,9 @@ class LeaveRequestController extends Controller
                     })
                     ->where(function ($q) use ($checkPre) {
                         $q->where('end_date', '>', $checkPre->toDateString())
-                          ->orWhereIn('duration_type', ['Full', 'Half-Afternoon']);
+                          ->orWhereHas('leaveType', function ($sq) {
+                              $sq->where('name', 'NOT LIKE', '%Morning%');
+                          });
                     })
                     ->first();
 
@@ -808,7 +807,9 @@ class LeaveRequestController extends Controller
                     })
                     ->where(function ($q) use ($checkPost) {
                         $q->where('start_date', '<', $checkPost->toDateString())
-                          ->orWhereIn('duration_type', ['Full', 'Half-Morning']);
+                          ->orWhereHas('leaveType', function ($sq) {
+                              $sq->where('name', 'NOT LIKE', '%Afternoon%');
+                          });
                     })
                     ->first();
 

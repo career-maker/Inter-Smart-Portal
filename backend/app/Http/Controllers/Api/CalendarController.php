@@ -63,7 +63,10 @@ class CalendarController extends Controller
 
         // 3. WFH Requests
         $wfhs = WfhRequest::where('user_id', $user->id)
-            ->whereBetween('date', [$startOfMonth->toDateString(), $endOfMonth->toDateString()])
+            ->where(function($q) use ($startOfMonth, $endOfMonth) {
+                $q->whereBetween('start_date', [$startOfMonth->toDateString(), $endOfMonth->toDateString()])
+                  ->orWhereBetween('end_date', [$startOfMonth->toDateString(), $endOfMonth->toDateString()]);
+            })
             ->get();
 
         foreach ($wfhs as $w) {
@@ -74,7 +77,8 @@ class CalendarController extends Controller
             $events[] = [
                 'id' => 'w_' . $w->id,
                 'title' => $title,
-                'date' => $w->date,
+                'date' => $w->start_date ?? $w->wfh_date,
+                'end_date' => $w->end_date ?? $w->wfh_date,
                 'type' => 'WFH',
                 'status' => $w->status,
                 'duration' => $w->duration_type,
