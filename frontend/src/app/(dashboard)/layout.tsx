@@ -12,7 +12,7 @@ import {
 import { NotificationDropdown } from "@/components/layout/NotificationDropdown";
 import { RecognitionTicker } from "@/components/layout/RecognitionTicker";
 import api from "@/services/api";
-import ChatWidget from "@/components/ChatWidget";
+import Script from "next/script";
 
 type NavItem = {
   href: string;
@@ -387,7 +387,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         )}
         {children}
       </main>
-      <ChatWidget />
+      {process.env.NEXT_PUBLIC_CHATBASE_ID && (
+        <Script
+          id="chatbase-widget"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.chatbaseConfig = { chatbotId: "${process.env.NEXT_PUBLIC_CHATBASE_ID}" };
+            `,
+          }}
+        />
+      )}
+      {process.env.NEXT_PUBLIC_CHATBASE_ID && (
+        <Script
+          src="https://www.chatbase.co/embed.min.js"
+          id="chatbase-sdk"
+          data-chatbot-id={process.env.NEXT_PUBLIC_CHATBASE_ID}
+          strategy="afterInteractive"
+        />
+      )}
     </div>
   );
 }
