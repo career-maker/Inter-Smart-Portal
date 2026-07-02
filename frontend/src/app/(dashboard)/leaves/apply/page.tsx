@@ -69,10 +69,17 @@ export default function ApplyLeavePage() {
 
   const handleLeaveTypeChange = (val: string) => {
     setLeaveTypeId(val);
-    // If switching to half-day, lock end date to start date
     const type = leaveTypes.find((t: any) => t.id.toString() === val);
-    if (type?.name?.toLowerCase().includes("half") && startDate) {
-      setEndDate(startDate);
+    const name = type?.name?.toLowerCase() || "";
+    if (name.includes("half")) {
+      if (startDate) {
+        setEndDate(startDate);
+      }
+      if (name.includes("morning")) {
+        setDurationType("Half-Morning");
+      } else if (name.includes("afternoon")) {
+        setDurationType("Half-Afternoon");
+      }
     }
   };
 
@@ -83,7 +90,16 @@ export default function ApplyLeavePage() {
       try {
         const payload: any = { leave_type_id: leaveTypeId, start_date: startDate, end_date: endDate };
         const type = leaveTypes.find((t: any) => t.id.toString() === leaveTypeId?.toString());
-        if (type?.name?.toLowerCase().includes("half")) payload.duration_type = durationType;
+        const name = type?.name?.toLowerCase() || "";
+        if (name.includes("half")) {
+          if (name.includes("morning")) {
+            payload.duration_type = "Half-Morning";
+          } else if (name.includes("afternoon")) {
+            payload.duration_type = "Half-Afternoon";
+          } else {
+            payload.duration_type = durationType;
+          }
+        }
         const res = await api.post("/leaves/calculate", payload);
         setImpact(res.data);
       } catch { setImpact(null); }
@@ -110,7 +126,16 @@ export default function ApplyLeavePage() {
         ...(attachmentLink.trim() ? { attachment_link: attachmentLink.trim() } : {}),
       };
       const type = leaveTypes.find((t: any) => t.id.toString() === leaveTypeId?.toString());
-      if (type?.name?.toLowerCase().includes("half")) payload.duration_type = durationType;
+      const name = type?.name?.toLowerCase() || "";
+      if (name.includes("half")) {
+        if (name.includes("morning")) {
+          payload.duration_type = "Half-Morning";
+        } else if (name.includes("afternoon")) {
+          payload.duration_type = "Half-Afternoon";
+        } else {
+          payload.duration_type = durationType;
+        }
+      }
       await api.post("/leave-requests", payload);
       window.dispatchEvent(new Event("notifications-refresh"));
       router.push("/leaves");
@@ -124,6 +149,8 @@ export default function ApplyLeavePage() {
   const today = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split("T")[0];
   const selectedType = leaveTypes.find((t: any) => t.id.toString() === leaveTypeId?.toString());
   const isHalfDayType = selectedType?.name?.toLowerCase().includes("half");
+  const isMorningOrAfternoonSpecified = selectedType?.name?.toLowerCase().includes("morning") || selectedType?.name?.toLowerCase().includes("afternoon");
+  const showDurationSelector = isHalfDayType && !isMorningOrAfternoonSpecified;
 
   const inputCls = "w-full bg-slate-700 border border-white/10 text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 placeholder:text-slate-500 transition-colors [color-scheme:dark]";
 
@@ -192,7 +219,7 @@ export default function ApplyLeavePage() {
               </select>
             </div>
 
-            {selectedType?.name?.toLowerCase().includes("half") && (
+            {showDurationSelector && (
               <div>
                 <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Duration (Half Day) *</label>
                 <select value={durationType} onChange={e => setDurationType(e.target.value)} required className={inputCls}>
