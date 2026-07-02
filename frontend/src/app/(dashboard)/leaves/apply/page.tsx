@@ -114,24 +114,6 @@ export default function ApplyLeavePage() {
   const [existingLeaves, setExistingLeaves] = useState<any[]>([]);
   const [overlapError, setOverlapError] = useState<string | null>(null);
 
-  const summaryRef = useRef<HTMLDivElement>(null);
-  const [isSummaryVisible, setIsSummaryVisible] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsSummaryVisible(entry.isIntersecting);
-      },
-      { threshold: 0.05 }
-    );
-    if (summaryRef.current) {
-      observer.observe(summaryRef.current);
-    }
-    return () => {
-      observer.disconnect();
-    };
-  }, []);
-
   const [holidays, setHolidays] = useState<any[]>([]);
   const [showStartCalendar, setShowStartCalendar] = useState(false);
   const [showEndCalendar, setShowEndCalendar] = useState(false);
@@ -467,8 +449,8 @@ export default function ApplyLeavePage() {
               <p className="text-xs text-slate-500 mt-1">Medical certificate, hospital report, travel ticket, etc.</p>
             </div>
 
-            {/* ── Leave Summary (wrapped in ref for sticky check) ── */}
-            <div ref={summaryRef} className="space-y-5">
+            {/* ── Leave Summary ── */}
+            <div className="space-y-5">
               {isCalculating && (
                 <div className="flex items-center gap-2 text-sm text-slate-400 py-2">
                   <Loader2 className="w-4 h-4 animate-spin" /> Calculating leave impact...
@@ -496,7 +478,8 @@ export default function ApplyLeavePage() {
                 </div>
               )}
 
-              <div className="flex justify-end gap-4 border-t border-white/10 pt-5">
+              {/* Pure CSS sticky action bar at bottom on mobile, inline on desktop */}
+              <div className="sticky bottom-0 left-0 right-0 -mx-6 -mb-6 p-4 bg-slate-900/95 backdrop-blur-md border-t border-white/10 z-40 flex justify-end gap-4 md:relative md:bottom-auto md:left-auto md:right-auto md:mx-0 md:mb-0 md:p-0 md:bg-transparent md:backdrop-blur-none md:border-none md:z-auto md:pt-5">
                 <button type="button" onClick={() => router.push("/leaves")} className="px-5 py-2 rounded-xl text-sm font-medium text-slate-300 border border-white/10 bg-white/5 hover:bg-white/10 transition-colors">
                   Cancel
                 </button>
@@ -508,26 +491,6 @@ export default function ApplyLeavePage() {
           </form>
         </div>
       </div>
-
-      {/* Sticky mobile submit button */}
-      {!isSummaryVisible && (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-slate-900/95 backdrop-blur-md border-t border-white/10 z-40 md:hidden flex justify-end">
-          <button
-            type="button"
-            onClick={() => {
-              const form = document.querySelector("form");
-              if (form) {
-                const submitBtn = form.querySelector("button[type='submit']") as HTMLButtonElement;
-                if (submitBtn) submitBtn.click();
-              }
-            }}
-            disabled={isLoading || !leaveTypeId || !startDate || !endDate || !reason.trim() || !!overlapError}
-            className="w-full py-3 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-600 text-white disabled:opacity-50 transition-colors shadow-lg cursor-pointer"
-          >
-            {isLoading ? "Submitting..." : "Review & Submit"}
-          </button>
-        </div>
-      )}
 
       {/* ── Confirmation Popup ── */}
       {showConfirm && impact && (
