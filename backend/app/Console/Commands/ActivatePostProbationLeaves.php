@@ -17,98 +17,93 @@ class ActivatePostProbationLeaves extends Command
     {
         $today       = Carbon::today();
         $currentYear = $today->year;
-        $yearStart   = Carbon::create($currentYear, 1, 1);
 
         $this->info("Checking for newly post-probation employees on {$today->toDateString()}...");
 
-        // Employees whose probation ended (probation_end_date <= today) and joined this year
-        // (employees who joined before the current year already received Jan 1 allocation)
+        // Candidates: Active users with probation_end_date <= today OR legacy users with joining_date <= today - 6 months
         $candidates = User::where('status', 'Active')
-            ->whereNotNull('probation_end_date')
-            ->where('probation_end_date', '<=', $today->toDateString())
-            ->where('joining_date', '>=', $yearStart->toDateString())
+            ->where(function ($q) use ($today) {
+                $q->where(function ($query) use ($today) {
+                    $query->whereNotNull('probation_end_date')
+                          ->where('probation_end_date', '<=', $today->toDateString());
+                })
+                ->orWhere(function ($query) use ($today) {
+                    $query->whereNull('probation_end_date')
+                          ->whereNotNull('joining_date')
+                          ->where('joining_date', '<=', $today->copy()->subMonths(6)->toDateString());
+                });
+            })
             ->get();
 
         $count = 0;
 
         foreach ($candidates as $user) {
             try {
-                $balance = LeaveBalance::where('user_id', $user->id)->first();
+                // Fetch or create the leave balance record
+                $balance = LeaveBalance::firstOrCreate(
+                    ['user_id' => $user->id],
+                    [
+                        'casual_leave_balance'       => 0,
+                        'sick_leave_balance'         => 0,
+                        'cl_carry_forward'           => 0,
+                        'total_leaves_taken'         => 0,
+                        'probation_leaves_allocated' => false
+                    ]
+                );
 
-                // Skip if already activated (has non-zero balance this year)
-                if ($balance && ($balance->casual_leave_balance > 0 || $balance->sick_leave_balance > 0)) {
+                // Skip if already allocated
+                if ($balance->probation_leaves_allocated) {
                     continue;
                 }
 
-                // Calculate remaining months: months after probation_end_date month until Dec
-                $probationEnd     = Carbon::parse($user->probation_end_date);
-                $remainingMonths  = 12 - $probationEnd->month;
+                // Determine probation end date for logging
+                $probationEnd = $user->probation_end_date 
+                    ? Carbon::parse($user->probation_end_date) 
+                    : Carbon::parse($user->joining_date)->addMonths(6);
 
-                if ($remainingMonths < 0) $remainingMonths = 0;
+                // Allocate exactly 12 Casual Leaves and 12 Sick Leaves, taking into account any manually added leaves
+                $currentCL = (float) $balance->casual_leave_balance;
+                $currentSL = (float) $balance->sick_leave_balance;
 
-                if ($balance) {
-                    $balance->casual_leave_balance = $remainingMonths;
-                    $balance->sick_leave_balance   = $remainingMonths;
-                    $balance->save();
-                } else {
-                    LeaveBalance::create([
-                        'user_id'               => $user->id,
-                        'casual_leave_balance'  => $remainingMonths,
-                        'sick_leave_balance'    => $remainingMonths,
-                        'cl_carry_forward'      => 0,
-                        'total_leaves_taken'    => 0,
+                $addCL = max(0.0, 12.0 - $currentCL);
+                $addSL = max(0.0, 12.0 - $currentSL);
+
+                $newCL = $currentCL + $addCL;
+                $newSL = $currentSL + $addSL;
+
+                $balance->casual_leave_balance = $newCL;
+                $balance->sick_leave_balance   = $newSL;
+                $balance->probation_leaves_allocated = true;
+                $balance->save();
+
+                // Create audit logs if any leaves were added
+                if ($addCL > 0) {
+                    \App\Models\LeaveBalanceAuditLog::create([
+                        'user_id'          => $user->id,
+                        'leave_type'       => 'Casual Leave',
+                        'previous_balance' => $currentCL,
+                        'new_balance'      => $newCL,
+                        'modified_by'      => $user->id, // System/Self modification
+                        'remarks'          => 'Automatic allocation after probation period',
+                    ]);
+                }
+                if ($addSL > 0) {
+                    \App\Models\LeaveBalanceAuditLog::create([
+                        'user_id'          => $user->id,
+                        'leave_type'       => 'Sick Leave',
+                        'previous_balance' => $currentSL,
+                        'new_balance'      => $newSL,
+                        'modified_by'      => $user->id, // System/Self modification
+                        'remarks'          => 'Automatic allocation after probation period',
                     ]);
                 }
 
                 $count++;
-                $this->line("  ✓ {$user->first_name} {$user->last_name}: probation ended {$probationEnd->toDateString()}, allocated CL={$remainingMonths} SL={$remainingMonths}");
+                $this->line("  ✓ {$user->first_name} {$user->last_name}: probation ended {$probationEnd->toDateString()}. Allocated CL Add: {$addCL} (Total: {$newCL}), SL Add: {$addSL} (Total: {$newSL})");
 
             } catch (\Throwable $e) {
                 Log::error("Post-probation activation failed for user {$user->id}: " . $e->getMessage());
                 $this->error("  ✗ Failed for {$user->first_name} {$user->last_name}: " . $e->getMessage());
-            }
-        }
-
-        // Also handle employees whose probation_end_date is null but joining_date was 6+ months ago
-        $legacyCandidates = User::where('status', 'Active')
-            ->whereNull('probation_end_date')
-            ->whereNotNull('joining_date')
-            ->where('joining_date', '>=', $yearStart->toDateString())
-            ->get()
-            ->filter(function ($user) use ($today) {
-                $calculatedEnd = Carbon::parse($user->joining_date)->addMonths(6);
-                return $calculatedEnd->lte($today);
-            });
-
-        foreach ($legacyCandidates as $user) {
-            try {
-                $balance = LeaveBalance::where('user_id', $user->id)->first();
-                if ($balance && ($balance->casual_leave_balance > 0 || $balance->sick_leave_balance > 0)) {
-                    continue;
-                }
-
-                $probationEnd    = Carbon::parse($user->joining_date)->addMonths(6);
-                $remainingMonths = max(0, 12 - $probationEnd->month);
-
-                if ($balance) {
-                    $balance->casual_leave_balance = $remainingMonths;
-                    $balance->sick_leave_balance   = $remainingMonths;
-                    $balance->save();
-                } else {
-                    LeaveBalance::create([
-                        'user_id'               => $user->id,
-                        'casual_leave_balance'  => $remainingMonths,
-                        'sick_leave_balance'    => $remainingMonths,
-                        'cl_carry_forward'      => 0,
-                        'total_leaves_taken'    => 0,
-                    ]);
-                }
-
-                $count++;
-                $this->line("  ✓ {$user->first_name} {$user->last_name}: computed probation end {$probationEnd->toDateString()}, allocated CL={$remainingMonths} SL={$remainingMonths}");
-
-            } catch (\Throwable $e) {
-                Log::error("Post-probation activation (legacy) failed for user {$user->id}: " . $e->getMessage());
             }
         }
 

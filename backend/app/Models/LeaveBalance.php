@@ -9,11 +9,12 @@ class LeaveBalance extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'casual_leave_balance'   => 'float',
-        'cl_carry_forward'       => 'float',
-        'cl_carry_forward_year'  => 'integer',
-        'sick_leave_balance'     => 'float',
-        'total_leaves_taken'     => 'float',
+        'casual_leave_balance'       => 'float',
+        'cl_carry_forward'           => 'float',
+        'cl_carry_forward_year'      => 'integer',
+        'sick_leave_balance'         => 'float',
+        'total_leaves_taken'         => 'float',
+        'probation_leaves_allocated' => 'boolean',
     ];
 
     public function user()

@@ -71,7 +71,13 @@ class EmployeeController extends Controller
         // Create a zero leave balance record for the new employee
         \App\Models\LeaveBalance::firstOrCreate(
             ['user_id' => $user->id],
-            ['casual_leave_balance' => 0, 'sick_leave_balance' => 0, 'cl_carry_forward' => 0, 'total_leaves_taken' => 0]
+            [
+                'casual_leave_balance'       => 0,
+                'sick_leave_balance'         => 0,
+                'cl_carry_forward'           => 0,
+                'total_leaves_taken'         => 0,
+                'probation_leaves_allocated' => false
+            ]
         );
 
         // TODO: Fire EmployeeCreated event to send welcome email
