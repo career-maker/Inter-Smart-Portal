@@ -805,45 +805,6 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
             </div>
           </div>
 
-          {/* Personal Leave Summary */}
-          <div ref={leaveSummaryRef} className="premium-card p-6">
-            <h2 className="text-lg font-bold text-indigo-300 mb-5 flex items-center gap-2">
-              <Palmtree className="w-5 h-5" />
-              My Leave Summary
-            </h2>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Casual Leaves</p>
-                  <p className="text-2xl font-black text-white mt-1">{data.leave_metrics?.casual_leave_balance ?? 0}</p>
-                </div>
-              </div>
-              <div className="h-px bg-white/10 w-full"></div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Sick Leaves</p>
-                  <p className="text-2xl font-black text-white mt-1">{data.leave_metrics?.sick_leave_balance ?? 0}</p>
-                </div>
-              </div>
-              <div className="h-px bg-white/10 w-full"></div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Total Taken</p>
-                  <p className="text-2xl font-black text-white mt-1">{data.leave_metrics?.total_leaves_taken ?? 0}</p>
-                </div>
-              </div>
-              <div className="pt-2">
-                <Link 
-                  href="/leaves/apply" 
-                  className="w-full flex items-center justify-center gap-2 bg-indigo-500/20 text-indigo-300 font-bold py-3 px-4 rounded-xl hover:bg-indigo-500/30 transition-all duration-300"
-                >
-                  <Palmtree className="w-4 h-4" />
-                  Apply Leave
-                </Link>
-              </div>
-            </div>
-          </div>
-
         </div>
       </div>
 
@@ -874,18 +835,6 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           </div>
         </DialogContent>
       </Dialog>
-      {/* Sticky floating mobile Apply Leave button */}
-      {!isLeaveSummaryVisible && (
-        <div className="fixed bottom-4 left-4 right-4 z-40 md:hidden animate-in fade-in slide-in-from-bottom-5 duration-300">
-          <Link
-            href="/leaves/apply"
-            className="w-full flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-bold py-3.5 px-6 rounded-2xl shadow-xl shadow-amber-500/20 active:scale-95 transition-all duration-150 border border-amber-400/30"
-          >
-            <Plus className="w-5 h-5" />
-            Apply Leave
-          </Link>
-        </div>
-      )}
     </div>
   );
 }
