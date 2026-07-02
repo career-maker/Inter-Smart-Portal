@@ -18,6 +18,7 @@ import {
   Building2,
   ChevronRight,
   Gift,
+  Plus,
   PartyPopper,
   Home,
   AlertCircle,
@@ -46,6 +47,25 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [time, setTime] = useState(new Date());
   const [leaveModalData, setLeaveModalData] = useState<{title: string, list: any[]} | null>(null);
+
+  const leaveSummaryRef = useRef<HTMLDivElement>(null);
+  const [isLeaveSummaryVisible, setIsLeaveSummaryVisible] = useState(false);
+
+  useEffect(() => {
+    if (!data) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsLeaveSummaryVisible(entry.isIntersecting);
+      },
+      { threshold: 0.05 }
+    );
+    if (leaveSummaryRef.current) {
+      observer.observe(leaveSummaryRef.current);
+    }
+    return () => {
+      observer.disconnect();
+    };
+  }, [data]);
 
   useEffect(() => {
     const interval = setInterval(() => setTime(new Date()), 60000);
@@ -95,7 +115,16 @@ export default function DashboardPage() {
   else if (hour < 17) greeting = "Good Afternoon";
 
   if (user?.role === "Super Admin" && data.admin_data) {
-    return <SuperAdminDashboard data={data} user={user} time={time} greeting={greeting} />;
+    return (
+      <SuperAdminDashboard
+        data={data}
+        user={user}
+        time={time}
+        greeting={greeting}
+        leaveSummaryRef={leaveSummaryRef}
+        isLeaveSummaryVisible={isLeaveSummaryVisible}
+      />
+    );
   }
 
   const hasActiveRec = !!profile.active_recognition;
@@ -356,7 +385,7 @@ export default function DashboardPage() {
           ========================================
         */}
         <div className="lg:col-span-4 space-y-8">
-          <div className="premium-card p-6">
+          <div ref={leaveSummaryRef} className="premium-card p-6">
             <h2 className="text-lg font-bold text-emerald-300 mb-6 flex items-center gap-2">
               <CalendarDays className="w-5 h-5" />
               Leave Summary
@@ -428,6 +457,18 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+      {/* Sticky floating mobile Apply Leave button */}
+      {!isLeaveSummaryVisible && (
+        <div className="fixed bottom-4 left-4 right-4 z-40 md:hidden animate-in fade-in slide-in-from-bottom-5 duration-300">
+          <Link
+            href="/leaves/apply"
+            className="w-full flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-bold py-3.5 px-6 rounded-2xl shadow-xl shadow-amber-500/20 active:scale-95 transition-all duration-150 border border-amber-400/30"
+          >
+            <Plus className="w-5 h-5" />
+            Apply Leave
+          </Link>
+        </div>
+      )}
     </div>
   );
 }
@@ -450,7 +491,7 @@ function PhotoAvatar({ src, name, className = "", textClass = "" }: { src?: stri
   );
 }
 
-function SuperAdminDashboard({ data, user, time, greeting }: any) {
+function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLeaveSummaryVisible }: any) {
   const { profile, admin_data, widgets } = data;
   const { kpis, activity_feed } = admin_data;
   const [leaveModalData, setLeaveModalData] = useState<{title: string, list: any[]} | null>(null);
@@ -729,7 +770,7 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
           </div>
 
           {/* Personal Leave Summary */}
-          <div className="premium-card p-6">
+          <div ref={leaveSummaryRef} className="premium-card p-6">
             <h2 className="text-lg font-bold text-indigo-300 mb-5 flex items-center gap-2">
               <Palmtree className="w-5 h-5" />
               My Leave Summary
@@ -797,6 +838,18 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
           </div>
         </DialogContent>
       </Dialog>
+      {/* Sticky floating mobile Apply Leave button */}
+      {!isLeaveSummaryVisible && (
+        <div className="fixed bottom-4 left-4 right-4 z-40 md:hidden animate-in fade-in slide-in-from-bottom-5 duration-300">
+          <Link
+            href="/leaves/apply"
+            className="w-full flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-bold py-3.5 px-6 rounded-2xl shadow-xl shadow-amber-500/20 active:scale-95 transition-all duration-150 border border-amber-400/30"
+          >
+            <Plus className="w-5 h-5" />
+            Apply Leave
+          </Link>
+        </div>
+      )}
     </div>
   );
 }
