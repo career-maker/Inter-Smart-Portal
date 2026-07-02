@@ -3,9 +3,95 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, AlertTriangle, CheckCircle, Clock, Loader2, Link2 } from "lucide-react";
+import { ArrowLeft, AlertTriangle, CheckCircle, Clock, Loader2, Link2, ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
+import { 
+  format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths 
+} from "date-fns";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
+
+const CalendarDatePicker = ({
+  selectedDate,
+  onSelect,
+  minDate,
+  disabledDates,
+  holidayDates,
+}: {
+  selectedDate: string;
+  onSelect: (dateStr: string) => void;
+  minDate?: string;
+  disabledDates: string[];
+  holidayDates: string[];
+}) => {
+  const [currentMonth, setCurrentMonth] = useState(selectedDate ? new Date(selectedDate) : new Date());
+
+  const days = eachDayOfInterval({
+    start: startOfMonth(currentMonth),
+    end: endOfMonth(currentMonth),
+  });
+
+  const firstDay = startOfMonth(currentMonth).getDay();
+  const padding = Array.from({ length: firstDay });
+
+  const handlePrev = () => setCurrentMonth(subMonths(currentMonth, 1));
+  const handleNext = () => setCurrentMonth(addMonths(currentMonth, 1));
+
+  return (
+    <div className="bg-slate-800 border border-white/10 rounded-xl p-3 max-w-sm w-full mx-auto select-none">
+      <div className="flex items-center justify-between mb-2">
+        <button type="button" onClick={handlePrev} className="p-1 hover:bg-white/10 rounded text-slate-300">
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <span className="text-sm font-semibold text-white">{format(currentMonth, "MMMM yyyy")}</span>
+        <button type="button" onClick={handleNext} className="p-1 hover:bg-white/10 rounded text-slate-300">
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+      <div className="grid grid-cols-7 text-center text-[10px] font-bold text-slate-500 uppercase mb-1">
+        <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+      </div>
+      <div className="grid grid-cols-7 gap-1">
+        {padding.map((_, i) => (
+          <div key={`pad-${i}`} />
+        ))}
+        {days.map((d) => {
+          const dStr = format(d, "yyyy-MM-dd");
+          const isSelected = selectedDate === dStr;
+          const isHoliday = holidayDates.includes(dStr);
+          
+          let isDisabled = false;
+          if (minDate && dStr < minDate) isDisabled = true;
+          const todayStr = format(new Date(), "yyyy-MM-dd");
+          if (dStr < todayStr) isDisabled = true;
+          if (disabledDates.includes(dStr)) isDisabled = true;
+
+          let btnClass = "text-xs h-7 w-7 flex items-center justify-center rounded-lg transition-colors ";
+          if (isSelected) {
+            btnClass += "bg-amber-500 text-white font-bold";
+          } else if (isDisabled) {
+            btnClass += "text-slate-600 cursor-not-allowed opacity-30";
+          } else if (isHoliday) {
+            btnClass += "bg-purple-500/20 text-purple-300 border border-purple-500/30 hover:bg-purple-500/30";
+          } else {
+            btnClass += "text-slate-200 hover:bg-white/10";
+          }
+
+          return (
+            <button
+              key={dStr}
+              type="button"
+              disabled={isDisabled}
+              onClick={() => onSelect(dStr)}
+              className={btnClass}
+            >
+              {d.getDate()}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 
 export default function ApplyLeavePage() {
   const router = useRouter();
@@ -27,6 +113,10 @@ export default function ApplyLeavePage() {
 
   const [existingLeaves, setExistingLeaves] = useState<any[]>([]);
   const [overlapError, setOverlapError] = useState<string | null>(null);
+
+  const [holidays, setHolidays] = useState<any[]>([]);
+  const [showStartCalendar, setShowStartCalendar] = useState(false);
+  const [showEndCalendar, setShowEndCalendar] = useState(false);
 
   useEffect(() => {
     if (user?.role === "Super Admin") router.replace("/leaves");
@@ -65,9 +155,28 @@ export default function ApplyLeavePage() {
       } catch (err) {
         console.error("Failed to load existing requests", err);
       }
+      try {
+        const holRes = await api.get("/holidays");
+        setHolidays(holRes.data?.data || []);
+      } catch (err) {
+        console.error("Failed to load holidays", err);
+      }
     };
     load();
   }, []);
+
+  const appliedDates = existingLeaves.reduce((acc: string[], r: any) => {
+    if (r.status !== "Approved" && r.status !== "Pending") return acc;
+    let curr = new Date(r.start_date);
+    const end = new Date(r.end_date);
+    while (curr <= end) {
+      acc.push(format(curr, "yyyy-MM-dd"));
+      curr.setDate(curr.getDate() + 1);
+    }
+    return acc;
+  }, []);
+
+  const holidayDates = holidays.map((h: any) => h.date);
 
   useEffect(() => {
     if (!startDate) {
@@ -261,30 +370,68 @@ export default function ApplyLeavePage() {
               </div>
             )}
 
-            {/* Date pickers — end date hidden for half-day (forced single day) */}
+            {/* Custom Popover Date Pickers (resolves native calendar limitation & disables applied dates) */}
             <div className={isHalfDayType ? "" : "grid grid-cols-2 gap-4"}>
-              <div>
+              <div className="relative">
                 <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Start Date *</label>
-                <input
-                  type="date"
-                  value={startDate}
-                  min={today}
-                  onChange={e => handleStartDateChange(e.target.value)}
-                  required
-                  className={inputCls}
-                />
+                <button
+                  type="button"
+                  onClick={() => { setShowStartCalendar(!showStartCalendar); setShowEndCalendar(false); }}
+                  className={`${inputCls} flex items-center justify-between text-left cursor-pointer`}
+                >
+                  <span className={startDate ? "text-white" : "text-slate-400"}>
+                    {startDate ? format(new Date(startDate), "dd MMM yyyy") : "Choose date..."}
+                  </span>
+                  <CalendarIcon className="w-4 h-4 text-slate-400" />
+                </button>
+                {showStartCalendar && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setShowStartCalendar(false)} />
+                    <div className="absolute left-0 mt-2 z-50 shadow-2xl">
+                      <CalendarDatePicker
+                        selectedDate={startDate}
+                        onSelect={(date) => {
+                          handleStartDateChange(date);
+                          setShowStartCalendar(false);
+                        }}
+                        disabledDates={appliedDates}
+                        holidayDates={holidayDates}
+                      />
+                    </div>
+                  </>
+                )}
               </div>
               {!isHalfDayType && (
-                <div>
+                <div className="relative">
                   <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">End Date *</label>
-                  <input
-                    type="date"
-                    value={endDate}
-                    min={startDate || today}
-                    onChange={e => setEndDate(e.target.value)}
-                    required
-                    className={inputCls}
-                  />
+                  <button
+                    type="button"
+                    disabled={!startDate}
+                    onClick={() => { setShowEndCalendar(!showEndCalendar); setShowStartCalendar(false); }}
+                    className={`${inputCls} flex items-center justify-between text-left disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer`}
+                  >
+                    <span className={endDate ? "text-white" : "text-slate-400"}>
+                      {endDate ? format(new Date(endDate), "dd MMM yyyy") : "Choose date..."}
+                    </span>
+                    <CalendarIcon className="w-4 h-4 text-slate-400" />
+                  </button>
+                  {showEndCalendar && (
+                    <>
+                      <div className="fixed inset-0 z-40" onClick={() => setShowEndCalendar(false)} />
+                      <div className="absolute right-0 mt-2 z-50 shadow-2xl">
+                        <CalendarDatePicker
+                          selectedDate={endDate}
+                          onSelect={(date) => {
+                            setEndDate(date);
+                            setShowEndCalendar(false);
+                          }}
+                          minDate={startDate}
+                          disabledDates={appliedDates}
+                          holidayDates={holidayDates}
+                        />
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
             </div>

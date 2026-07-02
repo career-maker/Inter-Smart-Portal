@@ -56,6 +56,30 @@ class LeaveRequestController extends Controller
             }
         }
 
+        // Filter by Date Range
+        if ($request->filled('from_date')) {
+            $query->where('start_date', '>=', $request->from_date);
+        }
+        if ($request->filled('to_date')) {
+            $query->where('end_date', '<=', $request->to_date);
+        }
+
+        // Filter by Type (casual, sick, lop)
+        if ($request->filled('type')) {
+            $type = $request->type;
+            if ($type === 'casual') {
+                $query->whereHas('leaveType', function ($q) {
+                    $q->whereRaw('LOWER(name) LIKE ?', ['%casual%']);
+                });
+            } elseif ($type === 'sick') {
+                $query->whereHas('leaveType', function ($q) {
+                    $q->whereRaw('LOWER(name) LIKE ?', ['%sick%']);
+                });
+            } elseif ($type === 'lop') {
+                $query->where('is_unpaid', true);
+            }
+        }
+
         return response()->json([
             'data' => $query->orderBy('created_at', 'desc')->paginate(10)
         ]);

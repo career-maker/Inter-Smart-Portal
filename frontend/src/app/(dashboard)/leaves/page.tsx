@@ -18,14 +18,32 @@ export default function LeavesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => { fetchData(currentPage); }, [currentPage]);
+  const [filterType, setFilterType] = useState("");
+  const [filterFromDate, setFilterFromDate] = useState("");
+  const [filterToDate, setFilterToDate] = useState("");
+
+  useEffect(() => {
+    fetchData(currentPage);
+  }, [currentPage, filterType, filterFromDate, filterToDate]);
+
+  const clearFilters = () => {
+    setFilterType("");
+    setFilterFromDate("");
+    setFilterToDate("");
+    setCurrentPage(1);
+  };
 
   const fetchData = async (page = 1) => {
     setIsLoading(true);
     try {
+      let queryParams = `page=${page}`;
+      if (filterType) queryParams += `&type=${filterType}`;
+      if (filterFromDate) queryParams += `&from_date=${filterFromDate}`;
+      if (filterToDate) queryParams += `&to_date=${filterToDate}`;
+
       const [balRes, reqRes] = await Promise.all([
         api.get("/leave-balances"),
-        api.get(`/leave-requests?page=${page}`)
+        api.get(`/leave-requests?${queryParams}`)
       ]);
 
       const balanceData = balRes.data.data;
@@ -150,9 +168,56 @@ export default function LeavesPage() {
 
       {/* Leave requests table */}
       <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-white/10">
-          <h2 className="text-lg font-bold text-white">Recent Leave Requests</h2>
-          <p className="text-slate-400 text-sm mt-0.5">Your history of time-off requests.</p>
+        <div className="px-6 py-4 border-b border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-bold text-white">Recent Leave Requests</h2>
+            <p className="text-slate-400 text-sm mt-0.5">Your history of time-off requests.</p>
+          </div>
+          
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-col gap-1">
+              <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Leave Category</label>
+              <select
+                value={filterType}
+                onChange={(e) => { setFilterType(e.target.value); setCurrentPage(1); }}
+                className="bg-slate-800 border border-white/10 text-white rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-amber-500"
+              >
+                <option value="">All Categories</option>
+                <option value="casual">Casual Leaves</option>
+                <option value="sick">Sick Leaves</option>
+                <option value="lop">Loss of Pay (LOP)</option>
+              </select>
+            </div>
+            
+            <div className="flex flex-col gap-1">
+              <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">From Date</label>
+              <input
+                type="date"
+                value={filterFromDate}
+                onChange={(e) => { setFilterFromDate(e.target.value); setCurrentPage(1); }}
+                className="bg-slate-800 border border-white/10 text-white rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-amber-500 [color-scheme:dark]"
+              />
+            </div>
+            
+            <div className="flex flex-col gap-1">
+              <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">To Date</label>
+              <input
+                type="date"
+                value={filterToDate}
+                onChange={(e) => { setFilterToDate(e.target.value); setCurrentPage(1); }}
+                className="bg-slate-800 border border-white/10 text-white rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-amber-500 [color-scheme:dark]"
+              />
+            </div>
+            
+            {(filterType || filterFromDate || filterToDate) && (
+              <button
+                onClick={clearFilters}
+                className="mt-5 text-[10px] uppercase font-bold text-rose-400 hover:text-rose-300 transition-colors cursor-pointer"
+              >
+                Clear
+              </button>
+            )}
+          </div>
         </div>
         {isLoading ? (
           <div className="py-12 text-center text-slate-400">Loading...</div>
