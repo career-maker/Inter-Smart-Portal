@@ -148,8 +148,8 @@ export default function ApprovalsPage() {
 
   const submitOverride = async () => {
     if (!overrideDialog || !overrideFields.remarks.trim()) return;
-    if (overrideTotalDays !== autoTotalDays) {
-      alert("The sum of Paid Casual Leave, Paid Sick Leave, and LOP must equal the total leave count.");
+    if (overrideTotalDays > autoTotalDays) {
+      alert("The sum of Paid Casual Leave, Paid Sick Leave, and LOP cannot exceed the total leave count.");
       return;
     }
     setActionLoading(true);
@@ -601,9 +601,9 @@ export default function ApprovalsPage() {
             </div>
 
             {/* Validation Message */}
-            {overrideTotalDays !== autoTotalDays && (
+            {overrideTotalDays > autoTotalDays && (
               <div className="mx-6 mb-4 p-3 bg-red-500/10 border border-red-500/20 text-red-300 text-xs rounded-xl flex items-center gap-2">
-                <span>⚠️ The sum of split days ({overrideTotalDays}) must equal the total leave count for this date range ({autoTotalDays}).</span>
+                <span>⚠️ The sum of split days ({overrideTotalDays}) cannot exceed the total leave count for this date range ({autoTotalDays}).</span>
               </div>
             )}
 
@@ -613,14 +613,13 @@ export default function ApprovalsPage() {
               </button>
               <button
                 onClick={submitOverride}
-                disabled={actionLoading || recalcLoading || !overrideFields.remarks.trim() || overrideTotalDays !== autoTotalDays}
+                disabled={actionLoading || recalcLoading || !overrideFields.remarks.trim() || overrideTotalDays > autoTotalDays}
                 className="flex items-center gap-2 px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl transition-colors disabled:opacity-50"
               >
                 {actionLoading && <Loader2 className="w-4 h-4 animate-spin" />}
                 Apply Override & Approve
               </button>
-            </div>
-          </div>
+            </div>          </div>
         </div>
       )}
     </div>
