@@ -180,12 +180,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <NotificationDropdown />
 
             {/* User info (desktop) */}
-            <div className="hidden sm:flex items-center gap-3">
-              <div className="flex flex-col items-end">
-                <span className="text-sm font-medium leading-none">
+            <Link href="/profile" className="hidden sm:flex items-center gap-3 hover:opacity-85 transition-opacity cursor-pointer">
+              <div className="flex flex-col items-end text-right">
+                <span className="text-sm font-medium leading-none text-slate-700">
                   {user?.first_name} {user?.last_name}
                 </span>
-                <span className="text-xs text-muted-foreground mt-0.5">{user?.role}</span>
+                <span className="text-xs text-slate-500 mt-0.5">{user?.role}</span>
               </div>
               <div className="w-8 h-8 rounded-full border border-gray-200 bg-amber-400 overflow-hidden flex items-center justify-center text-xs font-bold text-white relative shrink-0">
                 <span>{user?.first_name?.[0]}{user?.last_name?.[0]}</span>
@@ -198,7 +198,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   />
                 )}
               </div>
-            </div>
+            </Link>
 
             {/* Logout (desktop) */}
             <button
@@ -231,7 +231,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="absolute top-16 right-0 w-full md:w-80 bg-slate-900 border-l border-b border-white/10 shadow-2xl z-40 max-h-[calc(100vh-4rem)] overflow-y-auto">
 
               {/* User info for mobile */}
-              <div className="sm:hidden px-4 py-4 border-b border-white/10 flex items-center gap-3">
+              <Link
+                href="/profile"
+                onClick={closeMenu}
+                className="sm:hidden px-4 py-4 border-b border-white/10 flex items-center gap-3 hover:bg-white/5 transition-colors cursor-pointer"
+              >
                 <div className="w-10 h-10 rounded-full bg-amber-400 overflow-hidden flex items-center justify-center text-sm font-bold text-white relative shrink-0">
                   <span>{user?.first_name?.[0]}{user?.last_name?.[0]}</span>
                   {user?.profile_photo_path && (
@@ -247,7 +251,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   <p className="text-sm font-semibold text-white">{user?.first_name} {user?.last_name}</p>
                   <p className="text-xs text-slate-400">{user?.role}</p>
                 </div>
-              </div>
+              </Link>
 
               <nav className="py-2">
                 {/* Standalone links */}

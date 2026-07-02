@@ -14,6 +14,8 @@ import { CertificateModal } from "@/components/recognition/CertificateModal";
 
 export default function MyProfilePage() {
   const { user } = useAuthStore();
+  const [profileUser, setProfileUser] = useState<any>(null);
+  const [employeeId, setEmployeeId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [pendingRequest, setPendingRequest] = useState<any>(null);
@@ -29,20 +31,43 @@ export default function MyProfilePage() {
   });
 
   useEffect(() => {
-    if (user) {
-      setFormData({
-        first_name: user.first_name || "",
-        last_name: user.last_name || "",
-        phone: (user as any).phone || "",
-        emergency_contact: (user as any).emergency_contact || "",
-        address: (user as any).address || "",
-        city: (user as any).city || "",
-        state: (user as any).state || "",
-        zip: (user as any).zip || "",
-      });
-      fetchPendingRequest();
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      setEmployeeId(params.get("employee_id"));
     }
-  }, [user]);
+  }, []);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      if (!user) return;
+      if (employeeId && employeeId !== user.id?.toString()) {
+        setLoading(true);
+        try {
+          const res = await api.get(`/employees/${employeeId}/public`);
+          setProfileUser(res.data.data);
+        } catch (err) {
+          console.error("Failed to fetch public profile", err);
+          setProfileUser(user);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setProfileUser(user);
+        setFormData({
+          first_name: user.first_name || "",
+          last_name: user.last_name || "",
+          phone: (user as any).phone || "",
+          emergency_contact: (user as any).emergency_contact || "",
+          address: (user as any).address || "",
+          city: (user as any).city || "",
+          state: (user as any).state || "",
+          zip: (user as any).zip || "",
+        });
+        fetchPendingRequest();
+      }
+    };
+    loadProfile();
+  }, [user, employeeId]);
 
   const fetchPendingRequest = async () => {
     try {
@@ -80,15 +105,21 @@ export default function MyProfilePage() {
     }
   };
 
-  if (!user || loading) return <PageLoader />;
+  if (!profileUser || loading) return <PageLoader />;
+
+  const isOwnProfile = !employeeId || employeeId === user?.id?.toString();
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       <div className="flex items-center gap-3">
         <UserCircle className="h-8 w-8 text-amber-400" />
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">My Profile</h1>
-          <p className="text-slate-300">Manage your personal information.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-white">
+            {isOwnProfile ? "My Profile" : "Employee Profile"}
+          </h1>
+          <p className="text-slate-300">
+            {isOwnProfile ? "Manage your personal information." : "View achievements and recognition history."}
+          </p>
         </div>
       </div>
 
@@ -103,8 +134,8 @@ export default function MyProfilePage() {
             <div className="flex justify-center mb-4">
               <img
                 src={
-                  (user as any).profile_photo_path ||
-                  `https://ui-avatars.com/api/?name=${user.first_name}`
+                  profileUser.profile_photo_path ||
+                  `https://ui-avatars.com/api/?name=${profileUser.first_name}`
                 }
                 alt="Profile"
                 className="w-32 h-32 rounded-full object-cover border-4 border-amber-400/30"
@@ -112,151 +143,160 @@ export default function MyProfilePage() {
             </div>
             <div>
               <Label className="text-muted-foreground">Full Name</Label>
-              <div className="font-medium">{user.first_name} {user.last_name}</div>
+              <div className="font-medium">{profileUser.first_name} {profileUser.last_name}</div>
             </div>
             <div>
               <Label className="text-muted-foreground">Employee ID</Label>
-              <div className="font-medium">{(user as any).employee_id || (user as any).employee_code}</div>
+              <div className="font-medium">{profileUser.employee_id || profileUser.employee_code || "—"}</div>
             </div>
             <div>
               <Label className="text-muted-foreground">Official Email</Label>
-              <div className="font-medium">{user.email}</div>
+              <div className="font-medium">{profileUser.email}</div>
             </div>
             <div>
               <Label className="text-muted-foreground">Designation</Label>
-              <div className="font-medium">{(user as any).designation}</div>
+              <div className="font-medium">{profileUser.designation || "—"}</div>
+            </div>
+            <div>
+              <Label className="text-muted-foreground">Department / Team</Label>
+              <div className="font-medium">{profileUser.team || "—"}</div>
             </div>
             <div>
               <Label className="text-muted-foreground">Role</Label>
-              <div className="font-medium">{user.role}</div>
+              <div className="font-medium">{profileUser.role}</div>
             </div>
           </CardContent>
         </Card>
 
         {/* Editable Contact Info & Recognitions */}
         <div className="md:col-span-2 space-y-6">
-          <Card className="shadow-sm">
-            <CardHeader>
-              <CardTitle>Contact Information</CardTitle>
-              <CardDescription>
-                Any changes made here will be sent to the Super Admin for approval before going live.
-              </CardDescription>
-            </CardHeader>
+          {isOwnProfile && (
+            <Card className="shadow-sm">
+              <CardHeader>
+                <CardTitle>Contact Information</CardTitle>
+                <CardDescription>
+                  Any changes made here will be sent to the Super Admin for approval before going live.
+                </CardDescription>
+              </CardHeader>
 
-            {pendingRequest ? (
-              <div className="p-6 pt-0 space-y-6">
-                <div className="premium-card p-4 flex gap-3 text-amber-800">
-                  <ShieldAlert className="h-5 w-5 shrink-0 mt-0.5" />
-                  <div>
-                    <h4 className="font-medium">Update Request Pending</h4>
-                    <p className="text-sm mt-1">
-                      You submitted a profile update request on{" "}
-                      {new Date(pendingRequest.created_at).toLocaleDateString()}. It is currently
-                      waiting for admin approval. You cannot make further edits until this is resolved.
-                    </p>
+              {pendingRequest ? (
+                <div className="p-6 pt-0 space-y-6">
+                  <div className="premium-card p-4 flex gap-3 text-amber-800">
+                    <ShieldAlert className="h-5 w-5 shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="font-medium">Update Request Pending</h4>
+                      <p className="text-sm mt-1">
+                        You submitted a profile update request on{" "}
+                        {new Date(pendingRequest.created_at).toLocaleDateString()}. It is currently
+                        waiting for admin approval. You cannot make further edits until this is resolved.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wider">
+                      Requested Changes
+                    </h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      {Object.entries(pendingRequest.requested_data).map(([key, val]) => (
+                        <div key={key}>
+                          <Label className="text-muted-foreground capitalize">
+                            {key.replace("_", " ")}
+                          </Label>
+                          <div className="font-medium">{String(val) || "—"}</div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
-
-                <div className="space-y-4">
-                  <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wider">
-                    Requested Changes
-                  </h4>
-                  <div className="grid grid-cols-2 gap-4">
-                    {Object.entries(pendingRequest.requested_data).map(([key, val]) => (
-                      <div key={key}>
-                        <Label className="text-muted-foreground capitalize">
-                          {key.replace("_", " ")}
-                        </Label>
-                        <div className="font-medium">{String(val) || "—"}</div>
+              ) : (
+                <form onSubmit={handleSubmit}>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="first_name">First Name</Label>
+                        <Input
+                          id="first_name"
+                          name="first_name"
+                          value={formData.first_name}
+                          onChange={handleChange}
+                          disabled={user?.role !== "Super Admin"}
+                        />
                       </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit}>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="first_name">First Name</Label>
-                      <Input
-                        id="first_name"
-                        name="first_name"
-                        value={formData.first_name}
-                        onChange={handleChange}
-                        disabled={user?.role !== "Super Admin"}
-                      />
+                      <div className="space-y-2">
+                        <Label htmlFor="last_name">Last Name</Label>
+                        <Input
+                          id="last_name"
+                          name="last_name"
+                          value={formData.last_name}
+                          onChange={handleChange}
+                          disabled={user?.role !== "Super Admin"}
+                        />
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="last_name">Last Name</Label>
-                      <Input
-                        id="last_name"
-                        name="last_name"
-                        value={formData.last_name}
-                        onChange={handleChange}
-                        disabled={user?.role !== "Super Admin"}
-                      />
-                    </div>
-                  </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="phone">Phone Number</Label>
-                      <Input id="phone" name="phone" value={formData.phone} onChange={handleChange} />
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="phone">Phone Number</Label>
+                        <Input id="phone" name="phone" value={formData.phone} onChange={handleChange} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="emergency_contact">Emergency Contact</Label>
+                        <Input
+                          id="emergency_contact"
+                          name="emergency_contact"
+                          value={formData.emergency_contact}
+                          onChange={handleChange}
+                        />
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="emergency_contact">Emergency Contact</Label>
-                      <Input
-                        id="emergency_contact"
-                        name="emergency_contact"
-                        value={formData.emergency_contact}
-                        onChange={handleChange}
-                      />
-                    </div>
-                  </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="address">Address Line</Label>
-                    <Input id="address" name="address" value={formData.address} onChange={handleChange} />
-                  </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="address">Address Line</Label>
+                      <Input id="address" name="address" value={formData.address} onChange={handleChange} />
+                    </div>
 
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="city">City</Label>
-                      <Input id="city" name="city" value={formData.city} onChange={handleChange} />
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="city">City</Label>
+                        <Input id="city" name="city" value={formData.city} onChange={handleChange} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="state">State</Label>
+                        <Input id="state" name="state" value={formData.state} onChange={handleChange} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="zip">ZIP Code</Label>
+                        <Input id="zip" name="zip" value={formData.zip} onChange={handleChange} />
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="state">State</Label>
-                      <Input id="state" name="state" value={formData.state} onChange={handleChange} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="zip">ZIP Code</Label>
-                      <Input id="zip" name="zip" value={formData.zip} onChange={handleChange} />
-                    </div>
+                  </CardContent>
+                  <div className="px-6 pb-6 pt-2 flex justify-end">
+                    <Button type="submit" disabled={saving}>
+                      {saving
+                        ? "Submitting..."
+                        : user?.role === "Super Admin"
+                        ? "Save Changes"
+                        : "Submit for Approval"}
+                    </Button>
                   </div>
-                </CardContent>
-                <div className="px-6 pb-6 pt-2 flex justify-end">
-                  <Button type="submit" disabled={saving}>
-                    {saving
-                      ? "Submitting..."
-                      : user?.role === "Super Admin"
-                      ? "Save Changes"
-                      : "Submit for Approval"}
-                  </Button>
-                </div>
-              </form>
-            )}
-          </Card>
+                </form>
+              )}
+            </Card>
+          )}
 
           {/* Achievements & Recognition Section */}
-          <AchievementsSection employeeName={`${user.first_name} ${user.last_name}`} />
+          <AchievementsSection
+            employeeName={`${profileUser.first_name} ${profileUser.last_name}`}
+            employeeId={employeeId}
+          />
         </div>
       </div>
     </div>
   );
 }
 
-function AchievementsSection({ employeeName }: { employeeName: string }) {
+function AchievementsSection({ employeeName, employeeId }: { employeeName: string; employeeId: string | null }) {
   const [recognitions, setRecognitions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedRec, setSelectedRec] = useState<any | null>(null);
@@ -264,7 +304,8 @@ function AchievementsSection({ employeeName }: { employeeName: string }) {
   useEffect(() => {
     const fetchRecs = async () => {
       try {
-        const res = await api.get("/me/recognitions");
+        const url = "/me/recognitions" + (employeeId ? `?user_id=${employeeId}` : "");
+        const res = await api.get(url);
         setRecognitions(res.data.data);
       } catch (e) {
         console.error(e);
@@ -273,7 +314,7 @@ function AchievementsSection({ employeeName }: { employeeName: string }) {
       }
     };
     fetchRecs();
-  }, []);
+  }, [employeeId]);
 
   if (!loading && recognitions.length === 0) return null;
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, AlertTriangle, CheckCircle, Clock, Loader2, Link2, ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
@@ -113,6 +113,24 @@ export default function ApplyLeavePage() {
 
   const [existingLeaves, setExistingLeaves] = useState<any[]>([]);
   const [overlapError, setOverlapError] = useState<string | null>(null);
+
+  const summaryRef = useRef<HTMLDivElement>(null);
+  const [isSummaryVisible, setIsSummaryVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsSummaryVisible(entry.isIntersecting);
+      },
+      { threshold: 0.05 }
+    );
+    if (summaryRef.current) {
+      observer.observe(summaryRef.current);
+    }
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
 
   const [holidays, setHolidays] = useState<any[]>([]);
   const [showStartCalendar, setShowStartCalendar] = useState(false);
@@ -449,45 +467,67 @@ export default function ApplyLeavePage() {
               <p className="text-xs text-slate-500 mt-1">Medical certificate, hospital report, travel ticket, etc.</p>
             </div>
 
-            {/* ── Leave Summary ── */}
-            {isCalculating && (
-              <div className="flex items-center gap-2 text-sm text-slate-400 py-2">
-                <Loader2 className="w-4 h-4 animate-spin" /> Calculating leave impact...
-              </div>
-            )}
-            {impact && !impact.is_probation && (
-              <LeaveSummaryCard impact={impact} />
-            )}
-            {impact?.is_probation && (
-              <div className="p-4 rounded-xl bg-orange-500/10 border border-orange-500/30">
-                <p className="text-orange-300 font-semibold flex items-center gap-2">
-                  <AlertTriangle className="w-4 h-4" /> Probation Period Notice
-                </p>
-                <p className="text-sm text-slate-300 mt-1">{impact.unpaid_reason}</p>
-              </div>
-            )}
-
-            {overlapError && (
-              <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-start gap-2.5">
-                <AlertTriangle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-rose-300 font-semibold">Overlapping Leave Request</p>
-                  <p className="text-sm text-slate-300 mt-1">{overlapError}</p>
+            {/* ── Leave Summary (wrapped in ref for sticky check) ── */}
+            <div ref={summaryRef} className="space-y-5">
+              {isCalculating && (
+                <div className="flex items-center gap-2 text-sm text-slate-400 py-2">
+                  <Loader2 className="w-4 h-4 animate-spin" /> Calculating leave impact...
                 </div>
-              </div>
-            )}
+              )}
+              {impact && !impact.is_probation && (
+                <LeaveSummaryCard impact={impact} />
+              )}
+              {impact?.is_probation && (
+                <div className="p-4 rounded-xl bg-orange-500/10 border border-orange-500/30">
+                  <p className="text-orange-300 font-semibold flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4" /> Probation Period Notice
+                  </p>
+                  <p className="text-sm text-slate-300 mt-1">{impact.unpaid_reason}</p>
+                </div>
+              )}
 
-            <div className="flex justify-end gap-4 border-t border-white/10 pt-5">
-              <button type="button" onClick={() => router.push("/leaves")} className="px-5 py-2 rounded-xl text-sm font-medium text-slate-300 border border-white/10 bg-white/5 hover:bg-white/10 transition-colors">
-                Cancel
-              </button>
-              <button type="submit" disabled={isLoading || !leaveTypeId || !startDate || !endDate || !reason.trim() || !!overlapError} className="px-5 py-2 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-600 text-white disabled:opacity-50 transition-colors">
-                {isLoading ? "Submitting..." : "Review & Submit"}
-              </button>
+              {overlapError && (
+                <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-start gap-2.5">
+                  <AlertTriangle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-rose-300 font-semibold">Overlapping Leave Request</p>
+                    <p className="text-sm text-slate-300 mt-1">{overlapError}</p>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex justify-end gap-4 border-t border-white/10 pt-5">
+                <button type="button" onClick={() => router.push("/leaves")} className="px-5 py-2 rounded-xl text-sm font-medium text-slate-300 border border-white/10 bg-white/5 hover:bg-white/10 transition-colors">
+                  Cancel
+                </button>
+                <button type="submit" disabled={isLoading || !leaveTypeId || !startDate || !endDate || !reason.trim() || !!overlapError} className="px-5 py-2 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-600 text-white disabled:opacity-50 transition-colors">
+                  {isLoading ? "Submitting..." : "Review & Submit"}
+                </button>
+              </div>
             </div>
           </form>
         </div>
       </div>
+
+      {/* Sticky mobile submit button */}
+      {!isSummaryVisible && (
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-slate-900/95 backdrop-blur-md border-t border-white/10 z-40 md:hidden flex justify-end">
+          <button
+            type="button"
+            onClick={() => {
+              const form = document.querySelector("form");
+              if (form) {
+                const submitBtn = form.querySelector("button[type='submit']") as HTMLButtonElement;
+                if (submitBtn) submitBtn.click();
+              }
+            }}
+            disabled={isLoading || !leaveTypeId || !startDate || !endDate || !reason.trim() || !!overlapError}
+            className="w-full py-3 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-600 text-white disabled:opacity-50 transition-colors shadow-lg cursor-pointer"
+          >
+            {isLoading ? "Submitting..." : "Review & Submit"}
+          </button>
+        </div>
+      )}
 
       {/* ── Confirmation Popup ── */}
       {showConfirm && impact && (

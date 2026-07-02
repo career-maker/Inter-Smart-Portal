@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { 
   format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, 
-  isSameMonth, isToday
+  isSameMonth, isToday, isSameDay
 } from "date-fns";
 import api from "@/services/api";
 
@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 
 export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
   const [events, setEvents] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -113,7 +114,7 @@ export default function CalendarPage() {
           ))}
         </div>
         
-        <div className="grid grid-cols-7 auto-rows-[120px] bg-slate-900/10">
+        <div className="grid grid-cols-7 auto-rows-[65px] md:auto-rows-[120px] bg-slate-900/10">
           {/* Empty cells for days before the 1st */}
           {paddingDays.map(i => (
             <div key={`empty-${i}`} className="border-b border-r border-white/10 bg-white/[0.02] p-2" />
@@ -124,19 +125,30 @@ export default function CalendarPage() {
             const dayEvents = getEventsForDay(day);
             const isCurrentMonth = isSameMonth(day, currentDate);
             const today = isToday(day);
+            const isSelected = selectedDate && isSameDay(day, selectedDate);
             
             return (
               <div 
                 key={day.toString()} 
-                className={`border-b border-r border-white/10 p-2 flex flex-col gap-1 transition-colors hover:bg-white/[0.04] ${!isCurrentMonth ? 'opacity-30' : ''}`}
+                onClick={() => setSelectedDate(day)}
+                className={`border-b border-r border-white/10 p-2 flex flex-col gap-1 transition-colors cursor-pointer hover:bg-white/[0.04] ${
+                  isSelected ? 'bg-amber-500/10 ring-1 ring-amber-500/30' : ''
+                } ${!isCurrentMonth ? 'opacity-30' : ''}`}
               >
                 <div className="flex justify-end">
-                  <span className={`text-xs font-medium w-6 h-6 flex items-center justify-center rounded-full ${today ? 'bg-amber-500 text-white font-bold' : 'text-slate-400'}`}>
+                  <span className={`text-[10px] sm:text-xs font-semibold w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-full ${
+                    today 
+                      ? 'bg-amber-500 text-white font-bold' 
+                      : isSelected 
+                        ? 'border border-amber-500 text-amber-400 font-bold'
+                        : 'text-slate-400'
+                  }`}>
                     {format(day, 'd')}
                   </span>
                 </div>
                 
-                <div className="flex-1 overflow-y-auto space-y-1 pr-1 custom-scrollbar">
+                {/* Desktop View: Full text event badges */}
+                <div className="hidden md:block flex-1 overflow-y-auto space-y-1 pr-1 custom-scrollbar">
                   {dayEvents.map(event => (
                     <div 
                       key={event.id}
@@ -147,11 +159,83 @@ export default function CalendarPage() {
                     </div>
                   ))}
                 </div>
+
+                {/* Mobile View: Small indicator dots */}
+                <div className="md:hidden flex flex-wrap gap-1 justify-center mt-0.5">
+                  {dayEvents.slice(0, 3).map(event => {
+                    let dotColor = "bg-amber-500";
+                    if (event.type === 'Holiday') dotColor = "bg-purple-500";
+                    else if (event.type === 'WFH') dotColor = "bg-blue-500";
+                    else if (event.status === 'Approved') dotColor = "bg-emerald-500";
+                    else if (event.status === 'Rejected') dotColor = "bg-red-500";
+                    return (
+                      <span key={event.id} className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />
+                    );
+                  })}
+                  {dayEvents.length > 3 && (
+                    <span className="text-[8px] text-slate-500 font-bold leading-none">+</span>
+                  )}
+                </div>
               </div>
             );
           })}
         </div>
       </div>
+
+      {/* Selected Day Events List (Solves mobile readability) */}
+      {selectedDate && (
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-md space-y-4 animate-in fade-in duration-300">
+          <div className="flex items-center justify-between border-b border-white/10 pb-3">
+            <h3 className="text-lg font-bold text-white flex items-center gap-2">
+              <CalendarIcon className="w-5 h-5 text-amber-500" />
+              Events on {format(selectedDate, "dd MMMM yyyy")}
+            </h3>
+            <span className="text-xs text-slate-500">
+              Selected Day
+            </span>
+          </div>
+
+          {getEventsForDay(selectedDate).length === 0 ? (
+            <p className="text-sm text-slate-400 py-2">No leaves, WFH requests, or holidays scheduled for this day.</p>
+          ) : (
+            <div className="space-y-3">
+              {getEventsForDay(selectedDate).map((event: any) => {
+                let badgeType = "Pending";
+                let badgeClass = "bg-amber-500/20 text-amber-300 border border-amber-500/30";
+                if (event.type === 'Holiday') {
+                  badgeType = "Holiday";
+                  badgeClass = "bg-purple-500/20 text-purple-300 border border-purple-500/30";
+                } else if (event.type === 'WFH') {
+                  badgeType = "Work From Home";
+                  badgeClass = "bg-blue-500/20 text-blue-300 border border-blue-500/30";
+                } else if (event.status === 'Approved') {
+                  badgeType = "Approved Leave";
+                  badgeClass = "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+                } else if (event.status === 'Rejected') {
+                  badgeType = "Rejected Leave";
+                  badgeClass = "bg-red-500/20 text-red-300 border border-red-500/30";
+                }
+
+                return (
+                  <div key={event.id} className="flex items-center justify-between p-3 bg-white/[0.02] border border-white/5 rounded-xl gap-4">
+                    <div>
+                      <p className="font-semibold text-white text-sm">{event.title}</p>
+                      {event.type !== 'Holiday' && (
+                        <p className="text-xs text-slate-400 mt-0.5">
+                          Duration: {event.end_date ? `${event.date} to ${event.end_date}` : event.date}
+                        </p>
+                      )}
+                    </div>
+                    <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${badgeClass}`}>
+                      {badgeType}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

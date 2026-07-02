@@ -121,6 +121,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Calendar & Holidays (all authenticated users can view)
     Route::get('calendar', [\App\Http\Controllers\Api\CalendarController::class, 'index']);
     Route::get('holidays', [\App\Http\Controllers\Api\HolidayController::class, 'index']);
+    Route::get('employees/{employee}/public', [\App\Http\Controllers\Api\EmployeeController::class, 'publicProfile']);
 
     // Holiday management — Super Admin & HR only
     Route::middleware(['role:Super Admin|HR'])->group(function () {

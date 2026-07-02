@@ -108,9 +108,10 @@ class RecognitionController extends Controller
         return response()->json(['data' => $recognitions]);
     }
 
-    public function myRecognitions()
+    public function myRecognitions(\Illuminate\Http\Request $request)
     {
-        $recognitions = Recognition::where('user_id', Auth::id())
+        $userId = $request->query('user_id', Auth::id());
+        $recognitions = Recognition::where('user_id', $userId)
             ->with(['creator:id,first_name,last_name'])
             ->orderBy('start_date', 'desc')
             ->get();

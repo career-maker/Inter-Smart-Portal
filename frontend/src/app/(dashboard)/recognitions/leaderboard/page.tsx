@@ -133,10 +133,7 @@ export default function RecognitionLeaderboardPage() {
   };
 
   return (
-    <div
-      className="animate-in fade-in slide-in-from-bottom-4 duration-500"
-      style={{ width: "min(96vw, 1800px)", margin: "0 auto" }}
-    >
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
@@ -168,7 +165,7 @@ export default function RecognitionLeaderboardPage() {
 
       {/* Stats */}
       {data?.stats && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <StatCard
             label="Total Awards Issued"
             value={data.stats.total_issued}
@@ -203,7 +200,7 @@ export default function RecognitionLeaderboardPage() {
           <h2 className="text-base font-bold text-white">
             {tab === "overall" ? "All-Time Rankings" : "This Week's Champions"}
           </h2>
-          <span className="ml-auto text-xs text-slate-500">
+          <span className="ml-auto text-xs text-slate-500 hidden sm:inline">
             Click any employee to view their full achievements
           </span>
         </div>

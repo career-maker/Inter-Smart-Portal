@@ -90,6 +90,23 @@ class EmployeeController extends Controller
         return new EmployeeResource($employee->load(['team', 'roles']));
     }
 
+    public function publicProfile(User $employee)
+    {
+        return response()->json([
+            'data' => [
+                'id' => $employee->id,
+                'first_name' => $employee->first_name,
+                'last_name' => $employee->last_name,
+                'email' => $employee->email,
+                'designation' => $employee->designation,
+                'profile_photo_path' => $employee->profilePhotoUrl(),
+                'team' => $employee->team->name ?? 'Unassigned',
+                'joining_date' => $employee->joining_date,
+                'role' => $employee->roles->first()?->name ?? 'Employee',
+            ]
+        ]);
+    }
+
     public function update(UpdateEmployeeRequest $request, User $employee)
     {
         $data = $request->validated();

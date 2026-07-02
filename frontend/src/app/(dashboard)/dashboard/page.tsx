@@ -111,20 +111,20 @@ export default function DashboardPage() {
       <div className={`flex gap-5 mb-6 ${hasActiveRec ? 'flex-col lg:flex-row items-stretch' : ''}`}>
         {/* Welcome Card — full width when no achievement, 72% when active achievement */}
         <div
-          className={`rounded-3xl p-5 md:p-6 shadow-lg bg-[#F4B400] text-slate-900 relative overflow-hidden transition-all duration-500 ${hasActiveRec ? 'w-full lg:w-[72%]' : 'w-full'}`}
+          className={`rounded-3xl p-5 md:p-6 shadow-lg border border-white/10 bg-white/5 backdrop-blur-md text-white relative overflow-hidden transition-all duration-500 ${hasActiveRec ? 'w-full lg:w-[72%]' : 'w-full'}`}
         >
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 lg:gap-8 relative z-10">
             {/* Left: Avatar, Greeting, Date */}
             <div className="flex items-center gap-5 md:gap-6">
               <PhotoAvatar
                 src={profile.profile_photo_path}
                 name={`${profile.first_name} ${profile.last_name}`}
-                className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/40 text-slate-900 text-xl md:text-2xl shadow-sm shrink-0 border border-white/50"
-                textClass="text-slate-900"
+                className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/10 text-white text-xl md:text-2xl shadow-sm shrink-0 border border-white/10"
+                textClass="text-white"
               />
               <div>
-                <p className="text-sm font-medium text-slate-800/80 mb-1">
+                <p className="text-sm font-medium text-slate-400 mb-1">
                   {format(time, "EEEE, d MMMM yyyy")} • {format(time, "h:mm a")}
                 </p>
                 <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight flex items-center text-white">
@@ -137,19 +137,19 @@ export default function DashboardPage() {
                 </h1>
                 <div className="flex flex-wrap items-center gap-2 md:gap-3 mt-3">
                   {profile.employee_code && (
-                    <span className="inline-flex items-center gap-1.5 bg-black/5 text-slate-900 backdrop-blur-sm border border-black/10 px-3 py-1 rounded-full text-xs font-semibold tracking-wider shadow-sm">
+                    <span className="inline-flex items-center gap-1.5 bg-white/5 text-slate-300 backdrop-blur-sm border border-white/10 px-3 py-1 rounded-full text-xs font-semibold tracking-wider shadow-sm">
                       {profile.employee_code}
                     </span>
                   )}
-                  <span className="inline-flex items-center gap-1.5 bg-black/5 text-slate-900 backdrop-blur-sm border border-black/10 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
+                  <span className="inline-flex items-center gap-1.5 bg-white/5 text-slate-300 backdrop-blur-sm border border-white/10 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
                     {profile.designation}
                   </span>
                   <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm ${
                     profile.attendance_status === 'Punched In'
-                      ? 'bg-emerald-100 text-emerald-300'
+                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                       : profile.attendance_status === 'Punched Out'
-                      ? 'bg-orange-100 text-orange-800'
-                      : 'bg-rose-100 text-rose-300'
+                      ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                      : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
                   }`}>
                     <Clock className="w-3.5 h-3.5" />
                     {profile.attendance_status}
@@ -158,21 +158,16 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Right: Service Days — animated neon pill */}
+            {/* Right: Service Days — premium glass pill */}
             {profile.service_stats && (
-              <div className="neon-pill-wrapper mt-4 lg:mt-0 w-full lg:w-auto shrink-0">
-                <div className="neon-pill-inner px-6 py-3 text-center">
-                  <p
-                    className="text-sm md:text-base font-extrabold tracking-wide flex flex-wrap items-center justify-center gap-2 whitespace-nowrap"
-                    style={{ color: '#0F172A', textShadow: '0 1px 2px rgba(255,255,255,0.25)' }}
-                  >
-                    <span className="text-base leading-none">🌟</span>
-                    Growing Together for{' '}
-                    <span style={{ color: '#1E3A5F', fontWeight: 800 }}>
-                      {profile.service_stats.years}Y {profile.service_stats.months}M {profile.service_stats.days}D
-                    </span>
-                  </p>
-                </div>
+              <div className="bg-white/5 border border-white/10 rounded-2xl px-6 py-3 text-center shadow-[inset_2px_2px_5px_rgba(0,0,0,0.2),inset_-2px_-2px_5px_rgba(255,255,255,0.1)] shrink-0 w-full lg:w-auto">
+                <p className="text-sm md:text-base font-extrabold tracking-wide flex flex-wrap items-center justify-center gap-2 whitespace-nowrap text-slate-300">
+                  <span className="text-base leading-none">🌟</span>
+                  Growing Together for{' '}
+                  <span className="text-amber-400 font-black">
+                    {profile.service_stats.years}Y {profile.service_stats.months}M {profile.service_stats.days}D
+                  </span>
+                </p>
               </div>
             )}
           </div>
@@ -345,7 +340,7 @@ export default function DashboardPage() {
                       <span className="text-sm font-bold uppercase tracking-wider">Management Only</span>
                     </div>
                   )}
-                  <h3 className="text-2xl font-black tracking-tight">View The Hall</h3>
+                  <span className="text-sm font-bold text-white relative z-10">View The Hall</span>
                 </div>
                 <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center shadow-[inset_2px_2px_5px_rgba(0,0,0,0.2),inset_-2px_-2px_5px_rgba(255,255,255,0.1)] group-hover:scale-95 transition-transform">
                   <ArrowRight className="w-6 h-6" />
@@ -468,17 +463,17 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Super Admin Welcome Banner */}
-      <div className="bg-[#F4B400] rounded-3xl p-5 md:p-6 shadow-lg mb-6 text-slate-900">
+      <div className="border border-white/10 bg-white/5 backdrop-blur-md rounded-3xl p-5 md:p-6 shadow-lg mb-6 text-white">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div className="flex items-center gap-5">
             <PhotoAvatar
               src={profile.profile_photo_path}
               name={`${profile.first_name} ${profile.last_name}`}
-              className="w-16 h-16 rounded-full bg-white/40 text-slate-900 text-2xl backdrop-blur-sm border border-white/50 shrink-0"
-              textClass="text-slate-900"
+              className="w-16 h-16 rounded-full bg-white/10 text-white text-2xl backdrop-blur-sm border border-white/10 shrink-0"
+              textClass="text-white"
             />
             <div>
-              <p className="text-sm font-medium text-slate-800/80 mb-1">
+              <p className="text-sm font-medium text-slate-400 mb-1">
                 {format(time, "EEEE, d MMMM yyyy")} • {format(time, "h:mm a")}
               </p>
               <h1 className="text-3xl font-extrabold tracking-tight flex items-center text-white">
@@ -493,18 +488,18 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
           </div>
           
           {/* Right: Quick Summary Badges */}
-          <Link href="/leaves/approvals" className="block flex flex-col justify-center bg-black/5 hover:bg-black/10 transition-colors rounded-2xl p-4 md:p-5 border border-black/10 hover:border-black/20 w-full md:w-auto shadow-sm cursor-pointer group">
-            <p className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-slate-800" />
+          <Link href="/leaves/approvals" className="block flex flex-col justify-center bg-white/5 hover:bg-white/10 transition-colors rounded-2xl p-4 md:p-5 border border-white/10 hover:border-white/20 w-full md:w-auto shadow-sm cursor-pointer group">
+            <p className="text-sm font-bold text-slate-300 mb-3 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-amber-400" />
               You have:
             </p>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-white/50 group-hover:bg-white/70 transition-colors flex items-center justify-center text-slate-800 shrink-0 shadow-sm border border-white/60">
+              <div className="w-10 h-10 rounded-full bg-white/10 group-hover:bg-white/20 transition-colors flex items-center justify-center text-amber-400 shrink-0 shadow-sm border border-white/10">
                 <FileText className="w-5 h-5 group-hover:scale-110 transition-transform" />
               </div>
               <div className="leading-tight pr-4">
-                <p className="text-xl font-black text-slate-900">{kpis.pending_requests}</p>
-                <p className="text-xs font-bold text-slate-800/80 uppercase tracking-wider mt-0.5">Pending Requests</p>
+                <p className="text-xl font-black text-white">{kpis.pending_requests}</p>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-0.5">Pending Requests</p>
               </div>
             </div>
           </Link>
@@ -633,7 +628,7 @@ function SuperAdminDashboard({ data, user, time, greeting }: any) {
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-white/10 transition-colors"></div>
               <div className="relative z-10 flex items-center justify-between h-full">
                 <div className="space-y-1">
-                  <h3 className="text-xl font-black tracking-tight">View The Hall</h3>
+                  <span className="text-sm font-bold text-white relative z-10">View The Hall</span>
                 </div>
                 <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center shadow-[inset_2px_2px_5px_rgba(0,0,0,0.2),inset_-2px_-2px_5px_rgba(255,255,255,0.1)] group-hover:scale-95 transition-transform">
                   <ArrowRight className="w-5 h-5" />
