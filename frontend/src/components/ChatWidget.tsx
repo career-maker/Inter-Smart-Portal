@@ -84,10 +84,10 @@ export default function ChatWidget() {
       {/* Floating Action Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-full shadow-2xl transition-all duration-300 active:scale-95 ${
+        className={`fixed bottom-24 md:bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-full shadow-2xl transition-all duration-300 active:scale-95 ${
           isOpen
             ? "bg-rose-600 hover:bg-rose-500 text-white rotate-90"
-            : "bg-gradient-to-tr from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-900 hover:shadow-amber-400/20 hover:shadow-xl animate-bounce"
+            : "bg-gradient-to-tr from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-900 hover:shadow-amber-400/20 hover:shadow-xl"
         }`}
         title="AI Assistant Chat"
       >
@@ -96,7 +96,7 @@ export default function ChatWidget() {
 
       {/* Chat Popover Window */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 z-50 flex flex-col w-[360px] sm:w-[400px] h-[500px] border border-white/10 bg-slate-950/95 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-300">
+        <div className="fixed bottom-40 md:bottom-24 right-6 z-50 flex flex-col w-[calc(100vw-32px)] sm:w-[400px] h-[500px] max-h-[calc(100vh-180px)] md:max-h-[calc(100vh-120px)] border border-white/10 bg-slate-950/95 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-300">
           
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-white/5">
