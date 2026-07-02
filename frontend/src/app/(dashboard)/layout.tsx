@@ -80,7 +80,8 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/hall",         label: "The Hall" },
       { href: "/leaves/approvals", label: "Leave Approvals", roles: ["Super Admin", "Team Lead", "HR"] },
       { href: "/leaves/approvals", label: "My Requests",     roles: ["Employee"] },
-      { href: "/recognitions",     label: "Employee Recognitions", roles: ["Super Admin"] },
+      { href: "/recognitions",     label: "Manage Awards",       roles: ["Super Admin"] },
+      { href: "/recognitions/leaderboard", label: "Recognition Leaderboard" },
     ],
   },
   {

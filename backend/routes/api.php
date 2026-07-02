@@ -157,12 +157,16 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Recognitions
     Route::get('/active-recognitions', [\App\Http\Controllers\Api\RecognitionController::class, 'activeRecognitions']);
+    // Leaderboard — accessible by all authenticated users
+    Route::get('/recognitions/leaderboard', [\App\Http\Controllers\Api\RecognitionController::class, 'leaderboard']);
     Route::middleware(['role:Super Admin'])->prefix('recognitions')->group(function () {
         Route::get('/', [\App\Http\Controllers\Api\RecognitionController::class, 'index']);
         Route::post('/', [\App\Http\Controllers\Api\RecognitionController::class, 'store']);
         Route::put('/{id}', [\App\Http\Controllers\Api\RecognitionController::class, 'update']);
         Route::put('/{id}/toggle', [\App\Http\Controllers\Api\RecognitionController::class, 'toggleActive']);
         Route::delete('/{id}', [\App\Http\Controllers\Api\RecognitionController::class, 'destroy']);
+        // Super Admin: view any employee's full recognition history
+        Route::get('/employee/{userId}', [\App\Http\Controllers\Api\RecognitionController::class, 'employeeRecognitions']);
     });
 
     // View The Hall (All authenticated users can view)

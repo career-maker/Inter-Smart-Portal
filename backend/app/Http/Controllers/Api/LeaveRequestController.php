@@ -111,30 +111,43 @@ class LeaveRequestController extends Controller
             return !$date->isWeekend() && !in_array($ds, $holidays);
         };
 
+        // ── Pre-scan: find first and last WORKING day in the leave range ───────
+        // Sandwich leave only applies to non-working days that fall STRICTLY
+        // BETWEEN two working leave days. Non-working days at the very start
+        // or end of the leave block (with no working day before/after them in
+        // the range) are NOT sandwich — they are just outside the leave block.
+        //
+        // Example: Leave Tue→Mon (Fri is holiday, Sat-Sun are weekend)
+        //   Tue, Wed, Thu  → working     (before the non-working block)
+        //   Fri, Sat, Sun  → non-working, BETWEEN Thu working and Mon working → sandwich
+        //   Mon            → working
+        //
+        // Example: Leave Sat→Mon
+        //   Sat, Sun → non-working, BEFORE the first working day (Mon) → NOT sandwich
+        //   Mon      → working
+        $firstWorkingDay = null;
+        $lastWorkingDay  = null;
+        $preScan = $startDate->copy()->startOfDay();
+        while ($preScan->lte($endDate)) {
+            if ($isWorkingDay($preScan)) {
+                if ($firstWorkingDay === null) $firstWorkingDay = $preScan->copy();
+                $lastWorkingDay = $preScan->copy();
+            }
+            $preScan->addDay();
+        }
+
         // ── Day-by-day walk ─────────────────────────────────────────────────
         //
         // Phase 1 – 3-calendar-day advance-notice rule (CL only):
-        //   For each WORKING day, compute absolute calendar distance from today.
-        //   < 3  → direct penalty LOP (insufficient advance notice)
-        //   ≥ 3  → eligible for paid CL (subject to Phase 2 below)
-        //   Non-working days are NOT counted — the check is raw calendar days.
+        //   eligibleFrom = today + 3 days (direct date comparison, no diff math).
+        //   Working day before eligibleFrom → penalty LOP (late notice).
+        //   Working day on/after eligibleFrom → eligible for paid CL.
         //
-        // Phase 2 – Sandwich Leave Rule (higher priority, overrides Phase 1):
-        //   Non-working days (weekends / any DB holiday) between two leave days
-        //   are always sandwich LOP.
-        //   Additionally, if a working day that would be ELIGIBLE (≥ 3 days) falls
-        //   immediately after non-working days that immediately follow a penalty
-        //   (LOP) day, that eligible working day is overridden to LOP — it is part
-        //   of the same continuous leave block. Contamination extends ONE hop: the
-        //   working day right after the sandwich is LOP; the day after THAT resets.
-        //
-        // Example (applied Monday, leave starts Tuesday):
-        //   Tue (1d) → LOP  |  Wed (2d) → LOP  |  Thu (holiday) → sandwich
-        //   Fri (holiday) → sandwich  |  Mon (7d, eligible) → LOP (Phase 2 override)
-        //   Tue onwards → Paid CL
-        // First day that qualifies for paid CL: today + 3 calendar days.
-        // Using a direct date comparison (lt / gte) completely avoids any
-        // diffInDays sign or precision issue across Carbon versions.
+        // Phase 2 – Sandwich rule (higher priority):
+        //   Non-working day strictly between firstWorkingDay and lastWorkingDay
+        //   → sandwich LOP.
+        //   If a sandwich follows a penalty working day, the NEXT eligible working
+        //   day is also LOP (one-hop contamination).
         $eligibleFrom = $today->copy()->addDays(3)->startOfDay();
 
         $totalWorkingDays = 0;
@@ -151,12 +164,6 @@ class LeaveRequestController extends Controller
                 $totalWorkingDays++;
 
                 if ($isCasual) {
-                    // Phase 1 — 3-calendar-day advance-notice rule.
-                    // A working day is a direct penalty if it falls before today+3.
-                    // Example: applied July 2 → eligibleFrom = July 5
-                    //   July 3 (before July 5) → penalty
-                    //   July 5 (not before July 5) → eligible
-                    //   July 16 (not before July 5) → eligible
                     $directPenalty = $current->lt($eligibleFrom);
 
                     if ($directPenalty) {
@@ -164,10 +171,7 @@ class LeaveRequestController extends Controller
                         $lastWorkingWasPenalty    = true;
                         $sandwichSinceLastPenalty = false;
                     } elseif ($lastWorkingWasPenalty && $sandwichSinceLastPenalty) {
-                        // Phase 2 — sandwich override (higher priority).
-                        // This eligible working day follows non-working days that
-                        // immediately followed a penalty day — it is pulled into the
-                        // same LOP block. Contamination stops after this one hop.
+                        // Sandwich contamination: eligible day dragged into LOP block.
                         $penaltyDays++;
                         $lastWorkingWasPenalty    = false;
                         $sandwichSinceLastPenalty = false;
@@ -177,11 +181,15 @@ class LeaveRequestController extends Controller
                         $sandwichSinceLastPenalty = false;
                     }
                 } else {
-                    // SL / other types: no advance-notice rule
                     $eligibleDays++;
                 }
-            } else {
-                // Non-working day → always sandwich LOP
+            } elseif (
+                $firstWorkingDay !== null &&
+                $lastWorkingDay  !== null &&
+                $current->gte($firstWorkingDay) &&
+                $current->lte($lastWorkingDay)
+            ) {
+                // Non-working day BETWEEN the first and last working day → sandwich
                 $sandwichDays++;
                 if ($isCasual && $lastWorkingWasPenalty) {
                     $sandwichSinceLastPenalty = true;

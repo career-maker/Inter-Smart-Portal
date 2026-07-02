@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Recognition;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -42,6 +43,8 @@ class RecognitionController extends Controller
             'is_active' => true,
             'created_by' => Auth::id(),
         ]);
+
+        $recognition->load(['user:id,first_name,last_name,employee_code', 'creator:id,first_name,last_name']);
 
         return response()->json(['message' => 'Recognition added successfully.', 'data' => $recognition]);
     }
@@ -98,9 +101,130 @@ class RecognitionController extends Controller
     public function myRecognitions()
     {
         $recognitions = Recognition::where('user_id', Auth::id())
+            ->with(['creator:id,first_name,last_name'])
             ->orderBy('start_date', 'desc')
             ->get();
             
         return response()->json(['data' => $recognitions]);
+    }
+
+    /**
+     * Recognition Leaderboard — all authenticated users can view.
+     * period=overall (default) or period=week
+     */
+    public function leaderboard(Request $request)
+    {
+        $period = $request->query('period', 'overall');
+        $today  = Carbon::today()->toDateString();
+
+        $query = Recognition::query()->where('is_active', true);
+
+        if ($period === 'week') {
+            $weekStart = Carbon::now()->startOfWeek(Carbon::MONDAY)->toDateString();
+            $weekEnd   = Carbon::now()->endOfWeek(Carbon::SUNDAY)->toDateString();
+            // Recognitions that overlap with the current week
+            $query->where('start_date', '<=', $weekEnd)
+                  ->where('end_date', '>=', $weekStart);
+        }
+
+        $recognitions = $query
+            ->with([
+                'user:id,first_name,last_name,designation,team_id,profile_photo_path,joining_date',
+                'user.team:id,name',
+            ])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Group by user
+        $grouped = $recognitions->groupBy('user_id');
+
+        $leaderboard = $grouped->map(function ($recs, $userId) use ($today) {
+            $firstRec = $recs->first();
+            $user = $firstRec ? $firstRec->user : null;
+            if (!$user) return null;
+
+            $latestRec = $recs->sortByDesc('created_at')->first();
+
+            $activeRec = $recs->first(function ($r) use ($today) {
+                return $r->start_date->toDateString() <= $today
+                    && $r->end_date->toDateString() >= $today;
+            });
+
+            return [
+                'user_id'                  => $userId,
+                'name'                     => $user->first_name . ' ' . $user->last_name,
+                'first_name'               => $user->first_name,
+                'last_name'                => $user->last_name,
+                'designation'              => $user->designation ?? 'Employee',
+                'department'               => $user->team?->name ?? 'Unassigned',
+                'profile_photo_path'       => $user->profilePhotoUrl(),
+                'total_achievements'       => $recs->count(),
+                'latest_achievement_title' => $latestRec?->title,
+                'latest_achievement_icon'  => $latestRec?->icon,
+                'active_achievement'       => $activeRec ? [
+                    'title' => $activeRec->title,
+                    'icon'  => $activeRec->icon,
+                ] : null,
+                'joining_date'             => $user->joining_date,
+            ];
+        })->filter()->values();
+
+        // Sort: most achievements first, then by joining date (earliest = more senior)
+        $leaderboard = $leaderboard->sortBy([
+            ['total_achievements', 'desc'],
+            ['joining_date', 'asc'],
+        ])->values();
+
+        // Assign ranks
+        $leaderboard = $leaderboard->map(function ($item, $index) {
+            return array_merge($item, ['rank' => $index + 1]);
+        })->values();
+
+        // Summary stats (always overall regardless of period filter)
+        $totalIssued   = Recognition::count();
+        $activeHolders = Recognition::where('is_active', true)
+            ->whereDate('start_date', '<=', $today)
+            ->whereDate('end_date', '>=', $today)
+            ->distinct('user_id')
+            ->count('user_id');
+
+        $topEntry = $leaderboard->first();
+
+        $mostAwardedRow = Recognition::selectRaw('title, icon, COUNT(*) as award_count')
+            ->groupBy('title', 'icon')
+            ->orderByDesc('award_count')
+            ->first();
+
+        return response()->json([
+            'data'  => $leaderboard,
+            'stats' => [
+                'total_issued'   => $totalIssued,
+                'active_holders' => $activeHolders,
+                'top_performer'  => $topEntry ? $topEntry['name'] : null,
+                'most_awarded'   => $mostAwardedRow ? ($mostAwardedRow->icon . ' ' . $mostAwardedRow->title) : null,
+            ],
+        ]);
+    }
+
+    /**
+     * Get all recognitions for a specific employee (Super Admin only).
+     */
+    public function employeeRecognitions($userId)
+    {
+        $employee = User::findOrFail($userId);
+
+        $recognitions = Recognition::where('user_id', $userId)
+            ->with(['creator:id,first_name,last_name'])
+            ->orderBy('start_date', 'desc')
+            ->get();
+
+        return response()->json([
+            'data'     => $recognitions,
+            'employee' => [
+                'id'         => $employee->id,
+                'name'       => $employee->first_name . ' ' . $employee->last_name,
+                'designation' => $employee->designation,
+            ],
+        ]);
     }
 }

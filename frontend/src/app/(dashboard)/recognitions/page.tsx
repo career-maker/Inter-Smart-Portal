@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { PageLoader } from "@/components/ui/PageLoader";
 import { format } from "date-fns";
 import {
@@ -10,9 +11,14 @@ import {
   ShieldCheck,
   PowerOff,
   Power,
-  Loader2
+  Loader2,
+  Trophy,
+  Eye,
+  Download,
 } from "lucide-react";
 import api from "@/services/api";
+import Link from "next/link";
+import { CertificateModal } from "@/components/recognition/CertificateModal";
 
 const PREDEFINED_TITLES = [
   { title: "Hubstaff King", icon: "👑" },
@@ -21,9 +27,12 @@ const PREDEFINED_TITLES = [
   { title: "Attendance Star", icon: "⏰" },
   { title: "Best Performer", icon: "🚀" },
   { title: "Team Hero", icon: "🌟" },
+  { title: "Innovation Award", icon: "💡" },
+  { title: "Customer Champion", icon: "🤝" },
 ];
 
 export default function RecognitionsPage() {
+  const router = useRouter();
   const [recognitions, setRecognitions] = useState<any[]>([]);
   const [employees, setEmployees] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,6 +40,7 @@ export default function RecognitionsPage() {
   const [submitting, setSubmitting] = useState(false);
   const [togglingId, setTogglingId] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [certRec, setCertRec] = useState<any | null>(null);
 
   const [formData, setFormData] = useState({
     user_id: "",
@@ -77,7 +87,7 @@ export default function RecognitionsPage() {
 
       let icon = formData.icon;
       if (!isCustom) {
-        const predefined = PREDEFINED_TITLES.find(t => t.title === formData.title_selection);
+        const predefined = PREDEFINED_TITLES.find((t) => t.title === formData.title_selection);
         if (predefined) icon = predefined.icon;
       }
 
@@ -92,7 +102,15 @@ export default function RecognitionsPage() {
       });
 
       setShowModal(false);
-      setFormData({ user_id: "", title_selection: "", custom_title: "", icon: "🏆", start_date: "", end_date: "", description: "" });
+      setFormData({
+        user_id: "",
+        title_selection: "",
+        custom_title: "",
+        icon: "🏆",
+        start_date: "",
+        end_date: "",
+        description: "",
+      });
       fetchRecognitions();
     } catch (error: any) {
       console.error("Error creating recognition", error);
@@ -130,31 +148,42 @@ export default function RecognitionsPage() {
   if (loading) return <PageLoader />;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div style={{ width: "min(96vw, 1800px)", margin: "0 auto" }} className="space-y-6">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2 text-white">
             <Award className="w-6 h-6 text-amber-400" />
-            Employee Recognitions
+            Achievement & Awards Management
           </h1>
-          <p className="text-sm text-slate-400 mt-1">Manage titles and awards for employees.</p>
+          <p className="text-sm text-slate-400 mt-1">Assign and manage employee recognition awards.</p>
         </div>
-        <button
-          onClick={() => setShowModal(true)}
-          className="bg-amber-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-amber-600 transition flex items-center gap-2"
-        >
-          <Plus className="w-4 h-4" />
-          Assign Recognition
-        </button>
+        <div className="flex items-center gap-3 flex-wrap">
+          <Link
+            href="/recognitions/leaderboard"
+            className="flex items-center gap-2 border border-amber-500/30 text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 px-4 py-2 rounded-xl text-sm font-semibold transition"
+          >
+            <Trophy className="w-4 h-4" />
+            View Leaderboard
+          </Link>
+          <button
+            onClick={() => setShowModal(true)}
+            className="bg-amber-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-amber-600 transition flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Assign Achievement
+          </button>
+        </div>
       </div>
 
+      {/* Table */}
       <div className="bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
             <thead className="bg-white/5 text-slate-300 font-semibold border-b border-white/10">
               <tr>
                 <th className="px-6 py-4">Employee</th>
-                <th className="px-6 py-4">Title</th>
+                <th className="px-6 py-4">Achievement</th>
                 <th className="px-6 py-4">Period</th>
                 <th className="px-6 py-4 text-center">Status</th>
                 <th className="px-6 py-4 text-right">Actions</th>
@@ -162,27 +191,43 @@ export default function RecognitionsPage() {
             </thead>
             <tbody className="divide-y divide-white/5">
               {recognitions.map((rec) => {
-                const isActive = rec.is_active && new Date(rec.start_date) <= new Date() && new Date(rec.end_date) >= new Date();
+                const today = new Date(); today.setHours(0,0,0,0);
+                const start = new Date(rec.start_date); start.setHours(0,0,0,0);
+                const end = new Date(rec.end_date); end.setHours(23,59,59,999);
+                const isActive = rec.is_active && start <= today && end >= today;
                 const isToggling = togglingId === rec.id;
                 const isDeleting = deletingId === rec.id;
+                const employeeName = rec.user
+                  ? `${rec.user.first_name} ${rec.user.last_name}`
+                  : "Unknown";
 
                 return (
                   <tr key={rec.id} className="hover:bg-white/5 transition-colors">
                     <td className="px-6 py-4">
-                      <div className="font-semibold text-white">{rec.user?.first_name} {rec.user?.last_name}</div>
+                      <div className="font-semibold text-white">{employeeName}</div>
                       <div className="text-xs text-slate-400">{rec.user?.employee_code}</div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2 font-bold text-amber-300">
                         <span>{rec.icon}</span>
                         <span>{rec.title}</span>
-                        {rec.is_custom && <span className="text-[10px] bg-white/10 text-slate-300 px-1.5 py-0.5 rounded uppercase tracking-wider">Custom</span>}
+                        {rec.is_custom && (
+                          <span className="text-[10px] bg-white/10 text-slate-300 px-1.5 py-0.5 rounded uppercase tracking-wider">
+                            Custom
+                          </span>
+                        )}
                       </div>
-                      <div className="text-xs text-slate-400 mt-1 max-w-xs truncate" title={rec.description}>{rec.description}</div>
+                      <div className="text-xs text-slate-400 mt-1 max-w-xs truncate" title={rec.description}>
+                        {rec.description}
+                      </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-slate-200">{format(new Date(rec.start_date), "MMM d, yyyy")}</div>
-                      <div className="text-slate-400 text-xs">to {format(new Date(rec.end_date), "MMM d, yyyy")}</div>
+                      <div className="text-slate-200">
+                        {format(new Date(rec.start_date), "MMM d, yyyy")}
+                      </div>
+                      <div className="text-slate-400 text-xs">
+                        to {format(new Date(rec.end_date), "MMM d, yyyy")}
+                      </div>
                     </td>
                     <td className="px-6 py-4 text-center">
                       {isActive ? (
@@ -195,25 +240,46 @@ export default function RecognitionsPage() {
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-right space-x-2">
+                    <td className="px-6 py-4 text-right space-x-1">
+                      {/* View Certificate */}
+                      <button
+                        onClick={() => setCertRec({ ...rec, _employeeName: employeeName })}
+                        className="p-1.5 text-blue-400 hover:bg-blue-500/10 rounded-lg transition"
+                        title="View Certificate"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
+                      {/* Toggle */}
                       <button
                         onClick={() => toggleStatus(rec.id)}
                         disabled={isToggling || isDeleting}
-                        className={`p-1.5 rounded-lg transition disabled:opacity-50 ${rec.is_active ? 'text-amber-400 hover:bg-amber-500/10' : 'text-emerald-400 hover:bg-emerald-500/10'}`}
+                        className={`p-1.5 rounded-lg transition disabled:opacity-50 ${
+                          rec.is_active
+                            ? "text-amber-400 hover:bg-amber-500/10"
+                            : "text-emerald-400 hover:bg-emerald-500/10"
+                        }`}
                         title={rec.is_active ? "Disable" : "Enable"}
                       >
-                        {isToggling
-                          ? <Loader2 className="w-4 h-4 animate-spin" />
-                          : rec.is_active ? <PowerOff className="w-4 h-4" /> : <Power className="w-4 h-4" />
-                        }
+                        {isToggling ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : rec.is_active ? (
+                          <PowerOff className="w-4 h-4" />
+                        ) : (
+                          <Power className="w-4 h-4" />
+                        )}
                       </button>
+                      {/* Delete */}
                       <button
                         onClick={() => deleteRecognition(rec.id)}
                         disabled={isDeleting || isToggling}
                         className="p-1.5 text-red-400 hover:bg-red-500/10 rounded-lg transition disabled:opacity-50"
                         title="Delete"
                       >
-                        {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                        {isDeleting ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-4 h-4" />
+                        )}
                       </button>
                     </td>
                   </tr>
@@ -221,8 +287,10 @@ export default function RecognitionsPage() {
               })}
               {recognitions.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-slate-400">
-                    No recognitions found.
+                  <td colSpan={5} className="px-6 py-12 text-center text-slate-400">
+                    <Trophy className="w-10 h-10 mx-auto mb-3 text-slate-600" />
+                    <p className="font-medium">No achievements assigned yet.</p>
+                    <p className="text-sm mt-1">Click "Assign Achievement" to get started.</p>
                   </td>
                 </tr>
               )}
@@ -231,25 +299,45 @@ export default function RecognitionsPage() {
         </div>
       </div>
 
+      {/* Certificate Modal */}
+      {certRec && (
+        <CertificateModal
+          recognition={certRec}
+          employeeName={certRec._employeeName}
+          onClose={() => setCertRec(null)}
+        />
+      )}
+
+      {/* Assign Achievement Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
           <div className="bg-slate-800 border border-white/10 rounded-2xl w-full max-w-lg shadow-xl my-8">
             <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center sticky top-0 bg-slate-800 rounded-t-2xl z-10">
-              <h2 className="text-lg font-bold text-white">Assign Recognition</h2>
-              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <Award className="w-5 h-5 text-amber-400" />
+                Assign Achievement
+              </h2>
+              <button
+                onClick={() => setShowModal(false)}
+                className="text-slate-400 hover:text-white text-xl leading-none"
+              >
+                &times;
+              </button>
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-slate-300 mb-1">Employee <span className="text-red-400">*</span></label>
+                <label className="block text-sm font-semibold text-slate-300 mb-1">
+                  Employee <span className="text-red-400">*</span>
+                </label>
                 <select
                   required
                   value={formData.user_id}
-                  onChange={e => setFormData({ ...formData, user_id: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, user_id: e.target.value })}
                   className="w-full border border-white/10 bg-slate-700 text-white rounded-lg p-2.5 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm"
                 >
                   <option value="" className="bg-slate-700">Select Employee...</option>
-                  {employees.map(emp => (
+                  {employees.map((emp) => (
                     <option key={emp.id} value={emp.id} className="bg-slate-700">
                       {emp.first_name} {emp.last_name} ({emp.employee_code})
                     </option>
@@ -261,21 +349,27 @@ export default function RecognitionsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-300 mb-1">Recognition Title <span className="text-red-400">*</span></label>
+                <label className="block text-sm font-semibold text-slate-300 mb-1">
+                  Achievement Title <span className="text-red-400">*</span>
+                </label>
                 <select
                   required
                   value={formData.title_selection}
-                  onChange={e => setFormData({ ...formData, title_selection: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, title_selection: e.target.value })}
                   className="w-full border border-white/10 bg-slate-700 text-white rounded-lg p-2.5 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm"
                 >
                   <option value="" className="bg-slate-700">Select a Title...</option>
-                  <optgroup label="Predefined">
-                    {PREDEFINED_TITLES.map(pt => (
-                      <option key={pt.title} value={pt.title} className="bg-slate-700">{pt.icon} {pt.title}</option>
+                  <optgroup label="Predefined Awards">
+                    {PREDEFINED_TITLES.map((pt) => (
+                      <option key={pt.title} value={pt.title} className="bg-slate-700">
+                        {pt.icon} {pt.title}
+                      </option>
                     ))}
                   </optgroup>
                   <optgroup label="Other">
-                    <option value="custom" className="bg-slate-700">Custom Title...</option>
+                    <option value="custom" className="bg-slate-700">
+                      Custom Title...
+                    </option>
                   </optgroup>
                 </select>
               </div>
@@ -283,12 +377,14 @@ export default function RecognitionsPage() {
               {formData.title_selection === "custom" && (
                 <div className="grid grid-cols-4 gap-4">
                   <div className="col-span-3">
-                    <label className="block text-sm font-semibold text-slate-300 mb-1">Custom Title Name <span className="text-red-400">*</span></label>
+                    <label className="block text-sm font-semibold text-slate-300 mb-1">
+                      Custom Title Name <span className="text-red-400">*</span>
+                    </label>
                     <input
                       required
                       type="text"
                       value={formData.custom_title}
-                      onChange={e => setFormData({ ...formData, custom_title: e.target.value })}
+                      onChange={(e) => setFormData({ ...formData, custom_title: e.target.value })}
                       className="w-full border border-white/10 bg-slate-700 text-white rounded-lg p-2.5 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm"
                       placeholder="e.g. Sales Ninja"
                     />
@@ -298,7 +394,7 @@ export default function RecognitionsPage() {
                     <input
                       type="text"
                       value={formData.icon}
-                      onChange={e => setFormData({ ...formData, icon: e.target.value })}
+                      onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
                       className="w-full border border-white/10 bg-slate-700 text-white rounded-lg p-2.5 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm text-center"
                     />
                   </div>
@@ -307,34 +403,40 @@ export default function RecognitionsPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-300 mb-1">Start Date <span className="text-red-400">*</span></label>
+                  <label className="block text-sm font-semibold text-slate-300 mb-1">
+                    Start Date <span className="text-red-400">*</span>
+                  </label>
                   <input
                     required
                     type="date"
                     value={formData.start_date}
-                    onChange={e => setFormData({ ...formData, start_date: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
                     className="w-full border border-white/10 bg-slate-700 text-white rounded-lg p-2.5 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-300 mb-1">End Date <span className="text-red-400">*</span></label>
+                  <label className="block text-sm font-semibold text-slate-300 mb-1">
+                    End Date <span className="text-red-400">*</span>
+                  </label>
                   <input
                     required
                     type="date"
                     value={formData.end_date}
-                    onChange={e => setFormData({ ...formData, end_date: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
                     className="w-full border border-white/10 bg-slate-700 text-white rounded-lg p-2.5 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-300 mb-1">Appreciation Message <span className="text-red-400">*</span></label>
+                <label className="block text-sm font-semibold text-slate-300 mb-1">
+                  Achievement Description <span className="text-red-400">*</span>
+                </label>
                 <textarea
                   required
                   rows={3}
                   value={formData.description}
-                  onChange={e => setFormData({ ...formData, description: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   className="w-full border border-white/10 bg-slate-700 text-white rounded-lg p-2.5 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm resize-none"
                   placeholder="For achieving the highest productivity score this week..."
                 />
@@ -355,7 +457,7 @@ export default function RecognitionsPage() {
                   className="px-4 py-2 text-sm font-semibold bg-amber-500 text-white hover:bg-amber-600 rounded-lg transition disabled:opacity-50 flex items-center gap-2"
                 >
                   {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {submitting ? "Saving..." : "Assign Recognition"}
+                  {submitting ? "Saving..." : "Assign Achievement"}
                 </button>
               </div>
             </form>
