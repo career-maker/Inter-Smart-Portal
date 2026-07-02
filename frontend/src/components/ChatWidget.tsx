@@ -171,7 +171,6 @@ export default function ChatWidget() {
                   Portal AI Assistant
                   <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
                 </h3>
-                <p className="text-2xs text-slate-400 font-medium">Local Ollama Llama 3.2</p>
               </div>
             </div>
             <button
