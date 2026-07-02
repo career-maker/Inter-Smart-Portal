@@ -389,17 +389,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </main>
       {/* Chatbase AI Assistant Widget */}
       <Script
-        id="chatbase-config"
+        id="chatbase-embed"
         strategy="afterInteractive"
         dangerouslySetInnerHTML={{
-          __html: `window.chatbaseConfig = { chatbotId: "NWjkUsLKs1X83cNdAnodJ" };`,
+          __html: `
+            window.chatbaseConfig = { chatbotId: "NWjkUsLKs1X83cNdAnodJ" };
+            (function() {
+              var s = document.createElement("script");
+              s.src = "https://www.chatbase.co/embed.min.js";
+              s.setAttribute("chatbotId", "NWjkUsLKs1X83cNdAnodJ");
+              s.setAttribute("domain", "www.chatbase.co");
+              s.defer = true;
+              document.body.appendChild(s);
+            })();
+          `,
         }}
-      />
-      <Script
-        src="https://www.chatbase.co/embed.min.js"
-        id="chatbase-sdk"
-        data-chatbot-id="NWjkUsLKs1X83cNdAnodJ"
-        strategy="afterInteractive"
       />
     </div>
   );
