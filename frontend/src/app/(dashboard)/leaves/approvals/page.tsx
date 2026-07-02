@@ -82,6 +82,19 @@ export default function ApprovalsPage() {
     }
   };
 
+  const handleLopConversion = async (id: number, action: "confirm" | "reject") => {
+    setActionLoading(true);
+    try {
+      const endpoint = `/leave-requests/${id}/${action === "confirm" ? "confirm-lop" : "reject-lop"}`;
+      await api.post(endpoint);
+      fetchRequests();
+    } catch (e: any) {
+      alert(e.response?.data?.message || "Error processing LOP conversion.");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const submitReject = async () => {
     if (!rejectDialog || !rejectReason.trim()) return;
     setActionLoading(true);
