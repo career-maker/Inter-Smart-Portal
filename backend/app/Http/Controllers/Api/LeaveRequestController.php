@@ -396,6 +396,7 @@ class LeaveRequestController extends Controller
             $adminStatus = 'Pending';
         }
 
+        $leaveRequest = null;
         DB::beginTransaction();
         try {
             // Balance is NOT deducted at submission — it is deducted when the leave
@@ -421,22 +422,31 @@ class LeaveRequestController extends Controller
                 'paid_sick_leave'        => $paidSL,
                 'lop_days'               => $totalLOP,
             ]);
-
-            $this->checkForSandwichLopConversion($leaveRequest);
-
             DB::commit();
-
-            // Send notifications outside the transaction
-            $this->notifyOnSubmit($user, $leaveRequest, $leaveType);
-
-            return response()->json([
-                'message' => 'Leave applied successfully',
-                'data'    => $leaveRequest
-            ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['message' => 'Failed to apply leave', 'error' => $e->getMessage()], 500);
+            return response()->json([
+                'message' => $e->getMessage() ?: 'Failed to apply leave',
+                'error'   => $e->getMessage()
+            ], 500);
         }
+
+        // Run sandwich LOP check OUTSIDE the transaction so a failure here
+        // never rolls back the actual leave submission.
+        try {
+            $this->checkForSandwichLopConversion($leaveRequest);
+        } catch (\Exception $e) {
+            // Log but don't fail — leave is already created
+            \Log::warning('checkForSandwichLopConversion failed: ' . $e->getMessage());
+        }
+
+        // Send notifications outside the transaction
+        $this->notifyOnSubmit($user, $leaveRequest, $leaveType);
+
+        return response()->json([
+            'message' => 'Leave applied successfully',
+            'data'    => $leaveRequest
+        ], 201);
     }
 
     private function notifyOnSubmit($user, LeaveRequest $leaveRequest, $leaveType): void
