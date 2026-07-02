@@ -92,7 +92,7 @@ class DashboardController extends Controller
         
         $balance = LeaveBalance::where('user_id', $user->id)->first();
             
-        $casualLeaveBalance = $balance ? $balance->casual_leave_balance : 0;
+        $casualLeaveBalance = $balance ? ($balance->casual_leave_balance + ($balance->cl_carry_forward ?? 0)) : 0;
         $sickLeaveBalance = $balance ? $balance->sick_leave_balance : 0;
 
         $totalLeavesTaken = LeaveRequest::where('user_id', $user->id)

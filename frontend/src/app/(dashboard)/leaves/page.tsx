@@ -30,20 +30,26 @@ export default function LeavesPage() {
 
       const balanceData = balRes.data.data;
       if (balanceData && !isSuperAdmin) {
+        const clBalance  = (balanceData.casual_leave_balance || 0) + (balanceData.cl_carry_forward || 0);
+        const slBalance  = balanceData.sick_leave_balance || 0;
+        const totalTaken = balanceData.total_leaves_taken || 0;
+        const clUsed     = Math.max(0, totalTaken - slBalance); // best-effort split; we just show remaining directly
         setBalances([
           {
             id: 1,
             leave_type: { name: "Casual Leave" },
             color: "text-emerald-400",
-            total_days: 12,
-            used_days: 12 - (balanceData.casual_leave_balance || 0),
+            remaining: clBalance,
+            cl_carry_forward: balanceData.cl_carry_forward || 0,
+            total_taken: totalTaken,
           },
           {
             id: 2,
             leave_type: { name: "Sick Leave" },
             color: "text-rose-400",
-            total_days: 12,
-            used_days: 12 - (balanceData.sick_leave_balance || 0),
+            remaining: slBalance,
+            cl_carry_forward: 0,
+            total_taken: totalTaken,
           },
         ]);
       }
@@ -126,13 +132,15 @@ export default function LeavesPage() {
               <div className="flex items-end justify-between">
                 <div>
                   <span className={`text-5xl font-black ${balance.color}`}>
-                    {balance.total_days - balance.used_days}
+                    {balance.remaining}
                   </span>
                   <span className="text-slate-400 ml-2 text-sm">Remaining</span>
+                  {balance.cl_carry_forward > 0 && (
+                    <p className="text-xs text-slate-500 mt-1">{balance.cl_carry_forward} carry-fwd included</p>
+                  )}
                 </div>
                 <div className="text-sm text-slate-500 text-right space-y-0.5">
-                  <div>Total: <span className="text-slate-300 font-medium">{balance.total_days}</span></div>
-                  <div>Used: <span className="text-slate-300 font-medium">{balance.used_days}</span></div>
+                  <div>Total Taken: <span className="text-slate-300 font-medium">{balance.total_taken}</span></div>
                 </div>
               </div>
             </div>
