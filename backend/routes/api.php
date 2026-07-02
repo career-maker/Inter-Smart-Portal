@@ -121,8 +121,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('calendar', [\App\Http\Controllers\Api\CalendarController::class, 'index']);
     Route::get('holidays', [\App\Http\Controllers\Api\HolidayController::class, 'index']);
 
-    // Holiday management — Super Admin & HR only
-    Route::middleware(['role:Super Admin|HR'])->group(function () {
+    // Holiday management — Super Admin only
+    Route::middleware(['role:Super Admin'])->group(function () {
         Route::post('holidays', [\App\Http\Controllers\Api\HolidayController::class, 'store']);
         Route::put('holidays/{holiday}', [\App\Http\Controllers\Api\HolidayController::class, 'update']);
         Route::delete('holidays/{holiday}', [\App\Http\Controllers\Api\HolidayController::class, 'destroy']);

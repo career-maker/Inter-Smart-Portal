@@ -50,7 +50,16 @@ export default function CalendarPage() {
   const paddingDays = Array.from({ length: firstDayOfMonth }).map((_, i) => i);
 
   const getEventsForDay = (date: Date) => {
-    return events.filter(e => isSameDay(parseISO(e.date), date));
+    return events.filter(e => {
+      const start = parseISO(e.date);
+      if (!e.end_date) return isSameDay(start, date);
+      const end = parseISO(e.end_date);
+      // Reset hours to 0 to compare dates safely
+      const d = new Date(date); d.setHours(0,0,0,0);
+      const s = new Date(start); s.setHours(0,0,0,0);
+      const ed = new Date(end); ed.setHours(0,0,0,0);
+      return d >= s && d <= ed;
+    });
   };
 
   const getEventStyle = (event: any) => {
