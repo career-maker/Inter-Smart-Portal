@@ -101,10 +101,7 @@ export default function DashboardPage() {
   const hasActiveRec = !!profile.active_recognition;
 
   return (
-    <div
-      className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500"
-      style={{ width: 'min(96vw, 1800px)', margin: '0 auto', paddingLeft: 'clamp(12px, 1.5vw, 28px)', paddingRight: 'clamp(12px, 1.5vw, 28px)' }}
-    >
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       
       {/* 
         ========================================
@@ -114,8 +111,7 @@ export default function DashboardPage() {
       <div className={`flex gap-5 mb-6 ${hasActiveRec ? 'flex-col lg:flex-row items-stretch' : ''}`}>
         {/* Welcome Card — full width when no achievement, 72% when active achievement */}
         <div
-          className="rounded-3xl p-5 md:p-6 shadow-lg bg-[#F4B400] text-slate-900 relative overflow-hidden transition-all duration-500"
-          style={{ flex: hasActiveRec ? '0 0 72%' : '1 1 100%' }}
+          className={`rounded-3xl p-5 md:p-6 shadow-lg bg-[#F4B400] text-slate-900 relative overflow-hidden transition-all duration-500 ${hasActiveRec ? 'w-full lg:w-[72%]' : 'w-full'}`}
         >
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 lg:gap-8 relative z-10">
@@ -184,10 +180,7 @@ export default function DashboardPage() {
 
         {/* Achievement Flip Card — only shown when employee has an active recognition */}
         {hasActiveRec && (
-          <div
-            className="lg:flex-1 min-h-[220px]"
-            style={{ flex: '0 0 28%' }}
-          >
+          <div className="w-full lg:w-[28%] lg:flex-1 min-h-[220px]">
             <AchievementFlipCard
               recognition={profile.active_recognition}
               employeeName={`${profile.first_name} ${profile.last_name}`}
