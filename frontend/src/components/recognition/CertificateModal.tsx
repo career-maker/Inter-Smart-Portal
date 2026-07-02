@@ -95,8 +95,8 @@ export function CertificateModal({ recognition, employeeName, onClose }: Certifi
         <div
           ref={certRef}
           style={{
-            background: "linear-gradient(135deg, #0f172a 0%, #1e1b4b 40%, #0f172a 100%)",
-            border: "2px solid rgba(251,191,36,0.4)",
+            background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)",
+            border: "2px solid #b45309",
             borderRadius: "16px",
             padding: "48px 56px",
             position: "relative",
@@ -105,44 +105,24 @@ export function CertificateModal({ recognition, employeeName, onClose }: Certifi
           }}
         >
           {/* Corner decorations */}
-          <div style={{ position: "absolute", top: 16, left: 16, width: 64, height: 64, borderTop: "3px solid rgba(251,191,36,0.6)", borderLeft: "3px solid rgba(251,191,36,0.6)", borderRadius: "4px 0 0 0" }} />
-          <div style={{ position: "absolute", top: 16, right: 16, width: 64, height: 64, borderTop: "3px solid rgba(251,191,36,0.6)", borderRight: "3px solid rgba(251,191,36,0.6)", borderRadius: "0 4px 0 0" }} />
-          <div style={{ position: "absolute", bottom: 16, left: 16, width: 64, height: 64, borderBottom: "3px solid rgba(251,191,36,0.6)", borderLeft: "3px solid rgba(251,191,36,0.6)", borderRadius: "0 0 0 4px" }} />
-          <div style={{ position: "absolute", bottom: 16, right: 16, width: 64, height: 64, borderBottom: "3px solid rgba(251,191,36,0.6)", borderRight: "3px solid rgba(251,191,36,0.6)", borderRadius: "0 0 4px 0" }} />
+          <div style={{ position: "absolute", top: 16, left: 16, width: 64, height: 64, borderTop: "3px solid #b45309", borderLeft: "3px solid #b45309", borderRadius: "4px 0 0 0" }} />
+          <div style={{ position: "absolute", top: 16, right: 16, width: 64, height: 64, borderTop: "3px solid #b45309", borderRight: "3px solid #b45309", borderRadius: "0 4px 0 0" }} />
+          <div style={{ position: "absolute", bottom: 16, left: 16, width: 64, height: 64, borderBottom: "3px solid #b45309", borderLeft: "3px solid #b45309", borderRadius: "0 0 0 4px" }} />
+          <div style={{ position: "absolute", bottom: 16, right: 16, width: 64, height: 64, borderBottom: "3px solid #b45309", borderRight: "3px solid #b45309", borderRadius: "0 0 4px 0" }} />
 
           {/* Background glow */}
-          <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 70% 60% at 50% 40%, rgba(99,102,241,0.12) 0%, transparent 70%)", pointerEvents: "none" }} />
+          <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 70% 60% at 50% 40%, rgba(180,83,9,0.04) 0%, transparent 70%)", pointerEvents: "none" }} />
 
-          {/* Company Logo / Name */}
+          {/* Company Logo (Only logo, no text) */}
           <div style={{ textAlign: "center", marginBottom: 24 }}>
-            <div style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 12,
-              background: "rgba(251,191,36,0.1)",
-              border: "1px solid rgba(251,191,36,0.3)",
-              borderRadius: 12,
-              padding: "10px 24px",
-            }}>
-              <img src="/logo.png" alt="Logo" style={{ height: "30px", width: "auto", objectFit: "contain" }} />
-              <span style={{
-                fontSize: 22,
-                fontWeight: 900,
-                color: "#fbbf24",
-                letterSpacing: "0.15em",
-                textTransform: "uppercase",
-                fontFamily: "'Arial', sans-serif",
-              }}>
-                INTER SMART
-              </span>
-            </div>
+            <img src="/logo.png" alt="Logo" style={{ height: "60px", width: "auto", objectFit: "contain" }} />
           </div>
 
           {/* Divider */}
           <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 28 }}>
-            <div style={{ flex: 1, height: 1, background: "rgba(251,191,36,0.3)" }} />
-            <span style={{ color: "rgba(251,191,36,0.7)", fontSize: 14, letterSpacing: "0.2em", textTransform: "uppercase", fontFamily: "'Arial', sans-serif" }}>✦ ✦ ✦</span>
-            <div style={{ flex: 1, height: 1, background: "rgba(251,191,36,0.3)" }} />
+            <div style={{ flex: 1, height: 1, background: "rgba(180,83,9,0.2)" }} />
+            <span style={{ color: "#b45309", fontSize: 14, letterSpacing: "0.2em", textTransform: "uppercase", fontFamily: "'Arial', sans-serif" }}>✦ ✦ ✦</span>
+            <div style={{ flex: 1, height: 1, background: "rgba(180,83,9,0.2)" }} />
           </div>
 
           {/* Certificate Title */}
@@ -150,10 +130,9 @@ export function CertificateModal({ recognition, employeeName, onClose }: Certifi
             <h1 style={{
               fontSize: 36,
               fontWeight: 900,
-              color: "#ffffff",
+              color: "#0f172a",
               letterSpacing: "0.08em",
               textTransform: "uppercase",
-              textShadow: "0 0 30px rgba(251,191,36,0.3)",
               margin: 0,
               fontFamily: "'Georgia', serif",
             }}>
@@ -162,7 +141,7 @@ export function CertificateModal({ recognition, employeeName, onClose }: Certifi
           </div>
 
           {/* Presented to */}
-          <p style={{ textAlign: "center", color: "rgba(255,255,255,0.6)", fontSize: 14, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 12, fontFamily: "'Arial', sans-serif" }}>
+          <p style={{ textAlign: "center", color: "rgba(15,23,42,0.6)", fontSize: 14, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 12, fontFamily: "'Arial', sans-serif" }}>
             This certificate is proudly presented to
           </p>
 
@@ -170,15 +149,14 @@ export function CertificateModal({ recognition, employeeName, onClose }: Certifi
           <div style={{ textAlign: "center", marginBottom: 20 }}>
             <div style={{
               display: "inline-block",
-              borderBottom: "2px solid rgba(251,191,36,0.6)",
+              borderBottom: "2px solid rgba(180,83,9,0.5)",
               paddingBottom: 8,
             }}>
               <h2 style={{
                 fontSize: 38,
                 fontWeight: 900,
-                color: "#fbbf24",
+                color: "#b45309",
                 margin: 0,
-                textShadow: "0 0 20px rgba(251,191,36,0.4)",
                 fontFamily: "'Georgia', serif",
                 letterSpacing: "0.04em",
               }}>
@@ -188,7 +166,7 @@ export function CertificateModal({ recognition, employeeName, onClose }: Certifi
           </div>
 
           {/* For being awarded */}
-          <p style={{ textAlign: "center", color: "rgba(255,255,255,0.6)", fontSize: 13, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 16, fontFamily: "'Arial', sans-serif" }}>
+          <p style={{ textAlign: "center", color: "rgba(15,23,42,0.6)", fontSize: 13, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 16, fontFamily: "'Arial', sans-serif" }}>
             For being awarded
           </p>
 
@@ -199,16 +177,15 @@ export function CertificateModal({ recognition, employeeName, onClose }: Certifi
             </div>
             <div style={{
               display: "inline-block",
-              background: "rgba(251,191,36,0.12)",
-              border: "1px solid rgba(251,191,36,0.4)",
+              background: "rgba(180,83,9,0.06)",
+              border: "1px solid rgba(180,83,9,0.25)",
               borderRadius: 12,
               padding: "8px 28px",
-              boxShadow: "0 0 24px rgba(251,191,36,0.15)",
             }}>
               <h3 style={{
                 fontSize: 26,
                 fontWeight: 900,
-                color: "#fbbf24",
+                color: "#b45309",
                 textTransform: "uppercase",
                 letterSpacing: "0.1em",
                 margin: 0,
@@ -223,7 +200,7 @@ export function CertificateModal({ recognition, employeeName, onClose }: Certifi
           {recognition.description && (
             <p style={{
               textAlign: "center",
-              color: "rgba(255,255,255,0.75)",
+              color: "rgba(15,23,42,0.8)",
               fontSize: 15,
               fontStyle: "italic",
               maxWidth: 600,
@@ -237,30 +214,30 @@ export function CertificateModal({ recognition, employeeName, onClose }: Certifi
 
           {/* Divider */}
           <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24 }}>
-            <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.1)" }} />
-            <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.1)" }} />
+            <div style={{ flex: 1, height: 1, background: "rgba(15,23,42,0.1)" }} />
+            <div style={{ flex: 1, height: 1, background: "rgba(15,23,42,0.1)" }} />
           </div>
 
           {/* Bottom Info Grid */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 24 }}>
             {/* Left: Dates */}
             <div>
-              <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 4, fontFamily: "'Arial', sans-serif" }}>
+              <p style={{ color: "rgba(15,23,42,0.5)", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 4, fontFamily: "'Arial', sans-serif" }}>
                 Award Period
               </p>
-              <p style={{ color: "#ffffff", fontSize: 15, fontWeight: 700, margin: 0, fontFamily: "'Arial', sans-serif" }}>
+              <p style={{ color: "#0f172a", fontSize: 15, fontWeight: 700, margin: 0, fontFamily: "'Arial', sans-serif" }}>
                 {format(new Date(recognition.start_date), "dd MMM yyyy")} – {format(new Date(recognition.end_date), "dd MMM yyyy")}
               </p>
-              <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 4, marginTop: 12, fontFamily: "'Arial', sans-serif" }}>
+              <p style={{ color: "rgba(15,23,42,0.5)", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 4, marginTop: 12, fontFamily: "'Arial', sans-serif" }}>
                 Issue Date
               </p>
-              <p style={{ color: "#ffffff", fontSize: 15, fontWeight: 700, margin: 0, fontFamily: "'Arial', sans-serif" }}>
+              <p style={{ color: "#0f172a", fontSize: 15, fontWeight: 700, margin: 0, fontFamily: "'Arial', sans-serif" }}>
                 {format(new Date(recognition.created_at), "dd MMM yyyy")}
               </p>
-              <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.15em", marginTop: 12, marginBottom: 2, fontFamily: "'Arial', sans-serif" }}>
+              <p style={{ color: "rgba(15,23,42,0.4)", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.15em", marginTop: 12, marginBottom: 2, fontFamily: "'Arial', sans-serif" }}>
                 Certificate ID
               </p>
-              <p style={{ color: "rgba(251,191,36,0.8)", fontSize: 12, fontWeight: 700, fontFamily: "'Arial', sans-serif", margin: 0 }}>
+              <p style={{ color: "#b45309", fontSize: 12, fontWeight: 700, fontFamily: "'Arial', sans-serif", margin: 0 }}>
                 {certId}
               </p>
             </div>
@@ -268,16 +245,16 @@ export function CertificateModal({ recognition, employeeName, onClose }: Certifi
             {/* Right: Signature */}
             <div style={{ textAlign: "right" }}>
               <div style={{
-                borderBottom: "2px solid rgba(255,255,255,0.3)",
+                borderBottom: "2px solid rgba(15,23,42,0.15)",
                 paddingBottom: 8,
                 marginBottom: 8,
                 minWidth: 180,
               }}>
-                <p style={{ color: "#ffffff", fontSize: 15, fontWeight: 700, fontStyle: "italic", margin: 0, fontFamily: "'Georgia', serif" }}>
+                <p style={{ color: "#0f172a", fontSize: 15, fontWeight: 700, fontStyle: "italic", margin: 0, fontFamily: "'Georgia', serif" }}>
                   {issuedBy}
                 </p>
               </div>
-              <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.15em", margin: 0, fontFamily: "'Arial', sans-serif" }}>
+              <p style={{ color: "rgba(15,23,42,0.5)", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.15em", margin: 0, fontFamily: "'Arial', sans-serif" }}>
                 Approved By HR
               </p>
             </div>
