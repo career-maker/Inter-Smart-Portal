@@ -97,12 +97,13 @@ CRITICAL INSTRUCTIONS:
     }
 
     /**
-     * Handle incoming chat requests and proxy them to Ollama with live context.
+     * Handle incoming chat requests and proxy them to Gemini (or fallback to local Ollama) with live context.
      */
     public function store(Request $request)
     {
         $request->validate([
             'message' => ['required', 'string', 'max:1000'],
+            'history' => ['nullable', 'array'],
         ]);
 
         $user = $request->user();
@@ -176,7 +177,67 @@ CRITICAL INSTRUCTIONS:
 3. Keep answers compact, direct, and under 3-4 sentences when possible.
 4. If the user asks about something not available in the context, do your best to answer generally or advise them to contact HR.";
 
-        // 6. Connect to Ollama API
+        // 6. Connect to Cloud Gemini API or fallback to local Ollama
+        $apiKey = env('GEMINI_API_KEY');
+
+        if ($apiKey) {
+            // Build the contents array with chat history for Gemini
+            $contents = [];
+            $history = $request->input('history', []);
+            foreach ($history as $msg) {
+                // Map 'user' and 'bot' messages to Gemini roles ('user' and 'model')
+                $role = ($msg['sender'] === 'user') ? 'user' : 'model';
+                $contents[] = [
+                    'role' => $role,
+                    'parts' => [
+                        ['text' => $msg['text']]
+                    ]
+                ];
+            }
+
+            // Append the latest user query
+            $contents[] = [
+                'role' => 'user',
+                'parts' => [
+                    ['text' => $request->input('message')]
+                ]
+            ];
+
+            $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={$apiKey}";
+
+            try {
+                $response = Http::timeout(20)->post($url, [
+                    'contents' => $contents,
+                    'systemInstruction' => [
+                        'parts' => [
+                            ['text' => $systemPrompt]
+                        ]
+                    ]
+                ]);
+
+                if ($response->successful()) {
+                    $responseData = $response->json();
+                    $reply = $responseData['candidates'][0]['content']['parts'][0]['text'] ?? 'No reply received from cloud assistant.';
+                    return response()->json([
+                        'status' => 'success',
+                        'reply' => $reply
+                    ]);
+                }
+
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Cloud AI service (Gemini) returned an error: ' . ($response->json('error.message') ?? $response->body())
+                ], 502);
+
+            } catch (\Exception $e) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Could not connect to the Cloud AI service: ' . $e->getMessage()
+                ], 503);
+            }
+        }
+
+        // Fallback: Local Ollama
         $url = env('OLLAMA_API_URL', 'http://127.0.0.1:11434');
         $model = env('OLLAMA_MODEL', 'llama3.2');
 
@@ -206,7 +267,7 @@ CRITICAL INSTRUCTIONS:
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Could not connect to the local AI assistant. Please ensure Ollama is running locally at http://127.0.0.1:11434 with model ' . $model . ' installed.'
+                'message' => 'No Cloud AI API key configured, and could not connect to local Ollama. Please ensure GEMINI_API_KEY is configured in your server environment.'
             ], 503);
         }
     }
