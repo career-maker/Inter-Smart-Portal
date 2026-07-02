@@ -18,6 +18,7 @@ export default function ApplyLeavePage() {
   const [leaveTypeId, setLeaveTypeId] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [durationType, setDurationType] = useState("Half-Morning");
   const [reason, setReason] = useState("");
   const [attachmentLink, setAttachmentLink] = useState("");
 
@@ -64,13 +65,15 @@ export default function ApplyLeavePage() {
     const t = setTimeout(async () => {
       setIsCalculating(true);
       try {
-        const res = await api.post("/leaves/calculate", { leave_type_id: leaveTypeId, start_date: startDate, end_date: endDate });
+        const payload: any = { leave_type_id: leaveTypeId, start_date: startDate, end_date: endDate };
+        if (selectedType?.name?.toLowerCase().includes("half")) payload.duration_type = durationType;
+        const res = await api.post("/leaves/calculate", payload);
         setImpact(res.data);
       } catch { setImpact(null); }
       finally { setIsCalculating(false); }
     }, 500);
     return () => clearTimeout(t);
-  }, [leaveTypeId, startDate, endDate]);
+  }, [leaveTypeId, startDate, endDate, durationType, selectedType]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,13 +85,15 @@ export default function ApplyLeavePage() {
     setIsLoading(true);
     setShowConfirm(false);
     try {
-      await api.post("/leave-requests", {
+      const payload: any = {
         leave_type_id: leaveTypeId,
         start_date: startDate,
         end_date: endDate,
         reason,
         ...(attachmentLink.trim() ? { attachment_link: attachmentLink.trim() } : {}),
-      });
+      };
+      if (selectedType?.name?.toLowerCase().includes("half")) payload.duration_type = durationType;
+      await api.post("/leave-requests", payload);
       window.dispatchEvent(new Event("notifications-refresh"));
       router.push("/leaves");
     } catch (e: any) {
@@ -167,6 +172,16 @@ export default function ApplyLeavePage() {
                 ))}
               </select>
             </div>
+
+            {selectedType?.name?.toLowerCase().includes("half") && (
+              <div>
+                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Duration (Half Day) *</label>
+                <select value={durationType} onChange={e => setDurationType(e.target.value)} required className={inputCls}>
+                  <option value="Half-Morning">Morning Half</option>
+                  <option value="Half-Afternoon">Afternoon Half</option>
+                </select>
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-4">
               <div>

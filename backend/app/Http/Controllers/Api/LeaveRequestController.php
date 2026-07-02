@@ -61,7 +61,7 @@ class LeaveRequestController extends Controller
         ]);
     }
 
-    private function calculateLeaveImpact($user, $leaveTypeId, $startDateStr, $endDateStr)
+    private function calculateLeaveImpact($user, $leaveTypeId, $startDateStr, $endDateStr, $durationType = 'Full')
     {
         $leaveType = \App\Models\LeaveType::find($leaveTypeId);
         $startDate = Carbon::parse($startDateStr);
@@ -70,7 +70,7 @@ class LeaveRequestController extends Controller
 
         $isCasual = str_contains(strtolower($leaveType->name ?? ''), 'casual');
         $isSick   = str_contains(strtolower($leaveType->name ?? ''), 'sick');
-        $isHalf   = str_contains(strtolower($leaveType->name ?? ''), 'half');
+        $isHalf   = in_array($durationType, ['Half-Morning', 'Half-Afternoon']) || str_contains(strtolower($leaveType->name ?? ''), 'half');
 
         // Probation: all leave is LOP
         if ($user->isInProbation()) {
@@ -201,8 +201,11 @@ class LeaveRequestController extends Controller
         }
 
         // External preceding sandwich days check
+        // If the current request starts AFTER a weekend/holiday block that has an approved
+        // leave on the other side, those non-working days become sandwich LOP on THIS request.
         $extPreSandwich = 0;
-        if ($firstWorkingDay !== null) {
+        // If current request is Half-Afternoon, they work the Morning, breaking the gap to any preceding weekend.
+        if ($firstWorkingDay !== null && $durationType !== 'Half-Afternoon') {
             $checkPre = $startDate->copy()->subDay()->startOfDay();
             $preCount = 0;
             while (!$isWorkingDay($checkPre) && $preCount < 15) {
@@ -214,6 +217,12 @@ class LeaveRequestController extends Controller
                     ->whereIn('status', ['Approved', 'Pending'])
                     ->where('start_date', '<=', $checkPre->toDateString())
                     ->where('end_date', '>=', $checkPre->toDateString())
+                    ->where(function($q) {
+                        // To form a preceding sandwich, the previous leave must border the weekend (Full or Half-Afternoon)
+                        $q->whereNull('duration_type')
+                          ->orWhere('duration_type', 'Full')
+                          ->orWhere('duration_type', 'Half-Afternoon');
+                    })
                     ->exists();
                 if ($hasPreLeave) {
                     $extPreSandwich = $preCount;
@@ -221,28 +230,12 @@ class LeaveRequestController extends Controller
             }
         }
 
-        // External succeeding sandwich days check
-        $extPostSandwich = 0;
-        if ($lastWorkingDay !== null) {
-            $checkPost = $endDate->copy()->addDay()->startOfDay();
-            $postCount = 0;
-            while (!$isWorkingDay($checkPost) && $postCount < 15) {
-                $postCount++;
-                $checkPost->addDay();
-            }
-            if ($postCount > 0) {
-                $hasPostLeave = LeaveRequest::where('user_id', $user->id)
-                    ->whereIn('status', ['Approved', 'Pending'])
-                    ->where('start_date', '<=', $checkPost->toDateString())
-                    ->where('end_date', '>=', $checkPost->toDateString())
-                    ->exists();
-                if ($hasPostLeave) {
-                    $extPostSandwich = $postCount;
-                }
-            }
-        }
-
-        $sandwichDays += ($extPreSandwich + $extPostSandwich);
+        // NOTE: We intentionally do NOT apply extPostSandwich here.
+        // When an employee applies for leave BEFORE a weekend/holiday (e.g., Friday),
+        // the existing post-weekend leave (e.g., Monday) is retroactively flagged via
+        // checkForSandwichLopConversion — the Friday leave itself is NOT penalised at
+        // submission time for any existing future leave on the other side of the weekend.
+        $sandwichDays += $extPreSandwich;
 
         $multiplier      = $isHalf ? 0.5 : 1.0;
         $baseWorkingDays = $totalWorkingDays * $multiplier;
@@ -358,7 +351,8 @@ class LeaveRequestController extends Controller
                 $targetUser,
                 $request->leave_type_id,
                 $request->start_date,
-                $request->end_date
+                $request->end_date,
+                $request->duration_type ?? 'Full'
             )
         );
     }
@@ -367,7 +361,8 @@ class LeaveRequestController extends Controller
         $user      = $request->user();
         $data      = $request->validated();
         $leaveType = \App\Models\LeaveType::find($data['leave_type_id']);
-        $impact    = $this->calculateLeaveImpact($user, $data['leave_type_id'], $data['start_date'], $data['end_date']);
+        $durationType = $data['duration_type'] ?? 'Full';
+        $impact    = $this->calculateLeaveImpact($user, $data['leave_type_id'], $data['start_date'], $data['end_date'], $durationType);
         $days      = $impact['actual_leave_days'];
         $isUnpaid  = $impact['is_unpaid'];
         $isSingleDay = ($data['start_date'] === $data['end_date']);
@@ -411,6 +406,7 @@ class LeaveRequestController extends Controller
                 'leave_type_id'          => $data['leave_type_id'],
                 'start_date'             => $data['start_date'],
                 'end_date'               => $data['end_date'],
+                'duration_type'          => $durationType,
                 'days'                   => $days,
                 'reason'                 => $data['reason'],
                 'attachment_link'        => $data['attachment_link'] ?? null,
@@ -747,55 +743,71 @@ class LeaveRequestController extends Controller
             return !in_array($ds, $holidays);
         };
 
-        $preCount = 0;
-        while (!$isWorkingDay($checkPre) && $preCount < 15) {
-            $preCount++;
-            $checkPre->subDay();
-        }
+        $newDuration = $newRequest->duration_type ?? 'Full';
 
-        if ($preCount > 0) {
-            $preRequest = LeaveRequest::where('user_id', $newRequest->user_id)
-                ->where('status', 'Approved')
-                ->where('start_date', '<=', $checkPre->toDateString())
-                ->where('end_date', '>=', $checkPre->toDateString())
-                ->where(function ($q) {
-                    $q->where('paid_casual_leave', '>', 0)
-                      ->orWhere('paid_sick_leave', '>', 0);
-                })
-                ->first();
+        // 1. Check preceding weekend/holidays (e.g. newRequest is on Monday)
+        if (in_array($newDuration, ['Full', 'Half-Morning'])) {
+            $preCount = 0;
+            while (!$isWorkingDay($checkPre) && $preCount < 15) {
+                $preCount++;
+                $checkPre->subDay();
+            }
 
-            if ($preRequest) {
-                $preRequest->update([
-                    'pending_lop_conversion'   => true,
-                    'lop_conversion_source_id' => $newRequest->id,
-                ]);
+            if ($preCount > 0) {
+                $preRequest = LeaveRequest::where('user_id', $newRequest->user_id)
+                    ->where('status', 'Approved')
+                    ->where('start_date', '<=', $checkPre->toDateString())
+                    ->where('end_date', '>=', $checkPre->toDateString())
+                    ->where(function ($q) {
+                        $q->where('paid_casual_leave', '>', 0)
+                          ->orWhere('paid_sick_leave', '>', 0);
+                    })
+                    ->where(function ($q) use ($checkPre) {
+                        $q->where('end_date', '>', $checkPre->toDateString())
+                          ->orWhereIn('duration_type', ['Full', 'Half-Afternoon']);
+                    })
+                    ->first();
+
+                if ($preRequest) {
+                    $preRequest->update([
+                        'pending_lop_conversion'   => true,
+                        'lop_conversion_source_id' => $newRequest->id,
+                    ]);
+                }
             }
         }
 
-        $endDate = Carbon::parse($newRequest->end_date);
-        $checkPost = $endDate->copy()->addDay()->startOfDay();
-        $postCount = 0;
-        while (!$isWorkingDay($checkPost) && $postCount < 15) {
-            $postCount++;
-            $checkPost->addDay();
-        }
+        // 2. Check succeeding weekend/holidays (e.g. newRequest is on Friday)
+        if (in_array($newDuration, ['Full', 'Half-Afternoon'])) {
+            $endDate = Carbon::parse($newRequest->end_date);
+            $checkPost = $endDate->copy()->addDay()->startOfDay();
+            $postCount = 0;
+            while (!$isWorkingDay($checkPost) && $postCount < 15) {
+                $postCount++;
+                $checkPost->addDay();
+            }
 
-        if ($postCount > 0) {
-            $postRequest = LeaveRequest::where('user_id', $newRequest->user_id)
-                ->where('status', 'Approved')
-                ->where('start_date', '<=', $checkPost->toDateString())
-                ->where('end_date', '>=', $checkPost->toDateString())
-                ->where(function ($q) {
-                    $q->where('paid_casual_leave', '>', 0)
-                      ->orWhere('paid_sick_leave', '>', 0);
-                })
-                ->first();
+            if ($postCount > 0) {
+                $postRequest = LeaveRequest::where('user_id', $newRequest->user_id)
+                    ->where('status', 'Approved')
+                    ->where('start_date', '<=', $checkPost->toDateString())
+                    ->where('end_date', '>=', $checkPost->toDateString())
+                    ->where(function ($q) {
+                        $q->where('paid_casual_leave', '>', 0)
+                          ->orWhere('paid_sick_leave', '>', 0);
+                    })
+                    ->where(function ($q) use ($checkPost) {
+                        $q->where('start_date', '<', $checkPost->toDateString())
+                          ->orWhereIn('duration_type', ['Full', 'Half-Morning']);
+                    })
+                    ->first();
 
-            if ($postRequest) {
-                $postRequest->update([
-                    'pending_lop_conversion'   => true,
-                    'lop_conversion_source_id' => $newRequest->id,
-                ]);
+                if ($postRequest) {
+                    $postRequest->update([
+                        'pending_lop_conversion'   => true,
+                        'lop_conversion_source_id' => $newRequest->id,
+                    ]);
+                }
             }
         }
     }

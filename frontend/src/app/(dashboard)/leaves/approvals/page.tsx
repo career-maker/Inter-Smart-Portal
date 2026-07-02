@@ -148,10 +148,6 @@ export default function ApprovalsPage() {
 
   const submitOverride = async () => {
     if (!overrideDialog || !overrideFields.remarks.trim()) return;
-    if (overrideTotalDays > autoTotalDays) {
-      alert("The sum of Paid Casual Leave, Paid Sick Leave, and LOP cannot exceed the total leave count.");
-      return;
-    }
     setActionLoading(true);
     try {
       await api.put(`/leave-requests/${overrideDialog.id}/override`, {
@@ -509,7 +505,7 @@ export default function ApprovalsPage() {
 
                 <div className="border-t border-white/5 pt-4">
                   <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Custom Allocation Split</h3>
-                  <p className="text-xs text-slate-500 mb-4">Sum of split must equal total leave count: <span className="font-bold text-white font-mono">{autoTotalDays} day(s)</span></p>
+                  <p className="text-xs text-slate-500 mb-4">Original auto-calculated total: <span className="font-bold text-white font-mono">{autoTotalDays} day(s)</span></p>
                   
                   <div className="space-y-3">
                     <div className="flex items-center justify-between gap-4">

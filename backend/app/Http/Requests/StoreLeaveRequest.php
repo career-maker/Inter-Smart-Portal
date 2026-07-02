@@ -19,6 +19,7 @@ class StoreLeaveRequest extends FormRequest
             'end_date'        => 'required|date|after_or_equal:start_date',
             'reason'          => 'required|string|max:1000',
             'attachment_link' => 'nullable|url|max:2048',
+            'duration_type'   => 'nullable|string|in:Full,Half-Morning,Half-Afternoon',
         ];
     }
 }
