@@ -43,11 +43,15 @@ class ChatController extends Controller
             ? "Nobody is on leave today." 
             : "Employees on leave today: " . implode(', ', $leavesToday) . ".";
 
-        // 3. Fetch Teams and Leads
-        $teams = Team::with('lead')->get()->map(function($team) {
-            $leadName = $team->lead ? "{$team->lead->first_name} {$team->lead->last_name}" : "No Team Lead assigned";
-            return "- Team: {$team->name}, Team Lead: {$leadName}";
-        })->toArray();
+        // 3. Fetch Teams and Leads (relationship is teamLead() on Team model)
+        try {
+            $teams = Team::with('teamLead')->get()->map(function($team) {
+                $leadName = $team->teamLead ? "{$team->teamLead->first_name} {$team->teamLead->last_name}" : "No Team Lead assigned";
+                return "- Team: {$team->name}, Team Lead: {$leadName}";
+            })->toArray();
+        } catch (\Exception $e) {
+            $teams = [];
+        }
         $teamsText = empty($teams)
             ? "No teams or departments registered."
             : implode("\n", $teams);
@@ -131,11 +135,15 @@ CRITICAL INSTRUCTIONS:
             ? "Nobody is on leave today." 
             : "Employees on leave today: " . implode(', ', $leavesToday) . ".";
 
-        // 3. Fetch Teams and Leads
-        $teams = Team::with('lead')->get()->map(function($team) {
-            $leadName = $team->lead ? "{$team->lead->first_name} {$team->lead->last_name}" : "No Team Lead assigned";
-            return "- Team: {$team->name}, Team Lead: {$leadName}";
-        })->toArray();
+        // 3. Fetch Teams and Leads (relationship is teamLead() on Team model)
+        try {
+            $teams = Team::with('teamLead')->get()->map(function($team) {
+                $leadName = $team->teamLead ? "{$team->teamLead->first_name} {$team->teamLead->last_name}" : "No Team Lead assigned";
+                return "- Team: {$team->name}, Team Lead: {$leadName}";
+            })->toArray();
+        } catch (\Exception $e) {
+            $teams = [];
+        }
         $teamsText = empty($teams)
             ? "No teams or departments registered."
             : implode("\n", $teams);
