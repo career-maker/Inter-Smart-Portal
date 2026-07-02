@@ -112,27 +112,33 @@ class LeaveRequestController extends Controller
         };
 
         // ── Day-by-day walk ─────────────────────────────────────────────────
-        // Rules (per policy):
         //
-        // WORKING DAYS — Casual Leave:
-        //   Each working day is checked INDEPENDENTLY against the 3-calendar-day
-        //   advance-notice rule. absCalendarDays = workingDay.diffInDays(today).
-        //   < 3  → penalty LOP (insufficient notice for that specific day)
-        //   ≥ 3  → eligible for paid CL (if balance available)
-        //   Weekends and holidays are NOT counted in this "3 days" — the check
-        //   is purely calendar-day distance from the application date.
+        // Phase 1 – 3-calendar-day advance-notice rule (CL only):
+        //   For each WORKING day, compute absolute calendar distance from today.
+        //   < 3  → direct penalty LOP (insufficient advance notice)
+        //   ≥ 3  → eligible for paid CL (subject to Phase 2 below)
+        //   Non-working days are NOT counted — the check is raw calendar days.
         //
-        // NON-WORKING DAYS (weekends / holidays):
-        //   Always sandwich LOP, independently of the penalty rule. There is no
-        //   "contamination" — a working day 4+ calendar days away is eligible
-        //   even if a penalty working day appeared just before a weekend gap.
+        // Phase 2 – Sandwich Leave Rule (higher priority, overrides Phase 1):
+        //   Non-working days (weekends / any DB holiday) between two leave days
+        //   are always sandwich LOP.
+        //   Additionally, if a working day that would be ELIGIBLE (≥ 3 days) falls
+        //   immediately after non-working days that immediately follow a penalty
+        //   (LOP) day, that eligible working day is overridden to LOP — it is part
+        //   of the same continuous leave block. Contamination extends ONE hop: the
+        //   working day right after the sandwich is LOP; the day after THAT resets.
         //
-        // WORKING DAYS — Sick Leave / other types:
-        //   No advance-notice rule; all working days are eligible.
+        // Example (applied Monday, leave starts Tuesday):
+        //   Tue (1d) → LOP  |  Wed (2d) → LOP  |  Thu (holiday) → sandwich
+        //   Fri (holiday) → sandwich  |  Mon (7d, eligible) → LOP (Phase 2 override)
+        //   Tue onwards → Paid CL
         $totalWorkingDays = 0;
         $sandwichDays     = 0;
         $penaltyDays      = 0;
         $eligibleDays     = 0;
+
+        $lastWorkingWasPenalty    = false;
+        $sandwichSinceLastPenalty = false;
 
         $current = $startDate->copy();
         while ($current->lte($endDate)) {
@@ -140,19 +146,40 @@ class LeaveRequestController extends Controller
                 $totalWorkingDays++;
 
                 if ($isCasual) {
-                    // Absolute calendar-day distance — no signed-diff ambiguity.
-                    $advanceDays = $current->diffInDays($today); // always ≥ 0
-                    if ($advanceDays < 3) {
+                    // Absolute calendar-day distance (no signed-diff ambiguity).
+                    $advanceDays   = $current->diffInDays($today); // always ≥ 0
+                    $directPenalty = ($advanceDays < 3);
+
+                    if ($directPenalty) {
+                        // Phase 1 — late notice penalty
                         $penaltyDays++;
+                        $lastWorkingWasPenalty    = true;
+                        $sandwichSinceLastPenalty = false;
+                    } elseif ($lastWorkingWasPenalty && $sandwichSinceLastPenalty) {
+                        // Phase 2 — sandwich override: this eligible working day follows
+                        // non-working days that immediately followed a penalty day.
+                        // It is dragged into the LOP block. Contamination stops here.
+                        $penaltyDays++;
+                        $lastWorkingWasPenalty    = false;
+                        $sandwichSinceLastPenalty = false;
                     } else {
+                        // Eligible for paid CL
                         $eligibleDays++;
+                        $lastWorkingWasPenalty    = false;
+                        $sandwichSinceLastPenalty = false;
                     }
                 } else {
+                    // SL / other types: no advance-notice rule
                     $eligibleDays++;
                 }
             } else {
-                // Non-working day: sandwich LOP regardless of surrounding penalty days.
+                // Non-working day → sandwich LOP
                 $sandwichDays++;
+                // Flag that non-working days have appeared since the last penalty day
+                // (needed to detect sandwich contamination of the next working day).
+                if ($isCasual && $lastWorkingWasPenalty) {
+                    $sandwichSinceLastPenalty = true;
+                }
             }
 
             $current->addDay();
