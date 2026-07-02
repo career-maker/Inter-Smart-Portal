@@ -385,6 +385,25 @@ export default function DashboardPage() {
           ========================================
         */}
         <div className="lg:col-span-4 space-y-8">
+          {/* Upcoming Holidays */}
+          <div className="premium-card p-6">
+            <h2 className="text-lg font-bold text-rose-300 mb-5 flex items-center gap-2">
+              <CalendarDays className="w-5 h-5" />
+              Upcoming Holidays
+            </h2>
+            <div className="space-y-4">
+              {widgets.upcoming_holidays.length === 0 && <p className="text-sm text-slate-400">No upcoming holidays.</p>}
+              {widgets.upcoming_holidays.map((h: any, i: number) => (
+                <div key={i} className="flex justify-between items-center">
+                  <span className="text-sm font-medium text-white">{h.name}</span>
+                  <span className="text-xs font-semibold text-rose-600 bg-rose-500/30 px-2 py-1 rounded-md text-rose-300">
+                    {format(new Date(h.date), "MMM d")}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <div ref={leaveSummaryRef} className="premium-card p-6">
             <h2 className="text-lg font-bold text-emerald-300 mb-6 flex items-center gap-2">
               <CalendarDays className="w-5 h-5" />
