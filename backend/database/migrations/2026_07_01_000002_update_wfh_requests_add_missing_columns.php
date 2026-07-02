@@ -10,20 +10,38 @@ return new class extends Migration
     {
         Schema::table('wfh_requests', function (Blueprint $table) {
             // Add start/end date range columns (replacing single wfh_date)
-            $table->date('start_date')->nullable();
-            $table->date('end_date')->nullable();
+            if (!Schema::hasColumn('wfh_requests', 'start_date')) {
+                $table->date('start_date')->nullable();
+            }
+            if (!Schema::hasColumn('wfh_requests', 'end_date')) {
+                $table->date('end_date')->nullable();
+            }
 
             // Approval workflow columns
-            $table->string('tl_status')->default('Pending');
-            $table->string('admin_status')->default('Pending');
-            $table->text('remarks')->nullable();
+            if (!Schema::hasColumn('wfh_requests', 'tl_status')) {
+                $table->string('tl_status')->default('Pending');
+            }
+            if (!Schema::hasColumn('wfh_requests', 'admin_status')) {
+                $table->string('admin_status')->default('Pending');
+            }
+            if (!Schema::hasColumn('wfh_requests', 'remarks')) {
+                $table->text('remarks')->nullable();
+            }
         });
     }
 
     public function down(): void
     {
         Schema::table('wfh_requests', function (Blueprint $table) {
-            $table->dropColumn(['start_date', 'end_date', 'tl_status', 'admin_status', 'remarks']);
+            $columnsToDrop = [];
+            foreach (['start_date', 'end_date', 'tl_status', 'admin_status', 'remarks'] as $col) {
+                if (Schema::hasColumn('wfh_requests', $col)) {
+                    $columnsToDrop[] = $col;
+                }
+            }
+            if (!empty($columnsToDrop)) {
+                $table->dropColumn($columnsToDrop);
+            }
         });
     }
 };
