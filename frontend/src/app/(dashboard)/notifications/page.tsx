@@ -7,11 +7,20 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Bell, CheckCheck, Loader2 } from "lucide-react";
 import api from "@/services/api";
+import { useRouter } from "next/navigation";
+
+function resolveNotificationUrl(notification: any): string {
+  const event = notification.data?.event;
+  if (event === "submitted" || event === "tl_approved") return "/leaves/approvals";
+  const stored = notification.data?.action_url;
+  return stored || "/notifications";
+}
 
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "unread">("all");
+  const router = useRouter();
 
   const fetchNotifications = async () => {
     setLoading(true);
@@ -114,7 +123,11 @@ export default function NotificationsPage() {
               {filteredNotifications.map((notif) => (
                 <div
                   key={notif.id}
-                  className={`p-4 sm:px-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center transition-colors hover:bg-gray-50 ${
+                  onClick={() => {
+                    if (!notif.read_at) handleMarkAsRead(notif.id);
+                    router.push(resolveNotificationUrl(notif));
+                  }}
+                  className={`p-4 sm:px-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center transition-colors cursor-pointer hover:bg-gray-50 ${
                     !notif.read_at ? "bg-primary/5" : "bg-white"
                   }`}
                 >

@@ -15,6 +15,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 import api from "@/services/api";
 
+// Derive the correct route from the notification event, not the stored action_url.
+// Old notifications in the DB may have had the wrong URL — using event ensures
+// submitted/tl_approved always reach the approvals page regardless of stored value.
+function resolveNotificationUrl(notification: any): string {
+  const event = notification.data?.event;
+  if (event === "submitted" || event === "tl_approved") return "/leaves/approvals";
+  const stored = notification.data?.action_url;
+  return stored || "/notifications";
+}
+
 export function NotificationDropdown() {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -54,12 +64,7 @@ export function NotificationDropdown() {
     if (!notification.read_at) {
       api.post(`/notifications/mark-as-read/${notification.id}`).then(() => fetchUnread());
     }
-    // If the notification has action_url data, we could route there.
-    if (notification.data?.action_url) {
-      router.push(notification.data.action_url);
-    } else {
-      router.push("/notifications");
-    }
+    router.push(resolveNotificationUrl(notification));
   };
 
   return (
