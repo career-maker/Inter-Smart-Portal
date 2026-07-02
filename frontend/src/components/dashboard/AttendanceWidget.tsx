@@ -204,7 +204,7 @@ export function AttendanceWidget({ initialData }: { initialData?: any }) {
           )}
 
           {data?.status === 'Checked Out' && (
-            <div className="w-full py-4 px-6 bg-gray-100/80 text-gray-500 rounded-2xl font-bold flex items-center justify-center text-center border border-gray-200 shadow-sm">
+            <div className="w-full py-4 px-6 bg-slate-700/40 text-slate-400 rounded-2xl font-bold flex items-center justify-center text-center border border-white/10 shadow-sm">
               Shift Completed
             </div>
           )}

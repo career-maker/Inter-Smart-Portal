@@ -168,7 +168,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <RecognitionTicker />
-      <header className="bg-white border-b sticky top-0 z-30 shadow-sm">
+      <header className="bg-slate-900/80 backdrop-blur-md border-b border-white/10 sticky top-0 z-30 shadow-sm">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           {/* Logo */}
           <Link href="/dashboard" className="flex items-center shrink-0 pr-4">
@@ -182,12 +182,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {/* User info (desktop) */}
             <Link href="/profile" className="hidden sm:flex items-center gap-3 hover:opacity-85 transition-opacity cursor-pointer">
               <div className="flex flex-col items-end text-right">
-                <span className="text-sm font-medium leading-none text-slate-700">
+                <span className="text-sm font-medium leading-none text-white">
                   {user?.first_name} {user?.last_name}
                 </span>
-                <span className="text-xs text-slate-500 mt-0.5">{user?.role}</span>
+                <span className="text-xs text-slate-400 mt-0.5">{user?.role}</span>
               </div>
-              <div className="w-8 h-8 rounded-full border border-gray-200 bg-amber-400 overflow-hidden flex items-center justify-center text-xs font-bold text-white relative shrink-0">
+              <div className="w-8 h-8 rounded-full border border-white/10 bg-amber-400 overflow-hidden flex items-center justify-center text-xs font-bold text-white relative shrink-0">
                 <span>{user?.first_name?.[0]}{user?.last_name?.[0]}</span>
                 {user?.profile_photo_path && (
                   <img
@@ -203,7 +203,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {/* Logout (desktop) */}
             <button
               onClick={handleLogout}
-              className="hidden sm:flex items-center gap-1.5 text-sm text-muted-foreground hover:text-red-600 transition-colors px-2 py-1.5 rounded-lg hover:bg-red-50"
+              className="hidden sm:flex items-center gap-1.5 text-sm text-slate-400 hover:text-rose-400 transition-colors px-2 py-1.5 rounded-lg hover:bg-rose-500/10"
             >
               <LogOut className="h-4 w-4" />
               <span>Logout</span>
@@ -211,11 +211,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             {/* Hamburger */}
             <button
-              className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
               onClick={() => setMenuOpen((v) => !v)}
               aria-label="Toggle menu"
             >
-              {menuOpen ? <X className="h-6 w-6 text-gray-700" /> : <Menu className="h-6 w-6 text-gray-700" />}
+              {menuOpen ? <X className="h-6 w-6 text-slate-300" /> : <Menu className="h-6 w-6 text-slate-300" />}
             </button>
           </div>
         </div>

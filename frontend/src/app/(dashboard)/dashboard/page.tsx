@@ -92,13 +92,13 @@ export default function DashboardPage() {
   if (error || !data) {
     return (
       <div className="flex justify-center items-center h-[70vh]">
-        <div className="bg-red-50/70 text-red-700 p-6 rounded-xl border border-red-100 max-w-md text-center">
-          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-lg font-bold mb-2">Error Loading Dashboard</h2>
+        <div className="bg-rose-500/10 text-rose-300 p-6 rounded-xl border border-rose-500/30 max-w-md text-center">
+          <AlertCircle className="w-12 h-12 text-rose-400 mx-auto mb-4" />
+          <h2 className="text-lg font-bold mb-2 text-white">Error Loading Dashboard</h2>
           <p className="text-sm">{error || "No data received from server."}</p>
-          <button 
+          <button
             onClick={() => window.location.reload()}
-            className="mt-4 px-4 py-2 bg-red-100 hover:bg-red-200 text-red-800 rounded-lg text-sm font-medium transition-colors"
+            className="mt-4 px-4 py-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded-lg text-sm font-medium transition-colors"
           >
             Try Again
           </button>
@@ -238,7 +238,7 @@ export default function DashboardPage() {
             ) : (
               widgets.company_updates.slice(0, 3).map((update: any, idx: number) => (
                 <div key={idx} className="flex gap-3 items-start">
-                  <div className="w-2 h-2 mt-1.5 rounded-full bg-blue-50/700 shrink-0"></div>
+                  <div className="w-2 h-2 mt-1.5 rounded-full bg-blue-400 shrink-0"></div>
                   <div>
                     <p className="text-sm font-medium text-white leading-tight">{update.title}</p>
                     <p className="text-xs text-slate-400 mt-0.5">{format(parseISO(update.created_at), "MMM d, yyyy")}</p>
@@ -405,7 +405,7 @@ export default function DashboardPage() {
                   <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Casual Leaves</p>
                   <p className="text-3xl font-black text-white mt-1">{leave_metrics.casual_leave_balance}</p>
                 </div>
-                <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform">
                   <Palmtree className="w-6 h-6" />
                 </div>
               </div>
@@ -418,7 +418,7 @@ export default function DashboardPage() {
                   <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Sick Leaves</p>
                   <p className="text-3xl font-black text-white mt-1">{leave_metrics.sick_leave_balance}</p>
                 </div>
-                <div className="w-12 h-12 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-400 group-hover:scale-110 transition-transform">
                   <AlertCircle className="w-6 h-6" />
                 </div>
               </div>
@@ -431,7 +431,7 @@ export default function DashboardPage() {
                   <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Total Taken</p>
                   <p className="text-3xl font-black text-white mt-1">{leave_metrics.total_leaves_taken}</p>
                 </div>
-                <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
                   <CalendarDays className="w-6 h-6" />
                 </div>
               </div>
@@ -595,7 +595,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
               ) : (
                 widgets.company_updates.map((update: any, idx: number) => (
                   <div key={idx} className="flex gap-3 items-start border-b border-white/10 pb-3 last:border-0 last:pb-0">
-                    <div className="w-2 h-2 mt-1.5 rounded-full bg-indigo-50/700 shrink-0"></div>
+                    <div className="w-2 h-2 mt-1.5 rounded-full bg-indigo-400 shrink-0"></div>
                     <div>
                       <p className="text-sm font-medium text-white leading-tight">{update.title}</p>
                       <p className="text-xs text-slate-400 mt-0.5">{format(new Date(update.created_at), "MMM d, yyyy")}</p>
@@ -687,7 +687,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
             <div className="space-y-4">
               {paginatedActivity.map((act: any, i: number) => (
                 <div key={i} className="flex items-start gap-3">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${act.type === 'leave' ? 'bg-orange-100 text-orange-600' : act.type === 'user' ? 'bg-emerald-100 text-emerald-600' : 'bg-blue-100 text-blue-600'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${act.type === 'leave' ? 'bg-orange-500/20 text-orange-400' : act.type === 'user' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-blue-500/20 text-blue-400'}`}>
                     {act.type === 'leave' ? <Palmtree className="w-4 h-4"/> : act.type === 'user' ? <UserCircle className="w-4 h-4"/> : <BookOpen className="w-4 h-4"/>}
                   </div>
                   <div>
@@ -701,18 +701,18 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
               {/* Pagination */}
               {totalActivityPages > 1 && (
                 <div className="flex items-center justify-between pt-2">
-                  <button 
+                  <button
                     onClick={() => setActivityPage(p => Math.max(1, p - 1))}
                     disabled={activityPage === 1}
-                    className="text-xs font-semibold text-cyan-600 disabled:opacity-50"
+                    className="text-xs font-semibold text-cyan-400 disabled:opacity-50"
                   >
                     Previous
                   </button>
                   <span className="text-xs text-slate-400">Page {activityPage} of {totalActivityPages}</span>
-                  <button 
+                  <button
                     onClick={() => setActivityPage(p => Math.min(totalActivityPages, p + 1))}
                     disabled={activityPage === totalActivityPages}
-                    className="text-xs font-semibold text-cyan-600 disabled:opacity-50"
+                    className="text-xs font-semibold text-cyan-400 disabled:opacity-50"
                   >
                     Next
                   </button>
@@ -720,7 +720,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
               )}
               
               {/* View All Link */}
-              <Link href="/activities" className="block text-center pt-3 border-t border-white/10 mt-2 text-sm font-bold text-cyan-700 hover:underline">
+              <Link href="/activities" className="block text-center pt-3 border-t border-white/10 mt-2 text-sm font-bold text-cyan-400 hover:underline">
                 View All Activities →
               </Link>
             </div>
@@ -813,18 +813,18 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
 
       {/* Leave Details Modal */}
       <Dialog open={!!leaveModalData} onOpenChange={(open) => !open && setLeaveModalData(null)}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md bg-slate-900 border border-white/10 text-white">
           <DialogHeader>
-            <DialogTitle>{leaveModalData?.title}</DialogTitle>
+            <DialogTitle className="text-white">{leaveModalData?.title}</DialogTitle>
           </DialogHeader>
           <div className="max-h-[60vh] overflow-y-auto space-y-3 mt-4">
             {leaveModalData?.list.length === 0 ? (
               <p className="text-sm text-slate-400 text-center py-4">No employees to show.</p>
             ) : (
               leaveModalData?.list.map((item: any, idx: number) => (
-                <div key={idx} className="flex items-center justify-between p-3 bg-white/5 border border-white/10 rounded-xl border border-white/10">
+                <div key={idx} className="flex items-center justify-between p-3 bg-white/5 border border-white/10 rounded-xl">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
+                    <div className="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-sm">
                       {item.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2)}
                     </div>
                     <div>
@@ -885,11 +885,13 @@ function KPICard({ title, value, trend, icon: Icon, color, href, onClick }: any)
           <Icon className="w-5 h-5" />
         </div>
       </div>
-      {trend && (
+      {trend ? (
         <div className={`mt-4 text-xs font-bold flex items-center gap-1 ${trend.startsWith('+') ? 'text-emerald-400' : 'text-rose-400'}`}>
           <span>{trend.startsWith('+') ? '▲' : '▼'}</span>
           {trend} from yesterday
         </div>
+      ) : (
+        <div className="mt-4 h-4" aria-hidden="true" />
       )}
     </div>
   );
@@ -969,10 +971,10 @@ function RotatingCard({
   // When items list changes, reset index
   useEffect(() => { setActiveIdx(0); setVisible(true); }, [count]);
 
-  // Start fade-out every 3s
+  // Start fade-out every 6s
   useEffect(() => {
     if (count <= 1 || paused) return;
-    const t = setInterval(() => setVisible(false), 3000);
+    const t = setInterval(() => setVisible(false), 6000);
     return () => clearInterval(t);
   }, [count, paused]);
 
@@ -1016,9 +1018,13 @@ function RotatingCard({
                   <div
                     key={i}
                     onClick={() => { setVisible(false); setTimeout(() => { setActiveIdx(i); setVisible(true); }, 350); }}
-                    className="h-1.5 rounded-full cursor-pointer transition-all duration-300"
-                    style={{ width: i === safeIdx ? '14px' : '6px', background: i === safeIdx ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.2)' }}
-                  />
+                    className="p-1.5 -m-1.5 cursor-pointer flex items-center justify-center"
+                  >
+                    <span
+                      className="block h-2 rounded-full transition-all duration-300"
+                      style={{ width: i === safeIdx ? '16px' : '8px', background: i === safeIdx ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.25)' }}
+                    />
+                  </div>
                 ))}
               </div>
             )}
