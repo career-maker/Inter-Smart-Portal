@@ -381,98 +381,109 @@ export default function DashboardPage() {
 
         {/* 
           ========================================
-          RIGHT: DASHBOARD SUMMARY (4 Cols)
+          RIGHT: UPCOMING HOLIDAYS (4 Cols)
           ========================================
         */}
         <div className="lg:col-span-4 space-y-8">
           {/* Upcoming Holidays */}
-          <div className="premium-card p-6">
-            <h2 className="text-lg font-bold text-rose-300 mb-5 flex items-center gap-2">
-              <CalendarDays className="w-5 h-5" />
-              Upcoming Holidays
-            </h2>
-            <div className="space-y-4">
-              {widgets.upcoming_holidays.length === 0 && <p className="text-sm text-slate-400">No upcoming holidays.</p>}
-              {widgets.upcoming_holidays.map((h: any, i: number) => (
-                <div key={i} className="flex justify-between items-center">
-                  <span className="text-sm font-medium text-white">{h.name}</span>
-                  <span className="text-xs font-semibold text-rose-600 bg-rose-500/30 px-2 py-1 rounded-md text-rose-300">
-                    {format(new Date(h.date), "MMM d")}
-                  </span>
-                </div>
-              ))}
+          <div className="premium-card p-6 h-full flex flex-col justify-between">
+            <div>
+              <h2 className="text-lg font-bold text-rose-300 mb-5 flex items-center gap-2">
+                <CalendarDays className="w-5 h-5" />
+                Upcoming Holidays
+              </h2>
+              <div className="space-y-4">
+                {widgets.upcoming_holidays.length === 0 && <p className="text-sm text-slate-400">No upcoming holidays.</p>}
+                {widgets.upcoming_holidays.map((h: any, i: number) => (
+                  <div key={i} className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-white">{h.name}</span>
+                    <span className="text-xs font-semibold text-rose-600 bg-rose-500/30 px-2 py-1 rounded-md text-rose-300">
+                      {format(new Date(h.date), "MMM d")}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
+        </div>
 
-          <div ref={leaveSummaryRef} className="premium-card p-6">
-            <h2 className="text-lg font-bold text-emerald-300 mb-6 flex items-center gap-2">
+      </div>
+
+      {/* 
+        ========================================
+        BOTTOM: FULL-WIDTH HORIZONTAL LEAVE SUMMARY
+        ========================================
+      */}
+      <div ref={leaveSummaryRef} className="premium-card p-6">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          
+          {/* Left section: title and stats grid */}
+          <div className="flex-1 space-y-5">
+            <h2 className="text-lg font-bold text-emerald-300 flex items-center gap-2">
               <CalendarDays className="w-5 h-5" />
               Leave Summary
             </h2>
+
+            {/* Probation notice */}
+            {leave_metrics.is_in_probation && (
+              <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 text-amber-300 text-sm space-y-1">
+                <p className="font-bold flex items-center gap-2">🔒 Currently Under Probation</p>
+                <p className="text-amber-300/80 text-xs">Paid leave benefits will become active on <strong className="text-amber-200">{new Date(leave_metrics.probation_end_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</strong>. All leaves during probation are treated as Unpaid (LOP).</p>
+              </div>
+            )}
             
-            <div className="space-y-6">
-              {/* Probation notice */}
-              {leave_metrics.is_in_probation && (
-                <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 text-amber-300 text-sm space-y-1">
-                  <p className="font-bold flex items-center gap-2">🔒 Currently Under Probation</p>
-                  <p className="text-amber-300/80 text-xs">Paid leave benefits will become active on <strong className="text-amber-200">{new Date(leave_metrics.probation_end_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</strong>. All leaves during probation are treated as Unpaid (LOP).</p>
-                </div>
-              )}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {/* Casual Leave Indicator */}
-              <div className="flex items-center justify-between group">
+              <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/10 group hover:bg-white/10 transition-all duration-300">
                 <div>
-                  <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Casual Leaves</p>
-                  <p className="text-3xl font-black text-white mt-1">{leave_metrics.casual_leave_balance}</p>
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Casual Leaves</p>
+                  <p className="text-2xl font-black text-white mt-1">{leave_metrics.casual_leave_balance}</p>
                 </div>
-                <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform">
-                  <Palmtree className="w-6 h-6" />
+                <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform">
+                  <Palmtree className="w-5 h-5" />
                 </div>
               </div>
-
-              <div className="h-px bg-white/10 w-full"></div>
 
               {/* Sick Leave Indicator */}
-              <div className="flex items-center justify-between group">
+              <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/10 group hover:bg-white/10 transition-all duration-300">
                 <div>
-                  <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Sick Leaves</p>
-                  <p className="text-3xl font-black text-white mt-1">{leave_metrics.sick_leave_balance}</p>
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Sick Leaves</p>
+                  <p className="text-2xl font-black text-white mt-1">{leave_metrics.sick_leave_balance}</p>
                 </div>
-                <div className="w-12 h-12 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-400 group-hover:scale-110 transition-transform">
-                  <AlertCircle className="w-6 h-6" />
+                <div className="w-10 h-10 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-400 group-hover:scale-110 transition-transform">
+                  <AlertCircle className="w-5 h-5" />
                 </div>
               </div>
-
-              <div className="h-px bg-white/10 w-full"></div>
 
               {/* Total Leaves Taken Indicator */}
-              <div className="flex items-center justify-between group">
+              <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/10 group hover:bg-white/10 transition-all duration-300">
                 <div>
-                  <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Total Taken</p>
-                  <p className="text-3xl font-black text-white mt-1">{leave_metrics.total_leaves_taken}</p>
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Taken</p>
+                  <p className="text-2xl font-black text-white mt-1">{leave_metrics.total_leaves_taken}</p>
                 </div>
-                <div className="w-12 h-12 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
-                  <CalendarDays className="w-6 h-6" />
+                <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
+                  <CalendarDays className="w-5 h-5" />
                 </div>
-              </div>
-
-              {/* Pending visual (optional, but good for UI) */}
-              {leave_metrics.pending_leaves > 0 && (
-                <div className="mt-4 bg-orange-500/20 border border-orange-500/30 rounded-xl p-3 flex items-center gap-3 text-orange-300">
-                  <Clock className="w-5 h-5 shrink-0" />
-                  <span className="text-sm font-medium">Your {leave_metrics.pending_leaves} leave request(s) are pending approval</span>
-                </div>
-              )}
-
-              <div className="pt-6">
-                <Link 
-                  href="/leaves/apply" 
-                  className="w-full flex items-center justify-center gap-2 bg-amber-400 text-slate-900 font-bold py-4 px-6 rounded-2xl hover:bg-amber-300 hover:shadow-xl hover:shadow-amber-400/20 transition-all duration-300 hover:-translate-y-0.5"
-                >
-                  <Palmtree className="w-5 h-5" />
-                  Apply for Leave
-                </Link>
               </div>
             </div>
+          </div>
+
+          {/* Right section: pending notice and apply action */}
+          <div className="flex flex-col justify-center items-stretch lg:items-end gap-3 shrink-0 min-w-[260px] w-full lg:w-auto pt-4 lg:pt-8">
+            {leave_metrics.pending_leaves > 0 && (
+              <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl px-4 py-2 flex items-center gap-2 text-orange-400 text-xs justify-center lg:justify-start w-full">
+                <Clock className="w-4 h-4 shrink-0 animate-pulse" />
+                <span>{leave_metrics.pending_leaves} request(s) pending approval</span>
+              </div>
+            )}
+            
+            <Link 
+              href="/leaves/apply" 
+              className="w-full flex items-center justify-center gap-2 bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold py-3.5 px-6 rounded-2xl hover:shadow-xl hover:shadow-amber-400/15 transition-all duration-300 active:scale-95 whitespace-nowrap"
+            >
+              <Palmtree className="w-5 h-5" />
+              Apply for Leave
+            </Link>
           </div>
         </div>
       </div>
