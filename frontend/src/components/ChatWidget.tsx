@@ -31,14 +31,33 @@ export default function ChatWidget() {
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [systemPrompt, setSystemPrompt] = useState("");
+  const [ollamaModel, setOllamaModel] = useState("llama3.2");
 
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  const fetchContext = async () => {
+    try {
+      const res = await api.get("/chat/context");
+      setSystemPrompt(res.data.system_prompt);
+      setOllamaModel(res.data.model || "llama3.2");
+    } catch (e) {
+      console.error("Failed to load portal context:", e);
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchContext();
+      scrollToBottom();
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (isOpen) {
       scrollToBottom();
     }
-  }, [isOpen, messages]);
+  }, [messages]);
 
   const scrollToBottom = () => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -54,11 +73,53 @@ export default function ChatWidget() {
       timestamp: new Date(),
     };
 
-    setMessages((prev) => [...prev, userMsg]);
+    const newMessages = [...messages, userMsg];
+    setMessages(newMessages);
     setInputValue("");
     setIsLoading(true);
     setErrorMsg("");
 
+    // 1. Try querying local Ollama directly from the browser
+    try {
+      const systemMsg = { role: "system", content: systemPrompt || "You are a helpful company portal assistant." };
+      const chatHistory = newMessages.map(msg => ({
+        role: msg.sender === "user" ? "user" : "assistant",
+        content: msg.text
+      }));
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8s timeout for direct browser request
+
+      const localResponse = await fetch("http://127.0.0.1:11434/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: ollamaModel,
+          messages: [systemMsg, ...chatHistory],
+          stream: false
+        }),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      if (localResponse.ok) {
+        const localData = await localResponse.json();
+        const reply = localData.message?.content || "No reply received.";
+        setMessages(prev => [...prev, {
+          id: Math.random().toString(),
+          sender: "bot",
+          text: reply,
+          timestamp: new Date()
+        }]);
+        setIsLoading(false);
+        return; // Success! Exit early.
+      }
+    } catch (localErr) {
+      console.warn("Direct local Ollama query failed or was blocked. Trying backend proxy fallback...", localErr);
+    }
+
+    // 2. Fallback to backend proxy (if local query failed or was blocked by CORS)
     try {
       const res = await api.post("/chat", { message: text.trim() });
       const botMsg: Message = {
@@ -72,7 +133,7 @@ export default function ChatWidget() {
       console.error(e);
       setErrorMsg(
         e.response?.data?.message ||
-          "Could not connect to the AI assistant. Please verify Ollama is running."
+          "Could not connect to the AI assistant. Please verify that Ollama is running locally at http://127.0.0.1:11434 with model '" + ollamaModel + "' installed."
       );
     } finally {
       setIsLoading(false);
