@@ -28,7 +28,7 @@ class AuthController extends Controller
         }
 
         // Return user with roles and permissions
-        $user->load('roles', 'permissions');
+        $user->load('roles', 'permissions', 'team');
         
         $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -41,6 +41,14 @@ class AuthController extends Controller
                 'last_name' => $user->last_name,
                 'email' => $user->email,
                 'designation' => $user->designation,
+                'employee_code' => $user->employee_code,
+                'team' => $user->team->name ?? 'Unassigned',
+                'phone' => $user->phone,
+                'emergency_contact' => $user->emergency_contact,
+                'address' => $user->address,
+                'city' => $user->city,
+                'state' => $user->state,
+                'zip' => $user->zip,
                 'role' => $user->roles->pluck('name')->first(),
                 'permissions' => $user->getAllPermissions()->pluck('name'),
                 'profile_photo_path' => $user->profilePhotoUrl(),
@@ -51,7 +59,7 @@ class AuthController extends Controller
     public function me(Request $request)
     {
         $user = $request->user();
-        $user->load('roles', 'permissions');
+        $user->load('roles', 'permissions', 'team');
 
         return response()->json([
             'user' => [
@@ -60,6 +68,14 @@ class AuthController extends Controller
                 'last_name' => $user->last_name,
                 'email' => $user->email,
                 'designation' => $user->designation,
+                'employee_code' => $user->employee_code,
+                'team' => $user->team->name ?? 'Unassigned',
+                'phone' => $user->phone,
+                'emergency_contact' => $user->emergency_contact,
+                'address' => $user->address,
+                'city' => $user->city,
+                'state' => $user->state,
+                'zip' => $user->zip,
                 'role' => $user->roles->pluck('name')->first(),
                 'permissions' => $user->getAllPermissions()->pluck('name'),
                 'profile_photo_path' => $user->profilePhotoUrl(),

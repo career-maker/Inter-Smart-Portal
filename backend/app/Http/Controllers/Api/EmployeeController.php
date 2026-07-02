@@ -99,6 +99,7 @@ class EmployeeController extends Controller
                 'last_name' => $employee->last_name,
                 'email' => $employee->email,
                 'designation' => $employee->designation,
+                'employee_code' => $employee->employee_code,
                 'profile_photo_path' => $employee->profilePhotoUrl(),
                 'team' => $employee->team->name ?? 'Unassigned',
                 'joining_date' => $employee->joining_date,

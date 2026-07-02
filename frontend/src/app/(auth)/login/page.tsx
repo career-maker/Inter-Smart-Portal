@@ -36,7 +36,7 @@ export default function LoginPage() {
       {/* Left branding panel */}
       <div className="hidden lg:flex flex-col justify-between w-1/2 p-12 bg-gradient-to-br from-amber-900/20 to-slate-900">
         <div className="flex items-center gap-3">
-          <img src="/logo.png" alt="Intersmart Logo" className="h-14 w-auto object-contain bg-white p-2 rounded-xl" />
+          <img src="/logo.png" alt="Intersmart Logo" className="h-14 w-auto object-contain" />
         </div>
         <div>
           <h1 className="text-5xl font-bold text-white leading-tight mb-4">
@@ -63,7 +63,7 @@ export default function LoginPage() {
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="flex items-center justify-center mb-8 lg:hidden">
-            <img src="/logo.png" alt="Intersmart Logo" className="h-12 w-auto object-contain bg-white p-2 rounded-xl" />
+            <img src="/logo.png" alt="Intersmart Logo" className="h-12 w-auto object-contain" />
           </div>
 
           <div className="bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-sm shadow-2xl">
