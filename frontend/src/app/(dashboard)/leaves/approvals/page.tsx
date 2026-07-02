@@ -38,10 +38,19 @@ export default function ApprovalsPage() {
 
   const [rejectDialog, setRejectDialog] = useState<RejectDialogState>(null);
   const [rejectReason, setRejectReason] = useState("");
-  const [overrideDialog, setOverrideDialog] = useState<OverrideDialogState>(null);
-  const [overrideFields, setOverrideFields] = useState({ is_unpaid: false, days: 0, remarks: "" });
+  const [overrideDialog, setOverrideDialog] = useState<any | null>(null);
+  const [overrideFields, setOverrideFields] = useState({
+    start_date: "",
+    end_date: "",
+    paid_casual_leave: 0,
+    paid_sick_leave: 0,
+    lop_days: 0,
+    remarks: "",
+  });
+  const [currentBalances, setCurrentBalances] = useState({ cl: 0, sl: 0 });
+  const [autoTotalDays, setAutoTotalDays] = useState(0);
+  const [recalcLoading, setRecalcLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
-
   useEffect(() => { fetchRequests(); }, []);
 
   const fetchRequests = async () => {
@@ -95,13 +104,62 @@ export default function ApprovalsPage() {
     }
   };
 
+  const overrideTotalDays =
+    parseFloat(overrideFields.paid_casual_leave.toString() || "0") +
+    parseFloat(overrideFields.paid_sick_leave.toString() || "0") +
+    parseFloat(overrideFields.lop_days.toString() || "0");
+
+  const handleDateChange = async (field: "start_date" | "end_date", val: string) => {
+    const updatedFields = { ...overrideFields, [field]: val };
+    setOverrideFields(updatedFields);
+
+    if (!updatedFields.start_date || !updatedFields.end_date) return;
+    if (new Date(updatedFields.start_date) > new Date(updatedFields.end_date)) return;
+
+    setRecalcLoading(true);
+    try {
+      const res = await api.post("/leave-requests/calculate", {
+        leave_type_id: overrideDialog.leave_type_id,
+        start_date: updatedFields.start_date,
+        end_date: updatedFields.end_date,
+        user_id: overrideDialog.user_id,
+      });
+
+      const calc = res.data;
+      setOverrideFields((f) => ({
+        ...f,
+        paid_casual_leave: calc.paid_casual_leave ?? 0,
+        paid_sick_leave: calc.paid_sick_leave ?? 0,
+        lop_days: calc.total_lop_days ?? 0,
+      }));
+      setAutoTotalDays(calc.actual_leave_days ?? 0);
+
+      const bal = calc.balance;
+      setCurrentBalances({
+        cl: (bal.casual_leave ?? 0) + (bal.cl_carry_forward ?? 0),
+        sl: bal.sick_leave ?? 0,
+      });
+    } catch (err) {
+      console.error("Recalculation failed", err);
+    } finally {
+      setRecalcLoading(false);
+    }
+  };
+
   const submitOverride = async () => {
     if (!overrideDialog || !overrideFields.remarks.trim()) return;
+    if (overrideTotalDays !== autoTotalDays) {
+      alert("The sum of Paid Casual Leave, Paid Sick Leave, and LOP must equal the total leave count.");
+      return;
+    }
     setActionLoading(true);
     try {
       await api.put(`/leave-requests/${overrideDialog.id}/override`, {
-        is_unpaid: overrideFields.is_unpaid,
-        actual_leave_days: overrideFields.days,
+        start_date: overrideFields.start_date,
+        end_date: overrideFields.end_date,
+        paid_casual_leave: overrideFields.paid_casual_leave,
+        paid_sick_leave: overrideFields.paid_sick_leave,
+        lop_days: overrideFields.lop_days,
         remarks: overrideFields.remarks,
       });
       setOverrideDialog(null);
@@ -113,9 +171,52 @@ export default function ApprovalsPage() {
     }
   };
 
-  const openOverride = (req: any) => {
-    setOverrideDialog({ id: req.id, is_unpaid: req.is_unpaid, days: req.actual_leave_days ?? req.days });
-    setOverrideFields({ is_unpaid: req.is_unpaid ?? false, days: req.actual_leave_days ?? req.days ?? 0, remarks: "" });
+  const openOverride = async (req: any) => {
+    const origLop = req.lop_days ?? (req.is_unpaid ? (req.actual_leave_days ?? req.days) : 0);
+    const origPaidCL = req.paid_casual_leave ?? 0;
+    const origPaidSL = req.paid_sick_leave ?? 0;
+
+    setOverrideDialog({
+      id: req.id,
+      user_id: req.user_id,
+      leave_type_id: req.leave_type_id,
+      original_start_date: req.start_date,
+      original_end_date: req.end_date,
+      original_days: req.actual_leave_days ?? req.days ?? 0,
+      original_paid_cl: origPaidCL,
+      original_paid_sl: origPaidSL,
+      original_lop: origLop,
+    });
+
+    setOverrideFields({
+      start_date: req.start_date,
+      end_date: req.end_date,
+      paid_casual_leave: origPaidCL,
+      paid_sick_leave: origPaidSL,
+      lop_days: origLop,
+      remarks: "",
+    });
+
+    setAutoTotalDays(req.actual_leave_days ?? req.days ?? 0);
+    setRecalcLoading(true);
+
+    try {
+      const res = await api.post("/leave-requests/calculate", {
+        leave_type_id: req.leave_type_id,
+        start_date: req.start_date,
+        end_date: req.end_date,
+        user_id: req.user_id,
+      });
+      const bal = res.data.balance;
+      setCurrentBalances({
+        cl: (bal.casual_leave ?? 0) + (bal.cl_carry_forward ?? 0),
+        sl: bal.sick_leave ?? 0,
+      });
+    } catch (err) {
+      console.error("Failed to fetch balances", err);
+    } finally {
+      setRecalcLoading(false);
+    }
   };
 
   const LeaveCard = ({ req }: { req: any }) => (
@@ -332,54 +433,191 @@ export default function ApprovalsPage() {
       {overrideDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setOverrideDialog(null)} />
-          <div className="relative w-full max-w-md bg-slate-800 border border-white/10 rounded-2xl shadow-2xl z-10">
+          <div className="relative w-full max-w-3xl bg-slate-800 border border-white/10 rounded-2xl shadow-2xl z-10 overflow-hidden">
             <div className="px-6 py-5 border-b border-white/10">
-              <h2 className="text-lg font-bold text-white">Override Leave</h2>
-              <p className="text-slate-400 text-sm mt-0.5">Adjust days or mark as LOP (Loss of Pay).</p>
+              <h2 className="text-lg font-bold text-white">Override Leave Request</h2>
+              <p className="text-slate-400 text-sm mt-0.5 font-sans">Customize dates and manually split paid leaves and LOP.</p>
             </div>
-            <div className="px-6 py-5 space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Actual Days to Deduct</label>
-                <input
-                  type="number"
-                  step="0.5"
-                  value={overrideFields.days}
-                  onChange={(e) => setOverrideFields((f) => ({ ...f, days: parseFloat(e.target.value) || 0 }))}
-                  className="w-full bg-slate-700 border border-white/10 text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 transition-colors"
-                />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 max-h-[65vh] overflow-y-auto">
+              {/* Left Column: Form Inputs */}
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5 font-mono">Start Date</label>
+                    <input
+                      type="date"
+                      value={overrideFields.start_date}
+                      onChange={(e) => handleDateChange("start_date", e.target.value)}
+                      className="w-full bg-slate-700 border border-white/10 text-white text-sm rounded-xl px-3 py-2 outline-none focus:border-amber-500 transition-colors font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5 font-mono">End Date</label>
+                    <input
+                      type="date"
+                      value={overrideFields.end_date}
+                      onChange={(e) => handleDateChange("end_date", e.target.value)}
+                      className="w-full bg-slate-700 border border-white/10 text-white text-sm rounded-xl px-3 py-2 outline-none focus:border-amber-500 transition-colors font-mono"
+                    />
+                  </div>
+                </div>
+
+                <div className="border-t border-white/5 pt-4">
+                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Custom Allocation Split</h3>
+                  <p className="text-xs text-slate-500 mb-4">Sum of split must equal total leave count: <span className="font-bold text-white font-mono">{autoTotalDays} day(s)</span></p>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="text-sm text-slate-300">Paid Casual Leave</span>
+                      <input
+                        type="number"
+                        step="0.5"
+                        min="0"
+                        value={overrideFields.paid_casual_leave}
+                        onChange={(e) => setOverrideFields((f) => ({ ...f, paid_casual_leave: parseFloat(e.target.value) || 0 }))}
+                        className="w-24 bg-slate-700 border border-white/10 text-white text-sm text-center rounded-xl px-2 py-1.5 outline-none focus:border-amber-500 font-mono"
+                      />
+                    </div>
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="text-sm text-slate-300">Paid Sick Leave</span>
+                      <input
+                        type="number"
+                        step="0.5"
+                        min="0"
+                        value={overrideFields.paid_sick_leave}
+                        onChange={(e) => setOverrideFields((f) => ({ ...f, paid_sick_leave: parseFloat(e.target.value) || 0 }))}
+                        className="w-24 bg-slate-700 border border-white/10 text-white text-sm text-center rounded-xl px-2 py-1.5 outline-none focus:border-amber-500 font-mono"
+                      />
+                    </div>
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="text-sm text-slate-300">Loss of Pay (LOP)</span>
+                      <input
+                        type="number"
+                        step="0.5"
+                        min="0"
+                        value={overrideFields.lop_days}
+                        onChange={(e) => setOverrideFields((f) => ({ ...f, lop_days: parseFloat(e.target.value) || 0 }))}
+                        className="w-24 bg-slate-700 border border-white/10 text-white text-sm text-center rounded-xl px-2 py-1.5 outline-none focus:border-amber-500 font-mono"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="border-t border-white/5 pt-4">
+                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Reason for Override *</label>
+                  <textarea
+                    rows={2}
+                    value={overrideFields.remarks}
+                    onChange={(e) => setOverrideFields((f) => ({ ...f, remarks: e.target.value }))}
+                    placeholder="Provide a reason for overriding this allocation..."
+                    className="w-full bg-slate-700 border border-white/10 text-white text-sm rounded-xl px-3 py-2 outline-none focus:border-amber-500 placeholder:text-slate-500 resize-none transition-colors"
+                  />
+                </div>
               </div>
-              <div className="flex items-center gap-3">
-                <input
-                  id="is-unpaid"
-                  type="checkbox"
-                  checked={overrideFields.is_unpaid}
-                  onChange={(e) => setOverrideFields((f) => ({ ...f, is_unpaid: e.target.checked }))}
-                  className="w-4 h-4 rounded accent-amber-500"
-                />
-                <label htmlFor="is-unpaid" className="text-sm text-slate-300 font-medium">Mark as Unpaid (LOP)</label>
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Remarks *</label>
-                <textarea
-                  rows={3}
-                  value={overrideFields.remarks}
-                  onChange={(e) => setOverrideFields((f) => ({ ...f, remarks: e.target.value }))}
-                  placeholder="Enter override remarks..."
-                  className="w-full bg-slate-700 border border-white/10 text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 placeholder:text-slate-500 resize-none transition-colors"
-                />
+
+              {/* Right Column: Before-and-After Summary Panel */}
+              <div className="bg-slate-900/40 border border-white/5 rounded-2xl p-5 space-y-5">
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Before-and-After Summary</h3>
+
+                {recalcLoading ? (
+                  <div className="flex flex-col items-center justify-center py-16 gap-3">
+                    <Loader2 className="w-6 h-6 text-amber-500 animate-spin" />
+                    <span className="text-xs text-slate-400">Recalculating...</span>
+                  </div>
+                ) : (
+                  <div className="space-y-4 text-xs">
+                    {/* Original Calculation */}
+                    <div className="space-y-2 bg-white/5 border border-white/5 rounded-xl p-3.5">
+                      <p className="font-bold text-amber-400 uppercase tracking-wider mb-1 text-[10px]">Original Calculation</p>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Dates:</span>
+                        <span className="text-slate-200 font-mono">{fmtDate(overrideDialog.original_start_date)} – {fmtDate(overrideDialog.original_end_date)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Total Leave:</span>
+                        <span className="text-slate-200 font-bold font-mono">{overrideDialog.original_days} day(s)</span>
+                      </div>
+                      <div className="flex justify-between pl-3 text-slate-400 border-l border-white/10">
+                        <span>Paid Casual Leave:</span>
+                        <span className="font-mono">{overrideDialog.original_paid_cl}</span>
+                      </div>
+                      <div className="flex justify-between pl-3 text-slate-400 border-l border-white/10">
+                        <span>Paid Sick Leave:</span>
+                        <span className="font-mono">{overrideDialog.original_paid_sl}</span>
+                      </div>
+                      <div className="flex justify-between pl-3 text-slate-400 border-l border-white/10">
+                        <span>Loss of Pay (LOP):</span>
+                        <span className="font-mono">{overrideDialog.original_lop}</span>
+                      </div>
+                    </div>
+
+                    {/* Override Calculation */}
+                    <div className="space-y-2 bg-amber-500/5 border border-amber-500/10 rounded-xl p-3.5">
+                      <p className="font-bold text-amber-400 uppercase tracking-wider mb-1 text-[10px]">Override Calculation</p>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Dates:</span>
+                        <span className="text-slate-200 font-mono">{fmtDate(overrideFields.start_date)} – {fmtDate(overrideFields.end_date)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Total Leave:</span>
+                        <span className="text-slate-200 font-bold font-mono">{overrideTotalDays} day(s)</span>
+                      </div>
+                      <div className="flex justify-between pl-3 text-slate-400 border-l border-amber-500/10">
+                        <span>Paid Casual Leave:</span>
+                        <span className="font-mono text-white">{overrideFields.paid_casual_leave}</span>
+                      </div>
+                      <div className="flex justify-between pl-3 text-slate-400 border-l border-amber-500/10">
+                        <span>Paid Sick Leave:</span>
+                        <span className="font-mono text-white">{overrideFields.paid_sick_leave}</span>
+                      </div>
+                      <div className="flex justify-between pl-3 text-slate-400 border-l border-amber-500/10">
+                        <span>Loss of Pay (LOP):</span>
+                        <span className="font-mono text-white">{overrideFields.lop_days}</span>
+                      </div>
+                    </div>
+
+                    {/* Impact on Balances */}
+                    <div className="space-y-2 bg-slate-900 border border-white/5 rounded-xl p-3.5">
+                      <p className="font-bold text-slate-400 uppercase tracking-wider mb-1 text-[10px]">Leave Balances Impact</p>
+                      <div className="grid grid-cols-2 gap-3 pt-1">
+                        <div>
+                          <p className="text-[10px] text-slate-500 uppercase">Casual Leave Balance</p>
+                          <p className="text-sm font-semibold text-slate-300 font-mono mt-0.5">
+                            {currentBalances.cl} <span className="text-slate-500 font-normal text-xs">→</span> <span className="text-white font-bold">{Math.max(0, currentBalances.cl - overrideFields.paid_casual_leave)}</span>
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-slate-500 uppercase">Sick Leave Balance</p>
+                          <p className="text-sm font-semibold text-slate-300 font-mono mt-0.5">
+                            {currentBalances.sl} <span className="text-slate-500 font-normal text-xs">→</span> <span className="text-white font-bold">{Math.max(0, currentBalances.sl - overrideFields.paid_sick_leave)}</span>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
+
+            {/* Validation Message */}
+            {overrideTotalDays !== autoTotalDays && (
+              <div className="mx-6 mb-4 p-3 bg-red-500/10 border border-red-500/20 text-red-300 text-xs rounded-xl flex items-center gap-2">
+                <span>⚠️ The sum of split days ({overrideTotalDays}) must equal the total leave count for this date range ({autoTotalDays}).</span>
+              </div>
+            )}
+
             <div className="px-6 py-4 border-t border-white/10 flex gap-3 justify-end">
               <button onClick={() => setOverrideDialog(null)} className="px-4 py-2 text-sm text-slate-300 border border-white/10 rounded-xl hover:bg-white/5 transition-colors">
                 Cancel
               </button>
               <button
                 onClick={submitOverride}
-                disabled={actionLoading || !overrideFields.remarks.trim()}
+                disabled={actionLoading || recalcLoading || !overrideFields.remarks.trim() || overrideTotalDays !== autoTotalDays}
                 className="flex items-center gap-2 px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl transition-colors disabled:opacity-50"
               >
                 {actionLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-                Apply Override
+                Apply Override & Approve
               </button>
             </div>
           </div>

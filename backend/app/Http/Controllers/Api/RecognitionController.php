@@ -19,7 +19,6 @@ class RecognitionController extends Controller
             
         return response()->json(['data' => $recognitions]);
     }
-
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -45,6 +44,17 @@ class RecognitionController extends Controller
         ]);
 
         $recognition->load(['user:id,first_name,last_name,employee_code', 'creator:id,first_name,last_name']);
+
+        try {
+            $employee = \App\Models\User::find($recognition->user_id);
+            if ($employee) {
+                $creatorName = Auth::user() ? (Auth::user()->first_name . ' ' . Auth::user()->last_name) : 'Management';
+                $message = "Congratulations! You have been awarded the \"{$recognition->title}\" achievement by {$creatorName}.";
+                $employee->notify(new \App\Notifications\RecognitionNotification($recognition, $message));
+            }
+        } catch (\Exception $e) {
+            // Never let notification failure block saving
+        }
 
         return response()->json(['message' => 'Recognition added successfully.', 'data' => $recognition]);
     }

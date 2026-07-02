@@ -294,25 +294,29 @@ class LeaveRequestController extends Controller
             'after_sick'          => max(0, $sl - $willDeductSL),
         ];
     }
-
     public function calculate(Request $request)
     {
         $request->validate([
             'leave_type_id' => 'required|exists:leave_types,id',
             'start_date'    => 'required|date',
             'end_date'      => 'required|date|after_or_equal:start_date',
+            'user_id'       => 'nullable|exists:users,id',
         ]);
+
+        $targetUser = $request->user();
+        if ($request->has('user_id') && ($targetUser->hasRole('Super Admin') || $targetUser->hasRole('HR'))) {
+            $targetUser = \App\Models\User::find($request->user_id) ?? $targetUser;
+        }
 
         return response()->json(
             $this->calculateLeaveImpact(
-                $request->user(),
+                $targetUser,
                 $request->leave_type_id,
                 $request->start_date,
                 $request->end_date
             )
         );
     }
-
     public function store(StoreLeaveRequest $request)
     {
         $user      = $request->user();
@@ -374,6 +378,7 @@ class LeaveRequestController extends Controller
                 'actual_leave_days'      => $days,
                 'paid_casual_leave'      => $paidCL,
                 'paid_sick_leave'        => $paidSL,
+                'lop_days'               => $totalLOP,
             ]);
 
             DB::commit();
@@ -558,59 +563,113 @@ class LeaveRequestController extends Controller
         }
 
         $request->validate([
-            'is_unpaid'         => 'required|boolean',
-            'actual_leave_days' => 'required|numeric',
+            'start_date'        => 'required|date',
+            'end_date'          => 'required|date|after_or_equal:start_date',
+            'paid_casual_leave' => 'required|numeric|min:0',
+            'paid_sick_leave'   => 'required|numeric|min:0',
+            'lop_days'          => 'required|numeric|min:0',
             'remarks'           => 'required|string|max:500',
         ]);
 
+        $newPaidCL = floatval($request->paid_casual_leave);
+        $newPaidSL = floatval($request->paid_sick_leave);
+        $newLop    = floatval($request->lop_days);
+        $newActualDays = $newPaidCL + $newPaidSL + $newLop;
+
         DB::beginTransaction();
         try {
-            $oldUnpaid = $leaveRequest->is_unpaid;
-            $oldDays   = $leaveRequest->actual_leave_days ?? $leaveRequest->days;
-            $newUnpaid = $request->is_unpaid;
-            $newDays   = $request->actual_leave_days;
-
-            $balance   = LeaveBalance::where('user_id', $leaveRequest->user_id)->first();
-            $leaveType = $leaveRequest->leaveType;
-
-            if ($balance && $leaveType) {
-                if (!$oldUnpaid && $leaveRequest->status !== 'Rejected') {
-                    if (str_contains(strtolower($leaveType->name), 'casual')) {
-                        $balance->casual_leave_balance += $oldDays;
-                    } elseif (str_contains(strtolower($leaveType->name), 'sick')) {
-                        $balance->sick_leave_balance += $oldDays;
-                    }
-                    $balance->total_leaves_taken -= $oldDays;
-                }
-
-                if (!$newUnpaid && $leaveRequest->status !== 'Rejected') {
-                    if (str_contains(strtolower($leaveType->name), 'casual')) {
-                        $balance->casual_leave_balance -= $newDays;
-                    } elseif (str_contains(strtolower($leaveType->name), 'sick')) {
-                        $balance->sick_leave_balance -= $newDays;
-                    }
-                    $balance->total_leaves_taken += $newDays;
-                }
-
-                $balance->save();
+            $balance = LeaveBalance::where('user_id', $leaveRequest->user_id)->first();
+            if (!$balance) {
+                return response()->json(['message' => 'Leave balance record not found'], 400);
             }
 
+            // Calculate auto-impact for the new dates (to capture auto sandwich days, etc.)
+            $impact = $this->calculateLeaveImpact($leaveRequest->user, $leaveRequest->leave_type_id, $request->start_date, $request->end_date);
+
+            // Audit Trail
+            $previousValue = [
+                'start_date'          => $leaveRequest->start_date,
+                'end_date'            => $leaveRequest->end_date,
+                'days'                => $leaveRequest->days,
+                'actual_leave_days'   => $leaveRequest->actual_leave_days,
+                'paid_casual_leave'   => $leaveRequest->paid_casual_leave ?? 0,
+                'paid_sick_leave'     => $leaveRequest->paid_sick_leave ?? 0,
+                'lop_days'            => $leaveRequest->lop_days ?? ($leaveRequest->is_unpaid ? $leaveRequest->actual_leave_days : 0),
+                'sandwich_leave_days' => $leaveRequest->sandwich_leave_days,
+            ];
+
+            $newValue = [
+                'start_date'          => $request->start_date,
+                'end_date'            => $request->end_date,
+                'days'                => $newActualDays,
+                'actual_leave_days'   => $newActualDays,
+                'paid_casual_leave'   => $newPaidCL,
+                'paid_sick_leave'     => $newPaidSL,
+                'lop_days'            => $newLop,
+                'sandwich_leave_days' => $impact['sandwich_leave_days'],
+            ];
+
+            // 1. If previously Approved, refund the old deducted balances
+            if ($leaveRequest->status === 'Approved') {
+                $oldPaidCL = $leaveRequest->paid_casual_leave ?? 0;
+                $oldPaidSL = $leaveRequest->paid_sick_leave ?? 0;
+
+                $balance->casual_leave_balance += $oldPaidCL;
+                $balance->sick_leave_balance   += $oldPaidSL;
+                $balance->total_leaves_taken   -= $leaveRequest->actual_leave_days ?? $leaveRequest->days;
+            }
+
+            // 2. Deduct new balances
+            if ($newPaidCL > 0) {
+                $carryForward = $balance->cl_carry_forward ?? 0;
+                if ($carryForward > 0) {
+                    $fromCF = min($newPaidCL, $carryForward);
+                    $balance->cl_carry_forward     -= $fromCF;
+                    $balance->casual_leave_balance -= max(0, $newPaidCL - $fromCF);
+                } else {
+                    $balance->casual_leave_balance -= $newPaidCL;
+                }
+            }
+            if ($newPaidSL > 0) {
+                $balance->sick_leave_balance -= $newPaidSL;
+            }
+            $balance->total_leaves_taken += $newActualDays;
+            $balance->save();
+
+            // Create Audit Log
             LeaveAuditLog::create([
                 'leave_request_id' => $leaveRequest->id,
                 'modified_by'      => $user->id,
-                'previous_value'   => json_encode(['is_unpaid' => $oldUnpaid, 'actual_leave_days' => $oldDays]),
-                'new_value'        => json_encode(['is_unpaid' => $newUnpaid, 'actual_leave_days' => $newDays]),
+                'previous_value'   => $previousValue,
+                'new_value'        => $newValue,
                 'remarks'          => $request->remarks,
             ]);
 
+            // 3. Update Leave Request (forces Status => Approved)
+            $isUnpaid = ($newPaidCL == 0 && $newPaidSL == 0);
             $leaveRequest->update([
-                'is_unpaid'         => $newUnpaid,
-                'actual_leave_days' => $newDays,
-                'days'              => $newDays,
-                'unpaid_reason'     => $newUnpaid ? ($leaveRequest->unpaid_reason ?? 'Overridden to unpaid') : null,
+                'start_date'          => $request->start_date,
+                'end_date'            => $request->end_date,
+                'days'                => $newActualDays,
+                'actual_leave_days'   => $newActualDays,
+                'paid_casual_leave'   => $newPaidCL,
+                'paid_sick_leave'     => $newPaidSL,
+                'lop_days'            => $newLop,
+                'is_unpaid'           => $isUnpaid,
+                'unpaid_reason'       => $newLop > 0 ? "Overridden LOP: {$newLop} day(s)" : null,
+                'sandwich_leave_days' => $impact['sandwich_leave_days'],
+                'status'              => 'Approved',
+                'admin_status'        => 'Approved',
+                'approved_by'         => $user->id,
             ]);
 
             DB::commit();
+
+            try {
+                $this->notifyEmployee($leaveRequest, $user, 'approved');
+            } catch (\Exception $ne) {
+                // Ignore notification errors
+            }
 
             return response()->json([
                 'message' => 'Leave request overridden successfully.',

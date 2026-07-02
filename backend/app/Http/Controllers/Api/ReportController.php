@@ -62,12 +62,9 @@ class ReportController extends Controller
 
             $rejectedLeaves = LeaveRequest::where('user_id', $emp->id)
                 ->where('status', 'Rejected')->count();
-
             $lopCount = LeaveRequest::where('user_id', $emp->id)
                 ->where('status', 'Approved')
-                ->where('is_unpaid', true)
-                ->sum('actual_leave_days');
-
+                ->sum('lop_days');
             $wfhThisMonth = WfhRequest::where('user_id', $emp->id)
                 ->where('status', 'Approved')
                 ->whereYear('start_date', $currentYear)
@@ -208,13 +205,10 @@ class ReportController extends Controller
                 ->whereHas('leaveType', fn($q) => $q->where('name', 'like', '%Sick%'))
                 ->whereYear('start_date', $currentYear)
                 ->sum('actual_leave_days');
-
             $lop = LeaveRequest::where('user_id', $emp->id)
                 ->where('status', 'Approved')
-                ->where('is_unpaid', true)
                 ->whereYear('start_date', $currentYear)
-                ->sum('actual_leave_days');
-
+                ->sum('lop_days');
             $wfh = WfhRequest::where('user_id', $emp->id)
                 ->where('status', 'Approved')
                 ->whereYear('start_date', $currentYear)

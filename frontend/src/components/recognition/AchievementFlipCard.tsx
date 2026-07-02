@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Download, Eye } from "lucide-react";
 import { format } from "date-fns";
 import { CertificateModal } from "./CertificateModal";
+import { DotLottiePlayer } from "@dotlottie/react-player";
 
 interface Recognition {
   id: number;
@@ -163,15 +164,23 @@ export function AchievementFlipCard({ recognition, employeeName, firstName }: Ac
                 Employee Recognition
               </span>
 
-              {/* Icon */}
+              {/* Animated Lottie Trophy */}
               <div style={{
-                fontSize: 44,
-                lineHeight: 1,
-                marginBottom: 10,
-                filter: "drop-shadow(0 0 12px rgba(251,191,36,0.5))",
+                marginBottom: 6,
+                filter: "drop-shadow(0 0 12px rgba(251,191,36,0.35))",
                 animation: "achievement-float 2.6s ease-in-out infinite",
+                width: 90,
+                height: 90,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}>
-                {recognition.icon || "🏆"}
+                <DotLottiePlayer
+                  src="https://lottie.host/594c70e3-f79c-487a-9ef2-748faa04c2d5/mKivmdcAm1.lottie"
+                  autoplay
+                  loop
+                  style={{ width: 90, height: 90 }}
+                />
               </div>
 
               {/* Title */}
