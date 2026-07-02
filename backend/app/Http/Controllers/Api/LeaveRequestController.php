@@ -132,6 +132,11 @@ class LeaveRequestController extends Controller
         //   Tue (1d) → LOP  |  Wed (2d) → LOP  |  Thu (holiday) → sandwich
         //   Fri (holiday) → sandwich  |  Mon (7d, eligible) → LOP (Phase 2 override)
         //   Tue onwards → Paid CL
+        // First day that qualifies for paid CL: today + 3 calendar days.
+        // Using a direct date comparison (lt / gte) completely avoids any
+        // diffInDays sign or precision issue across Carbon versions.
+        $eligibleFrom = $today->copy()->addDays(3)->startOfDay();
+
         $totalWorkingDays = 0;
         $sandwichDays     = 0;
         $penaltyDays      = 0;
@@ -140,30 +145,33 @@ class LeaveRequestController extends Controller
         $lastWorkingWasPenalty    = false;
         $sandwichSinceLastPenalty = false;
 
-        $current = $startDate->copy();
+        $current = $startDate->copy()->startOfDay();
         while ($current->lte($endDate)) {
             if ($isWorkingDay($current)) {
                 $totalWorkingDays++;
 
                 if ($isCasual) {
-                    // Absolute calendar-day distance (no signed-diff ambiguity).
-                    $advanceDays   = $current->diffInDays($today); // always ≥ 0
-                    $directPenalty = ($advanceDays < 3);
+                    // Phase 1 — 3-calendar-day advance-notice rule.
+                    // A working day is a direct penalty if it falls before today+3.
+                    // Example: applied July 2 → eligibleFrom = July 5
+                    //   July 3 (before July 5) → penalty
+                    //   July 5 (not before July 5) → eligible
+                    //   July 16 (not before July 5) → eligible
+                    $directPenalty = $current->lt($eligibleFrom);
 
                     if ($directPenalty) {
-                        // Phase 1 — late notice penalty
                         $penaltyDays++;
                         $lastWorkingWasPenalty    = true;
                         $sandwichSinceLastPenalty = false;
                     } elseif ($lastWorkingWasPenalty && $sandwichSinceLastPenalty) {
-                        // Phase 2 — sandwich override: this eligible working day follows
-                        // non-working days that immediately followed a penalty day.
-                        // It is dragged into the LOP block. Contamination stops here.
+                        // Phase 2 — sandwich override (higher priority).
+                        // This eligible working day follows non-working days that
+                        // immediately followed a penalty day — it is pulled into the
+                        // same LOP block. Contamination stops after this one hop.
                         $penaltyDays++;
                         $lastWorkingWasPenalty    = false;
                         $sandwichSinceLastPenalty = false;
                     } else {
-                        // Eligible for paid CL
                         $eligibleDays++;
                         $lastWorkingWasPenalty    = false;
                         $sandwichSinceLastPenalty = false;
@@ -173,10 +181,8 @@ class LeaveRequestController extends Controller
                     $eligibleDays++;
                 }
             } else {
-                // Non-working day → sandwich LOP
+                // Non-working day → always sandwich LOP
                 $sandwichDays++;
-                // Flag that non-working days have appeared since the last penalty day
-                // (needed to detect sandwich contamination of the next working day).
                 if ($isCasual && $lastWorkingWasPenalty) {
                     $sandwichSinceLastPenalty = true;
                 }
