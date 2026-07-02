@@ -26,15 +26,16 @@ class LeaveRequestController extends Controller
 
         if ($user->hasRole('Super Admin') || $user->hasRole('HR')) {
             if ($request->has('status') && $request->status === 'Pending') {
-                // Admin sees:
-                //   - multi-day: after TL has acted (Approved or Not Required)
-                //   - single-day: immediately (either approver can act first)
-                $query->where('admin_status', 'Pending')
-                      ->where('status', 'Pending')
-                      ->where(function ($q) {
-                          $q->whereIn('tl_status', ['Approved', 'Not Required'])
-                            ->orWhereColumn('start_date', 'end_date');
-                      });
+                $query->where(function ($mainQ) {
+                    $mainQ->where(function ($subQ) {
+                        $subQ->where('admin_status', 'Pending')
+                             ->where('status', 'Pending')
+                             ->where(function ($q) {
+                                 $q->whereIn('tl_status', ['Approved', 'Not Required'])
+                                   ->orWhereColumn('start_date', 'end_date');
+                             });
+                    })->orWhere('pending_lop_conversion', true);
+                });
             } elseif ($request->has('status')) {
                 $query->where('status', $request->status);
             }
@@ -198,6 +199,50 @@ class LeaveRequestController extends Controller
 
             $current->addDay();
         }
+
+        // External preceding sandwich days check
+        $extPreSandwich = 0;
+        if ($firstWorkingDay !== null) {
+            $checkPre = $startDate->copy()->subDay()->startOfDay();
+            $preCount = 0;
+            while (!$isWorkingDay($checkPre) && $preCount < 15) {
+                $preCount++;
+                $checkPre->subDay();
+            }
+            if ($preCount > 0) {
+                $hasPreLeave = LeaveRequest::where('user_id', $user->id)
+                    ->whereIn('status', ['Approved', 'Pending'])
+                    ->where('start_date', '<=', $checkPre->toDateString())
+                    ->where('end_date', '>=', $checkPre->toDateString())
+                    ->exists();
+                if ($hasPreLeave) {
+                    $extPreSandwich = $preCount;
+                }
+            }
+        }
+
+        // External succeeding sandwich days check
+        $extPostSandwich = 0;
+        if ($lastWorkingDay !== null) {
+            $checkPost = $endDate->copy()->addDay()->startOfDay();
+            $postCount = 0;
+            while (!$isWorkingDay($checkPost) && $postCount < 15) {
+                $postCount++;
+                $checkPost->addDay();
+            }
+            if ($postCount > 0) {
+                $hasPostLeave = LeaveRequest::where('user_id', $user->id)
+                    ->whereIn('status', ['Approved', 'Pending'])
+                    ->where('start_date', '<=', $checkPost->toDateString())
+                    ->where('end_date', '>=', $checkPost->toDateString())
+                    ->exists();
+                if ($hasPostLeave) {
+                    $extPostSandwich = $postCount;
+                }
+            }
+        }
+
+        $sandwichDays += ($extPreSandwich + $extPostSandwich);
 
         $multiplier      = $isHalf ? 0.5 : 1.0;
         $baseWorkingDays = $totalWorkingDays * $multiplier;
@@ -380,6 +425,8 @@ class LeaveRequestController extends Controller
                 'paid_sick_leave'        => $paidSL,
                 'lop_days'               => $totalLOP,
             ]);
+
+            $this->checkForSandwichLopConversion($leaveRequest);
 
             DB::commit();
 
@@ -679,5 +726,162 @@ class LeaveRequestController extends Controller
             DB::rollBack();
             return response()->json(['message' => 'Failed to override leave request', 'error' => $e->getMessage()], 500);
         }
+    }
+
+    private function checkForSandwichLopConversion(LeaveRequest $newRequest)
+    {
+        $startDate = Carbon::parse($newRequest->start_date);
+        $checkPre = $startDate->copy()->subDay()->startOfDay();
+
+        $holidays = Holiday::pluck('date')
+            ->map(fn($d) => Carbon::parse($d)->format('Y-m-d'))
+            ->toArray();
+        $workingOverrides = WorkingDaysOverride::pluck('date')
+            ->map(fn($d) => Carbon::parse($d)->format('Y-m-d'))
+            ->toArray();
+
+        $isWorkingDay = function (Carbon $date) use ($holidays, $workingOverrides): bool {
+            $ds = $date->format('Y-m-d');
+            if (in_array($ds, $workingOverrides)) return true;
+            if ($date->isWeekend()) return false;
+            return !in_array($ds, $holidays);
+        };
+
+        $preCount = 0;
+        while (!$isWorkingDay($checkPre) && $preCount < 15) {
+            $preCount++;
+            $checkPre->subDay();
+        }
+
+        if ($preCount > 0) {
+            $preRequest = LeaveRequest::where('user_id', $newRequest->user_id)
+                ->where('status', 'Approved')
+                ->where('start_date', '<=', $checkPre->toDateString())
+                ->where('end_date', '>=', $checkPre->toDateString())
+                ->where(function ($q) {
+                    $q->where('paid_casual_leave', '>', 0)
+                      ->orWhere('paid_sick_leave', '>', 0);
+                })
+                ->first();
+
+            if ($preRequest) {
+                $preRequest->update([
+                    'pending_lop_conversion'   => true,
+                    'lop_conversion_source_id' => $newRequest->id,
+                ]);
+            }
+        }
+
+        $endDate = Carbon::parse($newRequest->end_date);
+        $checkPost = $endDate->copy()->addDay()->startOfDay();
+        $postCount = 0;
+        while (!$isWorkingDay($checkPost) && $postCount < 15) {
+            $postCount++;
+            $checkPost->addDay();
+        }
+
+        if ($postCount > 0) {
+            $postRequest = LeaveRequest::where('user_id', $newRequest->user_id)
+                ->where('status', 'Approved')
+                ->where('start_date', '<=', $checkPost->toDateString())
+                ->where('end_date', '>=', $checkPost->toDateString())
+                ->where(function ($q) {
+                    $q->where('paid_casual_leave', '>', 0)
+                      ->orWhere('paid_sick_leave', '>', 0);
+                })
+                ->first();
+
+            if ($postRequest) {
+                $postRequest->update([
+                    'pending_lop_conversion'   => true,
+                    'lop_conversion_source_id' => $newRequest->id,
+                ]);
+            }
+        }
+    }
+
+    public function confirmLopConversion(Request $request, LeaveRequest $leaveRequest)
+    {
+        $user = $request->user();
+        if (!$user->hasRole('Super Admin') && !$user->hasRole('HR')) {
+            return response()->json(['message' => 'Unauthorized.'], 403);
+        }
+
+        if (!$leaveRequest->pending_lop_conversion) {
+            return response()->json(['message' => 'This request does not have a pending LOP conversion.'], 400);
+        }
+
+        DB::beginTransaction();
+        try {
+            $balance = \App\Models\LeaveBalance::where('user_id', $leaveRequest->user_id)->first();
+            if ($balance) {
+                $oldPaidCL = $leaveRequest->paid_casual_leave ?? 0;
+                $oldPaidSL = $leaveRequest->paid_sick_leave ?? 0;
+
+                $balance->casual_leave_balance += $oldPaidCL;
+                $balance->sick_leave_balance   += $oldPaidSL;
+                $balance->save();
+            }
+
+            LeaveAuditLog::create([
+                'leave_request_id' => $leaveRequest->id,
+                'modified_by'      => $user->id,
+                'previous_value'   => [
+                    'paid_casual_leave' => $leaveRequest->paid_casual_leave,
+                    'paid_sick_leave'   => $leaveRequest->paid_sick_leave,
+                    'lop_days'          => $leaveRequest->lop_days,
+                    'is_unpaid'         => $leaveRequest->is_unpaid,
+                ],
+                'new_value'        => [
+                    'paid_casual_leave' => 0,
+                    'paid_sick_leave'   => 0,
+                    'lop_days'          => $leaveRequest->actual_leave_days ?? $leaveRequest->days,
+                    'is_unpaid'         => true,
+                ],
+                'remarks'          => 'Confirmed LOP conversion due to sandwich leave policy.',
+            ]);
+
+            $leaveRequest->update([
+                'paid_casual_leave'        => 0,
+                'paid_sick_leave'          => 0,
+                'lop_days'                 => $leaveRequest->actual_leave_days ?? $leaveRequest->days,
+                'is_unpaid'                => true,
+                'unpaid_reason'            => 'Converted to LOP due to sandwich leave policy.',
+                'pending_lop_conversion'   => false,
+                'lop_conversion_source_id' => null,
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'LOP conversion confirmed successfully.',
+                'data'    => $leaveRequest
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Failed to confirm LOP conversion', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function rejectLopConversion(Request $request, LeaveRequest $leaveRequest)
+    {
+        $user = $request->user();
+        if (!$user->hasRole('Super Admin') && !$user->hasRole('HR')) {
+            return response()->json(['message' => 'Unauthorized.'], 403);
+        }
+
+        if (!$leaveRequest->pending_lop_conversion) {
+            return response()->json(['message' => 'This request does not have a pending LOP conversion.'], 400);
+        }
+
+        $leaveRequest->update([
+            'pending_lop_conversion'   => false,
+            'lop_conversion_source_id' => null,
+        ]);
+
+        return response()->json([
+            'message' => 'LOP conversion declined. Leave remains Paid.',
+            'data'    => $leaveRequest
+        ]);
     }
 }

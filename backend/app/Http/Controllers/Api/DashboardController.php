@@ -321,12 +321,17 @@ class DashboardController extends Controller
                 
             $pendingGlobalRequests = 0;
             if ($user->hasRole('Super Admin') || $user->hasRole('HR')) {
-                $pendingLeaves = LeaveRequest::where('admin_status', 'Pending')
-                    ->where('status', 'Pending')
-                    ->where(function ($q) {
-                        $q->whereIn('tl_status', ['Approved', 'Not Required'])
-                          ->orWhereColumn('start_date', 'end_date');
-                    })->count();
+                $pendingLeaves = LeaveRequest::where(function ($mainQ) {
+                    $mainQ->where(function ($subQ) {
+                        $subQ->where('admin_status', 'Pending')
+                             ->where('status', 'Pending')
+                             ->where(function ($q) {
+                                 $q->whereIn('tl_status', ['Approved', 'Not Required'])
+                                   ->orWhereColumn('start_date', 'end_date');
+                             });
+                    })->orWhere('pending_lop_conversion', true);
+                })->count();
+
                 $pendingWfh = \App\Models\WfhRequest::where('admin_status', 'Pending')
                     ->whereIn('tl_status', ['Approved', 'Not Required'])
                     ->where('status', 'Pending')->count();

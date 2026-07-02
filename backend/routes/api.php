@@ -67,9 +67,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('profile-requests/{profileRequest}/approve', [\App\Http\Controllers\Api\ProfileUpdateRequestController::class, 'approve']);
         Route::post('profile-requests/{profileRequest}/reject', [\App\Http\Controllers\Api\ProfileUpdateRequestController::class, 'reject']);
         
-        // Leave Overrides
+        // Leave Overrides & LOP Conversion
         Route::put('leave-requests/{leaveRequest}/override', [\App\Http\Controllers\Api\LeaveRequestController::class, 'override']);
-        
+        Route::post('leave-requests/{leaveRequest}/confirm-lop', [\App\Http\Controllers\Api\LeaveRequestController::class, 'confirmLopConversion']);
+        Route::post('leave-requests/{leaveRequest}/reject-lop', [\App\Http\Controllers\Api\LeaveRequestController::class, 'rejectLopConversion']);
         // Manual trigger for annual leave allocation (also runs automatically Jan 1 via cron)
         Route::post('admin/run-annual-allocation', function (\Illuminate\Http\Request $request) {
             $year = $request->input('year', now()->year);

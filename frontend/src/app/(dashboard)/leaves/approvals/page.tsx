@@ -2,7 +2,7 @@
 
 import { PageLoader } from "@/components/ui/PageLoader";
 import { useState, useEffect } from "react";
-import { Check, X, Calendar, Clock, User, Edit, Loader2, CheckCircle, XCircle } from "lucide-react";
+import { Check, X, Calendar, Clock, User, Edit, Loader2, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
 import { format } from "date-fns";
@@ -219,8 +219,23 @@ export default function ApprovalsPage() {
     }
   };
 
+  const handleLopConversion = async (id: number, action: "confirm" | "reject") => {
+    setActionLoading(true);
+    try {
+      const endpoint = action === "confirm" ? "confirm-lop" : "reject-lop";
+      await api.post(`/leave-requests/${id}/${endpoint}`);
+      fetchRequests();
+    } catch (e: any) {
+      alert(e.response?.data?.message || `Failed to ${action} LOP conversion.`);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const LeaveCard = ({ req }: { req: any }) => (
-    <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4 border-l-4 border-l-amber-500">
+    <div className={`bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4 border-l-4 ${
+      req.pending_lop_conversion ? "border-l-rose-500" : "border-l-amber-500"
+    }`}>
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center text-sm font-bold text-amber-400 shrink-0">
@@ -231,9 +246,16 @@ export default function ApprovalsPage() {
             <p className="text-xs text-slate-400 mt-0.5">{req.user?.designation || req.user?.role}</p>
           </div>
         </div>
-        <div className="flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-400">
-          <Clock className="w-3 h-3" /> Pending
-        </div>
+
+        {req.pending_lop_conversion ? (
+          <div className="flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-400">
+            <AlertTriangle className="w-3 h-3 animate-pulse" /> Pending LOP Conversion
+          </div>
+        ) : (
+          <div className="flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-400">
+            <Clock className="w-3 h-3" /> Pending
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
@@ -265,28 +287,50 @@ export default function ApprovalsPage() {
         </div>
       )}
 
-      <div className="flex flex-wrap gap-2 pt-1">
-        {isSuperAdmin && (
+      {req.pending_lop_conversion ? (
+        <div className="flex flex-wrap gap-2 pt-1">
           <button
-            onClick={() => openOverride(req)}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-lg hover:bg-blue-500/30 transition"
+            onClick={() => handleLopConversion(req.id, "confirm")}
+            disabled={actionLoading}
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-lg hover:bg-rose-500/30 transition disabled:opacity-50"
           >
-            <Edit className="h-3.5 w-3.5" /> Override
+            <CheckCircle className="h-3.5 w-3.5" /> Confirm LOP Conversion
           </button>
-        )}
-        <button
-          onClick={() => { setRejectDialog({ type: "leave", id: req.id }); setRejectReason(""); }}
-          className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-red-500/20 text-red-300 border border-red-500/30 rounded-lg hover:bg-red-500/30 transition"
-        >
-          <XCircle className="h-3.5 w-3.5" /> Reject
-        </button>
-        <button
-          onClick={() => approve("leave", req.id)}
-          className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-lg hover:bg-emerald-500/30 transition"
-        >
-          <CheckCircle className="h-3.5 w-3.5" /> Approve
-        </button>
-      </div>
+          <button
+            onClick={() => handleLopConversion(req.id, "reject")}
+            disabled={actionLoading}
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-white/10 text-slate-300 border border-white/10 rounded-lg hover:bg-white/15 transition disabled:opacity-50"
+          >
+            <XCircle className="h-3.5 w-3.5" /> Decline (Keep Paid)
+          </button>
+        </div>
+      ) : (
+        <div className="flex flex-wrap gap-2 pt-1">
+          {isSuperAdmin && (
+            <button
+              onClick={() => openOverride(req)}
+              disabled={actionLoading}
+              className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-lg hover:bg-blue-500/30 transition disabled:opacity-50"
+            >
+              <Edit className="h-3.5 w-3.5" /> Override
+            </button>
+          )}
+          <button
+            onClick={() => { setRejectDialog({ type: "leave", id: req.id }); setRejectReason(""); }}
+            disabled={actionLoading}
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-red-500/20 text-red-300 border border-red-500/30 rounded-lg hover:bg-red-500/30 transition disabled:opacity-50"
+          >
+            <XCircle className="h-3.5 w-3.5" /> Reject
+          </button>
+          <button
+            onClick={() => approve("leave", req.id)}
+            disabled={actionLoading}
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-lg hover:bg-emerald-500/30 transition disabled:opacity-50"
+          >
+            <CheckCircle className="h-3.5 w-3.5" /> Approve
+          </button>
+        </div>
+      )}
     </div>
   );
 
