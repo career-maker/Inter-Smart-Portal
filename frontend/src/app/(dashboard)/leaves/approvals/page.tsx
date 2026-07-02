@@ -228,18 +228,7 @@ export default function ApprovalsPage() {
     }
   };
 
-  const handleLopConversion = async (id: number, action: "confirm" | "reject") => {
-    setActionLoading(true);
-    try {
-      const endpoint = action === "confirm" ? "confirm-lop" : "reject-lop";
-      await api.post(`/leave-requests/${id}/${endpoint}`);
-      fetchRequests();
-    } catch (e: any) {
-      alert(e.response?.data?.message || `Failed to ${action} LOP conversion.`);
-    } finally {
-      setActionLoading(false);
-    }
-  };
+
 
   const LeaveCard = ({ req }: { req: any }) => (
     <div className={`bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4 border-l-4 ${
