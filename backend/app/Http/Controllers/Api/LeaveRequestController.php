@@ -112,18 +112,27 @@ class LeaveRequestController extends Controller
         };
 
         // ── Day-by-day walk ─────────────────────────────────────────────────
-        // For Casual Leave we apply a per-day 3-calendar-day advance-notice check
-        // and track sandwich contamination:
-        //   If working day W is penalized, and only non-working days follow W
-        //   before the next working day X, then X is also LOP (same continuous
-        //   sandwich block). Contamination does NOT cascade past X.
+        // Rules (per policy):
+        //
+        // WORKING DAYS — Casual Leave:
+        //   Each working day is checked INDEPENDENTLY against the 3-calendar-day
+        //   advance-notice rule. absCalendarDays = workingDay.diffInDays(today).
+        //   < 3  → penalty LOP (insufficient notice for that specific day)
+        //   ≥ 3  → eligible for paid CL (if balance available)
+        //   Weekends and holidays are NOT counted in this "3 days" — the check
+        //   is purely calendar-day distance from the application date.
+        //
+        // NON-WORKING DAYS (weekends / holidays):
+        //   Always sandwich LOP, independently of the penalty rule. There is no
+        //   "contamination" — a working day 4+ calendar days away is eligible
+        //   even if a penalty working day appeared just before a weekend gap.
+        //
+        // WORKING DAYS — Sick Leave / other types:
+        //   No advance-notice rule; all working days are eligible.
         $totalWorkingDays = 0;
         $sandwichDays     = 0;
-        $penaltyDays      = 0;  // LOP: late-notice + sandwich contamination
-        $eligibleDays     = 0;  // Working days eligible for paid CL / SL
-
-        $lastWorkingWasPenalty    = false;
-        $sandwichSinceLastPenalty = false;
+        $penaltyDays      = 0;
+        $eligibleDays     = 0;
 
         $current = $startDate->copy();
         while ($current->lte($endDate)) {
@@ -131,39 +140,19 @@ class LeaveRequestController extends Controller
                 $totalWorkingDays++;
 
                 if ($isCasual) {
-                    // Calendar days between today (application date) and this working day.
-                    // Using absolute diff (always positive) avoids Carbon signed-diff
-                    // direction ambiguity that would make all future days appear as < 3.
-                    // For valid leaves (start >= today) this equals (current - today) in days.
-                    $advanceDays   = $current->diffInDays($today); // absolute, no sign issue
-                    $directPenalty = ($advanceDays < 3);
-
-                    if ($directPenalty) {
+                    // Absolute calendar-day distance — no signed-diff ambiguity.
+                    $advanceDays = $current->diffInDays($today); // always ≥ 0
+                    if ($advanceDays < 3) {
                         $penaltyDays++;
-                        $lastWorkingWasPenalty    = true;
-                        $sandwichSinceLastPenalty = false;
-                    } elseif ($lastWorkingWasPenalty && $sandwichSinceLastPenalty) {
-                        // Sandwich contamination: this working day immediately follows
-                        // a run of non-working days that immediately follow a penalized
-                        // working day — it belongs to the same continuous leave block.
-                        $penaltyDays++;
-                        $lastWorkingWasPenalty    = false; // contamination stops here
-                        $sandwichSinceLastPenalty = false;
                     } else {
                         $eligibleDays++;
-                        $lastWorkingWasPenalty    = false;
-                        $sandwichSinceLastPenalty = false;
                     }
                 } else {
-                    // SL and other types: no advance-notice penalty
                     $eligibleDays++;
                 }
             } else {
-                // Non-working (weekend or any holiday in the DB) → sandwich day
+                // Non-working day: sandwich LOP regardless of surrounding penalty days.
                 $sandwichDays++;
-                if ($isCasual && $lastWorkingWasPenalty) {
-                    $sandwichSinceLastPenalty = true;
-                }
             }
 
             $current->addDay();
