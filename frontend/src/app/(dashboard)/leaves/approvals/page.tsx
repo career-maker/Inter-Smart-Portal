@@ -2,7 +2,7 @@
 
 import { PageLoader } from "@/components/ui/PageLoader";
 import { useState, useEffect } from "react";
-import { Check, X, Calendar, Clock, User, Edit, Loader2, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
+import { Check, X, Calendar, Clock, User, Edit, Loader2, CheckCircle, XCircle, AlertTriangle, Link2 } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
 import { format } from "date-fns";
@@ -273,6 +273,23 @@ export default function ApprovalsPage() {
         <div className="bg-white/5 border border-white/10 rounded-xl p-3">
           <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Reason</p>
           <p className="text-slate-300 text-sm">{req.reason}</p>
+        </div>
+      )}
+
+      {req.attachment_link && (
+        <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex items-center justify-between gap-4">
+          <div className="min-w-0 flex-1">
+            <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Attachment</p>
+            <p className="text-slate-300 text-sm truncate">{req.attachment_link}</p>
+          </div>
+          <a
+            href={req.attachment_link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg hover:bg-amber-500/30 transition shrink-0"
+          >
+            <Link2 className="h-3.5 w-3.5" /> View
+          </a>
         </div>
       )}
 
