@@ -41,4 +41,8 @@ return [
         'storage_bucket' => env('SUPABASE_STORAGE_BUCKET', 'intersmart-portal'),
     ],
 
+    'biometric' => [
+        'agent_secret_hash' => env('BIOMETRIC_AGENT_SECRET_HASH'),
+    ],
+
 ];

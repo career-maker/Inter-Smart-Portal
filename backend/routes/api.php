@@ -179,3 +179,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('hall', [\App\Http\Controllers\Api\HallController::class, 'index']);
 });
 
+
+use App\Http\Controllers\Api\BiometricIngestionController;
+use App\Http\Middleware\VerifyBiometricAgent;
+
+// Biometric Agent Integration
+Route::post('/v1/biometric/ingest', [BiometricIngestionController::class, 'ingest'])->middleware(VerifyBiometricAgent::class);
