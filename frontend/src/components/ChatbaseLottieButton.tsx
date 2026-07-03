@@ -3,83 +3,86 @@
 import { useEffect, useState, useRef } from "react";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
-declare global {
-  interface Window {
-    chatbase?: (...args: any[]) => void;
-  }
-}
-
 export default function ChatbaseLottieButton() {
   const [isOpen, setIsOpen] = useState(false);
-  const [ready, setReady] = useState(false);
   const dotLottieRef = useRef<any>(null);
 
-  // Wait for Chatbase to load, then hide its default bubble
   useEffect(() => {
-    const tryHide = () => {
-      // Inject CSS to hide the default Chatbase bubble button
-      const styleId = "chatbase-hide-bubble";
-      if (!document.getElementById(styleId)) {
-        const style = document.createElement("style");
-        style.id = styleId;
-        style.textContent = `
-          #chatbase-bubble-button,
-          #chatbase-bubble-button-container,
-          [id^="chatbase-bubble"] {
-            display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
-            pointer-events: none !important;
-          }
-        `;
-        document.head.appendChild(style);
-      }
-      setReady(true);
-    };
-
-    // Try immediately and also after a delay (Chatbase loads async)
-    tryHide();
-    const timer = setTimeout(tryHide, 2000);
-    return () => clearTimeout(timer);
+    // Hide the Chatbase bubble visually but keep it in the DOM so it stays functional
+    const styleId = "chatbase-hide-bubble";
+    if (!document.getElementById(styleId)) {
+      const style = document.createElement("style");
+      style.id = styleId;
+      style.textContent = `
+        /* Hide Chatbase's default bubble button visually, keep it clickable in DOM */
+        #chatbase-bubble-button,
+        #chatbase-bubble-button-container {
+          opacity: 0 !important;
+          pointer-events: none !important;
+          position: fixed !important;
+          bottom: 24px !important;
+          right: 24px !important;
+          width: 64px !important;
+          height: 64px !important;
+        }
+      `;
+      document.head.appendChild(style);
+    }
   }, []);
 
-  const handleToggle = () => {
-    if (window.chatbase) {
-      if (isOpen) {
-        window.chatbase("close");
-        setIsOpen(false);
-      } else {
-        window.chatbase("open");
-        setIsOpen(true);
+  const findAndClickChatbaseButton = () => {
+    // Try multiple selectors Chatbase uses across versions
+    const selectors = [
+      "#chatbase-bubble-button",
+      "#chatbase-bubble-button-container button",
+      "[id*='chatbase'] button",
+      "button[aria-label*='chatbase' i]",
+      "button[aria-label*='chat' i][id*='chatbase' i]",
+    ];
+
+    for (const sel of selectors) {
+      const el = document.querySelector<HTMLElement>(sel);
+      if (el) {
+        el.click();
+        return true;
       }
     }
+
+    // Fallback: look for any iframe from chatbase and toggle via postMessage
+    const iframe = document.querySelector<HTMLIFrameElement>(
+      "iframe[src*='chatbase']"
+    );
+    if (iframe?.contentWindow) {
+      iframe.contentWindow.postMessage({ type: "toggle" }, "*");
+      return true;
+    }
+
+    return false;
   };
 
-  // Play animation on hover
-  const handleMouseEnter = () => {
-    dotLottieRef.current?.play();
-  };
-
-  const handleMouseLeave = () => {
-    if (!isOpen) {
-      dotLottieRef.current?.pause();
+  const handleToggle = () => {
+    const clicked = findAndClickChatbaseButton();
+    if (clicked) {
+      setIsOpen((prev) => !prev);
     }
   };
 
   return (
     <>
-      {/* Floating Lottie Chat Button */}
+      {/* Custom Lottie floating button */}
       <button
         onClick={handleToggle}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
+        onMouseEnter={() => dotLottieRef.current?.play()}
+        onMouseLeave={() => {
+          if (!isOpen) dotLottieRef.current?.pause();
+        }}
         aria-label="Open AI Assistant"
-        className="chatbase-lottie-btn"
+        title="Ask the Portal AI Assistant"
         style={{
           position: "fixed",
           bottom: "24px",
           right: "24px",
-          zIndex: 9999,
+          zIndex: 99999,
           width: "64px",
           height: "64px",
           borderRadius: "50%",
@@ -91,10 +94,10 @@ export default function ChatbaseLottieButton() {
           alignItems: "center",
           justifyContent: "center",
           filter: isOpen
-            ? "drop-shadow(0 0 12px rgba(139,92,246,0.8))"
-            : "drop-shadow(0 4px 16px rgba(0,0,0,0.4))",
-          transform: isOpen ? "scale(1.1)" : "scale(1)",
-          transition: "transform 0.2s ease, filter 0.2s ease",
+            ? "drop-shadow(0 0 14px rgba(139,92,246,0.9))"
+            : "drop-shadow(0 4px 16px rgba(0,0,0,0.5))",
+          transform: isOpen ? "scale(1.12)" : "scale(1)",
+          transition: "transform 0.25s ease, filter 0.25s ease",
         }}
       >
         <DotLottieReact
@@ -108,10 +111,10 @@ export default function ChatbaseLottieButton() {
         />
       </button>
 
-      {/* Responsive offset on mobile to not overlap the fixed apply-leave button */}
+      {/* Mobile offset — clear the fixed apply-leave bar */}
       <style>{`
         @media (max-width: 768px) {
-          .chatbase-lottie-btn {
+          [aria-label="Open AI Assistant"] {
             bottom: 88px !important;
             right: 16px !important;
             width: 56px !important;
