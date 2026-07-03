@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\ProfileUpdateRequest;
+use App\Models\User;
+use App\Notifications\ProfileUpdateRequestNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -28,21 +30,38 @@ class ProfileUpdateRequestController extends Controller
             ->update(['status' => 'Rejected', 'reviewed_by' => Auth::id(), 'reviewed_at' => now()]);
 
         $validated = $request->validate([
-            'phone' => 'nullable|string|max:20',
+            'phone'             => 'nullable|string|max:20',
             'emergency_contact' => 'nullable|string|max:20',
-            'address' => 'nullable|string',
-            'city' => 'nullable|string|max:100',
-            'state' => 'nullable|string|max:100',
-            'zip' => 'nullable|string|max:20',
+            'address'           => 'nullable|string',
+            'city'              => 'nullable|string|max:100',
+            'state'             => 'nullable|string|max:100',
+            'zip'               => 'nullable|string|max:20',
         ]);
 
         $updateRequest = ProfileUpdateRequest::create([
-            'user_id' => Auth::id(),
+            'user_id'        => Auth::id(),
             'requested_data' => $validated,
-            'status' => 'Pending'
+            'status'         => 'Pending',
         ]);
 
-        return response()->json(['message' => 'Profile update request submitted successfully.', 'data' => $updateRequest]);
+        // ── Notify all Super Admins ───────────────────────────────────
+        $employee = Auth::user();
+        $employeeName = trim("{$employee->first_name} {$employee->last_name}");
+
+        $superAdmins = User::where('role', 'Super Admin')->get();
+        foreach ($superAdmins as $admin) {
+            $admin->notify(new ProfileUpdateRequestNotification(
+                'submitted',
+                $updateRequest,
+                "{$employeeName} has submitted a profile update request and is awaiting your approval."
+            ));
+        }
+        // ─────────────────────────────────────────────────────────────
+
+        return response()->json([
+            'message' => 'Profile update request submitted successfully.',
+            'data'    => $updateRequest,
+        ]);
     }
 
     // For Admin: List all pending requests
@@ -67,10 +86,18 @@ class ProfileUpdateRequestController extends Controller
         $user->update($profileRequest->requested_data);
 
         $profileRequest->update([
-            'status' => 'Approved',
+            'status'      => 'Approved',
             'reviewed_by' => Auth::id(),
             'reviewed_at' => now(),
         ]);
+
+        // ── Notify the employee ───────────────────────────────────────
+        $user->notify(new ProfileUpdateRequestNotification(
+            'approved',
+            $profileRequest,
+            'Your profile update request has been approved. Your contact details are now updated.'
+        ));
+        // ─────────────────────────────────────────────────────────────
 
         return response()->json(['message' => 'Request approved and profile updated.']);
     }
@@ -83,10 +110,19 @@ class ProfileUpdateRequestController extends Controller
         }
 
         $profileRequest->update([
-            'status' => 'Rejected',
+            'status'      => 'Rejected',
             'reviewed_by' => Auth::id(),
             'reviewed_at' => now(),
         ]);
+
+        // ── Notify the employee ───────────────────────────────────────
+        $user = $profileRequest->user;
+        $user->notify(new ProfileUpdateRequestNotification(
+            'rejected',
+            $profileRequest,
+            'Your profile update request has been rejected by the admin. Please contact HR for more information.'
+        ));
+        // ─────────────────────────────────────────────────────────────
 
         return response()->json(['message' => 'Request rejected.']);
     }
