@@ -13,6 +13,7 @@ import { NotificationDropdown } from "@/components/layout/NotificationDropdown";
 import { RecognitionTicker } from "@/components/layout/RecognitionTicker";
 import api from "@/services/api";
 import Script from "next/script";
+import ChatbaseLottieButton from "@/components/ChatbaseLottieButton";
 
 type NavItem = {
   href: string;
@@ -387,7 +388,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         )}
         {children}
       </main>
-      {/* Chatbase AI Assistant Widget */}
+      {/* Chatbase AI Assistant Widget — hidden default bubble, custom Lottie button below */}
       <Script
         id="chatbase-embed"
         strategy="afterInteractive"
@@ -405,6 +406,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           `,
         }}
       />
+      <ChatbaseLottieButton />
     </div>
   );
 }
