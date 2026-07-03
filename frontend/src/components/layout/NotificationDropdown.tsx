@@ -19,9 +19,15 @@ import api from "@/services/api";
 // Old notifications in the DB may have had the wrong URL — using event ensures
 // submitted/tl_approved always reach the approvals page regardless of stored value.
 function resolveNotificationUrl(notification: any): string {
+  const type = notification.type;
+  const stored = notification.data?.action_url;
+  
+  if (type === "App\\Notifications\\ProfileUpdateRequestNotification") {
+    return stored || "/profile-requests";
+  }
+  
   const event = notification.data?.event;
   if (event === "submitted" || event === "tl_approved") return "/leaves/approvals";
-  const stored = notification.data?.action_url;
   return stored || "/notifications";
 }
 
