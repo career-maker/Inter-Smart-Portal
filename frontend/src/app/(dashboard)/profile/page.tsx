@@ -181,11 +181,11 @@ export default function MyProfilePage() {
 
               {pendingRequest ? (
                 <div className="p-6 pt-0 space-y-6">
-                  <div className="premium-card p-4 flex gap-3 text-amber-800">
-                    <ShieldAlert className="h-5 w-5 shrink-0 mt-0.5" />
+                  <div className="p-4 flex gap-3 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300">
+                    <ShieldAlert className="h-5 w-5 shrink-0 mt-0.5 text-amber-400" />
                     <div>
-                      <h4 className="font-medium">Update Request Pending</h4>
-                      <p className="text-sm mt-1">
+                      <h4 className="font-semibold text-amber-200">Update Request Pending</h4>
+                      <p className="text-sm mt-1 text-amber-300/80">
                         You submitted a profile update request on{" "}
                         {new Date(pendingRequest.created_at).toLocaleDateString()}. It is currently
                         waiting for admin approval. You cannot make further edits until this is resolved.
