@@ -63,6 +63,7 @@ export default function WfhPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [wfhWarning, setWfhWarning] = useState<string | null>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -92,6 +93,40 @@ export default function WfhPage() {
   };
 
   async function onSubmit(values: FormValues) {
+    // ── Time-cutoff validation for same-day WFH ──────────────────────────
+    const today = new Date();
+    const todayStr = today.toISOString().split("T")[0];
+    if (values.start_date === todayStr) {
+      const hours = today.getHours();
+      const minutes = today.getMinutes();
+      const totalMinutes = hours * 60 + minutes;
+      const cutoffMorning   = 9 * 60 + 45;  // 09:45
+      const cutoffAfternoon = 14 * 60 + 30; // 14:30
+
+      if (
+        (values.duration_type === "Full" || values.duration_type === "Half-Morning") &&
+        totalMinutes > cutoffMorning
+      ) {
+        setWfhWarning(
+          values.duration_type === "Full"
+            ? "⏰ You cannot apply for a Full Day WFH after 9:45 AM.\n\nSame-day Full Day WFH applications must be submitted before 9:45 AM."
+            : "⏰ You cannot apply for a Morning Session WFH after 9:45 AM.\n\nSame-day Morning WFH applications must be submitted before 9:45 AM."
+        );
+        return;
+      }
+
+      if (
+        values.duration_type === "Half-Afternoon" &&
+        totalMinutes > cutoffAfternoon
+      ) {
+        setWfhWarning(
+          "⏰ You cannot apply for an Afternoon Session WFH after 2:30 PM.\n\nSame-day Afternoon WFH applications must be submitted before 2:30 PM."
+        );
+        return;
+      }
+    }
+    // ────────────────────────────────────────────────────────────────────
+
     setIsSubmitting(true);
     setSubmitSuccess(false);
     try {
@@ -134,6 +169,56 @@ export default function WfhPage() {
 
   return (
     <div className="space-y-6">
+
+      {/* ── WFH Time Cutoff Warning Modal ─────────────────────────────── */}
+      {wfhWarning && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-[#1e1e2e] border border-red-500/40 rounded-2xl shadow-2xl max-w-md w-full p-6 animate-in fade-in zoom-in-95 duration-200">
+            {/* Icon */}
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">
+                <Clock className="w-6 h-6 text-red-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-white">Application Not Allowed</h3>
+                <p className="text-xs text-red-400 font-medium">Same-Day WFH Time Restriction</p>
+              </div>
+            </div>
+
+            {/* Message */}
+            <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-5">
+              {wfhWarning.split("\n\n").map((line, i) => (
+                <p key={i} className={`text-sm ${i === 0 ? "font-bold text-red-300 mb-2" : "text-slate-300"}`}>
+                  {line}
+                </p>
+              ))}
+            </div>
+
+            {/* Rules reminder */}
+            <div className="bg-white/5 rounded-xl p-3 mb-5 space-y-1.5">
+              <p className="text-xs font-bold text-amber-400 mb-2">📋 Same-Day WFH Cutoff Rules</p>
+              <div className="flex items-center gap-2 text-xs text-slate-300">
+                <span className="w-2 h-2 rounded-full bg-sky-400 flex-shrink-0" />
+                Full Day / Morning Session — apply before <span className="font-bold text-white ml-1">9:45 AM</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-slate-300">
+                <span className="w-2 h-2 rounded-full bg-violet-400 flex-shrink-0" />
+                Afternoon Session — apply before <span className="font-bold text-white ml-1">2:30 PM</span>
+              </div>
+            </div>
+
+            {/* Close button */}
+            <button
+              onClick={() => setWfhWarning(null)}
+              className="w-full py-2.5 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-300 font-semibold text-sm border border-red-500/30 transition-colors"
+            >
+              Got it, I'll apply in advance next time
+            </button>
+          </div>
+        </div>
+      )}
+      {/* ─────────────────────────────────────────────────────────────── */}
+
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-3">
           <Home className="w-7 h-7 text-amber-400" /> Work From Home
