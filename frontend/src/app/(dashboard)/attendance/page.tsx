@@ -18,6 +18,11 @@ export default function AttendancePage() {
   // Real-time clock
   const [currentTime, setCurrentTime] = useState(new Date());
 
+  const [filterMonth, setFilterMonth] = useState(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  });
+
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
@@ -25,14 +30,14 @@ export default function AttendancePage() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [filterMonth]);
 
   const fetchData = async () => {
     setIsLoading(true);
     try {
       const [statusRes, historyRes] = await Promise.all([
         api.get("/attendance/status"),
-        api.get("/attendance")
+        api.get(`/attendance?month=${filterMonth}`)
       ]);
       setStatusData(statusRes.data);
       setHistory(historyRes.data.data || []);
@@ -79,12 +84,12 @@ export default function AttendancePage() {
         {/* Status Widget */}
         <div className="lg:col-span-1">
           <Card className="shadow-sm border-primary/20">
-            <CardHeader className="bg-primary/5 pb-4 border-b text-center">
+            <CardHeader className="bg-primary/5 pb-4 border-b dark:border-slate-800 text-center">
               <CardTitle className="text-xl">Time Clock</CardTitle>
-              <div className="text-4xl font-light tracking-tight mt-4 mb-1 text-primary">
+              <div className="text-4xl font-light tracking-tight mt-4 mb-1 text-primary dark:text-white">
                 {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
               </div>
-              <div className="text-sm text-muted-foreground">
+              <div className="text-sm text-muted-foreground dark:text-slate-400">
                 {currentTime.toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
               </div>
             </CardHeader>
@@ -160,19 +165,29 @@ export default function AttendancePage() {
         {/* Timesheet */}
         <div className="lg:col-span-2">
           <Card className="shadow-sm h-full">
-            <CardHeader>
-              <CardTitle>Timesheet History</CardTitle>
-              <CardDescription>Your recent attendance records and calculated working hours.</CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Timesheet History</CardTitle>
+                <CardDescription>Your recent attendance records and calculated working hours.</CardDescription>
+              </div>
+              <div>
+                <input 
+                  type="month" 
+                  value={filterMonth}
+                  onChange={(e) => setFilterMonth(e.target.value)}
+                  className="px-3 py-2 border rounded-md text-sm bg-white dark:bg-slate-900 dark:border-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
             </CardHeader>
             <CardContent>
               {isLoading ? (
-                <div className="py-4 text-center">Loading...</div>
+                <div className="py-4 text-center dark:text-slate-400">Loading...</div>
               ) : history.length === 0 ? (
-                <div className="py-8 text-center text-muted-foreground border rounded bg-gray-50/50">No attendance records found.</div>
+                <div className="py-8 text-center text-muted-foreground border dark:border-slate-800 rounded bg-gray-50/50 dark:bg-slate-900/50">No attendance records found for this month.</div>
               ) : (
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto rounded-md border dark:border-slate-800">
                   <table className="w-full text-sm text-left">
-                    <thead className="text-xs text-gray-500 uppercase bg-gray-50 border-b">
+                    <thead className="text-xs text-gray-500 dark:text-slate-400 uppercase bg-gray-50 dark:bg-slate-900 border-b dark:border-slate-800">
                       <tr>
                         <th className="px-4 py-3">Date</th>
                         <th className="px-4 py-3">Clock In</th>
@@ -181,16 +196,16 @@ export default function AttendancePage() {
                         <th className="px-4 py-3 text-right">Effective Hours</th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="dark:text-slate-300">
                       {history.map((record) => {
                         const totalBreakMins = record.breaks?.reduce((acc: number, b: any) => acc + (b.total_break_minutes || 0), 0) || 0;
                         return (
-                          <tr key={record.id} className="bg-white border-b hover:bg-gray-50">
-                            <td className="px-4 py-4 font-medium">{new Date(record.date).toLocaleDateString()}</td>
-                            <td className="px-4 py-4 text-green-700 font-medium">{formatTime(record.check_in_time)}</td>
-                            <td className="px-4 py-4 text-red-700 font-medium">{formatTime(record.check_out_time)}</td>
-                            <td className="px-4 py-4">{formatMinutesToHours(totalBreakMins)}</td>
-                            <td className="px-4 py-4 text-right font-bold text-primary">
+                          <tr key={record.id} className="bg-white dark:bg-slate-800 border-b dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700/50">
+                            <td className="px-4 py-4 font-medium dark:text-white">{new Date(record.date).toLocaleDateString()}</td>
+                            <td className="px-4 py-4 text-green-700 dark:text-green-400 font-medium">{formatTime(record.check_in_time)}</td>
+                            <td className="px-4 py-4 text-red-700 dark:text-red-400 font-medium">{formatTime(record.check_out_time)}</td>
+                            <td className="px-4 py-4 dark:text-slate-300">{formatMinutesToHours(totalBreakMins)}</td>
+                            <td className="px-4 py-4 text-right font-bold text-primary dark:text-blue-400">
                               {record.total_working_minutes !== null ? formatMinutesToHours(record.total_working_minutes) : '--'}
                             </td>
                           </tr>

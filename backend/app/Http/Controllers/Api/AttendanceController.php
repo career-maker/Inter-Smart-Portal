@@ -180,6 +180,16 @@ class AttendanceController extends Controller
             $query->with('user');
         }
 
+        if ($request->has('month') && $request->month) {
+            try {
+                $month = Carbon::parse($request->month);
+                $query->whereYear('date', $month->year)
+                      ->whereMonth('date', $month->month);
+            } catch (\Exception $e) {
+                // Ignore invalid date strings
+            }
+        }
+
         return AttendanceResource::collection($query->orderBy('date', 'desc')->paginate(15));
     }
 }
