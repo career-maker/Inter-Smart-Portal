@@ -48,7 +48,7 @@ class ProfileUpdateRequestController extends Controller
         $employee = Auth::user();
         $employeeName = trim("{$employee->first_name} {$employee->last_name}");
 
-        $superAdmins = User::where('role', 'Super Admin')->get();
+        $superAdmins = User::role('Super Admin')->get();
         foreach ($superAdmins as $admin) {
             $admin->notify(new ProfileUpdateRequestNotification(
                 'submitted',
@@ -67,7 +67,7 @@ class ProfileUpdateRequestController extends Controller
     // For Admin: List all pending requests
     public function index()
     {
-        $requests = ProfileUpdateRequest::with('user:id,first_name,last_name,email,profile_photo_path,employee_id')
+        $requests = ProfileUpdateRequest::with('user:id,first_name,last_name,email,profile_photo_path,employee_code')
             ->where('status', 'Pending')
             ->orderBy('created_at', 'desc')
             ->get();
