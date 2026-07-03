@@ -27,7 +27,7 @@ class ProfileUpdateRequestNotification extends Notification
         ];
 
         $actionUrl = $this->event === 'submitted'
-            ? '/admin/profile-requests'
+            ? '/profile-requests'
             : '/profile';
 
         return [

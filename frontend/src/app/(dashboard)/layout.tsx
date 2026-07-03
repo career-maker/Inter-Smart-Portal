@@ -93,6 +93,7 @@ const NAV_GROUPS: NavGroup[] = [
     icon: ShieldCheck,
     roles: ["Super Admin"],
     items: [
+      { href: "/profile-requests", label: "Profile Approvals" },
       { href: "/leave-balances", label: "Leave Balances" },
       { href: "/reports",        label: "Reports" },
       { href: "/audit-logs",     label: "Audit Logs" },
