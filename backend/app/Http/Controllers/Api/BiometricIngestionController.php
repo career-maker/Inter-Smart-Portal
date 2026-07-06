@@ -13,8 +13,12 @@ class BiometricIngestionController extends Controller
 {
     public function ingest(BiometricIngestionRequest $request)
     {
+        error_log('BIOMETRIC_TRACE_01_ENTERED_CONTROLLER');
         try {
+            error_log('BIOMETRIC_TRACE_02_ENTERED_TRY');
+            error_log('BIOMETRIC_TRACE_03_BEFORE_VALIDATED');
             $events = $request->validated()['events'];
+            error_log('BIOMETRIC_TRACE_04_AFTER_VALIDATED');
         $sourceSystem = 'essl';
 
         $responses = [];
@@ -219,6 +223,7 @@ class BiometricIngestionController extends Controller
 
             return $this->formatResponse($responses);
         } catch (\Throwable $e) {
+            error_log('BIOMETRIC_TRACE_99_ENTERED_CATCH');
             $msg = $e->getMessage();
             
             // Redact raw SQL which might contain bindings or sensitive data
