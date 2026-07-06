@@ -234,7 +234,7 @@ class BiometricIngestionController extends Controller
                 $sqlState = isset($e->errorInfo[0]) ? $e->errorInfo[0] : null;
             }
             
-            \Illuminate\Support\Facades\Log::channel('stderr')->error('BIOMETRIC_INGEST_EXCEPTION', [
+            $diagnosticPayload = json_encode([
                 'class' => get_class($e),
                 'code' => $e->getCode(),
                 'sqlstate' => $sqlState,
@@ -242,6 +242,8 @@ class BiometricIngestionController extends Controller
                 'line' => $e->getLine(),
                 'message' => $msg
             ]);
+            
+            error_log('BIOMETRIC_INGEST_EXCEPTION: ' . $diagnosticPayload);
 
             throw $e;
         }
