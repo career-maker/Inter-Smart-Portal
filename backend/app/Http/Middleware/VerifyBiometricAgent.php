@@ -17,7 +17,7 @@ class VerifyBiometricAgent
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $configuredHash = Config::get('services.biometric.agent_secret_hash');
+        $configuredHash = trim((string) Config::get('services.biometric.agent_secret_hash'));
 
         // Fail closed if hash is missing, null, or empty
         if (empty($configuredHash) || !is_string($configuredHash)) {
