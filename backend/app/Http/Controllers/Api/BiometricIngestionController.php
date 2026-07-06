@@ -13,7 +13,8 @@ class BiometricIngestionController extends Controller
 {
     public function ingest(BiometricIngestionRequest $request)
     {
-        $events = $request->validated()['events'];
+        try {
+            $events = $request->validated()['events'];
         $sourceSystem = 'essl';
 
         $responses = [];
@@ -89,9 +90,8 @@ class BiometricIngestionController extends Controller
             return $this->formatResponse($responses);
         }
 
-        try {
-            // 2. Pre-check Database for Existing Events (Composite ID)
-            $existingComposites = [];
+        // 2. Pre-check Database for Existing Events (Composite ID)
+        $existingComposites = [];
         // Chunk query if too many, max 500 is fine
         $query = DB::table('biometric_events')
                    ->select('source_table', 'source_event_id')
@@ -216,6 +216,8 @@ class BiometricIngestionController extends Controller
                     }
                 });
             }
+
+            return $this->formatResponse($responses);
         } catch (\Throwable $e) {
             $msg = $e->getMessage();
             
@@ -243,8 +245,6 @@ class BiometricIngestionController extends Controller
 
             throw $e;
         }
-
-        return $this->formatResponse($responses);
     }
 
     private function formatResponse($responses)
