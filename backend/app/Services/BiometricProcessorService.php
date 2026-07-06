@@ -157,9 +157,9 @@ class BiometricProcessorService
                             // Calculate total working minutes
                             $totalWorkingMinutes = null;
                             if ($checkOutTime) {
-                                $totalWorkingMinutes = $checkInTime->diffInMinutes($checkOutTime);
+                                $totalWorkingMinutes = (int) floor($checkInTime->diffInMinutes($checkOutTime));
                                 foreach ($breaks as $b) {
-                                    $totalWorkingMinutes -= $b['start']->diffInMinutes($b['end']);
+                                    $totalWorkingMinutes -= (int) floor($b['start']->diffInMinutes($b['end']));
                                 }
                             }
 
@@ -192,7 +192,7 @@ class BiometricProcessorService
                                 $breakRecord->source = 'biometric';
                                 $breakRecord->break_start = $b['start'];
                                 $breakRecord->break_end = $b['end'];
-                                $breakRecord->total_break_minutes = $b['start']->diffInMinutes($b['end']);
+                                $breakRecord->total_break_minutes = (int) floor($b['start']->diffInMinutes($b['end']));
                                 $breakRecord->save();
                             }
 
