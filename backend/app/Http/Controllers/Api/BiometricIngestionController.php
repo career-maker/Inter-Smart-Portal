@@ -162,58 +162,86 @@ class BiometricIngestionController extends Controller
 
         // 5. Database Transaction (Insert & Sync State)
         if (!empty($insertPayload) || !empty($uniqueSourceTables)) {
-            DB::transaction(function () use ($insertPayload, $attemptedComposites, &$responses, $sourceSystem, $uniqueSourceTables) {
-                
-                if (!empty($insertPayload)) {
-                    $bindings = [];
-                    $values = [];
-                
-                foreach ($insertPayload as $row) {
-                    $placeholders = implode(', ', array_fill(0, count($row), '?'));
-                    $values[] = "({$placeholders})";
-                    foreach ($row as $val) {
-                        $bindings[] = $val;
+            try {
+                DB::transaction(function () use ($insertPayload, $attemptedComposites, &$responses, $sourceSystem, $uniqueSourceTables) {
+                    
+                    if (!empty($insertPayload)) {
+                        $bindings = [];
+                        $values = [];
+                    
+                    foreach ($insertPayload as $row) {
+                        $placeholders = implode(', ', array_fill(0, count($row), '?'));
+                        $values[] = "({$placeholders})";
+                        foreach ($row as $val) {
+                            $bindings[] = $val;
+                        }
                     }
-                }
-                
-                $columns = array_keys($insertPayload[0]);
-                $columnList = implode(', ', $columns);
-                $valueString = implode(', ', $values);
-                
-                // PostgreSQL raw UPSERT
-                $sql = "INSERT INTO biometric_events ({$columnList}) VALUES {$valueString} ON CONFLICT (source_system, source_table, source_event_id) DO NOTHING RETURNING source_system, source_table, source_event_id";
-                
-                $insertedRows = DB::select($sql, $bindings);
-                
-                $insertedComposites = [];
-                foreach ($insertedRows as $row) {
-                    // Normalize to object property access 
-                    $insertedComposites["{$row->source_system}|{$row->source_table}|{$row->source_event_id}"] = true;
-                }
-                
-                foreach ($attemptedComposites as $compKey => $meta) {
-                    if (isset($insertedComposites[$compKey])) {
-                        // Won the race, inserted successfully
-                        $responses[$meta['index']]['status'] = $meta['status'];
-                    } else {
-                        // Lost the race, duplicate already existed
-                        $responses[$meta['index']]['status'] = 'already_exists';
+                    
+                    $columns = array_keys($insertPayload[0]);
+                    $columnList = implode(', ', $columns);
+                    $valueString = implode(', ', $values);
+                    
+                    // PostgreSQL raw UPSERT
+                    $sql = "INSERT INTO biometric_events ({$columnList}) VALUES {$valueString} ON CONFLICT (source_system, source_table, source_event_id) DO NOTHING RETURNING source_system, source_table, source_event_id";
+                    
+                    $insertedRows = DB::select($sql, $bindings);
+                    
+                    $insertedComposites = [];
+                    foreach ($insertedRows as $row) {
+                        // Normalize to object property access 
+                        $insertedComposites["{$row->source_system}|{$row->source_table}|{$row->source_event_id}"] = true;
                     }
+                    
+                    foreach ($attemptedComposites as $compKey => $meta) {
+                        if (isset($insertedComposites[$compKey])) {
+                            // Won the race, inserted successfully
+                            $responses[$meta['index']]['status'] = $meta['status'];
+                        } else {
+                            // Lost the race, duplicate already existed
+                            $responses[$meta['index']]['status'] = 'already_exists';
+                        }
+                        }
                     }
-                }
 
-                // Update Sync States for successfully processed source tables
-                foreach (array_keys($uniqueSourceTables) as $table) {
-                    BiometricSyncState::updateOrCreate(
-                        ['source_system' => $sourceSystem, 'source_table' => $table],
-                        [
-                            'last_attempted_sync' => now(),
-                            'last_successful_sync' => now(),
-                            'sync_status' => 'idle'
-                        ]
-                    );
+                    // Update Sync States for successfully processed source tables
+                    foreach (array_keys($uniqueSourceTables) as $table) {
+                        BiometricSyncState::updateOrCreate(
+                            ['source_system' => $sourceSystem, 'source_table' => $table],
+                            [
+                                'last_attempted_sync' => now(),
+                                'last_successful_sync' => now(),
+                                'sync_status' => 'idle'
+                            ]
+                        );
+                    }
+                });
+            } catch (\Throwable $e) {
+                $msg = $e->getMessage();
+                
+                // Redact raw SQL which might contain bindings or sensitive data
+                if (($sqlPos = strpos($msg, '(SQL:')) !== false || ($sqlPos = strpos($msg, '(Connection:')) !== false) {
+                    $msg = substr($msg, 0, $sqlPos) . '[SQL/CONNECTION REDACTED]';
                 }
-            });
+                
+                // Redact potential employee codes
+                $msg = preg_replace('/[A-Z0-9]*EMP[A-Z0-9]*/i', '[REDACTED_EMP]', $msg);
+                
+                $sqlState = null;
+                if ($e instanceof \PDOException) {
+                    $sqlState = isset($e->errorInfo[0]) ? $e->errorInfo[0] : null;
+                }
+                
+                \Illuminate\Support\Facades\Log::error('BIOMETRIC_INGEST_EXCEPTION', [
+                    'class' => get_class($e),
+                    'code' => $e->getCode(),
+                    'sqlstate' => $sqlState,
+                    'file' => basename($e->getFile()),
+                    'line' => $e->getLine(),
+                    'message' => $msg
+                ]);
+
+                throw $e;
+            }
         }
 
         return $this->formatResponse($responses);
