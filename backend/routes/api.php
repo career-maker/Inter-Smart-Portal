@@ -184,8 +184,5 @@ use App\Http\Controllers\Api\BiometricIngestionController;
 use App\Http\Middleware\VerifyBiometricAgent;
 
 // Biometric Agent Integration
-Route::post('/v1/biometric/ingest', function () {
-    return response()->json([
-        'diagnostic' => 'ROUTE_REACHED_WITHOUT_BIOMETRIC_MIDDLEWARE'
-    ], 200);
-});
+Route::post('/v1/biometric/ingest', [BiometricIngestionController::class, 'ingest'])
+    ->middleware(VerifyBiometricAgent::class);
