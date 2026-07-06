@@ -232,7 +232,7 @@ class BiometricIngestionController extends Controller
                 $sqlState = isset($e->errorInfo[0]) ? $e->errorInfo[0] : null;
             }
             
-            \Illuminate\Support\Facades\Log::error('BIOMETRIC_INGEST_EXCEPTION', [
+            \Illuminate\Support\Facades\Log::channel('stderr')->error('BIOMETRIC_INGEST_EXCEPTION', [
                 'class' => get_class($e),
                 'code' => $e->getCode(),
                 'sqlstate' => $sqlState,
