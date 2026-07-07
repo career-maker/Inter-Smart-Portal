@@ -14,12 +14,47 @@ const fs = require('fs');
 const path = require('path');
 const STATE_FILE = path.join(__dirname, 'sync_state.json');
 
-function loadSyncState() {
-    if (fs.existsSync(STATE_FILE)) {
-        return JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
+const LOCK_FILE = path.join(__dirname, 'sync.lock');
+
+function acquireLock() {
+    try {
+        fs.writeFileSync(LOCK_FILE, process.pid.toString(), { flag: 'wx' });
+    } catch (err) {
+        if (err.code === 'EEXIST') {
+            console.log('[AGENT] Another instance is running (lock file exists). Exiting safely.');
+            process.exit(0);
+        }
+        console.error('[FATAL] Failed to acquire lock:', err.message);
+        process.exit(1);
     }
-    console.log('[AGENT] No sync_state.json found. Bootstrapping with empty state.');
-    return {};
+}
+
+function releaseLock() {
+    try {
+        if (fs.existsSync(LOCK_FILE)) {
+            fs.unlinkSync(LOCK_FILE);
+        }
+    } catch (err) {
+        console.error('[ERROR] Failed to release lock:', err.message);
+    }
+}
+
+process.on('exit', releaseLock);
+process.on('SIGINT', () => { releaseLock(); process.exit(1); });
+process.on('SIGTERM', () => { releaseLock(); process.exit(1); });
+
+function loadSyncState() {
+    if (!fs.existsSync(STATE_FILE)) {
+        console.error('[FATAL] sync_state.json is missing. Explicit bootstrap required to prevent historical data flooding.');
+        process.exit(1);
+    }
+    try {
+        const data = fs.readFileSync(STATE_FILE, 'utf8');
+        return JSON.parse(data);
+    } catch (err) {
+        console.error('[FATAL] sync_state.json is corrupt or unreadable: ' + err.message);
+        process.exit(1);
+    }
 }
 
 function saveSyncState(state) {
@@ -60,6 +95,8 @@ function redactUserId(userId) {
 // MAIN EXECUTION
 // ---------------------------------------------------------
 async function run() {
+    acquireLock();
+
     console.log(`[AGENT] Starting sync... DRY_RUN: ${DRY_RUN}, Lookback: ${LOOKBACK_DAYS} days`);
     
     const syncState = loadSyncState();
@@ -159,15 +196,20 @@ async function run() {
         const batch = batches[i];
         const apiResponse = await sendBatch(batch, i + 1, batchesToSend);
         
-        if (apiResponse && apiResponse.events) {
-            // Process contiguous success
+        if (Array.isArray(apiResponse)) {
             let batchSuccess = true;
-            for (const event of batch) {
-                const apiResult = apiResponse.events.find(e => String(e.source_event_id) === String(event.source_event_id));
-                if (apiResult && (apiResult.status === 'inserted' || apiResult.status === 'duplicate')) {
-                    syncState[event.source_table] = Math.max(syncState[event.source_table] || 0, parseInt(event.source_event_id, 10));
+            for (let j = 0; j < batch.length; j++) {
+                const event = batch[j];
+                const apiResult = apiResponse[j];
+                
+                const validStatuses = ['accepted', 'unmapped_employee', 'already_exists', 'rejected_invalid'];
+                
+                // Index-based match guarantees exactly corresponding source_table and source_event_id logic
+                if (apiResult && String(apiResult.source_event_id) === String(event.source_event_id) && validStatuses.includes(apiResult.status)) {
+                    // Contiguous explicit assignment without Math.max skipping
+                    syncState[event.source_table] = parseInt(event.source_event_id, 10);
                 } else {
-                    console.error(`[AGENT] Event ${event.source_event_id} failed or unacknowledged. Halting checkpoint advancement for ${event.source_table}.`);
+                    console.error(`[AGENT] Event ${event.source_event_id} failed or unacknowledged (status: ${apiResult ? apiResult.status : 'missing'}). Halting checkpoint advancement for ${event.source_table}.`);
                     batchSuccess = false;
                     break;
                 }
@@ -176,7 +218,7 @@ async function run() {
             if (batchSuccess) successCount++;
             else break; // Stop processing further batches if we hit a contiguous block failure
         } else {
-            console.error(`[API] Batch ${i+1} failed completely. Aborting remaining batches.`);
+            console.error(`[API] Batch ${i+1} failed completely (unexpected schema). Aborting remaining batches.`);
             break;
         }
     }
