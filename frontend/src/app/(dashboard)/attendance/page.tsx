@@ -24,6 +24,8 @@ export default function AttendancePage() {
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   });
 
+  const [filterDay, setFilterDay] = useState<string>(''); // Empty = show all days in month
+
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
@@ -71,6 +73,11 @@ export default function AttendancePage() {
     const h = Math.floor(minutes / 60);
     const m = minutes % 60;
     return `${h}h ${m}m`;
+  };
+
+  const getFilteredHistory = () => {
+    if (!filterDay) return history;
+    return history.filter(record => record.date === filterDay);
   };
 
   return (
@@ -159,21 +166,21 @@ export default function AttendancePage() {
         </Card>
 
         {/* Quick Stats - Optional */}
-        {history.length > 0 && history[0] && (
+        {history.length > 0 && getFilteredHistory().length > 0 && getFilteredHistory()[0] && (
           <>
             <Card className="shadow-sm border-white/10 bg-slate-800/50 backdrop-blur-sm text-white">
               <CardContent className="pt-6">
                 <div className="space-y-2">
-                  <p className="text-xs text-slate-400">Today's Check-in</p>
-                  <p className="text-2xl font-bold text-emerald-400">{formatTime(history[0]?.check_in_time)}</p>
+                  <p className="text-xs text-slate-400">{filterDay ? 'Check-in' : "Today's Check-in"}</p>
+                  <p className="text-2xl font-bold text-emerald-400">{formatTime(getFilteredHistory()[0]?.check_in_time)}</p>
                 </div>
               </CardContent>
             </Card>
             <Card className="shadow-sm border-white/10 bg-slate-800/50 backdrop-blur-sm text-white">
               <CardContent className="pt-6">
                 <div className="space-y-2">
-                  <p className="text-xs text-slate-400">Today's Check-out</p>
-                  <p className="text-2xl font-bold text-rose-400">{formatTime(history[0]?.check_out_time)}</p>
+                  <p className="text-xs text-slate-400">{filterDay ? 'Check-out' : "Today's Check-out"}</p>
+                  <p className="text-2xl font-bold text-rose-400">{formatTime(getFilteredHistory()[0]?.check_out_time)}</p>
                 </div>
               </CardContent>
             </Card>
@@ -182,7 +189,7 @@ export default function AttendancePage() {
                 <div className="space-y-2">
                   <p className="text-xs text-slate-400">Hours Worked</p>
                   <p className="text-2xl font-bold text-blue-400">
-                    {formatMinutesToHours(history[0]?.total_working_minutes || 0)}
+                    {formatMinutesToHours(getFilteredHistory()[0]?.total_working_minutes || 0)}
                   </p>
                 </div>
               </CardContent>
@@ -198,13 +205,38 @@ export default function AttendancePage() {
             <CardTitle className="text-2xl">Attendance Records</CardTitle>
             <CardDescription className="text-slate-400">Day-wise breakdown of your attendance history</CardDescription>
           </div>
-          <div>
-            <input
-              type="month"
-              value={filterMonth}
-              onChange={(e) => setFilterMonth(e.target.value)}
-              className="px-3 py-2 border rounded-md text-sm bg-slate-900 border-white/10 text-white outline-none focus:ring-2 focus:ring-primary [color-scheme:dark]"
-            />
+          <div className="flex gap-3">
+            <div>
+              <label className="text-xs text-slate-400 block mb-1">Month</label>
+              <input
+                type="month"
+                value={filterMonth}
+                onChange={(e) => {
+                  setFilterMonth(e.target.value);
+                  setFilterDay(''); // Reset day filter when month changes
+                }}
+                className="px-3 py-2 border rounded-md text-sm bg-slate-900 border-white/10 text-white outline-none focus:ring-2 focus:ring-primary [color-scheme:dark]"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-slate-400 block mb-1">Day (Optional)</label>
+              <input
+                type="date"
+                value={filterDay}
+                onChange={(e) => setFilterDay(e.target.value)}
+                min={filterMonth ? `${filterMonth}-01` : undefined}
+                max={filterMonth ? `${filterMonth}-31` : undefined}
+                className="px-3 py-2 border rounded-md text-sm bg-slate-900 border-white/10 text-white outline-none focus:ring-2 focus:ring-primary [color-scheme:dark]"
+              />
+            </div>
+            {filterDay && (
+              <button
+                onClick={() => setFilterDay('')}
+                className="px-3 py-2 text-xs bg-slate-700/50 hover:bg-slate-700 rounded-md border border-white/10 text-slate-300 hover:text-white transition-colors self-end"
+              >
+                Clear Day
+              </button>
+            )}
           </div>
         </CardHeader>
         <CardContent>
@@ -212,6 +244,8 @@ export default function AttendancePage() {
             <div className="py-4 text-center text-slate-400">Loading...</div>
           ) : history.length === 0 ? (
             <div className="py-8 text-center text-slate-400 border border-white/10 rounded bg-slate-900/50">No attendance records found for this month.</div>
+          ) : getFilteredHistory().length === 0 ? (
+            <div className="py-8 text-center text-slate-400 border border-white/10 rounded bg-slate-900/50">No attendance records found for the selected day.</div>
           ) : (
             <div className="overflow-x-auto rounded-md border border-white/10">
               <table className="w-full text-sm text-left">
@@ -228,7 +262,7 @@ export default function AttendancePage() {
                   </tr>
                 </thead>
                 <tbody className="text-slate-200">
-                  {history.map((record) => {
+                  {getFilteredHistory().map((record) => {
                     const totalBreakMins = record.breaks?.reduce((acc: number, b: any) => acc + (b.total_break_minutes || 0), 0) || 0;
                     const recordDate = new Date(record.date);
                     const dayName = recordDate.toLocaleDateString([], { weekday: 'short' });
