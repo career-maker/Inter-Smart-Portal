@@ -186,3 +186,19 @@ use App\Http\Middleware\VerifyBiometricAgent;
 // Biometric Agent Integration
 Route::post('/v1/biometric/ingest', [BiometricIngestionController::class, 'ingest'])
     ->middleware(VerifyBiometricAgent::class);
+
+// System Scheduler Trigger
+Route::post('/system/scheduler/run', function (\Illuminate\Http\Request $request) {
+    $secret = config('services.scheduler_secret');
+    if (empty($secret)) {
+        abort(500, 'Scheduler secret unconfigured');
+    }
+    
+    if (!hash_equals($secret, $request->bearerToken() ?? '')) {
+        abort(401, 'Unauthorized');
+    }
+    
+    \Illuminate\Support\Facades\Artisan::call('schedule:run');
+    
+    return response()->json(['status' => 'scheduler_invoked']);
+})->middleware('throttle:5,1');

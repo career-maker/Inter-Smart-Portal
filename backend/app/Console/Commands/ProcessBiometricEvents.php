@@ -27,18 +27,26 @@ class ProcessBiometricEvents extends Command
     public function handle(BiometricProcessorService $processor): int
     {
         $eventIds = $this->option('event-ids');
-        
-        if (empty($eventIds)) {
-            $this->error('The --event-ids option is required for safety during initial testing.');
-            return self::FAILURE;
-        }
+        if (!empty($eventIds)) {
+            $ids = array_map('trim', explode(',', $eventIds));
+            $ids = array_filter($ids, 'is_numeric');
 
-        $ids = array_map('trim', explode(',', $eventIds));
-        $ids = array_filter($ids, 'is_numeric');
-
-        if (empty($ids)) {
-            $this->error('No valid event IDs provided.');
-            return self::FAILURE;
+            if (empty($ids)) {
+                $this->error('No valid event IDs provided.');
+                return self::FAILURE;
+            }
+        } else {
+            // Automatic bounded processing mode
+            $ids = \App\Models\BiometricEvent::where('processing_status', 'pending')
+                ->orderBy('id', 'asc')
+                ->limit(100)
+                ->pluck('id')
+                ->toArray();
+                
+            if (empty($ids)) {
+                $this->info('No pending events to process.');
+                return self::SUCCESS;
+            }
         }
 
         $this->info(sprintf('Processing %d biometric events...', count($ids)));

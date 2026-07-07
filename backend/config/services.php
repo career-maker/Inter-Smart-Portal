@@ -45,4 +45,6 @@ return [
         'agent_secret_hash' => env('BIOMETRIC_AGENT_SECRET_HASH'),
     ],
 
+    'scheduler_secret' => env('SCHEDULER_SECRET'),
+
 ];
