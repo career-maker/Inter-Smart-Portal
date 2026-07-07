@@ -25,7 +25,7 @@ class BiometricProcessorService
 
         // Group the targeted events by employee_code to minimize queries
         $events = BiometricEvent::whereIn('id', $eventIds)
-            ->where('processing_status', 'pending')
+            ->whereIn('processing_status', ['pending', 'error', 'processed'])
             ->get()
             ->groupBy('employee_code');
 
@@ -81,18 +81,19 @@ class BiometricProcessorService
                             ->orderBy('local_punch_time', 'asc')
                             ->get();
 
-                        // Cross-midnight check: Are there any events that belong to a cross-midnight sequence?
-                        // For a robust check without guessing, if the day starts with an OUT or ends with a hanging IN
-                        // that crosses midnight into another date, we mark for review. 
-                        // Actually, if we see an OUT before any IN on this day, or if we have missing pairs, 
-                        // we can process what we safely can, but the rules state "cross-midnight must go to review/error without guessing".
+                        // Check if there is an open biometric check-in from the previous day
+                        $previousDate = Carbon::parse($dateString)->subDay()->format('Y-m-d');
+                        $hasOpenPreviousShift = Attendance::where('user_id', $user->id)
+                            ->where('date', $previousDate)
+                            ->where('source', 'biometric')
+                            ->whereNotNull('check_in_time')
+                            ->whereNull('check_out_time')
+                            ->exists();
                         
                         // Let's implement a strict timeline builder
                         $timeline = [];
-                        $firstIn = null;
-                        $lastOut = null;
-                        
                         $currentState = 'outside'; // outside or inside
+                        $orphanEventIds = [];
                         
                         foreach ($allDayEvents as $evt) {
                             if ($evt->direction === 'in') {
@@ -110,18 +111,24 @@ class BiometricProcessorService
                                     if (count($timeline) > 0 && end($timeline)['type'] === 'out') {
                                         $timeline[count($timeline) - 1]['time'] = Carbon::parse($evt->local_punch_time);
                                     } else {
-                                        // Starting the day with an OUT! This implies cross-midnight from the previous day.
-                                        BiometricEvent::whereIn('id', $dailyEvents->pluck('id'))->update([
-                                            'processing_status' => 'error',
-                                            'error_reason' => 'cross_midnight_review',
-                                        ]);
-                                        $errors += $dailyEvents->count();
-                                        return;
+                                        // Starting the day with an OUT!
+                                        if ($hasOpenPreviousShift) {
+                                            // Preserve cross-midnight safety behavior
+                                            BiometricEvent::whereIn('id', $dailyEvents->pluck('id'))->update([
+                                                'processing_status' => 'error',
+                                                'error_reason' => 'cross_midnight_review',
+                                            ]);
+                                            $errors += $dailyEvents->count();
+                                            return;
+                                        } else {
+                                            // Treat as orphan leading OUT
+                                            $orphanEventIds[] = $evt->id;
+                                        }
                                     }
                                 }
                             }
                         }
-
+ 
                         // If timeline doesn't end with OUT, it's an open sequence (missing OUT).
                         // "incomplete/open sequences must not invent times"
                         // But wait! If it's still an open sequence (e.g. employee hasn't clocked out yet),
@@ -153,7 +160,7 @@ class BiometricProcessorService
                                     }
                                 }
                             }
-
+ 
                             // Calculate total working minutes
                             $totalWorkingMinutes = null;
                             if ($checkOutTime) {
@@ -162,13 +169,13 @@ class BiometricProcessorService
                                     $totalWorkingMinutes -= (int) floor($b['start']->diffInMinutes($b['end']));
                                 }
                             }
-
+ 
                             // Save to database (Idempotent: clear previous biometric attendance for this day)
                             $attendance = Attendance::where('user_id', $user->id)
                                 ->where('date', $dateString)
                                 ->where('source', 'biometric')
                                 ->first();
-
+ 
                             if ($attendance) {
                                 // Clear old biometric breaks
                                 AttendanceBreak::where('attendance_id', $attendance->id)->where('source', 'biometric')->delete();
@@ -184,7 +191,7 @@ class BiometricProcessorService
                             $attendance->total_working_minutes = $totalWorkingMinutes;
                             $attendance->status = 'Present'; // Simplified status mapping
                             $attendance->save();
-
+ 
                             // Save breaks
                             foreach ($breaks as $b) {
                                 $breakRecord = new AttendanceBreak();
@@ -195,12 +202,28 @@ class BiometricProcessorService
                                 $breakRecord->total_break_minutes = (int) floor($b['start']->diffInMinutes($b['end']));
                                 $breakRecord->save();
                             }
-
-                            // Mark the events as successfully processed
-                            BiometricEvent::whereIn('id', $dailyEvents->pluck('id'))->update([
-                                'processing_status' => 'processed',
-                                'error_reason' => null,
-                            ]);
+ 
+                            // Mark any orphan leading OUT events as ignored
+                            if (!empty($orphanEventIds)) {
+                                BiometricEvent::whereIn('id', $orphanEventIds)
+                                    ->whereIn('id', $dailyEvents->pluck('id'))
+                                    ->update([
+                                        'processing_status' => 'ignored',
+                                        'error_reason' => 'orphan_leading_out',
+                                    ]);
+                            }
+ 
+                            // Mark the valid processed events
+                            $processedEventIds = $dailyEvents->pluck('id')
+                                ->diff($orphanEventIds)
+                                ->toArray();
+ 
+                            if (!empty($processedEventIds)) {
+                                BiometricEvent::whereIn('id', $processedEventIds)->update([
+                                    'processing_status' => 'processed',
+                                    'error_reason' => null,
+                                ]);
+                            }
                             $processed += $dailyEvents->count();
                         } else {
                             // Empty timeline or invalid start
