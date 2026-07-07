@@ -81,6 +81,14 @@ async function fetchEvents(syncState) {
             continue;
         }
 
+        if (!Object.prototype.hasOwnProperty.call(syncState, table)) {
+            throw new Error(`[FATAL] Missing explicit checkpoint key for table ${table} in sync_state.json. Automatic fallback is prohibited.`);
+        }
+        const checkpoint = syncState[table];
+        if (typeof checkpoint !== 'number' || !Number.isInteger(checkpoint) || checkpoint < 0) {
+            throw new Error(`[FATAL] Invalid checkpoint for table ${table}: ${checkpoint}. Must be a non-negative integer.`);
+        }
+
         console.log(`[DB] Querying ${table}...`);
         
         const query = `
@@ -91,7 +99,7 @@ async function fetchEvents(syncState) {
                 CONVERT(varchar(19), LogDate, 120) AS LocalPunchTime, 
                 Direction 
             FROM dbo.${table}
-            WHERE DeviceLogId > ${syncState[table] || 0}
+            WHERE DeviceLogId > ${checkpoint}
             ORDER BY DeviceLogId ASC
         `;
 
