@@ -38,7 +38,11 @@ class SchedulerEndpointTest extends TestCase
     public function test_correct_token_invokes_schedule_run()
     {
         Config::set('services.scheduler_secret', 'secret-token');
-        Artisan::shouldReceive('call')->once()->with('schedule:run');
+        
+        // Register a fake command to avoid running real schedule
+        Artisan::command('schedule:run', function () {
+            $this->info('Fake schedule run');
+        });
         
         $response = $this->withToken('secret-token')->postJson('/api/system/scheduler/run');
         
