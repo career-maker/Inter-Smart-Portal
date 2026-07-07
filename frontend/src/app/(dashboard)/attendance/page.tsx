@@ -2,7 +2,8 @@
 
 import { PageLoader } from "@/components/ui/PageLoader";
 import { useState, useEffect } from "react";
-import { Clock, Play, Square, Coffee, CheckCircle } from "lucide-react";
+import { Clock, Play, Square, Coffee, CheckCircle, ChevronRight } from "lucide-react";
+import Link from "next/link";
 import api from "@/services/api";
 
 import { Button } from "@/components/ui/button";
@@ -194,6 +195,7 @@ export default function AttendancePage() {
                         <th className="px-4 py-3">Clock Out</th>
                         <th className="px-4 py-3">Break Time</th>
                         <th className="px-4 py-3 text-right">Effective Hours</th>
+                        <th className="px-4 py-3 text-center">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="text-slate-200">
@@ -207,6 +209,13 @@ export default function AttendancePage() {
                             <td className="px-4 py-4 text-slate-300">{formatMinutesToHours(totalBreakMins)}</td>
                             <td className="px-4 py-4 text-right font-bold text-blue-400">
                               {record.total_working_minutes !== null ? formatMinutesToHours(record.total_working_minutes) : '--'}
+                            </td>
+                            <td className="px-4 py-4 text-center">
+                              <Link href={`/attendance/details/${record.date}${record.user?.id ? `?user_id=${record.user.id}` : ''}`}>
+                                <Button variant="outline" size="sm" className="text-xs h-8 text-amber-400 border-amber-400/50 hover:bg-amber-400/10 bg-transparent">
+                                  Details <ChevronRight className="ml-1 h-3 w-3" />
+                                </Button>
+                              </Link>
                             </td>
                           </tr>
                         );

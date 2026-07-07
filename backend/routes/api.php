@@ -94,12 +94,13 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // Attendance Routes
     Route::prefix('attendance')->group(function () {
-        Route::get('status', [\App\Http\Controllers\Api\AttendanceController::class, 'status']);
-        Route::post('check-in', [\App\Http\Controllers\Api\AttendanceController::class, 'checkIn']);
-        Route::post('check-out', [\App\Http\Controllers\Api\AttendanceController::class, 'checkOut']);
+        Route::get('status',  [\App\Http\Controllers\Api\AttendanceController::class, 'status']);
+        Route::get('details', [\App\Http\Controllers\Api\AttendanceController::class, 'details']);
+        Route::post('check-in',    [\App\Http\Controllers\Api\AttendanceController::class, 'checkIn']);
+        Route::post('check-out',   [\App\Http\Controllers\Api\AttendanceController::class, 'checkOut']);
         Route::post('break-start', [\App\Http\Controllers\Api\AttendanceController::class, 'startBreak']);
-        Route::post('break-end', [\App\Http\Controllers\Api\AttendanceController::class, 'endBreak']);
-        Route::get('/', [\App\Http\Controllers\Api\AttendanceController::class, 'index']);
+        Route::post('break-end',   [\App\Http\Controllers\Api\AttendanceController::class, 'endBreak']);
+        Route::get('/',            [\App\Http\Controllers\Api\AttendanceController::class, 'index']);
     });
     
     // Document Requests (all authenticated users can submit/view own)
