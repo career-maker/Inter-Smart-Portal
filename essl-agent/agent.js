@@ -93,8 +93,7 @@ if (CONTROLLED_TEST_MODE) {
     }
     console.log(`[AGENT] Safety guards validated. Max events allowed: ${MAX_EVENTS}`);
 } else if (!DRY_RUN) {
-    console.error('[FATAL] Live execution is not permitted unless CONTROLLED_TEST_MODE=true. Aborting.');
-    process.exit(1);
+    console.log('[AGENT] Live Production Mode: CONTROLLED_TEST_MODE is OFF. Enforcing permanent safety ceiling of 500 events.');
 }
 
 // ---------------------------------------------------------
@@ -156,16 +155,12 @@ async function run() {
 
     // Enforce global chronological ordering before processing boundaries
     mappedEvents.sort((a, b) => {
-        // 1. local_punch_time ascending
-        const timeCompare = a.local_punch_time.localeCompare(b.local_punch_time);
-        if (timeCompare !== 0) return timeCompare;
-        
-        // 2. source_table deterministically
+        // 1. source_table deterministically
         const tableCompare = a.source_table.localeCompare(b.source_table);
         if (tableCompare !== 0) return tableCompare;
         
-        // 3. source_event_id numerically if possible, fallback to string comparison
-        return String(a.source_event_id).localeCompare(String(b.source_event_id), undefined, { numeric: true });
+        // 2. source_event_id numerically
+        return parseInt(a.source_event_id, 10) - parseInt(b.source_event_id, 10);
     });
 
     if (DRY_RUN) {
@@ -193,6 +188,12 @@ async function run() {
     if (CONTROLLED_TEST_MODE && mappedEvents.length > MAX_EVENTS) {
         console.log(`[AGENT] Slicing mapped events down to ${MAX_EVENTS} (Controlled Test Mode limit).`);
         mappedEvents.length = MAX_EVENTS;
+    }
+
+    // Permanent production safety ceiling to prevent massive floods
+    if (!CONTROLLED_TEST_MODE && mappedEvents.length > 500) {
+        console.warn(`[AGENT] Safety ceiling activated. Limiting ${mappedEvents.length} events to 500.`);
+        mappedEvents.length = 500;
     }
 
     // Chunk into batches

@@ -92,7 +92,7 @@ async function fetchEvents(syncState) {
         console.log(`[DB] Querying ${table}...`);
         
         const query = `
-            SELECT 
+            SELECT TOP 500
                 DeviceLogId, 
                 DeviceId, 
                 UserId, 
