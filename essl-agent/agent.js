@@ -21,7 +21,21 @@ function acquireLock() {
         fs.writeFileSync(LOCK_FILE, process.pid.toString(), { flag: 'wx' });
     } catch (err) {
         if (err.code === 'EEXIST') {
-            console.log('[AGENT] Another instance is running (lock file exists). Exiting safely.');
+            try {
+                const stalePid = fs.readFileSync(LOCK_FILE, 'utf8').trim();
+                const execSync = require('child_process').execSync;
+                // /NH removes headers, /FO CSV for easier parsing, or just check string
+                const output = execSync(`tasklist /FI "PID eq ${stalePid}" /NH`).toString();
+                if (!output.includes(stalePid)) {
+                    console.log(`[AGENT] Found stale lock for dead PID ${stalePid}. Recovering lock...`);
+                    fs.unlinkSync(LOCK_FILE);
+                    fs.writeFileSync(LOCK_FILE, process.pid.toString(), { flag: 'wx' });
+                    return;
+                }
+                console.log(`[AGENT] Another instance is running (lock file exists for PID ${stalePid}). Exiting safely.`);
+            } catch (e) {
+                console.log('[AGENT] Lock check failed or process active. Exiting safely.');
+            }
             process.exit(0);
         }
         console.error('[FATAL] Failed to acquire lock:', err.message);
@@ -96,6 +110,7 @@ function redactUserId(userId) {
 // ---------------------------------------------------------
 async function run() {
     acquireLock();
+    try {
 
     console.log(`[AGENT] Starting sync... DRY_RUN: ${DRY_RUN}, Lookback: ${LOOKBACK_DAYS} days`);
     
@@ -171,7 +186,7 @@ async function run() {
             });
         }
         console.log('[AGENT] DRY_RUN complete. Exiting cleanly.');
-        process.exit(0);
+        return;
     }
 
     // Apply CONTROLLED_TEST_MODE limits before chunking
@@ -205,7 +220,7 @@ async function run() {
                 const validStatuses = ['accepted', 'unmapped_employee', 'already_exists', 'rejected_invalid'];
                 
                 // Index-based match guarantees exactly corresponding source_table and source_event_id logic
-                if (apiResult && String(apiResult.source_event_id) === String(event.source_event_id) && validStatuses.includes(apiResult.status)) {
+                if (apiResult && String(apiResult.source_event_id) === String(event.source_event_id) && apiResult.source_table === event.source_table && validStatuses.includes(apiResult.status)) {
                     // Contiguous explicit assignment without Math.max skipping
                     syncState[event.source_table] = parseInt(event.source_event_id, 10);
                 } else {
@@ -224,7 +239,9 @@ async function run() {
     }
 
     console.log(`[AGENT] Sync complete. ${successCount}/${batchesToSend} batches succeeded.`);
-    process.exit(0);
+    } finally {
+        releaseLock();
+    }
 }
 
 run();

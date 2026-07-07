@@ -31,6 +31,7 @@ class BiometricIngestionController extends Controller
         foreach ($events as $index => $event) {
             // Default response structure
             $response = [
+                'source_table' => $event['source_table'] ?? null,
                 'source_event_id' => $event['source_event_id'] ?? null,
                 'status' => 'rejected_invalid',
                 '_original_index' => $index // Keep track to maintain order
