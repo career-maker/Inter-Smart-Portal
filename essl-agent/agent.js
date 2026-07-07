@@ -112,7 +112,7 @@ async function run() {
     acquireLock();
     try {
 
-    console.log(`[AGENT] Starting sync... DRY_RUN: ${DRY_RUN}, Lookback: ${LOOKBACK_DAYS} days`);
+    console.log(`[AGENT] Starting checkpoint-based sync... DRY_RUN: ${DRY_RUN}`);
     
     const syncState = loadSyncState();
     let dbResults;
