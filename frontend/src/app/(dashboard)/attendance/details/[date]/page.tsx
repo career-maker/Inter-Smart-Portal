@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PageLoader } from "@/components/ui/PageLoader";
+import { DailyActivityTimeline, DailySummaryCard } from "@/components/attendance";
 
 interface AttendanceDetails {
   date: string;
@@ -181,6 +182,42 @@ export default function AttendanceDetailsPage({ params }: PageProps) {
           })}
         </p>
       </div>
+
+      {/* Date Picker */}
+      <div className="flex items-center gap-4">
+        <label className="text-sm text-slate-400">Select Date:</label>
+        <input
+          type="date"
+          value={data.date}
+          onChange={handleDateChange}
+          className="px-3 py-2 border rounded-md text-sm bg-slate-900 border-white/10 text-white outline-none focus:ring-2 focus:ring-amber-400 [color-scheme:dark]"
+        />
+      </div>
+
+      {/* Daily Summary Card */}
+      <DailySummaryCard
+        attendance={data}
+        totalBreaks={data.completed_breaks?.length || 0}
+        isCurrentlyWorking={data.is_currently_working}
+      />
+
+      {/* Daily Activity Timeline */}
+      <Card className="shadow-sm border-white/10 bg-slate-800/50 backdrop-blur-sm text-white">
+        <CardHeader className="pb-4 border-b border-white/5">
+          <CardTitle>Daily Activity Timeline</CardTitle>
+          <CardDescription className="text-slate-400">
+            Chronological record of all punch events throughout the day
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <DailyActivityTimeline
+            rawPunches={data.raw_punches || []}
+            isCurrentlyWorking={data.is_currently_working}
+            firstIn={data.first_in}
+            lastOut={data.last_out}
+          />
+        </CardContent>
+      </Card>
 
       {/* Date Navigation & Status */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
