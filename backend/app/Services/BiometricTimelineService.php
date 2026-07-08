@@ -15,19 +15,19 @@ use Illuminate\Support\Collection;
  *   - Tests
  *
  * RULES
- * ─────
- * first_in   → earliest valid IN punch of the day (after stripping orphan leading OUTs)
- * last_out   → latest valid OUT punch *before* the last unmatched IN, i.e. the most
+ * â”€â”€â”€â”€â”€
+ * first_in   â†’ earliest valid IN punch of the day (after stripping orphan leading OUTs)
+ * last_out   â†’ latest valid OUT punch *before* the last unmatched IN, i.e. the most
  *              recent OUT that closed a working session. Never updated retroactively
  *              just because a later unmatched IN exists.
- * consecutive INs  → first IN retained; later consecutive INs skipped.
- * consecutive OUTs → last OUT retained (replaces the previous OUT candidate) as it
+ * consecutive INs  â†’ first IN retained; later consecutive INs skipped.
+ * consecutive OUTs â†’ last OUT retained (replaces the previous OUT candidate) as it
  *                    is the break start / checkout.
- * final unmatched IN → last_out remains the last real checkout; a flag
+ * final unmatched IN â†’ last_out remains the last real checkout; a flag
  *                      has_missing_punch_out = true is raised for historical days,
  *                      is_currently_working = true for the current day.
- * final unmatched OUT (day ends on OUT) → ordinary complete shift.
- * orphan leading OUTs → collected, returned as orphan_event_ids. Caller decides
+ * final unmatched OUT (day ends on OUT) â†’ ordinary complete shift.
+ * orphan leading OUTs â†’ collected, returned as orphan_event_ids. Caller decides
  *                        how to persist them.
  */
 class BiometricTimelineService
@@ -59,21 +59,21 @@ class BiometricTimelineService
 
             if ($evt->direction === 'in') {
                 if ($currentState === 'outside') {
-                    // Valid transition: outside → inside
+                    // Valid transition: outside â†’ inside
                     $timeline[]   = ['type' => 'in', 'time' => $time, 'event_id' => $evt->id];
                     $currentState = 'inside';
                 }
-                // else: consecutive IN while already inside → skip (first IN retained)
+                // else: consecutive IN while already inside â†’ skip (first IN retained)
 
             } elseif ($evt->direction === 'out') {
                 if ($currentState === 'inside') {
-                    // Valid transition: inside → outside
+                    // Valid transition: inside â†’ outside
                     $timeline[]   = ['type' => 'out', 'time' => $time, 'event_id' => $evt->id];
                     $currentState = 'outside';
 
                 } elseif ($currentState === 'outside') {
                     if (count($timeline) > 0 && end($timeline)['type'] === 'out') {
-                        // Consecutive OUTs while outside → replace with latest OUT
+                        // Consecutive OUTs while outside â†’ replace with latest OUT
                         $timeline[count($timeline) - 1] = [
                             'type'     => 'out',
                             'time'     => $time,
@@ -82,7 +82,7 @@ class BiometricTimelineService
                     } else {
                         // Day starts with OUT (no prior IN in timeline)
                         if ($hasOpenPreviousShift) {
-                            // Genuine cross-midnight case – caller must handle
+                            // Genuine cross-midnight case â€“ caller must handle
                             return [
                                 'ok'               => false,
                                 'error'            => 'cross_midnight_review',
@@ -111,7 +111,7 @@ class BiometricTimelineService
      * Interpret a cleaned timeline into a full daily summary.
      *
      * @param  array  $timeline   Output of buildTimeline()['timeline']
-     * @param  string $dateString 'Y-m-d'  – used to determine if the day is historical
+     * @param  string $dateString 'Y-m-d'  â€“ used to determine if the day is historical
      * @return array{
      *   first_in: Carbon|null,
      *   last_out: Carbon|null,
@@ -181,7 +181,7 @@ class BiometricTimelineService
         $requiresReview     = false;
 
         if ($currentState === 'inside') {
-            // Day ends with an IN – open sequence
+            // Day ends with an IN â€“ open sequence
             if ($isToday) {
                 $isCurrentlyWorking = true;
             } else {
@@ -225,3 +225,4 @@ class BiometricTimelineService
         ];
     }
 }
+

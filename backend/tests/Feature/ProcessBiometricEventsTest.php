@@ -25,9 +25,9 @@ class ProcessBiometricEventsTest extends TestCase
         $this->seed(\Database\Seeders\RolesAndPermissionsSeeder::class);
     }
 
-    // ────────────────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // Helpers
-    // ────────────────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private function makeEvent(string $employeeCode, string $localTime, string $direction, string $status = 'pending', int $seqId = 0): BiometricEvent
     {
@@ -42,7 +42,7 @@ class ProcessBiometricEventsTest extends TestCase
             'direction'        => $direction,
             'device_id'        => 'DEV1',
             'source_timezone'  => 'Asia/Kolkata',
-            'utc_punch_time'   => $localTime, // simplified – UTC offset not relevant to these tests
+            'utc_punch_time'   => $localTime, // simplified â€“ UTC offset not relevant to these tests
             'processing_status' => $status,
         ]);
     }
@@ -52,9 +52,9 @@ class ProcessBiometricEventsTest extends TestCase
         return new BiometricProcessorService(new BiometricTimelineService());
     }
 
-    // ────────────────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // Command-mode tests (existing)
-    // ────────────────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     public function test_explicit_event_ids_mode_works()
     {
@@ -107,9 +107,9 @@ class ProcessBiometricEventsTest extends TestCase
             ->assertExitCode(0);
     }
 
-    // ────────────────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // BiometricTimelineService unit tests
-    // ────────────────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     /** @test */
     public function test_timeline_service_simple_in_out()
@@ -169,7 +169,7 @@ class ProcessBiometricEventsTest extends TestCase
     public function test_final_unmatched_in_after_earlier_out_preserves_last_out_and_flags_missing()
     {
         $svc    = new BiometricTimelineService();
-        // Sequence: IN → OUT → IN  (final IN has no OUT)
+        // Sequence: IN â†’ OUT â†’ IN  (final IN has no OUT)
         $events = collect([
             (object)['id' => 1, 'direction' => 'in',  'local_punch_time' => '2026-07-06 09:00:00'],
             (object)['id' => 2, 'direction' => 'out', 'local_punch_time' => '2026-07-06 12:00:00'],
@@ -184,7 +184,7 @@ class ProcessBiometricEventsTest extends TestCase
         $this->assertTrue($interp['has_missing_punch_out'],
             'has_missing_punch_out must be true for a historical day ending with IN');
         $this->assertTrue($interp['requires_review']);
-        // Working minutes only from completed session (09:00–12:00 = 180)
+        // Working minutes only from completed session (09:00â€“12:00 = 180)
         $this->assertEquals(180, $interp['total_working_minutes']);
     }
 
@@ -203,13 +203,13 @@ class ProcessBiometricEventsTest extends TestCase
         $this->assertFalse($interp['has_missing_punch_out'],
             'Current day open shift must not be labelled missing punch out');
         $this->assertNull($interp['total_working_minutes'],
-            'No completed sessions yet — working minutes must be null');
+            'No completed sessions yet â€” working minutes must be null');
     }
 
     /** @test */
     public function test_final_unmatched_out_complete_shift()
     {
-        // Day ends on OUT — this is the normal complete-shift path
+        // Day ends on OUT â€” this is the normal complete-shift path
         $svc    = new BiometricTimelineService();
         $events = collect([
             (object)['id' => 1, 'direction' => 'in',  'local_punch_time' => '2026-07-07 09:00:00'],
@@ -250,7 +250,7 @@ class ProcessBiometricEventsTest extends TestCase
         ]);
         $build  = $svc->buildTimeline($events, false);
 
-        // No IN ever → timeline is empty after stripping orphans
+        // No IN ever â†’ timeline is empty after stripping orphans
         $this->assertEmpty($build['timeline']);
         $this->assertCount(2, $build['orphan_event_ids']);
     }
@@ -330,8 +330,8 @@ class ProcessBiometricEventsTest extends TestCase
         $interp = $svc->interpretTimeline($build['timeline'], '2026-07-07');
 
         $this->assertCount(2, $interp['completed_breaks']);
-        $this->assertEquals(15,  $interp['completed_breaks'][0]['minutes']); // 10:00–10:15
-        $this->assertEquals(60,  $interp['completed_breaks'][1]['minutes']); // 12:00–13:00
+        $this->assertEquals(15,  $interp['completed_breaks'][0]['minutes']); // 10:00â€“10:15
+        $this->assertEquals(60,  $interp['completed_breaks'][1]['minutes']); // 12:00â€“13:00
         // Working: 60 + 105 + 300 = 465 minutes
         $this->assertEquals(465, $interp['total_working_minutes']);
     }
@@ -344,7 +344,7 @@ class ProcessBiometricEventsTest extends TestCase
         $events = collect([
             (object)['id' => 1, 'direction' => 'in',  'local_punch_time' => "{$today} 09:00:00"],
             (object)['id' => 2, 'direction' => 'out', 'local_punch_time' => "{$today} 10:00:00"],
-            // Employee is still on break — no return IN yet
+            // Employee is still on break â€” no return IN yet
         ]);
         $build  = $svc->buildTimeline($events, false);
         $interp = $svc->interpretTimeline($build['timeline'], $today);
@@ -386,9 +386,9 @@ class ProcessBiometricEventsTest extends TestCase
         $this->assertTrue($build['cross_midnight']);
     }
 
-    // ────────────────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // Timezone serialization test
-    // ────────────────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     /** @test */
     public function test_timezone_output_is_kolkata_offset_for_known_production_punch()
@@ -404,12 +404,12 @@ class ProcessBiometricEventsTest extends TestCase
         // Compare with wrong operation
         $wrongShift   = (clone $storedAsUtc)->setTimezone('Asia/Kolkata');
         $this->assertEquals('2026-07-07T16:03:16+05:30', $wrongShift->toIso8601String(),
-            'setTimezone (wrong) moves the hour digits — this is the double-conversion bug');
+            'setTimezone (wrong) moves the hour digits â€” this is the double-conversion bug');
     }
 
-    // ────────────────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // Full processor integration tests (using DB via RefreshDatabase)
-    // ────────────────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     public function test_regression_day_begins_in_unchanged()
     {
@@ -561,9 +561,9 @@ class ProcessBiometricEventsTest extends TestCase
         $this->assertEquals('2026-07-07 18:05:00', $att->check_out_time); // latest OUT
     }
 
-    // ────────────────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // Production-shaped fixture (Employee Code 231)
-    // ────────────────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     public function test_production_shaped_fixture_employee_231()
     {
@@ -643,9 +643,9 @@ class ProcessBiometricEventsTest extends TestCase
         $this->assertEquals('2026-07-07 15:40:25', $breaks[4]->break_end);
     }
 
-    // ────────────────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // Attendance index scope tests
-    // ────────────────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     /** @test */
     public function test_employee_index_returns_only_own_attendance()
@@ -717,9 +717,9 @@ class ProcessBiometricEventsTest extends TestCase
         $this->assertEquals('Employee',  $memberRecord['user']['last_name']);
     }
 
-    // ────────────────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // Attendance Details endpoint authorization tests
-    // ────────────────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     /** @test */
     public function test_employee_cannot_access_another_employees_details()
@@ -784,3 +784,4 @@ class ProcessBiometricEventsTest extends TestCase
         $response->assertUnprocessable();
     }
 }
+

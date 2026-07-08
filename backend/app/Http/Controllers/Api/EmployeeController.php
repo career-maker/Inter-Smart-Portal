@@ -80,6 +80,13 @@ class EmployeeController extends Controller
             ]
         );
 
+        // Recover orphaned biometric events for this employee_code
+        // (if events arrived before the employee was created in portal)
+        if (!empty($user->employee_code)) {
+            $processor = app(\App\Services\BiometricProcessorService::class);
+            $processor->recoverOrphanedEventsForEmployeeCode($user->employee_code);
+        }
+
         // TODO: Fire EmployeeCreated event to send welcome email
 
         return new EmployeeResource($user->load(['team', 'roles']));
@@ -119,10 +126,20 @@ class EmployeeController extends Controller
         $data = array_map(fn($v) => ($v === '' ? null : $v), $data);
         $data = array_filter($data, fn($v) => !is_null($v));
 
+        // Check if employee_code is being updated
+        $employeeCodeChanged = isset($data['employee_code']) && $data['employee_code'] !== $employee->employee_code;
+        $newEmployeeCode = $employeeCodeChanged ? $data['employee_code'] : null;
+
         $employee->update($data);
 
         if ($role) {
             $employee->syncRoles([$role]);
+        }
+
+        // Recover orphaned biometric events if employee_code was changed
+        if ($employeeCodeChanged && !empty($newEmployeeCode)) {
+            $processor = app(\App\Services\BiometricProcessorService::class);
+            $processor->recoverOrphanedEventsForEmployeeCode($newEmployeeCode);
         }
 
         return new EmployeeResource($employee->load(['team', 'roles']));
@@ -190,7 +207,7 @@ class EmployeeController extends Controller
             ]);
         }
 
-        // Local dev fallback — store on public disk
+        // Local dev fallback â€” store on public disk
         if ($employee->profile_photo_path) {
             Storage::disk('public')->delete($employee->profile_photo_path);
         }
@@ -232,3 +249,4 @@ class EmployeeController extends Controller
         ]);
     }
 }
+

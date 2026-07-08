@@ -24,8 +24,8 @@ WORKDIR /var/www/html
 # Copy all application files
 COPY . .
 
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader
+# Install PHP dependencies (with dev for testing)
+RUN composer install --optimize-autoloader
 
 # Update Apache DocumentRoot to point to Laravel's public directory
 RUN sed -ri -e 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/*.conf
