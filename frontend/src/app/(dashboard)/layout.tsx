@@ -95,6 +95,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: "/profile-requests", label: "Profile Approvals" },
       { href: "/leave-balances", label: "Leave Balances" },
+      { href: "/attendance/management", label: "Attendance Management" },
       { href: "/reports",        label: "Reports" },
       { href: "/audit-logs",     label: "Audit Logs" },
       { href: "/settings",       label: "Settings" },
