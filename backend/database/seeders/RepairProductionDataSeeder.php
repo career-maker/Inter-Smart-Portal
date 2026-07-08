@@ -23,8 +23,14 @@ class RepairProductionDataSeeder extends Seeder
         echo "\n[ISSUE 1] Recovering orphaned events for employee_code=272...\n";
 
         $recovery = $processor->recoverOrphanedEventsForEmployeeCode('272');
-        echo "Recovered: {$recovery['recovered']} events\n";
-        echo "Errors: {$recovery['errors']} events\n";
+        if (is_array($recovery) && !empty($recovery)) {
+            $processed = $recovery['processed'] ?? 0;
+            $errors = $recovery['errors'] ?? 0;
+            echo "Processed: $processed events\n";
+            echo "Errors: $errors events\n";
+        } else {
+            echo "Recovery returned: " . json_encode($recovery) . "\n";
+        }
 
         // ISSUE 2: Employee 231 Reprocess July 8 timeline
         echo "\n[ISSUE 2] Reprocessing employee_code=231 July 8 timeline...\n";
