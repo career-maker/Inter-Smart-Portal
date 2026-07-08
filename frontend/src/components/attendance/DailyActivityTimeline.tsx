@@ -32,22 +32,23 @@ export function DailyActivityTimeline({
     const isLast = index === rawPunches.length - 1;
     const prevEvent = index > 0 ? rawPunches[index - 1] : null;
     const nextEvent = index < rawPunches.length - 1 ? rawPunches[index + 1] : null;
+    const eventType = event.type.toUpperCase();
 
-    if (event.type === "IN") {
+    if (eventType === "IN") {
       if (isFirst) {
         return "First Clock In";
       }
-      if (prevEvent?.type === "OUT") {
+      if (prevEvent?.type.toUpperCase() === "OUT") {
         return "Clock In / Break Ended";
       }
       return "Clock In";
     }
 
-    if (event.type === "OUT") {
+    if (eventType === "OUT") {
       if (isLast && !isCurrentlyWorking) {
         return "Final Clock Out";
       }
-      if (nextEvent?.type === "IN" || !isLast) {
+      if (nextEvent?.type.toUpperCase() === "IN" || !isLast) {
         return "Clock Out / Break Started";
       }
       return "Clock Out";
@@ -57,11 +58,12 @@ export function DailyActivityTimeline({
   };
 
   const getIconColor = (event: TimelineEvent, index: number, isLast: boolean) => {
-    if (event.type === "IN") {
+    const eventType = event.type.toUpperCase();
+    if (eventType === "IN") {
       if (index === 0) return "text-green-500";
       return "text-blue-400";
     }
-    if (event.type === "OUT") {
+    if (eventType === "OUT") {
       if (isLast && !isCurrentlyWorking) return "text-red-500";
       return "text-amber-400";
     }
@@ -99,7 +101,7 @@ export function DailyActivityTimeline({
               <div
                 className={`absolute -left-8 top-1 w-6 h-6 rounded-full border-2 border-slate-800 bg-slate-900 flex items-center justify-center ${iconColor}`}
               >
-                {event.type === "IN" ? (
+                {event.type.toUpperCase() === "IN" ? (
                   <LogIn className="w-3 h-3" />
                 ) : (
                   <LogOut className="w-3 h-3" />
@@ -119,17 +121,17 @@ export function DailyActivityTimeline({
                     </div>
                   </div>
                   {/* Status badge */}
-                  {index === 0 && event.type === "IN" && (
+                  {index === 0 && event.type.toUpperCase() === "IN" && (
                     <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded font-medium">
                       Start
                     </span>
                   )}
-                  {isLast && !isCurrentlyWorking && event.type === "OUT" && (
+                  {isLast && !isCurrentlyWorking && event.type.toUpperCase() === "OUT" && (
                     <span className="px-2 py-1 bg-red-500/20 text-red-400 text-xs rounded font-medium">
                       End
                     </span>
                   )}
-                  {isLast && isCurrentlyWorking && event.type === "IN" && (
+                  {isLast && isCurrentlyWorking && event.type.toUpperCase() === "IN" && (
                     <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded font-medium">
                       Working
                     </span>
