@@ -27,9 +27,44 @@ class ReportController extends Controller
             $query->where('team_id', $request->team_id);
         }
 
-        $employees = $query->get()->map(function (User $emp) {
-            $currentYear = Carbon::now()->year;
-            $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
+        $currentMonth = Carbon::now()->month;
+        $employees = $query->get();
+
+        // Batch load all leave and WFH data for better performance
+        $employeeIds = $employees->pluck('id')->toArray();
+
+        // Aggregate leave counts per employee (avoids N+1 queries)
+        $leaveStats = LeaveRequest::whereIn('user_id', $employeeIds)
+            ->where('status', 'Approved')
+            ->get()
+            ->groupBy('user_id')
+            ->map(fn($requests) => [
+                'year' => $requests->whereYear('start_date', $currentYear)->sum('actual_leave_days'),
+                'month' => $requests->whereYear('start_date', $currentYear)->whereMonth('start_date', $currentMonth)->sum('actual_leave_days'),
+            ]);
+
+        $leaveCountStats = LeaveRequest::whereIn('user_id', $employeeIds)
+            ->get()
+            ->groupBy('user_id')
+            ->map(fn($requests) => [
+                'pending' => $requests->where('status', 'Pending')->count(),
+                'approved' => $requests->where('status', 'Approved')->count(),
+                'rejected' => $requests->where('status', 'Rejected')->count(),
+                'lop' => $requests->where('status', 'Approved')->sum('lop_days'),
+            ]);
+
+        // Aggregate WFH counts per employee
+        $wfhStats = WfhRequest::whereIn('user_id', $employeeIds)
+            ->where('status', 'Approved')
+            ->get()
+            ->groupBy('user_id')
+            ->map(fn($requests) => [
+                'month' => $requests->whereYear('start_date', $currentYear)->whereMonth('start_date', $currentMonth)->count(),
+                'year' => $requests->whereYear('start_date', $currentYear)->count(),
+            ]);
+
+        $employees = $employees->map(function (User $emp) use ($currentYear, $currentMonth, $leaveStats, $leaveCountStats, $wfhStats) {
             $balance = $emp->leaveBalance;
             $probationEnd = $emp->probationEndDate();
             $isInProbation = $emp->isInProbation();
@@ -42,39 +77,15 @@ class ReportController extends Controller
             // DOB / Age
             $age = $emp->dob ? Carbon::parse($emp->dob)->age : null;
 
-            // Leave counts
-            $leavesTakenThisYear = LeaveRequest::where('user_id', $emp->id)
-                ->where('status', 'Approved')
-                ->whereYear('start_date', $currentYear)
-                ->sum('actual_leave_days');
-
-            $leavesTakenThisMonth = LeaveRequest::where('user_id', $emp->id)
-                ->where('status', 'Approved')
-                ->whereYear('start_date', $currentYear)
-                ->whereMonth('start_date', $currentMonth)
-                ->sum('actual_leave_days');
-
-            $pendingLeaves = LeaveRequest::where('user_id', $emp->id)
-                ->where('status', 'Pending')->count();
-
-            $approvedLeaves = LeaveRequest::where('user_id', $emp->id)
-                ->where('status', 'Approved')->count();
-
-            $rejectedLeaves = LeaveRequest::where('user_id', $emp->id)
-                ->where('status', 'Rejected')->count();
-            $lopCount = LeaveRequest::where('user_id', $emp->id)
-                ->where('status', 'Approved')
-                ->sum('lop_days');
-            $wfhThisMonth = WfhRequest::where('user_id', $emp->id)
-                ->where('status', 'Approved')
-                ->whereYear('start_date', $currentYear)
-                ->whereMonth('start_date', $currentMonth)
-                ->count();
-
-            $wfhThisYear = WfhRequest::where('user_id', $emp->id)
-                ->where('status', 'Approved')
-                ->whereYear('start_date', $currentYear)
-                ->count();
+            // Use pre-aggregated data instead of individual queries
+            $leavesTakenThisYear = $leaveStats[$emp->id]['year'] ?? 0;
+            $leavesTakenThisMonth = $leaveStats[$emp->id]['month'] ?? 0;
+            $pendingLeaves = $leaveCountStats[$emp->id]['pending'] ?? 0;
+            $approvedLeaves = $leaveCountStats[$emp->id]['approved'] ?? 0;
+            $rejectedLeaves = $leaveCountStats[$emp->id]['rejected'] ?? 0;
+            $lopCount = $leaveCountStats[$emp->id]['lop'] ?? 0;
+            $wfhThisMonth = $wfhStats[$emp->id]['month'] ?? 0;
+            $wfhThisYear = $wfhStats[$emp->id]['year'] ?? 0;
 
             $clCarryForward = $balance ? ($balance->cl_carry_forward ?? 0) : 0;
             $clBalance      = $balance ? ($balance->casual_leave_balance ?? 0) : 0;
@@ -271,6 +282,31 @@ class ReportController extends Controller
             ->orderBy('first_name')
             ->get();
 
+        $employeeIds = $employees->pluck('id')->toArray();
+
+        // BATCH LOAD all data upfront to avoid N+1 queries
+        // This is critical for performance - loading data once for all employees and dates
+        $allLeaves = LeaveRequest::whereIn('user_id', $employeeIds)
+            ->where('status', 'Approved')
+            ->whereBetween('start_date', [$startDate, $endDate])
+            ->orWhere(function($q) use ($startDate, $endDate) {
+                $q->whereIn('user_id', $employeeIds)
+                  ->where('status', 'Approved')
+                  ->whereDate('end_date', '>=', $startDate)
+                  ->whereDate('start_date', '<=', $endDate);
+            })
+            ->get();
+
+        $allWfh = WfhRequest::whereIn('user_id', $employeeIds)
+            ->where('status', 'Approved')
+            ->whereDate('end_date', '>=', $startDate)
+            ->whereDate('start_date', '<=', $endDate)
+            ->get();
+
+        $allAttendance = \App\Models\Attendance::whereIn('user_id', $employeeIds)
+            ->whereBetween('date', [$startDate, $endDate])
+            ->get();
+
         $report = [];
         $summaryStats = [
             'total_absent' => 0,
@@ -296,24 +332,23 @@ class ReportController extends Controller
             while ($current <= $end) {
                 $dateStr = $current->toDateString();
 
-                // Check for approved leaves on this date
-                $leave = LeaveRequest::where('user_id', $emp->id)
-                    ->where('status', 'Approved')
-                    ->whereDate('start_date', '<=', $dateStr)
-                    ->whereDate('end_date', '>=', $dateStr)
-                    ->first();
+                // Get data from pre-loaded collections (no DB queries)
+                $leave = $allLeaves->first(fn($l) =>
+                    $l->user_id === $emp->id &&
+                    $l->start_date <= $dateStr &&
+                    $l->end_date >= $dateStr
+                );
 
-                // Check for approved WFH on this date
-                $wfh = WfhRequest::where('user_id', $emp->id)
-                    ->where('status', 'Approved')
-                    ->whereDate('start_date', '<=', $dateStr)
-                    ->whereDate('end_date', '>=', $dateStr)
-                    ->first();
+                $wfh = $allWfh->first(fn($w) =>
+                    $w->user_id === $emp->id &&
+                    $w->start_date <= $dateStr &&
+                    $w->end_date >= $dateStr
+                );
 
-                // Get attendance record
-                $attendance = \App\Models\Attendance::where('user_id', $emp->id)
-                    ->whereDate('date', $dateStr)
-                    ->first();
+                $attendance = $allAttendance->first(fn($a) =>
+                    $a->user_id === $emp->id &&
+                    $a->date == $dateStr
+                );
 
                 $dayStatus = $this->calculateDayStatus($emp->id, $dateStr, $leave, $wfh, $attendance);
 
