@@ -1008,14 +1008,10 @@ class LeaveRequestController extends Controller
             return response()->json(['message' => 'Leave balance record not found for employee.'], 400);
         }
 
-        $paidCL = $impact['paid_casual_leave'] ?? 0;
-        $paidSL = $impact['paid_sick_leave'] ?? 0;
-        $totalLOP = $impact['total_lop_days'] ?? 0;
-
-        // Admin-created leaves are auto-approved if requested
-        $autoApprove = $data['auto_approve'] ?? true;
-        $tlStatus = $autoApprove ? 'Not Required' : 'Pending';
-        $adminStatus = $autoApprove ? 'Approved' : 'Pending';
+        // Admin-created leaves are always LOP (non-paid)
+        $paidCL = 0;
+        $paidSL = 0;
+        $totalLOP = $days;
 
         $leaveRequest = null;
         DB::beginTransaction();
@@ -1026,26 +1022,23 @@ class LeaveRequestController extends Controller
                 'start_date'             => $data['start_date'],
                 'end_date'               => $data['end_date'],
                 'days'                   => $days,
-                'reason'                 => $data['reason'] . ' [Created by Admin]',
+                'reason'                 => $data['reason'] . ' [Admin-initiated LOP]',
                 'attachment_link'        => $data['attachment_link'] ?? null,
-                'status'                 => $autoApprove ? 'Approved' : 'Pending',
-                'tl_status'              => $tlStatus,
-                'admin_status'           => $adminStatus,
-                'is_unpaid'              => $isUnpaid,
-                'unpaid_reason'          => $impact['unpaid_reason'],
-                'sandwich_leave_days'    => $impact['sandwich_leave_days'],
+                'status'                 => 'Approved',
+                'tl_status'              => 'Not Required',
+                'admin_status'           => 'Approved',
+                'is_unpaid'              => true,
+                'unpaid_reason'          => 'Admin-initiated leave (non-paid)',
+                'sandwich_leave_days'    => 0,
                 'actual_leave_days'      => $days,
-                'paid_casual_leave'      => $paidCL,
-                'paid_sick_leave'        => $paidSL,
+                'paid_casual_leave'      => 0,
+                'paid_sick_leave'        => 0,
                 'lop_days'               => $totalLOP,
                 'approver_id'            => $admin->id,
             ]);
 
-            // If auto-approved, deduct from balance
-            if ($autoApprove) {
-                LeaveBalance::deductLeave($targetUser->id, $data['leave_type_id'], $paidCL, $paidSL, $totalLOP);
-                LeaveBalance::createAuditLog($targetUser->id, $data['leave_type_id'], $paidCL + $paidSL + $totalLOP, 'Admin-initiated leave', $admin->id);
-            }
+            // Log audit entry for admin-initiated LOP
+            LeaveBalance::createAuditLog($targetUser->id, $data['leave_type_id'], $totalLOP, 'Admin-initiated LOP leave (non-paid)', $admin->id);
 
             DB::commit();
 

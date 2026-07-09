@@ -35,7 +35,6 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
     end_date: "",
     reason: "",
     duration_type: "Full",
-    auto_approve: true,
   });
 
   useEffect(() => {
@@ -74,7 +73,7 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === "auto_approve" ? (e.target as HTMLInputElement).checked : value,
+      [name]: value,
     }));
   };
 
@@ -84,7 +83,7 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
     setError(null);
 
     try {
-      const endpoint = type === "leave" ? "/api/admin/leaves" : "/api/admin/wfh";
+      const endpoint = type === "leave" ? "/admin/leaves" : "/admin/wfh";
       const payload = type === "leave"
         ? {
             user_id: formData.user_id,
@@ -93,7 +92,6 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
             end_date: formData.end_date,
             reason: formData.reason,
             duration_type: formData.duration_type,
-            auto_approve: formData.auto_approve,
           }
         : {
             user_id: formData.user_id,
@@ -102,7 +100,6 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
             end_date: formData.end_date,
             reason: formData.reason,
             duration_type: formData.duration_type,
-            auto_approve: formData.auto_approve,
           };
 
       await api.post(endpoint, payload);
@@ -116,7 +113,6 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
         end_date: "",
         reason: "",
         duration_type: "Full",
-        auto_approve: true,
       });
 
       onSuccess?.();
@@ -259,17 +255,12 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
               />
             </div>
 
-            {/* Auto Approve */}
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                name="auto_approve"
-                checked={formData.auto_approve}
-                onChange={handleInputChange}
-                className="w-4 h-4"
-              />
-              <span className="text-sm text-white">Auto-approve this request</span>
-            </label>
+            {/* Info note */}
+            <div className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+              <p className="text-blue-300 text-sm">
+                <span className="font-semibold">Note:</span> Admin-created leave is marked as non-paid (LOP) and automatically approved.
+              </p>
+            </div>
 
             {/* Buttons */}
             <div className="flex gap-3 justify-end pt-4">
