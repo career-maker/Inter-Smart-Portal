@@ -56,7 +56,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Birthdays & Announcements
         Route::get('/today-birthdays', [\App\Http\Controllers\Api\ReportController::class, 'todaysBirthdays']);
-        
+
+        // Birthday Wishes
+        Route::post('/birthday-wishes', [\App\Http\Controllers\Api\BirthdayWishController::class, 'store']);
+        Route::get('/users/{userId}/wishes', [\App\Http\Controllers\Api\BirthdayWishController::class, 'getUserWishes']);
+        Route::get('/today-wishes', [\App\Http\Controllers\Api\BirthdayWishController::class, 'todayWishes']);
+
         // Approvals (Team Leads & Admins)
         Route::post('leave-requests/{leaveRequest}/status', [\App\Http\Controllers\Api\LeaveRequestController::class, 'updateStatus']);
         Route::post('wfh-requests/{wfhRequest}/status', [\App\Http\Controllers\Api\WfhRequestController::class, 'updateStatus']);

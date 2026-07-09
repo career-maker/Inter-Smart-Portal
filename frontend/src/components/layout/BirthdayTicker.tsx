@@ -10,8 +10,15 @@ export function BirthdayTicker() {
   useEffect(() => {
     const fetchTodaysBirthdays = async () => {
       try {
-        const res = await api.get("/today-birthdays");
-        setBirthdays(res.data.data || []);
+        // Fetch all employees and filter for today's birthdays
+        const res = await api.get("/reports/employee-list");
+        const today = new Date();
+        const todayBirthdays = (res.data.data || []).filter((emp: any) => {
+          if (!emp.dob) return false;
+          const dob = new Date(emp.dob);
+          return dob.getMonth() === today.getMonth() && dob.getDate() === today.getDate();
+        });
+        setBirthdays(todayBirthdays);
       } catch (error) {
         console.error("Failed to fetch birthdays for ticker", error);
       }
