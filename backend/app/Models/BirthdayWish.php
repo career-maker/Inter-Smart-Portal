@@ -6,9 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class BirthdayWish extends Model
 {
+    protected $table = 'birthday_wishes';
     protected $guarded = [];
+    protected $fillable = ['birthday_user_id', 'sender_id', 'message'];
     protected $casts = [
-        'wished_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     public function birthdayUser()

@@ -81,20 +81,20 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
           <ChevronLeft className="w-4 h-4 text-slate-400" />
         </button>
 
-        <div className="flex-1 flex items-center justify-between gap-3 p-3 bg-slate-800/50 rounded-lg">
-          <div className="flex items-center gap-3 flex-1">
+        <div className="flex-1 flex items-center justify-between gap-2 p-3 bg-slate-800/50 rounded-lg min-w-0">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
             <Avatar className="h-10 w-10 shrink-0">
               <AvatarImage src={person.profile_photo_path} />
               <AvatarFallback>{person.name?.[0] || "?"}</AvatarFallback>
             </Avatar>
-            <div className="flex-1 overflow-hidden">
-              <p className="font-semibold text-white text-sm overflow-hidden overflow-ellipsis whitespace-nowrap">{person.name || "Unknown"}</p>
-              <p className="text-xs text-slate-400 overflow-hidden overflow-ellipsis whitespace-nowrap">{person.designation || "N/A"}</p>
+            <div className="min-w-0">
+              <p className="font-semibold text-white text-sm line-clamp-1">{person.name || "Unknown"}</p>
+              <p className="text-xs text-slate-400 line-clamp-1">{person.designation || "N/A"}</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
-            <div className="text-right">
+          <div className="flex items-center gap-1 shrink-0">
+            <div className="text-right text-nowrap">
               <p className="text-xs font-bold text-amber-400">{person.date?.split("-")[2]} {["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][parseInt(person.date?.split("-")[1] || "0")]}</p>
               {isToday ? (
                 <span className="text-[10px] uppercase font-bold bg-pink-500 text-white px-1.5 py-0.5 rounded inline-block mt-0.5">TODAY!</span>
