@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -20,8 +21,8 @@ return new class extends Migration
             $table->foreign('birthday_user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('sender_id')->references('id')->on('users')->onDelete('cascade');
 
-            // Ensure one wish per person per day
-            $table->unique(['birthday_user_id', 'sender_id', DB::raw('DATE(wished_at)')], 'unique_wish_per_day');
+            // Prevent duplicate wishes from same person
+            $table->unique(['birthday_user_id', 'sender_id'], 'unique_wish_per_sender');
         });
     }
 
