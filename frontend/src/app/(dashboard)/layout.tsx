@@ -242,14 +242,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </button>
           </div>
         </div>
-      </header>
 
-      {/* Menu - Outside header to avoid stacking context issues */}
-      {menuOpen && (
-        <>
-          <div className="fixed inset-0 top-16 bg-black/30 z-40 md:hidden" onClick={closeMenu} />
-          <div role="navigation" className="fixed top-16 right-0 w-full md:w-80 max-h-[calc(100vh-4rem)] bg-slate-900 border-l border-b border-white/10 shadow-2xl z-50 overflow-y-auto">
-            <Link href="/profile" onClick={closeMenu} className="sm:hidden px-4 py-4 border-b border-white/10 flex items-center gap-3 hover:bg-white/5 transition-colors cursor-pointer">
+        {/* Menu - Not sticky, scrolls with page */}
+        {menuOpen && (
+          <>
+            <div className="fixed inset-0 top-16 bg-black/30 z-40 md:hidden" onClick={closeMenu} />
+            <div role="navigation" className="absolute top-full right-0 w-full md:w-80 bg-slate-900 border-l border-b border-white/10 shadow-2xl z-50 overflow-y-auto">
+              <Link href="/profile" onClick={closeMenu} className="sm:hidden px-4 py-4 border-b border-white/10 flex items-center gap-3 hover:bg-white/5 transition-colors cursor-pointer">
               <div className="w-10 h-10 rounded-full bg-amber-400 overflow-hidden flex items-center justify-center text-sm font-bold text-white relative shrink-0">
                 <span>{user?.first_name?.[0]}{user?.last_name?.[0]}</span>
                 {user?.profile_photo_path && <img src={user.profile_photo_path} alt="" className="absolute inset-0 w-full h-full object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />}
@@ -311,6 +310,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
         </>
       )}
+      </header>
 
       <main className="max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8">
         {/* Breadcrumbs */}
