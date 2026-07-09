@@ -27,18 +27,27 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
     setError(null);
 
     try {
-      const numericId = Number(selectedBirthdayId);
-      await api.post("/birthday-wishes", {
-        birthday_user_id: numericId,
+      const payload = {
+        birthday_user_id: selectedBirthdayId,
         message: message.trim(),
-      });
+      };
 
+      console.log("Sending wish with payload:", payload);
+      console.log("Current user:", currentUser);
+      console.log("Selected person ID:", selectedBirthdayId, "Type:", typeof selectedBirthdayId);
+
+      const response = await api.post("/birthday-wishes", payload);
+
+      console.log("Wish response:", response.data);
       setMessage("");
       setSelectedBirthdayId(null);
       alert("🎉 Wish sent successfully!");
     } catch (err: any) {
-      console.error("Wish error:", err.response?.data || err.message);
-      setError(err.response?.data?.message || "Failed to send wish. Please try again.");
+      console.error("Full error object:", err);
+      console.error("Error response:", err.response?.data);
+      console.error("Error message:", err.message);
+      console.error("Error status:", err.response?.status);
+      setError(err.response?.data?.message || err.message || "Failed to send wish. Please check console for details.");
     } finally {
       setIsSubmitting(false);
     }
@@ -72,15 +81,15 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
           <ChevronLeft className="w-4 h-4 text-slate-400" />
         </button>
 
-        <div className="flex-1 min-w-0 flex items-center justify-between gap-3 p-3 bg-slate-800/50 rounded-lg">
-          <div className="flex items-center gap-3 min-w-0">
+        <div className="flex-1 flex items-center justify-between gap-3 p-3 bg-slate-800/50 rounded-lg">
+          <div className="flex items-center gap-3 flex-1">
             <Avatar className="h-10 w-10 shrink-0">
               <AvatarImage src={person.profile_photo_path} />
               <AvatarFallback>{person.name?.[0] || "?"}</AvatarFallback>
             </Avatar>
-            <div className="min-w-0">
-              <p className="font-semibold text-white truncate text-sm">{person.name || "Unknown"}</p>
-              <p className="text-xs text-slate-400 truncate">{person.designation || "N/A"}</p>
+            <div className="flex-1 overflow-hidden">
+              <p className="font-semibold text-white text-sm overflow-hidden overflow-ellipsis whitespace-nowrap">{person.name || "Unknown"}</p>
+              <p className="text-xs text-slate-400 overflow-hidden overflow-ellipsis whitespace-nowrap">{person.designation || "N/A"}</p>
             </div>
           </div>
 

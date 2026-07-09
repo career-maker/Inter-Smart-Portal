@@ -14,30 +14,47 @@ class BirthdayWishController extends Controller
 {
     public function store(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'birthday_user_id' => 'required|exists:users,id',
-            'message' => 'required|string|min:1|max:500',
-        ]);
+        try {
+            $validated = $request->validate([
+                'birthday_user_id' => 'required|integer|exists:users,id',
+                'message' => 'required|string|min:1|max:500',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed: ' . json_encode($e->errors())
+            ], 422);
+        }
 
         $sender = auth()->user();
 
         try {
+            $birthdayUserId = (int) $validated['birthday_user_id'];
+
+            \Log::info('Birthday wish attempt', [
+                'sender_id' => $sender->id,
+                'birthday_user_id' => $birthdayUserId,
+                'message_length' => strlen($validated['message']),
+            ]);
+
             $wish = BirthdayWish::create([
-                'birthday_user_id' => $validated['birthday_user_id'],
+                'birthday_user_id' => $birthdayUserId,
                 'sender_id' => $sender->id,
                 'message' => $validated['message'],
             ]);
 
             // Create notification for the birthday person
-            $birthdayPerson = User::find($validated['birthday_user_id']);
-            Notification::create([
-                'user_id' => $birthdayPerson->id,
-                'title' => 'Birthday Wish',
-                'message' => "{$sender->first_name} {$sender->last_name} wished you on your birthday!",
-                'type' => 'birthday_wish',
-                'link' => '/profile',
-                'is_read' => false,
-            ]);
+            $birthdayPerson = User::find($birthdayUserId);
+            if ($birthdayPerson) {
+                Notification::create([
+                    'user_id' => $birthdayPerson->id,
+                    'title' => 'Birthday Wish',
+                    'message' => "{$sender->first_name} {$sender->last_name} wished you on your birthday!",
+                    'type' => 'birthday_wish',
+                    'link' => '/profile',
+                    'is_read' => false,
+                ]);
+            }
 
             return response()->json([
                 'status' => 'success',
@@ -54,11 +71,26 @@ class BirthdayWishController extends Controller
                     'created_at' => $wish->created_at->toDateTimeString(),
                 ]
             ]);
-        } catch (\Exception $e) {
-            \Log::error('Birthday wish creation error', ['error' => $e->getMessage()]);
+        } catch (\Illuminate\Database\QueryException $e) {
+            \Log::error('Database error in birthday wish', ['error' => $e->getMessage()]);
+
+            // Check if it's a unique constraint violation
+            if (strpos($e->getMessage(), 'unique') !== false) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'You have already sent a wish to this person today!'
+                ], 409);
+            }
+
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to send wish'
+                'message' => 'Database error: ' . $e->getMessage()
+            ], 500);
+        } catch (\Exception $e) {
+            \Log::error('Birthday wish creation error', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to send wish: ' . $e->getMessage()
             ], 500);
         }
     }
