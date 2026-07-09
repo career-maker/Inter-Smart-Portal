@@ -266,15 +266,18 @@ class ReportController extends Controller
      */
     public function attendanceSummary(Request $request): JsonResponse
     {
-        $startDate = $request->input('start_date');
-        $endDate = $request->input('end_date');
+        try {
+            $startDate = $request->input('start_date');
+            $endDate = $request->input('end_date');
 
-        if (!$startDate || !$endDate) {
-            return response()->json(['message' => 'start_date and end_date required'], 422);
-        }
+            if (!$startDate || !$endDate) {
+                return response()->json(['message' => 'start_date and end_date required'], 422);
+            }
 
-        $start = Carbon::parse($startDate)->startOfDay();
-        $end = Carbon::parse($endDate)->endOfDay();
+            $start = Carbon::parse($startDate)->startOfDay();
+            $end = Carbon::parse($endDate)->endOfDay();
+
+            \Log::info('Attendance summary requested', ['start' => $startDate, 'end' => $endDate]);
 
         // Get all active employees
         $employees = User::where('status', 'Active')
@@ -288,12 +291,12 @@ class ReportController extends Controller
         // This is critical for performance - loading data once for all employees and dates
         $allLeaves = LeaveRequest::whereIn('user_id', $employeeIds)
             ->where('status', 'Approved')
-            ->whereBetween('start_date', [$startDate, $endDate])
-            ->orWhere(function($q) use ($startDate, $endDate) {
-                $q->whereIn('user_id', $employeeIds)
-                  ->where('status', 'Approved')
-                  ->whereDate('end_date', '>=', $startDate)
-                  ->whereDate('start_date', '<=', $endDate);
+            ->where(function($q) use ($startDate, $endDate) {
+                $q->whereBetween('start_date', [$startDate, $endDate])
+                  ->orWhere(function($q2) use ($startDate, $endDate) {
+                      $q2->whereDate('end_date', '>=', $startDate)
+                         ->whereDate('start_date', '<=', $endDate);
+                  });
             })
             ->get();
 
@@ -382,12 +385,19 @@ class ReportController extends Controller
             $summaryStats['total_present'] += $dayStats['present'];
         }
 
-        return response()->json([
-            'status' => 'success',
-            'period' => ['start_date' => $startDate, 'end_date' => $endDate],
-            'summary' => $summaryStats,
-            'data' => $report,
-        ]);
+            return response()->json([
+                'status' => 'success',
+                'period' => ['start_date' => $startDate, 'end_date' => $endDate],
+                'summary' => $summaryStats,
+                'data' => $report,
+            ]);
+        } catch (\Carbon\Exceptions\InvalidFormatException $e) {
+            \Log::error('Invalid date format in attendance summary', ['error' => $e->getMessage()]);
+            return response()->json(['message' => 'Invalid date format. Use YYYY-MM-DD.'], 422);
+        } catch (\Exception $e) {
+            \Log::error('Error generating attendance summary', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return response()->json(['message' => 'Error generating attendance summary: ' . $e->getMessage()], 500);
+        }
     }
 
     /**
