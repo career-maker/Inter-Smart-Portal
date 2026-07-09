@@ -242,139 +242,75 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </button>
           </div>
         </div>
-
-        {/* ── Grouped navigation dropdown ── */}
-        {menuOpen && (
-          <>
-            {/* Backdrop for mobile */}
-            <div
-              className="fixed inset-0 bg-black/30 z-40 md:hidden"
-              onClick={closeMenu}
-            />
-            <div role="navigation" className="fixed top-0 right-0 w-full md:w-80 h-screen bg-slate-900 border-l border-b border-white/10 shadow-2xl z-50 overflow-y-auto">
-
-              {/* User info for mobile */}
-              <Link
-                href="/profile"
-                onClick={closeMenu}
-                className="sm:hidden px-4 py-4 border-b border-white/10 flex items-center gap-3 hover:bg-white/5 transition-colors cursor-pointer"
-              >
-                <div className="w-10 h-10 rounded-full bg-amber-400 overflow-hidden flex items-center justify-center text-sm font-bold text-white relative shrink-0">
-                  <span>{user?.first_name?.[0]}{user?.last_name?.[0]}</span>
-                  {user?.profile_photo_path && (
-                    <img
-                      src={user.profile_photo_path}
-                      alt=""
-                      className="absolute inset-0 w-full h-full object-cover"
-                      onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
-                    />
-                  )}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-white">{user?.first_name} {user?.last_name}</p>
-                  <p className="text-xs text-slate-400">{user?.role}</p>
-                </div>
-              </Link>
-
-              <nav className="py-2">
-                {/* Standalone links */}
-                {STANDALONE.map(({ href, label, icon: Icon }) => {
-                  const active = pathname === href;
-                  return (
-                    <Link
-                      key={href}
-                      href={href}
-                      onClick={closeMenu}
-                      className={`flex items-center gap-3 px-4 py-2.5 text-sm font-semibold transition-colors mx-2 rounded-xl ${
-                        active
-                          ? "bg-amber-500/20 text-amber-400"
-                          : "text-slate-300 hover:bg-white/5 hover:text-white"
-                      }`}
-                    >
-                      <Icon className="h-4 w-4 shrink-0" />
-                      {label}
-                    </Link>
-                  );
-                })}
-
-                {/* Grouped sections */}
-                {NAV_GROUPS.map((group) => {
-                  if (!groupHasVisibleItems(group, userRole)) return null;
-
-                  const visibleItems = group.items.filter((item) => isItemVisible(item, userRole));
-                  const isOpen = openGroup === group.id;
-                  const groupActive = pathBelongsToGroup(group, pathname);
-                  const GroupIcon = group.icon;
-
-                  return (
-                    <div key={group.id} className="mt-1">
-                      {/* Group header */}
-                      <button
-                        onClick={() => toggleGroup(group.id)}
-                        className={`w-full flex items-center justify-between gap-2 px-4 py-2.5 text-sm font-semibold transition-colors mx-2 rounded-xl ${
-                          groupActive && !isOpen
-                            ? "text-amber-400"
-                            : "text-slate-300 hover:text-white hover:bg-white/5"
-                        }`}
-                        style={{ width: "calc(100% - 1rem)" }}
-                      >
-                        <span className="flex items-center gap-3">
-                          <GroupIcon className="h-4 w-4 shrink-0" />
-                          {group.label}
-                        </span>
-                        <ChevronDown
-                          className={`h-4 w-4 shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
-                        />
-                      </button>
-
-                      {/* Group items */}
-                      {isOpen && (
-                        <div className="mt-0.5 mb-1">
-                          {visibleItems.map((item) => {
-                            const hasExactMatch = visibleItems.some((i) => pathname === i.href);
-                            const active = hasExactMatch
-                              ? pathname === item.href
-                              : pathname === item.href ||
-                                (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"));
-                            return (
-                              <Link
-                                key={item.href}
-                                href={item.href}
-                                onClick={closeMenu}
-                                className={`flex items-center gap-2 pl-11 pr-4 py-2 text-sm transition-colors mx-2 rounded-xl ${
-                                  active
-                                    ? "bg-amber-500/20 text-amber-400 font-semibold"
-                                    : "text-slate-400 hover:bg-white/5 hover:text-white"
-                                }`}
-                                style={{ width: "calc(100% - 1rem)" }}
-                              >
-                                <span className="w-1 h-1 rounded-full bg-current shrink-0 opacity-60" />
-                                {item.label}
-                              </Link>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-
-                {/* Divider + Logout (mobile) */}
-                <div className="mt-2 pt-2 border-t border-white/10 sm:hidden">
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center justify-center gap-2 text-sm text-red-400 px-4 py-3 rounded-xl hover:bg-red-500/10 transition-colors mx-2"
-                    style={{ width: "calc(100% - 1rem)" }}
-                  >
-                    <LogOut className="h-4 w-4" />
-                    Logout
-                  </button>
-                </div>
-              </nav>
-            </div>
-          </>
-        )}
       </header>
+
+      {/* Menu - Outside header to avoid stacking context issues */}
+      {menuOpen && (
+        <>
+          <div className="fixed inset-0 bg-black/30 z-40 md:hidden" onClick={closeMenu} />
+          <div role="navigation" className="fixed top-0 right-0 w-full md:w-80 h-screen bg-slate-900 border-l border-b border-white/10 shadow-2xl z-50 overflow-y-auto">
+            <Link href="/profile" onClick={closeMenu} className="sm:hidden px-4 py-4 border-b border-white/10 flex items-center gap-3 hover:bg-white/5 transition-colors cursor-pointer">
+              <div className="w-10 h-10 rounded-full bg-amber-400 overflow-hidden flex items-center justify-center text-sm font-bold text-white relative shrink-0">
+                <span>{user?.first_name?.[0]}{user?.last_name?.[0]}</span>
+                {user?.profile_photo_path && <img src={user.profile_photo_path} alt="" className="absolute inset-0 w-full h-full object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />}
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-white">{user?.first_name} {user?.last_name}</p>
+                <p className="text-xs text-slate-400">{user?.role}</p>
+              </div>
+            </Link>
+            <nav className="py-2">
+              {STANDALONE.map(({ href, label, icon: Icon }) => {
+                const active = pathname === href;
+                return (
+                  <Link key={href} href={href} onClick={closeMenu} className={`flex items-center gap-3 px-4 py-2.5 text-sm font-semibold transition-colors mx-2 rounded-xl ${active ? "bg-amber-500/20 text-amber-400" : "text-slate-300 hover:bg-white/5 hover:text-white"}`}>
+                    <Icon className="h-4 w-4 shrink-0" />
+                    {label}
+                  </Link>
+                );
+              })}
+              {NAV_GROUPS.map((group) => {
+                if (!groupHasVisibleItems(group, userRole)) return null;
+                const visibleItems = group.items.filter((item) => isItemVisible(item, userRole));
+                const isOpen = openGroup === group.id;
+                const groupActive = pathBelongsToGroup(group, pathname);
+                const GroupIcon = group.icon;
+                return (
+                  <div key={group.id} className="mt-1">
+                    <button onClick={() => toggleGroup(group.id)} className={`w-full flex items-center justify-between gap-2 px-4 py-2.5 text-sm font-semibold transition-colors mx-2 rounded-xl ${groupActive && !isOpen ? "text-amber-400" : "text-slate-300 hover:text-white hover:bg-white/5"}`} style={{ width: "calc(100% - 1rem)" }}>
+                      <span className="flex items-center gap-3">
+                        <GroupIcon className="h-4 w-4 shrink-0" />
+                        {group.label}
+                      </span>
+                      <ChevronDown className={`h-4 w-4 shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
+                    </button>
+                    {isOpen && (
+                      <div className="mt-0.5 mb-1">
+                        {visibleItems.map((item) => {
+                          const hasExactMatch = visibleItems.some((i) => pathname === i.href);
+                          const active = hasExactMatch ? pathname === item.href : pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"));
+                          return (
+                            <Link key={item.href} href={item.href} onClick={closeMenu} className={`flex items-center gap-2 pl-11 pr-4 py-2 text-sm transition-colors mx-2 rounded-xl ${active ? "bg-amber-500/20 text-amber-400 font-semibold" : "text-slate-400 hover:bg-white/5 hover:text-white"}`} style={{ width: "calc(100% - 1rem)" }}>
+                              <span className="w-1 h-1 rounded-full bg-current shrink-0 opacity-60" />
+                              {item.label}
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+              <div className="mt-2 pt-2 border-t border-white/10 sm:hidden">
+                <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 text-sm text-red-400 px-4 py-3 rounded-xl hover:bg-red-500/10 transition-colors mx-2" style={{ width: "calc(100% - 1rem)" }}>
+                  <LogOut className="h-4 w-4" />
+                  Logout
+                </button>
+              </div>
+            </nav>
+          </div>
+        </>
+      )}
 
       <main className="max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8">
         {/* Breadcrumbs */}
