@@ -83,10 +83,15 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
 
         <div className="flex-1 flex items-center justify-between gap-2 p-3 bg-slate-800/50 rounded-lg min-w-0">
           <div className="flex items-center gap-2 min-w-0 flex-1">
-            <Avatar className="h-10 w-10 shrink-0">
-              <AvatarImage src={person.profile_photo_path} />
-              <AvatarFallback>{person.name?.[0] || "?"}</AvatarFallback>
-            </Avatar>
+            <div className="group relative shrink-0">
+              <Avatar className="h-10 w-10 cursor-help">
+                <AvatarImage src={person.profile_photo_path} />
+                <AvatarFallback>{person.name?.[0] || "?"}</AvatarFallback>
+              </Avatar>
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-slate-950 border border-slate-700 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 shadow-lg font-medium">
+                {person.name}
+              </div>
+            </div>
             <div className="min-w-0">
               <p className="font-semibold text-white text-sm line-clamp-1">{person.name || "Unknown"}</p>
               <p className="text-xs text-slate-400 line-clamp-1">{person.designation || "N/A"}</p>
