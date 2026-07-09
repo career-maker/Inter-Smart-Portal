@@ -53,7 +53,10 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
     }
   };
 
-  if (!items || items.length === 0) {
+  // Filter out past birthdays (days_remaining < 0)
+  const upcomingItems = items.filter((item: any) => item.days_remaining >= 0);
+
+  if (!upcomingItems || upcomingItems.length === 0) {
     return (
       <div className="premium-card p-6 flex flex-col justify-center" style={{ height: '224px' }}>
         <h3 className="font-bold text-white mb-4">🎂 Upcoming Birthdays</h3>
@@ -62,20 +65,22 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
     );
   }
 
-  const person = items[currentIndex];
+  // Reset index if current index is out of bounds
+  const safeIndex = currentIndex >= upcomingItems.length ? upcomingItems.length - 1 : currentIndex;
+  const person = upcomingItems[safeIndex];
   const isToday = person.days_remaining === 0;
   const isSelf = currentUser?.id === person.id;
   const canWish = isToday && !isSelf;
 
   return (
-    <div className="premium-card p-6 space-y-4 flex flex-col" style={{ height: '224px' }}>
-      <h3 className="font-bold text-white shrink-0">🎂 Upcoming Birthdays</h3>
+    <div className="premium-card p-6 flex flex-col" style={{ height: '224px' }}>
+      <h3 className="font-bold text-white shrink-0 mb-3">🎂 Upcoming Birthdays</h3>
 
       {/* Rotating Card */}
       <div className="flex items-center justify-between gap-2 flex-1 min-h-0">
         <button
-          onClick={() => setCurrentIndex(Math.max(0, currentIndex - 1))}
-          disabled={currentIndex === 0}
+          onClick={() => setCurrentIndex(Math.max(0, safeIndex - 1))}
+          disabled={safeIndex === 0}
           className="p-2 hover:bg-slate-700/50 rounded disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
         >
           <ChevronLeft className="w-4 h-4 text-slate-400" />
@@ -126,8 +131,8 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
         </div>
 
         <button
-          onClick={() => setCurrentIndex(Math.min(items.length - 1, currentIndex + 1))}
-          disabled={currentIndex === items.length - 1}
+          onClick={() => setCurrentIndex(Math.min(upcomingItems.length - 1, safeIndex + 1))}
+          disabled={safeIndex === upcomingItems.length - 1}
           className="p-2 hover:bg-slate-700/50 rounded disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
         >
           <ChevronRight className="w-4 h-4 text-slate-400" />
@@ -135,12 +140,12 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
       </div>
 
       {/* Dots */}
-      <div className="flex justify-center gap-1.5 shrink-0">
-        {items.map((_, idx) => (
+      <div className="flex justify-center gap-1.5 shrink-0 mt-3">
+        {upcomingItems.map((_, idx) => (
           <button
             key={idx}
             onClick={() => setCurrentIndex(idx)}
-            className={`rounded-full transition ${idx === currentIndex ? "bg-amber-400 w-2 h-2" : "bg-slate-600 w-1.5 h-1.5"}`}
+            className={`rounded-full transition ${idx === safeIndex ? "bg-amber-400 w-2 h-2" : "bg-slate-600 w-1.5 h-1.5"}`}
           />
         ))}
       </div>
