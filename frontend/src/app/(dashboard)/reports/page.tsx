@@ -3,11 +3,11 @@
 import { PageLoader } from "@/components/ui/PageLoader";
 import { useEffect, useState, useMemo } from "react";
 import { useAuthStore } from "@/store/auth";
-import { FileText, Users, CalendarDays, BarChart3, Download, Printer, Search, ChevronUp, ChevronDown, Loader2, AlertCircle } from "lucide-react";
+import { FileText, Users, CalendarDays, BarChart3, Download, Printer, Search, ChevronUp, ChevronDown, Loader2, AlertCircle, Activity } from "lucide-react";
 import api from "@/services/api";
 import { format } from "date-fns";
 
-type ReportType = "employees" | "leaves" | "leave-balances";
+type ReportType = "employees" | "leaves" | "leave-balances" | "attendance-summary";
 
 function exportCSV(data: any[], filename: string) {
   if (!data.length) return;
@@ -64,7 +64,7 @@ export default function ReportsPage() {
     try {
       const params: any = {};
       if (selectedUserId !== "all") params.user_id = selectedUserId;
-      if (reportType === "leaves") {
+      if (reportType === "leaves" || reportType === "attendance-summary") {
         if (startDate) params.start_date = startDate;
         if (endDate) params.end_date = endDate;
       }
@@ -98,6 +98,7 @@ export default function ReportsPage() {
     { key: "employees", label: "Employee Report", icon: Users },
     { key: "leaves", label: "Leave Report", icon: CalendarDays },
     { key: "leave-balances", label: "Leave Balance Report", icon: BarChart3 },
+    { key: "attendance-summary", label: "Attendance Summary", icon: Activity },
   ];
 
   return (
@@ -193,6 +194,22 @@ export default function ReportsPage() {
                     <SortableHeader label="WFH/Mo" col="wfh_this_month" sort={sort} onSort={handleSort} />
                     <SortableHeader label="Status" col="status" sort={sort} onSort={handleSort} />
                   </>}
+                  {reportType === "attendance-summary" && <>
+                    <SortableHeader label="Code" col="employee_code" sort={sort} onSort={handleSort} />
+                    <SortableHeader label="Name" col="name" sort={sort} onSort={handleSort} />
+                    <SortableHeader label="Team" col="team" sort={sort} onSort={handleSort} />
+                    <SortableHeader label="Sun" col="0" sort={sort} onSort={handleSort} />
+                    <SortableHeader label="Mon" col="1" sort={sort} onSort={handleSort} />
+                    <SortableHeader label="Tue" col="2" sort={sort} onSort={handleSort} />
+                    <SortableHeader label="Wed" col="3" sort={sort} onSort={handleSort} />
+                    <SortableHeader label="Thu" col="4" sort={sort} onSort={handleSort} />
+                    <SortableHeader label="Fri" col="5" sort={sort} onSort={handleSort} />
+                    <SortableHeader label="Sat" col="6" sort={sort} onSort={handleSort} />
+                    <SortableHeader label="Present" col="present" sort={sort} onSort={handleSort} />
+                    <SortableHeader label="Late" col="late" sort={sort} onSort={handleSort} />
+                    <SortableHeader label="Absent" col="absent" sort={sort} onSort={handleSort} />
+                    <SortableHeader label="WFH" col="wfh" sort={sort} onSort={handleSort} />
+                  </>}
                   {reportType === "leaves" && <>
                     <SortableHeader label="Employee" col="employee_name" sort={sort} onSort={handleSort} />
                     <SortableHeader label="Leave Type" col="leave_type" sort={sort} onSort={handleSort} />
@@ -238,6 +255,25 @@ export default function ReportsPage() {
                       <td className="px-4 py-3 text-center text-slate-300">{row.leaves_taken_this_month}</td>
                       <td className="px-4 py-3 text-center text-slate-300">{row.wfh_this_month}</td>
                       <td className="px-4 py-3"><StatusBadge status={row.status} /></td>
+                    </>}
+                    {reportType === "attendance-summary" && <>
+                      <td className="px-4 py-3 font-mono text-xs text-slate-300">{row.employee_code}</td>
+                      <td className="px-4 py-3 text-white font-semibold whitespace-nowrap">{row.name}</td>
+                      <td className="px-4 py-3 text-slate-300 text-sm">{row.team || "—"}</td>
+                      {row.daily_status?.slice(0, 7).map((day: any, idx: number) => {
+                        let bgColor = "bg-slate-800/50";
+                        let textColor = "text-slate-400";
+                        if (day.status === 'P') { bgColor = "bg-emerald-500/20"; textColor = "text-emerald-400"; }
+                        else if (day.status === 'A') { bgColor = "bg-red-500/20"; textColor = "text-red-400"; }
+                        else if (day.status === 'W') { bgColor = "bg-blue-500/20"; textColor = "text-blue-400"; }
+                        else if (day.status === 'H') { bgColor = "bg-amber-500/20"; textColor = "text-amber-400"; }
+                        const lateMarker = day.is_late ? "L" : (day.status === 'P' ? 'P' : day.status);
+                        return <td key={idx} className={`px-3 py-2 text-center text-xs font-bold ${bgColor} ${textColor} rounded`}>{lateMarker}</td>;
+                      })}
+                      <td className="px-4 py-3 text-center font-bold text-emerald-400">{row.summary?.present || 0}</td>
+                      <td className="px-4 py-3 text-center font-bold text-rose-400">{row.summary?.late || 0}</td>
+                      <td className="px-4 py-3 text-center font-bold text-red-500">{row.summary?.absent || 0}</td>
+                      <td className="px-4 py-3 text-center font-bold text-blue-400">{row.summary?.wfh || 0}</td>
                     </>}
                     {reportType === "leaves" && <>
                       <td className="px-4 py-3 text-white font-semibold whitespace-nowrap">{row.employee_name}</td>

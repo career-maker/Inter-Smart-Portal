@@ -248,4 +248,159 @@ class ReportController extends Controller
 
         return response()->json(['data' => $employees]);
     }
+
+    /**
+     * Attendance Summary Report - Shows daily attendance with leave status for a given week
+     * Returns data for all employees with their daily status and calculated late arrivals
+     */
+    public function attendanceSummary(Request $request): JsonResponse
+    {
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        if (!$startDate || !$endDate) {
+            return response()->json(['message' => 'start_date and end_date required'], 422);
+        }
+
+        $start = Carbon::parse($startDate)->startOfDay();
+        $end = Carbon::parse($endDate)->endOfDay();
+
+        // Get all active employees
+        $employees = User::where('status', 'Active')
+            ->with(['team', 'leaveBalance'])
+            ->orderBy('first_name')
+            ->get();
+
+        $report = [];
+        $summaryStats = [
+            'total_absent' => 0,
+            'total_wfh' => 0,
+            'total_half_day' => 0,
+            'total_late' => 0,
+            'total_present' => 0,
+        ];
+
+        foreach ($employees as $emp) {
+            $empData = [
+                'id' => $emp->id,
+                'employee_code' => $emp->employee_code,
+                'name' => "{$emp->first_name} {$emp->last_name}",
+                'team' => $emp->team?->name,
+                'daily_status' => [],
+            ];
+
+            // Process each day in the date range
+            $current = clone $start;
+            $dayStats = ['absent' => 0, 'wfh' => 0, 'half_day' => 0, 'late' => 0, 'present' => 0];
+
+            while ($current <= $end) {
+                $dateStr = $current->toDateString();
+
+                // Check for approved leaves on this date
+                $leave = LeaveRequest::where('user_id', $emp->id)
+                    ->where('status', 'Approved')
+                    ->whereDate('start_date', '<=', $dateStr)
+                    ->whereDate('end_date', '>=', $dateStr)
+                    ->first();
+
+                // Check for approved WFH on this date
+                $wfh = WfhRequest::where('user_id', $emp->id)
+                    ->where('status', 'Approved')
+                    ->whereDate('start_date', '<=', $dateStr)
+                    ->whereDate('end_date', '>=', $dateStr)
+                    ->first();
+
+                // Get attendance record
+                $attendance = \App\Models\Attendance::where('user_id', $emp->id)
+                    ->whereDate('date', $dateStr)
+                    ->first();
+
+                $dayStatus = $this->calculateDayStatus($emp->id, $dateStr, $leave, $wfh, $attendance);
+
+                $empData['daily_status'][] = [
+                    'date' => $dateStr,
+                    'day_name' => $current->format('D'),
+                    'status' => $dayStatus['status'],
+                    'is_late' => $dayStatus['is_late'],
+                    'check_in' => $attendance?->check_in,
+                    'check_out' => $attendance?->check_out,
+                ];
+
+                // Update daily stats
+                if ($dayStatus['status'] === 'A') $dayStats['absent']++;
+                elseif ($dayStatus['status'] === 'W') $dayStats['wfh']++;
+                elseif ($dayStatus['status'] === 'H') $dayStats['half_day']++;
+                elseif ($dayStatus['is_late']) $dayStats['late']++;
+                elseif ($dayStatus['status'] === 'P') $dayStats['present']++;
+
+                $current->addDay();
+            }
+
+            $empData['summary'] = $dayStats;
+            $report[] = $empData;
+
+            // Update summary stats
+            $summaryStats['total_absent'] += $dayStats['absent'];
+            $summaryStats['total_wfh'] += $dayStats['wfh'];
+            $summaryStats['total_half_day'] += $dayStats['half_day'];
+            $summaryStats['total_late'] += $dayStats['late'];
+            $summaryStats['total_present'] += $dayStats['present'];
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'period' => ['start_date' => $startDate, 'end_date' => $endDate],
+            'summary' => $summaryStats,
+            'data' => $report,
+        ]);
+    }
+
+    /**
+     * Calculate day status for an employee
+     * Returns: 'P' = Present, 'A' = Absent, 'L' = Leave, 'W' = WFH, 'H' = Half Day
+     * is_late: true if employee is marked as late
+     */
+    private function calculateDayStatus($userId, $dateStr, $leave, $wfh, $attendance): array
+    {
+        // If on leave, mark as 'L' (absence due to leave)
+        if ($leave) {
+            $isHalfDay = $leave->duration_type && strpos($leave->duration_type, 'Half') !== false;
+            return [
+                'status' => $isHalfDay ? 'H' : 'A',
+                'is_late' => false,
+            ];
+        }
+
+        // If on WFH, mark as 'W'
+        if ($wfh) {
+            return [
+                'status' => 'W',
+                'is_late' => false,
+            ];
+        }
+
+        // No attendance record = Absent
+        if (!$attendance) {
+            return [
+                'status' => 'A',
+                'is_late' => false,
+            ];
+        }
+
+        // Check if late based on first check-in time
+        $isLate = false;
+        if ($attendance->check_in) {
+            $checkInTime = Carbon::parse($attendance->check_in);
+            $lateThreshold = Carbon::parse($dateStr . ' 09:40:00');
+
+            if ($checkInTime->greaterThan($lateThreshold)) {
+                $isLate = true;
+            }
+        }
+
+        return [
+            'status' => 'P',
+            'is_late' => $isLate,
+        ];
+    }
 }
