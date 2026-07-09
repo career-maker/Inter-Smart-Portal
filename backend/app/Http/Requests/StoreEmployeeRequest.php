@@ -22,9 +22,17 @@ class StoreEmployeeRequest extends FormRequest
     {
         $employeeCodeRule = ['nullable', 'string', 'max:50'];
 
-        // Only add unique rule if employee_code is provided
+        // Only add unique rule if employee_code is provided and not empty
         if ($this->filled('employee_code')) {
-            $employeeCodeRule[] = 'unique:users,employee_code';
+            // Check uniqueness only among non-null values
+            $employeeCodeRule[] = function ($attribute, $value, $fail) {
+                $exists = \App\Models\User::where('employee_code', $value)
+                    ->where('employee_code', '!=', null)
+                    ->exists();
+                if ($exists) {
+                    $fail('The employee code has already been taken.');
+                }
+            };
         }
 
         return [
