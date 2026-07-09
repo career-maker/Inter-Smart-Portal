@@ -191,8 +191,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <RecognitionTicker />
-      <header className="fixed top-0 left-0 right-0 w-full h-16 bg-slate-900/80 backdrop-blur-md border-b border-white/10 z-40 shadow-lg">
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between gap-4">
+      <header className="bg-slate-900/80 backdrop-blur-md border-b border-white/10 shadow-lg">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           {/* Logo */}
           <Link href="/dashboard" className="flex items-center shrink-0 pr-4">
             <img src="/logo.png" alt="Intersmart Logo" className="h-10 w-auto object-contain" />
@@ -376,7 +376,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         )}
       </header>
 
-      <main className="max-w-[1600px] mx-auto pt-32 p-4 sm:p-6 lg:p-8">
+      <main className="max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8">
         {/* Breadcrumbs */}
         {pathname !== "/dashboard" && (
           <div className="flex items-center flex-wrap gap-2 text-sm text-slate-400 mb-6 font-medium">
