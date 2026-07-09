@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import { NotificationDropdown } from "@/components/layout/NotificationDropdown";
 import { RecognitionTicker } from "@/components/layout/RecognitionTicker";
-import { BirthdayTicker } from "@/components/layout/BirthdayTicker";
 import api from "@/services/api";
 import Script from "next/script";
 import ChatbaseLottieButton from "@/components/ChatbaseLottieButton";
@@ -173,7 +172,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <BirthdayTicker />
       <RecognitionTicker />
       <header className="bg-slate-900/80 backdrop-blur-md border-b border-white/10 sticky top-0 z-30 shadow-sm">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">

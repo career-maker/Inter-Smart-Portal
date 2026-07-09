@@ -28,7 +28,13 @@ export function RecognitionTicker() {
             user: { first_name: b.name.split(" ")[0], last_name: b.name.split(" ").slice(1).join(" ") || "" },
           }));
 
-        setItems([...birthdays, ...recognitions]);
+        console.log("Ticker - Birthdays today:", birthdays);
+        console.log("Ticker - Recognitions:", recognitions);
+
+        const allItems = [...birthdays, ...recognitions];
+        console.log("Ticker - All items to display:", allItems);
+
+        setItems(allItems);
       } catch (error) {
         console.error("Failed to fetch recognitions/birthdays for ticker", error);
       }
