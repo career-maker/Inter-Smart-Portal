@@ -197,76 +197,87 @@ class ReportController extends Controller
 
     public function leaveBalances(Request $request): JsonResponse
     {
-        $query = User::with(['team', 'leaveBalance', 'leaveRequests', 'wfhRequests'])
-            ->whereNotNull('joining_date');
+        try {
+            $query = User::with(['team', 'leaveBalance'])
+                ->where('status', 'Active');
 
-        if ($request->filled('user_id') && $request->user_id !== 'all') {
-            $query->where('id', $request->user_id);
+            if ($request->filled('user_id') && $request->user_id !== 'all') {
+                $userId = intval($request->user_id);
+                $query->where('id', $userId);
+            }
+            if ($request->filled('status')) {
+                $query->where('status', $request->status);
+            }
+
+            $currentYear = Carbon::now()->year;
+            $employees = $query->orderBy('first_name')->get();
+            $employeeIds = $employees->pluck('id')->toArray();
+
+            \Log::info('Leave balance report', [
+                'employee_count' => $employees->count(),
+                'currentYear' => $currentYear
+            ]);
+
+            // Batch-load leave requests with leave types
+            $allLeaves = LeaveRequest::whereIn('user_id', $employeeIds)
+                ->where('status', 'Approved')
+                ->whereYear('start_date', $currentYear)
+                ->with('leaveType')
+                ->get()
+                ->groupBy('user_id');
+
+            // Batch-load WFH requests
+            $allWfh = WfhRequest::whereIn('user_id', $employeeIds)
+                ->where('status', 'Approved')
+                ->whereYear('start_date', $currentYear)
+                ->get()
+                ->groupBy('user_id');
+
+            $data = $employees->map(function (User $emp) use ($currentYear, $allLeaves, $allWfh) {
+                $balance = $emp->leaveBalance;
+                $cl      = $balance?->casual_leave_balance ?? 0;
+                $sl      = $balance?->sick_leave_balance ?? 0;
+                $cf      = $balance?->cl_carry_forward ?? 0;
+
+                // Use pre-loaded data instead of individual queries
+                $leaves = $allLeaves[$emp->id] ?? collect();
+                $wfhs = $allWfh[$emp->id] ?? collect();
+
+                $clUsed = $leaves->filter(fn($l) => !$l->is_unpaid && $l->leaveType?->name && str_contains($l->leaveType->name, 'Casual'))
+                    ->sum('actual_leave_days');
+
+                $slUsed = $leaves->filter(fn($l) => !$l->is_unpaid && $l->leaveType?->name && str_contains($l->leaveType->name, 'Sick'))
+                    ->sum('actual_leave_days');
+
+                $lop = $leaves->sum('lop_days');
+                $wfh = $wfhs->count();
+
+                return [
+                    'id'               => $emp->id,
+                    'employee_code'    => $emp->employee_code,
+                    'full_name'        => "{$emp->first_name} {$emp->last_name}",
+                    'team'             => $emp->team?->name,
+                    'designation'      => $emp->designation,
+                    'status'           => $emp->status,
+                    'cl_balance'       => $cl,
+                    'sl_balance'       => $sl,
+                    'cl_carry_forward' => $cf,
+                    'total_cl'         => $cl + $cf,
+                    'total_sl'         => $sl,
+                    'cl_used'          => $clUsed,
+                    'sl_used'          => $slUsed,
+                    'lop_count'        => $lop,
+                    'wfh_count'        => $wfh,
+                    'is_in_probation'  => $emp->isInProbation(),
+                    'probation_end_date' => $emp->probationEndDate(),
+                ];
+            });
+
+            return response()->json(['status' => 'success', 'data' => $data]);
+        } catch (\Exception $e) {
+            \Log::error('Leave balance report error', ['error' => $e->getMessage()]);
+            return response()->json(['message' => 'Error generating leave balance report: ' . $e->getMessage()], 500);
         }
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        $currentYear = Carbon::now()->year;
-        $employees = $query->get();
-        $employeeIds = $employees->pluck('id')->toArray();
-
-        // Batch-load leave requests with leave types
-        $allLeaves = LeaveRequest::whereIn('user_id', $employeeIds)
-            ->where('status', 'Approved')
-            ->whereYear('start_date', $currentYear)
-            ->with('leaveType')
-            ->get()
-            ->groupBy('user_id');
-
-        // Batch-load WFH requests
-        $allWfh = WfhRequest::whereIn('user_id', $employeeIds)
-            ->where('status', 'Approved')
-            ->whereYear('start_date', $currentYear)
-            ->get()
-            ->groupBy('user_id');
-
-        $data = $employees->map(function (User $emp) use ($currentYear, $allLeaves, $allWfh) {
-            $balance = $emp->leaveBalance;
-            $cl      = $balance?->casual_leave_balance ?? 0;
-            $sl      = $balance?->sick_leave_balance ?? 0;
-            $cf      = $balance?->cl_carry_forward ?? 0;
-
-            // Use pre-loaded data instead of individual queries
-            $leaves = $allLeaves[$emp->id] ?? collect();
-            $wfhs = $allWfh[$emp->id] ?? collect();
-
-            $clUsed = $leaves->filter(fn($l) => !$l->is_unpaid && $l->leaveType?->name && str_contains($l->leaveType->name, 'Casual'))
-                ->sum('actual_leave_days');
-
-            $slUsed = $leaves->filter(fn($l) => !$l->is_unpaid && $l->leaveType?->name && str_contains($l->leaveType->name, 'Sick'))
-                ->sum('actual_leave_days');
-
-            $lop = $leaves->sum('lop_days');
-            $wfh = $wfhs->count();
-
-            return [
-                'id'               => $emp->id,
-                'employee_code'    => $emp->employee_code,
-                'full_name'        => "{$emp->first_name} {$emp->last_name}",
-                'team'             => $emp->team?->name,
-                'designation'      => $emp->designation,
-                'status'           => $emp->status,
-                'cl_balance'       => $cl,
-                'sl_balance'       => $sl,
-                'cl_carry_forward' => $cf,
-                'total_cl'         => $cl + $cf,
-                'total_sl'         => $sl,
-                'cl_used'          => $clUsed,
-                'sl_used'          => $slUsed,
-                'lop_count'        => $lop,
-                'wfh_count'        => $wfh,
-                'is_in_probation'  => $emp->isInProbation(),
-                'probation_end_date' => $emp->probationEndDate(),
-            ];
-        });
-
-        return response()->json(['status' => 'success', 'data' => $data]);
     }
 
     public function allEmployeesForFilter(Request $request): JsonResponse
