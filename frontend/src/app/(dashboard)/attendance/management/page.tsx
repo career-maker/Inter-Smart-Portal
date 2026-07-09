@@ -241,16 +241,19 @@ export default function AttendanceManagementPage() {
     if (allEmployeesDateData.length === 0) return;
 
     const headers = ["Employee Name", "Employee Code", "Designation", "Team", "Check-In", "Check-Out", "Total Hours", "Status"];
-    const rows = allEmployeesDateData.map((emp) => [
-      `${emp.first_name} ${emp.last_name}`,
-      emp.employee_code || "",
-      emp.designation || "",
-      emp.team?.name || "",
-      emp.attendance?.first_in ? formatTime(emp.attendance.first_in) : "--:--",
-      emp.attendance?.last_out ? formatTime(emp.attendance.last_out) : "--:--",
-      emp.attendance?.total_working_minutes ? formatMinutesToHours(emp.attendance.total_working_minutes) : "--",
-      emp.attendance?.status_label || "Absent",
-    ]);
+    const rows = allEmployeesDateData.map((emp) => {
+      const attendance = emp.attendance || {};
+      return [
+        `${emp.first_name} ${emp.last_name}`,
+        emp.employee_code || "",
+        emp.designation || "",
+        emp.team?.name || "",
+        attendance.first_in ? formatTime(attendance.first_in) : "--:--",
+        attendance.last_out ? formatTime(attendance.last_out) : "--:--",
+        attendance.total_working_minutes ? formatMinutesToHours(attendance.total_working_minutes) : "--",
+        attendance.status_label || "Absent",
+      ];
+    });
 
     const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
@@ -308,7 +311,7 @@ export default function AttendanceManagementPage() {
         <p className="text-slate-300">Super Admin: View and manage employee attendance records</p>
       </div>
 
-      {error && (
+      {error && viewMode !== "dateAllEmployees" && (
         <Card className="border-red-500/50 bg-red-500/10">
           <CardContent className="pt-6 flex gap-4">
             <AlertCircle className="h-6 w-6 text-red-400 flex-shrink-0" />
@@ -424,21 +427,44 @@ export default function AttendanceManagementPage() {
         <>
           <Card className="shadow-sm border-white/10 bg-slate-800/50 backdrop-blur-sm text-white">
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                 <div>
                   <CardTitle>Attendance Report - {selectedDate}</CardTitle>
                   <CardDescription className="text-slate-400">All employees attendance</CardDescription>
                 </div>
-                <button
-                  onClick={() => {
-                    setViewMode("selector");
-                    setAllEmployeesDateData([]);
-                    setSelectedDate("");
-                  }}
-                  className="text-slate-400 hover:text-white transition-colors text-sm"
-                >
-                  ← Back
-                </button>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <label className="text-sm text-slate-300">Change Date:</label>
+                    <input
+                      type="date"
+                      value={selectedDate}
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          handleAllEmployeesDateSelection(e.target.value);
+                        }
+                      }}
+                      className="px-3 py-2 bg-slate-900 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-amber-400 [color-scheme:dark] text-sm"
+                    />
+                  </div>
+                  <button
+                    onClick={handleExportCSV}
+                    disabled={allEmployeesDateData.length === 0}
+                    className="flex items-center gap-2 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-700 disabled:text-slate-500 rounded-lg text-white font-semibold transition-colors text-sm"
+                  >
+                    <Download className="h-4 w-4" />
+                    Export CSV
+                  </button>
+                  <button
+                    onClick={() => {
+                      setViewMode("selector");
+                      setAllEmployeesDateData([]);
+                      setSelectedDate("");
+                    }}
+                    className="px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-700/30 rounded-lg transition-colors text-sm font-semibold"
+                  >
+                    ← Back
+                  </button>
+                </div>
               </div>
             </CardHeader>
             <CardContent>
@@ -462,43 +488,37 @@ export default function AttendanceManagementPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {allEmployeesDateData.map((emp) => (
-                        <tr key={emp.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                          <td className="py-3 px-4 text-white">{emp.first_name} {emp.last_name}</td>
-                          <td className="py-3 px-4 text-slate-300">{emp.employee_code}</td>
-                          <td className="py-3 px-4 text-slate-300">{emp.designation || "N/A"}</td>
-                          <td className="py-3 px-4 text-slate-300">{emp.team?.name || "Unassigned"}</td>
-                          <td className="py-3 px-4 text-center text-emerald-400">
-                            {emp.attendance?.first_in ? formatTime(emp.attendance.first_in) : "--:--"}
-                          </td>
-                          <td className="py-3 px-4 text-center text-rose-400">
-                            {emp.attendance?.last_out ? formatTime(emp.attendance.last_out) : "--:--"}
-                          </td>
-                          <td className="py-3 px-4 text-center text-blue-400">
-                            {emp.attendance?.total_working_minutes ? formatMinutesToHours(emp.attendance.total_working_minutes) : "--"}
-                          </td>
-                          <td className="py-3 px-4 text-center">
-                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                              emp.attendance?.status_label === "Present" ? "bg-emerald-500/20 text-emerald-400" :
-                              emp.attendance?.status_label === "Absent" ? "bg-rose-500/20 text-rose-400" :
-                              "bg-slate-500/20 text-slate-400"
-                            }`}>
-                              {emp.attendance?.status_label || "Absent"}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
+                      {allEmployeesDateData.map((emp) => {
+                        const attendance = emp.attendance || {};
+                        return (
+                          <tr key={emp.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                            <td className="py-3 px-4 text-white">{emp.first_name} {emp.last_name}</td>
+                            <td className="py-3 px-4 text-slate-300">{emp.employee_code}</td>
+                            <td className="py-3 px-4 text-slate-300">{emp.designation || "N/A"}</td>
+                            <td className="py-3 px-4 text-slate-300">{emp.team?.name || "Unassigned"}</td>
+                            <td className="py-3 px-4 text-center text-emerald-400">
+                              {attendance.first_in ? formatTime(attendance.first_in) : "--:--"}
+                            </td>
+                            <td className="py-3 px-4 text-center text-rose-400">
+                              {attendance.last_out ? formatTime(attendance.last_out) : "--:--"}
+                            </td>
+                            <td className="py-3 px-4 text-center text-blue-400">
+                              {attendance.total_working_minutes ? formatMinutesToHours(attendance.total_working_minutes) : "--"}
+                            </td>
+                            <td className="py-3 px-4 text-center">
+                              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                attendance.status_label === "Present" ? "bg-emerald-500/20 text-emerald-400" :
+                                attendance.status_label === "Absent" ? "bg-rose-500/20 text-rose-400" :
+                                "bg-slate-500/20 text-slate-400"
+                              }`}>
+                                {attendance.status_label || "Absent"}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
-                  <div className="mt-4 flex gap-2">
-                    <button
-                      onClick={handleExportCSV}
-                      className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white font-semibold transition-colors"
-                    >
-                      <Download className="h-4 w-4" />
-                      Export as CSV
-                    </button>
-                  </div>
                 </div>
               ) : (
                 <div className="text-center py-8 text-slate-400">
