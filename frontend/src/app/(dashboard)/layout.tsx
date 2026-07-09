@@ -251,7 +251,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               className="fixed inset-0 bg-black/30 z-40 md:hidden"
               onClick={closeMenu}
             />
-            <div role="navigation" className="absolute top-full right-0 w-full md:w-80 bg-slate-900 border-l border-b border-white/10 shadow-2xl z-50 max-h-[calc(100vh-4rem)] overflow-y-auto">
+            <div role="navigation" className="fixed top-0 right-0 w-full md:w-80 h-screen bg-slate-900 border-l border-b border-white/10 shadow-2xl z-50 overflow-y-auto">
 
               {/* User info for mobile */}
               <Link
