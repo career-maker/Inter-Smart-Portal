@@ -148,19 +148,21 @@ class DashboardController extends Controller
             ->get(['title', 'category', 'created_at', 'is_pinned']);
 
         // 5. Celebrations (Birthdays & Anniversaries in next 14 days)
-        $celebrations = Cache::remember('dashboard_celebrations', now()->addHours(24), function () {
+        // Note: Cache key includes date to auto-invalidate daily
+        $cacheKey = 'dashboard_celebrations_' . Carbon::today()->toDateString();
+        $celebrations = Cache::remember($cacheKey, now()->addHours(24), function () {
             $today = Carbon::today();
             $nextWeek = Carbon::today()->addDays(14);
-            
+
             $allActiveUsers = User::where('status', 'Active')->get(['first_name', 'last_name', 'dob', 'joining_date']);
-            
+
             $birthdays = [];
             $anniversaries = [];
 
             foreach ($allActiveUsers as $u) {
                 if ($u->dob) {
                     $dobThisYear = Carbon::parse($u->dob)->setYear($today->year);
-                    if ($dobThisYear->between($today, $nextWeek)) {
+                    if ($dobThisYear->isBetween($today, $nextWeek)) {
                         $birthdays[] = [
                             'name' => "{$u->first_name} {$u->last_name}",
                             'date' => $dobThisYear->toDateString(),
@@ -169,7 +171,9 @@ class DashboardController extends Controller
                 }
                 if ($u->joining_date) {
                     $joinThisYear = Carbon::parse($u->joining_date)->setYear($today->year);
-                    if ($joinThisYear->between($today, $nextWeek) && $u->joining_date !== $today->toDateString()) {
+                    $joinDateStr = Carbon::parse($u->joining_date)->toDateString();
+                    // Only exclude if joining today (0 years service doesn't count)
+                    if ($joinThisYear->isBetween($today, $nextWeek) && $joinDateStr !== $today->toDateString()) {
                         $anniversaries[] = [
                             'name' => "{$u->first_name} {$u->last_name}",
                             'date' => $joinThisYear->toDateString(),
@@ -181,7 +185,7 @@ class DashboardController extends Controller
 
             usort($birthdays, fn($a, $b) => $a['date'] <=> $b['date']);
             usort($anniversaries, fn($a, $b) => $a['date'] <=> $b['date']);
-            
+
             return ['birthdays' => $birthdays, 'anniversaries' => $anniversaries];
         });
 
