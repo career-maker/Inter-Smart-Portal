@@ -96,7 +96,6 @@ export default function ReportsPage() {
 
   const tabs: { key: ReportType; label: string; icon: any }[] = [
     { key: "employees", label: "Employee Report", icon: Users },
-    { key: "leaves", label: "Leave Report", icon: CalendarDays },
     { key: "leave-balances", label: "Leave Balance Report", icon: BarChart3 },
     { key: "attendance-summary", label: "Attendance Summary", icon: Activity },
   ];
@@ -206,20 +205,6 @@ export default function ReportsPage() {
                     <SortableHeader label="Absent" col="absent" sort={sort} onSort={handleSort} />
                     <SortableHeader label="WFH" col="wfh" sort={sort} onSort={handleSort} />
                   </>}
-                  {reportType === "leaves" && <>
-                    <SortableHeader label="Employee" col="employee_name" sort={sort} onSort={handleSort} />
-                    <SortableHeader label="Leave Type" col="leave_type" sort={sort} onSort={handleSort} />
-                    <SortableHeader label="From" col="start_date" sort={sort} onSort={handleSort} />
-                    <SortableHeader label="To" col="end_date" sort={sort} onSort={handleSort} />
-                    <SortableHeader label="Requested" col="requested_days" sort={sort} onSort={handleSort} />
-                    <SortableHeader label="Sandwich" col="sandwich_days" sort={sort} onSort={handleSort} />
-                    <SortableHeader label="Total Days" col="total_days" sort={sort} onSort={handleSort} />
-                    <SortableHeader label="Paid/LOP" col="paid_status" sort={sort} onSort={handleSort} />
-                    <SortableHeader label="Status" col="status" sort={sort} onSort={handleSort} />
-                    <SortableHeader label="Applied" col="applied_date" sort={sort} onSort={handleSort} />
-                    <SortableHeader label="Approved By" col="approved_by" sort={sort} onSort={handleSort} />
-                    <SortableHeader label="Remarks" col="remarks" sort={sort} onSort={handleSort} />
-                  </>}
                   {reportType === "leave-balances" && <>
                     <SortableHeader label="Code" col="employee_code" sort={sort} onSort={handleSort} />
                     <SortableHeader label="Name" col="full_name" sort={sort} onSort={handleSort} />
@@ -293,20 +278,6 @@ export default function ReportsPage() {
                       <td className="px-4 py-3 text-center font-bold text-rose-400">{row.summary?.late || 0}</td>
                       <td className="px-4 py-3 text-center font-bold text-red-500">{row.summary?.absent || 0}</td>
                       <td className="px-4 py-3 text-center font-bold text-blue-400">{row.summary?.wfh || 0}</td>
-                    </>}
-                    {reportType === "leaves" && <>
-                      <td className="px-4 py-3 text-white font-semibold whitespace-nowrap">{row.employee_name}</td>
-                      <td className="px-4 py-3 text-slate-300 whitespace-nowrap">{row.leave_type}</td>
-                      <td className="px-4 py-3 text-slate-300 whitespace-nowrap">{row.start_date ? format(new Date(row.start_date), "dd MMM yyyy") : "—"}</td>
-                      <td className="px-4 py-3 text-slate-300 whitespace-nowrap">{row.end_date ? format(new Date(row.end_date), "dd MMM yyyy") : "—"}</td>
-                      <td className="px-4 py-3 text-center text-slate-300">{row.requested_days}</td>
-                      <td className="px-4 py-3 text-center text-slate-300">{row.sandwich_days}</td>
-                      <td className="px-4 py-3 text-center font-bold text-white">{row.total_days}</td>
-                      <td className="px-4 py-3"><span className={`text-xs font-bold px-2 py-0.5 rounded-full ${row.is_unpaid ? "bg-red-500/20 text-red-400" : "bg-emerald-500/20 text-emerald-400"}`}>{row.paid_status}</span></td>
-                      <td className="px-4 py-3"><StatusBadge status={row.status} /></td>
-                      <td className="px-4 py-3 text-slate-400 text-xs whitespace-nowrap">{row.applied_date ? format(new Date(row.applied_date), "dd MMM yyyy") : "—"}</td>
-                      <td className="px-4 py-3 text-slate-300 whitespace-nowrap">{row.approved_by || "—"}</td>
-                      <td className="px-4 py-3 text-slate-400 text-xs max-w-[180px] truncate">{row.remarks || "—"}</td>
                     </>}
                     {reportType === "leave-balances" && <>
                       <td className="px-4 py-3 font-mono text-xs text-slate-300">{row.employee_code}</td>

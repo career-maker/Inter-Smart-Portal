@@ -186,7 +186,8 @@ class ReportController extends Controller
 
     public function leaveBalances(Request $request): JsonResponse
     {
-        $query = User::with(['team', 'leaveBalance'])->whereNotNull('joining_date');
+        $query = User::with(['team', 'leaveBalance', 'leaveRequests', 'wfhRequests'])
+            ->whereNotNull('joining_date');
 
         if ($request->filled('user_id') && $request->user_id !== 'all') {
             $query->where('id', $request->user_id);
@@ -196,34 +197,42 @@ class ReportController extends Controller
         }
 
         $currentYear = Carbon::now()->year;
+        $employees = $query->get();
+        $employeeIds = $employees->pluck('id')->toArray();
 
-        $data = $query->get()->map(function (User $emp) use ($currentYear) {
+        // Batch-load leave requests with leave types
+        $allLeaves = LeaveRequest::whereIn('user_id', $employeeIds)
+            ->where('status', 'Approved')
+            ->whereYear('start_date', $currentYear)
+            ->with('leaveType')
+            ->get()
+            ->groupBy('user_id');
+
+        // Batch-load WFH requests
+        $allWfh = WfhRequest::whereIn('user_id', $employeeIds)
+            ->where('status', 'Approved')
+            ->whereYear('start_date', $currentYear)
+            ->get()
+            ->groupBy('user_id');
+
+        $data = $employees->map(function (User $emp) use ($currentYear, $allLeaves, $allWfh) {
             $balance = $emp->leaveBalance;
             $cl      = $balance?->casual_leave_balance ?? 0;
             $sl      = $balance?->sick_leave_balance ?? 0;
             $cf      = $balance?->cl_carry_forward ?? 0;
 
-            $clUsed = LeaveRequest::where('user_id', $emp->id)
-                ->where('status', 'Approved')
-                ->where('is_unpaid', false)
-                ->whereHas('leaveType', fn($q) => $q->where('name', 'like', '%Casual%'))
-                ->whereYear('start_date', $currentYear)
+            // Use pre-loaded data instead of individual queries
+            $leaves = $allLeaves[$emp->id] ?? collect();
+            $wfhs = $allWfh[$emp->id] ?? collect();
+
+            $clUsed = $leaves->filter(fn($l) => !$l->is_unpaid && $l->leaveType?->name && str_contains($l->leaveType->name, 'Casual'))
                 ->sum('actual_leave_days');
 
-            $slUsed = LeaveRequest::where('user_id', $emp->id)
-                ->where('status', 'Approved')
-                ->where('is_unpaid', false)
-                ->whereHas('leaveType', fn($q) => $q->where('name', 'like', '%Sick%'))
-                ->whereYear('start_date', $currentYear)
+            $slUsed = $leaves->filter(fn($l) => !$l->is_unpaid && $l->leaveType?->name && str_contains($l->leaveType->name, 'Sick'))
                 ->sum('actual_leave_days');
-            $lop = LeaveRequest::where('user_id', $emp->id)
-                ->where('status', 'Approved')
-                ->whereYear('start_date', $currentYear)
-                ->sum('lop_days');
-            $wfh = WfhRequest::where('user_id', $emp->id)
-                ->where('status', 'Approved')
-                ->whereYear('start_date', $currentYear)
-                ->count();
+
+            $lop = $leaves->sum('lop_days');
+            $wfh = $wfhs->count();
 
             return [
                 'id'               => $emp->id,
