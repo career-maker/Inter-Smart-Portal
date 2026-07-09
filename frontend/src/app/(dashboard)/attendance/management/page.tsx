@@ -249,7 +249,7 @@ export default function AttendanceManagementPage() {
                 <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
               </div>
             ) : (
-              <div className="space-y-2 max-h-96 overflow-y-auto">
+              <div className="space-y-2 max-h-[60vh] overflow-y-auto">
                 {filteredEmployees.length === 0 ? (
                   <p className="text-center text-slate-400 py-4">No employees found</p>
                 ) : (
@@ -258,7 +258,11 @@ export default function AttendanceManagementPage() {
                       key={emp.id}
                       onClick={() => {
                         setSelectedEmployee(emp);
-                        setViewMode("selector"); // Stay in selector to choose mode
+                        // Scroll to mode selection section
+                        setTimeout(() => {
+                          const modeSection = document.querySelector('[data-attendance-mode-selector]');
+                          modeSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }, 100);
                       }}
                       className="w-full text-left p-4 bg-slate-700/30 hover:bg-slate-700/50 rounded-lg border border-white/10 hover:border-white/20 transition-all"
                     >
@@ -286,7 +290,7 @@ export default function AttendanceManagementPage() {
 
       {/* Mode Selection */}
       {selectedEmployee && viewMode === "selector" && (
-        <Card className="shadow-sm border-white/10 bg-slate-800/50 backdrop-blur-sm text-white">
+        <Card className="shadow-sm border-white/10 bg-slate-800/50 backdrop-blur-sm text-white" data-attendance-mode-selector>
           <CardHeader>
             <CardTitle>
               {selectedEmployee.first_name} {selectedEmployee.last_name}
