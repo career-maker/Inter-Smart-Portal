@@ -54,14 +54,6 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('employee-list', [\App\Http\Controllers\Api\ReportController::class, 'allEmployeesForFilter']);
         });
 
-        // Birthdays & Announcements
-        Route::get('/today-birthdays', [\App\Http\Controllers\Api\ReportController::class, 'todaysBirthdays']);
-
-        // Birthday Wishes
-        Route::post('/birthday-wishes', [\App\Http\Controllers\Api\BirthdayWishController::class, 'store']);
-        Route::get('/users/{userId}/wishes', [\App\Http\Controllers\Api\BirthdayWishController::class, 'getUserWishes']);
-        Route::get('/today-wishes', [\App\Http\Controllers\Api\BirthdayWishController::class, 'todayWishes']);
-
         // Approvals (Team Leads & Admins)
         Route::post('leave-requests/{leaveRequest}/status', [\App\Http\Controllers\Api\LeaveRequestController::class, 'updateStatus']);
         Route::post('wfh-requests/{wfhRequest}/status', [\App\Http\Controllers\Api\WfhRequestController::class, 'updateStatus']);
@@ -159,6 +151,12 @@ Route::middleware('auth:sanctum')->group(function () {
     // AI Chatbot Routes
     Route::get('chat/context', [\App\Http\Controllers\Api\ChatController::class, 'context']);
     Route::post('chat', [\App\Http\Controllers\Api\ChatController::class, 'store']);
+
+    // Birthday Wishes - All authenticated users can send/receive wishes
+    Route::post('birthday-wishes', [\App\Http\Controllers\Api\BirthdayWishController::class, 'store']);
+    Route::get('users/{userId}/wishes', [\App\Http\Controllers\Api\BirthdayWishController::class, 'getUserWishes']);
+    Route::get('today-wishes', [\App\Http\Controllers\Api\BirthdayWishController::class, 'todayWishes']);
+    Route::get('today-birthdays', [\App\Http\Controllers\Api\ReportController::class, 'todaysBirthdays']);
 
     // Notifications
     Route::prefix('notifications')->group(function () {

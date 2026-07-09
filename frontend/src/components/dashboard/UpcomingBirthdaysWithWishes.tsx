@@ -80,14 +80,20 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
                 )}
               </div>
 
-              {/* Wish Button */}
-              <button
-                onClick={() => setSelectedUserId(person.id)}
-                className="p-2 hover:bg-pink-500/20 rounded-lg transition text-pink-400 hover:text-pink-300"
-                title="Send birthday wish"
-              >
-                <Heart className="w-5 h-5" />
-              </button>
+              {/* Wish Button - Only for Today's Birthday */}
+              {person.days_remaining === 0 ? (
+                <button
+                  onClick={() => setSelectedUserId(person.id)}
+                  className="p-2 hover:bg-pink-500/20 rounded-lg transition text-pink-400 hover:text-pink-300"
+                  title="Send birthday wish"
+                >
+                  <Heart className="w-5 h-5 fill-pink-400" />
+                </button>
+              ) : (
+                <div className="p-2 text-slate-500 cursor-not-allowed">
+                  <Heart className="w-5 h-5" />
+                </div>
+              )}
             </div>
 
             {/* Wish Form Modal */}
