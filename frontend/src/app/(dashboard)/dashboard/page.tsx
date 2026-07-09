@@ -225,8 +225,14 @@ export default function DashboardPage() {
 
       <AttendanceWidget initialData={data.attendance_widget_data} />
 
+      {/* Birthday Wish Box - Shows wishes for current user */}
+      {user && (
+        <div className="mb-8">
+          <BirthdayWishBox userId={user.id} />
+        </div>
+      )}
 
-      {/* 
+      {/*
         ========================================
         ENGAGEMENT SECTION: Updates, Celebrations, Birthdays
         ========================================
