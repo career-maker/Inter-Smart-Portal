@@ -198,13 +198,9 @@ export default function ReportsPage() {
                     <SortableHeader label="Code" col="employee_code" sort={sort} onSort={handleSort} />
                     <SortableHeader label="Name" col="name" sort={sort} onSort={handleSort} />
                     <SortableHeader label="Team" col="team" sort={sort} onSort={handleSort} />
-                    <SortableHeader label="Sun" col="0" sort={sort} onSort={handleSort} />
-                    <SortableHeader label="Mon" col="1" sort={sort} onSort={handleSort} />
-                    <SortableHeader label="Tue" col="2" sort={sort} onSort={handleSort} />
-                    <SortableHeader label="Wed" col="3" sort={sort} onSort={handleSort} />
-                    <SortableHeader label="Thu" col="4" sort={sort} onSort={handleSort} />
-                    <SortableHeader label="Fri" col="5" sort={sort} onSort={handleSort} />
-                    <SortableHeader label="Sat" col="6" sort={sort} onSort={handleSort} />
+                    {reportData.length > 0 && reportData[0].daily_status?.map((day: any) => (
+                      <SortableHeader key={day.date} label={format(new Date(day.date + 'T00:00:00'), "MMM dd")} col={day.date} sort={sort} onSort={handleSort} />
+                    ))}
                     <SortableHeader label="Present" col="present" sort={sort} onSort={handleSort} />
                     <SortableHeader label="Late" col="late" sort={sort} onSort={handleSort} />
                     <SortableHeader label="Absent" col="absent" sort={sort} onSort={handleSort} />
@@ -260,15 +256,38 @@ export default function ReportsPage() {
                       <td className="px-4 py-3 font-mono text-xs text-slate-300">{row.employee_code}</td>
                       <td className="px-4 py-3 text-white font-semibold whitespace-nowrap">{row.name}</td>
                       <td className="px-4 py-3 text-slate-300 text-sm">{row.team || "—"}</td>
-                      {row.daily_status?.slice(0, 7).map((day: any, idx: number) => {
+                      {row.daily_status?.map((day: any) => {
                         let bgColor = "bg-slate-800/50";
                         let textColor = "text-slate-400";
-                        if (day.status === 'P') { bgColor = "bg-emerald-500/20"; textColor = "text-emerald-400"; }
-                        else if (day.status === 'A') { bgColor = "bg-red-500/20"; textColor = "text-red-400"; }
-                        else if (day.status === 'W') { bgColor = "bg-blue-500/20"; textColor = "text-blue-400"; }
-                        else if (day.status === 'H') { bgColor = "bg-amber-500/20"; textColor = "text-amber-400"; }
-                        const lateMarker = day.is_late ? "L" : (day.status === 'P' ? 'P' : day.status);
-                        return <td key={idx} className={`px-3 py-2 text-center text-xs font-bold ${bgColor} ${textColor} rounded`}>{lateMarker}</td>;
+                        let displayText = "—";
+
+                        if (day.status === 'P') {
+                          bgColor = "bg-emerald-500/20";
+                          textColor = "text-emerald-400";
+                          displayText = day.is_late ? "L" : "P";
+                        }
+                        else if (day.status === 'A') {
+                          bgColor = "bg-red-500/20";
+                          textColor = "text-red-400";
+                          displayText = "A";
+                        }
+                        else if (day.status === 'W') {
+                          bgColor = "bg-blue-500/20";
+                          textColor = "text-blue-400";
+                          displayText = "W";
+                        }
+                        else if (day.status === 'H') {
+                          bgColor = "bg-amber-500/20";
+                          textColor = "text-amber-400";
+                          displayText = "H";
+                        }
+                        else if (day.status === 'L') {
+                          bgColor = "bg-purple-500/20";
+                          textColor = "text-purple-400";
+                          displayText = "LV";
+                        }
+
+                        return <td key={day.date} className={`px-2 py-2 text-center text-xs font-bold ${bgColor} ${textColor} rounded`}>{displayText}</td>;
                       })}
                       <td className="px-4 py-3 text-center font-bold text-emerald-400">{row.summary?.present || 0}</td>
                       <td className="px-4 py-3 text-center font-bold text-rose-400">{row.summary?.late || 0}</td>

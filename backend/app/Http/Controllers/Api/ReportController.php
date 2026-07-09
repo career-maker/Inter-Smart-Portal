@@ -430,7 +430,7 @@ class ReportController extends Controller
             }
 
             return [
-                'status' => $isHalfDay ? 'H' : 'A',
+                'status' => $isHalfDay ? 'H' : 'L',
                 'is_late' => $isLate,
             ];
         }
