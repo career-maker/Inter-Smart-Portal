@@ -60,6 +60,26 @@ class EmployeeController extends Controller
             // Log the incoming data for debugging
             \Log::info('Employee creation request', ['data' => $data]);
 
+            // Ensure required fields have values
+            if (empty($data['first_name'])) {
+                return response()->json([
+                    'message' => 'First name is required',
+                    'error' => 'first_name_required'
+                ], 422);
+            }
+
+            if (empty($data['email'])) {
+                return response()->json([
+                    'message' => 'Email is required',
+                    'error' => 'email_required'
+                ], 422);
+            }
+
+            // Provide default for last_name if empty (database doesn't allow null)
+            if (empty($data['last_name'])) {
+                $data['last_name'] = $data['first_name']; // Use first name as fallback
+            }
+
             $data['password'] = Hash::make($data['password'] ?? 'Password@123');
 
             $role = $data['role'] ?? 'Employee';
