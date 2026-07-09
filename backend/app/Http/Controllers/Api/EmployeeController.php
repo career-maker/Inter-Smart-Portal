@@ -54,42 +54,59 @@ class EmployeeController extends Controller
 
     public function store(StoreEmployeeRequest $request)
     {
-        $data = $request->validated();
-        $data['password'] = Hash::make($data['password'] ?? 'Password@123');
+        try {
+            $data = $request->validated();
+            $data['password'] = Hash::make($data['password'] ?? 'Password@123');
 
-        $role = $data['role'] ?? 'Employee';
-        unset($data['role']);
+            $role = $data['role'] ?? 'Employee';
+            unset($data['role']);
 
-        // Auto-calculate probation end date if not provided
-        if (empty($data['probation_end_date']) && !empty($data['joining_date'])) {
-            $data['probation_end_date'] = \Carbon\Carbon::parse($data['joining_date'])->addMonths(6)->toDateString();
+            // Auto-calculate probation end date if not provided
+            if (empty($data['probation_end_date']) && !empty($data['joining_date'])) {
+                $data['probation_end_date'] = \Carbon\Carbon::parse($data['joining_date'])->addMonths(6)->toDateString();
+            }
+
+            $user = User::create($data);
+            $user->assignRole($role);
+
+            // Create a zero leave balance record for the new employee
+            \App\Models\LeaveBalance::firstOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'casual_leave_balance'       => 0,
+                    'sick_leave_balance'         => 0,
+                    'cl_carry_forward'           => 0,
+                    'total_leaves_taken'         => 0,
+                    'probation_leaves_allocated' => false
+                ]
+            );
+
+            // Recover orphaned biometric events for this employee_code
+            // (if events arrived before the employee was created in portal)
+            if (!empty($user->employee_code)) {
+                try {
+                    $processor = app(\App\Services\BiometricProcessorService::class);
+                    $processor->recoverOrphanedEventsForEmployeeCode($user->employee_code);
+                } catch (\Exception $e) {
+                    // Log but don't fail on orphaned event recovery
+                    \Log::warning("Failed to recover orphaned events for {$user->employee_code}", ['error' => $e->getMessage()]);
+                }
+            }
+
+            // TODO: Fire EmployeeCreated event to send welcome email
+
+            return new EmployeeResource($user->load(['team', 'roles']));
+        } catch (\Illuminate\Database\QueryException $e) {
+            return response()->json([
+                'message' => 'Database error: ' . $e->getMessage(),
+                'error' => 'Could not create employee. Please check if employee code is unique.'
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error creating employee: ' . $e->getMessage(),
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        $user = User::create($data);
-        $user->assignRole($role);
-
-        // Create a zero leave balance record for the new employee
-        \App\Models\LeaveBalance::firstOrCreate(
-            ['user_id' => $user->id],
-            [
-                'casual_leave_balance'       => 0,
-                'sick_leave_balance'         => 0,
-                'cl_carry_forward'           => 0,
-                'total_leaves_taken'         => 0,
-                'probation_leaves_allocated' => false
-            ]
-        );
-
-        // Recover orphaned biometric events for this employee_code
-        // (if events arrived before the employee was created in portal)
-        if (!empty($user->employee_code)) {
-            $processor = app(\App\Services\BiometricProcessorService::class);
-            $processor->recoverOrphanedEventsForEmployeeCode($user->employee_code);
-        }
-
-        // TODO: Fire EmployeeCreated event to send welcome email
-
-        return new EmployeeResource($user->load(['team', 'roles']));
     }
 
     public function show(User $employee)

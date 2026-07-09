@@ -20,11 +20,18 @@ class StoreEmployeeRequest extends FormRequest
 
     public function rules(): array
     {
+        $employeeCodeRule = ['nullable', 'string', 'max:50'];
+
+        // Only add unique rule if employee_code is provided
+        if ($this->filled('employee_code')) {
+            $employeeCodeRule[] = 'unique:users,employee_code';
+        }
+
         return [
-            'employee_code'              => ['nullable', 'string', 'max:50', 'unique:users,employee_code'],
-            'first_name'                 => ['nullable', 'string', 'max:100'],
+            'employee_code'              => $employeeCodeRule,
+            'first_name'                 => ['required', 'string', 'max:100'],
             'last_name'                  => ['nullable', 'string', 'max:100'],
-            'email'                      => ['nullable', 'email', 'unique:users,email'],
+            'email'                      => ['required', 'email', 'unique:users,email'],
             'personal_email'             => ['nullable', 'email'],
             'contact_number'             => ['nullable', 'string', 'max:20'],
             'alternate_contact_number'   => ['nullable', 'string', 'max:20'],
