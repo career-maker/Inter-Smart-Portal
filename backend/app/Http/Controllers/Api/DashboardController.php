@@ -212,6 +212,7 @@ class DashboardController extends Controller
                 if ($dobThisYear->between($today, $targetDate)) {
                     $daysRemaining = $today->diffInDays($dobThisYear);
                     $upcomingBirthdays[] = [
+                        'id' => $u->id,
                         'name' => "{$u->first_name} {$u->last_name}",
                         'designation' => $u->designation,
                         'department' => $u->team ? $u->team->name : 'Unassigned',
