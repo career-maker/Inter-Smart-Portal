@@ -305,5 +305,142 @@ class EmployeeController extends Controller
             'status' => $employee->status
         ]);
     }
+
+    public function sampleCSV()
+    {
+        $headers = [
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+            'email' => 'john.doe@intersmart.in',
+            'personal_email' => 'john.doe@gmail.com',
+            'employee_code' => 'EMP001',
+            'designation' => 'Software Engineer',
+            'team_id' => '1',
+            'joining_date' => '2024-01-15',
+            'dob' => '1990-05-20',
+            'gender' => 'Male',
+            'blood_group' => 'O+',
+            'marital_status' => 'Single',
+            'contact_number' => '9876543210',
+            'alternate_contact_number' => '9876543211',
+            'permanent_address' => '123 Main St, City',
+            'current_address' => '456 Work St, City',
+            'password' => 'Password@123',
+            'role' => 'Employee'
+        ];
+
+        $filename = 'employee-import-sample-' . date('Y-m-d') . '.csv';
+        $handle = fopen('php://memory', 'r+');
+
+        // Write header
+        fputcsv($handle, array_keys($headers));
+        // Write sample row
+        fputcsv($handle, array_values($headers));
+
+        rewind($handle);
+        $csv = stream_get_contents($handle);
+        fclose($handle);
+
+        return response($csv)
+            ->header('Content-Type', 'text/csv')
+            ->header('Content-Disposition', "attachment; filename=$filename");
+    }
+
+    public function importCSV(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:csv,txt|max:5120'
+        ]);
+
+        try {
+            $file = $request->file('file');
+            $path = $file->getRealPath();
+            $data = array_map('str_getcsv', file($path));
+            $headers = array_shift($data);
+
+            $results = [
+                'imported' => 0,
+                'failed' => 0,
+                'errors' => []
+            ];
+
+            foreach ($data as $index => $row) {
+                if (empty(array_filter($row))) continue; // Skip empty rows
+
+                $employee = array_combine($headers, $row);
+
+                try {
+                    // Validate required fields
+                    if (empty($employee['first_name']) || empty($employee['email'])) {
+                        $results['errors'][] = "Row " . ($index + 2) . ": first_name and email are required";
+                        $results['failed']++;
+                        continue;
+                    }
+
+                    // Check if email already exists
+                    if (User::where('email', $employee['email'])->exists()) {
+                        $results['errors'][] = "Row " . ($index + 2) . ": Email already exists";
+                        $results['failed']++;
+                        continue;
+                    }
+
+                    // Prepare data
+                    $empData = [
+                        'first_name' => $employee['first_name'] ?? null,
+                        'last_name' => $employee['last_name'] ?? null,
+                        'email' => $employee['email'] ?? null,
+                        'personal_email' => $employee['personal_email'] ?? null,
+                        'employee_code' => $employee['employee_code'] ?? null,
+                        'designation' => $employee['designation'] ?? null,
+                        'team_id' => !empty($employee['team_id']) ? intval($employee['team_id']) : null,
+                        'joining_date' => $employee['joining_date'] ?? null,
+                        'dob' => $employee['dob'] ?? null,
+                        'gender' => $employee['gender'] ?? null,
+                        'blood_group' => $employee['blood_group'] ?? null,
+                        'marital_status' => $employee['marital_status'] ?? null,
+                        'contact_number' => $employee['contact_number'] ?? null,
+                        'alternate_contact_number' => $employee['alternate_contact_number'] ?? null,
+                        'permanent_address' => $employee['permanent_address'] ?? null,
+                        'current_address' => $employee['current_address'] ?? null,
+                        'password' => Hash::make($employee['password'] ?? 'Password@123'),
+                        'status' => 'Active'
+                    ];
+
+                    $user = User::create($empData);
+                    $role = $employee['role'] ?? 'Employee';
+                    $user->assignRole($role);
+
+                    // Create leave balance
+                    \App\Models\LeaveBalance::firstOrCreate(
+                        ['user_id' => $user->id],
+                        [
+                            'casual_leave_balance' => 0,
+                            'sick_leave_balance' => 0,
+                            'cl_carry_forward' => 0,
+                            'total_leaves_taken' => 0,
+                            'probation_leaves_allocated' => false
+                        ]
+                    );
+
+                    $results['imported']++;
+                } catch (\Exception $e) {
+                    $results['errors'][] = "Row " . ($index + 2) . ": " . $e->getMessage();
+                    $results['failed']++;
+                }
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => "Imported {$results['imported']} employees, {$results['failed']} failed",
+                'results' => $results
+            ], $results['failed'] > 0 ? 207 : 200);
+        } catch (\Exception $e) {
+            \Log::error('CSV import error', ['error' => $e->getMessage()]);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error processing CSV: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }
 

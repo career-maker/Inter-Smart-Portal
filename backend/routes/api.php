@@ -35,6 +35,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('employees/{employee}/photo', [\App\Http\Controllers\Api\EmployeeController::class, 'updatePhoto']);
         Route::post('employees/{employee}/photo-url', [\App\Http\Controllers\Api\EmployeeController::class, 'updatePhotoUrl']);
         Route::post('employees/{employee}/status', [\App\Http\Controllers\Api\EmployeeController::class, 'updateStatus']);
+        Route::get('employees/import/sample', [\App\Http\Controllers\Api\EmployeeController::class, 'sampleCSV']);
+        Route::post('employees/import/csv', [\App\Http\Controllers\Api\EmployeeController::class, 'importCSV']);
         
         // Team Routes
         Route::apiResource('teams', \App\Http\Controllers\Api\TeamController::class);
