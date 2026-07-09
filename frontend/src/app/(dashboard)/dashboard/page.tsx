@@ -38,7 +38,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { AttendanceWidget } from "@/components/dashboard/AttendanceWidget";
 import { AchievementFlipCard } from "@/components/recognition/AchievementFlipCard";
 import { LeaderboardWidget } from "@/components/dashboard/LeaderboardWidget";
-import { BirthdayWishBox } from "@/components/dashboard/BirthdayWishBox";
+import { UpcomingBirthdaysWithWishes } from "@/components/dashboard/UpcomingBirthdaysWithWishes";
 
 
 export default function DashboardPage() {
@@ -225,13 +225,6 @@ export default function DashboardPage() {
 
       <AttendanceWidget initialData={data.attendance_widget_data} />
 
-      {/* Birthday Wish Box - Shows wishes for current user */}
-      {user && (
-        <div className="mb-8">
-          <BirthdayWishBox userId={user.id} />
-        </div>
-      )}
-
       {/*
         ========================================
         ENGAGEMENT SECTION: Updates, Celebrations, Birthdays
@@ -302,8 +295,8 @@ export default function DashboardPage() {
           );
         })()}
 
-        {/* Upcoming Birthdays Widget */}
-        <UpcomingBirthdaysWidget items={widgets.upcoming_birthdays} />
+        {/* Upcoming Birthdays Widget with Wishes */}
+        <UpcomingBirthdaysWithWishes items={widgets.upcoming_birthdays} />
 
         {/* Leaderboard Widget */}
         <LeaderboardWidget />
