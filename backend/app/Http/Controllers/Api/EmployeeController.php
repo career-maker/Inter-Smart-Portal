@@ -56,6 +56,10 @@ class EmployeeController extends Controller
     {
         try {
             $data = $request->validated();
+
+            // Log the incoming data for debugging
+            \Log::info('Employee creation request', ['data' => $data]);
+
             $data['password'] = Hash::make($data['password'] ?? 'Password@123');
 
             $role = $data['role'] ?? 'Employee';
@@ -63,7 +67,15 @@ class EmployeeController extends Controller
 
             // Auto-calculate probation end date if not provided
             if (empty($data['probation_end_date']) && !empty($data['joining_date'])) {
-                $data['probation_end_date'] = \Carbon\Carbon::parse($data['joining_date'])->addMonths(6)->toDateString();
+                try {
+                    $data['probation_end_date'] = \Carbon\Carbon::parse($data['joining_date'])->addMonths(6)->toDateString();
+                } catch (\Exception $dateErr) {
+                    \Log::error('Invalid joining date', ['date' => $data['joining_date'] ?? 'null']);
+                    return response()->json([
+                        'message' => 'Invalid joining date format',
+                        'error' => 'invalid_joining_date'
+                    ], 422);
+                }
             }
 
             $user = User::create($data);
@@ -93,18 +105,26 @@ class EmployeeController extends Controller
                 }
             }
 
-            // TODO: Fire EmployeeCreated event to send welcome email
+            \Log::info('Employee created successfully', ['user_id' => $user->id, 'email' => $user->email]);
 
             return new EmployeeResource($user->load(['team', 'roles']));
-        } catch (\Illuminate\Database\QueryException $e) {
+        } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
+            \Log::error('Unique constraint violation when creating employee', ['error' => $e->getMessage()]);
             return response()->json([
-                'message' => 'Database error: ' . $e->getMessage(),
-                'error' => 'Could not create employee. Please check if employee code is unique.'
+                'message' => 'Email or employee code already exists',
+                'error' => 'duplicate_email_or_code'
             ], 422);
-        } catch (\Exception $e) {
+        } catch (\Illuminate\Database\QueryException $e) {
+            \Log::error('Database error when creating employee', ['error' => $e->getMessage()]);
             return response()->json([
-                'message' => 'Error creating employee: ' . $e->getMessage(),
-                'error' => $e->getMessage()
+                'message' => 'Database error. Please check your input.',
+                'error' => 'database_error'
+            ], 500);
+        } catch (\Exception $e) {
+            \Log::error('Unexpected error when creating employee', ['error' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine()]);
+            return response()->json([
+                'message' => 'An unexpected error occurred: ' . $e->getMessage(),
+                'error' => 'server_error'
             ], 500);
         }
     }
