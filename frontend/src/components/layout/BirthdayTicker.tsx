@@ -10,14 +10,12 @@ export function BirthdayTicker() {
   useEffect(() => {
     const fetchTodaysBirthdays = async () => {
       try {
-        // Fetch all employees and filter for today's birthdays
-        const res = await api.get("/reports/employee-list");
-        const today = new Date();
-        const todayBirthdays = (res.data.data || []).filter((emp: any) => {
-          if (!emp.dob) return false;
-          const dob = new Date(emp.dob);
-          return dob.getMonth() === today.getMonth() && dob.getDate() === today.getDate();
-        });
+        // Fetch dashboard data which includes calculated birthdays
+        const res = await api.get("/dashboard");
+        const upcomingBirthdays = res.data.upcoming_birthdays || [];
+
+        // Filter for birthdays with 0 days remaining (today)
+        const todayBirthdays = upcomingBirthdays.filter((person: any) => person.days_remaining === 0);
         setBirthdays(todayBirthdays);
       } catch (error) {
         console.error("Failed to fetch birthdays for ticker", error);
