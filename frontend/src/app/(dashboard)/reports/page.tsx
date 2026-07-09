@@ -316,7 +316,7 @@ export default function ReportsPage() {
                       <td className="px-4 py-3 text-center text-slate-300">{row.sl_used}</td>
                       <td className="px-4 py-3 text-center font-bold text-red-400">{row.lop_count}</td>
                       <td className="px-4 py-3 text-center text-cyan-400">{row.wfh_count}</td>
-                      <td className="px-4 py-3">{row.is_in_probation ? <span className="text-xs font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">In Probation</span> : <span className="text-xs text-emerald-400">Active</span>}</td>
+                      <td className="px-4 py-3">{row.is_in_probation ? <span className="text-xs font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">In Probation</span> : <span className="text-xs font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">Confirmed</span>}</td>
                     </>}
                   </tr>
                 ))}
