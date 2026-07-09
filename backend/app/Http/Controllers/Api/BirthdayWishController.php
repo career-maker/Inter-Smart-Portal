@@ -37,30 +37,15 @@ class BirthdayWishController extends Controller
                 'message_length' => strlen($validated['message']),
             ]);
 
+            // Create the wish
             $wish = BirthdayWish::create([
                 'birthday_user_id' => $birthdayUserId,
                 'sender_id' => $sender->id,
                 'message' => $validated['message'],
             ]);
 
-            // Create notification for the birthday person (with error handling)
-            try {
-                $birthdayPerson = User::find($birthdayUserId);
-                if ($birthdayPerson) {
-                    Notification::create([
-                        'user_id' => $birthdayPerson->id,
-                        'title' => 'Birthday Wish',
-                        'message' => "{$sender->first_name} {$sender->last_name} wished you on your birthday!",
-                        'type' => 'birthday_wish',
-                        'link' => '/birthday-wishes',
-                        'is_read' => false,
-                    ]);
-                }
-            } catch (\Exception $notifError) {
-                \Log::warning('Notification creation failed but wish was created', ['error' => $notifError->getMessage()]);
-            }
-
-            return response()->json([
+            // Return success immediately (wish is created)
+            $response = response()->json([
                 'status' => 'success',
                 'message' => 'Birthday wish sent!',
                 'data' => [
@@ -75,6 +60,28 @@ class BirthdayWishController extends Controller
                     'created_at' => $wish->created_at->toDateTimeString(),
                 ]
             ]);
+
+            // Create notification after returning success (fire and forget)
+            try {
+                $birthdayPerson = User::find($birthdayUserId);
+                if ($birthdayPerson) {
+                    Notification::create([
+                        'user_id' => $birthdayPerson->id,
+                        'title' => 'Birthday Wish',
+                        'message' => "{$sender->first_name} {$sender->last_name} wished you on your birthday!",
+                        'type' => 'birthday_wish',
+                        'link' => '/birthday-wishes',
+                        'is_read' => false,
+                    ]);
+                }
+            } catch (\Exception $notifError) {
+                \Log::warning('Notification failed but wish was sent', [
+                    'wish_id' => $wish->id,
+                    'error' => $notifError->getMessage(),
+                ]);
+            }
+
+            return $response;
         } catch (\Illuminate\Database\QueryException $e) {
             $errorMsg = $e->getMessage();
             \Log::error('Database error in birthday wish', [
@@ -107,8 +114,11 @@ class BirthdayWishController extends Controller
             \Log::error('Birthday wish creation error', [
                 'error' => $errorMsg,
                 'class' => $errorClass,
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
+                'user_id' => $sender->id ?? null,
+                'birthday_user_id' => $birthdayUserId ?? null,
             ]);
+
             return response()->json([
                 'status' => 'error',
                 'message' => $errorMsg ?: 'Failed to send wish'
