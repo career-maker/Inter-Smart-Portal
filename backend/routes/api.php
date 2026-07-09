@@ -53,6 +53,9 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('attendance-summary', [\App\Http\Controllers\Api\ReportController::class, 'attendanceSummary']);
             Route::get('employee-list', [\App\Http\Controllers\Api\ReportController::class, 'allEmployeesForFilter']);
         });
+
+        // Birthdays & Announcements
+        Route::get('/today-birthdays', [\App\Http\Controllers\Api\ReportController::class, 'todaysBirthdays']);
         
         // Approvals (Team Leads & Admins)
         Route::post('leave-requests/{leaveRequest}/status', [\App\Http\Controllers\Api\LeaveRequestController::class, 'updateStatus']);

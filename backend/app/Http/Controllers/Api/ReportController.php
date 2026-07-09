@@ -540,4 +540,41 @@ class ReportController extends Controller
             'is_late' => $isLate,
         ];
     }
+
+    public function todaysBirthdays(): JsonResponse
+    {
+        try {
+            $today = Carbon::now();
+            $todayMonth = $today->month;
+            $todayDay = $today->day;
+
+            // Fetch all active employees with birthdays today
+            $birthdays = User::where('status', 'Active')
+                ->whereNotNull('dob')
+                ->where('dob', '!=', '')
+                ->get()
+                ->filter(function ($user) use ($todayMonth, $todayDay) {
+                    $dob = Carbon::parse($user->dob);
+                    return $dob->month === $todayMonth && $dob->day === $todayDay;
+                })
+                ->map(fn($user) => [
+                    'id' => $user->id,
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                    'profile_photo_path' => $user->profile_photo_path,
+                ])
+                ->values();
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $birthdays
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Today\'s birthdays fetch error', ['error' => $e->getMessage()]);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch birthdays'
+            ], 500);
+        }
+    }
 }
