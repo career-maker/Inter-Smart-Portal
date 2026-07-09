@@ -52,9 +52,7 @@ export default function TeamForm({ initialData, isEdit }: TeamFormProps) {
 
   const fetchUsers = async () => {
     try {
-      // For a real app with many users, this might be an autocomplete. 
-      // For this demo, we fetch a large page of users.
-      const res = await api.get("/employees?limit=100");
+      const res = await api.get("/reports/employee-list");
       setUsers(res.data.data);
     } catch (e) {
       console.error(e);
