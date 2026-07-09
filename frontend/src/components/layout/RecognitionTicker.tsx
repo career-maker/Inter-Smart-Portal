@@ -46,7 +46,14 @@ export function RecognitionTicker() {
     return () => clearInterval(interval);
   }, []);
 
-  if (!items || items.length === 0) return null;
+  // Show demo item if no real items (for testing/demo purposes)
+  const displayItems = items.length > 0 ? items : [
+    {
+      type: "birthday",
+      id: 0,
+      user: { first_name: "Test", last_name: "Birthday" }
+    }
+  ];
 
   return (
     <div className="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 text-white overflow-hidden py-1.5 flex items-center relative z-50 border-b border-indigo-700/50 shadow-md">
@@ -54,7 +61,7 @@ export function RecognitionTicker() {
       <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-indigo-600 to-transparent z-10" />
 
       <div className="whitespace-nowrap flex gap-12 items-center animate-[marquee_25s_linear_infinite] hover:[animation-play-state:paused]">
-        {items.map((item, i) => (
+        {displayItems.map((item, i) => (
           <div key={i} className="flex items-center gap-2 text-sm font-semibold tracking-wide">
             {item.type === "birthday" ? (
               <>
@@ -74,7 +81,7 @@ export function RecognitionTicker() {
           </div>
         ))}
         {/* Duplicate for seamless infinite scroll if fewer items */}
-        {items.map((item, i) => (
+        {displayItems.map((item, i) => (
           <div key={`dup-${i}`} className="flex items-center gap-2 text-sm font-semibold tracking-wide" aria-hidden="true">
             {item.type === "birthday" ? (
               <>
