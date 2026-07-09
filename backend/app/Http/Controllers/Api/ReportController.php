@@ -345,11 +345,20 @@ class ReportController extends Controller
         ];
 
         foreach ($employees as $emp) {
+            // Count leave types for this employee in the date range
+            $empLeaves = $allLeaves->filter(fn($l) => $l->user_id === $emp->id);
+            $clCount = $empLeaves->filter(fn($l) => !$l->is_unpaid && $l->leaveType && str_contains($l->leaveType->name ?? '', 'Casual'))->count();
+            $slCount = $empLeaves->filter(fn($l) => !$l->is_unpaid && $l->leaveType && str_contains($l->leaveType->name ?? '', 'Sick'))->count();
+            $lopCount = $empLeaves->filter(fn($l) => $l->is_unpaid)->count();
+
             $empData = [
                 'id' => $emp->id,
                 'employee_code' => $emp->employee_code,
                 'name' => "{$emp->first_name} {$emp->last_name}",
                 'team' => $emp->team?->name,
+                'cl_count' => $clCount,
+                'sl_count' => $slCount,
+                'lop_count' => $lopCount,
                 'daily_status' => [],
             ];
 
@@ -385,6 +394,7 @@ class ReportController extends Controller
                     'date' => $dateStr,
                     'day_name' => $current->format('D'),
                     'status' => $dayStatus['status'],
+                    'leave_type' => $dayStatus['leave_type'] ?? null,
                     'is_late' => $dayStatus['is_late'],
                     'check_in' => $attendance?->check_in,
                     'check_out' => $attendance?->check_out,
@@ -439,11 +449,30 @@ class ReportController extends Controller
     private function calculateDayStatus($userId, $dateStr, $leave, $wfh, $attendance): array
     {
         $isLate = false;
+        $leaveType = null;
 
         // If on leave
         if ($leave) {
             $isHalfDay = $leave->duration_type && strpos($leave->duration_type, 'Half') !== false;
             $isMorningHalf = $leave->duration_type && strpos($leave->duration_type, 'Half-Morning') !== false;
+
+            // Generate leave type abbreviation
+            if ($leave->leaveType) {
+                $typeName = $leave->leaveType->name ?? '';
+
+                if (str_contains($typeName, 'Casual')) {
+                    $leaveType = $isHalfDay ? ($isMorningHalf ? 'CLHM' : 'CLHE') : 'CL';
+                } elseif (str_contains($typeName, 'Sick')) {
+                    $leaveType = $isHalfDay ? ($isMorningHalf ? 'SLHM' : 'SLHE') : 'SL';
+                } else {
+                    $leaveType = $isHalfDay ? 'HLF' : 'LV';
+                }
+            }
+
+            // Check if it's an LOP (unpaid leave)
+            if ($leave->is_unpaid) {
+                $leaveType = 'LOP';
+            }
 
             // For half-day leave (morning), check if employee checked in after 2:30 PM
             if ($isHalfDay && $isMorningHalf && $attendance && $attendance->check_in) {
@@ -457,6 +486,7 @@ class ReportController extends Controller
 
             return [
                 'status' => $isHalfDay ? 'H' : 'L',
+                'leave_type' => $leaveType,
                 'is_late' => $isLate,
             ];
         }
@@ -465,14 +495,16 @@ class ReportController extends Controller
         if ($wfh) {
             return [
                 'status' => 'W',
+                'leave_type' => 'WFH',
                 'is_late' => false,
             ];
         }
 
-        // No attendance record = Absent
+        // No attendance record = blank (not marked as absent)
         if (!$attendance) {
             return [
                 'status' => 'A',
+                'leave_type' => null,
                 'is_late' => false,
             ];
         }
@@ -489,6 +521,7 @@ class ReportController extends Controller
 
         return [
             'status' => 'P',
+            'leave_type' => null,
             'is_late' => $isLate,
         ];
     }

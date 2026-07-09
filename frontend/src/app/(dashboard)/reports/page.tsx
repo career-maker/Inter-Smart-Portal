@@ -226,9 +226,9 @@ export default function ReportsPage() {
                     {reportData.length > 0 && reportData[0].daily_status?.map((day: any) => (
                       <SortableHeader key={day.date} label={format(new Date(day.date + 'T00:00:00'), "MMM dd")} col={day.date} sort={sort} onSort={handleSort} />
                     ))}
-                    <SortableHeader label="Present" col="present" sort={sort} onSort={handleSort} />
-                    <SortableHeader label="Late" col="late" sort={sort} onSort={handleSort} />
-                    <SortableHeader label="Absent" col="absent" sort={sort} onSort={handleSort} />
+                    <SortableHeader label="CL" col="cl_count" sort={sort} onSort={handleSort} />
+                    <SortableHeader label="SL" col="sl_count" sort={sort} onSort={handleSort} />
+                    <SortableHeader label="LOP" col="lop_count" sort={sort} onSort={handleSort} />
                     <SortableHeader label="WFH" col="wfh" sort={sort} onSort={handleSort} />
                   </>}
                   {reportType === "leave-balances" && <>
@@ -270,7 +270,7 @@ export default function ReportsPage() {
                       {row.daily_status?.map((day: any) => {
                         let bgColor = "bg-slate-800/50";
                         let textColor = "text-slate-400";
-                        let displayText = "—";
+                        let displayText = "";
 
                         if (day.status === 'P') {
                           bgColor = "bg-emerald-500/20";
@@ -278,31 +278,31 @@ export default function ReportsPage() {
                           displayText = day.is_late ? "L" : "P";
                         }
                         else if (day.status === 'A') {
-                          bgColor = "bg-red-500/20";
-                          textColor = "text-red-400";
-                          displayText = "A";
+                          bgColor = "";
+                          textColor = "";
+                          displayText = "";
                         }
                         else if (day.status === 'W') {
                           bgColor = "bg-blue-500/20";
                           textColor = "text-blue-400";
-                          displayText = "W";
+                          displayText = "WFH";
                         }
                         else if (day.status === 'H') {
                           bgColor = "bg-amber-500/20";
                           textColor = "text-amber-400";
-                          displayText = "H";
+                          displayText = day.leave_type || "H";
                         }
                         else if (day.status === 'L') {
                           bgColor = "bg-purple-500/20";
                           textColor = "text-purple-400";
-                          displayText = "LV";
+                          displayText = day.leave_type || "LV";
                         }
 
-                        return <td key={day.date} className={`px-2 py-2 text-center text-xs font-bold ${bgColor} ${textColor} rounded`}>{displayText}</td>;
+                        return bgColor ? <td key={day.date} className={`px-2 py-2 text-center text-xs font-bold ${bgColor} ${textColor} rounded`}>{displayText}</td> : <td key={day.date} className="px-2 py-2 text-center text-xs"></td>;
                       })}
-                      <td className="px-4 py-3 text-center font-bold text-emerald-400">{row.summary?.present || 0}</td>
-                      <td className="px-4 py-3 text-center font-bold text-rose-400">{row.summary?.late || 0}</td>
-                      <td className="px-4 py-3 text-center font-bold text-red-500">{row.summary?.absent || 0}</td>
+                      <td className="px-4 py-3 text-center font-bold text-emerald-400">{row.cl_count || 0}</td>
+                      <td className="px-4 py-3 text-center font-bold text-rose-400">{row.sl_count || 0}</td>
+                      <td className="px-4 py-3 text-center font-bold text-red-500">{row.lop_count || 0}</td>
                       <td className="px-4 py-3 text-center font-bold text-blue-400">{row.summary?.wfh || 0}</td>
                     </>}
                     {reportType === "leave-balances" && <>
