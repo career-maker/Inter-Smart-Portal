@@ -1,0 +1,13 @@
+{
+  "name": "essl-agent",
+  "version": "1.0.0",
+  "description": "Standalone Read-Only Biometric Sync Agent",
+  "main": "agent.js",
+  "scripts": {
+    "start": "node agent.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.2",
+    "dotenv": "^16.4.5"
+  }
+}

@@ -210,4 +210,66 @@ class WfhRequestController extends Controller
             'data'    => $wfhRequest->fresh(),
         ]);
     }
+
+    // Admin-initiated WFH creation for any employee
+    public function storeForEmployee(\App\Http\Requests\StoreAdminWfhRequest $request)
+    {
+        $data = $request->validated();
+        $admin = $request->user();
+        $targetUser = User::find($data['user_id']);
+
+        if (!$targetUser) {
+            return response()->json(['message' => 'Employee not found.'], 404);
+        }
+
+        // Check for overlapping WFH
+        $overlap = WfhRequest::where('user_id', $targetUser->id)
+            ->whereIn('status', ['Pending', 'Approved'])
+            ->where(function($q) use ($data) {
+                $q->whereBetween('start_date', [$data['start_date'], $data['end_date']])
+                  ->orWhereBetween('end_date', [$data['start_date'], $data['end_date']])
+                  ->orWhere(function($sq) use ($data) {
+                      $sq->where('start_date', '<=', $data['start_date'])
+                         ->where('end_date', '>=', $data['end_date']);
+                  });
+            })
+            ->first();
+
+        if ($overlap) {
+            return response()->json([
+                'message' => 'Employee already has WFH on some dates within this range (' . $overlap->start_date . ' to ' . $overlap->end_date . ').'
+            ], 422);
+        }
+
+        $durationType = $data['duration_type'] ?? 'Full';
+        $autoApprove = $data['auto_approve'] ?? true;
+
+        $wfhRequest = null;
+        DB::beginTransaction();
+        try {
+            $wfhRequest = WfhRequest::create([
+                'user_id'      => $targetUser->id,
+                'wfh_type_id'  => $data['wfh_type_id'],
+                'start_date'   => $data['start_date'],
+                'end_date'     => $data['end_date'],
+                'reason'       => $data['reason'] . ' [Created by Admin]',
+                'attachment_link' => $data['attachment_link'] ?? null,
+                'duration_type' => $durationType,
+                'status'       => $autoApprove ? 'Approved' : 'Pending',
+                'tl_status'    => $autoApprove ? 'Not Required' : 'Pending',
+                'admin_status' => $autoApprove ? 'Approved' : 'Pending',
+                'approved_by'  => $autoApprove ? $admin->id : null,
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'WFH created successfully' . ($autoApprove ? ' and auto-approved.' : '.'),
+                'data'    => new \App\Http\Resources\WfhRequestResource($wfhRequest)
+            ], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Failed to create WFH', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

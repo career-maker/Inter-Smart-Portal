@@ -968,6 +968,97 @@ class LeaveRequestController extends Controller
         }
     }
 
+    // Admin-initiated leave creation for any employee
+    public function storeForEmployee(\App\Http\Requests\StoreAdminLeaveRequest $request)
+    {
+        $data = $request->validated();
+        $admin = $request->user();
+        $targetUser = User::find($data['user_id']);
+
+        if (!$targetUser) {
+            return response()->json(['message' => 'Employee not found.'], 404);
+        }
+
+        // Check for overlapping leaves
+        $overlap = LeaveRequest::where('user_id', $targetUser->id)
+            ->whereIn('status', ['Pending', 'Approved'])
+            ->where(function($q) use ($data) {
+                $q->whereBetween('start_date', [$data['start_date'], $data['end_date']])
+                  ->orWhereBetween('end_date', [$data['start_date'], $data['end_date']])
+                  ->orWhere(function($sq) use ($data) {
+                      $sq->where('start_date', '<=', $data['start_date'])
+                         ->where('end_date', '>=', $data['end_date']);
+                  });
+            })
+            ->first();
+
+        if ($overlap) {
+            return response()->json([
+                'message' => 'Employee already has leave on some dates within this range (' . $overlap->start_date . ' to ' . $overlap->end_date . ').'
+            ], 422);
+        }
+
+        $durationType = $data['duration_type'] ?? 'Full';
+        $impact = $this->calculateLeaveImpact($targetUser, $data['leave_type_id'], $data['start_date'], $data['end_date'], $durationType);
+        $days = $impact['actual_leave_days'];
+        $isUnpaid = $impact['is_unpaid'];
+
+        $balance = LeaveBalance::where('user_id', $targetUser->id)->first();
+        if (!$balance) {
+            return response()->json(['message' => 'Leave balance record not found for employee.'], 400);
+        }
+
+        $paidCL = $impact['paid_casual_leave'] ?? 0;
+        $paidSL = $impact['paid_sick_leave'] ?? 0;
+        $totalLOP = $impact['total_lop_days'] ?? 0;
+
+        // Admin-created leaves are auto-approved if requested
+        $autoApprove = $data['auto_approve'] ?? true;
+        $tlStatus = $autoApprove ? 'Not Required' : 'Pending';
+        $adminStatus = $autoApprove ? 'Approved' : 'Pending';
+
+        $leaveRequest = null;
+        DB::beginTransaction();
+        try {
+            $leaveRequest = LeaveRequest::create([
+                'user_id'                => $targetUser->id,
+                'leave_type_id'          => $data['leave_type_id'],
+                'start_date'             => $data['start_date'],
+                'end_date'               => $data['end_date'],
+                'days'                   => $days,
+                'reason'                 => $data['reason'] . ' [Created by Admin]',
+                'attachment_link'        => $data['attachment_link'] ?? null,
+                'status'                 => $autoApprove ? 'Approved' : 'Pending',
+                'tl_status'              => $tlStatus,
+                'admin_status'           => $adminStatus,
+                'is_unpaid'              => $isUnpaid,
+                'unpaid_reason'          => $impact['unpaid_reason'],
+                'sandwich_leave_days'    => $impact['sandwich_leave_days'],
+                'actual_leave_days'      => $days,
+                'paid_casual_leave'      => $paidCL,
+                'paid_sick_leave'        => $paidSL,
+                'lop_days'               => $totalLOP,
+                'approver_id'            => $admin->id,
+            ]);
+
+            // If auto-approved, deduct from balance
+            if ($autoApprove) {
+                LeaveBalance::deductLeave($targetUser->id, $data['leave_type_id'], $paidCL, $paidSL, $totalLOP);
+                LeaveBalance::createAuditLog($targetUser->id, $data['leave_type_id'], $paidCL + $paidSL + $totalLOP, 'Admin-initiated leave', $admin->id);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Leave created successfully' . ($autoApprove ? ' and auto-approved.' : '.'),
+                'data'    => new \App\Http\Resources\LeaveRequestResource($leaveRequest)
+            ], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Failed to create leave', 'error' => $e->getMessage()], 500);
+        }
+    }
+
     public function rejectLopConversion(Request $request, LeaveRequest $leaveRequest)
     {
         $user = $request->user();

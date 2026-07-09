@@ -1,0 +1,13 @@
+{
+  "name": "essl-discovery",
+  "version": "1.0.0",
+  "description": "Read-only database discovery tool for eSSL SQL Server",
+  "main": "discovery.js",
+  "scripts": {
+    "start": "node discovery.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "mssql": "^10.0.2"
+  }
+}

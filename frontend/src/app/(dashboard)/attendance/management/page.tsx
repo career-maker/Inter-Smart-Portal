@@ -11,6 +11,7 @@ import {
   ChevronDown,
   Loader2,
   Users,
+  Plus,
 } from "lucide-react";
 import Link from "next/link";
 import api from "@/services/api";
@@ -19,7 +20,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { PageLoader } from "@/components/ui/PageLoader";
 import { useAuthStore } from "@/store/auth";
-import { DailySummaryCard, DailyActivityTimeline } from "@/components/attendance";
+import { DailySummaryCard, DailyActivityTimeline, AdminLeaveWfhModal } from "@/components/attendance";
 
 type ViewMode = "selector" | "dateWise" | "monthWise";
 
@@ -102,6 +103,7 @@ export default function AttendanceManagementPage() {
   const [monthlyData, setMonthlyData] = useState<MonthlyAttendanceRecord[]>([]);
   const [expandedDay, setExpandedDay] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isLeaveWfhModalOpen, setIsLeaveWfhModalOpen] = useState(false);
 
   // Fetch employees
   useEffect(() => {
@@ -321,6 +323,14 @@ export default function AttendanceManagementPage() {
                 <p className="text-sm text-slate-400 mt-1">View summary for an entire month</p>
               </button>
             </div>
+            <button
+              onClick={() => setIsLeaveWfhModalOpen(true)}
+              className="w-full p-4 bg-amber-600/20 hover:bg-amber-600/30 rounded-lg border border-amber-500/30 hover:border-amber-500/50 transition-all text-left"
+            >
+              <Plus className="h-5 w-5 text-amber-400 mb-2" />
+              <p className="font-semibold text-white">Add Leave / WFH</p>
+              <p className="text-sm text-slate-400 mt-1">Create leave or work-from-home for this employee</p>
+            </button>
             <button
               onClick={() => {
                 setSelectedEmployee(null);
@@ -558,6 +568,18 @@ export default function AttendanceManagementPage() {
           )}
         </>
       )}
+
+      {/* Admin Leave/WFH Modal */}
+      <AdminLeaveWfhModal
+        isOpen={isLeaveWfhModalOpen}
+        onClose={() => setIsLeaveWfhModalOpen(false)}
+        onSuccess={() => {
+          // Refresh data if needed
+          if (selectedDate) handleDateSelection(selectedDate);
+          if (selectedMonth) handleMonthSelection(selectedMonth);
+        }}
+        selectedEmployeeId={selectedEmployee?.id}
+      />
     </div>
   );
 }
