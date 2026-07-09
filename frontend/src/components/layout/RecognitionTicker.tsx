@@ -52,7 +52,7 @@ export function RecognitionTicker() {
   const displayItems = items;
 
   return (
-    <div className="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 text-white overflow-hidden py-1.5 flex items-center relative z-50 border-b border-indigo-700/50 shadow-md">
+    <div className="w-full fixed top-0 left-0 right-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 text-white overflow-hidden py-1.5 flex items-center z-50 border-b border-indigo-700/50 shadow-md">
       <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-indigo-600 to-transparent z-10" />
       <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-indigo-600 to-transparent z-10" />
 
