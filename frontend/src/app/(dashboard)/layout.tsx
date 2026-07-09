@@ -376,7 +376,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         )}
       </header>
 
-      <main className="max-w-[1600px] mx-auto pt-20 p-4 sm:p-6 lg:p-8">
+      <main className="max-w-[1600px] mx-auto pt-32 p-4 sm:p-6 lg:p-8">
         {/* Breadcrumbs */}
         {pathname !== "/dashboard" && (
           <div className="flex items-center flex-wrap gap-2 text-sm text-slate-400 mb-6 font-medium">
