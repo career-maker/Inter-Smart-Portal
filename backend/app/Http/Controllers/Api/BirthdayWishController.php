@@ -26,7 +26,6 @@ class BirthdayWishController extends Controller
                 'birthday_user_id' => $validated['birthday_user_id'],
                 'sender_id' => $sender->id,
                 'message' => $validated['message'],
-                'wished_at' => now(),
             ]);
 
             // Create notification for the birthday person
@@ -52,7 +51,7 @@ class BirthdayWishController extends Controller
                         'profile_photo_path' => $sender->profile_photo_path,
                     ],
                     'message' => $wish->message,
-                    'wished_at' => $wish->wished_at->toDateTimeString(),
+                    'created_at' => $wish->created_at->toDateTimeString(),
                 ]
             ]);
         } catch (\Exception $e) {
@@ -69,7 +68,7 @@ class BirthdayWishController extends Controller
         try {
             $wishes = BirthdayWish::where('birthday_user_id', $userId)
                 ->with(['sender:id,first_name,last_name,profile_photo_path'])
-                ->orderBy('wished_at', 'desc')
+                ->orderBy('created_at', 'desc')
                 ->get()
                 ->map(fn($wish) => [
                     'id' => $wish->id,
@@ -79,7 +78,7 @@ class BirthdayWishController extends Controller
                         'profile_photo_path' => $wish->sender->profile_photo_path,
                     ],
                     'message' => $wish->message,
-                    'wished_at' => $wish->wished_at->toDateTimeString(),
+                    'created_at' => $wish->created_at->toDateTimeString(),
                 ]);
 
             return response()->json([
@@ -116,7 +115,7 @@ class BirthdayWishController extends Controller
 
             $wishes = BirthdayWish::whereIn('birthday_user_id', $todayBirthdayIds)
                 ->with(['sender:id,first_name,last_name,profile_photo_path', 'birthdayUser:id,first_name,last_name'])
-                ->orderBy('wished_at', 'desc')
+                ->orderBy('created_at', 'desc')
                 ->get()
                 ->map(fn($wish) => [
                     'id' => $wish->id,
@@ -130,7 +129,7 @@ class BirthdayWishController extends Controller
                         'profile_photo_path' => $wish->sender->profile_photo_path,
                     ],
                     'message' => $wish->message,
-                    'wished_at' => $wish->wished_at->toDateTimeString(),
+                    'created_at' => $wish->created_at->toDateTimeString(),
                 ]);
 
             return response()->json([

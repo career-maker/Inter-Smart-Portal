@@ -139,7 +139,7 @@ export function BirthdayWishBox({ userId }: { userId: number }) {
                     {wish.sender.name}
                   </p>
                   <p className="text-xs text-slate-400">
-                    {new Date(wish.wished_at).toLocaleDateString()}
+                    {new Date(wish.created_at).toLocaleDateString()}
                   </p>
                 </div>
               </div>
