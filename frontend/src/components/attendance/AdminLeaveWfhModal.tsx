@@ -10,7 +10,7 @@ import api from "@/services/api";
 interface LeaveType {
   id: number;
   name: string;
-  type: string;
+  is_paid?: boolean;
 }
 
 interface Props {
@@ -53,13 +53,13 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
   const fetchLeaveTypes = async () => {
     try {
       const res = await api.get("/leave-types");
-      const all = res.data || [];
+      const all = res.data?.data || res.data || [];
 
-      const leaves = all.filter((lt: LeaveType) =>
-        !lt.type || lt.type.toLowerCase().includes('leave')
-      );
       const wfh = all.filter((lt: LeaveType) =>
-        lt.type && lt.type.toLowerCase().includes('work from home')
+        lt.name && lt.name.toLowerCase().includes('work from home')
+      );
+      const leaves = all.filter((lt: LeaveType) =>
+        !lt.name.toLowerCase().includes('work from home')
       );
 
       setLeaveTypes(leaves);
