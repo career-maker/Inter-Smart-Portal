@@ -109,27 +109,31 @@ export default function AttendanceManagementPage() {
   useEffect(() => {
     const fetchAllEmployees = async () => {
       setIsLoadingEmployees(true);
+      setError(null);
       try {
         let allEmployees: Employee[] = [];
         let page = 1;
-        let hasMorePages = true;
+        let lastPage = 1;
 
         // Fetch all pages of employees
-        while (hasMorePages) {
-          const res = await api.get(`/employees?page=${page}&per_page=50`);
+        do {
+          const res = await api.get(`/employees?page=${page}`);
           const pageData = res.data.data || [];
+
+          if (pageData.length === 0) {
+            break;
+          }
+
           allEmployees = [...allEmployees, ...pageData];
-
-          // Check if there are more pages
-          const lastPage = res.data.meta?.last_page || 1;
-          hasMorePages = page < lastPage;
+          lastPage = res.data.meta?.last_page || page;
           page++;
-        }
+        } while (page <= lastPage);
 
+        console.log("Loaded employees:", allEmployees.length);
         setEmployees(allEmployees);
-      } catch (err) {
-        console.error("Failed to load employees", err);
-        setError("Failed to load employees");
+      } catch (err: any) {
+        console.error("Failed to load employees:", err);
+        setError(err.response?.data?.message || "Failed to load employees");
       } finally {
         setIsLoadingEmployees(false);
       }
