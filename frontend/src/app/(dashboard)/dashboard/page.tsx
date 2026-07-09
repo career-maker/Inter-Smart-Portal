@@ -38,6 +38,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { AttendanceWidget } from "@/components/dashboard/AttendanceWidget";
 import { AchievementFlipCard } from "@/components/recognition/AchievementFlipCard";
 import { LeaderboardWidget } from "@/components/dashboard/LeaderboardWidget";
+import { BirthdayWishBox } from "@/components/dashboard/BirthdayWishBox";
 
 
 export default function DashboardPage() {
