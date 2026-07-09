@@ -192,11 +192,43 @@ export default function AttendanceManagementPage() {
     setIsLoadingDetails(true);
     setError(null);
     try {
-      const res = await api.get(`/attendance/report?date=${date}`);
-      setAllEmployeesDateData(res.data.data || []);
+      // Fetch all employees first
+      let allEmployees: Employee[] = [];
+      let page = 1;
+      let lastPage = 1;
+
+      do {
+        const empRes = await api.get(`/employees?page=${page}`);
+        const pageData = empRes.data.data || [];
+
+        if (pageData.length === 0) {
+          break;
+        }
+
+        allEmployees = [...allEmployees, ...pageData];
+        lastPage = empRes.data.meta?.last_page || page;
+        page++;
+      } while (page <= lastPage);
+
+      // Fetch attendance for each employee on the selected date
+      const attendanceDataPromises = allEmployees.map((emp) =>
+        api.get(`/attendance/details?date=${date}&user_id=${emp.id}`)
+          .then((res) => ({
+            ...emp,
+            attendance: res.data,
+          }))
+          .catch(() => ({
+            ...emp,
+            attendance: null,
+          }))
+      );
+
+      const attendanceResults = await Promise.all(attendanceDataPromises);
+      setAllEmployeesDateData(attendanceResults);
       setSelectedDate(date);
       setViewMode("dateAllEmployees");
     } catch (err: any) {
+      console.error("Failed to load attendance data:", err);
       setError(err.response?.data?.message || "Failed to load attendance data");
       setAllEmployeesDateData([]);
     } finally {
