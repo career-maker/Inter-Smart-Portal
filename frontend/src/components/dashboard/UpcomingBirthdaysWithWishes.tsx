@@ -88,7 +88,7 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
       <h3 className="font-bold text-white shrink-0 mb-4 text-sm">🎂 Upcoming Birthdays</h3>
 
       {/* Rotating Card */}
-      <div className="flex items-center justify-between gap-2 flex-1 min-h-0 overflow-hidden">
+      <div className="flex items-center justify-center gap-3 flex-1 min-h-0">
         <button
           onClick={() => setCurrentIndex(Math.max(0, safeIndex - 1))}
           disabled={safeIndex === 0}
@@ -97,7 +97,7 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
           <ChevronLeft className="w-4 h-4 text-slate-400" />
         </button>
 
-        <div className="flex-1 flex flex-col items-center justify-center gap-3 p-3 bg-slate-800/50 rounded-lg min-w-0">
+        <div className="flex flex-col items-center justify-center gap-2.5 flex-1">
           {/* Avatar centered */}
           <div className="group relative shrink-0">
             <Avatar className="h-12 w-12 cursor-help">
@@ -116,7 +116,7 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
 
           {/* Date and wish button */}
           <div className="flex items-center justify-center gap-2">
-            <div className="text-center text-nowrap">
+            <div className="text-center">
               <p className="text-xs font-bold text-amber-400">{person.date?.split("-")[2]} {["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][parseInt(person.date?.split("-")[1] || "0")]}</p>
               {isToday ? (
                 <span className="text-[10px] uppercase font-bold bg-pink-500 text-white px-1.5 py-0.5 rounded inline-block mt-0.5">TODAY!</span>
