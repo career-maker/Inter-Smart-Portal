@@ -81,25 +81,26 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
           <ChevronLeft className="w-4 h-4 text-slate-400" />
         </button>
 
-        <div className="flex-1 flex items-center justify-between gap-2 p-3 bg-slate-800/50 rounded-lg min-w-0">
-          <div className="flex items-center gap-2 min-w-0 flex-1">
-            <div className="group relative shrink-0">
-              <Avatar className="h-10 w-10 cursor-help">
-                <AvatarImage src={person.profile_photo_path} />
-                <AvatarFallback>{person.name?.[0] || "?"}</AvatarFallback>
-              </Avatar>
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-slate-950 border border-slate-700 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 shadow-lg font-medium">
-                {person.name}
-              </div>
-            </div>
-            <div className="min-w-0">
-              <p className="font-semibold text-white text-sm line-clamp-1">{person.name || "Unknown"}</p>
-              <p className="text-xs text-slate-400 line-clamp-1">{person.designation || "N/A"}</p>
+        <div className="flex-1 flex flex-col items-center justify-center gap-3 p-3 bg-slate-800/50 rounded-lg min-w-0">
+          {/* Avatar centered */}
+          <div className="group relative shrink-0">
+            <Avatar className="h-12 w-12 cursor-help">
+              <AvatarImage src={person.profile_photo_path} />
+              <AvatarFallback>{person.name?.[0] || "?"}</AvatarFallback>
+            </Avatar>
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-slate-950 border border-slate-700 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 shadow-lg font-medium">
+              {person.name}
             </div>
           </div>
 
-          <div className="flex items-center gap-1 shrink-0">
-            <div className="text-right text-nowrap">
+          {/* Name pill below avatar */}
+          <div className="bg-slate-900 px-3 py-1 rounded-full text-center">
+            <p className="font-semibold text-white text-xs line-clamp-1">{person.name || "Unknown"}</p>
+          </div>
+
+          {/* Date and wish button */}
+          <div className="flex items-center justify-center gap-2">
+            <div className="text-center text-nowrap">
               <p className="text-xs font-bold text-amber-400">{person.date?.split("-")[2]} {["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][parseInt(person.date?.split("-")[1] || "0")]}</p>
               {isToday ? (
                 <span className="text-[10px] uppercase font-bold bg-pink-500 text-white px-1.5 py-0.5 rounded inline-block mt-0.5">TODAY!</span>
