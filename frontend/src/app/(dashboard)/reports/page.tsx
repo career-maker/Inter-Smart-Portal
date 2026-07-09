@@ -9,13 +9,39 @@ import { format } from "date-fns";
 
 type ReportType = "employees" | "leaves" | "leave-balances" | "attendance-summary";
 
-function exportCSV(data: any[], filename: string) {
+function exportCSV(data: any[], filename: string, reportType?: string) {
   if (!data.length) return;
-  const headers = Object.keys(data[0]);
-  const rows = data.map(row => headers.map(h => {
+
+  // Define which columns to export based on report type
+  let exportData = data;
+  if (reportType === 'attendance-summary') {
+    // Flatten attendance summary data for CSV export
+    exportData = data.flatMap(emp =>
+      emp.daily_status?.map((day: any) => ({
+        employee_code: emp.employee_code,
+        name: emp.name,
+        team: emp.team,
+        date: day.date,
+        status: day.status === 'P' && day.is_late ? 'L' : day.status,
+        check_in: day.check_in || '—',
+        check_out: day.check_out || '—',
+      })) || []
+    );
+  }
+
+  if (!exportData.length) return;
+
+  // Get headers and filter out nested objects
+  const allHeaders = Object.keys(exportData[0]);
+  const headers = allHeaders.filter(h =>
+    typeof exportData[0][h] !== 'object' || exportData[0][h] === null
+  );
+
+  const rows = exportData.map(row => headers.map(h => {
     const val = row[h] ?? "";
     return `"${String(val).replace(/"/g, '""')}"`;
   }).join(","));
+
   const csv = [headers.join(","), ...rows].join("\n");
   const blob = new Blob([csv], { type: "text/csv" });
   const url = URL.createObjectURL(blob);
@@ -145,7 +171,7 @@ export default function ReportsPage() {
           {loading ? "Generating..." : "Generate Report"}
         </button>
         {generated && filtered.length > 0 && <>
-          <button onClick={() => exportCSV(filtered, `${reportType}-${format(new Date(), "yyyy-MM-dd")}.csv`)}
+          <button onClick={() => exportCSV(filtered, `${reportType}-${format(new Date(), "yyyy-MM-dd")}.csv`, reportType)}
             className="flex items-center gap-2 px-4 py-2 bg-emerald-600/80 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition">
             <Download className="w-4 h-4" /> CSV
           </button>

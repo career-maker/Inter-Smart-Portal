@@ -319,6 +319,15 @@ class ReportController extends Controller
             ->whereBetween('date', [$startDate, $endDate])
             ->get();
 
+        // Log data loaded for debugging
+        \Log::info('Attendance summary data loaded', [
+            'employee_count' => $employees->count(),
+            'attendance_records' => $allAttendance->count(),
+            'leave_records' => $allLeaves->count(),
+            'wfh_records' => $allWfh->count(),
+            'date_range' => "$startDate to $endDate"
+        ]);
+
         $report = [];
         $summaryStats = [
             'total_absent' => 0,
@@ -343,24 +352,25 @@ class ReportController extends Controller
 
             while ($current <= $end) {
                 $dateStr = $current->toDateString();
+                $currentDate = $current->clone();
 
                 // Get data from pre-loaded collections (no DB queries)
-                $leave = $allLeaves->first(fn($l) =>
-                    $l->user_id === $emp->id &&
-                    $l->start_date <= $dateStr &&
-                    $l->end_date >= $dateStr
-                );
+                $leave = $allLeaves->first(function($l) use ($emp, $dateStr) {
+                    $lStart = is_string($l->start_date) ? $l->start_date : $l->start_date->toDateString();
+                    $lEnd = is_string($l->end_date) ? $l->end_date : $l->end_date->toDateString();
+                    return $l->user_id === $emp->id && $lStart <= $dateStr && $lEnd >= $dateStr;
+                });
 
-                $wfh = $allWfh->first(fn($w) =>
-                    $w->user_id === $emp->id &&
-                    $w->start_date <= $dateStr &&
-                    $w->end_date >= $dateStr
-                );
+                $wfh = $allWfh->first(function($w) use ($emp, $dateStr) {
+                    $wStart = is_string($w->start_date) ? $w->start_date : $w->start_date->toDateString();
+                    $wEnd = is_string($w->end_date) ? $w->end_date : $w->end_date->toDateString();
+                    return $w->user_id === $emp->id && $wStart <= $dateStr && $wEnd >= $dateStr;
+                });
 
-                $attendance = $allAttendance->first(fn($a) =>
-                    $a->user_id === $emp->id &&
-                    $a->date == $dateStr
-                );
+                $attendance = $allAttendance->first(function($a) use ($emp, $dateStr) {
+                    $aDate = is_string($a->date) ? $a->date : $a->date->toDateString();
+                    return $a->user_id === $emp->id && $aDate === $dateStr;
+                });
 
                 $dayStatus = $this->calculateDayStatus($emp->id, $dateStr, $leave, $wfh, $attendance);
 
