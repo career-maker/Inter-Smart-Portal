@@ -55,7 +55,7 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
 
   if (!items || items.length === 0) {
     return (
-      <div className="premium-card p-6">
+      <div className="premium-card p-6 flex flex-col justify-center" style={{ height: '224px' }}>
         <h3 className="font-bold text-white mb-4">🎂 Upcoming Birthdays</h3>
         <p className="text-sm text-slate-400">No upcoming birthdays in the next 30 days.</p>
       </div>
@@ -68,11 +68,11 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
   const canWish = isToday && !isSelf;
 
   return (
-    <div className="premium-card p-6 space-y-4">
-      <h3 className="font-bold text-white">🎂 Upcoming Birthdays</h3>
+    <div className="premium-card p-6 space-y-4 flex flex-col" style={{ height: '224px' }}>
+      <h3 className="font-bold text-white shrink-0">🎂 Upcoming Birthdays</h3>
 
       {/* Rotating Card */}
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center justify-between gap-2 flex-1 min-h-0">
         <button
           onClick={() => setCurrentIndex(Math.max(0, currentIndex - 1))}
           disabled={currentIndex === 0}
@@ -135,7 +135,7 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
       </div>
 
       {/* Dots */}
-      <div className="flex justify-center gap-1.5">
+      <div className="flex justify-center gap-1.5 shrink-0">
         {items.map((_, idx) => (
           <button
             key={idx}
