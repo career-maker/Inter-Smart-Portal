@@ -128,6 +128,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [menuOpen, setMenuOpen] = useState(false);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
 
+  // Close menu when clicking outside
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      // Don't close if clicking the hamburger button
+      if (target.closest('button[aria-label="Toggle menu"]')) return;
+      // Don't close if clicking inside the menu
+      if (target.closest('[role="navigation"]') || target.closest('.fixed.inset-0')) return;
+
+      setMenuOpen(false);
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [menuOpen]);
+
   // Determine which group should start open based on current path
   useEffect(() => {
     const active = NAV_GROUPS.find((g) => pathBelongsToGroup(g, pathname));
@@ -173,7 +191,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <RecognitionTicker />
-      <header className="bg-slate-900/80 backdrop-blur-md border-b border-white/10 sticky top-0 z-30 shadow-sm">
+      <header className="bg-slate-900/80 backdrop-blur-md border-b border-white/10 sticky top-0 z-40 shadow-lg">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           {/* Logo */}
           <Link href="/dashboard" className="flex items-center shrink-0 pr-4">
@@ -233,7 +251,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               className="fixed inset-0 top-16 bg-black/30 z-30 md:hidden"
               onClick={closeMenu}
             />
-            <div className="absolute top-16 right-0 w-full md:w-80 bg-slate-900 border-l border-b border-white/10 shadow-2xl z-40 max-h-[calc(100vh-4rem)] overflow-y-auto">
+            <div role="navigation" className="absolute top-16 right-0 w-full md:w-80 bg-slate-900 border-l border-b border-white/10 shadow-2xl z-30 max-h-[calc(100vh-4rem)] overflow-y-auto">
 
               {/* User info for mobile */}
               <Link
