@@ -346,6 +346,25 @@ class EmployeeController extends Controller
             ->header('Content-Disposition', "attachment; filename=$filename");
     }
 
+    private function convertDateFormat($dateStr)
+    {
+        if (empty($dateStr)) return null;
+
+        // Try parsing DD-MM-YYYY format
+        try {
+            $date = \Carbon\Carbon::createFromFormat('d-m-Y', $dateStr);
+            return $date->toDateString(); // Returns YYYY-MM-DD
+        } catch (\Exception $e) {
+            // Try YYYY-MM-DD format
+            try {
+                $date = \Carbon\Carbon::createFromFormat('Y-m-d', $dateStr);
+                return $date->toDateString();
+            } catch (\Exception $e2) {
+                return null;
+            }
+        }
+    }
+
     public function importCSV(Request $request)
     {
         $request->validate([
@@ -364,53 +383,69 @@ class EmployeeController extends Controller
                 'errors' => []
             ];
 
+            $validGenders = ['Male', 'Female', 'Other', 'male', 'female', 'other'];
+
             foreach ($data as $index => $row) {
-                if (empty(array_filter($row))) continue; // Skip empty rows
+                if (empty(array_filter($row))) continue;
 
                 $employee = array_combine($headers, $row);
 
                 try {
                     // Validate required fields
-                    if (empty($employee['first_name']) || empty($employee['email'])) {
+                    $firstName = trim($employee['first_name'] ?? '');
+                    $email = trim($employee['email'] ?? '');
+
+                    if (empty($firstName) || empty($email)) {
                         $results['errors'][] = "Row " . ($index + 2) . ": first_name and email are required";
                         $results['failed']++;
                         continue;
                     }
 
                     // Check if email already exists
-                    if (User::where('email', $employee['email'])->exists()) {
+                    if (User::where('email', $email)->exists()) {
                         $results['errors'][] = "Row " . ($index + 2) . ": Email already exists";
+                        $results['failed']++;
+                        continue;
+                    }
+
+                    // Convert date formats
+                    $joiningDate = $this->convertDateFormat($employee['joining_date'] ?? '');
+                    $dob = $this->convertDateFormat($employee['dob'] ?? '');
+
+                    // Validate and sanitize gender
+                    $gender = trim($employee['gender'] ?? '');
+                    if (!empty($gender) && !in_array($gender, $validGenders)) {
+                        $results['errors'][] = "Row " . ($index + 2) . ": Invalid gender. Must be Male, Female, or Other";
                         $results['failed']++;
                         continue;
                     }
 
                     // Prepare data
                     $empData = [
-                        'first_name' => $employee['first_name'] ?? null,
-                        'last_name' => $employee['last_name'] ?? null,
-                        'email' => $employee['email'] ?? null,
-                        'personal_email' => $employee['personal_email'] ?? null,
-                        'employee_code' => $employee['employee_code'] ?? null,
-                        'designation' => $employee['designation'] ?? null,
+                        'first_name' => $firstName,
+                        'last_name' => trim($employee['last_name'] ?? '') ?: $firstName,
+                        'email' => $email,
+                        'personal_email' => trim($employee['personal_email'] ?? '') ?: null,
+                        'employee_code' => trim($employee['employee_code'] ?? '') ?: null,
+                        'designation' => trim($employee['designation'] ?? '') ?: null,
                         'team_id' => !empty($employee['team_id']) ? intval($employee['team_id']) : null,
-                        'joining_date' => $employee['joining_date'] ?? null,
-                        'dob' => $employee['dob'] ?? null,
-                        'gender' => $employee['gender'] ?? null,
-                        'blood_group' => $employee['blood_group'] ?? null,
-                        'marital_status' => $employee['marital_status'] ?? null,
-                        'contact_number' => $employee['contact_number'] ?? null,
-                        'alternate_contact_number' => $employee['alternate_contact_number'] ?? null,
-                        'permanent_address' => $employee['permanent_address'] ?? null,
-                        'current_address' => $employee['current_address'] ?? null,
-                        'password' => Hash::make($employee['password'] ?? 'Password@123'),
+                        'joining_date' => $joiningDate,
+                        'dob' => $dob,
+                        'gender' => !empty($gender) ? ucfirst($gender) : null,
+                        'blood_group' => trim($employee['blood_group'] ?? '') ?: null,
+                        'marital_status' => trim($employee['marital_status'] ?? '') ?: null,
+                        'contact_number' => trim($employee['contact_number'] ?? '') ?: null,
+                        'alternate_contact_number' => trim($employee['alternate_contact_number'] ?? '') ?: null,
+                        'permanent_address' => trim($employee['permanent_address'] ?? '') ?: null,
+                        'current_address' => trim($employee['current_address'] ?? '') ?: null,
+                        'password' => Hash::make(trim($employee['password'] ?? 'Password@123')),
                         'status' => 'Active'
                     ];
 
                     $user = User::create($empData);
-                    $role = $employee['role'] ?? 'Employee';
+                    $role = trim($employee['role'] ?? 'Employee');
                     $user->assignRole($role);
 
-                    // Create leave balance
                     \App\Models\LeaveBalance::firstOrCreate(
                         ['user_id' => $user->id],
                         [
