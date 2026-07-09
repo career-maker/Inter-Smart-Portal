@@ -3,7 +3,7 @@
 import { PageLoader } from "@/components/ui/PageLoader";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Search, MoreHorizontal, FileEdit, Trash2, Ban, CheckCircle } from "lucide-react";
+import { Plus, Search, MoreHorizontal, FileEdit, Trash2, Ban, CheckCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import api from "@/services/api";
 
 import { Button } from "@/components/ui/button";
@@ -32,16 +32,25 @@ export default function EmployeesPage() {
   const [employees, setEmployees] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
-    fetchEmployees();
+    setCurrentPage(1);
+    fetchEmployees(1);
   }, [search]);
 
-  const fetchEmployees = async () => {
+  useEffect(() => {
+    fetchEmployees(currentPage);
+  }, [currentPage]);
+
+  const fetchEmployees = async (page: number = 1) => {
     setIsLoading(true);
     try {
-      const response = await api.get(`/employees?search=${search}`);
+      const response = await api.get(`/employees?search=${search}&page=${page}`);
       setEmployees(response.data.data);
+      setTotalPages(response.data.meta?.last_page || 1);
+      setCurrentPage(page);
     } catch (e) {
       console.error(e);
     } finally {
@@ -182,6 +191,54 @@ export default function EmployeesPage() {
             )}
           </TableBody>
         </Table>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between p-4 border-t bg-white">
+            <div className="text-sm text-gray-600">
+              Page <span className="font-semibold">{currentPage}</span> of <span className="font-semibold">{totalPages}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1 || isLoading}
+              >
+                <ChevronLeft className="h-4 w-4 mr-1" />
+                Previous
+              </Button>
+
+              {/* Page Numbers */}
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    disabled={isLoading}
+                    className={`w-8 h-8 text-sm font-medium rounded-md transition-colors ${
+                      currentPage === page
+                        ? "bg-amber-500 text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  >
+                    {page}
+                  </button>
+                ))}
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                disabled={currentPage === totalPages || isLoading}
+              >
+                Next
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
