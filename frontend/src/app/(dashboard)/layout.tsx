@@ -246,8 +246,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Menu - Not sticky, scrolls with page */}
         {menuOpen && (
           <>
-            <div className="fixed inset-0 top-16 bg-black/30 z-40 md:hidden" onClick={closeMenu} />
-            <div role="navigation" className="absolute top-full right-0 w-full md:w-80 bg-slate-900 border-l border-b border-white/10 shadow-2xl z-50 overflow-y-auto">
+            <div className="fixed inset-0 top-16 bg-black/30 z-50 md:hidden" onClick={closeMenu} />
+            <div role="navigation" className="absolute top-full right-0 w-full md:w-80 bg-slate-900 border-l border-b border-white/10 shadow-2xl z-[60] overflow-y-auto">
               <Link href="/profile" onClick={closeMenu} className="sm:hidden px-4 py-4 border-b border-white/10 flex items-center gap-3 hover:bg-white/5 transition-colors cursor-pointer">
               <div className="w-10 h-10 rounded-full bg-amber-400 overflow-hidden flex items-center justify-center text-sm font-bold text-white relative shrink-0">
                 <span>{user?.first_name?.[0]}{user?.last_name?.[0]}</span>
