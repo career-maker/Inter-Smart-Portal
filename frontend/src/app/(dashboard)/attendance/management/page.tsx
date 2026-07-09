@@ -425,7 +425,15 @@ export default function AttendanceManagementPage() {
       {/* All Employees on Date - Table View */}
       {viewMode === "dateAllEmployees" && (
         <>
-          <Card className="shadow-sm border-white/10 bg-slate-800/50 backdrop-blur-sm text-white">
+          <Card className="shadow-sm border-white/10 bg-slate-800/50 backdrop-blur-sm text-white relative">
+            {isLoadingDetails && (
+              <div className="absolute inset-0 bg-black/40 rounded-lg backdrop-blur-sm flex items-center justify-center z-10">
+                <div className="flex flex-col items-center gap-3">
+                  <Loader2 className="h-10 w-10 animate-spin text-amber-400" />
+                  <p className="text-sm text-slate-300 font-medium">Loading attendance data...</p>
+                </div>
+              </div>
+            )}
             <CardHeader>
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                 <div>
@@ -443,13 +451,14 @@ export default function AttendanceManagementPage() {
                           handleAllEmployeesDateSelection(e.target.value);
                         }
                       }}
-                      className="px-3 py-2 bg-slate-900 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-amber-400 [color-scheme:dark] text-sm"
+                      disabled={isLoadingDetails}
+                      className="px-3 py-2 bg-slate-900 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-amber-400 [color-scheme:dark] text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     />
                   </div>
                   <button
                     onClick={handleExportCSV}
-                    disabled={allEmployeesDateData.length === 0}
-                    className="flex items-center gap-2 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-700 disabled:text-slate-500 rounded-lg text-white font-semibold transition-colors text-sm"
+                    disabled={allEmployeesDateData.length === 0 || isLoadingDetails}
+                    className="flex items-center gap-2 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-700 disabled:text-slate-500 disabled:cursor-not-allowed rounded-lg text-white font-semibold transition-colors text-sm"
                   >
                     <Download className="h-4 w-4" />
                     Export CSV
@@ -460,7 +469,8 @@ export default function AttendanceManagementPage() {
                       setAllEmployeesDateData([]);
                       setSelectedDate("");
                     }}
-                    className="px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-700/30 rounded-lg transition-colors text-sm font-semibold"
+                    disabled={isLoadingDetails}
+                    className="px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-700/30 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors text-sm font-semibold"
                   >
                     ← Back
                   </button>
@@ -468,11 +478,7 @@ export default function AttendanceManagementPage() {
               </div>
             </CardHeader>
             <CardContent>
-              {isLoadingDetails ? (
-                <div className="flex justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
-                </div>
-              ) : allEmployeesDateData.length > 0 ? (
+              {allEmployeesDateData.length > 0 ? (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead className="border-b border-white/10">
