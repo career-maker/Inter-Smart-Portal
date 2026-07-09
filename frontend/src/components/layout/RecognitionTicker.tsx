@@ -46,14 +46,10 @@ export function RecognitionTicker() {
     return () => clearInterval(interval);
   }, []);
 
-  // Show demo item if no real items (for testing/demo purposes)
-  const displayItems = items.length > 0 ? items : [
-    {
-      type: "birthday",
-      id: 0,
-      user: { first_name: "Test", last_name: "Birthday" }
-    }
-  ];
+  // Only show if we have real items
+  if (!items || items.length === 0) return null;
+
+  const displayItems = items;
 
   return (
     <div className="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 text-white overflow-hidden py-1.5 flex items-center relative z-50 border-b border-indigo-700/50 shadow-md">
