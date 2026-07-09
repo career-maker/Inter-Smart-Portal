@@ -147,10 +147,10 @@ class DashboardController extends Controller
             ->take(5)
             ->get(['title', 'category', 'created_at', 'is_pinned']);
 
-        // 5. Celebrations (Birthdays & Anniversaries in next 7 days)
+        // 5. Celebrations (Birthdays & Anniversaries in next 14 days)
         $celebrations = Cache::remember('dashboard_celebrations', now()->addHours(24), function () {
             $today = Carbon::today();
-            $nextWeek = Carbon::today()->addDays(7);
+            $nextWeek = Carbon::today()->addDays(14);
             
             $allActiveUsers = User::where('status', 'Active')->get(['first_name', 'last_name', 'dob', 'joining_date']);
             
