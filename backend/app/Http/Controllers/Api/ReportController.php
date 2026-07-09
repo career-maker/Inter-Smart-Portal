@@ -15,7 +15,8 @@ class ReportController extends Controller
 {
     public function employees(Request $request): JsonResponse
     {
-        $query = User::with(['team.teamLead', 'roles', 'leaveBalance'])->whereNotNull('joining_date');
+        // Load all active users for employee report (don't filter by joining_date)
+        $query = User::with(['team.teamLead', 'roles', 'leaveBalance'])->where('status', 'Active');
 
         if ($request->filled('user_id') && $request->user_id !== 'all') {
             $userId = intval($request->user_id);
@@ -34,9 +35,12 @@ class ReportController extends Controller
 
         $currentYear = Carbon::now()->year;
         $currentMonth = Carbon::now()->month;
-        $employees = $query->get();
+        $employees = $query->orderBy('first_name')->get();
 
-        \Log::info('Employees loaded for report', ['count' => $employees->count()]);
+        \Log::info('Employees loaded for report', [
+            'count' => $employees->count(),
+            'first_employee' => $employees->first()?->first_name ?? 'none'
+        ]);
 
         // Batch load all leave and WFH data for better performance
         $employeeIds = $employees->pluck('id')->toArray();
