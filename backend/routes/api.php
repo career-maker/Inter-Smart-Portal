@@ -154,6 +154,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Birthday Wishes - All authenticated users can send/receive wishes
     Route::post('birthday-wishes', [\App\Http\Controllers\Api\BirthdayWishController::class, 'store']);
+    Route::get('birthday-wishes/my-wishes', [\App\Http\Controllers\Api\BirthdayWishController::class, 'getMyWishes']);
     Route::get('users/{userId}/wishes', [\App\Http\Controllers\Api\BirthdayWishController::class, 'getUserWishes']);
     Route::get('today-wishes', [\App\Http\Controllers\Api\BirthdayWishController::class, 'todayWishes']);
     Route::get('today-birthdays', [\App\Http\Controllers\Api\ReportController::class, 'todaysBirthdays']);

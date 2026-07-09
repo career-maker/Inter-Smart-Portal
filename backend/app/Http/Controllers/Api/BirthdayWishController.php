@@ -43,17 +43,21 @@ class BirthdayWishController extends Controller
                 'message' => $validated['message'],
             ]);
 
-            // Create notification for the birthday person
-            $birthdayPerson = User::find($birthdayUserId);
-            if ($birthdayPerson) {
-                Notification::create([
-                    'user_id' => $birthdayPerson->id,
-                    'title' => 'Birthday Wish',
-                    'message' => "{$sender->first_name} {$sender->last_name} wished you on your birthday!",
-                    'type' => 'birthday_wish',
-                    'link' => '/profile',
-                    'is_read' => false,
-                ]);
+            // Create notification for the birthday person (with error handling)
+            try {
+                $birthdayPerson = User::find($birthdayUserId);
+                if ($birthdayPerson) {
+                    Notification::create([
+                        'user_id' => $birthdayPerson->id,
+                        'title' => 'Birthday Wish',
+                        'message' => "{$sender->first_name} {$sender->last_name} wished you on your birthday!",
+                        'type' => 'birthday_wish',
+                        'link' => '/birthday-wishes',
+                        'is_read' => false,
+                    ]);
+                }
+            } catch (\Exception $notifError) {
+                \Log::warning('Notification creation failed but wish was created', ['error' => $notifError->getMessage()]);
             }
 
             return response()->json([
@@ -112,11 +116,12 @@ class BirthdayWishController extends Controller
         }
     }
 
-    public function getUserWishes($userId): JsonResponse
+    public function getMyWishes(): JsonResponse
     {
         try {
+            $userId = auth()->id();
             $wishes = BirthdayWish::where('birthday_user_id', $userId)
-                ->with(['sender:id,first_name,last_name,profile_photo_path'])
+                ->with(['sender:id,first_name,last_name,profile_photo_path,designation'])
                 ->orderBy('created_at', 'desc')
                 ->get()
                 ->map(fn($wish) => [
@@ -124,6 +129,40 @@ class BirthdayWishController extends Controller
                     'sender' => [
                         'id' => $wish->sender->id,
                         'name' => "{$wish->sender->first_name} {$wish->sender->last_name}",
+                        'designation' => $wish->sender->designation,
+                        'profile_photo_path' => $wish->sender->profile_photo_path,
+                    ],
+                    'message' => $wish->message,
+                    'created_at' => $wish->created_at->toDateTimeString(),
+                ]);
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $wishes,
+                'count' => $wishes->count(),
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Fetch my wishes error', ['error' => $e->getMessage()]);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch wishes'
+            ], 500);
+        }
+    }
+
+    public function getUserWishes($userId): JsonResponse
+    {
+        try {
+            $wishes = BirthdayWish::where('birthday_user_id', $userId)
+                ->with(['sender:id,first_name,last_name,profile_photo_path,designation'])
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(fn($wish) => [
+                    'id' => $wish->id,
+                    'sender' => [
+                        'id' => $wish->sender->id,
+                        'name' => "{$wish->sender->first_name} {$wish->sender->last_name}",
+                        'designation' => $wish->sender->designation,
                         'profile_photo_path' => $wish->sender->profile_photo_path,
                     ],
                     'message' => $wish->message,
