@@ -72,25 +72,42 @@ class BirthdayWishController extends Controller
                 ]
             ]);
         } catch (\Illuminate\Database\QueryException $e) {
-            \Log::error('Database error in birthday wish', ['error' => $e->getMessage()]);
+            $errorMsg = $e->getMessage();
+            \Log::error('Database error in birthday wish', [
+                'error' => $errorMsg,
+                'sql' => $e->getSql(),
+                'bindings' => $e->getBindings()
+            ]);
 
-            // Check if it's a unique constraint violation
-            if (strpos($e->getMessage(), 'unique') !== false) {
+            if (strpos($errorMsg, 'unique') !== false || strpos($errorMsg, 'UNIQUE') !== false) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'You have already sent a wish to this person today!'
                 ], 409);
             }
 
+            if (strpos($errorMsg, 'foreign key') !== false || strpos($errorMsg, 'FOREIGN KEY') !== false) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'User not found. Please try again.'
+                ], 422);
+            }
+
             return response()->json([
                 'status' => 'error',
-                'message' => 'Database error: ' . $e->getMessage()
+                'message' => 'Database error: ' . $errorMsg
             ], 500);
         } catch (\Exception $e) {
-            \Log::error('Birthday wish creation error', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            $errorMsg = $e->getMessage();
+            $errorClass = get_class($e);
+            \Log::error('Birthday wish creation error', [
+                'error' => $errorMsg,
+                'class' => $errorClass,
+                'trace' => $e->getTraceAsString()
+            ]);
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to send wish: ' . $e->getMessage()
+                'message' => $errorMsg ?: 'Failed to send wish'
             ], 500);
         }
     }
