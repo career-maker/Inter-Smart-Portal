@@ -125,10 +125,10 @@ export default function ReportsPage() {
           <select value={selectedUserId} onChange={e => setSelectedUserId(e.target.value)}
             className="w-full bg-slate-700 border border-white/10 text-white text-sm rounded-lg px-3 py-2 outline-none focus:border-amber-500">
             <option value="all">All Employees</option>
-            {employeeList.map(e => <option key={e.id} value={e.id}>{e.name} ({e.code})</option>)}
+            {employeeList.map(e => <option key={e.id} value={String(e.id)}>{e.name} ({e.code})</option>)}
           </select>
         </div>
-        {reportType === "leaves" && <>
+        {(reportType === "leaves" || reportType === "attendance-summary") && <>
           <div>
             <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">From Date</label>
             <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)}
