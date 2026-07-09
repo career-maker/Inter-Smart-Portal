@@ -158,56 +158,12 @@ export function AttendanceWidget({ initialData }: { initialData?: any }) {
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex-shrink-0 w-full lg:w-auto flex flex-col sm:flex-row lg:flex-col gap-3 min-w-[180px]">
-          {(!data || data.status === 'Not Checked In') && (
-            <button 
-              onClick={() => handleAction('check-in')}
-              disabled={actionLoading}
-              className="w-full py-4 px-6 bg-gradient-to-r from-emerald-400 to-green-500 hover:from-emerald-500 hover:to-green-600 text-white rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all disabled:opacity-50 border border-green-400/50"
-            >
-              <Play className="w-5 h-5 fill-current" />
-              Clock In
-            </button>
-          )}
-
-          {data?.status === 'Checked In' && (
-            <>
-              <button 
-                onClick={() => handleAction('break-start')}
-                disabled={actionLoading}
-                className="w-full flex-1 py-3 px-6 bg-gradient-to-r from-amber-300 to-orange-400 hover:from-amber-400 hover:to-orange-500 text-amber-950 rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all disabled:opacity-50 border border-amber-300/50"
-              >
-                <Coffee className="w-5 h-5" />
-                Take Break
-              </button>
-              <button 
-                onClick={() => handleAction('check-out')}
-                disabled={actionLoading}
-                className="w-full flex-1 py-3 px-6 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all disabled:opacity-50 border border-red-400/50"
-              >
-                <Square className="w-5 h-5 fill-current" />
-                Clock Out
-              </button>
-            </>
-          )}
-
-          {data?.status === 'On Break' && (
-            <button 
-              onClick={() => handleAction('break-end')}
-              disabled={actionLoading}
-              className="w-full py-4 px-6 bg-gradient-to-r from-cyan-400 to-blue-500 hover:from-cyan-500 hover:to-blue-600 text-white rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all disabled:opacity-50 border border-cyan-400/50"
-            >
-              <CheckCircle className="w-5 h-5" />
-              Resume Work
-            </button>
-          )}
-
-          {data?.status === 'Checked Out' && (
-            <div className="w-full py-4 px-6 bg-slate-700/40 text-slate-400 rounded-2xl font-bold flex items-center justify-center text-center border border-white/10 shadow-sm">
-              Shift Completed
-            </div>
-          )}
+        {/* Biometric Entry Notice */}
+        <div className="flex-shrink-0 w-full lg:w-auto min-w-[180px] p-4 bg-blue-500/10 border border-blue-500/30 rounded-2xl">
+          <p className="text-center text-xs text-blue-300">
+            <span className="font-semibold block">Biometric Entry</span>
+            Attendance is recorded automatically via biometric device
+          </p>
         </div>
       </div>
     </div>

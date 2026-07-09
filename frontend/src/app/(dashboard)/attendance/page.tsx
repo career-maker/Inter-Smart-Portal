@@ -111,55 +111,12 @@ export default function AttendancePage() {
                   </Badge>
                 </div>
 
-                {statusData?.status === 'Not Checked In' && (
-                  <Button
-                    size="sm"
-                    className="w-full text-xs bg-green-600 hover:bg-green-700"
-                    onClick={() => handleAction('check-in')}
-                    disabled={actionLoading}
-                  >
-                    <Play className="mr-1 h-3 w-3" /> Clock In
-                  </Button>
-                )}
-
-                {statusData?.status === 'Checked In' && (
-                  <div className="grid grid-cols-2 gap-1">
-                    <Button
-                      size="xs"
-                      variant="outline"
-                      className="text-xs h-8 border-amber-300 text-amber-700 hover:bg-amber-400/10 bg-transparent"
-                      onClick={() => handleAction('break-start')}
-                      disabled={actionLoading}
-                    >
-                      <Coffee className="mr-1 h-3 w-3" /> Break
-                    </Button>
-                    <Button
-                      size="xs"
-                      className="text-xs h-8 bg-red-600 hover:bg-red-700 text-white"
-                      onClick={() => handleAction('check-out')}
-                      disabled={actionLoading}
-                    >
-                      <Square className="mr-1 h-3 w-3" /> Out
-                    </Button>
-                  </div>
-                )}
-
-                {statusData?.status === 'On Break' && (
-                  <Button
-                    size="sm"
-                    className="w-full text-xs bg-amber-600 hover:bg-amber-700"
-                    onClick={() => handleAction('break-end')}
-                    disabled={actionLoading}
-                  >
-                    <CheckCircle className="mr-1 h-3 w-3" /> End Break
-                  </Button>
-                )}
-
-                {statusData?.status === 'Checked Out' && (
-                  <div className="text-center p-2 bg-slate-700/50 rounded border border-white/10 text-xs text-slate-300">
-                    Shift completed
-                  </div>
-                )}
+                {/* Attendance is managed by biometric device - manual entries disabled */}
+                <div className="text-center p-3 bg-blue-500/10 rounded border border-blue-500/30">
+                  <p className="text-xs text-blue-300">
+                    <span className="font-semibold">Biometric Entry</span> — Attendance is automatically recorded via biometric device.
+                  </p>
+                </div>
               </div>
             )}
           </CardContent>

@@ -359,15 +359,34 @@ class ReportController extends Controller
      * Calculate day status for an employee
      * Returns: 'P' = Present, 'A' = Absent, 'L' = Leave, 'W' = WFH, 'H' = Half Day
      * is_late: true if employee is marked as late
+     *
+     * Late logic:
+     * - Normal day: first punch-in after 9:40 AM = Late
+     * - Half-day (morning): must punch in before 2:30 PM, else Late
+     * - Half-day (afternoon): no late marking needed
      */
     private function calculateDayStatus($userId, $dateStr, $leave, $wfh, $attendance): array
     {
-        // If on leave, mark as 'L' (absence due to leave)
+        $isLate = false;
+
+        // If on leave
         if ($leave) {
             $isHalfDay = $leave->duration_type && strpos($leave->duration_type, 'Half') !== false;
+            $isMorningHalf = $leave->duration_type && strpos($leave->duration_type, 'Half-Morning') !== false;
+
+            // For half-day leave (morning), check if employee checked in after 2:30 PM
+            if ($isHalfDay && $isMorningHalf && $attendance && $attendance->check_in) {
+                $checkInTime = Carbon::parse($attendance->check_in);
+                $afternoonThreshold = Carbon::parse($dateStr . ' 14:30:00');
+
+                if ($checkInTime->greaterThan($afternoonThreshold)) {
+                    $isLate = true;
+                }
+            }
+
             return [
                 'status' => $isHalfDay ? 'H' : 'A',
-                'is_late' => false,
+                'is_late' => $isLate,
             ];
         }
 
@@ -387,8 +406,7 @@ class ReportController extends Controller
             ];
         }
 
-        // Check if late based on first check-in time
-        $isLate = false;
+        // Check if late based on first check-in time (normal day)
         if ($attendance->check_in) {
             $checkInTime = Carbon::parse($attendance->check_in);
             $lateThreshold = Carbon::parse($dateStr . ' 09:40:00');
