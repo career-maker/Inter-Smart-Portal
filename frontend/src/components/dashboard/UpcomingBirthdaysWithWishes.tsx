@@ -27,8 +27,9 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
     setError(null);
 
     try {
+      const numericId = Number(selectedBirthdayId);
       await api.post("/birthday-wishes", {
-        birthday_user_id: selectedBirthdayId,
+        birthday_user_id: numericId,
         message: message.trim(),
       });
 
@@ -36,6 +37,7 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
       setSelectedBirthdayId(null);
       alert("🎉 Wish sent successfully!");
     } catch (err: any) {
+      console.error("Wish error:", err.response?.data || err.message);
       setError(err.response?.data?.message || "Failed to send wish. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -74,11 +76,11 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
           <div className="flex items-center gap-3 min-w-0">
             <Avatar className="h-10 w-10 shrink-0">
               <AvatarImage src={person.profile_photo_path} />
-              <AvatarFallback>{person.name?.charAt(0) || "?"}</AvatarFallback>
+              <AvatarFallback>{person.name?.[0] || "?"}</AvatarFallback>
             </Avatar>
             <div className="min-w-0">
-              <p className="font-semibold text-white truncate text-sm">{person.name}</p>
-              <p className="text-xs text-slate-400 truncate">{person.designation}</p>
+              <p className="font-semibold text-white truncate text-sm">{person.name || "Unknown"}</p>
+              <p className="text-xs text-slate-400 truncate">{person.designation || "N/A"}</p>
             </div>
           </div>
 
@@ -95,7 +97,7 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
             {canWish ? (
               <button
                 onClick={() => setSelectedBirthdayId(person.id)}
-                className="p-1.5 hover:bg-pink-500/20 rounded text-pink-400 hover:text-pink-300"
+                className="p-1.5 hover:bg-pink-500/20 rounded text-pink-400 hover:text-pink-300 transition"
                 title="Send birthday wish"
               >
                 <Heart className="w-4 h-4 fill-pink-400" />
@@ -128,44 +130,49 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
         ))}
       </div>
 
-      {/* Wish Modal */}
+      {/* Wish Modal - Fixed positioning */}
       {selectedBirthdayId !== null && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 max-w-md w-full">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4 pointer-events-auto">
+          <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h4 className="font-bold text-white">Wish {person.name}</h4>
+              <h4 className="font-bold text-white truncate">{`Wish ${person.name}`}</h4>
               <button
                 onClick={() => setSelectedBirthdayId(null)}
-                className="p-1 hover:bg-slate-800 rounded"
+                className="p-1 hover:bg-slate-800 rounded shrink-0"
               >
                 <X className="w-4 h-4 text-slate-400" />
               </button>
             </div>
 
-            <Textarea
-              placeholder="Write your birthday wish..."
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              rows={3}
-              className="bg-white/5 border-white/10 text-white placeholder-slate-400 mb-4"
-            />
+            <div className="space-y-4">
+              <Textarea
+                placeholder="Write your birthday wish..."
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                rows={3}
+                className="bg-white/5 border-white/10 text-white placeholder-slate-400 resize-none"
+                maxLength={500}
+              />
 
-            {error && <div className="text-sm text-red-400 mb-4">{error}</div>}
+              <div className="text-xs text-slate-400">{message.length}/500</div>
 
-            <div className="flex gap-2">
-              <Button
-                disabled={isSubmitting || !message.trim()}
-                onClick={handleSendWish}
-                className="flex-1 bg-pink-600 hover:bg-pink-700"
-              >
-                {isSubmitting ? (
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                ) : (
-                  <Send className="w-4 h-4 mr-2" />
-                )}
-                Send
-              </Button>
-              <Button variant="outline" onClick={() => setSelectedBirthdayId(null)}>Cancel</Button>
+              {error && <div className="text-sm text-red-400 bg-red-500/10 p-2 rounded">{error}</div>}
+
+              <div className="flex gap-2 pt-2">
+                <Button
+                  disabled={isSubmitting || !message.trim()}
+                  onClick={handleSendWish}
+                  className="flex-1 bg-pink-600 hover:bg-pink-700"
+                >
+                  {isSubmitting ? (
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  ) : (
+                    <Send className="w-4 h-4 mr-2" />
+                  )}
+                  Send
+                </Button>
+                <Button variant="outline" onClick={() => setSelectedBirthdayId(null)}>Cancel</Button>
+              </div>
             </div>
           </div>
         </div>
