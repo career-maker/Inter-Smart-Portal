@@ -21,11 +21,15 @@ import api from "@/services/api";
 function resolveNotificationUrl(notification: any): string {
   const type = notification.type;
   const stored = notification.data?.action_url;
-  
+
   if (type === "App\\Notifications\\ProfileUpdateRequestNotification") {
     return stored || "/profile-requests";
   }
-  
+
+  if (type === "App\\Notifications\\BirthdayWishNotification") {
+    return stored || "/birthday-wishes";
+  }
+
   const event = notification.data?.event;
   if (event === "submitted" || event === "tl_approved") return "/leaves/approvals";
   return stored || "/notifications";

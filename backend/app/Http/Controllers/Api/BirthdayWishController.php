@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\BirthdayWish;
 use App\Models\User;
-use App\Models\Notification;
+use App\Notifications\BirthdayWishNotification;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Carbon\Carbon;
@@ -61,18 +61,12 @@ class BirthdayWishController extends Controller
                 ]
             ]);
 
-            // Create notification after returning success (fire and forget)
+            // Send notification to birthday person (fire and forget)
             try {
                 $birthdayPerson = User::find($birthdayUserId);
                 if ($birthdayPerson) {
-                    Notification::create([
-                        'user_id' => $birthdayPerson->id,
-                        'title' => 'Birthday Wish',
-                        'message' => "{$sender->first_name} {$sender->last_name} wished you on your birthday!",
-                        'type' => 'birthday_wish',
-                        'link' => '/birthday-wishes',
-                        'is_read' => false,
-                    ]);
+                    $senderName = "{$sender->first_name} {$sender->last_name}";
+                    $birthdayPerson->notify(new BirthdayWishNotification($wish, $senderName));
                 }
             } catch (\Exception $notifError) {
                 \Log::warning('Notification failed but wish was sent', [
