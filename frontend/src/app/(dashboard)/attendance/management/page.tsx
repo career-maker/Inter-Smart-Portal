@@ -105,13 +105,28 @@ export default function AttendanceManagementPage() {
   const [error, setError] = useState<string | null>(null);
   const [isLeaveWfhModalOpen, setIsLeaveWfhModalOpen] = useState(false);
 
-  // Fetch employees
+  // Fetch employees with pagination
   useEffect(() => {
-    const fetchEmployees = async () => {
+    const fetchAllEmployees = async () => {
       setIsLoadingEmployees(true);
       try {
-        const res = await api.get("/employees?per_page=1000");
-        setEmployees(res.data.data || []);
+        let allEmployees: Employee[] = [];
+        let page = 1;
+        let hasMorePages = true;
+
+        // Fetch all pages of employees
+        while (hasMorePages) {
+          const res = await api.get(`/employees?page=${page}&per_page=50`);
+          const pageData = res.data.data || [];
+          allEmployees = [...allEmployees, ...pageData];
+
+          // Check if there are more pages
+          const lastPage = res.data.meta?.last_page || 1;
+          hasMorePages = page < lastPage;
+          page++;
+        }
+
+        setEmployees(allEmployees);
       } catch (err) {
         console.error("Failed to load employees", err);
         setError("Failed to load employees");
@@ -119,7 +134,7 @@ export default function AttendanceManagementPage() {
         setIsLoadingEmployees(false);
       }
     };
-    fetchEmployees();
+    fetchAllEmployees();
   }, []);
 
   // Filter employees based on search
