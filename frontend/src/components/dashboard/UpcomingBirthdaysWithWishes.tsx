@@ -53,8 +53,19 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
     }
   };
 
+  // Recalculate days_remaining based on current date to ensure accuracy
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const itemsWithRecalculatedDays = items.map((item: any) => {
+    const itemDate = new Date(item.date);
+    itemDate.setHours(0, 0, 0, 0);
+    const daysRemaining = Math.round((itemDate.getTime() - today.getTime()) / 86400000);
+    return { ...item, days_remaining: daysRemaining };
+  });
+
   // Filter out past birthdays (days_remaining < 0)
-  const upcomingItems = items.filter((item: any) => item.days_remaining >= 0);
+  const upcomingItems = itemsWithRecalculatedDays.filter((item: any) => item.days_remaining >= 0);
 
   if (!upcomingItems || upcomingItems.length === 0) {
     return (
@@ -74,10 +85,10 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
 
   return (
     <div className="premium-card p-6 flex flex-col" style={{ height: '224px' }}>
-      <h3 className="font-bold text-white shrink-0 mb-3">🎂 Upcoming Birthdays</h3>
+      <h3 className="font-bold text-white shrink-0 mb-4 text-sm">🎂 Upcoming Birthdays</h3>
 
       {/* Rotating Card */}
-      <div className="flex items-center justify-between gap-2 flex-1 min-h-0">
+      <div className="flex items-center justify-between gap-2 flex-1 min-h-0 overflow-hidden">
         <button
           onClick={() => setCurrentIndex(Math.max(0, safeIndex - 1))}
           disabled={safeIndex === 0}
