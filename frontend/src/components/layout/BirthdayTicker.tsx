@@ -15,7 +15,12 @@ export function BirthdayTicker() {
         const upcomingBirthdays = res.data.upcoming_birthdays || [];
 
         // Filter for birthdays with 0 days remaining (today)
-        const todayBirthdays = upcomingBirthdays.filter((person: any) => person.days_remaining === 0);
+        const todayBirthdays = upcomingBirthdays.filter((person: any) => {
+          const daysRemaining = person.days_remaining;
+          return daysRemaining === 0 || daysRemaining === "0";
+        });
+
+        console.log("Today's birthdays:", todayBirthdays); // Debug log
         setBirthdays(todayBirthdays);
       } catch (error) {
         console.error("Failed to fetch birthdays for ticker", error);
@@ -23,8 +28,8 @@ export function BirthdayTicker() {
     };
 
     fetchTodaysBirthdays();
-    // Refresh birthdays every hour
-    const interval = setInterval(fetchTodaysBirthdays, 60 * 60 * 1000);
+    // Refresh birthdays immediately and every 5 minutes (not 1 hour)
+    const interval = setInterval(fetchTodaysBirthdays, 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
