@@ -9,8 +9,8 @@ import { Eye, EyeOff, LogIn } from "lucide-react";
 export default function LoginPage() {
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
-  const [email, setEmail] = useState("admin@intersmart.in");
-  const [password, setPassword] = useState("Admin@123456");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
