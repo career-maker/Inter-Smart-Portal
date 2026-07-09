@@ -18,18 +18,25 @@ class ReportController extends Controller
         $query = User::with(['team.teamLead', 'roles', 'leaveBalance'])->whereNotNull('joining_date');
 
         if ($request->filled('user_id') && $request->user_id !== 'all') {
-            $query->where('id', $request->user_id);
+            $userId = intval($request->user_id);
+            \Log::info('Employee report for single user', ['user_id' => $userId]);
+            $query->where('id', $userId);
+        } else {
+            \Log::info('Employee report for all users');
         }
+
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
         if ($request->filled('team_id')) {
-            $query->where('team_id', $request->team_id);
+            $query->where('team_id', intval($request->team_id));
         }
 
         $currentYear = Carbon::now()->year;
         $currentMonth = Carbon::now()->month;
         $employees = $query->get();
+
+        \Log::info('Employees loaded for report', ['count' => $employees->count()]);
 
         // Batch load all leave and WFH data for better performance
         $employeeIds = $employees->pluck('id')->toArray();
