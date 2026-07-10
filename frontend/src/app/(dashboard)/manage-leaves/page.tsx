@@ -95,6 +95,13 @@ export default function ManageLeavesPage() {
 
     setDeleting(id);
 
+    // Optimistic deletion - remove from UI immediately
+    if (type === "leave") {
+      setLeaves(leaves.filter(item => item.id !== id));
+    } else {
+      setWfh(wfh.filter(item => item.id !== id));
+    }
+
     try {
       const endpoint = type === "leave" ? `/admin/approved-leaves/${id}` : `/admin/approved-wfh/${id}`;
       await api.delete(endpoint);
@@ -102,12 +109,11 @@ export default function ManageLeavesPage() {
       // Show success message
       setSuccessMessage(`${type === "leave" ? "Leave" : "WFH"} deleted successfully and balance restored!`);
 
-      // Refresh data
-      fetchData();
-
       // Clear success message after 4 seconds
       setTimeout(() => setSuccessMessage(null), 4000);
     } catch (err: any) {
+      // Restore the item if deletion fails
+      fetchData();
       setError(err.response?.data?.message || `Failed to delete ${type}`);
     } finally {
       setDeleting(null);
@@ -243,7 +249,7 @@ export default function ManageLeavesPage() {
                     <td className="px-4 py-3 text-gray-300">{item.end_date}</td>
                     {tab === "leaves" && (
                       <td className="px-4 py-3 text-gray-300">
-                        {(item as LeaveData).leaveType?.name || "-"}
+                        {(item as any).leave_type?.name || (item as LeaveData).leaveType?.name || (item as any).type || "-"}
                       </td>
                     )}
                     <td className="px-4 py-3 text-gray-300 max-w-xs truncate">
