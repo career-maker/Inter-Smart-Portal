@@ -101,6 +101,11 @@ class EmployeeController extends Controller
             $user = User::create($data);
             $user->assignRole($role);
 
+            // If employee is Team Lead and belongs to a team, update team's team_lead_id
+            if ($role === 'Team Lead' && !empty($data['team_id'])) {
+                \App\Models\Team::where('id', $data['team_id'])->update(['team_lead_id' => $user->id]);
+            }
+
             // Create a zero leave balance record for the new employee
             \App\Models\LeaveBalance::firstOrCreate(
                 ['user_id' => $user->id],
@@ -191,6 +196,14 @@ class EmployeeController extends Controller
 
         if ($role) {
             $employee->syncRoles([$role]);
+
+            // If employee is Team Lead and belongs to a team, update team's team_lead_id
+            if ($role === 'Team Lead' && !empty($employee->team_id)) {
+                \App\Models\Team::where('id', $employee->team_id)->update(['team_lead_id' => $employee->id]);
+            } elseif ($role !== 'Team Lead') {
+                // If role is no longer Team Lead, remove from teams that had them as lead
+                \App\Models\Team::where('team_lead_id', $employee->id)->update(['team_lead_id' => null]);
+            }
         }
 
         // Recover orphaned biometric events if employee_code was changed

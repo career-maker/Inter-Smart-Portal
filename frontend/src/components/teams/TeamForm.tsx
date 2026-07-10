@@ -35,6 +35,7 @@ type TeamFormProps = {
 export default function TeamForm({ initialData, isEdit }: TeamFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [usersLoading, setUsersLoading] = useState(true);
   const [users, setUsers] = useState<any[]>([]);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -51,11 +52,16 @@ export default function TeamForm({ initialData, isEdit }: TeamFormProps) {
   }, []);
 
   const fetchUsers = async () => {
+    setUsersLoading(true);
     try {
-      const res = await api.get("/reports/employee-list");
-      setUsers(res.data.data);
+      const res = await api.get("/employees");
+      const allUsers = res.data.data || [];
+      setUsers(allUsers.filter((u: any) => u.status === 'Active'));
     } catch (e) {
-      console.error(e);
+      console.error("Failed to fetch users:", e);
+      setUsers([]);
+    } finally {
+      setUsersLoading(false);
     }
   };
 
@@ -102,11 +108,17 @@ export default function TeamForm({ initialData, isEdit }: TeamFormProps) {
             <FormField control={form.control} name="team_lead_id" render={({ field }) => (
               <FormItem>
                 <FormLabel>Team Lead</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl><SelectTrigger><SelectValue placeholder="Select a team lead" /></SelectTrigger></FormControl>
-                  <SelectContent>
+                <Select onValueChange={field.onChange} value={field.value || "none"}>
+                  <FormControl><SelectTrigger><SelectValue placeholder={usersLoading ? "Loading..." : "Select a team lead"} /></SelectTrigger></FormControl>
+                  <SelectContent className="z-50">
                     <SelectItem value="none">Unassigned</SelectItem>
-                    {users.map(u => <SelectItem key={u.id} value={u.id.toString()}>{u.first_name} {u.last_name}</SelectItem>)}
+                    {usersLoading ? (
+                      <div className="p-2 text-sm text-slate-500">Loading employees...</div>
+                    ) : users.length > 0 ? (
+                      users.map(u => <SelectItem key={u.id} value={u.id.toString()}>{u.first_name} {u.last_name}</SelectItem>)
+                    ) : (
+                      <div className="p-2 text-sm text-slate-500">No employees available</div>
+                    )}
                   </SelectContent>
                 </Select>
                 <FormMessage />
