@@ -19,6 +19,7 @@ class LeaveTypesSeeder extends Seeder
             'Half Day Sick Leave (Afternoon)',
             'Half Day Casual Leave (Morning)',
             'Half Day Casual Leave (Afternoon)',
+            'Work From Home',
             'Work From Home (Morning)',
             'Work From Home (Afternoon)',
             'Half Day WFH (Morning)',
