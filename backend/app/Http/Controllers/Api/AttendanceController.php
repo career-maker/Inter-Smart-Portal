@@ -98,6 +98,42 @@ class AttendanceController extends Controller
                 'check_in_utc' => $utcCheckIn ?? null,
                 'check_out_utc' => $utcCheckOut,
             ]);
+
+            // Recalculate total_working_minutes using BiometricTimelineService
+            // This ensures accuracy by processing raw biometric events
+            if ($attendance->check_in_time && $attendance->check_out_time) {
+                $rawBiometricEvents = BiometricEvent::where('user_id', $request->user()->id)
+                    ->whereDate('local_punch_time', $today)
+                    ->orderBy('local_punch_time', 'asc')
+                    ->get();
+
+                if ($rawBiometricEvents->isNotEmpty()) {
+                    // Use BiometricTimelineService to calculate accurate working time
+                    $build = $this->timeline->buildTimeline($rawBiometricEvents, false);
+                    if ($build['ok']) {
+                        $interp = $this->timeline->interpretTimeline($build['timeline'], $today);
+                        $attendance->total_working_minutes = (int) ($interp['total_working_minutes'] ?? 0);
+                        $attendance->save();
+                    }
+                } else {
+                    // Fallback: calculate from punch times and manual breaks
+                    $checkInCarbon = Carbon::parse($attendance->check_in_time);
+                    $checkOutCarbon = Carbon::parse($attendance->check_out_time);
+                    $totalMinutes = $checkInCarbon->diffInMinutes($checkOutCarbon);
+
+                    $totalBreakMinutes = 0;
+                    $breakRecords = $attendance->breaks()->whereNotNull('break_end')->get();
+                    foreach ($breakRecords as $break) {
+                        if ($break->total_break_minutes) {
+                            $totalBreakMinutes += $break->total_break_minutes;
+                        }
+                    }
+
+                    $workingMinutes = max(0, $totalMinutes - $totalBreakMinutes);
+                    $attendance->total_working_minutes = (int) $workingMinutes;
+                    $attendance->save();
+                }
+            }
         }
 
         $status = 'Checked In';
@@ -109,6 +145,9 @@ class AttendanceController extends Controller
                 $status = 'On Break';
             }
         }
+
+        // Reload attendance to get the latest data
+        $attendance = $attendance->fresh(['breaks']);
 
         return response()->json([
             'status'     => $status,
