@@ -45,6 +45,13 @@ export function AttendanceWidget({ initialData }: { initialData?: any }) {
     }
 
     const calcSeconds = () => {
+      // When checked out, use total_working_minutes from backend (source of truth)
+      if (data.status === 'Checked Out' && data.attendance.total_working_minutes !== null && data.attendance.total_working_minutes !== undefined) {
+        setElapsedSeconds(data.attendance.total_working_minutes * 60);
+        return;
+      }
+
+      // For active state, calculate from check-in time
       const checkIn = new Date(data.attendance.check_in_time).getTime();
       let end = new Date().getTime();
 
@@ -75,7 +82,7 @@ export function AttendanceWidget({ initialData }: { initialData?: any }) {
     if (data.status === 'Checked In') {
       interval = setInterval(calcSeconds, 1000);
     }
-    
+
     return () => {
       if (interval) clearInterval(interval);
     };
@@ -109,7 +116,18 @@ export function AttendanceWidget({ initialData }: { initialData?: any }) {
     return <div className="bg-gradient-to-br from-slate-800/90 to-slate-900/90 border border-white/[0.06] rounded-3xl p-6 shadow-[8px_8px_24px_rgba(0,0,0,0.5)] animate-pulse h-48 mb-6"></div>;
   }
 
-  const totalBreakMins = data?.attendance?.breaks?.reduce((acc: number, b: any) => acc + (b.total_break_minutes || 0), 0) || 0;
+  // Calculate break time: total time - working time
+  let totalBreakMins = 0;
+  if (data?.attendance?.check_in_time && data?.attendance?.check_out_time) {
+    const checkIn = new Date(data.attendance.check_in_time).getTime();
+    const checkOut = new Date(data.attendance.check_out_time).getTime();
+    const totalMinutes = (checkOut - checkIn) / 1000 / 60;
+    const workingMinutes = data.attendance.total_working_minutes || 0;
+    totalBreakMins = Math.max(0, Math.round(totalMinutes - workingMinutes));
+  } else {
+    // Fallback to summing breaks array if times not available
+    totalBreakMins = data?.attendance?.breaks?.reduce((acc: number, b: any) => acc + (b.total_break_minutes || 0), 0) || 0;
+  }
   const breakDurationStr = totalBreakMins > 0 ? `${Math.floor(totalBreakMins / 60)}h ${totalBreakMins % 60}m` : '0m';
 
   return (
