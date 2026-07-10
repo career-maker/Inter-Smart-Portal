@@ -114,6 +114,66 @@ Route::middleware('auth:sanctum')->group(function () {
                 'total' => count($created)
             ], 201);
         });
+
+        // Emergency: Ensure missing database columns exist for admin leave/WFH creation
+        Route::post('admin/ensure-database-columns', function (\Illuminate\Http\Request $request) {
+            $results = [];
+
+            // Ensure wfh_type_id and attachment_link columns exist in wfh_requests
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('wfh_requests', 'wfh_type_id')) {
+                \Illuminate\Support\Facades\Schema::table('wfh_requests', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->foreignId('wfh_type_id')
+                        ->nullable()
+                        ->constrained('leave_types')
+                        ->onDelete('set null');
+                });
+                $results['wfh_type_id'] = 'created';
+            } else {
+                $results['wfh_type_id'] = 'already_exists';
+            }
+
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('wfh_requests', 'attachment_link')) {
+                \Illuminate\Support\Facades\Schema::table('wfh_requests', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->string('attachment_link')->nullable();
+                });
+                $results['attachment_link'] = 'created';
+            } else {
+                $results['attachment_link'] = 'already_exists';
+            }
+
+            // Ensure tl_status, admin_status, approver_id columns exist in leave_requests
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('leave_requests', 'tl_status')) {
+                \Illuminate\Support\Facades\Schema::table('leave_requests', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->string('tl_status')->default('Pending')->after('status');
+                });
+                $results['tl_status'] = 'created';
+            } else {
+                $results['tl_status'] = 'already_exists';
+            }
+
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('leave_requests', 'admin_status')) {
+                \Illuminate\Support\Facades\Schema::table('leave_requests', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->string('admin_status')->default('Pending')->after('tl_status');
+                });
+                $results['admin_status'] = 'created';
+            } else {
+                $results['admin_status'] = 'already_exists';
+            }
+
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('leave_requests', 'approver_id')) {
+                \Illuminate\Support\Facades\Schema::table('leave_requests', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->unsignedBigInteger('approver_id')->nullable()->after('approved_by');
+                });
+                $results['approver_id'] = 'created';
+            } else {
+                $results['approver_id'] = 'already_exists';
+            }
+
+            return response()->json([
+                'message' => 'Database columns checked and ensured.',
+                'results' => $results
+            ], 200);
+        });
     });
     
     // Employee Leave Routes
