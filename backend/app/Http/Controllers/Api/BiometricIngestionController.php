@@ -260,15 +260,18 @@ class BiometricIngestionController extends Controller
 
     private function syncBiometricToAttendance($insertedRows)
     {
-        // Get the IDs of newly inserted biometric events
-        $eventIds = [];
-        foreach ($insertedRows as $row) {
-            // Extract IDs if available, or fetch them fresh
-            $eventIds[] = "{$row->source_system}|{$row->source_table}|{$row->source_event_id}";
+        if (empty($insertedRows)) {
+            return;
         }
 
-        if (empty($eventIds)) {
-            return;
+        // Build a where clause to find the inserted events
+        $conditions = [];
+        foreach ($insertedRows as $row) {
+            $conditions[] = [
+                'source_system' => $row->source_system,
+                'source_table' => $row->source_table,
+                'source_event_id' => $row->source_event_id,
+            ];
         }
 
         // Fetch the actual biometric events with user_id and punch details
@@ -276,8 +279,21 @@ class BiometricIngestionController extends Controller
             ->where('mapping_status', 'mapped')
             ->where('direction', 'out')
             ->whereNotNull('user_id')
-            ->whereIn(DB::raw("(source_system || '|' || source_table || '|' || source_event_id)"), $eventIds)
+            ->where(function ($query) use ($conditions) {
+                foreach ($conditions as $condition) {
+                    $query->orWhere(function ($q) use ($condition) {
+                        $q->where('source_system', $condition['source_system'])
+                          ->where('source_table', $condition['source_table'])
+                          ->where('source_event_id', $condition['source_event_id']);
+                    });
+                }
+            })
             ->get();
+
+        \Log::info('Syncing biometric events to attendance', [
+            'event_count' => $biometricEvents->count(),
+            'rows_returned' => count($insertedRows),
+        ]);
 
         foreach ($biometricEvents as $event) {
             try {
@@ -288,6 +304,13 @@ class BiometricIngestionController extends Controller
                     ->where('user_id', $event->user_id)
                     ->where('date', $eventDate)
                     ->first();
+
+                \Log::info('Processing biometric event', [
+                    'user_id' => $event->user_id,
+                    'date' => $eventDate,
+                    'punch_time' => $event->local_punch_time,
+                    'attendance_exists' => (bool) $attendance,
+                ]);
 
                 if (!$attendance) {
                     // Create new attendance record
@@ -301,6 +324,7 @@ class BiometricIngestionController extends Controller
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);
+                    \Log::info('Created new attendance record', ['user_id' => $event->user_id, 'date' => $eventDate]);
                 } else {
                     // Update check_out_time if this is a later punch
                     $existingCheckOut = $attendance->check_out_time ? Carbon::parse($attendance->check_out_time) : null;
@@ -314,13 +338,19 @@ class BiometricIngestionController extends Controller
                                 'source' => 'biometric',
                                 'updated_at' => now(),
                             ]);
+                        \Log::info('Updated attendance check_out_time', [
+                            'user_id' => $event->user_id,
+                            'date' => $eventDate,
+                            'new_time' => $event->local_punch_time,
+                        ]);
                     }
                 }
             } catch (\Exception $e) {
                 \Log::error('Failed to sync biometric event to attendance', [
-                    'event_id' => $event->source_event_id,
-                    'user_id' => $event->user_id,
+                    'event_id' => $event->source_event_id ?? 'unknown',
+                    'user_id' => $event->user_id ?? 'unknown',
                     'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
                 ]);
             }
         }

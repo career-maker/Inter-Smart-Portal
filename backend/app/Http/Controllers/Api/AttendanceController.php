@@ -38,16 +38,48 @@ class AttendanceController extends Controller
 
         // Sync missing check_out_time from biometric events if not already set
         if (!$attendance->check_out_time) {
-            $latestPunchOut = BiometricEvent::where('user_id', $request->user()->id)
+            $latestPunchOut = DB::table('biometric_events')
+                ->where('user_id', $request->user()->id)
                 ->whereDate('local_punch_time', $today)
                 ->where('direction', 'out')
                 ->where('mapping_status', 'mapped')
                 ->orderBy('local_punch_time', 'desc')
-                ->first();
+                ->first(['local_punch_time']);
 
             if ($latestPunchOut && $latestPunchOut->local_punch_time) {
                 $attendance->check_out_time = $latestPunchOut->local_punch_time;
                 $attendance->save();
+                \Log::info('Synced punch_out_time from biometric event', [
+                    'user_id' => $request->user()->id,
+                    'date' => $today,
+                    'punch_time' => $latestPunchOut->local_punch_time,
+                ]);
+            }
+        }
+
+        // Also check if we need to update from biometric even if check_out_time exists
+        // (in case the biometric has a later time)
+        if ($attendance->check_out_time && $attendance->source !== 'biometric') {
+            $latestBiometricPunch = DB::table('biometric_events')
+                ->where('user_id', $request->user()->id)
+                ->whereDate('local_punch_time', $today)
+                ->where('direction', 'out')
+                ->where('mapping_status', 'mapped')
+                ->orderBy('local_punch_time', 'desc')
+                ->first(['local_punch_time']);
+
+            if ($latestBiometricPunch && $latestBiometricPunch->local_punch_time) {
+                // Compare as strings since they're both in Kolkata timezone
+                if ($latestBiometricPunch->local_punch_time > $attendance->check_out_time) {
+                    $attendance->check_out_time = $latestBiometricPunch->local_punch_time;
+                    $attendance->source = 'biometric';
+                    $attendance->save();
+                    \Log::info('Updated punch_out_time to later biometric punch', [
+                        'user_id' => $request->user()->id,
+                        'old_time' => $attendance->check_out_time,
+                        'new_time' => $latestBiometricPunch->local_punch_time,
+                    ]);
+                }
             }
         }
 

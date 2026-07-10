@@ -25,12 +25,20 @@ use Illuminate\Http\Resources\Json\JsonResource;
  */
 class AttendanceResource extends JsonResource
 {
-    private function shiftLocal(?object $carbonOrNull): ?string
+    private function formatTimeAsIso(?string $timeString): ?string
     {
-        if ($carbonOrNull === null) {
+        if (!$timeString) {
             return null;
         }
-        return $carbonOrNull->shiftTimezone('Asia/Kolkata')->toIso8601String();
+        // Times are stored as "timestamp without time zone" in Asia/Kolkata timezone
+        // Parse them and explicitly set timezone to Asia/Kolkata
+        try {
+            $carbon = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $timeString, 'Asia/Kolkata');
+            return $carbon->toIso8601String();
+        } catch (\Exception $e) {
+            // Fallback: try direct parse
+            return \Carbon\Carbon::parse($timeString, 'Asia/Kolkata')->toIso8601String();
+        }
     }
 
     public function toArray(Request $request): array
@@ -38,8 +46,8 @@ class AttendanceResource extends JsonResource
         return [
             'id'                    => $this->id,
             'date'                  => $this->date?->format('Y-m-d'),
-            'check_in_time'         => $this->shiftLocal($this->check_in_time),
-            'check_out_time'        => $this->shiftLocal($this->check_out_time),
+            'check_in_time'         => $this->formatTimeAsIso($this->check_in_time),
+            'check_out_time'        => $this->formatTimeAsIso($this->check_out_time),
             'total_working_minutes' => $this->total_working_minutes,
             'status'                => $this->status,
             'source'                => $this->source,
