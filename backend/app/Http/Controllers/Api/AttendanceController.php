@@ -36,9 +36,37 @@ class AttendanceController extends Controller
             return response()->json(['status' => 'Not Checked In', 'attendance' => null]);
         }
 
-        // Sync punch times from biometric events using raw DB queries to get actual stored values
-        // This ensures we work with the real timestamp data, not Eloquent's timezone-casted interpretation
-        $latestBiometricPunch = DB::table('biometric_events')
+        // Sync punch times from biometric events
+        // First, sync check-in time
+        $firstBiometricPunch = DB::table('biometric_events')
+            ->where('user_id', $request->user()->id)
+            ->whereDate('local_punch_time', $today)
+            ->where('direction', 'in')
+            ->where('mapping_status', 'mapped')
+            ->orderBy('local_punch_time', 'asc')
+            ->first(['local_punch_time', 'utc_punch_time']);
+
+        if ($firstBiometricPunch) {
+            // Parse and convert to UTC
+            if ($firstBiometricPunch->utc_punch_time) {
+                $utcCheckIn = Carbon::parse($firstBiometricPunch->utc_punch_time, 'UTC');
+            } else {
+                $localTime = Carbon::createFromFormat(
+                    'Y-m-d H:i:s',
+                    $firstBiometricPunch->local_punch_time,
+                    'Asia/Kolkata'
+                );
+                $utcCheckIn = $localTime->setTimezone('UTC');
+            }
+
+            // Always sync check_in from biometric (it's the source of truth)
+            $attendance->check_in_time = $utcCheckIn;
+            $attendance->source = 'biometric';
+            $attendance->save();
+        }
+
+        // Then, sync check-out time
+        $lastBiometricPunch = DB::table('biometric_events')
             ->where('user_id', $request->user()->id)
             ->whereDate('local_punch_time', $today)
             ->where('direction', 'out')
@@ -46,31 +74,30 @@ class AttendanceController extends Controller
             ->orderBy('local_punch_time', 'desc')
             ->first(['local_punch_time', 'utc_punch_time']);
 
-        if ($latestBiometricPunch) {
-            // Use the utc_punch_time directly from biometric_events (most reliable source)
-            if ($latestBiometricPunch->utc_punch_time) {
-                $utcTime = Carbon::parse($latestBiometricPunch->utc_punch_time, 'UTC');
+        if ($lastBiometricPunch) {
+            // Parse and convert to UTC
+            if ($lastBiometricPunch->utc_punch_time) {
+                $utcCheckOut = Carbon::parse($lastBiometricPunch->utc_punch_time, 'UTC');
             } else {
-                // Fallback: parse local_punch_time as Kolkata and convert to UTC
                 $localTime = Carbon::createFromFormat(
                     'Y-m-d H:i:s',
-                    $latestBiometricPunch->local_punch_time,
+                    $lastBiometricPunch->local_punch_time,
                     'Asia/Kolkata'
                 );
-                $utcTime = $localTime->setTimezone('UTC');
+                $utcCheckOut = $localTime->setTimezone('UTC');
             }
 
-            // Update or create attendance check_out_time
-            if (!$attendance->check_out_time || $attendance->source !== 'biometric') {
-                $attendance->check_out_time = $utcTime;
-                $attendance->source = 'biometric';
-                $attendance->save();
-                \Log::info('Synced punch_out_time from biometric event', [
-                    'user_id' => $request->user()->id,
-                    'date' => $today,
-                    'utc_punch_time' => $utcTime,
-                ]);
-            }
+            // Always sync check_out from biometric (it's the source of truth)
+            $attendance->check_out_time = $utcCheckOut;
+            $attendance->source = 'biometric';
+            $attendance->save();
+
+            \Log::info('Synced attendance times from biometric', [
+                'user_id' => $request->user()->id,
+                'date' => $today,
+                'check_in_utc' => $utcCheckIn ?? null,
+                'check_out_utc' => $utcCheckOut,
+            ]);
         }
 
         $status = 'Checked In';
