@@ -279,37 +279,31 @@ export default function ReportsPage() {
                       <td className="px-4 py-3 text-white font-semibold whitespace-nowrap">{row.name}</td>
                       <td className="px-4 py-3 text-slate-300 text-sm">{row.team || "—"}</td>
                       {row.daily_status?.map((day: any) => {
-                        let bgColor = "bg-slate-800/50";
                         let textColor = "text-slate-400";
                         let displayText = "";
 
                         if (day.status === 'P') {
-                          bgColor = "bg-emerald-500/20";
-                          textColor = "text-emerald-400";
+                          textColor = day.is_late ? "text-amber-400 font-bold" : "text-emerald-400 font-bold";
                           displayText = day.is_late ? "L" : "P";
                         }
                         else if (day.status === 'A') {
-                          bgColor = "";
                           textColor = "";
                           displayText = "";
                         }
                         else if (day.status === 'W') {
-                          bgColor = "bg-blue-500/20";
-                          textColor = "text-blue-400";
+                          textColor = "text-blue-400 font-bold";
                           displayText = "WFH";
                         }
                         else if (day.status === 'H') {
-                          bgColor = "bg-amber-500/20";
-                          textColor = "text-amber-400";
+                          textColor = "text-amber-400 font-bold";
                           displayText = day.leave_type || "H";
                         }
                         else if (day.status === 'L') {
-                          bgColor = "bg-purple-500/20";
-                          textColor = "text-purple-400";
+                          textColor = "text-purple-400 font-bold";
                           displayText = day.leave_type || "LV";
                         }
 
-                        return bgColor ? <td key={day.date} className={`px-3 py-2.5 text-center text-xs font-bold ${bgColor} ${textColor} rounded whitespace-nowrap`}>{displayText}</td> : <td key={day.date} className="px-3 py-2.5 text-center text-xs"></td>;
+                        return displayText ? <td key={day.date} className={`px-1.5 py-2 text-center text-xs ${textColor} whitespace-nowrap`}>{displayText}</td> : <td key={day.date} className="px-1.5 py-2 text-center text-xs"></td>;
                       })}
                       <td className="px-4 py-3 text-center font-bold text-emerald-400">{row.p_count || 0}</td>
                       <td className="px-4 py-3 text-center font-bold text-amber-400">{row.l_count || 0}</td>
