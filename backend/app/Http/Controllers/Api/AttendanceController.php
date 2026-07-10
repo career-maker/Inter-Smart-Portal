@@ -36,6 +36,21 @@ class AttendanceController extends Controller
             return response()->json(['status' => 'Not Checked In', 'attendance' => null]);
         }
 
+        // Sync missing check_out_time from biometric events if not already set
+        if (!$attendance->check_out_time) {
+            $latestPunchOut = BiometricEvent::where('user_id', $request->user()->id)
+                ->whereDate('local_punch_time', $today)
+                ->where('direction', 'out')
+                ->where('mapping_status', 'mapped')
+                ->orderBy('local_punch_time', 'desc')
+                ->first();
+
+            if ($latestPunchOut && $latestPunchOut->local_punch_time) {
+                $attendance->check_out_time = $latestPunchOut->local_punch_time;
+                $attendance->save();
+            }
+        }
+
         $status = 'Checked In';
         if ($attendance->check_out_time) {
             $status = 'Checked Out';

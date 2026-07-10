@@ -30,6 +30,14 @@ export function AttendanceWidget({ initialData }: { initialData?: any }) {
     }
   }, [initialData]);
 
+  // Auto-refresh attendance status every 30 seconds to ensure latest punch times
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchData();
+    }, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   useEffect(() => {
     if (!data?.attendance || data.status === 'Not Checked In') {
       setElapsedSeconds(0);
