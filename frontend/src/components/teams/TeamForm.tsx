@@ -110,7 +110,7 @@ export default function TeamForm({ initialData, isEdit }: TeamFormProps) {
                 <FormLabel>Team Lead</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value || "none"}>
                   <FormControl><SelectTrigger><SelectValue placeholder={usersLoading ? "Loading..." : "Select a team lead"} /></SelectTrigger></FormControl>
-                  <SelectContent className="z-50">
+                  <SelectContent className="z-50 max-h-[500px]">
                     <SelectItem value="none">Unassigned</SelectItem>
                     {usersLoading ? (
                       <div className="p-2 text-sm text-slate-500">Loading employees...</div>
