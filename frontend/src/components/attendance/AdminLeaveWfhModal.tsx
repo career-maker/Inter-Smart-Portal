@@ -119,17 +119,17 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
         throw new Error("WFH type is required");
       }
 
-      const endpoint = type === "leave" ? "/admin/leaves" : "/admin/wfh";
+      const endpoint = type === "leave" ? "/admin/mark-leave" : "/admin/mark-wfh";
       const payload = type === "leave"
         ? {
-            user_id: parseInt(String(formData.user_id)),
+            employee_id: parseInt(String(formData.user_id)),
             leave_type_id: parseInt(formData.leave_type_id),
             start_date: formData.start_date,
             end_date: formData.end_date,
             reason: formData.reason,
           }
         : {
-            user_id: parseInt(String(formData.user_id)),
+            employee_id: parseInt(String(formData.user_id)),
             wfh_type_id: parseInt(formData.wfh_type_id),
             start_date: formData.start_date,
             end_date: formData.end_date,
