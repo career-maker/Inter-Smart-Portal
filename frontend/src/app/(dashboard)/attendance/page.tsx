@@ -16,9 +16,9 @@ export default function AttendancePage() {
   const router = useRouter();
   const { user } = useAuthStore();
 
-  // Restrict to Team Leads and Super Admins only
+  // Restrict to Super Admin only
   useEffect(() => {
-    if (user && user.role === "Employee") {
+    if (user && user.role !== "Super Admin") {
       router.push("/dashboard");
     }
   }, [user, router]);
