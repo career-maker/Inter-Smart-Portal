@@ -111,7 +111,7 @@ class LeaveRequestController extends Controller
         $leaveType = \App\Models\LeaveType::find($leaveTypeId);
         $startDate = Carbon::parse($startDateStr);
         $endDate   = Carbon::parse($endDateStr);
-        $today     = Carbon::today();
+        $today     = Carbon::today('Asia/Kolkata');
 
         $isCasual = str_contains(strtolower($leaveType->name ?? ''), 'casual');
         $isSick   = str_contains(strtolower($leaveType->name ?? ''), 'sick');

@@ -82,8 +82,8 @@ class ReportController extends Controller
 
             // Service duration
             $joining = $emp->joining_date ? Carbon::parse($emp->joining_date) : null;
-            $serviceDays = $joining ? $joining->diffInDays(Carbon::today()) : 0;
-            $serviceYears = $joining ? $joining->diffInYears(Carbon::today()) : 0;
+            $serviceDays = $joining ? $joining->diffInDays(Carbon::today('Asia/Kolkata')) : 0;
+            $serviceYears = $joining ? $joining->diffInYears(Carbon::today('Asia/Kolkata')) : 0;
 
             // DOB / Age
             $age = $emp->dob ? Carbon::parse($emp->dob)->age : null;

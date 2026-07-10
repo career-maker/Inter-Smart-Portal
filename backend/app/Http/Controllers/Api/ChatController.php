@@ -23,7 +23,7 @@ class ChatController extends Controller
             return response()->json(['message' => 'Unauthenticated'], 401);
         }
 
-        $today = Carbon::today();
+        $today = Carbon::today('Asia/Kolkata');
 
         // 1. Fetch Leave Balances for current user
         $balances = LeaveBalance::where('user_id', $user->id)->first();
@@ -115,7 +115,7 @@ CRITICAL INSTRUCTIONS:
             return response()->json(['message' => 'Unauthenticated'], 401);
         }
 
-        $today = Carbon::today();
+        $today = Carbon::today('Asia/Kolkata');
 
         // 1. Fetch Leave Balances for current user
         $balances = LeaveBalance::where('user_id', $user->id)->first();

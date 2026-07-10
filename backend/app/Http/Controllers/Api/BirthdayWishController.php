@@ -189,7 +189,7 @@ class BirthdayWishController extends Controller
     public function todayWishes(): JsonResponse
     {
         try {
-            $today = Carbon::today();
+            $today = Carbon::today('Asia/Kolkata');
             $allUsers = User::where('status', 'Active')->get(['id', 'first_name', 'last_name', 'dob']);
 
             $todayBirthdayIds = $allUsers

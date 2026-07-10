@@ -17,7 +17,7 @@ class HallController extends Controller
      */
     public function index(Request $request)
     {
-        $today = Carbon::today();
+        $today = Carbon::today('Asia/Kolkata');
         $todayStr = $today->toDateString();
 
         // Check if today is a holiday

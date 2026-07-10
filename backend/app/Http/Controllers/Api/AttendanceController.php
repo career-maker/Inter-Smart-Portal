@@ -26,7 +26,7 @@ class AttendanceController extends Controller
 
     public function status(Request $request)
     {
-        $today      = Carbon::today()->toDateString();
+        $today      = Carbon::today('Asia/Kolkata')->toDateString();
         $attendance = Attendance::with('breaks')
             ->where('user_id', $request->user()->id)
             ->where('date', $today)
@@ -157,7 +157,7 @@ class AttendanceController extends Controller
     public function checkIn(Request $request)
     {
         $user  = $request->user();
-        $today = Carbon::today()->toDateString();
+        $today = Carbon::today('Asia/Kolkata')->toDateString();
 
         $existing = Attendance::where('user_id', $user->id)->where('date', $today)->first();
         if ($existing) {
@@ -180,7 +180,7 @@ class AttendanceController extends Controller
     public function checkOut(Request $request)
     {
         $user  = $request->user();
-        $today = Carbon::today()->toDateString();
+        $today = Carbon::today('Asia/Kolkata')->toDateString();
 
         $attendance = Attendance::where('user_id', $user->id)->where('date', $today)->first();
         if (!$attendance) {
@@ -215,7 +215,7 @@ class AttendanceController extends Controller
     public function startBreak(Request $request)
     {
         $user  = $request->user();
-        $today = Carbon::today()->toDateString();
+        $today = Carbon::today('Asia/Kolkata')->toDateString();
 
         $attendance = Attendance::where('user_id', $user->id)->where('date', $today)->first();
         if (!$attendance || $attendance->check_out_time) {
@@ -239,7 +239,7 @@ class AttendanceController extends Controller
     public function endBreak(Request $request)
     {
         $user  = $request->user();
-        $today = Carbon::today()->toDateString();
+        $today = Carbon::today('Asia/Kolkata')->toDateString();
 
         $attendance = Attendance::where('user_id', $user->id)->where('date', $today)->first();
         if (!$attendance) {

@@ -97,7 +97,7 @@ class RecognitionController extends Controller
 
     public function activeRecognitions()
     {
-        $today = Carbon::today()->toDateString();
+        $today = Carbon::today('Asia/Kolkata')->toDateString();
 
         $recognitions = Recognition::with(['user:id,first_name,last_name,employee_code'])
             ->where('is_active', true)
@@ -126,7 +126,7 @@ class RecognitionController extends Controller
     public function leaderboard(Request $request)
     {
         $period = $request->query('period', 'overall');
-        $today  = Carbon::today()->toDateString();
+        $today  = Carbon::today('Asia/Kolkata')->toDateString();
 
         $query = Recognition::query()->where('is_active', true);
 

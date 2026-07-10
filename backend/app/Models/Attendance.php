@@ -13,8 +13,6 @@ class Attendance extends Model
 
     protected $casts = [
         'date' => 'date',
-        // Don't cast to datetime - we store and manage times as strings to avoid timezone confusion
-        // The timestamps are stored in Asia/Kolkata timezone as "timestamp without time zone"
     ];
 
     public function user()

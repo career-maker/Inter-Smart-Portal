@@ -15,7 +15,7 @@ class ActivatePostProbationLeaves extends Command
 
     public function handle(): int
     {
-        $today       = Carbon::today();
+        $today       = Carbon::today('Asia/Kolkata');
         $currentYear = $today->year;
 
         $this->info("Checking for newly post-probation employees on {$today->toDateString()}...");

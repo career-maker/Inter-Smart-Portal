@@ -37,7 +37,7 @@ class DashboardController extends Controller
             ];
         }
 
-        $todayStr = Carbon::today()->toDateString();
+        $todayStr = Carbon::today('Asia/Kolkata')->toDateString();
 
         $activeRecognition = \App\Models\Recognition::where('user_id', $user->id)
             ->where('is_active', true)
@@ -59,7 +59,7 @@ class DashboardController extends Controller
         ];
 
         // Add Attendance Status
-        $todayStr = Carbon::today()->toDateString();
+        $todayStr = Carbon::today('Asia/Kolkata')->toDateString();
         $todayAttendance = \App\Models\Attendance::where('user_id', $user->id)
             ->where('date', $todayStr)
             ->first();
@@ -128,7 +128,7 @@ class DashboardController extends Controller
         ];
 
         // 3. Widgets: Upcoming Holidays
-        $upcomingHolidays = Holiday::where('date', '>=', Carbon::today())
+        $upcomingHolidays = Holiday::where('date', '>=', Carbon::today('Asia/Kolkata'))
             ->orderBy('date', 'asc')
             ->take(5)
             ->get(['name', 'date']);
@@ -149,10 +149,10 @@ class DashboardController extends Controller
 
         // 5. Celebrations (Birthdays & Anniversaries in next 14 days)
         // Note: Cache key includes date to auto-invalidate daily
-        $cacheKey = 'dashboard_celebrations_' . Carbon::today()->toDateString();
+        $cacheKey = 'dashboard_celebrations_' . Carbon::today('Asia/Kolkata')->toDateString();
         $celebrations = Cache::remember($cacheKey, now()->addHours(24), function () {
-            $today = Carbon::today();
-            $nextWeek = Carbon::today()->addDays(14);
+            $today = Carbon::today('Asia/Kolkata');
+            $nextWeek = Carbon::today('Asia/Kolkata')->addDays(14);
 
             $allActiveUsers = User::where('status', 'Active')->get(['first_name', 'last_name', 'dob', 'joining_date']);
 
@@ -195,8 +195,8 @@ class DashboardController extends Controller
         $upcomingDays = (int) (\App\Models\SystemSetting::where('key', 'upcoming_birthdays_days')->value('value') ?? 30);
         $upcomingBirthdays = [];
         
-        $today = Carbon::today();
-        $targetDate = Carbon::today()->addDays($upcomingDays);
+        $today = Carbon::today('Asia/Kolkata');
+        $targetDate = Carbon::today('Asia/Kolkata')->addDays($upcomingDays);
         
         $fullUsers = User::with('team:id,name')->where('status', 'Active')->get(['id', 'first_name', 'last_name', 'dob', 'designation', 'team_id', 'profile_photo_path']);
 
@@ -353,7 +353,7 @@ class DashboardController extends Controller
             }
             
             // Global Activity Feed
-            $twoDaysAgo = \Carbon\Carbon::today()->subDays(2);
+            $twoDaysAgo = \Carbon\Carbon::today('Asia/Kolkata')->subDays(2);
             
             $recentLeaves = LeaveRequest::with('user:id,first_name,last_name')
                 ->where('created_at', '>=', $twoDaysAgo)

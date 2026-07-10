@@ -16,7 +16,7 @@ class SyncBiometricToAttendance extends Command
 
     public function handle()
     {
-        $targetDate = $this->option('date') ? Carbon::parse($this->option('date'))->toDateString() : Carbon::today()->toDateString();
+        $targetDate = $this->option('date') ? Carbon::parse($this->option('date'))->toDateString() : Carbon::today('Asia/Kolkata')->toDateString();
 
         $this->info("Syncing biometric events to attendance for date: {$targetDate}");
 

@@ -10,12 +10,10 @@ use Illuminate\Http\Resources\Json\JsonResource;
  *
  * Timezone strategy
  * ─────────────────
- * attendances.check_in_time is stored as UTC in the database.
- * App timezone is set to Asia/Kolkata, so Eloquent reads UTC times and converts
- * them to Asia/Kolkata Carbon objects automatically.
- *
- * We ensure the carbon is properly set to Asia/Kolkata and return an ISO string
- * with the correct +05:30 offset (e.g. "2026-07-07T10:33:16+05:30")
+ * Timestamps are stored as UTC in the database. App timezone is UTC (correct
+ * for database operations). Eloquent reads them as UTC Carbon objects.
+ * We convert to Asia/Kolkata for display, returning ISO-8601 strings with
+ * +05:30 offset (e.g. "2026-07-10T10:04:23+05:30")
  *
  * Consumers (all read through this single resource):
  *   GET  /api/attendance          → index (history list)
@@ -37,12 +35,9 @@ class AttendanceResource extends JsonResource
             ? $timeValue
             : \Carbon\Carbon::parse($timeValue);
 
-        // With app timezone set to Asia/Kolkata, Eloquent creates Carbon objects
-        // in IST. We just need to ensure the timezone is correct and return ISO string.
-        $tzName = $carbon->getTimezone()->getName();
-
-        // If not already in Asia/Kolkata, convert it
-        if ($tzName !== 'Asia/Kolkata') {
+        // Eloquent has read this as UTC (correct). Convert to Asia/Kolkata
+        // for display, changing the hour/minute values to reflect local time.
+        if ($carbon->getTimezone()->getName() !== 'Asia/Kolkata') {
             $carbon = $carbon->setTimezone('Asia/Kolkata');
         }
 
