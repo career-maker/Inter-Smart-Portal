@@ -67,6 +67,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('settings', [\App\Http\Controllers\Api\SystemSettingController::class, 'store']);
         Route::get('audit-logs', [\App\Http\Controllers\Api\AuditLogController::class, 'index']);
 
+        // Admin Leave & WFH Marking (for employees who forgot or couldn't apply)
+        Route::post('admin/mark-leave', [\App\Http\Controllers\Api\AdminLeaveMarkingController::class, 'markLeave']);
+        Route::post('admin/mark-wfh', [\App\Http\Controllers\Api\AdminLeaveMarkingController::class, 'markWfh']);
+
         // Profile Approvals
         Route::get('profile-requests', [\App\Http\Controllers\Api\ProfileUpdateRequestController::class, 'index']);
         Route::post('profile-requests/{profileRequest}/approve', [\App\Http\Controllers\Api\ProfileUpdateRequestController::class, 'approve']);
