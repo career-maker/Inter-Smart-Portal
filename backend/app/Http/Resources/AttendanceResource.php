@@ -37,14 +37,14 @@ class AttendanceResource extends JsonResource
             : \Carbon\Carbon::parse($timeValue);
 
         // Times are stored in UTC in the database (Laravel's app timezone)
-        // Ensure the Carbon object is in UTC, then shift to Asia/Kolkata for correct ISO output
-        if (!$carbon->timezone || $carbon->timezone === 'UTC') {
-            // Already UTC, just shift for display
-            $carbon = $carbon->setTimezone('UTC')->shiftTimezone('Asia/Kolkata');
-        } else {
-            // Convert to UTC first, then shift to Asia/Kolkata
-            $carbon = $carbon->setTimezone('UTC')->shiftTimezone('Asia/Kolkata');
+        // Ensure carbon is in UTC first, then convert to Asia/Kolkata
+        // This changes the hour/minute values to reflect local time, not just the offset
+        if ($carbon->timezone !== 'UTC') {
+            $carbon = $carbon->setTimezone('UTC');
         }
+
+        // Convert UTC time to Asia/Kolkata (changes the hour/minute to local time)
+        $carbon = $carbon->setTimezone('Asia/Kolkata');
 
         return $carbon->toIso8601String();
     }

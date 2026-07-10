@@ -342,8 +342,8 @@ class AttendanceController extends Controller
 
         $interp = $this->timeline->interpretTimeline($build['timeline'], $dateString);
 
-        // ── Shift Carbon values to Kolkata offset for JSON serialization ─────
-        $shiftCarbon = fn($c) => $c ? $c->shiftTimezone('Asia/Kolkata')->toIso8601String() : null;
+        // ── Convert Carbon values from UTC to Kolkata for JSON serialization ─────
+        $shiftCarbon = fn($c) => $c ? $c->setTimezone('Asia/Kolkata')->toIso8601String() : null;
 
         $shiftedRawPunches = array_map(fn($p) => [
             'type'     => $p['type'],
