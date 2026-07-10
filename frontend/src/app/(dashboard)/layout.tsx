@@ -68,7 +68,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: "My Account",
     icon: UserCircle,
     items: [
-      { href: "/attendance",     label: "Attendance", roles: ["Employee", "Team Lead"] },
+      { href: "/attendance",     label: "Attendance", roles: ["Team Lead"] },
       { href: "/notifications",  label: "Notifications" },
       { href: "/issues",         label: "Raise an Issue" },
     ],

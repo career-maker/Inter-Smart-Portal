@@ -2,20 +2,32 @@
 
 import { PageLoader } from "@/components/ui/PageLoader";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Clock, Play, Square, Coffee, CheckCircle, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import api from "@/services/api";
+import { useAuthStore } from "@/store/auth";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 export default function AttendancePage() {
+  const router = useRouter();
+  const { user } = useAuthStore();
+
+  // Restrict to Team Leads and Super Admins only
+  useEffect(() => {
+    if (user && user.role === "Employee") {
+      router.push("/dashboard");
+    }
+  }, [user, router]);
+
   const [statusData, setStatusData] = useState<any>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
-  
+
   // Real-time clock
   const [currentTime, setCurrentTime] = useState(new Date());
 
