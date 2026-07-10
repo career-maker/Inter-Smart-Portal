@@ -15,13 +15,12 @@ function exportCSV(data: any[], filename: string, reportType?: string) {
   // Define which columns to export based on report type
   let exportData = data;
   if (reportType === 'attendance-summary') {
-    // Export summary data with new columns
+    // Export summary data with combined P+L count (since late is still present)
     exportData = data.map(emp => ({
       employee_code: emp.employee_code,
       name: emp.name,
       team: emp.team,
-      present: emp.p_count || 0,
-      late: emp.l_count || 0,
+      present_and_late: (emp.p_count || 0) + (emp.l_count || 0),
       casual_leave: emp.cl_count || 0,
       sick_leave: emp.sl_count || 0,
       lop: emp.lop_count || 0,
@@ -126,6 +125,18 @@ export default function ReportsPage() {
   const totalPages = Math.ceil(filtered.length / perPage);
   const isSingle = selectedUserId !== "all" && generated && reportData.length === 1;
   const emp = isSingle ? reportData[0] : null;
+
+  // Generate all date headers for attendance-summary (union of all dates from all employees)
+  const allDates = useMemo(() => {
+    if (reportType !== "attendance-summary" || reportData.length === 0) return [];
+    const dateSet = new Set<string>();
+    reportData.forEach((emp: any) => {
+      emp.daily_status?.forEach((day: any) => {
+        dateSet.add(day.date);
+      });
+    });
+    return Array.from(dateSet).sort();
+  }, [reportData, reportType]);
 
   if (user?.role !== "Super Admin" && user?.role !== "HR") {
     return <div className="flex items-center justify-center h-full text-slate-400">You do not have permission to view reports.</div>;
@@ -234,11 +245,10 @@ export default function ReportsPage() {
                     <SortableHeader label="Code" col="employee_code" sort={sort} onSort={handleSort} />
                     <SortableHeader label="Name" col="name" sort={sort} onSort={handleSort} />
                     <SortableHeader label="Team" col="team" sort={sort} onSort={handleSort} />
-                    {reportData.length > 0 && reportData[0].daily_status?.map((day: any) => (
-                      <SortableHeader key={day.date} label={format(new Date(day.date + 'T00:00:00'), "MMM dd")} col={day.date} sort={sort} onSort={handleSort} />
+                    {allDates.map((date: string) => (
+                      <SortableHeader key={date} label={format(new Date(date + 'T00:00:00'), "MMM dd")} col={date} sort={sort} onSort={handleSort} />
                     ))}
-                    <SortableHeader label="P" col="p_count" sort={sort} onSort={handleSort} />
-                    <SortableHeader label="L" col="l_count" sort={sort} onSort={handleSort} />
+                    <SortableHeader label="P+L" col="p_count" sort={sort} onSort={handleSort} />
                     <SortableHeader label="CL" col="cl_count" sort={sort} onSort={handleSort} />
                     <SortableHeader label="SL" col="sl_count" sort={sort} onSort={handleSort} />
                     <SortableHeader label="LOP" col="lop_count" sort={sort} onSort={handleSort} />
@@ -281,35 +291,37 @@ export default function ReportsPage() {
                       <td className="px-4 py-3 font-mono text-xs text-slate-300">{row.employee_code}</td>
                       <td className="px-4 py-3 text-white font-semibold whitespace-nowrap">{row.name}</td>
                       <td className="px-4 py-3 text-slate-300 text-sm">{row.team || "—"}</td>
-                      {row.daily_status?.map((day: any) => {
+                      {allDates.map((date: string) => {
+                        const day = row.daily_status?.find((d: any) => d.date === date);
                         let textColor = "text-slate-400";
                         let displayText = "";
 
-                        if (day.status === 'P') {
-                          textColor = day.is_late ? "text-amber-400 font-bold" : "text-emerald-400 font-bold";
-                          displayText = day.is_late ? "L" : "P";
-                        }
-                        else if (day.status === 'A') {
-                          textColor = "";
-                          displayText = "";
-                        }
-                        else if (day.status === 'W') {
-                          textColor = "text-blue-400 font-bold";
-                          displayText = "WFH";
-                        }
-                        else if (day.status === 'H') {
-                          textColor = "text-amber-400 font-bold";
-                          displayText = day.leave_type || "H";
-                        }
-                        else if (day.status === 'L') {
-                          textColor = "text-purple-400 font-bold";
-                          displayText = day.leave_type || "LV";
+                        if (day) {
+                          if (day.status === 'P') {
+                            textColor = day.is_late ? "text-amber-400 font-bold" : "text-emerald-400 font-bold";
+                            displayText = day.is_late ? "L" : "P";
+                          }
+                          else if (day.status === 'A') {
+                            textColor = "";
+                            displayText = "";
+                          }
+                          else if (day.status === 'W') {
+                            textColor = "text-blue-400 font-bold";
+                            displayText = "WFH";
+                          }
+                          else if (day.status === 'H') {
+                            textColor = "text-amber-400 font-bold";
+                            displayText = day.leave_type || "H";
+                          }
+                          else if (day.status === 'L') {
+                            textColor = "text-purple-400 font-bold";
+                            displayText = day.leave_type || "LV";
+                          }
                         }
 
-                        return displayText ? <td key={day.date} className={`px-1.5 py-2 text-center text-xs ${textColor} whitespace-nowrap`}>{displayText}</td> : <td key={day.date} className="px-1.5 py-2 text-center text-xs"></td>;
+                        return displayText ? <td key={date} className={`px-1.5 py-2 text-center text-xs ${textColor} whitespace-nowrap`}>{displayText}</td> : <td key={date} className="px-1.5 py-2 text-center text-xs"></td>;
                       })}
-                      <td className="px-4 py-3 text-center font-bold text-emerald-400">{row.p_count || 0}</td>
-                      <td className="px-4 py-3 text-center font-bold text-amber-400">{row.l_count || 0}</td>
+                      <td className="px-4 py-3 text-center font-bold text-emerald-400">{(row.p_count || 0) + (row.l_count || 0)}</td>
                       <td className="px-4 py-3 text-center font-bold text-emerald-400">{row.cl_count || 0}</td>
                       <td className="px-4 py-3 text-center font-bold text-rose-400">{row.sl_count || 0}</td>
                       <td className="px-4 py-3 text-center font-bold text-red-500">{row.lop_count || 0}</td>

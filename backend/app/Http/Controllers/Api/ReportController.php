@@ -440,15 +440,17 @@ class ReportController extends Controller
                 ];
 
                 // Update daily stats
+                // Late is technically present, so count it in both late_count and present_count
                 if ($dayStatus['status'] === 'A') $dayStats['absent']++;
                 elseif ($dayStatus['status'] === 'W') $dayStats['wfh']++;
                 elseif ($dayStatus['status'] === 'H') $dayStats['half_day']++;
-                elseif ($dayStatus['is_late']) {
-                    $dayStats['late']++;
-                    $dayStats['late_count']++;
-                } elseif ($dayStatus['status'] === 'P') {
+                elseif ($dayStatus['status'] === 'P') {
                     $dayStats['present']++;
                     $dayStats['present_count']++;
+                    if ($dayStatus['is_late']) {
+                        $dayStats['late']++;
+                        $dayStats['late_count']++;
+                    }
                 }
 
                 $current->addDay();
