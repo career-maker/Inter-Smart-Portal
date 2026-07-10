@@ -38,9 +38,10 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
 
   useEffect(() => {
     if (isOpen) {
+      // Always fetch fresh data when modal opens (bypass cache)
       fetchLeaveTypes();
     }
-  }, [isOpen]);
+  }, [isOpen, type]); // Re-fetch when type changes too
 
   useEffect(() => {
     if (selectedEmployeeId) {
@@ -50,26 +51,36 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
 
   const fetchLeaveTypes = async () => {
     try {
+      // Clear cache for leave types to get fresh data
+      const { apiCache } = await import("@/services/api");
+      const cacheKey = `${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8002/api'}/leave-types`;
+      apiCache.clear(cacheKey);
+
       const res = await api.get("/leave-types");
       const all = res.data?.data || res.data || [];
 
-      // Filter WFH types - only include base WFH types (Morning, Afternoon)
+      console.log('All leave types from API:', all.map((l: LeaveType) => ({ id: l.id, name: l.name })));
+
+      // Filter WFH types - include all WFH options
       const wfh = all.filter((lt: LeaveType) =>
         lt.name && lt.name.toLowerCase().includes('work from home')
       );
 
-      // Filter Leave types - exclude WFH and Half-Day variants to avoid duplication
-      // Keep: Sick Leave, Casual Leave, Half Day variants
+      // Filter Leave types - exclude WFH to avoid duplication
       const leaves = all.filter((lt: LeaveType) => {
         const name = lt.name?.toLowerCase() || '';
         return !name.includes('work from home');
       });
 
+      console.log('Leave Types filtered:', leaves.map((l: LeaveType) => ({ id: l.id, name: l.name })));
+      console.log('WFH Types filtered:', wfh.map((l: LeaveType) => ({ id: l.id, name: l.name })));
+
       setLeaveTypes(leaves);
       setWfhTypes(wfh);
 
-      console.log('Leave Types:', leaves.map((l: LeaveType) => l.name));
-      console.log('WFH Types:', wfh.map((l: LeaveType) => l.name));
+      if (wfh.length === 0) {
+        setError("Warning: No WFH types found. Database may need to be seeded.");
+      }
     } catch (err) {
       console.error("Failed to load leave types", err);
       setError("Failed to load leave types");
