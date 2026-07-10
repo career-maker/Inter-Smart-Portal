@@ -385,10 +385,10 @@ class AttendanceController extends Controller
 
         $interp = $this->timeline->interpretTimeline($build['timeline'], $dateString);
 
-        // ── Shift Carbon values to Kolkata offset for JSON serialization ─────
-        // Note: BiometricTimelineService receives local_punch_time which is stored as timestamp
-        // but misinterpreted by Eloquent as UTC. shiftTimezone() corrects this interpretation.
-        $shiftCarbon = fn($c) => $c ? $c->shiftTimezone('Asia/Kolkata')->toIso8601String() : null;
+        // ── Convert UTC to Asia/Kolkata for JSON serialization ──────────────
+        // BiometricTimelineService works with UTC times (app.timezone is now UTC).
+        // Convert to Asia/Kolkata for display with correct +05:30 offset.
+        $shiftCarbon = fn($c) => $c ? $c->setTimezone('Asia/Kolkata')->toIso8601String() : null;
 
         $shiftedRawPunches = array_map(fn($p) => [
             'type'     => $p['type'],
