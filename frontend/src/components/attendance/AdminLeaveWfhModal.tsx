@@ -166,8 +166,18 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
       onSuccess?.();
       onClose();
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || err.message || "Failed to create leave/WFH";
+      // Get error message from backend - try multiple fields
+      const errorMessage =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        err.response?.data?.errors?.[0] ||
+        err.message ||
+        "Failed to create leave/WFH";
+
       console.error(`Failed to create ${type}:`, err);
+      console.error(`Backend response:`, err.response?.data);
+      console.error(`Detailed error:`, errorMessage);
+
       setError(errorMessage);
     } finally {
       setIsLoading(false);
