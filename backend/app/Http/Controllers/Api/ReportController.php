@@ -9,10 +9,15 @@ use App\Models\User;
 use App\Models\LeaveRequest;
 use App\Models\LeaveBalance;
 use App\Models\WfhRequest;
+use App\Models\BiometricEvent;
+use App\Services\BiometricTimelineService;
 use Carbon\Carbon;
 
 class ReportController extends Controller
 {
+    public function __construct(
+        private readonly BiometricTimelineService $timeline
+    ) {}
     public function employees(Request $request): JsonResponse
     {
         // Load all active users for employee report (don't filter by joining_date)
@@ -429,14 +434,37 @@ class ReportController extends Controller
 
                 $dayStatus = $this->calculateDayStatus($emp->id, $dateStr, $leave, $wfh, $attendance);
 
+                // Calculate times from biometric data for accuracy (not from stored attendance)
+                $checkInTime = null;
+                $checkOutTime = null;
+                if (!$leave && !$wfh) {  // Only calculate from biometric if not on leave/WFH
+                    $biometricEvents = BiometricEvent::where('user_id', $emp->id)
+                        ->whereDate('local_punch_time', $dateStr)
+                        ->orderBy('local_punch_time', 'asc')
+                        ->get();
+
+                    if ($biometricEvents->isNotEmpty()) {
+                        $build = $this->timeline->buildTimeline($biometricEvents, false);
+                        if ($build['ok']) {
+                            $interp = $this->timeline->interpretTimeline($build['timeline'], $dateStr);
+                            if ($interp['first_in']) {
+                                $checkInTime = $interp['first_in']->setTimezone('Asia/Kolkata')->toIso8601String();
+                            }
+                            if ($interp['last_out']) {
+                                $checkOutTime = $interp['last_out']->setTimezone('Asia/Kolkata')->toIso8601String();
+                            }
+                        }
+                    }
+                }
+
                 $empData['daily_status'][] = [
                     'date' => $dateStr,
                     'day_name' => $current->format('D'),
                     'status' => $dayStatus['status'],
                     'leave_type' => $dayStatus['leave_type'] ?? null,
                     'is_late' => $dayStatus['is_late'],
-                    'check_in' => $attendance?->check_in_time,
-                    'check_out' => $attendance?->check_out_time,
+                    'check_in' => $checkInTime,
+                    'check_out' => $checkOutTime,
                 ];
 
                 // Update daily stats
