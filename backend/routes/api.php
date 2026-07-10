@@ -14,6 +14,8 @@ Route::get('/debug-employee', function () {
 
 Route::get('/photos/{path}', [\App\Http\Controllers\Api\EmployeeController::class, 'showPhoto'])->where('path', '.*');
 
+Route::get('/wfh-requests/diagnose/schema', [\App\Http\Controllers\Api\WfhRequestController::class, 'diagnose']);
+
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
@@ -186,7 +188,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('leaves/calculate', [\App\Http\Controllers\Api\LeaveRequestController::class, 'calculate']);
     Route::apiResource('leave-requests', \App\Http\Controllers\Api\LeaveRequestController::class)->only(['index', 'store']);
-    Route::get('wfh-requests/diagnose/schema', [\App\Http\Controllers\Api\WfhRequestController::class, 'diagnose']);
     Route::apiResource('wfh-requests', \App\Http\Controllers\Api\WfhRequestController::class)->only(['index', 'store']);
     
     // Attendance Routes
