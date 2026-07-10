@@ -54,15 +54,23 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
       const res = await api.get("/leave-types");
       const all = res.data?.data || res.data || [];
 
+      // Filter WFH types - only include base WFH types (Morning, Afternoon)
       const wfh = all.filter((lt: LeaveType) =>
         lt.name && lt.name.toLowerCase().includes('work from home')
       );
-      const leaves = all.filter((lt: LeaveType) =>
-        !lt.name.toLowerCase().includes('work from home')
-      );
+
+      // Filter Leave types - exclude WFH and Half-Day variants to avoid duplication
+      // Keep: Sick Leave, Casual Leave, Half Day variants
+      const leaves = all.filter((lt: LeaveType) => {
+        const name = lt.name?.toLowerCase() || '';
+        return !name.includes('work from home');
+      });
 
       setLeaveTypes(leaves);
       setWfhTypes(wfh);
+
+      console.log('Leave Types:', leaves.map(l => l.name));
+      console.log('WFH Types:', wfh.map(l => l.name));
     } catch (err) {
       console.error("Failed to load leave types", err);
       setError("Failed to load leave types");
@@ -83,26 +91,46 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
     setError(null);
 
     try {
+      // Validation
+      if (!formData.user_id) {
+        throw new Error("Employee ID is required");
+      }
+      if (!formData.start_date || !formData.end_date) {
+        throw new Error("Start and end dates are required");
+      }
+      if (!formData.reason) {
+        throw new Error("Reason is required");
+      }
+
+      if (type === "leave" && !formData.leave_type_id) {
+        throw new Error("Leave type is required");
+      }
+      if (type === "wfh" && !formData.wfh_type_id) {
+        throw new Error("WFH type is required");
+      }
+
       const endpoint = type === "leave" ? "/admin/leaves" : "/admin/wfh";
       const payload = type === "leave"
         ? {
-            user_id: formData.user_id,
-            leave_type_id: formData.leave_type_id,
+            user_id: parseInt(String(formData.user_id)),
+            leave_type_id: parseInt(formData.leave_type_id),
             start_date: formData.start_date,
             end_date: formData.end_date,
             reason: formData.reason,
             duration_type: formData.duration_type,
           }
         : {
-            user_id: formData.user_id,
-            wfh_type_id: formData.wfh_type_id,
+            user_id: parseInt(String(formData.user_id)),
+            wfh_type_id: parseInt(formData.wfh_type_id),
             start_date: formData.start_date,
             end_date: formData.end_date,
             reason: formData.reason,
             duration_type: formData.duration_type,
           };
 
-      await api.post(endpoint, payload);
+      console.log(`Creating ${type}:`, payload);
+      const response = await api.post(endpoint, payload);
+      console.log(`${type} created successfully:`, response.data);
 
       // Reset form
       setFormData({
@@ -115,10 +143,13 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
         duration_type: "Full",
       });
 
+      // Call success callback and close
       onSuccess?.();
       onClose();
     } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to create leave/WFH");
+      const errorMessage = err.response?.data?.message || err.message || "Failed to create leave/WFH";
+      console.error(`Failed to create ${type}:`, err);
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -267,7 +298,7 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
               <Button variant="outline" onClick={onClose} disabled={isLoading}>
                 Cancel
               </Button>
-              <Button disabled={isLoading} className="bg-amber-600 hover:bg-amber-700">
+              <Button type="submit" disabled={isLoading} className="bg-amber-600 hover:bg-amber-700">
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Create
               </Button>
