@@ -10,11 +10,12 @@ use Illuminate\Http\Resources\Json\JsonResource;
  *
  * Timezone strategy
  * ─────────────────
- * attendances.check_in_time  is a `timestamp without time zone` column storing
- * local Asia/Kolkata wall-clock times. Laravel's app timezone is UTC, so Eloquent
- * attaches a UTC Carbon instance. We use shiftTimezone('Asia/Kolkata') to correct
- * the offset *without changing the hour digits*, producing an unambiguous ISO-8601
- * string (e.g. "2026-07-07T10:33:16+05:30") that the browser parses correctly.
+ * attendances.check_in_time is stored as UTC in the database.
+ * App timezone is set to Asia/Kolkata, so Eloquent reads UTC times and converts
+ * them to Asia/Kolkata Carbon objects automatically.
+ *
+ * We ensure the carbon is properly set to Asia/Kolkata and return an ISO string
+ * with the correct +05:30 offset (e.g. "2026-07-07T10:33:16+05:30")
  *
  * Consumers (all read through this single resource):
  *   GET  /api/attendance          → index (history list)
@@ -36,15 +37,14 @@ class AttendanceResource extends JsonResource
             ? $timeValue
             : \Carbon\Carbon::parse($timeValue);
 
-        // Times are stored in UTC in the database (Laravel's app timezone)
-        // Ensure carbon is in UTC first, then convert to Asia/Kolkata
-        // This changes the hour/minute values to reflect local time, not just the offset
-        if ($carbon->timezone !== 'UTC') {
-            $carbon = $carbon->setTimezone('UTC');
-        }
+        // With app timezone set to Asia/Kolkata, Eloquent creates Carbon objects
+        // in IST. We just need to ensure the timezone is correct and return ISO string.
+        $tzName = $carbon->getTimezone()->getName();
 
-        // Convert UTC time to Asia/Kolkata (changes the hour/minute to local time)
-        $carbon = $carbon->setTimezone('Asia/Kolkata');
+        // If not already in Asia/Kolkata, convert it
+        if ($tzName !== 'Asia/Kolkata') {
+            $carbon = $carbon->setTimezone('Asia/Kolkata');
+        }
 
         return $carbon->toIso8601String();
     }
