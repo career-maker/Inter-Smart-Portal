@@ -34,7 +34,6 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
     start_date: "",
     end_date: "",
     reason: "",
-    duration_type: "Full",
   });
 
   useEffect(() => {
@@ -117,7 +116,6 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
             start_date: formData.start_date,
             end_date: formData.end_date,
             reason: formData.reason,
-            duration_type: formData.duration_type,
           }
         : {
             user_id: parseInt(String(formData.user_id)),
@@ -125,12 +123,23 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
             start_date: formData.start_date,
             end_date: formData.end_date,
             reason: formData.reason,
-            duration_type: formData.duration_type,
           };
 
       console.log(`Creating ${type}:`, payload);
-      const response = await api.post(endpoint, payload);
-      console.log(`${type} created successfully:`, response.data);
+      console.log(`Endpoint: ${endpoint}`);
+
+      try {
+        const response = await api.post(endpoint, payload);
+        console.log(`${type} created successfully:`, response.data);
+      } catch (apiErr: any) {
+        console.error(`Backend error details:`, {
+          status: apiErr.response?.status,
+          statusText: apiErr.response?.statusText,
+          data: apiErr.response?.data,
+          message: apiErr.message,
+        });
+        throw apiErr;
+      }
 
       // Reset form
       setFormData({
@@ -140,7 +149,6 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
         start_date: "",
         end_date: "",
         reason: "",
-        duration_type: "Full",
       });
 
       // Call success callback and close
@@ -212,11 +220,9 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
               </div>
             )}
 
-            {/* Leave/WFH Type */}
+            {/* Leave/WFH Type - Unified dropdown with all options */}
             <div>
-              <label className="text-sm font-medium text-white">
-                {type === "leave" ? "Leave Type" : "WFH Type"}
-              </label>
+              <label className="text-sm font-medium text-white">Type</label>
               <select
                 name={type === "leave" ? "leave_type_id" : "wfh_type_id"}
                 value={type === "leave" ? formData.leave_type_id : formData.wfh_type_id}
@@ -224,7 +230,7 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
                 required
                 className="w-full px-3 py-2 border border-white/10 rounded-lg bg-slate-900 text-white outline-none focus:ring-2 focus:ring-amber-400 text-sm"
               >
-                <option value="">Select {type === "leave" ? "leave" : "WFH"} type</option>
+                <option value="">Select {type === "leave" ? "leave type" : "WFH type"}</option>
                 {(type === "leave" ? leaveTypes : wfhTypes).map(lt => (
                   <option key={lt.id} value={lt.id}>{lt.name}</option>
                 ))}
@@ -255,21 +261,6 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
                   className="w-full px-3 py-2 border border-white/10 rounded-lg bg-slate-900 text-white outline-none focus:ring-2 focus:ring-amber-400 text-sm"
                 />
               </div>
-            </div>
-
-            {/* Duration Type */}
-            <div>
-              <label className="text-sm font-medium text-white">Duration</label>
-              <select
-                name="duration_type"
-                value={formData.duration_type}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-white/10 rounded-lg bg-slate-900 text-white outline-none focus:ring-2 focus:ring-amber-400 text-sm"
-              >
-                <option value="Full">Full Day</option>
-                <option value="Half-Morning">Half Day (Morning)</option>
-                <option value="Half-Afternoon">Half Day (Afternoon)</option>
-              </select>
             </div>
 
             {/* Reason */}
