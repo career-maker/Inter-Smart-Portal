@@ -54,9 +54,25 @@ export default function TeamForm({ initialData, isEdit }: TeamFormProps) {
   const fetchUsers = async () => {
     setUsersLoading(true);
     try {
-      const res = await api.get("/employees");
-      const allUsers = res.data.data || [];
-      setUsers(allUsers.filter((u: any) => u.status === 'Active'));
+      // Fetch all pages of employees
+      let allEmployees: any[] = [];
+      let page = 1;
+      let hasMore = true;
+
+      while (hasMore) {
+        const res = await api.get(`/employees?page=${page}`);
+        const pageData = res.data.data || [];
+        allEmployees = [...allEmployees, ...pageData];
+
+        // Check if there are more pages
+        if (!res.data.meta?.last_page || page >= res.data.meta.last_page) {
+          hasMore = false;
+        }
+        page++;
+      }
+
+      // Filter only active employees
+      setUsers(allEmployees.filter((u: any) => u.status === 'Active'));
     } catch (e) {
       console.error("Failed to fetch users:", e);
       setUsers([]);
