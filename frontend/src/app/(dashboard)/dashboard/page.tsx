@@ -76,7 +76,10 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const res = await api.get("/dashboard");
+        // Add cache-busting timestamp to force fresh data from server
+        const res = await api.get("/dashboard", {
+          params: { _t: Date.now() }
+        });
         setData(res.data);
       } catch (e: any) {
         console.error("Failed to fetch dashboard data", e);
