@@ -30,7 +30,8 @@
       "Bash(git push *)",
       "Bash(xargs wc -l)",
       "Bash(git commit -m 'feat: draggable chat button, sortable attendance table, and better loading states *)",
-      "Bash(git commit -m 'fix: attendance summary report shows full date range and P count includes Late *)"
+      "Bash(git commit -m 'fix: attendance summary report shows full date range and P count includes Late *)",
+      "Bash(git commit -m 'fix: attendance summary P and L column logic - no double counting *)"
     ]
   }
 }

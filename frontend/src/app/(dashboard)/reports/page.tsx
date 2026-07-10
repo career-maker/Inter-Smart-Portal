@@ -15,12 +15,13 @@ function exportCSV(data: any[], filename: string, reportType?: string) {
   // Define which columns to export based on report type
   let exportData = data;
   if (reportType === 'attendance-summary') {
-    // Export summary data with combined P+L count (since late is still present)
+    // Export summary data: P = total present (including late), L = late subset
     exportData = data.map(emp => ({
       employee_code: emp.employee_code,
       name: emp.name,
       team: emp.team,
-      present_and_late: (emp.p_count || 0) + (emp.l_count || 0),
+      p: emp.p_count || 0,
+      l: emp.l_count || 0,
       casual_leave: emp.cl_count || 0,
       sick_leave: emp.sl_count || 0,
       lop: emp.lop_count || 0,
@@ -248,7 +249,8 @@ export default function ReportsPage() {
                     {allDates.map((date: string) => (
                       <SortableHeader key={date} label={format(new Date(date + 'T00:00:00'), "MMM dd")} col={date} sort={sort} onSort={handleSort} />
                     ))}
-                    <SortableHeader label="P+L" col="p_count" sort={sort} onSort={handleSort} />
+                    <SortableHeader label="P" col="p_count" sort={sort} onSort={handleSort} />
+                    <SortableHeader label="L" col="l_count" sort={sort} onSort={handleSort} />
                     <SortableHeader label="CL" col="cl_count" sort={sort} onSort={handleSort} />
                     <SortableHeader label="SL" col="sl_count" sort={sort} onSort={handleSort} />
                     <SortableHeader label="LOP" col="lop_count" sort={sort} onSort={handleSort} />
@@ -321,7 +323,8 @@ export default function ReportsPage() {
 
                         return displayText ? <td key={date} className={`px-1.5 py-2 text-center text-xs ${textColor} whitespace-nowrap`}>{displayText}</td> : <td key={date} className="px-1.5 py-2 text-center text-xs"></td>;
                       })}
-                      <td className="px-4 py-3 text-center font-bold text-emerald-400">{(row.p_count || 0) + (row.l_count || 0)}</td>
+                      <td className="px-4 py-3 text-center font-bold text-emerald-400">{row.p_count || 0}</td>
+                      <td className="px-4 py-3 text-center font-bold text-amber-400">{row.l_count || 0}</td>
                       <td className="px-4 py-3 text-center font-bold text-emerald-400">{row.cl_count || 0}</td>
                       <td className="px-4 py-3 text-center font-bold text-rose-400">{row.sl_count || 0}</td>
                       <td className="px-4 py-3 text-center font-bold text-red-500">{row.lop_count || 0}</td>
