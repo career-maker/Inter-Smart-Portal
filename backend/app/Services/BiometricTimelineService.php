@@ -37,7 +37,7 @@ class BiometricTimelineService
      *
      * @param  Collection  $rawEvents   Eloquent collection ordered by local_punch_time ASC.
      *                                  Each item must expose ->direction ('in'|'out'),
-     *                                  ->local_punch_time (string or Carbon), ->id.
+     *                                  ->utc_punch_time (UTC time), ->id.
      * @param  bool        $hasOpenPreviousShift  Whether a genuine prior-day open
      *                                            biometric shift exists.
      * @return array{
@@ -55,8 +55,8 @@ class BiometricTimelineService
         $currentState     = 'outside'; // 'outside' | 'inside'
 
         foreach ($rawEvents as $evt) {
-            // local_punch_time is stored as IST, parse explicitly with correct timezone
-            $time = Carbon::parse($evt->local_punch_time, 'Asia/Kolkata');
+            // Use utc_punch_time (correct UTC time) instead of local_punch_time (misinterpreted as UTC by Eloquent)
+            $time = $evt->utc_punch_time ? Carbon::parse($evt->utc_punch_time, 'UTC') : Carbon::parse($evt->local_punch_time);
 
             if ($evt->direction === 'in') {
                 if ($currentState === 'outside') {

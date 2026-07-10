@@ -385,10 +385,9 @@ class AttendanceController extends Controller
 
         $interp = $this->timeline->interpretTimeline($build['timeline'], $dateString);
 
-        // ── Convert times to Kolkata for JSON serialization ──────────────────
-        // BiometricTimelineService now explicitly parses local_punch_time as
-        // Asia/Kolkata, so times returned are already in IST. Just ensure ISO
-        // format with correct +05:30 offset.
+        // ── Convert UTC times to Asia/Kolkata for JSON serialization ────────
+        // BiometricTimelineService now uses utc_punch_time (correct UTC times)
+        // instead of local_punch_time. Convert to IST for display.
         $shiftCarbon = fn($c) => $c ? $c->setTimezone('Asia/Kolkata')->toIso8601String() : null;
 
         $shiftedRawPunches = array_map(fn($p) => [
