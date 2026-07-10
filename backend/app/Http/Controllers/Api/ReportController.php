@@ -429,11 +429,21 @@ class ReportController extends Controller
 
                 $dayStatus = $this->calculateDayStatus($emp->id, $dateStr, $leave, $wfh, $attendance);
 
-                // Format times using proper timezone conversion
-                $formatTime = function($carbonTime) {
-                    if (!$carbonTime) return null;
-                    return $carbonTime->setTimezone('Asia/Kolkata')->toIso8601String();
-                };
+                // Format times with proper timezone conversion
+                $checkInTime = null;
+                $checkOutTime = null;
+                if ($attendance) {
+                    if ($attendance->check_in_time) {
+                        $checkInTime = Carbon::parse($attendance->check_in_time)
+                            ->setTimezone('Asia/Kolkata')
+                            ->toIso8601String();
+                    }
+                    if ($attendance->check_out_time) {
+                        $checkOutTime = Carbon::parse($attendance->check_out_time)
+                            ->setTimezone('Asia/Kolkata')
+                            ->toIso8601String();
+                    }
+                }
 
                 $empData['daily_status'][] = [
                     'date' => $dateStr,
@@ -441,8 +451,8 @@ class ReportController extends Controller
                     'status' => $dayStatus['status'],
                     'leave_type' => $dayStatus['leave_type'] ?? null,
                     'is_late' => $dayStatus['is_late'],
-                    'check_in' => $formatTime($attendance?->check_in_time),
-                    'check_out' => $formatTime($attendance?->check_out_time),
+                    'check_in' => $checkInTime,
+                    'check_out' => $checkOutTime,
                 ];
 
                 // Update daily stats
