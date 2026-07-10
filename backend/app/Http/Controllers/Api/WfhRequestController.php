@@ -269,7 +269,17 @@ class WfhRequestController extends Controller
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['message' => 'Failed to create WFH', 'error' => $e->getMessage()], 500);
+            \Log::error('WFH creation failed', [
+                'user_id' => $data['user_id'] ?? null,
+                'wfh_type_id' => $data['wfh_type_id'] ?? null,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return response()->json([
+                'message' => 'Failed to create WFH: ' . $e->getMessage(),
+                'error' => $e->getMessage(),
+                'debug' => config('app.debug') ? $e->getTraceAsString() : null
+            ], 500);
         }
     }
 }

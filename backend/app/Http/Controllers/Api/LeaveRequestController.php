@@ -1048,7 +1048,17 @@ class LeaveRequestController extends Controller
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['message' => 'Failed to create leave', 'error' => $e->getMessage()], 500);
+            \Log::error('Leave creation failed', [
+                'user_id' => $data['user_id'] ?? null,
+                'leave_type_id' => $data['leave_type_id'] ?? null,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return response()->json([
+                'message' => 'Failed to create leave: ' . $e->getMessage(),
+                'error' => $e->getMessage(),
+                'debug' => config('app.debug') ? $e->getTraceAsString() : null
+            ], 500);
         }
     }
 
