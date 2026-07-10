@@ -106,6 +106,8 @@ export default function AttendanceManagementPage() {
   const [error, setError] = useState<string | null>(null);
   const [isLeaveWfhModalOpen, setIsLeaveWfhModalOpen] = useState(false);
   const [allEmployeesDateData, setAllEmployeesDateData] = useState<any[]>([]);
+  const [sortColumn, setSortColumn] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   // Fetch employees with pagination
   useEffect(() => {
@@ -297,6 +299,73 @@ export default function AttendanceManagementPage() {
     return record.breaks?.reduce((sum, b) => sum + (b.total_break_minutes || 0), 0) || 0;
   };
 
+  const handleSort = (column: string) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortColumn(column);
+      setSortDirection("asc");
+    }
+  };
+
+  const sortedEmployeesData = () => {
+    if (!sortColumn) return allEmployeesDateData;
+
+    const sorted = [...allEmployeesDateData].sort((a, b) => {
+      let aVal: any;
+      let bVal: any;
+
+      if (sortColumn === "name") {
+        aVal = `${a.first_name} ${a.last_name}`.toLowerCase();
+        bVal = `${b.first_name} ${b.last_name}`.toLowerCase();
+      } else if (sortColumn === "code") {
+        aVal = a.employee_code || "";
+        bVal = b.employee_code || "";
+      } else if (sortColumn === "designation") {
+        aVal = (a.designation || "").toLowerCase();
+        bVal = (b.designation || "").toLowerCase();
+      } else if (sortColumn === "team") {
+        aVal = (a.team?.name || "").toLowerCase();
+        bVal = (b.team?.name || "").toLowerCase();
+      } else if (sortColumn === "check_in") {
+        aVal = a.attendance?.first_in || "";
+        bVal = b.attendance?.first_in || "";
+      } else if (sortColumn === "check_out") {
+        aVal = a.attendance?.last_out || "";
+        bVal = b.attendance?.last_out || "";
+      } else if (sortColumn === "hours") {
+        aVal = a.attendance?.total_working_minutes || 0;
+        bVal = b.attendance?.total_working_minutes || 0;
+      } else if (sortColumn === "status") {
+        aVal = (a.attendance?.status_label || "").toLowerCase();
+        bVal = (b.attendance?.status_label || "").toLowerCase();
+      }
+
+      if (typeof aVal === "string" && typeof bVal === "string") {
+        return sortDirection === "asc" ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+      }
+      return sortDirection === "asc" ? (aVal > bVal ? 1 : -1) : (bVal > aVal ? 1 : -1);
+    });
+
+    return sorted;
+  };
+
+  const SortHeader = ({ column, label }: { column: string; label: string }) => (
+    <th
+      onClick={() => handleSort(column)}
+      className="text-left py-3 px-4 font-semibold cursor-pointer hover:text-amber-400 transition-colors select-none"
+    >
+      <div className="flex items-center gap-2">
+        {label}
+        {sortColumn === column && (
+          <span className="text-xs text-amber-400">
+            {sortDirection === "asc" ? "▲" : "▼"}
+          </span>
+        )}
+      </div>
+    </th>
+  );;
+
   if (!user || user.role !== "Super Admin") {
     return <PageLoader />;
   }
@@ -394,7 +463,15 @@ export default function AttendanceManagementPage() {
 
       {/* All Employees on Date View */}
       {!selectedEmployee && viewMode === "selector" && (
-        <Card className="shadow-sm border-white/10 bg-slate-800/50 backdrop-blur-sm text-white">
+        <Card className="shadow-sm border-white/10 bg-slate-800/50 backdrop-blur-sm text-white relative">
+          {isLoadingDetails && (
+            <div className="absolute inset-0 bg-black/40 rounded-lg backdrop-blur-sm flex items-center justify-center z-10">
+              <div className="flex flex-col items-center gap-3">
+                <Loader2 className="h-10 w-10 animate-spin text-amber-400" />
+                <p className="text-sm text-slate-300 font-medium">Loading attendance data...</p>
+              </div>
+            </div>
+          )}
           <CardHeader>
             <CardTitle>View All Employees on a Date</CardTitle>
             <CardDescription className="text-slate-400">
@@ -408,9 +485,10 @@ export default function AttendanceManagementPage() {
                 type="date"
                 value={selectedDate}
                 onChange={(e) => handleAllEmployeesDateSelection(e.target.value)}
-                className="px-3 py-2 bg-slate-900 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-amber-400 [color-scheme:dark]"
+                disabled={isLoadingDetails}
+                className="px-3 py-2 bg-slate-900 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-amber-400 [color-scheme:dark] disabled:opacity-50 disabled:cursor-not-allowed"
               />
-              {selectedDate && (
+              {selectedDate && !isLoadingDetails && (
                 <button
                   onClick={handleExportCSV}
                   disabled={allEmployeesDateData.length === 0}
@@ -486,18 +564,18 @@ export default function AttendanceManagementPage() {
                   <table className="w-full text-sm">
                     <thead className="border-b border-white/10">
                       <tr>
-                        <th className="text-left py-3 px-4 font-semibold">Employee</th>
-                        <th className="text-left py-3 px-4 font-semibold">Code</th>
-                        <th className="text-left py-3 px-4 font-semibold">Designation</th>
-                        <th className="text-left py-3 px-4 font-semibold">Team</th>
-                        <th className="text-center py-3 px-4 font-semibold">Check-In</th>
-                        <th className="text-center py-3 px-4 font-semibold">Check-Out</th>
-                        <th className="text-center py-3 px-4 font-semibold">Hours</th>
-                        <th className="text-center py-3 px-4 font-semibold">Status</th>
+                        <SortHeader column="name" label="Employee" />
+                        <SortHeader column="code" label="Code" />
+                        <SortHeader column="designation" label="Designation" />
+                        <SortHeader column="team" label="Team" />
+                        <SortHeader column="check_in" label="Check-In" />
+                        <SortHeader column="check_out" label="Check-Out" />
+                        <SortHeader column="hours" label="Hours" />
+                        <SortHeader column="status" label="Status" />
                       </tr>
                     </thead>
                     <tbody>
-                      {allEmployeesDateData.map((emp) => {
+                      {sortedEmployeesData().map((emp) => {
                         const attendance = emp.attendance || {};
                         return (
                           <tr key={emp.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">

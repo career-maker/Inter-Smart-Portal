@@ -5,9 +5,23 @@ import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 export default function ChatbaseLottieButton() {
   const [isOpen, setIsOpen] = useState(false);
+  const [position, setPosition] = useState({ x: 24, y: 24 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const dotLottieRef = useRef<any>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
+    // Load position from localStorage on mount
+    const savedPosition = localStorage.getItem("chatbot-position");
+    if (savedPosition) {
+      try {
+        setPosition(JSON.parse(savedPosition));
+      } catch (e) {
+        // Use default position if parsing fails
+      }
+    }
+
     // Hide the Chatbase bubble visually but keep it in the DOM so it stays functional
     const styleId = "chatbase-hide-bubble";
     if (!document.getElementById(styleId)) {
@@ -61,34 +75,90 @@ export default function ChatbaseLottieButton() {
   };
 
   const handleToggle = () => {
+    // Don't toggle if we're currently dragging
+    if (isDragging) return;
     const clicked = findAndClickChatbaseButton();
     if (clicked) {
       setIsOpen((prev) => !prev);
     }
   };
 
+  const handleMouseDown = (e: React.MouseEvent<HTMLButtonElement>) => {
+    // Prevent text selection while dragging
+    e.preventDefault();
+    setIsDragging(true);
+
+    const button = buttonRef.current;
+    if (!button) return;
+
+    const rect = button.getBoundingClientRect();
+    setDragOffset({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    });
+  };
+
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const newX = e.clientX - dragOffset.x;
+      const newY = e.clientY - dragOffset.y;
+
+      // Keep button within viewport bounds with some padding
+      const maxX = window.innerWidth - 64 - 16; // button width + padding
+      const maxY = window.innerHeight - 64 - 16; // button height + padding
+
+      const constrainedX = Math.max(16, Math.min(newX, maxX));
+      const constrainedY = Math.max(16, Math.min(newY, maxY));
+
+      setPosition({
+        x: constrainedX,
+        y: constrainedY,
+      });
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      // Save position to localStorage
+      localStorage.setItem("chatbot-position", JSON.stringify({ x: position.x, y: position.y }));
+    };
+
+    if (isDragging) {
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+
+      return () => {
+        document.removeEventListener("mousemove", handleMouseMove);
+        document.removeEventListener("mouseup", handleMouseUp);
+      };
+    }
+  }, [isDragging, dragOffset, position]);
+
   return (
     <>
       {/* Custom Lottie floating button */}
       <button
+        ref={buttonRef}
         onClick={handleToggle}
+        onMouseDown={handleMouseDown}
         onMouseEnter={() => dotLottieRef.current?.play()}
         onMouseLeave={() => {
           if (!isOpen) dotLottieRef.current?.pause();
         }}
         aria-label="Open AI Assistant"
-        title="Ask the Portal AI Assistant"
+        title="Ask the Portal AI Assistant (drag to move)"
         style={{
           position: "fixed",
-          bottom: "24px",
-          right: "24px",
+          left: `${position.x}px`,
+          top: `${position.y}px`,
           zIndex: 99999,
           width: "64px",
           height: "64px",
           borderRadius: "50%",
           border: "none",
           background: "transparent",
-          cursor: "pointer",
+          cursor: isDragging ? "grabbing" : "grab",
           padding: 0,
           display: "flex",
           alignItems: "center",
@@ -97,7 +167,8 @@ export default function ChatbaseLottieButton() {
             ? "drop-shadow(0 0 14px rgba(139,92,246,0.9))"
             : "drop-shadow(0 4px 16px rgba(0,0,0,0.5))",
           transform: isOpen ? "scale(1.12)" : "scale(1)",
-          transition: "transform 0.25s ease, filter 0.25s ease",
+          transition: isDragging ? "none" : "transform 0.25s ease, filter 0.25s ease",
+          userSelect: "none",
         }}
       >
         <DotLottieReact
@@ -115,8 +186,6 @@ export default function ChatbaseLottieButton() {
       <style>{`
         @media (max-width: 768px) {
           [aria-label="Open AI Assistant"] {
-            bottom: 88px !important;
-            right: 16px !important;
             width: 56px !important;
             height: 56px !important;
           }
