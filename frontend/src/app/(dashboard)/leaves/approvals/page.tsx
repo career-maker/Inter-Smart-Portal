@@ -51,6 +51,7 @@ export default function ApprovalsPage() {
   const [autoTotalDays, setAutoTotalDays] = useState(0);
   const [recalcLoading, setRecalcLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   useEffect(() => { fetchRequests(); }, []);
 
   const fetchRequests = async () => {
@@ -74,7 +75,9 @@ export default function ApprovalsPage() {
     try {
       const endpoint = type === "leave" ? `/leave-requests/${id}/status` : `/wfh-requests/${id}/status`;
       await api.post(endpoint, { status: "Approved" });
+      setSuccessMessage(`${type === "leave" ? "Leave" : "WFH"} request approved successfully!`);
       fetchRequests();
+      setTimeout(() => setSuccessMessage(null), 4000);
     } catch (e: any) {
       alert(e.response?.data?.message || "Error processing request.");
     } finally {
@@ -87,7 +90,9 @@ export default function ApprovalsPage() {
     try {
       const endpoint = `/leave-requests/${id}/${action === "confirm" ? "confirm-lop" : "reject-lop"}`;
       await api.post(endpoint);
+      setSuccessMessage(`LOP conversion ${action === "confirm" ? "confirmed" : "declined"} successfully!`);
       fetchRequests();
+      setTimeout(() => setSuccessMessage(null), 4000);
     } catch (e: any) {
       alert(e.response?.data?.message || "Error processing LOP conversion.");
     } finally {
@@ -107,9 +112,11 @@ export default function ApprovalsPage() {
         status: "Rejected",
         ...(rejectDialog.type === "leave" ? { rejection_reason: rejectReason } : { remarks: rejectReason }),
       });
+      setSuccessMessage(`${rejectDialog.type === "leave" ? "Leave" : "WFH"} request rejected successfully!`);
       setRejectDialog(null);
       setRejectReason("");
       fetchRequests();
+      setTimeout(() => setSuccessMessage(null), 4000);
     } catch (e: any) {
       alert(e.response?.data?.message || "Error rejecting request.");
     } finally {
@@ -171,8 +178,10 @@ export default function ApprovalsPage() {
         lop_days: overrideFields.lop_days,
         remarks: overrideFields.remarks,
       });
+      setSuccessMessage("Leave request override applied and approved successfully!");
       setOverrideDialog(null);
       fetchRequests();
+      setTimeout(() => setSuccessMessage(null), 4000);
     } catch (e: any) {
       alert(e.response?.data?.message || "Error processing override.");
     } finally {
@@ -412,6 +421,12 @@ export default function ApprovalsPage() {
         <h1 className="text-3xl font-bold tracking-tight text-white">Approvals Queue</h1>
         <p className="text-slate-300 mt-1">Review and process pending leave and WFH requests from your team.</p>
       </div>
+
+      {successMessage && (
+        <div className="p-4 bg-green-500/10 border border-green-500/30 rounded text-green-400 animate-in fade-in">
+          ✓ {successMessage}
+        </div>
+      )}
 
       {/* Tab switcher */}
       <div className="flex gap-1 bg-white/5 border border-white/10 rounded-xl p-1 w-fit">
