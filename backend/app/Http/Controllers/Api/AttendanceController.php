@@ -36,7 +36,9 @@ class AttendanceController extends Controller
             return response()->json(['status' => 'Not Checked In', 'attendance' => null]);
         }
 
-        // Sync punch times from biometric events
+        // Sync punch times from biometric events (only if not already synced)
+        $needsRecalculation = false;
+
         // First, sync check-in time
         $firstBiometricPunch = DB::table('biometric_events')
             ->where('user_id', $request->user()->id)
@@ -46,23 +48,27 @@ class AttendanceController extends Controller
             ->orderBy('local_punch_time', 'asc')
             ->first(['local_punch_time', 'utc_punch_time']);
 
-        if ($firstBiometricPunch) {
-            // Parse and convert to UTC
-            if ($firstBiometricPunch->utc_punch_time) {
-                $utcCheckIn = Carbon::parse($firstBiometricPunch->utc_punch_time, 'UTC');
-            } else {
-                $localTime = Carbon::createFromFormat(
-                    'Y-m-d H:i:s',
-                    $firstBiometricPunch->local_punch_time,
-                    'Asia/Kolkata'
-                );
-                $utcCheckIn = $localTime->setTimezone('UTC');
-            }
+        if ($firstBiometricPunch && $firstBiometricPunch->utc_punch_time) {
+            $utcCheckIn = Carbon::parse($firstBiometricPunch->utc_punch_time, 'UTC');
 
-            // Always sync check_in from biometric (it's the source of truth)
-            $attendance->check_in_time = $utcCheckIn;
-            $attendance->source = 'biometric';
-            $attendance->save();
+            if (!$attendance->check_in_time || $attendance->check_in_time != $utcCheckIn) {
+                $attendance->check_in_time = $utcCheckIn;
+                $attendance->source = 'biometric';
+                $needsRecalculation = true;
+            }
+        } elseif ($firstBiometricPunch) {
+            $localTime = Carbon::createFromFormat(
+                'Y-m-d H:i:s',
+                $firstBiometricPunch->local_punch_time,
+                'Asia/Kolkata'
+            );
+            $utcCheckIn = $localTime->setTimezone('UTC');
+
+            if (!$attendance->check_in_time || $attendance->check_in_time != $utcCheckIn) {
+                $attendance->check_in_time = $utcCheckIn;
+                $attendance->source = 'biometric';
+                $needsRecalculation = true;
+            }
         }
 
         // Then, sync check-out time
@@ -74,64 +80,53 @@ class AttendanceController extends Controller
             ->orderBy('local_punch_time', 'desc')
             ->first(['local_punch_time', 'utc_punch_time']);
 
-        if ($lastBiometricPunch) {
-            // Parse and convert to UTC
-            if ($lastBiometricPunch->utc_punch_time) {
-                $utcCheckOut = Carbon::parse($lastBiometricPunch->utc_punch_time, 'UTC');
-            } else {
-                $localTime = Carbon::createFromFormat(
-                    'Y-m-d H:i:s',
-                    $lastBiometricPunch->local_punch_time,
-                    'Asia/Kolkata'
-                );
-                $utcCheckOut = $localTime->setTimezone('UTC');
+        if ($lastBiometricPunch && $lastBiometricPunch->utc_punch_time) {
+            $utcCheckOut = Carbon::parse($lastBiometricPunch->utc_punch_time, 'UTC');
+
+            if (!$attendance->check_out_time || $attendance->check_out_time != $utcCheckOut) {
+                $attendance->check_out_time = $utcCheckOut;
+                $attendance->source = 'biometric';
+                $needsRecalculation = true;
             }
+        } elseif ($lastBiometricPunch) {
+            $localTime = Carbon::createFromFormat(
+                'Y-m-d H:i:s',
+                $lastBiometricPunch->local_punch_time,
+                'Asia/Kolkata'
+            );
+            $utcCheckOut = $localTime->setTimezone('UTC');
 
-            // Always sync check_out from biometric (it's the source of truth)
-            $attendance->check_out_time = $utcCheckOut;
-            $attendance->source = 'biometric';
+            if (!$attendance->check_out_time || $attendance->check_out_time != $utcCheckOut) {
+                $attendance->check_out_time = $utcCheckOut;
+                $attendance->source = 'biometric';
+                $needsRecalculation = true;
+            }
+        }
+
+        // Save punch times if they changed
+        if ($needsRecalculation || $attendance->isDirty()) {
             $attendance->save();
+        }
 
-            \Log::info('Synced attendance times from biometric', [
-                'user_id' => $request->user()->id,
-                'date' => $today,
-                'check_in_utc' => $utcCheckIn ?? null,
-                'check_out_utc' => $utcCheckOut,
-            ]);
+        // Recalculate total_working_minutes ONLY if punch times changed or if it's null
+        if (($needsRecalculation || is_null($attendance->total_working_minutes)) && $attendance->check_in_time && $attendance->check_out_time) {
+            $rawBiometricEvents = BiometricEvent::where('user_id', $request->user()->id)
+                ->whereDate('local_punch_time', $today)
+                ->orderBy('local_punch_time', 'asc')
+                ->get();
 
-            // Recalculate total_working_minutes using BiometricTimelineService
-            // This ensures accuracy by processing raw biometric events
-            if ($attendance->check_in_time && $attendance->check_out_time) {
-                $rawBiometricEvents = BiometricEvent::where('user_id', $request->user()->id)
-                    ->whereDate('local_punch_time', $today)
-                    ->orderBy('local_punch_time', 'asc')
-                    ->get();
-
-                if ($rawBiometricEvents->isNotEmpty()) {
-                    // Use BiometricTimelineService to calculate accurate working time
-                    $build = $this->timeline->buildTimeline($rawBiometricEvents, false);
-                    if ($build['ok']) {
-                        $interp = $this->timeline->interpretTimeline($build['timeline'], $today);
-                        $attendance->total_working_minutes = (int) ($interp['total_working_minutes'] ?? 0);
-                        $attendance->save();
-                    }
-                } else {
-                    // Fallback: calculate from punch times and manual breaks
-                    $checkInCarbon = Carbon::parse($attendance->check_in_time);
-                    $checkOutCarbon = Carbon::parse($attendance->check_out_time);
-                    $totalMinutes = $checkInCarbon->diffInMinutes($checkOutCarbon);
-
-                    $totalBreakMinutes = 0;
-                    $breakRecords = $attendance->breaks()->whereNotNull('break_end')->get();
-                    foreach ($breakRecords as $break) {
-                        if ($break->total_break_minutes) {
-                            $totalBreakMinutes += $break->total_break_minutes;
-                        }
-                    }
-
-                    $workingMinutes = max(0, $totalMinutes - $totalBreakMinutes);
-                    $attendance->total_working_minutes = (int) $workingMinutes;
+            if ($rawBiometricEvents->isNotEmpty()) {
+                // Use BiometricTimelineService to calculate accurate working time
+                $build = $this->timeline->buildTimeline($rawBiometricEvents, false);
+                if ($build['ok']) {
+                    $interp = $this->timeline->interpretTimeline($build['timeline'], $today);
+                    $attendance->total_working_minutes = (int) ($interp['total_working_minutes'] ?? 0);
                     $attendance->save();
+                    \Log::info('Recalculated working time from biometric', [
+                        'user_id' => $request->user()->id,
+                        'date' => $today,
+                        'total_working_minutes' => $attendance->total_working_minutes,
+                    ]);
                 }
             }
         }
