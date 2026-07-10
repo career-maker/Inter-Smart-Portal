@@ -25,20 +25,28 @@ use Illuminate\Http\Resources\Json\JsonResource;
  */
 class AttendanceResource extends JsonResource
 {
-    private function formatTimeAsIso(?string $timeString): ?string
+    private function formatTimeAsIso($timeValue): ?string
     {
-        if (!$timeString) {
+        if (!$timeValue) {
             return null;
         }
-        // Times are stored as "timestamp without time zone" in Asia/Kolkata timezone
-        // Parse them and explicitly set timezone to Asia/Kolkata
-        try {
-            $carbon = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $timeString, 'Asia/Kolkata');
-            return $carbon->toIso8601String();
-        } catch (\Exception $e) {
-            // Fallback: try direct parse
-            return \Carbon\Carbon::parse($timeString, 'Asia/Kolkata')->toIso8601String();
+
+        // Handle both Carbon objects and strings
+        $carbon = $timeValue instanceof \Carbon\Carbon
+            ? $timeValue
+            : \Carbon\Carbon::parse($timeValue);
+
+        // Times are stored in UTC in the database (Laravel's app timezone)
+        // Ensure the Carbon object is in UTC, then shift to Asia/Kolkata for correct ISO output
+        if (!$carbon->timezone || $carbon->timezone === 'UTC') {
+            // Already UTC, just shift for display
+            $carbon = $carbon->setTimezone('UTC')->shiftTimezone('Asia/Kolkata');
+        } else {
+            // Convert to UTC first, then shift to Asia/Kolkata
+            $carbon = $carbon->setTimezone('UTC')->shiftTimezone('Asia/Kolkata');
         }
+
+        return $carbon->toIso8601String();
     }
 
     public function toArray(Request $request): array
