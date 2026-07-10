@@ -86,6 +86,13 @@ export default function DashboardPage() {
       }
     };
     fetchDashboard();
+
+    // Refresh dashboard data every 5 minutes to handle day changes (especially after midnight)
+    const interval = setInterval(() => {
+      fetchDashboard();
+    }, 5 * 60 * 1000); // 5 minutes
+
+    return () => clearInterval(interval);
   }, []);
 
   if (loading) return <PageLoader />;
