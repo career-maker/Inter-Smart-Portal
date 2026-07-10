@@ -98,6 +98,18 @@ Route::middleware('auth:sanctum')->group(function () {
             return response()->json(['message' => 'Annual allocation processed.', 'output' => $output]);
         });
 
+        // Fix timezone-corrupted attendance records
+        Route::post('admin/fix-attendance-timezone', function (\Illuminate\Http\Request $request) {
+            $date = $request->input('date');
+            $args = [];
+            if ($date) {
+                $args['--date'] = $date;
+            }
+            \Illuminate\Support\Facades\Artisan::call('attendance:fix-timezone-corruption', $args);
+            $output = \Illuminate\Support\Facades\Artisan::output();
+            return response()->json(['message' => 'Attendance timezone corruption fixed.', 'output' => $output]);
+        });
+
         // Ensure all required leave types exist (useful if migrations didn't run)
         Route::post('admin/ensure-leave-types', function (\Illuminate\Http\Request $request) {
             $types = [
