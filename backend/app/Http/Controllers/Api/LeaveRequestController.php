@@ -971,9 +971,22 @@ class LeaveRequestController extends Controller
     // Admin-initiated leave creation for any employee
     public function storeForEmployee(\App\Http\Requests\StoreAdminLeaveRequest $request)
     {
-        $data = $request->validated();
+        \Log::info('=== LEAVE CREATION START ===');
+        \Log::info('Request data received', ['all' => $request->all()]);
+
+        try {
+            $data = $request->validated();
+            \Log::info('Validation passed', ['data' => $data]);
+        } catch (\Exception $ve) {
+            \Log::error('Validation failed', ['error' => $ve->getMessage()]);
+            return response()->json(['message' => 'Validation error: ' . $ve->getMessage(), 'error' => $ve->getMessage()], 422);
+        }
+
         $admin = $request->user();
+        \Log::info('Admin user', ['admin_id' => $admin->id ?? null]);
+
         $targetUser = User::find($data['user_id']);
+        \Log::info('Target user lookup', ['target_id' => $data['user_id'], 'found' => $targetUser ? 'yes' : 'no']);
 
         if (!$targetUser) {
             return response()->json(['message' => 'Employee not found.'], 404);
