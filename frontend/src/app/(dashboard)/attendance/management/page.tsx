@@ -192,39 +192,42 @@ export default function AttendanceManagementPage() {
     setIsLoadingDetails(true);
     setError(null);
     try {
-      // Fetch all employees first
-      let allEmployees: Employee[] = [];
-      let page = 1;
-      let lastPage = 1;
-
-      do {
-        const empRes = await api.get(`/employees?page=${page}`);
-        const pageData = empRes.data.data || [];
-
-        if (pageData.length === 0) {
-          break;
+      // Use attendance summary report endpoint which fetches all employees' attendance in one call
+      // This is much more efficient than fetching each employee individually (N+1 problem)
+      const res = await api.get(`/reports/attendance-summary`, {
+        params: {
+          start_date: date,
+          end_date: date, // Same date for single day report
         }
+      });
 
-        allEmployees = [...allEmployees, ...pageData];
-        lastPage = empRes.data.meta?.last_page || page;
-        page++;
-      } while (page <= lastPage);
+      const reportData = res.data.data || [];
 
-      // Fetch attendance for each employee on the selected date
-      const attendanceDataPromises = allEmployees.map((emp) =>
-        api.get(`/attendance/details?date=${date}&user_id=${emp.id}`)
-          .then((res) => ({
-            ...emp,
-            attendance: res.data,
-          }))
-          .catch(() => ({
-            ...emp,
-            attendance: null,
-          }))
-      );
+      // Transform attendance-summary data to match expected format
+      const transformedData = reportData.map((emp: any) => {
+        // Get the attendance data for the selected date
+        const dayData = emp.daily_status?.[0]; // First day (since we only query 1 day)
 
-      const attendanceResults = await Promise.all(attendanceDataPromises);
-      setAllEmployeesDateData(attendanceResults);
+        return {
+          id: emp.id,
+          first_name: emp.first_name || emp.name?.split(' ')[0],
+          last_name: emp.last_name || emp.name?.split(' ')[1] || '',
+          employee_code: emp.employee_code,
+          designation: emp.designation,
+          team: emp.team,
+          profile_photo_path: emp.profile_photo_path,
+          attendance: dayData ? {
+            first_in: dayData.check_in,
+            last_out: dayData.check_out,
+            status_label: dayData.status === 'P' ? (dayData.is_late ? 'Late' : 'Present') :
+                         dayData.status === 'A' ? 'Absent' :
+                         dayData.status === 'W' ? 'WFH' : 'Leave',
+            total_working_minutes: dayData.total_working_minutes,
+          } : null,
+        };
+      });
+
+      setAllEmployeesDateData(transformedData);
       setSelectedDate(date);
       setViewMode("dateAllEmployees");
     } catch (err: any) {
