@@ -71,6 +71,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('admin/mark-leave', [\App\Http\Controllers\Api\AdminLeaveMarkingController::class, 'markLeave']);
         Route::post('admin/mark-wfh', [\App\Http\Controllers\Api\AdminLeaveMarkingController::class, 'markWfh']);
 
+        // Manage Approved Leaves & WFH (view and delete)
+        Route::get('admin/approved-leaves', [\App\Http\Controllers\Api\ApprovedLeaveManagementController::class, 'listApprovedLeaves']);
+        Route::get('admin/approved-wfh', [\App\Http\Controllers\Api\ApprovedLeaveManagementController::class, 'listApprovedWfh']);
+        Route::delete('admin/approved-leaves/{id}', [\App\Http\Controllers\Api\ApprovedLeaveManagementController::class, 'deleteApprovedLeave']);
+        Route::delete('admin/approved-wfh/{id}', [\App\Http\Controllers\Api\ApprovedLeaveManagementController::class, 'deleteApprovedWfh']);
+
         // Profile Approvals
         Route::get('profile-requests', [\App\Http\Controllers\Api\ProfileUpdateRequestController::class, 'index']);
         Route::post('profile-requests/{profileRequest}/approve', [\App\Http\Controllers\Api\ProfileUpdateRequestController::class, 'approve']);
