@@ -24,4 +24,22 @@ class StoreAdminWfhRequest extends FormRequest
             'auto_approve'    => 'nullable|boolean',
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'user_id.required' => 'Employee ID is required',
+            'user_id.exists' => 'Selected employee does not exist',
+            'wfh_type_id.required' => 'WFH type is required. Please select a type.',
+            'wfh_type_id.exists' => 'Selected WFH type does not exist in the system',
+            'start_date.required' => 'Start date is required',
+            'start_date.date' => 'Start date must be a valid date',
+            'end_date.required' => 'End date is required',
+            'end_date.date' => 'End date must be a valid date',
+            'end_date.after_or_equal' => 'End date must be on or after start date',
+            'reason.required' => 'Reason is required',
+            'reason.string' => 'Reason must be text',
+            'reason.max' => 'Reason cannot exceed 1000 characters',
+        ];
+    }
 }

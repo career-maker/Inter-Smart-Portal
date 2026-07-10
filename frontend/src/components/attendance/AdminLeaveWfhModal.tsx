@@ -173,8 +173,14 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
 
         <div className="space-y-6">
           {error && (
-            <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
-              {error}
+            <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm space-y-2">
+              <p className="font-semibold">Error creating {type}:</p>
+              <p>{error}</p>
+              {error.includes('type') && (
+                <p className="text-xs text-red-300 mt-2">
+                  💡 Make sure you selected a valid {type === 'leave' ? 'leave' : 'WFH'} type from the dropdown.
+                </p>
+              )}
             </div>
           )}
 
