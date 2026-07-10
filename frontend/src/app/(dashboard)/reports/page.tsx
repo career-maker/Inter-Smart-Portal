@@ -15,18 +15,19 @@ function exportCSV(data: any[], filename: string, reportType?: string) {
   // Define which columns to export based on report type
   let exportData = data;
   if (reportType === 'attendance-summary') {
-    // Flatten attendance summary data for CSV export
-    exportData = data.flatMap(emp =>
-      emp.daily_status?.map((day: any) => ({
-        employee_code: emp.employee_code,
-        name: emp.name,
-        team: emp.team,
-        date: day.date,
-        status: day.status === 'P' && day.is_late ? 'L' : day.status,
-        check_in: day.check_in || '—',
-        check_out: day.check_out || '—',
-      })) || []
-    );
+    // Export summary data with new columns
+    exportData = data.map(emp => ({
+      employee_code: emp.employee_code,
+      name: emp.name,
+      team: emp.team,
+      present: emp.p_count || 0,
+      late: emp.l_count || 0,
+      casual_leave: emp.cl_count || 0,
+      sick_leave: emp.sl_count || 0,
+      lop: emp.lop_count || 0,
+      wfh: emp.wfh_count || 0,
+      total_leaves: emp.total_leaves || 0,
+    }));
   }
 
   if (!exportData.length) return;
@@ -233,10 +234,13 @@ export default function ReportsPage() {
                     {reportData.length > 0 && reportData[0].daily_status?.map((day: any) => (
                       <SortableHeader key={day.date} label={format(new Date(day.date + 'T00:00:00'), "MMM dd")} col={day.date} sort={sort} onSort={handleSort} />
                     ))}
+                    <SortableHeader label="P" col="p_count" sort={sort} onSort={handleSort} />
+                    <SortableHeader label="L" col="l_count" sort={sort} onSort={handleSort} />
                     <SortableHeader label="CL" col="cl_count" sort={sort} onSort={handleSort} />
                     <SortableHeader label="SL" col="sl_count" sort={sort} onSort={handleSort} />
                     <SortableHeader label="LOP" col="lop_count" sort={sort} onSort={handleSort} />
-                    <SortableHeader label="WFH" col="wfh" sort={sort} onSort={handleSort} />
+                    <SortableHeader label="WFH" col="wfh_count" sort={sort} onSort={handleSort} />
+                    <SortableHeader label="Total" col="total_leaves" sort={sort} onSort={handleSort} />
                   </>}
                   {reportType === "leave-balances" && <>
                     <SortableHeader label="Code" col="employee_code" sort={sort} onSort={handleSort} />
@@ -307,10 +311,13 @@ export default function ReportsPage() {
 
                         return bgColor ? <td key={day.date} className={`px-3 py-2.5 text-center text-xs font-bold ${bgColor} ${textColor} rounded whitespace-nowrap`}>{displayText}</td> : <td key={day.date} className="px-3 py-2.5 text-center text-xs"></td>;
                       })}
+                      <td className="px-4 py-3 text-center font-bold text-emerald-400">{row.p_count || 0}</td>
+                      <td className="px-4 py-3 text-center font-bold text-amber-400">{row.l_count || 0}</td>
                       <td className="px-4 py-3 text-center font-bold text-emerald-400">{row.cl_count || 0}</td>
                       <td className="px-4 py-3 text-center font-bold text-rose-400">{row.sl_count || 0}</td>
                       <td className="px-4 py-3 text-center font-bold text-red-500">{row.lop_count || 0}</td>
-                      <td className="px-4 py-3 text-center font-bold text-blue-400">{row.summary?.wfh || 0}</td>
+                      <td className="px-4 py-3 text-center font-bold text-blue-400">{row.wfh_count || 0}</td>
+                      <td className="px-4 py-3 text-center font-bold text-indigo-400">{row.total_leaves || 0}</td>
                     </>}
                     {reportType === "leave-balances" && <>
                       <td className="px-4 py-3 font-mono text-xs text-slate-300">{row.employee_code}</td>

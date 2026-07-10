@@ -360,26 +360,50 @@ class ReportController extends Controller
         ];
 
         foreach ($employees as $emp) {
-            // Count leave types for this employee in the date range
+            // Count leave types for this employee in the date range (supporting half-days as 0.5)
             $empLeaves = $allLeaves->filter(fn($l) => $l->user_id === $emp->id);
-            $clCount = $empLeaves->filter(fn($l) => !$l->is_unpaid && $l->leaveType && str_contains($l->leaveType->name ?? '', 'Casual'))->count();
-            $slCount = $empLeaves->filter(fn($l) => !$l->is_unpaid && $l->leaveType && str_contains($l->leaveType->name ?? '', 'Sick'))->count();
-            $lopCount = $empLeaves->filter(fn($l) => $l->is_unpaid)->count();
+
+            // Calculate leave counts with proper half-day support (0.5 for half days)
+            $clCount = 0;
+            $slCount = 0;
+            $lopCount = 0;
+            $wfhCount = 0;
+
+            foreach ($empLeaves as $leave) {
+                $isHalfDay = $leave->duration_type && strpos($leave->duration_type, 'Half') !== false;
+                $leaveValue = $isHalfDay ? 0.5 : 1;
+
+                if ($leave->is_unpaid) {
+                    $lopCount += $leaveValue;
+                } elseif ($leave->leaveType && str_contains($leave->leaveType->name ?? '', 'Casual')) {
+                    $clCount += $leaveValue;
+                } elseif ($leave->leaveType && str_contains($leave->leaveType->name ?? '', 'Sick')) {
+                    $slCount += $leaveValue;
+                }
+            }
+
+            // Calculate WFH count with half-day support
+            $empWfh = $allWfh->filter(fn($w) => $w->user_id === $emp->id);
+            foreach ($empWfh as $wfh) {
+                $isHalfDay = $wfh->duration_type && strpos($wfh->duration_type, 'Half') !== false;
+                $wfhCount += $isHalfDay ? 0.5 : 1;
+            }
 
             $empData = [
                 'id' => $emp->id,
                 'employee_code' => $emp->employee_code,
                 'name' => "{$emp->first_name} {$emp->last_name}",
                 'team' => $emp->team?->name,
-                'cl_count' => $clCount,
-                'sl_count' => $slCount,
-                'lop_count' => $lopCount,
+                'cl_count' => round($clCount, 1),
+                'sl_count' => round($slCount, 1),
+                'lop_count' => round($lopCount, 1),
+                'wfh_count' => round($wfhCount, 1),
                 'daily_status' => [],
             ];
 
             // Process each day in the date range
             $current = clone $start;
-            $dayStats = ['absent' => 0, 'wfh' => 0, 'half_day' => 0, 'late' => 0, 'present' => 0];
+            $dayStats = ['absent' => 0, 'wfh' => 0, 'half_day' => 0, 'late' => 0, 'present' => 0, 'present_count' => 0, 'late_count' => 0];
 
             while ($current <= $end) {
                 $dateStr = $current->toDateString();
@@ -419,13 +443,21 @@ class ReportController extends Controller
                 if ($dayStatus['status'] === 'A') $dayStats['absent']++;
                 elseif ($dayStatus['status'] === 'W') $dayStats['wfh']++;
                 elseif ($dayStatus['status'] === 'H') $dayStats['half_day']++;
-                elseif ($dayStatus['is_late']) $dayStats['late']++;
-                elseif ($dayStatus['status'] === 'P') $dayStats['present']++;
+                elseif ($dayStatus['is_late']) {
+                    $dayStats['late']++;
+                    $dayStats['late_count']++;
+                } elseif ($dayStatus['status'] === 'P') {
+                    $dayStats['present']++;
+                    $dayStats['present_count']++;
+                }
 
                 $current->addDay();
             }
 
             $empData['summary'] = $dayStats;
+            $empData['p_count'] = $dayStats['present_count'];
+            $empData['l_count'] = $dayStats['late_count'];
+            $empData['total_leaves'] = round($clCount + $slCount + $lopCount, 1);
             $report[] = $empData;
 
             // Update summary stats
