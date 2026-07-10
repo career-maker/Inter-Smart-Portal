@@ -55,7 +55,8 @@ class BiometricTimelineService
         $currentState     = 'outside'; // 'outside' | 'inside'
 
         foreach ($rawEvents as $evt) {
-            $time = Carbon::parse($evt->local_punch_time);
+            // local_punch_time is stored as IST, parse explicitly with correct timezone
+            $time = Carbon::parse($evt->local_punch_time, 'Asia/Kolkata');
 
             if ($evt->direction === 'in') {
                 if ($currentState === 'outside') {
