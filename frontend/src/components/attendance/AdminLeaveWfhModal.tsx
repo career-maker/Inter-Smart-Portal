@@ -69,8 +69,8 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
       setLeaveTypes(leaves);
       setWfhTypes(wfh);
 
-      console.log('Leave Types:', leaves.map(l => l.name));
-      console.log('WFH Types:', wfh.map(l => l.name));
+      console.log('Leave Types:', leaves.map((l: LeaveType) => l.name));
+      console.log('WFH Types:', wfh.map((l: LeaveType) => l.name));
     } catch (err) {
       console.error("Failed to load leave types", err);
       setError("Failed to load leave types");
