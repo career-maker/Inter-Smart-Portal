@@ -22,13 +22,10 @@ export function AttendanceWidget({ initialData }: { initialData?: any }) {
   };
 
   useEffect(() => {
-    if (initialData) {
-      setData(initialData);
-      setIsLoading(false);
-    } else {
-      fetchData();
-    }
-  }, [initialData]);
+    // Always fetch fresh data on mount, even if initialData is provided
+    // This ensures we get today's data, not stale cached data from page load
+    fetchData();
+  }, []);
 
   // Auto-refresh attendance status every 30 seconds to ensure latest punch times
   useEffect(() => {
