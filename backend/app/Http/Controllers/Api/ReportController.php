@@ -435,8 +435,8 @@ class ReportController extends Controller
                     'status' => $dayStatus['status'],
                     'leave_type' => $dayStatus['leave_type'] ?? null,
                     'is_late' => $dayStatus['is_late'],
-                    'check_in' => $attendance?->check_in,
-                    'check_out' => $attendance?->check_out,
+                    'check_in' => $attendance?->check_in_time,
+                    'check_out' => $attendance?->check_out_time,
                 ];
 
                 // Update daily stats
@@ -523,8 +523,8 @@ class ReportController extends Controller
 
             // For half-day leave (morning), check if employee checked in after 2:30 PM
             // Otherwise (full day leave, half-day afternoon), no late marking for leave days
-            if ($isHalfDay && $isMorningHalf && $attendance && $attendance->check_in) {
-                $checkInTime = Carbon::parse($attendance->check_in);
+            if ($isHalfDay && $isMorningHalf && $attendance && $attendance->check_in_time) {
+                $checkInTime = Carbon::parse($attendance->check_in_time);
                 $afternoonThreshold = Carbon::parse($dateStr . ' 14:30:00');
 
                 if ($checkInTime->greaterThan($afternoonThreshold)) {
@@ -559,8 +559,8 @@ class ReportController extends Controller
 
         // Check if late based on first check-in time (normal day)
         // Late threshold is 9:45 AM
-        if ($attendance->check_in) {
-            $checkInTime = Carbon::parse($attendance->check_in);
+        if ($attendance->check_in_time) {
+            $checkInTime = Carbon::parse($attendance->check_in_time);
             $lateThreshold = Carbon::parse($dateStr . ' 09:45:00');
 
             if ($checkInTime->greaterThan($lateThreshold)) {

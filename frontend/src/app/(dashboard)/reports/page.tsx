@@ -4,7 +4,7 @@ import { PageLoader } from "@/components/ui/PageLoader";
 import { useEffect, useState, useMemo } from "react";
 import { useAuthStore } from "@/store/auth";
 import { FileText, Users, CalendarDays, BarChart3, Download, Printer, Search, ChevronUp, ChevronDown, Loader2, AlertCircle, Activity } from "lucide-react";
-import api from "@/services/api";
+import api, { apiCache } from "@/services/api";
 import { format } from "date-fns";
 
 type ReportType = "employees" | "leaves" | "leave-balances" | "attendance-summary";
@@ -96,6 +96,9 @@ export default function ReportsPage() {
   const handleGenerate = async () => {
     setLoading(true); setGenerated(false); setGenError(null);
     try {
+      // Clear report cache before generating fresh data
+      apiCache.clearPattern(/\/reports\//);
+
       const params: any = {};
       if (selectedUserId !== "all") params.user_id = selectedUserId;
       if (reportType === "leaves" || reportType === "attendance-summary") {
