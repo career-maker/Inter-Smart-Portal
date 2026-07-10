@@ -186,6 +186,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('leaves/calculate', [\App\Http\Controllers\Api\LeaveRequestController::class, 'calculate']);
     Route::apiResource('leave-requests', \App\Http\Controllers\Api\LeaveRequestController::class)->only(['index', 'store']);
+    Route::get('wfh-requests/diagnose/schema', [\App\Http\Controllers\Api\WfhRequestController::class, 'diagnose']);
     Route::apiResource('wfh-requests', \App\Http\Controllers\Api\WfhRequestController::class)->only(['index', 'store']);
     
     // Attendance Routes

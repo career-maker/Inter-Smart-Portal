@@ -12,6 +12,18 @@ use Illuminate\Http\Request;
 
 class WfhRequestController extends Controller
 {
+    public function diagnose()
+    {
+        $schema = \Illuminate\Support\Facades\Schema::getColumns('wfh_requests');
+        $columns = array_map(fn($col) => $col['name'], $schema);
+        return response()->json([
+            'table' => 'wfh_requests',
+            'columns' => $columns,
+            'required_columns' => ['wfh_type_id', 'attachment_link', 'start_date', 'end_date', 'tl_status', 'admin_status'],
+            'missing' => array_diff(['wfh_type_id', 'attachment_link', 'start_date', 'end_date', 'tl_status', 'admin_status'], $columns)
+        ]);
+    }
+
     public function index(Request $request)
     {
         $user  = $request->user();
