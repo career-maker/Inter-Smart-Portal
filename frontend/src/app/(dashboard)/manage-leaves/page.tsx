@@ -42,6 +42,7 @@ export default function ManageLeavesPage() {
   });
 
   const [deleting, setDeleting] = useState<number | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   useEffect(() => {
     fetchEmployees();
@@ -98,8 +99,14 @@ export default function ManageLeavesPage() {
       const endpoint = type === "leave" ? `/admin/approved-leaves/${id}` : `/admin/approved-wfh/${id}`;
       await api.delete(endpoint);
 
+      // Show success message
+      setSuccessMessage(`${type === "leave" ? "Leave" : "WFH"} deleted successfully and balance restored!`);
+
       // Refresh data
       fetchData();
+
+      // Clear success message after 4 seconds
+      setTimeout(() => setSuccessMessage(null), 4000);
     } catch (err: any) {
       setError(err.response?.data?.message || `Failed to delete ${type}`);
     } finally {
@@ -190,6 +197,12 @@ export default function ManageLeavesPage() {
       {error && (
         <div className="p-4 bg-red-500/10 border border-red-500/30 rounded text-red-400">
           {error}
+        </div>
+      )}
+
+      {successMessage && (
+        <div className="p-4 bg-green-500/10 border border-green-500/30 rounded text-green-400 animate-in fade-in">
+          ✓ {successMessage}
         </div>
       )}
 
