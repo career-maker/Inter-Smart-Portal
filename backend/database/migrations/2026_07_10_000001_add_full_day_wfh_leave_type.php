@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Add missing "Work From Home" (full day) leave type
-        \App\Models\LeaveType::firstOrCreate(
-            ['name' => 'Work From Home'],
-            ['name' => 'Work From Home']
-        );
+        // Add missing "Work From Home" (full day) leave type via direct insert
+        \Illuminate\Support\Facades\DB::table('leave_types')->insertOrIgnore([
+            'name' => 'Work From Home',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 
     /**

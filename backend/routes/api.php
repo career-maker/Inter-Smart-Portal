@@ -85,6 +85,35 @@ Route::middleware('auth:sanctum')->group(function () {
             $output = \Illuminate\Support\Facades\Artisan::output();
             return response()->json(['message' => 'Annual allocation processed.', 'output' => $output]);
         });
+
+        // Ensure all required leave types exist (useful if migrations didn't run)
+        Route::post('admin/ensure-leave-types', function (\Illuminate\Http\Request $request) {
+            $types = [
+                'Sick Leave',
+                'Casual Leave',
+                'Half Day Sick Leave (Morning)',
+                'Half Day Sick Leave (Afternoon)',
+                'Half Day Casual Leave (Morning)',
+                'Half Day Casual Leave (Afternoon)',
+                'Work From Home',
+                'Work From Home (Morning)',
+                'Work From Home (Afternoon)',
+                'Half Day WFH (Morning)',
+                'Half Day WFH (Afternoon)'
+            ];
+
+            $created = [];
+            foreach ($types as $type) {
+                $lt = \App\Models\LeaveType::firstOrCreate(['name' => $type]);
+                $created[] = $lt->name;
+            }
+
+            return response()->json([
+                'message' => 'Leave types ensured.',
+                'types_created_or_verified' => $created,
+                'total' => count($created)
+            ], 201);
+        });
     });
     
     // Employee Leave Routes
