@@ -14,8 +14,7 @@ class WfhRequestController extends Controller
 {
     public function diagnose()
     {
-        $schema = \Illuminate\Support\Facades\Schema::getColumns('wfh_requests');
-        $columns = array_map(fn($col) => $col['name'], $schema);
+        $columns = \Illuminate\Support\Facades\Schema::getColumnListing('wfh_requests');
         return response()->json([
             'table' => 'wfh_requests',
             'columns' => $columns,
