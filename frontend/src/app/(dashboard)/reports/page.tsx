@@ -64,8 +64,15 @@ export default function ReportsPage() {
   const [reportType, setReportType] = useState<ReportType>("employees");
   const [employeeList, setEmployeeList] = useState<any[]>([]);
   const [selectedUserId, setSelectedUserId] = useState("all");
-  const [startDate, setStartDate] = useState(`${new Date().getFullYear()}-01-01`);
-  const [endDate, setEndDate] = useState(`${new Date().getFullYear()}-12-31`);
+
+  // Get today's date in YYYY-MM-DD format
+  const getTodayDate = () => {
+    const today = new Date();
+    return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  };
+
+  const [startDate, setStartDate] = useState(getTodayDate());
+  const [endDate, setEndDate] = useState(getTodayDate());
   const [loading, setLoading] = useState(false);
   const [reportData, setReportData] = useState<any[]>([]);
   const [generated, setGenerated] = useState(false);
@@ -298,7 +305,7 @@ export default function ReportsPage() {
                           displayText = day.leave_type || "LV";
                         }
 
-                        return bgColor ? <td key={day.date} className={`px-2 py-2 text-center text-xs font-bold ${bgColor} ${textColor} rounded`}>{displayText}</td> : <td key={day.date} className="px-2 py-2 text-center text-xs"></td>;
+                        return bgColor ? <td key={day.date} className={`px-3 py-2.5 text-center text-xs font-bold ${bgColor} ${textColor} rounded whitespace-nowrap`}>{displayText}</td> : <td key={day.date} className="px-3 py-2.5 text-center text-xs"></td>;
                       })}
                       <td className="px-4 py-3 text-center font-bold text-emerald-400">{row.cl_count || 0}</td>
                       <td className="px-4 py-3 text-center font-bold text-rose-400">{row.sl_count || 0}</td>

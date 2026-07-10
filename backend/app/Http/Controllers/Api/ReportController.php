@@ -457,9 +457,9 @@ class ReportController extends Controller
      * is_late: true if employee is marked as late
      *
      * Late logic:
-     * - Normal day: first punch-in after 9:40 AM = Late
-     * - Half-day (morning): must punch in before 2:30 PM, else Late
-     * - Half-day (afternoon): no late marking needed
+     * - Normal day or Half-day Afternoon: first punch-in after 9:45 AM = Late
+     * - Half-day Morning: first punch-in after 2:30 PM = Late
+     * - WFH: no late marking
      */
     private function calculateDayStatus($userId, $dateStr, $leave, $wfh, $attendance): array
     {
@@ -490,6 +490,7 @@ class ReportController extends Controller
             }
 
             // For half-day leave (morning), check if employee checked in after 2:30 PM
+            // Otherwise (full day leave, half-day afternoon), no late marking for leave days
             if ($isHalfDay && $isMorningHalf && $attendance && $attendance->check_in) {
                 $checkInTime = Carbon::parse($attendance->check_in);
                 $afternoonThreshold = Carbon::parse($dateStr . ' 14:30:00');
@@ -506,7 +507,7 @@ class ReportController extends Controller
             ];
         }
 
-        // If on WFH, mark as 'W'
+        // If on WFH, mark as 'W' (no late marking for WFH)
         if ($wfh) {
             return [
                 'status' => 'W',
@@ -515,7 +516,7 @@ class ReportController extends Controller
             ];
         }
 
-        // No attendance record = blank (not marked as absent)
+        // No attendance record = Absent
         if (!$attendance) {
             return [
                 'status' => 'A',
@@ -525,9 +526,10 @@ class ReportController extends Controller
         }
 
         // Check if late based on first check-in time (normal day)
+        // Late threshold is 9:45 AM
         if ($attendance->check_in) {
             $checkInTime = Carbon::parse($attendance->check_in);
-            $lateThreshold = Carbon::parse($dateStr . ' 09:40:00');
+            $lateThreshold = Carbon::parse($dateStr . ' 09:45:00');
 
             if ($checkInTime->greaterThan($lateThreshold)) {
                 $isLate = true;
