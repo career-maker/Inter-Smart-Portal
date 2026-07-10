@@ -28,12 +28,31 @@ export default function EditTeamPage() {
 
   const fetchTeamAndUsers = async () => {
     try {
-      const [teamRes, usersRes] = await Promise.all([
-        api.get(`/teams/${params.id}`),
-        api.get(`/employees?limit=500`) // In production, we'd use search/pagination for members
+      const [teamRes] = await Promise.all([
+        api.get(`/teams/${params.id}`)
       ]);
+
       setTeam(teamRes.data.data);
-      setAllUsers(usersRes.data.data);
+
+      // Fetch all employees - paginate through all pages
+      let allEmployees: any[] = [];
+      let page = 1;
+      let hasMore = true;
+
+      while (hasMore) {
+        const usersRes = await api.get(`/employees?page=${page}`);
+        const pageData = usersRes.data.data || [];
+        allEmployees = [...allEmployees, ...pageData];
+
+        // Check if there are more pages
+        if (!usersRes.data.meta?.last_page || page >= usersRes.data.meta.last_page) {
+          hasMore = false;
+        }
+        page++;
+      }
+
+      setAllUsers(allEmployees);
+
       // Pre-select current members
       const currentIds = teamRes.data.data.members?.map((m: any) => m.id) || [];
       setSelectedMemberIds(currentIds);
