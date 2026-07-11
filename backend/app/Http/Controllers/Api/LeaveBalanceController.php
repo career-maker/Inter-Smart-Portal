@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\LeaveBalance;
 use App\Models\LeaveBalanceAuditLog;
+use App\Models\LeaveRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -28,6 +29,11 @@ class LeaveBalanceController extends Controller
                 ->get(['id', 'first_name', 'last_name', 'employee_code', 'designation', 'team_id'])
                 ->map(function ($emp) {
                     $balance = $emp->leaveBalance;
+                    // Calculate total_leaves_taken from approved leave requests
+                    $totalTaken = LeaveRequest::where('user_id', $emp->id)
+                        ->where('status', 'Approved')
+                        ->sum('days') ?? 0;
+
                     return [
                         'user_id'               => $emp->id,
                         'name'                  => trim($emp->first_name . ' ' . $emp->last_name),
@@ -37,7 +43,7 @@ class LeaveBalanceController extends Controller
                         'cl_carry_forward'      => $balance ? (float)(data_get($balance, 'cl_carry_forward', 0)) : 0,
                         'cl_carry_forward_year' => $balance ? data_get($balance, 'cl_carry_forward_year') : null,
                         'sick_leave_balance'    => $balance ? (float)($balance->sick_leave_balance ?? 0) : 0,
-                        'total_leaves_taken'    => $balance ? (float)($balance->total_leaves_taken ?? 0) : 0,
+                        'total_leaves_taken'    => (float)$totalTaken,
                     ];
                 });
 
@@ -47,7 +53,21 @@ class LeaveBalanceController extends Controller
         // Regular employee – own balance only
         $balance = LeaveBalance::where('user_id', $user->id)->first();
 
-        return response()->json(['data' => $balance]);
+        // Calculate total_leaves_taken from approved leave requests instead of stored value
+        $totalTaken = LeaveRequest::where('user_id', $user->id)
+            ->where('status', 'Approved')
+            ->sum('days') ?? 0;
+
+        // Return balance with calculated total_leaves_taken
+        $data = $balance ? $balance->toArray() : [
+            'user_id' => $user->id,
+            'casual_leave_balance' => 0,
+            'cl_carry_forward' => 0,
+            'sick_leave_balance' => 0,
+        ];
+        $data['total_leaves_taken'] = (float)$totalTaken;
+
+        return response()->json(['data' => $data]);
     }
 
     /**
