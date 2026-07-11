@@ -99,17 +99,24 @@ export default function ApprovalsPage() {
     setActionLoading(true);
     try {
       const endpoint = type === "leave" ? `/leave-requests/${id}/status` : `/wfh-requests/${id}/status`;
-      await api.post(endpoint, { status: "Approved" });
-      setSuccessMessage(`${type === "leave" ? "Leave" : "WFH"} request approved successfully!`);
+      const response = await api.post(endpoint, { status: "Approved" });
 
-      // Refetch to get real-time updates
-      await fetchRequests();
+      if (response.data?.message) {
+        setSuccessMessage(response.data.message);
+      } else {
+        setSuccessMessage(`${type === "leave" ? "Leave" : "WFH"} request approved successfully!`);
+      }
+
+      // Refetch to get real-time updates after a short delay
+      setTimeout(() => fetchRequests(), 500);
 
       setTimeout(() => setSuccessMessage(null), 4000);
     } catch (e: any) {
-      alert(e.response?.data?.message || "Error processing request.");
+      const errorMsg = e.response?.data?.message || e.message || "Server error - please try again";
+      console.error("Approval error:", errorMsg, e);
+      alert(errorMsg);
       // Refetch on error to restore correct state
-      await fetchRequests();
+      fetchRequests().catch(err => console.error("Refetch failed:", err));
     } finally {
       setActionLoading(false);
     }
