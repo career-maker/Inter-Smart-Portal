@@ -316,8 +316,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <main className="max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8">
         {/* Breadcrumbs */}
         {pathname !== "/dashboard" && (
-          <div className="flex items-center flex-wrap gap-2 text-sm text-slate-400 mb-6 font-medium">
-            <Link href="/dashboard" className="hover:text-white transition-colors flex items-center gap-1.5">
+          <div className="flex items-center flex-wrap gap-1 text-sm text-slate-400 mb-7 font-medium">
+            <Link href="/dashboard" className="breadcrumb-item hover:text-white flex items-center gap-1.5 text-slate-300">
               <Home className="w-4 h-4" />
               Dashboard
             </Link>
@@ -330,12 +330,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 const title =
                   segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, " ");
                 return (
-                  <div key={segment + index} className="flex items-center gap-2">
+                  <div key={segment + index} className="flex items-center gap-1">
                     <ChevronRight className="w-4 h-4 text-slate-600" />
                     {isLast ? (
-                      <span className="text-white">{title}</span>
+                      <span className="text-white font-semibold">{title}</span>
                     ) : (
-                      <Link href={href} className="hover:text-white transition-colors">
+                      <Link href={href} className="breadcrumb-item hover:text-white text-slate-300">
                         {title}
                       </Link>
                     )}

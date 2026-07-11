@@ -140,6 +140,29 @@ export default function DashboardPage() {
 
   const hasActiveRec = !!profile.active_recognition;
 
+  // Role-specific header color
+  const getRoleHeaderColor = () => {
+    switch (user?.role) {
+      case "Super Admin":
+        return "from-red-900/20 to-orange-900/20 border-red-500/30";
+      case "Team Lead":
+        return "from-blue-900/20 to-cyan-900/20 border-blue-500/30";
+      default:
+        return "from-amber-900/20 to-yellow-900/20 border-amber-500/30";
+    }
+  };
+
+  const getRoleAccentColor = () => {
+    switch (user?.role) {
+      case "Super Admin":
+        return "text-red-400";
+      case "Team Lead":
+        return "text-blue-400";
+      default:
+        return "text-amber-400";
+    }
+  };
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       
@@ -148,10 +171,10 @@ export default function DashboardPage() {
         HEADER: Welcome Card + Achievement Flip Card (two-column)
         ========================================
       */}
-      <div className={`flex gap-5 mb-6 ${hasActiveRec ? 'flex-col lg:flex-row items-stretch' : ''}`}>
+      <div className={`flex gap-5 mb-8 ${hasActiveRec ? 'flex-col lg:flex-row items-stretch' : ''}`}>
         {/* Welcome Card — full width when no achievement, 72% when active achievement */}
         <div
-          className={`rounded-3xl p-5 md:p-6 shadow-lg border border-white/10 bg-white/5 backdrop-blur-md text-white relative overflow-hidden transition-all duration-500 ${hasActiveRec ? 'w-full lg:w-[72%]' : 'w-full'}`}
+          className={`rounded-3xl p-6 md:p-8 shadow-lg border bg-gradient-to-br backdrop-blur-md text-white relative overflow-hidden transition-all duration-500 ${getRoleHeaderColor()} ${hasActiveRec ? 'w-full lg:w-[72%]' : 'w-full'}`}
         >
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 lg:gap-8 relative z-10">
@@ -192,13 +215,16 @@ export default function DashboardPage() {
                   <span className="inline-flex items-center gap-1.5 bg-white/5 text-slate-300 backdrop-blur-sm border border-white/10 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
                     {profile.designation}
                   </span>
-                  <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm ${
+                  <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm transition-all ${
                     profile.attendance_status === 'Punched In'
                       ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                       : profile.attendance_status === 'Punched Out'
                       ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
                       : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
                   }`}>
+                    {profile.attendance_status === 'Punched In' && (
+                      <span className="w-2 h-2 bg-emerald-400 rounded-full pulse-dot"></span>
+                    )}
                     <Clock className="w-3.5 h-3.5" />
                     {profile.attendance_status}
                   </span>
@@ -252,11 +278,15 @@ export default function DashboardPage() {
           </div>
           <div className="space-y-3">
             {widgets.company_updates.length === 0 ? (
-              <p className="text-sm text-slate-400">No recent announcements.</p>
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <Megaphone className="w-8 h-8 text-slate-500 mb-2 opacity-50" />
+                <p className="text-sm text-slate-400">No announcements yet</p>
+                <p className="text-xs text-slate-500 mt-1">Updates will appear here</p>
+              </div>
             ) : (
               widgets.company_updates.slice(0, 3).map((update: any, idx: number) => (
-                <div key={idx} className="flex gap-3 items-start">
-                  <div className="w-2 h-2 mt-1.5 rounded-full bg-blue-400 shrink-0"></div>
+                <div key={idx} className="flex gap-3 items-start hover:bg-white/5 p-2 rounded-lg transition-colors">
+                  <div className="w-2 h-2 mt-1.5 rounded-full bg-blue-400 shrink-0 animate-countUp"></div>
                   <div>
                     <p className="text-sm font-medium text-white leading-tight">{update.title}</p>
                     <p className="text-xs text-slate-400 mt-0.5">{format(parseISO(update.created_at), "MMM d, yyyy")}</p>
