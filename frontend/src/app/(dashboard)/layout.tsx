@@ -39,6 +39,16 @@ const STANDALONE: StandaloneLink[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
 ];
 
+// Team Lead: Approvals count badge helper
+const getApprovalsCount = async () => {
+  try {
+    const res = await api.get("/leave-requests?status=Pending");
+    return res.data.data?.data?.length ?? 0;
+  } catch (e) {
+    return 0;
+  }
+};
+
 const NAV_GROUPS: NavGroup[] = [
   {
     id: "leave-wfh",
@@ -128,6 +138,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [isHydrated, setIsHydrated] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
+  const [pendingApprovalsCount, setPendingApprovalsCount] = useState(0);
+
+  // Fetch pending approvals for Team Leads
+  useEffect(() => {
+    if (user?.role === "Team Lead") {
+      const fetchPendingCount = async () => {
+        try {
+          const res = await api.get("/leave-requests?status=Pending");
+          setPendingApprovalsCount(res.data.data?.data?.length ?? 0);
+        } catch (e) {
+          console.error("Failed to fetch pending approvals", e);
+        }
+      };
+      fetchPendingCount();
+      const interval = setInterval(fetchPendingCount, 30000); // Refresh every 30 seconds
+      return () => clearInterval(interval);
+    }
+  }, [user?.role]);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -293,7 +321,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         return (
                           <Link key={item.href} href={item.href} onClick={closeMenu} className={`flex items-center gap-2 pl-11 pr-4 py-2 text-sm transition-colors mx-2 rounded-xl ${active ? "bg-amber-500/20 text-amber-400 font-semibold" : "text-slate-400 hover:bg-white/5 hover:text-white"}`} style={{ width: "calc(100% - 1rem)" }}>
                             <span className="w-1 h-1 rounded-full bg-current shrink-0 opacity-60" />
-                            {item.label}
+                            <span className="flex items-center gap-2">
+                              {item.label}
+                              {item.href === "/leave-approvals" && user?.role === "Team Lead" && pendingApprovalsCount > 0 && (
+                                <span className="bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">{pendingApprovalsCount}</span>
+                              )}
+                            </span>
                           </Link>
                         );
                       })}

@@ -29,7 +29,14 @@ import {
   ShieldAlert,
   Trophy,
   Medal,
-  Crown
+  Crown,
+  Zap,
+  TrendingUp,
+  TrendingDown,
+  Layers,
+  AlertTriangle,
+  CheckCircle2,
+  Server
 } from "lucide-react";
 import Link from "next/link";
 import { format, parseISO } from "date-fns";
@@ -163,10 +170,87 @@ export default function DashboardPage() {
     }
   };
 
+  // Employee Dashboard specific helper functions
+  const getLeaveBalancePercentage = (used: number, total: number) => {
+    if (total === 0) return 0;
+    return Math.min(100, (used / total) * 100);
+  };
+
+  const daysUntilCarryForwardExpiry = (expiryDate: string | null) => {
+    if (!expiryDate) return null;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const expiry = new Date(expiryDate);
+    expiry.setHours(0, 0, 0, 0);
+    const diffTime = expiry.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays > 0 ? diffDays : 0;
+  };
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      
-      {/* 
+
+      {/* Employee Dashboard: Upcoming Holidays Banner */}
+      {user?.role === "Employee" && data?.widgets?.upcoming_holidays && data.widgets.upcoming_holidays.length > 0 && (
+        <div className="bg-gradient-to-r from-purple-900/30 to-blue-900/30 border border-purple-500/30 rounded-2xl p-4 flex items-start gap-3 animate-slideDown">
+          <CalendarDays className="w-5 h-5 text-purple-400 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold text-purple-300">Upcoming Holidays</p>
+            <p className="text-xs text-slate-400 mt-1">
+              {data.widgets.upcoming_holidays[0]?.name} on {format(parseISO(data.widgets.upcoming_holidays[0]?.date), "MMM d, yyyy")}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Employee Dashboard: Leave Balance Progress */}
+      {user?.role === "Employee" && leave_metrics && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gradient-to-br from-slate-800/50 to-slate-900/50 rounded-2xl p-6 border border-white/5">
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-semibold text-amber-300">Casual Leave</p>
+              <span className="text-xs text-slate-400">{leave_metrics.cl_total - leave_metrics.cl_used} / {leave_metrics.cl_total}</span>
+            </div>
+            <div className="w-full h-3 bg-slate-700 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-amber-500 to-amber-400 progress-bar-animated rounded-full"
+                style={{
+                  width: `${getLeaveBalancePercentage(leave_metrics.cl_used, leave_metrics.cl_total)}%`,
+                  '--progress-width': `${getLeaveBalancePercentage(leave_metrics.cl_used, leave_metrics.cl_total)}%`
+                } as any}
+              ></div>
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-semibold text-blue-300">Sick Leave</p>
+              <span className="text-xs text-slate-400">{leave_metrics.sl_total - leave_metrics.sl_used} / {leave_metrics.sl_total}</span>
+            </div>
+            <div className="w-full h-3 bg-slate-700 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-blue-500 to-blue-400 progress-bar-animated rounded-full"
+                style={{
+                  width: `${getLeaveBalancePercentage(leave_metrics.sl_used, leave_metrics.sl_total)}%`,
+                  '--progress-width': `${getLeaveBalancePercentage(leave_metrics.sl_used, leave_metrics.sl_total)}%`
+                } as any}
+              ></div>
+            </div>
+          </div>
+
+          {/* Carry-forward expiry warning */}
+          {leave_metrics.cl_carry_forward && leave_metrics.cl_carry_forward > 0 && daysUntilCarryForwardExpiry(leave_metrics.cf_expiry_date) !== null && daysUntilCarryForwardExpiry(leave_metrics.cf_expiry_date)! < 30 && (
+            <div className="md:col-span-2 bg-orange-500/10 border border-orange-500/30 rounded-lg p-3 flex items-start gap-2">
+              <AlertTriangle className="w-4 h-4 text-orange-400 flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-orange-300">
+                <span className="font-semibold">{leave_metrics.cl_carry_forward} carry-forward days</span> expire in {daysUntilCarryForwardExpiry(leave_metrics.cf_expiry_date)} days
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/*
         ========================================
         HEADER: Welcome Card + Achievement Flip Card (two-column)
         ========================================
