@@ -40,10 +40,12 @@ function EditModal({
   employee,
   onClose,
   onSaved,
+  onUpdateEmployee,
 }: {
   employee: EmployeeBalance;
   onClose: () => void;
   onSaved: () => void;
+  onUpdateEmployee: (emp: EmployeeBalance) => void;
 }) {
   const [cl, setCl] = useState(employee.casual_leave_balance.toString());
   const [cf, setCf] = useState(employee.cl_carry_forward.toString());
@@ -55,17 +57,33 @@ function EditModal({
   async function handleSave() {
     setSaving(true);
     setError("");
+
+    const newCL = parseFloat(cl);
+    const newCF = parseFloat(cf);
+    const newSL = parseFloat(sl);
+
     try {
+      // Optimistically update the UI
+      onUpdateEmployee({
+        ...employee,
+        casual_leave_balance: newCL,
+        cl_carry_forward: newCF,
+        sick_leave_balance: newSL,
+      });
+
+      // Make API call in background
       await api.post(`/leave-balances/${employee.user_id}`, {
-        casual_leave_balance: parseFloat(cl),
-        cl_carry_forward: parseFloat(cf),
-        sick_leave_balance: parseFloat(sl),
+        casual_leave_balance: newCL,
+        cl_carry_forward: newCF,
+        sick_leave_balance: newSL,
         remarks: remarks || undefined,
       });
-      onSaved();
+
       onClose();
     } catch (e: any) {
       setError(e.response?.data?.message || "Failed to save. Please try again.");
+      // Refetch on error to restore correct state
+      onSaved();
     } finally {
       setSaving(false);
     }
@@ -381,6 +399,11 @@ export default function LeaveBalancesPage() {
           employee={editing}
           onClose={() => setEditing(null)}
           onSaved={fetchData}
+          onUpdateEmployee={(updatedEmp) => {
+            setEmployees(prev =>
+              prev.map(e => e.user_id === updatedEmp.user_id ? updatedEmp : e)
+            );
+          }}
         />
       )}
     </div>
