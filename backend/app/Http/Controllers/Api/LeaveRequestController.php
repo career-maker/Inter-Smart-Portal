@@ -640,9 +640,10 @@ class LeaveRequestController extends Controller
                     if ($balance && ($paidCL > 0 || $paidSL > 0)) {
                         $paidCLCarryForward = 0;
                         $paidCLCurrentYear = 0;
+                        $daysToDeduct = max(0, floatval($leaveRequest->actual_leave_days ?? $leaveRequest->days ?? 0));
 
                         if ($paidCL > 0) {
-                            $carryForward = $balance->cl_carry_forward ?? 0;
+                            $carryForward = floatval($balance->cl_carry_forward ?? 0);
                             if ($carryForward > 0) {
                                 $paidCLCarryForward = min($paidCL, $carryForward);
                                 $paidCLCurrentYear = max(0, $paidCL - $paidCLCarryForward);
@@ -656,7 +657,9 @@ class LeaveRequestController extends Controller
                         if ($paidSL > 0) {
                             $balance->sick_leave_balance -= $paidSL;
                         }
-                        $balance->total_leaves_taken += ($leaveRequest->actual_leave_days ?? $leaveRequest->days);
+                        if ($daysToDeduct > 0) {
+                            $balance->total_leaves_taken += $daysToDeduct;
+                        }
                         $balance->save();
 
                         // Track the split for proper reversal on deletion
@@ -679,7 +682,12 @@ class LeaveRequestController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['message' => 'Failed to update leave request', 'error' => $e->getMessage()], 500);
+            \Log::error('Leave approval error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'leave_id' => $leaveRequest->id ?? null,
+                'user_id' => $user->id ?? null
+            ]);
+            return response()->json(['message' => $e->getMessage() ?: 'Failed to update leave request'], 500);
         }
     }
 
