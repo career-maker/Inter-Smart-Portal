@@ -13,19 +13,45 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
   const [isLoading, setIsLoading] = useState(false);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setIsLoading(true);
+    setFieldErrors({});
     setError("");
+
+    // Validate fields
+    const newErrors: { email?: string; password?: string } = {};
+    if (!email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!email.includes("@")) {
+      newErrors.email = "Please enter a valid email address";
+    }
+    if (!password) {
+      newErrors.password = "Password is required";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setFieldErrors(newErrors);
+      return;
+    }
+
+    setIsLoading(true);
     try {
       const response = await api.post("/login", { email, password });
-      localStorage.setItem("token", response.data.token);
-      setAuth(response.data.user, response.data.token);
-      router.push("/dashboard");
+      if (response.data.token) {
+        localStorage.setItem("token", response.data.token);
+        setAuth(response.data.user, response.data.token);
+        router.push("/dashboard");
+      }
     } catch (err: any) {
-      setError(err.response?.data?.message || "Invalid credentials. Please try again.");
+      console.error("Login error:", err);
+      const errorMessage =
+        err.response?.data?.message ||
+        err.message ||
+        "Invalid email or password. Please try again.";
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -86,11 +112,21 @@ export default function LoginPage() {
                 <input
                   type="email"
                   value={email}
-                  onChange={e => setEmail(e.target.value)}
+                  onChange={e => {
+                    setEmail(e.target.value);
+                    setFieldErrors(prev => ({ ...prev, email: "" }));
+                  }}
                   placeholder="name@intersmart.in"
                   required
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
+                  className={`w-full px-4 py-3 bg-white/5 border rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:border-transparent transition ${
+                    fieldErrors.email
+                      ? "border-red-500 focus:ring-red-500"
+                      : "border-white/10 focus:ring-amber-500"
+                  }`}
                 />
+                {fieldErrors.email && (
+                  <p className="text-red-400 text-xs mt-1">{fieldErrors.email}</p>
+                )}
               </div>
 
               <div>
@@ -104,10 +140,17 @@ export default function LoginPage() {
                   <input
                     type={showPassword ? "text" : "password"}
                     value={password}
-                    onChange={e => setPassword(e.target.value)}
+                    onChange={e => {
+                      setPassword(e.target.value);
+                      setFieldErrors(prev => ({ ...prev, password: "" }));
+                    }}
                     placeholder="••••••••"
                     required
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition pr-12"
+                    className={`w-full px-4 py-3 bg-white/5 border rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:border-transparent transition pr-12 ${
+                      fieldErrors.password
+                        ? "border-red-500 focus:ring-red-500"
+                        : "border-white/10 focus:ring-amber-500"
+                    }`}
                   />
                   <button
                     type="button"
@@ -117,6 +160,9 @@ export default function LoginPage() {
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 </div>
+                {fieldErrors.password && (
+                  <p className="text-red-400 text-xs mt-1">{fieldErrors.password}</p>
+                )}
               </div>
 
               <div className="flex items-center gap-2 mt-1">
