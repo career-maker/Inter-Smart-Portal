@@ -2,7 +2,7 @@
 
 import { PageLoader } from "@/components/ui/PageLoader";
 import { useState, useEffect } from "react";
-import { Check, X, Calendar, Clock, User, Edit, Loader2, CheckCircle, XCircle, AlertTriangle, Link2 } from "lucide-react";
+import { Check, X, Calendar, Clock, User, Edit, Loader2, CheckCircle, XCircle, AlertTriangle, Link2, Leaf, Stethoscope, Users, History } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
 import { format } from "date-fns";
@@ -27,13 +27,34 @@ function DurationBadge({ type }: { type: string }) {
   );
 }
 
+function LeaveTypeIcon({ leaveTypeName }: { leaveTypeName: string }) {
+  const name = leaveTypeName?.toLowerCase() ?? '';
+  if (name.includes('casual')) return <Leaf className="w-4 h-4 text-green-400" />;
+  if (name.includes('sick')) return <Stethoscope className="w-4 h-4 text-red-400" />;
+  return <Calendar className="w-4 h-4 text-blue-400" />;
+}
+
+function AvatarWithPhoto({ photoPath, firstName, lastName }: { photoPath?: string; firstName: string; lastName: string }) {
+  return (
+    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-sm font-bold text-white shrink-0 border border-white/20 overflow-hidden">
+      {photoPath ? (
+        <img src={photoPath} alt="" className="w-full h-full object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
+      ) : null}
+      <span style={{ display: photoPath ? 'none' : 'block' }}>{firstName?.[0]}{lastName?.[0]}</span>
+    </div>
+  );
+}
+
 export default function ApprovalsPage() {
   const { user } = useAuthStore();
   const isSuperAdmin = user?.role === "Super Admin";
 
   const [tab, setTab] = useState<"leaves" | "wfh">("leaves");
+  const [statusFilter, setStatusFilter] = useState<"Pending" | "Approved" | "Rejected" | "All">("Pending");
   const [leaveRequests, setLeaveRequests] = useState<any[]>([]);
   const [wfhRequests, setWfhRequests] = useState<any[]>([]);
+  const [approvedLeaves, setApprovedLeaves] = useState<any[]>([]);
+  const [rejectedLeaves, setRejectedLeaves] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const [rejectDialog, setRejectDialog] = useState<RejectDialogState>(null);
@@ -57,11 +78,15 @@ export default function ApprovalsPage() {
   const fetchRequests = async () => {
     setIsLoading(true);
     try {
-      const [leaves, wfh] = await Promise.all([
+      const [pending, approved, rejected, wfh] = await Promise.all([
         api.get("/leave-requests?status=Pending"),
+        api.get("/leave-requests?status=Approved"),
+        api.get("/leave-requests?status=Rejected"),
         api.get("/wfh-requests?status=Pending"),
       ]);
-      setLeaveRequests(leaves.data.data?.data ?? []);
+      setLeaveRequests(pending.data.data?.data ?? []);
+      setApprovedLeaves(approved.data.data?.data ?? []);
+      setRejectedLeaves(rejected.data.data?.data ?? []);
       setWfhRequests(wfh.data.data?.data ?? []);
     } catch (e) {
       console.error(e);
@@ -273,39 +298,50 @@ export default function ApprovalsPage() {
       req.pending_lop_conversion ? "border-l-rose-500" : "border-l-amber-500"
     }`}>
       <div className="flex items-start justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center text-sm font-bold text-amber-400 shrink-0">
-            {req.user?.first_name?.[0]}{req.user?.last_name?.[0]}
-          </div>
-          <div>
+        <div className="flex items-center gap-3 flex-1">
+          <AvatarWithPhoto photoPath={req.user?.profile_photo_path} firstName={req.user?.first_name} lastName={req.user?.last_name} />
+          <div className="flex-1 min-w-0">
             <p className="font-semibold text-white">{req.user?.first_name} {req.user?.last_name}</p>
             <p className="text-xs text-slate-400 mt-0.5">{req.user?.designation || req.user?.role}</p>
           </div>
         </div>
 
-        {req.pending_lop_conversion ? (
-          <div className="flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-400">
-            <AlertTriangle className="w-3 h-3 animate-pulse" /> Pending LOP Conversion
-          </div>
-        ) : (
-          <div className="flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-400">
-            <Clock className="w-3 h-3" /> Pending
-          </div>
-        )}
+        <div className="flex items-center gap-2 shrink-0">
+          {req.pending_lop_conversion ? (
+            <div className="flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-400">
+              <AlertTriangle className="w-3 h-3 animate-pulse" /> Pending LOP
+            </div>
+          ) : (
+            <div className="flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-400">
+              <Clock className="w-3 h-3" /> Pending
+            </div>
+          )}
+          <button
+            onClick={() => approve("leave", req.id)}
+            disabled={actionLoading}
+            className="px-2.5 py-1.5 text-xs font-bold bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition disabled:opacity-50 whitespace-nowrap"
+            title="Quick approve"
+          >
+            ✓ Approve
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
-        <div>
-          <p className="text-xs text-slate-500 uppercase tracking-wider mb-0.5">Type</p>
-          <p className="text-slate-200 font-medium">{req.leave_type?.name}</p>
+        <div className="flex items-center gap-2">
+          <LeaveTypeIcon leaveTypeName={req.leave_type?.name} />
+          <div>
+            <p className="text-xs text-slate-500 uppercase tracking-wider mb-0.5">Type</p>
+            <p className="text-slate-200 font-medium text-xs">{req.leave_type?.name}</p>
+          </div>
         </div>
         <div>
           <p className="text-xs text-slate-500 uppercase tracking-wider mb-0.5">Duration</p>
-          <p className="text-slate-200">{fmtDate(req.start_date)} — {fmtDate(req.end_date)}</p>
+          <p className="text-slate-200 text-xs">{fmtDate(req.start_date)} — {fmtDate(req.end_date)}</p>
         </div>
         <div>
           <p className="text-xs text-slate-500 uppercase tracking-wider mb-0.5">Days</p>
-          <p className="text-slate-200 font-medium">{req.days_taken ?? req.days ?? "—"}</p>
+          <p className="text-slate-200 font-medium text-xs">{req.days_taken ?? req.days ?? "—"}</p>
         </div>
       </div>
 
@@ -375,13 +411,6 @@ export default function ApprovalsPage() {
           >
             <XCircle className="h-3.5 w-3.5" /> Reject
           </button>
-          <button
-            onClick={() => approve("leave", req.id)}
-            disabled={actionLoading}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-lg hover:bg-emerald-500/30 transition disabled:opacity-50"
-          >
-            <CheckCircle className="h-3.5 w-3.5" /> Approve
-          </button>
         </div>
       )}
     </div>
@@ -390,20 +419,26 @@ export default function ApprovalsPage() {
   const WfhCard = ({ req }: { req: any }) => (
     <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4 border-l-4 border-l-indigo-500">
       <div className="flex items-start justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-sm font-bold text-indigo-400 shrink-0">
-            {req.user?.first_name?.[0]}{req.user?.last_name?.[0]}
-          </div>
-          <div>
+        <div className="flex items-center gap-3 flex-1">
+          <AvatarWithPhoto photoPath={req.user?.profile_photo_path} firstName={req.user?.first_name} lastName={req.user?.last_name} />
+          <div className="flex-1 min-w-0">
             <p className="font-semibold text-white">{req.user?.first_name} {req.user?.last_name}</p>
             <p className="text-xs text-slate-400 mt-0.5">{req.user?.designation || req.user?.role}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           {req.duration_type && <DurationBadge type={req.duration_type} />}
           <div className="flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-400">
             <Clock className="w-3 h-3" /> Pending
           </div>
+          <button
+            onClick={() => approve("wfh", req.id)}
+            disabled={actionLoading}
+            className="px-2.5 py-1.5 text-xs font-bold bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition disabled:opacity-50 whitespace-nowrap"
+            title="Quick approve"
+          >
+            ✓ Approve
+          </button>
         </div>
       </div>
 
@@ -430,15 +465,10 @@ export default function ApprovalsPage() {
       <div className="flex gap-2 pt-1">
         <button
           onClick={() => { setRejectDialog({ type: "wfh", id: req.id }); setRejectReason(""); }}
-          className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-red-500/20 text-red-300 border border-red-500/30 rounded-lg hover:bg-red-500/30 transition"
+          disabled={actionLoading}
+          className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-red-500/20 text-red-300 border border-red-500/30 rounded-lg hover:bg-red-500/30 transition disabled:opacity-50"
         >
           <XCircle className="h-3.5 w-3.5" /> Reject
-        </button>
-        <button
-          onClick={() => approve("wfh", req.id)}
-          className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-lg hover:bg-emerald-500/30 transition"
-        >
-          <CheckCircle className="h-3.5 w-3.5" /> Approve
         </button>
       </div>
     </div>
@@ -457,17 +487,42 @@ export default function ApprovalsPage() {
         </div>
       )}
 
-      {/* Tab switcher */}
+      {/* Status Filter Tabs */}
+      <div className="flex gap-1 bg-white/5 border border-white/10 rounded-xl p-1 w-fit">
+        {(["Pending", "Approved", "Rejected", "All"] as const).map((status) => {
+          let count = 0;
+          if (tab === "leaves") {
+            if (status === "Pending") count = leaveRequests.length;
+            else if (status === "Approved") count = approvedLeaves.length;
+            else if (status === "Rejected") count = rejectedLeaves.length;
+            else count = leaveRequests.length + approvedLeaves.length + rejectedLeaves.length;
+          }
+
+          return (
+            <button
+              key={status}
+              onClick={() => setStatusFilter(status)}
+              className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors whitespace-nowrap ${
+                statusFilter === status ? "bg-amber-500 text-white shadow" : "text-slate-400 hover:text-white"
+              }`}
+            >
+              {status} {count > 0 && <span className="text-xs ml-1">({count})</span>}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Type Switcher (Leaves/WFH) */}
       <div className="flex gap-1 bg-white/5 border border-white/10 rounded-xl p-1 w-fit">
         {(["leaves", "wfh"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
             className={`px-5 py-2 text-sm font-semibold rounded-lg transition-colors ${
-              tab === t ? "bg-amber-500 text-white shadow" : "text-slate-400 hover:text-white"
+              tab === t ? "bg-blue-500 text-white shadow" : "text-slate-400 hover:text-white"
             }`}
           >
-            {t === "leaves" ? `Leave Requests (${leaveRequests.length})` : `WFH Requests (${wfhRequests.length})`}
+            {t === "leaves" ? "Leave Requests" : "WFH Requests"}
           </button>
         ))}
       </div>
@@ -475,15 +530,23 @@ export default function ApprovalsPage() {
       {isLoading ? (
         <div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-slate-400" /></div>
       ) : tab === "leaves" ? (
-        leaveRequests.length === 0 ? (
-          <div className="bg-white/5 border border-white/10 rounded-2xl py-16 text-center text-slate-400">
-            No pending leave requests.
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {leaveRequests.map((req) => <LeaveCard key={req.id} req={req} />)}
-          </div>
-        )
+        (() => {
+          let displayRequests = [];
+          if (statusFilter === "Pending") displayRequests = leaveRequests;
+          else if (statusFilter === "Approved") displayRequests = approvedLeaves;
+          else if (statusFilter === "Rejected") displayRequests = rejectedLeaves;
+          else displayRequests = [...leaveRequests, ...approvedLeaves, ...rejectedLeaves];
+
+          return displayRequests.length === 0 ? (
+            <div className="bg-white/5 border border-white/10 rounded-2xl py-16 text-center text-slate-400">
+              No {statusFilter === "All" ? "" : statusFilter.toLowerCase()} leave requests.
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {displayRequests.map((req) => <LeaveCard key={req.id} req={req} />)}
+            </div>
+          );
+        })()
       ) : (
         wfhRequests.length === 0 ? (
           <div className="bg-white/5 border border-white/10 rounded-2xl py-16 text-center text-slate-400">
