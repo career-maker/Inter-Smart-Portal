@@ -97,14 +97,14 @@ class DashboardController extends Controller
             ->whereHas('leaveType', function ($q) {
                 $q->where('name', 'like', '%Casual Leave%');
             })
-            ->sum('days_taken') ?? 0;
+            ->sum('days') ?? 0;
 
         $sickLeaveTaken = LeaveRequest::where('user_id', $user->id)
             ->where('status', 'Approved')
             ->whereHas('leaveType', function ($q) {
                 $q->where('name', 'like', '%Sick Leave%');
             })
-            ->sum('days_taken') ?? 0;
+            ->sum('days') ?? 0;
 
         $casualLeaveBalance = $balance ? $balance->casual_leave_balance : 0;
         $sickLeaveBalance = $balance ? $balance->sick_leave_balance : 0;
@@ -118,7 +118,7 @@ class DashboardController extends Controller
 
         $totalLeavesTaken = LeaveRequest::where('user_id', $user->id)
             ->where('status', 'Approved')
-            ->sum('days_taken') ?? 0;
+            ->sum('days') ?? 0;
 
         $pendingLeaves = LeaveRequest::where('user_id', $user->id)
             ->where('status', 'Pending')
@@ -393,7 +393,7 @@ class DashboardController extends Controller
                             'leave_type' => $req->leaveType->name ?? 'Leave',
                             'start_date' => $req->start_date,
                             'end_date' => $req->end_date,
-                            'days' => (int)$req->days_taken
+                            'days' => (int)$req->days
                         ];
                     });
 
@@ -509,15 +509,16 @@ class DashboardController extends Controller
                 }
 
                 // Audit Logs
-                $auditLogs = \App\Models\AuditLog::latest()
+                $auditLogs = \App\Models\AuditLog::with('user:id,first_name,last_name')
+                    ->latest()
                     ->take(10)
                     ->get(['id', 'user_id', 'action', 'description', 'created_at'])
                     ->map(function($log) {
                         return [
                             'id' => $log->id,
-                            'action' => $log->action,
-                            'description' => $log->description,
-                            'user_name' => $log->user ? $log->user->first_name . ' ' . $log->user->last_name : 'System',
+                            'action' => $log->action ?? 'System',
+                            'description' => $log->description ?? 'No description',
+                            'user_name' => ($log->user ? $log->user->first_name . ' ' . $log->user->last_name : 'System'),
                             'created_at' => $log->created_at
                         ];
                     });
