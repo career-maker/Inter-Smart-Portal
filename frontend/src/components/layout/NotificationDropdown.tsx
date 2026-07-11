@@ -63,20 +63,32 @@ export function NotificationDropdown() {
   const handleMarkAsRead = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     try {
+      // Optimistically update UI
+      setNotifications(prev => prev.filter(n => n.id !== id));
+      setUnreadCount(prev => Math.max(0, prev - 1));
+
+      // Make API call in background
       await api.post(`/notifications/mark-as-read/${id}`);
-      fetchUnread();
     } catch (err) {
       console.error(err);
+      // Refresh on error to restore correct state
+      await fetchUnread();
     }
   };
 
   const handleNotificationClick = async (notification: any) => {
     if (!notification.read_at) {
       try {
+        // Optimistically update UI
+        setNotifications(prev => prev.filter(n => n.id !== notification.id));
+        setUnreadCount(prev => Math.max(0, prev - 1));
+
+        // Make API call in background
         await api.post(`/notifications/mark-as-read/${notification.id}`);
-        await fetchUnread();
       } catch (err) {
         console.error(err);
+        // Refresh on error to restore correct state
+        await fetchUnread();
       }
     }
     router.push(resolveNotificationUrl(notification));
