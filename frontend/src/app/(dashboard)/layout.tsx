@@ -323,7 +323,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             <span className="w-1 h-1 rounded-full bg-current shrink-0 opacity-60" />
                             <span className="flex items-center gap-2">
                               {item.label}
-                              {item.href === "/leave-approvals" && user?.role === "Team Lead" && pendingApprovalsCount > 0 && (
+                              {item.href === "/leaves/approvals" && user?.role === "Team Lead" && pendingApprovalsCount > 0 && (
                                 <span className="bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">{pendingApprovalsCount}</span>
                               )}
                             </span>

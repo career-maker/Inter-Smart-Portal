@@ -218,7 +218,7 @@ export default function DashboardPage() {
                   <p className="text-xs text-slate-400">Leave requests awaiting review</p>
                 </div>
               </div>
-              <Link href="/leave-approvals" className="text-xs font-semibold text-blue-400 hover:text-blue-300 flex items-center gap-1">
+              <Link href="/leaves/approvals" className="text-xs font-semibold text-blue-400 hover:text-blue-300 flex items-center gap-1">
                 View All <ChevronRight className="w-3 h-3" />
               </Link>
             </div>

@@ -98,16 +98,13 @@ export default function ApprovalsPage() {
   const approve = async (type: "leave" | "wfh", id: number) => {
     setActionLoading(true);
     try {
-      // Optimistically remove from UI
-      if (type === "leave") {
-        setLeaveRequests(prev => prev.filter(req => req.id !== id));
-      } else {
-        setWfhRequests(prev => prev.filter(req => req.id !== id));
-      }
-
       const endpoint = type === "leave" ? `/leave-requests/${id}/status` : `/wfh-requests/${id}/status`;
       await api.post(endpoint, { status: "Approved" });
       setSuccessMessage(`${type === "leave" ? "Leave" : "WFH"} request approved successfully!`);
+
+      // Refetch to get real-time updates
+      await fetchRequests();
+
       setTimeout(() => setSuccessMessage(null), 4000);
     } catch (e: any) {
       alert(e.response?.data?.message || "Error processing request.");
@@ -121,12 +118,13 @@ export default function ApprovalsPage() {
   const handleLopConversion = async (id: number, action: "confirm" | "reject") => {
     setActionLoading(true);
     try {
-      // Optimistically remove from UI
-      setLeaveRequests(prev => prev.filter(req => req.id !== id));
-
       const endpoint = `/leave-requests/${id}/${action === "confirm" ? "confirm-lop" : "reject-lop"}`;
       await api.post(endpoint);
       setSuccessMessage(`LOP conversion ${action === "confirm" ? "confirmed" : "declined"} successfully!`);
+
+      // Refetch to get real-time updates
+      await fetchRequests();
+
       setTimeout(() => setSuccessMessage(null), 4000);
     } catch (e: any) {
       alert(e.response?.data?.message || "Error processing LOP conversion.");
@@ -144,13 +142,6 @@ export default function ApprovalsPage() {
       const id = rejectDialog.id;
       const type = rejectDialog.type;
 
-      // Optimistically remove from UI
-      if (type === "leave") {
-        setLeaveRequests(prev => prev.filter(req => req.id !== id));
-      } else {
-        setWfhRequests(prev => prev.filter(req => req.id !== id));
-      }
-
       const endpoint =
         type === "leave"
           ? `/leave-requests/${id}/status`
@@ -162,6 +153,10 @@ export default function ApprovalsPage() {
       setSuccessMessage(`${type === "leave" ? "Leave" : "WFH"} request rejected successfully!`);
       setRejectDialog(null);
       setRejectReason("");
+
+      // Refetch to get real-time updates
+      await fetchRequests();
+
       setTimeout(() => setSuccessMessage(null), 4000);
     } catch (e: any) {
       alert(e.response?.data?.message || "Error rejecting request.");
@@ -311,19 +306,29 @@ export default function ApprovalsPage() {
             <div className="flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-400">
               <AlertTriangle className="w-3 h-3 animate-pulse" /> Pending LOP
             </div>
+          ) : req.status === "Approved" ? (
+            <div className="flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400">
+              <CheckCircle className="w-3 h-3" /> Approved
+            </div>
+          ) : req.status === "Rejected" ? (
+            <div className="flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-red-500/20 text-red-400">
+              <XCircle className="w-3 h-3" /> Rejected
+            </div>
           ) : (
             <div className="flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-400">
               <Clock className="w-3 h-3" /> Pending
             </div>
           )}
-          <button
-            onClick={() => approve("leave", req.id)}
-            disabled={actionLoading}
-            className="px-2.5 py-1.5 text-xs font-bold bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition disabled:opacity-50 whitespace-nowrap"
-            title="Quick approve"
-          >
-            ✓ Approve
-          </button>
+          {req.status === "Pending" && !req.pending_lop_conversion && (
+            <button
+              onClick={() => approve("leave", req.id)}
+              disabled={actionLoading}
+              className="px-2.5 py-1.5 text-xs font-bold bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition disabled:opacity-50 whitespace-nowrap"
+              title="Quick approve"
+            >
+              ✓ Approve
+            </button>
+          )}
         </div>
       </div>
 
