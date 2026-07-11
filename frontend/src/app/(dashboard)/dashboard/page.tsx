@@ -250,6 +250,82 @@ export default function DashboardPage() {
         </div>
       )}
 
+      {/* Team Lead Dashboard: Pending Approvals & Team Status */}
+      {user?.role === "Team Lead" && (
+        <div className="space-y-4 mb-6">
+          {/* Pending Approvals Section */}
+          <div className="bg-gradient-to-br from-blue-900/20 to-cyan-900/20 rounded-2xl p-6 border border-blue-500/30">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center border border-blue-500/30">
+                  <Clock className="w-5 h-5 text-blue-400" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-blue-300">Pending Approvals</p>
+                  <p className="text-xs text-slate-400">Leave requests awaiting review</p>
+                </div>
+              </div>
+              <Link href="/leave-approvals" className="text-xs font-semibold text-blue-400 hover:text-blue-300 flex items-center gap-1">
+                View All <ChevronRight className="w-3 h-3" />
+              </Link>
+            </div>
+            {data?.widgets?.pending_approvals && data.widgets.pending_approvals.length > 0 ? (
+              <div className="space-y-2">
+                {data.widgets.pending_approvals.slice(0, 3).map((approval: any) => (
+                  <div key={approval.id} className="bg-white/5 rounded-lg p-3 flex items-center justify-between hover:bg-white/10 transition-colors">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-white truncate">{approval.employee_name}</p>
+                      <p className="text-xs text-slate-400">{approval.leave_type} • {format(parseISO(approval.start_date), "MMM d")} to {format(parseISO(approval.end_date), "MMM d")}</p>
+                    </div>
+                    <span className="text-xs font-bold bg-blue-500/20 text-blue-300 px-2 py-1 rounded-full shrink-0">{approval.days} d</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-slate-400 text-center py-4">No pending approvals 🎉</p>
+            )}
+          </div>
+
+          {/* Team Member Status Cards */}
+          <div>
+            <p className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+              <Briefcase className="w-4 h-4 text-blue-400" />
+              Team Status Today
+            </p>
+            {data?.widgets?.team_members && data.widgets.team_members.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {data.widgets.team_members.slice(0, 6).map((member: any) => {
+                  const getStatusClasses = (status: string) => {
+                    switch (status) {
+                      case 'Present':
+                        return { bg: 'bg-emerald-900/20', border: 'border-emerald-500/30', text: 'text-emerald-400', icon: '✓' };
+                      case 'On Leave':
+                        return { bg: 'bg-red-900/20', border: 'border-red-500/30', text: 'text-red-400', icon: '🏖️' };
+                      case 'WFH':
+                        return { bg: 'bg-cyan-900/20', border: 'border-cyan-500/30', text: 'text-cyan-400', icon: '🏠' };
+                      default:
+                        return { bg: 'bg-slate-900/20', border: 'border-slate-500/30', text: 'text-slate-400', icon: '❓' };
+                    }
+                  };
+                  const statusClasses = getStatusClasses(member.status);
+                  return (
+                    <div key={member.id} className={`bg-gradient-to-br from-slate-800/50 to-slate-900/50 rounded-lg p-3 border border-white/10 hover:border-white/20 transition-colors`}>
+                      <p className="text-xs font-bold text-slate-300 truncate">{member.name}</p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="text-lg">{statusClasses.icon}</span>
+                        <span className={`text-xs font-semibold ${statusClasses.text}`}>{member.status}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-sm text-slate-400">No team members assigned</p>
+            )}
+          </div>
+        </div>
+      )}
+
       {/*
         ========================================
         HEADER: Welcome Card + Achievement Flip Card (two-column)
