@@ -108,7 +108,11 @@ export default function ApprovalsPage() {
       }
 
       // Refetch to get real-time updates after a short delay
-      setTimeout(() => fetchRequests(), 500);
+      setTimeout(() => {
+        fetchRequests();
+        // Auto-switch to Approved tab to show the result
+        setStatusFilter("Approved");
+      }, 500);
 
       setTimeout(() => setSuccessMessage(null), 4000);
     } catch (e: any) {
@@ -163,6 +167,9 @@ export default function ApprovalsPage() {
 
       // Refetch to get real-time updates
       await fetchRequests();
+
+      // Auto-switch to Rejected tab to show the result
+      setStatusFilter("Rejected");
 
       setTimeout(() => setSuccessMessage(null), 4000);
     } catch (e: any) {
