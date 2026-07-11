@@ -94,15 +94,15 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen w-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden">
+    <div className="flex min-h-screen w-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden relative">
       {/* Animated gradient background */}
-      <div className="absolute inset-0 opacity-30">
+      <div className="absolute inset-0 opacity-30 overflow-hidden pointer-events-none">
         <div className="absolute top-0 -left-40 w-80 h-80 bg-amber-500 rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
         <div className="absolute top-0 -right-40 w-80 h-80 bg-slate-500 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000"></div>
         <div className="absolute -bottom-8 left-20 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000"></div>
       </div>
       {/* Left branding panel */}
-      <div className="hidden lg:flex flex-col justify-between w-1/2 p-12 bg-gradient-to-br from-amber-900/20 to-slate-900">
+      <div className="hidden lg:flex flex-col justify-between w-1/2 p-12 bg-gradient-to-br from-amber-900/20 to-slate-900 relative z-10 overflow-hidden">
         <div className="flex items-center gap-3">
           <img src="/logo.png" alt="Intersmart Logo" className="h-14 w-auto object-contain" />
         </div>
