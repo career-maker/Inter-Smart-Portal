@@ -209,14 +209,14 @@ export default function DashboardPage() {
           <div>
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm font-semibold text-amber-300">Casual Leave</p>
-              <span className="text-xs text-slate-400">{leave_metrics.cl_total - leave_metrics.cl_used} / {leave_metrics.cl_total}</span>
+              <span className="text-xs text-slate-400">{Math.max(0, (leave_metrics.cl_total ?? 0) - (leave_metrics.cl_used ?? 0))} / {leave_metrics.cl_total ?? 12}</span>
             </div>
             <div className="w-full h-3 bg-slate-700 rounded-full overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-amber-500 to-amber-400 progress-bar-animated rounded-full"
                 style={{
-                  width: `${getLeaveBalancePercentage(leave_metrics.cl_used, leave_metrics.cl_total)}%`,
-                  '--progress-width': `${getLeaveBalancePercentage(leave_metrics.cl_used, leave_metrics.cl_total)}%`
+                  width: `${getLeaveBalancePercentage(leave_metrics.cl_used ?? 0, leave_metrics.cl_total ?? 12)}%`,
+                  '--progress-width': `${getLeaveBalancePercentage(leave_metrics.cl_used ?? 0, leave_metrics.cl_total ?? 12)}%`
                 } as any}
               ></div>
             </div>
@@ -225,21 +225,21 @@ export default function DashboardPage() {
           <div>
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm font-semibold text-blue-300">Sick Leave</p>
-              <span className="text-xs text-slate-400">{leave_metrics.sl_total - leave_metrics.sl_used} / {leave_metrics.sl_total}</span>
+              <span className="text-xs text-slate-400">{Math.max(0, (leave_metrics.sl_total ?? 12) - (leave_metrics.sl_used ?? 0))} / {leave_metrics.sl_total ?? 12}</span>
             </div>
             <div className="w-full h-3 bg-slate-700 rounded-full overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-blue-500 to-blue-400 progress-bar-animated rounded-full"
                 style={{
-                  width: `${getLeaveBalancePercentage(leave_metrics.sl_used, leave_metrics.sl_total)}%`,
-                  '--progress-width': `${getLeaveBalancePercentage(leave_metrics.sl_used, leave_metrics.sl_total)}%`
+                  width: `${getLeaveBalancePercentage(leave_metrics.sl_used ?? 0, leave_metrics.sl_total ?? 12)}%`,
+                  '--progress-width': `${getLeaveBalancePercentage(leave_metrics.sl_used ?? 0, leave_metrics.sl_total ?? 12)}%`
                 } as any}
               ></div>
             </div>
           </div>
 
           {/* Carry-forward expiry warning */}
-          {leave_metrics.cl_carry_forward && leave_metrics.cl_carry_forward > 0 && daysUntilCarryForwardExpiry(leave_metrics.cf_expiry_date) !== null && daysUntilCarryForwardExpiry(leave_metrics.cf_expiry_date)! < 30 && (
+          {(leave_metrics.cl_carry_forward ?? 0) > 0 && daysUntilCarryForwardExpiry(leave_metrics.cf_expiry_date) !== null && daysUntilCarryForwardExpiry(leave_metrics.cf_expiry_date)! < 30 && (
             <div className="md:col-span-2 bg-orange-500/10 border border-orange-500/30 rounded-lg p-3 flex items-start gap-2">
               <AlertTriangle className="w-4 h-4 text-orange-400 flex-shrink-0 mt-0.5" />
               <p className="text-xs text-orange-300">
@@ -251,7 +251,7 @@ export default function DashboardPage() {
       )}
 
       {/* Team Lead Dashboard: Pending Approvals & Team Status */}
-      {user?.role === "Team Lead" && (
+      {user?.role === "Team Lead" && data && (
         <div className="space-y-4 mb-6">
           {/* Pending Approvals Section */}
           <div className="bg-gradient-to-br from-blue-900/20 to-cyan-900/20 rounded-2xl p-6 border border-blue-500/30">
@@ -269,7 +269,7 @@ export default function DashboardPage() {
                 View All <ChevronRight className="w-3 h-3" />
               </Link>
             </div>
-            {data?.widgets?.pending_approvals && data.widgets.pending_approvals.length > 0 ? (
+            {data?.widgets?.pending_approvals && Array.isArray(data.widgets.pending_approvals) && data.widgets.pending_approvals.length > 0 ? (
               <div className="space-y-2">
                 {data.widgets.pending_approvals.slice(0, 3).map((approval: any) => (
                   <div key={approval.id} className="bg-white/5 rounded-lg p-3 flex items-center justify-between hover:bg-white/10 transition-colors">
@@ -327,10 +327,10 @@ export default function DashboardPage() {
       )}
 
       {/* Super Admin Dashboard: System Health & Alerts */}
-      {user?.role === "Super Admin" && (
+      {user?.role === "Super Admin" && data && (
         <div className="space-y-4 mb-6">
           {/* Critical Alerts Banner */}
-          {data?.widgets?.critical_alerts && data.widgets.critical_alerts.length > 0 && (
+          {data?.widgets?.critical_alerts && Array.isArray(data.widgets.critical_alerts) && data.widgets.critical_alerts.length > 0 && (
             <div className="bg-gradient-to-br from-red-900/30 to-rose-900/30 rounded-2xl p-4 border border-red-500/40">
               <div className="flex items-start gap-3">
                 <ShieldAlert className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
@@ -393,7 +393,7 @@ export default function DashboardPage() {
                 <div key={idx} className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 rounded-lg p-4 border border-white/10">
                   <p className="text-xs text-slate-400 font-medium mb-2">{metric.label}</p>
                   <div className="flex items-end justify-between">
-                    <p className="text-2xl font-bold text-white animate-countUp">{metric.value}</p>
+                    <p className="text-2xl font-bold text-white animate-countUp">{Number.isNaN(metric.value) ? 0 : metric.value}</p>
                     <div className={`flex items-center gap-1 text-xs font-semibold ${metric.direction === 'up' ? 'text-emerald-400' : 'text-red-400'}`}>
                       {metric.direction === 'up' ? (
                         <TrendingUp className="w-4 h-4 trend-arrow" />
@@ -419,7 +419,7 @@ export default function DashboardPage() {
                 View All <ChevronRight className="w-3 h-3" />
               </Link>
             </div>
-            {data?.widgets?.recent_audit_logs && data.widgets.recent_audit_logs.length > 0 ? (
+            {data?.widgets?.recent_audit_logs && Array.isArray(data.widgets.recent_audit_logs) && data.widgets.recent_audit_logs.length > 0 ? (
               <div className="space-y-2 max-h-64 overflow-y-auto">
                 {data.widgets.recent_audit_logs.slice(0, 8).map((log: any, idx: number) => (
                   <div key={idx} className="bg-white/5 rounded-lg p-3 border border-white/10 hover:bg-white/10 transition-colors flex items-start gap-3">
@@ -427,7 +427,7 @@ export default function DashboardPage() {
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-semibold text-white truncate">{log.action || 'System Action'}</p>
                       <p className="text-xs text-slate-400 mt-0.5">{log.description || log.user_name}</p>
-                      <p className="text-[10px] text-slate-500 mt-1">{format(parseISO(log.created_at), "MMM d, h:mm a")}</p>
+                      <p className="text-[10px] text-slate-500 mt-1">{log.created_at ? format(parseISO(log.created_at), "MMM d, h:mm a") : 'Unknown time'}</p>
                     </div>
                   </div>
                 ))}
