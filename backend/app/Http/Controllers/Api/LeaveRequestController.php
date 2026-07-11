@@ -638,13 +638,18 @@ class LeaveRequestController extends Controller
                     $paidSL   = $leaveRequest->paid_sick_leave   ?? 0;
 
                     if ($balance && ($paidCL > 0 || $paidSL > 0)) {
+                        $paidCLCarryForward = 0;
+                        $paidCLCurrentYear = 0;
+
                         if ($paidCL > 0) {
                             $carryForward = $balance->cl_carry_forward ?? 0;
                             if ($carryForward > 0) {
-                                $fromCF = min($paidCL, $carryForward);
-                                $balance->cl_carry_forward     -= $fromCF;
-                                $balance->casual_leave_balance -= max(0, $paidCL - $fromCF);
+                                $paidCLCarryForward = min($paidCL, $carryForward);
+                                $paidCLCurrentYear = max(0, $paidCL - $paidCLCarryForward);
+                                $balance->cl_carry_forward     -= $paidCLCarryForward;
+                                $balance->casual_leave_balance -= $paidCLCurrentYear;
                             } else {
+                                $paidCLCurrentYear = $paidCL;
                                 $balance->casual_leave_balance -= $paidCL;
                             }
                         }
@@ -653,6 +658,13 @@ class LeaveRequestController extends Controller
                         }
                         $balance->total_leaves_taken += ($leaveRequest->actual_leave_days ?? $leaveRequest->days);
                         $balance->save();
+
+                        // Track the split for proper reversal on deletion
+                        if (Schema::hasColumn('leave_requests', 'paid_cl_carry_forward')) {
+                            $leaveRequest->paid_cl_carry_forward = $paidCLCarryForward;
+                            $leaveRequest->paid_cl_current_year = $paidCLCurrentYear;
+                            $leaveRequest->save();
+                        }
                     }
 
                     $this->notifyEmployee($leaveRequest, $user, 'approved');

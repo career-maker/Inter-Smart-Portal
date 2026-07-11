@@ -83,19 +83,38 @@ class ApprovedLeaveManagementController extends Controller
             $balance = LeaveBalance::where('user_id', $leave->user_id)->first();
 
             if ($balance) {
-                // Determine which type of leave to revert
-                $leaveTypeName = $leave->leaveType?->name ?? '';
+                // Get the exact paid amounts that were deducted
+                $paidCL = $leave->paid_casual_leave ?? 0;
+                $paidSL = $leave->paid_sick_leave ?? 0;
 
-                if (stripos($leaveTypeName, 'sick') !== false) {
-                    // Revert sick leave
-                    $balance->sick_leave_balance += $leave->days_taken ?? 1;
-                } elseif (stripos($leaveTypeName, 'casual') !== false) {
-                    // Revert casual leave
-                    $balance->casual_leave_balance += $leave->days_taken ?? 1;
+                // Restore casual leave with proper split handling
+                if ($paidCL > 0) {
+                    // Use the tracked split if available, otherwise estimate
+                    $paidCLCarryForward = $leave->paid_cl_carry_forward ?? 0;
+                    $paidCLCurrentYear = $leave->paid_cl_current_year ?? 0;
+
+                    // Fallback: if not tracked, assume it came from current year
+                    if ($paidCLCarryForward === 0 && $paidCLCurrentYear === 0) {
+                        $paidCLCurrentYear = $paidCL;
+                    }
+
+                    // Restore both components
+                    if ($paidCLCarryForward > 0) {
+                        $balance->cl_carry_forward += $paidCLCarryForward;
+                    }
+                    if ($paidCLCurrentYear > 0) {
+                        $balance->casual_leave_balance += $paidCLCurrentYear;
+                    }
+                }
+
+                // Restore sick leave
+                if ($paidSL > 0) {
+                    $balance->sick_leave_balance += $paidSL;
                 }
 
                 // Revert total leaves taken
-                $balance->total_leaves_taken -= $leave->days_taken ?? 1;
+                $actualDays = $leave->actual_leave_days ?? $leave->days_taken ?? 0;
+                $balance->total_leaves_taken -= $actualDays;
                 $balance->save();
             }
 
