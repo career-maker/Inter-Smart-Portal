@@ -604,73 +604,81 @@ class LeaveRequestController extends Controller
                 $this->notifyEmployee($leaveRequest, $user, 'rejected');
 
             } elseif ($status === 'Approved') {
-                $isTL    = $user->hasRole('Team Lead') && !$user->hasRole('Super Admin') && !$user->hasRole('HR');
-                $isAdmin = $user->hasRole('Super Admin') || $user->hasRole('HR');
+                try {
+                    $isTL    = $user->hasRole('Team Lead') && !$user->hasRole('Super Admin') && !$user->hasRole('HR');
+                    $isAdmin = $user->hasRole('Super Admin') || $user->hasRole('HR');
 
-                if ($isTL) {
-                    $leaveRequest->tl_status = 'Approved';
-                    // Single-day: TL approval alone is sufficient
-                    if ($isSingleDay || $leaveRequest->admin_status === 'Not Required') {
-                        $leaveRequest->status       = 'Approved';
-                        $leaveRequest->approved_by  = $user->id;
-                        if ($isSingleDay) {
-                            $leaveRequest->admin_status = 'Not Required';
-                        }
-                    }
-                } elseif ($isAdmin) {
-                    $leaveRequest->admin_status = 'Approved';
-                    $leaveRequest->approved_by  = $user->id;
-                    // Single-day: Admin approval alone is sufficient
-                    if ($isSingleDay || in_array($leaveRequest->tl_status, ['Approved', 'Not Required'])) {
-                        $leaveRequest->status = 'Approved';
-                        if ($isSingleDay) {
-                            $leaveRequest->tl_status = 'Not Required';
-                        }
-                    }
-                }
-                $leaveRequest->save();
-
-                if ($leaveRequest->status === 'Approved') {
-                    // Deduct leave balance now that the leave is fully approved.
-                    // Carry-forward CL is consumed first (per policy section 9).
-                    $balance  = LeaveBalance::where('user_id', $leaveRequest->user_id)->first();
-                    $paidCL   = $leaveRequest->paid_casual_leave ?? 0;
-                    $paidSL   = $leaveRequest->paid_sick_leave   ?? 0;
-
-                    if ($balance && ($paidCL > 0 || $paidSL > 0)) {
-                        $paidCLCarryForward = 0;
-                        $paidCLCurrentYear = 0;
-                        $daysToDeduct = max(0, floatval($leaveRequest->actual_leave_days ?? $leaveRequest->days ?? 0));
-
-                        if ($paidCL > 0) {
-                            $carryForward = floatval($balance->cl_carry_forward ?? 0);
-                            if ($carryForward > 0) {
-                                $paidCLCarryForward = min($paidCL, $carryForward);
-                                $paidCLCurrentYear = max(0, $paidCL - $paidCLCarryForward);
-                                $balance->cl_carry_forward     -= $paidCLCarryForward;
-                                $balance->casual_leave_balance -= $paidCLCurrentYear;
-                            } else {
-                                $paidCLCurrentYear = $paidCL;
-                                $balance->casual_leave_balance -= $paidCL;
+                    if ($isTL) {
+                        $leaveRequest->tl_status = 'Approved';
+                        // Single-day: TL approval alone is sufficient
+                        if ($isSingleDay || $leaveRequest->admin_status === 'Not Required') {
+                            $leaveRequest->status       = 'Approved';
+                            $leaveRequest->approved_by  = $user->id;
+                            if ($isSingleDay) {
+                                $leaveRequest->admin_status = 'Not Required';
                             }
                         }
-                        if ($paidSL > 0) {
-                            $balance->sick_leave_balance -= $paidSL;
-                        }
-                        if ($daysToDeduct > 0) {
-                            $balance->total_leaves_taken += $daysToDeduct;
-                        }
-                        $balance->save();
-
-                        // Track the split for proper reversal on deletion
-                        if (Schema::hasColumn('leave_requests', 'paid_cl_carry_forward')) {
-                            $leaveRequest->paid_cl_carry_forward = $paidCLCarryForward;
-                            $leaveRequest->paid_cl_current_year = $paidCLCurrentYear;
-                            $leaveRequest->save();
+                    } elseif ($isAdmin) {
+                        $leaveRequest->admin_status = 'Approved';
+                        $leaveRequest->approved_by  = $user->id;
+                        // Single-day: Admin approval alone is sufficient
+                        if ($isSingleDay || in_array($leaveRequest->tl_status, ['Approved', 'Not Required'])) {
+                            $leaveRequest->status = 'Approved';
+                            if ($isSingleDay) {
+                                $leaveRequest->tl_status = 'Not Required';
+                            }
                         }
                     }
+                    $leaveRequest->save();
+                } catch (\Exception $e) {
+                    throw new \Exception("Failed to update approval status: " . $e->getMessage());
+                }
 
-                    $this->notifyEmployee($leaveRequest, $user, 'approved');
+                if ($leaveRequest->status === 'Approved') {
+                    try {
+                        // Deduct leave balance now that the leave is fully approved.
+                        // Carry-forward CL is consumed first (per policy section 9).
+                        $balance  = LeaveBalance::where('user_id', $leaveRequest->user_id)->first();
+                        $paidCL   = floatval($leaveRequest->paid_casual_leave ?? 0);
+                        $paidSL   = floatval($leaveRequest->paid_sick_leave ?? 0);
+
+                        if ($balance && ($paidCL > 0 || $paidSL > 0)) {
+                            $paidCLCarryForward = 0;
+                            $paidCLCurrentYear = 0;
+                            $daysToDeduct = max(0, floatval($leaveRequest->actual_leave_days ?? $leaveRequest->days ?? 0));
+
+                            if ($paidCL > 0) {
+                                $carryForward = floatval($balance->cl_carry_forward ?? 0);
+                                if ($carryForward > 0) {
+                                    $paidCLCarryForward = min($paidCL, $carryForward);
+                                    $paidCLCurrentYear = max(0, $paidCL - $paidCLCarryForward);
+                                    $balance->cl_carry_forward     -= $paidCLCarryForward;
+                                    $balance->casual_leave_balance -= $paidCLCurrentYear;
+                                } else {
+                                    $paidCLCurrentYear = $paidCL;
+                                    $balance->casual_leave_balance -= $paidCL;
+                                }
+                            }
+                            if ($paidSL > 0) {
+                                $balance->sick_leave_balance -= $paidSL;
+                            }
+                            if ($daysToDeduct > 0) {
+                                $balance->total_leaves_taken = ($balance->total_leaves_taken ?? 0) + $daysToDeduct;
+                            }
+                            $balance->save();
+
+                            // Track the split for proper reversal on deletion
+                            if (Schema::hasColumn('leave_requests', 'paid_cl_carry_forward')) {
+                                $leaveRequest->paid_cl_carry_forward = $paidCLCarryForward;
+                                $leaveRequest->paid_cl_current_year = $paidCLCurrentYear;
+                                $leaveRequest->save();
+                            }
+                        }
+
+                        $this->notifyEmployee($leaveRequest, $user, 'approved');
+                    } catch (\Exception $e) {
+                        throw new \Exception("Failed to deduct leave balance: " . $e->getMessage());
+                    }
                 }
             }
 
