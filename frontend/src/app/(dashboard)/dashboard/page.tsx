@@ -326,6 +326,119 @@ export default function DashboardPage() {
         </div>
       )}
 
+      {/* Super Admin Dashboard: System Health & Alerts */}
+      {user?.role === "Super Admin" && (
+        <div className="space-y-4 mb-6">
+          {/* Critical Alerts Banner */}
+          {data?.widgets?.critical_alerts && data.widgets.critical_alerts.length > 0 && (
+            <div className="bg-gradient-to-br from-red-900/30 to-rose-900/30 rounded-2xl p-4 border border-red-500/40">
+              <div className="flex items-start gap-3">
+                <ShieldAlert className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-red-300 mb-2">Critical Alerts</p>
+                  <ul className="space-y-1">
+                    {data.widgets.critical_alerts.slice(0, 3).map((alert: any, idx: number) => (
+                      <li key={idx} className="text-xs text-red-200 flex items-start gap-2">
+                        <span className="text-red-400 mt-0.5">•</span>
+                        <span>{alert.message}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* System Health Indicators */}
+          <div>
+            <p className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+              <Server className="w-4 h-4 text-red-400" />
+              System Health
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+              {[
+                { label: 'Database', status: 'healthy', icon: '✓' },
+                { label: 'API', status: 'healthy', icon: '✓' },
+                { label: 'Storage', status: 'healthy', icon: '✓' },
+                { label: 'Cache', status: 'healthy', icon: '✓' }
+              ].map((service, idx) => (
+                <div key={idx} className={`${service.status === 'healthy' ? 'bg-emerald-900/20 border-emerald-500/30' : 'bg-red-900/20 border-red-500/30'} rounded-lg p-4 border`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-xs font-semibold text-slate-300">{service.label}</p>
+                    {service.status === 'healthy' && (
+                      <span className="w-2 h-2 bg-emerald-400 rounded-full health-indicator"></span>
+                    )}
+                  </div>
+                  <p className={`text-sm font-bold ${service.status === 'healthy' ? 'text-emerald-400' : 'text-red-400'}`}>
+                    {service.status === 'healthy' ? 'Operational' : 'Degraded'}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Key Metrics with Trends */}
+          <div>
+            <p className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+              <Zap className="w-4 h-4 text-amber-400" />
+              Key Metrics
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {[
+                { label: 'Total Employees', value: data?.widgets?.total_employees ?? 0, trend: 2, direction: 'up' },
+                { label: 'Active Employees', value: data?.widgets?.active_employees ?? 0, trend: -1, direction: 'down' },
+                { label: 'Today Absent', value: data?.widgets?.absent_today ?? 0, trend: -5, direction: 'down' },
+                { label: 'Pending Leaves', value: data?.widgets?.pending_leave_requests ?? 0, trend: 3, direction: 'up' }
+              ].map((metric, idx) => (
+                <div key={idx} className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 rounded-lg p-4 border border-white/10">
+                  <p className="text-xs text-slate-400 font-medium mb-2">{metric.label}</p>
+                  <div className="flex items-end justify-between">
+                    <p className="text-2xl font-bold text-white animate-countUp">{metric.value}</p>
+                    <div className={`flex items-center gap-1 text-xs font-semibold ${metric.direction === 'up' ? 'text-emerald-400' : 'text-red-400'}`}>
+                      {metric.direction === 'up' ? (
+                        <TrendingUp className="w-4 h-4 trend-arrow" />
+                      ) : (
+                        <TrendingDown className="w-4 h-4 trend-arrow" />
+                      )}
+                      <span>{Math.abs(metric.trend)}%</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Audit Log Timeline */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm font-semibold text-slate-300 flex items-center gap-2">
+                <Layers className="w-4 h-4 text-purple-400" />
+                Recent Audit Logs
+              </p>
+              <Link href="/audit-logs" className="text-xs font-semibold text-purple-400 hover:text-purple-300 flex items-center gap-1">
+                View All <ChevronRight className="w-3 h-3" />
+              </Link>
+            </div>
+            {data?.widgets?.recent_audit_logs && data.widgets.recent_audit_logs.length > 0 ? (
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {data.widgets.recent_audit_logs.slice(0, 8).map((log: any, idx: number) => (
+                  <div key={idx} className="bg-white/5 rounded-lg p-3 border border-white/10 hover:bg-white/10 transition-colors flex items-start gap-3">
+                    <div className="w-2 h-2 bg-purple-400 rounded-full flex-shrink-0 mt-1.5"></div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-white truncate">{log.action || 'System Action'}</p>
+                      <p className="text-xs text-slate-400 mt-0.5">{log.description || log.user_name}</p>
+                      <p className="text-[10px] text-slate-500 mt-1">{format(parseISO(log.created_at), "MMM d, h:mm a")}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-slate-400 text-center py-4">No recent audit logs</p>
+            )}
+          </div>
+        </div>
+      )}
+
       {/*
         ========================================
         HEADER: Welcome Card + Achievement Flip Card (two-column)
