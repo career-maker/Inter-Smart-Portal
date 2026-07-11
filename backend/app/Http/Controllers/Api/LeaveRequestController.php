@@ -632,6 +632,33 @@ class LeaveRequestController extends Controller
                 $leaveRequest->save();
 
                 if ($leaveRequest->status === 'Approved') {
+                    // Deduct leave balance when fully approved
+                    try {
+                        $balance = LeaveBalance::where('user_id', $leaveRequest->user_id)->first();
+                        if ($balance) {
+                            $paidCL = floatval($leaveRequest->paid_casual_leave ?? 0);
+                            $paidSL = floatval($leaveRequest->paid_sick_leave ?? 0);
+
+                            if ($paidCL > 0) {
+                                // Consume carry-forward first, then current year
+                                $carryForward = floatval($balance->cl_carry_forward ?? 0);
+                                if ($carryForward >= $paidCL) {
+                                    $balance->cl_carry_forward -= $paidCL;
+                                } else {
+                                    $balance->cl_carry_forward = 0;
+                                    $balance->casual_leave_balance -= ($paidCL - $carryForward);
+                                }
+                            }
+                            if ($paidSL > 0) {
+                                $balance->sick_leave_balance -= $paidSL;
+                            }
+                            $balance->total_leaves_taken = ($balance->total_leaves_taken ?? 0) + ($leaveRequest->days_taken ?? $leaveRequest->days ?? 0);
+                            $balance->save();
+                        }
+                    } catch (\Exception $balErr) {
+                        \Log::warning('Balance update failed: ' . $balErr->getMessage());
+                    }
+
                     // Try to notify but don't fail if it fails
                     try {
                         $this->notifyEmployee($leaveRequest, $user, 'approved');
