@@ -89,15 +89,36 @@ class DashboardController extends Controller
 
         // 2. Leave Metrics
         $currentYear = Carbon::now()->year;
-        
+
         $balance = LeaveBalance::where('user_id', $user->id)->first();
-            
-        $casualLeaveBalance = $balance ? ($balance->casual_leave_balance + ($balance->cl_carry_forward ?? 0)) : 0;
+
+        $casualLeaveTaken = LeaveRequest::where('user_id', $user->id)
+            ->where('status', 'Approved')
+            ->whereHas('leaveType', function ($q) {
+                $q->where('name', 'like', '%Casual Leave%');
+            })
+            ->sum('days_taken') ?? 0;
+
+        $sickLeaveTaken = LeaveRequest::where('user_id', $user->id)
+            ->where('status', 'Approved')
+            ->whereHas('leaveType', function ($q) {
+                $q->where('name', 'like', '%Sick Leave%');
+            })
+            ->sum('days_taken') ?? 0;
+
+        $casualLeaveBalance = $balance ? $balance->casual_leave_balance : 0;
         $sickLeaveBalance = $balance ? $balance->sick_leave_balance : 0;
+        $clCarryForward = $balance ? ($balance->cl_carry_forward ?? 0) : 0;
+
+        // Calculate carry-forward expiry date (Dec 31 of current year if CF exists)
+        $cfExpiryDate = null;
+        if ($clCarryForward > 0 && $balance && $balance->cl_carry_forward_year) {
+            $cfExpiryDate = Carbon::create($balance->cl_carry_forward_year + 1, 12, 31)->toDateString();
+        }
 
         $totalLeavesTaken = LeaveRequest::where('user_id', $user->id)
             ->where('status', 'Approved')
-            ->count(); // Assuming total historically for simplicity, or we could filter by year
+            ->sum('days_taken') ?? 0;
 
         $pendingLeaves = LeaveRequest::where('user_id', $user->id)
             ->where('status', 'Pending')
@@ -117,6 +138,12 @@ class DashboardController extends Controller
         });
 
         $leaveMetrics = [
+            'cl_total' => 12 + $clCarryForward,
+            'cl_used' => $casualLeaveTaken,
+            'sl_total' => 12,
+            'sl_used' => $sickLeaveTaken,
+            'cl_carry_forward' => $clCarryForward,
+            'cf_expiry_date' => $cfExpiryDate,
             'casual_leave_balance' => $casualLeaveBalance,
             'sick_leave_balance' => $sickLeaveBalance,
             'total_leaves_taken' => $totalLeavesTaken,
@@ -350,6 +377,74 @@ class DashboardController extends Controller
                     ->where('tl_status', 'Pending')
                     ->where('status', 'Pending')->count();
                 $pendingGlobalRequests = $pendingLeaves + $pendingWfh;
+
+                // Fetch pending approvals for Team Lead
+                $pendingApprovalsData = LeaveRequest::with('user:id,first_name,last_name', 'leaveType:id,name')
+                    ->whereHas('user', fn($q) => $q->where('team_id', $teamId))
+                    ->where('tl_status', 'Pending')
+                    ->where('status', 'Pending')
+                    ->orderBy('created_at', 'desc')
+                    ->take(5)
+                    ->get()
+                    ->map(function($req) {
+                        return [
+                            'id' => $req->id,
+                            'employee_name' => $req->user->first_name . ' ' . $req->user->last_name,
+                            'leave_type' => $req->leaveType->name ?? 'Leave',
+                            'start_date' => $req->start_date,
+                            'end_date' => $req->end_date,
+                            'days' => (int)$req->days_taken
+                        ];
+                    });
+
+                // Fetch team members for Team Lead
+                $teamMembers = User::where('team_id', $teamId)
+                    ->where('status', 'Active')
+                    ->get(['id', 'first_name', 'last_name'])
+                    ->map(function($member) use ($todayStr) {
+                        // Determine status: Present, On Leave, or WFH
+                        $attendance = \App\Models\Attendance::where('user_id', $member->id)
+                            ->where('date', $todayStr)
+                            ->first();
+
+                        $onLeaveRequest = LeaveRequest::where('user_id', $member->id)
+                            ->where('status', 'Approved')
+                            ->where('start_date', '<=', $todayStr)
+                            ->where('end_date', '>=', $todayStr)
+                            ->whereHas('leaveType', function ($q) {
+                                $q->where('name', 'not like', '%Work From Home%')
+                                  ->where('name', 'not like', '%WFH%');
+                            })
+                            ->exists();
+
+                        $wfhRequest = LeaveRequest::where('user_id', $member->id)
+                            ->where('status', 'Approved')
+                            ->where('start_date', '<=', $todayStr)
+                            ->where('end_date', '>=', $todayStr)
+                            ->whereHas('leaveType', function ($q) {
+                                $q->where('name', 'like', '%Work From Home%')
+                                  ->orWhere('name', 'like', '%WFH%');
+                            })
+                            ->exists();
+
+                        $status = 'Not Checked In';
+                        if ($onLeaveRequest) {
+                            $status = 'On Leave';
+                        } elseif ($wfhRequest) {
+                            $status = 'WFH';
+                        } elseif ($attendance && $attendance->check_in_time) {
+                            $status = 'Present';
+                        }
+
+                        return [
+                            'id' => $member->id,
+                            'name' => $member->first_name . ' ' . $member->last_name,
+                            'status' => $status
+                        ];
+                    });
+
+                $responseData['widgets']['pending_approvals'] = $pendingApprovalsData;
+                $responseData['widgets']['team_members'] = $teamMembers;
             }
             
             // Global Activity Feed
@@ -395,6 +490,46 @@ class DashboardController extends Controller
                 ->sortByDesc('date')
                 ->values();
                 
+            // For Super Admin, add additional widgets
+            if ($user->hasRole('Super Admin')) {
+                // Critical Alerts
+                $criticalAlerts = [];
+                $absenceRate = ($totalEmployees > 0) ? round((($totalEmployees - $presentToday) / $totalEmployees) * 100) : 0;
+                if ($absenceRate > 30) {
+                    $criticalAlerts[] = [
+                        'id' => 'absence_high',
+                        'message' => "High absence rate: {$absenceRate}% of employees absent today"
+                    ];
+                }
+                if ($pendingGlobalRequests > 10) {
+                    $criticalAlerts[] = [
+                        'id' => 'pending_high',
+                        'message' => "{$pendingGlobalRequests} leave/WFH requests pending approval"
+                    ];
+                }
+
+                // Audit Logs
+                $auditLogs = \App\Models\AuditLog::latest()
+                    ->take(10)
+                    ->get(['id', 'user_id', 'action', 'description', 'created_at'])
+                    ->map(function($log) {
+                        return [
+                            'id' => $log->id,
+                            'action' => $log->action,
+                            'description' => $log->description,
+                            'user_name' => $log->user ? $log->user->first_name . ' ' . $log->user->last_name : 'System',
+                            'created_at' => $log->created_at
+                        ];
+                    });
+
+                $responseData['widgets']['critical_alerts'] = $criticalAlerts;
+                $responseData['widgets']['recent_audit_logs'] = $auditLogs;
+                $responseData['widgets']['total_employees'] = $totalEmployees;
+                $responseData['widgets']['active_employees'] = $presentToday;
+                $responseData['widgets']['absent_today'] = $totalEmployees - $presentToday;
+                $responseData['widgets']['pending_leave_requests'] = $pendingGlobalRequests;
+            }
+
             $responseData['admin_data'] = [
                 'kpis' => [
                     'total_employees' => $totalEmployees,
