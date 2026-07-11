@@ -70,9 +70,14 @@ export function NotificationDropdown() {
     }
   };
 
-  const handleNotificationClick = (notification: any) => {
+  const handleNotificationClick = async (notification: any) => {
     if (!notification.read_at) {
-      api.post(`/notifications/mark-as-read/${notification.id}`).then(() => fetchUnread());
+      try {
+        await api.post(`/notifications/mark-as-read/${notification.id}`);
+        await fetchUnread();
+      } catch (err) {
+        console.error(err);
+      }
     }
     router.push(resolveNotificationUrl(notification));
   };
