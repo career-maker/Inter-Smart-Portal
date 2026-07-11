@@ -203,53 +203,6 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Employee Dashboard: Leave Balance Progress */}
-      {user?.role === "Employee" && leave_metrics && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gradient-to-br from-slate-800/50 to-slate-900/50 rounded-2xl p-6 border border-white/5">
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-sm font-semibold text-amber-300">Casual Leave</p>
-              <span className="text-xs text-slate-400">{Math.max(0, (leave_metrics.cl_total ?? 0) - (leave_metrics.cl_used ?? 0))} / {leave_metrics.cl_total ?? 12}</span>
-            </div>
-            <div className="w-full h-3 bg-slate-700 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-amber-500 to-amber-400 progress-bar-animated rounded-full"
-                style={{
-                  width: `${getLeaveBalancePercentage(leave_metrics.cl_used ?? 0, leave_metrics.cl_total ?? 12)}%`,
-                  '--progress-width': `${getLeaveBalancePercentage(leave_metrics.cl_used ?? 0, leave_metrics.cl_total ?? 12)}%`
-                } as any}
-              ></div>
-            </div>
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-sm font-semibold text-blue-300">Sick Leave</p>
-              <span className="text-xs text-slate-400">{Math.max(0, (leave_metrics.sl_total ?? 12) - (leave_metrics.sl_used ?? 0))} / {leave_metrics.sl_total ?? 12}</span>
-            </div>
-            <div className="w-full h-3 bg-slate-700 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-blue-500 to-blue-400 progress-bar-animated rounded-full"
-                style={{
-                  width: `${getLeaveBalancePercentage(leave_metrics.sl_used ?? 0, leave_metrics.sl_total ?? 12)}%`,
-                  '--progress-width': `${getLeaveBalancePercentage(leave_metrics.sl_used ?? 0, leave_metrics.sl_total ?? 12)}%`
-                } as any}
-              ></div>
-            </div>
-          </div>
-
-          {/* Carry-forward expiry warning */}
-          {(leave_metrics.cl_carry_forward ?? 0) > 0 && daysUntilCarryForwardExpiry(leave_metrics.cf_expiry_date) !== null && daysUntilCarryForwardExpiry(leave_metrics.cf_expiry_date)! < 30 && (
-            <div className="md:col-span-2 bg-orange-500/10 border border-orange-500/30 rounded-lg p-3 flex items-start gap-2">
-              <AlertTriangle className="w-4 h-4 text-orange-400 flex-shrink-0 mt-0.5" />
-              <p className="text-xs text-orange-300">
-                <span className="font-semibold">{leave_metrics.cl_carry_forward} carry-forward days</span> expire in {daysUntilCarryForwardExpiry(leave_metrics.cf_expiry_date)} days
-              </p>
-            </div>
-          )}
-        </div>
-      )}
-
       {/* Team Lead Dashboard: Pending Approvals & Team Status */}
       {user?.role === "Team Lead" && data && (
         <div className="space-y-4 mb-6">
