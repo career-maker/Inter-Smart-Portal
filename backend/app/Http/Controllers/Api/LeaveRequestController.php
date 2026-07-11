@@ -558,6 +558,9 @@ class LeaveRequestController extends Controller
 
     public function updateStatus(UpdateLeaveStatusRequest $request, LeaveRequest $leaveRequest)
     {
+        // Load relations to ensure they're available
+        $leaveRequest->load(['user', 'leaveType']);
+
         $user      = $request->user();
         $data      = $request->validated();
         $status    = $data['status'];
@@ -635,29 +638,40 @@ class LeaveRequestController extends Controller
                     // Deduct leave balance when fully approved
                     try {
                         $balance = LeaveBalance::where('user_id', $leaveRequest->user_id)->first();
-                        if ($balance) {
-                            $leaveTypeName = $leaveRequest->leaveType?->name ?? '';
-                            $daysToDeduct = floatval($leaveRequest->days_taken ?? $leaveRequest->days ?? 0);
+                        $leaveTypeName = $leaveRequest->leaveType?->name ?? 'Unknown';
+                        $daysToDeduct = floatval($leaveRequest->days_taken ?? $leaveRequest->days ?? 0);
 
+                        \Log::info("Balance deduction: user={$leaveRequest->user_id}, type={$leaveTypeName}, days={$daysToDeduct}, is_unpaid={$leaveRequest->is_unpaid}");
+
+                        if ($balance) {
                             if (stripos($leaveTypeName, 'Casual') !== false) {
                                 // Casual Leave: consume carry-forward first, then current year
                                 $carryForward = floatval($balance->cl_carry_forward ?? 0);
+                                \Log::info("Before CL deduction: balance={$balance->casual_leave_balance}, cf={$carryForward}");
+
                                 if ($carryForward >= $daysToDeduct) {
                                     $balance->cl_carry_forward -= $daysToDeduct;
                                 } else {
                                     $balance->cl_carry_forward = 0;
                                     $balance->casual_leave_balance -= ($daysToDeduct - $carryForward);
                                 }
+
+                                \Log::info("After CL deduction: balance={$balance->casual_leave_balance}, cf={$balance->cl_carry_forward}");
                             } elseif (stripos($leaveTypeName, 'Sick') !== false) {
                                 // Sick Leave
+                                \Log::info("Before SL deduction: balance={$balance->sick_leave_balance}");
                                 $balance->sick_leave_balance -= $daysToDeduct;
+                                \Log::info("After SL deduction: balance={$balance->sick_leave_balance}");
                             }
 
                             $balance->total_leaves_taken = ($balance->total_leaves_taken ?? 0) + $daysToDeduct;
                             $balance->save();
+                            \Log::info("Balance saved successfully");
+                        } else {
+                            \Log::warning("Balance record not found for user {$leaveRequest->user_id}");
                         }
                     } catch (\Exception $balErr) {
-                        \Log::warning('Balance update failed: ' . $balErr->getMessage());
+                        \Log::error('Balance update failed: ' . $balErr->getMessage(), ['trace' => $balErr->getTraceAsString()]);
                     }
 
                     // Try to notify but don't fail if it fails
