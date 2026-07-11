@@ -92,23 +92,17 @@ class DashboardController extends Controller
 
         $balance = LeaveBalance::where('user_id', $user->id)->first();
 
-        $casualLeaveTaken = LeaveRequest::where('user_id', $user->id)
-            ->where('status', 'Approved')
-            ->whereHas('leaveType', function ($q) {
-                $q->where('name', 'like', '%Casual Leave%');
-            })
-            ->sum('days') ?? 0;
-
-        $sickLeaveTaken = LeaveRequest::where('user_id', $user->id)
-            ->where('status', 'Approved')
-            ->whereHas('leaveType', function ($q) {
-                $q->where('name', 'like', '%Sick Leave%');
-            })
-            ->sum('days') ?? 0;
-
         $casualLeaveBalance = $balance ? $balance->casual_leave_balance : 0;
         $sickLeaveBalance = $balance ? $balance->sick_leave_balance : 0;
         $clCarryForward = $balance ? ($balance->cl_carry_forward ?? 0) : 0;
+
+        // Calculate total leaves available
+        $clTotal = 12 + $clCarryForward;
+        $slTotal = 12;
+
+        // Calculate used leaves from remaining balance
+        $casualLeaveTaken = max(0, $clTotal - $casualLeaveBalance);
+        $sickLeaveTaken = max(0, $slTotal - $sickLeaveBalance);
 
         // Calculate carry-forward expiry date (Dec 31 of current year if CF exists)
         $cfExpiryDate = null;
@@ -138,9 +132,9 @@ class DashboardController extends Controller
         });
 
         $leaveMetrics = [
-            'cl_total' => 12 + $clCarryForward,
+            'cl_total' => $clTotal,
             'cl_used' => $casualLeaveTaken,
-            'sl_total' => 12,
+            'sl_total' => $slTotal,
             'sl_used' => $sickLeaveTaken,
             'cl_carry_forward' => $clCarryForward,
             'cf_expiry_date' => $cfExpiryDate,
