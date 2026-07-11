@@ -636,23 +636,24 @@ class LeaveRequestController extends Controller
                     try {
                         $balance = LeaveBalance::where('user_id', $leaveRequest->user_id)->first();
                         if ($balance) {
-                            $paidCL = floatval($leaveRequest->paid_casual_leave ?? 0);
-                            $paidSL = floatval($leaveRequest->paid_sick_leave ?? 0);
+                            $leaveTypeName = $leaveRequest->leaveType?->name ?? '';
+                            $daysToDeduct = floatval($leaveRequest->days_taken ?? $leaveRequest->days ?? 0);
 
-                            if ($paidCL > 0) {
-                                // Consume carry-forward first, then current year
+                            if (stripos($leaveTypeName, 'Casual') !== false) {
+                                // Casual Leave: consume carry-forward first, then current year
                                 $carryForward = floatval($balance->cl_carry_forward ?? 0);
-                                if ($carryForward >= $paidCL) {
-                                    $balance->cl_carry_forward -= $paidCL;
+                                if ($carryForward >= $daysToDeduct) {
+                                    $balance->cl_carry_forward -= $daysToDeduct;
                                 } else {
                                     $balance->cl_carry_forward = 0;
-                                    $balance->casual_leave_balance -= ($paidCL - $carryForward);
+                                    $balance->casual_leave_balance -= ($daysToDeduct - $carryForward);
                                 }
+                            } elseif (stripos($leaveTypeName, 'Sick') !== false) {
+                                // Sick Leave
+                                $balance->sick_leave_balance -= $daysToDeduct;
                             }
-                            if ($paidSL > 0) {
-                                $balance->sick_leave_balance -= $paidSL;
-                            }
-                            $balance->total_leaves_taken = ($balance->total_leaves_taken ?? 0) + ($leaveRequest->days_taken ?? $leaveRequest->days ?? 0);
+
+                            $balance->total_leaves_taken = ($balance->total_leaves_taken ?? 0) + $daysToDeduct;
                             $balance->save();
                         }
                     } catch (\Exception $balErr) {
