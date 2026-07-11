@@ -73,13 +73,21 @@ export default function ApprovalsPage() {
   const approve = async (type: "leave" | "wfh", id: number) => {
     setActionLoading(true);
     try {
+      // Optimistically remove from UI
+      if (type === "leave") {
+        setLeaveRequests(prev => prev.filter(req => req.id !== id));
+      } else {
+        setWfhRequests(prev => prev.filter(req => req.id !== id));
+      }
+
       const endpoint = type === "leave" ? `/leave-requests/${id}/status` : `/wfh-requests/${id}/status`;
       await api.post(endpoint, { status: "Approved" });
       setSuccessMessage(`${type === "leave" ? "Leave" : "WFH"} request approved successfully!`);
-      fetchRequests();
       setTimeout(() => setSuccessMessage(null), 4000);
     } catch (e: any) {
       alert(e.response?.data?.message || "Error processing request.");
+      // Refetch on error to restore correct state
+      await fetchRequests();
     } finally {
       setActionLoading(false);
     }
@@ -88,13 +96,17 @@ export default function ApprovalsPage() {
   const handleLopConversion = async (id: number, action: "confirm" | "reject") => {
     setActionLoading(true);
     try {
+      // Optimistically remove from UI
+      setLeaveRequests(prev => prev.filter(req => req.id !== id));
+
       const endpoint = `/leave-requests/${id}/${action === "confirm" ? "confirm-lop" : "reject-lop"}`;
       await api.post(endpoint);
       setSuccessMessage(`LOP conversion ${action === "confirm" ? "confirmed" : "declined"} successfully!`);
-      fetchRequests();
       setTimeout(() => setSuccessMessage(null), 4000);
     } catch (e: any) {
       alert(e.response?.data?.message || "Error processing LOP conversion.");
+      // Refetch on error to restore correct state
+      await fetchRequests();
     } finally {
       setActionLoading(false);
     }
@@ -104,21 +116,32 @@ export default function ApprovalsPage() {
     if (!rejectDialog || !rejectReason.trim()) return;
     setActionLoading(true);
     try {
+      const id = rejectDialog.id;
+      const type = rejectDialog.type;
+
+      // Optimistically remove from UI
+      if (type === "leave") {
+        setLeaveRequests(prev => prev.filter(req => req.id !== id));
+      } else {
+        setWfhRequests(prev => prev.filter(req => req.id !== id));
+      }
+
       const endpoint =
-        rejectDialog.type === "leave"
-          ? `/leave-requests/${rejectDialog.id}/status`
-          : `/wfh-requests/${rejectDialog.id}/status`;
+        type === "leave"
+          ? `/leave-requests/${id}/status`
+          : `/wfh-requests/${id}/status`;
       await api.post(endpoint, {
         status: "Rejected",
-        ...(rejectDialog.type === "leave" ? { rejection_reason: rejectReason } : { remarks: rejectReason }),
+        ...(type === "leave" ? { rejection_reason: rejectReason } : { remarks: rejectReason }),
       });
-      setSuccessMessage(`${rejectDialog.type === "leave" ? "Leave" : "WFH"} request rejected successfully!`);
+      setSuccessMessage(`${type === "leave" ? "Leave" : "WFH"} request rejected successfully!`);
       setRejectDialog(null);
       setRejectReason("");
-      fetchRequests();
       setTimeout(() => setSuccessMessage(null), 4000);
     } catch (e: any) {
       alert(e.response?.data?.message || "Error rejecting request.");
+      // Refetch on error to restore correct state
+      await fetchRequests();
     } finally {
       setActionLoading(false);
     }
@@ -170,7 +193,12 @@ export default function ApprovalsPage() {
     if (!overrideDialog || !overrideFields.remarks.trim()) return;
     setActionLoading(true);
     try {
-      await api.put(`/leave-requests/${overrideDialog.id}/override`, {
+      const id = overrideDialog.id;
+
+      // Optimistically remove from UI
+      setLeaveRequests(prev => prev.filter(req => req.id !== id));
+
+      await api.put(`/leave-requests/${id}/override`, {
         start_date: overrideFields.start_date,
         end_date: overrideFields.end_date,
         paid_casual_leave: overrideFields.paid_casual_leave,
@@ -180,10 +208,11 @@ export default function ApprovalsPage() {
       });
       setSuccessMessage("Leave request override applied and approved successfully!");
       setOverrideDialog(null);
-      fetchRequests();
       setTimeout(() => setSuccessMessage(null), 4000);
     } catch (e: any) {
       alert(e.response?.data?.message || "Error processing override.");
+      // Refetch on error to restore correct state
+      await fetchRequests();
     } finally {
       setActionLoading(false);
     }
