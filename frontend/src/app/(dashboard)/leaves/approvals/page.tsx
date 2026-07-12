@@ -73,7 +73,14 @@ export default function ApprovalsPage() {
   const [recalcLoading, setRecalcLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  useEffect(() => { fetchRequests(); }, []);
+  useEffect(() => {
+    fetchRequests();
+  }, []);
+
+  // Refetch when switching tabs or status filters
+  useEffect(() => {
+    fetchRequests();
+  }, [tab, statusFilter]);
 
   const fetchRequests = async () => {
     setIsLoading(true);
