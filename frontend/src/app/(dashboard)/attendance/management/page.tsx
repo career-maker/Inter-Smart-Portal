@@ -681,7 +681,15 @@ export default function AttendanceManagementPage() {
       {selectedEmployee && viewMode === "dateWise" && (
         <>
           {/* Header with back button and date picker */}
-          <Card className="shadow-sm border-white/10 bg-slate-800/50 backdrop-blur-sm text-white">
+          <Card className="shadow-sm border-white/10 bg-slate-800/50 backdrop-blur-sm text-white relative">
+            {isLoadingDetails && (
+              <div className="absolute inset-0 bg-black/40 rounded-lg backdrop-blur-sm flex items-center justify-center z-10">
+                <div className="flex flex-col items-center gap-3">
+                  <Loader2 className="h-10 w-10 animate-spin text-amber-400" />
+                  <p className="text-sm text-slate-300 font-medium">Loading attendance details...</p>
+                </div>
+              </div>
+            )}
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
@@ -708,7 +716,8 @@ export default function AttendanceManagementPage() {
                   type="date"
                   value={selectedDate}
                   onChange={(e) => handleDateSelection(e.target.value)}
-                  className="px-3 py-2 bg-slate-900 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-amber-400 [color-scheme:dark]"
+                  disabled={isLoadingDetails}
+                  className="px-3 py-2 bg-slate-900 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-amber-400 [color-scheme:dark] disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
             </CardContent>
@@ -762,7 +771,15 @@ export default function AttendanceManagementPage() {
       {selectedEmployee && viewMode === "monthWise" && (
         <>
           {/* Header with back button and month picker */}
-          <Card className="shadow-sm border-white/10 bg-slate-800/50 backdrop-blur-sm text-white">
+          <Card className="shadow-sm border-white/10 bg-slate-800/50 backdrop-blur-sm text-white relative">
+            {isLoadingDetails && (
+              <div className="absolute inset-0 bg-black/40 rounded-lg backdrop-blur-sm flex items-center justify-center z-10">
+                <div className="flex flex-col items-center gap-3">
+                  <Loader2 className="h-10 w-10 animate-spin text-amber-400" />
+                  <p className="text-sm text-slate-300 font-medium">Loading monthly data...</p>
+                </div>
+              </div>
+            )}
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
@@ -789,7 +806,8 @@ export default function AttendanceManagementPage() {
                   type="month"
                   value={selectedMonth}
                   onChange={(e) => handleMonthSelection(e.target.value)}
-                  className="px-3 py-2 bg-slate-900 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-amber-400 [color-scheme:dark]"
+                  disabled={isLoadingDetails}
+                  className="px-3 py-2 bg-slate-900 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-amber-400 [color-scheme:dark] disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
             </CardContent>
