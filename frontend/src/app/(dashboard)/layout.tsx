@@ -357,6 +357,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {pathname
               .split("/")
               .filter(Boolean)
+              .filter(segment => !["attendance"].includes(segment.toLowerCase()))
               .map((segment, index, array) => {
                 const href = "/" + array.slice(0, index + 1).join("/");
                 const isLast = index === array.length - 1;
