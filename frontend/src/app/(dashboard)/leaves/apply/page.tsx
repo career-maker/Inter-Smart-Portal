@@ -99,6 +99,7 @@ export default function ApplyLeavePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [leaveTypes, setLeaveTypes] = useState<any[]>([]);
   const [leaveMetrics, setLeaveMetrics] = useState<any>(null);
+  const [isLoadingBalance, setIsLoadingBalance] = useState(true);
   const [showConfirm, setShowConfirm] = useState(false);
 
   const [leaveTypeId, setLeaveTypeId] = useState("");
@@ -148,6 +149,8 @@ export default function ApplyLeavePage() {
         } : { casual_leave_balance: 0, cl_carry_forward: 0, sick_leave_balance: 0, total_leaves_taken: 0 });
       } catch {
         setLeaveMetrics({ casual_leave_balance: 0, cl_carry_forward: 0, sick_leave_balance: 0, total_leaves_taken: 0 });
+      } finally {
+        setIsLoadingBalance(false);
       }
       try {
         const reqRes = await api.get("/leave-requests");
@@ -310,7 +313,12 @@ export default function ApplyLeavePage() {
       <div className="max-w-2xl mx-auto">
 
         {/* Balance strip */}
-        {leaveMetrics && (() => {
+        {isLoadingBalance ? (
+          <div className="mb-6 bg-white/5 border border-white/10 rounded-2xl p-8 flex items-center justify-center gap-3">
+            <Loader2 className="h-6 w-6 animate-spin text-amber-400" />
+            <p className="text-slate-300 font-medium">Loading leave balance...</p>
+          </div>
+        ) : leaveMetrics && (() => {
           const typeName = selectedType?.name?.toLowerCase() || "";
           const isCasualSelected = typeName.includes("casual");
           const isSickSelected   = typeName.includes("sick");
