@@ -347,21 +347,26 @@ class DashboardController extends Controller
                 
             $pendingGlobalRequests = 0;
             if ($user->hasRole('Super Admin') || $user->hasRole('HR')) {
-                $pendingLeaves = LeaveRequest::where(function ($mainQ) {
-                    $mainQ->where(function ($subQ) {
-                        $subQ->where('admin_status', 'Pending')
-                             ->where('status', 'Pending')
-                             ->where(function ($q) {
-                                 $q->whereIn('tl_status', ['Approved', 'Not Required'])
-                                   ->orWhereColumn('start_date', 'end_date');
-                             });
-                    })->orWhere('pending_lop_conversion', true);
-                })->count();
+                try {
+                    $pendingLeaves = LeaveRequest::where(function ($mainQ) {
+                        $mainQ->where(function ($subQ) {
+                            $subQ->where('admin_status', 'Pending')
+                                 ->where('status', 'Pending')
+                                 ->where(function ($q) {
+                                     $q->whereIn('tl_status', ['Approved', 'Not Required'])
+                                       ->orWhereColumn('start_date', 'end_date');
+                                 });
+                        })->orWhere('pending_lop_conversion', true);
+                    })->count();
 
-                $pendingWfh = \App\Models\WfhRequest::where('admin_status', 'Pending')
-                    ->whereIn('tl_status', ['Approved', 'Not Required'])
-                    ->where('status', 'Pending')->count();
-                $pendingGlobalRequests = $pendingLeaves + $pendingWfh;
+                    $pendingWfh = \App\Models\WfhRequest::where('admin_status', 'Pending')
+                        ->whereIn('tl_status', ['Approved', 'Not Required'])
+                        ->where('status', 'Pending')->count();
+                    $pendingGlobalRequests = $pendingLeaves + $pendingWfh;
+                } catch (\Exception $e) {
+                    \Log::warning('Failed to count pending requests: ' . $e->getMessage());
+                    $pendingGlobalRequests = 0;
+                }
             } elseif ($user->hasRole('Team Lead')) {
                 $teamId = $user->team_id;
                 $pendingLeaves = LeaveRequest::whereHas('user', fn($q) => $q->where('team_id', $teamId))
@@ -486,43 +491,52 @@ class DashboardController extends Controller
                 
             // For Super Admin, add additional widgets
             if ($user->hasRole('Super Admin')) {
-                // Critical Alerts
-                $criticalAlerts = [];
-                $absenceRate = ($totalEmployees > 0) ? round((($totalEmployees - $presentToday) / $totalEmployees) * 100) : 0;
-                if ($absenceRate > 30) {
-                    $criticalAlerts[] = [
-                        'id' => 'absence_high',
-                        'message' => "High absence rate: {$absenceRate}% of employees absent today"
-                    ];
-                }
-                if ($pendingGlobalRequests > 10) {
-                    $criticalAlerts[] = [
-                        'id' => 'pending_high',
-                        'message' => "{$pendingGlobalRequests} leave/WFH requests pending approval"
-                    ];
-                }
-
-                // Audit Logs
-                $auditLogs = \App\Models\AuditLog::with('user:id,first_name,last_name')
-                    ->latest()
-                    ->take(10)
-                    ->get(['id', 'user_id', 'action', 'description', 'created_at'])
-                    ->map(function($log) {
-                        return [
-                            'id' => $log->id,
-                            'action' => $log->action ?? 'System',
-                            'description' => $log->description ?? 'No description',
-                            'user_name' => ($log->user ? $log->user->first_name . ' ' . $log->user->last_name : 'System'),
-                            'created_at' => $log->created_at
+                try {
+                    // Critical Alerts
+                    $criticalAlerts = [];
+                    $absenceRate = ($totalEmployees > 0) ? round((($totalEmployees - $presentToday) / $totalEmployees) * 100) : 0;
+                    if ($absenceRate > 30) {
+                        $criticalAlerts[] = [
+                            'id' => 'absence_high',
+                            'message' => "High absence rate: {$absenceRate}% of employees absent today"
                         ];
-                    });
+                    }
+                    if ($pendingGlobalRequests > 10) {
+                        $criticalAlerts[] = [
+                            'id' => 'pending_high',
+                            'message' => "{$pendingGlobalRequests} leave/WFH requests pending approval"
+                        ];
+                    }
 
-                $responseData['widgets']['critical_alerts'] = $criticalAlerts;
-                $responseData['widgets']['recent_audit_logs'] = $auditLogs;
-                $responseData['widgets']['total_employees'] = $totalEmployees;
-                $responseData['widgets']['active_employees'] = $presentToday;
-                $responseData['widgets']['absent_today'] = $totalEmployees - $presentToday;
-                $responseData['widgets']['pending_leave_requests'] = $pendingGlobalRequests;
+                    // Audit Logs
+                    $auditLogs = \App\Models\AuditLog::with('user:id,first_name,last_name')
+                        ->latest()
+                        ->take(10)
+                        ->get(['id', 'user_id', 'action', 'description', 'created_at'])
+                        ->map(function($log) {
+                            return [
+                                'id' => $log->id,
+                                'action' => $log->action ?? 'System',
+                                'description' => $log->description ?? 'No description',
+                                'user_name' => ($log->user ? $log->user->first_name . ' ' . $log->user->last_name : 'System'),
+                                'created_at' => $log->created_at
+                            ];
+                        });
+
+                    $responseData['widgets']['critical_alerts'] = $criticalAlerts;
+                    $responseData['widgets']['recent_audit_logs'] = $auditLogs;
+                    $responseData['widgets']['total_employees'] = $totalEmployees;
+                    $responseData['widgets']['active_employees'] = $presentToday;
+                    $responseData['widgets']['absent_today'] = $totalEmployees - $presentToday;
+                    $responseData['widgets']['pending_leave_requests'] = $pendingGlobalRequests;
+                } catch (\Exception $e) {
+                    \Log::error('Super Admin dashboard widgets error: ' . $e->getMessage(), [
+                        'trace' => $e->getTraceAsString()
+                    ]);
+                    // Return widgets without admin-specific data to prevent complete failure
+                    $responseData['widgets']['critical_alerts'] = [];
+                    $responseData['widgets']['recent_audit_logs'] = [];
+                }
             }
 
             $responseData['admin_data'] = [
