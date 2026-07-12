@@ -50,6 +50,12 @@ export default function ManageLeavesPage() {
   }, []);
 
   useEffect(() => {
+    // Clear current data when tab changes to show loading state
+    if (tab === "leaves") {
+      setLeaves([]);
+    } else {
+      setWfh([]);
+    }
     fetchData();
   }, [tab, filters]);
 
