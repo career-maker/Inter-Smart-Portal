@@ -94,6 +94,25 @@ export default function ManageLeavesPage() {
     }
   };
 
+  const refreshBothTabs = async () => {
+    try {
+      const params = new URLSearchParams();
+      if (filters.employee_id) params.append("employee_id", filters.employee_id);
+      if (filters.start_date) params.append("start_date", filters.start_date);
+      if (filters.end_date) params.append("end_date", filters.end_date);
+
+      const [leavesRes, wfhRes] = await Promise.all([
+        api.get(`/admin/approved-leaves?${params.toString()}`),
+        api.get(`/admin/approved-wfh?${params.toString()}`)
+      ]);
+
+      setLeaves(leavesRes.data?.data || []);
+      setWfh(wfhRes.data?.data || []);
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Failed to refresh data");
+    }
+  };
+
   const handleDelete = async (id: number, type: "leave" | "wfh") => {
     if (!confirm(`Are you sure you want to delete this ${type}? This will restore the leave balance.`)) {
       return;
@@ -108,8 +127,8 @@ export default function ManageLeavesPage() {
       // Show success message
       setSuccessMessage(`${type === "leave" ? "Leave" : "WFH"} deleted successfully and balance restored!`);
 
-      // Refetch data to ensure consistency across all tabs
-      await fetchData();
+      // Refetch BOTH tabs to ensure consistency across all tabs
+      await refreshBothTabs();
 
       // Clear success message after 4 seconds
       setTimeout(() => setSuccessMessage(null), 4000);
