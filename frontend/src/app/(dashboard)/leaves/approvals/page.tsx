@@ -337,10 +337,20 @@ export default function ApprovalsPage() {
             <button
               onClick={() => approve("leave", req.id)}
               disabled={actionLoading}
-              className="px-2.5 py-1.5 text-xs font-bold bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition disabled:opacity-50 whitespace-nowrap"
+              className="px-2.5 py-1.5 text-xs font-bold bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition disabled:opacity-50 whitespace-nowrap flex items-center gap-1.5"
               title="Quick approve"
             >
-              ✓ Approve
+              {actionLoading ? (
+                <>
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  <span>Approving...</span>
+                </>
+              ) : (
+                <>
+                  <span>✓</span>
+                  <span>Approve</span>
+                </>
+              )}
             </button>
           )}
         </div>
