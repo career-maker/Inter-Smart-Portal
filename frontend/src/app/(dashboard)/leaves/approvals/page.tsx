@@ -433,13 +433,15 @@ export default function ApprovalsPage() {
               <Edit className="h-3.5 w-3.5" /> Override
             </button>
           )}
-          <button
-            onClick={() => { setRejectDialog({ type: "leave", id: req.id }); setRejectReason(""); }}
-            disabled={actionLoading}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-red-500/20 text-red-300 border border-red-500/30 rounded-lg hover:bg-red-500/30 transition disabled:opacity-50"
-          >
-            <XCircle className="h-3.5 w-3.5" /> Reject
-          </button>
+          {req.status === "Pending" && (
+            <button
+              onClick={() => { setRejectDialog({ type: "leave", id: req.id }); setRejectReason(""); }}
+              disabled={actionLoading}
+              className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-red-500/20 text-red-300 border border-red-500/30 rounded-lg hover:bg-red-500/30 transition disabled:opacity-50"
+            >
+              <XCircle className="h-3.5 w-3.5" /> Reject
+            </button>
+          )}
         </div>
       )}
     </div>
@@ -491,15 +493,17 @@ export default function ApprovalsPage() {
         </div>
       )}
 
-      <div className="flex gap-2 pt-1">
-        <button
-          onClick={() => { setRejectDialog({ type: "wfh", id: req.id }); setRejectReason(""); }}
-          disabled={actionLoading}
-          className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-red-500/20 text-red-300 border border-red-500/30 rounded-lg hover:bg-red-500/30 transition disabled:opacity-50"
-        >
-          <XCircle className="h-3.5 w-3.5" /> Reject
-        </button>
-      </div>
+      {req.status === "Pending" && (
+        <div className="flex gap-2 pt-1">
+          <button
+            onClick={() => { setRejectDialog({ type: "wfh", id: req.id }); setRejectReason(""); }}
+            disabled={actionLoading}
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-red-500/20 text-red-300 border border-red-500/30 rounded-lg hover:bg-red-500/30 transition disabled:opacity-50"
+          >
+            <XCircle className="h-3.5 w-3.5" /> Reject
+          </button>
+        </div>
+      )}
     </div>
   );
 
