@@ -424,7 +424,7 @@ export default function ApprovalsPage() {
         </div>
       ) : (
         <div className="flex flex-wrap gap-2 pt-1">
-          {isSuperAdmin && (
+          {isSuperAdmin && req.status === "Pending" && (
             <button
               onClick={() => openOverride(req)}
               disabled={actionLoading}
