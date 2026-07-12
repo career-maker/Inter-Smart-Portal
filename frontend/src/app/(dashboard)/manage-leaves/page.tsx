@@ -105,15 +105,11 @@ export default function ManageLeavesPage() {
       const endpoint = type === "leave" ? `/admin/approved-leaves/${id}` : `/admin/approved-wfh/${id}`;
       await api.delete(endpoint);
 
-      // Remove from UI after successful deletion
-      if (type === "leave") {
-        setLeaves(leaves.filter(item => item.id !== id));
-      } else {
-        setWfh(wfh.filter(item => item.id !== id));
-      }
-
       // Show success message
       setSuccessMessage(`${type === "leave" ? "Leave" : "WFH"} deleted successfully and balance restored!`);
+
+      // Refetch data to ensure consistency across all tabs
+      await fetchData();
 
       // Clear success message after 4 seconds
       setTimeout(() => setSuccessMessage(null), 4000);
