@@ -95,16 +95,16 @@ export default function ManageLeavesPage() {
 
     setDeleting(id);
 
-    // Optimistic deletion - remove from UI immediately
-    if (type === "leave") {
-      setLeaves(leaves.filter(item => item.id !== id));
-    } else {
-      setWfh(wfh.filter(item => item.id !== id));
-    }
-
     try {
       const endpoint = type === "leave" ? `/admin/approved-leaves/${id}` : `/admin/approved-wfh/${id}`;
       await api.delete(endpoint);
+
+      // Remove from UI after successful deletion
+      if (type === "leave") {
+        setLeaves(leaves.filter(item => item.id !== id));
+      } else {
+        setWfh(wfh.filter(item => item.id !== id));
+      }
 
       // Show success message
       setSuccessMessage(`${type === "leave" ? "Leave" : "WFH"} deleted successfully and balance restored!`);
@@ -112,8 +112,6 @@ export default function ManageLeavesPage() {
       // Clear success message after 4 seconds
       setTimeout(() => setSuccessMessage(null), 4000);
     } catch (err: any) {
-      // Restore the item if deletion fails
-      fetchData();
       setError(err.response?.data?.message || `Failed to delete ${type}`);
     } finally {
       setDeleting(null);
