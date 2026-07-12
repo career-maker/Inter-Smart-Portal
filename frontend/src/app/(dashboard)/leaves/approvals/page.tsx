@@ -84,6 +84,12 @@ export default function ApprovalsPage() {
 
   const fetchRequests = async () => {
     setIsLoading(true);
+    // Clear all data first to prevent showing stale data
+    setLeaveRequests([]);
+    setApprovedLeaves([]);
+    setRejectedLeaves([]);
+    setWfhRequests([]);
+
     try {
       const [pending, approved, rejected, wfh] = await Promise.all([
         api.get("/leave-requests?status=Pending"),
