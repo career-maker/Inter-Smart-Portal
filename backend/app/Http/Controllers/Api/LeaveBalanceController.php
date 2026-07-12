@@ -30,9 +30,14 @@ class LeaveBalanceController extends Controller
                 ->map(function ($emp) {
                     $balance = $emp->leaveBalance;
                     // Calculate total_leaves_taken from approved leave requests
-                    $totalTaken = LeaveRequest::where('user_id', $emp->id)
-                        ->where('status', 'Approved')
-                        ->sum('days') ?? 0;
+                    try {
+                        $totalTaken = (float)(LeaveRequest::where('user_id', $emp->id)
+                            ->where('status', 'Approved')
+                            ->sum(DB::raw('COALESCE(days, 0)')) ?? 0);
+                    } catch (\Exception $e) {
+                        \Log::warning("Failed to sum leaves for user {$emp->id}: " . $e->getMessage());
+                        $totalTaken = 0;
+                    }
 
                     return [
                         'user_id'               => $emp->id,
@@ -43,7 +48,7 @@ class LeaveBalanceController extends Controller
                         'cl_carry_forward'      => $balance ? (float)(data_get($balance, 'cl_carry_forward', 0)) : 0,
                         'cl_carry_forward_year' => $balance ? data_get($balance, 'cl_carry_forward_year') : null,
                         'sick_leave_balance'    => $balance ? (float)($balance->sick_leave_balance ?? 0) : 0,
-                        'total_leaves_taken'    => (float)$totalTaken,
+                        'total_leaves_taken'    => $totalTaken,
                     ];
                 });
 
@@ -54,9 +59,14 @@ class LeaveBalanceController extends Controller
         $balance = LeaveBalance::where('user_id', $user->id)->first();
 
         // Calculate total_leaves_taken from approved leave requests instead of stored value
-        $totalTaken = LeaveRequest::where('user_id', $user->id)
-            ->where('status', 'Approved')
-            ->sum('days') ?? 0;
+        try {
+            $totalTaken = (float)(LeaveRequest::where('user_id', $user->id)
+                ->where('status', 'Approved')
+                ->sum(DB::raw('COALESCE(days, 0)')) ?? 0);
+        } catch (\Exception $e) {
+            \Log::warning("Failed to sum leaves for user {$user->id}: " . $e->getMessage());
+            $totalTaken = 0;
+        }
 
         // Return balance with calculated total_leaves_taken
         $data = $balance ? $balance->toArray() : [
@@ -65,7 +75,7 @@ class LeaveBalanceController extends Controller
             'cl_carry_forward' => 0,
             'sick_leave_balance' => 0,
         ];
-        $data['total_leaves_taken'] = (float)$totalTaken;
+        $data['total_leaves_taken'] = $totalTaken;
 
         return response()->json(['data' => $data]);
     }
