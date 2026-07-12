@@ -50,13 +50,17 @@ export default function ManageLeavesPage() {
   }, []);
 
   useEffect(() => {
-    // Clear current data when tab changes to show loading state
-    if (tab === "leaves") {
-      setLeaves([]);
-    } else {
-      setWfh([]);
-    }
-    fetchData();
+    // Clear ALL data when tab or filters change to prevent stale data
+    setLeaves([]);
+    setWfh([]);
+    setError(null);
+
+    // Small delay to ensure state is cleared before fetching
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, [tab, filters]);
 
   const fetchEmployees = async () => {
