@@ -555,20 +555,50 @@ export default function AttendanceManagementPage() {
             </CardHeader>
             <CardContent>
               {allEmployeesDateData.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead className="border-b border-white/10">
-                      <tr>
-                        <SortHeader column="name" label="Employee" />
-                        <SortHeader column="code" label="Code" />
-                        <SortHeader column="designation" label="Designation" />
-                        <SortHeader column="team" label="Team" />
-                        <SortHeader column="check_in" label="Check-In" />
-                        <SortHeader column="check_out" label="Check-Out" />
-                        <SortHeader column="hours" label="Hours" />
-                        <SortHeader column="status" label="Status" />
-                      </tr>
-                    </thead>
+                <>
+                  {/* Summary Stats */}
+                  <div className="mb-4 grid grid-cols-4 gap-3">
+                    <div className="bg-white/5 border border-white/10 rounded-lg p-3 text-center">
+                      <p className="text-xs text-slate-400 uppercase tracking-wider">Total Employees</p>
+                      <p className="text-xl font-bold text-white mt-1">{allEmployeesDateData.length}</p>
+                    </div>
+                    <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3 text-center">
+                      <p className="text-xs text-emerald-400 uppercase tracking-wider">Punched In</p>
+                      <p className="text-xl font-bold text-emerald-300 mt-1">
+                        {allEmployeesDateData.filter(emp => emp.attendance?.first_in).length}
+                      </p>
+                    </div>
+                    <div className="bg-rose-500/10 border border-rose-500/30 rounded-lg p-3 text-center">
+                      <p className="text-xs text-rose-400 uppercase tracking-wider">Absent</p>
+                      <p className="text-xl font-bold text-rose-300 mt-1">
+                        {allEmployeesDateData.filter(emp => !emp.attendance?.first_in).length}
+                      </p>
+                    </div>
+                    <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 text-center">
+                      <p className="text-xs text-blue-400 uppercase tracking-wider">Punch-In Rate</p>
+                      <p className="text-xl font-bold text-blue-300 mt-1">
+                        {allEmployeesDateData.length > 0
+                          ? Math.round((allEmployeesDateData.filter(emp => emp.attendance?.first_in).length / allEmployeesDateData.length) * 100)
+                          : 0}%
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Table */}
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead className="border-b border-white/10">
+                        <tr>
+                          <SortHeader column="name" label="Employee" />
+                          <SortHeader column="code" label="Code" />
+                          <SortHeader column="designation" label="Designation" />
+                          <SortHeader column="team" label="Team" />
+                          <SortHeader column="check_in" label="Check-In" />
+                          <SortHeader column="check_out" label="Check-Out" />
+                          <SortHeader column="hours" label="Hours" />
+                          <SortHeader column="status" label="Status" />
+                        </tr>
+                      </thead>
                     <tbody>
                       {sortedEmployeesData().map((emp) => {
                         const attendance = emp.attendance || {};
@@ -601,7 +631,8 @@ export default function AttendanceManagementPage() {
                       })}
                     </tbody>
                   </table>
-                </div>
+                  </div>
+                </>
               ) : (
                 <div className="text-center py-8 text-slate-400">
                   No attendance data found for this date.
