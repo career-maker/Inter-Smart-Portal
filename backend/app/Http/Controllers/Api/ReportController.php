@@ -397,8 +397,11 @@ class ReportController extends Controller
             $empData = [
                 'id' => $emp->id,
                 'employee_code' => $emp->employee_code,
-                'name' => "{$emp->first_name} {$emp->last_name}",
-                'team' => $emp->team?->name,
+                'first_name' => $emp->first_name,
+                'last_name' => $emp->last_name,
+                'designation' => $emp->designation,
+                'team' => ['name' => $emp->team?->name],
+                'profile_photo_path' => $emp->profile_photo_path,
                 'cl_count' => round($clCount, 1),
                 'sl_count' => round($slCount, 1),
                 'lop_count' => round($lopCount, 1),
