@@ -552,7 +552,7 @@ export default function DashboardPage() {
                     {a.days_remaining === 0 ? (
                       <span className="text-[10px] uppercase tracking-wider font-bold bg-pink-500/80 text-white px-2 py-0.5 rounded-lg">Today!</span>
                     ) : (
-                      <span className="text-[10px] uppercase tracking-wider font-bold bg-pink-500/30 text-pink-300 px-2 py-0.5 rounded-lg">In {a.days_remaining} d</span>
+                      <span className="text-[10px] uppercase tracking-wider font-bold bg-pink-500/30 text-pink-300 px-2 py-0.5 rounded-lg">In {Math.floor(a.days_remaining)} d</span>
                     )}
                   </div>
                 </div>
@@ -947,7 +947,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                     {a.days_remaining === 0 ? (
                       <span className="text-[10px] uppercase tracking-wider font-bold bg-pink-500/80 text-white px-2 py-0.5 rounded-lg">Today!</span>
                     ) : (
-                      <span className="text-[10px] uppercase tracking-wider font-bold bg-pink-500/30 text-pink-300 px-2 py-0.5 rounded-lg">In {a.days_remaining} d</span>
+                      <span className="text-[10px] uppercase tracking-wider font-bold bg-pink-500/30 text-pink-300 px-2 py-0.5 rounded-lg">In {Math.floor(a.days_remaining)} d</span>
                     )}
                   </div>
                 </div>
@@ -1328,7 +1328,7 @@ function UpcomingBirthdaysWidget({ items }: { items: any[] }) {
             {b.days_remaining === 0 ? (
               <span className="text-[10px] uppercase tracking-wider font-bold bg-fuchsia-500/80 text-white px-2 py-0.5 rounded-lg">Today!</span>
             ) : (
-              <span className="text-[10px] uppercase tracking-wider font-bold bg-fuchsia-500/30 text-fuchsia-300 px-2 py-0.5 rounded-lg">In {b.days_remaining} d</span>
+              <span className="text-[10px] uppercase tracking-wider font-bold bg-fuchsia-500/30 text-fuchsia-300 px-2 py-0.5 rounded-lg">In {Math.floor(b.days_remaining)} d</span>
             )}
           </div>
         </div>
