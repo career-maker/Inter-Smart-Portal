@@ -350,6 +350,22 @@ export default function AttendanceManagementPage() {
     return sorted;
   };
 
+  // Group monthly data by date to show only one row per day
+  const groupedMonthlyData = () => {
+    const grouped = new Map<string, MonthlyAttendanceRecord>();
+    monthlyData.forEach((record) => {
+      // Keep only the first record for each date (in case of duplicates)
+      if (!grouped.has(record.date)) {
+        grouped.set(record.date, record);
+      }
+    });
+    return Array.from(grouped.values()).sort((a, b) => {
+      const dateA = new Date(a.date).getTime();
+      const dateB = new Date(b.date).getTime();
+      return dateB - dateA; // Most recent first
+    });
+  };
+
   const SortHeader = ({ column, label }: { column: string; label: string }) => (
     <th
       onClick={() => handleSort(column)}
@@ -364,7 +380,7 @@ export default function AttendanceManagementPage() {
         )}
       </div>
     </th>
-  );;
+  );
 
   if (!user || user.role !== "Super Admin") {
     return <PageLoader />;
@@ -848,7 +864,7 @@ export default function AttendanceManagementPage() {
                 </div>
               ) : monthlyData.length > 0 ? (
                 <div className="space-y-3">
-                  {monthlyData.map((record) => (
+                  {groupedMonthlyData().map((record) => (
                     <div key={record.id}>
                       {/* Day Row */}
                       <button
