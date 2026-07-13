@@ -22,7 +22,8 @@ class LeaveRequestController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $query = LeaveRequest::with(['user', 'leaveType', 'approver']);
+        $query = LeaveRequest::with(['user', 'leaveType', 'approver'])
+            ->select('leave_requests.*', 'attachment_link');
 
         if ($user->hasRole('Super Admin') || $user->hasRole('HR')) {
             if ($request->has('status') && $request->status === 'Pending') {
