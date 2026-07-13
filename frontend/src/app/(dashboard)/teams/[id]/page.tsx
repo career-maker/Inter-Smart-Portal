@@ -117,7 +117,7 @@ export default function EditTeamPage() {
           <Card className="max-w-4xl shadow-sm">
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><Users className="h-5 w-5" /> Manage Members</CardTitle>
-              <CardDescription>Select employees to assign to this team. Anyone not selected will be removed from the team.</CardDescription>
+              <CardDescription>Select unassigned employees or currently assigned members. Employees in other teams are not shown.</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="border rounded-md max-h-[800px] overflow-y-auto mb-6 bg-white/5">
@@ -125,7 +125,9 @@ export default function EditTeamPage() {
                   <div className="p-4 text-center text-muted-foreground">No employees found in the system.</div>
                 ) : (
                   <div className="divide-y">
-                    {allUsers.map((user) => (
+                    {allUsers
+                      .filter((user) => !user.team_id || user.team_id === team.id)
+                      .map((user) => (
                       <div key={user.id} className="flex items-center gap-3 p-3 hover:bg-gray-100 transition-colors">
                         <input
                           type="checkbox"
@@ -146,9 +148,7 @@ export default function EditTeamPage() {
                         </label>
                         <div className="text-xs text-muted-foreground">
                           {user.team_id === team.id ? (
-                            <span className="text-primary font-medium">Currently in team</span>
-                          ) : user.team_id ? (
-                            <span>Currently in another team</span>
+                            <span className="text-primary font-medium">In this team</span>
                           ) : (
                             <span>Unassigned</span>
                           )}
