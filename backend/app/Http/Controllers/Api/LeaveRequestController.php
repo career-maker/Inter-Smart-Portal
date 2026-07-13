@@ -302,7 +302,7 @@ class LeaveRequestController extends Controller
 
         if ($isCasual) {
             $balance   = \App\Models\LeaveBalance::where('user_id', $user->id)->first();
-            $clBalance = (($balance->casual_leave_balance ?? 0) + ($balance->cl_carry_forward ?? 0));
+            $clBalance = max(0, (($balance->casual_leave_balance ?? 0) + ($balance->cl_carry_forward ?? 0)));
 
             // Paid CL is allocated only to eligible (non-penalized) working days
             $paidCL     = min($eligibleBase, $clBalance);
@@ -320,7 +320,7 @@ class LeaveRequestController extends Controller
 
         } elseif ($isSick) {
             $balance   = \App\Models\LeaveBalance::where('user_id', $user->id)->first();
-            $slBalance = $balance->sick_leave_balance ?? 0;
+            $slBalance = max(0, $balance->sick_leave_balance ?? 0);
 
             $paidSL     = min($eligibleBase, $slBalance);
             $balanceLOP = max(0, $eligibleBase - $paidSL);
