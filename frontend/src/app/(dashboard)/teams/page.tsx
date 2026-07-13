@@ -22,11 +22,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function TeamsPage() {
@@ -36,6 +31,7 @@ export default function TeamsPage() {
   const [search, setSearch] = useState("");
   const [membersByTeam, setMembersByTeam] = useState<Record<number, any[]>>({});
   const [loadingMembers, setLoadingMembers] = useState<Record<number, boolean>>({});
+  const [hoveredTeamId, setHoveredTeamId] = useState<number | null>(null);
 
   useEffect(() => {
     fetchTeams();
@@ -162,18 +158,21 @@ export default function TeamsPage() {
                   </div>
                 </div>
               </CardContent>
-              <CardFooter className="bg-transparent border-t px-6 py-3">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button
-                      className="flex items-center text-sm text-muted-foreground hover:text-slate-900 transition-colors cursor-pointer"
-                      onMouseEnter={() => fetchTeamMembers(team.id)}
-                    >
-                      <Users className="mr-2 h-4 w-4" />
-                      {team.members_count} Members
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-64 p-4">
+              <CardFooter className="bg-transparent border-t px-6 py-3 relative">
+                <div
+                  className="flex items-center text-sm text-muted-foreground hover:text-slate-900 transition-colors cursor-pointer"
+                  onMouseEnter={() => {
+                    setHoveredTeamId(team.id);
+                    fetchTeamMembers(team.id);
+                  }}
+                  onMouseLeave={() => setHoveredTeamId(null)}
+                >
+                  <Users className="mr-2 h-4 w-4" />
+                  {team.members_count} Members
+                </div>
+
+                {hoveredTeamId === team.id && (
+                  <div className="absolute bottom-full left-0 mb-2 w-72 bg-white border border-slate-200 rounded-lg shadow-lg p-4 z-50">
                     <div className="space-y-2">
                       <h4 className="font-semibold text-sm text-slate-900">Team Members</h4>
                       {loadingMembers[team.id] ? (
@@ -203,8 +202,8 @@ export default function TeamsPage() {
                         </div>
                       )}
                     </div>
-                  </PopoverContent>
-                </Popover>
+                  </div>
+                )}
               </CardFooter>
             </Card>
           ))}
