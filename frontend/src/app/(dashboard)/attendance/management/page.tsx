@@ -179,7 +179,24 @@ export default function AttendanceManagementPage() {
     setError(null);
     try {
       const res = await api.get(`/attendance?month=${month}&user_id=${selectedEmployee.id}`);
-      setMonthlyData(res.data.data || []);
+      const rawData = res.data.data || [];
+
+      // Group by date to show only one record per day
+      const grouped = new Map<string, MonthlyAttendanceRecord>();
+      rawData.forEach((record: MonthlyAttendanceRecord) => {
+        if (!grouped.has(record.date)) {
+          grouped.set(record.date, record);
+        }
+      });
+
+      // Convert to array and sort by date descending
+      const groupedData = Array.from(grouped.values()).sort((a, b) => {
+        const dateA = new Date(a.date).getTime();
+        const dateB = new Date(b.date).getTime();
+        return dateB - dateA;
+      });
+
+      setMonthlyData(groupedData);
       setSelectedMonth(month);
     } catch (err: any) {
       setError(err.response?.data?.message || "Failed to load monthly data");
@@ -348,22 +365,6 @@ export default function AttendanceManagementPage() {
     });
 
     return sorted;
-  };
-
-  // Group monthly data by date to show only one row per day
-  const groupedMonthlyData = () => {
-    const grouped = new Map<string, MonthlyAttendanceRecord>();
-    monthlyData.forEach((record) => {
-      // Keep only the first record for each date (in case of duplicates)
-      if (!grouped.has(record.date)) {
-        grouped.set(record.date, record);
-      }
-    });
-    return Array.from(grouped.values()).sort((a, b) => {
-      const dateA = new Date(a.date).getTime();
-      const dateB = new Date(b.date).getTime();
-      return dateB - dateA; // Most recent first
-    });
   };
 
   const SortHeader = ({ column, label }: { column: string; label: string }) => (
@@ -864,7 +865,7 @@ export default function AttendanceManagementPage() {
                 </div>
               ) : monthlyData.length > 0 ? (
                 <div className="space-y-3">
-                  {groupedMonthlyData().map((record) => (
+                  {monthlyData.map((record) => (
                     <div key={record.id}>
                       {/* Day Row */}
                       <button
