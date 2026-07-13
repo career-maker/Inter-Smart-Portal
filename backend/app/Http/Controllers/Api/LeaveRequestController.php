@@ -233,12 +233,14 @@ class LeaveRequestController extends Controller
                     $eligibleDays++;
                 }
             } elseif (
+                !$isSingleDay &&
                 $firstWorkingDay !== null &&
                 $lastWorkingDay  !== null &&
                 $current->gte($firstWorkingDay) &&
                 $current->lte($lastWorkingDay)
             ) {
                 // Non-working day BETWEEN the first and last working day → sandwich
+                // Only count if NOT a single-day leave
                 $sandwichDays++;
                 if ($isCasual && $lastWorkingWasPenalty) {
                     $sandwichSinceLastPenalty = true;
@@ -251,9 +253,12 @@ class LeaveRequestController extends Controller
         // External preceding sandwich days check
         // If the current request starts AFTER a weekend/holiday block that has an approved
         // leave on the other side, those non-working days become sandwich LOP on THIS request.
+        // NOTE: Single-day leaves should NOT have sandwich days since a single day cannot have
+        // non-working days "between" the first and last working day when they're the same day.
         $extPreSandwich = 0;
-        // If current request is Half-Afternoon, they work the Morning, breaking the gap to any preceding weekend.
-        if ($firstWorkingDay !== null && $durationType !== 'Half-Afternoon') {
+        $isSingleDay = ($startDate->toDateString() === $endDate->toDateString());
+
+        if (!$isSingleDay && $firstWorkingDay !== null && $durationType !== 'Half-Afternoon') {
             $checkPre = $startDate->copy()->subDay()->startOfDay();
             $preCount = 0;
             while (!$isWorkingDay($checkPre) && $preCount < 15) {
@@ -281,7 +286,9 @@ class LeaveRequestController extends Controller
         // the existing post-weekend leave (e.g., Monday) is retroactively flagged via
         // checkForSandwichLopConversion — the Friday leave itself is NOT penalised at
         // submission time for any existing future leave on the other side of the weekend.
-        $sandwichDays += $extPreSandwich;
+        if (!$isSingleDay) {
+            $sandwichDays += $extPreSandwich;
+        }
 
         $multiplier      = $isHalf ? 0.5 : 1.0;
         $baseWorkingDays = $totalWorkingDays * $multiplier;
@@ -304,11 +311,11 @@ class LeaveRequestController extends Controller
             if ($penaltyDays > 0) {
                 $reasons[] = "Applied less than 3 calendar days before the leave start date. {$penaltyLOP} working day(s) are Unpaid (LOP) due to late notice.";
             }
+            if ($balanceLOP > 0) {
+                $reasons[] = "Insufficient Casual Leave balance. {$balanceLOP} working day(s) are Unpaid (LOP) due to exhausted balance.";
+            }
             if ($sandwichDays > 0) {
                 $reasons[] = "Sandwich Leave Policy: {$sandwichDays} non-working day(s) (weekends/company holidays) between your leave dates are counted as Unpaid (LOP).";
-            }
-            if ($balanceLOP > 0) {
-                $reasons[] = "Insufficient Casual Leave balance. {$balanceLOP} eligible working day(s) are Unpaid (LOP) due to exhausted balance.";
             }
 
         } elseif ($isSick) {
