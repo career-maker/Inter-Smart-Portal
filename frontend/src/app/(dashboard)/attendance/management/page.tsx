@@ -212,12 +212,12 @@ export default function AttendanceManagementPage() {
 
         return {
           id: emp.id,
-          first_name: emp.first_name || emp.name?.split(' ')[0],
+          first_name: emp.first_name || emp.name?.split(' ')[0] || '',
           last_name: emp.last_name || emp.name?.split(' ')[1] || '',
-          employee_code: emp.employee_code,
-          designation: emp.designation,
-          team: emp.team,
-          profile_photo_path: emp.profile_photo_path,
+          employee_code: emp.employee_code || '',
+          designation: emp.designation || emp.employee?.designation || '',
+          team: emp.team || emp.employee?.team || null,
+          profile_photo_path: emp.profile_photo_path || emp.employee?.profile_photo_path,
           attendance: dayData ? {
             first_in: dayData.check_in,
             last_out: dayData.check_out,
