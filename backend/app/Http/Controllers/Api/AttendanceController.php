@@ -291,14 +291,24 @@ class AttendanceController extends Controller
         }
         // HR / Admin / Super Admin: no additional scope – see all records
 
+        $isMonthView = false;
         if ($request->has('month') && $request->month) {
             try {
                 $month = Carbon::parse($request->month);
                 $query->whereYear('date', $month->year)
                       ->whereMonth('date', $month->month);
+                $isMonthView = true;
             } catch (\Exception $e) {
                 // Ignore invalid date strings
             }
+        }
+
+        // For month view, return all records without pagination
+        // For general attendance list, paginate with 15 per page
+        if ($isMonthView) {
+            return AttendanceResource::collection(
+                $query->orderBy('date', 'desc')->get()
+            );
         }
 
         return AttendanceResource::collection(
