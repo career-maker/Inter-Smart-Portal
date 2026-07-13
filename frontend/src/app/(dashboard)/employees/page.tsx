@@ -141,7 +141,7 @@ export default function EmployeesPage() {
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell className="font-mono text-xs">{emp.employee_id}</TableCell>
+                  <TableCell className="font-mono text-xs">{emp.employee_code}</TableCell>
                   <TableCell>
                     <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold">
                       {emp.role || 'N/A'}
