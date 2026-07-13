@@ -16,6 +16,14 @@ Route::get('/photos/{path}', [\App\Http\Controllers\Api\EmployeeController::clas
 
 Route::get('/wfh-requests/diagnose/schema', [\App\Http\Controllers\Api\WfhRequestController::class, 'diagnose']);
 
+// Email action routes (signed URLs, no auth required)
+Route::prefix('leave-requests')->group(function () {
+    Route::get('{leaveRequest}/email-approve', [\App\Http\Controllers\Api\LeaveRequestController::class, 'emailApprove'])
+        ->name('leave-request.email-approve');
+    Route::get('{leaveRequest}/email-reject', [\App\Http\Controllers\Api\LeaveRequestController::class, 'emailReject'])
+        ->name('leave-request.email-reject');
+});
+
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);

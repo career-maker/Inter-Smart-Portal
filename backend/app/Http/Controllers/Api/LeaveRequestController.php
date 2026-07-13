@@ -13,8 +13,10 @@ use App\Models\User;
 use App\Http\Requests\StoreLeaveRequest;
 use App\Http\Requests\UpdateLeaveStatusRequest;
 use App\Notifications\LeaveRequestNotification;
+use App\Mail\LeaveRequestApplicationMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 
 class LeaveRequestController extends Controller
@@ -544,16 +546,30 @@ class LeaveRequestController extends Controller
                 }
             }
 
-            // Notify the user's Team Lead
+            // Notify the user's Team Lead via email
             if ($user->team_id) {
                 $team = \App\Models\Team::find($user->team_id);
-                $tl   = $team?->teamLead;
-                if ($tl && $tl->id !== $user->id) {
-                    $tl->notify(new LeaveRequestNotification('submitted', $leaveRequest, $message));
+                $teamLead = $team?->teamLead;
+
+                if ($teamLead && $teamLead->id !== $user->id && $teamLead->email) {
+                    try {
+                        Mail::to($teamLead->email)
+                            ->cc(['hr@intersmart.in', 'admin@intersmart.in'])
+                            ->send(new LeaveRequestApplicationMail($leaveRequest, $user, $teamLead, $leaveType));
+                    } catch (\Exception $mailException) {
+                        // Log email failure but don't block the notification
+                        \Log::warning('Failed to send leave application email: ' . $mailException->getMessage());
+                    }
+                }
+
+                // Also send in-app notification
+                if ($teamLead && $teamLead->id !== $user->id) {
+                    $teamLead->notify(new LeaveRequestNotification('submitted', $leaveRequest, $message));
                 }
             }
         } catch (\Exception $e) {
             // Notification failure should never block leave submission
+            \Log::warning('notifyOnSubmit error: ' . $e->getMessage());
         }
     }
 
@@ -1125,5 +1141,182 @@ class LeaveRequestController extends Controller
             'message' => 'LOP conversion declined. Leave remains Paid.',
             'data'    => $leaveRequest
         ]);
+    }
+
+    /**
+     * Handle email approval from signed URL
+     */
+    public function emailApprove(Request $request, LeaveRequest $leaveRequest)
+    {
+        // Verify the signed URL
+        if (!$request->hasValidSignature()) {
+            return response()->json(['message' => 'Invalid or expired link.'], 403);
+        }
+
+        // Check if already approved
+        if ($leaveRequest->status === 'Approved') {
+            return response()->json([
+                'message' => 'This leave application has already been approved.',
+                'status' => 'already_approved'
+            ], 200);
+        }
+
+        if ($leaveRequest->status !== 'Pending') {
+            return response()->json([
+                'message' => 'This leave application cannot be modified. Current status: ' . $leaveRequest->status
+            ], 400);
+        }
+
+        // Load relationships
+        $leaveRequest->load(['user', 'leaveType']);
+        $applicant = $leaveRequest->user;
+
+        // Determine who is approving based on the leave request workflow
+        $isSingleDay = $leaveRequest->start_date === $leaveRequest->end_date;
+
+        // Create a fake request to reuse updateStatus logic
+        // For email approvals, we assume Team Lead approval for single day
+        // and will auto-approve to HR if needed
+        DB::beginTransaction();
+        try {
+            // Get or create a system user for email actions
+            $systemUser = User::where('email', 'system@intersmart.in')->first();
+            if (!$systemUser) {
+                // Use the team lead if available, otherwise use the first super admin
+                $systemUser = $applicant->team_id
+                    ? \App\Models\Team::find($applicant->team_id)?->teamLead
+                    : User::role('Super Admin')->first();
+            }
+
+            if (!$systemUser) {
+                DB::rollBack();
+                return response()->json(['message' => 'Unable to process approval.'], 500);
+            }
+
+            // Approve based on workflow
+            if ($isSingleDay) {
+                // Single day: TL approval is sufficient
+                $leaveRequest->tl_status = 'Approved';
+                $leaveRequest->admin_status = 'Not Required';
+                $leaveRequest->status = 'Approved';
+            } else {
+                // Multi-day: Need both TL and Admin approval
+                if ($leaveRequest->tl_status === 'Pending') {
+                    $leaveRequest->tl_status = 'Approved';
+                } elseif ($leaveRequest->admin_status === 'Pending') {
+                    $leaveRequest->admin_status = 'Approved';
+                    $leaveRequest->status = 'Approved';
+                }
+            }
+
+            $leaveRequest->approved_by = $systemUser->id;
+            $leaveRequest->save();
+
+            // Deduct balance if fully approved
+            if ($leaveRequest->status === 'Approved') {
+                try {
+                    $balance = LeaveBalance::where('user_id', $leaveRequest->user_id)->first();
+                    $leaveTypeName = $leaveRequest->leaveType?->name ?? 'Unknown';
+                    $daysToDeduct = floatval($leaveRequest->days_taken ?? $leaveRequest->days ?? 0);
+
+                    if ($balance && $daysToDeduct > 0 && stripos($leaveTypeName, 'Casual') !== false) {
+                        $cfBalance = floatval($balance->cl_carry_forward ?? 0);
+                        if ($cfBalance > 0) {
+                            $deductFromCF = min($cfBalance, $daysToDeduct);
+                            $balance->cl_carry_forward = $cfBalance - $deductFromCF;
+                            $daysToDeduct -= $deductFromCF;
+                        }
+
+                        if ($daysToDeduct > 0) {
+                            $currentBalance = floatval($balance->casual_leave_balance ?? 0);
+                            $balance->casual_leave_balance = max(0, $currentBalance - $daysToDeduct);
+                        }
+
+                        $balance->save();
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('Failed to deduct leave balance on email approval: ' . $e->getMessage());
+                }
+            }
+
+            DB::commit();
+
+            // Send confirmation notification
+            $this->notifyEmployee($leaveRequest, $systemUser, 'approved');
+
+            return response()->json([
+                'message' => 'Leave application approved successfully.',
+                'data' => $leaveRequest,
+                'status' => 'approved'
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Email approval error: ' . $e->getMessage());
+            return response()->json(['message' => 'Failed to process approval.'], 500);
+        }
+    }
+
+    /**
+     * Handle email rejection from signed URL
+     */
+    public function emailReject(Request $request, LeaveRequest $leaveRequest)
+    {
+        // Verify the signed URL
+        if (!$request->hasValidSignature()) {
+            return response()->json(['message' => 'Invalid or expired link.'], 403);
+        }
+
+        // Check if already rejected
+        if ($leaveRequest->status === 'Rejected') {
+            return response()->json([
+                'message' => 'This leave application has already been rejected.',
+                'status' => 'already_rejected'
+            ], 200);
+        }
+
+        if ($leaveRequest->status !== 'Pending') {
+            return response()->json([
+                'message' => 'This leave application cannot be modified. Current status: ' . $leaveRequest->status
+            ], 400);
+        }
+
+        // Load relationships
+        $leaveRequest->load(['user', 'leaveType']);
+
+        DB::beginTransaction();
+        try {
+            // Get system user for tracking
+            $systemUser = User::where('email', 'system@intersmart.in')->first();
+            if (!$systemUser) {
+                $systemUser = User::role('Super Admin')->first();
+            }
+
+            $leaveRequest->update([
+                'status' => 'Rejected',
+                'tl_status' => 'Rejected',
+                'admin_status' => 'Rejected',
+                'approved_by' => $systemUser?->id,
+                'rejection_reason' => 'Rejected via email link'
+            ]);
+
+            DB::commit();
+
+            // Send rejection notification
+            if ($systemUser) {
+                $this->notifyEmployee($leaveRequest, $systemUser, 'rejected');
+            }
+
+            return response()->json([
+                'message' => 'Leave application rejected successfully.',
+                'data' => $leaveRequest,
+                'status' => 'rejected'
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Email rejection error: ' . $e->getMessage());
+            return response()->json(['message' => 'Failed to process rejection.'], 500);
+        }
     }
 }
