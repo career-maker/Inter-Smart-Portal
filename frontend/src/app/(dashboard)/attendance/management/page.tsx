@@ -6,7 +6,6 @@ import {
   ArrowLeft,
   Search,
   Calendar,
-  Clock,
   AlertCircle,
   ChevronDown,
   Loader2,
@@ -23,7 +22,7 @@ import { PageLoader } from "@/components/ui/PageLoader";
 import { useAuthStore } from "@/store/auth";
 import { DailySummaryCard, DailyActivityTimeline, AdminLeaveWfhModal } from "@/components/attendance";
 
-type ViewMode = "selector" | "dateWise" | "monthWise" | "dateAllEmployees";
+type ViewMode = "selector" | "dateWise" | "dateAllEmployees";
 
 interface Employee {
   id: number;
@@ -69,18 +68,6 @@ interface AttendanceDetails {
   orphan_event_ids: number[];
 }
 
-interface MonthlyAttendanceRecord {
-  id: number;
-  date: string;
-  check_in_time: string | null;
-  check_out_time: string | null;
-  total_working_minutes: number | null;
-  status: string;
-  breaks?: Array<{
-    total_break_minutes: number;
-  }>;
-}
-
 export default function AttendanceManagementPage() {
   const router = useRouter();
   const { user } = useAuthStore();
@@ -95,14 +82,11 @@ export default function AttendanceManagementPage() {
   const [viewMode, setViewMode] = useState<ViewMode>("selector");
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>("");
-  const [selectedMonth, setSelectedMonth] = useState<string>("");
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoadingEmployees, setIsLoadingEmployees] = useState(true);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
   const [dailyDetails, setDailyDetails] = useState<AttendanceDetails | null>(null);
-  const [monthlyData, setMonthlyData] = useState<MonthlyAttendanceRecord[]>([]);
-  const [expandedDay, setExpandedDay] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLeaveWfhModalOpen, setIsLeaveWfhModalOpen] = useState(false);
   const [allEmployeesDateData, setAllEmployeesDateData] = useState<any[]>([]);
@@ -167,46 +151,6 @@ export default function AttendanceManagementPage() {
     } catch (err: any) {
       setError(err.response?.data?.message || "Failed to load attendance details");
       setDailyDetails(null);
-    } finally {
-      setIsLoadingDetails(false);
-    }
-  };
-
-  // Fetch monthly data
-  const handleMonthSelection = async (month: string) => {
-    if (!selectedEmployee) return;
-    setIsLoadingDetails(true);
-    setError(null);
-    try {
-      const res = await api.get(`/attendance?month=${month}&user_id=${selectedEmployee.id}`);
-      const rawData = res.data.data || [];
-
-      // Group by date, keeping the most recent record (by ID, which typically indicates creation order)
-      const grouped = new Map<string, MonthlyAttendanceRecord>();
-      rawData.forEach((record: MonthlyAttendanceRecord) => {
-        if (!grouped.has(record.date)) {
-          grouped.set(record.date, record);
-        } else {
-          const existing = grouped.get(record.date)!;
-          // Keep the record with the highest ID (most recently created)
-          if (record.id > existing.id) {
-            grouped.set(record.date, record);
-          }
-        }
-      });
-
-      // Convert to array and sort by date descending
-      const groupedData = Array.from(grouped.values()).sort((a, b) => {
-        const dateA = new Date(a.date).getTime();
-        const dateB = new Date(b.date).getTime();
-        return dateB - dateA;
-      });
-
-      setMonthlyData(groupedData);
-      setSelectedMonth(month);
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to load monthly data");
-      setMonthlyData([]);
     } finally {
       setIsLoadingDetails(false);
     }
@@ -316,10 +260,6 @@ export default function AttendanceManagementPage() {
       month: "short",
       day: "numeric",
     });
-  };
-
-  const getTotalBreakMinutes = (record: MonthlyAttendanceRecord) => {
-    return record.breaks?.reduce((sum, b) => sum + (b.total_break_minutes || 0), 0) || 0;
   };
 
   const handleSort = (column: string) => {
@@ -693,17 +633,6 @@ export default function AttendanceManagementPage() {
                   View detailed timeline for a specific date
                 </p>
               </button>
-              <button
-                onClick={() => {
-                  setSelectedMonth("");
-                  setViewMode("monthWise");
-                }}
-                className="p-6 bg-slate-700/30 hover:bg-slate-700/50 rounded-lg border border-white/10 hover:border-white/20 transition-all text-left"
-              >
-                <Clock className="h-8 w-8 text-blue-400 mb-2" />
-                <p className="font-semibold text-white">Month Wise</p>
-                <p className="text-sm text-slate-400 mt-1">View summary for an entire month</p>
-              </button>
             </div>
             <button
               onClick={() => setIsLeaveWfhModalOpen(true)}
@@ -816,159 +745,6 @@ export default function AttendanceManagementPage() {
         </>
       )}
 
-      {/* Month Wise Mode */}
-      {selectedEmployee && viewMode === "monthWise" && (
-        <>
-          {/* Header with back button and month picker */}
-          <Card className="shadow-sm border-white/10 bg-slate-800/50 backdrop-blur-sm text-white relative">
-            {isLoadingDetails && (
-              <div className="absolute inset-0 bg-black/40 rounded-lg backdrop-blur-sm flex items-center justify-center z-10">
-                <div className="flex flex-col items-center gap-3">
-                  <Loader2 className="h-10 w-10 animate-spin text-amber-400" />
-                  <p className="text-sm text-slate-300 font-medium">Loading monthly data...</p>
-                </div>
-              </div>
-            )}
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>
-                    {selectedEmployee.first_name} {selectedEmployee.last_name}
-                  </CardTitle>
-                  <CardDescription className="text-slate-400">Month Wise View</CardDescription>
-                </div>
-                <button
-                  onClick={() => {
-                    setViewMode("selector");
-                    setSelectedMonth("");
-                  }}
-                  className="text-slate-400 hover:text-white transition-colors"
-                >
-                  ← Change
-                </button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-4">
-                <label className="text-sm text-slate-300">Select Month:</label>
-                <input
-                  type="month"
-                  value={selectedMonth}
-                  onChange={(e) => handleMonthSelection(e.target.value)}
-                  disabled={isLoadingDetails}
-                  className="px-3 py-2 bg-slate-900 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-amber-400 [color-scheme:dark] disabled:opacity-50 disabled:cursor-not-allowed"
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Monthly Data */}
-          {selectedMonth && (
-            <>
-              {isLoadingDetails ? (
-                <div className="flex justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
-                </div>
-              ) : monthlyData.length > 0 ? (
-                <div className="space-y-3">
-                  {monthlyData.map((record) => (
-                    <div key={record.id}>
-                      {/* Day Row */}
-                      <button
-                        onClick={() =>
-                          setExpandedDay(expandedDay === record.date ? null : record.date)
-                        }
-                        className="w-full p-4 bg-slate-800/50 hover:bg-slate-800 border border-white/10 rounded-lg transition-all text-left"
-                      >
-                        <div className="grid grid-cols-2 md:grid-cols-7 gap-4 items-center">
-                          <div>
-                            <p className="font-semibold text-white">{formatDate(record.date)}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-slate-400 mb-1">Check-In</p>
-                            <p className="font-mono text-emerald-400">
-                              {formatTime(record.check_in_time)}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-slate-400 mb-1">Check-Out</p>
-                            <p className="font-mono text-rose-400">
-                              {record.check_out_time ? formatTime(record.check_out_time) : "Working"}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-slate-400 mb-1">Hours</p>
-                            <p className="font-semibold text-blue-400">
-                              {formatMinutesToHours(record.total_working_minutes)}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-slate-400 mb-1">Breaks</p>
-                            <p className="text-sm text-slate-300">{record.breaks?.length || 0}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-slate-400 mb-1">Status</p>
-                            <Badge
-                              variant="outline"
-                              className="text-xs bg-slate-700/30 text-slate-300"
-                            >
-                              {record.status || "Present"}
-                            </Badge>
-                          </div>
-                          <div className="flex justify-end">
-                            <ChevronDown
-                              className={`h-5 w-5 text-slate-400 transition-transform ${
-                                expandedDay === record.date ? "rotate-180" : ""
-                              }`}
-                            />
-                          </div>
-                        </div>
-                      </button>
-
-                      {/* Expanded Daily Detail */}
-                      {expandedDay === record.date && (
-                        <div className="mt-2 p-4 bg-slate-900/50 border border-white/10 rounded-lg space-y-4">
-                          {isLoadingDetails ? (
-                            <div className="flex justify-center py-6">
-                              <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
-                            </div>
-                          ) : dailyDetails && dailyDetails.date === record.date ? (
-                            <>
-                              <div className="text-sm text-slate-300 mb-4">
-                                <p className="font-semibold mb-2">Full Daily Timeline</p>
-                                <DailyActivityTimeline
-                                  rawPunches={dailyDetails.raw_punches || []}
-                                  isCurrentlyWorking={dailyDetails.is_currently_working}
-                                  firstIn={dailyDetails.first_in}
-                                  lastOut={dailyDetails.last_out}
-                                />
-                              </div>
-                            </>
-                          ) : (
-                            <button
-                              onClick={() => handleDateSelection(record.date)}
-                              className="w-full p-3 bg-slate-800 hover:bg-slate-800/80 border border-white/10 rounded text-sm text-center text-slate-300 hover:text-white transition-colors"
-                            >
-                              Load Full Timeline
-                            </button>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <Card className="border-slate-600 bg-slate-900/50">
-                  <CardContent className="pt-6 text-center text-slate-300">
-                    No attendance records found for this month.
-                  </CardContent>
-                </Card>
-              )}
-            </>
-          )}
-        </>
-      )}
-
       {/* Admin Leave/WFH Modal */}
       <AdminLeaveWfhModal
         isOpen={isLeaveWfhModalOpen}
@@ -976,7 +752,6 @@ export default function AttendanceManagementPage() {
         onSuccess={() => {
           // Refresh data if needed
           if (selectedDate) handleDateSelection(selectedDate);
-          if (selectedMonth) handleMonthSelection(selectedMonth);
         }}
         selectedEmployeeId={selectedEmployee?.id}
       />
