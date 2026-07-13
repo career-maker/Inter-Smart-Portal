@@ -22,6 +22,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function TeamsPage() {
@@ -29,6 +34,8 @@ export default function TeamsPage() {
   const [teams, setTeams] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [membersByTeam, setMembersByTeam] = useState<Record<number, any[]>>({});
+  const [loadingMembers, setLoadingMembers] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
     fetchTeams();
@@ -54,6 +61,25 @@ export default function TeamsPage() {
       } catch (e) {
         console.error(e);
       }
+    }
+  };
+
+  const fetchTeamMembers = async (teamId: number) => {
+    if (membersByTeam[teamId]) {
+      return; // Already loaded
+    }
+
+    setLoadingMembers((prev) => ({ ...prev, [teamId]: true }));
+    try {
+      const response = await api.get(`/teams/${teamId}`);
+      setMembersByTeam((prev) => ({
+        ...prev,
+        [teamId]: response.data.data.members || [],
+      }));
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingMembers((prev) => ({ ...prev, [teamId]: false }));
     }
   };
 
@@ -137,10 +163,48 @@ export default function TeamsPage() {
                 </div>
               </CardContent>
               <CardFooter className="bg-transparent border-t px-6 py-3">
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <Users className="mr-2 h-4 w-4" />
-                  {team.members_count} Members
-                </div>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button
+                      className="flex items-center text-sm text-muted-foreground hover:text-slate-900 transition-colors cursor-pointer"
+                      onMouseEnter={() => fetchTeamMembers(team.id)}
+                    >
+                      <Users className="mr-2 h-4 w-4" />
+                      {team.members_count} Members
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-64 p-4">
+                    <div className="space-y-2">
+                      <h4 className="font-semibold text-sm text-slate-900">Team Members</h4>
+                      {loadingMembers[team.id] ? (
+                        <p className="text-xs text-slate-500">Loading members...</p>
+                      ) : membersByTeam[team.id]?.length === 0 ? (
+                        <p className="text-xs text-slate-500">No members in this team</p>
+                      ) : (
+                        <div className="space-y-2 max-h-64 overflow-y-auto">
+                          {membersByTeam[team.id]?.map((member: any) => (
+                            <div key={member.id} className="flex items-center gap-2 p-2 rounded hover:bg-slate-100">
+                              <Avatar className="h-6 w-6">
+                                <AvatarImage src={member.profile_photo_path} alt={member.first_name} />
+                                <AvatarFallback className="text-xs">
+                                  {member.first_name?.charAt(0)}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex flex-col flex-1 min-w-0">
+                                <span className="text-sm font-medium text-slate-900 truncate">
+                                  {member.first_name} {member.last_name}
+                                </span>
+                                <span className="text-xs text-slate-500 truncate">
+                                  {member.designation || "No designation"}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </CardFooter>
             </Card>
           ))}
