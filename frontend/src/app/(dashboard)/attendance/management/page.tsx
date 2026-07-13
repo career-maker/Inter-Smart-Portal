@@ -181,19 +181,15 @@ export default function AttendanceManagementPage() {
       const res = await api.get(`/attendance?month=${month}&user_id=${selectedEmployee.id}`);
       const rawData = res.data.data || [];
 
-      // Group by date, keeping the record with the most complete data
+      // Group by date, keeping the most recent record (by ID, which typically indicates creation order)
       const grouped = new Map<string, MonthlyAttendanceRecord>();
       rawData.forEach((record: MonthlyAttendanceRecord) => {
         if (!grouped.has(record.date)) {
           grouped.set(record.date, record);
         } else {
           const existing = grouped.get(record.date)!;
-          // Keep the record with more complete data (more working minutes or has checkout time)
-          const existingMinutes = existing.total_working_minutes || 0;
-          const newMinutes = record.total_working_minutes || 0;
-
-          if (newMinutes > existingMinutes ||
-              (record.check_out_time && !existing.check_out_time)) {
+          // Keep the record with the highest ID (most recently created)
+          if (record.id > existing.id) {
             grouped.set(record.date, record);
           }
         }
