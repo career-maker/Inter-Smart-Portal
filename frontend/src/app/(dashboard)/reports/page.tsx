@@ -395,16 +395,29 @@ export default function ReportsPage() {
   );
 }
 
-function StatusBadge({ status }: { status: string }) {
-  const m: Record<string, string> = { Active: "bg-emerald-500/20 text-emerald-400", Approved: "bg-emerald-500/20 text-emerald-400", Pending: "bg-amber-500/20 text-amber-400", Rejected: "bg-red-500/20 text-red-400", Disabled: "bg-slate-500/20 text-slate-400", Resigned: "bg-rose-500/20 text-rose-400" };
-  return <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${m[status] || "bg-white/10 text-slate-300"}`}>{status}</span>;
+function StatusBadge({ status }: { status?: string | null }) {
+  const statusStr = String(status || "Unknown").trim();
+  const m: Record<string, string> = {
+    Active: "bg-emerald-500/20 text-emerald-400",
+    Approved: "bg-emerald-500/20 text-emerald-400",
+    Pending: "bg-amber-500/20 text-amber-400",
+    Rejected: "bg-red-500/20 text-red-400",
+    Disabled: "bg-slate-500/20 text-slate-400",
+    Resigned: "bg-rose-500/20 text-rose-400"
+  };
+  const classes = m[statusStr] || "bg-white/10 text-slate-300";
+  return <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${classes}`}>{statusStr}</span>;
 }
 
 function InfoRow({ label, value }: { label: string; value: any }) {
+  const displayValue = typeof value === 'string' || typeof value === 'number' || value === null || value === undefined
+    ? (value ?? "—")
+    : value;
+
   return (
     <div className="flex flex-col sm:flex-row sm:items-start gap-1 border-b border-white/5 py-2.5">
       <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider sm:w-52 shrink-0">{label}</span>
-      <span className="text-sm text-white">{value ?? "—"}</span>
+      <span className="text-sm text-white">{displayValue}</span>
     </div>
   );
 }
