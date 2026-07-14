@@ -39,13 +39,24 @@ class AnnouncementController extends Controller
      */
     public function store(Request $request)
     {
+        // Normalize datetime-local format BEFORE validation (T to space)
+        $scheduled = $request->input('scheduled_at');
+        $expires = $request->input('expires_at');
+
+        if ($scheduled) {
+            $request->merge(['scheduled_at' => str_replace('T', ' ', $scheduled)]);
+        }
+        if ($expires) {
+            $request->merge(['expires_at' => str_replace('T', ' ', $expires)]);
+        }
+
         $rules = [
             'title'        => ['required', 'string', 'max:255'],
             'content'      => ['required', 'string'],
             'category'     => ['required', 'string'],
             'is_pinned'    => ['boolean'],
-            'scheduled_at' => ['nullable', 'date_format:Y-m-d\TH:i', 'nullable'],
-            'expires_at'   => ['nullable', 'date_format:Y-m-d\TH:i', 'nullable'],
+            'scheduled_at' => ['nullable', 'date_format:Y-m-d H:i'],
+            'expires_at'   => ['nullable', 'date_format:Y-m-d H:i'],
             'image'        => ['nullable', 'image', 'max:5120'],
         ];
 
@@ -62,15 +73,8 @@ class AnnouncementController extends Controller
             $imagePath = $request->file('image')->store('announcements', 'public');
         }
 
-        // Normalize datetime-local format (Y-m-d\TH:i -> Y-m-d H:i)
-        $scheduledAt = null;
-        if ($data['scheduled_at'] ?? null) {
-            $scheduledAt = str_replace('T', ' ', $data['scheduled_at']);
-        }
-        $expiresAt = null;
-        if ($data['expires_at'] ?? null) {
-            $expiresAt = str_replace('T', ' ', $data['expires_at']);
-        }
+        $scheduledAt = $data['scheduled_at'] ?? null;
+        $expiresAt = $data['expires_at'] ?? null;
 
         $announcement = Announcement::create([
             'title'        => $data['title'],
@@ -94,26 +98,29 @@ class AnnouncementController extends Controller
      */
     public function update(Request $request, Announcement $announcement)
     {
+        // Normalize datetime-local format BEFORE validation (T to space)
+        $scheduled = $request->input('scheduled_at');
+        $expires = $request->input('expires_at');
+
+        if ($scheduled) {
+            $request->merge(['scheduled_at' => str_replace('T', ' ', $scheduled)]);
+        }
+        if ($expires) {
+            $request->merge(['expires_at' => str_replace('T', ' ', $expires)]);
+        }
+
         $data = $request->validate([
             'title'        => ['sometimes', 'string', 'max:255'],
             'content'      => ['sometimes', 'string'],
             'category'     => ['sometimes', 'string'],
             'is_pinned'    => ['sometimes', 'boolean'],
-            'scheduled_at' => ['nullable', 'date_format:Y-m-d\TH:i', 'nullable'],
-            'expires_at'   => ['nullable', 'date_format:Y-m-d\TH:i', 'nullable'],
+            'scheduled_at' => ['nullable', 'date_format:Y-m-d H:i'],
+            'expires_at'   => ['nullable', 'date_format:Y-m-d H:i'],
             'image'        => ['nullable', 'image', 'max:5120'],
         ]);
 
         if ($request->hasFile('image')) {
             $data['image_path'] = $request->file('image')->store('announcements', 'public');
-        }
-
-        // Normalize datetime-local format (Y-m-d\TH:i -> Y-m-d H:i)
-        if ($data['scheduled_at'] ?? null) {
-            $data['scheduled_at'] = str_replace('T', ' ', $data['scheduled_at']);
-        }
-        if ($data['expires_at'] ?? null) {
-            $data['expires_at'] = str_replace('T', ' ', $data['expires_at']);
         }
 
         $data['updated_by'] = $request->user()->id;
