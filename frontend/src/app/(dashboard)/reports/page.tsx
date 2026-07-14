@@ -65,6 +65,7 @@ export default function ReportsPage() {
   const [reportType, setReportType] = useState<ReportType>("employees");
   const [employeeList, setEmployeeList] = useState<any[]>([]);
   const [selectedUserId, setSelectedUserId] = useState("all");
+  const [userLoaded, setUserLoaded] = useState(false);
 
   // Get today's date in YYYY-MM-DD format
   const getTodayDate = () => {
@@ -84,8 +85,16 @@ export default function ReportsPage() {
   const perPage = 15;
 
   useEffect(() => {
-    api.get("/reports/employee-list").then(res => setEmployeeList(res.data.data || [])).catch(() => {});
-  }, []);
+    // Mark user as loaded when store has user data
+    if (user) setUserLoaded(true);
+  }, [user]);
+
+  useEffect(() => {
+    if (!userLoaded) return;
+    api.get("/reports/employee-list").then(res => setEmployeeList(res.data.data || [])).catch((e) => {
+      console.error("Failed to fetch employee list:", e);
+    });
+  }, [userLoaded]);
 
   useEffect(() => {
     setReportData([]); setGenerated(false); setPage(1); setSearch(""); setGenError(null);
@@ -109,7 +118,7 @@ export default function ReportsPage() {
       setReportData(res.data.data || []);
       setGenerated(true); setPage(1);
     } catch (e: any) {
-      console.error(e);
+      console.error("Report generation error:", e);
       setGenError(e.response?.data?.message || "Failed to generate report. Please try again.");
     }
     finally { setLoading(false); }
@@ -138,6 +147,11 @@ export default function ReportsPage() {
     });
     return Array.from(dateSet).sort();
   }, [reportData, reportType]);
+
+  // Show loader while user is being loaded
+  if (!userLoaded) {
+    return <PageLoader />;
+  }
 
   if (user?.role !== "Super Admin" && user?.role !== "HR") {
     return <div className="flex items-center justify-center h-full text-slate-400">You do not have permission to view reports.</div>;
