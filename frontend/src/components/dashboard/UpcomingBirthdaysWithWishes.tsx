@@ -79,6 +79,17 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
   // Reset index if current index is out of bounds
   const safeIndex = currentIndex >= upcomingItems.length ? upcomingItems.length - 1 : currentIndex;
   const person = upcomingItems[safeIndex];
+
+  // Defensive checks for person object
+  if (!person || typeof person !== 'object') {
+    return (
+      <div className="premium-card p-6 flex flex-col justify-center" style={{ height: '224px' }}>
+        <h3 className="font-bold text-white mb-4">🎂 Upcoming Birthdays</h3>
+        <p className="text-sm text-slate-400">Unable to load birthday data.</p>
+      </div>
+    );
+  }
+
   const isToday = person.days_remaining === 0;
   const isSelf = currentUser?.id === person.id;
   const canWish = isToday && !isSelf;
@@ -102,22 +113,34 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
           <div className="group relative shrink-0">
             <Avatar className="h-12 w-12 cursor-help">
               <AvatarImage src={person.profile_photo_path} />
-              <AvatarFallback>{person.name?.[0] || "?"}</AvatarFallback>
+              <AvatarFallback>
+                {typeof person.name === 'string' ? person.name?.[0] : '?'}
+              </AvatarFallback>
             </Avatar>
             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-slate-950 border border-slate-700 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 shadow-lg font-medium">
-              {person.name}
+              {typeof person.name === 'string' ? person.name : 'Unknown'}
             </div>
           </div>
 
           {/* Name pill below avatar */}
           <div className="bg-slate-900 px-3 py-1 rounded-full text-center">
-            <p className="font-semibold text-white text-xs line-clamp-1">{person.name || "Unknown"}</p>
+            <p className="font-semibold text-white text-xs line-clamp-1">
+              {typeof person.name === 'string' ? person.name : 'Unknown'}
+            </p>
           </div>
 
           {/* Date and wish button */}
           <div className="flex items-center justify-center gap-2">
             <div className="text-center">
-              <p className="text-xs font-bold text-amber-400">{person.date?.split("-")[2]} {["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][parseInt(person.date?.split("-")[1] || "0")]}</p>
+              <p className="text-xs font-bold text-amber-400">
+                {typeof person.date === 'string' ? (
+                  <>
+                    {person.date.split("-")[2]} {["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][parseInt(person.date.split("-")[1] || "0")]}
+                  </>
+                ) : (
+                  "Date N/A"
+                )}
+              </p>
               {isToday ? (
                 <span className="text-[10px] uppercase font-bold bg-pink-500 text-white px-1.5 py-0.5 rounded inline-block mt-0.5">TODAY!</span>
               ) : (
@@ -166,7 +189,7 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4 pointer-events-auto">
           <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h4 className="font-bold text-white truncate">{`Wish ${person.name}`}</h4>
+              <h4 className="font-bold text-white truncate">{`Wish ${typeof person.name === 'string' ? person.name : 'Unknown'}`}</h4>
               <button
                 onClick={() => setSelectedBirthdayId(null)}
                 className="p-1 hover:bg-slate-800 rounded shrink-0"
