@@ -99,7 +99,7 @@ export function BirthdayWishBox({ userId }: { userId: number }) {
           />
 
           {/* Emoji Picker */}
-          <div className="relative">
+          <div className="relative z-40">
             <Button
               type="button"
               variant="outline"
@@ -113,7 +113,7 @@ export function BirthdayWishBox({ userId }: { userId: number }) {
 
             {/* Emoji Grid */}
             {showEmojiPicker && (
-              <div className="absolute top-full mt-2 left-0 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-3 grid grid-cols-6 gap-2 w-max shadow-xl z-50">
+              <div className="absolute top-full mt-2 left-0 bg-slate-800 border border-white/20 rounded-lg p-3 grid grid-cols-6 gap-1 shadow-2xl z-50 backdrop-blur-sm" style={{ minWidth: '240px' }}>
                 {EMOJIS.map((emoji, idx) => (
                   <button
                     key={idx}
@@ -122,8 +122,9 @@ export function BirthdayWishBox({ userId }: { userId: number }) {
                       handleEmojiClick(emoji);
                       setShowEmojiPicker(false);
                     }}
-                    className="text-2xl hover:bg-white/20 p-2 rounded transition-colors duration-200 hover:scale-125 transform"
-                    title={emoji}
+                    className="text-3xl p-2 rounded hover:bg-white/10 transition-all duration-150 active:scale-90 flex items-center justify-center"
+                    style={{ fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif' }}
+                    title={`Insert ${emoji}`}
                   >
                     {emoji}
                   </button>

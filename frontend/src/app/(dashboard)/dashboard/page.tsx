@@ -265,7 +265,7 @@ export default function DashboardPage() {
                     <div key={member.id} className={`bg-gradient-to-br from-slate-800/50 to-slate-900/50 rounded-lg p-3 border border-white/10 hover:border-white/20 transition-colors`}>
                       <p className="text-xs font-bold text-slate-300 truncate">{member.name}</p>
                       <div className="flex items-center gap-2 mt-2">
-                        <span className="text-lg">{statusClasses.icon}</span>
+                        <span className={`text-lg ${statusClasses.text}`}>{statusClasses.icon}</span>
                         <span className={`text-xs font-semibold ${statusClasses.text}`}>{member.status}</span>
                       </div>
                     </div>
