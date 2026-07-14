@@ -1,7 +1,7 @@
 "use client";
 
+import React, { useEffect, useState, useMemo } from "react";
 import { PageLoader } from "@/components/ui/PageLoader";
-import { useEffect, useState, useMemo } from "react";
 import { useAuthStore } from "@/store/auth";
 import { FileText, Users, CalendarDays, BarChart3, Download, Printer, Search, ChevronUp, ChevronDown, Loader2, AlertCircle, Activity } from "lucide-react";
 import api, { apiCache } from "@/services/api";
@@ -114,12 +114,23 @@ export default function ReportsPage() {
         if (startDate) params.start_date = startDate;
         if (endDate) params.end_date = endDate;
       }
+
       const res = await api.get(`/reports/${reportType}`, { params });
-      setReportData(res.data.data || []);
-      setGenerated(true); setPage(1);
+      const data = res.data.data || [];
+
+      // Validate data structure
+      if (!Array.isArray(data)) {
+        console.error("Invalid report data structure:", data);
+        setGenError("Invalid report data received from server.");
+        return;
+      }
+
+      setReportData(data);
+      setGenerated(true);
+      setPage(1);
     } catch (e: any) {
       console.error("Report generation error:", e);
-      setGenError(e.response?.data?.message || "Failed to generate report. Please try again.");
+      setGenError(e.response?.data?.message || e.message || "Failed to generate report. Please try again.");
     }
     finally { setLoading(false); }
   };
@@ -224,8 +235,16 @@ export default function ReportsPage() {
       {generated && reportData.length === 0 && <div className="text-center py-16 text-slate-400 flex flex-col items-center gap-3"><AlertCircle className="w-10 h-10 text-slate-500" />No records found.</div>}
 
       {/* Single employee detailed view */}
-      {isSingle && reportType === "employees" && emp && <SingleEmployeeReport emp={emp} />}
-      {isSingle && reportType === "leave-balances" && emp && <SingleLeaveBalanceReport emp={emp} />}
+      {isSingle && reportType === "employees" && emp && (
+        <ErrorBoundary fallback={<div className="text-red-400 p-4 bg-red-500/10 rounded-xl">Error rendering employee report</div>}>
+          <SingleEmployeeReport emp={emp} />
+        </ErrorBoundary>
+      )}
+      {isSingle && reportType === "leave-balances" && emp && (
+        <ErrorBoundary fallback={<div className="text-red-400 p-4 bg-red-500/10 rounded-xl">Error rendering leave balance report</div>}>
+          <SingleLeaveBalanceReport emp={emp} />
+        </ErrorBoundary>
+      )}
 
       {/* Table view */}
       {generated && filtered.length > 0 && (!isSingle || reportType === "leaves") && (
@@ -391,9 +410,10 @@ function InfoRow({ label, value }: { label: string; value: any }) {
 }
 
 function StatBox({ label, value, color = "text-white" }: { label: string; value: any; color?: string }) {
+  const displayValue = typeof value === 'number' ? value : (value ?? 0);
   return (
     <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
-      <p className={`text-2xl font-black ${color}`}>{value ?? 0}</p>
+      <p className={`text-2xl font-black ${color}`}>{isNaN(displayValue) ? 0 : displayValue}</p>
       <p className="text-xs text-slate-400 mt-1 font-semibold uppercase tracking-wider leading-tight">{label}</p>
     </div>
   );
@@ -479,4 +499,24 @@ function SingleLeaveBalanceReport({ emp }: { emp: any }) {
       </div>
     </div>
   );
+}
+
+class ErrorBoundary extends React.Component<{ children: React.ReactNode; fallback: React.ReactNode }, { hasError: boolean }> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: any) {
+    console.error("Report component error:", error);
+  }
+
+  render() {
+    if (this.state.hasError) return this.props.fallback;
+    return this.props.children;
+  }
 }
