@@ -3,7 +3,7 @@
 import { PageLoader } from "@/components/ui/PageLoader";
 import { useState, useEffect, useRef } from "react";
 import {
-  Megaphone, Pin, Plus, Pencil, Trash2, Loader2, Calendar, Clock, Tag, X, Check
+  Megaphone, Pin, Plus, Pencil, Trash2, Loader2, Calendar, Tag, X, Check
 } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
@@ -37,8 +37,6 @@ export default function AnnouncementsPage() {
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("");
   const [isPinned, setIsPinned] = useState(false);
-  const [scheduledAt, setScheduledAt] = useState("");
-  const [expiresAt, setExpiresAt] = useState("");
   const imageRef = useRef<HTMLInputElement>(null);
 
   // Inline Category creation state
@@ -87,7 +85,6 @@ export default function AnnouncementsPage() {
   const openCreate = () => {
     setEditTarget(null);
     setTitle(""); setContent(""); setCategory(""); setIsPinned(false);
-    setScheduledAt(""); setExpiresAt("");
     setIsAddingCategory(false);
     setNewCategoryName("");
     setShowDialog(true);
@@ -99,8 +96,6 @@ export default function AnnouncementsPage() {
     setContent(ann.content);
     setCategory(ann.category);
     setIsPinned(ann.is_pinned);
-    setScheduledAt(ann.scheduled_at ? ann.scheduled_at.slice(0, 16).replace(' ', 'T') : "");
-    setExpiresAt(ann.expires_at ? ann.expires_at.slice(0, 16).replace(' ', 'T') : "");
     setIsAddingCategory(false);
     setNewCategoryName("");
     setShowDialog(true);
@@ -111,8 +106,7 @@ export default function AnnouncementsPage() {
     try {
       if (editTarget) {
         await api.put(`/announcements/${editTarget.id}`, {
-          title, content, category, is_pinned: isPinned,
-          scheduled_at: scheduledAt || null, expires_at: expiresAt || null
+          title, content, category, is_pinned: isPinned
         });
         alert("✅ Announcement updated successfully!");
       } else {
@@ -121,8 +115,6 @@ export default function AnnouncementsPage() {
         formData.append("content", content);
         formData.append("category", category);
         formData.append("is_pinned", isPinned ? "1" : "0");
-        if (scheduledAt) formData.append("scheduled_at", scheduledAt);
-        if (expiresAt) formData.append("expires_at", expiresAt);
         if (imageRef.current?.files?.[0]) formData.append("image", imageRef.current.files[0]);
 
         await api.post("/announcements", formData, {
@@ -137,8 +129,6 @@ export default function AnnouncementsPage() {
       setContent("");
       setCategory("");
       setIsPinned(false);
-      setScheduledAt("");
-      setExpiresAt("");
       if (imageRef.current) imageRef.current.value = "";
 
       // Refresh announcements
@@ -241,11 +231,6 @@ export default function AnnouncementsPage() {
                       <span className={`text-xs font-medium border px-2 py-0.5 rounded-full ${style.badge}`}>
                         {ann.category}
                       </span>
-                      {ann.expires_at && (
-                        <span className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Clock className="h-3 w-3" /> Expires {formatDate(ann.expires_at)}
-                        </span>
-                      )}
                     </div>
 
                     <h3 className="text-lg font-semibold leading-tight mb-1">{ann.title}</h3>
@@ -358,16 +343,6 @@ export default function AnnouncementsPage() {
                 />
               </div>
             )}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>Schedule For <span className="text-muted-foreground">(optional)</span></Label>
-                <Input type="datetime-local" className="mt-1" value={scheduledAt} onChange={e => setScheduledAt(e.target.value)} />
-              </div>
-              <div>
-                <Label>Expires At <span className="text-muted-foreground">(optional)</span></Label>
-                <Input type="datetime-local" className="mt-1" value={expiresAt} onChange={e => setExpiresAt(e.target.value)} />
-              </div>
-            </div>
             <div className="flex items-center gap-2">
               <input
                 type="checkbox"
