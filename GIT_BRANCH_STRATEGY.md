@@ -7,23 +7,24 @@
 │                   GitHub Repository                         │
 ├─────────────────────────────────────────────────────────────┤
 │                                                              │
-│  main branch (PRODUCTION - Current)                         │
+│  office branch (PRODUCTION - LIVE)                          │
 │  ├── Frontend: Vercel (intersmart-portal.vercel.app)       │
 │  ├── Backend: Render API                                    │
 │  └── Database: Supabase                                     │
-│      (Auto-deploys on push)                                 │
+│      (Live system, currently running in production)         │
 │                                                              │
-│  office branch (TESTING & OFFICE DEPLOYMENT)                │
+│  main branch (TESTING & STAGING)                            │
 │  ├── Frontend: Vercel (workplace.intersmart.in)            │
 │  ├── Backend: cPanel (173.249.159.38)                      │
 │  └── Database: Office PostgreSQL                            │
-│      (Auto-deploys on push)                                 │
+│      (New office server setup, testing phase)               │
 │                                                              │
 │  feature/* branches (Development)                           │
-│  ├── Create from: office branch                             │
-│  ├── Test on: office deployment                             │
-│  ├── PR into: office branch                                 │
-│  └── After approval, PR into: main branch                   │
+│  ├── Create from: main branch (for new features)            │
+│  ├── Test on: main deployment (workplace.intersmart.in)    │
+│  ├── PR into: main branch                                   │
+│  └── After stable testing, PR into: office branch           │
+│      (Only merge to office when production-ready)           │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -57,37 +58,37 @@ git push -u origin office
 
 ## 2. Vercel Configuration
 
-### 2.1 Production Vercel Project (main branch)
+### 2.1 Production Vercel Project (office branch - LIVE)
 **Project Name:** intersmart-portal
-- **Connected Branch:** main
+- **Connected Branch:** office
 - **Domain:** intersmart-portal.vercel.app
 - **Environment Variables:**
   ```
   NEXT_PUBLIC_API_URL=https://your-render-api.onrender.com/api
   ```
-- **Auto-deploy:** Enabled on push to main
+- **Auto-deploy:** Enabled on push to office (LIVE system)
 
-### 2.2 Office Vercel Project (office branch)
+### 2.2 Testing Vercel Project (main branch - TESTING)
 **Project Name:** intersmart-office
-- **Connected Branch:** office
+- **Connected Branch:** main
 - **Domain:** workplace.intersmart.in
 - **Environment Variables:**
   ```
   NEXT_PUBLIC_API_URL=https://workplace.intersmart.in/api
   ```
-- **Auto-deploy:** Enabled on push to office
+- **Auto-deploy:** Enabled on push to main (Testing/Staging)
 
-### 2.3 Create New Vercel Project for Office
+### 2.3 Create New Vercel Project for Testing/Office Server
 ```bash
 # Create new project in Vercel
 1. Go to vercel.com/dashboard
 2. Click "New Project"
 3. Import same GitHub repo
 4. Root directory: frontend
-5. Select branch: office (NOT main)
+5. Select branch: main (Testing branch)
 6. Name project: intersmart-office (or similar)
 7. Add environment variable: NEXT_PUBLIC_API_URL=https://workplace.intersmart.in/api
-8. Deploy
+8. Deploy (will be at workplace.intersmart.in after DNS setup)
 ```
 
 ---
@@ -96,7 +97,7 @@ git push -u origin office
 
 ### 3.1 Create Separate .env files per branch
 
-#### On `main` branch (Production)
+#### On `office` branch (Production - LIVE)
 **File:** `backend/.env.production`
 ```env
 APP_NAME="Intersmart Employee Portal"
@@ -122,10 +123,10 @@ SANCTUM_STATEFUL_DOMAINS=intersmart-portal.vercel.app
 SESSION_DRIVER=cookie
 ```
 
-#### On `office` branch (Office Server)
-**File:** `backend/.env.office`
+#### On `main` branch (Testing - Office Server Setup)
+**File:** `backend/.env.testing`
 ```env
-APP_NAME="Intersmart Employee Portal - Office"
+APP_NAME="Intersmart Employee Portal - Testing"
 APP_ENV=production
 APP_KEY=<generate-new-key>
 APP_URL=https://workplace.intersmart.in/api
@@ -164,9 +165,9 @@ backend/.env.office
 
 ### 4.1 Create Feature Branch
 ```bash
-# Always create from office branch (testing branch)
-git checkout office
-git pull origin office
+# Always create from main branch (testing/staging branch)
+git checkout main
+git pull origin main
 
 # Create feature branch
 git checkout -b feature/new-feature
@@ -184,45 +185,46 @@ git commit -m "feat: add new feature"
 git push -u origin feature/new-feature
 ```
 
-### 4.3 Create Pull Request to office branch
+### 4.3 Create Pull Request to main branch
 ```bash
 # In GitHub:
 1. Go to Pull requests
 2. Click "New Pull Request"
-3. Base: office
+3. Base: main (Testing branch)
 4. Compare: feature/new-feature
 5. Create PR
 6. Add description and details
 ```
 
-### 4.4 Test on Office Version
+### 4.4 Test on Testing/Staging Version
 ```
 1. Vercel auto-deploys to workplace.intersmart.in when PR is created
-2. Test the changes on office deployment
+2. Test the changes on main (workplace.intersmart.in)
 3. Verify in logs: tail -f ~/public_html/api/storage/logs/laravel.log
 4. Test API functionality
 5. Test database operations
+6. Test thoroughly before merging
 ```
 
-### 4.5 Merge to office branch (after testing)
+### 4.5 Merge to main branch (after testing)
 ```bash
 # In GitHub:
 1. Review PR
 2. If tests pass: Click "Squash and merge" or "Merge"
 3. Delete feature branch
-4. Vercel auto-deploys to workplace.intersmart.in
+4. Vercel auto-deploys to workplace.intersmart.in (testing version)
 ```
 
-### 4.6 Merge to main branch (production)
+### 4.6 Merge to office branch (production) - ONLY WHEN STABLE
 ```bash
-# After office version is stable:
+# After main version is stable for 24-48 hours:
 1. Go to "New Pull Request"
-2. Base: main
-3. Compare: office
-4. Create PR (title: "Merge office → main")
-5. Review changes
-6. Merge to main
-7. Vercel auto-deploys to intersmart-portal.vercel.app
+2. Base: office (Production)
+3. Compare: main
+4. Create PR (title: "Merge main → office (Production Release)")
+5. Review changes carefully (this is production!)
+6. Merge to office
+7. Vercel auto-deploys to intersmart-portal.vercel.app (LIVE)
 8. Render backend auto-deploys (if any backend changes)
 ```
 
@@ -232,7 +234,7 @@ git push -u origin feature/new-feature
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│  Create Feature Branch from office                           │
+│  Create Feature Branch from main (Testing)                   │
 └────────────────────────┬─────────────────────────────────────┘
                          │
                     git checkout -b feature/xyz
@@ -246,47 +248,48 @@ git push -u origin feature/new-feature
                          │
                          ▼
 ┌──────────────────────────────────────────────────────────────┐
-│  Create PR: feature/xyz → office                             │
+│  Create PR: feature/xyz → main (Testing)                     │
 └────────────────────────┬─────────────────────────────────────┘
                          │
-           Vercel auto-deploys to workplace.intersmart.in
-           (Test here!)
+        Vercel auto-deploys to workplace.intersmart.in
+        (Test on staging/office server!)
                          │
                          ▼
 ┌──────────────────────────────────────────────────────────────┐
-│  Testing & Code Review                                       │
-│  - Test on office deployment                                 │
+│  Testing & Code Review (24-48 hours minimum)                 │
+│  - Test on main deployment (workplace.intersmart.in)         │
 │  - Check logs                                                │
 │  - Verify functionality                                      │
 │  - Get approval                                              │
 └────────────────────────┬─────────────────────────────────────┘
                          │
-                    ✅ Looks good?
+            ✅ Stable & Ready?
                          │
                     git merge (or GitHub UI)
                          │
                          ▼
 ┌──────────────────────────────────────────────────────────────┐
-│  Merged into office                                          │
+│  Merged into main (Testing/Staging)                          │
 │  Vercel auto-deploys to workplace.intersmart.in              │
-│  (Office version updated)                                    │
+│  (Staging version updated)                                   │
 └────────────────────────┬─────────────────────────────────────┘
                          │
-          (When ready to go live)
+      (Wait 24-48 hours, monitor closely)
                          │
                          ▼
 ┌──────────────────────────────────────────────────────────────┐
-│  Create PR: office → main                                    │
+│  Create PR: main → office (Production)                       │
+│  ⚠️ THIS IS PRODUCTION ⚠️                                    │
 └────────────────────────┬─────────────────────────────────────┘
                          │
-           Review changes from office
+        Review changes carefully (LIVE system!)
                          │
                          ▼
 ┌──────────────────────────────────────────────────────────────┐
-│  Merge to main                                               │
+│  Merge to office (Production)                                │
 │  Vercel auto-deploys to intersmart-portal.vercel.app         │
 │  Render auto-deploys backend                                 │
-│  (Production updated)                                        │
+│  (LIVE Production system updated)                            │
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -296,8 +299,8 @@ git push -u origin feature/new-feature
 
 ### Create Feature Branch
 ```bash
-git checkout office
-git pull origin office
+git checkout main
+git pull origin main
 git checkout -b feature/your-feature-name
 ```
 
@@ -308,19 +311,19 @@ git commit -m "feat: description of change"
 git push -u origin feature/your-feature-name
 ```
 
-### Update office branch
-```bash
-git checkout office
-git pull origin office
-```
-
-### Update main branch (from office)
+### Update main branch (Testing)
 ```bash
 git checkout main
 git pull origin main
-git pull origin office  # Fetch latest from office
-git merge office        # Merge office into main
-git push origin main
+```
+
+### Update office branch (Production - when stable)
+```bash
+git checkout office
+git pull origin office
+git fetch origin main  # Fetch latest from main
+git merge origin/main  # Merge main into office
+git push origin office
 ```
 
 ### Delete feature branch after merge
@@ -549,21 +552,22 @@ jobs:
 
 ## 15. Summary
 
-| Aspect | main | office |
-|--------|------|--------|
-| **Purpose** | Production | Testing |
+| Aspect | office | main |
+|--------|--------|------|
+| **Purpose** | Production (LIVE) | Testing/Staging |
 | **Frontend** | intersmart-portal.vercel.app | workplace.intersmart.in |
 | **Backend** | Render API | cPanel (173.249.159.38) |
 | **Database** | Supabase | Office PostgreSQL |
-| **Status** | Live | Pre-production |
-| **PRs from** | office only | feature branches |
-| **Testing** | Minimal (already tested) | Full testing |
-| **Deployment** | Auto-deploy | Auto-deploy |
+| **Status** | Live & Running | Pre-production & Testing |
+| **PRs from** | main only (after stable) | feature branches |
+| **Testing** | Minimal (only hotfixes) | Full testing (24-48h minimum) |
+| **Deployment** | Auto-deploy on push | Auto-deploy on push |
 
 This strategy gives you:
-✅ Safe testing environment (office)
-✅ Stable production (main)
-✅ Clear workflow for features
+✅ Safe testing environment (main = office server setup)
+✅ Stable production (office = current live system)
+✅ Clear workflow for features: feature → main → office
+✅ Thorough testing before production updates
 ✅ Easy rollback if needed
 ✅ Automated deployments
 
