@@ -10,6 +10,45 @@ use Carbon\Carbon;
 class AnnouncementController extends Controller
 {
     /**
+     * Normalize datetime from various formats to Y-m-d H:i
+     */
+    private function normalizeDatetime($dateStr)
+    {
+        if (!$dateStr) return null;
+
+        // Handle datetime-local format: YYYY-MM-DDTHH:MM
+        if (str_contains($dateStr, 'T')) {
+            return str_replace('T', ' ', $dateStr);
+        }
+
+        // Handle DD-MM-YYYY HH:MM or DD-MM-YYYY format
+        if (preg_match('/(\d{2})-(\d{2})-(\d{4})(\s(\d{2}):(\d{2}))?/', $dateStr)) {
+            $parts = preg_split('/[\s-:]/', $dateStr);
+            if (count($parts) >= 3) {
+                $day = $parts[0];
+                $month = $parts[1];
+                $year = $parts[2];
+                $hour = $parts[3] ?? '00';
+                $minute = $parts[4] ?? '00';
+                return "$year-$month-$day $hour:$minute";
+            }
+        }
+
+        // Handle YYYY-MM-DD HH:MM format
+        if (str_contains($dateStr, '-') && str_contains($dateStr, ':')) {
+            return $dateStr;
+        }
+
+        // Try to parse with strtotime and return formatted
+        $timestamp = strtotime($dateStr);
+        if ($timestamp) {
+            return date('Y-m-d H:i', $timestamp);
+        }
+
+        return $dateStr;
+    }
+
+    /**
      * List active (non-expired, scheduled-or-past) announcements.
      * Pinned announcements appear first.
      */
@@ -39,12 +78,21 @@ class AnnouncementController extends Controller
      */
     public function store(Request $request)
     {
-        // Get raw inputs and normalize datetime-local format (T to space)
+        // Get raw inputs
         $rawScheduled = $request->input('scheduled_at');
         $rawExpires = $request->input('expires_at');
 
-        $normalizedScheduled = $rawScheduled ? str_replace('T', ' ', $rawScheduled) : null;
-        $normalizedExpires = $rawExpires ? str_replace('T', ' ', $rawExpires) : null;
+        // Normalize datetime-local format and handle various formats
+        $normalizedScheduled = null;
+        $normalizedExpires = null;
+
+        if ($rawScheduled) {
+            // Handle multiple format variations
+            $normalizedScheduled = $this->normalizeDatetime($rawScheduled);
+        }
+        if ($rawExpires) {
+            $normalizedExpires = $this->normalizeDatetime($rawExpires);
+        }
 
         // Base validation rules
         $rules = [
@@ -55,17 +103,17 @@ class AnnouncementController extends Controller
             'image'        => ['nullable', 'image', 'max:5120'],
         ];
 
-        // Only validate dates if provided
+        // Only validate dates if provided - use flexible 'date' rule
         if ($normalizedScheduled) {
-            $rules['scheduled_at'] = ['date_format:Y-m-d H:i'];
+            $rules['scheduled_at'] = ['date'];
         }
         if ($normalizedExpires) {
-            $rules['expires_at'] = ['date_format:Y-m-d H:i', 'after:now'];
+            $rules['expires_at'] = ['date', 'after:now'];
         }
 
         // If both dates provided, expires must be after scheduled
         if ($normalizedScheduled && $normalizedExpires) {
-            $rules['expires_at'] = ['date_format:Y-m-d H:i', 'after:scheduled_at'];
+            $rules['expires_at'] = ['date', 'after:scheduled_at'];
         }
 
         // Validate with normalized input
@@ -104,12 +152,19 @@ class AnnouncementController extends Controller
      */
     public function update(Request $request, Announcement $announcement)
     {
-        // Get raw inputs and normalize datetime-local format (T to space)
+        // Get raw inputs
         $rawScheduled = $request->input('scheduled_at');
         $rawExpires = $request->input('expires_at');
 
-        $normalizedScheduled = $rawScheduled ? str_replace('T', ' ', $rawScheduled) : null;
-        $normalizedExpires = $rawExpires ? str_replace('T', ' ', $rawExpires) : null;
+        $normalizedScheduled = null;
+        $normalizedExpires = null;
+
+        if ($rawScheduled) {
+            $normalizedScheduled = $this->normalizeDatetime($rawScheduled);
+        }
+        if ($rawExpires) {
+            $normalizedExpires = $this->normalizeDatetime($rawExpires);
+        }
 
         $rules = [
             'title'        => ['sometimes', 'string', 'max:255'],
@@ -119,17 +174,17 @@ class AnnouncementController extends Controller
             'image'        => ['nullable', 'image', 'max:5120'],
         ];
 
-        // Only validate dates if provided
+        // Only validate dates if provided - use flexible 'date' rule
         if ($normalizedScheduled) {
-            $rules['scheduled_at'] = ['date_format:Y-m-d H:i'];
+            $rules['scheduled_at'] = ['date'];
         }
         if ($normalizedExpires) {
-            $rules['expires_at'] = ['date_format:Y-m-d H:i', 'after:now'];
+            $rules['expires_at'] = ['date', 'after:now'];
         }
 
         // If both dates provided, expires must be after scheduled
         if ($normalizedScheduled && $normalizedExpires) {
-            $rules['expires_at'] = ['date_format:Y-m-d H:i', 'after:scheduled_at'];
+            $rules['expires_at'] = ['date', 'after:scheduled_at'];
         }
 
         $data = $request->validate($rules + [
