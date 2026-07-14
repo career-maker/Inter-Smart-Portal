@@ -493,35 +493,55 @@ export default function DashboardPage() {
         ========================================
       */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {/* Updates Widget */}
-        <div className="premium-card p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-white flex items-center gap-2">
-              <Megaphone className="w-4 h-4 text-blue-500" />
-              Latest Updates
-            </h3>
-            <Link href="/announcements" className="text-xs font-semibold text-blue-600 hover:underline">View All</Link>
-          </div>
-          <div className="space-y-3">
-            {widgets.company_updates.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <Megaphone className="w-8 h-8 text-slate-500 mb-2 opacity-50" />
-                <p className="text-sm text-slate-400">No announcements yet</p>
-                <p className="text-xs text-slate-500 mt-1">Updates will appear here</p>
-              </div>
-            ) : (
-              widgets.company_updates.slice(0, 3).map((update: any, idx: number) => (
-                <div key={idx} className="flex gap-3 items-start hover:bg-white/5 p-2 rounded-lg transition-colors">
-                  <div className="w-2 h-2 mt-1.5 rounded-full bg-blue-400 shrink-0 animate-countUp"></div>
-                  <div>
-                    <p className="text-sm font-medium text-white leading-tight">{update.title}</p>
-                    <p className="text-xs text-slate-400 mt-0.5">{format(parseISO(update.created_at), "MMM d, yyyy")}</p>
-                  </div>
+        {/* Updates Widget — Rotating Card */}
+        {widgets.company_updates.length > 1 ? (
+          <RotatingCard
+            title="Latest Updates"
+            icon={Megaphone}
+            headerClass="text-blue-300"
+            items={widgets.company_updates}
+            emptyMessage="No announcements yet"
+            renderItem={(update) => (
+              <div className="space-y-3">
+                <p className="text-sm font-bold text-white leading-tight break-words">{update.title}</p>
+                <p className="text-xs text-slate-400 leading-relaxed line-clamp-4">{update.content || 'No description'}</p>
+                <div className="flex items-center justify-between pt-2 border-t border-white/10">
+                  <p className="text-xs text-slate-500">{format(parseISO(update.created_at), "MMM d, yyyy")}</p>
+                  <Link href="/announcements" className="text-xs font-semibold text-blue-400 hover:text-blue-300">View →</Link>
                 </div>
-              ))
+              </div>
             )}
+          />
+        ) : (
+          <div className="premium-card p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-white flex items-center gap-2">
+                <Megaphone className="w-4 h-4 text-blue-500" />
+                Latest Updates
+              </h3>
+              <Link href="/announcements" className="text-xs font-semibold text-blue-600 hover:underline">View All</Link>
+            </div>
+            <div className="space-y-3">
+              {widgets.company_updates.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <Megaphone className="w-8 h-8 text-slate-500 mb-2 opacity-50" />
+                  <p className="text-sm text-slate-400">No announcements yet</p>
+                  <p className="text-xs text-slate-500 mt-1">Updates will appear here</p>
+                </div>
+              ) : (
+                widgets.company_updates.slice(0, 1).map((update: any, idx: number) => (
+                  <div key={idx} className="flex gap-3 items-start hover:bg-white/5 p-2 rounded-lg transition-colors">
+                    <div className="w-2 h-2 mt-1.5 rounded-full bg-blue-400 shrink-0 animate-countUp"></div>
+                    <div>
+                      <p className="text-sm font-medium text-white leading-tight">{update.title}</p>
+                      <p className="text-xs text-slate-400 mt-0.5">{format(parseISO(update.created_at), "MMM d, yyyy")}</p>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Work Anniversaries — rotating, 14-day filter */}
         {(() => {
