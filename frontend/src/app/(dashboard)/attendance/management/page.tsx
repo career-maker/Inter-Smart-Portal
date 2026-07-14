@@ -84,7 +84,8 @@ export default function AttendanceManagementPage() {
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isLoadingEmployees, setIsLoadingEmployees] = useState(true);
+  const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
+  const [employeeLoadAttempted, setEmployeeLoadAttempted] = useState(false);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
   const [dailyDetails, setDailyDetails] = useState<AttendanceDetails | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -93,32 +94,18 @@ export default function AttendanceManagementPage() {
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
-  // Fetch employees with pagination
+  // Fetch employees - lazy load only first page initially
   useEffect(() => {
-    const fetchAllEmployees = async () => {
+    const fetchEmployees = async () => {
+      if (employeeLoadAttempted) return;
       setIsLoadingEmployees(true);
       setError(null);
       try {
-        let allEmployees: Employee[] = [];
-        let page = 1;
-        let lastPage = 1;
-
-        // Fetch all pages of employees
-        do {
-          const res = await api.get(`/employees?page=${page}`);
-          const pageData = res.data.data || [];
-
-          if (pageData.length === 0) {
-            break;
-          }
-
-          allEmployees = [...allEmployees, ...pageData];
-          lastPage = res.data.meta?.last_page || page;
-          page++;
-        } while (page <= lastPage);
-
-        console.log("Loaded employees:", allEmployees.length);
-        setEmployees(allEmployees);
+        // Load only first page (15 employees) initially
+        const res = await api.get(`/employees?page=1&per_page=50`);
+        const pageData = res.data.data || [];
+        setEmployees(pageData);
+        setEmployeeLoadAttempted(true);
       } catch (err: any) {
         console.error("Failed to load employees:", err);
         setError(err.response?.data?.message || "Failed to load employees");
@@ -126,18 +113,37 @@ export default function AttendanceManagementPage() {
         setIsLoadingEmployees(false);
       }
     };
-    fetchAllEmployees();
-  }, []);
+    fetchEmployees();
+  }, [employeeLoadAttempted]);
 
-  // Filter employees based on search
-  const filteredEmployees = employees.filter((emp) => {
-    const query = searchQuery.toLowerCase();
-    return (
-      emp.first_name.toLowerCase().includes(query) ||
-      emp.last_name.toLowerCase().includes(query) ||
-      emp.employee_code.toLowerCase().includes(query)
-    );
-  });
+  // Search employees via API when query changes (debounced)
+  const [searchedEmployees, setSearchedEmployees] = useState<Employee[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchedEmployees([]);
+      return;
+    }
+
+    const searchTimer = setTimeout(async () => {
+      setIsSearching(true);
+      try {
+        const res = await api.get(`/employees?search=${encodeURIComponent(searchQuery)}&per_page=50`);
+        setSearchedEmployees(res.data.data || []);
+      } catch (err: any) {
+        console.error("Failed to search employees:", err);
+        setSearchedEmployees([]);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 300); // Debounce 300ms
+
+    return () => clearTimeout(searchTimer);
+  }, [searchQuery]);
+
+  // Use searched employees if search is active, otherwise use loaded employees
+  const filteredEmployees = searchQuery.trim() ? searchedEmployees : employees;
 
   // Fetch daily details
   const handleDateSelection = async (date: string) => {
@@ -375,7 +381,7 @@ export default function AttendanceManagementPage() {
             </div>
 
             {/* Employee List */}
-            {isLoadingEmployees ? (
+            {isLoadingEmployees || isSearching ? (
               <div className="flex justify-center py-8">
                 <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
               </div>
