@@ -126,10 +126,10 @@ class AnnouncementController extends Controller
         $expiresAt = $validated['expires_at'] ?? null;
 
         $announcement = Announcement::create([
-            'title'        => $data['title'],
-            'content'      => $data['content'],
-            'category'     => $data['category'],
-            'is_pinned'    => $data['is_pinned'] ?? false,
+            'title'        => $validated['title'],
+            'content'      => $validated['content'],
+            'category'     => $validated['category'],
+            'is_pinned'    => $validated['is_pinned'] ?? false,
             'scheduled_at' => $scheduledAt,
             'expires_at'   => $expiresAt,
             'image_path'   => $imagePath,
