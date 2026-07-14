@@ -77,8 +77,8 @@ class ReportController extends Controller
             ->get()
             ->groupBy('user_id')
             ->map(fn($requests) => [
-                'month' => $requests->whereYear('start_date', $currentYear)->whereMonth('start_date', $currentMonth)->count(),
-                'year' => $requests->whereYear('start_date', $currentYear)->count(),
+                'month' => $requests->filter(fn($r) => $r->start_date && Carbon::parse($r->start_date)->year == $currentYear && Carbon::parse($r->start_date)->month == $currentMonth)->count(),
+                'year' => $requests->filter(fn($r) => $r->start_date && Carbon::parse($r->start_date)->year == $currentYear)->count(),
             ]);
 
         $employees = $employees->map(function (User $emp) use ($currentYear, $currentMonth, $leaveStats, $leaveCountStats, $wfhStats) {
