@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import api from "@/services/api";
-import { Sparkles, Cake } from "lucide-react";
+import { Sparkles, Cake, Megaphone } from "lucide-react";
 
 export function RecognitionTicker() {
   const [items, setItems] = useState<any[]>([]);
@@ -10,9 +10,10 @@ export function RecognitionTicker() {
   useEffect(() => {
     const fetchRecognitionsAndBirthdays = async () => {
       try {
-        const [recognitionsRes, dashboardRes] = await Promise.all([
+        const [recognitionsRes, dashboardRes, announcementsRes] = await Promise.all([
           api.get("/active-recognitions"),
           api.get("/dashboard"),
+          api.get("/announcements"),
         ]);
 
         const recognitions = (recognitionsRes.data.data || []).map((r: any) => ({
@@ -28,15 +29,23 @@ export function RecognitionTicker() {
             user: { first_name: b.name.split(" ")[0], last_name: b.name.split(" ").slice(1).join(" ") || "" },
           }));
 
+        const pinnedAnnouncements = (announcementsRes.data.data?.data || [])
+          .filter((a: any) => a.is_pinned === true)
+          .map((a: any) => ({
+            ...a,
+            type: "announcement",
+          }));
+
         console.log("Ticker - Birthdays today:", birthdays);
         console.log("Ticker - Recognitions:", recognitions);
+        console.log("Ticker - Pinned Announcements:", pinnedAnnouncements);
 
-        const allItems = [...birthdays, ...recognitions];
+        const allItems = [...pinnedAnnouncements, ...birthdays, ...recognitions];
         console.log("Ticker - All items to display:", allItems);
 
         setItems(allItems);
       } catch (error) {
-        console.error("Failed to fetch recognitions/birthdays for ticker", error);
+        console.error("Failed to fetch recognitions/birthdays/announcements for ticker", error);
       }
     };
 
@@ -66,6 +75,13 @@ export function RecognitionTicker() {
                   🎉 Happy Birthday <span className="text-yellow-200 font-bold uppercase">{item.user.first_name} {item.user.last_name}</span>! Wishing you a wonderful day filled with joy! 🎂
                 </span>
               </>
+            ) : item.type === "announcement" ? (
+              <>
+                <Megaphone className="w-4 h-4 text-cyan-300 animate-pulse" />
+                <span>
+                  📢 <span className="text-cyan-200 font-bold">{item.title}</span>: {item.content?.substring(0, 100)}{item.content?.length > 100 ? "..." : ""}
+                </span>
+              </>
             ) : (
               <>
                 <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
@@ -84,6 +100,13 @@ export function RecognitionTicker() {
                 <Cake className="w-4 h-4 text-yellow-300 animate-bounce" />
                 <span>
                   🎉 Happy Birthday <span className="text-yellow-200 font-bold uppercase">{item.user.first_name} {item.user.last_name}</span>! Wishing you a wonderful day filled with joy! 🎂
+                </span>
+              </>
+            ) : item.type === "announcement" ? (
+              <>
+                <Megaphone className="w-4 h-4 text-cyan-300 animate-pulse" />
+                <span>
+                  📢 <span className="text-cyan-200 font-bold">{item.title}</span>: {item.content?.substring(0, 100)}{item.content?.length > 100 ? "..." : ""}
                 </span>
               </>
             ) : (
