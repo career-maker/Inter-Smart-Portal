@@ -1,11 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Heart, Send, Loader2 } from "lucide-react";
+import { Heart, Send, Loader2, Smile } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import api from "@/services/api";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+const EMOJIS = [
+  "😊", "😍", "🎉", "🎊", "🎈", "🎁",
+  "💝", "💖", "💗", "💓", "💕", "🌟",
+  "✨", "🌈", "🦋", "🌸", "🌺", "🌻",
+  "🎂", "🍰", "🧁", "🍾", "🥂", "🎵",
+  "😂", "🤗", "😘", "🥳", "🎯", "👏"
+];
 
 export function BirthdayWishBox({ userId }: { userId: number }) {
   const [wishes, setWishes] = useState<any[]>([]);
@@ -14,6 +22,7 @@ export function BirthdayWishBox({ userId }: { userId: number }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   useEffect(() => {
     fetchWishes();
@@ -47,11 +56,16 @@ export function BirthdayWishBox({ userId }: { userId: number }) {
       setWishes([res.data.data, ...wishes]);
       setMessage("");
       setShowForm(false);
+      setShowEmojiPicker(false);
     } catch (err: any) {
       setError(err.response?.data?.message || "Failed to send wish");
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleEmojiClick = (emoji: string) => {
+    setMessage((prev) => prev + emoji);
   };
 
   return (
@@ -75,6 +89,7 @@ export function BirthdayWishBox({ userId }: { userId: number }) {
         </Button>
       ) : (
         <form onSubmit={handleSubmitWish} className="space-y-4">
+          {/* Textarea */}
           <Textarea
             placeholder="Write your birthday wish message..."
             value={message}
@@ -82,6 +97,42 @@ export function BirthdayWishBox({ userId }: { userId: number }) {
             rows={3}
             className="bg-white/5 border-white/10 text-white placeholder-slate-400"
           />
+
+          {/* Emoji Picker */}
+          <div className="relative">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+              className="bg-white/5 border-white/10 hover:bg-white/10 text-white"
+            >
+              <Smile className="w-4 h-4 mr-2" />
+              Add Emoji
+            </Button>
+
+            {/* Emoji Grid */}
+            {showEmojiPicker && (
+              <div className="absolute top-full mt-2 left-0 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-3 grid grid-cols-6 gap-2 w-max shadow-xl z-50">
+                {EMOJIS.map((emoji, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => {
+                      handleEmojiClick(emoji);
+                      setShowEmojiPicker(false);
+                    }}
+                    className="text-2xl hover:bg-white/20 p-2 rounded transition-colors duration-200 hover:scale-125 transform"
+                    title={emoji}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Action Buttons */}
           <div className="flex gap-2">
             <Button
               type="submit"
@@ -101,6 +152,7 @@ export function BirthdayWishBox({ userId }: { userId: number }) {
               onClick={() => {
                 setShowForm(false);
                 setMessage("");
+                setShowEmojiPicker(false);
               }}
             >
               Cancel
@@ -143,7 +195,9 @@ export function BirthdayWishBox({ userId }: { userId: number }) {
                   </p>
                 </div>
               </div>
-              <p className="text-sm text-slate-200">{wish.message}</p>
+              <p className="text-sm text-slate-200 whitespace-pre-wrap break-words">
+                {wish.message}
+              </p>
             </div>
           ))
         )}
