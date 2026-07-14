@@ -915,28 +915,48 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
         ========================================
       */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 mt-6">
-        {/* Announcements */}
-        <div className="premium-card p-6">
-          <h2 className="text-lg font-bold text-indigo-300 mb-5 flex items-center gap-2">
-            <Megaphone className="w-5 h-5" />
-            Company Announcements
-          </h2>
-          <div className="space-y-3">
-              {widgets.company_updates.length === 0 ? (
-                <p className="text-sm text-slate-400">No recent announcements.</p>
-              ) : (
-                widgets.company_updates.map((update: any, idx: number) => (
-                  <div key={idx} className="flex gap-3 items-start border-b border-white/10 pb-3 last:border-0 last:pb-0">
-                    <div className="w-2 h-2 mt-1.5 rounded-full bg-indigo-400 shrink-0"></div>
-                    <div>
-                      <p className="text-sm font-medium text-white leading-tight">{update.title}</p>
-                      <p className="text-xs text-slate-400 mt-0.5">{format(new Date(update.created_at), "MMM d, yyyy")}</p>
+        {/* Announcements — Rotating Card */}
+        {widgets.company_updates.length > 1 ? (
+          <RotatingCard
+            title="Company Announcements"
+            icon={Megaphone}
+            headerClass="text-indigo-300"
+            items={widgets.company_updates}
+            emptyMessage="No announcements yet"
+            renderItem={(update) => (
+              <div className="space-y-3">
+                <p className="text-sm font-bold text-white leading-tight break-words">{update.title}</p>
+                <p className="text-xs text-slate-400 leading-relaxed line-clamp-4">{update.content || 'No description'}</p>
+                <div className="flex items-center justify-between pt-2 border-t border-white/10">
+                  <p className="text-xs text-slate-500">{format(parseISO(update.created_at), "MMM d, yyyy")}</p>
+                  <Link href="/announcements" className="text-xs font-semibold text-indigo-400 hover:text-indigo-300">View →</Link>
+                </div>
+              </div>
+            )}
+          />
+        ) : (
+          <div className="premium-card p-6">
+            <h2 className="text-lg font-bold text-indigo-300 mb-5 flex items-center gap-2">
+              <Megaphone className="w-5 h-5" />
+              Company Announcements
+            </h2>
+            <div className="space-y-3">
+                {widgets.company_updates.length === 0 ? (
+                  <p className="text-sm text-slate-400">No recent announcements.</p>
+                ) : (
+                  widgets.company_updates.slice(0, 1).map((update: any, idx: number) => (
+                    <div key={idx} className="flex gap-3 items-start border-b border-white/10 pb-3 last:border-0 last:pb-0">
+                      <div className="w-2 h-2 mt-1.5 rounded-full bg-indigo-400 shrink-0"></div>
+                      <div>
+                        <p className="text-sm font-medium text-white leading-tight">{update.title}</p>
+                        <p className="text-xs text-slate-400 mt-0.5">{format(new Date(update.created_at), "MMM d, yyyy")}</p>
+                      </div>
                     </div>
-                  </div>
-                ))
-              )}
+                  ))
+                )}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Work Anniversaries — rotating, 14-day filter */}
         {(() => {
