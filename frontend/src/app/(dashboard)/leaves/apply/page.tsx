@@ -328,24 +328,24 @@ export default function ApplyLeavePage() {
             <div className="mb-6 grid grid-cols-3 gap-3 bg-white/5 border border-white/10 rounded-2xl p-4">
               <div className={`text-center rounded-xl p-2 transition-all ${isCasualSelected ? "bg-emerald-500/10 ring-1 ring-emerald-500/40" : ""}`}>
                 <p className="text-xs text-slate-400 uppercase tracking-wider">Casual Leave</p>
-                <p className="text-2xl font-black text-emerald-400">{leaveMetrics.casual_leave_balance + (leaveMetrics.cl_carry_forward || 0)}</p>
-                {(leaveMetrics.cl_carry_forward || 0) > 0 && (
-                  <p className="text-xs text-slate-500 mt-0.5">{leaveMetrics.cl_carry_forward} carry-fwd</p>
+                <p className="text-2xl font-black text-emerald-400">{Math.max(0, leaveMetrics.casual_leave_balance) + Math.max(0, leaveMetrics.cl_carry_forward || 0)}</p>
+                {Math.max(0, leaveMetrics.cl_carry_forward || 0) > 0 && (
+                  <p className="text-xs text-slate-500 mt-0.5">{Math.max(0, leaveMetrics.cl_carry_forward)} carry-fwd</p>
                 )}
                 {isCasualSelected && impact?.balance && (
-                  <p className="text-xs text-slate-400 mt-0.5">→ <span className="text-emerald-300 font-bold">{afterCL}</span> after</p>
+                  <p className="text-xs text-slate-400 mt-0.5">→ <span className="text-emerald-300 font-bold">{Math.max(0, afterCL)}</span> after</p>
                 )}
               </div>
               <div className={`text-center border-l border-white/10 rounded-xl p-2 transition-all ${isSickSelected ? "bg-rose-500/10 ring-1 ring-rose-500/40" : ""}`}>
                 <p className="text-xs text-slate-400 uppercase tracking-wider">Sick Leave</p>
-                <p className="text-2xl font-black text-rose-400">{leaveMetrics.sick_leave_balance}</p>
+                <p className="text-2xl font-black text-rose-400">{Math.max(0, leaveMetrics.sick_leave_balance)}</p>
                 {isSickSelected && impact?.balance && (
-                  <p className="text-xs text-slate-400 mt-0.5">→ <span className="text-rose-300 font-bold">{afterSL}</span> after</p>
+                  <p className="text-xs text-slate-400 mt-0.5">→ <span className="text-rose-300 font-bold">{Math.max(0, afterSL)}</span> after</p>
                 )}
               </div>
               <div className="text-center border-l border-white/10 p-2">
                 <p className="text-xs text-slate-400 uppercase tracking-wider">Total Taken</p>
-                <p className="text-2xl font-black text-indigo-400">{leaveMetrics.total_leaves_taken}</p>
+                <p className="text-2xl font-black text-indigo-400">{Math.max(0, leaveMetrics.total_leaves_taken)}</p>
               </div>
             </div>
           );

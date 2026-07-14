@@ -289,22 +289,22 @@ export default function LeaveBalancesPage() {
                     </td>
                     <td className="px-4 py-4 text-center">
                       <span className="inline-block bg-amber-500/20 text-amber-300 font-bold text-sm px-3 py-1 rounded-full">
-                        {emp.casual_leave_balance}
+                        {Math.max(0, emp.casual_leave_balance)}
                       </span>
                     </td>
                     <td className="px-4 py-4 text-center">
                       <span className="inline-block bg-orange-500/20 text-orange-300 font-bold text-sm px-3 py-1 rounded-full">
-                        {emp.cl_carry_forward}
+                        {Math.max(0, emp.cl_carry_forward)}
                         {emp.cl_carry_forward_year && <span className="text-xs ml-1 opacity-70">({emp.cl_carry_forward_year})</span>}
                       </span>
                     </td>
                     <td className="px-4 py-4 text-center">
                       <span className="inline-block bg-blue-500/20 text-blue-300 font-bold text-sm px-3 py-1 rounded-full">
-                        {emp.sick_leave_balance}
+                        {Math.max(0, emp.sick_leave_balance)}
                       </span>
                     </td>
                     <td className="px-4 py-4 text-center">
-                      <span className="text-slate-300 font-semibold text-sm">{emp.total_leaves_taken}</span>
+                      <span className="text-slate-300 font-semibold text-sm">{Math.max(0, emp.total_leaves_taken)}</span>
                     </td>
                     <td className="px-4 py-4 text-center">
                       <button

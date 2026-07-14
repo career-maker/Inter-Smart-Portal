@@ -44,11 +44,11 @@ class LeaveBalanceController extends Controller
                         'name'                  => trim($emp->first_name . ' ' . $emp->last_name),
                         'employee_code'         => $emp->employee_code ?? '—',
                         'designation'           => $emp->designation ?? '—',
-                        'casual_leave_balance'  => $balance ? (float)($balance->casual_leave_balance ?? 0) : 0,
-                        'cl_carry_forward'      => $balance ? (float)(data_get($balance, 'cl_carry_forward', 0)) : 0,
+                        'casual_leave_balance'  => max(0, (float)($balance->casual_leave_balance ?? 0)),
+                        'cl_carry_forward'      => max(0, (float)(data_get($balance, 'cl_carry_forward', 0))),
                         'cl_carry_forward_year' => $balance ? data_get($balance, 'cl_carry_forward_year') : null,
-                        'sick_leave_balance'    => $balance ? (float)($balance->sick_leave_balance ?? 0) : 0,
-                        'total_leaves_taken'    => $totalTaken,
+                        'sick_leave_balance'    => max(0, (float)($balance->sick_leave_balance ?? 0)),
+                        'total_leaves_taken'    => max(0, $totalTaken),
                     ];
                 });
 
@@ -75,7 +75,12 @@ class LeaveBalanceController extends Controller
             'cl_carry_forward' => 0,
             'sick_leave_balance' => 0,
         ];
-        $data['total_leaves_taken'] = $totalTaken;
+
+        // Clamp all balances to 0 to prevent negative values
+        $data['casual_leave_balance'] = max(0, (float)($data['casual_leave_balance'] ?? 0));
+        $data['cl_carry_forward'] = max(0, (float)($data['cl_carry_forward'] ?? 0));
+        $data['sick_leave_balance'] = max(0, (float)($data['sick_leave_balance'] ?? 0));
+        $data['total_leaves_taken'] = max(0, $totalTaken);
 
         return response()->json(['data' => $data]);
     }
