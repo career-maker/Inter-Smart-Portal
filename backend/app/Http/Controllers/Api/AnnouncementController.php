@@ -206,6 +206,6 @@ class AnnouncementController extends Controller
     public function destroy(Announcement $announcement)
     {
         $announcement->delete();
-        return response()->json(['message' => 'Announcement deleted.']);
+        return response()->json(['message' => 'Announcement deleted successfully.'], 200);
     }
 }

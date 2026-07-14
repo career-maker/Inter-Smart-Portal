@@ -160,9 +160,21 @@ export default function AnnouncementsPage() {
     if (!confirm("Delete this announcement?")) return;
     try {
       await api.delete(`/announcements/${id}`);
-      fetchAnnouncements();
+      alert("✅ Announcement deleted successfully!");
+      // Refresh announcements and wait for it to complete
+      await fetchAnnouncements();
     } catch (e: any) {
-      alert(e.response?.data?.message || "Error deleting.");
+      const errorMsg = e.response?.data?.message || "Error deleting.";
+      const statusCode = e.response?.status;
+
+      // Handle 404 - already deleted
+      if (statusCode === 404) {
+        alert("ℹ️ This announcement was already deleted.");
+        // Still refresh the list to remove it from UI
+        await fetchAnnouncements();
+      } else {
+        alert("❌ Error:\n" + errorMsg);
+      }
     }
   };
 
