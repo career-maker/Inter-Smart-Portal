@@ -324,37 +324,43 @@ export default function ReportsPage() {
                     </>}
                     {reportType === "attendance-summary" && <>
                       <td className="px-4 py-3 font-mono text-xs text-slate-300">{row.employee_code}</td>
-                      <td className="px-4 py-3 text-white font-semibold whitespace-nowrap">{row.name}</td>
-                      <td className="px-4 py-3 text-slate-300 text-sm">{row.team || "—"}</td>
+                      <td className="px-4 py-3 text-white font-semibold whitespace-nowrap">{typeof row.name === 'string' ? row.name : (row.first_name + ' ' + row.last_name) || '—'}</td>
+                      <td className="px-4 py-3 text-slate-300 text-sm">{typeof row.team === 'object' && row.team?.name ? row.team.name : (typeof row.team === 'string' ? row.team : '—')}</td>
                       {allDates.map((date: string) => {
-                        const day = row.daily_status?.find((d: any) => d.date === date);
-                        let textColor = "text-slate-400";
-                        let displayText = "";
+                        try {
+                          const day = Array.isArray(row.daily_status) ? row.daily_status.find((d: any) => d && d.date === date) : null;
+                          let textColor = "text-slate-400";
+                          let displayText = "";
 
-                        if (day) {
-                          if (day.status === 'P') {
-                            textColor = day.is_late ? "text-amber-400 font-bold" : "text-emerald-400 font-bold";
-                            displayText = day.is_late ? "L" : "P";
+                          if (day && typeof day === 'object') {
+                            const status = String(day.status || '').trim();
+                            if (status === 'P') {
+                              textColor = day.is_late ? "text-amber-400 font-bold" : "text-emerald-400 font-bold";
+                              displayText = day.is_late ? "L" : "P";
+                            }
+                            else if (status === 'A') {
+                              textColor = "";
+                              displayText = "";
+                            }
+                            else if (status === 'W') {
+                              textColor = "text-blue-400 font-bold";
+                              displayText = "WFH";
+                            }
+                            else if (status === 'H') {
+                              textColor = "text-amber-400 font-bold";
+                              displayText = day.leave_type || "H";
+                            }
+                            else if (status === 'L') {
+                              textColor = "text-purple-400 font-bold";
+                              displayText = day.leave_type || "LV";
+                            }
                           }
-                          else if (day.status === 'A') {
-                            textColor = "";
-                            displayText = "";
-                          }
-                          else if (day.status === 'W') {
-                            textColor = "text-blue-400 font-bold";
-                            displayText = "WFH";
-                          }
-                          else if (day.status === 'H') {
-                            textColor = "text-amber-400 font-bold";
-                            displayText = day.leave_type || "H";
-                          }
-                          else if (day.status === 'L') {
-                            textColor = "text-purple-400 font-bold";
-                            displayText = day.leave_type || "LV";
-                          }
+
+                          return displayText ? <td key={date} className={`px-1.5 py-2 text-center text-xs ${textColor} whitespace-nowrap`}>{displayText}</td> : <td key={date} className="px-1.5 py-2 text-center text-xs"></td>;
+                        } catch (e) {
+                          console.error('Error rendering attendance day cell:', e);
+                          return <td key={date} className="px-1.5 py-2 text-center text-xs">-</td>;
                         }
-
-                        return displayText ? <td key={date} className={`px-1.5 py-2 text-center text-xs ${textColor} whitespace-nowrap`}>{displayText}</td> : <td key={date} className="px-1.5 py-2 text-center text-xs"></td>;
                       })}
                       <td className="px-4 py-3 text-center font-bold text-emerald-400">{row.p_count || 0}</td>
                       <td className="px-4 py-3 text-center font-bold text-amber-400">{row.l_count || 0}</td>
