@@ -11,6 +11,7 @@ use App\Models\LeaveRequest;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -396,45 +397,36 @@ class DashboardController extends Controller
                         ];
                     });
 
-                // Fetch team members for Team Lead
+                // Fetch team members with their status (optimized with single query)
                 $teamMembers = User::where('team_id', $teamId)
                     ->where('status', 'Active')
-                    ->get(['id', 'first_name', 'last_name'])
-                    ->map(function($member) use ($todayStr) {
-                        // Determine status: Present, On Leave, or WFH
-                        $attendance = \App\Models\Attendance::where('user_id', $member->id)
-                            ->where('date', $todayStr)
-                            ->first();
-
-                        $onLeaveRequest = LeaveRequest::where('user_id', $member->id)
-                            ->where('status', 'Approved')
-                            ->where('start_date', '<=', $todayStr)
-                            ->where('end_date', '>=', $todayStr)
-                            ->whereHas('leaveType', function ($q) {
-                                $q->where('name', 'not like', '%Work From Home%')
-                                  ->where('name', 'not like', '%WFH%');
-                            })
-                            ->exists();
-
-                        $wfhRequest = LeaveRequest::where('user_id', $member->id)
-                            ->where('status', 'Approved')
-                            ->where('start_date', '<=', $todayStr)
-                            ->where('end_date', '>=', $todayStr)
-                            ->whereHas('leaveType', function ($q) {
-                                $q->where('name', 'like', '%Work From Home%')
-                                  ->orWhere('name', 'like', '%WFH%');
-                            })
-                            ->exists();
-
+                    ->leftJoin('attendance', function ($join) use ($todayStr) {
+                        $join->on('users.id', '=', 'attendance.user_id')
+                             ->where('attendance.date', $todayStr);
+                    })
+                    ->leftJoin('leave_requests as lr', function ($join) use ($todayStr) {
+                        $join->on('users.id', '=', 'lr.user_id')
+                             ->where('lr.status', 'Approved')
+                             ->where('lr.start_date', '<=', $todayStr)
+                             ->where('lr.end_date', '>=', $todayStr);
+                    })
+                    ->leftJoin('leave_types', 'lr.leave_type_id', '=', 'leave_types.id')
+                    ->select('users.id', 'users.first_name', 'users.last_name',
+                             DB::raw('CASE WHEN lr.id IS NULL THEN NULL
+                                          WHEN leave_types.name LIKE "%Work From Home%" OR leave_types.name LIKE "%WFH%" THEN "WFH"
+                                          ELSE "Leave" END as leave_status'),
+                             DB::raw('IF(attendance.check_in_time IS NOT NULL, 1, 0) as has_checkin'))
+                    ->distinct()
+                    ->get()
+                    ->map(function($member) {
                         $status = 'Not Checked In';
-                        if ($onLeaveRequest) {
+                        if ($member->leave_status === 'Leave') {
                             $status = 'On Leave';
-                        } elseif ($wfhRequest) {
+                        } elseif ($member->leave_status === 'WFH') {
                             $status = 'WFH';
-                        } elseif ($attendance && $attendance->check_in_time) {
+                        } elseif ($member->has_checkin) {
                             $status = 'Present';
                         }
-
                         return [
                             'id' => $member->id,
                             'name' => $member->first_name . ' ' . $member->last_name,
@@ -446,12 +438,13 @@ class DashboardController extends Controller
                 $responseData['widgets']['team_members'] = $teamMembers;
             }
             
-            // Global Activity Feed
+            // Global Activity Feed (optimized with LIMIT)
             $twoDaysAgo = \Carbon\Carbon::today('Asia/Kolkata')->subDays(2);
-            
+
             $recentLeaves = LeaveRequest::with('user:id,first_name,last_name')
                 ->where('created_at', '>=', $twoDaysAgo)
                 ->latest()
+                ->limit(5)
                 ->get()
                 ->map(function($l) {
                     return [
@@ -460,10 +453,11 @@ class DashboardController extends Controller
                         'date' => $l->created_at
                     ];
                 });
-                
+
             $recentUsers = User::with('team:id,name')
                 ->where('created_at', '>=', $twoDaysAgo)
                 ->latest()
+                ->limit(5)
                 ->get()
                 ->map(function($u) {
                     $teamName = $u->team ? $u->team->name : 'the company';
@@ -473,9 +467,10 @@ class DashboardController extends Controller
                         'date' => $u->created_at
                     ];
                 });
-                
+
             $recentPolicies = \App\Models\HrPolicy::where('created_at', '>=', $twoDaysAgo)
                 ->latest()
+                ->limit(5)
                 ->get()
                 ->map(function($p) {
                     return [
@@ -484,9 +479,10 @@ class DashboardController extends Controller
                         'date' => $p->created_at
                     ];
                 });
-                
+
             $globalFeed = collect($recentLeaves)->merge($recentUsers)->merge($recentPolicies)
                 ->sortByDesc('date')
+                ->take(8)
                 ->values();
                 
             // For Super Admin, add additional widgets
@@ -562,7 +558,15 @@ class DashboardController extends Controller
 
     public function activities(Request $request)
     {
-        $recentLeaves = \App\Models\LeaveRequest::with('user:id,first_name,last_name')
+        // Limit to last 30 days and paginate efficiently
+        $thirtyDaysAgo = Carbon::now()->subDays(30);
+        $perPage = 15;
+        $page = $request->input('page', 1);
+
+        $recentLeaves = LeaveRequest::with('user:id,first_name,last_name')
+            ->where('created_at', '>=', $thirtyDaysAgo)
+            ->latest()
+            ->limit(50)
             ->get()
             ->map(function($l) {
                 return [
@@ -571,8 +575,11 @@ class DashboardController extends Controller
                     'date' => $l->created_at
                 ];
             });
-            
-        $recentUsers = \App\Models\User::with('team:id,name')
+
+        $recentUsers = User::with('team:id,name')
+            ->where('created_at', '>=', $thirtyDaysAgo)
+            ->latest()
+            ->limit(50)
             ->get()
             ->map(function($u) {
                 $teamName = $u->team ? $u->team->name : 'the company';
@@ -582,8 +589,11 @@ class DashboardController extends Controller
                     'date' => $u->created_at
                 ];
             });
-            
-        $recentPolicies = \App\Models\HrPolicy::get()
+
+        $recentPolicies = \App\Models\HrPolicy::where('created_at', '>=', $thirtyDaysAgo)
+            ->latest()
+            ->limit(50)
+            ->get()
             ->map(function($p) {
                 return [
                     'type' => 'policy',
@@ -591,13 +601,11 @@ class DashboardController extends Controller
                     'date' => $p->created_at
                 ];
             });
-            
+
         $globalFeed = collect($recentLeaves)->merge($recentUsers)->merge($recentPolicies)
             ->sortByDesc('date')
             ->values();
 
-        $page = \Illuminate\Pagination\Paginator::resolveCurrentPage() ?: 1;
-        $perPage = 15;
         $paginatedItems = new \Illuminate\Pagination\LengthAwarePaginator(
             $globalFeed->forPage($page, $perPage)->values(),
             $globalFeed->count(),
