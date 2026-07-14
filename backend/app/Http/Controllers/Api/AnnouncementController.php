@@ -44,8 +44,8 @@ class AnnouncementController extends Controller
             'content'      => ['required', 'string'],
             'category'     => ['required', 'string'],
             'is_pinned'    => ['boolean'],
-            'scheduled_at' => ['nullable', 'date'],
-            'expires_at'   => ['nullable', 'date'],
+            'scheduled_at' => ['nullable', 'date_format:Y-m-d\TH:i', 'nullable'],
+            'expires_at'   => ['nullable', 'date_format:Y-m-d\TH:i', 'nullable'],
             'image'        => ['nullable', 'image', 'max:5120'],
         ];
 
@@ -62,13 +62,23 @@ class AnnouncementController extends Controller
             $imagePath = $request->file('image')->store('announcements', 'public');
         }
 
+        // Normalize datetime-local format (Y-m-d\TH:i -> Y-m-d H:i)
+        $scheduledAt = null;
+        if ($data['scheduled_at'] ?? null) {
+            $scheduledAt = str_replace('T', ' ', $data['scheduled_at']);
+        }
+        $expiresAt = null;
+        if ($data['expires_at'] ?? null) {
+            $expiresAt = str_replace('T', ' ', $data['expires_at']);
+        }
+
         $announcement = Announcement::create([
             'title'        => $data['title'],
             'content'      => $data['content'],
             'category'     => $data['category'],
             'is_pinned'    => $data['is_pinned'] ?? false,
-            'scheduled_at' => $data['scheduled_at'] ?? null,
-            'expires_at'   => $data['expires_at'] ?? null,
+            'scheduled_at' => $scheduledAt,
+            'expires_at'   => $expiresAt,
             'image_path'   => $imagePath,
             'created_by'   => $request->user()->id,
         ]);
@@ -89,13 +99,21 @@ class AnnouncementController extends Controller
             'content'      => ['sometimes', 'string'],
             'category'     => ['sometimes', 'string'],
             'is_pinned'    => ['sometimes', 'boolean'],
-            'scheduled_at' => ['nullable', 'date'],
-            'expires_at'   => ['nullable', 'date'],
+            'scheduled_at' => ['nullable', 'date_format:Y-m-d\TH:i', 'nullable'],
+            'expires_at'   => ['nullable', 'date_format:Y-m-d\TH:i', 'nullable'],
             'image'        => ['nullable', 'image', 'max:5120'],
         ]);
 
         if ($request->hasFile('image')) {
             $data['image_path'] = $request->file('image')->store('announcements', 'public');
+        }
+
+        // Normalize datetime-local format (Y-m-d\TH:i -> Y-m-d H:i)
+        if ($data['scheduled_at'] ?? null) {
+            $data['scheduled_at'] = str_replace('T', ' ', $data['scheduled_at']);
+        }
+        if ($data['expires_at'] ?? null) {
+            $data['expires_at'] = str_replace('T', ' ', $data['expires_at']);
         }
 
         $data['updated_by'] = $request->user()->id;

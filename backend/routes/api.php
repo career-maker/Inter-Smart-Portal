@@ -259,15 +259,19 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('holidays/{holiday}', [\App\Http\Controllers\Api\HolidayController::class, 'destroy']);
     });
 
-    // Announcements (all can read, admin can manage)
+    // Announcements (all can read, Super Admin/HR can manage)
     Route::get('announcements', [\App\Http\Controllers\Api\AnnouncementController::class, 'index']);
-    Route::post('announcements', [\App\Http\Controllers\Api\AnnouncementController::class, 'store']);
-    Route::put('announcements/{announcement}', [\App\Http\Controllers\Api\AnnouncementController::class, 'update']);
-    Route::delete('announcements/{announcement}', [\App\Http\Controllers\Api\AnnouncementController::class, 'destroy']);
-    
+    Route::middleware(['role:Super Admin|HR'])->group(function () {
+        Route::post('announcements', [\App\Http\Controllers\Api\AnnouncementController::class, 'store']);
+        Route::put('announcements/{announcement}', [\App\Http\Controllers\Api\AnnouncementController::class, 'update']);
+        Route::delete('announcements/{announcement}', [\App\Http\Controllers\Api\AnnouncementController::class, 'destroy']);
+    });
+
     // Announcement Categories
     Route::get('announcement-categories', [\App\Http\Controllers\Api\AnnouncementCategoryController::class, 'index']);
-    Route::post('announcement-categories', [\App\Http\Controllers\Api\AnnouncementCategoryController::class, 'store']);
+    Route::middleware(['role:Super Admin|HR'])->group(function () {
+        Route::post('announcement-categories', [\App\Http\Controllers\Api\AnnouncementCategoryController::class, 'store']);
+    });
 
     // AI Chatbot Routes
     Route::get('chat/context', [\App\Http\Controllers\Api\ChatController::class, 'context']);
