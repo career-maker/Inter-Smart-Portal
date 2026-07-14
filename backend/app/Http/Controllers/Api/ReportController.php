@@ -20,27 +20,28 @@ class ReportController extends Controller
     ) {}
     public function employees(Request $request): JsonResponse
     {
-        // Load all active users for employee report (don't filter by joining_date)
-        $query = User::with(['team.teamLead', 'roles', 'leaveBalance'])->where('status', 'Active');
+        try {
+            // Load all active users for employee report (don't filter by joining_date)
+            $query = User::with(['team.teamLead', 'roles', 'leaveBalance'])->where('status', 'Active');
 
-        if ($request->filled('user_id') && $request->user_id !== 'all') {
-            $userId = intval($request->user_id);
-            \Log::info('Employee report for single user', ['user_id' => $userId]);
-            $query->where('id', $userId);
-        } else {
-            \Log::info('Employee report for all users');
-        }
+            if ($request->filled('user_id') && $request->user_id !== 'all') {
+                $userId = intval($request->user_id);
+                \Log::info('Employee report for single user', ['user_id' => $userId]);
+                $query->where('id', $userId);
+            } else {
+                \Log::info('Employee report for all users');
+            }
 
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-        if ($request->filled('team_id')) {
-            $query->where('team_id', intval($request->team_id));
-        }
+            if ($request->filled('status')) {
+                $query->where('status', $request->status);
+            }
+            if ($request->filled('team_id')) {
+                $query->where('team_id', intval($request->team_id));
+            }
 
-        $currentYear = Carbon::now()->year;
-        $currentMonth = Carbon::now()->month;
-        $employees = $query->orderBy('first_name')->get();
+            $currentYear = Carbon::now()->year;
+            $currentMonth = Carbon::now()->month;
+            $employees = $query->orderBy('first_name')->get();
 
         \Log::info('Employees loaded for report', [
             'count' => $employees->count(),
@@ -133,7 +134,7 @@ class ReportController extends Controller
                 'current_address'         => $emp->current_address,
                 'permanent_address'       => $emp->permanent_address,
                 'status'                  => $emp->status,
-                'role'                    => $emp->roles->pluck('name')->first(),
+                'role'                    => $emp->roles && $emp->roles->count() > 0 ? $emp->roles->pluck('name')->first() : null,
                 // Leave info
                 'casual_leave_balance'    => $clBalance,
                 'sick_leave_balance'      => $slBalance,
@@ -151,7 +152,11 @@ class ReportController extends Controller
             ];
         });
 
-        return response()->json(['status' => 'success', 'data' => $employees]);
+            return response()->json(['status' => 'success', 'data' => $employees]);
+        } catch (\Exception $e) {
+            \Log::error('Error generating employee report', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return response()->json(['message' => 'Error generating employee report: ' . $e->getMessage()], 500);
+        }
     }
 
     public function leaves(Request $request): JsonResponse
