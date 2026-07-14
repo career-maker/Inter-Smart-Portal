@@ -109,29 +109,50 @@ export default function AnnouncementsPage() {
   const submitForm = async () => {
     setActionLoading(true);
     try {
-      const formData = new FormData();
-      formData.append("title", title);
-      formData.append("content", content);
-      formData.append("category", category);
-      formData.append("is_pinned", isPinned ? "1" : "0");
-      if (scheduledAt) formData.append("scheduled_at", scheduledAt);
-      if (expiresAt) formData.append("expires_at", expiresAt);
-      if (imageRef.current?.files?.[0]) formData.append("image", imageRef.current.files[0]);
-
       if (editTarget) {
         await api.put(`/announcements/${editTarget.id}`, {
           title, content, category, is_pinned: isPinned,
           scheduled_at: scheduledAt || null, expires_at: expiresAt || null
         });
+        alert("✅ Announcement updated successfully!");
       } else {
+        const formData = new FormData();
+        formData.append("title", title);
+        formData.append("content", content);
+        formData.append("category", category);
+        formData.append("is_pinned", isPinned ? "1" : "0");
+        if (scheduledAt) formData.append("scheduled_at", scheduledAt);
+        if (expiresAt) formData.append("expires_at", expiresAt);
+        if (imageRef.current?.files?.[0]) formData.append("image", imageRef.current.files[0]);
+
         await api.post("/announcements", formData, {
           headers: { "Content-Type": "multipart/form-data" }
         });
+        alert("✅ Announcement created successfully!");
       }
+
       setShowDialog(false);
-      fetchAnnouncements();
+      // Reset form
+      setTitle("");
+      setContent("");
+      setCategory("");
+      setIsPinned(false);
+      setScheduledAt("");
+      setExpiresAt("");
+      if (imageRef.current) imageRef.current.value = "";
+
+      // Refresh announcements
+      await fetchAnnouncements();
     } catch (e: any) {
-      alert(e.response?.data?.message || "Error saving announcement.");
+      const errorMsg = e.response?.data?.message || e.response?.data?.errors || e.message || "Error saving announcement.";
+      console.error("Announcement error:", errorMsg, e.response?.data);
+
+      // Format error message if it's an object with validation errors
+      let displayMsg = errorMsg;
+      if (typeof errorMsg === 'object') {
+        displayMsg = Object.values(errorMsg).flat().join("\n");
+      }
+      alert("❌ Error:\n" + displayMsg);
     } finally { setActionLoading(false); }
   };
 

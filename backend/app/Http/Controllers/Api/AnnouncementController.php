@@ -39,42 +39,48 @@ class AnnouncementController extends Controller
      */
     public function store(Request $request)
     {
-        // Normalize datetime-local format BEFORE validation (T to space)
-        $scheduled = $request->input('scheduled_at');
-        $expires = $request->input('expires_at');
+        // Get raw inputs and normalize datetime-local format (T to space)
+        $rawScheduled = $request->input('scheduled_at');
+        $rawExpires = $request->input('expires_at');
 
-        if ($scheduled) {
-            $request->merge(['scheduled_at' => str_replace('T', ' ', $scheduled)]);
-        }
-        if ($expires) {
-            $request->merge(['expires_at' => str_replace('T', ' ', $expires)]);
-        }
+        $normalizedScheduled = $rawScheduled ? str_replace('T', ' ', $rawScheduled) : null;
+        $normalizedExpires = $rawExpires ? str_replace('T', ' ', $rawExpires) : null;
 
+        // Base validation rules
         $rules = [
             'title'        => ['required', 'string', 'max:255'],
             'content'      => ['required', 'string'],
             'category'     => ['required', 'string'],
             'is_pinned'    => ['boolean'],
-            'scheduled_at' => ['nullable', 'date_format:Y-m-d H:i'],
-            'expires_at'   => ['nullable', 'date_format:Y-m-d H:i'],
             'image'        => ['nullable', 'image', 'max:5120'],
         ];
 
-        if ($request->filled('scheduled_at') && $request->filled('expires_at')) {
-            $rules['expires_at'][] = 'after:scheduled_at';
-        } elseif ($request->filled('expires_at')) {
-            $rules['expires_at'][] = 'after:now';
+        // Only validate dates if provided
+        if ($normalizedScheduled) {
+            $rules['scheduled_at'] = ['date_format:Y-m-d H:i'];
+        }
+        if ($normalizedExpires) {
+            $rules['expires_at'] = ['date_format:Y-m-d H:i', 'after:now'];
         }
 
-        $data = $request->validate($rules);
+        // If both dates provided, expires must be after scheduled
+        if ($normalizedScheduled && $normalizedExpires) {
+            $rules['expires_at'] = ['date_format:Y-m-d H:i', 'after:scheduled_at'];
+        }
+
+        // Validate with normalized input
+        $validated = $request->validate($rules + [
+            'scheduled_at' => [],
+            'expires_at' => [],
+        ]);
 
         $imagePath = null;
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('announcements', 'public');
         }
 
-        $scheduledAt = $data['scheduled_at'] ?? null;
-        $expiresAt = $data['expires_at'] ?? null;
+        $scheduledAt = $normalizedScheduled;
+        $expiresAt = $normalizedExpires;
 
         $announcement = Announcement::create([
             'title'        => $data['title'],
@@ -98,26 +104,46 @@ class AnnouncementController extends Controller
      */
     public function update(Request $request, Announcement $announcement)
     {
-        // Normalize datetime-local format BEFORE validation (T to space)
-        $scheduled = $request->input('scheduled_at');
-        $expires = $request->input('expires_at');
+        // Get raw inputs and normalize datetime-local format (T to space)
+        $rawScheduled = $request->input('scheduled_at');
+        $rawExpires = $request->input('expires_at');
 
-        if ($scheduled) {
-            $request->merge(['scheduled_at' => str_replace('T', ' ', $scheduled)]);
-        }
-        if ($expires) {
-            $request->merge(['expires_at' => str_replace('T', ' ', $expires)]);
-        }
+        $normalizedScheduled = $rawScheduled ? str_replace('T', ' ', $rawScheduled) : null;
+        $normalizedExpires = $rawExpires ? str_replace('T', ' ', $rawExpires) : null;
 
-        $data = $request->validate([
+        $rules = [
             'title'        => ['sometimes', 'string', 'max:255'],
             'content'      => ['sometimes', 'string'],
             'category'     => ['sometimes', 'string'],
             'is_pinned'    => ['sometimes', 'boolean'],
-            'scheduled_at' => ['nullable', 'date_format:Y-m-d H:i'],
-            'expires_at'   => ['nullable', 'date_format:Y-m-d H:i'],
             'image'        => ['nullable', 'image', 'max:5120'],
+        ];
+
+        // Only validate dates if provided
+        if ($normalizedScheduled) {
+            $rules['scheduled_at'] = ['date_format:Y-m-d H:i'];
+        }
+        if ($normalizedExpires) {
+            $rules['expires_at'] = ['date_format:Y-m-d H:i', 'after:now'];
+        }
+
+        // If both dates provided, expires must be after scheduled
+        if ($normalizedScheduled && $normalizedExpires) {
+            $rules['expires_at'] = ['date_format:Y-m-d H:i', 'after:scheduled_at'];
+        }
+
+        $data = $request->validate($rules + [
+            'scheduled_at' => [],
+            'expires_at' => [],
         ]);
+
+        // Apply normalized dates
+        if ($normalizedScheduled !== null) {
+            $data['scheduled_at'] = $normalizedScheduled;
+        }
+        if ($normalizedExpires !== null) {
+            $data['expires_at'] = $normalizedExpires;
+        }
 
         if ($request->hasFile('image')) {
             $data['image_path'] = $request->file('image')->store('announcements', 'public');
