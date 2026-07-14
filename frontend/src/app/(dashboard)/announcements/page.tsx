@@ -99,8 +99,8 @@ export default function AnnouncementsPage() {
     setContent(ann.content);
     setCategory(ann.category);
     setIsPinned(ann.is_pinned);
-    setScheduledAt(ann.scheduled_at ? ann.scheduled_at.slice(0, 16) : "");
-    setExpiresAt(ann.expires_at ? ann.expires_at.slice(0, 16) : "");
+    setScheduledAt(ann.scheduled_at ? ann.scheduled_at.slice(0, 16).replace(' ', 'T') : "");
+    setExpiresAt(ann.expires_at ? ann.expires_at.slice(0, 16).replace(' ', 'T') : "");
     setIsAddingCategory(false);
     setNewCategoryName("");
     setShowDialog(true);
