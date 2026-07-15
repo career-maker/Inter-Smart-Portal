@@ -540,7 +540,7 @@ class LeaveRequestController extends Controller
             \Log::warning('checkForSandwichLopConversion failed: ' . $e->getMessage());
         }
 
-        // Send notifications outside the transaction (temporarily disabled for debugging)
+        // Send notifications outside the transaction
         try {
             $this->notifyOnSubmit($user, $leaveRequest, $leaveType);
         } catch (\Exception $e) {
@@ -550,9 +550,20 @@ class LeaveRequestController extends Controller
             ]);
         }
 
+        // Reload with relations to ensure all data is available
+        $leaveRequest->load(['user', 'leaveType']);
+
         return response()->json([
             'message' => 'Leave applied successfully',
-            'data'    => $leaveRequest
+            'data'    => [
+                'id' => $leaveRequest->id,
+                'user_id' => $leaveRequest->user_id,
+                'leave_type_id' => $leaveRequest->leave_type_id,
+                'start_date' => $leaveRequest->start_date,
+                'end_date' => $leaveRequest->end_date,
+                'status' => $leaveRequest->status,
+                'reason' => $leaveRequest->reason
+            ]
         ], 201);
     }
 
