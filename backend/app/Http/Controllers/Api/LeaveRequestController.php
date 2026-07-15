@@ -529,8 +529,15 @@ class LeaveRequestController extends Controller
             \Log::warning('checkForSandwichLopConversion failed: ' . $e->getMessage());
         }
 
-        // Send notifications outside the transaction
-        $this->notifyOnSubmit($user, $leaveRequest, $leaveType);
+        // Send notifications outside the transaction (temporarily disabled for debugging)
+        try {
+            $this->notifyOnSubmit($user, $leaveRequest, $leaveType);
+        } catch (\Exception $e) {
+            \Log::error('Email notification failed but leave request succeeded', [
+                'error' => $e->getMessage(),
+                'leave_id' => $leaveRequest->id
+            ]);
+        }
 
         return response()->json([
             'message' => 'Leave applied successfully',

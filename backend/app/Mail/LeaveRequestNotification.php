@@ -25,8 +25,10 @@ class LeaveRequestNotification extends Mailable
 
     public function envelope(): Envelope
     {
+        $this->leaveRequest->load(['user', 'leaveType']);
+
         $employee = $this->leaveRequest->user;
-        $leaveType = $this->leaveRequest->leaveType->name;
+        $leaveType = $this->leaveRequest->leaveType?->name ?? 'Leave';
 
         if ($this->leaveRequest->start_date->format('Y-m-d') === $this->leaveRequest->end_date->format('Y-m-d')) {
             $dateRange = $this->leaveRequest->start_date->format('d M Y');

@@ -23,6 +23,8 @@ class WFHRequestNotification extends Mailable
 
     public function envelope(): Envelope
     {
+        $this->wfhRequest->load('user');
+
         $employee = $this->wfhRequest->user;
 
         if ($this->wfhRequest->start_date->format('Y-m-d') === $this->wfhRequest->end_date->format('Y-m-d')) {
