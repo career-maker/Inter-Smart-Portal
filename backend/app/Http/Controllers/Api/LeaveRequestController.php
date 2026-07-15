@@ -247,28 +247,28 @@ class LeaveRequestController extends Controller
         }
 
         // External preceding sandwich days check
-        // If the current request starts AFTER a weekend/holiday block that has an approved
-        // leave on the other side, those non-working days become sandwich LOP on THIS request.
+        // Only applies if previous leave ends IMMEDIATELY before the non-working gap
+        // (i.e., they're truly bridging two leave periods, not just applying after a gap)
         $extPreSandwich = 0;
         // If current request is Half-Afternoon, they work the Morning, breaking the gap to any preceding weekend.
         if ($firstWorkingDay !== null && $durationType !== 'Half-Afternoon') {
-            $checkPre = $startDate->copy()->subDay()->startOfDay();
-            $preCount = 0;
-            while (!$isWorkingDay($checkPre) && $preCount < 15) {
-                $preCount++;
-                $checkPre->subDay();
-            }
-            if ($preCount > 0) {
-                $hasPreLeave = LeaveRequest::where('user_id', $user->id)
-                    ->whereIn('status', ['Approved', 'Pending'])
-                    ->where('start_date', '<=', $checkPre->toDateString())
-                    ->where('end_date', '>=', $checkPre->toDateString())
-                    ->whereHas('leaveType', function($q) {
-                        // Previous leave must NOT be a Morning-only half day (so it must be Full or Afternoon)
-                        $q->where('name', 'NOT LIKE', '%Morning%');
-                    })
-                    ->exists();
-                if ($hasPreLeave) {
+            $dayBeforeStart = $startDate->copy()->subDay()->startOfDay();
+
+            // Check if there's an approved leave that ENDS immediately before the gap
+            $hasDirectPreLeave = LeaveRequest::where('user_id', $user->id)
+                ->whereIn('status', ['Approved'])
+                ->where('end_date', $dayBeforeStart->toDateString())
+                ->exists();
+
+            // Only proceed with sandwich calculation if there's a directly adjacent previous leave
+            if ($hasDirectPreLeave) {
+                $checkPre = $dayBeforeStart->copy();
+                $preCount = 0;
+                while (!$isWorkingDay($checkPre) && $preCount < 15) {
+                    $preCount++;
+                    $checkPre->subDay();
+                }
+                if ($preCount > 0) {
                     $extPreSandwich = $preCount;
                 }
             }
