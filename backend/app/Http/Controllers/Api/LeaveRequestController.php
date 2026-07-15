@@ -387,45 +387,56 @@ class LeaveRequestController extends Controller
     }
     public function calculate(Request $request)
     {
-        $request->validate([
-            'leave_type_id' => 'required|exists:leave_types,id',
-            'start_date'    => 'required|date',
-            'end_date'      => 'required|date|after_or_equal:start_date',
-            'user_id'       => 'nullable|exists:users,id',
-        ]);
+        try {
+            $request->validate([
+                'leave_type_id' => 'required|exists:leave_types,id',
+                'start_date'    => 'required|date',
+                'end_date'      => 'required|date|after_or_equal:start_date',
+                'user_id'       => 'nullable|exists:users,id',
+            ]);
 
-        $targetUser = $request->user();
-        if ($request->has('user_id') && ($targetUser->hasRole('Super Admin') || $targetUser->hasRole('HR'))) {
-            $targetUser = \App\Models\User::find($request->user_id) ?? $targetUser;
-        }
+            $targetUser = $request->user();
+            if ($request->has('user_id') && ($targetUser->hasRole('Super Admin') || $targetUser->hasRole('HR'))) {
+                $targetUser = \App\Models\User::find($request->user_id) ?? $targetUser;
+            }
 
-        $overlap = LeaveRequest::where('user_id', $targetUser->id)
-            ->whereIn('status', ['Pending', 'Approved'])
-            ->where(function($q) use ($request) {
-                $q->whereBetween('start_date', [$request->start_date, $request->end_date])
-                  ->orWhereBetween('end_date', [$request->start_date, $request->end_date])
-                  ->orWhere(function($sq) use ($request) {
-                      $sq->where('start_date', '<=', $request->start_date)
-                         ->where('end_date', '>=', $request->end_date);
-                  });
-            })
-            ->first();
+            $overlap = LeaveRequest::where('user_id', $targetUser->id)
+                ->whereIn('status', ['Pending', 'Approved'])
+                ->where(function($q) use ($request) {
+                    $q->whereBetween('start_date', [$request->start_date, $request->end_date])
+                      ->orWhereBetween('end_date', [$request->start_date, $request->end_date])
+                      ->orWhere(function($sq) use ($request) {
+                          $sq->where('start_date', '<=', $request->start_date)
+                             ->where('end_date', '>=', $request->end_date);
+                      });
+                })
+                ->first();
 
-        if ($overlap) {
+            if ($overlap) {
+                return response()->json([
+                    'message' => 'You have already applied for leave on some dates within this range (' . $overlap->start_date . ' to ' . $overlap->end_date . ').'
+                ], 422);
+            }
+
+            return response()->json(
+                $this->calculateLeaveImpact(
+                    $targetUser,
+                    $request->leave_type_id,
+                    $request->start_date,
+                    $request->end_date,
+                    $request->duration_type ?? 'Full'
+                )
+            );
+        } catch (\Exception $e) {
+            \Log::error('Leave calculate error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return response()->json([
-                'message' => 'You have already applied for leave on some dates within this range (' . $overlap->start_date . ' to ' . $overlap->end_date . ').'
-            ], 422);
+                'message' => 'Failed to calculate leave impact: ' . $e->getMessage(),
+                'error' => config('app.debug') ? $e->getTraceAsString() : null
+            ], 500);
         }
-
-        return response()->json(
-            $this->calculateLeaveImpact(
-                $targetUser,
-                $request->leave_type_id,
-                $request->start_date,
-                $request->end_date,
-                $request->duration_type ?? 'Full'
-            )
-        );
     }
     public function store(StoreLeaveRequest $request)
     {
