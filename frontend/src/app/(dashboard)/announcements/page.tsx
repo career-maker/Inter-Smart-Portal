@@ -133,8 +133,6 @@ export default function AnnouncementsPage() {
 
       // Refresh announcements
       await fetchAnnouncements();
-      // Scroll to top to see the updated/new announcement
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (e: any) {
       const errorMsg = e.response?.data?.message || e.response?.data?.errors || e.message || "Error saving announcement.";
       console.error("Announcement error:", errorMsg, e.response?.data);
@@ -155,8 +153,6 @@ export default function AnnouncementsPage() {
       alert("✅ Announcement deleted successfully!");
       // Refresh announcements and wait for it to complete
       await fetchAnnouncements();
-      // Scroll to top to see updated list
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (e: any) {
       const errorMsg = e.response?.data?.message || "Error deleting.";
       const statusCode = e.response?.status;
@@ -166,8 +162,6 @@ export default function AnnouncementsPage() {
         alert("ℹ️ This announcement was already deleted.");
         // Still refresh the list to remove it from UI
         await fetchAnnouncements();
-        // Scroll to top to see updated list
-        window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
         alert("❌ Error:\n" + errorMsg);
       }
