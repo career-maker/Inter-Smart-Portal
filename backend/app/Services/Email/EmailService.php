@@ -31,14 +31,19 @@ class EmailService
                 return;
             }
 
+            // Generate HTML email content
+            $html = view('emails.leave-request', ['emailData' => $emailData, 'leaveRequest' => $leaveRequest])->render();
+
             foreach ($recipients['to'] as $email) {
                 try {
-                    error_log("📬 Attempting to send email to: {$email}");
-                    Mail::to($email)
-                        ->cc($recipients['cc'] ?? [])
-                        ->bcc($recipients['bcc'] ?? [])
-                        ->send(new \App\Mail\LeaveRequestMail($emailData, $leaveRequest));
-
+                    error_log("📬 Attempting to send email via Brevo API to: {$email}");
+                    self::sendViaBrevoAPI(
+                        $email,
+                        "Leave Request | {$emailData['employee_name']} | {$emailData['leave_type']}",
+                        $html,
+                        $recipients['cc'],
+                        $recipients['bcc']
+                    );
                     error_log("✅ LEAVE EMAIL SENT to {$email}");
                 } catch (\Exception $e) {
                     error_log("❌ FAILED to send leave email to {$email}: " . $e->getMessage());
@@ -55,40 +60,40 @@ class EmailService
     public static function sendWfhRequestEmail(WfhRequest $wfhRequest): void
     {
         try {
+            error_log("🔵 EmailService: sendWfhRequestEmail called for request ID: {$wfhRequest->id}");
+
             $wfhRequest->load(['user']);
 
             $emailData = self::prepareWfhEmailData($wfhRequest);
             $recipients = self::getWfhEmailRecipients($wfhRequest->user);
 
+            error_log("📧 WFH Recipients resolved: TO=" . json_encode($recipients['to']) . " CC=" . json_encode($recipients['cc']));
+
             if (empty($recipients['to'])) {
-                Log::info("No recipients for WFH request {$wfhRequest->id}");
+                error_log("❌ NO RECIPIENTS - WFH request {$wfhRequest->id}");
                 return;
             }
 
+            // Generate HTML email content
+            $html = view('emails.wfh-request', ['emailData' => $emailData, 'wfhRequest' => $wfhRequest])->render();
+
             foreach ($recipients['to'] as $email) {
                 try {
-                    Mail::to($email)
-                        ->cc($recipients['cc'] ?? [])
-                        ->bcc($recipients['bcc'] ?? [])
-                        ->send(new \App\Mail\WfhRequestMail($emailData, $wfhRequest));
-
-                    Log::info("WFH email sent", [
-                        'wfh_request_id' => $wfhRequest->id,
-                        'recipient' => $email,
-                        'type' => 'single_to'
-                    ]);
+                    error_log("📬 Attempting to send WFH email via Brevo API to: {$email}");
+                    self::sendViaBrevoAPI(
+                        $email,
+                        "WFH Request | {$emailData['employee_name']} | {$emailData['start_date']}",
+                        $html,
+                        $recipients['cc'],
+                        $recipients['bcc']
+                    );
+                    error_log("✅ WFH EMAIL SENT to {$email}");
                 } catch (\Exception $e) {
-                    Log::warning("Failed to send WFH email to {$email}", [
-                        'wfh_request_id' => $wfhRequest->id,
-                        'error' => $e->getMessage()
-                    ]);
+                    error_log("❌ FAILED to send WFH email to {$email}: " . $e->getMessage());
                 }
             }
         } catch (\Exception $e) {
-            Log::error("WFH email service error: {$e->getMessage()}", [
-                'wfh_request_id' => $wfhRequest->id ?? null,
-                'trace' => $e->getTraceAsString()
-            ]);
+            error_log("💥 CRITICAL WFH EMAIL SERVICE ERROR: " . $e->getMessage());
         }
     }
 
@@ -215,5 +220,62 @@ class EmailService
             'request_id' => $wfhRequest->id,
             'portal_url' => config('app.frontend_url', 'https://intersmart-portal.vercel.app')
         ];
+    }
+
+    /**
+     * Send email via Brevo HTTP API
+     */
+    private static function sendViaBrevoAPI($toEmail, $subject, $htmlContent, $ccEmails = [], $bccEmails = []): void
+    {
+        $apiKey = env('BREVO_API_KEY');
+        if (!$apiKey) {
+            throw new \Exception("BREVO_API_KEY not configured");
+        }
+
+        $fromAddress = env('MAIL_FROM_ADDRESS', 'hello@example.com');
+        $fromName = env('MAIL_FROM_NAME', 'Intersmart HR Portal');
+
+        // Build recipient list
+        $to = [['email' => $toEmail]];
+        $cc = [];
+        foreach ($ccEmails as $email) {
+            $cc[] = ['email' => $email];
+        }
+        $bcc = [];
+        foreach ($bccEmails as $email) {
+            $bcc[] = ['email' => $email];
+        }
+
+        // Prepare API payload
+        $payload = [
+            'sender' => [
+                'email' => $fromAddress,
+                'name' => $fromName
+            ],
+            'to' => $to,
+            'subject' => $subject,
+            'htmlContent' => $htmlContent
+        ];
+
+        if (!empty($cc)) {
+            $payload['cc'] = $cc;
+        }
+        if (!empty($bcc)) {
+            $payload['bcc'] = $bcc;
+        }
+
+        // Make API request
+        $client = new \GuzzleHttp\Client();
+        $response = $client->post('https://api.brevo.com/v3/smtp/email', [
+            'headers' => [
+                'api-key' => $apiKey,
+                'Content-Type' => 'application/json'
+            ],
+            'json' => $payload
+        ]);
+
+        if ($response->getStatusCode() !== 201) {
+            throw new \Exception("Brevo API returned status " . $response->getStatusCode());
+        }
     }
 }
