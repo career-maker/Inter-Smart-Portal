@@ -541,38 +541,23 @@ class LeaveRequestController extends Controller
     private function notifyOnSubmit($user, LeaveRequest $leaveRequest, $leaveType): void
     {
         try {
-            $typeName = $leaveType->name ?? 'Leave';
-            $fullName = "{$user->first_name} {$user->last_name}";
-            $message  = "{$fullName} has submitted a new {$typeName} request ({$leaveRequest->start_date} to {$leaveRequest->end_date}).";
+            // Use the new NotificationService to send emails based on leave type
+            \App\Services\NotificationService::notifyLeaveRequest($leaveRequest);
 
-            // Notify all Super Admins
-            $superAdmins = User::role('Super Admin')->get();
-            foreach ($superAdmins as $admin) {
-                if ($admin->id !== $user->id) {
-                    $admin->notify(new LeaveRequestNotification('submitted', $leaveRequest, $message));
-                }
-            }
+            // Also send in-app notifications to Super Admins
+            try {
+                $typeName = $leaveType->name ?? 'Leave';
+                $fullName = "{$user->first_name} {$user->last_name}";
+                $message  = "{$fullName} has submitted a new {$typeName} request ({$leaveRequest->start_date} to {$leaveRequest->end_date}).";
 
-            // Notify the user's Team Lead via email
-            if ($user->team_id) {
-                $team = \App\Models\Team::find($user->team_id);
-                $teamLead = $team?->teamLead;
-
-                if ($teamLead && $teamLead->id !== $user->id && $teamLead->email) {
-                    try {
-                        Mail::to($teamLead->email)
-                            ->cc(['hr@intersmart.in', 'admin@intersmart.in'])
-                            ->send(new LeaveRequestApplicationMail($leaveRequest, $user, $teamLead, $leaveType));
-                    } catch (\Exception $mailException) {
-                        // Log email failure but don't block the notification
-                        \Log::warning('Failed to send leave application email: ' . $mailException->getMessage());
+                $superAdmins = User::role('Super Admin')->get();
+                foreach ($superAdmins as $admin) {
+                    if ($admin->id !== $user->id) {
+                        $admin->notify(new LeaveRequestNotification('submitted', $leaveRequest, $message));
                     }
                 }
-
-                // Also send in-app notification
-                if ($teamLead && $teamLead->id !== $user->id) {
-                    $teamLead->notify(new LeaveRequestNotification('submitted', $leaveRequest, $message));
-                }
+            } catch (\Exception $e) {
+                \Log::warning('In-app notification error: ' . $e->getMessage());
             }
         } catch (\Exception $e) {
             // Notification failure should never block leave submission
