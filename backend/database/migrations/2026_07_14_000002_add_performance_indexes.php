@@ -12,7 +12,7 @@ return new class extends Migration
         if (Schema::hasTable('attendance')) {
             Schema::table('attendance', function (Blueprint $table) {
                 $table->index(['user_id', 'date']);
-                $table->index(['date', 'check_in']);
+                $table->index(['date', 'check_in_time']);
             });
         }
 
@@ -59,7 +59,7 @@ return new class extends Migration
         if (Schema::hasTable('attendance')) {
             Schema::table('attendance', function (Blueprint $table) {
                 $table->dropIndex(['user_id', 'date']);
-                $table->dropIndex(['date', 'check_in']);
+                $table->dropIndex(['date', 'check_in_time']);
             });
         }
 
