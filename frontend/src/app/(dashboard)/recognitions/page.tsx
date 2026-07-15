@@ -46,7 +46,7 @@ export default function RecognitionsPage() {
 
   const filteredEmployees = employees.filter((emp) =>
     `${emp.first_name} ${emp.last_name} (${emp.employee_code})`.toLowerCase().includes(employeeSearch.toLowerCase())
-  ).slice(0, 10); // Limit to 10 results
+  );
 
   const [formData, setFormData] = useState({
     user_id: "",
@@ -77,7 +77,7 @@ export default function RecognitionsPage() {
 
   const fetchEmployees = async () => {
     try {
-      const res = await api.get("/employees?per_page=200");
+      const res = await api.get("/employees?per_page=5000");
       setEmployees(res.data.data || []);
     } catch (error) {
       console.error("Failed to fetch employees", error);
@@ -355,7 +355,7 @@ export default function RecognitionsPage() {
                   className="w-full border border-white/10 bg-slate-700 text-white rounded-lg p-2.5 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm"
                 />
                 {showEmployeeList && employeeSearch && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-slate-700 border border-white/10 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto">
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-slate-700 border border-white/10 rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto">
                     {filteredEmployees.length > 0 ? (
                       filteredEmployees.map((emp) => (
                         <button
