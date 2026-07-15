@@ -555,10 +555,11 @@ class LeaveRequestController extends Controller
             \Log::info('Leave request created successfully', ['leave_id' => $leaveRequest->id]);
 
             return response()->json([
-                'success' => true,
                 'message' => 'Leave applied successfully',
-                'leave_id' => $leaveRequest->id,
-                'status' => $leaveRequest->status
+                'data' => [
+                    'id' => $leaveRequest->id,
+                    'status' => $leaveRequest->status
+                ]
             ], 201);
         } catch (\Exception $e) {
             \Log::error('Leave request store failed', [
