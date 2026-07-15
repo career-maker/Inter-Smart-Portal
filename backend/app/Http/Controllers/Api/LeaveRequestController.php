@@ -360,6 +360,15 @@ class LeaveRequestController extends Controller
             'reasons'                => $reasons,
             'is_probation'           => false,
             'balance'                => $this->getBalancePreview($user, $paidCL, $paidSL),
+            // DEBUG FIELDS - REMOVE AFTER DEBUGGING
+            '_debug' => [
+                'totalWorkingDays' => $totalWorkingDays,
+                'penaltyDays' => $penaltyDays,
+                'eligibleDays' => $eligibleDays,
+                'eligibleBase' => $eligibleBase,
+                'balanceLOP_calc' => "max(0, {$eligibleBase} - {$paidCL})",
+                'totalLOP_calc' => "{$penaltyLOP} + {$balanceLOP} + {$sandwichDays}",
+            ]
         ];
     }
 
