@@ -98,7 +98,7 @@ class WfhRequestController extends Controller
             'approved_by'   => $approvedBy,
         ]);
 
-        // Notify relevant approvers
+        // Send in-app notifications if pending
         if ($status === 'Pending') {
             try {
                 $fullName = "{$user->first_name} {$user->last_name}";
@@ -121,6 +121,13 @@ class WfhRequestController extends Controller
                     }
                 }
             } catch (\Exception $e) {}
+
+            // Send email notifications (isolated, failures don't affect WFH creation)
+            try {
+                \App\Services\Email\EmailService::sendWfhRequestEmail($wfhRequest);
+            } catch (\Exception $e) {
+                \Log::warning('Email notification failed for WFH request: ' . $e->getMessage());
+            }
         }
 
         return response()->json([
