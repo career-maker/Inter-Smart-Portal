@@ -37,9 +37,12 @@ class EmailService
             foreach ($recipients['to'] as $email) {
                 try {
                     error_log("📬 Attempting to send email via Brevo API to: {$email}");
+                    $dateRange = $emailData['is_single_day']
+                        ? $emailData['start_date']
+                        : $emailData['start_date'] . ' - ' . $emailData['end_date'];
                     self::sendViaBrevoAPI(
                         $email,
-                        "Leave Request | {$emailData['employee_name']} | {$emailData['leave_type']}",
+                        "Leave Request | {$emailData['employee_name']} | {$emailData['leave_type']} | {$dateRange}",
                         $html,
                         $recipients['cc'],
                         $recipients['bcc']

@@ -135,7 +135,7 @@
 
             <!-- Action Button -->
             <div class="button-group">
-                <a href="{{ $data['portal_url'] }}/approvals?id={{ $data['request_id'] }}" class="button button-approve">✓ Review & Respond</a>
+                <a href="{{ $data['portal_url'] }}/approvals?id={{ $data['request_id'] }}" class="button button-approve" style="color: white;">✓ Review & Respond</a>
             </div>
 
             <!-- Portal Link -->

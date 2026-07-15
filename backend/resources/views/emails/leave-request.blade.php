@@ -133,8 +133,8 @@
 
             <!-- Action Buttons -->
             <div class="button-group">
-                <a href="{{ $data['portal_url'] }}/approvals?id={{ $data['request_id'] }}" class="button button-approve">✓ Review & Approve</a>
-                <a href="{{ $data['portal_url'] }}/approvals?id={{ $data['request_id'] }}" class="button button-reject">✗ Review & Reject</a>
+                <a href="{{ $data['portal_url'] }}/approvals?id={{ $data['request_id'] }}" class="button button-approve" style="color: white;">✓ Review & Approve</a>
+                <a href="{{ $data['portal_url'] }}/approvals?id={{ $data['request_id'] }}" class="button button-reject" style="color: white;">✗ Review & Reject</a>
             </div>
 
             <!-- Portal Link -->
