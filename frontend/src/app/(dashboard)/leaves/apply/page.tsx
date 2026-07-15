@@ -246,7 +246,14 @@ export default function ApplyLeavePage() {
         }
         const res = await api.post("/leaves/calculate", payload);
         setImpact(res.data);
-      } catch { setImpact(null); }
+      } catch (error: any) {
+        // If there's an error (like overlap), show it in the impact
+        if (error.response?.status === 422) {
+          setImpact({ error: error.response.data?.message || "Invalid date range for leave" });
+        } else {
+          setImpact(null);
+        }
+      }
       finally { setIsCalculating(false); }
     }, 500);
     return () => clearTimeout(t);
@@ -543,6 +550,19 @@ function LeaveSummaryCard({ impact, compact = false }: { impact: any; compact?: 
     : impact.is_partial
     ? "border-amber-500/30 bg-amber-500/5"
     : "border-emerald-500/30 bg-emerald-500/5";
+
+  // Show error if calculation failed
+  if (impact.error) {
+    return (
+      <div className="rounded-xl border border-red-500/30 bg-red-500/5 p-4 space-y-2">
+        <h4 className="font-bold text-white text-sm flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4 text-red-400" /> Unable to Calculate Leave
+        </h4>
+        <p className="text-sm text-red-300">{impact.error}</p>
+        <p className="text-xs text-slate-400">Please select a different date range.</p>
+      </div>
+    );
+  }
 
   return (
     <div className={`rounded-xl border p-4 space-y-3 ${borderCls}`}>
