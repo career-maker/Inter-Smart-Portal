@@ -102,7 +102,9 @@ export default function RecognitionsPage() {
         }
       }
 
-      setEmployees(allEmployees);
+      // Remove duplicates based on employee ID
+      const uniqueEmployees = Array.from(new Map(allEmployees.map(emp => [emp.id, emp])).values());
+      setEmployees(uniqueEmployees);
     } catch (error) {
       console.error("Failed to fetch employees", error);
     }
