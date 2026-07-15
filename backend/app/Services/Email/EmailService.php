@@ -16,45 +16,36 @@ class EmailService
     public static function sendLeaveRequestEmail(LeaveRequest $leaveRequest): void
     {
         try {
-            Log::info("🔵 EmailService: sendLeaveRequestEmail called", ['leave_request_id' => $leaveRequest->id]);
+            error_log("🔵 EmailService: sendLeaveRequestEmail called for request ID: {$leaveRequest->id}");
 
             $leaveRequest->load(['user', 'leaveType']);
-            Log::info("📋 User loaded", ['user_id' => $leaveRequest->user->id, 'team_id' => $leaveRequest->user->team_id ?? 'NULL']);
+            error_log("📋 User loaded: {$leaveRequest->user->first_name}, team_id: " . ($leaveRequest->user->team_id ?? 'NULL'));
 
             $emailData = self::prepareLeaveEmailData($leaveRequest);
             $recipients = self::getLeaveEmailRecipients($leaveRequest->user);
 
-            Log::info("📧 Recipients resolved", ['to' => $recipients['to'], 'cc' => $recipients['cc']]);
+            error_log("📧 Recipients resolved: TO=" . json_encode($recipients['to']) . " CC=" . json_encode($recipients['cc']));
 
             if (empty($recipients['to'])) {
-                Log::warning("❌ No recipients for leave request {$leaveRequest->id} - user has no team lead email");
+                error_log("❌ NO RECIPIENTS - user {$leaveRequest->user->id} has no team lead email");
                 return;
             }
 
             foreach ($recipients['to'] as $email) {
                 try {
+                    error_log("📬 Attempting to send email to: {$email}");
                     Mail::to($email)
                         ->cc($recipients['cc'] ?? [])
                         ->bcc($recipients['bcc'] ?? [])
                         ->send(new \App\Mail\LeaveRequestMail($emailData, $leaveRequest));
 
-                    Log::info("Leave email sent", [
-                        'leave_request_id' => $leaveRequest->id,
-                        'recipient' => $email,
-                        'type' => 'single_to'
-                    ]);
+                    error_log("✅ LEAVE EMAIL SENT to {$email}");
                 } catch (\Exception $e) {
-                    Log::warning("Failed to send leave email to {$email}", [
-                        'leave_request_id' => $leaveRequest->id,
-                        'error' => $e->getMessage()
-                    ]);
+                    error_log("❌ FAILED to send leave email to {$email}: " . $e->getMessage());
                 }
             }
         } catch (\Exception $e) {
-            Log::error("Leave email service error: {$e->getMessage()}", [
-                'leave_request_id' => $leaveRequest->id ?? null,
-                'trace' => $e->getTraceAsString()
-            ]);
+            error_log("💥 CRITICAL EMAIL SERVICE ERROR: " . $e->getMessage());
         }
     }
 
@@ -106,16 +97,20 @@ class EmailService
      */
     private static function getLeaveEmailRecipients($user): array
     {
-        Log::info("🔎 getLeaveEmailRecipients: Looking up team for user", ['user_id' => $user->id, 'team_id' => $user->team_id ?? 'NULL']);
+        error_log("🔎 Recipient lookup for user ID: {$user->id}, team_id: " . ($user->team_id ?? 'NULL'));
 
         $teamLead = null;
         if ($user->team_id) {
             $team = \App\Models\Team::find($user->team_id);
-            Log::info("🏢 Team found", ['team_id' => $team?->id, 'team_name' => $team?->name, 'team_lead_id' => $team?->team_lead_id ?? 'NULL']);
-            $teamLead = $team?->teamLead;
-            Log::info("👤 Team Lead lookup", ['found' => !!$teamLead, 'lead_email' => $teamLead?->email ?? 'NULL']);
+            if ($team) {
+                error_log("🏢 Team found: {$team->name} (ID: {$team->id}), team_lead_id: " . ($team->team_lead_id ?? 'NULL'));
+                $teamLead = $team->teamLead;
+                error_log("👤 Team Lead found: " . ($teamLead ? $teamLead->email : 'NULL'));
+            } else {
+                error_log("❌ Team not found for team_id: {$user->team_id}");
+            }
         } else {
-            Log::warning("⚠️  User has no team_id");
+            error_log("⚠️  User has NO team_id");
         }
 
         $recipients = [
@@ -126,14 +121,16 @@ class EmailService
 
         // Always notify Team Lead if available
         if ($teamLead && $teamLead->email && $teamLead->id !== $user->id) {
-            Log::info("✅ Adding team lead to recipients", ['email' => $teamLead->email]);
+            error_log("✅ Adding team lead to recipients: {$teamLead->email}");
             $recipients['to'][] = $teamLead->email;
         } else {
-            Log::warning("❌ Team lead not added", [
-                'has_teamlead' => !!$teamLead,
-                'has_email' => $teamLead?->email ? true : false,
-                'is_same_user' => $teamLead?->id === $user->id ? true : false
-            ]);
+            if (!$teamLead) {
+                error_log("❌ NO TEAM LEAD FOUND");
+            } elseif (!$teamLead->email) {
+                error_log("❌ TEAM LEAD HAS NO EMAIL");
+            } elseif ($teamLead->id === $user->id) {
+                error_log("❌ TEAM LEAD IS SAME USER (cannot send to self)");
+            }
         }
 
         return $recipients;
