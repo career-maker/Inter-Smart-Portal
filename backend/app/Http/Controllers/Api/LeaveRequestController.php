@@ -256,10 +256,12 @@ class LeaveRequestController extends Controller
         $penaltyLOP      = $penaltyDays      * $multiplier;
         $eligibleBase    = $eligibleDays     * $multiplier;
 
-        \Log::debug("Leave calculation debug", [
+        // DEBUG: Log every calculation step to track down the 5-day bug
+        \Log::error("CRITICAL_CALCULATION_DEBUG", [
             'user_id' => $user->id,
             'start_date' => $startDateStr,
             'end_date' => $endDateStr,
+            'date_diff_days' => (new \Carbon\Carbon($endDateStr))->diffInDays(new \Carbon\Carbon($startDateStr)),
             'totalWorkingDays' => $totalWorkingDays,
             'penaltyDays' => $penaltyDays,
             'eligibleDays' => $eligibleDays,
@@ -269,6 +271,8 @@ class LeaveRequestController extends Controller
             'penaltyLOP' => $penaltyLOP,
             'eligibleBase' => $eligibleBase,
             'isCasual' => $isCasual,
+            'today' => $today->toDateString(),
+            'eligibleFrom' => $eligibleFrom->toDateString(),
         ]);
 
         $reasons    = [];
@@ -284,12 +288,17 @@ class LeaveRequestController extends Controller
             $paidCL     = min($eligibleBase, $clBalance);
             $balanceLOP = max(0, $eligibleBase - $paidCL);
 
-            \Log::debug("Casual leave balance calculation", [
+            \Log::error("CRITICAL_BALANCE_CALCULATION", [
                 'user_id' => $user->id,
+                'casual_balance' => $balance->casual_leave_balance ?? 0,
+                'carry_forward' => $balance->cl_carry_forward ?? 0,
                 'clBalance' => $clBalance,
                 'eligibleBase' => $eligibleBase,
+                'paidCL_formula' => "min({$eligibleBase}, {$clBalance})",
                 'paidCL' => $paidCL,
+                'balanceLOP_formula' => "max(0, {$eligibleBase} - {$paidCL})",
                 'balanceLOP' => $balanceLOP,
+                'totalLOP' => $penaltyLOP + $balanceLOP + $sandwichDays,
             ]);
 
             if ($penaltyDays > 0) {
