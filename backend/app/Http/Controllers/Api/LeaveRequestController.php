@@ -387,63 +387,50 @@ class LeaveRequestController extends Controller
     }
     public function calculate(Request $request)
     {
-        try {
-            $request->validate([
-                'leave_type_id' => 'required|exists:leave_types,id',
-                'start_date'    => 'required|date',
-                'end_date'      => 'required|date|after_or_equal:start_date',
-                'user_id'       => 'nullable|exists:users,id',
-            ]);
+        $request->validate([
+            'leave_type_id' => 'required|exists:leave_types,id',
+            'start_date'    => 'required|date',
+            'end_date'      => 'required|date|after_or_equal:start_date',
+            'user_id'       => 'nullable|exists:users,id',
+        ]);
 
-            $targetUser = $request->user();
-            if ($request->has('user_id') && ($targetUser->hasRole('Super Admin') || $targetUser->hasRole('HR'))) {
-                $targetUser = \App\Models\User::find($request->user_id) ?? $targetUser;
-            }
-
-            $overlap = LeaveRequest::where('user_id', $targetUser->id)
-                ->whereIn('status', ['Pending', 'Approved'])
-                ->where(function($q) use ($request) {
-                    $q->whereBetween('start_date', [$request->start_date, $request->end_date])
-                      ->orWhereBetween('end_date', [$request->start_date, $request->end_date])
-                      ->orWhere(function($sq) use ($request) {
-                          $sq->where('start_date', '<=', $request->start_date)
-                             ->where('end_date', '>=', $request->end_date);
-                      });
-                })
-                ->first();
-
-            if ($overlap) {
-                return response()->json([
-                    'message' => 'You have already applied for leave on some dates within this range (' . $overlap->start_date . ' to ' . $overlap->end_date . ').'
-                ], 422);
-            }
-
-            return response()->json(
-                $this->calculateLeaveImpact(
-                    $targetUser,
-                    $request->leave_type_id,
-                    $request->start_date,
-                    $request->end_date,
-                    $request->duration_type ?? 'Full'
-                )
-            );
-        } catch (\Exception $e) {
-            \Log::error('Leave calculate error', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            return response()->json([
-                'message' => 'Failed to calculate leave impact: ' . $e->getMessage(),
-                'error' => config('app.debug') ? $e->getTraceAsString() : null
-            ], 500);
+        $targetUser = $request->user();
+        if ($request->has('user_id') && ($targetUser->hasRole('Super Admin') || $targetUser->hasRole('HR'))) {
+            $targetUser = \App\Models\User::find($request->user_id) ?? $targetUser;
         }
+
+        $overlap = LeaveRequest::where('user_id', $targetUser->id)
+            ->whereIn('status', ['Pending', 'Approved'])
+            ->where(function($q) use ($request) {
+                $q->whereBetween('start_date', [$request->start_date, $request->end_date])
+                  ->orWhereBetween('end_date', [$request->start_date, $request->end_date])
+                  ->orWhere(function($sq) use ($request) {
+                      $sq->where('start_date', '<=', $request->start_date)
+                         ->where('end_date', '>=', $request->end_date);
+                  });
+            })
+            ->first();
+
+        if ($overlap) {
+            return response()->json([
+                'message' => 'You have already applied for leave on some dates within this range (' . $overlap->start_date . ' to ' . $overlap->end_date . ').'
+            ], 422);
+        }
+
+        return response()->json(
+            $this->calculateLeaveImpact(
+                $targetUser,
+                $request->leave_type_id,
+                $request->start_date,
+                $request->end_date,
+                $request->duration_type ?? 'Full'
+            )
+        );
     }
     public function store(StoreLeaveRequest $request)
     {
-        try {
-            $user      = $request->user();
-            $data      = $request->validated();
-            \Log::info('Leave request store started', ['user_id' => $user->id]);
+        $user      = $request->user();
+        $data      = $request->validated();
 
         $overlap = LeaveRequest::where('user_id', $user->id)
             ->whereIn('status', ['Pending', 'Approved'])
@@ -543,58 +530,49 @@ class LeaveRequestController extends Controller
         }
 
         // Send notifications outside the transaction
-        \Log::info('NOTIFICATION_START: About to send notifications', ['leave_id' => $leaveRequest->id]);
-        try {
-            $this->notifyOnSubmit($user, $leaveRequest, $leaveType);
-            \Log::info('NOTIFICATION_SUCCESS: Notifications sent', ['leave_id' => $leaveRequest->id]);
-        } catch (\Exception $e) {
-            \Log::error('NOTIFICATION_ERROR: Email notification failed', [
-                'error' => $e->getMessage(),
-                'leave_id' => $leaveRequest->id,
-                'trace' => $e->getTraceAsString()
-            ]);
-        }
-
-        \Log::info('Leave request created successfully', ['leave_id' => $leaveRequest->id]);
+        $this->notifyOnSubmit($user, $leaveRequest, $leaveType);
 
         return response()->json([
             'message' => 'Leave applied successfully',
-            'data' => [
-                'id' => $leaveRequest->id,
-                'status' => $leaveRequest->status
-            ]
+            'data'    => $leaveRequest
         ], 201);
-        } catch (\Exception $e) {
-            \Log::error('Leave request store failed', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            return response()->json([
-                'message' => 'Failed to apply leave: ' . $e->getMessage()
-            ], 500);
-        }
     }
 
     private function notifyOnSubmit($user, LeaveRequest $leaveRequest, $leaveType): void
     {
         try {
-            // Use the new NotificationService to send emails based on leave type
-            \App\Services\NotificationService::notifyLeaveRequest($leaveRequest);
+            $typeName = $leaveType->name ?? 'Leave';
+            $fullName = "{$user->first_name} {$user->last_name}";
+            $message  = "{$fullName} has submitted a new {$typeName} request ({$leaveRequest->start_date} to {$leaveRequest->end_date}).";
 
-            // Also send in-app notifications to Super Admins
-            try {
-                $typeName = $leaveType->name ?? 'Leave';
-                $fullName = "{$user->first_name} {$user->last_name}";
-                $message  = "{$fullName} has submitted a new {$typeName} request ({$leaveRequest->start_date} to {$leaveRequest->end_date}).";
+            // Notify all Super Admins
+            $superAdmins = User::role('Super Admin')->get();
+            foreach ($superAdmins as $admin) {
+                if ($admin->id !== $user->id) {
+                    $admin->notify(new LeaveRequestNotification('submitted', $leaveRequest, $message));
+                }
+            }
 
-                $superAdmins = User::role('Super Admin')->get();
-                foreach ($superAdmins as $admin) {
-                    if ($admin->id !== $user->id) {
-                        $admin->notify(new LeaveRequestNotification('submitted', $leaveRequest, $message));
+            // Notify the user's Team Lead via email
+            if ($user->team_id) {
+                $team = \App\Models\Team::find($user->team_id);
+                $teamLead = $team?->teamLead;
+
+                if ($teamLead && $teamLead->id !== $user->id && $teamLead->email) {
+                    try {
+                        Mail::to($teamLead->email)
+                            ->cc(['hr@intersmart.in', 'admin@intersmart.in'])
+                            ->send(new LeaveRequestApplicationMail($leaveRequest, $user, $teamLead, $leaveType));
+                    } catch (\Exception $mailException) {
+                        // Log email failure but don't block the notification
+                        \Log::warning('Failed to send leave application email: ' . $mailException->getMessage());
                     }
                 }
-            } catch (\Exception $e) {
-                \Log::warning('In-app notification error: ' . $e->getMessage());
+
+                // Also send in-app notification
+                if ($teamLead && $teamLead->id !== $user->id) {
+                    $teamLead->notify(new LeaveRequestNotification('submitted', $leaveRequest, $message));
+                }
             }
         } catch (\Exception $e) {
             // Notification failure should never block leave submission

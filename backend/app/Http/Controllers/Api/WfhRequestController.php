@@ -98,37 +98,29 @@ class WfhRequestController extends Controller
             'approved_by'   => $approvedBy,
         ]);
 
-        // Notify relevant approvers via email and in-app
+        // Notify relevant approvers
         if ($status === 'Pending') {
             try {
-                // Send email notifications
-                \App\Services\NotificationService::notifyWFHRequest($wfhRequest);
+                $fullName = "{$user->first_name} {$user->last_name}";
+                $message  = "{$fullName} has submitted a WFH request ({$data['start_date']} to {$endDate}).";
 
-                // Send in-app notifications
-                try {
-                    $fullName = "{$user->first_name} {$user->last_name}";
-                    $message  = "{$fullName} has submitted a WFH request ({$data['start_date']} to {$endDate}).";
-
-                    if ($tlStatus === 'Pending') {
-                        // Notify the employee's Team Lead
-                        if ($user->team_id) {
-                            $tl = \App\Models\Team::find($user->team_id)?->teamLead;
-                            if ($tl && $tl->id !== $user->id) {
-                                $tl->notify(new WfhRequestNotification('submitted', $wfhRequest, $message));
-                            }
-                        }
-                    } else {
-                        // TL step skipped — notify Super Admin directly
-                        foreach (User::role('Super Admin')->get() as $admin) {
-                            if ($admin->id !== $user->id) {
-                                $admin->notify(new WfhRequestNotification('submitted', $wfhRequest, $message));
-                            }
+                if ($tlStatus === 'Pending') {
+                    // Notify the employee's Team Lead
+                    if ($user->team_id) {
+                        $tl = \App\Models\Team::find($user->team_id)?->teamLead;
+                        if ($tl && $tl->id !== $user->id) {
+                            $tl->notify(new WfhRequestNotification('submitted', $wfhRequest, $message));
                         }
                     }
-                } catch (\Exception $e) {}
-            } catch (\Exception $e) {
-                \Log::warning('WFH email notification failed: ' . $e->getMessage());
-            }
+                } else {
+                    // TL step skipped — notify Super Admin directly
+                    foreach (User::role('Super Admin')->get() as $admin) {
+                        if ($admin->id !== $user->id) {
+                            $admin->notify(new WfhRequestNotification('submitted', $wfhRequest, $message));
+                        }
+                    }
+                }
+            } catch (\Exception $e) {}
         }
 
         return response()->json([
