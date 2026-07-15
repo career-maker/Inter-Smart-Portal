@@ -286,6 +286,21 @@ class LeaveRequestController extends Controller
         $penaltyLOP      = $penaltyDays      * $multiplier;
         $eligibleBase    = $eligibleDays     * $multiplier;
 
+        \Log::debug("Leave calculation debug", [
+            'user_id' => $user->id,
+            'start_date' => $startDateStr,
+            'end_date' => $endDateStr,
+            'totalWorkingDays' => $totalWorkingDays,
+            'penaltyDays' => $penaltyDays,
+            'eligibleDays' => $eligibleDays,
+            'sandwichDays' => $sandwichDays,
+            'extPreSandwich' => $extPreSandwich,
+            'baseWorkingDays' => $baseWorkingDays,
+            'penaltyLOP' => $penaltyLOP,
+            'eligibleBase' => $eligibleBase,
+            'isCasual' => $isCasual,
+        ]);
+
         $reasons    = [];
         $paidCL     = 0;
         $paidSL     = 0;
@@ -298,6 +313,14 @@ class LeaveRequestController extends Controller
             // Paid CL is allocated only to eligible (non-penalized) working days
             $paidCL     = min($eligibleBase, $clBalance);
             $balanceLOP = max(0, $eligibleBase - $paidCL);
+
+            \Log::debug("Casual leave balance calculation", [
+                'user_id' => $user->id,
+                'clBalance' => $clBalance,
+                'eligibleBase' => $eligibleBase,
+                'paidCL' => $paidCL,
+                'balanceLOP' => $balanceLOP,
+            ]);
 
             if ($penaltyDays > 0) {
                 $reasons[] = "Applied less than 3 calendar days before the leave start date. {$penaltyLOP} working day(s) are Unpaid (LOP) due to late notice.";
