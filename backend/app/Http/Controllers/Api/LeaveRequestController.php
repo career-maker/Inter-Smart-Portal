@@ -246,40 +246,10 @@ class LeaveRequestController extends Controller
             $current->addDay();
         }
 
-        // External preceding sandwich days check
-        // Only applies if previous leave ends IMMEDIATELY before the non-working gap
-        // (i.e., they're truly bridging two leave periods, not just applying after a gap)
+        // External preceding sandwich days check - DISABLED
+        // This was causing incorrect LOP calculations. Sandwich days should only be
+        // non-working days WITHIN the current leave request period, not external gaps.
         $extPreSandwich = 0;
-        // If current request is Half-Afternoon, they work the Morning, breaking the gap to any preceding weekend.
-        if ($firstWorkingDay !== null && $durationType !== 'Half-Afternoon') {
-            $dayBeforeStart = $startDate->copy()->subDay()->startOfDay();
-
-            // Check if there's an approved leave that ENDS immediately before the gap
-            $hasDirectPreLeave = LeaveRequest::where('user_id', $user->id)
-                ->whereIn('status', ['Approved'])
-                ->where('end_date', $dayBeforeStart->toDateString())
-                ->exists();
-
-            // Only proceed with sandwich calculation if there's a directly adjacent previous leave
-            if ($hasDirectPreLeave) {
-                $checkPre = $dayBeforeStart->copy();
-                $preCount = 0;
-                while (!$isWorkingDay($checkPre) && $preCount < 15) {
-                    $preCount++;
-                    $checkPre->subDay();
-                }
-                if ($preCount > 0) {
-                    $extPreSandwich = $preCount;
-                }
-            }
-        }
-
-        // NOTE: We intentionally do NOT apply extPostSandwich here.
-        // When an employee applies for leave BEFORE a weekend/holiday (e.g., Friday),
-        // the existing post-weekend leave (e.g., Monday) is retroactively flagged via
-        // checkForSandwichLopConversion — the Friday leave itself is NOT penalised at
-        // submission time for any existing future leave on the other side of the weekend.
-        $sandwichDays += $extPreSandwich;
 
         $multiplier      = $isHalf ? 0.5 : 1.0;
         $baseWorkingDays = $totalWorkingDays * $multiplier;
