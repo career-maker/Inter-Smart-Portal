@@ -2,46 +2,56 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    private function safeIndex($table, $columns): void
+    {
+        try {
+            Schema::table($table, function (Blueprint $table) use ($columns) {
+                $table->index($columns);
+            });
+        } catch (\Exception $e) {
+            // Index already exists, skip
+        }
+    }
+
     public function up(): void
     {
         // Index for attendance queries
-        Schema::table('attendances', function (Blueprint $table) {
-            $table->index(['user_id', 'date']);
-            $table->index(['date', 'check_in_time']);
-        });
+        if (Schema::hasTable('attendances')) {
+            $this->safeIndex('attendances', ['user_id', 'date']);
+            $this->safeIndex('attendances', ['date', 'check_in_time']);
+        }
 
         // Index for leave request queries
-        Schema::table('leave_requests', function (Blueprint $table) {
-            $table->index(['user_id', 'status']);
-            $table->index(['start_date', 'end_date', 'status']);
-            $table->index(['status', 'admin_status']);
-        });
+        if (Schema::hasTable('leave_requests')) {
+            $this->safeIndex('leave_requests', ['user_id', 'status']);
+            $this->safeIndex('leave_requests', ['start_date', 'end_date', 'status']);
+            $this->safeIndex('leave_requests', ['status', 'admin_status']);
+        }
 
         // Index for announcement queries
-        Schema::table('announcements', function (Blueprint $table) {
-            $table->index(['is_pinned', 'created_at']);
-            $table->index(['expires_at', 'scheduled_at']);
-        });
+        if (Schema::hasTable('announcements')) {
+            $this->safeIndex('announcements', ['is_pinned', 'created_at']);
+            $this->safeIndex('announcements', ['expires_at', 'scheduled_at']);
+        }
 
         // Index for user queries
-        Schema::table('users', function (Blueprint $table) {
-            $table->index(['status']);
-            $table->index(['team_id', 'status']);
-            $table->index(['created_at']);
-            $table->index(['dob']);
-            $table->index(['joining_date']);
-        });
+        if (Schema::hasTable('users')) {
+            $this->safeIndex('users', ['status']);
+            $this->safeIndex('users', ['team_id', 'status']);
+            $this->safeIndex('users', ['created_at']);
+            $this->safeIndex('users', ['dob']);
+            $this->safeIndex('users', ['joining_date']);
+        }
 
         // Index for WFH request queries
         if (Schema::hasTable('wfh_requests')) {
-            Schema::table('wfh_requests', function (Blueprint $table) {
-                $table->index(['user_id', 'status']);
-                $table->index(['tl_status', 'admin_status']);
-            });
+            $this->safeIndex('wfh_requests', ['user_id', 'status']);
+            $this->safeIndex('wfh_requests', ['tl_status', 'admin_status']);
         }
     }
 
