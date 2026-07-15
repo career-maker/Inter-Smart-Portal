@@ -63,6 +63,13 @@ export default function RecognitionsPage() {
     fetchEmployees();
   }, []);
 
+  // Refetch employees when modal opens to ensure we have fresh data
+  useEffect(() => {
+    if (showModal) {
+      fetchEmployees();
+    }
+  }, [showModal]);
+
   const fetchRecognitions = async () => {
     try {
       setLoading(true);
@@ -354,7 +361,7 @@ export default function RecognitionsPage() {
                   onFocus={() => setShowEmployeeList(true)}
                   className="w-full border border-white/10 bg-slate-700 text-white rounded-lg p-2.5 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm"
                 />
-                {showEmployeeList && (
+                {showEmployeeList && employees.length > 0 && (
                   <div className="absolute top-full left-0 right-0 mt-1 bg-slate-700 border border-white/10 rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto">
                     {(employeeSearch ? filteredEmployees : employees).length > 0 ? (
                       (employeeSearch ? filteredEmployees : employees).map((emp) => (
