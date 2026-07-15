@@ -84,8 +84,25 @@ export default function RecognitionsPage() {
 
   const fetchEmployees = async () => {
     try {
-      const res = await api.get("/employees?per_page=5000");
-      setEmployees(res.data.data || []);
+      // Fetch all employees by getting first 1000 employees
+      // API paginates with default of 10, so we request per_page=500 for all pages
+      const res = await api.get("/employees?per_page=500&page=1");
+      const allEmployees = res.data.data || [];
+
+      // If there are more pages, fetch them too
+      const meta = res.data.meta;
+      if (meta && meta.last_page > 1) {
+        for (let page = 2; page <= meta.last_page; page++) {
+          try {
+            const pageRes = await api.get(`/employees?per_page=500&page=${page}`);
+            allEmployees.push(...(pageRes.data.data || []));
+          } catch (err) {
+            console.error(`Failed to fetch page ${page}`, err);
+          }
+        }
+      }
+
+      setEmployees(allEmployees);
     } catch (error) {
       console.error("Failed to fetch employees", error);
     }
