@@ -229,6 +229,55 @@ class EmailService
     }
 
     /**
+     * Send recognition/award email notification
+     */
+    public static function sendRecognitionEmail($user, $recognition): void
+    {
+        try {
+            error_log("🔵 EmailService: sendRecognitionEmail called for user ID: {$user->id}");
+
+            if (!$user->email) {
+                error_log("❌ NO EMAIL - user {$user->id} has no email address");
+                return;
+            }
+
+            $emailData = [
+                'employee_name' => "{$user->first_name} {$user->last_name}",
+                'employee_id' => $user->employee_code,
+                'department' => $user->team?->name ?? 'N/A',
+                'designation' => $user->designation ?? 'N/A',
+                'title' => $recognition->title,
+                'description' => $recognition->description,
+                'icon' => $recognition->icon ?? '⭐',
+                'start_date' => $recognition->start_date->format('d M Y'),
+                'end_date' => $recognition->end_date->format('d M Y'),
+                'awarded_by' => $recognition->creator ? "{$recognition->creator->first_name} {$recognition->creator->last_name}" : 'Management',
+            ];
+
+            error_log("📧 Recognition email data prepared for user: {$user->email}");
+
+            // Generate HTML email content
+            $html = view('emails.recognition-award', ['data' => $emailData])->render();
+
+            try {
+                error_log("📬 Attempting to send recognition email via Brevo API to: {$user->email}");
+                self::sendViaBrevoAPI(
+                    $user->email,
+                    "🏆 Recognition Award: {$recognition->title} | {$user->first_name} {$user->last_name}",
+                    $html,
+                    [],
+                    []
+                );
+                error_log("✅ RECOGNITION EMAIL SENT to {$user->email}");
+            } catch (\Exception $e) {
+                error_log("❌ FAILED to send recognition email to {$user->email}: " . $e->getMessage());
+            }
+        } catch (\Exception $e) {
+            error_log("💥 CRITICAL RECOGNITION EMAIL SERVICE ERROR: " . $e->getMessage());
+        }
+    }
+
+    /**
      * Send email via Brevo HTTP API
      */
     private static function sendViaBrevoAPI($toEmail, $subject, $htmlContent, $ccEmails = [], $bccEmails = []): void

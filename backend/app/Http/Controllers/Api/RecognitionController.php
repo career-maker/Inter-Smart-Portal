@@ -43,7 +43,7 @@ class RecognitionController extends Controller
             'created_by' => Auth::id(),
         ]);
 
-        $recognition->load(['user:id,first_name,last_name,employee_code', 'creator:id,first_name,last_name']);
+        $recognition->load(['user:id,first_name,last_name,employee_code,email,designation,team_id', 'user.team:id,name', 'creator:id,first_name,last_name']);
 
         try {
             $employee = \App\Models\User::find($recognition->user_id);
@@ -54,6 +54,17 @@ class RecognitionController extends Controller
             }
         } catch (\Exception $e) {
             // Never let notification failure block saving
+        }
+
+        // Send email notification (isolated, failures don't affect recognition creation)
+        try {
+            $employee = \App\Models\User::find($recognition->user_id);
+            if ($employee) {
+                \App\Services\Email\EmailService::sendRecognitionEmail($employee, $recognition);
+            }
+        } catch (\Exception $e) {
+            // Log but don't fail
+            \Log::warning('Recognition email notification failed: ' . $e->getMessage());
         }
 
         return response()->json(['message' => 'Recognition added successfully.', 'data' => $recognition]);
