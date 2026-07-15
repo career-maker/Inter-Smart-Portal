@@ -8,6 +8,7 @@ export interface User {
   email: string;
   role: string;
   permissions: string[];
+  team_id?: number;
   employee_id?: string;
   designation?: string;
   profile_photo_path?: string;
