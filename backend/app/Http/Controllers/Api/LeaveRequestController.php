@@ -440,8 +440,10 @@ class LeaveRequestController extends Controller
     }
     public function store(StoreLeaveRequest $request)
     {
-        $user      = $request->user();
-        $data      = $request->validated();
+        try {
+            $user      = $request->user();
+            $data      = $request->validated();
+            \Log::info('Leave request store started', ['user_id' => $user->id]);
 
         $overlap = LeaveRequest::where('user_id', $user->id)
             ->whereIn('status', ['Pending', 'Approved'])
@@ -550,21 +552,32 @@ class LeaveRequestController extends Controller
             ]);
         }
 
-        // Reload with relations to ensure all data is available
-        $leaveRequest->load(['user', 'leaveType']);
+            // Reload with relations to ensure all data is available
+            $leaveRequest->load(['user', 'leaveType']);
 
-        return response()->json([
-            'message' => 'Leave applied successfully',
-            'data'    => [
-                'id' => $leaveRequest->id,
-                'user_id' => $leaveRequest->user_id,
-                'leave_type_id' => $leaveRequest->leave_type_id,
-                'start_date' => $leaveRequest->start_date,
-                'end_date' => $leaveRequest->end_date,
-                'status' => $leaveRequest->status,
-                'reason' => $leaveRequest->reason
-            ]
-        ], 201);
+            \Log::info('Leave request created successfully', ['leave_id' => $leaveRequest->id]);
+
+            return response()->json([
+                'message' => 'Leave applied successfully',
+                'data'    => [
+                    'id' => $leaveRequest->id,
+                    'user_id' => $leaveRequest->user_id,
+                    'leave_type_id' => $leaveRequest->leave_type_id,
+                    'start_date' => $leaveRequest->start_date,
+                    'end_date' => $leaveRequest->end_date,
+                    'status' => $leaveRequest->status,
+                    'reason' => $leaveRequest->reason
+                ]
+            ], 201);
+        } catch (\Exception $e) {
+            \Log::error('Leave request store failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json([
+                'message' => 'Failed to apply leave: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     private function notifyOnSubmit($user, LeaveRequest $leaveRequest, $leaveType): void
