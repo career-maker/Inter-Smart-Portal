@@ -48,6 +48,15 @@ function AvatarWithPhoto({ photoPath, firstName, lastName }: { photoPath?: strin
 export default function ApprovalsPage() {
   const { user } = useAuthStore();
   const isSuperAdmin = user?.role === "Super Admin";
+  const isTeamLead = user?.role === "Team Lead";
+  const currentUserTeamId = user?.team_id;
+
+  // Check if user can approve a leave request
+  const canApprove = (request: any): boolean => {
+    if (isSuperAdmin) return true;
+    if (isTeamLead && request?.user?.team_id === currentUserTeamId) return true;
+    return false;
+  };
 
   const [tab, setTab] = useState<"leaves" | "wfh">("leaves");
   const [statusFilter, setStatusFilter] = useState<"Pending" | "Approved" | "Rejected" | "All">("Pending");
@@ -346,7 +355,7 @@ export default function ApprovalsPage() {
               <Clock className="w-3 h-3" /> Pending
             </div>
           )}
-          {req.status === "Pending" && !req.pending_lop_conversion && (
+          {req.status === "Pending" && !req.pending_lop_conversion && canApprove(req) && (
             <button
               onClick={() => approve("leave", req.id)}
               disabled={actionLoading}
@@ -475,14 +484,16 @@ export default function ApprovalsPage() {
           <div className="flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-400">
             <Clock className="w-3 h-3" /> Pending
           </div>
-          <button
-            onClick={() => approve("wfh", req.id)}
-            disabled={actionLoading}
-            className="px-2.5 py-1.5 text-xs font-bold bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition disabled:opacity-50 whitespace-nowrap"
-            title="Quick approve"
-          >
-            ✓ Approve
-          </button>
+          {canApprove(req) && (
+            <button
+              onClick={() => approve("wfh", req.id)}
+              disabled={actionLoading}
+              className="px-2.5 py-1.5 text-xs font-bold bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition disabled:opacity-50 whitespace-nowrap"
+              title="Quick approve"
+            >
+              ✓ Approve
+            </button>
+          )}
         </div>
       </div>
 
