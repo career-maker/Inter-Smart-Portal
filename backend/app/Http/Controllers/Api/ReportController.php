@@ -440,8 +440,6 @@ class ReportController extends Controller
                     return $a->user_id === $emp->id && $aDate === $dateStr;
                 });
 
-                $dayStatus = $this->calculateDayStatus($emp->id, $dateStr, $leave, $wfh, $attendance);
-
                 // Calculate times from biometric data for accuracy (not from stored attendance)
                 $checkInTime = null;
                 $checkOutTime = null;
@@ -464,6 +462,8 @@ class ReportController extends Controller
                         }
                     }
                 }
+
+                $dayStatus = $this->calculateDayStatus($emp->id, $dateStr, $leave, $wfh, $attendance, $checkInTime);
 
                 $empData['daily_status'][] = [
                     'date' => $dateStr,
@@ -531,7 +531,7 @@ class ReportController extends Controller
      * - Half-day Morning: first punch-in after 2:30 PM = Late
      * - WFH: no late marking
      */
-    private function calculateDayStatus($userId, $dateStr, $leave, $wfh, $attendance): array
+    private function calculateDayStatus($userId, $dateStr, $leave, $wfh, $attendance, $checkInTime = null): array
     {
         $isLate = false;
         $leaveType = null;
@@ -586,8 +586,8 @@ class ReportController extends Controller
             ];
         }
 
-        // No attendance record = Absent
-        if (!$attendance) {
+        // If no biometric check-in and no attendance record = Absent
+        if (!$checkInTime && !$attendance) {
             return [
                 'status' => 'A',
                 'leave_type' => null,
@@ -595,21 +595,28 @@ class ReportController extends Controller
             ];
         }
 
-        // Check if late based on first check-in time (normal day)
-        // Late threshold is 9:45 AM
-        if ($attendance->check_in_time) {
-            $checkInTime = Carbon::parse($attendance->check_in_time);
+        // If employee has checked in (via biometric or attendance), mark as Present
+        $timeToCheck = $checkInTime ?? ($attendance?->check_in_time ? Carbon::parse($attendance->check_in_time)->toIso8601String() : null);
+
+        if ($timeToCheck) {
+            $checkInTimeCarbon = Carbon::parse($timeToCheck);
             $lateThreshold = Carbon::parse($dateStr . ' 09:45:00');
 
-            if ($checkInTime->greaterThan($lateThreshold)) {
+            if ($checkInTimeCarbon->greaterThan($lateThreshold)) {
                 $isLate = true;
             }
+
+            return [
+                'status' => 'P',
+                'leave_type' => null,
+                'is_late' => $isLate,
+            ];
         }
 
         return [
-            'status' => 'P',
+            'status' => 'A',
             'leave_type' => null,
-            'is_late' => $isLate,
+            'is_late' => false,
         ];
     }
 
