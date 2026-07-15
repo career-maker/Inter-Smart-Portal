@@ -543,12 +543,15 @@ class LeaveRequestController extends Controller
         }
 
         // Send notifications outside the transaction
+        \Log::info('NOTIFICATION_START: About to send notifications', ['leave_id' => $leaveRequest->id]);
         try {
             $this->notifyOnSubmit($user, $leaveRequest, $leaveType);
+            \Log::info('NOTIFICATION_SUCCESS: Notifications sent', ['leave_id' => $leaveRequest->id]);
         } catch (\Exception $e) {
-            \Log::error('Email notification failed but leave request succeeded', [
+            \Log::error('NOTIFICATION_ERROR: Email notification failed', [
                 'error' => $e->getMessage(),
-                'leave_id' => $leaveRequest->id
+                'leave_id' => $leaveRequest->id,
+                'trace' => $e->getTraceAsString()
             ]);
         }
 
