@@ -41,6 +41,12 @@ export default function RecognitionsPage() {
   const [togglingId, setTogglingId] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [certRec, setCertRec] = useState<any | null>(null);
+  const [employeeSearch, setEmployeeSearch] = useState("");
+  const [showEmployeeList, setShowEmployeeList] = useState(false);
+
+  const filteredEmployees = employees.filter((emp) =>
+    `${emp.first_name} ${emp.last_name} (${emp.employee_code})`.toLowerCase().includes(employeeSearch.toLowerCase())
+  ).slice(0, 10); // Limit to 10 results
 
   const [formData, setFormData] = useState({
     user_id: "",
@@ -102,6 +108,8 @@ export default function RecognitionsPage() {
       });
 
       setShowModal(false);
+      setEmployeeSearch("");
+      setShowEmployeeList(false);
       setFormData({
         user_id: "",
         title_selection: "",
@@ -318,7 +326,11 @@ export default function RecognitionsPage() {
                 Assign Achievement
               </h2>
               <button
-                onClick={() => setShowModal(false)}
+                onClick={() => {
+                  setShowModal(false);
+                  setEmployeeSearch("");
+                  setShowEmployeeList(false);
+                }}
                 className="text-slate-400 hover:text-white text-xl leading-none"
               >
                 &times;
@@ -326,25 +338,47 @@ export default function RecognitionsPage() {
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              <div>
+              <div className="relative">
                 <label className="block text-sm font-semibold text-slate-300 mb-1">
                   Employee <span className="text-red-400">*</span>
                 </label>
-                <select
+                <input
                   required
-                  value={formData.user_id}
-                  onChange={(e) => setFormData({ ...formData, user_id: e.target.value })}
+                  type="text"
+                  placeholder="Search by name or employee code..."
+                  value={employeeSearch}
+                  onChange={(e) => {
+                    setEmployeeSearch(e.target.value);
+                    setShowEmployeeList(true);
+                  }}
+                  onFocus={() => setShowEmployeeList(true)}
                   className="w-full border border-white/10 bg-slate-700 text-white rounded-lg p-2.5 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm"
-                >
-                  <option value="" className="bg-slate-700">Select Employee...</option>
-                  {employees.map((emp) => (
-                    <option key={emp.id} value={emp.id} className="bg-slate-700">
-                      {emp.first_name} {emp.last_name} ({emp.employee_code})
-                    </option>
-                  ))}
-                </select>
-                {employees.length === 0 && (
-                  <p className="text-xs text-amber-400 mt-1">Loading employees...</p>
+                />
+                {showEmployeeList && employeeSearch && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-slate-700 border border-white/10 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto">
+                    {filteredEmployees.length > 0 ? (
+                      filteredEmployees.map((emp) => (
+                        <button
+                          key={emp.id}
+                          type="button"
+                          onClick={() => {
+                            setFormData({ ...formData, user_id: String(emp.id) });
+                            setEmployeeSearch(`${emp.first_name} ${emp.last_name} (${emp.employee_code})`);
+                            setShowEmployeeList(false);
+                          }}
+                          className="w-full text-left px-3 py-2 text-sm text-slate-200 hover:bg-slate-600 focus:bg-slate-600 outline-none border-b border-white/5 last:border-b-0"
+                        >
+                          {emp.first_name} {emp.last_name}
+                          <span className="text-slate-400 ml-1">({emp.employee_code})</span>
+                        </button>
+                      ))
+                    ) : (
+                      <div className="px-3 py-2 text-sm text-slate-400">No employees found</div>
+                    )}
+                  </div>
+                )}
+                {formData.user_id && (
+                  <p className="text-xs text-emerald-400 mt-1">✓ Employee selected</p>
                 )}
               </div>
 
@@ -445,7 +479,11 @@ export default function RecognitionsPage() {
               <div className="pt-4 flex justify-end gap-3 border-t border-white/10">
                 <button
                   type="button"
-                  onClick={() => setShowModal(false)}
+                  onClick={() => {
+                    setShowModal(false);
+                    setEmployeeSearch("");
+                    setShowEmployeeList(false);
+                  }}
                   disabled={submitting}
                   className="px-4 py-2 text-sm font-semibold text-slate-300 border border-white/10 bg-white/5 hover:bg-white/10 rounded-lg transition disabled:opacity-50"
                 >
