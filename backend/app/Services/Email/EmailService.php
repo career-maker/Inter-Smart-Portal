@@ -32,7 +32,7 @@ class EmailService
             }
 
             // Generate HTML email content
-            $html = view('emails.leave-request', ['emailData' => $emailData, 'leaveRequest' => $leaveRequest])->render();
+            $html = view('emails.leave-request', ['data' => $emailData, 'leaveRequest' => $leaveRequest])->render();
 
             foreach ($recipients['to'] as $email) {
                 try {
@@ -75,7 +75,7 @@ class EmailService
             }
 
             // Generate HTML email content
-            $html = view('emails.wfh-request', ['emailData' => $emailData, 'wfhRequest' => $wfhRequest])->render();
+            $html = view('emails.wfh-request', ['data' => $emailData, 'wfhRequest' => $wfhRequest])->render();
 
             foreach ($recipients['to'] as $email) {
                 try {
