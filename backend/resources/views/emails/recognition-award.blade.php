@@ -6,243 +6,165 @@
     <title>Recognition Award</title>
     <style type="text/css">
         * { margin: 0; padding: 0; }
-        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 100%; margin: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .wrapper { max-width: 600px; margin: 0 auto; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f9fafb; }
+        .email-container { width: 100%; max-width: 100%; margin: 0; background-color: #ffffff; }
 
-        /* Header Section */
+        /* Header */
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 60px 20px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        .header::before {
-            content: '✨';
-            position: absolute;
-            top: 10px;
-            left: 20px;
-            font-size: 40px;
-            opacity: 0.3;
-        }
-        .header::after {
-            content: '🏆';
-            position: absolute;
-            top: 10px;
-            right: 20px;
-            font-size: 40px;
-            opacity: 0.3;
-        }
-        .header-content {
-            position: relative;
-            z-index: 1;
-        }
-        .header h1 {
-            font-size: 28px;
-            margin: 0 0 10px 0;
-            font-weight: 700;
-            letter-spacing: 1px;
-        }
-        .header p {
-            font-size: 14px;
-            margin: 0;
-            opacity: 0.95;
-        }
-
-        /* Award Badge Section */
-        .award-badge-section {
-            background: white;
+            background-color: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
             padding: 40px 20px;
             text-align: center;
         }
-        .award-badge {
-            display: inline-block;
-            width: 120px;
-            height: 120px;
-            background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 60px;
-            margin: 0 auto 20px;
-            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.3);
-            animation: pulse-glow 2s ease-in-out infinite;
-        }
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 10px 30px rgba(245, 158, 11, 0.3); }
-            50% { box-shadow: 0 10px 50px rgba(245, 158, 11, 0.6); }
-        }
-        .award-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: #1f2937;
-            margin: 20px 0 10px 0;
-        }
-        .award-subtitle {
-            font-size: 16px;
-            color: #667eea;
-            margin: 0;
-            font-weight: 600;
-        }
+        .logo { font-size: 24px; font-weight: 700; color: #1f2937; margin-bottom: 10px; }
+        .header-title { font-size: 28px; font-weight: 600; color: #1f2937; margin: 20px 0 0 0; }
 
-        /* Content Section */
-        .content {
-            background: white;
-            padding: 40px 30px;
-        }
-        .congratulations {
+        /* Content */
+        .content { padding: 40px 20px; }
+        .content-wrapper { max-width: 800px; margin: 0 auto; }
+
+        .congrats-text {
             font-size: 16px;
-            color: #374151;
+            color: #4b5563;
             line-height: 1.8;
             margin-bottom: 30px;
             text-align: center;
         }
-        .congratulations strong {
-            color: #667eea;
-            font-weight: 700;
+        .congrats-text strong { color: #1f2937; font-weight: 600; }
+
+        /* Award Box */
+        .award-box {
+            background-color: #f3f4f6;
+            border-left: 4px solid #3b82f6;
+            padding: 25px;
+            margin: 30px 0;
+            border-radius: 4px;
+        }
+
+        .award-header {
+            font-size: 14px;
+            font-weight: 600;
+            color: #3b82f6;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        .award-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 15px;
+        }
+        .award-subtext {
+            font-size: 14px;
+            color: #6b7280;
         }
 
         /* Details Section */
-        .details-section {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
-            border-left: 4px solid #667eea;
-            padding: 25px;
-            border-radius: 8px;
+        .details-grid {
+            display: table;
+            width: 100%;
             margin: 30px 0;
         }
         .detail-item {
-            margin-bottom: 20px;
-        }
-        .detail-item:last-child {
-            margin-bottom: 0;
+            display: table-row;
         }
         .detail-label {
-            font-size: 12px;
-            font-weight: 700;
-            color: #667eea;
+            display: table-cell;
+            width: 35%;
+            padding: 12px 0;
+            font-size: 13px;
+            font-weight: 600;
+            color: #6b7280;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 5px;
+            letter-spacing: 0.3px;
+            border-bottom: 1px solid #e5e7eb;
         }
         .detail-value {
-            font-size: 16px;
-            color: #1f2937;
-            font-weight: 500;
-        }
-
-        /* Description Box */
-        .description-box {
-            background: #f9fafb;
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid #e5e7eb;
-            margin: 25px 0;
+            display: table-cell;
+            padding: 12px 0 12px 20px;
             font-size: 14px;
-            color: #4b5563;
-            line-height: 1.8;
-            font-style: italic;
+            color: #1f2937;
+            border-bottom: 1px solid #e5e7eb;
         }
 
-        /* Appreciation Message */
-        .appreciation {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            border-left: 4px solid #f59e0b;
+        /* Message Box */
+        .message-box {
+            background-color: #eff6ff;
+            border-left: 4px solid #3b82f6;
             padding: 20px;
-            border-radius: 8px;
-            margin: 25px 0;
-            text-align: center;
+            margin: 30px 0;
+            border-radius: 4px;
         }
-        .appreciation-icon {
-            font-size: 40px;
+        .message-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e40af;
             margin-bottom: 10px;
         }
-        .appreciation-text {
+        .message-text {
             font-size: 14px;
-            color: #78350f;
-            font-weight: 600;
+            color: #1e40af;
             line-height: 1.6;
         }
 
-        /* Info Box */
-        .info-box {
-            background: #eff6ff;
-            border-left: 4px solid #3b82f6;
-            padding: 15px;
-            border-radius: 6px;
-            font-size: 13px;
-            color: #1e40af;
-            margin: 25px 0;
-        }
-
-        /* Footer Section */
+        /* Footer */
         .footer {
-            background: #f8f9fa;
+            background-color: #f9fafb;
+            border-top: 1px solid #e5e7eb;
             padding: 30px 20px;
             text-align: center;
-            border-top: 1px solid #e5e7eb;
+            font-size: 13px;
+            color: #6b7280;
         }
         .footer-message {
-            font-size: 14px;
-            color: #6b7280;
             margin-bottom: 15px;
             line-height: 1.6;
         }
         .footer-credit {
-            font-size: 12px;
-            color: #9ca3af;
-            margin-top: 15px;
             padding-top: 15px;
             border-top: 1px solid #e5e7eb;
+            font-size: 12px;
+            color: #9ca3af;
         }
 
         /* Responsive */
         @media (max-width: 600px) {
-            .container { width: 100%; }
-            .header { padding: 40px 20px; }
-            .header h1 { font-size: 22px; }
-            .award-badge { width: 100px; height: 100px; font-size: 50px; }
-            .award-title { font-size: 20px; }
-            .content { padding: 25px 20px; }
-            .details-section { padding: 20px; }
+            .header { padding: 30px 15px; }
+            .header-title { font-size: 24px; }
+            .content { padding: 30px 15px; }
+            .detail-label, .detail-value { display: block; width: auto; padding: 10px 0 10px 0; }
+            .detail-value { padding-left: 0; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="wrapper">
-            <!-- Header -->
-            <div class="header">
-                <div class="header-content">
-                    <h1>🏆 YOU'VE BEEN RECOGNIZED!</h1>
-                    <p>Congratulations on your achievement</p>
-                </div>
-            </div>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">Intersmart</div>
+            <h1 class="header-title">Employee Recognition</h1>
+        </div>
 
-            <!-- Award Badge -->
-            <div class="award-badge-section">
-                <div class="award-badge">{{ $data['icon'] ?? '⭐' }}</div>
-                <h2 class="award-title">{{ $data['title'] }}</h2>
-                <p class="award-subtitle">{{ $data['employee_name'] }}</p>
-            </div>
-
-            <!-- Content -->
-            <div class="content">
+        <!-- Content -->
+        <div class="content">
+            <div class="content-wrapper">
                 <!-- Congratulations Message -->
-                <p class="congratulations">
-                    Congratulations <strong>{{ $data['employee_name'] }}</strong>!
-                    You have been awarded the <strong>"{{ $data['title'] }}"</strong> recognition by
-                    <strong>{{ $data['awarded_by'] }}</strong>.
-                </p>
+                <div class="congrats-text">
+                    Congratulations <strong>{{ $data['employee_name'] }}</strong>!<br>
+                    You have been recognized for <strong>"{{ $data['title'] }}"</strong><br>
+                    by <strong>{{ $data['awarded_by'] }}</strong>
+                </div>
+
+                <!-- Award Details -->
+                <div class="award-box">
+                    <div class="award-header">Award</div>
+                    <div class="award-value">{{ $data['title'] }}</div>
+                    <div class="award-subtext">{{ $data['icon'] ?? '⭐' }} Recognition awarded</div>
+                </div>
 
                 <!-- Details -->
-                <div class="details-section">
-                    <div class="detail-item">
-                        <div class="detail-label">Award Title</div>
-                        <div class="detail-value">{{ $data['title'] }}</div>
-                    </div>
+                <div class="details-grid">
                     <div class="detail-item">
                         <div class="detail-label">Employee</div>
                         <div class="detail-value">{{ $data['employee_name'] }}</div>
@@ -264,48 +186,38 @@
                     </div>
                     @endif
                     <div class="detail-item">
-                        <div class="detail-label">Award Period</div>
-                        <div class="detail-value">{{ $data['start_date'] }} to {{ $data['end_date'] }}</div>
+                        <div class="detail-label">Period</div>
+                        <div class="detail-value">{{ $data['start_date'] }} — {{ $data['end_date'] }}</div>
                     </div>
                 </div>
 
                 <!-- Description -->
                 @if($data['description'])
                 <div>
-                    <div class="detail-label" style="margin-bottom: 10px;">Description</div>
-                    <div class="description-box">
+                    <div class="award-header" style="margin-top: 25px;">Recognition Details</div>
+                    <div style="font-size: 14px; color: #4b5563; line-height: 1.8; margin-top: 12px; padding: 15px; background-color: #f9fafb; border-radius: 4px;">
                         {{ $data['description'] }}
                     </div>
                 </div>
                 @endif
 
-                <!-- Appreciation Message -->
-                <div class="appreciation">
-                    <div class="appreciation-icon">✨💪🌟</div>
-                    <div class="appreciation-text">
-                        Your hard work, dedication, and excellence have been recognized.
-                        Keep up the great work!
+                <!-- Message -->
+                <div class="message-box">
+                    <div class="message-title">Your Achievement</div>
+                    <div class="message-text">
+                        This recognition reflects your outstanding performance and dedication. Your contributions are valued and appreciated by the organization.
                     </div>
                 </div>
-
-                <!-- Info Box -->
-                <div class="info-box">
-                    <strong>ℹ️ Achievement Unlocked!</strong><br>
-                    This recognition is now displayed on your profile and in the Hall of Fame.
-                    Your colleagues can see your achievements!
-                </div>
             </div>
+        </div>
 
-            <!-- Footer -->
-            <div class="footer">
-                <p class="footer-message">
-                    <strong>Thank you for your outstanding contribution to Intersmart!</strong><br>
-                    Your achievements inspire the entire team.
-                </p>
-                <p class="footer-credit">
-                    © {{ date('Y') }} Intersmart. All rights reserved.<br>
-                    <strong>Developed By Team QA</strong>
-                </p>
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-message">
+                <strong>Thank you</strong> for your continued excellence and commitment to Intersmart.
+            </div>
+            <div class="footer-credit">
+                © {{ date('Y') }} Intersmart. All rights reserved. | Developed By Team QA
             </div>
         </div>
     </div>
