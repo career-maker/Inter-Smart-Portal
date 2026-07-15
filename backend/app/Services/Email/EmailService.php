@@ -194,7 +194,8 @@ class EmailService
             'applied_date' => $leaveRequest->created_at->format('d M Y'),
             'reference_number' => "LR-{$leaveRequest->id}",
             'request_id' => $leaveRequest->id,
-            'portal_url' => config('app.frontend_url', 'https://intersmart-portal.vercel.app')
+            'portal_url' => config('app.frontend_url', 'https://intersmart-portal.vercel.app'),
+            'approvals_url' => config('app.frontend_url', 'https://intersmart-portal.vercel.app') . '/leaves/approvals'
         ];
     }
 
@@ -221,7 +222,9 @@ class EmailService
             'applied_date' => $wfhRequest->created_at->format('d M Y'),
             'reference_number' => "WFH-{$wfhRequest->id}",
             'request_id' => $wfhRequest->id,
-            'portal_url' => config('app.frontend_url', 'https://intersmart-portal.vercel.app')
+            'portal_url' => config('app.frontend_url', 'https://intersmart-portal.vercel.app'),
+            'approvals_url' => config('app.frontend_url', 'https://intersmart-portal.vercel.app') . '/wfh/approvals',
+            'approvals_url' => config('app.frontend_url', 'https://intersmart-portal.vercel.app') . '/leaves/approvals'
         ];
     }
 
