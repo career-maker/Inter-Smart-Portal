@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         // Index for attendance queries
-        Schema::table('attendance', function (Blueprint $table) {
+        Schema::table('attendances', function (Blueprint $table) {
             $table->index(['user_id', 'date']);
             $table->index(['date', 'check_in_time']);
         });
@@ -48,7 +48,7 @@ return new class extends Migration
     public function down(): void
     {
         // Drop indexes
-        Schema::table('attendance', function (Blueprint $table) {
+        Schema::table('attendances', function (Blueprint $table) {
             $table->dropIndex(['user_id', 'date']);
             $table->dropIndex(['date', 'check_in_time']);
         });
