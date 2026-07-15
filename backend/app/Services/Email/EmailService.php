@@ -16,13 +16,18 @@ class EmailService
     public static function sendLeaveRequestEmail(LeaveRequest $leaveRequest): void
     {
         try {
+            Log::info("🔵 EmailService: sendLeaveRequestEmail called", ['leave_request_id' => $leaveRequest->id]);
+
             $leaveRequest->load(['user', 'leaveType']);
+            Log::info("📋 User loaded", ['user_id' => $leaveRequest->user->id, 'team_id' => $leaveRequest->user->team_id ?? 'NULL']);
 
             $emailData = self::prepareLeaveEmailData($leaveRequest);
             $recipients = self::getLeaveEmailRecipients($leaveRequest->user);
 
+            Log::info("📧 Recipients resolved", ['to' => $recipients['to'], 'cc' => $recipients['cc']]);
+
             if (empty($recipients['to'])) {
-                Log::info("No recipients for leave request {$leaveRequest->id}");
+                Log::warning("❌ No recipients for leave request {$leaveRequest->id} - user has no team lead email");
                 return;
             }
 
@@ -101,10 +106,16 @@ class EmailService
      */
     private static function getLeaveEmailRecipients($user): array
     {
+        Log::info("🔎 getLeaveEmailRecipients: Looking up team for user", ['user_id' => $user->id, 'team_id' => $user->team_id ?? 'NULL']);
+
         $teamLead = null;
         if ($user->team_id) {
             $team = \App\Models\Team::find($user->team_id);
+            Log::info("🏢 Team found", ['team_id' => $team?->id, 'team_name' => $team?->name, 'team_lead_id' => $team?->team_lead_id ?? 'NULL']);
             $teamLead = $team?->teamLead;
+            Log::info("👤 Team Lead lookup", ['found' => !!$teamLead, 'lead_email' => $teamLead?->email ?? 'NULL']);
+        } else {
+            Log::warning("⚠️  User has no team_id");
         }
 
         $recipients = [
@@ -115,7 +126,14 @@ class EmailService
 
         // Always notify Team Lead if available
         if ($teamLead && $teamLead->email && $teamLead->id !== $user->id) {
+            Log::info("✅ Adding team lead to recipients", ['email' => $teamLead->email]);
             $recipients['to'][] = $teamLead->email;
+        } else {
+            Log::warning("❌ Team lead not added", [
+                'has_teamlead' => !!$teamLead,
+                'has_email' => $teamLead?->email ? true : false,
+                'is_same_user' => $teamLead?->id === $user->id ? true : false
+            ]);
         }
 
         return $recipients;
