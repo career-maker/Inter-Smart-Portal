@@ -60,12 +60,15 @@ export function RecognitionTicker() {
 
   const displayItems = items;
 
+  // Calculate animation duration based on number of items to maintain constant speed
+  const durationSeconds = Math.max(20, items.length * 5);
+
   return (
     <div className="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 text-white overflow-hidden py-1.5 flex items-center relative border-b border-indigo-700/50 shadow-md">
       <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-indigo-600 to-transparent z-10" />
       <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-indigo-600 to-transparent z-10" />
 
-      <div className="whitespace-nowrap flex gap-12 items-center animate-[marquee_25s_linear_infinite] hover:[animation-play-state:paused]">
+      <div className="whitespace-nowrap flex gap-12 items-center hover:[animation-play-state:paused]" style={{ animation: `marquee ${durationSeconds}s linear infinite` }}>
         {displayItems.map((item, i) => (
           <div key={i} className="flex items-center gap-2 text-sm font-semibold tracking-wide">
             {item.type === "birthday" ? (
