@@ -402,9 +402,10 @@ class DashboardController extends Controller
                                 ];
                             });
 
-                        // Fetch team members with their status (optimized with single query)
+                        // Fetch team members with their status (optimized with single query, excluding the Team Lead)
                         $teamMembers = User::where('team_id', $teamId)
                             ->where('status', 'Active')
+                            ->where('users.id', '!=', $user->id)
                             ->leftJoin('attendance', function ($join) use ($todayStr) {
                                 $join->on('users.id', '=', 'attendance.user_id')
                                      ->where('attendance.date', $todayStr);

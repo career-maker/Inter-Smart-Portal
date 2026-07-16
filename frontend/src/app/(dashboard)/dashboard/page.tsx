@@ -691,7 +691,7 @@ export default function DashboardPage() {
                 {widgets.upcoming_holidays.map((h: any, i: number) => (
                   <div key={i} className="flex justify-between items-center">
                     <span className="text-sm font-medium text-white">{h.name}</span>
-                    <span className="text-xs font-semibold text-rose-600 bg-rose-500/30 px-2 py-1 rounded-md text-rose-300">
+                    <span className="text-xs font-semibold text-white bg-rose-500/20 px-2 py-1 rounded-md">
                       {format(new Date(h.date), "MMM d")}
                     </span>
                   </div>
