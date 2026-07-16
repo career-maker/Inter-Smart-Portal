@@ -468,12 +468,20 @@ class DashboardController extends Controller
 
                         $responseData['widgets']['pending_approvals'] = $pendingApprovalsData;
                         $responseData['widgets']['team_members'] = $teamMembers;
+
+                        \Log::info('Team Lead dashboard data loaded', [
+                            'user_id' => $user->id,
+                            'team_id' => $teamId,
+                            'pending_approvals_count' => count($pendingApprovalsData),
+                            'team_members_count' => count($teamMembers)
+                        ]);
                     }
                 } catch (\Exception $e) {
                     \Log::error('Team Lead dashboard error: ' . $e->getMessage(), [
+                        'user_id' => $user->id,
+                        'team_id' => $teamId,
                         'exception' => $e,
-                        'trace' => $e->getTraceAsString(),
-                        'team_id' => $teamId
+                        'trace' => $e->getTraceAsString()
                     ]);
                     $pendingGlobalRequests = 0;
                     $responseData['widgets']['pending_approvals'] = [];
