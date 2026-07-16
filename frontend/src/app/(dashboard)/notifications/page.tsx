@@ -91,7 +91,7 @@ export default function NotificationsPage() {
               Unread
             </button>
           </div>
-          <Button onClick={handleMarkAllAsRead} variant="outline" size="sm" className="h-9 gap-2">
+          <Button onClick={(e) => { e.stopPropagation(); handleMarkAllAsRead(); }} variant="outline" size="sm" className="h-9 gap-2">
             <CheckCheck className="h-4 w-4" />
             Mark all as read
           </Button>
@@ -127,13 +127,13 @@ export default function NotificationsPage() {
                     if (!notif.read_at) handleMarkAsRead(notif.id);
                     router.push(resolveNotificationUrl(notif));
                   }}
-                  className={`p-4 sm:px-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center transition-colors cursor-pointer hover:bg-gray-50 ${
-                    !notif.read_at ? "bg-primary/5" : "bg-white"
+                  className={`p-4 sm:px-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center transition-colors cursor-pointer ${
+                    !notif.read_at ? "bg-primary/10 hover:bg-primary/15" : "bg-gray-900/30 hover:bg-gray-900/40 text-gray-300"
                   }`}
                 >
                   <div className="flex-1 space-y-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium text-gray-900 truncate">
+                      <p className={`text-sm font-medium truncate ${notif.read_at ? "text-gray-400" : "text-gray-900"}`}>
                         {notif.data?.title || "Update"}
                       </p>
                       {!notif.read_at && (
@@ -142,10 +142,10 @@ export default function NotificationsPage() {
                         </Badge>
                       )}
                     </div>
-                    <p className="text-sm text-gray-500 whitespace-pre-wrap">
+                    <p className={`text-sm whitespace-pre-wrap ${notif.read_at ? "text-gray-500" : "text-gray-600"}`}>
                       {notif.data?.message || "You have a new notification regarding your account."}
                     </p>
-                    <p className="text-xs text-gray-400 mt-1">
+                    <p className={`text-xs mt-1 ${notif.read_at ? "text-gray-600" : "text-gray-400"}`}>
                       {new Date(notif.created_at).toLocaleString(undefined, {
                         dateStyle: "medium",
                         timeStyle: "short",
@@ -156,7 +156,7 @@ export default function NotificationsPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleMarkAsRead(notif.id)}
+                      onClick={(e) => { e.stopPropagation(); handleMarkAsRead(notif.id); }}
                       className="shrink-0 h-8 text-primary hover:text-primary hover:bg-primary/10"
                     >
                       Mark as read
