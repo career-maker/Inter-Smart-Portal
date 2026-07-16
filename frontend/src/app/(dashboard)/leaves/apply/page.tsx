@@ -101,6 +101,7 @@ export default function ApplyLeavePage() {
   const [leaveMetrics, setLeaveMetrics] = useState<any>(null);
   const [isLoadingBalance, setIsLoadingBalance] = useState(true);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const [leaveTypeId, setLeaveTypeId] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -289,10 +290,9 @@ export default function ApplyLeavePage() {
       }
       await api.post("/leave-requests", payload);
       window.dispatchEvent(new Event("notifications-refresh"));
-      router.push("/leaves");
+      setShowSuccess(true);
     } catch (e: any) {
       alert(e.response?.data?.message || "An error occurred while submitting the request.");
-    } finally {
       setIsLoading(false);
     }
   };
@@ -532,6 +532,64 @@ export default function ApplyLeavePage() {
               <button onClick={confirmSubmit} disabled={isLoading} className="flex items-center gap-2 px-5 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-xl transition-colors disabled:opacity-50">
                 {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
                 Submit Leave Request
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Success Popup ── */}
+      {showSuccess && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => {}} />
+          <div className="relative w-full max-w-md bg-gradient-to-br from-slate-800 to-slate-900 border border-emerald-500/20 rounded-2xl shadow-2xl z-10 overflow-hidden">
+            {/* Animated background gradient */}
+            <div className="absolute inset-0 bg-emerald-500/5 opacity-0 animate-pulse" />
+
+            <div className="relative px-6 py-8 text-center space-y-4">
+              {/* Success Icon */}
+              <div className="flex justify-center">
+                <div className="w-16 h-16 rounded-full bg-emerald-500/20 border-2 border-emerald-500/40 flex items-center justify-center animate-bounce">
+                  <CheckCircle className="w-8 h-8 text-emerald-400" />
+                </div>
+              </div>
+
+              {/* Success Message */}
+              <div className="space-y-2">
+                <h2 className="text-2xl font-bold text-white">Leave Applied Successfully!</h2>
+                <p className="text-slate-300 text-sm">Your leave request has been submitted for approval.</p>
+              </div>
+
+              {/* Details */}
+              <div className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-2 text-left mt-6">
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-slate-400">Leave Type:</span>
+                  <span className="text-white font-semibold">{selectedType?.name}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-slate-400">Date Range:</span>
+                  <span className="text-white font-semibold">{startDate} to {endDate}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-slate-400">Status:</span>
+                  <span className="text-amber-300 font-semibold">Pending Approval</span>
+                </div>
+              </div>
+
+              {/* Info message */}
+              <p className="text-xs text-slate-400 bg-blue-500/10 border border-blue-500/20 rounded-lg px-3 py-2 mt-6">
+                📧 You'll receive an email notification once your request is reviewed by your Team Lead or Super Admin.
+              </p>
+
+              {/* Action Button */}
+              <button
+                onClick={() => {
+                  setShowSuccess(false);
+                  router.push("/leaves");
+                }}
+                className="w-full mt-6 px-5 py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold rounded-xl transition-all duration-200 hover:shadow-lg hover:shadow-emerald-500/20"
+              >
+                View My Leaves
               </button>
             </div>
           </div>
