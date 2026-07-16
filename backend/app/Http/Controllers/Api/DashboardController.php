@@ -426,39 +426,48 @@ class DashboardController extends Controller
                                 ];
                             });
 
-                        // Fetch team members with their status (optimized with single query)
+                        // Fetch team members - simplified query to avoid JOIN issues
                         $teamMembers = User::where('team_id', $teamId)
                             ->where('status', 'Active')
-                            ->leftJoin('attendance', function ($join) use ($todayStr) {
-                                $join->on('users.id', '=', 'attendance.user_id')
-                                     ->where('attendance.date', $todayStr);
-                            })
-                            ->leftJoin('leave_requests as lr', function ($join) use ($todayStr) {
-                                $join->on('users.id', '=', 'lr.user_id')
-                                     ->where('lr.status', 'Approved')
-                                     ->where('lr.start_date', '<=', $todayStr)
-                                     ->where('lr.end_date', '>=', $todayStr);
-                            })
-                            ->leftJoin('leave_types', function ($join) {
-                                $join->on('lr.leave_type_id', '=', 'leave_types.id')
-                                     ->whereNotNull('lr.leave_type_id');
-                            })
-                            ->select('users.id', 'users.first_name', 'users.last_name',
-                                     DB::raw('CASE WHEN lr.id IS NULL THEN NULL
-                                                  WHEN leave_types.name LIKE \'%Work From Home%\' OR leave_types.name LIKE \'%WFH%\' THEN \'WFH\'
-                                                  ELSE \'Leave\' END as leave_status'),
-                                     DB::raw('CASE WHEN attendance.check_in_time IS NOT NULL THEN 1 ELSE 0 END as has_checkin'))
-                            ->distinct()
-                            ->get()
-                            ->map(function($member) {
+                            ->get(['id', 'first_name', 'last_name'])
+                            ->map(function($member) use ($todayStr) {
+                                // Check attendance for today
+                                $hasCheckIn = \App\Models\Attendance::where('user_id', $member->id)
+                                    ->where('date', $todayStr)
+                                    ->whereNotNull('check_in_time')
+                                    ->exists();
+
+                                // Check if on leave today
+                                $isOnLeave = LeaveRequest::where('user_id', $member->id)
+                                    ->where('status', 'Approved')
+                                    ->where('start_date', '<=', $todayStr)
+                                    ->where('end_date', '>=', $todayStr)
+                                    ->whereHas('leaveType', function($q) {
+                                        $q->where('name', 'not ilike', '%Work From Home%')
+                                          ->where('name', 'not ilike', '%WFH%');
+                                    })
+                                    ->exists();
+
+                                // Check if WFH today
+                                $isWfh = LeaveRequest::where('user_id', $member->id)
+                                    ->where('status', 'Approved')
+                                    ->where('start_date', '<=', $todayStr)
+                                    ->where('end_date', '>=', $todayStr)
+                                    ->whereHas('leaveType', function($q) {
+                                        $q->where('name', 'ilike', '%Work From Home%')
+                                          ->orWhere('name', 'ilike', '%WFH%');
+                                    })
+                                    ->exists();
+
                                 $status = 'Not Checked In';
-                                if ($member->leave_status === 'Leave') {
+                                if ($isOnLeave) {
                                     $status = 'On Leave';
-                                } elseif ($member->leave_status === 'WFH') {
+                                } elseif ($isWfh) {
                                     $status = 'WFH';
-                                } elseif ($member->has_checkin) {
+                                } elseif ($hasCheckIn) {
                                     $status = 'Present';
                                 }
+
                                 return [
                                     'id' => $member->id,
                                     'name' => $member->first_name . ' ' . $member->last_name,
