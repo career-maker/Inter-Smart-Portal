@@ -369,73 +369,86 @@ class DashboardController extends Controller
                     $pendingGlobalRequests = 0;
                 }
             } elseif ($user->hasRole('Team Lead')) {
-                $teamId = $user->team_id;
-                $pendingLeaves = LeaveRequest::whereHas('user', fn($q) => $q->where('team_id', $teamId))
-                    ->where('tl_status', 'Pending')
-                    ->where('status', 'Pending')->count();
-                $pendingWfh = \App\Models\WfhRequest::whereHas('user', fn($q) => $q->where('team_id', $teamId))
-                    ->where('tl_status', 'Pending')
-                    ->where('status', 'Pending')->count();
-                $pendingGlobalRequests = $pendingLeaves + $pendingWfh;
+                try {
+                    $teamId = $user->team_id;
+                    if (!$teamId) {
+                        \Log::warning('Team Lead has no team_id assigned', ['user_id' => $user->id]);
+                        $pendingGlobalRequests = 0;
+                    } else {
+                        $pendingLeaves = LeaveRequest::whereHas('user', fn($q) => $q->where('team_id', $teamId))
+                            ->where('tl_status', 'Pending')
+                            ->where('status', 'Pending')->count();
+                        $pendingWfh = \App\Models\WfhRequest::whereHas('user', fn($q) => $q->where('team_id', $teamId))
+                            ->where('tl_status', 'Pending')
+                            ->where('status', 'Pending')->count();
+                        $pendingGlobalRequests = $pendingLeaves + $pendingWfh;
 
-                // Fetch pending approvals for Team Lead
-                $pendingApprovalsData = LeaveRequest::with('user:id,first_name,last_name', 'leaveType:id,name')
-                    ->whereHas('user', fn($q) => $q->where('team_id', $teamId))
-                    ->where('tl_status', 'Pending')
-                    ->where('status', 'Pending')
-                    ->orderBy('created_at', 'desc')
-                    ->take(5)
-                    ->get()
-                    ->map(function($req) {
-                        return [
-                            'id' => $req->id,
-                            'employee_name' => $req->user->first_name . ' ' . $req->user->last_name,
-                            'leave_type' => $req->leaveType?->name ?? 'Leave',
-                            'start_date' => $req->start_date,
-                            'end_date' => $req->end_date,
-                            'days' => (int)$req->days
-                        ];
-                    });
+                        // Fetch pending approvals for Team Lead
+                        $pendingApprovalsData = LeaveRequest::with('user:id,first_name,last_name', 'leaveType:id,name')
+                            ->whereHas('user', fn($q) => $q->where('team_id', $teamId))
+                            ->where('tl_status', 'Pending')
+                            ->where('status', 'Pending')
+                            ->orderBy('created_at', 'desc')
+                            ->take(5)
+                            ->get()
+                            ->map(function($req) {
+                                return [
+                                    'id' => $req->id,
+                                    'employee_name' => $req->user->first_name . ' ' . $req->user->last_name,
+                                    'leave_type' => $req->leaveType?->name ?? 'Leave',
+                                    'start_date' => $req->start_date,
+                                    'end_date' => $req->end_date,
+                                    'days' => (int)$req->days
+                                ];
+                            });
 
-                // Fetch team members with their status (optimized with single query)
-                $teamMembers = User::where('team_id', $teamId)
-                    ->where('status', 'Active')
-                    ->leftJoin('attendance', function ($join) use ($todayStr) {
-                        $join->on('users.id', '=', 'attendance.user_id')
-                             ->where('attendance.date', $todayStr);
-                    })
-                    ->leftJoin('leave_requests as lr', function ($join) use ($todayStr) {
-                        $join->on('users.id', '=', 'lr.user_id')
-                             ->where('lr.status', 'Approved')
-                             ->where('lr.start_date', '<=', $todayStr)
-                             ->where('lr.end_date', '>=', $todayStr);
-                    })
-                    ->leftJoin('leave_types', 'lr.leave_type_id', '=', 'leave_types.id')
-                    ->select('users.id', 'users.first_name', 'users.last_name',
-                             DB::raw('CASE WHEN lr.id IS NULL THEN NULL
-                                          WHEN leave_types.name LIKE "%Work From Home%" OR leave_types.name LIKE "%WFH%" THEN "WFH"
-                                          ELSE "Leave" END as leave_status'),
-                             DB::raw('IF(attendance.check_in_time IS NOT NULL, 1, 0) as has_checkin'))
-                    ->distinct()
-                    ->get()
-                    ->map(function($member) {
-                        $status = 'Not Checked In';
-                        if ($member->leave_status === 'Leave') {
-                            $status = 'On Leave';
-                        } elseif ($member->leave_status === 'WFH') {
-                            $status = 'WFH';
-                        } elseif ($member->has_checkin) {
-                            $status = 'Present';
-                        }
-                        return [
-                            'id' => $member->id,
-                            'name' => $member->first_name . ' ' . $member->last_name,
-                            'status' => $status
-                        ];
-                    });
+                        // Fetch team members with their status (optimized with single query)
+                        $teamMembers = User::where('team_id', $teamId)
+                            ->where('status', 'Active')
+                            ->leftJoin('attendance', function ($join) use ($todayStr) {
+                                $join->on('users.id', '=', 'attendance.user_id')
+                                     ->where('attendance.date', $todayStr);
+                            })
+                            ->leftJoin('leave_requests as lr', function ($join) use ($todayStr) {
+                                $join->on('users.id', '=', 'lr.user_id')
+                                     ->where('lr.status', 'Approved')
+                                     ->where('lr.start_date', '<=', $todayStr)
+                                     ->where('lr.end_date', '>=', $todayStr);
+                            })
+                            ->leftJoin('leave_types', function ($join) {
+                                $join->on('lr.leave_type_id', '=', 'leave_types.id')
+                                     ->whereNotNull('lr.leave_type_id');
+                            })
+                            ->select('users.id', 'users.first_name', 'users.last_name',
+                                     DB::raw('CASE WHEN lr.id IS NULL THEN NULL
+                                                  WHEN leave_types.name LIKE "%Work From Home%" OR leave_types.name LIKE "%WFH%" THEN "WFH"
+                                                  ELSE "Leave" END as leave_status'),
+                                     DB::raw('IF(attendance.check_in_time IS NOT NULL, 1, 0) as has_checkin'))
+                            ->distinct()
+                            ->get()
+                            ->map(function($member) {
+                                $status = 'Not Checked In';
+                                if ($member->leave_status === 'Leave') {
+                                    $status = 'On Leave';
+                                } elseif ($member->leave_status === 'WFH') {
+                                    $status = 'WFH';
+                                } elseif ($member->has_checkin) {
+                                    $status = 'Present';
+                                }
+                                return [
+                                    'id' => $member->id,
+                                    'name' => $member->first_name . ' ' . $member->last_name,
+                                    'status' => $status
+                                ];
+                            });
 
-                $responseData['widgets']['pending_approvals'] = $pendingApprovalsData;
-                $responseData['widgets']['team_members'] = $teamMembers;
+                        $responseData['widgets']['pending_approvals'] = $pendingApprovalsData;
+                        $responseData['widgets']['team_members'] = $teamMembers;
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('Team Lead dashboard error: ' . $e->getMessage(), ['exception' => $e]);
+                    $pendingGlobalRequests = 0;
+                }
             }
             
             // Global Activity Feed (optimized with LIMIT)
