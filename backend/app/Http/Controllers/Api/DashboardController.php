@@ -390,7 +390,7 @@ class DashboardController extends Controller
                         return [
                             'id' => $req->id,
                             'employee_name' => $req->user->first_name . ' ' . $req->user->last_name,
-                            'leave_type' => $req->leaveType->name ?? 'Leave',
+                            'leave_type' => $req->leaveType?->name ?? 'Leave',
                             'start_date' => $req->start_date,
                             'end_date' => $req->end_date,
                             'days' => (int)$req->days
