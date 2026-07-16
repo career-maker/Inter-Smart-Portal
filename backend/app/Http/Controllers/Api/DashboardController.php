@@ -386,9 +386,18 @@ class DashboardController extends Controller
             } elseif ($user->hasRole('Team Lead')) {
                 try {
                     $teamId = $user->team_id;
+
+                    // Fallback: if team_id not set, check if user is a team lead
                     if (!$teamId) {
-                        \Log::warning('Team Lead has no team_id assigned', ['user_id' => $user->id]);
+                        $ownTeam = \App\Models\Team::where('team_lead_id', $user->id)->first();
+                        $teamId = $ownTeam?->id;
+                    }
+
+                    if (!$teamId) {
+                        \Log::warning('Team Lead has no team_id or team assigned', ['user_id' => $user->id]);
                         $pendingGlobalRequests = 0;
+                        $responseData['widgets']['pending_approvals'] = [];
+                        $responseData['widgets']['team_members'] = [];
                     } else {
                         $pendingLeaves = LeaveRequest::whereHas('user', fn($q) => $q->where('team_id', $teamId))
                             ->where('tl_status', 'Pending')
