@@ -11,12 +11,13 @@ return new class extends Migration
     public function up(): void
     {
         // Assign all Team Leads to the team they are managing
-        // Uses raw SQL to ensure team_lead_id matches correctly
+        // Uses PostgreSQL syntax for UPDATE with FROM clause
         DB::statement('
             UPDATE users u
-            JOIN teams t ON t.team_lead_id = u.id
-            SET u.team_id = t.id
-            WHERE u.team_id IS NULL OR u.team_id != t.id
+            SET team_id = t.id
+            FROM teams t
+            WHERE t.team_lead_id = u.id
+              AND (u.team_id IS NULL OR u.team_id != t.id)
         ');
     }
 
