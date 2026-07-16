@@ -87,6 +87,27 @@ export default function ApprovalsPage() {
   }, []);
 
   // Refetch when switching tabs or status filters
+  // Refresh user data to get updated team_id from server
+  useEffect(() => {
+    const refreshUserData = async () => {
+      try {
+        const response = await api.get("/profile");
+        if (response.data?.data?.team_id !== undefined) {
+          // Update the auth store with fresh user data including team_id
+          const profileData = response.data.data;
+          useAuthStore.setState({
+            user: { ...user, team_id: profileData.team_id }
+          });
+        }
+      } catch (e) {
+        console.warn("Failed to refresh user team_id:", e);
+      }
+    };
+    if (isTeamLead && user) {
+      refreshUserData();
+    }
+  }, [user?.id]);
+
   useEffect(() => {
     fetchRequests();
   }, [tab, statusFilter]);
