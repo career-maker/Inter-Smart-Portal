@@ -60,6 +60,8 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/wfh",              label: "WFH Requests" },
       { href: "/calendar",         label: "Leave Calendar" },
       { href: "/leaves/approvals", label: "Leave Approvals", roles: ["Super Admin", "Team Lead"] },
+      { href: "/leave-balances",   label: "Leave Balances", roles: ["Super Admin"] },
+      { href: "/manage-leaves",    label: "Manage Approved Leaves/WFH", roles: ["Super Admin"] },
     ],
   },
   {
@@ -90,6 +92,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: "/employees",        label: "Employees",            roles: ["Super Admin", "HR"] },
       { href: "/teams",            label: "Departments",          roles: ["Super Admin", "HR"] },
+      { href: "/attendance/management", label: "Attendance Management", roles: ["Super Admin"] },
       { href: "/hall",             label: "The Hall" },
       { href: "/birthday-wishes",  label: "Birthday Wishes" },
       { href: "/leaves/approvals", label: "Leave Approvals",      roles: ["HR"] },
@@ -105,9 +108,6 @@ const NAV_GROUPS: NavGroup[] = [
     roles: ["Super Admin"],
     items: [
       { href: "/profile-requests", label: "Profile Approvals" },
-      { href: "/leave-balances", label: "Leave Balances" },
-      { href: "/attendance/management", label: "Attendance Management" },
-      { href: "/manage-leaves", label: "Manage Approved Leaves/WFH" },
       { href: "/reports",        label: "Reports" },
       { href: "/audit-logs",     label: "Audit Logs" },
       { href: "/settings",       label: "Settings" },
