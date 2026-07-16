@@ -29,6 +29,8 @@ export default function HolidaysPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
   const [editId, setEditId] = useState<number | null>(null);
 
   const [name, setName] = useState("");
@@ -75,11 +77,20 @@ export default function HolidaysPage() {
       const payload = { name, date, type, description };
       if (editId) {
         await api.put(`/holidays/${editId}`, payload);
+        // Optimistic update for edited holiday
+        setHolidays(holidays.map(h => h.id === editId ? { ...h, ...payload } : h));
+        setSuccessMessage("Holiday updated successfully!");
       } else {
-        await api.post("/holidays", payload);
+        const res = await api.post("/holidays", payload);
+        // Optimistic update for new holiday
+        const newHoliday = res.data?.data || { id: Date.now(), ...payload };
+        setHolidays([...holidays, newHoliday]);
+        setSuccessMessage("Holiday added successfully!");
       }
       setShowDialog(false);
-      fetchHolidays();
+      setShowSuccess(true);
+      // Refresh in background for data consistency
+      setTimeout(() => fetchHolidays(), 1000);
     } catch (e: any) {
       const errors = e.response?.data?.errors;
       const msg = errors ? Object.values(errors).flat().join("\n") : e.response?.data?.message || "Error saving holiday.";
@@ -265,6 +276,39 @@ export default function HolidaysPage() {
                   <CheckCircle className="w-4 h-4" />
                 )}
                 {editId ? "Update Holiday" : "Save Holiday"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success Popup */}
+      {showSuccess && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => {}} />
+          <div className="relative w-full max-w-md bg-gradient-to-br from-slate-800 to-slate-900 border border-emerald-500/20 rounded-2xl shadow-2xl z-10 overflow-hidden">
+            <div className="absolute inset-0 bg-emerald-500/5 opacity-0 animate-pulse" />
+
+            <div className="relative px-6 py-8 text-center space-y-4">
+              {/* Success Icon */}
+              <div className="flex justify-center">
+                <div className="w-16 h-16 rounded-full bg-emerald-500/20 border-2 border-emerald-500/40 flex items-center justify-center animate-bounce">
+                  <CheckCircle className="w-8 h-8 text-emerald-400" />
+                </div>
+              </div>
+
+              {/* Success Message */}
+              <div className="space-y-2">
+                <h2 className="text-2xl font-bold text-white">{successMessage}</h2>
+                <p className="text-slate-300 text-sm">The holiday calendar has been updated automatically.</p>
+              </div>
+
+              {/* Action Button */}
+              <button
+                onClick={() => setShowSuccess(false)}
+                className="w-full mt-6 px-5 py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold rounded-xl transition-all duration-200 hover:shadow-lg hover:shadow-emerald-500/20"
+              >
+                Got it
               </button>
             </div>
           </div>
