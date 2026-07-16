@@ -17,7 +17,6 @@ return new class extends Migration
             SET team_id = t.id
             FROM teams t
             WHERE t.team_lead_id = u.id
-              AND (u.team_id IS NULL OR u.team_id != t.id)
         ');
     }
 
