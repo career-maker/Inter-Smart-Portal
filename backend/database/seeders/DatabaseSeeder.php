@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             TeamSeeder::class,
             UserSeeder::class,
             LeaveTypesSeeder::class,
+            TeamLeadSeeder::class,
         ]);
     }
 }
