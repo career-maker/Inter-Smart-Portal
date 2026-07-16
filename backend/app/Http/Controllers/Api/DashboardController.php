@@ -445,9 +445,9 @@ class DashboardController extends Controller
                             })
                             ->select('users.id', 'users.first_name', 'users.last_name',
                                      DB::raw('CASE WHEN lr.id IS NULL THEN NULL
-                                                  WHEN leave_types.name LIKE "%Work From Home%" OR leave_types.name LIKE "%WFH%" THEN "WFH"
-                                                  ELSE "Leave" END as leave_status'),
-                                     DB::raw('IF(attendance.check_in_time IS NOT NULL, 1, 0) as has_checkin'))
+                                                  WHEN leave_types.name LIKE \'%Work From Home%\' OR leave_types.name LIKE \'%WFH%\' THEN \'WFH\'
+                                                  ELSE \'Leave\' END as leave_status'),
+                                     DB::raw('CASE WHEN attendance.check_in_time IS NOT NULL THEN 1 ELSE 0 END as has_checkin'))
                             ->distinct()
                             ->get()
                             ->map(function($member) {
