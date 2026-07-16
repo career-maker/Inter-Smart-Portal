@@ -470,8 +470,14 @@ class DashboardController extends Controller
                         $responseData['widgets']['team_members'] = $teamMembers;
                     }
                 } catch (\Exception $e) {
-                    \Log::error('Team Lead dashboard error: ' . $e->getMessage(), ['exception' => $e]);
+                    \Log::error('Team Lead dashboard error: ' . $e->getMessage(), [
+                        'exception' => $e,
+                        'trace' => $e->getTraceAsString(),
+                        'team_id' => $teamId
+                    ]);
                     $pendingGlobalRequests = 0;
+                    $responseData['widgets']['pending_approvals'] = [];
+                    $responseData['widgets']['team_members'] = [];
                 }
             }
             

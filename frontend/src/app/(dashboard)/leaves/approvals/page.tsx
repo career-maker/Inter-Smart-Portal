@@ -90,17 +90,20 @@ export default function ApprovalsPage() {
     const refreshUserData = async () => {
       try {
         const response = await api.get("/profile");
-        if (response.data?.data?.team_id !== undefined) {
-          setCurrentUserTeamId(response.data.data.team_id);
+        const teamId = response.data?.data?.team_id;
+        if (teamId !== undefined) {
+          setCurrentUserTeamId(teamId);
+        } else {
+          console.warn("Profile response missing team_id:", response.data?.data);
         }
       } catch (e) {
-        console.warn("Failed to refresh user team_id:", e);
+        console.error("Failed to refresh user team_id:", e);
       }
     };
-    if (isTeamLead) {
+    if (isTeamLead && user?.id) {
       refreshUserData();
     }
-  }, [isTeamLead]);
+  }, [isTeamLead, user?.id]);
 
   useEffect(() => {
     fetchRequests();
