@@ -289,8 +289,16 @@ export default function ApplyLeavePage() {
         }
       }
       await api.post("/leave-requests", payload);
-      window.dispatchEvent(new Event("notifications-refresh"));
+
+      // Try to refresh notifications, but don't let it break the success flow
+      try {
+        window.dispatchEvent(new Event("notifications-refresh"));
+      } catch (e) {
+        console.warn("Failed to dispatch notifications-refresh event:", e);
+      }
+
       setShowSuccess(true);
+      setIsLoading(false);
     } catch (e: any) {
       alert(e.response?.data?.message || "An error occurred while submitting the request.");
       setIsLoading(false);
