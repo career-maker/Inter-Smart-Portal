@@ -33,6 +33,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     
     // Employee Profile Edit Requests
+    Route::get('/profile', [\App\Http\Controllers\Api\ProfileController::class, 'show']);
     Route::get('/me/profile/request', [\App\Http\Controllers\Api\ProfileUpdateRequestController::class, 'currentRequest']);
     Route::post('/me/profile/request', [\App\Http\Controllers\Api\ProfileUpdateRequestController::class, 'storeRequest']);
     Route::put('/me/profile', [\App\Http\Controllers\Api\ProfileController::class, 'update']);

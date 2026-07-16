@@ -8,6 +8,14 @@ use Illuminate\Support\Facades\Auth;
 
 class ProfileController extends Controller
 {
+    public function show(Request $request)
+    {
+        $user = Auth::user()->load(['team:id,name', 'roles:id,name']);
+        return response()->json([
+            'data' => $user
+        ]);
+    }
+
     public function update(Request $request)
     {
         $validated = $request->validate([
