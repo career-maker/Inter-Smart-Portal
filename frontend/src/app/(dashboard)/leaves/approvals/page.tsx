@@ -49,7 +49,9 @@ export default function ApprovalsPage() {
   const { user } = useAuthStore();
   const isSuperAdmin = user?.role === "Super Admin";
   const isTeamLead = user?.role === "Team Lead";
-  const currentUserTeamId = user?.team_id;
+
+  // Use local state for team_id to ensure re-renders work properly
+  const [currentUserTeamId, setCurrentUserTeamId] = useState<number | null>(user?.team_id || null);
 
   // Check if user can approve a leave request
   const canApprove = (request: any): boolean => {
@@ -82,31 +84,27 @@ export default function ApprovalsPage() {
   const [recalcLoading, setRecalcLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  useEffect(() => {
-    fetchRequests();
-  }, []);
 
-  // Refetch when switching tabs or status filters
-  // Refresh user data to get updated team_id from server
+  // Refresh user data to get updated team_id from server on component mount
   useEffect(() => {
     const refreshUserData = async () => {
       try {
         const response = await api.get("/profile");
         if (response.data?.data?.team_id !== undefined) {
-          // Update the auth store with fresh user data including team_id
-          const profileData = response.data.data;
-          useAuthStore.setState({
-            user: { ...user, team_id: profileData.team_id }
-          });
+          setCurrentUserTeamId(response.data.data.team_id);
         }
       } catch (e) {
         console.warn("Failed to refresh user team_id:", e);
       }
     };
-    if (isTeamLead && user) {
+    if (isTeamLead) {
       refreshUserData();
     }
-  }, [user?.id]);
+  }, [isTeamLead]);
+
+  useEffect(() => {
+    fetchRequests();
+  }, []);
 
   useEffect(() => {
     fetchRequests();
