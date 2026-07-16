@@ -55,8 +55,10 @@ export default function NotificationsPage() {
       setNotifications((prev) =>
         prev.map((n) => ({ ...n, read_at: n.read_at || new Date().toISOString() }))
       );
+      // Reset filter to "all" to show the updated list
+      setFilter("all");
     } catch (err) {
-      console.error(err);
+      console.error("Error marking all notifications as read:", err);
     }
   };
 
@@ -72,12 +74,12 @@ export default function NotificationsPage() {
           <h1 className="text-3xl font-bold tracking-tight text-white">Notifications</h1>
           <p className="text-gray-500 mt-1">View your recent updates and alerts.</p>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="bg-white border rounded-lg p-1 flex shadow-sm">
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="bg-white/10 border border-white/20 rounded-lg p-1 flex shadow-sm">
             <button
               onClick={() => setFilter("all")}
               className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                filter === "all" ? "bg-primary text-white" : "text-gray-600 hover:bg-gray-100"
+                filter === "all" ? "bg-amber-500 text-white" : "text-slate-300 hover:bg-white/10"
               }`}
             >
               All
@@ -85,26 +87,26 @@ export default function NotificationsPage() {
             <button
               onClick={() => setFilter("unread")}
               className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                filter === "unread" ? "bg-primary text-white" : "text-gray-600 hover:bg-gray-100"
+                filter === "unread" ? "bg-amber-500 text-white" : "text-slate-300 hover:bg-white/10"
               }`}
             >
               Unread
             </button>
           </div>
-          <Button onClick={(e) => { e.stopPropagation(); handleMarkAllAsRead(); }} variant="outline" size="sm" className="h-9 gap-2">
+          <Button onClick={(e) => { e.stopPropagation(); handleMarkAllAsRead(); }} variant="outline" size="sm" className="h-9 gap-2 border-white/10 text-slate-300 hover:bg-white/5">
             <CheckCheck className="h-4 w-4" />
             Mark all as read
           </Button>
         </div>
       </div>
 
-      <Card className="shadow-sm border-gray-200">
-        <CardHeader className="pb-4 border-b">
+      <Card className="shadow-sm border-white/10 bg-white/5">
+        <CardHeader className="pb-4 border-b border-white/10">
           <CardTitle className="text-lg flex items-center gap-2">
-            <Bell className="h-5 w-5 text-gray-400" />
+            <Bell className="h-5 w-5 text-amber-400" />
             History
           </CardTitle>
-          <CardDescription>A timeline of all your notifications</CardDescription>
+          <CardDescription className="text-slate-400">A timeline of all your notifications</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           {loading ? (
@@ -112,9 +114,9 @@ export default function NotificationsPage() {
               <Loader2 className="h-6 w-6 animate-spin" />
             </div>
           ) : filteredNotifications.length === 0 ? (
-            <div className="p-12 text-center text-gray-500">
-              <div className="mx-auto w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center mb-3">
-                <Bell className="h-6 w-6 text-gray-400" />
+            <div className="p-12 text-center text-slate-400">
+              <div className="mx-auto w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-3">
+                <Bell className="h-6 w-6 text-slate-500" />
               </div>
               <p className="text-sm">You have no {filter === "unread" ? "unread " : ""}notifications.</p>
             </div>
@@ -133,7 +135,7 @@ export default function NotificationsPage() {
                 >
                   <div className="flex-1 space-y-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className={`text-sm font-medium truncate ${notif.read_at ? "text-gray-400" : "text-gray-900"}`}>
+                      <p className={`text-sm font-medium truncate ${notif.read_at ? "text-slate-300" : "text-gray-900"}`}>
                         {notif.data?.title || "Update"}
                       </p>
                       {!notif.read_at && (
@@ -142,10 +144,10 @@ export default function NotificationsPage() {
                         </Badge>
                       )}
                     </div>
-                    <p className={`text-sm whitespace-pre-wrap ${notif.read_at ? "text-gray-500" : "text-gray-600"}`}>
+                    <p className={`text-sm whitespace-pre-wrap ${notif.read_at ? "text-slate-400" : "text-gray-600"}`}>
                       {notif.data?.message || "You have a new notification regarding your account."}
                     </p>
-                    <p className={`text-xs mt-1 ${notif.read_at ? "text-gray-600" : "text-gray-400"}`}>
+                    <p className={`text-xs mt-1 ${notif.read_at ? "text-slate-500" : "text-gray-400"}`}>
                       {new Date(notif.created_at).toLocaleString(undefined, {
                         dateStyle: "medium",
                         timeStyle: "short",
