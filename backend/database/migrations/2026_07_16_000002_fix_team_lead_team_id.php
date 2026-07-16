@@ -19,8 +19,6 @@ return new class extends Migration
             WHERE t.team_lead_id = u.id
             AND u.team_id IS NULL
         ');
-
-        $this->command->info('✓ Fixed Team Lead team_id assignments');
     }
 
     /**
