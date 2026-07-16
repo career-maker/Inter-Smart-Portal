@@ -883,7 +883,17 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
       {/* KPI Cards (4 cols) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         <KPICard title="Employees" value={kpis.total_employees} trend={kpis.trends.employees} icon={UserCircle} color="bg-blue-500" href="/employees" />
-        <KPICard title="Present" value={kpis.present_today} trend={kpis.trends.attendance} icon={Building2} color="bg-emerald-500" href="/attendance" />
+        <KPICard
+          title="Present"
+          value={kpis.present_today}
+          trend={kpis.trends.attendance}
+          icon={Building2}
+          color="bg-emerald-500"
+          onClick={() => setLeaveModalData({
+            title: "Present Today",
+            list: kpis.present_today_list || []
+          })}
+        />
         <KPICard 
           title="On Leave" 
           value={kpis.on_leave_today} 
@@ -1142,7 +1152,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                     </div>
                     <div>
                       <p className="text-sm font-bold text-white">{item.name}</p>
-                      <p className="text-xs text-slate-400">{item.leave_type}</p>
+                      <p className="text-xs text-slate-400">{item.leave_type || item.designation}</p>
                     </div>
                   </div>
                 </div>

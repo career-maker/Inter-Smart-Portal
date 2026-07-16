@@ -311,7 +311,22 @@ class DashboardController extends Controller
             if ($presentYesterday > 0) {
                 $attendanceTrend = round((($presentToday - $presentYesterday) / $presentYesterday) * 100);
             }
-            
+
+            // Get list of employees present today
+            $presentTodayList = \App\Models\Attendance::with('user:id,first_name,last_name,designation')
+                ->where('date', $todayStr)
+                ->whereNotNull('check_in_time')
+                ->distinct('user_id')
+                ->get()
+                ->map(function ($attendance) {
+                    return [
+                        'name' => $attendance->user->first_name . ' ' . $attendance->user->last_name,
+                        'designation' => $attendance->user->designation ?? 'Employee'
+                    ];
+                })
+                ->sortBy('name')
+                ->values();
+
             $onLeaveTodayRequests = LeaveRequest::with('user:id,first_name,last_name', 'leaveType:id,name')
                 ->whereHas('leaveType', function ($query) {
                     $query->where('name', 'not like', '%Work From Home%')
@@ -553,6 +568,7 @@ class DashboardController extends Controller
                 'kpis' => [
                     'total_employees' => $totalEmployees,
                     'present_today' => $presentToday,
+                    'present_today_list' => $presentTodayList,
                     'on_leave_today' => $onLeaveToday,
                     'on_leave_today_list' => $onLeaveTodayList,
                     'wfh_today' => $wfhToday,
