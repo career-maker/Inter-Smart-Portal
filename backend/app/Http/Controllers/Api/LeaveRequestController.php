@@ -183,6 +183,47 @@ class LeaveRequestController extends Controller
             $preScan->addDay();
         }
 
+        // ── Pre-identify sandwich BLOCKS ────────────────────────────────────
+        // Find continuous blocks of non-working days and mark adjacent working days
+        // as sandwich working days (these become unpaid if surrounded by non-working days)
+        $sandwichWorkingDays = [];
+
+        $current = $startDate->copy()->startOfDay();
+        while ($current->lte($endDate)) {
+            if (!$isWorkingDay($current)) {
+                // Found a non-working day, check if it's part of a block with working days on both sides
+                $blockStart = $current->copy();
+                $blockEnd = $current->copy();
+
+                // Extend block to the right
+                $checkRight = $current->copy()->addDay();
+                while ($checkRight->lte($endDate) && !$isWorkingDay($checkRight)) {
+                    $blockEnd = $checkRight->copy();
+                    $checkRight->addDay();
+                }
+
+                // Check if there's a working day immediately before the block
+                $dayBefore = $blockStart->copy()->subDay();
+                $hasWorkingBefore = $dayBefore->gte($startDate) && $isWorkingDay($dayBefore);
+
+                // Check if there's a working day immediately after the block
+                $dayAfter = $blockEnd->copy()->addDay();
+                $hasWorkingAfter = $dayAfter->lte($endDate) && $isWorkingDay($dayAfter);
+
+                // If sandwich block (working days on both sides), mark adjacent working days
+                if ($hasWorkingBefore && $hasWorkingAfter) {
+                    $sandwichWorkingDays[] = $dayBefore->format('Y-m-d');
+                    $sandwichWorkingDays[] = $dayAfter->format('Y-m-d');
+                }
+
+                // Skip to day after block
+                $current = $blockEnd->copy()->addDay();
+            } else {
+                $current->addDay();
+            }
+        }
+        $sandwichWorkingDays = array_unique($sandwichWorkingDays);
+
         // ── Day-by-day walk ─────────────────────────────────────────────────
         //
         // Phase 1 – 3-calendar-day advance-notice rule (CL only):
@@ -193,12 +234,12 @@ class LeaveRequestController extends Controller
         // Phase 2 – Sandwich rule (higher priority):
         //   Non-working day strictly between firstWorkingDay and lastWorkingDay
         //   → sandwich LOP.
-        //   If a sandwich follows a penalty working day, the NEXT eligible working
-        //   day is also LOP (one-hop contamination).
+        //   Working days adjacent to non-working blocks (marked above) → sandwich LOP.
         $eligibleFrom = $today->copy()->addDays(3)->startOfDay();
 
         $totalWorkingDays = 0;
         $sandwichDays     = 0;
+        $sandwichWorkingCount = 0;
         $penaltyDays      = 0;
         $eligibleDays     = 0;
 
@@ -207,10 +248,20 @@ class LeaveRequestController extends Controller
 
         $current = $startDate->copy()->startOfDay();
         while ($current->lte($endDate)) {
+            $currentStr = $current->format('Y-m-d');
+
             if ($isWorkingDay($current)) {
                 $totalWorkingDays++;
 
-                if ($isCasual) {
+                // Check if this working day is marked as sandwich
+                $isSandwichWorking = in_array($currentStr, $sandwichWorkingDays);
+
+                if ($isSandwichWorking) {
+                    // This working day is adjacent to a non-working block
+                    $sandwichWorkingCount++;
+                    $lastWorkingWasPenalty    = false;
+                    $sandwichSinceLastPenalty = false;
+                } elseif ($isCasual) {
                     $directPenalty = $current->lt($eligibleFrom);
 
                     if ($directPenalty) {
@@ -228,6 +279,7 @@ class LeaveRequestController extends Controller
                         $sandwichSinceLastPenalty = false;
                     }
                 } else {
+                    // Sick leave or other type - not affected by penalty rule
                     $eligibleDays++;
                 }
             } elseif (
@@ -280,12 +332,15 @@ class LeaveRequestController extends Controller
         $paidSL     = 0;
         $balanceLOP = 0;
 
+        // Sandwich working days are always unpaid (they are the "paid" days before/after non-working blocks)
+        $sandwichWorkingLOP = $sandwichWorkingCount * $multiplier;
+
         if ($isCasual) {
             $balance   = \App\Models\LeaveBalance::where('user_id', $user->id)->first();
             // Ensure balances are never negative (can happen due to data issues)
             $clBalance = max(0, (($balance->casual_leave_balance ?? 0) + ($balance->cl_carry_forward ?? 0)));
 
-            // Paid CL is allocated only to eligible (non-penalized) working days
+            // Paid CL is allocated only to eligible (non-penalized, non-sandwich) working days
             $paidCL     = min($eligibleBase, $clBalance);
             $balanceLOP = max(0, $eligibleBase - $paidCL);
 
@@ -295,15 +350,20 @@ class LeaveRequestController extends Controller
                 'carry_forward' => $balance->cl_carry_forward ?? 0,
                 'clBalance' => $clBalance,
                 'eligibleBase' => $eligibleBase,
+                'sandwichWorkingCount' => $sandwichWorkingCount,
+                'sandwichWorkingLOP' => $sandwichWorkingLOP,
                 'paidCL_formula' => "min({$eligibleBase}, {$clBalance})",
                 'paidCL' => $paidCL,
                 'balanceLOP_formula' => "max(0, {$eligibleBase} - {$paidCL})",
                 'balanceLOP' => $balanceLOP,
-                'totalLOP' => $penaltyLOP + $balanceLOP + $sandwichDays,
+                'totalLOP' => $penaltyLOP + $balanceLOP + $sandwichDays + $sandwichWorkingLOP,
             ]);
 
             if ($penaltyDays > 0) {
                 $reasons[] = "Applied less than 3 calendar days before the leave start date. {$penaltyLOP} working day(s) are Unpaid (LOP) due to late notice.";
+            }
+            if ($sandwichWorkingCount > 0) {
+                $reasons[] = "Sandwich Leave Policy: {$sandwichWorkingLOP} working day(s) adjacent to weekends/company holidays are Unpaid (LOP).";
             }
             if ($sandwichDays > 0) {
                 $reasons[] = "Sandwich Leave Policy: {$sandwichDays} non-working day(s) (weekends/company holidays) between your leave dates are counted as Unpaid (LOP).";
@@ -317,9 +377,13 @@ class LeaveRequestController extends Controller
             // Ensure balances are never negative
             $slBalance = max(0, $balance->sick_leave_balance ?? 0);
 
+            // For Sick Leave, only non-sandwich eligible days use the balance
             $paidSL     = min($eligibleBase, $slBalance);
             $balanceLOP = max(0, $eligibleBase - $paidSL);
 
+            if ($sandwichWorkingCount > 0) {
+                $reasons[] = "Sandwich Leave Policy: {$sandwichWorkingLOP} working day(s) adjacent to weekends/company holidays are Unpaid (LOP).";
+            }
             if ($sandwichDays > 0) {
                 $reasons[] = "Sandwich Leave Policy: {$sandwichDays} non-working day(s) (weekends/company holidays) between your leave dates are counted as Unpaid (LOP).";
             }
@@ -328,15 +392,18 @@ class LeaveRequestController extends Controller
             }
 
         } else {
-            $balanceLOP = $eligibleBase;
+            $balanceLOP = $eligibleBase + $sandwichWorkingLOP;
             $typeName   = $leaveType->name ?? 'This leave type';
             $reasons[]  = "{$typeName} does not have a paid balance. All {$baseWorkingDays} working day(s) will be Unpaid (LOP).";
+            if ($sandwichWorkingCount > 0) {
+                $reasons[] = "Sandwich Leave Policy: {$sandwichWorkingLOP} working day(s) adjacent to weekends/company holidays are Unpaid (LOP).";
+            }
             if ($sandwichDays > 0) {
                 $reasons[] = "Sandwich Leave Policy: {$sandwichDays} non-working day(s) within the period are also Unpaid (LOP).";
             }
         }
 
-        $totalLOP        = $penaltyLOP + $balanceLOP + $sandwichDays;
+        $totalLOP        = $penaltyLOP + $balanceLOP + $sandwichDays + $sandwichWorkingLOP;
         $totalPaid       = $paidCL + $paidSL;
         $isUnpaid        = ($totalPaid == 0);
         $isPartial       = ($totalPaid > 0 && $totalLOP > 0);
@@ -367,9 +434,11 @@ class LeaveRequestController extends Controller
                 'totalWorkingDays' => $totalWorkingDays,
                 'penaltyDays' => $penaltyDays,
                 'eligibleDays' => $eligibleDays,
+                'sandwichWorkingCount' => $sandwichWorkingCount,
+                'sandwichWorkingDays' => $sandwichWorkingDays,
                 'eligibleBase' => $eligibleBase,
                 'balanceLOP_calc' => "max(0, {$eligibleBase} - {$paidCL})",
-                'totalLOP_calc' => "{$penaltyLOP} + {$balanceLOP} + {$sandwichDays}",
+                'totalLOP_calc' => "{$penaltyLOP} + {$balanceLOP} + {$sandwichDays} + {$sandwichWorkingLOP}",
             ]
         ];
     }
