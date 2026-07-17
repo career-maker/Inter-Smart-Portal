@@ -94,7 +94,7 @@ export default function LoginPage() {
       <div className="absolute inset-0 bg-black/40" style={{ zIndex: 1 }}></div>
 
       {/* Fallback gradient background (if video doesn't load) */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 dark:from-slate-900 via-slate-800 to-slate-50 dark:to-slate-900" style={{ zIndex: -1 }}></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 dark:from-slate-900 via-white dark:via-slate-800 to-slate-50 dark:to-slate-900" style={{ zIndex: -1 }}></div>
 
       {/* Animated gradient background */}
       <div className="absolute inset-0 opacity-20 overflow-hidden pointer-events-none" style={{ zIndex: 2 }}>
