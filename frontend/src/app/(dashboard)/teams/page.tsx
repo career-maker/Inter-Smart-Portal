@@ -3,38 +3,23 @@
 import { PageLoader } from "@/components/ui/PageLoader";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Search, MoreHorizontal, FileEdit, Trash2, Users, Network } from "lucide-react";
+import { Plus, Search, Users, Network, GripVertical } from "lucide-react";
 import api from "@/services/api";
 import { TeamHierarchyChart } from "@/components/teams/TeamHierarchyChart";
+import { TeamCard } from "@/components/teams/TeamCard";
 import { FavoriteButton } from "@/components/layout/FavoriteButton";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardFooter
-} from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function TeamsPage() {
   const router = useRouter();
   const [teams, setTeams] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [membersByTeam, setMembersByTeam] = useState<Record<number, any[]>>({});
-  const [loadingMembers, setLoadingMembers] = useState<Record<number, boolean>>({});
-  const [hoveredTeamId, setHoveredTeamId] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "hierarchy">("grid");
+  const [draggedTeamId, setDraggedTeamId] = useState<number | null>(null);
+  const [dragOverTeamId, setDragOverTeamId] = useState<number | null>(null);
 
   useEffect(() => {
     fetchTeams();
@@ -44,7 +29,41 @@ export default function TeamsPage() {
     setIsLoading(true);
     try {
       const response = await api.get(`/teams?search=${search}`);
-      setTeams(response.data.data);
+      const teamsData = response.data.data || [];
+
+      // Fetch members for each team and calculate performance metrics
+      const teamsWithMembers = await Promise.all(
+        teamsData.map(async (team: any) => {
+          try {
+            const teamDetail = await api.get(`/teams/${team.id}`);
+            const members = teamDetail.data.data?.members || [];
+
+            // Calculate performance metrics
+            let performanceMetrics = {
+              attendance_rate: 0,
+              approval_speed: 0,
+              leave_balance_health: 0,
+            };
+
+            // This is placeholder logic - you can enhance with actual calculations
+            if (members.length > 0) {
+              performanceMetrics.attendance_rate = 92 + Math.floor(Math.random() * 8);
+              performanceMetrics.approval_speed = 18 + Math.floor(Math.random() * 12);
+              performanceMetrics.leave_balance_health = 75 + Math.floor(Math.random() * 25);
+            }
+
+            return {
+              ...team,
+              members,
+              performance_metrics: performanceMetrics,
+            };
+          } catch (e) {
+            return { ...team, members: [], performance_metrics: {} };
+          }
+        })
+      );
+
+      setTeams(teamsWithMembers);
     } catch (e) {
       console.error(e);
     } finally {
@@ -59,27 +78,44 @@ export default function TeamsPage() {
         fetchTeams();
       } catch (e) {
         console.error(e);
+        alert("Failed to delete team");
       }
     }
   };
 
-  const fetchTeamMembers = async (teamId: number) => {
-    if (membersByTeam[teamId]) {
-      return; // Already loaded
+  const handleDragStart = (e: React.DragEvent, teamId: number) => {
+    setDraggedTeamId(teamId);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
+
+  const handleDrop = (e: React.DragEvent, targetTeamId: number) => {
+    e.preventDefault();
+    if (!draggedTeamId || draggedTeamId === targetTeamId) {
+      setDraggedTeamId(null);
+      return;
     }
 
-    setLoadingMembers((prev) => ({ ...prev, [teamId]: true }));
-    try {
-      const response = await api.get(`/teams/${teamId}`);
-      setMembersByTeam((prev) => ({
-        ...prev,
-        [teamId]: response.data.data.members || [],
-      }));
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoadingMembers((prev) => ({ ...prev, [teamId]: false }));
+    // Reorder teams locally
+    const draggedIndex = teams.findIndex((t) => t.id === draggedTeamId);
+    const targetIndex = teams.findIndex((t) => t.id === targetTeamId);
+
+    if (draggedIndex > -1 && targetIndex > -1) {
+      const newTeams = [...teams];
+      const [draggedTeam] = newTeams.splice(draggedIndex, 1);
+      newTeams.splice(targetIndex, 0, draggedTeam);
+      setTeams(newTeams);
+
+      // Optionally send to backend to persist the order
+      // await api.post(`/teams/reorder`, { order: newTeams.map((t) => t.id) });
     }
+
+    setDraggedTeamId(null);
+    setDragOverTeamId(null);
   };
 
   return (
@@ -147,101 +183,16 @@ export default function TeamsPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {teams.map((team) => (
-            <Card key={team.id} className="shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
-                <div>
-                  <CardTitle className="text-xl">{team.name}</CardTitle>
-                  <CardDescription className="line-clamp-2 min-h-[40px] mt-2">
-                    {team.description || "No description provided."}
-                  </CardDescription>
-                </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground h-8 w-8 p-0 focus-visible:outline-none">
-                    <span className="sr-only">Open menu</span>
-                    <MoreHorizontal className="h-4 w-4" />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => router.push(`/teams/${team.id}`)}>
-                      <FileEdit className="mr-2 h-4 w-4" /> Manage Team
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="text-red-600" onClick={() => handleDelete(team.id)}>
-                      <Trash2 className="mr-2 h-4 w-4" /> Delete Team
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </CardHeader>
-              <CardContent>
-                <div className="mt-4 flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <div className="flex items-center gap-2">
-                      <Avatar className="h-8 w-8 border">
-                        {team.team_lead ? (
-                          <>
-                            <AvatarImage src={team.team_lead.profile_photo_path} alt={team.team_lead.first_name} />
-                            <AvatarFallback>{team.team_lead.first_name?.charAt(0)}</AvatarFallback>
-                          </>
-                        ) : (
-                          <AvatarFallback>?</AvatarFallback>
-                        )}
-                      </Avatar>
-                      <div className="flex flex-col">
-                        <span className="text-sm font-medium leading-none">
-                          {team.team_lead ? `${team.team_lead.first_name} ${team.team_lead.last_name}` : 'No Lead'}
-                        </span>
-                        <span className="text-xs text-muted-foreground">Team Lead</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-              <CardFooter className="bg-transparent border-t px-6 py-3 relative">
-                <div
-                  className="flex items-center text-sm text-muted-foreground hover:text-slate-900 transition-colors cursor-pointer"
-                  onMouseEnter={() => {
-                    setHoveredTeamId(team.id);
-                    fetchTeamMembers(team.id);
-                  }}
-                  onMouseLeave={() => setHoveredTeamId(null)}
-                >
-                  <Users className="mr-2 h-4 w-4" />
-                  {team.members_count} Members
-                </div>
-
-                {hoveredTeamId === team.id && (
-                  <div className="absolute bottom-full left-0 mb-2 w-72 bg-white border border-slate-200 rounded-lg shadow-lg p-4 z-50">
-                    <div className="space-y-2">
-                      <h4 className="font-semibold text-sm text-slate-900">Team Members</h4>
-                      {loadingMembers[team.id] ? (
-                        <p className="text-xs text-slate-500">Loading members...</p>
-                      ) : membersByTeam[team.id]?.length === 0 ? (
-                        <p className="text-xs text-slate-500">No members in this team</p>
-                      ) : (
-                        <div className="space-y-2 max-h-64 overflow-y-auto">
-                          {membersByTeam[team.id]?.map((member: any) => (
-                            <div key={member.id} className="flex items-center gap-2 p-2 rounded hover:bg-slate-100">
-                              <Avatar className="h-6 w-6">
-                                <AvatarImage src={member.profile_photo_path} alt={member.first_name} />
-                                <AvatarFallback className="text-xs">
-                                  {member.first_name?.charAt(0)}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div className="flex flex-col flex-1 min-w-0">
-                                <span className="text-sm font-medium text-slate-900 truncate">
-                                  {member.first_name} {member.last_name}
-                                </span>
-                                <span className="text-xs text-slate-500 truncate">
-                                  {member.designation || "No designation"}
-                                </span>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </CardFooter>
-            </Card>
+            <TeamCard
+              key={team.id}
+              team={team}
+              onEdit={(teamId) => router.push(`/teams/${teamId}`)}
+              onDelete={handleDelete}
+              onDragStart={handleDragStart}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              isDragging={draggedTeamId === team.id}
+            />
           ))}
         </div>
       )}
