@@ -109,11 +109,11 @@ export function TeamCard({
       } ${onDragStart ? "cursor-move" : ""}`}
     >
       {/* Header */}
-      <div className="bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 px-6 py-4 border-b border-slate-200 dark:border-white/10">
+      <div className="bg-slate-50 dark:bg-slate-900/40 px-6 py-4 border-b border-slate-200 dark:border-white/10">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white truncate">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white truncate">
                 {team.name}
               </h3>
               <span className="px-2 py-0.5 bg-amber-500/20 text-amber-700 dark:text-amber-300 text-xs font-mono font-semibold rounded">
@@ -121,7 +121,7 @@ export function TeamCard({
               </span>
             </div>
             {team.description && (
-              <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">
+              <p className="text-sm text-gray-600 dark:text-slate-400 line-clamp-2">
                 {team.description}
               </p>
             )}
@@ -149,7 +149,7 @@ export function TeamCard({
       {/* Team Lead Section */}
       {team.team_lead && (
         <div className="px-6 py-4 border-b border-slate-200 dark:border-white/10">
-          <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase mb-3">
+          <p className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase mb-3">
             Team Lead
           </p>
           <div className="flex items-center gap-3">
@@ -163,10 +163,10 @@ export function TeamCard({
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-slate-900 dark:text-white">
+              <p className="text-sm font-semibold text-gray-900 dark:text-white">
                 {team.team_lead.first_name} {team.team_lead.last_name}
               </p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
+              <p className="text-xs text-gray-500 dark:text-slate-400">
                 {team.team_lead.designation || "Team Lead"}
               </p>
             </div>
@@ -177,7 +177,7 @@ export function TeamCard({
       {/* Members Preview Section */}
       {displayMembers.length > 0 && (
         <div className="px-6 py-4 border-b border-slate-200 dark:border-white/10">
-          <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase mb-3">
+          <p className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase mb-3">
             Team Members
           </p>
           <div className="flex items-center gap-2">
@@ -233,10 +233,10 @@ export function TeamCard({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Users className="h-5 w-5 text-amber-500" />
-            <span className="text-lg font-bold text-slate-900 dark:text-white">
+            <span className="text-lg font-bold text-gray-900 dark:text-white">
               {team.members_count || 0}
             </span>
-            <span className="text-sm text-slate-600 dark:text-slate-400">
+            <span className="text-sm text-gray-600 dark:text-slate-400">
               Members
             </span>
           </div>
@@ -274,10 +274,10 @@ export function TeamCard({
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-slate-900 dark:text-white truncate">
+                <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                   {member.first_name} {member.last_name}
                 </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
+                <p className="text-xs text-gray-500 dark:text-slate-400">
                   {member.designation || "Employee"}
                 </p>
               </div>
