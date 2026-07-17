@@ -160,6 +160,8 @@ export default function AttendanceManagementPage() {
   const handleAllEmployeesDateSelection = async (date: string) => {
     setIsLoadingDetails(true);
     setError(null);
+    setSortColumn(null);
+    setSortDirection("asc");
     try {
       // Use attendance summary report endpoint which fetches all employees' attendance in one call
       // This is much more efficient than fetching each employee individually (N+1 problem)
@@ -486,8 +488,10 @@ export default function AttendanceManagementPage() {
                       type="date"
                       value={selectedDate}
                       onChange={(e) => {
-                        if (e.target.value) {
-                          handleAllEmployeesDateSelection(e.target.value);
+                        const newDate = e.target.value;
+                        setSelectedDate(newDate);
+                        if (newDate) {
+                          handleAllEmployeesDateSelection(newDate);
                         }
                       }}
                       disabled={isLoadingDetails}
@@ -693,7 +697,11 @@ export default function AttendanceManagementPage() {
                 <input
                   type="date"
                   value={selectedDate}
-                  onChange={(e) => handleDateSelection(e.target.value)}
+                  onChange={(e) => {
+                    const newDate = e.target.value;
+                    setSelectedDate(newDate);
+                    if (newDate) handleDateSelection(newDate);
+                  }}
                   disabled={isLoadingDetails}
                   className="px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-400 [color-scheme:dark] disabled:opacity-50 disabled:cursor-not-allowed"
                 />
