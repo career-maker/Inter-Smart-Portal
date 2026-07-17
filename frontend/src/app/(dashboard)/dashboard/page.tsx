@@ -152,11 +152,11 @@ export default function DashboardPage() {
   const getRoleHeaderColor = () => {
     switch (user?.role) {
       case "Super Admin":
-        return "from-red-900/20 to-orange-900/20 border-red-500/30";
+        return "from-red-50 to-orange-50 border-red-200 dark:from-red-900/20 dark:to-orange-900/20 dark:border-red-500/30";
       case "Team Lead":
-        return "from-blue-900/20 to-cyan-900/20 border-blue-500/30";
+        return "from-blue-50 to-cyan-50 border-blue-200 dark:from-blue-900/20 dark:to-cyan-900/20 dark:border-blue-500/30";
       default:
-        return "from-amber-900/20 to-yellow-900/20 border-amber-500/30";
+        return "from-slate-100 to-white border-slate-200 dark:from-amber-900/20 dark:to-yellow-900/20 dark:border-amber-500/30";
     }
   };
 
@@ -247,24 +247,34 @@ export default function DashboardPage() {
               Team Status Today
             </p>
             {data?.widgets?.team_members && data.widgets.team_members.length > 0 ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {data.widgets.team_members.slice(0, 6).map((member: any) => {
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+                {data.widgets.team_members.slice(0, 6).map((member: any, index: number) => {
                   const getStatusClasses = (status: string) => {
                     switch (status) {
                       case 'Present':
-                        return { bg: 'bg-emerald-900/20', border: 'border-emerald-500/30', text: 'text-emerald-400', icon: '✓' };
+                        return { text: 'text-emerald-500 dark:text-emerald-400', icon: '✓' };
                       case 'On Leave':
-                        return { bg: 'bg-red-900/20', border: 'border-red-500/30', text: 'text-red-400', icon: '🏖️' };
+                        return { text: 'text-red-500 dark:text-red-400', icon: '🏖️' };
                       case 'WFH':
-                        return { bg: 'bg-cyan-900/20', border: 'border-cyan-500/30', text: 'text-cyan-400', icon: '🏠' };
+                        return { text: 'text-cyan-500 dark:text-cyan-400', icon: '🏠' };
                       default:
-                        return { bg: 'bg-slate-900/20', border: 'border-slate-500/30', text: 'text-slate-400', icon: '❓' };
+                        return { text: 'text-slate-500 dark:text-slate-400', icon: '❓' };
                     }
                   };
                   const statusClasses = getStatusClasses(member.status);
+                  const bgColors = [
+                    'from-blue-50 to-indigo-50 border-blue-100',
+                    'from-emerald-50 to-teal-50 border-emerald-100',
+                    'from-rose-50 to-pink-50 border-rose-100',
+                    'from-amber-50 to-yellow-50 border-amber-100',
+                    'from-fuchsia-50 to-purple-50 border-fuchsia-100',
+                    'from-cyan-50 to-sky-50 border-cyan-100'
+                  ];
+                  const lightBg = bgColors[index % bgColors.length];
+                  
                   return (
-                    <div key={member.id} className={`bg-gradient-to-br from-white/50 dark:from-slate-800/50 to-slate-50/50 dark:to-slate-900/50 rounded-lg p-3 border border-slate-200 dark:border-white/10 hover:border-white/20 transition-colors`}>
-                      <p className="text-xs font-bold text-slate-600 dark:text-slate-300 truncate">{member.name}</p>
+                    <div key={member.id} className={`bg-gradient-to-br ${lightBg} dark:from-slate-800/50 dark:to-slate-900/50 rounded-lg p-3 border dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 transition-colors`}>
+                      <p className="text-xs font-bold text-slate-800 dark:text-slate-300 truncate">{member.name}</p>
                       <div className="flex items-center gap-2 mt-2">
                         <span className={`text-lg ${statusClasses.text}`}>{statusClasses.icon}</span>
                         <span className={`text-xs font-semibold ${statusClasses.text}`}>{member.status}</span>
