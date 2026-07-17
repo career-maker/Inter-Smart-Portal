@@ -18,24 +18,6 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [loginSuccess, setLoginSuccess] = useState(false);
 
-  // Calculate password strength
-  const getPasswordStrength = (pwd: string): { strength: number; label: string; color: string } => {
-    if (!pwd) return { strength: 0, label: "", color: "" };
-    let strength = 0;
-    if (pwd.length >= 8) strength++;
-    if (pwd.length >= 12) strength++;
-    if (/[a-z]/.test(pwd) && /[A-Z]/.test(pwd)) strength++;
-    if (/[0-9]/.test(pwd)) strength++;
-    if (/[^a-zA-Z0-9]/.test(pwd)) strength++;
-
-    if (strength <= 1) return { strength: 1, label: "Weak", color: "bg-red-500" };
-    if (strength <= 2) return { strength: 2, label: "Fair", color: "bg-yellow-500" };
-    if (strength <= 3) return { strength: 3, label: "Good", color: "bg-blue-500" };
-    return { strength: 4, label: "Strong", color: "bg-green-500" };
-  };
-
-  const passwordStrength = getPasswordStrength(password);
-
   const getErrorIcon = (message: string) => {
     if (message.toLowerCase().includes("inactive") || message.toLowerCase().includes("disabled")) {
       return <Lock className="w-4 h-4 mr-2 flex-shrink-0" />;
@@ -233,21 +215,6 @@ export default function LoginPage() {
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 </div>
-
-                {/* Password strength indicator */}
-                {password && (
-                  <div className="mt-3 space-y-2 animate-slideDown">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-slate-400">Password strength</span>
-                      <span className={`font-semibold ${passwordStrength.color === 'bg-red-500' ? 'text-red-400' : passwordStrength.color === 'bg-yellow-500' ? 'text-yellow-400' : passwordStrength.color === 'bg-blue-500' ? 'text-blue-400' : 'text-green-400'}`}>
-                        {passwordStrength.label}
-                      </span>
-                    </div>
-                    <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                      <div className={`h-full ${passwordStrength.color} transition-all duration-300`} style={{ width: `${(passwordStrength.strength / 4) * 100}%` }}></div>
-                    </div>
-                  </div>
-                )}
 
                 {fieldErrors.password && (
                   <p className="text-red-400 text-xs mt-1">{fieldErrors.password}</p>
