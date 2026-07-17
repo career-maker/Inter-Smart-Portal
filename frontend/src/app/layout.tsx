@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Intersmart Portal",
-  description: "Intersmart Employee Management Portal",
+  title: "Inter Smart Portal",
+  description: "Inter Smart Employee Management Portal",
 };
 
 export default function RootLayout({

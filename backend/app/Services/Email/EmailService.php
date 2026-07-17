@@ -288,7 +288,7 @@ class EmailService
         }
 
         $fromAddress = env('MAIL_FROM_ADDRESS', 'hello@example.com');
-        $fromName = env('MAIL_FROM_NAME', 'Intersmart HR Portal');
+        $fromName = env('MAIL_FROM_NAME', 'Inter Smart HR Portal');
 
         // Build recipient list
         $to = [['email' => $toEmail]];

@@ -105,7 +105,7 @@ export default function LoginPage() {
       {/* Left branding panel */}
       <div className="hidden lg:flex flex-col justify-between w-1/2 p-12 relative overflow-hidden" style={{ zIndex: 10 }}>
         <div className="flex items-center gap-3">
-          <img src="/logo.png" alt="Intersmart Logo" className="h-14 w-auto object-contain" />
+          <img src="/logo.png" alt="Inter Smart Logo" className="h-14 w-auto object-contain" />
         </div>
         <div>
           <h1 className="text-5xl font-bold text-white leading-tight mb-4">
@@ -122,7 +122,7 @@ export default function LoginPage() {
           </div>
         </div>
         <div>
-          <p className="text-slate-600 text-sm">© 2026 Intersmart. All rights reserved.</p>
+          <p className="text-slate-600 text-sm">© 2026 Inter Smart. All rights reserved.</p>
           <p className="text-slate-600 text-sm mt-1">Developed By Team QA</p>
         </div>
       </div>
@@ -132,7 +132,7 @@ export default function LoginPage() {
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="flex items-center justify-center mb-8 lg:hidden">
-            <img src="/logo.png" alt="Intersmart Logo" className="h-12 w-auto object-contain" />
+            <img src="/logo.png" alt="Inter Smart Logo" className="h-12 w-auto object-contain" />
           </div>
 
           {/* Success overlay */}
@@ -263,7 +263,7 @@ export default function LoginPage() {
             </form>
           </div>
           <div className="mt-8 text-center lg:hidden">
-            <p className="text-slate-600 text-sm">© 2026 Intersmart. All rights reserved.</p>
+            <p className="text-slate-600 text-sm">© 2026 Inter Smart. All rights reserved.</p>
             <p className="text-slate-600 text-sm mt-1">Developed By Team QA</p>
           </div>
         </div>

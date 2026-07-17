@@ -151,7 +151,7 @@
     <div class="email-container">
         <!-- Header -->
         <div class="header">
-            <div class="logo">Intersmart</div>
+            <div class="logo">Inter Smart</div>
             <h1 class="header-title">Leave Request</h1>
             <p class="header-subtitle">Awaiting Your Action</p>
         </div>
@@ -249,11 +249,11 @@
         <!-- Footer -->
         <div class="footer">
             <div class="footer-message">
-                <strong>Intersmart HR Portal</strong><br>
+                <strong>Inter Smart HR Portal</strong><br>
                 This is an automated email. Please do not reply directly to this message.
             </div>
             <div class="footer-credit">
-                © {{ date('Y') }} Intersmart. All rights reserved. | Developed By Team QA
+                © {{ date('Y') }} Inter Smart. All rights reserved. | Developed By Team QA
             </div>
         </div>
     </div>

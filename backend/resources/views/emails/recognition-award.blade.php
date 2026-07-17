@@ -142,7 +142,7 @@
     <div class="email-container">
         <!-- Header -->
         <div class="header">
-            <div class="logo">Intersmart</div>
+            <div class="logo">Inter Smart</div>
             <h1 class="header-title">Employee Recognition</h1>
         </div>
 
@@ -214,10 +214,10 @@
         <!-- Footer -->
         <div class="footer">
             <div class="footer-message">
-                <strong>Thank you</strong> for your continued excellence and commitment to Intersmart.
+                <strong>Thank you</strong> for your continued excellence and commitment to Inter Smart.
             </div>
             <div class="footer-credit">
-                © {{ date('Y') }} Intersmart. All rights reserved. | Developed By Team QA
+                © {{ date('Y') }} Inter Smart. All rights reserved. | Developed By Team QA
             </div>
         </div>
     </div>

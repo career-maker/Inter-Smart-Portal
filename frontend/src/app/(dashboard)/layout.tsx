@@ -225,8 +225,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           {/* Logo */}
           <Link href="/dashboard" className="flex items-center shrink-0 pr-4">
-            <img src="/logo-dark.png" alt="Intersmart Logo" className="h-14 scale-110 origin-left w-auto object-contain dark:hidden" />
-            <img src="/logo.png" alt="Intersmart Logo" className="h-10 w-auto object-contain hidden dark:block" />
+            <img src="/logo-dark.png" alt="Inter Smart Logo" className="h-14 scale-110 origin-left w-auto object-contain dark:hidden" />
+            <img src="/logo.png" alt="Inter Smart Logo" className="h-10 w-auto object-contain hidden dark:block" />
           </Link>
 
           {/* Right side */}

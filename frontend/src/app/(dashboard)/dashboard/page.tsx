@@ -599,7 +599,7 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-bold text-slate-900 dark:text-white">🎉 {a.name}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{a.years} Year{a.years !== 1 ? 's' : ''} with Intersmart</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{a.years} Year{a.years !== 1 ? 's' : ''} with Inter Smart</p>
                   </div>
                   <div className="flex flex-col items-end gap-1 shrink-0">
                     <span className="text-xs font-bold text-slate-600 dark:text-slate-300">{format(new Date(a.date), "MMM d")}</span>
@@ -1025,7 +1025,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-bold text-slate-900 dark:text-white">🎉 {a.name}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{a.years} Year{a.years !== 1 ? 's' : ''} with Intersmart</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{a.years} Year{a.years !== 1 ? 's' : ''} with Inter Smart</p>
                   </div>
                   <div className="flex flex-col items-end gap-1 shrink-0">
                     <span className="text-xs font-bold text-slate-600 dark:text-slate-300">{format(new Date(a.date), "MMM d")}</span>
