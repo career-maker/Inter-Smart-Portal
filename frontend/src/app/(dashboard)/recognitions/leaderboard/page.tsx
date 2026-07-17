@@ -24,9 +24,9 @@ function TopPerformerCard({ name, designation }: { name: string; designation?: s
         position: relative;
         display: grid;
         place-items: center;
-        padding: 1.5rem 2rem;
-        min-width: 160px;
-        min-height: 48px;
+        padding: 1rem 1.5rem;
+        min-width: 280px;
+        min-height: 56px;
       }
 
       .txt-secondary {
@@ -85,9 +85,9 @@ function TopPerformerCard({ name, designation }: { name: string; designation?: s
 
       .txt {
         position: absolute;
-        padding: 1rem 2rem;
+        padding: 0.5rem 1rem;
         z-index: 2;
-        font: 500 1.3em "Inter", sans-serif;
+        font: 500 0.95em "Inter", sans-serif;
         color: var(--txt-color, #15104c);
         will-change: opacity, display, text-shadow;
         text-shadow:
