@@ -139,7 +139,7 @@ function EditModal({
               type="number" min="0" max="365" step="0.5"
               value={cl}
               onChange={(e) => setCl(e.target.value)}
-              className="w-full border border-amber-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+              className="w-full border border-amber-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-400"
             />
           </div>
 
@@ -152,7 +152,7 @@ function EditModal({
               type="number" min="0" max="365" step="0.5"
               value={cf}
               onChange={(e) => setCf(e.target.value)}
-              className="w-full border border-orange-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+              className="w-full border border-orange-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-400"
             />
           </div>
 
@@ -165,7 +165,7 @@ function EditModal({
               type="number" min="0" max="365" step="0.5"
               value={sl}
               onChange={(e) => setSl(e.target.value)}
-              className="w-full border border-blue-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full border border-blue-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
 
@@ -179,7 +179,7 @@ function EditModal({
               onChange={(e) => setRemarks(e.target.value)}
               rows={2}
               placeholder="Reason for manual adjustment..."
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 resize-none"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-400 resize-none"
             />
           </div>
         </div>
