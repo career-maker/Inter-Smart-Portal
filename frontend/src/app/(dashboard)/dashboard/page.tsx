@@ -55,6 +55,7 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [time, setTime] = useState(new Date());
   const [leaveModalData, setLeaveModalData] = useState<{title: string, list: any[]} | null>(null);
+  const [currentRecognitionIndex, setCurrentRecognitionIndex] = useState(0);
 
   const leaveSummaryRef = useRef<HTMLDivElement>(null);
   const [isLeaveSummaryVisible, setIsLeaveSummaryVisible] = useState(false);
@@ -473,18 +474,37 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Achievement Flip Cards — show all active recognitions */}
+        {/* Achievement Flip Card Carousel — show all active recognitions with slider */}
         {hasActiveRec && profile.active_recognitions && profile.active_recognitions.length > 0 && (
-          <div className="w-full lg:flex-1 space-y-4">
-            {profile.active_recognitions.map((recognition: any, idx: number) => (
-              <div key={recognition.id || idx} className="w-full lg:w-[28%]">
+          <div className="w-full lg:w-[28%] lg:flex-1">
+            <div className="relative">
+              {/* Recognition Card */}
+              <div className="min-h-[220px]">
                 <AchievementFlipCard
-                  recognition={recognition}
+                  recognition={profile.active_recognitions[currentRecognitionIndex]}
                   employeeName={`${profile.first_name} ${profile.last_name}`}
                   firstName={profile.first_name}
                 />
               </div>
-            ))}
+
+              {/* Navigation Dots - Only show if multiple recognitions */}
+              {profile.active_recognitions.length > 1 && (
+                <div className="flex justify-center gap-2 mt-3">
+                  {profile.active_recognitions.map((_: any, idx: number) => (
+                    <button
+                      key={idx}
+                      onClick={() => setCurrentRecognitionIndex(idx)}
+                      className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                        idx === currentRecognitionIndex
+                          ? "bg-amber-400 w-8"
+                          : "bg-slate-600 hover:bg-slate-500"
+                      }`}
+                      aria-label={`Award ${idx + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
