@@ -60,8 +60,21 @@ export function RecognitionTicker() {
 
   const displayItems = items;
 
-  // Calculate animation duration based on number of items to maintain constant speed
-  const durationSeconds = Math.max(20, items.length * 5);
+  // Calculate animation duration based on total characters to maintain constant speed regardless of content length
+  const totalChars = displayItems.reduce((acc, item) => {
+    let text = "";
+    if (item.type === "birthday") {
+      text = `🎉 Happy Birthday ${item.user?.first_name || ""} ${item.user?.last_name || ""}! Wishing you a wonderful day filled with joy! 🎂`;
+    } else if (item.type === "announcement") {
+      text = `📢 ${item.title}: ${item.content || ""}`;
+    } else {
+      text = `Congratulations ${item.user?.first_name || ""} ${item.user?.last_name || ""} for being awarded as ${item.icon} ${item.title}! ${item.description || ""}`;
+    }
+    return acc + text.length;
+  }, 0);
+  
+  // Base speed (0.15 seconds per character = ~6.6 chars per second). Minimum 20 seconds.
+  const durationSeconds = Math.max(20, totalChars * 0.15);
 
   return (
     <div className="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 text-white overflow-hidden py-1.5 flex items-center relative border-b border-indigo-700/50 shadow-md">
