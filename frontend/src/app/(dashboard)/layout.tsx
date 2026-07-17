@@ -272,11 +272,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </header>
 
-      {/* Menu - Appears below header */}
+      {/* Hamburger Menu - Slide-in Sidebar */}
       {menuOpen && (
         <>
-          <div className="fixed inset-0 top-16 bg-black/30 z-[998] md:hidden pointer-events-auto" onClick={closeMenu} />
-          <div role="navigation" className="fixed top-20 right-0 w-full md:w-80 max-h-[calc(100vh-5rem)] bg-slate-900 border-l border-b border-white/10 shadow-2xl z-[9999] overflow-y-auto pointer-events-auto md:relative md:top-0 md:w-auto md:max-h-auto md:border-0 md:shadow-none">
+          <div className="fixed inset-0 top-16 bg-black/40 z-[998] md:hidden pointer-events-auto transition-opacity" onClick={closeMenu} />
+          <div role="navigation" className="fixed top-16 left-0 w-64 h-[calc(100vh-4rem)] bg-slate-900 border-r border-white/10 shadow-2xl z-[9999] overflow-y-auto pointer-events-auto transform transition-transform duration-300 md:hidden" style={{ transform: menuOpen ? 'translateX(0)' : 'translateX(-100%)' }}>
             <Link href="/profile" onClick={closeMenu} className="sm:hidden px-4 py-4 border-b border-white/10 flex items-center gap-3 hover:bg-white/5 transition-colors cursor-pointer">
             <div className="w-10 h-10 rounded-full bg-amber-400 overflow-hidden flex items-center justify-center text-sm font-bold text-white relative shrink-0">
               <span>{user?.first_name?.[0]}{user?.last_name?.[0]}</span>
