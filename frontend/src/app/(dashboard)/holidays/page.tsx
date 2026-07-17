@@ -16,7 +16,7 @@ const HOLIDAY_TYPES = [
 ];
 
 function TypeBadge({ type }: { type: string }) {
-  const t = HOLIDAY_TYPES.find((x) => x.value === type) ?? { cls: "bg-white/10 text-muted-foreground", label: type };
+  const t = HOLIDAY_TYPES.find((x) => x.value === type) ?? { cls: "bg-white/10 text-slate-300", label: type };
   return <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${t.cls}`}>{t.label}</span>;
 }
 
@@ -118,7 +118,7 @@ export default function HolidaysPage() {
   if (isLoading) {
     return (
       <div className="flex justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <Loader2 className="h-8 w-8 animate-spin text-slate-500 dark:text-slate-400" />
       </div>
     );
   }
@@ -127,10 +127,10 @@ export default function HolidaysPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-3">
             <CalendarDays className="w-7 h-7 text-amber-400" /> Holiday Management
           </h1>
-          <p className="text-muted-foreground mt-1">Configure the company's annual holiday calendar.</p>
+          <p className="text-slate-600 dark:text-slate-300 mt-1">Configure the company's annual holiday calendar.</p>
         </div>
         <button
           onClick={openNew}
@@ -140,9 +140,9 @@ export default function HolidaysPage() {
         </button>
       </div>
 
-      <div className="bg-white/5 border border-border rounded-2xl overflow-hidden">
+      <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden">
         {holidays.length === 0 ? (
-          <div className="py-16 text-center text-muted-foreground space-y-3">
+          <div className="py-16 text-center text-slate-500 dark:text-slate-400 space-y-3">
             <CalendarDays className="w-10 h-10 mx-auto text-slate-600" />
             <p>No holidays configured yet.</p>
             <button onClick={openNew} className="text-sm text-amber-400 hover:text-amber-300 underline underline-offset-2">
@@ -152,7 +152,7 @@ export default function HolidaysPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
-              <thead className="text-xs text-muted-foreground uppercase bg-white/5 border-b border-border">
+              <thead className="text-xs text-slate-500 dark:text-slate-400 uppercase bg-white/5 border-b border-slate-200 dark:border-white/10">
                 <tr>
                   <th className="px-6 py-3">Date</th>
                   <th className="px-6 py-3">Holiday Name</th>
@@ -161,26 +161,26 @@ export default function HolidaysPage() {
                   <th className="px-6 py-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className="divide-y divide-slate-200 dark:divide-white/5">
                 {holidays.map((h: any) => (
-                  <tr key={h.id} className="hover:bg-white/5 transition-colors">
-                    <td className="px-6 py-4 text-muted-foreground whitespace-nowrap font-mono text-xs">
+                  <tr key={h.id} className="hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
+                    <td className="px-6 py-4 text-slate-600 dark:text-slate-300 whitespace-nowrap font-mono text-xs">
                       {fmtDate(h.date)}
                     </td>
-                    <td className="px-6 py-4 font-semibold text-white">{h.name}</td>
+                    <td className="px-6 py-4 font-semibold text-slate-900 dark:text-white">{h.name}</td>
                     <td className="px-6 py-4"><TypeBadge type={h.type} /></td>
-                    <td className="px-6 py-4 text-muted-foreground max-w-xs truncate">{h.description || "—"}</td>
+                    <td className="px-6 py-4 text-slate-500 dark:text-slate-400 max-w-xs truncate">{h.description || "—"}</td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2">
                         <button
                           onClick={() => openEdit(h)}
-                          className="p-2 rounded-lg text-muted-foreground hover:text-white hover:bg-white/10 transition-colors"
+                          className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
                         >
                           <Edit className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => deleteHoliday(h.id)}
-                          className="p-2 rounded-lg text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                          className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -198,16 +198,16 @@ export default function HolidaysPage() {
       {showDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowDialog(false)} />
-          <div className="relative w-full max-w-md bg-card border border-border rounded-2xl shadow-2xl z-10">
-            <div className="px-6 py-5 border-b border-border">
-              <h2 className="text-lg font-bold text-foreground">{editId ? "Edit Holiday" : "Add Holiday"}</h2>
-              <p className="text-muted-foreground text-sm mt-0.5">
+          <div className="relative w-full max-w-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl z-10">
+            <div className="px-6 py-5 border-b border-slate-200 dark:border-white/10">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">{editId ? "Edit Holiday" : "Add Holiday"}</h2>
+              <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
                 {editId ? "Update details for this holiday." : "Add a new holiday to the calendar."}
               </p>
             </div>
             <div className="px-6 py-5 space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
                   Holiday Name *
                 </label>
                 <input
@@ -215,28 +215,28 @@ export default function HolidaysPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Republic Day"
-                  className="w-full bg-slate-700 border border-border text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 placeholder:text-slate-500 transition-colors"
+                  className="w-full bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 placeholder:text-slate-500 transition-colors"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
                   Date *
                 </label>
                 <input
                   type="date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="w-full bg-slate-700 border border-border text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 transition-colors"
+                  className="w-full bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 transition-colors"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
                   Holiday Type *
                 </label>
                 <select
                   value={type}
                   onChange={(e) => setType(e.target.value)}
-                  className="w-full bg-slate-700 border border-border text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 transition-colors"
+                  className="w-full bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 transition-colors"
                 >
                   {HOLIDAY_TYPES.map((t) => (
                     <option key={t.value} value={t.value} className="bg-slate-700">
@@ -246,7 +246,7 @@ export default function HolidaysPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
                   Description <span className="text-slate-500 normal-case font-normal">(optional)</span>
                 </label>
                 <textarea
@@ -254,14 +254,14 @@ export default function HolidaysPage() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Additional notes..."
-                  className="w-full bg-slate-700 border border-border text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 placeholder:text-slate-500 resize-none transition-colors"
+                  className="w-full bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 placeholder:text-slate-500 resize-none transition-colors"
                 />
               </div>
             </div>
-            <div className="px-6 py-4 border-t border-border flex gap-3 justify-end">
+            <div className="px-6 py-4 border-t border-slate-200 dark:border-white/10 flex gap-3 justify-end">
               <button
                 onClick={() => setShowDialog(false)}
-                className="px-4 py-2 text-sm text-muted-foreground border border-border rounded-xl hover:bg-white/5 transition-colors"
+                className="px-4 py-2 text-sm text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/10 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
               >
                 Cancel
               </button>
@@ -286,7 +286,7 @@ export default function HolidaysPage() {
       {showSuccess && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => {}} />
-          <div className="relative w-full max-w-md bg-gradient-to-br from-slate-800 to-slate-900 border border-emerald-500/20 rounded-2xl shadow-2xl z-10 overflow-hidden">
+          <div className="relative w-full max-w-md bg-gradient-to-br from-white dark:from-slate-800 to-slate-50 dark:to-slate-900 border border-emerald-500/20 rounded-2xl shadow-2xl z-10 overflow-hidden">
             <div className="absolute inset-0 bg-emerald-500/5 opacity-0 animate-pulse" />
 
             <div className="relative px-6 py-8 text-center space-y-4">
@@ -299,8 +299,8 @@ export default function HolidaysPage() {
 
               {/* Success Message */}
               <div className="space-y-2">
-                <h2 className="text-2xl font-bold text-foreground">{successMessage}</h2>
-                <p className="text-muted-foreground text-sm">The holiday calendar has been updated automatically.</p>
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{successMessage}</h2>
+                <p className="text-slate-600 dark:text-slate-300 text-sm">The holiday calendar has been updated automatically.</p>
               </div>
 
               {/* Action Button */}

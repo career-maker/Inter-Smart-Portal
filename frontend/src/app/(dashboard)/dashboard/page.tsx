@@ -113,7 +113,7 @@ export default function DashboardPage() {
       <div className="flex justify-center items-center h-[70vh]">
         <div className="bg-rose-500/10 text-rose-300 p-6 rounded-xl border border-rose-500/30 max-w-md text-center">
           <AlertCircle className="w-12 h-12 text-rose-400 mx-auto mb-4" />
-          <h2 className="text-lg font-bold mb-2 text-foreground">Error Loading Dashboard</h2>
+          <h2 className="text-lg font-bold mb-2 text-slate-900 dark:text-white">Error Loading Dashboard</h2>
           <p className="text-sm">{error || "No data received from server."}</p>
           <button
             onClick={() => window.location.reload()}
@@ -197,7 +197,7 @@ export default function DashboardPage() {
           <CalendarDays className="w-5 h-5 text-purple-400 flex-shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-semibold text-purple-300">Upcoming Holidays</p>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
               {data.widgets.upcoming_holidays[0]?.name} on {format(parseISO(data.widgets.upcoming_holidays[0]?.date), "MMM d, yyyy")}
             </p>
           </div>
@@ -216,7 +216,7 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-blue-300">Pending Approvals</p>
-                  <p className="text-xs text-muted-foreground">Leave requests awaiting review</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Leave requests awaiting review</p>
                 </div>
               </div>
               <Link href="/leaves/approvals" className="text-xs font-semibold text-blue-400 hover:text-blue-300 flex items-center gap-1">
@@ -226,23 +226,23 @@ export default function DashboardPage() {
             {data?.widgets?.pending_approvals && Array.isArray(data.widgets.pending_approvals) && data.widgets.pending_approvals.length > 0 ? (
               <div className="space-y-2">
                 {data.widgets.pending_approvals.slice(0, 3).map((approval: any) => (
-                  <div key={approval.id} className="bg-white/5 rounded-lg p-3 flex items-center justify-between hover:bg-white/10 transition-colors">
+                  <div key={approval.id} className="bg-white/5 rounded-lg p-3 flex items-center justify-between hover:bg-slate-200 dark:hover:bg-white/10 transition-colors">
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">{approval.employee_name}</p>
-                      <p className="text-xs text-muted-foreground">{approval.leave_type} • {format(parseISO(approval.start_date), "MMM d")} to {format(parseISO(approval.end_date), "MMM d")}</p>
+                      <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{approval.employee_name}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">{approval.leave_type} • {format(parseISO(approval.start_date), "MMM d")} to {format(parseISO(approval.end_date), "MMM d")}</p>
                     </div>
                     <span className="text-xs font-bold bg-blue-500/20 text-blue-300 px-2 py-1 rounded-full shrink-0">{approval.days} d</span>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground text-center py-4">No pending approvals 🎉</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-4">No pending approvals 🎉</p>
             )}
           </div>
 
           {/* Team Member Status Cards */}
           <div>
-            <p className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
+            <p className="text-sm font-semibold text-slate-600 dark:text-slate-300 mb-3 flex items-center gap-2">
               <Briefcase className="w-4 h-4 text-blue-400" />
               Team Status Today
             </p>
@@ -258,13 +258,13 @@ export default function DashboardPage() {
                       case 'WFH':
                         return { bg: 'bg-cyan-900/20', border: 'border-cyan-500/30', text: 'text-cyan-400', icon: '🏠' };
                       default:
-                        return { bg: 'bg-background/20', border: 'border-slate-500/30', text: 'text-muted-foreground', icon: '❓' };
+                        return { bg: 'bg-slate-900/20', border: 'border-slate-500/30', text: 'text-slate-400', icon: '❓' };
                     }
                   };
                   const statusClasses = getStatusClasses(member.status);
                   return (
-                    <div key={member.id} className={`bg-gradient-to-br from-slate-800/50 to-slate-900/50 rounded-lg p-3 border border-border hover:border-border transition-colors`}>
-                      <p className="text-xs font-bold text-muted-foreground truncate">{member.name}</p>
+                    <div key={member.id} className={`bg-gradient-to-br from-white/50 dark:from-slate-800/50 to-slate-50/50 dark:to-slate-900/50 rounded-lg p-3 border border-slate-200 dark:border-white/10 hover:border-white/20 transition-colors`}>
+                      <p className="text-xs font-bold text-slate-600 dark:text-slate-300 truncate">{member.name}</p>
                       <div className="flex items-center gap-2 mt-2">
                         <span className={`text-lg ${statusClasses.text}`}>{statusClasses.icon}</span>
                         <span className={`text-xs font-semibold ${statusClasses.text}`}>{member.status}</span>
@@ -274,7 +274,7 @@ export default function DashboardPage() {
                 })}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">No team members assigned</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">No team members assigned</p>
             )}
           </div>
         </div>
@@ -305,7 +305,7 @@ export default function DashboardPage() {
 
           {/* System Health Indicators */}
           <div>
-            <p className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
+            <p className="text-sm font-semibold text-slate-600 dark:text-slate-300 mb-3 flex items-center gap-2">
               <Server className="w-4 h-4 text-red-400" />
               System Health
             </p>
@@ -318,7 +318,7 @@ export default function DashboardPage() {
               ].map((service, idx) => (
                 <div key={idx} className={`${service.status === 'healthy' ? 'bg-emerald-900/20 border-emerald-500/30' : 'bg-red-900/20 border-red-500/30'} rounded-lg p-4 border`}>
                   <div className="flex items-center justify-between mb-2">
-                    <p className="text-xs font-semibold text-muted-foreground">{service.label}</p>
+                    <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">{service.label}</p>
                     {service.status === 'healthy' && (
                       <span className="w-2 h-2 bg-emerald-400 rounded-full health-indicator"></span>
                     )}
@@ -333,7 +333,7 @@ export default function DashboardPage() {
 
           {/* Key Metrics with Trends */}
           <div>
-            <p className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
+            <p className="text-sm font-semibold text-slate-600 dark:text-slate-300 mb-3 flex items-center gap-2">
               <Zap className="w-4 h-4 text-amber-400" />
               Key Metrics
             </p>
@@ -344,10 +344,10 @@ export default function DashboardPage() {
                 { label: 'Today Absent', value: data?.widgets?.absent_today ?? 0, trend: -5, direction: 'down' },
                 { label: 'Pending Leaves', value: data?.widgets?.pending_leave_requests ?? 0, trend: 3, direction: 'up' }
               ].map((metric, idx) => (
-                <div key={idx} className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 rounded-lg p-4 border border-border">
-                  <p className="text-xs text-muted-foreground font-medium mb-2">{metric.label}</p>
+                <div key={idx} className="bg-gradient-to-br from-white/50 dark:from-slate-800/50 to-slate-50/50 dark:to-slate-900/50 rounded-lg p-4 border border-slate-200 dark:border-white/10">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-2">{metric.label}</p>
                   <div className="flex items-end justify-between">
-                    <p className="text-2xl font-bold text-foreground animate-countUp">{Number.isNaN(metric.value) ? 0 : metric.value}</p>
+                    <p className="text-2xl font-bold text-slate-900 dark:text-white animate-countUp">{Number.isNaN(metric.value) ? 0 : metric.value}</p>
                     <div className={`flex items-center gap-1 text-xs font-semibold ${metric.direction === 'up' ? 'text-emerald-400' : 'text-red-400'}`}>
                       {metric.direction === 'up' ? (
                         <TrendingUp className="w-4 h-4 trend-arrow" />
@@ -365,7 +365,7 @@ export default function DashboardPage() {
           {/* Audit Log Timeline */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <p className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
+              <p className="text-sm font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-2">
                 <Layers className="w-4 h-4 text-purple-400" />
                 Recent Audit Logs
               </p>
@@ -376,18 +376,18 @@ export default function DashboardPage() {
             {data?.widgets?.recent_audit_logs && Array.isArray(data.widgets.recent_audit_logs) && data.widgets.recent_audit_logs.length > 0 ? (
               <div className="space-y-2 max-h-64 overflow-y-auto">
                 {data.widgets.recent_audit_logs.slice(0, 8).map((log: any, idx: number) => (
-                  <div key={idx} className="bg-white/5 rounded-lg p-3 border border-border hover:bg-white/10 transition-colors flex items-start gap-3">
+                  <div key={idx} className="bg-white/5 rounded-lg p-3 border border-slate-200 dark:border-white/10 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors flex items-start gap-3">
                     <div className="w-2 h-2 bg-purple-400 rounded-full flex-shrink-0 mt-1.5"></div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-foreground truncate">{log.action || 'System Action'}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{log.description || log.user_name}</p>
+                      <p className="text-xs font-semibold text-slate-900 dark:text-white truncate">{log.action || 'System Action'}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{log.description || log.user_name}</p>
                       <p className="text-[10px] text-slate-500 mt-1">{log.created_at ? format(parseISO(log.created_at), "MMM d, h:mm a") : 'Unknown time'}</p>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground text-center py-4">No recent audit logs</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-4">No recent audit logs</p>
             )}
           </div>
         </div>
@@ -401,7 +401,7 @@ export default function DashboardPage() {
       <div className={`flex gap-5 mb-8 ${hasActiveRec ? 'flex-col lg:flex-row items-stretch' : ''}`}>
         {/* Welcome Card — full width when no achievement, 72% when active achievement */}
         <div
-          className={`rounded-3xl p-6 md:p-8 shadow-lg border bg-gradient-to-br backdrop-blur-md text-white relative overflow-hidden transition-all duration-500 ${getRoleHeaderColor()} ${hasActiveRec ? 'w-full lg:w-[72%]' : 'w-full'}`}
+          className={`rounded-3xl p-6 md:p-8 shadow-lg border bg-gradient-to-br backdrop-blur-md text-white relative overflow-hidden transition-all duration-500 ${getRoleHeaderColor()}  ${hasActiveRec ? 'w-full lg:w-[72%]' : 'w-full'}`}
         >
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 lg:gap-8 relative z-10">
@@ -410,14 +410,14 @@ export default function DashboardPage() {
               <PhotoAvatar
                 src={profile.profile_photo_path}
                 name={`${profile.first_name} ${profile.last_name}`}
-                className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/10 text-white text-xl md:text-2xl shadow-sm shrink-0 border border-border"
+                className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/10 text-slate-900 dark:text-white text-xl md:text-2xl shadow-sm shrink-0 border border-slate-200 dark:border-white/10"
                 textClass="text-white"
               />
               <div>
-                <p className="text-sm font-medium text-muted-foreground mb-1">
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">
                   {format(time, "EEEE, d MMMM yyyy")} • {format(time, "h:mm a")}
                 </p>
-                <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-foreground leading-tight">
+                <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
                   <span className="block">{greeting},</span>
                   <span className="inline-flex items-center gap-2 mt-1.5">
                     <span className="text-[#FEB800]">{profile.first_name}</span>
@@ -435,11 +435,11 @@ export default function DashboardPage() {
                 </h1>
                 <div className="flex flex-wrap items-center gap-2 md:gap-3 mt-3">
                   {profile.employee_code && (
-                    <span className="inline-flex items-center gap-1.5 bg-white/5 text-muted-foreground backdrop-blur-sm border border-border px-3 py-1 rounded-full text-xs font-semibold tracking-wider shadow-sm">
+                    <span className="inline-flex items-center gap-1.5 bg-white/5 text-slate-600 dark:text-slate-300 backdrop-blur-sm border border-slate-200 dark:border-white/10 px-3 py-1 rounded-full text-xs font-semibold tracking-wider shadow-sm">
                       {profile.employee_code}
                     </span>
                   )}
-                  <span className="inline-flex items-center gap-1.5 bg-white/5 text-muted-foreground backdrop-blur-sm border border-border px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
+                  <span className="inline-flex items-center gap-1.5 bg-white/5 text-slate-600 dark:text-slate-300 backdrop-blur-sm border border-slate-200 dark:border-white/10 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
                     {profile.designation}
                   </span>
                   <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm transition-all ${
@@ -461,8 +461,8 @@ export default function DashboardPage() {
 
             {/* Right: Service Days — premium glass pill */}
             {profile.service_stats && (
-              <div className="bg-white/5 border border-border rounded-2xl px-6 py-3 text-center shadow-[inset_2px_2px_5px_rgba(0,0,0,0.2),inset_-2px_-2px_5px_rgba(255,255,255,0.1)] shrink-0 w-full lg:w-auto">
-                <p className="text-sm md:text-base font-extrabold tracking-wide flex flex-wrap items-center justify-center gap-2 whitespace-nowrap text-muted-foreground">
+              <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl px-6 py-3 text-center shadow-[inset_2px_2px_5px_rgba(0,0,0,0.2),inset_-2px_-2px_5px_rgba(255,255,255,0.1)] shrink-0 w-full lg:w-auto">
+                <p className="text-sm md:text-base font-extrabold tracking-wide flex flex-wrap items-center justify-center gap-2 whitespace-nowrap text-slate-600 dark:text-slate-300">
                   <span className="text-base leading-none">🌟</span>
                   Growing Together for{' '}
                   <span className="text-amber-400 font-black">
@@ -527,9 +527,9 @@ export default function DashboardPage() {
             emptyMessage="No announcements yet"
             renderItem={(update) => (
               <div className="space-y-3">
-                <p className="text-sm font-bold text-foreground leading-tight break-words">{update.title}</p>
-                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-4">{update.content || 'No description'}</p>
-                <div className="flex items-center justify-between pt-2 border-t border-border">
+                <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight break-words">{update.title}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-4">{update.content || 'No description'}</p>
+                <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-white/10">
                   <p className="text-xs text-slate-500">{format(parseISO(update.created_at), "MMM d, yyyy")}</p>
                   <Link href="/announcements" className="text-xs font-semibold text-blue-400 hover:text-blue-300">View →</Link>
                 </div>
@@ -539,7 +539,7 @@ export default function DashboardPage() {
         ) : (
           <div className="premium-card p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-foreground flex items-center gap-2">
+              <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <Megaphone className="w-4 h-4 text-blue-500" />
                 Latest Updates
               </h3>
@@ -549,16 +549,16 @@ export default function DashboardPage() {
               {widgets.company_updates.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-8 text-center">
                   <Megaphone className="w-8 h-8 text-slate-500 mb-2 opacity-50" />
-                  <p className="text-sm text-muted-foreground">No announcements yet</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">No announcements yet</p>
                   <p className="text-xs text-slate-500 mt-1">Updates will appear here</p>
                 </div>
               ) : (
                 widgets.company_updates.slice(0, 1).map((update: any, idx: number) => (
-                  <div key={idx} className="flex gap-3 items-start hover:bg-white/5 p-2 rounded-lg transition-colors">
+                  <div key={idx} className="flex gap-3 items-start hover:bg-slate-100 dark:hover:bg-white/5 p-2 rounded-lg transition-colors">
                     <div className="w-2 h-2 mt-1.5 rounded-full bg-blue-400 shrink-0 animate-countUp"></div>
                     <div>
-                      <p className="text-sm font-medium text-foreground leading-tight">{update.title}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{format(parseISO(update.created_at), "MMM d, yyyy")}</p>
+                      <p className="text-sm font-medium text-slate-900 dark:text-white leading-tight">{update.title}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{format(parseISO(update.created_at), "MMM d, yyyy")}</p>
                     </div>
                   </div>
                 ))
@@ -588,11 +588,11 @@ export default function DashboardPage() {
               renderItem={(a) => (
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-bold text-foreground">🎉 {a.name}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{a.years} Year{a.years !== 1 ? 's' : ''} with Intersmart</p>
+                    <p className="text-sm font-bold text-slate-900 dark:text-white">🎉 {a.name}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{a.years} Year{a.years !== 1 ? 's' : ''} with Intersmart</p>
                   </div>
                   <div className="flex flex-col items-end gap-1 shrink-0">
-                    <span className="text-xs font-bold text-muted-foreground">{format(new Date(a.date), "MMM d")}</span>
+                    <span className="text-xs font-bold text-slate-600 dark:text-slate-300">{format(new Date(a.date), "MMM d")}</span>
                     {a.days_remaining === 0 ? (
                       <span className="text-[10px] uppercase tracking-wider font-bold bg-pink-500/80 text-white px-2 py-0.5 rounded-lg">Today!</span>
                     ) : (
@@ -676,7 +676,7 @@ export default function DashboardPage() {
             
             <Link 
               href="/hall" 
-              className="md:col-span-3 lg:col-span-2 group relative overflow-hidden rounded-3xl p-6 bg-card text-white shadow-[6px_6px_12px_rgba(0,0,0,0.4),-6px_-6px_12px_rgba(255,255,255,0.05)] hover:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.4),inset_-4px_-4px_8px_rgba(255,255,255,0.05)] transition-all duration-300 border border-slate-700/50"
+              className="md:col-span-3 lg:col-span-2 group relative overflow-hidden rounded-3xl p-6 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-[6px_6px_12px_rgba(0,0,0,0.4),-6px_-6px_12px_rgba(255,255,255,0.05)] hover:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.4),inset_-4px_-4px_8px_rgba(255,255,255,0.05)] transition-all duration-300 border border-slate-700/50"
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-white/10 transition-colors"></div>
               <div className="relative z-10 flex items-center justify-between h-full">
@@ -687,7 +687,7 @@ export default function DashboardPage() {
                       <span className="text-sm font-bold uppercase tracking-wider">Management Only</span>
                     </div>
                   )}
-                  <span className="text-sm font-bold text-foreground relative z-10">View The Hall</span>
+                  <span className="text-sm font-bold text-slate-900 dark:text-white relative z-10">View The Hall</span>
                 </div>
                 <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center shadow-[inset_2px_2px_5px_rgba(0,0,0,0.2),inset_-2px_-2px_5px_rgba(255,255,255,0.1)] group-hover:scale-95 transition-transform">
                   <ArrowRight className="w-6 h-6" />
@@ -711,10 +711,10 @@ export default function DashboardPage() {
                 Upcoming Holidays
               </h2>
               <div className="space-y-4">
-                {widgets.upcoming_holidays.length === 0 && <p className="text-sm text-muted-foreground">No upcoming holidays.</p>}
+                {widgets.upcoming_holidays.length === 0 && <p className="text-sm text-slate-500 dark:text-slate-400">No upcoming holidays.</p>}
                 {widgets.upcoming_holidays.map((h: any, i: number) => (
                   <div key={i} className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-foreground">{h.name}</span>
+                    <span className="text-sm font-medium text-slate-900 dark:text-white">{h.name}</span>
                     <span className="text-xs font-semibold text-white bg-rose-500/20 px-2 py-1 rounded-md">
                       {format(new Date(h.date), "MMM d")}
                     </span>
@@ -752,10 +752,10 @@ export default function DashboardPage() {
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {/* Casual Leave Indicator */}
-              <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-border group hover:bg-white/10 transition-all duration-300">
+              <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-slate-200 dark:border-white/10 group hover:bg-slate-200 dark:hover:bg-white/10 transition-all duration-300">
                 <div>
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Casual Leaves</p>
-                  <p className="text-2xl font-black text-foreground mt-1">{Math.max(0, leave_metrics.casual_leave_balance)}</p>
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Casual Leaves</p>
+                  <p className="text-2xl font-black text-slate-900 dark:text-white mt-1">{Math.max(0, leave_metrics.casual_leave_balance)}</p>
                 </div>
                 <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform">
                   <Palmtree className="w-5 h-5" />
@@ -763,10 +763,10 @@ export default function DashboardPage() {
               </div>
 
               {/* Sick Leave Indicator */}
-              <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-border group hover:bg-white/10 transition-all duration-300">
+              <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-slate-200 dark:border-white/10 group hover:bg-slate-200 dark:hover:bg-white/10 transition-all duration-300">
                 <div>
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Sick Leaves</p>
-                  <p className="text-2xl font-black text-foreground mt-1">{Math.max(0, leave_metrics.sick_leave_balance)}</p>
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Sick Leaves</p>
+                  <p className="text-2xl font-black text-slate-900 dark:text-white mt-1">{Math.max(0, leave_metrics.sick_leave_balance)}</p>
                 </div>
                 <div className="w-10 h-10 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-400 group-hover:scale-110 transition-transform">
                   <AlertCircle className="w-5 h-5" />
@@ -774,10 +774,10 @@ export default function DashboardPage() {
               </div>
 
               {/* Total Leaves Taken Indicator */}
-              <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-border group hover:bg-white/10 transition-all duration-300">
+              <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-slate-200 dark:border-white/10 group hover:bg-slate-200 dark:hover:bg-white/10 transition-all duration-300">
                 <div>
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Total Taken</p>
-                  <p className="text-2xl font-black text-foreground mt-1">{Math.max(0, leave_metrics.total_leaves_taken)}</p>
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Taken</p>
+                  <p className="text-2xl font-black text-slate-900 dark:text-white mt-1">{Math.max(0, leave_metrics.total_leaves_taken)}</p>
                 </div>
                 <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
                   <CalendarDays className="w-5 h-5" />
@@ -797,7 +797,7 @@ export default function DashboardPage() {
             
             <Link 
               href="/leaves/apply" 
-              className="w-full flex items-center justify-center gap-2 bg-amber-400 hover:bg-amber-300 text-foreground font-bold py-3.5 px-6 rounded-2xl hover:shadow-xl hover:shadow-amber-400/15 transition-all duration-300 active:scale-95 whitespace-nowrap"
+              className="w-full flex items-center justify-center gap-2 bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold py-3.5 px-6 rounded-2xl hover:shadow-xl hover:shadow-amber-400/15 transition-all duration-300 active:scale-95 whitespace-nowrap"
             >
               <Palmtree className="w-5 h-5" />
               Apply for Leave
@@ -852,20 +852,20 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Super Admin Welcome Banner */}
-      <div className="border border-border bg-white/5 backdrop-blur-md rounded-3xl p-5 md:p-6 shadow-lg mb-6 text-foreground">
+      <div className="border border-slate-200 dark:border-white/10 bg-white/5 backdrop-blur-md rounded-3xl p-5 md:p-6 shadow-lg mb-6 text-slate-900 dark:text-white">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div className="flex items-center gap-5">
             <PhotoAvatar
               src={profile.profile_photo_path}
               name={`${profile.first_name} ${profile.last_name}`}
-              className="w-16 h-16 rounded-full bg-white/10 text-white text-2xl backdrop-blur-sm border border-border shrink-0"
+              className="w-16 h-16 rounded-full bg-white/10 text-slate-900 dark:text-white text-2xl backdrop-blur-sm border border-slate-200 dark:border-white/10 shrink-0"
               textClass="text-white"
             />
             <div>
-              <p className="text-sm font-medium text-muted-foreground mb-1">
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">
                 {format(time, "EEEE, d MMMM yyyy")} • {format(time, "h:mm a")}
               </p>
-              <h1 className="text-3xl font-extrabold tracking-tight text-foreground leading-tight">
+              <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
                 <span className="block">{greeting},</span>
                 <span className="inline-flex items-center gap-2 mt-1.5">
                   <span className="text-[#FEB800]">{profile.first_name} (Admin)</span>
@@ -885,18 +885,18 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           </div>
           
           {/* Right: Quick Summary Badges */}
-          <Link href="/leaves/approvals" className="block flex flex-col justify-center bg-white/5 hover:bg-white/10 transition-colors rounded-2xl p-4 md:p-5 border border-border hover:border-border w-full md:w-auto shadow-sm cursor-pointer group">
-            <p className="text-sm font-bold text-muted-foreground mb-3 flex items-center gap-2">
+          <Link href="/leaves/approvals" className="block flex flex-col justify-center bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors rounded-2xl p-4 md:p-5 border border-slate-200 dark:border-white/10 hover:border-white/20 w-full md:w-auto shadow-sm cursor-pointer group">
+            <p className="text-sm font-bold text-slate-600 dark:text-slate-300 mb-3 flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-amber-400" />
               You have:
             </p>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-white/10 group-hover:bg-white/20 transition-colors flex items-center justify-center text-amber-400 shrink-0 shadow-sm border border-border">
+              <div className="w-10 h-10 rounded-full bg-white/10 group-hover:bg-white/20 transition-colors flex items-center justify-center text-amber-400 shrink-0 shadow-sm border border-slate-200 dark:border-white/10">
                 <FileText className="w-5 h-5 group-hover:scale-110 transition-transform" />
               </div>
               <div className="leading-tight pr-4">
-                <p className="text-xl font-black text-foreground">{kpis.pending_requests}</p>
-                <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mt-0.5">Pending Requests</p>
+                <p className="text-xl font-black text-slate-900 dark:text-white">{kpis.pending_requests}</p>
+                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">Pending Requests</p>
               </div>
             </div>
           </Link>
@@ -959,9 +959,9 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
             emptyMessage="No announcements yet"
             renderItem={(update) => (
               <div className="space-y-3">
-                <p className="text-sm font-bold text-foreground leading-tight break-words">{update.title}</p>
-                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-4">{update.content || 'No description'}</p>
-                <div className="flex items-center justify-between pt-2 border-t border-border">
+                <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight break-words">{update.title}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-4">{update.content || 'No description'}</p>
+                <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-white/10">
                   <p className="text-xs text-slate-500">{format(parseISO(update.created_at), "MMM d, yyyy")}</p>
                   <Link href="/announcements" className="text-xs font-semibold text-indigo-400 hover:text-indigo-300">View →</Link>
                 </div>
@@ -976,14 +976,14 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
             </h2>
             <div className="space-y-3">
                 {widgets.company_updates.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">No recent announcements.</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">No recent announcements.</p>
                 ) : (
                   widgets.company_updates.slice(0, 1).map((update: any, idx: number) => (
-                    <div key={idx} className="flex gap-3 items-start border-b border-border pb-3 last:border-0 last:pb-0">
+                    <div key={idx} className="flex gap-3 items-start border-b border-slate-200 dark:border-white/10 pb-3 last:border-0 last:pb-0">
                       <div className="w-2 h-2 mt-1.5 rounded-full bg-indigo-400 shrink-0"></div>
                       <div>
-                        <p className="text-sm font-medium text-foreground leading-tight">{update.title}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">{format(new Date(update.created_at), "MMM d, yyyy")}</p>
+                        <p className="text-sm font-medium text-slate-900 dark:text-white leading-tight">{update.title}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{format(new Date(update.created_at), "MMM d, yyyy")}</p>
                       </div>
                     </div>
                   ))
@@ -1013,11 +1013,11 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
               renderItem={(a) => (
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-bold text-foreground">🎉 {a.name}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{a.years} Year{a.years !== 1 ? 's' : ''} with Intersmart</p>
+                    <p className="text-sm font-bold text-slate-900 dark:text-white">🎉 {a.name}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{a.years} Year{a.years !== 1 ? 's' : ''} with Intersmart</p>
                   </div>
                   <div className="flex flex-col items-end gap-1 shrink-0">
-                    <span className="text-xs font-bold text-muted-foreground">{format(new Date(a.date), "MMM d")}</span>
+                    <span className="text-xs font-bold text-slate-600 dark:text-slate-300">{format(new Date(a.date), "MMM d")}</span>
                     {a.days_remaining === 0 ? (
                       <span className="text-[10px] uppercase tracking-wider font-bold bg-pink-500/80 text-white px-2 py-0.5 rounded-lg">Today!</span>
                     ) : (
@@ -1050,12 +1050,12 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
              
              <Link 
               href="/hall" 
-              className="lg:col-span-2 group relative overflow-hidden rounded-3xl p-6 bg-card text-white shadow-[6px_6px_12px_rgba(0,0,0,0.4),-6px_-6px_12px_rgba(255,255,255,0.05)] hover:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.4),inset_-4px_-4px_8px_rgba(255,255,255,0.05)] transition-all duration-300 border border-slate-700/50"
+              className="lg:col-span-2 group relative overflow-hidden rounded-3xl p-6 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-[6px_6px_12px_rgba(0,0,0,0.4),-6px_-6px_12px_rgba(255,255,255,0.05)] hover:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.4),inset_-4px_-4px_8px_rgba(255,255,255,0.05)] transition-all duration-300 border border-slate-700/50"
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-white/10 transition-colors"></div>
               <div className="relative z-10 flex items-center justify-between h-full">
                 <div className="space-y-1">
-                  <span className="text-sm font-bold text-foreground relative z-10">View The Hall</span>
+                  <span className="text-sm font-bold text-slate-900 dark:text-white relative z-10">View The Hall</span>
                 </div>
                 <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center shadow-[inset_2px_2px_5px_rgba(0,0,0,0.2),inset_-2px_-2px_5px_rgba(255,255,255,0.1)] group-hover:scale-95 transition-transform">
                   <ArrowRight className="w-5 h-5" />
@@ -1077,12 +1077,12 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                     {act.type === 'leave' ? <Palmtree className="w-4 h-4"/> : act.type === 'user' ? <UserCircle className="w-4 h-4"/> : <BookOpen className="w-4 h-4"/>}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-foreground">{act.message}</p>
-                    <p className="text-xs text-muted-foreground">{format(new Date(act.date), "MMM d, h:mm a")}</p>
+                    <p className="text-sm font-medium text-slate-900 dark:text-white">{act.message}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{format(new Date(act.date), "MMM d, h:mm a")}</p>
                   </div>
                 </div>
               ))}
-              {activity_feed.length === 0 && <p className="text-sm text-muted-foreground">No recent activity in the last 2 days.</p>}
+              {activity_feed.length === 0 && <p className="text-sm text-slate-500 dark:text-slate-400">No recent activity in the last 2 days.</p>}
               
               {/* Pagination */}
               {totalActivityPages > 1 && (
@@ -1094,7 +1094,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                   >
                     Previous
                   </button>
-                  <span className="text-xs text-muted-foreground">Page {activityPage} of {totalActivityPages}</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">Page {activityPage} of {totalActivityPages}</span>
                   <button
                     onClick={() => setActivityPage(p => Math.min(totalActivityPages, p + 1))}
                     disabled={activityPage === totalActivityPages}
@@ -1106,7 +1106,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
               )}
               
               {/* View All Link */}
-              <Link href="/activities" className="block text-center pt-3 border-t border-border mt-2 text-sm font-bold text-cyan-400 hover:underline">
+              <Link href="/activities" className="block text-center pt-3 border-t border-slate-200 dark:border-white/10 mt-2 text-sm font-bold text-cyan-400 hover:underline">
                 View All Activities →
               </Link>
             </div>
@@ -1125,10 +1125,10 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
               Upcoming Holidays
             </h2>
             <div className="space-y-4">
-              {widgets.upcoming_holidays.length === 0 && <p className="text-sm text-muted-foreground">No upcoming holidays.</p>}
+              {widgets.upcoming_holidays.length === 0 && <p className="text-sm text-slate-500 dark:text-slate-400">No upcoming holidays.</p>}
               {widgets.upcoming_holidays.map((h: any, i: number) => (
                 <div key={i} className="flex justify-between items-center">
-                  <span className="text-sm font-medium text-foreground">{h.name}</span>
+                  <span className="text-sm font-medium text-slate-900 dark:text-white">{h.name}</span>
                   <span className="text-xs font-semibold text-rose-600 bg-rose-500/30 px-2 py-1 rounded-md text-rose-300">
                     {format(new Date(h.date), "MMM d")}
                   </span>
@@ -1144,13 +1144,13 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
               Company Leave Overview
             </h2>
             <div className="space-y-4">
-               <div className="flex justify-between items-center bg-white/5 border border-border p-4 rounded-xl">
-                 <span className="text-sm font-semibold text-muted-foreground">Pending Requests</span>
-                 <span className="text-xl font-bold text-foreground">{kpis.pending_requests}</span>
+               <div className="flex justify-between items-center bg-white/5 border border-slate-200 dark:border-white/10 p-4 rounded-xl">
+                 <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">Pending Requests</span>
+                 <span className="text-xl font-bold text-slate-900 dark:text-white">{kpis.pending_requests}</span>
                </div>
-               <div className="flex justify-between items-center bg-white/5 border border-border p-4 rounded-xl">
-                 <span className="text-sm font-semibold text-muted-foreground">On Leave Today</span>
-                 <span className="text-xl font-bold text-foreground">{kpis.on_leave_today}</span>
+               <div className="flex justify-between items-center bg-white/5 border border-slate-200 dark:border-white/10 p-4 rounded-xl">
+                 <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">On Leave Today</span>
+                 <span className="text-xl font-bold text-slate-900 dark:text-white">{kpis.on_leave_today}</span>
                </div>
             </div>
           </div>
@@ -1160,23 +1160,23 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
 
       {/* Leave Details Modal */}
       <Dialog open={!!leaveModalData} onOpenChange={(open) => !open && setLeaveModalData(null)}>
-        <DialogContent className="sm:max-w-md bg-background border border-border text-white">
+        <DialogContent className="sm:max-w-md bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white">
           <DialogHeader>
-            <DialogTitle className="text-white">{leaveModalData?.title}</DialogTitle>
+            <DialogTitle className="text-slate-900 dark:text-white">{leaveModalData?.title}</DialogTitle>
           </DialogHeader>
           <div className="max-h-[60vh] overflow-y-auto space-y-3 mt-4">
             {leaveModalData?.list.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-4">No employees to show.</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-4">No employees to show.</p>
             ) : (
               leaveModalData?.list.map((item: any, idx: number) => (
-                <div key={idx} className="flex items-center justify-between p-3 bg-white/5 border border-border rounded-xl">
+                <div key={idx} className="flex items-center justify-between p-3 bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-sm">
                       {item.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2)}
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-foreground">{item.name}</p>
-                      <p className="text-xs text-muted-foreground">{item.leave_type || item.designation}</p>
+                      <p className="text-sm font-bold text-slate-900 dark:text-white">{item.name}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">{item.leave_type || item.designation}</p>
                     </div>
                   </div>
                 </div>
@@ -1200,23 +1200,13 @@ function KPICard({ title, value, trend, icon: Icon, color, href, onClick }: any)
   const accent = accentMap[color] || accentMap['bg-blue-500'];
 
   const CardContent = (
-    <div className={`
-      relative overflow-hidden h-full rounded-3xl p-6
-      bg-gradient-to-br from-slate-800/90 to-slate-900/90
-      shadow-[8px_8px_20px_rgba(0,0,0,0.5),-4px_-4px_12px_rgba(255,255,255,0.03)]
-      border ${accent.border}
-      backdrop-blur-xl
-      transition-all duration-300
-      ${(href || onClick) ? 'cursor-pointer group hover:shadow-[inset_6px_6px_14px_rgba(0,0,0,0.5),inset_-3px_-3px_10px_rgba(255,255,255,0.03)] hover:border-border' : ''}
-    `}>
+    <div className={`relative overflow-hidden h-full rounded-3xl p-6 bg-gradient-to-br from-white/90 dark:from-slate-800/90 to-slate-50/90 dark:to-slate-900/90 shadow-[8px_8px_20px_rgba(0,0,0,0.5),-4px_-4px_12px_rgba(255,255,255,0.03)] border ${accent.border}backdrop-blur-xl transition-all duration-300 ${(href || onClick) ? 'cursor-pointer group hover:shadow-[inset_6px_6px_14px_rgba(0,0,0,0.5),inset_-3px_-3px_10px_rgba(255,255,255,0.03)] hover:border-white/10' : ''} `}>
       <div className="flex justify-between items-start relative z-10">
         <div>
-          <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2">{title}</p>
-          <h3 className="text-4xl font-black text-foreground tracking-tight">{value}</h3>
+          <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">{title}</p>
+          <h3 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">{value}</h3>
         </div>
-        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${accent.icon}
-          shadow-[inset_3px_3px_6px_rgba(0,0,0,0.3),inset_-2px_-2px_5px_rgba(255,255,255,0.04)]
-          ${(href || onClick) ? 'group-hover:scale-90 transition-transform duration-300' : ''}`}>
+        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${accent.icon}shadow-[inset_3px_3px_6px_rgba(0,0,0,0.3),inset_-2px_-2px_5px_rgba(255,255,255,0.04)] ${(href || onClick) ? 'group-hover:scale-90 transition-transform duration-300' : ''}`}>
           <Icon className="w-5 h-5" />
         </div>
       </div>
@@ -1244,24 +1234,18 @@ function QuickActionCard({ href, icon: Icon, title, color }: any) {
     amber:   'bg-amber-500/20 text-amber-400',
     rose:    'bg-rose-500/20 text-rose-400',
     cyan:    'bg-cyan-500/20 text-cyan-400',
-    slate:   'bg-slate-500/20 text-muted-foreground',
+    slate:   'bg-slate-500/20 text-slate-300',
   };
   const accent = iconAccent[color] || iconAccent.blue;
 
   return (
     <Link href={href}>
-      <div className="bg-card rounded-3xl p-5 h-full relative overflow-hidden
-        shadow-[6px_6px_14px_rgba(0,0,0,0.45),-6px_-6px_14px_rgba(255,255,255,0.04)]
-        hover:shadow-[inset_4px_4px_10px_rgba(0,0,0,0.45),inset_-4px_-4px_10px_rgba(255,255,255,0.04)]
-        border border-slate-700/50
-        transition-all duration-300 group flex flex-col items-start gap-3">
+      <div className="bg-white dark:bg-slate-800 rounded-3xl p-5 h-full relative overflow-hidden shadow-[6px_6px_14px_rgba(0,0,0,0.45),-6px_-6px_14px_rgba(255,255,255,0.04)] hover:shadow-[inset_4px_4px_10px_rgba(0,0,0,0.45),inset_-4px_-4px_10px_rgba(255,255,255,0.04)] border border-slate-700/50 transition-all duration-300 group flex flex-col items-start gap-3">
         <div className="absolute top-0 right-0 w-20 h-20 bg-white/[0.03] rounded-bl-full -mr-4 -mt-4 group-hover:bg-white/[0.06] transition-colors" />
-        <div className={`w-10 h-10 rounded-2xl ${accent} flex items-center justify-center
-          shadow-[inset_2px_2px_5px_rgba(0,0,0,0.35),inset_-2px_-2px_5px_rgba(255,255,255,0.05)]
-          group-hover:scale-90 transition-transform duration-300 relative z-10`}>
+        <div className={`w-10 h-10 rounded-2xl ${accent} flex items-center justify-center shadow-[inset_2px_2px_5px_rgba(0,0,0,0.35),inset_-2px_-2px_5px_rgba(255,255,255,0.05)] group-hover:scale-90 transition-transform duration-300 relative z-10`}>
           <Icon className="w-5 h-5" />
         </div>
-        <span className="text-sm font-bold text-foreground relative z-10">{title}</span>
+        <span className="text-sm font-bold text-slate-900 dark:text-white relative z-10">{title}</span>
       </div>
     </Link>
   );
@@ -1270,19 +1254,19 @@ function QuickActionCard({ href, icon: Icon, title, color }: any) {
 function EngagementCard({ title, items, icon: Icon, colorClass = "bg-orange-50/70 text-orange-600" }: any) {
   const bg = colorClass.split(' ')[0];
   return (
-    <div className={`${bg} rounded-3xl p-5 shadow-[0_8px_32px_rgba(0,0,0,0.05)] backdrop-blur-2xl border border-white/60`}>
+    <div className={`${bg} rounded-3xl p-5 shadow-[0_8px_32px_rgba(0,0,0,0.05)] backdrop-blur-2xl border border-slate-200 dark:border-white/60`}>
       <h3 className={`font-bold ${colorClass.split(' ')[1]} text-sm flex items-center gap-2 mb-3`}>
         <Icon className="w-5 h-5" />
         {title}
       </h3>
       {items.length === 0 ? (
-        <p className="text-xs text-muted-foreground font-medium">None today</p>
+        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">None today</p>
       ) : (
         <div className="space-y-3">
           {items.map((item: any, i: number) => (
             <div key={i} className="flex justify-between items-center text-xs">
-              <span className="font-bold text-foreground">{item.name} {item.years ? `(${item.years}Y)` : ''}</span>
-              <span className="text-muted-foreground bg-white/60 px-2 py-1 rounded-md shadow-sm font-semibold">{format(new Date(item.date), "MMM d")}</span>
+              <span className="font-bold text-slate-900 dark:text-white">{item.name} {item.years ? `(${item.years}Y)` : ''}</span>
+              <span className="text-slate-600 dark:text-slate-300 bg-white/60 px-2 py-1 rounded-md shadow-sm font-semibold">{format(new Date(item.date), "MMM d")}</span>
             </div>
           ))}
         </div>
@@ -1338,7 +1322,7 @@ function RotatingCard({
       </h3>
       <div className="flex-1 min-h-0 flex flex-col justify-between">
         {count === 0 ? (
-          <p className="text-sm text-muted-foreground font-medium">{emptyMessage}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">{emptyMessage}</p>
         ) : (
           <>
             <div
@@ -1393,12 +1377,12 @@ function UpcomingBirthdaysWidget({ items }: { items: any[] }) {
               textClass="text-fuchsia-300"
             />
             <div>
-              <p className="text-sm font-bold text-foreground leading-tight">{b.name}</p>
-              <p className="text-xs text-muted-foreground font-medium">{b.designation || 'Employee'} • {b.department}</p>
+              <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight">{b.name}</p>
+              <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">{b.designation || 'Employee'} • {b.department}</p>
             </div>
           </div>
           <div className="flex flex-col items-end gap-1 shrink-0">
-            <span className="text-xs font-bold text-muted-foreground">{format(new Date(b.date), "MMM d")}</span>
+            <span className="text-xs font-bold text-slate-600 dark:text-slate-300">{format(new Date(b.date), "MMM d")}</span>
             {b.days_remaining === 0 ? (
               <span className="text-[10px] uppercase tracking-wider font-bold bg-fuchsia-500/80 text-white px-2 py-0.5 rounded-lg">Today!</span>
             ) : (
@@ -1582,27 +1566,21 @@ function MenuCard({ href, icon: Icon, title, subtitle, color, className = "" }: 
     amber:   'bg-amber-500/20 text-amber-400',
     rose:    'bg-rose-500/20 text-rose-400',
     cyan:    'bg-cyan-500/20 text-cyan-400',
-    slate:   'bg-slate-500/20 text-muted-foreground',
+    slate:   'bg-slate-500/20 text-slate-300',
   };
 
   const accent = iconAccent[color] || iconAccent.blue;
 
   return (
     <Link href={href} className={`block ${className}`}>
-      <div className="bg-card rounded-3xl p-5 h-full relative overflow-hidden
-        shadow-[6px_6px_14px_rgba(0,0,0,0.45),-6px_-6px_14px_rgba(255,255,255,0.04)]
-        hover:shadow-[inset_4px_4px_10px_rgba(0,0,0,0.45),inset_-4px_-4px_10px_rgba(255,255,255,0.04)]
-        border border-slate-700/50
-        transition-all duration-300 group">
+      <div className="bg-white dark:bg-slate-800 rounded-3xl p-5 h-full relative overflow-hidden shadow-[6px_6px_14px_rgba(0,0,0,0.45),-6px_-6px_14px_rgba(255,255,255,0.04)] hover:shadow-[inset_4px_4px_10px_rgba(0,0,0,0.45),inset_-4px_-4px_10px_rgba(255,255,255,0.04)] border border-slate-700/50 transition-all duration-300 group">
         <div className="absolute top-0 right-0 w-20 h-20 bg-white/[0.03] rounded-bl-full -mr-4 -mt-4 group-hover:bg-white/[0.06] transition-colors" />
         <div className="relative z-10">
-          <div className={`w-10 h-10 rounded-2xl ${accent} flex items-center justify-center mb-4
-            shadow-[inset_2px_2px_5px_rgba(0,0,0,0.35),inset_-2px_-2px_5px_rgba(255,255,255,0.05)]
-            group-hover:scale-90 transition-transform duration-300`}>
+          <div className={`w-10 h-10 rounded-2xl ${accent} flex items-center justify-center mb-4 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.35),inset_-2px_-2px_5px_rgba(255,255,255,0.05)] group-hover:scale-90 transition-transform duration-300`}>
             <Icon className="w-5 h-5" />
           </div>
-          <h3 className="font-bold text-foreground text-sm leading-tight mb-1">{title}</h3>
-          <p className="text-xs text-muted-foreground font-medium">{subtitle}</p>
+          <h3 className="font-bold text-slate-900 dark:text-white text-sm leading-tight mb-1">{title}</h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{subtitle}</p>
         </div>
       </div>
     </Link>

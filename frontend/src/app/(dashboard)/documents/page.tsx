@@ -119,10 +119,10 @@ export default function DocumentsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-3">
             <FileText className="w-7 h-7 text-amber-400" /> Document Requests
           </h1>
-          <p className="text-muted-foreground mt-1">Request official documents from HR.</p>
+          <p className="text-slate-600 dark:text-slate-300 mt-1">Request official documents from HR.</p>
         </div>
         <button
           onClick={() => setShowRequestDialog(true)}
@@ -133,20 +133,20 @@ export default function DocumentsPage() {
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
+        <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-slate-500 dark:text-slate-400" /></div>
       ) : requests.length === 0 ? (
-        <div className="bg-white/5 border border-border rounded-2xl py-16 text-center space-y-3">
+        <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl py-16 text-center space-y-3">
           <FileText className="h-12 w-12 mx-auto text-slate-600" />
-          <p className="text-muted-foreground">No document requests yet.</p>
+          <p className="text-slate-500 dark:text-slate-400">No document requests yet.</p>
           <button onClick={() => setShowRequestDialog(true)} className="text-sm text-amber-400 hover:text-amber-300 underline underline-offset-2">
             Make your first request
           </button>
         </div>
       ) : (
-        <div className="bg-white/5 border border-border rounded-2xl overflow-hidden">
+        <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
-              <thead className="text-xs text-muted-foreground uppercase bg-white/5 border-b border-border">
+              <thead className="text-xs text-slate-500 dark:text-slate-400 uppercase bg-white/5 border-b border-slate-200 dark:border-white/10">
                 <tr>
                   {isAdmin && <th className="px-5 py-3">Employee</th>}
                   <th className="px-5 py-3">Request No.</th>
@@ -156,23 +156,23 @@ export default function DocumentsPage() {
                   <th className="px-5 py-3">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className="divide-y divide-slate-200 dark:divide-white/5">
                 {requests.map((req) => {
                   const lastUpload = getLastUpload(req);
                   return (
-                    <tr key={req.id} className="hover:bg-white/5 transition-colors">
+                    <tr key={req.id} className="hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
                       {isAdmin && (
-                        <td className="px-5 py-4 font-semibold text-white whitespace-nowrap">
+                        <td className="px-5 py-4 font-semibold text-slate-900 dark:text-white whitespace-nowrap">
                           {req.user?.first_name} {req.user?.last_name}
                         </td>
                       )}
                       <td className="px-5 py-4">
-                        <span className="font-mono text-xs bg-white/10 text-muted-foreground px-2 py-1 rounded-lg">
+                        <span className="font-mono text-xs bg-white/10 text-slate-600 dark:text-slate-300 px-2 py-1 rounded-lg">
                           {req.request_number}
                         </span>
                       </td>
-                      <td className="px-5 py-4 font-medium text-white">{req.subject}</td>
-                      <td className="px-5 py-4 text-muted-foreground text-xs">{fmtDate(req.created_at)}</td>
+                      <td className="px-5 py-4 font-medium text-slate-900 dark:text-white">{req.subject}</td>
+                      <td className="px-5 py-4 text-slate-500 dark:text-slate-400 text-xs">{fmtDate(req.created_at)}</td>
                       <td className="px-5 py-4">
                         {req.status === "Uploaded" ? (
                           <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400">
@@ -236,22 +236,22 @@ export default function DocumentsPage() {
       {showRequestDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowRequestDialog(false)} />
-          <div className="relative w-full max-w-md bg-card border border-border rounded-2xl shadow-2xl z-10">
-            <div className="px-6 py-5 border-b border-border">
-              <h2 className="text-lg font-bold text-foreground">Request a Document</h2>
-              <p className="text-muted-foreground text-sm mt-0.5">Select the document type you need from HR.</p>
+          <div className="relative w-full max-w-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl z-10">
+            <div className="px-6 py-5 border-b border-slate-200 dark:border-white/10">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">Request a Document</h2>
+              <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Select the document type you need from HR.</p>
             </div>
             <div className="px-6 py-5 space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
                   Document Type *
                 </label>
                 <select
                   value={docType}
                   onChange={(e) => setDocType(e.target.value)}
-                  className="w-full bg-slate-700 border border-border text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 transition-colors"
+                  className="w-full bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 transition-colors"
                 >
-                  <option value="" className="bg-slate-700 text-muted-foreground">Select document type...</option>
+                  <option value="" className="bg-slate-700 text-slate-500 dark:text-slate-400">Select document type...</option>
                   {DOCUMENT_TYPES.map((t) => (
                     <option key={t} value={t} className="bg-slate-700">{t}</option>
                   ))}
@@ -259,7 +259,7 @@ export default function DocumentsPage() {
               </div>
               {docType === "Custom Request" && (
                 <div>
-                  <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
                     Subject *
                   </label>
                   <input
@@ -267,12 +267,12 @@ export default function DocumentsPage() {
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
                     placeholder="Enter document subject..."
-                    className="w-full bg-slate-700 border border-border text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 placeholder:text-slate-500 transition-colors"
+                    className="w-full bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 placeholder:text-slate-500 transition-colors"
                   />
                 </div>
               )}
               <div>
-                <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
                   Additional Notes <span className="text-slate-500 normal-case font-normal">(optional)</span>
                 </label>
                 <textarea
@@ -280,12 +280,12 @@ export default function DocumentsPage() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Any additional information for HR..."
-                  className="w-full bg-slate-700 border border-border text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 placeholder:text-slate-500 resize-none transition-colors"
+                  className="w-full bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 placeholder:text-slate-500 resize-none transition-colors"
                 />
               </div>
             </div>
-            <div className="px-6 py-4 border-t border-border flex gap-3 justify-end">
-              <button onClick={() => setShowRequestDialog(false)} className="px-4 py-2 text-sm text-muted-foreground border border-border rounded-xl hover:bg-white/5 transition-colors">
+            <div className="px-6 py-4 border-t border-slate-200 dark:border-white/10 flex gap-3 justify-end">
+              <button onClick={() => setShowRequestDialog(false)} className="px-4 py-2 text-sm text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/10 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
                 Cancel
               </button>
               <button
@@ -305,25 +305,25 @@ export default function DocumentsPage() {
       {showUploadDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowUploadDialog(null)} />
-          <div className="relative w-full max-w-md bg-card border border-border rounded-2xl shadow-2xl z-10">
-            <div className="px-6 py-5 border-b border-border">
-              <h2 className="text-lg font-bold text-foreground">Fulfill Document Request</h2>
-              <p className="text-muted-foreground text-sm mt-0.5">
-                For: <span className="text-foreground font-medium">{showUploadDialog?.subject}</span>
+          <div className="relative w-full max-w-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl z-10">
+            <div className="px-6 py-5 border-b border-slate-200 dark:border-white/10">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">Fulfill Document Request</h2>
+              <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
+                For: <span className="text-slate-900 dark:text-white font-medium">{showUploadDialog?.subject}</span>
               </p>
             </div>
             <div className="px-6 py-5 space-y-5">
               {/* Mode toggle */}
-              <div className="flex rounded-xl border border-border overflow-hidden bg-slate-700/50 p-1 gap-1">
+              <div className="flex rounded-xl border border-slate-200 dark:border-white/10 overflow-hidden bg-slate-700/50 p-1 gap-1">
                 <button
                   onClick={() => setFulfillMode("file")}
-                  className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-semibold rounded-lg transition-all ${fulfillMode === "file" ? "bg-amber-500 text-white shadow" : "text-muted-foreground hover:text-white"}`}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-semibold rounded-lg transition-all ${fulfillMode === "file" ? "bg-amber-500 text-white shadow" : "text-slate-400 hover:text-white"}`}
                 >
                   <Upload className="w-4 h-4" /> Upload File
                 </button>
                 <button
                   onClick={() => setFulfillMode("url")}
-                  className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-semibold rounded-lg transition-all ${fulfillMode === "url" ? "bg-amber-500 text-white shadow" : "text-muted-foreground hover:text-white"}`}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-semibold rounded-lg transition-all ${fulfillMode === "url" ? "bg-amber-500 text-white shadow" : "text-slate-400 hover:text-white"}`}
                 >
                   <Link2 className="w-4 h-4" /> Share URL
                 </button>
@@ -331,22 +331,20 @@ export default function DocumentsPage() {
 
               {fulfillMode === "file" ? (
                 <div>
-                  <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
                     Document File *
                   </label>
                   <input
                     ref={uploadFileRef}
                     type="file"
                     accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                    className="w-full text-sm text-muted-foreground bg-slate-700 border border-border rounded-xl px-3 py-2.5
-                      file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold
-                      file:bg-amber-500 file:text-white hover:file:bg-amber-600 cursor-pointer"
+                    className="w-full text-sm text-slate-600 dark:text-slate-300 bg-slate-700 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2.5 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-amber-500 file:text-white hover:file:bg-amber-600 cursor-pointer"
                   />
                   <p className="text-xs text-slate-500 mt-1.5">PDF, DOC, DOCX, JPG, PNG — max 10 MB</p>
                 </div>
               ) : (
                 <div>
-                  <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
                     Document URL *
                   </label>
                   <input
@@ -354,14 +352,14 @@ export default function DocumentsPage() {
                     value={uploadUrl}
                     onChange={(e) => setUploadUrl(e.target.value)}
                     placeholder="https://drive.google.com/... or any document URL"
-                    className="w-full bg-slate-700 border border-border text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 placeholder:text-slate-500 transition-colors"
+                    className="w-full bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 placeholder:text-slate-500 transition-colors"
                   />
                   <p className="text-xs text-slate-500 mt-1.5">Google Drive, SharePoint, or any publicly accessible URL.</p>
                 </div>
               )}
 
               <div>
-                <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
                   Comments <span className="text-slate-500 normal-case font-normal">(optional)</span>
                 </label>
                 <textarea
@@ -369,12 +367,12 @@ export default function DocumentsPage() {
                   value={uploadComment}
                   onChange={(e) => setUploadComment(e.target.value)}
                   placeholder="Any notes for the employee..."
-                  className="w-full bg-slate-700 border border-border text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 placeholder:text-slate-500 resize-none transition-colors"
+                  className="w-full bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 placeholder:text-slate-500 resize-none transition-colors"
                 />
               </div>
             </div>
-            <div className="px-6 py-4 border-t border-border flex gap-3 justify-end">
-              <button onClick={() => setShowUploadDialog(null)} className="px-4 py-2 text-sm text-muted-foreground border border-border rounded-xl hover:bg-white/5 transition-colors">
+            <div className="px-6 py-4 border-t border-slate-200 dark:border-white/10 flex gap-3 justify-end">
+              <button onClick={() => setShowUploadDialog(null)} className="px-4 py-2 text-sm text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/10 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
                 Cancel
               </button>
               <button

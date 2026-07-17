@@ -114,10 +114,10 @@ export default function MyProfilePage() {
       <div className="flex items-center gap-3">
         <UserCircle className="h-8 w-8 text-amber-400" />
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
             {isOwnProfile ? "My Profile" : "Employee Profile"}
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-slate-600 dark:text-slate-300">
             {isOwnProfile ? "Manage your personal information." : "View achievements and recognition history."}
           </p>
         </div>
@@ -325,12 +325,12 @@ function AchievementsSection({ employeeName, employeeId }: { employeeName: strin
     <>
       <div
         id="achievements"
-        className="rounded-3xl border border-border overflow-hidden"
+        className="rounded-3xl border border-slate-200 dark:border-white/10 overflow-hidden"
         style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 100%)", backdropFilter: "blur(12px)" }}
       >
         {/* Section Header */}
         <div
-          className="px-6 py-5 border-b border-border"
+          className="px-6 py-5 border-b border-slate-200 dark:border-white/10"
           style={{ background: "linear-gradient(135deg, rgba(251,191,36,0.08) 0%, rgba(99,102,241,0.06) 100%)" }}
         >
           <div className="flex items-center gap-3">
@@ -338,8 +338,8 @@ function AchievementsSection({ employeeName, employeeId }: { employeeName: strin
               <Award className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-foreground">Achievements & Recognition</h2>
-              <p className="text-xs text-muted-foreground">Complete history of awards and certificates</p>
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">Achievements & Recognition</h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Complete history of awards and certificates</p>
             </div>
             <div className="ml-auto">
               <span className="bg-amber-500/20 text-amber-300 text-xs font-bold px-3 py-1 rounded-full border border-amber-500/30">
@@ -372,7 +372,7 @@ function AchievementsSection({ employeeName, employeeId }: { employeeName: strin
                     className={`rounded-2xl border p-5 transition-all ${
                       isActive
                         ? "bg-gradient-to-r from-amber-500/10 to-violet-500/10 border-amber-500/30"
-                        : "bg-white/5 border-border"
+                        : "bg-white/5 border-white/10"
                     }`}
                   >
                     <div className="flex items-start justify-between gap-4 mb-3">
@@ -381,7 +381,7 @@ function AchievementsSection({ employeeName, employeeId }: { employeeName: strin
                         <div>
                           <h3
                             className={`font-black tracking-wide uppercase text-sm ${
-                              isActive ? "text-amber-300" : "text-muted-foreground"
+                              isActive ? "text-amber-300" : "text-slate-300"
                             }`}
                           >
                             {rec.title}
@@ -398,7 +398,7 @@ function AchievementsSection({ employeeName, employeeId }: { employeeName: strin
                             Active
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 bg-white/10 text-muted-foreground text-[10px] font-bold px-2 py-1 rounded-full border border-border uppercase tracking-wider">
+                          <span className="inline-flex items-center gap-1 bg-white/10 text-slate-500 dark:text-slate-400 text-[10px] font-bold px-2 py-1 rounded-full border border-slate-200 dark:border-white/10 uppercase tracking-wider">
                             <Clock className="w-3 h-3" />
                             Past Award
                           </span>
@@ -407,7 +407,7 @@ function AchievementsSection({ employeeName, employeeId }: { employeeName: strin
                     </div>
 
                     {rec.description && (
-                      <p className="text-sm text-muted-foreground italic mb-3 leading-relaxed">
+                      <p className="text-sm text-slate-500 dark:text-slate-400 italic mb-3 leading-relaxed">
                         "{rec.description}"
                       </p>
                     )}
@@ -415,14 +415,14 @@ function AchievementsSection({ employeeName, employeeId }: { employeeName: strin
                     <div className="flex flex-wrap items-center gap-4 mb-4">
                       <div>
                         <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-0.5">Awarded On</p>
-                        <p className="text-xs font-bold text-muted-foreground">
+                        <p className="text-xs font-bold text-slate-200">
                           {format(new Date(rec.created_at || rec.start_date), "dd MMM yyyy")}
                         </p>
                       </div>
                       <div className="w-px h-8 bg-white/10" />
                       <div>
                         <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-0.5">Valid Period</p>
-                        <p className="text-xs font-bold text-muted-foreground">
+                        <p className="text-xs font-bold text-slate-200">
                           {format(new Date(rec.start_date), "dd MMM yyyy")} –{" "}
                           {format(new Date(rec.end_date), "dd MMM yyyy")}
                         </p>
@@ -440,7 +440,7 @@ function AchievementsSection({ employeeName, employeeId }: { employeeName: strin
                       </button>
                       <button
                         onClick={() => setSelectedRec(rec)}
-                        className="flex items-center gap-1.5 text-xs font-semibold text-foreground bg-amber-500 hover:bg-amber-400 px-4 py-2 rounded-xl transition-all"
+                        className="flex items-center gap-1.5 text-xs font-semibold text-slate-900 bg-amber-500 hover:bg-amber-400 px-4 py-2 rounded-xl transition-all"
                       >
                         <Download className="w-3.5 h-3.5" />
                         Download PDF

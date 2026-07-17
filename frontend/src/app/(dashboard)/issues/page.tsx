@@ -69,8 +69,8 @@ export default function IssuesPage() {
     <div className="space-y-6 max-w-6xl mx-auto">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Helpdesk Issues</h1>
-          <p className="text-muted-foreground">Manage and track your support requests.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Helpdesk Issues</h1>
+          <p className="text-slate-600 dark:text-slate-300">Manage and track your support requests.</p>
         </div>
         <Link href="/issues/new">
           <Button className="flex items-center gap-2">

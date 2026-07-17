@@ -186,11 +186,11 @@ export default function RecognitionsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2 text-foreground">
+          <h1 className="text-2xl font-bold flex items-center gap-2 text-slate-900 dark:text-white">
             <Award className="w-6 h-6 text-amber-400" />
             Achievement & Awards Management
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">Assign and manage employee recognition awards.</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Assign and manage employee recognition awards.</p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
           <Link
@@ -211,10 +211,10 @@ export default function RecognitionsPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white/5 backdrop-blur-md rounded-2xl border border-border overflow-hidden">
+      <div className="bg-white/5 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-white/10 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="bg-white/5 text-muted-foreground font-semibold border-b border-border">
+            <thead className="bg-white/5 text-slate-600 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-white/10">
               <tr>
                 <th className="px-6 py-4">Employee</th>
                 <th className="px-6 py-4">Achievement</th>
@@ -223,7 +223,7 @@ export default function RecognitionsPage() {
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-slate-200 dark:divide-white/5">
               {recognitions.map((rec) => {
                 const today = new Date(); today.setHours(0,0,0,0);
                 const start = new Date(rec.start_date); start.setHours(0,0,0,0);
@@ -236,30 +236,30 @@ export default function RecognitionsPage() {
                   : "Unknown";
 
                 return (
-                  <tr key={rec.id} className="hover:bg-white/5 transition-colors">
+                  <tr key={rec.id} className="hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
                     <td className="px-6 py-4">
-                      <div className="font-semibold text-foreground">{employeeName}</div>
-                      <div className="text-xs text-muted-foreground">{rec.user?.employee_code}</div>
+                      <div className="font-semibold text-slate-900 dark:text-white">{employeeName}</div>
+                      <div className="text-xs text-slate-500 dark:text-slate-400">{rec.user?.employee_code}</div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2 font-bold text-amber-300">
                         <span>{rec.icon}</span>
                         <span>{rec.title}</span>
                         {rec.is_custom && (
-                          <span className="text-[10px] bg-white/10 text-muted-foreground px-1.5 py-0.5 rounded uppercase tracking-wider">
+                          <span className="text-[10px] bg-white/10 text-slate-600 dark:text-slate-300 px-1.5 py-0.5 rounded uppercase tracking-wider">
                             Custom
                           </span>
                         )}
                       </div>
-                      <div className="text-xs text-muted-foreground mt-1 max-w-xs truncate" title={rec.description}>
+                      <div className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xs truncate" title={rec.description}>
                         {rec.description}
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-muted-foreground">
+                      <div className="text-slate-200">
                         {format(new Date(rec.start_date), "MMM d, yyyy")}
                       </div>
-                      <div className="text-muted-foreground text-xs">
+                      <div className="text-slate-500 dark:text-slate-400 text-xs">
                         to {format(new Date(rec.end_date), "MMM d, yyyy")}
                       </div>
                     </td>
@@ -269,7 +269,7 @@ export default function RecognitionsPage() {
                           <ShieldCheck className="w-3 h-3" /> Active
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 bg-white/10 text-muted-foreground px-2 py-1 rounded-full text-xs font-bold">
+                        <span className="inline-flex items-center gap-1 bg-white/10 text-slate-500 dark:text-slate-400 px-2 py-1 rounded-full text-xs font-bold">
                           Expired/Disabled
                         </span>
                       )}
@@ -321,7 +321,7 @@ export default function RecognitionsPage() {
               })}
               {recognitions.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-muted-foreground">
+                  <td colSpan={5} className="px-6 py-12 text-center text-slate-500 dark:text-slate-400">
                     <Trophy className="w-10 h-10 mx-auto mb-3 text-slate-600" />
                     <p className="font-medium">No achievements assigned yet.</p>
                     <p className="text-sm mt-1">Click "Assign Achievement" to get started.</p>
@@ -345,9 +345,9 @@ export default function RecognitionsPage() {
       {/* Assign Achievement Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-card border border-border rounded-2xl w-full max-w-lg shadow-xl my-8">
-            <div className="px-6 py-4 border-b border-border flex justify-between items-center sticky top-0 bg-card rounded-t-2xl z-10">
-              <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-2xl w-full max-w-lg shadow-xl my-8">
+            <div className="px-6 py-4 border-b border-slate-200 dark:border-white/10 flex justify-between items-center sticky top-0 bg-white dark:bg-slate-800 rounded-t-2xl z-10">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <Award className="w-5 h-5 text-amber-400" />
                 Assign Achievement
               </h2>
@@ -357,7 +357,7 @@ export default function RecognitionsPage() {
                   setEmployeeSearch("");
                   setShowEmployeeList(false);
                 }}
-                className="text-muted-foreground hover:text-white text-xl leading-none"
+                className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xl leading-none"
               >
                 &times;
               </button>
@@ -365,7 +365,7 @@ export default function RecognitionsPage() {
 
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div className="relative">
-                <label className="block text-sm font-semibold text-muted-foreground mb-1">
+                <label className="block text-sm font-semibold text-slate-600 dark:text-slate-300 mb-1">
                   Employee <span className="text-red-400">*</span>
                 </label>
                 <input
@@ -378,10 +378,10 @@ export default function RecognitionsPage() {
                     setShowEmployeeList(true);
                   }}
                   onFocus={() => setShowEmployeeList(true)}
-                  className="w-full border border-border bg-slate-700 text-white rounded-lg p-2.5 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm"
+                  className="w-full border border-slate-200 dark:border-white/10 bg-slate-700 text-slate-900 dark:text-white rounded-lg p-2.5 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm"
                 />
                 {showEmployeeList && employees.length > 0 && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-slate-700 border border-border rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto">
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-slate-700 border border-slate-200 dark:border-white/10 rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto">
                     {(employeeSearch ? filteredEmployees : employees).length > 0 ? (
                       (employeeSearch ? filteredEmployees : employees).map((emp) => (
                         <button
@@ -392,14 +392,14 @@ export default function RecognitionsPage() {
                             setEmployeeSearch(`${emp.first_name} ${emp.last_name} (${emp.employee_code})`);
                             setShowEmployeeList(false);
                           }}
-                          className="w-full text-left px-3 py-2 text-sm text-muted-foreground hover:bg-slate-600 focus:bg-slate-600 outline-none border-b border-border last:border-b-0"
+                          className="w-full text-left px-3 py-2 text-sm text-slate-200 hover:bg-slate-600 focus:bg-slate-600 outline-none border-b border-slate-200 dark:border-white/5 last:border-b-0"
                         >
                           {emp.first_name} {emp.last_name}
-                          <span className="text-muted-foreground ml-1">({emp.employee_code})</span>
+                          <span className="text-slate-500 dark:text-slate-400 ml-1">({emp.employee_code})</span>
                         </button>
                       ))
                     ) : (
-                      <div className="px-3 py-2 text-sm text-muted-foreground">No employees found</div>
+                      <div className="px-3 py-2 text-sm text-slate-500 dark:text-slate-400">No employees found</div>
                     )}
                   </div>
                 )}
@@ -409,14 +409,14 @@ export default function RecognitionsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-muted-foreground mb-1">
+                <label className="block text-sm font-semibold text-slate-600 dark:text-slate-300 mb-1">
                   Achievement Title <span className="text-red-400">*</span>
                 </label>
                 <select
                   required
                   value={formData.title_selection}
                   onChange={(e) => setFormData({ ...formData, title_selection: e.target.value })}
-                  className="w-full border border-border bg-slate-700 text-white rounded-lg p-2.5 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm"
+                  className="w-full border border-slate-200 dark:border-white/10 bg-slate-700 text-slate-900 dark:text-white rounded-lg p-2.5 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm"
                 >
                   <option value="" className="bg-slate-700">Select a Title...</option>
                   <optgroup label="Predefined Awards">
@@ -437,7 +437,7 @@ export default function RecognitionsPage() {
               {formData.title_selection === "custom" && (
                 <div className="grid grid-cols-4 gap-4">
                   <div className="col-span-3">
-                    <label className="block text-sm font-semibold text-muted-foreground mb-1">
+                    <label className="block text-sm font-semibold text-slate-600 dark:text-slate-300 mb-1">
                       Custom Title Name <span className="text-red-400">*</span>
                     </label>
                     <input
@@ -445,17 +445,17 @@ export default function RecognitionsPage() {
                       type="text"
                       value={formData.custom_title}
                       onChange={(e) => setFormData({ ...formData, custom_title: e.target.value })}
-                      className="w-full border border-border bg-slate-700 text-white rounded-lg p-2.5 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm"
+                      className="w-full border border-slate-200 dark:border-white/10 bg-slate-700 text-slate-900 dark:text-white rounded-lg p-2.5 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm"
                       placeholder="e.g. Sales Ninja"
                     />
                   </div>
                   <div className="col-span-1">
-                    <label className="block text-sm font-semibold text-muted-foreground mb-1">Emoji</label>
+                    <label className="block text-sm font-semibold text-slate-600 dark:text-slate-300 mb-1">Emoji</label>
                     <input
                       type="text"
                       value={formData.icon}
                       onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                      className="w-full border border-border bg-slate-700 text-white rounded-lg p-2.5 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm text-center"
+                      className="w-full border border-slate-200 dark:border-white/10 bg-slate-700 text-slate-900 dark:text-white rounded-lg p-2.5 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm text-center"
                     />
                   </div>
                 </div>
@@ -463,7 +463,7 @@ export default function RecognitionsPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-muted-foreground mb-1">
+                  <label className="block text-sm font-semibold text-slate-600 dark:text-slate-300 mb-1">
                     Start Date <span className="text-red-400">*</span>
                   </label>
                   <input
@@ -471,11 +471,11 @@ export default function RecognitionsPage() {
                     type="date"
                     value={formData.start_date}
                     onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                    className="w-full border border-border bg-slate-700 text-white rounded-lg p-2.5 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm"
+                    className="w-full border border-slate-200 dark:border-white/10 bg-slate-700 text-slate-900 dark:text-white rounded-lg p-2.5 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-muted-foreground mb-1">
+                  <label className="block text-sm font-semibold text-slate-600 dark:text-slate-300 mb-1">
                     End Date <span className="text-red-400">*</span>
                   </label>
                   <input
@@ -483,13 +483,13 @@ export default function RecognitionsPage() {
                     type="date"
                     value={formData.end_date}
                     onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
-                    className="w-full border border-border bg-slate-700 text-white rounded-lg p-2.5 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm"
+                    className="w-full border border-slate-200 dark:border-white/10 bg-slate-700 text-slate-900 dark:text-white rounded-lg p-2.5 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-muted-foreground mb-1">
+                <label className="block text-sm font-semibold text-slate-600 dark:text-slate-300 mb-1">
                   Achievement Description <span className="text-red-400">*</span>
                 </label>
                 <textarea
@@ -497,12 +497,12 @@ export default function RecognitionsPage() {
                   rows={3}
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full border border-border bg-slate-700 text-white rounded-lg p-2.5 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm resize-none"
+                  className="w-full border border-slate-200 dark:border-white/10 bg-slate-700 text-slate-900 dark:text-white rounded-lg p-2.5 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm resize-none"
                   placeholder="For achieving the highest productivity score this week..."
                 />
               </div>
 
-              <div className="pt-4 flex justify-end gap-3 border-t border-border">
+              <div className="pt-4 flex justify-end gap-3 border-t border-slate-200 dark:border-white/10">
                 <button
                   type="button"
                   onClick={() => {
@@ -511,7 +511,7 @@ export default function RecognitionsPage() {
                     setShowEmployeeList(false);
                   }}
                   disabled={submitting}
-                  className="px-4 py-2 text-sm font-semibold text-muted-foreground border border-border bg-white/5 hover:bg-white/10 rounded-lg transition disabled:opacity-50"
+                  className="px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/10 bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 rounded-lg transition disabled:opacity-50"
                 >
                   Cancel
                 </button>

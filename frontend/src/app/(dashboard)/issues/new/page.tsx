@@ -58,32 +58,32 @@ export default function NewIssuePage() {
   };
 
   const inputCls =
-    "w-full bg-slate-700 border border-border text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 placeholder:text-slate-500 transition-colors [color-scheme:dark]";
+    "w-full bg-slate-700 border border-white/10 text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 placeholder:text-slate-500 transition-colors [color-scheme:dark]";
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div className="flex items-center gap-4">
         <Link
           href="/issues"
-          className="p-2 rounded-lg border border-border bg-white/5 hover:bg-white/10 transition-colors text-muted-foreground hover:text-white"
+          className="p-2 rounded-lg border border-slate-200 dark:border-white/10 bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
         >
-          <ArrowLeft className="w-4 w-4" />
+          <ArrowLeft className="w-4" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Raise an Issue</h1>
-          <p className="text-muted-foreground">Submit a support request to the admin team.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Raise an Issue</h1>
+          <p className="text-slate-600 dark:text-slate-300">Submit a support request to the admin team.</p>
         </div>
       </div>
 
-      <div className="bg-card/80 border border-border rounded-2xl">
+      <div className="bg-slate-800/80 border border-slate-200 dark:border-white/10 rounded-2xl">
         <div className="px-6 pt-6 pb-2">
-          <h2 className="text-lg font-semibold text-foreground">Issue Details</h2>
-          <p className="text-muted-foreground text-sm mt-1">Please be as descriptive as possible.</p>
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Issue Details</h2>
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Please be as descriptive as possible.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="px-6 pb-6 space-y-5 mt-4">
           <div>
-            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
               Issue Title *
             </label>
             <input
@@ -98,30 +98,30 @@ export default function NewIssuePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
                 Category *
               </label>
               <select name="category" required value={formData.category} onChange={handleChange} className={inputCls}>
-                <option value="" disabled className="bg-slate-700 text-muted-foreground">
+                <option value="" disabled className="bg-slate-700 text-slate-500 dark:text-slate-400">
                   Select Category
                 </option>
                 {CATEGORIES.map((c) => (
-                  <option key={c} value={c} className="bg-slate-700 text-white">
+                  <option key={c} value={c} className="bg-slate-700 text-slate-900 dark:text-white">
                     {c}
                   </option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
                 Priority *
               </label>
               <select name="priority" required value={formData.priority} onChange={handleChange} className={inputCls}>
-                <option value="" disabled className="bg-slate-700 text-muted-foreground">
+                <option value="" disabled className="bg-slate-700 text-slate-500 dark:text-slate-400">
                   Select Priority
                 </option>
                 {PRIORITIES.map((p) => (
-                  <option key={p} value={p} className="bg-slate-700 text-white">
+                  <option key={p} value={p} className="bg-slate-700 text-slate-900 dark:text-white">
                     {p}
                   </option>
                 ))}
@@ -130,15 +130,15 @@ export default function NewIssuePage() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
               Related Module (Optional)
             </label>
             <select name="related_module" value={formData.related_module} onChange={handleChange} className={inputCls}>
-              <option value="" className="bg-slate-700 text-muted-foreground">
+              <option value="" className="bg-slate-700 text-slate-500 dark:text-slate-400">
                 Select Module
               </option>
               {MODULES.map((m) => (
-                <option key={m} value={m} className="bg-slate-700 text-white">
+                <option key={m} value={m} className="bg-slate-700 text-slate-900 dark:text-white">
                   {m}
                 </option>
               ))}
@@ -146,7 +146,7 @@ export default function NewIssuePage() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
               Issue Description *
             </label>
             <textarea
@@ -163,7 +163,7 @@ export default function NewIssuePage() {
           {/* ── Attachment (URL or File toggle) ── */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 Attachment (Optional)
               </label>
               <div className="flex bg-slate-700 rounded-lg p-0.5 text-xs font-semibold">
@@ -173,7 +173,7 @@ export default function NewIssuePage() {
                   className={`flex items-center gap-1.5 px-3 py-1 rounded-md transition-colors ${
                     attachMode === "url"
                       ? "bg-amber-500 text-white"
-                      : "text-muted-foreground hover:text-white"
+                      : "text-slate-400 hover:text-white"
                   }`}
                 >
                   <Link2 className="w-3.5 h-3.5" /> URL Link
@@ -184,7 +184,7 @@ export default function NewIssuePage() {
                   className={`flex items-center gap-1.5 px-3 py-1 rounded-md transition-colors ${
                     attachMode === "file"
                       ? "bg-amber-500 text-white"
-                      : "text-muted-foreground hover:text-white"
+                      : "text-slate-400 hover:text-white"
                   }`}
                 >
                   <UploadCloud className="w-3.5 h-3.5" /> Upload File
@@ -207,9 +207,9 @@ export default function NewIssuePage() {
               </div>
             ) : (
               <div>
-                <label className="flex flex-col items-center justify-center border-2 border-dashed border-border hover:border-amber-500/50 rounded-xl p-6 cursor-pointer transition-colors bg-white/5">
+                <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 dark:border-white/10 hover:border-amber-500/50 rounded-xl p-6 cursor-pointer transition-colors bg-white/5">
                   <UploadCloud className="w-8 h-8 text-slate-500 mb-2" />
-                  <p className="text-sm font-medium text-muted-foreground">Click to upload files</p>
+                  <p className="text-sm font-medium text-slate-600 dark:text-slate-300">Click to upload files</p>
                   <p className="text-xs text-slate-500 mt-1">Images, PDFs, or Documents</p>
                   <input type="file" multiple onChange={handleFileChange} className="hidden" />
                 </label>
@@ -218,9 +218,9 @@ export default function NewIssuePage() {
                     {files.map((file, i) => (
                       <div
                         key={i}
-                        className="flex items-center justify-between px-3 py-2 bg-white/5 border border-border rounded-lg"
+                        className="flex items-center justify-between px-3 py-2 bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg"
                       >
-                        <span className="text-sm text-muted-foreground truncate mr-4">{file.name}</span>
+                        <span className="text-sm text-slate-600 dark:text-slate-300 truncate mr-4">{file.name}</span>
                         <button
                           type="button"
                           onClick={() => setFiles(files.filter((_, idx) => idx !== i))}
@@ -236,10 +236,10 @@ export default function NewIssuePage() {
             )}
           </div>
 
-          <div className="flex justify-end gap-3 border-t border-border pt-5">
+          <div className="flex justify-end gap-3 border-t border-slate-200 dark:border-white/10 pt-5">
             <Link
               href="/issues"
-              className="px-5 py-2 rounded-xl text-sm font-medium text-muted-foreground border border-border bg-white/5 hover:bg-white/10 transition-colors"
+              className="px-5 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/10 bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
             >
               Cancel
             </Link>

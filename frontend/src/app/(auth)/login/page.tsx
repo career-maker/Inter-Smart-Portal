@@ -94,7 +94,7 @@ export default function LoginPage() {
       <div className="absolute inset-0 bg-black/40" style={{ zIndex: 1 }}></div>
 
       {/* Fallback gradient background (if video doesn't load) */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900" style={{ zIndex: -1 }}></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 dark:from-slate-900 via-slate-800 to-slate-50 dark:to-slate-900" style={{ zIndex: -1 }}></div>
 
       {/* Animated gradient background */}
       <div className="absolute inset-0 opacity-20 overflow-hidden pointer-events-none" style={{ zIndex: 2 }}>
@@ -108,16 +108,16 @@ export default function LoginPage() {
           <img src="/logo.png" alt="Intersmart Logo" className="h-14 w-auto object-contain" />
         </div>
         <div>
-          <h1 className="text-5xl font-bold text-white leading-tight mb-4">
+          <h1 className="text-5xl font-bold text-slate-900 dark:text-white leading-tight mb-4">
             Your workspace,<br />
             <span className="text-amber-400">all in one place.</span>
           </h1>
-          <p className="text-slate-400 text-lg">
+          <p className="text-slate-500 dark:text-slate-400 text-lg">
             Manage attendance, leaves, teams, and more — built for the modern workplace.
           </p>
           <div className="mt-10 flex gap-6">
             {["Attendance", "Leave Management", "Team Collaboration"].map(f => (
-              <div key={f} className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-300">{f}</div>
+              <div key={f} className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-600 dark:text-slate-300">{f}</div>
             ))}
           </div>
         </div>
@@ -141,7 +141,7 @@ export default function LoginPage() {
               <div className="bg-white rounded-3xl p-12 text-center animate-scaleIn">
                 <div className="mb-4 flex justify-center">
                   <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center animate-scaleIn">
-                    <Check className="w-10 h-10 text-white animate-slideDown" />
+                    <Check className="w-10 h-10 text-slate-900 dark:text-white animate-slideDown" />
                   </div>
                 </div>
                 <h3 className="text-2xl font-bold text-slate-900 mb-2">Login Successful!</h3>
@@ -150,7 +150,7 @@ export default function LoginPage() {
             </div>
           )}
 
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-sm shadow-2xl relative">
+          <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-8 backdrop-blur-sm shadow-2xl relative">
             {/* Contact HR link - moved to top-right */}
             <div className="absolute top-6 right-6">
               <a href="mailto:hr@intersmart.in" className="text-xs text-amber-400 hover:text-amber-300 transition flex items-center gap-1">
@@ -160,8 +160,8 @@ export default function LoginPage() {
             </div>
 
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-white mb-1">Sign in to your account</h2>
-              <p className="text-slate-400 text-sm">Enter your official email and password to continue.</p>
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-1">Sign in to your account</h2>
+              <p className="text-slate-500 dark:text-slate-400 text-sm">Enter your official email and password to continue.</p>
             </div>
 
             {error && (
@@ -173,7 +173,7 @@ export default function LoginPage() {
 
             <form onSubmit={onSubmit} className="space-y-5">
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">
                   Official Email Address
                 </label>
                 <input
@@ -185,7 +185,7 @@ export default function LoginPage() {
                   }}
                   placeholder="name@intersmart.in"
                   required
-                  className={`w-full px-4 py-3 bg-white/5 border rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:border-transparent transition ${
+                  className={`w-full px-4 py-3 bg-white/5 border rounded-xl text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:border-transparent transition ${
                     fieldErrors.email
                       ? "border-red-500 focus:ring-red-500"
                       : "border-white/10 focus:ring-amber-500"
@@ -198,7 +198,7 @@ export default function LoginPage() {
 
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="block text-sm font-medium text-slate-300">Password</label>
+                  <label className="block text-sm font-medium text-slate-600 dark:text-slate-300">Password</label>
                   <a href="/forgot-password" className="text-xs text-amber-400 hover:text-amber-300 transition">
                     Forgot password?
                   </a>
@@ -213,7 +213,7 @@ export default function LoginPage() {
                     }}
                     placeholder="••••••••"
                     required
-                    className={`w-full px-4 py-3 bg-white/5 border rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:border-transparent transition pr-12 ${
+                    className={`w-full px-4 py-3 bg-white/5 border rounded-xl text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:border-transparent transition pr-12 ${
                       fieldErrors.password
                         ? "border-red-500 focus:ring-red-500"
                         : "border-white/10 focus:ring-amber-500"
@@ -222,7 +222,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 hover:text-slate-200 transition"
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
@@ -233,8 +233,8 @@ export default function LoginPage() {
                 )}
               </div>
 
-              <div className="flex items-center justify-between mt-4 px-3 py-3 bg-white/5 rounded-lg border border-white/10 hover:bg-white/10 transition">
-                <label htmlFor="remember" className="text-sm text-slate-300 cursor-pointer font-medium">Keep me signed in for 30 days</label>
+              <div className="flex items-center justify-between mt-4 px-3 py-3 bg-white/5 rounded-lg border border-slate-200 dark:border-white/10 hover:bg-slate-200 dark:hover:bg-white/10 transition">
+                <label htmlFor="remember" className="text-sm text-slate-600 dark:text-slate-300 cursor-pointer font-medium">Keep me signed in for 30 days</label>
                 <button
                   type="button"
                   onClick={() => setRememberDevice(!rememberDevice)}
@@ -252,7 +252,7 @@ export default function LoginPage() {
                 className="w-full mt-2 flex items-center justify-center gap-2 py-3 px-6 bg-amber-500 hover:bg-amber-400 disabled:bg-slate-700 disabled:cursor-not-allowed text-slate-900 font-bold rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-slate-900"
               >
                 {isLoading ? (
-                  <span className="inline-block h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span className="inline-block h-5 w-5 border-2 border-slate-200 dark:border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
                   <>
                     <LogIn className="h-5 w-5" />

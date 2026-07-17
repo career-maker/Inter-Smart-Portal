@@ -297,7 +297,7 @@ export default function EmployeeForm({ initialData, isEdit }: EmployeeFormProps)
 
         <div className="flex justify-end gap-4">
           <Button type="button" variant="outline" size="lg" onClick={() => router.push("/employees")}>Cancel</Button>
-          <Button type="submit" size="lg" className="bg-amber-500 hover:bg-amber-600 text-foreground font-bold" disabled={isLoading}>{isLoading ? "Saving..." : "Save Employee Profile"}</Button>
+          <Button type="submit" size="lg" className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold" disabled={isLoading}>{isLoading ? "Saving..." : "Save Employee Profile"}</Button>
         </div>
       </form>
     </Form>

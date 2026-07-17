@@ -148,12 +148,12 @@ export default function ManageLeavesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Manage Approved Leaves & WFH</h1>
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Manage Approved Leaves & WFH</h1>
         <p className="text-gray-400 mt-1">View and delete approved leaves/WFH requests. Deleting will restore leave balance.</p>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-border">
+      <div className="flex gap-2 border-b border-slate-200 dark:border-white/10">
         <button
           onClick={() => setTab("leaves")}
           className={`px-4 py-2 font-medium transition ${
@@ -177,7 +177,7 @@ export default function ManageLeavesPage() {
       </div>
 
       {/* Filters */}
-      <Card className="bg-white/5 border-border p-4">
+      <Card className="bg-white/5 border-slate-200 dark:border-white/10 p-4">
         <div className="grid grid-cols-3 gap-4">
           <div>
             <label className="text-sm text-gray-300">Employee</label>
@@ -186,7 +186,7 @@ export default function ManageLeavesPage() {
               onChange={(e) =>
                 setFilters({ ...filters, employee_id: e.target.value })
               }
-              className="w-full mt-1 px-3 py-2 bg-background border border-border rounded text-white text-sm"
+              className="w-full mt-1 px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded text-slate-900 dark:text-white text-sm"
             >
               <option value="">All Employees</option>
               {employees.map((emp) => (
@@ -205,7 +205,7 @@ export default function ManageLeavesPage() {
               onChange={(e) =>
                 setFilters({ ...filters, start_date: e.target.value })
               }
-              className="w-full mt-1 px-3 py-2 bg-background border border-border rounded text-white text-sm"
+              className="w-full mt-1 px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded text-slate-900 dark:text-white text-sm"
             />
           </div>
 
@@ -217,7 +217,7 @@ export default function ManageLeavesPage() {
               onChange={(e) =>
                 setFilters({ ...filters, end_date: e.target.value })
               }
-              className="w-full mt-1 px-3 py-2 bg-background border border-border rounded text-white text-sm"
+              className="w-full mt-1 px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded text-slate-900 dark:text-white text-sm"
             />
           </div>
         </div>
@@ -236,7 +236,7 @@ export default function ManageLeavesPage() {
       )}
 
       {/* Data Table */}
-      <Card className="bg-white/5 border-border overflow-hidden">
+      <Card className="bg-white/5 border-slate-200 dark:border-white/10 overflow-hidden">
         {loading ? (
           <div className="p-8 text-center text-gray-400 flex items-center justify-center gap-2">
             <Loader2 className="h-5 w-5 animate-spin" />
@@ -247,8 +247,8 @@ export default function ManageLeavesPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="border-b border-border">
-                <tr className="hover:bg-white/5 transition">
+              <thead className="border-b border-slate-200 dark:border-white/10">
+                <tr className="hover:bg-slate-100 dark:hover:bg-white/5 transition">
                   <th className="px-4 py-3 text-left font-semibold text-gray-300">Employee</th>
                   <th className="px-4 py-3 text-left font-semibold text-gray-300">Start Date</th>
                   <th className="px-4 py-3 text-left font-semibold text-gray-300">End Date</th>
@@ -263,9 +263,9 @@ export default function ManageLeavesPage() {
                 {data.map((item: any) => (
                   <tr
                     key={item.id}
-                    className="border-b border-border hover:bg-white/5 transition"
+                    className="border-b border-slate-200 dark:border-white/5 hover:bg-slate-100 dark:hover:bg-white/5 transition"
                   >
-                    <td className="px-4 py-3 text-white">
+                    <td className="px-4 py-3 text-slate-900 dark:text-white">
                       {item.user.first_name} {item.user.last_name}
                     </td>
                     <td className="px-4 py-3 text-gray-300">{item.start_date}</td>

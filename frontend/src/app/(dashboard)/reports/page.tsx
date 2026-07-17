@@ -54,7 +54,7 @@ function exportCSV(data: any[], filename: string, reportType?: string) {
 function SortableHeader({ label, col, sort, onSort }: { label: string; col: string; sort: { col: string; dir: "asc" | "desc" }; onSort: (c: string) => void }) {
   const active = sort.col === col;
   return (
-    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider cursor-pointer select-none hover:text-white transition-colors whitespace-nowrap" onClick={() => onSort(col)}>
+    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider cursor-pointer select-none hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap" onClick={() => onSort(col)}>
       <span className="flex items-center gap-1">{label} {active ? (sort.dir === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />) : <ChevronDown className="w-3 h-3 opacity-20" />}</span>
     </th>
   );
@@ -165,7 +165,7 @@ export default function ReportsPage() {
   }
 
   if (user?.role !== "Super Admin" && user?.role !== "HR") {
-    return <div className="flex items-center justify-center h-full text-muted-foreground">You do not have permission to view reports.</div>;
+    return <div className="flex items-center justify-center h-full text-slate-500 dark:text-slate-400">You do not have permission to view reports.</div>;
   }
 
   const tabs: { key: ReportType; label: string; icon: any }[] = [
@@ -177,40 +177,40 @@ export default function ReportsPage() {
   return (
     <div className="space-y-6 max-w-[1400px] mx-auto">
       <div>
-        <h1 className="text-3xl font-bold text-foreground flex items-center gap-3"><FileText className="w-7 h-7 text-amber-400" /> Reports</h1>
-        <p className="text-muted-foreground mt-1">Generate, filter, and export HR reports.</p>
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-3"><FileText className="w-7 h-7 text-amber-400" /> Reports</h1>
+        <p className="text-slate-500 dark:text-slate-400 mt-1">Generate, filter, and export HR reports.</p>
       </div>
 
       {/* Report type tabs */}
-      <div className="flex gap-1 border-b border-border">
+      <div className="flex gap-1 border-b border-slate-200 dark:border-white/10">
         {tabs.map(t => { const Icon = t.icon; return (
           <button key={t.key} onClick={() => setReportType(t.key)}
-            className={`flex items-center gap-2 px-5 py-3 text-sm font-semibold rounded-t-xl border-b-2 transition-all ${reportType === t.key ? "border-amber-400 text-amber-300 bg-amber-500/10" : "border-transparent text-muted-foreground hover:text-white"}`}>
+            className={`flex items-center gap-2 px-5 py-3 text-sm font-semibold rounded-t-xl border-b-2 transition-all ${reportType === t.key ? "border-amber-400 text-amber-300 bg-amber-500/10" : "border-transparent text-slate-400 hover:text-white"}`}>
             <Icon className="w-4 h-4" />{t.label}
           </button>
         ); })}
       </div>
 
       {/* Filters */}
-      <div className="bg-white/5 border border-border rounded-2xl p-5 flex flex-wrap gap-4 items-end">
+      <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-5 flex flex-wrap gap-4 items-end">
         <div className="flex-1 min-w-[200px]">
-          <label className="block text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wider">Employee</label>
+          <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wider">Employee</label>
           <select value={selectedUserId} onChange={e => setSelectedUserId(e.target.value)}
-            className="w-full bg-slate-700 border border-border text-white text-sm rounded-lg px-3 py-2 outline-none focus:border-amber-500">
+            className="w-full bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-lg px-3 py-2 outline-none focus:border-amber-500">
             <option value="all">All Employees</option>
             {employeeList.map(e => <option key={e.id} value={String(e.id)}>{e.name} ({e.code})</option>)}
           </select>
         </div>
         {(reportType === "leaves" || reportType === "attendance-summary") && <>
           <div>
-            <label className="block text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wider">From Date</label>
+            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wider">From Date</label>
             <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)}
-              className="bg-slate-700 border border-border text-white text-sm rounded-lg px-3 py-2 outline-none focus:border-amber-500" />
+              className="bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-lg px-3 py-2 outline-none focus:border-amber-500" />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wider">To Date</label>
+            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wider">To Date</label>
             <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)}
-              className="bg-slate-700 border border-border text-white text-sm rounded-lg px-3 py-2 outline-none focus:border-amber-500" />
+              className="bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-lg px-3 py-2 outline-none focus:border-amber-500" />
           </div>
         </>}
         <button onClick={handleGenerate} disabled={loading}
@@ -224,15 +224,15 @@ export default function ReportsPage() {
             <Download className="w-4 h-4" /> CSV
           </button>
           <button onClick={() => window.print()}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-600 hover:bg-slate-500 text-white text-sm font-semibold rounded-lg transition">
+            className="flex items-center gap-2 px-4 py-2 bg-slate-600 hover:bg-slate-500 text-slate-900 dark:text-white text-sm font-semibold rounded-lg transition">
             <Printer className="w-4 h-4" /> Print
           </button>
         </>}
       </div>
 
-      {!generated && !loading && !genError && <div className="text-center py-16 text-slate-500">Select filters and click <strong className="text-muted-foreground">Generate Report</strong> to view data.</div>}
+      {!generated && !loading && !genError && <div className="text-center py-16 text-slate-500">Select filters and click <strong className="text-slate-600 dark:text-slate-300">Generate Report</strong> to view data.</div>}
       {genError && <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400"><AlertCircle className="w-5 h-5 shrink-0" /><span className="text-sm">{genError}</span></div>}
-      {generated && reportData.length === 0 && <div className="text-center py-16 text-muted-foreground flex flex-col items-center gap-3"><AlertCircle className="w-10 h-10 text-slate-500" />No records found.</div>}
+      {generated && reportData.length === 0 && <div className="text-center py-16 text-slate-500 dark:text-slate-400 flex flex-col items-center gap-3"><AlertCircle className="w-10 h-10 text-slate-500" />No records found.</div>}
 
       {/* Single employee detailed view */}
       {isSingle && reportType === "employees" && emp && (
@@ -248,14 +248,14 @@ export default function ReportsPage() {
 
       {/* Table view */}
       {generated && filtered.length > 0 && (!isSingle || reportType === "leaves") && (
-        <div className="bg-white/5 border border-border rounded-2xl overflow-hidden">
-          <div className="p-4 border-b border-border flex items-center gap-3">
+        <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden">
+          <div className="p-4 border-b border-slate-200 dark:border-white/10 flex items-center gap-3">
             <div className="relative flex-1 max-w-xs">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-slate-400" />
               <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} placeholder="Search..."
-                className="w-full pl-9 pr-3 py-2 bg-slate-700 border border-border text-white text-sm rounded-lg outline-none focus:border-amber-500 placeholder:text-slate-500" />
+                className="w-full pl-9 pr-3 py-2 bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-lg outline-none focus:border-amber-500 placeholder:text-slate-500" />
             </div>
-            <span className="text-xs text-muted-foreground">{filtered.length} record{filtered.length !== 1 ? "s" : ""}</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400">{filtered.length} record{filtered.length !== 1 ? "s" : ""}</span>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -305,31 +305,31 @@ export default function ReportsPage() {
                   </>}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className="divide-y divide-slate-200 dark:divide-white/5">
                 {paginated.map((row, i) => (
-                  <tr key={i} className="hover:bg-white/5 transition-colors">
+                  <tr key={i} className="hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
                     {reportType === "employees" && <>
-                      <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{row.employee_code}</td>
-                      <td className="px-4 py-3 text-white font-semibold whitespace-nowrap">{row.full_name}</td>
-                      <td className="px-4 py-3 text-muted-foreground">{row.team || "—"}</td>
-                      <td className="px-4 py-3 text-muted-foreground">{row.designation || "—"}</td>
-                      <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{row.team_lead || "—"}</td>
-                      <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{row.joining_date ? format(new Date(row.joining_date), "dd MMM yyyy") : "—"}</td>
+                      <td className="px-4 py-3 font-mono text-xs text-slate-600 dark:text-slate-300">{row.employee_code}</td>
+                      <td className="px-4 py-3 text-slate-900 dark:text-white font-semibold whitespace-nowrap">{row.full_name}</td>
+                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{row.team || "—"}</td>
+                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{row.designation || "—"}</td>
+                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap">{row.team_lead || "—"}</td>
+                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap">{row.joining_date ? format(new Date(row.joining_date), "dd MMM yyyy") : "—"}</td>
                       <td className="px-4 py-3 whitespace-nowrap">{row.is_in_probation ? <span className="text-xs font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">{row.probation_end_date ? format(new Date(row.probation_end_date), "dd MMM yy") : "In Probation"}</span> : <span className="text-xs text-emerald-400">Done</span>}</td>
                       <td className="px-4 py-3 text-center font-bold text-emerald-400">{row.casual_leave_balance}</td>
                       <td className="px-4 py-3 text-center font-bold text-rose-400">{row.sick_leave_balance}</td>
-                      <td className="px-4 py-3 text-center text-muted-foreground">{row.leaves_taken_this_month}</td>
-                      <td className="px-4 py-3 text-center text-muted-foreground">{row.wfh_this_month}</td>
+                      <td className="px-4 py-3 text-center text-slate-600 dark:text-slate-300">{row.leaves_taken_this_month}</td>
+                      <td className="px-4 py-3 text-center text-slate-600 dark:text-slate-300">{row.wfh_this_month}</td>
                       <td className="px-4 py-3"><StatusBadge status={row.status} /></td>
                     </>}
                     {reportType === "attendance-summary" && <>
-                      <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{row.employee_code}</td>
-                      <td className="px-4 py-3 text-white font-semibold whitespace-nowrap">{typeof row.name === 'string' ? row.name : (row.first_name + ' ' + row.last_name) || '—'}</td>
-                      <td className="px-4 py-3 text-muted-foreground text-sm">{typeof row.team === 'object' && row.team?.name ? row.team.name : (typeof row.team === 'string' ? row.team : '—')}</td>
+                      <td className="px-4 py-3 font-mono text-xs text-slate-600 dark:text-slate-300">{row.employee_code}</td>
+                      <td className="px-4 py-3 text-slate-900 dark:text-white font-semibold whitespace-nowrap">{typeof row.name === 'string' ? row.name : (row.first_name + ' ' + row.last_name) || '—'}</td>
+                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300 text-sm">{typeof row.team === 'object' && row.team?.name ? row.team.name : (typeof row.team === 'string' ? row.team : '—')}</td>
                       {allDates.map((date: string) => {
                         try {
                           const day = Array.isArray(row.daily_status) ? row.daily_status.find((d: any) => d && d.date === date) : null;
-                          let textColor = "text-muted-foreground";
+                          let textColor = "text-slate-400";
                           let displayText = "";
 
                           if (day && typeof day === 'object') {
@@ -371,14 +371,14 @@ export default function ReportsPage() {
                       <td className="px-4 py-3 text-center font-bold text-indigo-400">{row.total_leaves || 0}</td>
                     </>}
                     {reportType === "leave-balances" && <>
-                      <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{row.employee_code}</td>
-                      <td className="px-4 py-3 text-white font-semibold whitespace-nowrap">{row.full_name}</td>
-                      <td className="px-4 py-3 text-muted-foreground">{row.team || "—"}</td>
+                      <td className="px-4 py-3 font-mono text-xs text-slate-600 dark:text-slate-300">{row.employee_code}</td>
+                      <td className="px-4 py-3 text-slate-900 dark:text-white font-semibold whitespace-nowrap">{row.full_name}</td>
+                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{row.team || "—"}</td>
                       <td className="px-4 py-3 text-center font-bold text-emerald-400">{row.cl_balance}</td>
                       <td className="px-4 py-3 text-center font-bold text-rose-400">{row.sl_balance}</td>
                       <td className="px-4 py-3 text-center text-indigo-400">{row.cl_carry_forward}</td>
-                      <td className="px-4 py-3 text-center text-muted-foreground">{row.cl_used}</td>
-                      <td className="px-4 py-3 text-center text-muted-foreground">{row.sl_used}</td>
+                      <td className="px-4 py-3 text-center text-slate-600 dark:text-slate-300">{row.cl_used}</td>
+                      <td className="px-4 py-3 text-center text-slate-600 dark:text-slate-300">{row.sl_used}</td>
                       <td className="px-4 py-3 text-center font-bold text-red-400">{row.lop_count}</td>
                       <td className="px-4 py-3 text-center text-cyan-400">{row.wfh_count}</td>
                       <td className="px-4 py-3">{row.is_in_probation ? <span className="text-xs font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">In Probation</span> : <span className="text-xs font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">Confirmed</span>}</td>
@@ -389,10 +389,10 @@ export default function ReportsPage() {
             </table>
           </div>
           {totalPages > 1 && (
-            <div className="p-4 border-t border-border flex items-center justify-between">
-              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="px-3 py-1.5 text-xs font-semibold text-muted-foreground bg-white/5 rounded-lg disabled:opacity-40 hover:bg-white/10 transition">Previous</button>
-              <span className="text-xs text-muted-foreground">Page {page} of {totalPages}</span>
-              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="px-3 py-1.5 text-xs font-semibold text-muted-foreground bg-white/5 rounded-lg disabled:opacity-40 hover:bg-white/10 transition">Next</button>
+            <div className="p-4 border-t border-slate-200 dark:border-white/10 flex items-center justify-between">
+              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-white/5 rounded-lg disabled:opacity-40 hover:bg-slate-200 dark:hover:bg-white/10 transition">Previous</button>
+              <span className="text-xs text-slate-500 dark:text-slate-400">Page {page} of {totalPages}</span>
+              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-white/5 rounded-lg disabled:opacity-40 hover:bg-slate-200 dark:hover:bg-white/10 transition">Next</button>
             </div>
           )}
         </div>
@@ -408,10 +408,10 @@ function StatusBadge({ status }: { status?: string | null }) {
     Approved: "bg-emerald-500/20 text-emerald-400",
     Pending: "bg-amber-500/20 text-amber-400",
     Rejected: "bg-red-500/20 text-red-400",
-    Disabled: "bg-slate-500/20 text-muted-foreground",
+    Disabled: "bg-slate-500/20 text-slate-400",
     Resigned: "bg-rose-500/20 text-rose-400"
   };
-  const classes = m[statusStr] || "bg-white/10 text-muted-foreground";
+  const classes = m[statusStr] || "bg-white/10 text-slate-300";
   return <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${classes}`}>{statusStr}</span>;
 }
 
@@ -421,9 +421,9 @@ function InfoRow({ label, value }: { label: string; value: any }) {
     : value;
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-start gap-1 border-b border-border py-2.5">
-      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider sm:w-52 shrink-0">{label}</span>
-      <span className="text-sm text-foreground">{displayValue}</span>
+    <div className="flex flex-col sm:flex-row sm:items-start gap-1 border-b border-slate-200 dark:border-white/5 py-2.5">
+      <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider sm:w-52 shrink-0">{label}</span>
+      <span className="text-sm text-slate-900 dark:text-white">{displayValue}</span>
     </div>
   );
 }
@@ -431,9 +431,9 @@ function InfoRow({ label, value }: { label: string; value: any }) {
 function StatBox({ label, value, color = "text-white" }: { label: string; value: any; color?: string }) {
   const displayValue = typeof value === 'number' ? value : (value ?? 0);
   return (
-    <div className="bg-white/5 border border-border rounded-xl p-4 text-center">
+    <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl p-4 text-center">
       <p className={`text-2xl font-black ${color}`}>{isNaN(displayValue) ? 0 : displayValue}</p>
-      <p className="text-xs text-muted-foreground mt-1 font-semibold uppercase tracking-wider leading-tight">{label}</p>
+      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-semibold uppercase tracking-wider leading-tight">{label}</p>
     </div>
   );
 }
@@ -442,8 +442,8 @@ function SingleEmployeeReport({ emp }: { emp: any }) {
   const fmtDate = (v: any) => v ? format(new Date(v), "dd MMM yyyy") : "—";
   return (
     <div className="space-y-6">
-      <div className="bg-white/5 border border-border rounded-2xl p-6">
-        <h2 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2"><Users className="w-5 h-5 text-amber-400" /> Employee Profile — {emp.full_name}</h2>
+      <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-6">
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2"><Users className="w-5 h-5 text-amber-400" /> Employee Profile — {emp.full_name}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16">
           <div>
             <InfoRow label="Employee Code" value={emp.employee_code} />
@@ -473,8 +473,8 @@ function SingleEmployeeReport({ emp }: { emp: any }) {
           </div>
         </div>
       </div>
-      <div className="bg-white/5 border border-border rounded-2xl p-6">
-        <h2 className="text-lg font-bold text-foreground mb-5 flex items-center gap-2"><CalendarDays className="w-5 h-5 text-emerald-400" /> Leave Information</h2>
+      <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-6">
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-5 flex items-center gap-2"><CalendarDays className="w-5 h-5 text-emerald-400" /> Leave Information</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           <StatBox label="CL Balance" value={emp.casual_leave_balance} color="text-emerald-400" />
           <StatBox label="SL Balance" value={emp.sick_leave_balance} color="text-rose-400" />
@@ -498,8 +498,8 @@ function SingleEmployeeReport({ emp }: { emp: any }) {
 function SingleLeaveBalanceReport({ emp }: { emp: any }) {
   const fmtDate = (v: any) => v ? format(new Date(v), "dd MMM yyyy") : "—";
   return (
-    <div className="bg-white/5 border border-border rounded-2xl p-6">
-      <h2 className="text-lg font-bold text-foreground mb-5 flex items-center gap-2"><BarChart3 className="w-5 h-5 text-amber-400" /> Leave Balance — {emp.full_name}</h2>
+    <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-6">
+      <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-5 flex items-center gap-2"><BarChart3 className="w-5 h-5 text-amber-400" /> Leave Balance — {emp.full_name}</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 mb-6">
         <InfoRow label="Probation Status" value={emp.is_in_probation ? <span className="text-amber-400 font-bold">In Probation</span> : <span className="text-emerald-400 font-bold">Completed</span>} />
         <InfoRow label="Probation End Date" value={fmtDate(emp.probation_end_date)} />

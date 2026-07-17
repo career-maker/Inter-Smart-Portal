@@ -21,7 +21,7 @@ function DurationBadge({ type }: { type: string }) {
     "Half-Afternoon": "bg-purple-500/20 text-purple-300",
   };
   return (
-    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${map[type] ?? "bg-white/10 text-muted-foreground"}`}>
+    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${map[type] ?? "bg-white/10 text-slate-300"}`}>
       {type === "Full" ? "Full Day" : type === "Half-Morning" ? "Morning" : "Afternoon"}
     </span>
   );
@@ -36,7 +36,7 @@ function LeaveTypeIcon({ leaveTypeName }: { leaveTypeName: string }) {
 
 function AvatarWithPhoto({ photoPath, firstName, lastName }: { photoPath?: string; firstName: string; lastName: string }) {
   return (
-    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-sm font-bold text-white shrink-0 border border-border overflow-hidden">
+    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-sm font-bold text-white shrink-0 border border-slate-200 dark:border-white/20 overflow-hidden">
       {photoPath ? (
         <img src={photoPath} alt="" className="w-full h-full object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
       ) : null}
@@ -347,15 +347,15 @@ export default function ApprovalsPage() {
 
 
   const LeaveCard = ({ req }: { req: any }) => (
-    <div className={`bg-white/5 border border-border rounded-2xl p-5 space-y-4 border-l-4 ${
+    <div className={`bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-5 space-y-4 border-l-4 ${
       req.pending_lop_conversion ? "border-l-rose-500" : "border-l-amber-500"
     }`}>
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-3 flex-1">
           <AvatarWithPhoto photoPath={req.user?.profile_photo_path} firstName={req.user?.first_name} lastName={req.user?.last_name} />
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-foreground">{req.user?.first_name} {req.user?.last_name}</p>
-            <p className="text-xs text-muted-foreground mt-0.5">{req.user?.designation || req.user?.role}</p>
+            <p className="font-semibold text-slate-900 dark:text-white">{req.user?.first_name} {req.user?.last_name}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{req.user?.designation || req.user?.role}</p>
           </div>
         </div>
 
@@ -405,31 +405,31 @@ export default function ApprovalsPage() {
           <LeaveTypeIcon leaveTypeName={req.leave_type?.name} />
           <div>
             <p className="text-xs text-slate-500 uppercase tracking-wider mb-0.5">Type</p>
-            <p className="text-muted-foreground font-medium text-xs">{req.leave_type?.name}</p>
+            <p className="text-slate-200 font-medium text-xs">{req.leave_type?.name}</p>
           </div>
         </div>
         <div>
           <p className="text-xs text-slate-500 uppercase tracking-wider mb-0.5">Duration</p>
-          <p className="text-muted-foreground text-xs">{fmtDate(req.start_date)} — {fmtDate(req.end_date)}</p>
+          <p className="text-slate-200 text-xs">{fmtDate(req.start_date)} — {fmtDate(req.end_date)}</p>
         </div>
         <div>
           <p className="text-xs text-slate-500 uppercase tracking-wider mb-0.5">Days</p>
-          <p className="text-muted-foreground font-medium text-xs">{req.days_taken ?? req.days ?? "—"}</p>
+          <p className="text-slate-200 font-medium text-xs">{req.days_taken ?? req.days ?? "—"}</p>
         </div>
       </div>
 
       {req.reason && (
-        <div className="bg-white/5 border border-border rounded-xl p-3">
+        <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl p-3">
           <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Reason</p>
-          <p className="text-muted-foreground text-sm">{req.reason}</p>
+          <p className="text-slate-600 dark:text-slate-300 text-sm">{req.reason}</p>
         </div>
       )}
 
       {req.attachment_link && (
-        <div className="bg-white/5 border border-border rounded-xl p-3 flex items-center justify-between gap-4">
+        <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl p-3 flex items-center justify-between gap-4">
           <div className="min-w-0 flex-1">
             <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Attachment</p>
-            <p className="text-muted-foreground text-sm truncate">{req.attachment_link}</p>
+            <p className="text-slate-600 dark:text-slate-300 text-sm truncate">{req.attachment_link}</p>
           </div>
           <a
             href={req.attachment_link}
@@ -461,7 +461,7 @@ export default function ApprovalsPage() {
           <button
             onClick={() => handleLopConversion(req.id, "reject")}
             disabled={actionLoading}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-white/10 text-muted-foreground border border-border rounded-lg hover:bg-white/15 transition disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-white/10 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/10 rounded-lg hover:bg-white/15 transition disabled:opacity-50"
           >
             <XCircle className="h-3.5 w-3.5" /> Decline (Keep Paid)
           </button>
@@ -492,13 +492,13 @@ export default function ApprovalsPage() {
   );
 
   const WfhCard = ({ req }: { req: any }) => (
-    <div className="bg-white/5 border border-border rounded-2xl p-5 space-y-4 border-l-4 border-l-indigo-500">
+    <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-5 space-y-4 border-l-4 border-l-indigo-500">
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-3 flex-1">
           <AvatarWithPhoto photoPath={req.user?.profile_photo_path} firstName={req.user?.first_name} lastName={req.user?.last_name} />
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-foreground">{req.user?.first_name} {req.user?.last_name}</p>
-            <p className="text-xs text-muted-foreground mt-0.5">{req.user?.designation || req.user?.role}</p>
+            <p className="font-semibold text-slate-900 dark:text-white">{req.user?.first_name} {req.user?.last_name}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{req.user?.designation || req.user?.role}</p>
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -522,7 +522,7 @@ export default function ApprovalsPage() {
       <div className="grid grid-cols-2 gap-3 text-sm">
         <div>
           <p className="text-xs text-slate-500 uppercase tracking-wider mb-0.5">Date(s)</p>
-          <p className="text-muted-foreground">{fmtDate(req.start_date)}{req.end_date && req.end_date !== req.start_date ? ` — ${fmtDate(req.end_date)}` : ""}</p>
+          <p className="text-slate-200">{fmtDate(req.start_date)}{req.end_date && req.end_date !== req.start_date ? ` — ${fmtDate(req.end_date)}` : ""}</p>
         </div>
         <div>
           <p className="text-xs text-slate-500 uppercase tracking-wider mb-0.5">TL Status</p>
@@ -533,9 +533,9 @@ export default function ApprovalsPage() {
       </div>
 
       {req.reason && (
-        <div className="bg-white/5 border border-border rounded-xl p-3">
+        <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl p-3">
           <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Reason</p>
-          <p className="text-muted-foreground text-sm">{req.reason}</p>
+          <p className="text-slate-600 dark:text-slate-300 text-sm">{req.reason}</p>
         </div>
       )}
 
@@ -556,8 +556,8 @@ export default function ApprovalsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">Approvals Queue</h1>
-        <p className="text-muted-foreground mt-1">Review and process pending leave and WFH requests from your team.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Approvals Queue</h1>
+        <p className="text-slate-600 dark:text-slate-300 mt-1">Review and process pending leave and WFH requests from your team.</p>
       </div>
 
       {successMessage && (
@@ -567,7 +567,7 @@ export default function ApprovalsPage() {
       )}
 
       {/* Status Filter Tabs */}
-      <div className="flex gap-1 bg-white/5 border border-border rounded-xl p-1 w-fit">
+      <div className="flex gap-1 bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl p-1 w-fit">
         {(["Pending", "Approved", "Rejected", "All"] as const).map((status) => {
           let count = 0;
           if (tab === "leaves") {
@@ -582,7 +582,7 @@ export default function ApprovalsPage() {
               key={status}
               onClick={() => setStatusFilter(status)}
               className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors whitespace-nowrap ${
-                statusFilter === status ? "bg-amber-500 text-white shadow" : "text-muted-foreground hover:text-white"
+                statusFilter === status ? "bg-amber-500 text-white shadow" : "text-slate-400 hover:text-white"
               }`}
             >
               {status} {count > 0 && <span className="text-xs ml-1">({count})</span>}
@@ -592,13 +592,13 @@ export default function ApprovalsPage() {
       </div>
 
       {/* Type Switcher (Leaves/WFH) */}
-      <div className="flex gap-1 bg-white/5 border border-border rounded-xl p-1 w-fit">
+      <div className="flex gap-1 bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl p-1 w-fit">
         {(["leaves", "wfh"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
             className={`px-5 py-2 text-sm font-semibold rounded-lg transition-colors ${
-              tab === t ? "bg-blue-500 text-white shadow" : "text-muted-foreground hover:text-white"
+              tab === t ? "bg-blue-500 text-white shadow" : "text-slate-400 hover:text-white"
             }`}
           >
             {t === "leaves" ? "Leave Requests" : "WFH Requests"}
@@ -607,7 +607,7 @@ export default function ApprovalsPage() {
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
+        <div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-slate-500 dark:text-slate-400" /></div>
       ) : tab === "leaves" ? (
         (() => {
           let displayRequests = [];
@@ -617,7 +617,7 @@ export default function ApprovalsPage() {
           else displayRequests = [...leaveRequests, ...approvedLeaves, ...rejectedLeaves];
 
           return displayRequests.length === 0 ? (
-            <div className="bg-white/5 border border-border rounded-2xl py-16 text-center text-muted-foreground">
+            <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl py-16 text-center text-slate-500 dark:text-slate-400">
               No {statusFilter === "All" ? "" : statusFilter.toLowerCase()} leave requests.
             </div>
           ) : (
@@ -628,7 +628,7 @@ export default function ApprovalsPage() {
         })()
       ) : (
         wfhRequests.length === 0 ? (
-          <div className="bg-white/5 border border-border rounded-2xl py-16 text-center text-muted-foreground">
+          <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl py-16 text-center text-slate-500 dark:text-slate-400">
             No pending WFH requests.
           </div>
         ) : (
@@ -642,10 +642,10 @@ export default function ApprovalsPage() {
       {rejectDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setRejectDialog(null)} />
-          <div className="relative w-full max-w-md bg-card border border-border rounded-2xl shadow-2xl z-10">
-            <div className="px-6 py-5 border-b border-border">
-              <h2 className="text-lg font-bold text-foreground">Reject Request</h2>
-              <p className="text-muted-foreground text-sm mt-0.5">Provide a reason — this will be sent to the employee.</p>
+          <div className="relative w-full max-w-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl z-10">
+            <div className="px-6 py-5 border-b border-slate-200 dark:border-white/10">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">Reject Request</h2>
+              <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Provide a reason — this will be sent to the employee.</p>
             </div>
             <div className="px-6 py-5">
               <textarea
@@ -653,12 +653,12 @@ export default function ApprovalsPage() {
                 value={rejectReason}
                 onChange={(e) => setRejectReason(e.target.value)}
                 placeholder="Enter reason for rejection..."
-                className="w-full bg-slate-700 border border-border text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-red-500 placeholder:text-slate-500 resize-none transition-colors"
+                className="w-full bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-red-500 placeholder:text-slate-500 resize-none transition-colors"
                 autoFocus
               />
             </div>
-            <div className="px-6 py-4 border-t border-border flex gap-3 justify-end">
-              <button onClick={() => setRejectDialog(null)} className="px-4 py-2 text-sm text-muted-foreground border border-border rounded-xl hover:bg-white/5 transition-colors">
+            <div className="px-6 py-4 border-t border-slate-200 dark:border-white/10 flex gap-3 justify-end">
+              <button onClick={() => setRejectDialog(null)} className="px-4 py-2 text-sm text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/10 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
                 Cancel
               </button>
               <button
@@ -678,10 +678,10 @@ export default function ApprovalsPage() {
       {overrideDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setOverrideDialog(null)} />
-          <div className="relative w-full max-w-3xl bg-card border border-border rounded-2xl shadow-2xl z-10 overflow-hidden">
-            <div className="px-6 py-5 border-b border-border">
-              <h2 className="text-lg font-bold text-foreground">Override Leave Request</h2>
-              <p className="text-muted-foreground text-sm mt-0.5 font-sans">Customize dates and manually split paid leaves and LOP.</p>
+          <div className="relative w-full max-w-3xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl z-10 overflow-hidden">
+            <div className="px-6 py-5 border-b border-slate-200 dark:border-white/10">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">Override Leave Request</h2>
+              <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5 font-sans">Customize dates and manually split paid leaves and LOP.</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 max-h-[65vh] overflow-y-auto">
@@ -689,109 +689,109 @@ export default function ApprovalsPage() {
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 font-mono">Start Date</label>
+                    <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">Start Date</label>
                     <input
                       type="date"
                       value={overrideFields.start_date}
                       onChange={(e) => handleDateChange("start_date", e.target.value)}
-                      className="w-full bg-slate-700 border border-border text-white text-sm rounded-xl px-3 py-2 outline-none focus:border-amber-500 transition-colors font-mono"
+                      className="w-full bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2 outline-none focus:border-amber-500 transition-colors font-mono"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 font-mono">End Date</label>
+                    <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">End Date</label>
                     <input
                       type="date"
                       value={overrideFields.end_date}
                       onChange={(e) => handleDateChange("end_date", e.target.value)}
-                      className="w-full bg-slate-700 border border-border text-white text-sm rounded-xl px-3 py-2 outline-none focus:border-amber-500 transition-colors font-mono"
+                      className="w-full bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2 outline-none focus:border-amber-500 transition-colors font-mono"
                     />
                   </div>
                 </div>
 
-                <div className="border-t border-border pt-4">
-                  <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">Custom Allocation Split</h3>
-                  <p className="text-xs text-slate-500 mb-4">Original auto-calculated total: <span className="font-bold text-foreground font-mono">{autoTotalDays} day(s)</span></p>
+                <div className="border-t border-slate-200 dark:border-white/5 pt-4">
+                  <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Custom Allocation Split</h3>
+                  <p className="text-xs text-slate-500 mb-4">Original auto-calculated total: <span className="font-bold text-slate-900 dark:text-white font-mono">{autoTotalDays} day(s)</span></p>
                   
                   <div className="space-y-3">
                     <div className="flex items-center justify-between gap-4">
-                      <span className="text-sm text-muted-foreground">Paid Casual Leave</span>
+                      <span className="text-sm text-slate-600 dark:text-slate-300">Paid Casual Leave</span>
                       <input
                         type="number"
                         step="0.5"
                         min="0"
                         value={overrideFields.paid_casual_leave}
                         onChange={(e) => setOverrideFields((f) => ({ ...f, paid_casual_leave: parseFloat(e.target.value) || 0 }))}
-                        className="w-24 bg-slate-700 border border-border text-white text-sm text-center rounded-xl px-2 py-1.5 outline-none focus:border-amber-500 font-mono"
+                        className="w-24 bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm text-center rounded-xl px-2 py-1.5 outline-none focus:border-amber-500 font-mono"
                       />
                     </div>
                     <div className="flex items-center justify-between gap-4">
-                      <span className="text-sm text-muted-foreground">Paid Sick Leave</span>
+                      <span className="text-sm text-slate-600 dark:text-slate-300">Paid Sick Leave</span>
                       <input
                         type="number"
                         step="0.5"
                         min="0"
                         value={overrideFields.paid_sick_leave}
                         onChange={(e) => setOverrideFields((f) => ({ ...f, paid_sick_leave: parseFloat(e.target.value) || 0 }))}
-                        className="w-24 bg-slate-700 border border-border text-white text-sm text-center rounded-xl px-2 py-1.5 outline-none focus:border-amber-500 font-mono"
+                        className="w-24 bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm text-center rounded-xl px-2 py-1.5 outline-none focus:border-amber-500 font-mono"
                       />
                     </div>
                     <div className="flex items-center justify-between gap-4">
-                      <span className="text-sm text-muted-foreground">Loss of Pay (LOP)</span>
+                      <span className="text-sm text-slate-600 dark:text-slate-300">Loss of Pay (LOP)</span>
                       <input
                         type="number"
                         step="0.5"
                         min="0"
                         value={overrideFields.lop_days}
                         onChange={(e) => setOverrideFields((f) => ({ ...f, lop_days: parseFloat(e.target.value) || 0 }))}
-                        className="w-24 bg-slate-700 border border-border text-white text-sm text-center rounded-xl px-2 py-1.5 outline-none focus:border-amber-500 font-mono"
+                        className="w-24 bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm text-center rounded-xl px-2 py-1.5 outline-none focus:border-amber-500 font-mono"
                       />
                     </div>
                   </div>
                 </div>
 
-                <div className="border-t border-border pt-4">
-                  <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Reason for Override *</label>
+                <div className="border-t border-slate-200 dark:border-white/5 pt-4">
+                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Reason for Override *</label>
                   <textarea
                     rows={2}
                     value={overrideFields.remarks}
                     onChange={(e) => setOverrideFields((f) => ({ ...f, remarks: e.target.value }))}
                     placeholder="Provide a reason for overriding this allocation..."
-                    className="w-full bg-slate-700 border border-border text-white text-sm rounded-xl px-3 py-2 outline-none focus:border-amber-500 placeholder:text-slate-500 resize-none transition-colors"
+                    className="w-full bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2 outline-none focus:border-amber-500 placeholder:text-slate-500 resize-none transition-colors"
                   />
                 </div>
               </div>
 
               {/* Right Column: Before-and-After Summary Panel */}
-              <div className="bg-background/40 border border-border rounded-2xl p-5 space-y-5">
-                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Before-and-After Summary</h3>
+              <div className="bg-slate-900/40 border border-slate-200 dark:border-white/5 rounded-2xl p-5 space-y-5">
+                <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Before-and-After Summary</h3>
 
                 {recalcLoading ? (
                   <div className="flex flex-col items-center justify-center py-16 gap-3">
                     <Loader2 className="w-6 h-6 text-amber-500 animate-spin" />
-                    <span className="text-xs text-muted-foreground">Recalculating...</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400">Recalculating...</span>
                   </div>
                 ) : (
                   <div className="space-y-4 text-xs">
                     {/* Original Calculation */}
-                    <div className="space-y-2 bg-white/5 border border-border rounded-xl p-3.5">
+                    <div className="space-y-2 bg-white/5 border border-slate-200 dark:border-white/5 rounded-xl p-3.5">
                       <p className="font-bold text-amber-400 uppercase tracking-wider mb-1 text-[10px]">Original Calculation</p>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Dates:</span>
-                        <span className="text-muted-foreground font-mono">{fmtDate(overrideDialog.original_start_date)} – {fmtDate(overrideDialog.original_end_date)}</span>
+                        <span className="text-slate-500 dark:text-slate-400">Dates:</span>
+                        <span className="text-slate-200 font-mono">{fmtDate(overrideDialog.original_start_date)} – {fmtDate(overrideDialog.original_end_date)}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Total Leave:</span>
-                        <span className="text-muted-foreground font-bold font-mono">{overrideDialog.original_days} day(s)</span>
+                        <span className="text-slate-500 dark:text-slate-400">Total Leave:</span>
+                        <span className="text-slate-200 font-bold font-mono">{overrideDialog.original_days} day(s)</span>
                       </div>
-                      <div className="flex justify-between pl-3 text-muted-foreground border-l border-border">
+                      <div className="flex justify-between pl-3 text-slate-500 dark:text-slate-400 border-l border-slate-200 dark:border-white/10">
                         <span>Paid Casual Leave:</span>
                         <span className="font-mono">{overrideDialog.original_paid_cl}</span>
                       </div>
-                      <div className="flex justify-between pl-3 text-muted-foreground border-l border-border">
+                      <div className="flex justify-between pl-3 text-slate-500 dark:text-slate-400 border-l border-slate-200 dark:border-white/10">
                         <span>Paid Sick Leave:</span>
                         <span className="font-mono">{overrideDialog.original_paid_sl}</span>
                       </div>
-                      <div className="flex justify-between pl-3 text-muted-foreground border-l border-border">
+                      <div className="flex justify-between pl-3 text-slate-500 dark:text-slate-400 border-l border-slate-200 dark:border-white/10">
                         <span>Loss of Pay (LOP):</span>
                         <span className="font-mono">{overrideDialog.original_lop}</span>
                       </div>
@@ -801,41 +801,41 @@ export default function ApprovalsPage() {
                     <div className="space-y-2 bg-amber-500/5 border border-amber-500/10 rounded-xl p-3.5">
                       <p className="font-bold text-amber-400 uppercase tracking-wider mb-1 text-[10px]">Override Calculation</p>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Dates:</span>
-                        <span className="text-muted-foreground font-mono">{fmtDate(overrideFields.start_date)} – {fmtDate(overrideFields.end_date)}</span>
+                        <span className="text-slate-500 dark:text-slate-400">Dates:</span>
+                        <span className="text-slate-200 font-mono">{fmtDate(overrideFields.start_date)} – {fmtDate(overrideFields.end_date)}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Total Leave:</span>
-                        <span className="text-muted-foreground font-bold font-mono">{overrideTotalDays} day(s)</span>
+                        <span className="text-slate-500 dark:text-slate-400">Total Leave:</span>
+                        <span className="text-slate-200 font-bold font-mono">{overrideTotalDays} day(s)</span>
                       </div>
-                      <div className="flex justify-between pl-3 text-muted-foreground border-l border-amber-500/10">
+                      <div className="flex justify-between pl-3 text-slate-500 dark:text-slate-400 border-l border-amber-500/10">
                         <span>Paid Casual Leave:</span>
-                        <span className="font-mono text-foreground">{overrideFields.paid_casual_leave}</span>
+                        <span className="font-mono text-slate-900 dark:text-white">{overrideFields.paid_casual_leave}</span>
                       </div>
-                      <div className="flex justify-between pl-3 text-muted-foreground border-l border-amber-500/10">
+                      <div className="flex justify-between pl-3 text-slate-500 dark:text-slate-400 border-l border-amber-500/10">
                         <span>Paid Sick Leave:</span>
-                        <span className="font-mono text-foreground">{overrideFields.paid_sick_leave}</span>
+                        <span className="font-mono text-slate-900 dark:text-white">{overrideFields.paid_sick_leave}</span>
                       </div>
-                      <div className="flex justify-between pl-3 text-muted-foreground border-l border-amber-500/10">
+                      <div className="flex justify-between pl-3 text-slate-500 dark:text-slate-400 border-l border-amber-500/10">
                         <span>Loss of Pay (LOP):</span>
-                        <span className="font-mono text-foreground">{overrideFields.lop_days}</span>
+                        <span className="font-mono text-slate-900 dark:text-white">{overrideFields.lop_days}</span>
                       </div>
                     </div>
 
                     {/* Impact on Balances */}
-                    <div className="space-y-2 bg-background border border-border rounded-xl p-3.5">
-                      <p className="font-bold text-muted-foreground uppercase tracking-wider mb-1 text-[10px]">Leave Balances Impact</p>
+                    <div className="space-y-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/5 rounded-xl p-3.5">
+                      <p className="font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1 text-[10px]">Leave Balances Impact</p>
                       <div className="grid grid-cols-2 gap-3 pt-1">
                         <div>
                           <p className="text-[10px] text-slate-500 uppercase">Casual Leave Balance</p>
-                          <p className="text-sm font-semibold text-muted-foreground font-mono mt-0.5">
-                            {currentBalances.cl} <span className="text-slate-500 font-normal text-xs">→</span> <span className="text-foreground font-bold">{Math.max(0, currentBalances.cl - overrideFields.paid_casual_leave)}</span>
+                          <p className="text-sm font-semibold text-slate-600 dark:text-slate-300 font-mono mt-0.5">
+                            {currentBalances.cl} <span className="text-slate-500 font-normal text-xs">→</span> <span className="text-slate-900 dark:text-white font-bold">{Math.max(0, currentBalances.cl - overrideFields.paid_casual_leave)}</span>
                           </p>
                         </div>
                         <div>
                           <p className="text-[10px] text-slate-500 uppercase">Sick Leave Balance</p>
-                          <p className="text-sm font-semibold text-muted-foreground font-mono mt-0.5">
-                            {currentBalances.sl} <span className="text-slate-500 font-normal text-xs">→</span> <span className="text-foreground font-bold">{Math.max(0, currentBalances.sl - overrideFields.paid_sick_leave)}</span>
+                          <p className="text-sm font-semibold text-slate-600 dark:text-slate-300 font-mono mt-0.5">
+                            {currentBalances.sl} <span className="text-slate-500 font-normal text-xs">→</span> <span className="text-slate-900 dark:text-white font-bold">{Math.max(0, currentBalances.sl - overrideFields.paid_sick_leave)}</span>
                           </p>
                         </div>
                       </div>
@@ -852,8 +852,8 @@ export default function ApprovalsPage() {
               </div>
             )}
 
-            <div className="px-6 py-4 border-t border-border flex gap-3 justify-end">
-              <button onClick={() => setOverrideDialog(null)} className="px-4 py-2 text-sm text-muted-foreground border border-border rounded-xl hover:bg-white/5 transition-colors">
+            <div className="px-6 py-4 border-t border-slate-200 dark:border-white/10 flex gap-3 justify-end">
+              <button onClick={() => setOverrideDialog(null)} className="px-4 py-2 text-sm text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/10 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
                 Cancel
               </button>
               <button

@@ -15,7 +15,7 @@ const STATUS_COLORS: Record<string, string> = {
   "In Progress": "bg-purple-500/20 text-purple-300 border-purple-500/30",
   "Waiting for User Response": "bg-orange-500/20 text-orange-300 border-orange-500/30",
   "Resolved": "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
-  "Closed": "bg-slate-500/20 text-muted-foreground border-slate-500/30",
+  "Closed": "bg-slate-500/20 text-slate-300 border-slate-500/30",
   "Rejected": "bg-red-500/20 text-red-300 border-red-500/30",
 };
 
@@ -77,25 +77,25 @@ export default function IssueDetailPage() {
   if (!issue) return null;
 
   const isSuperAdmin = user?.role === "Super Admin";
-  const inputCls = "w-full bg-slate-700 border border-border text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 placeholder:text-slate-500 transition-colors resize-none";
-  const statusCls = STATUS_COLORS[issue.status] || "bg-slate-500/20 text-muted-foreground border-slate-500/30";
+  const inputCls = "w-full bg-slate-700 border border-white/10 text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 placeholder:text-slate-500 transition-colors resize-none";
+  const statusCls = STATUS_COLORS[issue.status] || "bg-slate-500/20 text-slate-300 border-slate-500/30";
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-4">
-          <Link href="/issues" className="p-2 rounded-lg border border-border bg-white/5 hover:bg-white/10 transition-colors text-muted-foreground hover:text-white shrink-0">
+          <Link href="/issues" className="p-2 rounded-lg border border-slate-200 dark:border-white/10 bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white shrink-0">
             <ArrowLeft className="w-4 h-4" />
           </Link>
           <div>
             <div className="flex items-center flex-wrap gap-3">
-              <h1 className="text-xl font-bold text-foreground">#{issue.id} {issue.title}</h1>
+              <h1 className="text-xl font-bold text-slate-900 dark:text-white">#{issue.id} {issue.title}</h1>
               <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${statusCls}`}>
                 {issue.status}
               </span>
             </div>
-            <p className="text-sm text-muted-foreground mt-1 flex items-center gap-3">
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-3">
               <span>By {issue.user?.first_name} {issue.user?.last_name}</span>
               <span>·</span>
               <span className="flex items-center gap-1">
@@ -109,7 +109,7 @@ export default function IssueDetailPage() {
           <select
             value={issue.status}
             onChange={(e) => handleStatusChange(e.target.value)}
-            className="bg-slate-700 border border-border text-white text-sm rounded-xl px-3 py-2 outline-none focus:border-amber-500 [color-scheme:dark]"
+            className="bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2 outline-none focus:border-amber-500 [color-scheme:dark]"
           >
             {["Open", "In Progress", "Waiting for User Response", "Resolved", "Rejected", "Closed"].map((s) => (
               <option key={s} value={s} className="bg-slate-700">{s}</option>
@@ -117,7 +117,7 @@ export default function IssueDetailPage() {
           </select>
         )}
         {!isSuperAdmin && (issue.status === "Resolved" || issue.status === "Closed") && (
-          <button onClick={() => handleStatusChange("Open")} className="px-4 py-2 text-sm font-medium bg-white/5 border border-border text-muted-foreground rounded-xl hover:bg-white/10 transition-colors">
+          <button onClick={() => handleStatusChange("Open")} className="px-4 py-2 text-sm font-medium bg-white/5 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300 rounded-xl hover:bg-slate-200 dark:hover:bg-white/10 transition-colors">
             Reopen Issue
           </button>
         )}
@@ -127,8 +127,8 @@ export default function IssueDetailPage() {
         {/* Main thread */}
         <div className="lg:col-span-2 space-y-4">
           {/* Original post */}
-          <div className="bg-card/80 border border-border rounded-2xl overflow-hidden">
-            <div className="p-5 bg-white/5 border-b border-border">
+          <div className="bg-slate-800/80 border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden">
+            <div className="p-5 bg-white/5 border-b border-slate-200 dark:border-white/10">
               <div className="flex gap-4">
                 <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center text-sm font-bold text-white shrink-0 overflow-hidden">
                   {issue.user?.profile_photo_path ? (
@@ -139,16 +139,16 @@ export default function IssueDetailPage() {
                 </div>
                 <div className="flex-1 space-y-3">
                   <div>
-                    <p className="font-semibold text-foreground">{issue.user?.first_name} {issue.user?.last_name}</p>
-                    <p className="text-xs text-muted-foreground">{format(new Date(issue.created_at), "PPp")}</p>
+                    <p className="font-semibold text-slate-900 dark:text-white">{issue.user?.first_name} {issue.user?.last_name}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{format(new Date(issue.created_at), "PPp")}</p>
                   </div>
-                  <div className="text-muted-foreground whitespace-pre-wrap text-sm leading-relaxed">
+                  <div className="text-slate-200 whitespace-pre-wrap text-sm leading-relaxed">
                     {issue.description}
                   </div>
 
                   {/* Attachment link */}
                   {issue.attachment_link && (
-                    <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border">
+                    <div className="flex items-center gap-2 mt-3 pt-3 border-t border-slate-200 dark:border-white/10">
                       <Link2 className="w-4 h-4 text-blue-400 shrink-0" />
                       <a
                         href={issue.attachment_link}
@@ -163,14 +163,14 @@ export default function IssueDetailPage() {
 
                   {/* File attachments */}
                   {issue.attachments && issue.attachments.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-border">
+                    <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-slate-200 dark:border-white/10">
                       {issue.attachments.map((att: any) => (
                         <a
                           key={att.id}
                           href={getStorageUrl(att.file_path)}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 p-2 bg-white/5 border border-border rounded-lg hover:bg-white/10 text-sm text-muted-foreground transition-colors"
+                          className="flex items-center gap-2 p-2 bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg hover:bg-slate-200 dark:hover:bg-white/10 text-sm text-slate-600 dark:text-slate-300 transition-colors"
                         >
                           <FileText className="w-4 h-4 text-amber-400" />
                           <span className="truncate max-w-[180px]">{att.file_name}</span>
@@ -185,11 +185,11 @@ export default function IssueDetailPage() {
 
             {/* Comments */}
             {issue.comments && issue.comments.length > 0 && (
-              <div className="divide-y divide-white/5">
+              <div className="divide-y divide-slate-200 dark:divide-white/5">
                 {issue.comments.map((comment: any) => (
                   <div key={comment.id} className="p-5">
                     <div className="flex gap-4">
-                      <div className="w-9 h-9 rounded-full bg-slate-600 flex items-center justify-center text-xs font-bold text-foreground shrink-0 overflow-hidden">
+                      <div className="w-9 h-9 rounded-full bg-slate-600 flex items-center justify-center text-xs font-bold text-slate-900 dark:text-white shrink-0 overflow-hidden">
                         {comment.user?.profile_photo_path ? (
                           <img src={comment.user.profile_photo_path} alt="" className="w-full h-full object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
                         ) : (
@@ -198,13 +198,13 @@ export default function IssueDetailPage() {
                       </div>
                       <div className="flex-1 space-y-2">
                         <div className="flex items-center gap-2">
-                          <p className="font-semibold text-foreground text-sm">{comment.user?.first_name} {comment.user?.last_name}</p>
+                          <p className="font-semibold text-slate-900 dark:text-white text-sm">{comment.user?.first_name} {comment.user?.last_name}</p>
                           {comment.user?.id === issue.user_id && (
                             <span className="text-[10px] uppercase tracking-wider bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full font-bold">Author</span>
                           )}
                           <span className="text-xs text-slate-500 ml-auto">{format(new Date(comment.created_at), "PPp")}</span>
                         </div>
-                        <div className="text-muted-foreground whitespace-pre-wrap text-sm">{comment.comment}</div>
+                        <div className="text-slate-600 dark:text-slate-300 whitespace-pre-wrap text-sm">{comment.comment}</div>
                         {comment.attachments && comment.attachments.length > 0 && (
                           <div className="flex flex-wrap gap-2 pt-2">
                             {comment.attachments.map((att: any) => (
@@ -213,7 +213,7 @@ export default function IssueDetailPage() {
                                 href={getStorageUrl(att.file_path)}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center gap-2 p-1.5 bg-white/5 border border-border rounded-lg hover:bg-white/10 text-xs text-muted-foreground transition-colors"
+                                className="flex items-center gap-2 p-1.5 bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg hover:bg-slate-200 dark:hover:bg-white/10 text-xs text-slate-500 dark:text-slate-400 transition-colors"
                               >
                                 <Paperclip className="w-3.5 h-3.5" />
                                 <span className="truncate max-w-[140px]">{att.file_name}</span>
@@ -229,7 +229,7 @@ export default function IssueDetailPage() {
             )}
 
             {/* Reply box */}
-            <div className="p-5 bg-white/5 border-t border-border">
+            <div className="p-5 bg-white/5 border-t border-slate-200 dark:border-white/10">
               <form onSubmit={handleCommentSubmit} className="space-y-3">
                 <textarea
                   placeholder="Type your reply..."
@@ -241,7 +241,7 @@ export default function IssueDetailPage() {
                 {files.length > 0 && (
                   <div className="flex flex-wrap gap-2">
                     {files.map((f, i) => (
-                      <div key={i} className="text-xs bg-white/5 border border-border px-2 py-1 rounded-lg flex items-center gap-2 text-muted-foreground">
+                      <div key={i} className="text-xs bg-white/5 border border-slate-200 dark:border-white/10 px-2 py-1 rounded-lg flex items-center gap-2 text-slate-600 dark:text-slate-300">
                         <span className="truncate max-w-[140px]">{f.name}</span>
                         <button type="button" onClick={() => setFiles(files.filter((_, idx) => idx !== i))} className="text-red-400 hover:text-red-300">×</button>
                       </div>
@@ -252,7 +252,7 @@ export default function IssueDetailPage() {
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-amber-400 transition-colors px-3 py-1.5 rounded-lg bg-white/5 border border-border hover:bg-white/10"
+                    className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 hover:text-amber-400 transition-colors px-3 py-1.5 rounded-lg bg-white/5 border border-slate-200 dark:border-white/10 hover:bg-slate-200 dark:hover:bg-white/10"
                   >
                     <Paperclip className="w-3.5 h-3.5" /> Attach File
                   </button>
@@ -273,8 +273,8 @@ export default function IssueDetailPage() {
 
         {/* Sidebar */}
         <div className="space-y-4">
-          <div className="bg-card/80 border border-border rounded-2xl p-5">
-            <h3 className="font-semibold text-foreground mb-4 border-b border-border pb-3">Details</h3>
+          <div className="bg-slate-800/80 border border-slate-200 dark:border-white/10 rounded-2xl p-5">
+            <h3 className="font-semibold text-slate-900 dark:text-white mb-4 border-b border-slate-200 dark:border-white/10 pb-3">Details</h3>
             <div className="space-y-3 text-sm">
               <Detail label="Status" value={<span className={`px-2 py-0.5 rounded-full text-xs font-semibold border ${statusCls}`}>{issue.status}</span>} />
               <Detail label="Priority" value={<PriorityBadge p={issue.priority} />} />
@@ -305,7 +305,7 @@ function Detail({ label, value }: { label: string; value: any }) {
   return (
     <div>
       <span className="text-slate-500 text-xs uppercase tracking-wider block mb-0.5">{label}</span>
-      <span className="font-medium text-muted-foreground">{value}</span>
+      <span className="font-medium text-slate-200">{value}</span>
     </div>
   );
 }
@@ -315,7 +315,7 @@ function PriorityBadge({ p }: { p: string }) {
     Critical: "text-red-300 bg-red-500/20",
     High: "text-orange-300 bg-orange-500/20",
     Medium: "text-amber-300 bg-amber-500/20",
-    Low: "text-muted-foreground bg-slate-500/20",
+    Low: "text-slate-300 bg-slate-500/20",
   };
-  return <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${cls[p] || "text-muted-foreground bg-slate-500/20"}`}>{p}</span>;
+  return <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${cls[p] || "text-slate-300 bg-slate-500/20"}`}>{p}</span>;
 }

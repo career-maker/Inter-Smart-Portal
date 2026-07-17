@@ -234,14 +234,14 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
             {/* User ID */}
             {!selectedEmployeeId && (
               <div>
-                <label className="text-sm font-medium text-white">Employee ID</label>
+                <label className="text-sm font-medium text-slate-900 dark:text-white">Employee ID</label>
                 <input
                   type="number"
                   name="user_id"
                   value={formData.user_id}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-border rounded-lg bg-background text-white outline-none focus:ring-2 focus:ring-amber-400 text-sm"
+                  className="w-full px-3 py-2 border border-slate-200 dark:border-white/10 rounded-lg bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-400 text-sm"
                   placeholder="Enter employee ID"
                 />
               </div>
@@ -249,13 +249,13 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
 
             {/* Leave/WFH Type - Unified dropdown with all options */}
             <div>
-              <label className="text-sm font-medium text-white">Type</label>
+              <label className="text-sm font-medium text-slate-900 dark:text-white">Type</label>
               <select
                 name={type === "leave" ? "leave_type_id" : "wfh_type_id"}
                 value={type === "leave" ? formData.leave_type_id : formData.wfh_type_id}
                 onChange={handleInputChange}
                 required
-                className="w-full px-3 py-2 border border-border rounded-lg bg-background text-white outline-none focus:ring-2 focus:ring-amber-400 text-sm"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-white/10 rounded-lg bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-400 text-sm"
               >
                 <option value="">Select {type === "leave" ? "leave type" : "WFH type"}</option>
                 {(type === "leave" ? leaveTypes : wfhTypes).map(lt => (
@@ -267,38 +267,38 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
             {/* Date Range */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-white">Start Date</label>
+                <label className="text-sm font-medium text-slate-900 dark:text-white">Start Date</label>
                 <input
                   type="date"
                   name="start_date"
                   value={formData.start_date}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-border rounded-lg bg-background text-white outline-none focus:ring-2 focus:ring-amber-400 text-sm"
+                  className="w-full px-3 py-2 border border-slate-200 dark:border-white/10 rounded-lg bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-400 text-sm"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-white">End Date</label>
+                <label className="text-sm font-medium text-slate-900 dark:text-white">End Date</label>
                 <input
                   type="date"
                   name="end_date"
                   value={formData.end_date}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-border rounded-lg bg-background text-white outline-none focus:ring-2 focus:ring-amber-400 text-sm"
+                  className="w-full px-3 py-2 border border-slate-200 dark:border-white/10 rounded-lg bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-400 text-sm"
                 />
               </div>
             </div>
 
             {/* Reason */}
             <div>
-              <label className="text-sm font-medium text-white">Reason</label>
+              <label className="text-sm font-medium text-slate-900 dark:text-white">Reason</label>
               <textarea
                 name="reason"
                 value={formData.reason}
                 onChange={handleInputChange}
                 required
-                className="w-full px-3 py-2 border border-border rounded-lg bg-background text-white outline-none focus:ring-2 focus:ring-amber-400 text-sm"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-white/10 rounded-lg bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-400 text-sm"
                 placeholder="Enter reason"
                 rows={3}
               />

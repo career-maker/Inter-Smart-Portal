@@ -71,8 +71,8 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
   if (!upcomingItems || upcomingItems.length === 0) {
     return (
       <div className="premium-card p-6 flex flex-col justify-center" style={{ height: '224px' }}>
-        <h3 className="font-bold text-foreground mb-4">🎂 Upcoming Birthdays</h3>
-        <p className="text-sm text-muted-foreground">No upcoming birthdays in the next 30 days.</p>
+        <h3 className="font-bold text-slate-900 dark:text-white mb-4">🎂 Upcoming Birthdays</h3>
+        <p className="text-sm text-slate-500 dark:text-slate-400">No upcoming birthdays in the next 30 days.</p>
       </div>
     );
   }
@@ -85,8 +85,8 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
   if (!person || typeof person !== 'object') {
     return (
       <div className="premium-card p-6 flex flex-col justify-center" style={{ height: '224px' }}>
-        <h3 className="font-bold text-foreground mb-4">🎂 Upcoming Birthdays</h3>
-        <p className="text-sm text-muted-foreground">Unable to load birthday data.</p>
+        <h3 className="font-bold text-slate-900 dark:text-white mb-4">🎂 Upcoming Birthdays</h3>
+        <p className="text-sm text-slate-500 dark:text-slate-400">Unable to load birthday data.</p>
       </div>
     );
   }
@@ -97,7 +97,7 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
 
   return (
     <div className="premium-card p-6 flex flex-col" style={{ height: '224px' }}>
-      <h3 className="font-bold text-foreground shrink-0 mb-4 text-sm">🎂 Upcoming Birthdays</h3>
+      <h3 className="font-bold text-slate-900 dark:text-white shrink-0 mb-4 text-sm">🎂 Upcoming Birthdays</h3>
 
       {/* Rotating Card */}
       <div className="flex items-center justify-center gap-3 flex-1 min-h-0">
@@ -106,7 +106,7 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
           disabled={safeIndex === 0}
           className="p-2 hover:bg-slate-700/50 rounded disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
         >
-          <ChevronLeft className="w-4 h-4 text-muted-foreground" />
+          <ChevronLeft className="w-4 h-4 text-slate-500 dark:text-slate-400" />
         </button>
 
         <div className="flex flex-col items-center justify-center gap-2.5 flex-1">
@@ -118,14 +118,14 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
                 {typeof person.name === 'string' ? person.name?.[0] : '?'}
               </AvatarFallback>
             </Avatar>
-            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-slate-950 border border-slate-700 text-foreground text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 shadow-lg font-medium">
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 shadow-lg font-medium">
               {typeof person.name === 'string' ? person.name : 'Unknown'}
             </div>
           </div>
 
           {/* Name pill below avatar */}
-          <div className="bg-background px-3 py-1 rounded-full text-center">
-            <p className="font-semibold text-foreground text-xs line-clamp-1">
+          <div className="bg-slate-50 dark:bg-slate-900 px-3 py-1 rounded-full text-center">
+            <p className="font-semibold text-slate-900 dark:text-white text-xs line-clamp-1">
               {typeof person.name === 'string' ? person.name : 'Unknown'}
             </p>
           </div>
@@ -145,7 +145,7 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
               {isToday ? (
                 <span className="text-[10px] uppercase font-bold bg-pink-500 text-white px-1.5 py-0.5 rounded inline-block mt-0.5">TODAY!</span>
               ) : (
-                <span className="text-[10px] uppercase font-bold text-muted-foreground">In {person.days_remaining}d</span>
+                <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">In {person.days_remaining}d</span>
               )}
             </div>
 
@@ -161,7 +161,7 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
           disabled={safeIndex === upcomingItems.length - 1}
           className="p-2 hover:bg-slate-700/50 rounded disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
         >
-          <ChevronRight className="w-4 h-4 text-muted-foreground" />
+          <ChevronRight className="w-4 h-4 text-slate-500 dark:text-slate-400" />
         </button>
       </div>
 
@@ -179,14 +179,14 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
       {/* Wish Modal - Fixed positioning */}
       {selectedBirthdayId !== null && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4 pointer-events-auto">
-          <div className="bg-background border border-border rounded-2xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-2xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h4 className="font-bold text-foreground truncate">{`Wish ${typeof person.name === 'string' ? person.name : 'Unknown'}`}</h4>
+              <h4 className="font-bold text-slate-900 dark:text-white truncate">{`Wish ${typeof person.name === 'string' ? person.name : 'Unknown'}`}</h4>
               <button
                 onClick={() => setSelectedBirthdayId(null)}
-                className="p-1 hover:bg-card rounded shrink-0"
+                className="p-1 hover:bg-slate-800 rounded shrink-0"
               >
-                <X className="w-4 h-4 text-muted-foreground" />
+                <X className="w-4 h-4 text-slate-500 dark:text-slate-400" />
               </button>
             </div>
 
@@ -196,11 +196,11 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 rows={3}
-                className="bg-white/5 border-border text-white placeholder-slate-400 resize-none"
+                className="bg-white/5 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder-slate-400 resize-none"
                 maxLength={500}
               />
 
-              <div className="text-xs text-muted-foreground">{message.length}/500</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">{message.length}/500</div>
 
               {error && <div className="text-sm text-red-400 bg-red-500/10 p-2 rounded">{error}</div>}
 

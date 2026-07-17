@@ -55,17 +55,17 @@ export function CSVImport({ onSuccess }: { onSuccess?: () => void }) {
   };
 
   return (
-    <div className="bg-white/5 border border-border rounded-2xl p-6 space-y-6">
+    <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-6 space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">Mass Import Employees</h2>
-        <p className="text-muted-foreground">Upload a CSV file to import multiple employees at once</p>
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Mass Import Employees</h2>
+        <p className="text-slate-500 dark:text-slate-400">Upload a CSV file to import multiple employees at once</p>
       </div>
 
       {/* Download Sample */}
-      <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
+      <div className="border-2 border-dashed border-slate-200 dark:border-white/20 rounded-lg p-6 text-center">
         <Download className="w-8 h-8 text-amber-400 mx-auto mb-3" />
-        <h3 className="font-semibold text-foreground mb-2">Download Sample CSV</h3>
-        <p className="text-sm text-muted-foreground mb-4">
+        <h3 className="font-semibold text-slate-900 dark:text-white mb-2">Download Sample CSV</h3>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
           Download a template with all required fields to fill in and upload
         </p>
         <Button
@@ -79,7 +79,7 @@ export function CSVImport({ onSuccess }: { onSuccess?: () => void }) {
       </div>
 
       {/* Upload CSV */}
-      <div className="border-2 border-dashed border-border rounded-lg p-6">
+      <div className="border-2 border-dashed border-slate-200 dark:border-white/20 rounded-lg p-6">
         <input
           type="file"
           accept=".csv,.txt"
@@ -89,9 +89,9 @@ export function CSVImport({ onSuccess }: { onSuccess?: () => void }) {
           id="csv-upload"
         />
         <label htmlFor="csv-upload" className="cursor-pointer block text-center">
-          <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
-          <h3 className="font-semibold text-foreground mb-2">Upload CSV File</h3>
-          <p className="text-sm text-muted-foreground mb-4">
+          <Upload className="w-8 h-8 text-slate-500 dark:text-slate-400 mx-auto mb-3" />
+          <h3 className="font-semibold text-slate-900 dark:text-white mb-2">Upload CSV File</h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
             Click to select CSV file or drag and drop
           </p>
           <Button
@@ -106,14 +106,14 @@ export function CSVImport({ onSuccess }: { onSuccess?: () => void }) {
 
       {/* Results */}
       {results && (
-        <div className="bg-white/5 border border-border rounded-lg p-4 space-y-3">
+        <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg p-4 space-y-3">
           <div className="flex items-center gap-2">
             {results.failed === 0 ? (
               <CheckCircle className="w-5 h-5 text-emerald-400" />
             ) : (
               <AlertCircle className="w-5 h-5 text-amber-400" />
             )}
-            <h4 className="font-semibold text-foreground">
+            <h4 className="font-semibold text-slate-900 dark:text-white">
               Imported {results.imported} employee{results.imported !== 1 ? "s" : ""}
               {results.failed > 0 && `, ${results.failed} failed`}
             </h4>
@@ -139,9 +139,9 @@ export function CSVImport({ onSuccess }: { onSuccess?: () => void }) {
       )}
 
       {/* CSV Format Info */}
-      <div className="bg-background/50 rounded-lg p-4 space-y-2">
-        <h4 className="font-semibold text-foreground text-sm">Required Fields:</h4>
-        <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+      <div className="bg-slate-900/50 rounded-lg p-4 space-y-2">
+        <h4 className="font-semibold text-slate-900 dark:text-white text-sm">Required Fields:</h4>
+        <div className="grid grid-cols-2 gap-2 text-xs text-slate-600 dark:text-slate-300">
           <div>• first_name (required)</div>
           <div>• last_name</div>
           <div>• email (required)</div>

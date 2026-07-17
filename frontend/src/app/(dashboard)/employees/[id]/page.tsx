@@ -134,8 +134,8 @@ export default function EditEmployeePage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Manage {employee.first_name}</h1>
-          <p className="text-muted-foreground">{employee.employee_id} • {employee.designation}</p>
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Manage {employee.first_name}</h1>
+          <p className="text-slate-600 dark:text-slate-300">{employee.employee_id} • {employee.designation}</p>
         </div>
       </div>
 
@@ -153,15 +153,15 @@ export default function EditEmployeePage() {
         <TabsContent value="photo">
           <div className="max-w-xl space-y-6">
             {/* Current photo preview */}
-            <div className="bg-card/80 border border-border rounded-2xl p-6 flex flex-col items-center gap-4">
-              <div className="h-28 w-28 rounded-full border-4 border-border overflow-hidden bg-slate-700 flex items-center justify-center shrink-0">
+            <div className="bg-slate-800/80 border border-slate-200 dark:border-white/10 rounded-2xl p-6 flex flex-col items-center gap-4">
+              <div className="h-28 w-28 rounded-full border-4 border-slate-200 dark:border-white/10 overflow-hidden bg-slate-700 flex items-center justify-center shrink-0">
                 {employee.profile_photo_path && !imgError ? (
                   <img src={employee.profile_photo_path} alt="Profile" className="h-full w-full object-cover" onError={() => setImgError(true)} />
                 ) : (
                   <Camera className="h-12 w-12 text-slate-500" />
                 )}
               </div>
-              <p className="text-sm text-muted-foreground text-center">
+              <p className="text-sm text-slate-500 dark:text-slate-400 text-center">
                 {imgError ? "Photo URL saved but could not load — ensure the file is publicly accessible" : employee.profile_photo_path ? "Current profile photo" : "No photo set"}
               </p>
               {imgError && (
@@ -170,17 +170,17 @@ export default function EditEmployeePage() {
             </div>
 
             {/* Mode toggle */}
-            <div className="flex rounded-xl border border-border overflow-hidden bg-card/60 p-1 gap-1">
+            <div className="flex rounded-xl border border-slate-200 dark:border-white/10 overflow-hidden bg-slate-800/60 p-1 gap-1">
               <button
                 onClick={() => setPhotoMode("upload")}
-                className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${photoMode === "upload" ? "bg-amber-500 text-white shadow" : "text-muted-foreground hover:text-white"}`}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${photoMode === "upload" ? "bg-amber-500 text-white shadow" : "text-slate-400 hover:text-white"}`}
               >
                 <Upload className="w-4 h-4" />
                 Upload File
               </button>
               <button
                 onClick={() => setPhotoMode("url")}
-                className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${photoMode === "url" ? "bg-amber-500 text-white shadow" : "text-muted-foreground hover:text-white"}`}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${photoMode === "url" ? "bg-amber-500 text-white shadow" : "text-slate-400 hover:text-white"}`}
               >
                 <Link2 className="w-4 h-4" />
                 Paste URL
@@ -189,19 +189,19 @@ export default function EditEmployeePage() {
 
             {/* Upload File mode */}
             {photoMode === "upload" && (
-              <div className="bg-card/80 border border-border rounded-2xl p-6">
-                <h3 className="text-sm font-semibold text-foreground mb-1">Upload from device</h3>
-                <p className="text-xs text-muted-foreground mb-4">JPEG, PNG or GIF · Max 2 MB</p>
-                <label className={`flex flex-col items-center justify-center gap-3 border-2 border-dashed rounded-xl p-8 cursor-pointer transition-colors ${photoLoading ? "opacity-50 cursor-not-allowed border-border" : "border-border hover:border-amber-500/60 hover:bg-amber-500/5"}`}>
+              <div className="bg-slate-800/80 border border-slate-200 dark:border-white/10 rounded-2xl p-6">
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">Upload from device</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">JPEG, PNG or GIF · Max 2 MB</p>
+                <label className={`flex flex-col items-center justify-center gap-3 border-2 border-dashed rounded-xl p-8 cursor-pointer transition-colors ${photoLoading ? "opacity-50 cursor-not-allowed border-white/10" : "border-white/20 hover:border-amber-500/60 hover:bg-amber-500/5"}`}>
                   {photoLoading ? (
                     <>
                       <Loader2 className="w-8 h-8 text-amber-400 animate-spin" />
-                      <span className="text-sm text-muted-foreground">Uploading...</span>
+                      <span className="text-sm text-slate-500 dark:text-slate-400">Uploading...</span>
                     </>
                   ) : (
                     <>
-                      <Upload className="w-8 h-8 text-muted-foreground" />
-                      <span className="text-sm font-medium text-muted-foreground">Click to choose a file</span>
+                      <Upload className="w-8 h-8 text-slate-500 dark:text-slate-400" />
+                      <span className="text-sm font-medium text-slate-600 dark:text-slate-300">Click to choose a file</span>
                     </>
                   )}
                   <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} disabled={photoLoading} />
@@ -211,9 +211,9 @@ export default function EditEmployeePage() {
 
             {/* Paste URL mode */}
             {photoMode === "url" && (
-              <div className="bg-card/80 border border-border rounded-2xl p-6">
-                <h3 className="text-sm font-semibold text-foreground mb-1">Link from Google Drive or any public URL</h3>
-                <p className="text-xs text-muted-foreground mb-4">
+              <div className="bg-slate-800/80 border border-slate-200 dark:border-white/10 rounded-2xl p-6">
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">Link from Google Drive or any public URL</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
                   Share the file publicly on Google Drive, copy the sharing link, and paste it below. Google Drive links are automatically converted to direct image URLs.
                 </p>
                 <form onSubmit={handlePhotoUrl} className="space-y-3">
@@ -223,7 +223,7 @@ export default function EditEmployeePage() {
                       value={photoUrl}
                       onChange={e => { setPhotoUrl(e.target.value); setUrlSuccess(false); }}
                       placeholder="https://drive.google.com/file/d/... or any image URL"
-                      className="flex-1 bg-slate-700 border border-border text-white text-sm rounded-lg px-3 py-2.5 outline-none focus:border-amber-500 placeholder:text-slate-500"
+                      className="flex-1 bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-lg px-3 py-2.5 outline-none focus:border-amber-500 placeholder:text-slate-500"
                       disabled={urlLoading}
                     />
                     <button

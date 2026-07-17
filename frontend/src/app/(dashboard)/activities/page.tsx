@@ -54,15 +54,15 @@ export default function ActivitiesPage() {
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3 text-foreground">
+          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3 text-slate-900 dark:text-white">
             <Activity className="w-8 h-8 text-cyan-600" />
             All Activities
           </h1>
-          <p className="text-muted-foreground mt-2">Organization-wide recent activity log.</p>
+          <p className="text-slate-600 dark:text-slate-300 mt-2">Organization-wide recent activity log.</p>
         </div>
       </div>
 
-      <div className="bg-white rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.05)] backdrop-blur-2xl border border-white/60 p-6">
+      <div className="bg-white rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.05)] backdrop-blur-2xl border border-slate-200 dark:border-white/60 p-6">
         <div className="space-y-6">
           {data?.data.map((act: any, i: number) => (
             <div key={i} className="flex items-start gap-4 p-4 rounded-xl hover:bg-gray-50/70 transition-colors border border-transparent hover:border-gray-100">

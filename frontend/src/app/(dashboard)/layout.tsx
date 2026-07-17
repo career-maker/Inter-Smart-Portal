@@ -218,9 +218,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const closeMenu = () => setMenuOpen(false);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 dark:from-slate-900 via-slate-800 to-slate-50 dark:to-slate-900">
       <RecognitionTicker />
-      <header className="bg-background/80 backdrop-blur-md border-b border-border shadow-lg">
+      <header className="bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-white/10 shadow-lg">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           {/* Logo */}
           <Link href="/dashboard" className="flex items-center shrink-0 pr-4">
@@ -235,12 +235,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {/* User info (desktop) */}
             <Link href="/profile" className="hidden sm:flex items-center gap-3 hover:opacity-85 transition-opacity cursor-pointer">
               <div className="flex flex-col items-end text-right">
-                <span className="text-sm font-medium leading-none text-foreground">
+                <span className="text-sm font-medium leading-none text-slate-900 dark:text-white">
                   {user?.first_name} {user?.last_name}
                 </span>
-                <span className="text-xs text-muted-foreground mt-0.5">{user?.role}</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{user?.role}</span>
               </div>
-              <div className="w-8 h-8 rounded-full border border-border bg-amber-400 overflow-hidden flex items-center justify-center text-xs font-bold text-white relative shrink-0">
+              <div className="w-8 h-8 rounded-full border border-slate-200 dark:border-white/10 bg-amber-400 overflow-hidden flex items-center justify-center text-xs font-bold text-white relative shrink-0">
                 <span>{user?.first_name?.[0]}{user?.last_name?.[0]}</span>
                 {user?.profile_photo_path && (
                   <img
@@ -256,7 +256,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {/* Logout (desktop) */}
             <button
               onClick={handleLogout}
-              className="hidden sm:flex items-center gap-1.5 text-sm text-muted-foreground hover:text-rose-400 transition-colors px-2 py-1.5 rounded-lg hover:bg-rose-500/10"
+              className="hidden sm:flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 hover:text-rose-400 transition-colors px-2 py-1.5 rounded-lg hover:bg-rose-500/10"
             >
               <LogOut className="h-4 w-4" />
               <span>Logout</span>
@@ -264,11 +264,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             {/* Hamburger */}
             <button
-              className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
               onClick={() => setMenuOpen((v) => !v)}
               aria-label="Toggle menu"
             >
-              {menuOpen ? <X className="h-6 w-6 text-muted-foreground" /> : <Menu className="h-6 w-6 text-muted-foreground" />}
+              {menuOpen ? <X className="h-6 w-6 text-slate-600 dark:text-slate-300" /> : <Menu className="h-6 w-6 text-slate-600 dark:text-slate-300" />}
             </button>
           </div>
         </div>
@@ -278,22 +278,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {menuOpen && (
         <>
           <div className="fixed inset-0 top-16 bg-black/40 z-[998]" onClick={closeMenu} />
-          <div role="navigation" className="fixed top-20 right-4 w-72 max-h-[calc(100vh-7rem)] bg-background border border-border rounded-2xl shadow-2xl z-[9999] overflow-y-auto">
-            <Link href="/profile" onClick={closeMenu} className="sm:hidden px-4 py-4 border-b border-border flex items-center gap-3 hover:bg-white/5 transition-colors cursor-pointer">
+          <div role="navigation" className="fixed top-20 right-4 w-72 max-h-[calc(100vh-7rem)] bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl z-[9999] overflow-y-auto">
+            <Link href="/profile" onClick={closeMenu} className="sm:hidden px-4 py-4 border-b border-slate-200 dark:border-white/10 flex items-center gap-3 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors cursor-pointer">
             <div className="w-10 h-10 rounded-full bg-amber-400 overflow-hidden flex items-center justify-center text-sm font-bold text-white relative shrink-0">
               <span>{user?.first_name?.[0]}{user?.last_name?.[0]}</span>
               {user?.profile_photo_path && <img src={user.profile_photo_path} alt="" className="absolute inset-0 w-full h-full object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />}
             </div>
             <div>
-              <p className="text-sm font-semibold text-foreground">{user?.first_name} {user?.last_name}</p>
-              <p className="text-xs text-muted-foreground">{user?.role}</p>
+              <p className="text-sm font-semibold text-slate-900 dark:text-white">{user?.first_name} {user?.last_name}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">{user?.role}</p>
             </div>
           </Link>
           <nav className="py-2">
             {STANDALONE.map(({ href, label, icon: Icon }) => {
               const active = pathname === href;
               return (
-                <Link key={href} href={href} onClick={closeMenu} className={`flex items-center gap-3 px-4 py-2.5 text-sm font-semibold transition-colors mx-2 rounded-xl ${active ? "bg-amber-500/20 text-amber-400" : "text-muted-foreground hover:bg-white/5 hover:text-white"}`}>
+                <Link key={href} href={href} onClick={closeMenu} className={`flex items-center gap-3 px-4 py-2.5 text-sm font-semibold transition-colors mx-2 rounded-xl ${active ? "bg-amber-500/20 text-amber-400" : "text-slate-300 hover:bg-white/5 hover:text-white"}`}>
                   <Icon className="h-4 w-4 shrink-0" />
                   {label}
                 </Link>
@@ -307,7 +307,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               const GroupIcon = group.icon;
               return (
                 <div key={group.id} className="mt-1">
-                  <button onClick={() => toggleGroup(group.id)} className={`w-full flex items-center justify-between gap-2 px-4 py-2.5 text-sm font-semibold transition-colors mx-2 rounded-xl ${groupActive && !isOpen ? "text-amber-400" : "text-muted-foreground hover:text-white hover:bg-white/5"}`} style={{ width: "calc(100% - 1rem)" }}>
+                  <button onClick={() => toggleGroup(group.id)} className={`w-full flex items-center justify-between gap-2 px-4 py-2.5 text-sm font-semibold transition-colors mx-2 rounded-xl ${groupActive && !isOpen ? "text-amber-400" : "text-slate-300 hover:text-white hover:bg-white/5"}`} style={{ width: "calc(100% - 1rem)" }}>
                     <span className="flex items-center gap-3">
                       <GroupIcon className="h-4 w-4 shrink-0" />
                       {group.label}
@@ -320,7 +320,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         const hasExactMatch = visibleItems.some((i) => pathname === i.href);
                         const active = hasExactMatch ? pathname === item.href : pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"));
                         return (
-                          <Link key={item.href} href={item.href} onClick={closeMenu} className={`flex items-center gap-2 pl-11 pr-4 py-2 text-sm transition-colors mx-2 rounded-xl ${active ? "bg-amber-500/20 text-amber-400 font-semibold" : "text-muted-foreground hover:bg-white/5 hover:text-white"}`} style={{ width: "calc(100% - 1rem)" }}>
+                          <Link key={item.href} href={item.href} onClick={closeMenu} className={`flex items-center gap-2 pl-11 pr-4 py-2 text-sm transition-colors mx-2 rounded-xl ${active ? "bg-amber-500/20 text-amber-400 font-semibold" : "text-slate-400 hover:bg-white/5 hover:text-white"}`} style={{ width: "calc(100% - 1rem)" }}>
                             <span className="w-1 h-1 rounded-full bg-current shrink-0 opacity-60" />
                             <span className="flex items-center gap-2">
                               {item.label}
@@ -336,7 +336,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </div>
               );
             })}
-            <div className="mt-2 pt-2 border-t border-border sm:hidden">
+            <div className="mt-2 pt-2 border-t border-slate-200 dark:border-white/10 sm:hidden">
               <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 text-sm text-red-400 px-4 py-3 rounded-xl hover:bg-red-500/10 transition-colors mx-2" style={{ width: "calc(100% - 1rem)" }}>
                 <LogOut className="h-4 w-4" />
                 Logout
@@ -350,8 +350,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <main className="max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8">
         {/* Breadcrumbs */}
         {pathname !== "/dashboard" && (
-          <div className="flex items-center flex-wrap gap-1 text-sm text-muted-foreground mb-7 font-medium">
-            <Link href="/dashboard" className="breadcrumb-item hover:text-white flex items-center gap-1.5 text-muted-foreground">
+          <div className="flex items-center flex-wrap gap-1 text-sm text-slate-500 dark:text-slate-400 mb-7 font-medium">
+            <Link href="/dashboard" className="breadcrumb-item hover:text-slate-900 dark:hover:text-white flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
               <Home className="w-4 h-4" />
               Dashboard
             </Link>
@@ -368,9 +368,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   <div key={segment + index} className="flex items-center gap-1">
                     <ChevronRight className="w-4 h-4 text-slate-600" />
                     {isLast ? (
-                      <span className="text-foreground font-semibold">{title}</span>
+                      <span className="text-slate-900 dark:text-white font-semibold">{title}</span>
                     ) : (
-                      <Link href={href} className="breadcrumb-item hover:text-white text-muted-foreground">
+                      <Link href={href} className="breadcrumb-item hover:text-slate-900 dark:hover:text-white text-slate-600 dark:text-slate-300">
                         {title}
                       </Link>
                     )}

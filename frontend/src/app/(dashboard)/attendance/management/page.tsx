@@ -337,8 +337,8 @@ export default function AttendanceManagementPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">Attendance Management</h1>
-        <p className="text-muted-foreground">Super Admin: View and manage employee attendance records</p>
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Attendance Management</h1>
+        <p className="text-slate-600 dark:text-slate-300">Super Admin: View and manage employee attendance records</p>
       </div>
 
       {error && viewMode !== "dateAllEmployees" && (
@@ -354,35 +354,35 @@ export default function AttendanceManagementPage() {
 
       {/* Employee Selector */}
       {viewMode === "selector" && (
-        <Card className="shadow-sm border-border bg-card/50 backdrop-blur-sm text-white">
+        <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white">
           <CardHeader>
             <CardTitle>Select Employee</CardTitle>
-            <CardDescription className="text-muted-foreground">
+            <CardDescription className="text-slate-500 dark:text-slate-400">
               Choose an employee to view their attendance records
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Search Box */}
             <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-3 h-4 w-4 text-slate-500 dark:text-slate-400" />
               <input
                 type="text"
                 placeholder="Search by name or employee code..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-background border border-border rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-lg text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-400"
               />
             </div>
 
             {/* Employee List */}
             {isLoadingEmployees ? (
               <div className="flex justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                <Loader2 className="h-6 w-6 animate-spin text-slate-500 dark:text-slate-400" />
               </div>
             ) : (
               <div className="space-y-2 max-h-[60vh] overflow-y-auto">
                 {filteredEmployees.length === 0 ? (
-                  <p className="text-center text-muted-foreground py-4">No employees found</p>
+                  <p className="text-center text-slate-500 dark:text-slate-400 py-4">No employees found</p>
                 ) : (
                   filteredEmployees.map((emp) => (
                     <button
@@ -395,20 +395,20 @@ export default function AttendanceManagementPage() {
                           modeSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                         }, 100);
                       }}
-                      className="w-full text-left p-4 bg-slate-700/30 hover:bg-slate-700/50 rounded-lg border border-border hover:border-border transition-all"
+                      className="w-full text-left p-4 bg-slate-700/30 hover:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-white/10 hover:border-white/20 transition-all"
                     >
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-semibold text-foreground">
+                          <p className="font-semibold text-slate-900 dark:text-white">
                             {emp.first_name} {emp.last_name}
                           </p>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
                             {emp.employee_code}
                             {emp.designation && ` • ${emp.designation}`}
                             {emp.team && ` • ${emp.team.name}`}
                           </p>
                         </div>
-                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                        <ChevronDown className="h-4 w-4 text-slate-500 dark:text-slate-400" />
                       </div>
                     </button>
                   ))
@@ -421,30 +421,30 @@ export default function AttendanceManagementPage() {
 
       {/* All Employees on Date View */}
       {!selectedEmployee && viewMode === "selector" && (
-        <Card className="shadow-sm border-border bg-card/50 backdrop-blur-sm text-white relative">
+        <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white relative">
           {isLoadingDetails && (
             <div className="absolute inset-0 bg-black/40 rounded-lg backdrop-blur-sm flex items-center justify-center z-10">
               <div className="flex flex-col items-center gap-3">
                 <Loader2 className="h-10 w-10 animate-spin text-amber-400" />
-                <p className="text-sm text-muted-foreground font-medium">Loading attendance data...</p>
+                <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">Loading attendance data...</p>
               </div>
             </div>
           )}
           <CardHeader>
             <CardTitle>View All Employees on a Date</CardTitle>
-            <CardDescription className="text-muted-foreground">
+            <CardDescription className="text-slate-500 dark:text-slate-400">
               View attendance records for all employees on a specific date
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-4">
-              <label className="text-sm text-muted-foreground">Select Date:</label>
+              <label className="text-sm text-slate-600 dark:text-slate-300">Select Date:</label>
               <input
                 type="date"
                 value={selectedDate}
                 onChange={(e) => handleAllEmployeesDateSelection(e.target.value)}
                 disabled={isLoadingDetails}
-                className="px-3 py-2 bg-background border border-border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-amber-400 [color-scheme:dark] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-400 [color-scheme:dark] disabled:opacity-50 disabled:cursor-not-allowed"
               />
               {selectedDate && !isLoadingDetails && (
                 <button
@@ -464,12 +464,12 @@ export default function AttendanceManagementPage() {
       {/* All Employees on Date - Table View */}
       {viewMode === "dateAllEmployees" && (
         <>
-          <Card className="shadow-sm border-border bg-card/50 backdrop-blur-sm text-white relative">
+          <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white relative">
             {isLoadingDetails && (
               <div className="absolute inset-0 bg-black/40 rounded-lg backdrop-blur-sm flex items-center justify-center z-10">
                 <div className="flex flex-col items-center gap-3">
                   <Loader2 className="h-10 w-10 animate-spin text-amber-400" />
-                  <p className="text-sm text-muted-foreground font-medium">Loading attendance data...</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">Loading attendance data...</p>
                 </div>
               </div>
             )}
@@ -477,11 +477,11 @@ export default function AttendanceManagementPage() {
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                 <div>
                   <CardTitle>Attendance Report - {selectedDate}</CardTitle>
-                  <CardDescription className="text-muted-foreground">All employees attendance</CardDescription>
+                  <CardDescription className="text-slate-500 dark:text-slate-400">All employees attendance</CardDescription>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-2">
-                    <label className="text-sm text-muted-foreground">Change Date:</label>
+                    <label className="text-sm text-slate-600 dark:text-slate-300">Change Date:</label>
                     <input
                       type="date"
                       value={selectedDate}
@@ -491,7 +491,7 @@ export default function AttendanceManagementPage() {
                         }
                       }}
                       disabled={isLoadingDetails}
-                      className="px-3 py-2 bg-background border border-border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-amber-400 [color-scheme:dark] text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-400 [color-scheme:dark] text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     />
                   </div>
                   <button
@@ -509,7 +509,7 @@ export default function AttendanceManagementPage() {
                       setSelectedDate("");
                     }}
                     disabled={isLoadingDetails}
-                    className="px-3 py-2 text-muted-foreground hover:text-white hover:bg-slate-700/30 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors text-sm font-semibold"
+                    className="px-3 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-700/30 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors text-sm font-semibold"
                   >
                     ← Back
                   </button>
@@ -521,9 +521,9 @@ export default function AttendanceManagementPage() {
                 <>
                   {/* Summary Stats */}
                   <div className="mb-4 grid grid-cols-4 gap-3">
-                    <div className="bg-white/5 border border-border rounded-lg p-3 text-center">
-                      <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Employees</p>
-                      <p className="text-xl font-bold text-foreground mt-1">{allEmployeesDateData.length}</p>
+                    <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg p-3 text-center">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Employees</p>
+                      <p className="text-xl font-bold text-slate-900 dark:text-white mt-1">{allEmployeesDateData.length}</p>
                     </div>
                     <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3 text-center">
                       <p className="text-xs text-emerald-400 uppercase tracking-wider">Punched In</p>
@@ -550,7 +550,7 @@ export default function AttendanceManagementPage() {
                   {/* Table */}
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
-                      <thead className="border-b border-border">
+                      <thead className="border-b border-slate-200 dark:border-white/10">
                         <tr>
                           <SortHeader column="name" label="Employee" />
                           <SortHeader column="code" label="Code" />
@@ -566,11 +566,11 @@ export default function AttendanceManagementPage() {
                       {sortedEmployeesData().map((emp) => {
                         const attendance = emp.attendance || {};
                         return (
-                          <tr key={emp.id} className="border-b border-border hover:bg-white/5 transition-colors">
-                            <td className="py-3 px-4 text-white">{emp.first_name} {emp.last_name}</td>
-                            <td className="py-3 px-4 text-muted-foreground">{emp.employee_code}</td>
-                            <td className="py-3 px-4 text-muted-foreground">{emp.designation || "N/A"}</td>
-                            <td className="py-3 px-4 text-muted-foreground">{emp.team?.name || "Unassigned"}</td>
+                          <tr key={emp.id} className="border-b border-slate-200 dark:border-white/5 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
+                            <td className="py-3 px-4 text-slate-900 dark:text-white">{emp.first_name} {emp.last_name}</td>
+                            <td className="py-3 px-4 text-slate-600 dark:text-slate-300">{emp.employee_code}</td>
+                            <td className="py-3 px-4 text-slate-600 dark:text-slate-300">{emp.designation || "N/A"}</td>
+                            <td className="py-3 px-4 text-slate-600 dark:text-slate-300">{emp.team?.name || "Unassigned"}</td>
                             <td className="py-3 px-4 text-center text-emerald-400">
                               {attendance.first_in ? formatTime(attendance.first_in) : "--:--"}
                             </td>
@@ -584,7 +584,7 @@ export default function AttendanceManagementPage() {
                               <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                                 attendance.status_label === "Present" ? "bg-emerald-500/20 text-emerald-400" :
                                 attendance.status_label === "Absent" ? "bg-rose-500/20 text-rose-400" :
-                                "bg-slate-500/20 text-muted-foreground"
+                                "bg-slate-500/20 text-slate-400"
                               }`}>
                                 {attendance.status_label || "Absent"}
                               </span>
@@ -597,7 +597,7 @@ export default function AttendanceManagementPage() {
                   </div>
                 </>
               ) : (
-                <div className="text-center py-8 text-muted-foreground">
+                <div className="text-center py-8 text-slate-500 dark:text-slate-400">
                   No attendance data found for this date.
                 </div>
               )}
@@ -608,28 +608,28 @@ export default function AttendanceManagementPage() {
 
       {/* Mode Selection */}
       {selectedEmployee && viewMode === "selector" && (
-        <Card className="shadow-sm border-border bg-card/50 backdrop-blur-sm text-white" data-attendance-mode-selector>
+        <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white" data-attendance-mode-selector>
           <CardHeader>
             <CardTitle>
               {selectedEmployee.first_name} {selectedEmployee.last_name}
             </CardTitle>
-            <CardDescription className="text-muted-foreground">
+            <CardDescription className="text-slate-500 dark:text-slate-400">
               Employee Code: {selectedEmployee.employee_code}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground mb-4">Select how you want to view attendance:</p>
+            <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">Select how you want to view attendance:</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <button
                 onClick={() => {
                   setSelectedDate("");
                   setViewMode("dateWise");
                 }}
-                className="p-6 bg-slate-700/30 hover:bg-slate-700/50 rounded-lg border border-border hover:border-border transition-all text-left"
+                className="p-6 bg-slate-700/30 hover:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-white/10 hover:border-white/20 transition-all text-left"
               >
                 <Calendar className="h-8 w-8 text-amber-400 mb-2" />
-                <p className="font-semibold text-foreground">Date Wise</p>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="font-semibold text-slate-900 dark:text-white">Date Wise</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                   View detailed timeline for a specific date
                 </p>
               </button>
@@ -639,15 +639,15 @@ export default function AttendanceManagementPage() {
               className="w-full p-4 bg-amber-600/20 hover:bg-amber-600/30 rounded-lg border border-amber-500/30 hover:border-amber-500/50 transition-all text-left"
             >
               <Plus className="h-5 w-5 text-amber-400 mb-2" />
-              <p className="font-semibold text-foreground">Add Leave / WFH</p>
-              <p className="text-sm text-muted-foreground mt-1">Create leave or work-from-home for this employee</p>
+              <p className="font-semibold text-slate-900 dark:text-white">Add Leave / WFH</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Create leave or work-from-home for this employee</p>
             </button>
             <button
               onClick={() => {
                 setSelectedEmployee(null);
                 setSearchQuery("");
               }}
-              className="w-full p-2 text-center text-muted-foreground hover:text-white text-sm transition-colors"
+              className="w-full p-2 text-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-sm transition-colors"
             >
               ← Change Employee
             </button>
@@ -659,12 +659,12 @@ export default function AttendanceManagementPage() {
       {selectedEmployee && viewMode === "dateWise" && (
         <>
           {/* Header with back button and date picker */}
-          <Card className="shadow-sm border-border bg-card/50 backdrop-blur-sm text-white relative">
+          <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white relative">
             {isLoadingDetails && (
               <div className="absolute inset-0 bg-black/40 rounded-lg backdrop-blur-sm flex items-center justify-center z-10">
                 <div className="flex flex-col items-center gap-3">
                   <Loader2 className="h-10 w-10 animate-spin text-amber-400" />
-                  <p className="text-sm text-muted-foreground font-medium">Loading attendance details...</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">Loading attendance details...</p>
                 </div>
               </div>
             )}
@@ -674,14 +674,14 @@ export default function AttendanceManagementPage() {
                   <CardTitle>
                     {selectedEmployee.first_name} {selectedEmployee.last_name}
                   </CardTitle>
-                  <CardDescription className="text-muted-foreground">Date Wise View</CardDescription>
+                  <CardDescription className="text-slate-500 dark:text-slate-400">Date Wise View</CardDescription>
                 </div>
                 <button
                   onClick={() => {
                     setViewMode("selector");
                     setSelectedDate("");
                   }}
-                  className="text-muted-foreground hover:text-white transition-colors"
+                  className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
                 >
                   ← Change
                 </button>
@@ -689,13 +689,13 @@ export default function AttendanceManagementPage() {
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-4">
-                <label className="text-sm text-muted-foreground">Select Date:</label>
+                <label className="text-sm text-slate-600 dark:text-slate-300">Select Date:</label>
                 <input
                   type="date"
                   value={selectedDate}
                   onChange={(e) => handleDateSelection(e.target.value)}
                   disabled={isLoadingDetails}
-                  className="px-3 py-2 bg-background border border-border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-amber-400 [color-scheme:dark] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-400 [color-scheme:dark] disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
             </CardContent>
@@ -706,7 +706,7 @@ export default function AttendanceManagementPage() {
             <>
               {isLoadingDetails ? (
                 <div className="flex justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                  <Loader2 className="h-8 w-8 animate-spin text-slate-500 dark:text-slate-400" />
                 </div>
               ) : dailyDetails ? (
                 <>
@@ -716,10 +716,10 @@ export default function AttendanceManagementPage() {
                     isCurrentlyWorking={dailyDetails.is_currently_working}
                   />
 
-                  <Card className="shadow-sm border-border bg-card/50 backdrop-blur-sm text-white">
-                    <CardHeader className="pb-4 border-b border-border">
+                  <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white">
+                    <CardHeader className="pb-4 border-b border-slate-200 dark:border-white/5">
                       <CardTitle>Daily Activity Timeline</CardTitle>
-                      <CardDescription className="text-muted-foreground">
+                      <CardDescription className="text-slate-500 dark:text-slate-400">
                         Chronological record of all punch events
                       </CardDescription>
                     </CardHeader>
@@ -734,8 +734,8 @@ export default function AttendanceManagementPage() {
                   </Card>
                 </>
               ) : (
-                <Card className="border-slate-600 bg-background/50">
-                  <CardContent className="pt-6 text-center text-muted-foreground">
+                <Card className="border-slate-600 bg-slate-900/50">
+                  <CardContent className="pt-6 text-center text-slate-600 dark:text-slate-300">
                     No attendance data found for this date.
                   </CardContent>
                 </Card>

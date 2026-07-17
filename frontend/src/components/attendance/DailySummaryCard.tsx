@@ -84,12 +84,12 @@ export function DailySummaryCard({
   };
 
   return (
-    <Card className="shadow-sm border-border bg-card/50 backdrop-blur-sm text-white mb-6">
-      <CardHeader className="pb-4 border-b border-border">
+    <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white mb-6">
+      <CardHeader className="pb-4 border-b border-slate-200 dark:border-white/5">
         <div className="flex items-start justify-between">
           <div>
             <CardTitle className="text-2xl mb-2">Daily Summary</CardTitle>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
               <Calendar className="w-4 h-4" />
               {formatDate(attendance.date)}
             </div>
@@ -101,10 +101,10 @@ export function DailySummaryCard({
       <CardContent className="pt-6">
         {/* Employee Info */}
         {attendance.employee && (
-          <div className="mb-6 pb-6 border-b border-border">
-            <p className="text-xs text-muted-foreground mb-2">Employee</p>
+          <div className="mb-6 pb-6 border-b border-slate-200 dark:border-white/5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">Employee</p>
             <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-muted-foreground" />
+              <Users className="w-4 h-4 text-slate-500 dark:text-slate-400" />
               <span className="font-semibold">
                 {attendance.employee.first_name} {attendance.employee.last_name}
               </span>
@@ -116,7 +116,7 @@ export function DailySummaryCard({
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {/* First Check-In */}
           <div className="bg-slate-700/30 rounded-lg p-4">
-            <p className="text-xs text-muted-foreground mb-1">First Check-In</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">First Check-In</p>
             <p className="text-lg font-bold text-emerald-400 font-mono">
               {formatTime(attendance.first_in)}
             </p>
@@ -124,7 +124,7 @@ export function DailySummaryCard({
 
           {/* Last Check-Out */}
           <div className="bg-slate-700/30 rounded-lg p-4">
-            <p className="text-xs text-muted-foreground mb-1">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">
               {isCurrentlyWorking ? "Latest Activity" : "Final Check-Out"}
             </p>
             <p className="text-lg font-bold text-rose-400 font-mono">
@@ -134,7 +134,7 @@ export function DailySummaryCard({
 
           {/* Total Working Hours */}
           <div className="bg-slate-700/30 rounded-lg p-4">
-            <p className="text-xs text-muted-foreground mb-1">Total Worked</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Total Worked</p>
             <p className="text-lg font-bold text-blue-400">
               {formatMinutesToHours(attendance.total_working_minutes)}
             </p>
@@ -142,11 +142,11 @@ export function DailySummaryCard({
 
           {/* Breaks */}
           <div className="bg-slate-700/30 rounded-lg p-4">
-            <p className="text-xs text-muted-foreground mb-1">Breaks</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Breaks</p>
             <p className="text-lg font-bold text-amber-400">
               {totalBreaks} {totalBreaks === 1 ? "break" : "breaks"}
             </p>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
               ({formatMinutesToHours(attendance.total_completed_break_minutes)})
             </p>
           </div>

@@ -72,12 +72,12 @@ export function CertificateModal({ recognition, employeeName, onClose }: Certifi
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Eye className="w-4 h-4 text-amber-400" />
-            <span className="text-sm font-semibold text-foreground">Certificate Preview</span>
+            <span className="text-sm font-semibold text-slate-900 dark:text-white">Certificate Preview</span>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={handleDownload}
-              className="flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-foreground font-bold text-sm px-4 py-2 rounded-xl transition-all"
+              className="flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold text-sm px-4 py-2 rounded-xl transition-all"
             >
               <Download className="w-4 h-4" />
               Download PDF
@@ -86,7 +86,7 @@ export function CertificateModal({ recognition, employeeName, onClose }: Certifi
               onClick={onClose}
               className="p-2 bg-white/10 hover:bg-white/20 rounded-xl transition"
             >
-              <X className="w-4 h-4 text-white" />
+              <X className="w-4 h-4 text-slate-900 dark:text-white" />
             </button>
           </div>
         </div>

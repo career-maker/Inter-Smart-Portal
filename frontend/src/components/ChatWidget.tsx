@@ -104,7 +104,7 @@ export default function ChatWidget() {
         className={`fixed bottom-24 md:bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-full shadow-2xl transition-all duration-300 active:scale-95 ${
           isOpen
             ? "bg-rose-600 hover:bg-rose-500 text-white rotate-90"
-            : "bg-gradient-to-tr from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-foreground hover:shadow-amber-400/20 hover:shadow-xl"
+            : "bg-gradient-to-tr from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-900 hover:shadow-amber-400/20 hover:shadow-xl"
         }`}
         title="AI Assistant Chat"
       >
@@ -113,17 +113,17 @@ export default function ChatWidget() {
 
       {/* Chat Popover Window */}
       {isOpen && (
-        <div className="fixed bottom-40 md:bottom-24 right-6 z-50 flex flex-col w-[calc(100vw-32px)] sm:w-[400px] h-[500px] max-h-[calc(100vh-180px)] md:max-h-[calc(100vh-120px)] border border-border bg-slate-950/95 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-300">
+        <div className="fixed bottom-40 md:bottom-24 right-6 z-50 flex flex-col w-[calc(100vw-32px)] sm:w-[400px] h-[500px] max-h-[calc(100vh-180px)] md:max-h-[calc(100vh-120px)] border border-slate-200 dark:border-white/10 bg-slate-950/95 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-300">
           
           {/* Header */}
-          <div className="flex items-center justify-between px-5 py-4 border-b border-border bg-white/5">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-white/10 bg-white/5">
             <div className="flex items-center gap-3">
               <div className="relative flex items-center justify-center w-10 h-10 rounded-2xl bg-amber-400/10 text-amber-400">
                 <Bot className="w-5 h-5" />
                 <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-slate-950"></span>
               </div>
               <div>
-                <h3 className="text-sm font-bold text-foreground flex items-center gap-1.5">
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
                   Portal AI Assistant
                   <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
                 </h3>
@@ -131,7 +131,7 @@ export default function ChatWidget() {
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-muted-foreground hover:text-white transition-colors"
+              className="p-1.5 rounded-lg bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -157,7 +157,7 @@ export default function ChatWidget() {
                   className={`p-3.5 rounded-2xl text-sm leading-relaxed ${
                     msg.sender === "user"
                       ? "bg-amber-400 text-slate-950 font-medium rounded-tr-none"
-                      : "bg-white/5 border border-border text-slate-100 rounded-tl-none"
+                      : "bg-white/5 border border-white/10 text-slate-100 rounded-tl-none"
                   }`}
                 >
                   {msg.text}
@@ -174,7 +174,7 @@ export default function ChatWidget() {
                     <button
                       key={idx}
                       onClick={() => handleSend(q.text)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:text-white bg-white/5 hover:bg-white/10 border border-border rounded-full transition-all active:scale-95 text-left"
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 rounded-full transition-all active:scale-95 text-left"
                     >
                       <span>{q.icon}</span>
                       <span>{q.text}</span>
@@ -190,7 +190,7 @@ export default function ChatWidget() {
                 <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-white/5 text-amber-400 shrink-0">
                   <Bot className="w-4 h-4" />
                 </div>
-                <div className="bg-white/5 border border-border p-3.5 rounded-2xl rounded-tl-none flex items-center gap-1.5">
+                <div className="bg-white/5 border border-slate-200 dark:border-white/10 p-3.5 rounded-2xl rounded-tl-none flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-slate-400 animate-bounce [animation-delay:-0.3s]"></span>
                   <span className="w-2 h-2 rounded-full bg-slate-400 animate-bounce [animation-delay:-0.15s]"></span>
                   <span className="w-2 h-2 rounded-full bg-slate-400 animate-bounce"></span>
@@ -210,7 +210,7 @@ export default function ChatWidget() {
           </div>
 
           {/* Bottom input area */}
-          <div className="p-4 border-t border-border bg-white/5">
+          <div className="p-4 border-t border-slate-200 dark:border-white/10 bg-white/5">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -224,12 +224,12 @@ export default function ChatWidget() {
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder="Ask about leaves, leads, or navigation..."
                 disabled={isLoading}
-                className="flex-1 bg-white/5 border border-border rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-400/50 transition-colors disabled:opacity-50"
+                className="flex-1 bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:border-amber-400/50 transition-colors disabled:opacity-50"
               />
               <button
                 type="submit"
                 disabled={isLoading || !inputValue.trim()}
-                className="flex items-center justify-center w-10 py-2.5 rounded-xl bg-amber-400 text-foreground hover:bg-amber-300 transition-colors disabled:opacity-50 disabled:hover:bg-amber-400 select-none active:scale-95 shrink-0"
+                className="flex items-center justify-center w-10 py-2.5 rounded-xl bg-amber-400 text-slate-900 hover:bg-amber-300 transition-colors disabled:opacity-50 disabled:hover:bg-amber-400 select-none active:scale-95 shrink-0"
               >
                 <Send className="w-4 h-4" />
               </button>

@@ -84,7 +84,7 @@ export default function TeamsPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3">
           <Users className="h-8 w-8 text-amber-400" />
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Departments</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Departments</h1>
         </div>
         <Button onClick={() => router.push("/teams/create")}>
           <Plus className="mr-2 h-4 w-4" /> Create Department
@@ -160,7 +160,7 @@ export default function TeamsPage() {
               </CardContent>
               <CardFooter className="bg-transparent border-t px-6 py-3 relative">
                 <div
-                  className="flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                  className="flex items-center text-sm text-muted-foreground hover:text-slate-900 transition-colors cursor-pointer"
                   onMouseEnter={() => {
                     setHoveredTeamId(team.id);
                     fetchTeamMembers(team.id);
@@ -174,7 +174,7 @@ export default function TeamsPage() {
                 {hoveredTeamId === team.id && (
                   <div className="absolute bottom-full left-0 mb-2 w-72 bg-white border border-slate-200 rounded-lg shadow-lg p-4 z-50">
                     <div className="space-y-2">
-                      <h4 className="font-semibold text-sm text-foreground">Team Members</h4>
+                      <h4 className="font-semibold text-sm text-slate-900">Team Members</h4>
                       {loadingMembers[team.id] ? (
                         <p className="text-xs text-slate-500">Loading members...</p>
                       ) : membersByTeam[team.id]?.length === 0 ? (
@@ -190,7 +190,7 @@ export default function TeamsPage() {
                                 </AvatarFallback>
                               </Avatar>
                               <div className="flex flex-col flex-1 min-w-0">
-                                <span className="text-sm font-medium text-foreground truncate">
+                                <span className="text-sm font-medium text-slate-900 truncate">
                                   {member.first_name} {member.last_name}
                                 </span>
                                 <span className="text-xs text-slate-500 truncate">

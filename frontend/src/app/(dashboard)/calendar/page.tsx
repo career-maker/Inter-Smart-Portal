@@ -75,23 +75,23 @@ export default function CalendarPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Leave Calendar</h1>
-          <p className="text-muted-foreground">View your time off, WFH days, and company holidays.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Leave Calendar</h1>
+          <p className="text-slate-600 dark:text-slate-300">View your time off, WFH days, and company holidays.</p>
         </div>
         
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={goToToday} className="border-border bg-white/5 text-white hover:bg-white/10">Today</Button>
-          <div className="flex items-center bg-white/5 border border-border rounded-xl">
-            <Button variant="ghost" size="icon" onClick={prevMonth} className="rounded-r-none border-r border-border text-muted-foreground hover:text-white hover:bg-white/10"><ChevronLeft className="h-4 w-4" /></Button>
-            <div className="w-32 text-center font-semibold text-sm text-foreground">
+          <Button variant="outline" onClick={goToToday} className="border-slate-200 dark:border-white/10 bg-white/5 text-slate-900 dark:text-white hover:bg-slate-200 dark:hover:bg-white/10">Today</Button>
+          <div className="flex items-center bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl">
+            <Button variant="ghost" size="icon" onClick={prevMonth} className="rounded-r-none border-r border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-white/10"><ChevronLeft className="h-4 w-4" /></Button>
+            <div className="w-32 text-center font-semibold text-sm text-slate-900 dark:text-white">
               {format(currentDate, 'MMMM yyyy')}
             </div>
-            <Button variant="ghost" size="icon" onClick={nextMonth} className="rounded-l-none border-l border-border text-muted-foreground hover:text-white hover:bg-white/10"><ChevronRight className="h-4 w-4" /></Button>
+            <Button variant="ghost" size="icon" onClick={nextMonth} className="rounded-l-none border-l border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-white/10"><ChevronRight className="h-4 w-4" /></Button>
           </div>
         </div>
       </div>
 
-      <div className="flex gap-4 items-center text-sm bg-white/5 border border-border p-4 rounded-2xl flex-wrap text-muted-foreground">
+      <div className="flex gap-4 items-center text-sm bg-white/5 border border-slate-200 dark:border-white/10 p-4 rounded-2xl flex-wrap text-slate-600 dark:text-slate-300">
         <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-purple-500"></span> Company Holiday</div>
         <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-green-500"></span> Approved Leave</div>
         <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-amber-500"></span> Pending Leave</div>
@@ -99,25 +99,25 @@ export default function CalendarPage() {
         <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-red-500"></span> Rejected Leave</div>
       </div>
 
-      <div className="bg-white/5 border border-border rounded-2xl overflow-hidden relative backdrop-blur-md">
+      <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden relative backdrop-blur-md">
         {isLoading && (
-          <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-10 flex items-center justify-center">
+          <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm z-10 flex items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin text-amber-500" />
           </div>
         )}
         
-        <div className="grid grid-cols-7 border-b border-border bg-white/5">
+        <div className="grid grid-cols-7 border-b border-slate-200 dark:border-white/10 bg-white/5">
           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-            <div key={day} className="py-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            <div key={day} className="py-3 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               {day}
             </div>
           ))}
         </div>
         
-        <div className="grid grid-cols-7 auto-rows-[65px] md:auto-rows-[120px] bg-background/10">
+        <div className="grid grid-cols-7 auto-rows-[65px] md:auto-rows-[120px] bg-slate-900/10">
           {/* Empty cells for days before the 1st */}
           {paddingDays.map(i => (
-            <div key={`empty-${i}`} className="border-b border-r border-border bg-white/[0.02] p-2" />
+            <div key={`empty-${i}`} className="border-b border-r border-slate-200 dark:border-white/10 bg-white/[0.02] p-2" />
           ))}
           
           {/* Actual days */}
@@ -131,9 +131,9 @@ export default function CalendarPage() {
               <div 
                 key={day.toString()} 
                 onClick={() => setSelectedDate(day)}
-                className={`border-b border-r border-border p-2 flex flex-col gap-1 transition-colors cursor-pointer hover:bg-white/[0.04] ${
+                className={`border-b border-r border-slate-200 dark:border-white/10 p-2 flex flex-col gap-1 transition-colors cursor-pointer hover:bg-white/[0.04] ${
                   isSelected ? 'bg-amber-500/10 ring-1 ring-amber-500/30' : ''
-                } ${!isCurrentMonth ? 'opacity-30' : ''}`}
+                }  ${!isCurrentMonth ? 'opacity-30' : ''}`}
               >
                 <div className="flex justify-end">
                   <span className={`text-[10px] sm:text-xs font-semibold w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-full ${
@@ -141,7 +141,7 @@ export default function CalendarPage() {
                       ? 'bg-amber-500 text-white font-bold' 
                       : isSelected 
                         ? 'border border-amber-500 text-amber-400 font-bold'
-                        : 'text-muted-foreground'
+                        : 'text-slate-400'
                   }`}>
                     {format(day, 'd')}
                   </span>
@@ -184,9 +184,9 @@ export default function CalendarPage() {
 
       {/* Selected Day Events List (Solves mobile readability) */}
       {selectedDate && (
-        <div className="bg-white/5 border border-border rounded-2xl p-5 backdrop-blur-md space-y-4 animate-in fade-in duration-300">
-          <div className="flex items-center justify-between border-b border-border pb-3">
-            <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+        <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-5 backdrop-blur-md space-y-4 animate-in fade-in duration-300">
+          <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-3">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <CalendarIcon className="w-5 h-5 text-amber-500" />
               Events on {format(selectedDate, "dd MMMM yyyy")}
             </h3>
@@ -196,7 +196,7 @@ export default function CalendarPage() {
           </div>
 
           {getEventsForDay(selectedDate).length === 0 ? (
-            <p className="text-sm text-muted-foreground py-2">No leaves, WFH requests, or holidays scheduled for this day.</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 py-2">No leaves, WFH requests, or holidays scheduled for this day.</p>
           ) : (
             <div className="space-y-3">
               {getEventsForDay(selectedDate).map((event: any) => {
@@ -217,11 +217,11 @@ export default function CalendarPage() {
                 }
 
                 return (
-                  <div key={event.id} className="flex items-center justify-between p-3 bg-white/[0.02] border border-border rounded-xl gap-4">
+                  <div key={event.id} className="flex items-center justify-between p-3 bg-white/[0.02] border border-slate-200 dark:border-white/5 rounded-xl gap-4">
                     <div>
-                      <p className="font-semibold text-foreground text-sm">{event.title}</p>
+                      <p className="font-semibold text-slate-900 dark:text-white text-sm">{event.title}</p>
                       {event.type !== 'Holiday' && (
-                        <p className="text-xs text-muted-foreground mt-0.5">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                           Duration: {event.end_date ? `${event.date} to ${event.end_date}` : event.date}
                         </p>
                       )}
