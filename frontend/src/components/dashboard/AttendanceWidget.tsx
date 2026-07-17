@@ -110,7 +110,7 @@ export function AttendanceWidget({ initialData }: { initialData?: any }) {
   };
 
   if (isLoading) {
-    return <div className="bg-gradient-to-br from-white/90 dark:from-slate-800/90 to-slate-50/90 dark:to-slate-900/90 border border-slate-200 dark:border-white/[0.06] rounded-3xl p-6 shadow-[8px_8px_24px_rgba(0,0,0,0.5)] animate-pulse h-48 mb-6"></div>;
+    return <div className="bg-gradient-to-br from-white/90 dark:from-slate-800/90 to-slate-50/90 dark:to-slate-900/90 border border-slate-200 dark:border-white/[0.06] rounded-3xl p-6 shadow-none dark:shadow-[8px_8px_24px_rgba(0,0,0,0.5)] animate-pulse h-48 mb-6"></div>;
   }
 
   // Calculate break time: total time - working time
@@ -128,7 +128,7 @@ export function AttendanceWidget({ initialData }: { initialData?: any }) {
   const breakDurationStr = totalBreakMins > 0 ? `${Math.floor(totalBreakMins / 60)}h ${totalBreakMins % 60}m` : '0m';
 
   return (
-    <div className="bg-gradient-to-br from-white/90 dark:from-slate-800/90 to-slate-50/90 dark:to-slate-900/90 backdrop-blur-xl border border-slate-200 dark:border-white/[0.06] rounded-3xl p-5 md:p-6 shadow-[8px_8px_24px_rgba(0,0,0,0.5),-4px_-4px_12px_rgba(255,255,255,0.03)] mb-6 relative overflow-hidden">
+    <div className="bg-gradient-to-br from-white/90 dark:from-slate-800/90 to-slate-50/90 dark:to-slate-900/90 backdrop-blur-xl border border-slate-200 dark:border-white/[0.06] rounded-3xl p-5 md:p-6 shadow-none dark:shadow-[8px_8px_24px_rgba(0,0,0,0.5),-4px_-4px_12px_rgba(255,255,255,0.03)] mb-6 relative overflow-hidden">
       <div className="absolute -top-16 -right-16 w-40 h-40 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
 
       <div className="flex items-center justify-between mb-5 relative z-10">
@@ -151,22 +151,22 @@ export function AttendanceWidget({ initialData }: { initialData?: any }) {
         <div className="flex-1 w-full">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {/* Punch In */}
-            <div className="bg-gradient-to-br from-white/90 dark:from-slate-800/90 to-slate-50/90 dark:to-slate-900/90 rounded-2xl p-4 text-center shadow-[8px_8px_20px_rgba(0,0,0,0.5),-4px_-4px_12px_rgba(255,255,255,0.03)] border border-emerald-500/25 backdrop-blur-xl">
+            <div className="bg-gradient-to-br from-white/90 dark:from-slate-800/90 to-slate-50/90 dark:to-slate-900/90 rounded-2xl p-4 text-center shadow-none dark:shadow-[8px_8px_20px_rgba(0,0,0,0.5),-4px_-4px_12px_rgba(255,255,255,0.03)] border border-emerald-500/25 backdrop-blur-xl">
               <p className="text-xs text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest mb-2">Punch In</p>
               <p className="font-black text-lg text-slate-900 dark:text-white">{formatTime(data?.attendance?.check_in_time)}</p>
             </div>
             {/* Punch Out */}
-            <div className="bg-gradient-to-br from-white/90 dark:from-slate-800/90 to-slate-50/90 dark:to-slate-900/90 rounded-2xl p-4 text-center shadow-[8px_8px_20px_rgba(0,0,0,0.5),-4px_-4px_12px_rgba(255,255,255,0.03)] border border-rose-500/25 backdrop-blur-xl">
+            <div className="bg-gradient-to-br from-white/90 dark:from-slate-800/90 to-slate-50/90 dark:to-slate-900/90 rounded-2xl p-4 text-center shadow-none dark:shadow-[8px_8px_20px_rgba(0,0,0,0.5),-4px_-4px_12px_rgba(255,255,255,0.03)] border border-rose-500/25 backdrop-blur-xl">
               <p className="text-xs text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest mb-2">Punch Out</p>
               <p className="font-black text-lg text-slate-900 dark:text-white">{formatTime(data?.attendance?.check_out_time)}</p>
             </div>
             {/* Total Break */}
-            <div className="bg-gradient-to-br from-white/90 dark:from-slate-800/90 to-slate-50/90 dark:to-slate-900/90 rounded-2xl p-4 text-center shadow-[8px_8px_20px_rgba(0,0,0,0.5),-4px_-4px_12px_rgba(255,255,255,0.03)] border border-amber-500/25 backdrop-blur-xl">
+            <div className="bg-gradient-to-br from-white/90 dark:from-slate-800/90 to-slate-50/90 dark:to-slate-900/90 rounded-2xl p-4 text-center shadow-none dark:shadow-[8px_8px_20px_rgba(0,0,0,0.5),-4px_-4px_12px_rgba(255,255,255,0.03)] border border-amber-500/25 backdrop-blur-xl">
               <p className="text-xs text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest mb-2">Total Break</p>
               <p className="font-black text-lg text-slate-900 dark:text-white">{breakDurationStr}</p>
             </div>
             {/* Worked Time */}
-            <div className="bg-gradient-to-br from-white/90 dark:from-slate-800/90 to-slate-50/90 dark:to-slate-900/90 rounded-2xl p-4 text-center shadow-[8px_8px_20px_rgba(0,0,0,0.5),-4px_-4px_12px_rgba(255,255,255,0.03)] border border-cyan-500/25 backdrop-blur-xl">
+            <div className="bg-gradient-to-br from-white/90 dark:from-slate-800/90 to-slate-50/90 dark:to-slate-900/90 rounded-2xl p-4 text-center shadow-none dark:shadow-[8px_8px_20px_rgba(0,0,0,0.5),-4px_-4px_12px_rgba(255,255,255,0.03)] border border-cyan-500/25 backdrop-blur-xl">
               <p className="text-xs text-cyan-400 uppercase font-bold tracking-widest mb-2">Worked Time</p>
               <p className="font-black text-xl text-cyan-300 font-mono tracking-tight">{formatDuration(elapsedSeconds)}</p>
             </div>

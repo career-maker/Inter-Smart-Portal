@@ -1200,7 +1200,7 @@ function KPICard({ title, value, trend, icon: Icon, color, href, onClick }: any)
   const accent = accentMap[color] || accentMap['bg-blue-500'];
 
   const CardContent = (
-    <div className={`relative overflow-hidden h-full rounded-3xl p-6 bg-gradient-to-br from-white/90 dark:from-slate-800/90 to-slate-50/90 dark:to-slate-900/90 shadow-[8px_8px_20px_rgba(0,0,0,0.5),-4px_-4px_12px_rgba(255,255,255,0.03)] border ${accent.border}backdrop-blur-xl transition-all duration-300 ${(href || onClick) ? 'cursor-pointer group hover:shadow-[inset_6px_6px_14px_rgba(0,0,0,0.5),inset_-3px_-3px_10px_rgba(255,255,255,0.03)] hover:border-white/10' : ''}  `}>
+    <div className={`relative overflow-hidden h-full rounded-3xl p-6 bg-gradient-to-br from-white/90 dark:from-slate-800/90 to-slate-50/90 dark:to-slate-900/90 shadow-none dark:shadow-[8px_8px_20px_rgba(0,0,0,0.5),-4px_-4px_12px_rgba(255,255,255,0.03)] border ${accent.border} backdrop-blur-xl transition-all duration-300 ${(href || onClick) ? 'cursor-pointer group hover:from-slate-100/90 hover:to-slate-100/90 dark:hover:from-slate-800/90 dark:hover:to-slate-900/90 dark:hover:shadow-[inset_6px_6px_14px_rgba(0,0,0,0.5),inset_-3px_-3px_10px_rgba(255,255,255,0.03)] hover:border-slate-300 dark:hover:border-white/10' : ''}  `}>
       <div className="flex justify-between items-start relative z-10">
         <div>
           <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">{title}</p>
@@ -1240,7 +1240,7 @@ function QuickActionCard({ href, icon: Icon, title, color }: any) {
 
   return (
     <Link href={href}>
-      <div className="bg-white dark:bg-slate-800 rounded-3xl p-5 h-full relative overflow-hidden shadow-[6px_6px_14px_rgba(0,0,0,0.45),-6px_-6px_14px_rgba(255,255,255,0.04)] hover:shadow-[inset_4px_4px_10px_rgba(0,0,0,0.45),inset_-4px_-4px_10px_rgba(255,255,255,0.04)] border border-slate-700/50 transition-all duration-300 group flex flex-col items-start gap-3">
+      <div className="bg-white dark:bg-slate-800 rounded-3xl p-5 h-full relative overflow-hidden shadow-none dark:shadow-[6px_6px_14px_rgba(0,0,0,0.45),-6px_-6px_14px_rgba(255,255,255,0.04)] dark:hover:shadow-[inset_4px_4px_10px_rgba(0,0,0,0.45),inset_-4px_-4px_10px_rgba(255,255,255,0.04)] border border-slate-200 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-300 group flex flex-col items-start gap-3">
         <div className="absolute top-0 right-0 w-20 h-20 bg-white/[0.03] rounded-bl-full -mr-4 -mt-4 group-hover:bg-white/[0.06] transition-colors" />
         <div className={`w-10 h-10 rounded-2xl ${accent} flex items-center justify-center shadow-[inset_2px_2px_5px_rgba(0,0,0,0.35),inset_-2px_-2px_5px_rgba(255,255,255,0.05)] group-hover:scale-90 transition-transform duration-300 relative z-10`}>
           <Icon className="w-5 h-5" />
@@ -1254,7 +1254,7 @@ function QuickActionCard({ href, icon: Icon, title, color }: any) {
 function EngagementCard({ title, items, icon: Icon, colorClass = "bg-orange-50/70 text-orange-600" }: any) {
   const bg = colorClass.split(' ')[0];
   return (
-    <div className={`${bg} rounded-3xl p-5 shadow-[0_8px_32px_rgba(0,0,0,0.05)] backdrop-blur-2xl border border-slate-200 dark:border-white/60`}>
+    <div className={`${bg} rounded-3xl p-5 shadow-none dark:shadow-[0_8px_32px_rgba(0,0,0,0.05)] backdrop-blur-2xl border border-slate-200 dark:border-white/60 hover:bg-slate-100/50 dark:hover:bg-transparent transition-colors`}>
       <h3 className={`font-bold ${colorClass.split(' ')[1]} text-sm flex items-center gap-2 mb-3`}>
         <Icon className="w-5 h-5" />
         {title}

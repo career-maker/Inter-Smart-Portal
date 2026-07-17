@@ -195,6 +195,18 @@ body {
 
 @layer components {
   .premium-card {
+    background: theme('colors.white');
+    box-shadow: none;
+    border: 1px solid theme('colors.slate.200');
+    border-radius: 24px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+  }
+
+  .premium-card:hover {
+    background-color: theme('colors.slate.50');
+  }
+
+  .dark .premium-card {
     background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.04) 100%);
     box-shadow:
       10px 10px 30px rgba(0, 0, 0, 0.45),
@@ -203,16 +215,15 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.12);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border-radius: 24px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
 
-  .premium-card:hover {
+  .dark .premium-card:hover {
     transform: translateY(-3px);
     box-shadow:
       14px 14px 40px rgba(0, 0, 0, 0.5),
       -6px -6px 20px rgba(255, 255, 255, 0.04),
       inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    background-color: transparent;
   }
 
   .premium-icon-container {
