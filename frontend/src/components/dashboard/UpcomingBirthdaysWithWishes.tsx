@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import api from "@/services/api";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuthStore } from "@/store/auth";
+import { WishButton } from "@/components/ui/WishButton";
 
 interface UpcomingBirthdaysProps {
   items: any[];
@@ -148,19 +149,10 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
               )}
             </div>
 
-            {canWish ? (
-              <button
-                onClick={() => setSelectedBirthdayId(person.id)}
-                className="p-1.5 hover:bg-pink-500/20 rounded text-pink-400 hover:text-pink-300 transition"
-                title="Send birthday wish"
-              >
-                <Heart className="w-4 h-4 fill-pink-400" />
-              </button>
-            ) : (
-              <div className="p-1.5 text-slate-500">
-                <Heart className="w-4 h-4" />
-              </div>
-            )}
+            <WishButton 
+              onClick={() => setSelectedBirthdayId(person.id)} 
+              disabled={!canWish} 
+            />
           </div>
         </div>
 
