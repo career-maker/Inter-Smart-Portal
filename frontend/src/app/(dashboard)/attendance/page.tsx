@@ -7,6 +7,7 @@ import { Clock, Play, Square, Coffee, CheckCircle, ChevronRight } from "lucide-r
 import Link from "next/link";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
+import { FavoriteButton } from "@/components/layout/FavoriteButton";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -94,9 +95,12 @@ export default function AttendancePage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Attendance</h1>
-        <p className="text-slate-600 dark:text-slate-300">Track your daily working hours and breaks.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Attendance</h1>
+          <p className="text-slate-600 dark:text-slate-300">Track your daily working hours and breaks.</p>
+        </div>
+        <FavoriteButton label="Attendance" />
       </div>
 
       {/* Time Clock Widget - Compact */}

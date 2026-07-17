@@ -185,16 +185,19 @@ export default function AnnouncementsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Company Updates</h1>
           <p className="text-slate-600 dark:text-slate-300">Announcements, events, and celebrations from the team.</p>
         </div>
-        {isAdmin && (
-          <Button onClick={openCreate}>
-            <Plus className="h-4 w-4 mr-2" /> New Announcement
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          <FavoriteButton label="Updates & Announcements" />
+          {isAdmin && (
+            <Button onClick={openCreate}>
+              <Plus className="h-4 w-4 mr-2" /> New Announcement
+            </Button>
+          )}
+        </div>
       </div>
 
       {isLoading ? (
