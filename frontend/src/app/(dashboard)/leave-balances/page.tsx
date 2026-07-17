@@ -21,7 +21,30 @@ interface EmployeeBalance {
   cl_carry_forward: number;
   cl_carry_forward_year: number | null;
   sick_leave_balance: number;
+  casual_leaves_taken: number;
+  sick_leaves_taken: number;
   total_leaves_taken: number;
+}
+
+function CircularGauge({ used, total, label, colorClass, strokeClass }: { used: number, total: number, label: string, colorClass: string, strokeClass: string }) {
+  const radius = 16;
+  const circumference = 2 * Math.PI * radius;
+  // If total is 0, progress is 0, otherwise used / total. But total = used + balance.
+  const progress = total === 0 ? 0 : used / total;
+  const strokeDashoffset = circumference - progress * circumference;
+
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <div className="relative w-12 h-12 flex items-center justify-center">
+        <svg className="w-12 h-12 transform -rotate-90">
+          <circle cx="24" cy="24" r="16" className="stroke-slate-200 dark:stroke-slate-700" strokeWidth="4" fill="transparent" />
+          <circle cx="24" cy="24" r="16" className={strokeClass} strokeWidth="4" fill="transparent" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} strokeLinecap="round" />
+        </svg>
+        <span className={`absolute text-[10px] font-bold ${colorClass}`}>{used}/{total}</span>
+      </div>
+      {/* Optional: Add a label underneath or keep it clean */}
+    </div>
+  );
 }
 
 interface AuditLog {
@@ -268,9 +291,9 @@ export default function LeaveBalancesPage() {
             <thead>
               <tr className="border-b border-slate-200 dark:border-white/10">
                 <th className="text-left px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Employee</th>
-                <th className="text-center px-4 py-3 text-xs font-bold uppercase tracking-wider text-amber-400">CL Balance</th>
+                <th className="text-center px-4 py-3 text-xs font-bold uppercase tracking-wider text-amber-400">Casual Leave (Used / Total)</th>
                 <th className="text-center px-4 py-3 text-xs font-bold uppercase tracking-wider text-orange-400">CL Carry Fwd</th>
-                <th className="text-center px-4 py-3 text-xs font-bold uppercase tracking-wider text-blue-400">SL Balance</th>
+                <th className="text-center px-4 py-3 text-xs font-bold uppercase tracking-wider text-blue-400">Sick Leave (Used / Total)</th>
                 <th className="text-center px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Used</th>
                 <th className="text-center px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Action</th>
               </tr>
@@ -288,9 +311,15 @@ export default function LeaveBalancesPage() {
                       <p className="text-slate-500 dark:text-slate-400 text-xs">{emp.employee_code} · {emp.designation || "—"}</p>
                     </td>
                     <td className="px-4 py-4 text-center">
-                      <span className="inline-block bg-amber-500/20 text-amber-300 font-bold text-sm px-3 py-1 rounded-full">
-                        {Math.max(0, emp.casual_leave_balance)}
-                      </span>
+                      <div className="flex justify-center">
+                        <CircularGauge 
+                          used={emp.casual_leaves_taken ?? 0} 
+                          total={(emp.casual_leaves_taken ?? 0) + Math.max(0, emp.casual_leave_balance)} 
+                          label="CL" 
+                          colorClass="text-amber-500" 
+                          strokeClass="stroke-amber-400" 
+                        />
+                      </div>
                     </td>
                     <td className="px-4 py-4 text-center">
                       <span className="inline-block bg-orange-500/20 text-orange-300 font-bold text-sm px-3 py-1 rounded-full">
@@ -299,9 +328,15 @@ export default function LeaveBalancesPage() {
                       </span>
                     </td>
                     <td className="px-4 py-4 text-center">
-                      <span className="inline-block bg-blue-500/20 text-blue-300 font-bold text-sm px-3 py-1 rounded-full">
-                        {Math.max(0, emp.sick_leave_balance)}
-                      </span>
+                      <div className="flex justify-center">
+                        <CircularGauge 
+                          used={emp.sick_leaves_taken ?? 0} 
+                          total={(emp.sick_leaves_taken ?? 0) + Math.max(0, emp.sick_leave_balance)} 
+                          label="SL" 
+                          colorClass="text-blue-500" 
+                          strokeClass="stroke-blue-400" 
+                        />
+                      </div>
                     </td>
                     <td className="px-4 py-4 text-center">
                       <span className="text-slate-600 dark:text-slate-300 font-semibold text-sm">{Math.max(0, emp.total_leaves_taken)}</span>

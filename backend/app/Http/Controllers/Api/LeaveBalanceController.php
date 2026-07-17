@@ -31,11 +31,23 @@ class LeaveBalanceController extends Controller
                     $balance = $emp->leaveBalance;
                     // Calculate total_leaves_taken from approved leave requests
                     try {
+                        $casualTaken = (float)(LeaveRequest::where('user_id', $emp->id)
+                            ->where('status', 'Approved')
+                            ->whereHas('leaveType', fn($q) => $q->where('name', 'Casual Leave'))
+                            ->sum(DB::raw('COALESCE(days, 0)')) ?? 0);
+                            
+                        $sickTaken = (float)(LeaveRequest::where('user_id', $emp->id)
+                            ->where('status', 'Approved')
+                            ->whereHas('leaveType', fn($q) => $q->where('name', 'Sick Leave'))
+                            ->sum(DB::raw('COALESCE(days, 0)')) ?? 0);
+
                         $totalTaken = (float)(LeaveRequest::where('user_id', $emp->id)
                             ->where('status', 'Approved')
                             ->sum(DB::raw('COALESCE(days, 0)')) ?? 0);
                     } catch (\Exception $e) {
                         \Log::warning("Failed to sum leaves for user {$emp->id}: " . $e->getMessage());
+                        $casualTaken = 0;
+                        $sickTaken = 0;
                         $totalTaken = 0;
                     }
 
@@ -48,6 +60,8 @@ class LeaveBalanceController extends Controller
                         'cl_carry_forward'      => max(0, (float)(data_get($balance, 'cl_carry_forward', 0))),
                         'cl_carry_forward_year' => $balance ? data_get($balance, 'cl_carry_forward_year') : null,
                         'sick_leave_balance'    => max(0, (float)($balance->sick_leave_balance ?? 0)),
+                        'casual_leaves_taken'   => max(0, $casualTaken),
+                        'sick_leaves_taken'     => max(0, $sickTaken),
                         'total_leaves_taken'    => max(0, $totalTaken),
                     ];
                 });
@@ -60,11 +74,23 @@ class LeaveBalanceController extends Controller
 
         // Calculate total_leaves_taken from approved leave requests instead of stored value
         try {
+            $casualTaken = (float)(LeaveRequest::where('user_id', $user->id)
+                ->where('status', 'Approved')
+                ->whereHas('leaveType', fn($q) => $q->where('name', 'Casual Leave'))
+                ->sum(DB::raw('COALESCE(days, 0)')) ?? 0);
+                
+            $sickTaken = (float)(LeaveRequest::where('user_id', $user->id)
+                ->where('status', 'Approved')
+                ->whereHas('leaveType', fn($q) => $q->where('name', 'Sick Leave'))
+                ->sum(DB::raw('COALESCE(days, 0)')) ?? 0);
+
             $totalTaken = (float)(LeaveRequest::where('user_id', $user->id)
                 ->where('status', 'Approved')
                 ->sum(DB::raw('COALESCE(days, 0)')) ?? 0);
         } catch (\Exception $e) {
             \Log::warning("Failed to sum leaves for user {$user->id}: " . $e->getMessage());
+            $casualTaken = 0;
+            $sickTaken = 0;
             $totalTaken = 0;
         }
 
@@ -80,6 +106,8 @@ class LeaveBalanceController extends Controller
         $data['casual_leave_balance'] = max(0, (float)($data['casual_leave_balance'] ?? 0));
         $data['cl_carry_forward'] = max(0, (float)($data['cl_carry_forward'] ?? 0));
         $data['sick_leave_balance'] = max(0, (float)($data['sick_leave_balance'] ?? 0));
+        $data['casual_leaves_taken'] = max(0, $casualTaken);
+        $data['sick_leaves_taken'] = max(0, $sickTaken);
         $data['total_leaves_taken'] = max(0, $totalTaken);
 
         return response()->json(['data' => $data]);
