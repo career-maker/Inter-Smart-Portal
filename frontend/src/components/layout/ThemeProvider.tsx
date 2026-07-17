@@ -16,7 +16,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, [isDark]);
 
   return (
-    <style>{`
+    <>
+      <style>{`
       :root {
         ${
           isDark
@@ -49,6 +50,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         transition: background-color 0.3s ease, color 0.3s ease;
       }
     `}</style>
-    {children}
+      {children}
+    </>
   );
 }

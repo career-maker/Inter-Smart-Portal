@@ -7,7 +7,8 @@ export function ThemeToggle() {
   const toggleTheme = useThemeStore((state) => state.toggleTheme);
 
   return (
-    <style>{`
+    <>
+      <style>{`
       .toggle-wrapper {
         display: flex;
         justify-content: center;
@@ -107,5 +108,6 @@ export function ThemeToggle() {
         </div>
       </div>
     </div>
+    </>
   );
 }
