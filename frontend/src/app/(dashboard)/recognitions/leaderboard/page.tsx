@@ -6,6 +6,214 @@ import { PageLoader } from "@/components/ui/PageLoader";
 import api from "@/services/api";
 import { Trophy, Star, Users, Award, TrendingUp, Medal, Crown } from "lucide-react";
 
+function TopPerformerCard({ name, designation }: { name: string; designation?: string }) {
+  return (
+    <style>{`
+      .btn-wrapper {
+        --color: #b5faff31;
+        --txt-color: #ffffff;
+        --txt-color-2: #a1a1a1;
+        --point-size: 8px;
+        --point-color: #ffffff;
+        --line-color: #00000015;
+        --line-style: solid;
+        --line-weight: 1px;
+        --anim-speed: 1s;
+
+        position: relative;
+        display: grid;
+        place-items: center;
+        padding: 1.5rem 2rem;
+        min-width: 160px;
+        min-height: 48px;
+      }
+
+      .txt-secondary {
+        position: absolute;
+        bottom: -2rem;
+        font: 400 0.75em "Inter", sans-serif;
+        color: #0006;
+        font-style: italic;
+        will-change: opacity;
+        transition: opacity calc(var(--anim-speed, 1s) * 0.5) ease;
+        opacity: 1;
+      }
+      #hint2 {
+        opacity: 0;
+      }
+
+      .btn {
+        filter: drop-shadow(0 6px 2px #00000055) drop-shadow(0 14px 4px #00000055)
+          drop-shadow(0 32px 8px #00000055) drop-shadow(0 64px 16px #00000055);
+
+        position: absolute;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        border: none;
+        background: none;
+        width: 100%;
+        height: 100%;
+      }
+
+      .txt-box {
+        position: absolute;
+        display: grid;
+        place-items: center;
+        text-wrap: nowrap;
+        inset: 0 0%;
+        overflow: clip;
+        will-change: inset, filter;
+        transition: filter 0.25s ease;
+        animation: frame-half calc(var(--anim-speed, 1s) * 0.5) forwards;
+      }
+
+      .txt-box::after {
+        content: "";
+        position: absolute;
+        inset: var(--point-size, 8px);
+        background: repeating-linear-gradient(45deg, #3f87a6, #ebf8e1 15%, #fff 20%);
+        mix-blend-mode: hard-light;
+        background-size: 440%;
+        transition: background-size 0.4s ease-in;
+        filter: blur(1px);
+        z-index: 3;
+        opacity: 0.1;
+      }
+
+      .txt {
+        position: absolute;
+        padding: 1rem 2rem;
+        z-index: 2;
+        font: 500 1.3em "Inter", sans-serif;
+        color: var(--txt-color, #15104c);
+        will-change: opacity, display, text-shadow;
+        text-shadow:
+          0 -1px 1px #ffffff60,
+          0 2px 1px #00000015,
+          0 4px 2px #00000015,
+          0 8px 4px #00000015,
+          0 16px 8px #00000015;
+      }
+      .txt:last-child {
+        color: var(--txt-color-2, #15104c);
+        opacity: 0;
+        animation: none;
+      }
+
+      .frame {
+        position: absolute;
+        inset: 0 0%;
+        z-index: 1;
+        border: var(--line-style, solid) var(--line-weight, 1px)
+          var(--line-color, #000000);
+        background-color: var(--color, #f9d323);
+        transition-delay: calc(var(--anim-speed, 1s) * 0.5);
+        box-shadow: inset 0 1px 4px 1px #fff5;
+        animation: frame-half calc(var(--anim-speed, 1s) * 0.5) forwards;
+      }
+
+      .point {
+        position: absolute;
+        box-sizing: border-box;
+        width: var(--point-size, 8px);
+        aspect-ratio: 1;
+        border-radius: 25%;
+        border: solid var(--line-weight, 1px) var(--line-color, #000000);
+        background-color: var(--point-color, #fff);
+        background-image: radial-gradient(circle at 50% 120%, #0005, #ffff);
+      }
+      .point.top {
+        top: calc(var(--point-size, 8px) * -0.5);
+      }
+      .point.bottom {
+        bottom: calc(var(--point-size, 8px) * -0.5);
+      }
+      .point.left {
+        left: calc(var(--point-size, 8px) * -0.5);
+      }
+      .point.right {
+        right: calc(var(--point-size, 8px) * -0.5);
+      }
+
+      .btn:hover .txt {
+        animation: txt-out calc(var(--anim-speed, 1s) * 0.5) forwards;
+      }
+      .btn:hover .txt:last-child {
+        animation: txt-in calc(var(--anim-speed, 1s) * 0.5) forwards;
+      }
+
+      .btn:hover .txt-box {
+        animation: frame var(--anim-speed, 1s) ease;
+      }
+
+      .btn:hover .txt-box::after {
+        background-size: 700%;
+      }
+
+      .btn:hover .frame {
+        animation: frame var(--anim-speed, 1s) ease;
+      }
+
+      .btn:hover ~ #hint1 {
+        opacity: 0;
+      }
+      .btn:hover ~ #hint2 {
+        opacity: 1;
+      }
+
+      @keyframes txt-in {
+        90% {
+          opacity: 0;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+      @keyframes txt-out {
+        50% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+
+      @keyframes frame-half {
+        0% {
+          inset: 0 50%;
+        }
+        100% {
+          inset: 0 0%;
+        }
+      }
+
+      @keyframes frame {
+        50% {
+          inset: 0 50%;
+        }
+      }
+    `}</style>
+    <div className="btn-wrapper">
+      <button className="btn">
+        <span className="frame">
+          <span className="point top left"></span>
+          <span className="point top right"></span>
+          <span className="point bottom left"></span>
+          <span className="point bottom right"></span>
+        </span>
+        <span className="txt-box">
+          <span className="txt">{name}</span>
+          <span className="txt">{designation || "Employee"}</span>
+        </span>
+      </button>
+      <div className="txt-secondary" id="hint1">Hover to reveal designation</div>
+      <div className="txt-secondary" id="hint2">Top Performer</div>
+    </div>
+  );
+}
+
 const RANK_STYLES = [
   { bg: "from-amber-500/20 to-yellow-500/10", border: "border-amber-500/40", text: "text-amber-300", icon: "🥇" },
   { bg: "from-slate-400/20 to-slate-500/10", border: "border-slate-400/40", text: "text-slate-300", icon: "🥈" },
@@ -178,12 +386,20 @@ export default function RecognitionLeaderboardPage() {
             icon={Star}
             color="bg-emerald-500/20 text-emerald-400"
           />
-          <StatCard
-            label="Top Performer"
-            value={data.stats.top_performer || "—"}
-            icon={Crown}
-            color="bg-violet-500/20 text-violet-400"
-          />
+          <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center min-h-[120px]">
+            <div className="flex items-center gap-2 mb-3 text-violet-400">
+              <Crown className="w-5 h-5" />
+              <h3 className="text-xs font-semibold text-slate-300">Top Performer</h3>
+            </div>
+            {data.stats.top_performer && data.stats.top_performer_designation ? (
+              <TopPerformerCard
+                name={data.stats.top_performer}
+                designation={data.stats.top_performer_designation}
+              />
+            ) : (
+              <span className="text-slate-400">—</span>
+            )}
+          </div>
           <StatCard
             label="Most Awarded"
             value={data.stats.most_awarded || "—"}

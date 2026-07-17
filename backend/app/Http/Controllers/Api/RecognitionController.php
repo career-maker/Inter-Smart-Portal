@@ -223,6 +223,7 @@ class RecognitionController extends Controller
                 'total_issued'   => $totalIssued,
                 'active_holders' => $activeHolders,
                 'top_performer'  => $topEntry ? $topEntry['name'] : null,
+                'top_performer_designation' => $topEntry ? $topEntry['designation'] : null,
                 'most_awarded'   => $mostAwardedRow ? ($mostAwardedRow->icon . ' ' . $mostAwardedRow->title) : null,
             ],
         ]);
