@@ -88,32 +88,44 @@ export function BirthdayWishBox({ userId }: { userId: number }) {
           Add Your Wish
         </Button>
       ) : (
-        <form onSubmit={handleSubmitWish} className="space-y-4">
-          {/* Textarea */}
-          <Textarea
-            placeholder="Write your birthday wish message..."
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            rows={3}
-            className="bg-white/5 border-white/10 text-white placeholder-slate-400"
-          />
+        <div className="bg-white border border-slate-200 grid grid-cols-6 gap-2 rounded-xl p-4 text-sm">
+          <h1 className="text-center text-slate-900 text-lg font-bold col-span-6">Send Birthday Wish</h1>
 
-          {/* Emoji Picker */}
-          <div className="relative z-40">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-              className="bg-white/5 border-white/10 hover:bg-white/10 text-white"
-            >
-              <Smile className="w-4 h-4 mr-2" />
-              Add Emoji
-            </Button>
+          <form onSubmit={handleSubmitWish} className="col-span-6 space-y-3">
+            {/* Textarea */}
+            <textarea
+              placeholder="Write your birthday wish message..."
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="bg-slate-100 text-slate-600 h-28 placeholder:text-slate-600 placeholder:opacity-50 border border-slate-200 col-span-6 resize-none outline-none rounded-lg p-3 duration-300 focus:border-slate-600 focus:ring-1 focus:ring-slate-600 w-full"
+            />
 
-            {/* Emoji Grid */}
+            {/* Emoji Buttons Grid */}
+            <div className="col-span-6 grid grid-cols-6 gap-2">
+              {EMOJIS.slice(0, 5).map((emoji, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => handleEmojiClick(emoji)}
+                  className="fill-slate-600 flex justify-center items-center rounded-lg p-2 duration-300 bg-slate-100 hover:border-slate-600 focus:fill-pink-200 focus:bg-pink-400 border border-slate-200 text-lg"
+                  title={`Add ${emoji}`}
+                >
+                  {emoji}
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                className="fill-slate-600 flex justify-center items-center rounded-lg p-2 duration-300 bg-slate-100 hover:border-slate-600 focus:fill-blue-200 focus:bg-blue-400 border border-slate-200"
+                title="More emojis"
+              >
+                <Smile className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* More Emojis Popup */}
             {showEmojiPicker && (
-              <div className="absolute top-full mt-2 left-0 bg-slate-800 border border-white/20 rounded-lg p-3 grid grid-cols-6 gap-1 shadow-2xl z-50 backdrop-blur-sm" style={{ minWidth: '240px' }}>
+              <div className="col-span-6 bg-slate-100 border border-slate-200 rounded-lg p-3 grid grid-cols-8 gap-1">
                 {EMOJIS.map((emoji, idx) => (
                   <button
                     key={idx}
@@ -122,44 +134,48 @@ export function BirthdayWishBox({ userId }: { userId: number }) {
                       handleEmojiClick(emoji);
                       setShowEmojiPicker(false);
                     }}
-                    className="text-3xl p-2 rounded hover:bg-white/10 transition-all duration-150 active:scale-90 flex items-center justify-center"
-                    style={{ fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif' }}
-                    title={`Insert ${emoji}`}
+                    className="text-xl p-2 rounded hover:bg-slate-200 transition-all duration-150 active:scale-90 flex items-center justify-center"
                   >
                     {emoji}
                   </button>
                 ))}
               </div>
             )}
-          </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-2">
-            <Button
-              type="submit"
-              disabled={isSubmitting || !message.trim()}
-              className="flex-1 bg-pink-600 hover:bg-pink-700"
-            >
-              {isSubmitting ? (
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-              ) : (
-                <Send className="w-4 h-4 mr-2" />
-              )}
-              Send Wish
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                setShowForm(false);
-                setMessage("");
-                setShowEmojiPicker(false);
-              }}
-            >
-              Cancel
-            </Button>
-          </div>
-        </form>
+            {error && (
+              <div className="col-span-6 text-xs text-red-600 bg-red-100 p-2 rounded">
+                {error}
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="col-span-6 grid grid-cols-6 gap-2">
+              <div className="col-span-2"></div>
+              <button
+                type="submit"
+                disabled={isSubmitting || !message.trim()}
+                className="col-span-2 bg-slate-100 border border-slate-200 flex justify-center items-center rounded-lg p-3 duration-300 hover:border-slate-600 hover:bg-slate-200 focus:bg-pink-400 disabled:opacity-50 disabled:cursor-not-allowed text-slate-600 font-semibold"
+              >
+                {isSubmitting ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <Send className="w-5 h-5" />
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowForm(false);
+                  setMessage("");
+                  setShowEmojiPicker(false);
+                }}
+                className="col-span-2 bg-slate-100 stroke-slate-600 border border-slate-200 flex justify-center items-center rounded-lg p-3 duration-300 hover:border-slate-600 hover:text-slate-700 focus:bg-slate-300"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
       )}
 
       {error && (
