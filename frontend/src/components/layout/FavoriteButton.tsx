@@ -10,7 +10,7 @@ interface FavoriteButtonProps {
 }
 
 export function FavoriteButton({ label }: FavoriteButtonProps) {
-  const pathname = usePathname();
+  const pathname = usePathname() || "";
   const { isFavorited, addFavorite, removeFavorite } = useFavoritesStore();
   const [isHydrated, setIsHydrated] = useState(false);
   const [isFav, setIsFav] = useState(false);
@@ -27,22 +27,13 @@ export function FavoriteButton({ label }: FavoriteButtonProps) {
       removeFavorite(pathname);
       setIsFav(false);
     } else {
-      const pageLabel =
-        label ||
-        pathname
-          .split("/")
-          .filter(Boolean)
-          .pop()
-          ?.replace(/-/g, " ")
-          .charAt(0)
-          .toUpperCase() +
-          pathname
-            .split("/")
-            .filter(Boolean)
-            .pop()
-            ?.replace(/-/g, " ")
-            .slice(1) ||
-        "Page";
+      let pageLabel = label;
+      if (!pageLabel) {
+        const parts = pathname.split("/").filter(Boolean);
+        const lastPart = parts.pop() || "Page";
+        const formatted = lastPart.replace(/-/g, " ");
+        pageLabel = formatted.charAt(0).toUpperCase() + formatted.slice(1);
+      }
       addFavorite(pathname, pageLabel);
       setIsFav(true);
     }
