@@ -38,6 +38,7 @@ function resolveNotificationUrl(notification: any): string {
 export function NotificationDropdown() {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
 
   const fetchUnread = async () => {
@@ -47,6 +48,29 @@ export function NotificationDropdown() {
       setUnreadCount(res.data.data.count);
     } catch (err) {
       console.error("Failed to fetch notifications", err);
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      // Optimistically update UI
+      setNotifications([]);
+      setUnreadCount(0);
+
+      // Make API call in background to mark all as read
+      await api.post("/notifications/mark-as-read");
+    } catch (err) {
+      console.error("Failed to mark all notifications as read", err);
+      // Refresh on error to restore correct state
+      await fetchUnread();
+    }
+  };
+
+  const handleOpenChange = async (open: boolean) => {
+    setIsOpen(open);
+    // When dropdown is opened and there are unread notifications, mark all as read
+    if (open && unreadCount > 0) {
+      await handleMarkAllAsRead();
     }
   };
 
@@ -95,7 +119,7 @@ export function NotificationDropdown() {
   };
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={isOpen} onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger className="relative p-2 rounded-full hover:bg-gray-100 transition-colors focus:outline-none">
         <Bell className="h-5 w-5 text-gray-600" />
         {unreadCount > 0 && (
