@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { NotificationDropdown } from "@/components/layout/NotificationDropdown";
 import { RecognitionTicker } from "@/components/layout/RecognitionTicker";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import api from "@/services/api";
 import Script from "next/script";
 import ChatbaseLottieButton from "@/components/ChatbaseLottieButton";
@@ -228,6 +229,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
           {/* Right side */}
           <div className="flex items-center gap-3 shrink-0 ml-auto">
+            <ThemeToggle />
             <NotificationDropdown />
 
             {/* User info (desktop) */}
