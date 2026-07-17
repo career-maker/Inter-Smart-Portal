@@ -29,7 +29,7 @@ class LeaveBalanceController extends Controller
                 ->with(['leaveBalance', 'leaves' => function ($q) {
                     $q->where('status', 'Approved')->with('leaveType');
                 }])
-                ->get(['id', 'first_name', 'last_name', 'employee_code', 'designation', 'team_id'])
+                ->get()
                 ->map(function ($emp) {
                     $balance = $emp->leaveBalance;
 
