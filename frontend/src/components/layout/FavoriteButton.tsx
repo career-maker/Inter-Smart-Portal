@@ -43,6 +43,7 @@ export function FavoriteButton({ label }: FavoriteButtonProps) {
       }
     } catch (error) {
       console.error('Failed to toggle favorite:', error);
+      alert('Failed to update favorites. Please try again.');
     } finally {
       setIsLoading(false);
     }

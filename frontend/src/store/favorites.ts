@@ -35,14 +35,19 @@ export const useFavoritesStore = create<FavoritesState>((set, get) => ({
 
   addFavorite: async (href, label) => {
     try {
-      await api.post('/favorites', {
+      const response = await api.post('/favorites', {
         page_href: href,
         page_label: label,
       });
-      // Optimistically update local state
-      set((state) => ({
-        favorites: [...state.favorites, { page_href: href, page_label: label, created_at: new Date().toISOString() }],
-      }));
+
+      if (response.data?.success) {
+        // Optimistically update local state
+        set((state) => ({
+          favorites: [...state.favorites, { page_href: href, page_label: label, created_at: new Date().toISOString() }],
+        }));
+      } else {
+        throw new Error(response.data?.message || 'Failed to add favorite');
+      }
     } catch (error) {
       console.error('Failed to add favorite:', error);
       throw error;
@@ -51,11 +56,18 @@ export const useFavoritesStore = create<FavoritesState>((set, get) => ({
 
   removeFavorite: async (href) => {
     try {
-      await api.delete(`/favorites/${encodeURIComponent(href)}`);
-      // Optimistically update local state
-      set((state) => ({
-        favorites: state.favorites.filter((fav) => fav.page_href !== href),
-      }));
+      // Use path encoding that preserves slashes for routes like /leaves, /employees
+      const encodedHref = href.split('/').map(encodeURIComponent).join('/');
+      const response = await api.delete(`/favorites/${encodedHref}`);
+
+      if (response.data?.success) {
+        // Optimistically update local state
+        set((state) => ({
+          favorites: state.favorites.filter((fav) => fav.page_href !== href),
+        }));
+      } else {
+        throw new Error(response.data?.message || 'Failed to remove favorite');
+      }
     } catch (error) {
       console.error('Failed to remove favorite:', error);
       throw error;

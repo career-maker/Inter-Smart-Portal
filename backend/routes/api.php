@@ -323,8 +323,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('favorites')->group(function () {
         Route::get('/', [\App\Http\Controllers\Api\FavoriteController::class, 'index']);
         Route::post('/', [\App\Http\Controllers\Api\FavoriteController::class, 'store']);
-        Route::delete('/{pageHref}', [\App\Http\Controllers\Api\FavoriteController::class, 'destroy']);
-        Route::get('/check/{pageHref}', [\App\Http\Controllers\Api\FavoriteController::class, 'check']);
+        Route::delete('/{pageHref}', [\App\Http\Controllers\Api\FavoriteController::class, 'destroy'])->where('pageHref', '.*');
+        Route::get('/check/{pageHref}', [\App\Http\Controllers\Api\FavoriteController::class, 'check'])->where('pageHref', '.*');
     });
 });
 
