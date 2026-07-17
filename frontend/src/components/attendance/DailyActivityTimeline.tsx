@@ -109,7 +109,7 @@ export function DailyActivityTimeline({
               </div>
 
               {/* Event card */}
-              <div className="bg-slate-800/50 border border-slate-200 dark:border-white/10 rounded-lg p-4 hover:bg-slate-800 transition-colors">
+              <div className="bg-white/50 dark:bg-slate-800/50 border border-slate-200 dark:border-white/10 rounded-lg p-4 hover:bg-slate-800 transition-colors">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <p className="font-semibold text-slate-900 dark:text-white text-sm">{label}</p>

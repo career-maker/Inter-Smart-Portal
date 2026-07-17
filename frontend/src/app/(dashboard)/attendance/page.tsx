@@ -101,7 +101,7 @@ export default function AttendancePage() {
 
       {/* Time Clock Widget - Compact */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white lg:col-span-1">
+        <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white lg:col-span-1">
           <CardHeader className="bg-primary/10 pb-3 border-b border-slate-200 dark:border-white/10 text-center rounded-t-xl">
             <CardTitle className="text-lg">Time Clock</CardTitle>
             <div className="text-3xl font-light tracking-tight mt-2 text-slate-900 dark:text-white">
@@ -137,7 +137,7 @@ export default function AttendancePage() {
         {/* Quick Stats - Optional */}
         {history.length > 0 && getFilteredHistory().length > 0 && getFilteredHistory()[0] && (
           <>
-            <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white">
+            <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white">
               <CardContent className="pt-6">
                 <div className="space-y-2">
                   <p className="text-xs text-slate-500 dark:text-slate-400">{filterDay ? 'Check-in' : "Today's Check-in"}</p>
@@ -145,7 +145,7 @@ export default function AttendancePage() {
                 </div>
               </CardContent>
             </Card>
-            <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white">
+            <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white">
               <CardContent className="pt-6">
                 <div className="space-y-2">
                   <p className="text-xs text-slate-500 dark:text-slate-400">{filterDay ? 'Check-out' : "Today's Check-out"}</p>
@@ -153,7 +153,7 @@ export default function AttendancePage() {
                 </div>
               </CardContent>
             </Card>
-            <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white">
+            <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white">
               <CardContent className="pt-6">
                 <div className="space-y-2">
                   <p className="text-xs text-slate-500 dark:text-slate-400">Hours Worked</p>
@@ -168,7 +168,7 @@ export default function AttendancePage() {
       </div>
 
       {/* Primary Day-wise Table */}
-      <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white">
+      <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white">
         <CardHeader className="flex flex-row items-center justify-between border-b border-slate-200 dark:border-white/5 pb-4 mb-4">
           <div>
             <CardTitle className="text-2xl">Attendance Records</CardTitle>
@@ -212,13 +212,13 @@ export default function AttendancePage() {
           {isLoading ? (
             <div className="py-4 text-center text-slate-500 dark:text-slate-400">Loading...</div>
           ) : history.length === 0 ? (
-            <div className="py-8 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10 rounded bg-slate-900/50">No attendance records found for this month.</div>
+            <div className="py-8 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10 rounded bg-slate-100/50 dark:bg-slate-900/50">No attendance records found for this month.</div>
           ) : getFilteredHistory().length === 0 ? (
-            <div className="py-8 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10 rounded bg-slate-900/50">No attendance records found for the selected day.</div>
+            <div className="py-8 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10 rounded bg-slate-100/50 dark:bg-slate-900/50">No attendance records found for the selected day.</div>
           ) : (
             <div className="overflow-x-auto rounded-md border border-slate-200 dark:border-white/10">
               <table className="w-full text-sm text-left">
-                <thead className="text-xs text-slate-600 dark:text-slate-300 uppercase bg-slate-900/80 border-b border-slate-200 dark:border-white/10">
+                <thead className="text-xs text-slate-600 dark:text-slate-300 uppercase bg-slate-100/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-white/10">
                   <tr>
                     <th className="px-4 py-4">Date</th>
                     <th className="px-4 py-4">Day</th>

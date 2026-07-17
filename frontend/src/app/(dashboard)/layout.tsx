@@ -220,7 +220,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 dark:from-slate-900 via-white dark:via-slate-800 to-slate-50 dark:to-slate-900">
       <RecognitionTicker />
-      <header className="bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-white/10 shadow-lg">
+      <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-white/10 shadow-lg">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           {/* Logo */}
           <Link href="/dashboard" className="flex items-center shrink-0 pr-4">

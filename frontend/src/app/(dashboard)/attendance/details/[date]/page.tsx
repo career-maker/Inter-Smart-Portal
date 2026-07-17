@@ -153,7 +153,7 @@ export default function AttendanceDetailsPage({ params }: PageProps) {
             <ArrowLeft className="mr-2 h-4 w-4" /> Back to Attendance
           </Button>
         </Link>
-        <Card className="border-slate-600 bg-slate-900/50">
+        <Card className="border-slate-600 bg-slate-100/50 dark:bg-slate-900/50">
           <CardContent className="pt-6 text-center text-slate-600 dark:text-slate-300">
             <p>No attendance or biometric data found for this date.</p>
           </CardContent>
@@ -202,7 +202,7 @@ export default function AttendanceDetailsPage({ params }: PageProps) {
       />
 
       {/* Daily Activity Timeline */}
-      <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white">
+      <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white">
         <CardHeader className="pb-4 border-b border-slate-200 dark:border-white/5">
           <CardTitle>Daily Activity Timeline</CardTitle>
           <CardDescription className="text-slate-500 dark:text-slate-400">
@@ -222,7 +222,7 @@ export default function AttendanceDetailsPage({ params }: PageProps) {
       {/* Date Navigation & Status */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <Card className="border-slate-200 dark:border-white/10 bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white">
+          <Card className="border-slate-200 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white">
             <CardHeader className="border-b border-slate-200 dark:border-white/10 pb-4">
               <div className="flex items-center justify-between">
                 <CardTitle>Daily Summary</CardTitle>
@@ -313,7 +313,7 @@ export default function AttendanceDetailsPage({ params }: PageProps) {
 
         {/* Sequence State Info */}
         <div className="lg:col-span-1">
-          <Card className="border-slate-200 dark:border-white/10 bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white h-full">
+          <Card className="border-slate-200 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white h-full">
             <CardHeader className="border-b border-slate-200 dark:border-white/10 pb-4">
               <CardTitle className="text-lg">Sequence State</CardTitle>
             </CardHeader>
@@ -348,7 +348,7 @@ export default function AttendanceDetailsPage({ params }: PageProps) {
       </div>
 
       {/* Raw Punches */}
-      <Card className="border-slate-200 dark:border-white/10 bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white">
+      <Card className="border-slate-200 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white">
         <CardHeader className="border-b border-slate-200 dark:border-white/10 pb-4">
           <CardTitle>Raw Biometric Punches</CardTitle>
           <CardDescription className="text-slate-500 dark:text-slate-400">
@@ -391,7 +391,7 @@ export default function AttendanceDetailsPage({ params }: PageProps) {
       </Card>
 
       {/* Working Sessions */}
-      <Card className="border-slate-200 dark:border-white/10 bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white">
+      <Card className="border-slate-200 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white">
         <CardHeader className="border-b border-slate-200 dark:border-white/10 pb-4">
           <CardTitle>Working Sessions</CardTitle>
           <CardDescription className="text-slate-500 dark:text-slate-400">
@@ -433,7 +433,7 @@ export default function AttendanceDetailsPage({ params }: PageProps) {
       </Card>
 
       {/* Breaks */}
-      <Card className="border-slate-200 dark:border-white/10 bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white">
+      <Card className="border-slate-200 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white">
         <CardHeader className="border-b border-slate-200 dark:border-white/10 pb-4">
           <CardTitle>Completed Breaks</CardTitle>
           <CardDescription className="text-slate-500 dark:text-slate-400">

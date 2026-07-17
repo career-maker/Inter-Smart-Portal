@@ -366,7 +366,7 @@ export default function ApplyLeavePage() {
           );
         })()}
 
-        <div className="bg-slate-800/80 border border-slate-200 dark:border-white/10 rounded-2xl">
+        <div className="bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-white/10 rounded-2xl">
           <div className="px-6 pt-6 pb-2">
             <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Leave Application Form</h2>
             <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Your request will be sent for approval.</p>
@@ -502,7 +502,7 @@ export default function ApplyLeavePage() {
               )}
 
               {/* Pure CSS sticky action bar at bottom on mobile, inline on desktop */}
-              <div className="sticky bottom-0 left-0 right-0 -mx-6 -mb-6 p-4 bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-white/10 z-40 flex justify-end gap-4 md:relative md:bottom-auto md:left-auto md:right-auto md:mx-0 md:mb-0 md:p-0 md:bg-transparent md:backdrop-blur-none md:border-none md:z-auto md:pt-5">
+              <div className="sticky bottom-0 left-0 right-0 -mx-6 -mb-6 p-4 bg-slate-100/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-white/10 z-40 flex justify-end gap-4 md:relative md:bottom-auto md:left-auto md:right-auto md:mx-0 md:mb-0 md:p-0 md:bg-transparent md:backdrop-blur-none md:border-none md:z-auto md:pt-5">
                 <button type="button" onClick={() => router.push("/leaves")} className="px-5 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/10 bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors">
                   Cancel
                 </button>

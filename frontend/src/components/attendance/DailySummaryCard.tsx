@@ -84,7 +84,7 @@ export function DailySummaryCard({
   };
 
   return (
-    <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white mb-6">
+    <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white mb-6">
       <CardHeader className="pb-4 border-b border-slate-200 dark:border-white/5">
         <div className="flex items-start justify-between">
           <div>

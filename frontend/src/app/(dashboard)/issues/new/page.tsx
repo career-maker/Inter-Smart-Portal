@@ -75,7 +75,7 @@ export default function NewIssuePage() {
         </div>
       </div>
 
-      <div className="bg-slate-800/80 border border-slate-200 dark:border-white/10 rounded-2xl">
+      <div className="bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-white/10 rounded-2xl">
         <div className="px-6 pt-6 pb-2">
           <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Issue Details</h2>
           <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Please be as descriptive as possible.</p>

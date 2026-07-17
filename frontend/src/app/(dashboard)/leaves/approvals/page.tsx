@@ -762,7 +762,7 @@ export default function ApprovalsPage() {
               </div>
 
               {/* Right Column: Before-and-After Summary Panel */}
-              <div className="bg-slate-900/40 border border-slate-200 dark:border-white/5 rounded-2xl p-5 space-y-5">
+              <div className="bg-slate-100/40 dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 rounded-2xl p-5 space-y-5">
                 <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Before-and-After Summary</h3>
 
                 {recalcLoading ? (

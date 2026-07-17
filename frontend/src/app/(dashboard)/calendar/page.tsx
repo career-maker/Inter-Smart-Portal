@@ -101,7 +101,7 @@ export default function CalendarPage() {
 
       <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden relative backdrop-blur-md">
         {isLoading && (
-          <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm z-10 flex items-center justify-center">
+          <div className="absolute inset-0 bg-slate-100/50 dark:bg-slate-900/50 backdrop-blur-sm z-10 flex items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin text-amber-500" />
           </div>
         )}
@@ -114,7 +114,7 @@ export default function CalendarPage() {
           ))}
         </div>
         
-        <div className="grid grid-cols-7 auto-rows-[65px] md:auto-rows-[120px] bg-slate-900/10">
+        <div className="grid grid-cols-7 auto-rows-[65px] md:auto-rows-[120px] bg-slate-100/10 dark:bg-slate-900/10">
           {/* Empty cells for days before the 1st */}
           {paddingDays.map(i => (
             <div key={`empty-${i}`} className="border-b border-r border-slate-200 dark:border-white/10 bg-white/[0.02] p-2" />

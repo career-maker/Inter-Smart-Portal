@@ -195,7 +195,7 @@ export function BirthdayWishBox({ userId }: { userId: number }) {
           </div>
         ) : (
           wishes.map((wish) => (
-            <div key={wish.id} className="bg-slate-900/50 rounded-lg p-4 space-y-2">
+            <div key={wish.id} className="bg-slate-100/50 dark:bg-slate-900/50 rounded-lg p-4 space-y-2">
               <div className="flex items-center gap-3">
                 <Avatar className="h-8 w-8">
                   <AvatarImage src={wish.sender.profile_photo_path} />

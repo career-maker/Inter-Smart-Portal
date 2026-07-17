@@ -10,8 +10,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const root = document.documentElement;
     if (isDark) {
       root.style.colorScheme = "dark";
+      root.classList.add('dark');
     } else {
       root.style.colorScheme = "light";
+      root.classList.remove('dark');
     }
   }, [isDark]);
 

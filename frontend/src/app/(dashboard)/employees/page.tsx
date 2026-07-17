@@ -85,7 +85,7 @@ export default function EmployeesPage() {
       </div>
 
       {/* Search Card */}
-      <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-slate-800/50 backdrop-blur-sm">
+      <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm">
         <CardContent className="pt-6">
           <div className="flex items-center gap-3">
             <div className="relative flex-1 max-w-sm">
@@ -103,7 +103,7 @@ export default function EmployeesPage() {
       </Card>
 
       {/* Table Card */}
-      <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-slate-800/50 backdrop-blur-sm overflow-hidden">
+      <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm overflow-hidden">
         <CardContent className="p-0">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
@@ -189,7 +189,7 @@ export default function EmployeesPage() {
 
           {/* Pagination */}
           {!isLoading && employees.length > 0 && totalPages > 1 && (
-            <div className="flex items-center justify-between p-4 border-t border-slate-200 dark:border-white/10 bg-slate-900/50">
+            <div className="flex items-center justify-between p-4 border-t border-slate-200 dark:border-white/10 bg-slate-100/50 dark:bg-slate-900/50">
               <div className="text-sm text-slate-600 dark:text-slate-300">
                 Page <span className="font-semibold text-slate-900 dark:text-white">{currentPage}</span> of <span className="font-semibold text-slate-900 dark:text-white">{totalPages}</span>
               </div>

@@ -127,7 +127,7 @@ export default function IssueDetailPage() {
         {/* Main thread */}
         <div className="lg:col-span-2 space-y-4">
           {/* Original post */}
-          <div className="bg-slate-800/80 border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden">
+          <div className="bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden">
             <div className="p-5 bg-white/5 border-b border-slate-200 dark:border-white/10">
               <div className="flex gap-4">
                 <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center text-sm font-bold text-white shrink-0 overflow-hidden">
@@ -273,7 +273,7 @@ export default function IssueDetailPage() {
 
         {/* Sidebar */}
         <div className="space-y-4">
-          <div className="bg-slate-800/80 border border-slate-200 dark:border-white/10 rounded-2xl p-5">
+          <div className="bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-white/10 rounded-2xl p-5">
             <h3 className="font-semibold text-slate-900 dark:text-white mb-4 border-b border-slate-200 dark:border-white/10 pb-3">Details</h3>
             <div className="space-y-3 text-sm">
               <Detail label="Status" value={<span className={`px-2 py-0.5 rounded-full text-xs font-semibold border ${statusCls}`}>{issue.status}</span>} />

@@ -153,7 +153,7 @@ export default function EditEmployeePage() {
         <TabsContent value="photo">
           <div className="max-w-xl space-y-6">
             {/* Current photo preview */}
-            <div className="bg-slate-800/80 border border-slate-200 dark:border-white/10 rounded-2xl p-6 flex flex-col items-center gap-4">
+            <div className="bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-white/10 rounded-2xl p-6 flex flex-col items-center gap-4">
               <div className="h-28 w-28 rounded-full border-4 border-slate-200 dark:border-white/10 overflow-hidden bg-slate-700 flex items-center justify-center shrink-0">
                 {employee.profile_photo_path && !imgError ? (
                   <img src={employee.profile_photo_path} alt="Profile" className="h-full w-full object-cover" onError={() => setImgError(true)} />
@@ -170,7 +170,7 @@ export default function EditEmployeePage() {
             </div>
 
             {/* Mode toggle */}
-            <div className="flex rounded-xl border border-slate-200 dark:border-white/10 overflow-hidden bg-slate-800/60 p-1 gap-1">
+            <div className="flex rounded-xl border border-slate-200 dark:border-white/10 overflow-hidden bg-white/60 dark:bg-slate-800/60 p-1 gap-1">
               <button
                 onClick={() => setPhotoMode("upload")}
                 className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${photoMode === "upload" ? "bg-amber-500 text-white shadow" : "text-slate-400 hover:text-white"}`}
@@ -189,7 +189,7 @@ export default function EditEmployeePage() {
 
             {/* Upload File mode */}
             {photoMode === "upload" && (
-              <div className="bg-slate-800/80 border border-slate-200 dark:border-white/10 rounded-2xl p-6">
+              <div className="bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-white/10 rounded-2xl p-6">
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">Upload from device</h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">JPEG, PNG or GIF · Max 2 MB</p>
                 <label className={`flex flex-col items-center justify-center gap-3 border-2 border-dashed rounded-xl p-8 cursor-pointer transition-colors ${photoLoading ? "opacity-50 cursor-not-allowed border-white/10" : "border-white/20 hover:border-amber-500/60 hover:bg-amber-500/5"}`}>
@@ -211,7 +211,7 @@ export default function EditEmployeePage() {
 
             {/* Paste URL mode */}
             {photoMode === "url" && (
-              <div className="bg-slate-800/80 border border-slate-200 dark:border-white/10 rounded-2xl p-6">
+              <div className="bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-white/10 rounded-2xl p-6">
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">Link from Google Drive or any public URL</h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
                   Share the file publicly on Google Drive, copy the sharing link, and paste it below. Google Drive links are automatically converted to direct image URLs.

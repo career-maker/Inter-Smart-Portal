@@ -1200,7 +1200,7 @@ function KPICard({ title, value, trend, icon: Icon, color, href, onClick }: any)
   const accent = accentMap[color] || accentMap['bg-blue-500'];
 
   const CardContent = (
-    <div className={`relative overflow-hidden h-full rounded-3xl p-6 bg-gradient-to-br from-white/90 dark:from-slate-800/90 to-slate-50/90 dark:to-slate-900/90 shadow-[8px_8px_20px_rgba(0,0,0,0.5),-4px_-4px_12px_rgba(255,255,255,0.03)] border ${accent.border}backdrop-blur-xl transition-all duration-300 ${(href || onClick) ? 'cursor-pointer group hover:shadow-[inset_6px_6px_14px_rgba(0,0,0,0.5),inset_-3px_-3px_10px_rgba(255,255,255,0.03)] hover:border-white/10' : ''} `}>
+    <div className={`relative overflow-hidden h-full rounded-3xl p-6 bg-gradient-to-br from-white/90 dark:from-slate-800/90 to-slate-50/90 dark:to-slate-900/90 shadow-[8px_8px_20px_rgba(0,0,0,0.5),-4px_-4px_12px_rgba(255,255,255,0.03)] border ${accent.border}backdrop-blur-xl transition-all duration-300 ${(href || onClick) ? 'cursor-pointer group hover:shadow-[inset_6px_6px_14px_rgba(0,0,0,0.5),inset_-3px_-3px_10px_rgba(255,255,255,0.03)] hover:border-white/10' : ''}  `}>
       <div className="flex justify-between items-start relative z-10">
         <div>
           <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">{title}</p>

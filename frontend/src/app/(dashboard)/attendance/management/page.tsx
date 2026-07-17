@@ -354,7 +354,7 @@ export default function AttendanceManagementPage() {
 
       {/* Employee Selector */}
       {viewMode === "selector" && (
-        <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white">
+        <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white">
           <CardHeader>
             <CardTitle>Select Employee</CardTitle>
             <CardDescription className="text-slate-500 dark:text-slate-400">
@@ -421,7 +421,7 @@ export default function AttendanceManagementPage() {
 
       {/* All Employees on Date View */}
       {!selectedEmployee && viewMode === "selector" && (
-        <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white relative">
+        <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white relative">
           {isLoadingDetails && (
             <div className="absolute inset-0 bg-black/40 rounded-lg backdrop-blur-sm flex items-center justify-center z-10">
               <div className="flex flex-col items-center gap-3">
@@ -464,7 +464,7 @@ export default function AttendanceManagementPage() {
       {/* All Employees on Date - Table View */}
       {viewMode === "dateAllEmployees" && (
         <>
-          <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white relative">
+          <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white relative">
             {isLoadingDetails && (
               <div className="absolute inset-0 bg-black/40 rounded-lg backdrop-blur-sm flex items-center justify-center z-10">
                 <div className="flex flex-col items-center gap-3">
@@ -608,7 +608,7 @@ export default function AttendanceManagementPage() {
 
       {/* Mode Selection */}
       {selectedEmployee && viewMode === "selector" && (
-        <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white" data-attendance-mode-selector>
+        <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white" data-attendance-mode-selector>
           <CardHeader>
             <CardTitle>
               {selectedEmployee.first_name} {selectedEmployee.last_name}
@@ -659,7 +659,7 @@ export default function AttendanceManagementPage() {
       {selectedEmployee && viewMode === "dateWise" && (
         <>
           {/* Header with back button and date picker */}
-          <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white relative">
+          <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white relative">
             {isLoadingDetails && (
               <div className="absolute inset-0 bg-black/40 rounded-lg backdrop-blur-sm flex items-center justify-center z-10">
                 <div className="flex flex-col items-center gap-3">
@@ -716,7 +716,7 @@ export default function AttendanceManagementPage() {
                     isCurrentlyWorking={dailyDetails.is_currently_working}
                   />
 
-                  <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white">
+                  <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white">
                     <CardHeader className="pb-4 border-b border-slate-200 dark:border-white/5">
                       <CardTitle>Daily Activity Timeline</CardTitle>
                       <CardDescription className="text-slate-500 dark:text-slate-400">
@@ -734,7 +734,7 @@ export default function AttendanceManagementPage() {
                   </Card>
                 </>
               ) : (
-                <Card className="border-slate-600 bg-slate-900/50">
+                <Card className="border-slate-600 bg-slate-100/50 dark:bg-slate-900/50">
                   <CardContent className="pt-6 text-center text-slate-600 dark:text-slate-300">
                     No attendance data found for this date.
                   </CardContent>
