@@ -130,12 +130,12 @@ export default function NotificationsPage() {
                     router.push(resolveNotificationUrl(notif));
                   }}
                   className={`p-4 sm:px-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center transition-colors cursor-pointer ${
-                    !notif.read_at ? "bg-primary/10 hover:bg-primary/15" : "bg-slate-50 hover:bg-slate-100 dark:bg-white/5 dark:hover:bg-white/10 text-slate-500 dark:text-slate-400"
+                    !notif.read_at ? "bg-primary/10 hover:bg-primary/15" : "bg-slate-50 hover:bg-slate-100 dark:bg-white/5 dark:hover:bg-white/10"
                   }`}
                 >
                   <div className="flex-1 space-y-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className={`text-sm font-medium truncate ${notif.read_at ? "text-gray-600 dark:text-slate-400" : "text-gray-900 dark:text-white"}`}>
+                      <p className={`text-sm font-medium truncate ${notif.read_at ? "text-gray-700 dark:text-slate-200" : "text-gray-900 dark:text-white"}`}>
                         {notif.data?.title || "Update"}
                       </p>
                       {!notif.read_at && (
@@ -144,10 +144,10 @@ export default function NotificationsPage() {
                         </Badge>
                       )}
                     </div>
-                    <p className={`text-sm whitespace-pre-wrap ${notif.read_at ? "text-gray-500 dark:text-slate-500" : "text-gray-700 dark:text-slate-300"}`}>
+                    <p className={`text-sm whitespace-pre-wrap ${notif.read_at ? "text-gray-600 dark:text-slate-300" : "text-gray-800 dark:text-slate-100"}`}>
                       {notif.data?.message || "You have a new notification regarding your account."}
                     </p>
-                    <p className={`text-xs mt-1 ${notif.read_at ? "text-gray-400 dark:text-slate-500" : "text-gray-500 dark:text-slate-400"}`}>
+                    <p className={`text-xs mt-1 ${notif.read_at ? "text-gray-500 dark:text-slate-400" : "text-gray-600 dark:text-slate-300"}`}>
                       {new Date(notif.created_at).toLocaleString(undefined, {
                         dateStyle: "medium",
                         timeStyle: "short",
