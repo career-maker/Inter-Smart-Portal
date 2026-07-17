@@ -294,7 +294,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {STANDALONE.map(({ href, label, icon: Icon }) => {
               const active = pathname === href;
               return (
-                <Link key={href} href={href} onClick={closeMenu} className={`flex items-center gap-3 px-4 py-2.5 text-sm font-semibold transition-colors mx-2 rounded-xl ${active ? "bg-amber-500/20 text-amber-400" : "text-slate-300 hover:bg-white/5 hover:text-white"}`}>
+                <Link key={href} href={href} onClick={closeMenu} className={`flex items-center gap-3 px-4 py-2.5 text-sm font-semibold transition-colors mx-2 rounded-xl ${active ? "bg-amber-500/20 text-amber-400" : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white"}`}>
                   <Icon className="h-4 w-4 shrink-0" />
                   {label}
                 </Link>
@@ -308,7 +308,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               const GroupIcon = group.icon;
               return (
                 <div key={group.id} className="mt-1">
-                  <button onClick={() => toggleGroup(group.id)} className={`w-full flex items-center justify-between gap-2 px-4 py-2.5 text-sm font-semibold transition-colors mx-2 rounded-xl ${groupActive && !isOpen ? "text-amber-400" : "text-slate-300 hover:text-white hover:bg-white/5"}`} style={{ width: "calc(100% - 1rem)" }}>
+                  <button onClick={() => toggleGroup(group.id)} className={`w-full flex items-center justify-between gap-2 px-4 py-2.5 text-sm font-semibold transition-colors mx-2 rounded-xl ${groupActive && !isOpen ? "text-amber-400" : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5"}`} style={{ width: "calc(100% - 1rem)" }}>
                     <span className="flex items-center gap-3">
                       <GroupIcon className="h-4 w-4 shrink-0" />
                       {group.label}
@@ -321,7 +321,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         const hasExactMatch = visibleItems.some((i) => pathname === i.href);
                         const active = hasExactMatch ? pathname === item.href : pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"));
                         return (
-                          <Link key={item.href} href={item.href} onClick={closeMenu} className={`flex items-center gap-2 pl-11 pr-4 py-2 text-sm transition-colors mx-2 rounded-xl ${active ? "bg-amber-500/20 text-amber-400 font-semibold" : "text-slate-400 hover:bg-white/5 hover:text-white"}`} style={{ width: "calc(100% - 1rem)" }}>
+                          <Link key={item.href} href={item.href} onClick={closeMenu} className={`flex items-center gap-2 pl-11 pr-4 py-2 text-sm transition-colors mx-2 rounded-xl ${active ? "bg-amber-500/20 text-amber-400 font-semibold" : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white"}`} style={{ width: "calc(100% - 1rem)" }}>
                             <span className="w-1 h-1 rounded-full bg-current shrink-0 opacity-60" />
                             <span className="flex items-center gap-2">
                               {item.label}
