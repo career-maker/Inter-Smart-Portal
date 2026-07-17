@@ -115,7 +115,7 @@ export function CertificateModal({ recognition, employeeName, onClose }: Certifi
 
           {/* Company Logo (Only logo, no text) */}
           <div style={{ textAlign: "center", marginBottom: 24 }}>
-            <img src="/logo.png" alt="Logo" style={{ height: "60px", width: "auto", objectFit: "contain" }} />
+            <img src="/logo-dark.png" alt="Logo" style={{ height: "60px", width: "auto", objectFit: "contain" }} />
           </div>
 
           {/* Divider */}
