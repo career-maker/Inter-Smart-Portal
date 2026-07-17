@@ -1,21 +1,30 @@
 "use client";
 
-import { useEffect, ReactNode } from "react";
+import { useEffect, useState, ReactNode } from "react";
 import { useThemeStore } from "@/store/theme";
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const isDark = useThemeStore((state) => state.isDark);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isHydrated) return;
+
     const root = document.documentElement;
     if (isDark) {
       root.style.colorScheme = "dark";
       root.classList.add('dark');
+      root.classList.remove('light');
     } else {
       root.style.colorScheme = "light";
       root.classList.remove('dark');
+      root.classList.add('light');
     }
-  }, [isDark]);
+  }, [isDark, isHydrated]);
 
   return (
     <>

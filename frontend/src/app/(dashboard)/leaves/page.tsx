@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Plus, Calendar, Clock, CheckCircle, XCircle } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
+import { FavoriteButton } from "@/components/layout/FavoriteButton";
 
 export default function LeavesPage() {
   const router = useRouter();
@@ -128,14 +129,17 @@ export default function LeavesPage() {
           <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Leave Management</h1>
           <p className="text-slate-600 dark:text-slate-300">View your balances and leave history.</p>
         </div>
-        {!isSuperAdmin && (
-          <button
-            onClick={() => router.push("/leaves/apply")}
-            className="flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold rounded-xl transition-colors"
-          >
-            <Plus className="h-4 w-4" /> Apply for Leave
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          <FavoriteButton label="My Leaves" />
+          {!isSuperAdmin && (
+            <button
+              onClick={() => router.push("/leaves/apply")}
+              className="flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold rounded-xl transition-colors"
+            >
+              <Plus className="h-4 w-4" /> Apply for Leave
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Balance cards — only shown for non-Super Admin */}

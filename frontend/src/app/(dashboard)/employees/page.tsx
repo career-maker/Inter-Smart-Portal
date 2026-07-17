@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Search, MoreHorizontal, FileEdit, Trash2, Ban, CheckCircle, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import api from "@/services/api";
+import { FavoriteButton } from "@/components/layout/FavoriteButton";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -79,9 +80,12 @@ export default function EmployeesPage() {
           <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Employees</h1>
           <p className="text-slate-600 dark:text-slate-300 mt-1">Manage your organization's workforce.</p>
         </div>
-        <Button onClick={() => router.push("/employees/create")} className="bg-amber-500 hover:bg-amber-600 text-white font-semibold gap-2">
-          <Plus className="h-4 w-4" /> Add Employee
-        </Button>
+        <div className="flex items-center gap-2">
+          <FavoriteButton label="Employees" />
+          <Button onClick={() => router.push("/employees/create")} className="bg-amber-500 hover:bg-amber-600 text-white font-semibold gap-2">
+            <Plus className="h-4 w-4" /> Add Employee
+          </Button>
+        </div>
       </div>
 
       {/* Search Card */}

@@ -120,52 +120,52 @@ export function NotificationDropdown() {
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={handleOpenChange}>
-      <DropdownMenuTrigger className="relative p-2 rounded-full hover:bg-gray-100 transition-colors focus:outline-none">
-        <Bell className="h-5 w-5 text-gray-600" />
+      <DropdownMenuTrigger className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors focus:outline-none">
+        <Bell className="h-5 w-5 text-gray-600 dark:text-slate-300" />
         {unreadCount > 0 && (
           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 leading-none">
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80">
+      <DropdownMenuContent align="end" className="w-80 bg-white dark:bg-slate-900">
         <DropdownMenuGroup>
-          <DropdownMenuLabel className="flex justify-between items-center">
+          <DropdownMenuLabel className="flex justify-between items-center text-slate-900 dark:text-white">
             <span>Notifications</span>
             {unreadCount > 0 && (
-              <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+              <span className="text-xs bg-primary/10 text-primary dark:bg-primary/20 dark:text-amber-300 px-2 py-0.5 rounded-full">
                 {unreadCount} new
               </span>
             )}
           </DropdownMenuLabel>
-          <DropdownMenuSeparator />
+          <DropdownMenuSeparator className="dark:bg-slate-700" />
           <div className="max-h-80 overflow-y-auto">
             {notifications.length === 0 ? (
-              <div className="p-4 text-center text-sm text-gray-500">
+              <div className="p-4 text-center text-sm text-gray-500 dark:text-slate-400">
                 No new notifications
               </div>
             ) : (
               notifications.map((notif) => (
-                <DropdownMenuItem 
-                  key={notif.id} 
-                  className="flex flex-col items-start gap-1 p-3 cursor-pointer border-b last:border-0 focus:bg-gray-50"
+                <DropdownMenuItem
+                  key={notif.id}
+                  className="flex flex-col items-start gap-1 p-3 cursor-pointer border-b last:border-0 border-gray-200 dark:border-slate-700 focus:bg-gray-50 dark:focus:bg-slate-800 text-slate-900 dark:text-white"
                   onClick={() => handleNotificationClick(notif)}
                 >
                   <div className="flex justify-between w-full items-start gap-2">
                     <span className="font-medium text-sm">
                       {notif.data?.title || "Notification"}
                     </span>
-                    <button 
+                    <button
                       onClick={(e) => handleMarkAsRead(notif.id, e)}
-                      className="text-xs text-primary hover:underline shrink-0"
+                      className="text-xs text-primary dark:text-amber-400 hover:underline shrink-0"
                     >
                       Mark read
                     </button>
                   </div>
-                  <p className="text-xs text-gray-500 line-clamp-2">
+                  <p className="text-xs text-gray-500 dark:text-slate-400 line-clamp-2">
                     {notif.data?.message || "You have a new update."}
                   </p>
-                  <span className="text-[10px] text-gray-400 mt-1">
+                  <span className="text-[10px] text-gray-400 dark:text-slate-500 mt-1">
                     {new Date(notif.created_at).toLocaleString()}
                   </span>
                 </DropdownMenuItem>
@@ -173,10 +173,10 @@ export function NotificationDropdown() {
             )}
           </div>
         </DropdownMenuGroup>
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator className="dark:bg-slate-700" />
         <div className="p-2">
           <Link href="/notifications">
-            <button className="w-full text-center text-sm text-primary font-medium p-2 hover:bg-gray-50 rounded-md transition-colors">
+            <button className="w-full text-center text-sm text-primary dark:text-amber-400 font-medium p-2 hover:bg-gray-50 dark:hover:bg-slate-800 rounded-md transition-colors">
               View all notifications
             </button>
           </Link>

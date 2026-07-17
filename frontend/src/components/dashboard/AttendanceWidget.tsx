@@ -128,8 +128,11 @@ export function AttendanceWidget({ initialData }: { initialData?: any }) {
   const breakDurationStr = totalBreakMins > 0 ? `${Math.floor(totalBreakMins / 60)}h ${totalBreakMins % 60}m` : '0m';
 
   return (
-    <div className="bg-gradient-to-br from-white/90 dark:from-slate-800/90 to-slate-50/90 dark:to-slate-900/90 backdrop-blur-xl border border-slate-200 dark:border-white/[0.06] rounded-3xl p-5 md:p-6 shadow-none dark:shadow-[8px_8px_24px_rgba(0,0,0,0.5),-4px_-4px_12px_rgba(255,255,255,0.03)] mb-6 relative overflow-hidden">
-      <div className="absolute -top-16 -right-16 w-40 h-40 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
+    <div className="bg-gradient-to-br from-white/90 dark:from-slate-800/90 to-slate-50/90 dark:to-slate-900/90 backdrop-blur-xl border border-slate-200 dark:border-white/[0.06] rounded-3xl p-5 md:p-6 shadow-none dark:shadow-[8px_8px_24px_rgba(0,0,0,0.5),-4px_-4px_12px_rgba(255,255,255,0.03)] mb-6 relative overflow-hidden group">
+      <div className="absolute -bottom-10 -left-10 w-6 h-6 rounded-full scale-0 group-hover:scale-[50] transition-transform duration-700 ease-out bg-cyan-50 z-0 dark:hidden pointer-events-none" />
+      <div className="absolute -top-16 -right-16 w-40 h-40 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none z-0" />
+      
+      <div className="relative z-10">
 
       <div className="flex items-center justify-between mb-5 relative z-10">
         <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
@@ -174,7 +177,7 @@ export function AttendanceWidget({ initialData }: { initialData?: any }) {
         </div>
 
         {/* Biometric Entry Notice */}
-        <div className="flex-shrink-0 w-full lg:w-auto min-w-[180px] p-4 bg-blue-500/10 border border-blue-500/30 rounded-2xl">
+        <div className="flex-shrink-0 w-full lg:w-auto min-w-[180px] p-4 bg-blue-500/10 border border-blue-500/30 rounded-2xl hover:bg-blue-500/20 transition-colors cursor-default">
           <p className="text-center text-xs text-blue-300">
             <span className="font-semibold block">Biometric Entry</span>
             Attendance is recorded automatically via biometric device

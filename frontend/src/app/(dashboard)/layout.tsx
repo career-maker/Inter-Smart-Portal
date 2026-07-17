@@ -12,6 +12,7 @@ import {
 import { NotificationDropdown } from "@/components/layout/NotificationDropdown";
 import { RecognitionTicker } from "@/components/layout/RecognitionTicker";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { FavoritesNav } from "@/components/layout/FavoritesNav";
 import api from "@/services/api";
 import Script from "next/script";
 import ChatbaseLottieButton from "@/components/ChatbaseLottieButton";
@@ -300,6 +301,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </Link>
               );
             })}
+            <FavoritesNav onClose={closeMenu} />
             {NAV_GROUPS.map((group) => {
               if (!groupHasVisibleItems(group, userRole)) return null;
               const visibleItems = group.items.filter((item) => isItemVisible(item, userRole));

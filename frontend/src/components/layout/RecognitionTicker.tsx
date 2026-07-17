@@ -77,9 +77,9 @@ export function RecognitionTicker() {
   const durationSeconds = Math.max(20, totalChars * 0.15);
 
   return (
-    <div className="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 text-white overflow-hidden py-1.5 flex items-center relative border-b border-indigo-700/50 shadow-md">
-      <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-indigo-600 to-transparent z-10" />
-      <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-indigo-600 to-transparent z-10" />
+    <div className="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 dark:from-indigo-600 dark:via-purple-600 dark:to-indigo-600 text-white dark:text-white overflow-hidden py-1.5 flex items-center relative border-b border-indigo-700/50 dark:border-indigo-700/50 shadow-md">
+      <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-indigo-600 dark:from-indigo-600 to-transparent z-10" />
+      <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-indigo-600 dark:from-indigo-600 to-transparent z-10" />
 
       <div className="whitespace-nowrap flex gap-12 items-center hover:[animation-play-state:paused]" style={{ animation: `marquee ${durationSeconds}s linear infinite` }}>
         {displayItems.map((item, i) => (
