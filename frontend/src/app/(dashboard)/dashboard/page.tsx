@@ -676,9 +676,10 @@ export default function DashboardPage() {
             
             <Link 
               href="/dashboard/hall-of-fame"
-              className="md:col-span-3 lg:col-span-2 group relative overflow-hidden rounded-3xl p-6 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-none dark:shadow-[6px_6px_12px_rgba(0,0,0,0.4),-6px_-6px_12px_rgba(255,255,255,0.05)] hover:bg-slate-50 dark:hover:bg-slate-800 dark:hover:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.4),inset_-4px_-4px_8px_rgba(255,255,255,0.05)] transition-all duration-300 border border-slate-200 dark:border-slate-700/50"
+              className="md:col-span-3 lg:col-span-2 group relative overflow-hidden rounded-3xl p-6 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-none dark:shadow-[6px_6px_12px_rgba(0,0,0,0.4),-6px_-6px_12px_rgba(255,255,255,0.05)] dark:hover:bg-slate-800 dark:hover:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.4),inset_-4px_-4px_8px_rgba(255,255,255,0.05)] transition-all duration-300 border border-slate-200 dark:border-slate-700/50"
             >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-white/10 transition-colors"></div>
+              <div className="absolute -bottom-10 -left-10 w-6 h-6 rounded-full scale-0 group-hover:scale-[35] transition-transform duration-700 ease-out bg-indigo-50 z-0 dark:hidden" />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-slate-100/50 dark:bg-white/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-slate-200/50 dark:group-hover:bg-white/10 transition-colors z-0"></div>
               <div className="relative z-10 flex items-center justify-between h-full">
                 <div className="space-y-1">
                   {(user?.role === "Super Admin" || user?.role === "Team Lead") && (
@@ -1236,12 +1237,23 @@ function QuickActionCard({ href, icon: Icon, title, color }: any) {
     cyan:    'bg-cyan-500/20 text-cyan-400',
     slate:   'bg-slate-500/20 text-slate-300',
   };
+  const waveBgMap: Record<string, string> = {
+    emerald: 'bg-emerald-50 dark:bg-transparent',
+    blue:    'bg-blue-50 dark:bg-transparent',
+    violet:  'bg-violet-50 dark:bg-transparent',
+    amber:   'bg-amber-50 dark:bg-transparent',
+    rose:    'bg-rose-50 dark:bg-transparent',
+    cyan:    'bg-cyan-50 dark:bg-transparent',
+    slate:   'bg-slate-50 dark:bg-transparent',
+  };
   const accent = iconAccent[color] || iconAccent.blue;
+  const waveBg = waveBgMap[color] || waveBgMap.blue;
 
   return (
     <Link href={href}>
-      <div className="bg-white dark:bg-slate-800 rounded-3xl p-5 h-full relative overflow-hidden shadow-none dark:shadow-[6px_6px_14px_rgba(0,0,0,0.45),-6px_-6px_14px_rgba(255,255,255,0.04)] dark:hover:shadow-[inset_4px_4px_10px_rgba(0,0,0,0.45),inset_-4px_-4px_10px_rgba(255,255,255,0.04)] border border-slate-200 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-300 group flex flex-col items-start gap-3">
-        <div className="absolute top-0 right-0 w-20 h-20 bg-white/[0.03] rounded-bl-full -mr-4 -mt-4 group-hover:bg-white/[0.06] transition-colors" />
+      <div className="bg-white dark:bg-slate-800 rounded-3xl p-5 h-full relative overflow-hidden shadow-none dark:shadow-[6px_6px_14px_rgba(0,0,0,0.45),-6px_-6px_14px_rgba(255,255,255,0.04)] dark:hover:shadow-[inset_4px_4px_10px_rgba(0,0,0,0.45),inset_-4px_-4px_10px_rgba(255,255,255,0.04)] border border-slate-200 dark:border-slate-700/50 dark:hover:bg-slate-800 transition-all duration-300 group flex flex-col items-start gap-3">
+        <div className={`absolute -bottom-10 -left-10 w-6 h-6 rounded-full scale-0 group-hover:scale-[35] transition-transform duration-700 ease-out ${waveBg} z-0 dark:hidden`} />
+        <div className="absolute top-0 right-0 w-20 h-20 bg-white/[0.03] rounded-bl-full -mr-4 -mt-4 group-hover:bg-white/[0.06] transition-colors z-0" />
         <div className={`w-10 h-10 rounded-2xl ${accent} flex items-center justify-center shadow-[inset_2px_2px_5px_rgba(0,0,0,0.35),inset_-2px_-2px_5px_rgba(255,255,255,0.05)] group-hover:scale-90 transition-transform duration-300 relative z-10`}>
           <Icon className="w-5 h-5" />
         </div>
@@ -1569,12 +1581,24 @@ function MenuCard({ href, icon: Icon, title, subtitle, color, className = "" }: 
     slate:   'bg-slate-500/20 text-slate-300',
   };
 
+  const waveBgMap: Record<string, string> = {
+    emerald: 'bg-emerald-50 dark:bg-transparent',
+    blue:    'bg-blue-50 dark:bg-transparent',
+    violet:  'bg-violet-50 dark:bg-transparent',
+    amber:   'bg-amber-50 dark:bg-transparent',
+    rose:    'bg-rose-50 dark:bg-transparent',
+    cyan:    'bg-cyan-50 dark:bg-transparent',
+    slate:   'bg-slate-50 dark:bg-transparent',
+  };
+
   const accent = iconAccent[color] || iconAccent.blue;
+  const waveBg = waveBgMap[color] || waveBgMap.blue;
 
   return (
     <Link href={href} className={`block ${className}`}>
-      <div className="bg-white dark:bg-slate-800 rounded-3xl p-5 h-full relative overflow-hidden shadow-none dark:shadow-[6px_6px_14px_rgba(0,0,0,0.45),-6px_-6px_14px_rgba(255,255,255,0.04)] dark:hover:shadow-[inset_4px_4px_10px_rgba(0,0,0,0.45),inset_-4px_-4px_10px_rgba(255,255,255,0.04)] hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/50 transition-all duration-300 group">
-        <div className="absolute top-0 right-0 w-20 h-20 bg-black/[0.02] dark:bg-white/[0.03] rounded-bl-full -mr-4 -mt-4 group-hover:bg-black/[0.04] dark:group-hover:bg-white/[0.06] transition-colors" />
+      <div className="bg-white dark:bg-slate-800 rounded-3xl p-5 h-full relative overflow-hidden shadow-none dark:shadow-[6px_6px_14px_rgba(0,0,0,0.45),-6px_-6px_14px_rgba(255,255,255,0.04)] dark:hover:shadow-[inset_4px_4px_10px_rgba(0,0,0,0.45),inset_-4px_-4px_10px_rgba(255,255,255,0.04)] dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/50 transition-all duration-300 group">
+        <div className={`absolute -bottom-10 -left-10 w-6 h-6 rounded-full scale-0 group-hover:scale-[35] transition-transform duration-700 ease-out ${waveBg} z-0 dark:hidden`} />
+        <div className="absolute top-0 right-0 w-20 h-20 bg-black/[0.02] dark:bg-white/[0.03] rounded-bl-full -mr-4 -mt-4 group-hover:bg-black/[0.04] dark:group-hover:bg-white/[0.06] transition-colors z-0" />
         <div className="relative z-10">
           <div className={`w-10 h-10 rounded-2xl ${accent} flex items-center justify-center mb-4 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.35),inset_-2px_-2px_5px_rgba(255,255,255,0.05)] group-hover:scale-90 transition-transform duration-300`}>
             <Icon className="w-5 h-5" />
