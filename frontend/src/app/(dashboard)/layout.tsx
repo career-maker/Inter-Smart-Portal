@@ -273,10 +273,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </header>
 
       {/* Hamburger Menu - Slide-in Sidebar */}
-      {menuOpen && (
-        <>
-          <div className="fixed inset-0 top-16 bg-black/40 z-[998] md:hidden pointer-events-auto transition-opacity" onClick={closeMenu} />
-          <div role="navigation" className="fixed top-16 left-0 w-64 h-[calc(100vh-4rem)] bg-slate-900 border-r border-white/10 shadow-2xl z-[9999] overflow-y-auto pointer-events-auto transform transition-transform duration-300 md:hidden" style={{ transform: menuOpen ? 'translateX(0)' : 'translateX(-100%)' }}>
+      <div className="fixed inset-0 top-16 bg-black/40 z-[998] md:hidden pointer-events-auto transition-opacity duration-300" style={{ opacity: menuOpen ? 1 : 0, pointerEvents: menuOpen ? 'auto' : 'none' }} onClick={closeMenu} />
+      <div role="navigation" className="fixed top-16 left-0 w-64 h-[calc(100vh-4rem)] bg-slate-900 border-r border-white/10 shadow-2xl z-[9999] overflow-y-auto pointer-events-auto transform transition-transform duration-300 md:hidden" style={{ transform: menuOpen ? 'translateX(0)' : 'translateX(-100%)', pointerEvents: menuOpen ? 'auto' : 'none' }}>
             <Link href="/profile" onClick={closeMenu} className="sm:hidden px-4 py-4 border-b border-white/10 flex items-center gap-3 hover:bg-white/5 transition-colors cursor-pointer">
             <div className="w-10 h-10 rounded-full bg-amber-400 overflow-hidden flex items-center justify-center text-sm font-bold text-white relative shrink-0">
               <span>{user?.first_name?.[0]}{user?.last_name?.[0]}</span>
@@ -342,8 +340,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
           </nav>
         </div>
-      </>
-    )}
 
       <main className="max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8">
         {/* Breadcrumbs */}
