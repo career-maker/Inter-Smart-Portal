@@ -473,14 +473,18 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Achievement Flip Card — only shown when employee has an active recognition */}
-        {hasActiveRec && (
-          <div className="w-full lg:w-[28%] lg:flex-1 min-h-[220px]">
-            <AchievementFlipCard
-              recognition={profile.active_recognition}
-              employeeName={`${profile.first_name} ${profile.last_name}`}
-              firstName={profile.first_name}
-            />
+        {/* Achievement Flip Cards — show all active recognitions */}
+        {hasActiveRec && profile.active_recognitions && profile.active_recognitions.length > 0 && (
+          <div className="w-full lg:flex-1 space-y-4">
+            {profile.active_recognitions.map((recognition: any, idx: number) => (
+              <div key={recognition.id || idx} className="w-full lg:w-[28%]">
+                <AchievementFlipCard
+                  recognition={recognition}
+                  employeeName={`${profile.first_name} ${profile.last_name}`}
+                  firstName={profile.first_name}
+                />
+              </div>
+            ))}
           </div>
         )}
       </div>

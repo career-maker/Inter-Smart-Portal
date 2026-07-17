@@ -40,11 +40,12 @@ class DashboardController extends Controller
 
         $todayStr = Carbon::today('Asia/Kolkata')->toDateString();
 
-        $activeRecognition = \App\Models\Recognition::where('user_id', $user->id)
+        $activeRecognitions = \App\Models\Recognition::where('user_id', $user->id)
             ->where('is_active', true)
             ->whereDate('start_date', '<=', $todayStr)
             ->whereDate('end_date', '>=', $todayStr)
-            ->first();
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         $profile = [
             'first_name' => $user->first_name,
@@ -55,7 +56,8 @@ class DashboardController extends Controller
             'service_duration' => $serviceDuration,
             'service_days' => $serviceDays,
             'service_stats' => $serviceStats,
-            'active_recognition' => $activeRecognition,
+            'active_recognition' => $activeRecognitions->first(),
+            'active_recognitions' => $activeRecognitions,
             'profile_photo_path' => $user->profilePhotoUrl(),
         ];
 
