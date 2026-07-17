@@ -208,30 +208,30 @@ export default function DashboardPage() {
       {user?.role === "Team Lead" && data && (
         <div className="space-y-4 mb-6">
           {/* Pending Approvals Section */}
-          <div className="bg-gradient-to-br from-blue-900/20 to-cyan-900/20 rounded-2xl p-6 border border-blue-500/30">
+          <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-2xl p-6 border border-blue-200 dark:border-blue-500/30">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center border border-blue-500/30">
-                  <Clock className="w-5 h-5 text-blue-400" />
+                <div className="w-10 h-10 bg-blue-100 dark:bg-blue-500/20 rounded-lg flex items-center justify-center border border-blue-200 dark:border-blue-500/30">
+                  <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-blue-300">Pending Approvals</p>
+                  <p className="text-sm font-semibold text-blue-900 dark:text-blue-300">Pending Approvals</p>
                   <p className="text-xs text-slate-500 dark:text-slate-400">Leave requests awaiting review</p>
                 </div>
               </div>
-              <Link href="/leaves/approvals" className="text-xs font-semibold text-blue-400 hover:text-blue-300 flex items-center gap-1">
+              <Link href="/leaves/approvals" className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1">
                 View All <ChevronRight className="w-3 h-3" />
               </Link>
             </div>
             {data?.widgets?.pending_approvals && Array.isArray(data.widgets.pending_approvals) && data.widgets.pending_approvals.length > 0 ? (
               <div className="space-y-2">
                 {data.widgets.pending_approvals.slice(0, 3).map((approval: any) => (
-                  <div key={approval.id} className="bg-white/5 rounded-lg p-3 flex items-center justify-between hover:bg-slate-200 dark:hover:bg-white/10 transition-colors">
+                  <div key={approval.id} className="bg-white/50 dark:bg-white/5 rounded-lg p-3 flex items-center justify-between hover:bg-white/80 dark:hover:bg-white/10 transition-colors border border-blue-100 dark:border-transparent">
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{approval.employee_name}</p>
                       <p className="text-xs text-slate-500 dark:text-slate-400">{approval.leave_type} • {format(parseISO(approval.start_date), "MMM d")} to {format(parseISO(approval.end_date), "MMM d")}</p>
                     </div>
-                    <span className="text-xs font-bold bg-blue-500/20 text-blue-300 px-2 py-1 rounded-full shrink-0">{approval.days} d</span>
+                    <span className="text-xs font-bold bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full shrink-0">{approval.days} d</span>
                   </div>
                 ))}
               </div>

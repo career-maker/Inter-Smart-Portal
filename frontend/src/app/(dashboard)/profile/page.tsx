@@ -11,6 +11,7 @@ import api from "@/services/api";
 import { UserCircle, ShieldAlert, Award, Eye, Download, CheckCircle2, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { CertificateModal } from "@/components/recognition/CertificateModal";
+import { FavoriteButton } from "@/components/layout/FavoriteButton";
 
 export default function MyProfilePage() {
   const { user } = useAuthStore();
@@ -111,16 +112,19 @@ export default function MyProfilePage() {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
-      <div className="flex items-center gap-3">
-        <UserCircle className="h-8 w-8 text-amber-400" />
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-            {isOwnProfile ? "My Profile" : "Employee Profile"}
-          </h1>
-          <p className="text-slate-600 dark:text-slate-300">
-            {isOwnProfile ? "Manage your personal information." : "View achievements and recognition history."}
-          </p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <UserCircle className="h-8 w-8 text-amber-400" />
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+              {isOwnProfile ? "My Profile" : "Employee Profile"}
+            </h1>
+            <p className="text-slate-600 dark:text-slate-300">
+              {isOwnProfile ? "Manage your personal information." : "View achievements and recognition history."}
+            </p>
+          </div>
         </div>
+        {isOwnProfile && <FavoriteButton label="Profile" />}
       </div>
 
       <div className="grid md:grid-cols-3 gap-6">
@@ -143,27 +147,27 @@ export default function MyProfilePage() {
             </div>
             <div>
               <Label className="text-muted-foreground">Full Name</Label>
-              <div className="font-medium">{profileUser.first_name} {profileUser.last_name}</div>
+              <div className="font-medium text-slate-900 dark:text-white">{profileUser.first_name} {profileUser.last_name}</div>
             </div>
             <div>
               <Label className="text-muted-foreground">Employee ID</Label>
-              <div className="font-medium">{profileUser.employee_id || profileUser.employee_code || "—"}</div>
+              <div className="font-medium text-slate-900 dark:text-white">{profileUser.employee_id || profileUser.employee_code || "—"}</div>
             </div>
             <div>
               <Label className="text-muted-foreground">Official Email</Label>
-              <div className="font-medium">{profileUser.email}</div>
+              <div className="font-medium text-slate-900 dark:text-white">{profileUser.email}</div>
             </div>
             <div>
               <Label className="text-muted-foreground">Designation</Label>
-              <div className="font-medium">{profileUser.designation || "—"}</div>
+              <div className="font-medium text-slate-900 dark:text-white">{profileUser.designation || "—"}</div>
             </div>
             <div>
               <Label className="text-muted-foreground">Department / Team</Label>
-              <div className="font-medium">{profileUser.team?.name || "—"}</div>
+              <div className="font-medium text-slate-900 dark:text-white">{profileUser.team?.name || "—"}</div>
             </div>
             <div>
               <Label className="text-muted-foreground">Role</Label>
-              <div className="font-medium">{profileUser.role}</div>
+              <div className="font-medium text-slate-900 dark:text-white">{profileUser.role}</div>
             </div>
           </CardContent>
         </Card>
@@ -203,7 +207,7 @@ export default function MyProfilePage() {
                           <Label className="text-muted-foreground capitalize">
                             {key.replace("_", " ")}
                           </Label>
-                          <div className="font-medium">{String(val) || "—"}</div>
+                          <div className="font-medium text-slate-900 dark:text-white">{String(val) || "—"}</div>
                         </div>
                       ))}
                     </div>
