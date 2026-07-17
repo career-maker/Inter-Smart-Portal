@@ -4,108 +4,97 @@ export function PageLoader() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh]">
       <style>{`
-        @keyframes blinkCursor {
-          50% {
-            border-right-color: transparent;
-          }
+        .card {
+          --bg-color: #111;
+          background-color: var(--bg-color);
+          padding: 1rem 2rem;
+          border-radius: 1.25rem;
         }
 
-        @keyframes typeAndDelete {
-          0%,
-          10% {
-            width: 0;
-          }
-          45%,
-          55% {
-            width: 6.2em;
-          }
-          90%,
-          100% {
-            width: 0;
-          }
+        .loader {
+          color: rgb(124, 124, 124);
+          font-family: "Poppins", sans-serif;
+          font-weight: 500;
+          font-size: 25px;
+          box-sizing: content-box;
+          height: 40px;
+          padding: 10px 10px;
+          display: flex;
+          border-radius: 8px;
         }
 
-        .terminal-loader {
-          border: 0.1em solid #333;
-          background-color: #1a1a1a;
-          color: #0f0;
-          font-family: "Courier New", Courier, monospace;
-          font-size: 1em;
-          padding: 1.5em 1em;
-          width: 12em;
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-          border-radius: 4px;
+        .words {
+          overflow: hidden;
           position: relative;
-          overflow: hidden;
-          box-sizing: border-box;
         }
 
-        .terminal-header {
+        .words::after {
+          content: "";
           position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 1.5em;
-          background-color: #333;
-          border-top-left-radius: 4px;
-          border-top-right-radius: 4px;
-          padding: 0 0.4em;
-          box-sizing: border-box;
+          inset: 0;
+          background: linear-gradient(
+            var(--bg-color) 10%,
+            transparent 30%,
+            transparent 70%,
+            var(--bg-color) 90%
+          );
+          z-index: 20;
         }
 
-        .terminal-controls {
-          float: right;
+        .word {
+          display: block;
+          height: 100%;
+          padding-left: 6px;
+          color: #956afa;
+          animation: spin_4991 4s infinite;
         }
 
-        .control {
-          display: inline-block;
-          width: 0.6em;
-          height: 0.6em;
-          margin-left: 0.4em;
-          border-radius: 50%;
-          background-color: #777;
-        }
+        @keyframes spin_4991 {
+          10% {
+            transform: translateY(-102%);
+          }
 
-        .control.close {
-          background-color: #e33;
-        }
+          25% {
+            transform: translateY(-100%);
+          }
 
-        .control.minimize {
-          background-color: #ee0;
-        }
+          35% {
+            transform: translateY(-202%);
+          }
 
-        .control.maximize {
-          background-color: #0b0;
-        }
+          50% {
+            transform: translateY(-200%);
+          }
 
-        .terminal-title {
-          float: left;
-          line-height: 1.5em;
-          color: #eee;
-        }
+          60% {
+            transform: translateY(-302%);
+          }
 
-        .text {
-          display: inline-block;
-          white-space: nowrap;
-          overflow: hidden;
-          border-right: 0.2em solid #0f0;
-          animation:
-            typeAndDelete 4s steps(11) infinite,
-            blinkCursor 0.5s step-end infinite alternate;
-          margin-top: 1.5em;
+          75% {
+            transform: translateY(-300%);
+          }
+
+          85% {
+            transform: translateY(-402%);
+          }
+
+          100% {
+            transform: translateY(-400%);
+          }
         }
       `}</style>
 
-      <div className="terminal-loader">
-        <div className="terminal-header">
-          <div className="terminal-title">Status</div>
-          <div className="terminal-controls">
-            <div className="control close"></div>
-            <div className="control minimize"></div>
-            <div className="control maximize"></div>
+      <div className="card">
+        <div className="loader">
+          <p>loading</p>
+          <div className="words">
+            <span className="word">buttons</span>
+            <span className="word">forms</span>
+            <span className="word">switches</span>
+            <span className="word">cards</span>
+            <span className="word">buttons</span>
           </div>
         </div>
-        <div className="text">Loading...</div>
       </div>
     </div>
   );
