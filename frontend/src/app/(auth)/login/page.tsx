@@ -77,15 +77,29 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen w-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden relative">
+      {/* Video background */}
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover z-0"
+      >
+        <source src="/videos/login-bg.mp4" type="video/mp4" />
+      </video>
+
+      {/* Video overlay to darken it */}
+      <div className="absolute inset-0 bg-black/50 z-1"></div>
+
       {/* Animated stars background */}
-      <div className="stars-container absolute inset-0 z-0">
+      <div className="stars-container absolute inset-0 z-0 opacity-50">
         <div className="stars"></div>
         <div className="stars2"></div>
         <div className="stars3"></div>
       </div>
 
       {/* Animated gradient background */}
-      <div className="absolute inset-0 opacity-30 overflow-hidden pointer-events-none z-5">
+      <div className="absolute inset-0 opacity-20 overflow-hidden pointer-events-none z-5">
         <div className="absolute top-0 -left-40 w-80 h-80 bg-amber-500 rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
         <div className="absolute top-0 -right-40 w-80 h-80 bg-slate-500 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000"></div>
         <div className="absolute -bottom-8 left-20 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000"></div>
