@@ -97,7 +97,7 @@ export default function HallPage() {
             <span className="text-sm font-medium text-slate-500">Total Employees</span>
             <Users className="h-5 w-5 text-slate-500 dark:text-slate-400" />
           </div>
-          <span className="text-3xl font-bold mt-2">{data.summary.total}</span>
+          <span className="text-3xl font-bold mt-2 text-slate-900">{data.summary.total}</span>
         </div>
         
         <div className="bg-white p-5 rounded-xl border border-b-4 border-b-green-500 shadow-sm flex flex-col justify-between">
