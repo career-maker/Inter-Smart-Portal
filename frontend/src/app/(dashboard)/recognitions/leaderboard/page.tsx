@@ -8,7 +8,8 @@ import { Trophy, Star, Users, Award, TrendingUp, Medal, Crown } from "lucide-rea
 
 function TopPerformerCard({ name, designation }: { name: string; designation?: string }) {
   return (
-    <style>{`
+    <>
+      <style>{`
       .btn-wrapper {
         --color: #b5faff31;
         --txt-color: #ffffff;
@@ -211,6 +212,7 @@ function TopPerformerCard({ name, designation }: { name: string; designation?: s
       <div className="txt-secondary" id="hint1">Hover to reveal designation</div>
       <div className="txt-secondary" id="hint2">Top Performer</div>
     </div>
+    </>
   );
 }
 
