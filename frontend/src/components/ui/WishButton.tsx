@@ -93,7 +93,6 @@ export function WishButton({ onClick, disabled }: WishButtonProps) {
         className="wish-button" 
         onClick={onClick} 
         disabled={disabled}
-        title={disabled ? "Already wished" : "Send birthday wish"}
       >
         <div className="wish-button-svg-container">
           <svg
