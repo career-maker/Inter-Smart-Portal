@@ -10,7 +10,7 @@ interface FavoriteButtonProps {
 }
 
 export function FavoriteButton({ label }: FavoriteButtonProps) {
-  const pathname = usePathname() || "";
+  const pathname = usePathname() ?? "";
   const { isFavorited, addFavorite, removeFavorite } = useFavoritesStore();
   const [isHydrated, setIsHydrated] = useState(false);
   const [isFav, setIsFav] = useState(false);
@@ -28,7 +28,7 @@ export function FavoriteButton({ label }: FavoriteButtonProps) {
       setIsFav(false);
     } else {
       let pageLabel = label;
-      if (!pageLabel) {
+      if (!pageLabel && pathname) {
         const parts = pathname.split("/").filter(Boolean);
         const lastPart = parts.pop() || "Page";
         const formatted = lastPart.replace(/-/g, " ");
