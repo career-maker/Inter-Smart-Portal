@@ -7,7 +7,7 @@ import { useAuthStore } from "@/store/auth";
 import {
   LogOut, Menu, X, ChevronRight, Home, ChevronDown,
   LayoutDashboard, CalendarCheck, Briefcase, UserCircle,
-  Users, ShieldCheck
+  Users, ShieldCheck, Search
 } from "lucide-react";
 import { NotificationDropdown } from "@/components/layout/NotificationDropdown";
 import { RecognitionTicker } from "@/components/layout/RecognitionTicker";
@@ -16,6 +16,7 @@ import { FavoritesNav } from "@/components/layout/FavoritesNav";
 import api from "@/services/api";
 import Script from "next/script";
 import ChatbaseLottieButton from "@/components/ChatbaseLottieButton";
+import { CommandPalette } from "@/components/CommandPalette";
 
 type NavItem = {
   href: string;
@@ -231,6 +232,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
           {/* Right side */}
           <div className="flex items-center gap-3 shrink-0 ml-auto">
+            {/* Search Trigger */}
+            <button
+              onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
+              className="hidden md:flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/50 hover:bg-slate-200 dark:hover:bg-slate-800 px-3 py-1.5 rounded-lg transition-colors border border-slate-200 dark:border-white/10"
+            >
+              <Search className="h-4 w-4" />
+              <span>Search...</span>
+              <kbd className="hidden lg:inline-flex ml-2 items-center gap-1 rounded border border-slate-300 dark:border-slate-600 bg-slate-200 dark:bg-slate-700 px-1.5 font-mono text-[10px] font-medium text-slate-600 dark:text-slate-300">
+                <span className="text-xs">⌘</span>K
+              </kbd>
+            </button>
+
             <ThemeToggle />
             <NotificationDropdown />
 
@@ -403,6 +416,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         }}
       />
       <ChatbaseLottieButton />
+      <CommandPalette />
     </div>
   );
 }
