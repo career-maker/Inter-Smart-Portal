@@ -318,6 +318,14 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // View The Hall (All authenticated users can view)
     Route::get('hall', [\App\Http\Controllers\Api\HallController::class, 'index']);
+
+    // User Favorites (All authenticated users)
+    Route::prefix('favorites')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Api\FavoriteController::class, 'index']);
+        Route::post('/', [\App\Http\Controllers\Api\FavoriteController::class, 'store']);
+        Route::delete('/{pageHref}', [\App\Http\Controllers\Api\FavoriteController::class, 'destroy']);
+        Route::get('/check/{pageHref}', [\App\Http\Controllers\Api\FavoriteController::class, 'check']);
+    });
 });
 
 

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Star, X } from "lucide-react";
-import { useFavoritesStore } from "@/store/favorites";
+import { useFavoritesStore, type Favorite } from "@/store/favorites";
 
 interface FavoritesNavProps {
   onClose?: () => void;
@@ -12,23 +12,30 @@ interface FavoritesNavProps {
 
 export function FavoritesNav({ onClose }: FavoritesNavProps) {
   const pathname = usePathname();
-  const { getFavorites, removeFavorite } = useFavoritesStore();
+  const { fetchFavorites, removeFavorite, getFavorites } = useFavoritesStore();
   const [isHydrated, setIsHydrated] = useState(false);
-  const [favorites, setFavorites] = useState(getFavorites());
+  const [favorites, setFavorites] = useState<Favorite[]>([]);
 
   useEffect(() => {
     setIsHydrated(true);
-    setFavorites(getFavorites());
-  }, []);
+    // Fetch favorites from server on mount
+    fetchFavorites().then(() => {
+      setFavorites(getFavorites());
+    });
+  }, [fetchFavorites, getFavorites]);
 
-  if (!isHydrated || favorites.length === 0) return null;
-
-  const handleRemove = (href: string, e: React.MouseEvent) => {
+  const handleRemove = async (href: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    removeFavorite(href);
-    setFavorites(getFavorites());
+    try {
+      await removeFavorite(href);
+      setFavorites(getFavorites());
+    } catch (error) {
+      console.error('Failed to remove favorite:', error);
+    }
   };
+
+  if (!isHydrated || favorites.length === 0) return null;
 
   return (
     <div className="px-2 py-3 border-b border-slate-200 dark:border-white/10">
@@ -40,11 +47,11 @@ export function FavoritesNav({ onClose }: FavoritesNavProps) {
       </div>
       <div className="space-y-1">
         {favorites.map((favorite) => {
-          const active = pathname === favorite.href;
+          const active = pathname === favorite.page_href;
           return (
             <Link
-              key={favorite.href}
-              href={favorite.href}
+              key={favorite.page_href}
+              href={favorite.page_href}
               onClick={onClose}
               className={`group flex items-center justify-between gap-2 px-3 py-2 text-sm rounded-lg transition-colors mx-0.5 ${
                 active
@@ -52,9 +59,9 @@ export function FavoritesNav({ onClose }: FavoritesNavProps) {
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5"
               }`}
             >
-              <span className="truncate">{favorite.label}</span>
+              <span className="truncate">{favorite.page_label}</span>
               <button
-                onClick={(e) => handleRemove(favorite.href, e)}
+                onClick={(e) => handleRemove(favorite.page_href, e)}
                 className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 p-0.5 rounded hover:bg-white/10"
               >
                 <X className="h-3.5 w-3.5" />

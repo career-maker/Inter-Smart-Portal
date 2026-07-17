@@ -40,6 +40,10 @@ class User extends Authenticatable
         return $this->hasMany(WfhRequest::class);
     }
 
+    public function favorites() {
+        return $this->hasMany(UserFavorite::class);
+    }
+
     public function probationEndDate(): ?string
     {
         if ($this->probation_end_date) {
