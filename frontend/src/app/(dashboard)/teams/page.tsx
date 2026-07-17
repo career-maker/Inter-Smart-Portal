@@ -3,8 +3,10 @@
 import { PageLoader } from "@/components/ui/PageLoader";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Search, MoreHorizontal, FileEdit, Trash2, Users } from "lucide-react";
+import { Plus, Search, MoreHorizontal, FileEdit, Trash2, Users, Network } from "lucide-react";
 import api from "@/services/api";
+import { TeamHierarchyChart } from "@/components/teams/TeamHierarchyChart";
+import { FavoriteButton } from "@/components/layout/FavoriteButton";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,6 +34,7 @@ export default function TeamsPage() {
   const [membersByTeam, setMembersByTeam] = useState<Record<number, any[]>>({});
   const [loadingMembers, setLoadingMembers] = useState<Record<number, boolean>>({});
   const [hoveredTeamId, setHoveredTeamId] = useState<number | null>(null);
+  const [viewMode, setViewMode] = useState<"grid" | "hierarchy">("grid");
 
   useEffect(() => {
     fetchTeams();
@@ -86,28 +89,61 @@ export default function TeamsPage() {
           <Users className="h-8 w-8 text-amber-400" />
           <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Departments</h1>
         </div>
-        <Button onClick={() => router.push("/teams/create")}>
-          <Plus className="mr-2 h-4 w-4" /> Create Department
-        </Button>
-      </div>
-
-      <div className="flex items-center gap-4 bg-white p-4 rounded-lg shadow-sm border">
-        <div className="relative flex-1">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder="Search departments..."
-            className="pl-8"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+        <div className="flex items-center gap-2">
+          <FavoriteButton label="Departments" />
+          <div className="flex gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-lg p-1">
+            <button
+              onClick={() => setViewMode("grid")}
+              className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
+                viewMode === "grid"
+                  ? "bg-amber-500 text-white"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+              }`}
+            >
+              <Users className="h-4 w-4 inline mr-1" />
+              Grid
+            </button>
+            <button
+              onClick={() => setViewMode("hierarchy")}
+              className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
+                viewMode === "hierarchy"
+                  ? "bg-amber-500 text-white"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+              }`}
+            >
+              <Network className="h-4 w-4 inline mr-1" />
+              Hierarchy
+            </button>
+          </div>
+          <Button onClick={() => router.push("/teams/create")}>
+            <Plus className="mr-2 h-4 w-4" /> Create Department
+          </Button>
         </div>
       </div>
 
-      {isLoading ? (
-        <div className="py-12 text-center text-muted-foreground">Loading departments...</div>
+      {viewMode === "grid" && (
+        <div className="flex items-center gap-4 bg-white dark:bg-slate-800 p-4 rounded-lg shadow-sm border border-slate-200 dark:border-white/10">
+          <div className="relative flex-1">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-500 dark:text-slate-400" />
+            <Input
+              type="search"
+              placeholder="Search departments..."
+              className="pl-8"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+        </div>
+      )}
+
+      {viewMode === "hierarchy" ? (
+        <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-xl p-6">
+          <TeamHierarchyChart />
+        </div>
+      ) : isLoading ? (
+        <div className="py-12 text-center text-slate-500 dark:text-slate-400">Loading departments...</div>
       ) : teams.length === 0 ? (
-        <div className="py-12 text-center text-muted-foreground bg-white border rounded-lg shadow-sm">No departments found.</div>
+        <div className="py-12 text-center text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-lg shadow-sm">No departments found.</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {teams.map((team) => (
