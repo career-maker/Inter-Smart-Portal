@@ -74,11 +74,12 @@ export function CommandPalette() {
   const filteredLeaves = React.useMemo(() => {
     if (!search) return leaves.slice(0, 5); // Show first 5 if no search
     const lowerSearch = search.toLowerCase();
-    return leaves.filter((leave: any) => 
-      leave.user?.name?.toLowerCase().includes(lowerSearch) || 
-      leave.leave_type?.toLowerCase().includes(lowerSearch) ||
-      leave.status?.toLowerCase().includes(lowerSearch)
-    ).slice(0, 5);
+    return leaves.filter((leave: any) => {
+      const userName = `${leave.user?.first_name || ""} ${leave.user?.last_name || ""}`.trim().toLowerCase();
+      const leaveType = leave.leave_type?.name?.toLowerCase() || "";
+      const status = leave.status?.toLowerCase() || "";
+      return userName.includes(lowerSearch) || leaveType.includes(lowerSearch) || status.includes(lowerSearch);
+    }).slice(0, 5);
   }, [leaves, search]);
 
   const runCommand = React.useCallback((command: () => void) => {
@@ -147,14 +148,14 @@ export function CommandPalette() {
               {filteredLeaves.map((leave: any) => (
                 <CommandItem 
                   key={leave.id} 
-                  value={`leave-${leave.user?.name}-${leave.leave_type}`}
+                  value={`leave-${leave.user?.first_name}-${leave.leave_type?.name}`}
                   onSelect={() => {
                     const isApprover = user?.role === "Team Lead" || user?.role === "HR" || user?.role === "Super Admin";
                     runCommand(() => router.push(isApprover ? "/leaves/approvals" : "/leaves"));
                   }}
                 >
                   <FileText className="mr-2 h-4 w-4 text-blue-500" />
-                  <span>{leave.user?.name || "Me"} - {leave.leave_type}</span>
+                  <span>{leave.user ? `${leave.user.first_name} ${leave.user.last_name}` : "Me"} - {leave.leave_type?.name}</span>
                   <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500">{leave.status}</span>
                 </CommandItem>
               ))}
