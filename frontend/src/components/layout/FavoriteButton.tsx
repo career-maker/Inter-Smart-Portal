@@ -27,7 +27,7 @@ export function FavoriteButton({ label }: FavoriteButtonProps) {
       removeFavorite(pathname);
       setIsFav(false);
     } else {
-      let pageLabel = label || "";
+      let pageLabel: string = label || "";
       if (!pageLabel && pathname) {
         const parts = pathname.split("/").filter(Boolean);
         const lastPart = parts.pop() || "Page";
