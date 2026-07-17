@@ -16,6 +16,7 @@ class LeaveBalanceController extends Controller
      * GET /leave-balances
      * Employee: own balance.
      * Super Admin: all employees' balances.
+     * Note: Super Admin is filtered out; only Active employees (non-admin) are shown
      */
     public function index(Request $request)
     {
@@ -194,6 +195,38 @@ class LeaveBalanceController extends Controller
         return response()->json([
             'message' => 'Leave balance updated successfully.',
             'data'    => $balance->fresh(),
+        ]);
+    }
+
+    /**
+     * GET /leave-balances/debug
+     * Super Admin only – diagnostic info for troubleshooting.
+     */
+    public function debug(Request $request)
+    {
+        $admin = $request->user();
+
+        if (!$admin->hasRole('Super Admin')) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        $totalUsers = User::count();
+        $activeNonAdmins = User::where('status', 'Active')
+            ->whereDoesntHave('roles', fn($q) => $q->where('name', 'Super Admin'))
+            ->count();
+        $usersByStatus = User::select('status', DB::raw('count(*) as count'))
+            ->whereDoesntHave('roles', fn($q) => $q->where('name', 'Super Admin'))
+            ->groupBy('status')
+            ->get()
+            ->pluck('count', 'status');
+
+        return response()->json([
+            'total_users' => $totalUsers,
+            'active_non_admin_employees' => $activeNonAdmins,
+            'users_by_status' => $usersByStatus,
+            'message' => $activeNonAdmins === 0
+                ? 'No Active employees found. Create employees in the system first.'
+                : 'Employees found but may not be displaying. Check API response.'
         ]);
     }
 

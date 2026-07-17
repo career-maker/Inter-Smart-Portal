@@ -216,6 +216,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('leave-balances', [\App\Http\Controllers\Api\LeaveBalanceController::class, 'index']);
     Route::post('leave-balances/{userId}', [\App\Http\Controllers\Api\LeaveBalanceController::class, 'adjust']);
     Route::get('leave-balance-audit-logs', [\App\Http\Controllers\Api\LeaveBalanceController::class, 'auditLogs']);
+    Route::get('leave-balances/debug', [\App\Http\Controllers\Api\LeaveBalanceController::class, 'debug']);
 
     Route::post('leaves/calculate', [\App\Http\Controllers\Api\LeaveRequestController::class, 'calculate']);
     Route::apiResource('leave-requests', \App\Http\Controllers\Api\LeaveRequestController::class)->only(['index', 'store']);
