@@ -103,7 +103,7 @@ export default function LoginPage() {
         <div className="absolute -bottom-8 left-20 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000"></div>
       </div>
       {/* Left branding panel */}
-      <div className="hidden lg:flex flex-col justify-between w-1/2 p-12 bg-gradient-to-br from-amber-900/20 to-slate-900 relative overflow-hidden" style={{ zIndex: 10 }}>
+      <div className="hidden lg:flex flex-col justify-between w-1/2 p-12 relative overflow-hidden" style={{ zIndex: 10 }}>
         <div className="flex items-center gap-3">
           <img src="/logo.png" alt="Intersmart Logo" className="h-14 w-auto object-contain" />
         </div>
