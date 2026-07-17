@@ -411,7 +411,7 @@ export default function DashboardPage() {
                 src={profile.profile_photo_path}
                 name={`${profile.first_name} ${profile.last_name}`}
                 className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/10 text-slate-900 dark:text-white text-xl md:text-2xl shadow-sm shrink-0 border border-slate-200 dark:border-white/10"
-                textClass="text-white"
+                textClass="text-slate-900 dark:text-white"
               />
               <div>
                 <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">
@@ -859,7 +859,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
               src={profile.profile_photo_path}
               name={`${profile.first_name} ${profile.last_name}`}
               className="w-16 h-16 rounded-full bg-white/10 text-slate-900 dark:text-white text-2xl backdrop-blur-sm border border-slate-200 dark:border-white/10 shrink-0"
-              textClass="text-white"
+              textClass="text-slate-900 dark:text-white"
             />
             <div>
               <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">
@@ -1374,7 +1374,7 @@ function UpcomingBirthdaysWidget({ items }: { items: any[] }) {
               src={b.profile_photo_path}
               name={b.name}
               className="w-10 h-10 rounded-full border border-fuchsia-400/30 shrink-0 bg-fuchsia-500/20 text-sm"
-              textClass="text-fuchsia-300"
+              textClass="text-fuchsia-700 dark:text-fuchsia-300"
             />
             <div>
               <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight">{b.name}</p>
