@@ -70,7 +70,7 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
 
   if (!upcomingItems || upcomingItems.length === 0) {
     return (
-      <div className="premium-card p-6 flex flex-col justify-center" style={{ height: '224px' }}>
+      <div className="premium-card wave-card p-6 flex flex-col justify-center" style={{ height: '224px' }}>
         <h3 className="font-bold text-slate-900 dark:text-white mb-4">🎂 Upcoming Birthdays</h3>
         <p className="text-sm text-slate-500 dark:text-slate-400">No upcoming birthdays in the next 30 days.</p>
       </div>
@@ -84,7 +84,7 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
   // Defensive checks for person object
   if (!person || typeof person !== 'object') {
     return (
-      <div className="premium-card p-6 flex flex-col justify-center" style={{ height: '224px' }}>
+      <div className="premium-card wave-card p-6 flex flex-col justify-center" style={{ height: '224px' }}>
         <h3 className="font-bold text-slate-900 dark:text-white mb-4">🎂 Upcoming Birthdays</h3>
         <p className="text-sm text-slate-500 dark:text-slate-400">Unable to load birthday data.</p>
       </div>
@@ -96,7 +96,7 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
   const canWish = isToday && !isSelf;
 
   return (
-    <div className="premium-card p-6 flex flex-col" style={{ height: '224px' }}>
+    <div className="premium-card wave-card p-6 flex flex-col" style={{ height: '224px' }}>
       <h3 className="font-bold text-slate-900 dark:text-white shrink-0 mb-4 text-sm">🎂 Upcoming Birthdays</h3>
 
       {/* Rotating Card */}

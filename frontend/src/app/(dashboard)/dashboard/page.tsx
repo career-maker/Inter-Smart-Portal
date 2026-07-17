@@ -537,7 +537,7 @@ export default function DashboardPage() {
             )}
           />
         ) : (
-          <div className="premium-card p-6">
+          <div className="premium-card wave-card p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <Megaphone className="w-4 h-4 text-blue-500" />
@@ -705,7 +705,7 @@ export default function DashboardPage() {
         */}
         <div className="lg:col-span-4 space-y-8">
           {/* Upcoming Holidays */}
-          <div className="premium-card p-6 h-full flex flex-col justify-between">
+          <div className="premium-card wave-card p-6 h-full flex flex-col justify-between">
             <div>
               <h2 className="text-lg font-bold text-rose-300 mb-5 flex items-center gap-2">
                 <CalendarDays className="w-5 h-5" />
@@ -733,7 +733,7 @@ export default function DashboardPage() {
         BOTTOM: FULL-WIDTH HORIZONTAL LEAVE SUMMARY
         ========================================
       */}
-      <div ref={leaveSummaryRef} className="premium-card p-6">
+      <div ref={leaveSummaryRef} className="premium-card wave-card p-6">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           
           {/* Left section: title and stats grid */}
@@ -970,7 +970,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
             )}
           />
         ) : (
-          <div className="premium-card p-6">
+          <div className="premium-card wave-card p-6">
             <h2 className="text-lg font-bold text-indigo-300 mb-5 flex items-center gap-2">
               <Megaphone className="w-5 h-5" />
               Company Announcements
@@ -1066,7 +1066,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           </div>
 
           {/* Activity Feed */}
-          <div className="premium-card p-6">
+          <div className="premium-card wave-card p-6">
             <h2 className="text-lg font-bold text-cyan-300 mb-5 flex items-center gap-2">
               <Activity className="w-5 h-5" />
               Recent Activity
@@ -1120,7 +1120,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
 
 
           {/* Upcoming Holidays */}
-          <div className="premium-card p-6">
+          <div className="premium-card wave-card p-6">
             <h2 className="text-lg font-bold text-rose-300 mb-5 flex items-center gap-2">
               <CalendarDays className="w-5 h-5" />
               Upcoming Holidays
@@ -1139,7 +1139,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           </div>
 
           {/* Leave Summary (Reused from regular dashboard) */}
-           <div className="premium-card p-6">
+           <div className="premium-card wave-card p-6">
             <h2 className="text-lg font-bold text-emerald-300 mb-6 flex items-center gap-2">
               <CalendarDays className="w-5 h-5" />
               Company Leave Overview
@@ -1201,7 +1201,7 @@ function KPICard({ title, value, trend, icon: Icon, color, href, onClick }: any)
   const accent = accentMap[color] || accentMap['bg-blue-500'];
 
   const CardContent = (
-    <div className={`relative overflow-hidden h-full rounded-3xl p-6 bg-gradient-to-br from-white/90 dark:from-slate-800/90 to-slate-50/90 dark:to-slate-900/90 shadow-none dark:shadow-[8px_8px_20px_rgba(0,0,0,0.5),-4px_-4px_12px_rgba(255,255,255,0.03)] border ${accent.border} backdrop-blur-xl transition-all duration-300 ${(href || onClick) ? 'cursor-pointer group hover:from-slate-100/90 hover:to-slate-100/90 dark:hover:from-slate-800/90 dark:hover:to-slate-900/90 dark:hover:shadow-[inset_6px_6px_14px_rgba(0,0,0,0.5),inset_-3px_-3px_10px_rgba(255,255,255,0.03)] hover:border-slate-300 dark:hover:border-white/10' : ''}  `}>
+    <div className={`wave-card relative overflow-hidden h-full rounded-3xl p-6 bg-gradient-to-br from-white/90 dark:from-slate-800/90 to-slate-50/90 dark:to-slate-900/90 shadow-none dark:shadow-[8px_8px_20px_rgba(0,0,0,0.5),-4px_-4px_12px_rgba(255,255,255,0.03)] border ${accent.border} backdrop-blur-xl transition-all duration-300 ${(href || onClick) ? 'cursor-pointer group hover:from-slate-100/90 hover:to-slate-100/90 dark:hover:from-slate-800/90 dark:hover:to-slate-900/90 dark:hover:shadow-[inset_6px_6px_14px_rgba(0,0,0,0.5),inset_-3px_-3px_10px_rgba(255,255,255,0.03)] hover:border-slate-300 dark:hover:border-white/10' : ''}  `} style={{ '--wave-color': `var(--tw-color-${color.replace('bg-', '').replace('-500', '')}-50)` } as any}>
       <div className="flex justify-between items-start relative z-10">
         <div>
           <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">{title}</p>
@@ -1265,16 +1265,17 @@ function QuickActionCard({ href, icon: Icon, title, color }: any) {
 
 function EngagementCard({ title, items, icon: Icon, colorClass = "bg-orange-50/70 text-orange-600" }: any) {
   const bg = colorClass.split(' ')[0];
+  const colorName = bg.replace('bg-', '').replace('-50/70', '');
   return (
-    <div className={`${bg} rounded-3xl p-5 shadow-none dark:shadow-[0_8px_32px_rgba(0,0,0,0.05)] backdrop-blur-2xl border border-slate-200 dark:border-white/60 hover:bg-slate-100/50 dark:hover:bg-transparent transition-colors`}>
-      <h3 className={`font-bold ${colorClass.split(' ')[1]} text-sm flex items-center gap-2 mb-3`}>
+    <div className={`wave-card group ${bg} rounded-3xl p-5 shadow-none dark:shadow-[0_8px_32px_rgba(0,0,0,0.05)] backdrop-blur-2xl border border-slate-200 dark:border-white/60 dark:hover:bg-transparent transition-colors`} style={{ '--wave-color': `var(--tw-color-${colorName}-100, #ffedd5)` } as any}>
+      <h3 className={`font-bold ${colorClass.split(' ')[1]} text-sm flex items-center gap-2 mb-3 relative z-10`}>
         <Icon className="w-5 h-5" />
         {title}
       </h3>
       {items.length === 0 ? (
-        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">None today</p>
+        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium relative z-10">None today</p>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-3 relative z-10">
           {items.map((item: any, i: number) => (
             <div key={i} className="flex justify-between items-center text-xs">
               <span className="font-bold text-slate-900 dark:text-white">{item.name} {item.years ? `(${item.years}Y)` : ''}</span>
@@ -1323,7 +1324,7 @@ function RotatingCard({
 
   return (
     <div
-      className="premium-card p-6 flex flex-col overflow-hidden"
+      className="premium-card wave-card p-6 flex flex-col overflow-hidden"
       style={{ height: `${cardHeight}px` }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
