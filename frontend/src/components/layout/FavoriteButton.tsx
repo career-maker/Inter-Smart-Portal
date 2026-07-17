@@ -27,13 +27,14 @@ export function FavoriteButton({ label }: FavoriteButtonProps) {
       removeFavorite(pathname);
       setIsFav(false);
     } else {
-      let pageLabel = label;
+      let pageLabel = label || "";
       if (!pageLabel && pathname) {
         const parts = pathname.split("/").filter(Boolean);
         const lastPart = parts.pop() || "Page";
         const formatted = lastPart.replace(/-/g, " ");
         pageLabel = formatted.charAt(0).toUpperCase() + formatted.slice(1);
       }
+      if (!pageLabel) pageLabel = "Page";
       addFavorite(pathname, pageLabel);
       setIsFav(true);
     }
