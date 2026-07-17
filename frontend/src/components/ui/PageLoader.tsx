@@ -2,7 +2,7 @@
 
 export function PageLoader() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh]">
+    <div className="fixed inset-0 top-16 bg-black flex flex-col items-center justify-center z-[9999]">
       <style>{`
         .card {
           --bg-color: #111;
