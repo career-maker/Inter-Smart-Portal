@@ -37,7 +37,7 @@ function TopPerformerCard({ name, designation }: { name: string; designation?: s
         font-style: italic;
         will-change: opacity;
         transition: opacity calc(var(--anim-speed, 1s) * 0.5) ease;
-        opacity: 1;
+        opacity: 0;
       }
       #hint2 {
         opacity: 0;
