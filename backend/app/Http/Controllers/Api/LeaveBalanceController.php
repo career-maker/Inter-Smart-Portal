@@ -25,30 +25,27 @@ class LeaveBalanceController extends Controller
             // Return all active employees with their balances (or zeros if no balance record exists)
             $employees = User::where('status', 'Active')
                 ->whereDoesntHave('roles', fn($q) => $q->where('name', 'Super Admin'))
-                ->with('leaveBalance')
+                ->with(['leaveBalance', 'leaves' => function ($q) {
+                    $q->where('status', 'Approved')->with('leaveType');
+                }])
                 ->get(['id', 'first_name', 'last_name', 'employee_code', 'designation', 'team_id'])
                 ->map(function ($emp) {
                     $balance = $emp->leaveBalance;
-                    // Calculate total_leaves_taken from approved leave requests
-                    try {
-                        $casualTaken = (float)(LeaveRequest::where('user_id', $emp->id)
-                            ->where('status', 'Approved')
-                            ->whereHas('leaveType', fn($q) => $q->where('name', 'Casual Leave'))
-                            ->sum(DB::raw('COALESCE(days, 0)')) ?? 0);
-                            
-                        $sickTaken = (float)(LeaveRequest::where('user_id', $emp->id)
-                            ->where('status', 'Approved')
-                            ->whereHas('leaveType', fn($q) => $q->where('name', 'Sick Leave'))
-                            ->sum(DB::raw('COALESCE(days, 0)')) ?? 0);
 
-                        $totalTaken = (float)(LeaveRequest::where('user_id', $emp->id)
-                            ->where('status', 'Approved')
-                            ->sum(DB::raw('COALESCE(days, 0)')) ?? 0);
-                    } catch (\Exception $e) {
-                        \Log::warning("Failed to sum leaves for user {$emp->id}: " . $e->getMessage());
-                        $casualTaken = 0;
-                        $sickTaken = 0;
-                        $totalTaken = 0;
+                    $casualTaken = 0;
+                    $sickTaken = 0;
+                    $totalTaken = 0;
+                    
+                    if ($emp->relationLoaded('leaves')) {
+                        $casualTaken = (float) $emp->leaves->filter(function ($l) {
+                            return str_contains(strtolower($l->leaveType->name ?? ''), 'casual');
+                        })->sum('days');
+                        
+                        $sickTaken = (float) $emp->leaves->filter(function ($l) {
+                            return str_contains(strtolower($l->leaveType->name ?? ''), 'sick');
+                        })->sum('days');
+                        
+                        $totalTaken = (float) $emp->leaves->sum('days');
                     }
 
                     return [
@@ -72,21 +69,21 @@ class LeaveBalanceController extends Controller
         // Regular employee – own balance only
         $balance = LeaveBalance::where('user_id', $user->id)->first();
 
-        // Calculate total_leaves_taken from approved leave requests instead of stored value
+        // Calculate total_leaves_taken from approved leave requests
         try {
-            $casualTaken = (float)(LeaveRequest::where('user_id', $user->id)
-                ->where('status', 'Approved')
-                ->whereHas('leaveType', fn($q) => $q->where('name', 'Casual Leave'))
-                ->sum(DB::raw('COALESCE(days, 0)')) ?? 0);
-                
-            $sickTaken = (float)(LeaveRequest::where('user_id', $user->id)
-                ->where('status', 'Approved')
-                ->whereHas('leaveType', fn($q) => $q->where('name', 'Sick Leave'))
-                ->sum(DB::raw('COALESCE(days, 0)')) ?? 0);
-
-            $totalTaken = (float)(LeaveRequest::where('user_id', $user->id)
-                ->where('status', 'Approved')
-                ->sum(DB::raw('COALESCE(days, 0)')) ?? 0);
+            $user->load(['leaves' => function ($q) {
+                $q->where('status', 'Approved')->with('leaveType');
+            }]);
+            
+            $casualTaken = (float) $user->leaves->filter(function ($l) {
+                return str_contains(strtolower($l->leaveType->name ?? ''), 'casual');
+            })->sum('days');
+            
+            $sickTaken = (float) $user->leaves->filter(function ($l) {
+                return str_contains(strtolower($l->leaveType->name ?? ''), 'sick');
+            })->sum('days');
+            
+            $totalTaken = (float) $user->leaves->sum('days');
         } catch (\Exception $e) {
             \Log::warning("Failed to sum leaves for user {$user->id}: " . $e->getMessage());
             $casualTaken = 0;
