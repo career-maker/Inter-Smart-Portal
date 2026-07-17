@@ -132,14 +132,14 @@ export function AttendanceWidget({ initialData }: { initialData?: any }) {
       <div className="absolute -top-16 -right-16 w-40 h-40 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
 
       <div className="flex items-center justify-between mb-5 relative z-10">
-        <h2 className="text-lg font-bold text-white flex items-center gap-2">
+        <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
           <Clock className="w-5 h-5 text-cyan-400" />
           Today's Attendance
         </h2>
         <span className={`px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border ${
           data?.status === 'Checked In'  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' :
           data?.status === 'On Break'    ? 'bg-amber-500/20 text-amber-300 border-amber-500/30' :
-          data?.status === 'Checked Out' ? 'bg-slate-500/20 text-slate-300 border-slate-500/30' :
+          data?.status === 'Checked Out' ? 'bg-slate-500/20 text-muted-foreground border-slate-500/30' :
           'bg-rose-500/20 text-rose-300 border-rose-500/30'
         }`}>
           {data?.status || 'Not Checked In'}
@@ -154,22 +154,22 @@ export function AttendanceWidget({ initialData }: { initialData?: any }) {
             <div className="bg-gradient-to-br from-slate-800/90 to-slate-900/90 rounded-2xl p-4 text-center
               shadow-[8px_8px_20px_rgba(0,0,0,0.5),-4px_-4px_12px_rgba(255,255,255,0.03)]
               border border-emerald-500/25 backdrop-blur-xl">
-              <p className="text-xs text-slate-400 uppercase font-bold tracking-widest mb-2">Punch In</p>
-              <p className="font-black text-lg text-white">{formatTime(data?.attendance?.check_in_time)}</p>
+              <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest mb-2">Punch In</p>
+              <p className="font-black text-lg text-foreground">{formatTime(data?.attendance?.check_in_time)}</p>
             </div>
             {/* Punch Out */}
             <div className="bg-gradient-to-br from-slate-800/90 to-slate-900/90 rounded-2xl p-4 text-center
               shadow-[8px_8px_20px_rgba(0,0,0,0.5),-4px_-4px_12px_rgba(255,255,255,0.03)]
               border border-rose-500/25 backdrop-blur-xl">
-              <p className="text-xs text-slate-400 uppercase font-bold tracking-widest mb-2">Punch Out</p>
-              <p className="font-black text-lg text-white">{formatTime(data?.attendance?.check_out_time)}</p>
+              <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest mb-2">Punch Out</p>
+              <p className="font-black text-lg text-foreground">{formatTime(data?.attendance?.check_out_time)}</p>
             </div>
             {/* Total Break */}
             <div className="bg-gradient-to-br from-slate-800/90 to-slate-900/90 rounded-2xl p-4 text-center
               shadow-[8px_8px_20px_rgba(0,0,0,0.5),-4px_-4px_12px_rgba(255,255,255,0.03)]
               border border-amber-500/25 backdrop-blur-xl">
-              <p className="text-xs text-slate-400 uppercase font-bold tracking-widest mb-2">Total Break</p>
-              <p className="font-black text-lg text-white">{breakDurationStr}</p>
+              <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest mb-2">Total Break</p>
+              <p className="font-black text-lg text-foreground">{breakDurationStr}</p>
             </div>
             {/* Worked Time */}
             <div className="bg-gradient-to-br from-slate-800/90 to-slate-900/90 rounded-2xl p-4 text-center

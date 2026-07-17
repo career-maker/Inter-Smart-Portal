@@ -69,10 +69,10 @@ export function BirthdayWishBox({ userId }: { userId: number }) {
   };
 
   return (
-    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-6">
+    <div className="bg-white/5 border border-border rounded-2xl p-6 space-y-6">
       <div className="flex items-center gap-2">
         <Heart className="w-5 h-5 text-pink-400" />
-        <h2 className="text-xl font-bold text-white">Birthday Wishes</h2>
+        <h2 className="text-xl font-bold text-foreground">Birthday Wishes</h2>
         <span className="text-xs bg-pink-500/20 text-pink-300 px-2 py-1 rounded-full ml-auto">
           {wishes.length} wishes
         </span>
@@ -89,7 +89,7 @@ export function BirthdayWishBox({ userId }: { userId: number }) {
         </Button>
       ) : (
         <div className="bg-white border border-slate-200 grid grid-cols-6 gap-2 rounded-xl p-4 text-sm">
-          <h1 className="text-center text-slate-900 text-lg font-bold col-span-6">Send Birthday Wish</h1>
+          <h1 className="text-center text-foreground text-lg font-bold col-span-6">Send Birthday Wish</h1>
 
           <form onSubmit={handleSubmitWish} className="col-span-6 space-y-3">
             {/* Textarea */}
@@ -187,15 +187,15 @@ export function BirthdayWishBox({ userId }: { userId: number }) {
       {/* Wishes List */}
       <div className="space-y-4 max-h-96 overflow-y-auto">
         {isLoading ? (
-          <div className="text-center py-4 text-slate-400">Loading wishes...</div>
+          <div className="text-center py-4 text-muted-foreground">Loading wishes...</div>
         ) : wishes.length === 0 ? (
-          <div className="text-center py-6 text-slate-400">
+          <div className="text-center py-6 text-muted-foreground">
             <Heart className="w-8 h-8 mx-auto mb-2 opacity-50" />
             <p>No wishes yet. Be the first to wish!</p>
           </div>
         ) : (
           wishes.map((wish) => (
-            <div key={wish.id} className="bg-slate-900/50 rounded-lg p-4 space-y-2">
+            <div key={wish.id} className="bg-background/50 rounded-lg p-4 space-y-2">
               <div className="flex items-center gap-3">
                 <Avatar className="h-8 w-8">
                   <AvatarImage src={wish.sender.profile_photo_path} />
@@ -204,15 +204,15 @@ export function BirthdayWishBox({ userId }: { userId: number }) {
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
-                  <p className="font-semibold text-white text-sm">
+                  <p className="font-semibold text-foreground text-sm">
                     {wish.sender.name}
                   </p>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-muted-foreground">
                     {new Date(wish.created_at).toLocaleDateString()}
                   </p>
                 </div>
               </div>
-              <p className="text-sm text-slate-200 whitespace-pre-wrap break-words">
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap break-words">
                 {wish.message}
               </p>
             </div>

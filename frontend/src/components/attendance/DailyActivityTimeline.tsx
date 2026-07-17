@@ -21,7 +21,7 @@ export function DailyActivityTimeline({
 }: DailyActivityTimelineProps) {
   if (!rawPunches || rawPunches.length === 0) {
     return (
-      <div className="text-center py-8 text-slate-400">
+      <div className="text-center py-8 text-muted-foreground">
         No activity recorded for this day.
       </div>
     );
@@ -67,7 +67,7 @@ export function DailyActivityTimeline({
       if (isLast && !isCurrentlyWorking) return "text-red-500";
       return "text-amber-400";
     }
-    return "text-slate-400";
+    return "text-muted-foreground";
   };
 
   const formatTime = (isoString: string) => {
@@ -99,7 +99,7 @@ export function DailyActivityTimeline({
             <div key={`${event.event_id}-${index}`} className="relative mb-6 last:mb-0">
               {/* Event dot */}
               <div
-                className={`absolute -left-8 top-1 w-6 h-6 rounded-full border-2 border-slate-800 bg-slate-900 flex items-center justify-center ${iconColor}`}
+                className={`absolute -left-8 top-1 w-6 h-6 rounded-full border-2 border-slate-800 bg-background flex items-center justify-center ${iconColor}`}
               >
                 {event.type.toUpperCase() === "IN" ? (
                   <LogIn className="w-3 h-3" />
@@ -109,13 +109,13 @@ export function DailyActivityTimeline({
               </div>
 
               {/* Event card */}
-              <div className="bg-slate-800/50 border border-white/10 rounded-lg p-4 hover:bg-slate-800 transition-colors">
+              <div className="bg-card/50 border border-border rounded-lg p-4 hover:bg-card transition-colors">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <p className="font-semibold text-white text-sm">{label}</p>
+                    <p className="font-semibold text-foreground text-sm">{label}</p>
                     <div className="flex items-center gap-2 mt-2">
-                      <Clock className="w-3 h-3 text-slate-400" />
-                      <span className="text-xs text-slate-300 font-mono">
+                      <Clock className="w-3 h-3 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground font-mono">
                         {formatTime(event.time)}
                       </span>
                     </div>

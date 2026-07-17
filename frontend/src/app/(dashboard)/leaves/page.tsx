@@ -125,8 +125,8 @@ export default function LeavesPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">Leave Management</h1>
-          <p className="text-slate-300">View your balances and leave history.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Leave Management</h1>
+          <p className="text-muted-foreground">View your balances and leave history.</p>
         </div>
         {!isSuperAdmin && (
           <button
@@ -144,9 +144,9 @@ export default function LeavesPage() {
           {balances.map((balance) => (
             <div
               key={balance.id}
-              className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md"
+              className="bg-white/5 border border-border rounded-2xl p-6 backdrop-blur-md"
             >
-              <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3">
+              <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
                 {balance.leave_type.name}
               </p>
               <div className="flex items-end justify-between">
@@ -154,7 +154,7 @@ export default function LeavesPage() {
                   <span className={`text-5xl font-black ${balance.color}`}>
                     {balance.remaining}
                   </span>
-                  <span className="text-slate-400 ml-2 text-sm">Remaining</span>
+                  <span className="text-muted-foreground ml-2 text-sm">Remaining</span>
                   {balance.cl_carry_forward > 0 && (
                     <p className="text-xs text-slate-500 mt-1">{balance.cl_carry_forward} carry-fwd included</p>
                   )}
@@ -162,7 +162,7 @@ export default function LeavesPage() {
                 <div className="text-sm text-slate-500 text-right space-y-0.5">
                   <div>
                     {!!(filterType || filterFromDate || filterToDate) ? "Taken (Filtered): " : "Total Taken: "}
-                    <span className="text-slate-300 font-medium">{balance.total_taken} Day(s)</span>
+                    <span className="text-muted-foreground font-medium">{balance.total_taken} Day(s)</span>
                   </div>
                 </div>
               </div>
@@ -172,32 +172,32 @@ export default function LeavesPage() {
       )}
 
       {filteredTotals && !!(filterType || filterFromDate || filterToDate) && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-5 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-5 bg-white/5 border border-border rounded-2xl backdrop-blur-md">
           <div className="text-center p-2">
-            <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-1">Filtered Casual</p>
+            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1">Filtered Casual</p>
             <p className="text-xl font-black text-emerald-400">{filteredTotals.casual} Day(s)</p>
           </div>
-          <div className="text-center border-t md:border-t-0 md:border-l border-white/10 p-2">
-            <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-1">Filtered Sick</p>
+          <div className="text-center border-t md:border-t-0 md:border-l border-border p-2">
+            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1">Filtered Sick</p>
             <p className="text-xl font-black text-rose-400">{filteredTotals.sick} Day(s)</p>
           </div>
-          <div className="text-center border-t md:border-t-0 md:border-l border-white/10 p-2">
-            <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-1">Filtered LOP</p>
+          <div className="text-center border-t md:border-t-0 md:border-l border-border p-2">
+            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1">Filtered LOP</p>
             <p className="text-xl font-black text-rose-500">{filteredTotals.lop} Day(s)</p>
           </div>
-          <div className="text-center border-t md:border-t-0 md:border-l border-white/10 p-2">
-            <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-1">Filtered Total</p>
+          <div className="text-center border-t md:border-t-0 md:border-l border-border p-2">
+            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1">Filtered Total</p>
             <p className="text-xl font-black text-amber-500">{filteredTotals.total} Day(s)</p>
           </div>
         </div>
       )}
 
       {/* Leave requests table */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white/5 border border-border rounded-2xl overflow-hidden">
+        <div className="px-6 py-4 border-b border-border flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h2 className="text-lg font-bold text-white">Recent Leave Requests</h2>
-            <p className="text-slate-400 text-sm mt-0.5">Your history of time-off requests.</p>
+            <h2 className="text-lg font-bold text-foreground">Recent Leave Requests</h2>
+            <p className="text-muted-foreground text-sm mt-0.5">Your history of time-off requests.</p>
           </div>
           
           <div className="flex flex-wrap items-center gap-3">
@@ -206,7 +206,7 @@ export default function LeavesPage() {
               <select
                 value={filterType}
                 onChange={(e) => { setFilterType(e.target.value); setCurrentPage(1); }}
-                className="bg-slate-800 border border-white/10 text-white rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-amber-500"
+                className="bg-card border border-border text-white rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-amber-500"
               >
                 <option value="">All Categories</option>
                 <option value="casual">Casual Leaves</option>
@@ -221,7 +221,7 @@ export default function LeavesPage() {
                 type="date"
                 value={filterFromDate}
                 onChange={(e) => { setFilterFromDate(e.target.value); setCurrentPage(1); }}
-                className="bg-slate-800 border border-white/10 text-white rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-amber-500 [color-scheme:dark]"
+                className="bg-card border border-border text-white rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-amber-500 [color-scheme:dark]"
               />
             </div>
             
@@ -231,7 +231,7 @@ export default function LeavesPage() {
                 type="date"
                 value={filterToDate}
                 onChange={(e) => { setFilterToDate(e.target.value); setCurrentPage(1); }}
-                className="bg-slate-800 border border-white/10 text-white rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-amber-500 [color-scheme:dark]"
+                className="bg-card border border-border text-white rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-amber-500 [color-scheme:dark]"
               />
             </div>
             
@@ -246,13 +246,13 @@ export default function LeavesPage() {
           </div>
         </div>
         {isLoading ? (
-          <div className="py-12 text-center text-slate-400">Loading...</div>
+          <div className="py-12 text-center text-muted-foreground">Loading...</div>
         ) : requests.length === 0 ? (
-          <div className="py-12 text-center text-slate-400">No leave requests found.</div>
+          <div className="py-12 text-center text-muted-foreground">No leave requests found.</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
-              <thead className="text-xs text-slate-400 uppercase bg-white/5 border-b border-white/10">
+              <thead className="text-xs text-muted-foreground uppercase bg-white/5 border-b border-border">
                 <tr>
                   {(user?.role === "Super Admin" || user?.role === "Team Lead") && (
                     <th className="px-6 py-3">Employee</th>
@@ -268,23 +268,23 @@ export default function LeavesPage() {
                 {requests.map((req) => (
                   <tr key={req.id} className="hover:bg-white/5 transition-colors">
                     {(user?.role === "Super Admin" || user?.role === "Team Lead") && (
-                      <td className="px-6 py-4 text-slate-300 whitespace-nowrap">
+                      <td className="px-6 py-4 text-muted-foreground whitespace-nowrap">
                         {req.user?.first_name} {req.user?.last_name}
                       </td>
                     )}
                     <td className="px-6 py-4 font-semibold text-white whitespace-nowrap">
                       {req.leave_type?.name}
                     </td>
-                    <td className="px-6 py-4 text-slate-300 whitespace-nowrap">
+                    <td className="px-6 py-4 text-muted-foreground whitespace-nowrap">
                       <div className="flex items-center gap-2">
                         <Calendar className="w-4 h-4 text-slate-500 shrink-0" />
                         {new Date(req.start_date).toLocaleDateString()} — {new Date(req.end_date).toLocaleDateString()}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-slate-300">
+                    <td className="px-6 py-4 text-muted-foreground">
                       {req.days_taken ?? req.actual_leave_days ?? "—"} Day(s)
                     </td>
-                    <td className="px-6 py-4 text-slate-400 max-w-[200px] truncate">{req.reason}</td>
+                    <td className="px-6 py-4 text-muted-foreground max-w-[200px] truncate">{req.reason}</td>
                     <td className="px-6 py-4">{getStatusBadge(req)}</td>
                   </tr>
                 ))}
@@ -295,22 +295,22 @@ export default function LeavesPage() {
 
         {/* Pagination */}
         {pagination && pagination.last_page > 1 && (
-          <div className="px-6 py-4 border-t border-white/10 flex items-center justify-between gap-4">
-            <span className="text-xs text-slate-400">
+          <div className="px-6 py-4 border-t border-border flex items-center justify-between gap-4">
+            <span className="text-xs text-muted-foreground">
               Page {pagination.current_page} of {pagination.last_page} &nbsp;·&nbsp; {pagination.total} request{pagination.total !== 1 ? "s" : ""}
             </span>
             <div className="flex gap-2">
               <button
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={pagination.current_page === 1}
-                className="px-3 py-1.5 text-xs font-semibold text-slate-300 bg-white/5 rounded-lg disabled:opacity-40 hover:bg-white/10 transition"
+                className="px-3 py-1.5 text-xs font-semibold text-muted-foreground bg-white/5 rounded-lg disabled:opacity-40 hover:bg-white/10 transition"
               >
                 Previous
               </button>
               <button
                 onClick={() => setCurrentPage((p) => Math.min(pagination.last_page, p + 1))}
                 disabled={pagination.current_page === pagination.last_page}
-                className="px-3 py-1.5 text-xs font-semibold text-slate-300 bg-white/5 rounded-lg disabled:opacity-40 hover:bg-white/10 transition"
+                className="px-3 py-1.5 text-xs font-semibold text-muted-foreground bg-white/5 rounded-lg disabled:opacity-40 hover:bg-white/10 transition"
               >
                 Next
               </button>

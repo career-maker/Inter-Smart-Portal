@@ -186,8 +186,8 @@ export default function AnnouncementsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">Company Updates</h1>
-          <p className="text-slate-300">Announcements, events, and celebrations from the team.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Company Updates</h1>
+          <p className="text-muted-foreground">Announcements, events, and celebrations from the team.</p>
         </div>
         {isAdmin && (
           <Button onClick={openCreate}>

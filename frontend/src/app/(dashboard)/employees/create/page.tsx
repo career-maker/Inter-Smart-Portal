@@ -19,8 +19,8 @@ export default function CreateEmployeePage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">Add Employee</h1>
-          <p className="text-slate-300">Create a new employee profile in the system.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Add Employee</h1>
+          <p className="text-muted-foreground">Create a new employee profile in the system.</p>
         </div>
       </div>
 
@@ -30,17 +30,17 @@ export default function CreateEmployeePage() {
       {/* Divider */}
       <div className="relative my-8">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-white/10"></div>
+          <div className="w-full border-t border-border"></div>
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-slate-950 text-slate-400">OR</span>
+          <span className="px-2 bg-slate-950 text-muted-foreground">OR</span>
         </div>
       </div>
 
       {/* Single Employee Form */}
       <div>
-        <h2 className="text-2xl font-bold text-white mb-2">Create Single Employee</h2>
-        <p className="text-slate-400 mb-6">Fill in the form below to add an employee manually</p>
+        <h2 className="text-2xl font-bold text-foreground mb-2">Create Single Employee</h2>
+        <p className="text-muted-foreground mb-6">Fill in the form below to add an employee manually</p>
         <EmployeeForm isEdit={false} />
       </div>
     </div>

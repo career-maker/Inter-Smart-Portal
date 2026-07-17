@@ -153,8 +153,8 @@ export default function AttendanceDetailsPage({ params }: PageProps) {
             <ArrowLeft className="mr-2 h-4 w-4" /> Back to Attendance
           </Button>
         </Link>
-        <Card className="border-slate-600 bg-slate-900/50">
-          <CardContent className="pt-6 text-center text-slate-300">
+        <Card className="border-slate-600 bg-background/50">
+          <CardContent className="pt-6 text-center text-muted-foreground">
             <p>No attendance or biometric data found for this date.</p>
           </CardContent>
         </Card>
@@ -171,8 +171,8 @@ export default function AttendanceDetailsPage({ params }: PageProps) {
             <ArrowLeft className="mr-2 h-4 w-4" /> Back to Attendance
           </Button>
         </Link>
-        <h1 className="text-3xl font-bold tracking-tight text-white">Attendance Details</h1>
-        <p className="text-slate-300">
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">Attendance Details</h1>
+        <p className="text-muted-foreground">
           {data.employee && `${data.employee.first_name} ${data.employee.last_name} — `}
           {new Date(data.date).toLocaleDateString([], {
             weekday: "long",
@@ -185,12 +185,12 @@ export default function AttendanceDetailsPage({ params }: PageProps) {
 
       {/* Date Picker */}
       <div className="flex items-center gap-4">
-        <label className="text-sm text-slate-400">Select Date:</label>
+        <label className="text-sm text-muted-foreground">Select Date:</label>
         <input
           type="date"
           value={data.date}
           onChange={handleDateChange}
-          className="px-3 py-2 border rounded-md text-sm bg-slate-900 border-white/10 text-white outline-none focus:ring-2 focus:ring-amber-400 [color-scheme:dark]"
+          className="px-3 py-2 border rounded-md text-sm bg-background border-border text-white outline-none focus:ring-2 focus:ring-amber-400 [color-scheme:dark]"
         />
       </div>
 
@@ -202,10 +202,10 @@ export default function AttendanceDetailsPage({ params }: PageProps) {
       />
 
       {/* Daily Activity Timeline */}
-      <Card className="shadow-sm border-white/10 bg-slate-800/50 backdrop-blur-sm text-white">
-        <CardHeader className="pb-4 border-b border-white/5">
+      <Card className="shadow-sm border-border bg-card/50 backdrop-blur-sm text-white">
+        <CardHeader className="pb-4 border-b border-border">
           <CardTitle>Daily Activity Timeline</CardTitle>
-          <CardDescription className="text-slate-400">
+          <CardDescription className="text-muted-foreground">
             Chronological record of all punch events throughout the day
           </CardDescription>
         </CardHeader>
@@ -222,8 +222,8 @@ export default function AttendanceDetailsPage({ params }: PageProps) {
       {/* Date Navigation & Status */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <Card className="border-white/10 bg-slate-800/50 backdrop-blur-sm text-white">
-            <CardHeader className="border-b border-white/10 pb-4">
+          <Card className="border-border bg-card/50 backdrop-blur-sm text-white">
+            <CardHeader className="border-b border-border pb-4">
               <div className="flex items-center justify-between">
                 <CardTitle>Daily Summary</CardTitle>
                 <div className="flex items-center gap-4">
@@ -231,7 +231,7 @@ export default function AttendanceDetailsPage({ params }: PageProps) {
                     type="date"
                     value={data.date}
                     onChange={handleDateChange}
-                    className="px-3 py-2 border rounded-md text-sm bg-slate-900 border-white/10 text-white outline-none focus:ring-2 focus:ring-amber-400 [color-scheme:dark]"
+                    className="px-3 py-2 border rounded-md text-sm bg-background border-border text-white outline-none focus:ring-2 focus:ring-amber-400 [color-scheme:dark]"
                   />
                 </div>
               </div>
@@ -273,26 +273,26 @@ export default function AttendanceDetailsPage({ params }: PageProps) {
 
               {/* Time Summary */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 bg-slate-700/50 rounded-lg border border-white/5">
-                  <p className="text-xs text-slate-400 mb-2">First Punch In</p>
+                <div className="p-4 bg-slate-700/50 rounded-lg border border-border">
+                  <p className="text-xs text-muted-foreground mb-2">First Punch In</p>
                   <p className="text-xl font-bold text-emerald-400">
                     {formatTime(data.first_in)}
                   </p>
                 </div>
-                <div className="p-4 bg-slate-700/50 rounded-lg border border-white/5">
-                  <p className="text-xs text-slate-400 mb-2">Last Punch Out</p>
+                <div className="p-4 bg-slate-700/50 rounded-lg border border-border">
+                  <p className="text-xs text-muted-foreground mb-2">Last Punch Out</p>
                   <p className="text-xl font-bold text-rose-400">
                     {formatTime(data.last_out)}
                   </p>
                 </div>
-                <div className="p-4 bg-slate-700/50 rounded-lg border border-white/5">
-                  <p className="text-xs text-slate-400 mb-2">Total Break</p>
+                <div className="p-4 bg-slate-700/50 rounded-lg border border-border">
+                  <p className="text-xs text-muted-foreground mb-2">Total Break</p>
                   <p className="text-xl font-bold text-amber-400">
                     {formatMinutesToHours(data.total_completed_break_minutes)}
                   </p>
                 </div>
-                <div className="p-4 bg-slate-700/50 rounded-lg border border-white/5">
-                  <p className="text-xs text-slate-400 mb-2">Effective Worked Time</p>
+                <div className="p-4 bg-slate-700/50 rounded-lg border border-border">
+                  <p className="text-xs text-muted-foreground mb-2">Effective Worked Time</p>
                   <p className="text-xl font-bold text-blue-400">
                     {formatMinutesToHours(data.total_working_minutes)}
                   </p>
@@ -313,31 +313,31 @@ export default function AttendanceDetailsPage({ params }: PageProps) {
 
         {/* Sequence State Info */}
         <div className="lg:col-span-1">
-          <Card className="border-white/10 bg-slate-800/50 backdrop-blur-sm text-white h-full">
-            <CardHeader className="border-b border-white/10 pb-4">
+          <Card className="border-border bg-card/50 backdrop-blur-sm text-white h-full">
+            <CardHeader className="border-b border-border pb-4">
               <CardTitle className="text-lg">Sequence State</CardTitle>
             </CardHeader>
             <CardContent className="pt-6 space-y-4">
-              <div className="p-3 bg-slate-700/50 rounded border border-white/5">
-                <p className="text-xs text-slate-400 mb-1">Current State</p>
+              <div className="p-3 bg-slate-700/50 rounded border border-border">
+                <p className="text-xs text-muted-foreground mb-1">Current State</p>
                 <p className="font-mono text-sm text-amber-400">{data.current_sequence_state}</p>
               </div>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-slate-300">Currently Working:</span>
-                  <span className={data.is_currently_working ? "text-green-400 font-semibold" : "text-slate-400"}>
+                  <span className="text-muted-foreground">Currently Working:</span>
+                  <span className={data.is_currently_working ? "text-green-400 font-semibold" : "text-muted-foreground"}>
                     {data.is_currently_working ? "Yes" : "No"}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-300">Missing Punch Out:</span>
-                  <span className={data.has_missing_punch_out ? "text-orange-400 font-semibold" : "text-slate-400"}>
+                  <span className="text-muted-foreground">Missing Punch Out:</span>
+                  <span className={data.has_missing_punch_out ? "text-orange-400 font-semibold" : "text-muted-foreground"}>
                     {data.has_missing_punch_out ? "Yes" : "No"}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-300">Requires Review:</span>
-                  <span className={data.requires_review ? "text-red-400 font-semibold" : "text-slate-400"}>
+                  <span className="text-muted-foreground">Requires Review:</span>
+                  <span className={data.requires_review ? "text-red-400 font-semibold" : "text-muted-foreground"}>
                     {data.requires_review ? "Yes" : "No"}
                   </span>
                 </div>
@@ -348,22 +348,22 @@ export default function AttendanceDetailsPage({ params }: PageProps) {
       </div>
 
       {/* Raw Punches */}
-      <Card className="border-white/10 bg-slate-800/50 backdrop-blur-sm text-white">
-        <CardHeader className="border-b border-white/10 pb-4">
+      <Card className="border-border bg-card/50 backdrop-blur-sm text-white">
+        <CardHeader className="border-b border-border pb-4">
           <CardTitle>Raw Biometric Punches</CardTitle>
-          <CardDescription className="text-slate-400">
+          <CardDescription className="text-muted-foreground">
             Chronological sequence of all punch events recorded for this date
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-6">
           {data.raw_punches.length === 0 ? (
-            <p className="text-center text-slate-400 py-8">No biometric events recorded.</p>
+            <p className="text-center text-muted-foreground py-8">No biometric events recorded.</p>
           ) : (
             <div className="space-y-2">
               {data.raw_punches.map((punch, idx) => (
                 <div
                   key={`${punch.event_id}-${idx}`}
-                  className="p-3 bg-slate-700/50 rounded border border-white/5 flex items-center justify-between"
+                  className="p-3 bg-slate-700/50 rounded border border-border flex items-center justify-between"
                 >
                   <div className="flex items-center gap-4">
                     <span className="text-xs text-slate-500 font-mono">#{punch.event_id}</span>
@@ -380,27 +380,27 @@ export default function AttendanceDetailsPage({ params }: PageProps) {
             </div>
           )}
           {data.orphan_event_ids.length > 0 && (
-            <div className="mt-6 p-3 bg-slate-700/30 rounded border border-white/5">
-              <p className="text-xs text-slate-400 mb-2">
+            <div className="mt-6 p-3 bg-slate-700/30 rounded border border-border">
+              <p className="text-xs text-muted-foreground mb-2">
                 <strong>Orphan Events (ignored leading OUT punches):</strong>
               </p>
-              <p className="text-sm text-slate-300 font-mono">{data.orphan_event_ids.join(", ")}</p>
+              <p className="text-sm text-muted-foreground font-mono">{data.orphan_event_ids.join(", ")}</p>
             </div>
           )}
         </CardContent>
       </Card>
 
       {/* Working Sessions */}
-      <Card className="border-white/10 bg-slate-800/50 backdrop-blur-sm text-white">
-        <CardHeader className="border-b border-white/10 pb-4">
+      <Card className="border-border bg-card/50 backdrop-blur-sm text-white">
+        <CardHeader className="border-b border-border pb-4">
           <CardTitle>Working Sessions</CardTitle>
-          <CardDescription className="text-slate-400">
+          <CardDescription className="text-muted-foreground">
             Interpreted work periods from IN to OUT punches
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-6">
           {data.working_sessions.length === 0 ? (
-            <p className="text-center text-slate-400 py-8">No working sessions recorded.</p>
+            <p className="text-center text-muted-foreground py-8">No working sessions recorded.</p>
           ) : (
             <div className="space-y-3">
               {data.working_sessions.map((session, idx) => (
@@ -413,11 +413,11 @@ export default function AttendanceDetailsPage({ params }: PageProps) {
                   </div>
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <p className="text-xs text-slate-400 mb-1">Start</p>
+                      <p className="text-xs text-muted-foreground mb-1">Start</p>
                       <p className="text-emerald-300 font-mono">{formatTime(session.start)}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-slate-400 mb-1">
+                      <p className="text-xs text-muted-foreground mb-1">
                         {session.end ? "End" : "In Progress"}
                       </p>
                       <p className={`font-mono ${session.end ? "text-rose-300" : "text-amber-300"}`}>
@@ -433,16 +433,16 @@ export default function AttendanceDetailsPage({ params }: PageProps) {
       </Card>
 
       {/* Breaks */}
-      <Card className="border-white/10 bg-slate-800/50 backdrop-blur-sm text-white">
-        <CardHeader className="border-b border-white/10 pb-4">
+      <Card className="border-border bg-card/50 backdrop-blur-sm text-white">
+        <CardHeader className="border-b border-border pb-4">
           <CardTitle>Completed Breaks</CardTitle>
-          <CardDescription className="text-slate-400">
+          <CardDescription className="text-muted-foreground">
             Break periods between OUT and next IN
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-6">
           {data.completed_breaks.length === 0 ? (
-            <p className="text-center text-slate-400 py-8">No breaks recorded.</p>
+            <p className="text-center text-muted-foreground py-8">No breaks recorded.</p>
           ) : (
             <div className="space-y-3">
               {data.completed_breaks.map((breakItem, idx) => (
@@ -455,11 +455,11 @@ export default function AttendanceDetailsPage({ params }: PageProps) {
                   </div>
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <p className="text-xs text-slate-400 mb-1">Start</p>
+                      <p className="text-xs text-muted-foreground mb-1">Start</p>
                       <p className="text-emerald-300 font-mono">{formatTime(breakItem.start)}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-slate-400 mb-1">End</p>
+                      <p className="text-xs text-muted-foreground mb-1">End</p>
                       <p className="text-rose-300 font-mono">{formatTime(breakItem.end)}</p>
                     </div>
                   </div>

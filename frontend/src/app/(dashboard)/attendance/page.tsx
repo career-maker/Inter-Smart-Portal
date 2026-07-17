@@ -95,19 +95,19 @@ export default function AttendancePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white">Attendance</h1>
-        <p className="text-slate-300">Track your daily working hours and breaks.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">Attendance</h1>
+        <p className="text-muted-foreground">Track your daily working hours and breaks.</p>
       </div>
 
       {/* Time Clock Widget - Compact */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="shadow-sm border-white/10 bg-slate-800/50 backdrop-blur-sm text-white lg:col-span-1">
-          <CardHeader className="bg-primary/10 pb-3 border-b border-white/10 text-center rounded-t-xl">
+        <Card className="shadow-sm border-border bg-card/50 backdrop-blur-sm text-white lg:col-span-1">
+          <CardHeader className="bg-primary/10 pb-3 border-b border-border text-center rounded-t-xl">
             <CardTitle className="text-lg">Time Clock</CardTitle>
-            <div className="text-3xl font-light tracking-tight mt-2 text-white">
+            <div className="text-3xl font-light tracking-tight mt-2 text-foreground">
               {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
             </div>
-            <div className="text-xs text-slate-300 mt-1">
+            <div className="text-xs text-muted-foreground mt-1">
               {currentTime.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}
             </div>
           </CardHeader>
@@ -137,26 +137,26 @@ export default function AttendancePage() {
         {/* Quick Stats - Optional */}
         {history.length > 0 && getFilteredHistory().length > 0 && getFilteredHistory()[0] && (
           <>
-            <Card className="shadow-sm border-white/10 bg-slate-800/50 backdrop-blur-sm text-white">
+            <Card className="shadow-sm border-border bg-card/50 backdrop-blur-sm text-white">
               <CardContent className="pt-6">
                 <div className="space-y-2">
-                  <p className="text-xs text-slate-400">{filterDay ? 'Check-in' : "Today's Check-in"}</p>
+                  <p className="text-xs text-muted-foreground">{filterDay ? 'Check-in' : "Today's Check-in"}</p>
                   <p className="text-2xl font-bold text-emerald-400">{formatTime(getFilteredHistory()[0]?.check_in_time)}</p>
                 </div>
               </CardContent>
             </Card>
-            <Card className="shadow-sm border-white/10 bg-slate-800/50 backdrop-blur-sm text-white">
+            <Card className="shadow-sm border-border bg-card/50 backdrop-blur-sm text-white">
               <CardContent className="pt-6">
                 <div className="space-y-2">
-                  <p className="text-xs text-slate-400">{filterDay ? 'Check-out' : "Today's Check-out"}</p>
+                  <p className="text-xs text-muted-foreground">{filterDay ? 'Check-out' : "Today's Check-out"}</p>
                   <p className="text-2xl font-bold text-rose-400">{formatTime(getFilteredHistory()[0]?.check_out_time)}</p>
                 </div>
               </CardContent>
             </Card>
-            <Card className="shadow-sm border-white/10 bg-slate-800/50 backdrop-blur-sm text-white">
+            <Card className="shadow-sm border-border bg-card/50 backdrop-blur-sm text-white">
               <CardContent className="pt-6">
                 <div className="space-y-2">
-                  <p className="text-xs text-slate-400">Hours Worked</p>
+                  <p className="text-xs text-muted-foreground">Hours Worked</p>
                   <p className="text-2xl font-bold text-blue-400">
                     {formatMinutesToHours(getFilteredHistory()[0]?.total_working_minutes || 0)}
                   </p>
@@ -168,15 +168,15 @@ export default function AttendancePage() {
       </div>
 
       {/* Primary Day-wise Table */}
-      <Card className="shadow-sm border-white/10 bg-slate-800/50 backdrop-blur-sm text-white">
-        <CardHeader className="flex flex-row items-center justify-between border-b border-white/5 pb-4 mb-4">
+      <Card className="shadow-sm border-border bg-card/50 backdrop-blur-sm text-white">
+        <CardHeader className="flex flex-row items-center justify-between border-b border-border pb-4 mb-4">
           <div>
             <CardTitle className="text-2xl">Attendance Records</CardTitle>
-            <CardDescription className="text-slate-400">Day-wise breakdown of your attendance history</CardDescription>
+            <CardDescription className="text-muted-foreground">Day-wise breakdown of your attendance history</CardDescription>
           </div>
           <div className="flex gap-3">
             <div>
-              <label className="text-xs text-slate-400 block mb-1">Month</label>
+              <label className="text-xs text-muted-foreground block mb-1">Month</label>
               <input
                 type="month"
                 value={filterMonth}
@@ -184,24 +184,24 @@ export default function AttendancePage() {
                   setFilterMonth(e.target.value);
                   setFilterDay(''); // Reset day filter when month changes
                 }}
-                className="px-3 py-2 border rounded-md text-sm bg-slate-900 border-white/10 text-white outline-none focus:ring-2 focus:ring-primary [color-scheme:dark]"
+                className="px-3 py-2 border rounded-md text-sm bg-background border-border text-white outline-none focus:ring-2 focus:ring-primary [color-scheme:dark]"
               />
             </div>
             <div>
-              <label className="text-xs text-slate-400 block mb-1">Day (Optional)</label>
+              <label className="text-xs text-muted-foreground block mb-1">Day (Optional)</label>
               <input
                 type="date"
                 value={filterDay}
                 onChange={(e) => setFilterDay(e.target.value)}
                 min={filterMonth ? `${filterMonth}-01` : undefined}
                 max={filterMonth ? `${filterMonth}-31` : undefined}
-                className="px-3 py-2 border rounded-md text-sm bg-slate-900 border-white/10 text-white outline-none focus:ring-2 focus:ring-primary [color-scheme:dark]"
+                className="px-3 py-2 border rounded-md text-sm bg-background border-border text-white outline-none focus:ring-2 focus:ring-primary [color-scheme:dark]"
               />
             </div>
             {filterDay && (
               <button
                 onClick={() => setFilterDay('')}
-                className="px-3 py-2 text-xs bg-slate-700/50 hover:bg-slate-700 rounded-md border border-white/10 text-slate-300 hover:text-white transition-colors self-end"
+                className="px-3 py-2 text-xs bg-slate-700/50 hover:bg-slate-700 rounded-md border border-border text-muted-foreground hover:text-white transition-colors self-end"
               >
                 Clear Day
               </button>
@@ -210,15 +210,15 @@ export default function AttendancePage() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="py-4 text-center text-slate-400">Loading...</div>
+            <div className="py-4 text-center text-muted-foreground">Loading...</div>
           ) : history.length === 0 ? (
-            <div className="py-8 text-center text-slate-400 border border-white/10 rounded bg-slate-900/50">No attendance records found for this month.</div>
+            <div className="py-8 text-center text-muted-foreground border border-border rounded bg-background/50">No attendance records found for this month.</div>
           ) : getFilteredHistory().length === 0 ? (
-            <div className="py-8 text-center text-slate-400 border border-white/10 rounded bg-slate-900/50">No attendance records found for the selected day.</div>
+            <div className="py-8 text-center text-muted-foreground border border-border rounded bg-background/50">No attendance records found for the selected day.</div>
           ) : (
-            <div className="overflow-x-auto rounded-md border border-white/10">
+            <div className="overflow-x-auto rounded-md border border-border">
               <table className="w-full text-sm text-left">
-                <thead className="text-xs text-slate-300 uppercase bg-slate-900/80 border-b border-white/10">
+                <thead className="text-xs text-muted-foreground uppercase bg-background/80 border-b border-border">
                   <tr>
                     <th className="px-4 py-4">Date</th>
                     <th className="px-4 py-4">Day</th>
@@ -230,18 +230,18 @@ export default function AttendancePage() {
                     <th className="px-4 py-4 text-center">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="text-slate-200">
+                <tbody className="text-muted-foreground">
                   {getFilteredHistory().map((record) => {
                     const totalBreakMins = record.breaks?.reduce((acc: number, b: any) => acc + (b.total_break_minutes || 0), 0) || 0;
                     const recordDate = new Date(record.date);
                     const dayName = recordDate.toLocaleDateString([], { weekday: 'short' });
                     return (
-                      <tr key={record.id} className="border-b border-white/5 hover:bg-slate-700/50 transition-colors">
+                      <tr key={record.id} className="border-b border-border hover:bg-slate-700/50 transition-colors">
                         <td className="px-4 py-4 font-medium text-white">{recordDate.toLocaleDateString()}</td>
-                        <td className="px-4 py-4 text-slate-300 text-xs">{dayName}</td>
+                        <td className="px-4 py-4 text-muted-foreground text-xs">{dayName}</td>
                         <td className="px-4 py-4 text-emerald-400 font-medium">{formatTime(record.check_in_time)}</td>
                         <td className="px-4 py-4 text-rose-400 font-medium">{formatTime(record.check_out_time)}</td>
-                        <td className="px-4 py-4 text-slate-300">{formatMinutesToHours(totalBreakMins)}</td>
+                        <td className="px-4 py-4 text-muted-foreground">{formatMinutesToHours(totalBreakMins)}</td>
                         <td className="px-4 py-4 text-right font-bold text-blue-400">
                           {record.total_working_minutes !== null ? formatMinutesToHours(record.total_working_minutes) : '--'}
                         </td>

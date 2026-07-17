@@ -218,14 +218,14 @@ function TopPerformerCard({ name, designation }: { name: string; designation?: s
 
 const RANK_STYLES = [
   { bg: "from-amber-500/20 to-yellow-500/10", border: "border-amber-500/40", text: "text-amber-300", icon: "🥇" },
-  { bg: "from-slate-400/20 to-slate-500/10", border: "border-slate-400/40", text: "text-slate-300", icon: "🥈" },
+  { bg: "from-slate-400/20 to-slate-500/10", border: "border-slate-400/40", text: "text-muted-foreground", icon: "🥈" },
   { bg: "from-amber-700/20 to-orange-700/10", border: "border-amber-700/40", text: "text-amber-700", icon: "🥉" },
 ];
 
 function PhotoAvatar({ src, name, className = "" }: { src?: string | null; name: string; className?: string }) {
   const initials = name.split(" ").filter(Boolean).map((n) => n[0]).join("").substring(0, 2).toUpperCase();
   return (
-    <div className={`relative overflow-hidden flex items-center justify-center font-bold text-slate-300 bg-slate-700 ${className}`}>
+    <div className={`relative overflow-hidden flex items-center justify-center font-bold text-muted-foreground bg-slate-700 ${className}`}>
       <span>{initials}</span>
       {src && (
         <img
@@ -241,13 +241,13 @@ function PhotoAvatar({ src, name, className = "" }: { src?: string | null; name:
 
 function StatCard({ label, value, icon: Icon, color }: { label: string; value: string | number; icon: any; color: string }) {
   return (
-    <div className={`bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center gap-4`}>
+    <div className={`bg-white/5 border border-border rounded-2xl p-4 flex items-center gap-4`}>
       <div className={`w-11 h-11 rounded-xl ${color} flex items-center justify-center shrink-0`}>
         <Icon className="w-5 h-5" />
       </div>
       <div className="min-w-0">
-        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">{label}</p>
-        <p className="text-base font-black text-white truncate">{value || "—"}</p>
+        <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-0.5">{label}</p>
+        <p className="text-base font-black text-foreground truncate">{value || "—"}</p>
       </div>
     </div>
   );
@@ -262,7 +262,7 @@ function LeaderboardRow({ entry, onClick }: { entry: any; onClick: () => void })
       className={`group flex items-center gap-4 p-4 rounded-2xl border cursor-pointer transition-all duration-200 hover:scale-[1.01] hover:shadow-lg ${
         rankStyle
           ? `bg-gradient-to-r ${rankStyle.bg} ${rankStyle.border}`
-          : "bg-white/5 border-white/10 hover:bg-white/10"
+          : "bg-white/5 border-border hover:bg-white/10"
       }`}
     >
       {/* Rank */}
@@ -293,8 +293,8 @@ function LeaderboardRow({ entry, onClick }: { entry: any; onClick: () => void })
 
       {/* Info */}
       <div className="flex-1 min-w-0">
-        <p className="font-bold text-white text-sm leading-tight">{entry.name}</p>
-        <p className="text-xs text-slate-400 mt-0.5 truncate">
+        <p className="font-bold text-foreground text-sm leading-tight">{entry.name}</p>
+        <p className="text-xs text-muted-foreground mt-0.5 truncate">
           {entry.designation} · {entry.department}
         </p>
         {entry.latest_achievement_title && (
@@ -306,7 +306,7 @@ function LeaderboardRow({ entry, onClick }: { entry: any; onClick: () => void })
 
       {/* Achievement count */}
       <div className="shrink-0 text-right">
-        <p className={`text-2xl font-black ${rankStyle ? rankStyle.text : "text-slate-300"}`}>
+        <p className={`text-2xl font-black ${rankStyle ? rankStyle.text : "text-muted-foreground"}`}>
           {entry.total_achievements}
         </p>
         <p className="text-[10px] text-slate-500 uppercase tracking-wider">
@@ -347,24 +347,24 @@ export default function RecognitionLeaderboardPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2 text-white">
+          <h1 className="text-2xl font-bold flex items-center gap-2 text-foreground">
             <Trophy className="w-7 h-7 text-amber-400" />
             Recognition Leaderboard
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-muted-foreground mt-1">
             Celebrating outstanding achievements across Inter Smart.
           </p>
         </div>
         {/* Tab switcher */}
-        <div className="flex bg-white/5 border border-white/10 rounded-xl p-1 gap-1">
+        <div className="flex bg-white/5 border border-border rounded-xl p-1 gap-1">
           {(["overall", "week"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
               className={`px-5 py-2 rounded-lg text-sm font-bold transition-all ${
                 tab === t
-                  ? "bg-amber-500 text-slate-900 shadow"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-amber-500 text-foreground shadow"
+                  : "text-muted-foreground hover:text-white"
               }`}
             >
               {t === "overall" ? "Overall" : "This Week"}
@@ -388,10 +388,10 @@ export default function RecognitionLeaderboardPage() {
             icon={Star}
             color="bg-emerald-500/20 text-emerald-400"
           />
-          <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center min-h-[120px]">
+          <div className="bg-white/5 backdrop-blur-md border border-border rounded-2xl p-4 flex flex-col items-center justify-center min-h-[120px]">
             <div className="flex items-center gap-2 mb-3 text-violet-400">
               <Crown className="w-5 h-5" />
-              <h3 className="text-xs font-semibold text-slate-300">Top Performer</h3>
+              <h3 className="text-xs font-semibold text-muted-foreground">Top Performer</h3>
             </div>
             {data.stats.top_performer && data.stats.top_performer_designation ? (
               <TopPerformerCard
@@ -399,7 +399,7 @@ export default function RecognitionLeaderboardPage() {
                 designation={data.stats.top_performer_designation}
               />
             ) : (
-              <span className="text-slate-400">—</span>
+              <span className="text-muted-foreground">—</span>
             )}
           </div>
           <StatCard
@@ -412,10 +412,10 @@ export default function RecognitionLeaderboardPage() {
       )}
 
       {/* Leaderboard */}
-      <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-6">
+      <div className="bg-white/5 backdrop-blur-md border border-border rounded-3xl p-6">
         <div className="flex items-center gap-2 mb-5">
           <Medal className="w-5 h-5 text-amber-400" />
-          <h2 className="text-base font-bold text-white">
+          <h2 className="text-base font-bold text-foreground">
             {tab === "overall" ? "All-Time Rankings" : "This Week's Champions"}
           </h2>
           <span className="ml-auto text-xs text-slate-500 hidden sm:inline">
@@ -430,7 +430,7 @@ export default function RecognitionLeaderboardPage() {
         ) : data?.data?.length === 0 ? (
           <div className="text-center py-16">
             <Trophy className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-            <p className="text-slate-400 font-medium">No achievements recorded yet.</p>
+            <p className="text-muted-foreground font-medium">No achievements recorded yet.</p>
             <p className="text-slate-500 text-sm mt-1">
               {tab === "week" ? "No awards issued this week." : "Start by assigning recognitions to employees."}
             </p>

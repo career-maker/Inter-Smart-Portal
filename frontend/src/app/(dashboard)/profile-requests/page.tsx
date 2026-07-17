@@ -62,8 +62,8 @@ export default function ProfileRequestsPage() {
           <ClipboardEdit className="h-6 w-6" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">Profile Edit Approvals</h1>
-          <p className="text-slate-300">Review and approve employee profile updates.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Profile Edit Approvals</h1>
+          <p className="text-muted-foreground">Review and approve employee profile updates.</p>
         </div>
       </div>
 
@@ -101,7 +101,7 @@ export default function ProfileRequestsPage() {
                 <h4 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wider">Requested Changes</h4>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-6 mb-6">
                   {Object.entries(req.requested_data).map(([key, val]) => (
-                    <div key={key} className="bg-white/5 p-3 rounded-lg border border-white/10 text-slate-300">
+                    <div key={key} className="bg-white/5 p-3 rounded-lg border border-border text-muted-foreground">
                       <div className="text-xs text-muted-foreground capitalize mb-1">{key.replace('_', ' ')}</div>
                       <div className="font-medium">{String(val) || <span className="text-gray-400 italic">Empty</span>}</div>
                     </div>

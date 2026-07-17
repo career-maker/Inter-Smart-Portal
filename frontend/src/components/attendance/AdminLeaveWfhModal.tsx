@@ -241,7 +241,7 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
                   value={formData.user_id}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-white/10 rounded-lg bg-slate-900 text-white outline-none focus:ring-2 focus:ring-amber-400 text-sm"
+                  className="w-full px-3 py-2 border border-border rounded-lg bg-background text-white outline-none focus:ring-2 focus:ring-amber-400 text-sm"
                   placeholder="Enter employee ID"
                 />
               </div>
@@ -255,7 +255,7 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
                 value={type === "leave" ? formData.leave_type_id : formData.wfh_type_id}
                 onChange={handleInputChange}
                 required
-                className="w-full px-3 py-2 border border-white/10 rounded-lg bg-slate-900 text-white outline-none focus:ring-2 focus:ring-amber-400 text-sm"
+                className="w-full px-3 py-2 border border-border rounded-lg bg-background text-white outline-none focus:ring-2 focus:ring-amber-400 text-sm"
               >
                 <option value="">Select {type === "leave" ? "leave type" : "WFH type"}</option>
                 {(type === "leave" ? leaveTypes : wfhTypes).map(lt => (
@@ -274,7 +274,7 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
                   value={formData.start_date}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-white/10 rounded-lg bg-slate-900 text-white outline-none focus:ring-2 focus:ring-amber-400 text-sm"
+                  className="w-full px-3 py-2 border border-border rounded-lg bg-background text-white outline-none focus:ring-2 focus:ring-amber-400 text-sm"
                 />
               </div>
               <div>
@@ -285,7 +285,7 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
                   value={formData.end_date}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-white/10 rounded-lg bg-slate-900 text-white outline-none focus:ring-2 focus:ring-amber-400 text-sm"
+                  className="w-full px-3 py-2 border border-border rounded-lg bg-background text-white outline-none focus:ring-2 focus:ring-amber-400 text-sm"
                 />
               </div>
             </div>
@@ -298,7 +298,7 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
                 value={formData.reason}
                 onChange={handleInputChange}
                 required
-                className="w-full px-3 py-2 border border-white/10 rounded-lg bg-slate-900 text-white outline-none focus:ring-2 focus:ring-amber-400 text-sm"
+                className="w-full px-3 py-2 border border-border rounded-lg bg-background text-white outline-none focus:ring-2 focus:ring-amber-400 text-sm"
                 placeholder="Enter reason"
                 rows={3}
               />

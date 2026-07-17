@@ -94,7 +94,7 @@ function EditModal({
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
         <div className="flex items-center justify-between px-6 py-4 border-b">
           <div>
-            <h2 className="text-lg font-bold text-slate-900">{employee.name}</h2>
+            <h2 className="text-lg font-bold text-foreground">{employee.name}</h2>
             <p className="text-xs text-slate-500">{employee.employee_code} · {employee.designation}</p>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
@@ -233,11 +233,11 @@ export default function LeaveBalancesPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+          <h1 className="text-3xl font-bold text-foreground tracking-tight flex items-center gap-3">
             <Shield className="w-8 h-8 text-amber-400" />
             Leave Balance Management
           </h1>
-          <p className="text-slate-400 mt-1">View and manually adjust leave balances for all employees.</p>
+          <p className="text-muted-foreground mt-1">View and manually adjust leave balances for all employees.</p>
         </div>
         <button
           onClick={fetchData}
@@ -254,38 +254,38 @@ export default function LeaveBalancesPage() {
         placeholder="Search by name or employee code..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="w-full max-w-md bg-white/10 border border-white/20 text-white placeholder:text-slate-400 px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+        className="w-full max-w-md bg-white/10 border border-border text-white placeholder:text-muted-foreground px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
       />
 
       {/* Employee Balance Table */}
-      <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden">
-        <div className="flex items-center gap-3 px-6 py-4 border-b border-white/10">
+      <div className="bg-white/5 backdrop-blur-md border border-border rounded-2xl overflow-hidden">
+        <div className="flex items-center gap-3 px-6 py-4 border-b border-border">
           <Users className="w-5 h-5 text-amber-400" />
-          <h2 className="text-white font-bold text-lg">Employee Balances ({filtered.length})</h2>
+          <h2 className="text-foreground font-bold text-lg">Employee Balances ({filtered.length})</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[700px]">
             <thead>
-              <tr className="border-b border-white/10">
-                <th className="text-left px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-400">Employee</th>
+              <tr className="border-b border-border">
+                <th className="text-left px-6 py-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">Employee</th>
                 <th className="text-center px-4 py-3 text-xs font-bold uppercase tracking-wider text-amber-400">CL Balance</th>
                 <th className="text-center px-4 py-3 text-xs font-bold uppercase tracking-wider text-orange-400">CL Carry Fwd</th>
                 <th className="text-center px-4 py-3 text-xs font-bold uppercase tracking-wider text-blue-400">SL Balance</th>
-                <th className="text-center px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-400">Total Used</th>
-                <th className="text-center px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-400">Action</th>
+                <th className="text-center px-4 py-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">Total Used</th>
+                <th className="text-center px-4 py-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">Action</th>
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-10 text-slate-400 text-sm">No employees found.</td>
+                  <td colSpan={6} className="text-center py-10 text-muted-foreground text-sm">No employees found.</td>
                 </tr>
               ) : (
                 filtered.map((emp) => (
-                  <tr key={emp.user_id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                  <tr key={emp.user_id} className="border-b border-border hover:bg-white/5 transition-colors">
                     <td className="px-6 py-4">
-                      <p className="text-white font-semibold text-sm">{emp.name}</p>
-                      <p className="text-slate-400 text-xs">{emp.employee_code} · {emp.designation || "—"}</p>
+                      <p className="text-foreground font-semibold text-sm">{emp.name}</p>
+                      <p className="text-muted-foreground text-xs">{emp.employee_code} · {emp.designation || "—"}</p>
                     </td>
                     <td className="px-4 py-4 text-center">
                       <span className="inline-block bg-amber-500/20 text-amber-300 font-bold text-sm px-3 py-1 rounded-full">
@@ -304,7 +304,7 @@ export default function LeaveBalancesPage() {
                       </span>
                     </td>
                     <td className="px-4 py-4 text-center">
-                      <span className="text-slate-300 font-semibold text-sm">{Math.max(0, emp.total_leaves_taken)}</span>
+                      <span className="text-muted-foreground font-semibold text-sm">{Math.max(0, emp.total_leaves_taken)}</span>
                     </td>
                     <td className="px-4 py-4 text-center">
                       <button
@@ -324,43 +324,43 @@ export default function LeaveBalancesPage() {
       </div>
 
       {/* Audit Log Section */}
-      <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden">
+      <div className="bg-white/5 backdrop-blur-md border border-border rounded-2xl overflow-hidden">
         <button
           onClick={() => setShowAudit(!showAudit)}
-          className="w-full flex items-center justify-between px-6 py-4 border-b border-white/10 hover:bg-white/5 transition-colors"
+          className="w-full flex items-center justify-between px-6 py-4 border-b border-border hover:bg-white/5 transition-colors"
         >
           <div className="flex items-center gap-3">
             <ClipboardList className="w-5 h-5 text-blue-400" />
-            <h2 className="text-white font-bold text-lg">Audit Log ({auditLogs.length} recent entries)</h2>
+            <h2 className="text-foreground font-bold text-lg">Audit Log ({auditLogs.length} recent entries)</h2>
           </div>
-          {showAudit ? <ChevronUp className="w-5 h-5 text-slate-400" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
+          {showAudit ? <ChevronUp className="w-5 h-5 text-muted-foreground" /> : <ChevronDown className="w-5 h-5 text-muted-foreground" />}
         </button>
 
         {showAudit && (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[700px]">
               <thead>
-                <tr className="border-b border-white/10">
-                  <th className="text-left px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-400">Employee</th>
-                  <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-400">Leave Type</th>
-                  <th className="text-center px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-400">Previous</th>
-                  <th className="text-center px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-400">Updated</th>
-                  <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-400">Modified By</th>
-                  <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-400">Date & Time</th>
-                  <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-400">Remarks</th>
+                <tr className="border-b border-border">
+                  <th className="text-left px-6 py-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">Employee</th>
+                  <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">Leave Type</th>
+                  <th className="text-center px-4 py-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">Previous</th>
+                  <th className="text-center px-4 py-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">Updated</th>
+                  <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">Modified By</th>
+                  <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">Date & Time</th>
+                  <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">Remarks</th>
                 </tr>
               </thead>
               <tbody>
                 {auditLogs.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="text-center py-10 text-slate-400 text-sm">No audit entries yet.</td>
+                    <td colSpan={7} className="text-center py-10 text-muted-foreground text-sm">No audit entries yet.</td>
                   </tr>
                 ) : (
                   auditLogs.map((log) => (
-                    <tr key={log.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                    <tr key={log.id} className="border-b border-border hover:bg-white/5 transition-colors">
                       <td className="px-6 py-3 text-white text-sm font-medium">
                         {log.user?.first_name} {log.user?.last_name}
-                        <span className="text-slate-400 text-xs ml-1">({log.user?.employee_code})</span>
+                        <span className="text-muted-foreground text-xs ml-1">({log.user?.employee_code})</span>
                       </td>
                       <td className="px-4 py-3">
                         <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
@@ -369,19 +369,19 @@ export default function LeaveBalancesPage() {
                           'bg-amber-500/20 text-amber-300'
                         }`}>{log.leave_type}</span>
                       </td>
-                      <td className="px-4 py-3 text-center text-slate-300 font-mono text-sm">{log.previous_balance}</td>
+                      <td className="px-4 py-3 text-center text-muted-foreground font-mono text-sm">{log.previous_balance}</td>
                       <td className="px-4 py-3 text-center font-bold font-mono text-sm">
                         <span className={log.new_balance > log.previous_balance ? 'text-green-400' : 'text-red-400'}>
                           {log.new_balance}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-slate-300 text-sm">
+                      <td className="px-4 py-3 text-muted-foreground text-sm">
                         {log.modifier?.first_name} {log.modifier?.last_name}
                       </td>
-                      <td className="px-4 py-3 text-slate-400 text-xs">
+                      <td className="px-4 py-3 text-muted-foreground text-xs">
                         {log.created_at ? format(parseISO(log.created_at), "dd MMM yyyy, hh:mm a") : "—"}
                       </td>
-                      <td className="px-4 py-3 text-slate-400 text-xs max-w-[160px] truncate">
+                      <td className="px-4 py-3 text-muted-foreground text-xs max-w-[160px] truncate">
                         {log.remarks || <span className="italic opacity-50">—</span>}
                       </td>
                     </tr>

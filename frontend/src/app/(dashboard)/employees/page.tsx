@@ -76,8 +76,8 @@ export default function EmployeesPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">Employees</h1>
-          <p className="text-slate-300 mt-1">Manage your organization's workforce.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Employees</h1>
+          <p className="text-muted-foreground mt-1">Manage your organization's workforce.</p>
         </div>
         <Button onClick={() => router.push("/employees/create")} className="bg-amber-500 hover:bg-amber-600 text-white font-semibold gap-2">
           <Plus className="h-4 w-4" /> Add Employee
@@ -85,17 +85,17 @@ export default function EmployeesPage() {
       </div>
 
       {/* Search Card */}
-      <Card className="shadow-sm border-white/10 bg-slate-800/50 backdrop-blur-sm">
+      <Card className="shadow-sm border-border bg-card/50 backdrop-blur-sm">
         <CardContent className="pt-6">
           <div className="flex items-center gap-3">
             <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <input
                 type="search"
                 placeholder="Search by name, email, or ID..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-slate-900 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-400 text-sm transition-colors"
+                className="w-full pl-10 pr-4 py-2 bg-background border border-border rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-400 text-sm transition-colors"
               />
             </div>
           </div>
@@ -103,7 +103,7 @@ export default function EmployeesPage() {
       </Card>
 
       {/* Table Card */}
-      <Card className="shadow-sm border-white/10 bg-slate-800/50 backdrop-blur-sm overflow-hidden">
+      <Card className="shadow-sm border-border bg-card/50 backdrop-blur-sm overflow-hidden">
         <CardContent className="p-0">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
@@ -111,12 +111,12 @@ export default function EmployeesPage() {
             </div>
           ) : employees.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-slate-400">No employees found.</p>
+              <p className="text-muted-foreground">No employees found.</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="border-b border-white/10">
+                <thead className="border-b border-border">
                   <tr>
                     <th className="text-left py-3 px-4 font-semibold text-white">Employee</th>
                     <th className="text-left py-3 px-4 font-semibold text-white">ID</th>
@@ -128,22 +128,22 @@ export default function EmployeesPage() {
                 </thead>
                 <tbody>
                   {employees.map((emp) => (
-                    <tr key={emp.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                    <tr key={emp.id} className="border-b border-border hover:bg-white/5 transition-colors">
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-3">
-                          <Avatar className="h-9 w-9 bg-slate-700 border border-white/10">
+                          <Avatar className="h-9 w-9 bg-slate-700 border border-border">
                             <AvatarImage src={emp.profile_photo_path} alt={emp.first_name} />
                             <AvatarFallback className="bg-slate-700 text-white text-xs font-semibold">{emp.first_name.charAt(0)}{emp.last_name?.charAt(0)}</AvatarFallback>
                           </Avatar>
                           <div className="flex flex-col">
-                            <span className="font-medium text-white">{emp.first_name} {emp.last_name}</span>
-                            <span className="text-xs text-slate-400">{emp.email}</span>
+                            <span className="font-medium text-foreground">{emp.first_name} {emp.last_name}</span>
+                            <span className="text-xs text-muted-foreground">{emp.email}</span>
                           </div>
                         </div>
                       </td>
-                      <td className="py-3 px-4 font-mono text-xs text-slate-300">{emp.employee_code}</td>
-                      <td className="py-3 px-4 text-slate-300">{emp.designation || 'N/A'}</td>
-                      <td className="py-3 px-4 text-slate-300">{emp.team?.name || 'Unassigned'}</td>
+                      <td className="py-3 px-4 font-mono text-xs text-muted-foreground">{emp.employee_code}</td>
+                      <td className="py-3 px-4 text-muted-foreground">{emp.designation || 'N/A'}</td>
+                      <td className="py-3 px-4 text-muted-foreground">{emp.team?.name || 'Unassigned'}</td>
                       <td className="py-3 px-4">
                         <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
                           emp.status === 'Active'
@@ -155,17 +155,17 @@ export default function EmployeesPage() {
                       </td>
                       <td className="py-3 px-4 text-right">
                         <DropdownMenu>
-                          <DropdownMenuTrigger className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors">
+                          <DropdownMenuTrigger className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-muted-foreground hover:text-white hover:bg-white/10 transition-colors">
                             <span className="sr-only">Open menu</span>
                             <MoreHorizontal className="h-4 w-4" />
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="bg-slate-800 border-white/10">
+                          <DropdownMenuContent align="end" className="bg-card border-border">
                             <DropdownMenuGroup>
-                              <DropdownMenuLabel className="text-slate-300">Actions</DropdownMenuLabel>
-                              <DropdownMenuItem onClick={() => router.push(`/employees/${emp.id}`)} className="text-slate-300 cursor-pointer hover:text-white hover:bg-white/10">
+                              <DropdownMenuLabel className="text-muted-foreground">Actions</DropdownMenuLabel>
+                              <DropdownMenuItem onClick={() => router.push(`/employees/${emp.id}`)} className="text-muted-foreground cursor-pointer hover:text-white hover:bg-white/10">
                                 <FileEdit className="mr-2 h-4 w-4" /> Edit Profile
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleToggleStatus(emp.id, emp.status)} className="text-slate-300 cursor-pointer hover:text-white hover:bg-white/10">
+                              <DropdownMenuItem onClick={() => handleToggleStatus(emp.id, emp.status)} className="text-muted-foreground cursor-pointer hover:text-white hover:bg-white/10">
                                 {emp.status === 'Active' ? (
                                   <><Ban className="mr-2 h-4 w-4" /> Disable Account</>
                                 ) : (
@@ -189,9 +189,9 @@ export default function EmployeesPage() {
 
           {/* Pagination */}
           {!isLoading && employees.length > 0 && totalPages > 1 && (
-            <div className="flex items-center justify-between p-4 border-t border-white/10 bg-slate-900/50">
-              <div className="text-sm text-slate-300">
-                Page <span className="font-semibold text-white">{currentPage}</span> of <span className="font-semibold text-white">{totalPages}</span>
+            <div className="flex items-center justify-between p-4 border-t border-border bg-background/50">
+              <div className="text-sm text-muted-foreground">
+                Page <span className="font-semibold text-foreground">{currentPage}</span> of <span className="font-semibold text-foreground">{totalPages}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Button
@@ -199,7 +199,7 @@ export default function EmployeesPage() {
                   size="sm"
                   onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1 || isLoading}
-                  className="border-white/10 text-slate-300 hover:bg-white/10 hover:text-white disabled:opacity-50"
+                  className="border-border text-muted-foreground hover:bg-white/10 hover:text-white disabled:opacity-50"
                 >
                   <ChevronLeft className="h-4 w-4 mr-1" />
                   Previous
@@ -217,7 +217,7 @@ export default function EmployeesPage() {
                         className={`w-8 h-8 text-xs font-medium rounded transition-colors ${
                           currentPage === page
                             ? 'bg-amber-500 text-white'
-                            : 'bg-white/10 text-slate-300 hover:bg-white/20 hover:text-white'
+                            : 'bg-white/10 text-muted-foreground hover:bg-white/20 hover:text-white'
                         } disabled:opacity-50 disabled:cursor-not-allowed`}
                       >
                         {page}
@@ -231,7 +231,7 @@ export default function EmployeesPage() {
                   size="sm"
                   onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                   disabled={currentPage === totalPages || isLoading}
-                  className="border-white/10 text-slate-300 hover:bg-white/10 hover:text-white disabled:opacity-50"
+                  className="border-border text-muted-foreground hover:bg-white/10 hover:text-white disabled:opacity-50"
                 >
                   Next
                   <ChevronRight className="h-4 w-4 ml-1" />

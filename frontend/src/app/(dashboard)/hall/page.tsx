@@ -81,8 +81,8 @@ export default function HallPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white">View The Hall</h1>
-          <p className="text-slate-300">Today's organization-wide employee availability.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">View The Hall</h1>
+          <p className="text-muted-foreground">Today's organization-wide employee availability.</p>
         {data.is_holiday && (
           <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
             🎉 Today is a company holiday: {data.holiday_name}
@@ -95,7 +95,7 @@ export default function HallPage() {
         <div className="bg-white p-5 rounded-xl border shadow-sm flex flex-col justify-between">
           <div className="flex justify-between items-start">
             <span className="text-sm font-medium text-slate-500">Total Employees</span>
-            <Users className="h-5 w-5 text-slate-400" />
+            <Users className="h-5 w-5 text-muted-foreground" />
           </div>
           <span className="text-3xl font-bold mt-2">{data.summary.total}</span>
         </div>

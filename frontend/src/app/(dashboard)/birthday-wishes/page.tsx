@@ -84,10 +84,10 @@ export default function BirthdayWishesPage() {
       <div className="relative z-10 space-y-6">
         {/* Header */}
         <div className="px-6 py-8 text-center">
-          <h1 className="text-4xl font-bold text-white mb-2 drop-shadow-lg">
+          <h1 className="text-4xl font-bold text-foreground mb-2 drop-shadow-lg">
             🎂 Birthday Wishes
           </h1>
-          <p className="text-slate-200 text-lg drop-shadow-md">
+          <p className="text-muted-foreground text-lg drop-shadow-md">
             All the lovely wishes from your teammates
           </p>
         </div>
@@ -97,17 +97,17 @@ export default function BirthdayWishesPage() {
           <div className="flex items-center justify-center min-h-96">
             <div className="text-center">
               <Loader2 className="w-12 h-12 animate-spin text-amber-400 mx-auto mb-4" />
-              <p className="text-white">Loading your wishes...</p>
+              <p className="text-foreground">Loading your wishes...</p>
             </div>
           </div>
         ) : wishes.length === 0 ? (
           <div className="flex items-center justify-center min-h-96">
             <div className="text-center">
-              <Heart className="w-24 h-24 mx-auto text-slate-400 mb-4 animate-pulse" />
-              <h3 className="text-2xl font-bold text-white mb-2">
+              <Heart className="w-24 h-24 mx-auto text-muted-foreground mb-4 animate-pulse" />
+              <h3 className="text-2xl font-bold text-foreground mb-2">
                 No wishes yet
               </h3>
-              <p className="text-slate-300 max-w-md">
+              <p className="text-muted-foreground max-w-md">
                 When your team sends you birthday wishes, they'll appear here
                 like beautiful sticky notes! 💕
               </p>
@@ -117,7 +117,7 @@ export default function BirthdayWishesPage() {
           <div className="px-6 pb-8">
             {/* Wish Count */}
             <div className="text-center mb-8">
-              <span className="inline-block bg-white/20 backdrop-blur-sm text-white px-6 py-2 rounded-full font-semibold">
+              <span className="inline-block bg-white/20 backdrop-blur-sm text-foreground px-6 py-2 rounded-full font-semibold">
                 ✨ {wishes.length} {wishes.length === 1 ? "wish" : "wishes"}{" "}
                 received
               </span>

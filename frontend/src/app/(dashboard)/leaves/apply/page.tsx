@@ -37,13 +37,13 @@ const CalendarDatePicker = ({
   const handleNext = () => setCurrentMonth(addMonths(currentMonth, 1));
 
   return (
-    <div className="bg-slate-800 border border-white/10 rounded-xl p-3 max-w-sm w-full mx-auto select-none">
+    <div className="bg-card border border-border rounded-xl p-3 max-w-sm w-full mx-auto select-none">
       <div className="flex items-center justify-between mb-2">
-        <button type="button" onClick={handlePrev} className="p-1 hover:bg-white/10 rounded text-slate-300">
+        <button type="button" onClick={handlePrev} className="p-1 hover:bg-white/10 rounded text-muted-foreground">
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <span className="text-sm font-semibold text-white">{format(currentMonth, "MMMM yyyy")}</span>
-        <button type="button" onClick={handleNext} className="p-1 hover:bg-white/10 rounded text-slate-300">
+        <span className="text-sm font-semibold text-foreground">{format(currentMonth, "MMMM yyyy")}</span>
+        <button type="button" onClick={handleNext} className="p-1 hover:bg-white/10 rounded text-muted-foreground">
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
@@ -73,7 +73,7 @@ const CalendarDatePicker = ({
           } else if (isHoliday) {
             btnClass += "bg-purple-500/20 text-purple-300 border border-purple-500/30 hover:bg-purple-500/30";
           } else {
-            btnClass += "text-slate-200 hover:bg-white/10";
+            btnClass += "text-muted-foreground hover:bg-white/10";
           }
 
           return (
@@ -311,17 +311,17 @@ export default function ApplyLeavePage() {
   const isMorningOrAfternoonSpecified = selectedType?.name?.toLowerCase().includes("morning") || selectedType?.name?.toLowerCase().includes("afternoon");
   const showDurationSelector = isHalfDayType && !isMorningOrAfternoonSpecified;
 
-  const inputCls = "w-full bg-slate-700 border border-white/10 text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 placeholder:text-slate-500 transition-colors [color-scheme:dark]";
+  const inputCls = "w-full bg-slate-700 border border-border text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 placeholder:text-slate-500 transition-colors [color-scheme:dark]";
 
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/leaves" className="p-2 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-slate-300 hover:text-white">
+        <Link href="/leaves" className="p-2 rounded-lg border border-border bg-white/5 hover:bg-white/10 transition-colors text-muted-foreground hover:text-white">
           <ArrowLeft className="h-4 w-4" />
         </Link>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">Apply for Leave</h1>
-          <p className="text-slate-300">Submit a time-off request for approval.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Apply for Leave</h1>
+          <p className="text-muted-foreground">Submit a time-off request for approval.</p>
         </div>
       </div>
 
@@ -329,9 +329,9 @@ export default function ApplyLeavePage() {
 
         {/* Balance strip */}
         {isLoadingBalance ? (
-          <div className="mb-6 bg-white/5 border border-white/10 rounded-2xl p-8 flex items-center justify-center gap-3">
+          <div className="mb-6 bg-white/5 border border-border rounded-2xl p-8 flex items-center justify-center gap-3">
             <Loader2 className="h-6 w-6 animate-spin text-amber-400" />
-            <p className="text-slate-300 font-medium">Loading leave balance...</p>
+            <p className="text-muted-foreground font-medium">Loading leave balance...</p>
           </div>
         ) : leaveMetrics && (() => {
           const typeName = selectedType?.name?.toLowerCase() || "";
@@ -340,43 +340,43 @@ export default function ApplyLeavePage() {
           const afterCL = impact?.balance?.after_casual ?? leaveMetrics.casual_leave_balance;
           const afterSL = impact?.balance?.after_sick   ?? leaveMetrics.sick_leave_balance;
           return (
-            <div className="mb-6 grid grid-cols-3 gap-3 bg-white/5 border border-white/10 rounded-2xl p-4">
+            <div className="mb-6 grid grid-cols-3 gap-3 bg-white/5 border border-border rounded-2xl p-4">
               <div className={`text-center rounded-xl p-2 transition-all ${isCasualSelected ? "bg-emerald-500/10 ring-1 ring-emerald-500/40" : ""}`}>
-                <p className="text-xs text-slate-400 uppercase tracking-wider">Casual Leave</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wider">Casual Leave</p>
                 <p className="text-2xl font-black text-emerald-400">{Math.max(0, leaveMetrics.casual_leave_balance) + Math.max(0, leaveMetrics.cl_carry_forward || 0)}</p>
                 {Math.max(0, leaveMetrics.cl_carry_forward || 0) > 0 && (
                   <p className="text-xs text-slate-500 mt-0.5">{Math.max(0, leaveMetrics.cl_carry_forward)} carry-fwd</p>
                 )}
                 {isCasualSelected && impact?.balance && (
-                  <p className="text-xs text-slate-400 mt-0.5">→ <span className="text-emerald-300 font-bold">{Math.max(0, afterCL)}</span> after</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">→ <span className="text-emerald-300 font-bold">{Math.max(0, afterCL)}</span> after</p>
                 )}
               </div>
-              <div className={`text-center border-l border-white/10 rounded-xl p-2 transition-all ${isSickSelected ? "bg-rose-500/10 ring-1 ring-rose-500/40" : ""}`}>
-                <p className="text-xs text-slate-400 uppercase tracking-wider">Sick Leave</p>
+              <div className={`text-center border-l border-border rounded-xl p-2 transition-all ${isSickSelected ? "bg-rose-500/10 ring-1 ring-rose-500/40" : ""}`}>
+                <p className="text-xs text-muted-foreground uppercase tracking-wider">Sick Leave</p>
                 <p className="text-2xl font-black text-rose-400">{Math.max(0, leaveMetrics.sick_leave_balance)}</p>
                 {isSickSelected && impact?.balance && (
-                  <p className="text-xs text-slate-400 mt-0.5">→ <span className="text-rose-300 font-bold">{Math.max(0, afterSL)}</span> after</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">→ <span className="text-rose-300 font-bold">{Math.max(0, afterSL)}</span> after</p>
                 )}
               </div>
-              <div className="text-center border-l border-white/10 p-2">
-                <p className="text-xs text-slate-400 uppercase tracking-wider">Total Taken</p>
+              <div className="text-center border-l border-border p-2">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Taken</p>
                 <p className="text-2xl font-black text-indigo-400">{Math.max(0, leaveMetrics.total_leaves_taken)}</p>
               </div>
             </div>
           );
         })()}
 
-        <div className="bg-slate-800/80 border border-white/10 rounded-2xl">
+        <div className="bg-card/80 border border-border rounded-2xl">
           <div className="px-6 pt-6 pb-2">
-            <h2 className="text-xl font-semibold text-white">Leave Application Form</h2>
-            <p className="text-slate-400 text-sm mt-1">Your request will be sent for approval.</p>
+            <h2 className="text-xl font-semibold text-foreground">Leave Application Form</h2>
+            <p className="text-muted-foreground text-sm mt-1">Your request will be sent for approval.</p>
           </div>
           <form onSubmit={handleSubmit} className="px-6 pb-6 space-y-5 mt-4">
 
             <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Leave Type *</label>
+              <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Leave Type *</label>
               <select value={leaveTypeId} onChange={e => handleLeaveTypeChange(e.target.value)} required className={inputCls}>
-                <option value="" disabled className="bg-slate-700 text-slate-400">Select leave type...</option>
+                <option value="" disabled className="bg-slate-700 text-muted-foreground">Select leave type...</option>
                 {leaveTypes.map(t => (
                   <option key={t.id} value={t.id.toString()} className="bg-slate-700 text-white">{t.name}</option>
                 ))}
@@ -385,7 +385,7 @@ export default function ApplyLeavePage() {
 
             {showDurationSelector && (
               <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Duration (Half Day) *</label>
+                <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Duration (Half Day) *</label>
                 <select value={durationType} onChange={e => setDurationType(e.target.value)} required className={inputCls}>
                   <option value="Half-Morning">Morning Half</option>
                   <option value="Half-Afternoon">Afternoon Half</option>
@@ -396,16 +396,16 @@ export default function ApplyLeavePage() {
             {/* Custom Popover Date Pickers (resolves native calendar limitation & disables applied dates) */}
             <div className={isHalfDayType ? "" : "grid grid-cols-2 gap-4"}>
               <div className="relative">
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Start Date *</label>
+                <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Start Date *</label>
                 <button
                   type="button"
                   onClick={() => { setShowStartCalendar(!showStartCalendar); setShowEndCalendar(false); }}
                   className={`${inputCls} flex items-center justify-between text-left cursor-pointer`}
                 >
-                  <span className={startDate ? "text-white" : "text-slate-400"}>
+                  <span className={startDate ? "text-white" : "text-muted-foreground"}>
                     {startDate ? format(new Date(startDate), "dd MMM yyyy") : "Choose date..."}
                   </span>
-                  <CalendarIcon className="w-4 h-4 text-slate-400" />
+                  <CalendarIcon className="w-4 h-4 text-muted-foreground" />
                 </button>
                 {showStartCalendar && (
                   <>
@@ -426,17 +426,17 @@ export default function ApplyLeavePage() {
               </div>
               {!isHalfDayType && (
                 <div className="relative">
-                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">End Date *</label>
+                  <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">End Date *</label>
                   <button
                     type="button"
                     disabled={!startDate}
                     onClick={() => { setShowEndCalendar(!showEndCalendar); setShowStartCalendar(false); }}
                     className={`${inputCls} flex items-center justify-between text-left disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer`}
                   >
-                    <span className={endDate ? "text-white" : "text-slate-400"}>
+                    <span className={endDate ? "text-white" : "text-muted-foreground"}>
                       {endDate ? format(new Date(endDate), "dd MMM yyyy") : "Choose date..."}
                     </span>
-                    <CalendarIcon className="w-4 h-4 text-slate-400" />
+                    <CalendarIcon className="w-4 h-4 text-muted-foreground" />
                   </button>
                   {showEndCalendar && (
                     <>
@@ -460,12 +460,12 @@ export default function ApplyLeavePage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Reason *</label>
+              <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Reason *</label>
               <textarea rows={4} value={reason} onChange={e => setReason(e.target.value)} required placeholder="Please provide a detailed reason..." className={`${inputCls} resize-none`} />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center gap-2">
+              <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-2">
                 <Link2 className="w-3.5 h-3.5" /> Supporting Attachment Link <span className="text-slate-500 normal-case font-normal">(optional)</span>
               </label>
               <input type="url" value={attachmentLink} onChange={e => setAttachmentLink(e.target.value)} placeholder="Paste a Google Drive, OneDrive, Dropbox, or any document URL..." className={inputCls} />
@@ -475,7 +475,7 @@ export default function ApplyLeavePage() {
             {/* ── Leave Summary ── */}
             <div className="space-y-5">
               {isCalculating && (
-                <div className="flex items-center gap-2 text-sm text-slate-400 py-2">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
                   <Loader2 className="w-4 h-4 animate-spin" /> Calculating leave impact...
                 </div>
               )}
@@ -487,7 +487,7 @@ export default function ApplyLeavePage() {
                   <p className="text-orange-300 font-semibold flex items-center gap-2">
                     <AlertTriangle className="w-4 h-4" /> Probation Period Notice
                   </p>
-                  <p className="text-sm text-slate-300 mt-1">{impact.unpaid_reason}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{impact.unpaid_reason}</p>
                 </div>
               )}
 
@@ -496,14 +496,14 @@ export default function ApplyLeavePage() {
                   <AlertTriangle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
                   <div>
                     <p className="text-rose-300 font-semibold">Overlapping Leave Request</p>
-                    <p className="text-sm text-slate-300 mt-1">{overlapError}</p>
+                    <p className="text-sm text-muted-foreground mt-1">{overlapError}</p>
                   </div>
                 </div>
               )}
 
               {/* Pure CSS sticky action bar at bottom on mobile, inline on desktop */}
-              <div className="sticky bottom-0 left-0 right-0 -mx-6 -mb-6 p-4 bg-slate-900/95 backdrop-blur-md border-t border-white/10 z-40 flex justify-end gap-4 md:relative md:bottom-auto md:left-auto md:right-auto md:mx-0 md:mb-0 md:p-0 md:bg-transparent md:backdrop-blur-none md:border-none md:z-auto md:pt-5">
-                <button type="button" onClick={() => router.push("/leaves")} className="px-5 py-2 rounded-xl text-sm font-medium text-slate-300 border border-white/10 bg-white/5 hover:bg-white/10 transition-colors">
+              <div className="sticky bottom-0 left-0 right-0 -mx-6 -mb-6 p-4 bg-background/95 backdrop-blur-md border-t border-border z-40 flex justify-end gap-4 md:relative md:bottom-auto md:left-auto md:right-auto md:mx-0 md:mb-0 md:p-0 md:bg-transparent md:backdrop-blur-none md:border-none md:z-auto md:pt-5">
+                <button type="button" onClick={() => router.push("/leaves")} className="px-5 py-2 rounded-xl text-sm font-medium text-muted-foreground border border-border bg-white/5 hover:bg-white/10 transition-colors">
                   Cancel
                 </button>
                 <button type="submit" disabled={isLoading || !leaveTypeId || !startDate || !endDate || !reason.trim() || !!overlapError} className="px-5 py-2 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-600 text-white disabled:opacity-50 transition-colors">
@@ -519,22 +519,22 @@ export default function ApplyLeavePage() {
       {showConfirm && impact && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowConfirm(false)} />
-          <div className="relative w-full max-w-lg bg-slate-800 border border-white/10 rounded-2xl shadow-2xl z-10 max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-5 border-b border-white/10">
-              <h2 className="text-lg font-bold text-white">Confirm Leave Request</h2>
-              <p className="text-slate-400 text-sm mt-0.5">Review your leave calculation before submitting.</p>
+          <div className="relative w-full max-w-lg bg-card border border-border rounded-2xl shadow-2xl z-10 max-h-[90vh] overflow-y-auto">
+            <div className="px-6 py-5 border-b border-border">
+              <h2 className="text-lg font-bold text-foreground">Confirm Leave Request</h2>
+              <p className="text-muted-foreground text-sm mt-0.5">Review your leave calculation before submitting.</p>
             </div>
             <div className="px-6 py-5">
               <LeaveSummaryCard impact={impact} compact />
-              <div className="mt-4 pt-4 border-t border-white/10">
-                <p className="text-xs text-slate-400 mb-2">Leave Type: <span className="text-white">{selectedType?.name}</span> &nbsp;·&nbsp; {startDate} → {endDate}</p>
+              <div className="mt-4 pt-4 border-t border-border">
+                <p className="text-xs text-muted-foreground mb-2">Leave Type: <span className="text-foreground">{selectedType?.name}</span> &nbsp;·&nbsp; {startDate} → {endDate}</p>
                 {attachmentLink && (
-                  <p className="text-xs text-slate-400">Attachment: <a href={attachmentLink} target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">{attachmentLink}</a></p>
+                  <p className="text-xs text-muted-foreground">Attachment: <a href={attachmentLink} target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">{attachmentLink}</a></p>
                 )}
               </div>
             </div>
-            <div className="px-6 py-4 border-t border-white/10 flex gap-3 justify-end">
-              <button onClick={() => setShowConfirm(false)} className="px-4 py-2 text-sm text-slate-300 border border-white/10 rounded-xl hover:bg-white/5 transition-colors">
+            <div className="px-6 py-4 border-t border-border flex gap-3 justify-end">
+              <button onClick={() => setShowConfirm(false)} className="px-4 py-2 text-sm text-muted-foreground border border-border rounded-xl hover:bg-white/5 transition-colors">
                 Cancel
               </button>
               <button onClick={confirmSubmit} disabled={isLoading} className="flex items-center gap-2 px-5 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-xl transition-colors disabled:opacity-50">
@@ -564,28 +564,28 @@ export default function ApplyLeavePage() {
 
               {/* Success Message */}
               <div className="space-y-2">
-                <h2 className="text-2xl font-bold text-white">Leave Applied Successfully!</h2>
-                <p className="text-slate-300 text-sm">Your leave request has been submitted for approval.</p>
+                <h2 className="text-2xl font-bold text-foreground">Leave Applied Successfully!</h2>
+                <p className="text-muted-foreground text-sm">Your leave request has been submitted for approval.</p>
               </div>
 
               {/* Details */}
-              <div className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-2 text-left mt-6">
+              <div className="bg-white/5 border border-border rounded-xl p-4 space-y-2 text-left mt-6">
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-slate-400">Leave Type:</span>
-                  <span className="text-white font-semibold">{selectedType?.name}</span>
+                  <span className="text-muted-foreground">Leave Type:</span>
+                  <span className="text-foreground font-semibold">{selectedType?.name}</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-slate-400">Date Range:</span>
-                  <span className="text-white font-semibold">{startDate} to {endDate}</span>
+                  <span className="text-muted-foreground">Date Range:</span>
+                  <span className="text-foreground font-semibold">{startDate} to {endDate}</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-slate-400">Status:</span>
+                  <span className="text-muted-foreground">Status:</span>
                   <span className="text-amber-300 font-semibold">Pending Approval</span>
                 </div>
               </div>
 
               {/* Info message */}
-              <p className="text-xs text-slate-400 bg-blue-500/10 border border-blue-500/20 rounded-lg px-3 py-2 mt-6">
+              <p className="text-xs text-muted-foreground bg-blue-500/10 border border-blue-500/20 rounded-lg px-3 py-2 mt-6">
                 📧 You'll receive an email notification once your request is reviewed by your Team Lead or Super Admin.
               </p>
 
@@ -621,18 +621,18 @@ function LeaveSummaryCard({ impact, compact = false }: { impact: any; compact?: 
   if (impact.error) {
     return (
       <div className="rounded-xl border border-red-500/30 bg-red-500/5 p-4 space-y-2">
-        <h4 className="font-bold text-white text-sm flex items-center gap-2">
+        <h4 className="font-bold text-foreground text-sm flex items-center gap-2">
           <AlertTriangle className="w-4 h-4 text-red-400" /> Unable to Calculate Leave
         </h4>
         <p className="text-sm text-red-300">{impact.error}</p>
-        <p className="text-xs text-slate-400">Please select a different date range.</p>
+        <p className="text-xs text-muted-foreground">Please select a different date range.</p>
       </div>
     );
   }
 
   return (
     <div className={`rounded-xl border p-4 space-y-3 ${borderCls}`}>
-      <h4 className="font-bold text-white text-sm flex items-center gap-2">
+      <h4 className="font-bold text-foreground text-sm flex items-center gap-2">
         <AlertTriangle className="w-4 h-4 text-amber-400" /> Leave Summary
       </h4>
 
@@ -644,7 +644,7 @@ function LeaveSummaryCard({ impact, compact = false }: { impact: any; compact?: 
         <SummaryRow label="Total Leave Days" value={impact.actual_leave_days} bold />
       </div>
 
-      <div className="border-t border-white/10 pt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+      <div className="border-t border-border pt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
         {impact.paid_casual_leave > 0 && (
           <SummaryRow label="Paid Casual Leave" value={`${impact.paid_casual_leave} Days`} color="text-emerald-400" />
         )}
@@ -674,22 +674,22 @@ function LeaveSummaryCard({ impact, compact = false }: { impact: any; compact?: 
           {impact.reasons && impact.reasons.length > 0 ? (
             <ul className="space-y-1">
               {impact.reasons.map((r: string, i: number) => (
-                <li key={i} className="text-xs text-slate-300 flex items-start gap-2">
+                <li key={i} className="text-xs text-muted-foreground flex items-start gap-2">
                   <span className="text-red-400 mt-0.5 shrink-0">•</span> {r}
                 </li>
               ))}
             </ul>
           ) : impact.unpaid_reason ? (
-            <p className="text-xs text-slate-300">{impact.unpaid_reason}</p>
+            <p className="text-xs text-muted-foreground">{impact.unpaid_reason}</p>
           ) : (
-            <p className="text-xs text-slate-300">This leave type does not have a paid balance. All days will be deducted as Loss of Pay.</p>
+            <p className="text-xs text-muted-foreground">This leave type does not have a paid balance. All days will be deducted as Loss of Pay.</p>
           )}
         </div>
       )}
 
       {/* Status */}
-      <div className="border-t border-white/10 pt-3">
-        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Status</p>
+      <div className="border-t border-border pt-3">
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Status</p>
         <p className={`font-bold text-sm ${impact.is_unpaid ? "text-red-400" : impact.is_partial ? "text-amber-400" : "text-emerald-400"}`}>
           {impact.status_text || (impact.is_unpaid ? "Unpaid Leave (LOP)" : impact.is_partial ? "Partially Paid + LOP" : "Paid Leave")}
         </p>
@@ -697,13 +697,13 @@ function LeaveSummaryCard({ impact, compact = false }: { impact: any; compact?: 
 
       {/* Balance after */}
       {impact.balance && (
-        <div className="border-t border-white/10 pt-3">
-          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Balance After Approval</p>
+        <div className="border-t border-border pt-3">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Balance After Approval</p>
           <div className="grid grid-cols-2 gap-2 text-xs">
-            <span className="text-slate-400">Remaining Casual Leave:</span>
-            <span className="text-white font-bold">{impact.balance.after_casual} Days</span>
-            <span className="text-slate-400">Remaining Sick Leave:</span>
-            <span className="text-white font-bold">{impact.balance.after_sick} Days</span>
+            <span className="text-muted-foreground">Remaining Casual Leave:</span>
+            <span className="text-foreground font-bold">{impact.balance.after_casual} Days</span>
+            <span className="text-muted-foreground">Remaining Sick Leave:</span>
+            <span className="text-foreground font-bold">{impact.balance.after_sick} Days</span>
           </div>
         </div>
       )}
@@ -714,7 +714,7 @@ function LeaveSummaryCard({ impact, compact = false }: { impact: any; compact?: 
 function SummaryRow({ label, value, sub, color, bold }: { label: string; value: any; sub?: string; color?: string; bold?: boolean }) {
   return (
     <>
-      <span className="text-slate-400">{label}{sub && <span className="text-slate-500 text-xs"> {sub}</span>}:</span>
+      <span className="text-muted-foreground">{label}{sub && <span className="text-slate-500 text-xs"> {sub}</span>}:</span>
       <span className={`font-semibold ${color || "text-white"} ${bold ? "font-black" : ""}`}>{value}</span>
     </>
   );
