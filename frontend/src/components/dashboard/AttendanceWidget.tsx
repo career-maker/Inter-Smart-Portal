@@ -132,8 +132,6 @@ export function AttendanceWidget({ initialData }: { initialData?: any }) {
       <div className="absolute -bottom-10 -left-10 w-6 h-6 rounded-full scale-0 group-hover:scale-[50] transition-transform duration-700 ease-out bg-cyan-50 z-0 dark:hidden pointer-events-none" />
       <div className="absolute -top-16 -right-16 w-40 h-40 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none z-0" />
       
-      <div className="relative z-10">
-
       <div className="flex items-center justify-between mb-5 relative z-10">
         <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
           <Clock className="w-5 h-5 text-cyan-400" />
