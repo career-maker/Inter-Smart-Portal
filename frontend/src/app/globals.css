@@ -49,38 +49,38 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --background: #F8FAFC;
+  --foreground: #1E293B;
+  --card: #FFFFFF;
+  --card-foreground: #1E293B;
+  --popover: #FFFFFF;
+  --popover-foreground: #1E293B;
+  --primary: #0F172A;
+  --primary-foreground: #F8FAFC;
+  --secondary: #F1F5F9;
+  --secondary-foreground: #0F172A;
+  --muted: #E2E8F0;
+  --muted-foreground: #64748B;
+  --accent: #3B82F6;
+  --accent-foreground: #FFFFFF;
+  --destructive: #EF4444;
+  --border: #E5E7EB;
+  --input: #F1F5F9;
+  --ring: #94A3B8;
+  --chart-1: #3B82F6;
+  --chart-2: #8B5CF6;
+  --chart-3: #EC4899;
+  --chart-4: #F59E0B;
+  --chart-5: #10B981;
+  --radius: 20px;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #1E293B;
+  --sidebar-primary: #0F172A;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #F1F5F9;
+  --sidebar-accent-foreground: #0F172A;
+  --sidebar-border: #E5E7EB;
+  --sidebar-ring: #94A3B8;
 }
 
 .dark {
@@ -123,12 +123,28 @@
   }
   body {
     @apply bg-background text-foreground;
-    background-color: var(--bg-primary, oklch(1 0 0));
-    color: var(--text-primary, oklch(0.145 0 0));
+    background-color: #F8FAFC;
+    color: #1E293B;
     transition: background-color 0.3s ease, color 0.3s ease;
   }
   html {
     @apply font-sans;
+  }
+}
+
+/* Light Mode Typography Hierarchy */
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    color: #0F172A;
+    font-weight: 600;
+  }
+
+  p, span, a {
+    color: #1E293B;
+  }
+
+  small, .text-muted-foreground {
+    color: #64748B;
   }
 }
 
@@ -194,27 +210,38 @@ body {
 }
 
 @layer components {
+  /* ────────────────────────────────────────────────────────
+     LIGHT MODE DESIGN SYSTEM
+     ────────────────────────────────────────────────────────
+     Inspired by premium SaaS products: Stripe, Linear, Notion,
+     Vercel, Framer, and Atlassian.
+
+     Design Tokens:
+     - Background: #F8FAFC (light slate)
+     - Cards: #FFFFFF (pure white)
+     - Border: 1px solid #E5E7EB (light gray)
+     - Border Radius: 20px
+     - Padding: 24px (6 spacing units)
+     - Shadow: 0 6px 20px rgba(15,23,42,.05) (subtle)
+     - Hover: translateY(-3px) + stronger shadow
+     - Transition: 250ms cubic-bezier(0.4, 0, 0.2, 1)
+
+     All Light Mode styles use `:not(.dark)` selector to ensure
+     Dark Mode remains completely untouched.
+     ──────────────────────────────────────────────────────── */
+
   .premium-card {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    box-shadow:
-      0 2px 8px rgba(0, 0, 0, 0.08),
-      0 8px 24px rgba(0, 0, 0, 0.12),
-      inset 0 1px 0 rgba(255, 255, 255, 0.8);
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    border-radius: 24px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 20px;
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.05);
+    transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .premium-card:hover {
-    background: rgba(255, 255, 255, 0.92);
-    transform: translateY(-2px);
-    box-shadow:
-      0 4px 12px rgba(0, 0, 0, 0.10),
-      0 12px 32px rgba(0, 0, 0, 0.16),
-      inset 0 1px 0 rgba(255, 255, 255, 0.9);
-    border-color: rgba(0, 0, 0, 0.10);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(15, 23, 42, 0.12);
+    border-color: #D1D5DB;
   }
 
   /* Universal wave fill hover effect for light mode cards */
@@ -270,8 +297,134 @@ body {
     border-radius: 50%;
   }
 
-  /* ── Service Duration Pill: glassmorphism + soft breathing border ── */
-  .neon-pill-wrapper {
+  /* ──── Light Mode UI Elements ──── */
+
+  /* Light Mode Button Styles */
+  :not(.dark) button,
+  :not(.dark) [role="button"] {
+    border-color: #E5E7EB;
+    transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  :not(.dark) button:hover,
+  :not(.dark) [role="button"]:hover {
+    border-color: #D1D5DB;
+    background-color: #F8FAFC;
+  }
+
+  /* Light Mode Input Styles */
+  :not(.dark) input,
+  :not(.dark) textarea,
+  :not(.dark) select {
+    border-color: #E5E7EB;
+    background-color: #FFFFFF;
+    color: #1E293B;
+    transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  :not(.dark) input:focus,
+  :not(.dark) textarea:focus,
+  :not(.dark) select:focus {
+    border-color: #3B82F6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    outline: none;
+  }
+
+  /* Light Mode Table Styles */
+  :not(.dark) table {
+    border-collapse: collapse;
+  }
+
+  :not(.dark) th {
+    background-color: #F8FAFC;
+    color: #0F172A;
+    font-weight: 600;
+    border-bottom: 1px solid #E5E7EB;
+    padding: 12px 16px;
+    text-align: left;
+  }
+
+  :not(.dark) td {
+    border-bottom: 1px solid #E5E7EB;
+    padding: 12px 16px;
+    color: #1E293B;
+  }
+
+  :not(.dark) tbody tr:hover {
+    background-color: #F8FAFC;
+  }
+
+  /* Light Mode Link Styles */
+  :not(.dark) a {
+    color: #3B82F6;
+    text-decoration: none;
+    transition: color 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  :not(.dark) a:hover {
+    color: #2563EB;
+    text-decoration: underline;
+  }
+
+  /* Light Mode Badge/Badge Styles */
+  :not(.dark) [data-badge],
+  :not(.dark) .badge {
+    background-color: #F1F5F9;
+    color: #0F172A;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  /* Light Mode Divider */
+  :not(.dark) hr,
+  :not(.dark) [role="separator"] {
+    border-color: #E5E7EB;
+    background-color: #E5E7EB;
+  }
+
+  /* Light Mode Modal/Dialog Backdrop */
+  :not(.dark) [role="dialog"],
+  :not(.dark) .dialog-overlay {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+
+  /* Light Mode Modal/Dialog Content */
+  :not(.dark) [role="dialog"] > div,
+  :not(.dark) .dialog-content {
+    background-color: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(15, 23, 42, 0.1);
+  }
+
+  /* ── Light Mode Service Duration Pill ── */
+  :not(.dark) .neon-pill-wrapper {
+    border-radius: 9999px;
+    border: 1px solid #E5E7EB;
+    background: #F8FAFC;
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.05);
+    animation: pill-breathe-light 3.5s ease-in-out infinite;
+    transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  :not(.dark) .neon-pill-wrapper:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(15, 23, 42, 0.12);
+    border-color: #D1D5DB;
+    animation-play-state: paused;
+  }
+
+  :not(.dark) .neon-pill-inner {
+    border-radius: 9999px;
+    background: transparent;
+    color: #0F172A;
+  }
+
+  /* ── Dark Mode Service Duration Pill (Unchanged) ── */
+  .dark .neon-pill-wrapper {
     border-radius: 9999px;
     border: 1px solid rgba(255, 255, 255, 0.50);
     background: rgba(255, 255, 255, 0.38);
@@ -284,7 +437,7 @@ body {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
 
-  .neon-pill-wrapper:hover {
+  .dark .neon-pill-wrapper:hover {
     transform: scale(1.01);
     box-shadow:
       0 10px 40px rgba(0, 0, 0, 0.20),
@@ -292,7 +445,7 @@ body {
     animation-play-state: paused;
   }
 
-  .neon-pill-inner {
+  .dark .neon-pill-inner {
     border-radius: 9999px;
     background: transparent;
   }
@@ -321,6 +474,17 @@ body {
         0 0 18px rgba(255, 255, 255, 0.18),
         0 0 0 1px rgba(255, 255, 255, 0.30) inset;
       border-color: rgba(255, 255, 255, 0.65);
+    }
+  }
+
+  @keyframes pill-breathe-light {
+    0%, 100% {
+      box-shadow: 0 6px 20px rgba(15, 23, 42, 0.05);
+      border-color: #E5E7EB;
+    }
+    50% {
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.10);
+      border-color: #D1D5DB;
     }
   }
 
@@ -422,6 +586,15 @@ body {
     }
   }
 
+  @keyframes breadcrumb-hover-light {
+    0% {
+      background-color: transparent;
+    }
+    100% {
+      background-color: #F1F5F9;
+    }
+  }
+
   .pulse-dot {
     animation: pulse-dot 2s infinite;
   }
@@ -430,13 +603,27 @@ body {
     animation: countUp 0.5s ease-out;
   }
 
-  .breadcrumb-item {
+  /* Light Mode Breadcrumb */
+  :not(.dark) .breadcrumb-item {
+    transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 8px;
+    padding: 6px 12px;
+    color: #1E293B;
+  }
+
+  :not(.dark) .breadcrumb-item:hover {
+    background-color: #F1F5F9;
+    transform: translateY(-1px);
+  }
+
+  /* Dark Mode Breadcrumb (Unchanged) */
+  .dark .breadcrumb-item {
     transition: all 0.3s ease;
     border-radius: 0.5rem;
     padding: 0.25rem 0.5rem;
   }
 
-  .breadcrumb-item:hover {
+  .dark .breadcrumb-item:hover {
     background-color: rgba(255, 255, 255, 0.1);
     transform: translateY(-1px);
   }
@@ -451,7 +638,18 @@ body {
     }
   }
 
-  .float-button {
+  /* Light Mode Float Button */
+  :not(.dark) .float-button {
+    animation: float 3s ease-in-out infinite;
+    box-shadow: 0 12px 40px rgba(15, 23, 42, 0.15);
+  }
+
+  :not(.dark) .float-button:hover {
+    box-shadow: 0 16px 50px rgba(15, 23, 42, 0.25);
+  }
+
+  /* Dark Mode Float Button (Unchanged) */
+  .dark .float-button {
     animation: float 3s ease-in-out infinite;
   }
 
@@ -465,7 +663,14 @@ body {
     }
   }
 
-  .health-indicator {
+  /* Light Mode Health Indicator */
+  :not(.dark) .health-indicator {
+    animation: pulse-health 2s ease-in-out infinite;
+    background-color: #10B981;
+  }
+
+  /* Dark Mode Health Indicator (Unchanged) */
+  .dark .health-indicator {
     animation: pulse-health 2s ease-in-out infinite;
   }
 
@@ -481,7 +686,18 @@ body {
     }
   }
 
-  .trend-arrow {
+  /* Light Mode Trend Arrow */
+  :not(.dark) .trend-arrow {
+    animation: trend-up 0.6s ease-out;
+    color: #10B981;
+  }
+
+  :not(.dark) .trend-arrow.down {
+    color: #EF4444;
+  }
+
+  /* Dark Mode Trend Arrow (Unchanged) */
+  .dark .trend-arrow {
     animation: trend-up 0.6s ease-out;
   }
 
@@ -495,8 +711,59 @@ body {
     }
   }
 
-  .progress-bar-animated {
+  /* Light Mode Progress Bar */
+  :not(.dark) .progress-bar-animated {
     animation: progress-fill 1s ease-out;
+    background: linear-gradient(90deg, #3B82F6, #2563EB);
+  }
+
+  :not(.dark) [role="progressbar"],
+  :not(.dark) .progress {
+    background-color: #E5E7EB;
+    border-radius: 12px;
+    height: 8px;
+    overflow: hidden;
+  }
+
+  :not(.dark) [role="progressbar"] > div,
+  :not(.dark) .progress > div {
+    background: linear-gradient(90deg, #3B82F6, #2563EB);
+    height: 100%;
+    border-radius: 12px;
+  }
+
+  /* Dark Mode Progress Bar (Unchanged) */
+  .dark .progress-bar-animated {
+    animation: progress-fill 1s ease-out;
+  }
+
+  /* Light Mode Status Badge Styles */
+  :not(.dark) [data-status="pending"],
+  :not(.dark) .badge-pending {
+    background-color: #FEF3C7;
+    color: #92400E;
+    border-color: #FCD34D;
+  }
+
+  :not(.dark) [data-status="approved"],
+  :not(.dark) .badge-approved {
+    background-color: #D1FAE5;
+    color: #065F46;
+    border-color: #6EE7B7;
+  }
+
+  :not(.dark) [data-status="rejected"],
+  :not(.dark) .badge-rejected {
+    background-color: #FEE2E2;
+    color: #7F1D1D;
+    border-color: #FCA5A5;
+  }
+
+  :not(.dark) [data-status="active"],
+  :not(.dark) .badge-active {
+    background-color: #DBEAFE;
+    color: #0C2D6B;
+    border-color: #93C5FD;
   }
 
   /* ── Animated Stars Background ── */
