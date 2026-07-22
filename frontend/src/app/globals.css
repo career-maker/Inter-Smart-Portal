@@ -363,7 +363,6 @@ body {
 
   :not(.dark) a:hover {
     color: #2563EB;
-    text-decoration: underline;
   }
 
   /* Light Mode Badge/Badge Styles */
