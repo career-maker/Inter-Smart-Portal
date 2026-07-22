@@ -708,6 +708,43 @@ body {
     border-bottom: none;
   }
 
+  /* Dark Mode Table Styles */
+  .dark table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  .dark th {
+    background-color: transparent;
+    color: #F1F5F9;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1.5px solid rgba(255, 255, 255, 0.1);
+    padding: 12px 0;
+    text-align: left;
+  }
+
+  .dark td {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 12px 0;
+    color: #E2E8F0;
+    font-size: 0.9375rem;
+  }
+
+  .dark tbody tr {
+    transition: background-color 200ms ease;
+  }
+
+  .dark tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.02);
+  }
+
+  .dark tbody tr:last-child td {
+    border-bottom: none;
+  }
+
   /* Light Mode Link Styles */
   :not(.dark) a {
     color: #3B82F6;
