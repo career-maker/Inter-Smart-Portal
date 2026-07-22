@@ -320,7 +320,7 @@ export default function DashboardPage() {
                 <Megaphone className="w-5 h-5 text-blue-600" />
                 <h3 className="font-bold text-slate-900">Latest Updates</h3>
               </div>
-              {widgets.company_updates.length > 0 ? (
+              {widgets?.company_updates && Array.isArray(widgets.company_updates) && widgets.company_updates.length > 0 ? (
                 <div className="space-y-3 max-h-48 overflow-y-auto">
                   {widgets.company_updates.slice(0, 3).map((update: any, idx: number) => (
                     <div key={idx} className="pb-3 border-b border-slate-200 last:border-0">
@@ -340,7 +340,7 @@ export default function DashboardPage() {
                 <Gift className="w-5 h-5 text-pink-600" />
                 <h3 className="font-bold text-slate-900">Birthdays</h3>
               </div>
-              {widgets.upcoming_birthdays && widgets.upcoming_birthdays.length > 0 ? (
+              {widgets?.upcoming_birthdays && Array.isArray(widgets.upcoming_birthdays) && widgets.upcoming_birthdays.length > 0 ? (
                 <div className="space-y-3 max-h-48 overflow-y-auto">
                   {widgets.upcoming_birthdays.slice(0, 3).map((birthday: any, idx: number) => (
                     <div key={idx} className="pb-3 border-b border-slate-200 last:border-0">
@@ -425,7 +425,7 @@ export default function DashboardPage() {
           </div>
 
           {/* 6. LEAVE BALANCE */}
-          {leave_metrics && (
+          {leave_metrics && Array.isArray(leave_metrics) && leave_metrics.length > 0 && (
             <div>
               <h3 className="font-bold text-slate-900 mb-4">Leave Balance</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
