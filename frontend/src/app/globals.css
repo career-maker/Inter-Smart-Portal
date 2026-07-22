@@ -132,7 +132,7 @@
   }
 }
 
-/* Light Mode Typography Hierarchy */
+/* Typography Hierarchy - Light & Dark Mode */
 @layer base {
   h1 {
     color: #0F172A;
@@ -140,6 +140,10 @@
     font-size: 2rem;
     line-height: 1.2;
     letter-spacing: -0.02em;
+  }
+
+  .dark h1 {
+    color: #F8FAFC;
   }
 
   h2 {
@@ -150,11 +154,19 @@
     letter-spacing: -0.01em;
   }
 
+  .dark h2 {
+    color: #F1F5F9;
+  }
+
   h3 {
     color: #0F172A;
     font-weight: 600;
     font-size: 1.25rem;
     line-height: 1.4;
+  }
+
+  .dark h3 {
+    color: #F1F5F9;
   }
 
   h4 {
@@ -164,11 +176,20 @@
     line-height: 1.4;
   }
 
+  .dark h4 {
+    color: #F1F5F9;
+  }
+
   h5, h6 {
     color: #0F172A;
     font-weight: 600;
     font-size: 1rem;
     line-height: 1.5;
+  }
+
+  .dark h5,
+  .dark h6 {
+    color: #F1F5F9;
   }
 
   p {
@@ -177,17 +198,61 @@
     line-height: 1.6;
   }
 
+  .dark p {
+    color: #E2E8F0;
+  }
+
   span {
     color: #1E293B;
+  }
+
+  .dark span {
+    color: #E2E8F0;
   }
 
   a {
     color: #3B82F6;
   }
 
+  .dark a {
+    color: #60A5FA;
+  }
+
   small, .text-muted-foreground {
     color: #64748B;
     font-weight: 400;
+  }
+
+  .dark small,
+  .dark .text-muted-foreground {
+    color: #94A3B8;
+  }
+}
+
+/* Dark Mode Text Color Visibility Enhancements */
+@layer base {
+  .dark .text-slate-600,
+  .dark .text-slate-700,
+  .dark .text-slate-800,
+  .dark .text-slate-900 {
+    color: #E2E8F0 !important;
+  }
+
+  .dark .text-gray-600,
+  .dark .text-gray-700,
+  .dark .text-gray-800,
+  .dark .text-gray-900 {
+    color: #E2E8F0 !important;
+  }
+
+  .dark .text-slate-500,
+  .dark .text-gray-500 {
+    color: #CBD5E1 !important;
+  }
+
+  .dark .text-slate-400,
+  .dark .text-gray-400 {
+    color: #FFFFFF !important;
   }
 }
 
