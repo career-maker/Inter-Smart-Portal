@@ -193,11 +193,11 @@ export default function DashboardPage() {
 
       {/* Employee Dashboard: Upcoming Holidays Banner */}
       {user?.role === "Employee" && data?.widgets?.upcoming_holidays && data.widgets.upcoming_holidays.length > 0 && (
-        <div className="bg-gradient-to-r from-purple-900/30 to-blue-900/30 border border-purple-500/30 rounded-2xl p-4 flex items-start gap-3 animate-slideDown">
-          <CalendarDays className="w-5 h-5 text-purple-400 flex-shrink-0 mt-0.5" />
+        <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/30 dark:to-blue-900/30 border border-purple-200 dark:border-purple-500/30 rounded-2xl p-4 flex items-start gap-3 animate-slideDown">
+          <CalendarDays className="w-5 h-5 text-purple-600 dark:text-purple-400 flex-shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-semibold text-purple-300">Upcoming Holidays</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            <p className="text-sm font-semibold text-purple-900 dark:text-purple-300">Upcoming Holidays</p>
+            <p className="text-xs text-slate-700 dark:text-slate-400 mt-1">
               {data.widgets.upcoming_holidays[0]?.name} on {format(parseISO(data.widgets.upcoming_holidays[0]?.date), "MMM d, yyyy")}
             </p>
           </div>
