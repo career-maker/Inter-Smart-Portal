@@ -204,257 +204,89 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* TEAM LEAD DASHBOARD: Premium Layout */}
+      {/* Team Lead Dashboard: Pending Approvals & Team Status */}
       {user?.role === "Team Lead" && data && (
-        <div className="space-y-6">
-          {/* 1. HERO SECTION: Good Morning */}
-          <div className="hero-section">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div>
-                <p className="hero-greeting">Good {greeting.split(' ')[1]}, {profile.first_name}! 👋</p>
-                <p className="hero-subtitle">Welcome back to your Team Lead dashboard</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-slate-600">
-                  {format(time, "EEEE, d MMMM yyyy")}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* 2. METRICS ROW: Pending Approvals | Team Status | Recognition */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {/* Pending Approvals Card */}
-            <div className="premium-card">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-start gap-3">
-                  <div data-icon-container className="primary">
-                    <Clock className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="kpi-label">Pending Approvals</p>
-                    <p className="text-2xl font-bold text-slate-900 mt-1">{data?.widgets?.pending_approvals?.length ?? 0}</p>
-                  </div>
-                </div>
-                <Link href="/leaves/approvals" className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1">
-                  View <ChevronRight className="w-3 h-3" />
-                </Link>
-              </div>
-              <div className="space-y-2 max-h-40 overflow-y-auto">
-                {data?.widgets?.pending_approvals && data.widgets.pending_approvals.length > 0 ? (
-                  data.widgets.pending_approvals.slice(0, 2).map((approval: any) => (
-                    <div key={approval.id} className="text-xs">
-                      <p className="font-medium text-slate-900">{approval.employee_name}</p>
-                      <p className="text-slate-600">{approval.leave_type} • {approval.days}d</p>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-sm text-slate-500 text-center py-4">No pending approvals 🎉</p>
-                )}
-              </div>
-            </div>
-
-            {/* Team Status Card */}
-            <div className="premium-card">
-              <div className="flex items-start gap-3 mb-4">
-                <div data-icon-container className="success">
-                  <Briefcase className="w-5 h-5 text-green-600" />
+        <div className="space-y-4 mb-6">
+          {/* Pending Approvals Section */}
+          <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-2xl p-6 border border-blue-200 dark:border-blue-500/30">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-blue-100 dark:bg-blue-500/20 rounded-lg flex items-center justify-center border border-blue-200 dark:border-blue-500/30">
+                  <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
-                  <p className="kpi-label">Team Status</p>
-                  <p className="text-2xl font-bold text-slate-900 mt-1">{data?.widgets?.team_members?.length ?? 0}</p>
-                  <p className="text-xs text-slate-600 mt-1">Members</p>
+                  <p className="text-sm font-semibold text-blue-900 dark:text-blue-300">Pending Approvals</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Leave requests awaiting review</p>
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                {(() => {
-                  const present = data?.widgets?.team_members?.filter((m: any) => m.status === 'Present').length ?? 0;
-                  const onLeave = data?.widgets?.team_members?.filter((m: any) => m.status === 'On Leave').length ?? 0;
-                  const wfh = data?.widgets?.team_members?.filter((m: any) => m.status === 'WFH').length ?? 0;
-                  return (
-                    <>
-                      <div className="bg-green-50 p-2 rounded-lg">
-                        <p className="font-bold text-green-600">{present}</p>
-                        <p className="text-slate-600">Present</p>
-                      </div>
-                      <div className="bg-red-50 p-2 rounded-lg">
-                        <p className="font-bold text-red-600">{onLeave}</p>
-                        <p className="text-slate-600">Leave</p>
-                      </div>
-                      <div className="bg-blue-50 p-2 rounded-lg">
-                        <p className="font-bold text-blue-600">{wfh}</p>
-                        <p className="text-slate-600">WFH</p>
-                      </div>
-                    </>
-                  );
-                })()}
-              </div>
-            </div>
-
-            {/* Recognition Card */}
-            <div className="premium-card">
-              <div className="flex items-start gap-3">
-                <div data-icon-container className="warning">
-                  <Trophy className="w-5 h-5 text-amber-600" />
-                </div>
-                <div className="flex-1">
-                  <p className="kpi-label">Team Recognition</p>
-                  <p className="text-2xl font-bold text-slate-900 mt-1">{profile?.active_recognition ? '🏆' : '—'}</p>
-                  <p className="text-xs text-slate-600 mt-1">{profile?.active_recognition ? 'Active' : 'None'}</p>
-                  <Link href="/hall" className="text-xs font-semibold text-amber-600 hover:text-amber-700 mt-2 inline-block">
-                    View Hall
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 3. ATTENDANCE TODAY */}
-          <AttendanceWidget initialData={data.attendance_widget_data} />
-
-          {/* 4. ENGAGEMENT ROW: Latest Updates | Birthdays | Hall of Fame | Holidays */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-            {/* Latest Updates */}
-            <div className="premium-card">
-              <div className="flex items-center gap-2 mb-4">
-                <Megaphone className="w-5 h-5 text-blue-600" />
-                <h3 className="font-bold text-slate-900">Latest Updates</h3>
-              </div>
-              {widgets?.company_updates && Array.isArray(widgets.company_updates) && widgets.company_updates.length > 0 ? (
-                <div className="space-y-3 max-h-48 overflow-y-auto">
-                  {widgets.company_updates.slice(0, 3).map((update: any, idx: number) => (
-                    <div key={idx} className="pb-3 border-b border-slate-200 last:border-0">
-                      <p className="text-sm font-medium text-slate-900">{update.title}</p>
-                      <p className="text-xs text-slate-600 mt-1">{format(parseISO(update.created_at), "MMM d")}</p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-slate-500 text-center py-4">No updates yet</p>
-              )}
-            </div>
-
-            {/* Birthdays */}
-            <div className="premium-card">
-              <div className="flex items-center gap-2 mb-4">
-                <Gift className="w-5 h-5 text-pink-600" />
-                <h3 className="font-bold text-slate-900">Birthdays</h3>
-              </div>
-              {widgets?.upcoming_birthdays && Array.isArray(widgets.upcoming_birthdays) && widgets.upcoming_birthdays.length > 0 ? (
-                <div className="space-y-3 max-h-48 overflow-y-auto">
-                  {widgets.upcoming_birthdays.slice(0, 3).map((birthday: any, idx: number) => (
-                    <div key={idx} className="pb-3 border-b border-slate-200 last:border-0">
-                      <p className="text-sm font-medium text-slate-900">{birthday.name}</p>
-                      <p className="text-xs text-slate-600 mt-1">{format(parseISO(birthday.date), "MMM d")}</p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-slate-500 text-center py-4">No birthdays soon</p>
-              )}
-            </div>
-
-            {/* Hall of Fame */}
-            <div className="premium-card">
-              <div className="flex items-center gap-2 mb-4">
-                <Crown className="w-5 h-5 text-amber-600" />
-                <h3 className="font-bold text-slate-900">Hall of Fame</h3>
-              </div>
-              <Link href="/hall" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                View Recognitions →
+              <Link href="/leaves/approvals" className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1">
+                View All <ChevronRight className="w-3 h-3" />
               </Link>
-              <p className="text-xs text-slate-600 mt-4">Celebrate your team's achievements and milestones.</p>
             </div>
-
-            {/* Holidays */}
-            <div className="premium-card">
-              <div className="flex items-center gap-2 mb-4">
-                <CalendarDays className="w-5 h-5 text-red-600" />
-                <h3 className="font-bold text-slate-900">Holidays</h3>
-              </div>
-              {data?.widgets?.upcoming_holidays && data.widgets.upcoming_holidays.length > 0 ? (
-                <div className="space-y-3 max-h-48 overflow-y-auto">
-                  {data.widgets.upcoming_holidays.slice(0, 3).map((holiday: any, idx: number) => (
-                    <div key={idx} className="pb-3 border-b border-slate-200 last:border-0">
-                      <p className="text-sm font-medium text-slate-900">{holiday.name}</p>
-                      <p className="text-xs text-slate-600 mt-1">{format(parseISO(holiday.date), "MMM d")}</p>
+            {data?.widgets?.pending_approvals && Array.isArray(data.widgets.pending_approvals) && data.widgets.pending_approvals.length > 0 ? (
+              <div className="space-y-2">
+                {data.widgets.pending_approvals.slice(0, 3).map((approval: any) => (
+                  <div key={approval.id} className="bg-white/50 dark:bg-white/5 rounded-lg p-3 flex items-center justify-between hover:bg-white/80 dark:hover:bg-white/10 transition-colors border border-blue-100 dark:border-transparent">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{approval.employee_name}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">{approval.leave_type} • {format(parseISO(approval.start_date), "MMM d")} to {format(parseISO(approval.end_date), "MMM d")}</p>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-slate-500 text-center py-4">No holidays coming</p>
-              )}
-            </div>
+                    <span className="text-xs font-bold bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full shrink-0">{approval.days} d</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-4">No pending approvals 🎉</p>
+            )}
           </div>
 
-          {/* 5. QUICK ACTIONS */}
+          {/* Team Member Status Cards */}
           <div>
-            <h3 className="font-bold text-slate-900 mb-4">Quick Actions</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-              <Link href="/leaves" data-action-card className="premium-card hover:bg-blue-50">
-                <div className="text-center">
-                  <Palmtree className="w-6 h-6 text-blue-600 mx-auto mb-2" />
-                  <p className="text-sm font-semibold text-slate-900">Leaves</p>
-                </div>
-              </Link>
-              <Link href="/attendance" data-action-card className="premium-card hover:bg-green-50">
-                <div className="text-center">
-                  <Activity className="w-6 h-6 text-green-600 mx-auto mb-2" />
-                  <p className="text-sm font-semibold text-slate-900">Attendance</p>
-                </div>
-              </Link>
-              <Link href="/documents" data-action-card className="premium-card hover:bg-amber-50">
-                <div className="text-center">
-                  <FileText className="w-6 h-6 text-amber-600 mx-auto mb-2" />
-                  <p className="text-sm font-semibold text-slate-900">Documents</p>
-                </div>
-              </Link>
-              <Link href="/policies" data-action-card className="premium-card hover:bg-violet-50">
-                <div className="text-center">
-                  <BookOpen className="w-6 h-6 text-violet-600 mx-auto mb-2" />
-                  <p className="text-sm font-semibold text-slate-900">Policies</p>
-                </div>
-              </Link>
-              <Link href="/profile" data-action-card className="premium-card hover:bg-slate-50">
-                <div className="text-center">
-                  <UserCircle className="w-6 h-6 text-slate-600 mx-auto mb-2" />
-                  <p className="text-sm font-semibold text-slate-900">Profile</p>
-                </div>
-              </Link>
-            </div>
-          </div>
-
-          {/* 6. LEAVE BALANCE */}
-          {leave_metrics && Array.isArray(leave_metrics) && leave_metrics.length > 0 && (
-            <div>
-              <h3 className="font-bold text-slate-900 mb-4">Leave Balance</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {leave_metrics.map((metric: any, idx: number) => {
-                  const percentage = (metric.used / metric.total) * 100;
+            <p className="text-sm font-semibold text-slate-600 dark:text-slate-300 mb-3 flex items-center gap-2">
+              <Briefcase className="w-4 h-4 text-blue-400" />
+              Team Status Today
+            </p>
+            {data?.widgets?.team_members && data.widgets.team_members.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+                {data.widgets.team_members.slice(0, 6).map((member: any, index: number) => {
+                  const getStatusClasses = (status: string) => {
+                    switch (status) {
+                      case 'Present':
+                        return { text: 'text-emerald-500 dark:text-emerald-400', icon: '✓' };
+                      case 'On Leave':
+                        return { text: 'text-red-500 dark:text-red-400', icon: '🏖️' };
+                      case 'WFH':
+                        return { text: 'text-cyan-500 dark:text-cyan-400', icon: '🏠' };
+                      default:
+                        return { text: 'text-slate-500 dark:text-slate-400', icon: '❓' };
+                    }
+                  };
+                  const statusClasses = getStatusClasses(member.status);
+                  const bgColors = [
+                    'from-blue-50 to-indigo-50 border-blue-100',
+                    'from-emerald-50 to-teal-50 border-emerald-100',
+                    'from-rose-50 to-pink-50 border-rose-100',
+                    'from-amber-50 to-yellow-50 border-amber-100',
+                    'from-fuchsia-50 to-purple-50 border-fuchsia-100',
+                    'from-cyan-50 to-sky-50 border-cyan-100'
+                  ];
+                  const lightBg = bgColors[index % bgColors.length];
+                  
                   return (
-                    <div key={idx} className="premium-card">
-                      <div className="flex items-start justify-between mb-4">
-                        <div>
-                          <p className="kpi-label">{metric.name}</p>
-                          <div className="flex items-baseline gap-2 mt-1">
-                            <p className="text-2xl font-bold text-slate-900">{metric.remaining}</p>
-                            <p className="text-xs text-slate-600">/ {metric.total} days</p>
-                          </div>
-                        </div>
+                    <div key={member.id} className={`bg-gradient-to-br ${lightBg} dark:from-slate-800/50 dark:to-slate-900/50 rounded-lg p-3 border dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 transition-colors`}>
+                      <p className="text-xs font-bold text-slate-800 dark:text-slate-300 truncate">{member.name}</p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className={`text-lg ${statusClasses.text}`}>{statusClasses.icon}</span>
+                        <span className={`text-xs font-semibold ${statusClasses.text}`}>{member.status}</span>
                       </div>
-                      <div className="w-full bg-slate-200 rounded-full h-2">
-                        <div
-                          className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                          style={{ width: `${Math.min(percentage, 100)}%` }}
-                        />
-                      </div>
-                      <p className="text-xs text-slate-600 mt-2">{Math.round(percentage)}% used</p>
                     </div>
                   );
                 })}
               </div>
-            </div>
-          )}
+            ) : (
+              <p className="text-sm text-slate-500 dark:text-slate-400">No team members assigned</p>
+            )}
+          </div>
         </div>
       )}
 
