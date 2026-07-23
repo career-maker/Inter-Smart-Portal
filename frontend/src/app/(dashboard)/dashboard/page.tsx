@@ -1048,9 +1048,9 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
             Employee Status Distribution
           </h2>
           {kpis?.total_employees ? (
-            <div className="h-80">
+            <div className="h-80 flex flex-col">
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
+                <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
                   <Pie
                     data={[
                       { name: 'Present', value: kpis.present_today ?? 0 },
@@ -1058,11 +1058,12 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                       { name: 'WFH', value: kpis.wfh_today ?? 0 },
                       { name: 'Absent', value: Math.max(0, (kpis.total_employees ?? 0) - (kpis.present_today ?? 0) - (kpis.on_leave_today ?? 0) - (kpis.wfh_today ?? 0)) }
                     ]}
-                    cx="50%"
+                    cx="40%"
                     cy="50%"
                     labelLine={false}
-                    label={({ name, value, percent }: any) => `${name}: ${value} (${percent ? (percent * 100).toFixed(0) : '0'}%)`}
-                    outerRadius={80}
+                    label={false}
+                    outerRadius={70}
+                    innerRadius={0}
                     fill="#8884d8"
                     dataKey="value"
                   >
@@ -1071,7 +1072,8 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                     <Cell fill="#06B6D4" />
                     <Cell fill="#EF4444" />
                   </Pie>
-                  <Tooltip formatter={(value) => `${value} employees`} />
+                  <Tooltip formatter={(value) => `${value} employees`} contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #64748b', borderRadius: '8px', color: '#f1f5f9' }} />
+                  <Legend layout="vertical" align="right" verticalAlign="middle" formatter={(value) => <span className="text-slate-600 dark:text-slate-400 text-sm">{value}</span>} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -1080,33 +1082,37 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           )}
         </div>
 
-        {/* Leave Requests Overview Bar Chart */}
+        {/* Leave Requests Status Bar Chart */}
         <div className="bg-white dark:bg-slate-800/40 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
             <Palmtree className="w-5 h-5 text-orange-400" />
-            Leave Requests Overview
+            Leave Requests Today
           </h2>
-          {widgets?.leave_requests && Array.isArray(widgets.leave_requests) && widgets.leave_requests.length > 0 ? (
+          {kpis ? (
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
-                  data={widgets.leave_requests.slice(0, 5)}
-                  margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
+                  data={[
+                    { name: 'Employees', 'Present': kpis.present_today ?? 0, 'On Leave': kpis.on_leave_today ?? 0, 'WFH': kpis.wfh_today ?? 0 }
+                  ]}
+                  margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="leave_type" stroke="#64748b" angle={-45} textAnchor="end" height={80} />
-                  <YAxis stroke="#64748b" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#cbd5e1" opacity={0.3} />
+                  <XAxis dataKey="name" stroke="#64748b" tick={{ fill: '#64748b' }} />
+                  <YAxis stroke="#64748b" tick={{ fill: '#64748b' }} />
                   <Tooltip
                     formatter={(value) => `${value}`}
                     contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #64748b', borderRadius: '8px', color: '#f1f5f9' }}
                   />
-                  <Legend />
-                  <Bar dataKey="count" fill="#F59E0B" />
+                  <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                  <Bar dataKey="Present" stackId="a" fill="#10B981" />
+                  <Bar dataKey="On Leave" stackId="a" fill="#3B82F6" />
+                  <Bar dataKey="WFH" stackId="a" fill="#06B6D4" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-80 flex items-center justify-center text-slate-500 dark:text-slate-400">No leave requests data available</div>
+            <div className="h-80 flex items-center justify-center text-slate-500 dark:text-slate-400">No data available</div>
           )}
         </div>
       </div>
