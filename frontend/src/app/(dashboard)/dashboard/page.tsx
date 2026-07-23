@@ -486,119 +486,115 @@ export default function DashboardPage() {
 
       {/*
         ========================================
-        HEADER: Welcome Card + Achievement Flip Card (two-column)
+        HEADER: Premium Dashboard Header (Employee & Team Lead)
         ========================================
       */}
-      <div className={`flex gap-5 mb-8 ${hasActiveRec ? 'flex-col lg:flex-row items-stretch' : ''}`}>
-        {/* Welcome Card — full width when no achievement, 72% when active achievement */}
-        <div
-          className={`rounded-3xl p-6 md:p-8 shadow-lg border bg-gradient-to-br backdrop-blur-md text-white relative overflow-hidden transition-all duration-500 ${getRoleHeaderColor()}  ${hasActiveRec ? 'w-full lg:w-[72%]' : 'w-full'}`}
-        >
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 lg:gap-8 relative z-10">
-            {/* Left: Avatar, Greeting, Date */}
-            <div className="flex items-center gap-5 md:gap-6">
-              <PhotoAvatar
-                src={profile.profile_photo_path}
-                name={`${profile.first_name} ${profile.last_name}`}
-                className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/10 text-slate-900 dark:text-white text-xl md:text-2xl shadow-sm shrink-0 border border-slate-200 dark:border-white/10"
-                textClass="text-slate-900 dark:text-white"
-              />
+      <div className="mb-8 pb-6 border-b border-slate-200/40 dark:border-white/5">
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+
+          {/* Left: Avatar, Greeting, Metadata */}
+          <div className="flex items-start gap-4 lg:gap-6">
+            <PhotoAvatar
+              src={profile.profile_photo_path}
+              name={`${profile.first_name} ${profile.last_name}`}
+              className="w-14 h-14 lg:w-16 lg:h-16 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white text-lg lg:text-xl shrink-0 border border-slate-200 dark:border-slate-700"
+              textClass="text-slate-900 dark:text-white"
+            />
+
+            <div className="flex-1 space-y-3">
+              {/* Greeting as Primary Focal Point */}
               <div>
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">
-                  {format(time, "EEEE, d MMMM yyyy")} • {format(time, "h:mm a")}
-                </p>
-                <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
-                  <span className="block">{greeting},</span>
-                  <span className="inline-flex items-center gap-2 mt-1.5">
-                    <span className="text-[#FEB800]">{profile.first_name}</span>
-                    <span className="relative w-[40px] h-[40px] shrink-0 inline-block ml-3">
-                      <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none block">
-                        <DotLottiePlayer 
-                          src="https://lottie.host/5ec233ff-2cb3-499c-ac94-906625aeb28f/JZM0rMFaWb.lottie" 
-                          autoplay 
-                          loop 
-                          style={{ width: '80px', height: '80px' }} 
-                        />
-                      </span>
-                    </span>
-                  </span>
+                <h1 className="text-4xl lg:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
+                  {greeting}
                 </h1>
-                <div className="flex flex-wrap items-center gap-2 md:gap-3 mt-3">
-                  {profile.employee_code && (
-                    <span className="inline-flex items-center gap-1.5 bg-white/5 text-slate-600 dark:text-slate-300 backdrop-blur-sm border border-slate-200 dark:border-white/10 px-3 py-1 rounded-full text-xs font-semibold tracking-wider shadow-sm">
-                      {profile.employee_code}
-                    </span>
-                  )}
-                  <span className="inline-flex items-center gap-1.5 bg-white/5 text-slate-600 dark:text-slate-300 backdrop-blur-sm border border-slate-200 dark:border-white/10 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
-                    {profile.designation}
-                  </span>
-                  <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm transition-all ${
-                    profile.attendance_status === 'Punched In'
-                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                      : profile.attendance_status === 'Punched Out'
-                      ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                      : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
-                  }`}>
-                    {profile.attendance_status === 'Punched In' && (
-                      <span className="w-2 h-2 bg-emerald-400 rounded-full pulse-dot"></span>
-                    )}
-                    <Clock className="w-3.5 h-3.5" />
-                    {profile.attendance_status}
-                  </span>
-                </div>
               </div>
+
+              {/* User Name & Role/Designation */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-lg lg:text-xl font-bold text-slate-600 dark:text-slate-300">
+                  {profile.first_name}
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 dark:bg-blue-500/15 text-blue-700 dark:text-blue-300 text-xs font-bold uppercase tracking-wider rounded-lg border border-blue-200/50 dark:border-blue-500/30">
+                  {profile.designation}
+                </span>
+              </div>
+
+              {/* Attendance Status Badge */}
+              <div className="flex items-center gap-2">
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${
+                  profile.attendance_status === 'Punched In'
+                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                    : profile.attendance_status === 'Punched Out'
+                    ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                    : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+                }`}>
+                  {profile.attendance_status === 'Punched In' && (
+                    <span className="w-2 h-2 bg-emerald-400 rounded-full pulse-dot"></span>
+                  )}
+                  <Clock className="w-3.5 h-3.5" />
+                  {profile.attendance_status}
+                </span>
+              </div>
+
+              {/* Date & Time */}
+              <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
+                {format(time, "EEEE, d MMMM yyyy")} • {format(time, "h:mm a")}
+              </p>
+            </div>
+          </div>
+
+          {/* Right: Service Days Widget — Independent Card */}
+          {profile.service_stats && (
+            <Link
+              href="#"
+              onClick={(e) => e.preventDefault()}
+              className="group lg:self-end w-full lg:w-auto flex flex-col justify-center bg-white dark:bg-slate-800/40 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-all duration-300 rounded-2xl p-5 md:p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm hover:shadow-md"
+            >
+              <p className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                <span className="text-base">🌟</span>
+                Growing Together
+              </p>
+              <p className="text-sm lg:text-base font-black text-slate-900 dark:text-white">
+                {profile.service_stats.years}Y {profile.service_stats.months}M {profile.service_stats.days}D
+              </p>
+            </Link>
+          )}
+        </div>
+      </div>
+
+      {/* Achievement Flip Card Carousel — show all active recognitions with slider */}
+      {hasActiveRec && profile.active_recognitions && profile.active_recognitions.length > 0 && (
+        <div className="mb-8">
+          <div className="relative max-w-2xl">
+            {/* Recognition Card */}
+            <div className="min-h-[220px]">
+              <AchievementFlipCard
+                recognition={profile.active_recognitions[currentRecognitionIndex]}
+                employeeName={`${profile.first_name} ${profile.last_name}`}
+                firstName={profile.first_name}
+              />
             </div>
 
-            {/* Right: Service Days — premium glass pill */}
-            {profile.service_stats && (
-              <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl px-6 py-3 text-center shadow-[inset_2px_2px_5px_rgba(0,0,0,0.2),inset_-2px_-2px_5px_rgba(255,255,255,0.1)] shrink-0 w-full lg:w-auto">
-                <p className="text-sm md:text-base font-extrabold tracking-wide flex flex-wrap items-center justify-center gap-2 whitespace-nowrap text-slate-600 dark:text-slate-300">
-                  <span className="text-base leading-none">🌟</span>
-                  Growing Together for{' '}
-                  <span className="text-amber-400 font-black">
-                    {profile.service_stats.years}Y {profile.service_stats.months}M {profile.service_stats.days}D
-                  </span>
-                </p>
+            {/* Navigation Dots - Only show if multiple recognitions */}
+            {profile.active_recognitions.length > 1 && (
+              <div className="flex justify-center gap-2 mt-4">
+                {profile.active_recognitions.map((_: any, idx: number) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentRecognitionIndex(idx)}
+                    className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                      idx === currentRecognitionIndex
+                        ? "bg-amber-400 w-8"
+                        : "bg-slate-400 hover:bg-slate-500 dark:bg-slate-600 dark:hover:bg-slate-500"
+                    }`}
+                    aria-label={`Award ${idx + 1}`}
+                  />
+                ))}
               </div>
             )}
           </div>
         </div>
-
-        {/* Achievement Flip Card Carousel — show all active recognitions with slider */}
-        {hasActiveRec && profile.active_recognitions && profile.active_recognitions.length > 0 && (
-          <div className="w-full lg:w-[28%] lg:flex-1">
-            <div className="relative">
-              {/* Recognition Card */}
-              <div className="min-h-[220px]">
-                <AchievementFlipCard
-                  recognition={profile.active_recognitions[currentRecognitionIndex]}
-                  employeeName={`${profile.first_name} ${profile.last_name}`}
-                  firstName={profile.first_name}
-                />
-              </div>
-
-              {/* Navigation Dots - Only show if multiple recognitions */}
-              {profile.active_recognitions.length > 1 && (
-                <div className="flex justify-center gap-2 mt-3">
-                  {profile.active_recognitions.map((_: any, idx: number) => (
-                    <button
-                      key={idx}
-                      onClick={() => setCurrentRecognitionIndex(idx)}
-                      className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                        idx === currentRecognitionIndex
-                          ? "bg-amber-400 w-8"
-                          : "bg-slate-600 hover:bg-slate-500"
-                      }`}
-                      aria-label={`Award ${idx + 1}`}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
+      )}
 
       <AttendanceWidget initialData={data.attendance_widget_data} />
 
@@ -1051,15 +1047,16 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
             <Users className="w-5 h-5 text-blue-400" />
             Employee Status Distribution
           </h2>
-          {data?.widgets?.active_employees !== undefined ? (
+          {kpis?.total_employees ? (
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={[
-                      { name: 'Active', value: data?.widgets?.active_employees ?? 0 },
-                      { name: 'Absent', value: data?.widgets?.absent_today ?? 0 },
-                      { name: 'On Leave', value: (data?.widgets?.total_employees ?? 0) - (data?.widgets?.active_employees ?? 0) - (data?.widgets?.absent_today ?? 0) }
+                      { name: 'Present', value: kpis.present_today ?? 0 },
+                      { name: 'On Leave', value: kpis.on_leave_today ?? 0 },
+                      { name: 'WFH', value: kpis.wfh_today ?? 0 },
+                      { name: 'Absent', value: Math.max(0, (kpis.total_employees ?? 0) - (kpis.present_today ?? 0) - (kpis.on_leave_today ?? 0) - (kpis.wfh_today ?? 0)) }
                     ]}
                     cx="50%"
                     cy="50%"
@@ -1070,15 +1067,16 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                     dataKey="value"
                   >
                     <Cell fill="#10B981" />
-                    <Cell fill="#EF4444" />
                     <Cell fill="#3B82F6" />
+                    <Cell fill="#06B6D4" />
+                    <Cell fill="#EF4444" />
                   </Pie>
                   <Tooltip formatter={(value) => `${value} employees`} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-80 flex items-center justify-center text-slate-500 dark:text-slate-400">No employee data</div>
+            <div className="h-80 flex items-center justify-center text-slate-500 dark:text-slate-400">No employee data available</div>
           )}
         </div>
 
@@ -1088,32 +1086,27 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
             <Palmtree className="w-5 h-5 text-orange-400" />
             Leave Requests Overview
           </h2>
-          {widgets?.leave_summary ? (
+          {widgets?.leave_requests && Array.isArray(widgets.leave_requests) && widgets.leave_requests.length > 0 ? (
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
-                  data={[
-                    { name: 'Casual', approved: widgets.leave_summary?.casual_approved ?? 0, pending: widgets.leave_summary?.casual_pending ?? 0, rejected: widgets.leave_summary?.casual_rejected ?? 0 },
-                    { name: 'Sick', approved: widgets.leave_summary?.sick_approved ?? 0, pending: widgets.leave_summary?.sick_pending ?? 0, rejected: widgets.leave_summary?.sick_rejected ?? 0 },
-                  ]}
+                  data={widgets.leave_requests.slice(0, 5)}
                   margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="name" stroke="#64748b" />
+                  <XAxis dataKey="leave_type" stroke="#64748b" angle={-45} textAnchor="end" height={80} />
                   <YAxis stroke="#64748b" />
                   <Tooltip
                     formatter={(value) => `${value}`}
-                    contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #64748b', borderRadius: '8px' }}
+                    contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #64748b', borderRadius: '8px', color: '#f1f5f9' }}
                   />
                   <Legend />
-                  <Bar dataKey="approved" stackId="a" fill="#10B981" />
-                  <Bar dataKey="pending" stackId="a" fill="#F59E0B" />
-                  <Bar dataKey="rejected" stackId="a" fill="#EF4444" />
+                  <Bar dataKey="count" fill="#F59E0B" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-80 flex items-center justify-center text-slate-500 dark:text-slate-400">No leave data</div>
+            <div className="h-80 flex items-center justify-center text-slate-500 dark:text-slate-400">No leave requests data available</div>
           )}
         </div>
       </div>
