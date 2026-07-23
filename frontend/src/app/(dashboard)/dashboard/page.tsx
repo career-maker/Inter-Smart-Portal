@@ -396,7 +396,7 @@ export default function DashboardPage() {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, value, percent }) => `${name}: ${value} (${(percent * 100).toFixed(0)}%)`}
+                      label={({ name, value, percent }: any) => `${name}: ${value} (${percent ? (percent * 100).toFixed(0) : '0'}%)`}
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"
@@ -943,56 +943,64 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
 
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-      {/* Super Admin Welcome Banner */}
-      <div className="border border-slate-200 dark:border-white/10 bg-white/5 backdrop-blur-md rounded-3xl p-5 md:p-6 shadow-lg mb-6 text-slate-900 dark:text-white">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          <div className="flex items-center gap-5">
+      {/* Super Admin Welcome Header — Premium Dashboard Style */}
+      <div className="mb-8 pb-6 border-b border-slate-200/40 dark:border-white/5">
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+
+          {/* Left: Avatar, Greeting, Metadata */}
+          <div className="flex items-start gap-4 lg:gap-6">
             <PhotoAvatar
               src={profile.profile_photo_path}
               name={`${profile.first_name} ${profile.last_name}`}
-              className="w-16 h-16 rounded-full bg-white/10 text-slate-900 dark:text-white text-2xl backdrop-blur-sm border border-slate-200 dark:border-white/10 shrink-0"
+              className="w-14 h-14 lg:w-16 lg:h-16 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white text-lg lg:text-xl shrink-0 border border-slate-200 dark:border-slate-700"
               textClass="text-slate-900 dark:text-white"
             />
-            <div>
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">
+
+            <div className="flex-1 space-y-3">
+              {/* Greeting as Primary Focal Point */}
+              <div>
+                <h1 className="text-4xl lg:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
+                  {greeting}
+                </h1>
+              </div>
+
+              {/* Admin Name & Title */}
+              <div className="flex items-center gap-2">
+                <span className="text-lg lg:text-xl font-bold text-slate-600 dark:text-slate-300">
+                  {profile.first_name}
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300 text-xs font-bold uppercase tracking-wider rounded-lg border border-amber-200/50 dark:border-amber-500/30">
+                  <Crown className="w-3 h-3" />
+                  Admin
+                </span>
+              </div>
+
+              {/* Date & Time */}
+              <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
                 {format(time, "EEEE, d MMMM yyyy")} • {format(time, "h:mm a")}
               </p>
-              <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
-                <span className="block">{greeting},</span>
-                <span className="inline-flex items-center gap-2 mt-1.5">
-                  <span className="text-[#FEB800]">{profile.first_name} (Admin)</span>
-                  <span className="relative w-[40px] h-[40px] shrink-0 inline-block ml-3">
-                    <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none block">
-                      <DotLottiePlayer 
-                        src="https://lottie.host/5ec233ff-2cb3-499c-ac94-906625aeb28f/JZM0rMFaWb.lottie" 
-                        autoplay 
-                        loop 
-                        style={{ width: '80px', height: '80px' }} 
-                      />
-                    </span>
-                  </span>
-                </span>
-              </h1>
             </div>
           </div>
-          
-          {/* Right: Quick Summary Badges */}
-          <Link href="/leaves/approvals" className="block flex flex-col justify-center bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors rounded-2xl p-4 md:p-5 border border-slate-200 dark:border-white/10 hover:border-white/20 w-full md:w-auto shadow-sm cursor-pointer group">
-            <p className="text-sm font-bold text-slate-600 dark:text-slate-300 mb-3 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-amber-400" />
-              You have:
+
+          {/* Right: Pending Requests Widget — Independent Card */}
+          <Link
+            href="/leaves/approvals"
+            className="group lg:self-end w-full lg:w-auto flex flex-col justify-center bg-white dark:bg-slate-800/40 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-all duration-300 rounded-2xl p-5 md:p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer"
+          >
+            <p className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              Pending Items
             </p>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-white/10 group-hover:bg-white/20 transition-colors flex items-center justify-center text-amber-400 shrink-0 shadow-sm border border-slate-200 dark:border-white/10">
-                <FileText className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              </div>
-              <div className="leading-tight pr-4">
-                <p className="text-xl font-black text-slate-900 dark:text-white">{kpis.pending_requests}</p>
-                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">Pending Requests</p>
-              </div>
+            <div className="flex items-baseline gap-2">
+              <p className="text-3xl lg:text-4xl font-black text-slate-900 dark:text-white">
+                {kpis.pending_requests}
+              </p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold">request{kpis.pending_requests !== 1 ? 's' : ''}</p>
             </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">
+              Awaiting review →
+            </p>
           </Link>
-          
         </div>
       </div>
 
