@@ -565,9 +565,9 @@ export default function DashboardPage() {
       {/* Achievement Flip Card Carousel — show all active recognitions with slider */}
       {hasActiveRec && profile.active_recognitions && profile.active_recognitions.length > 0 && (
         <div className="mb-8">
-          <div className="relative max-w-2xl">
+          <div className="relative w-full sm:w-96 lg:w-80">
             {/* Recognition Card */}
-            <div className="min-h-[220px]">
+            <div className="min-h-[280px]">
               <AchievementFlipCard
                 recognition={profile.active_recognitions[currentRecognitionIndex]}
                 employeeName={`${profile.first_name} ${profile.last_name}`}
