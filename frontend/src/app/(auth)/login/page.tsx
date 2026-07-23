@@ -137,15 +137,15 @@ export default function LoginPage() {
 
           {/* Success overlay */}
           {loginSuccess && (
-            <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50 backdrop-blur-sm animate-fadeIn">
-              <div className="bg-white rounded-3xl p-12 text-center animate-scaleIn">
-                <div className="mb-4 flex justify-center">
-                  <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center animate-scaleIn">
-                    <Check className="w-10 h-10 text-white animate-slideDown" />
+            <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/60 backdrop-blur-md animate-fadeIn">
+              <div className="bg-gradient-to-br from-white to-slate-50 rounded-3xl p-12 text-center animate-scaleIn shadow-2xl border border-white/20">
+                <div className="mb-6 flex justify-center">
+                  <div className="w-24 h-24 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center animate-scaleIn shadow-lg">
+                    <Check className="w-12 h-12 text-white animate-slideDown" />
                   </div>
                 </div>
-                <h3 className="text-2xl font-bold text-slate-900 mb-2">Login Successful!</h3>
-                <p className="text-slate-600">Redirecting to dashboard...</p>
+                <h3 className="text-3xl font-black text-slate-900 mb-3">Login Successful!</h3>
+                <p className="text-slate-700 text-base font-medium">Redirecting to dashboard...</p>
               </div>
             </div>
           )}
