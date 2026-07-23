@@ -36,7 +36,8 @@ import {
   Layers,
   AlertTriangle,
   CheckCircle2,
-  Server
+  Server,
+  Users
 } from "lucide-react";
 import Link from "next/link";
 import { format, parseISO } from "date-fns";
@@ -46,6 +47,7 @@ import { AttendanceWidget } from "@/components/dashboard/AttendanceWidget";
 import { AchievementFlipCard } from "@/components/recognition/AchievementFlipCard";
 import { LeaderboardWidget } from "@/components/dashboard/LeaderboardWidget";
 import { UpcomingBirthdaysWithWishes } from "@/components/dashboard/UpcomingBirthdaysWithWishes";
+import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
 
 
 export default function DashboardPage() {
@@ -369,6 +371,85 @@ export default function DashboardPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Analytics Charts */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Employee Status Pie Chart */}
+            <div className="premium-card">
+              <div className="mb-6">
+                <p className="text-sm font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-2">
+                  <Users className="w-4 h-4 text-blue-400" />
+                  Employee Status Distribution
+                </p>
+              </div>
+              {data?.widgets?.total_employees && data.widgets.total_employees > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={[
+                        { name: 'Active', value: data?.widgets?.active_employees ?? 0 },
+                        { name: 'Absent', value: data?.widgets?.absent_today ?? 0 },
+                        { name: 'On Leave', value: (data?.widgets?.total_employees ?? 0) - (data?.widgets?.active_employees ?? 0) - (data?.widgets?.absent_today ?? 0) }
+                      ]}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, value, percent }) => `${name}: ${value} (${(percent * 100).toFixed(0)}%)`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      <Cell fill="#10B981" />
+                      <Cell fill="#EF4444" />
+                      <Cell fill="#3B82F6" />
+                    </Pie>
+                    <Tooltip formatter={(value) => `${value} employees`} />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-80 flex items-center justify-center text-slate-500">No employee data</div>
+              )}
+            </div>
+
+            {/* Leave Requests Status */}
+            <div className="premium-card">
+              <div className="mb-6">
+                <p className="text-sm font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-2">
+                  <Palmtree className="w-4 h-4 text-amber-400" />
+                  Leave Requests Overview
+                </p>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-sm text-slate-600 dark:text-slate-400">Pending</span>
+                    <span className="text-sm font-bold text-amber-600 dark:text-amber-400">{data?.widgets?.pending_leave_requests ?? 0}</span>
+                  </div>
+                  <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3">
+                    <div className="bg-amber-500 h-3 rounded-full" style={{ width: `${Math.min((data?.widgets?.pending_leave_requests ?? 0) * 5, 100)}%` }}></div>
+                  </div>
+                </div>
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-sm text-slate-600 dark:text-slate-400">Active Employees</span>
+                    <span className="text-sm font-bold text-green-600 dark:text-green-400">{data?.widgets?.active_employees ?? 0}</span>
+                  </div>
+                  <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3">
+                    <div className="bg-green-500 h-3 rounded-full" style={{ width: `${Math.min((data?.widgets?.active_employees ?? 0) / (data?.widgets?.total_employees ?? 1) * 100, 100)}%` }}></div>
+                  </div>
+                </div>
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-sm text-slate-600 dark:text-slate-400">Absent Today</span>
+                    <span className="text-sm font-bold text-red-600 dark:text-red-400">{data?.widgets?.absent_today ?? 0}</span>
+                  </div>
+                  <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3">
+                    <div className="bg-red-500 h-3 rounded-full" style={{ width: `${Math.min((data?.widgets?.absent_today ?? 0) / (data?.widgets?.total_employees ?? 1) * 100, 100)}%` }}></div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
