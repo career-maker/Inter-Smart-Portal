@@ -1018,29 +1018,104 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
             list: kpis.present_today_list || []
           })}
         />
-        <KPICard 
-          title="On Leave" 
-          value={kpis.on_leave_today} 
-          trend="" 
-          icon={Palmtree} 
-          color="bg-orange-500" 
+        <KPICard
+          title="On Leave"
+          value={kpis.on_leave_today}
+          trend=""
+          icon={Palmtree}
+          color="bg-orange-500"
           onClick={() => setLeaveModalData({
             title: "On Leave Today",
             list: kpis.on_leave_today_list || []
-          })} 
+          })}
         />
-        <KPICard 
-          title="WFH" 
-          value={kpis.wfh_today} 
-          trend="" 
-          icon={Home} 
-          color="bg-cyan-500" 
+        <KPICard
+          title="WFH"
+          value={kpis.wfh_today}
+          trend=""
+          icon={Home}
+          color="bg-cyan-500"
           onClick={() => setLeaveModalData({
             title: "Working From Home Today",
             list: kpis.wfh_today_list || []
-          })} 
+          })}
         />
         <KPICard title="Open Issues" value={data.issue_metrics?.total_open || 0} trend="" icon={AlertCircle} color="bg-rose-500" href="/issues" />
+      </div>
+
+      {/* Analytics Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+        {/* Employee Status Pie Chart */}
+        <div className="bg-white dark:bg-slate-800/40 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+            <Users className="w-5 h-5 text-blue-400" />
+            Employee Status Distribution
+          </h2>
+          {data?.widgets?.active_employees !== undefined ? (
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={[
+                      { name: 'Active', value: data?.widgets?.active_employees ?? 0 },
+                      { name: 'Absent', value: data?.widgets?.absent_today ?? 0 },
+                      { name: 'On Leave', value: (data?.widgets?.total_employees ?? 0) - (data?.widgets?.active_employees ?? 0) - (data?.widgets?.absent_today ?? 0) }
+                    ]}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, value, percent }: any) => `${name}: ${value} (${percent ? (percent * 100).toFixed(0) : '0'}%)`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    <Cell fill="#10B981" />
+                    <Cell fill="#EF4444" />
+                    <Cell fill="#3B82F6" />
+                  </Pie>
+                  <Tooltip formatter={(value) => `${value} employees`} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <div className="h-80 flex items-center justify-center text-slate-500 dark:text-slate-400">No employee data</div>
+          )}
+        </div>
+
+        {/* Leave Requests Overview Bar Chart */}
+        <div className="bg-white dark:bg-slate-800/40 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+            <Palmtree className="w-5 h-5 text-orange-400" />
+            Leave Requests Overview
+          </h2>
+          {widgets?.leave_summary ? (
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={[
+                    { name: 'Casual', approved: widgets.leave_summary?.casual_approved ?? 0, pending: widgets.leave_summary?.casual_pending ?? 0, rejected: widgets.leave_summary?.casual_rejected ?? 0 },
+                    { name: 'Sick', approved: widgets.leave_summary?.sick_approved ?? 0, pending: widgets.leave_summary?.sick_pending ?? 0, rejected: widgets.leave_summary?.sick_rejected ?? 0 },
+                  ]}
+                  margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis dataKey="name" stroke="#64748b" />
+                  <YAxis stroke="#64748b" />
+                  <Tooltip
+                    formatter={(value) => `${value}`}
+                    contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #64748b', borderRadius: '8px' }}
+                  />
+                  <Legend />
+                  <Bar dataKey="approved" stackId="a" fill="#10B981" />
+                  <Bar dataKey="pending" stackId="a" fill="#F59E0B" />
+                  <Bar dataKey="rejected" stackId="a" fill="#EF4444" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <div className="h-80 flex items-center justify-center text-slate-500 dark:text-slate-400">No leave data</div>
+          )}
+        </div>
       </div>
 
       {/* 
