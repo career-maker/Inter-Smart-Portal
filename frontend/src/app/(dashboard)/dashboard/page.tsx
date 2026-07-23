@@ -577,7 +577,7 @@ export default function DashboardPage() {
 
             {/* Navigation Dots - Only show if multiple recognitions */}
             {profile.active_recognitions.length > 1 && (
-              <div className="flex justify-center gap-2 mt-4">
+              <div className="flex justify-center gap-2 mt-2">
                 {profile.active_recognitions.map((_: any, idx: number) => (
                   <button
                     key={idx}
