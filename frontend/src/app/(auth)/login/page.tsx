@@ -144,8 +144,8 @@ export default function LoginPage() {
                     <Check className="w-12 h-12 text-white animate-slideDown" />
                   </div>
                 </div>
-                <h3 className="text-3xl font-black text-slate-900 mb-3">Login Successful!</h3>
-                <p className="text-slate-700 text-base font-medium">Redirecting to dashboard...</p>
+                <h3 className="text-3xl font-black text-blue-900 mb-3">Login Successful!</h3>
+                <p className="text-blue-800 text-base font-medium">Redirecting to dashboard...</p>
               </div>
             </div>
           )}
