@@ -112,6 +112,10 @@ Inter Smart-Employee-Portal/
 │   │   │       ├── leave-balances/ # Super Admin balance management
 │   │   │       ├── attendance/  # Attendance
 │   │   │       ├── wfh/         # Work from home requests
+│   │   │       ├── ta/          # Travel Allowance
+│   │   │       │   ├── apply/   # TA Application page
+│   │   │       │   ├── status/  # TA Status page
+│   │   │       │   └── management/ # Admin TA Management
 │   │   │       ├── announcements/
 │   │   │       ├── hall/        # Employee wall of fame
 │   │   │       ├── holidays/
@@ -128,6 +132,7 @@ Inter Smart-Employee-Portal/
 │   │   │       └── notifications/
 │   │   ├── components/
 │   │   │   ├── ui/              # Shadcn/UI base components
+│   │   │   ├── ta/              # TAApplyModal.tsx
 │   │   │   ├── employees/       # EmployeeForm.tsx
 │   │   │   └── layout/          # NotificationDropdown, RecognitionTicker
 │   │   ├── services/api.ts      # Axios instance (baseURL from env)
@@ -202,6 +207,21 @@ tl_status, admin_status, status, days_taken, is_unpaid, approver_id, timestamps
 id, user_id, date, check_in, check_out, break_start, break_end, status, timestamps
 ```
 
+### ta_requests
+```
+id, user_id (FK→users), reason (text), date_travelled (date), total_amount (decimal 10,2),
+bill_path (string, nullable), status (enum: Applied/Approved/Rejected/Paid/Unpaid),
+approver_id (FK→users, nullable), approval_notes (text, nullable), is_paid (boolean),
+paid_at (datetime, nullable), created_by (FK→users), updated_by (FK→users, nullable),
+deleted_at (soft delete), timestamps
+```
+
+### ta_request_items
+```
+id, ta_request_id (FK→ta_requests), category (string: Travel/Food/Accommodation/Other),
+amount (decimal 10,2), description (text, nullable), timestamps
+```
+
 ---
 
 ## 7. API Routes Overview
@@ -240,6 +260,18 @@ id, user_id, date, check_in, check_out, break_start, break_end, status, timestam
 - `GET/POST /api/settings`
 - `GET /api/profile-requests`, approve/reject endpoints
 - `PUT /api/leave-requests/{id}/override`
+
+### Travel Allowance (TA) Routes
+**Authenticated Users (Employee, Team Lead):**
+- `GET /api/ta-requests` — get own TA requests
+- `GET /api/ta-requests/{id}` — view own TA request details
+- `POST /api/ta-requests` — apply for travel allowance (with file upload)
+
+**Super Admin Only:**
+- `GET /api/admin/ta-requests` — view all TA requests (with status filtering)
+- `POST /api/ta-requests/{id}/approve` — approve TA request
+- `POST /api/ta-requests/{id}/reject` — reject TA request
+- `POST /api/ta-requests/{id}/mark-paid` — mark as paid/unpaid
 
 ---
 
@@ -316,6 +348,12 @@ Pending:
 
 2. `2026_06_30_000002_add_profile_photo_path_to_users.php`  
    → Adds `profile_photo_path` to `users`
+
+3. `2026_07_24_000001_create_ta_requests_table.php`  
+   → Creates `ta_requests` table with status enum and admin approval fields
+
+4. `2026_07_24_000002_create_ta_request_items_table.php`  
+   → Creates `ta_request_items` table for expense breakdown
 
 > On Render: These run automatically via the Dockerfile startup script (`php artisan migrate --force`)
 
@@ -426,6 +464,14 @@ NEXT_PUBLIC_API_URL=https://your-render-url.onrender.com/api
 - [x] Breadcrumbs on all pages
 - [x] Horizontal scroll prevention
 - [x] Responsive layout
+- [x] Travel Allowance (TA) feature
+  - [x] Apply for TA (Employee, Team Lead only)
+  - [x] TA Application form with expense breakdown
+  - [x] Bill/Receipt upload
+  - [x] TA Status page (view own requests and history)
+  - [x] Super Admin TA Management (approve/reject/mark as paid)
+  - [x] TA Request notifications to admin
+  - [x] Status filtering (Applied, Approved, Paid, Unpaid, Rejected)
 
 ## 17. What's Pending / Future
 

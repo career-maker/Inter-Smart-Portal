@@ -69,6 +69,17 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
+    id: "ta",
+    label: "Travel Allowance",
+    icon: Briefcase,
+    roles: ["Employee", "Team Lead", "Super Admin"],
+    items: [
+      { href: "/ta/apply",        label: "Apply for TA", roles: ["Employee", "Team Lead"] },
+      { href: "/ta/status",       label: "TA Status", roles: ["Employee", "Team Lead"] },
+      { href: "/ta/management",   label: "Manage TA Requests", roles: ["Super Admin"] },
+    ],
+  },
+  {
     id: "hr-services",
     label: "HR Services",
     icon: Briefcase,

@@ -232,7 +232,23 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('break-end',   [\App\Http\Controllers\Api\AttendanceController::class, 'endBreak']);
         Route::get('/',            [\App\Http\Controllers\Api\AttendanceController::class, 'index']);
     });
-    
+
+    // Travel Allowance (TA) Routes
+    Route::prefix('ta-requests')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Api\TARequestController::class, 'index']);
+        Route::get('/{id}', [\App\Http\Controllers\Api\TARequestController::class, 'show']);
+        Route::post('/', [\App\Http\Controllers\Api\TARequestController::class, 'store']);
+
+        // Admin routes
+        Route::middleware('role:Super Admin')->group(function () {
+            Route::post('/{id}/approve', [\App\Http\Controllers\Api\TARequestController::class, 'approve']);
+            Route::post('/{id}/reject', [\App\Http\Controllers\Api\TARequestController::class, 'reject']);
+            Route::post('/{id}/mark-paid', [\App\Http\Controllers\Api\TARequestController::class, 'markPaid']);
+        });
+    });
+
+    Route::middleware('role:Super Admin')->get('/admin/ta-requests', [\App\Http\Controllers\Api\TARequestController::class, 'adminIndex']);
+
     // Document Requests (all authenticated users can submit/view own)
     Route::get('document-requests', [\App\Http\Controllers\Api\DocumentRequestController::class, 'index']);
     Route::post('document-requests', [\App\Http\Controllers\Api\DocumentRequestController::class, 'store']);
