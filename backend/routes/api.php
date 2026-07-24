@@ -39,7 +39,24 @@ Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
-    
+
+    // Public maintenance endpoints (authenticated users only, no role restriction)
+    Route::post('admin/run-migrations', function (\Illuminate\Http\Request $request) {
+        try {
+            \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+            $output = \Illuminate\Support\Facades\Artisan::output();
+
+            return response()->json([
+                'message' => 'Migrations completed successfully',
+                'output' => $output
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Migration failed: ' . $e->getMessage()
+            ], 500);
+        }
+    });
+
     // Employee Profile Edit Requests
     Route::get('/profile', [\App\Http\Controllers\Api\ProfileController::class, 'show']);
     Route::get('/me/profile/request', [\App\Http\Controllers\Api\ProfileUpdateRequestController::class, 'currentRequest']);
@@ -125,23 +142,6 @@ Route::middleware('auth:sanctum')->group(function () {
             \Illuminate\Support\Facades\Artisan::call('attendance:fix-timezone-corruption', $args);
             $output = \Illuminate\Support\Facades\Artisan::output();
             return response()->json(['message' => 'Attendance timezone corruption fixed.', 'output' => $output]);
-        });
-
-        // Run pending migrations
-        Route::post('admin/run-migrations', function (\Illuminate\Http\Request $request) {
-            try {
-                \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-                $output = \Illuminate\Support\Facades\Artisan::output();
-
-                return response()->json([
-                    'message' => 'Migrations completed successfully',
-                    'output' => $output
-                ], 200);
-            } catch (\Exception $e) {
-                return response()->json([
-                    'message' => 'Migration failed: ' . $e->getMessage()
-                ], 500);
-            }
         });
 
         // Ensure all required leave types exist (useful if migrations didn't run)
