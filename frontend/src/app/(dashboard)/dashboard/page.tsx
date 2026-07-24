@@ -80,7 +80,7 @@ export default function DashboardPage() {
   }, [data]);
 
   useEffect(() => {
-    const interval = setInterval(() => setTime(new Date()), 60000);
+    const interval = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -109,17 +109,19 @@ export default function DashboardPage() {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    if (!data?.profile?.joining_date) return;
+  // Calculate live service stats with timer
+  const calculateServiceStats = (joiningDateStr: string) => {
+    if (!joiningDateStr) return null;
 
-    const calculateLiveServiceStats = () => {
-      const joiningDate = new Date(data.profile.joining_date);
-      const now = new Date();
+    try {
+      const joiningDate = new Date(joiningDateStr);
 
-      // Validate dates
       if (isNaN(joiningDate.getTime())) {
-        return;
+        console.warn("Invalid joining date format:", joiningDateStr);
+        return null;
       }
+
+      const now = new Date();
 
       let years = now.getFullYear() - joiningDate.getFullYear();
       let months = now.getMonth() - joiningDate.getMonth();
@@ -128,7 +130,6 @@ export default function DashboardPage() {
       let minutes = now.getMinutes() - joiningDate.getMinutes();
       let seconds = now.getSeconds() - joiningDate.getSeconds();
 
-      // Adjust for negative values
       if (seconds < 0) {
         seconds += 60;
         minutes -= 1;
@@ -151,16 +152,32 @@ export default function DashboardPage() {
         years -= 1;
       }
 
-      setLiveServiceStats({ years, months, days, hours, minutes, seconds });
-    };
+      return { years, months, days, hours, minutes, seconds };
+    } catch (error) {
+      console.error("Error calculating service stats:", error);
+      return null;
+    }
+  };
 
-    // Calculate immediately
-    calculateLiveServiceStats();
+  useEffect(() => {
+    if (!data?.profile?.joining_date) return;
+
+    // Calculate and set immediately
+    const stats = calculateServiceStats(data.profile.joining_date);
+    if (stats) {
+      setLiveServiceStats(stats);
+    }
 
     // Update every second
-    const interval = setInterval(calculateLiveServiceStats, 1000);
+    const interval = setInterval(() => {
+      const updatedStats = calculateServiceStats(data.profile.joining_date);
+      if (updatedStats) {
+        setLiveServiceStats(updatedStats);
+      }
+    }, 1000);
+
     return () => clearInterval(interval);
-  }, [data]);
+  }, [data?.profile?.joining_date]);
 
   if (loading) return <PageLoader />;
 
