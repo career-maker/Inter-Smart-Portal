@@ -53,6 +53,7 @@ class DashboardController extends Controller
             'employee_code' => $user->employee_code,
             'designation' => $user->designation,
             'team' => $user->team->name ?? 'Unassigned',
+            'joining_date' => $user->joining_date ? $user->joining_date->toIso8601String() : $user->created_at->toIso8601String(),
             'service_duration' => $serviceDuration,
             'service_days' => $serviceDays,
             'service_stats' => $serviceStats,
