@@ -127,6 +127,23 @@ Route::middleware('auth:sanctum')->group(function () {
             return response()->json(['message' => 'Attendance timezone corruption fixed.', 'output' => $output]);
         });
 
+        // Run pending migrations
+        Route::post('admin/run-migrations', function (\Illuminate\Http\Request $request) {
+            try {
+                \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+                $output = \Illuminate\Support\Facades\Artisan::output();
+
+                return response()->json([
+                    'message' => 'Migrations completed successfully',
+                    'output' => $output
+                ], 200);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'message' => 'Migration failed: ' . $e->getMessage()
+                ], 500);
+            }
+        });
+
         // Ensure all required leave types exist (useful if migrations didn't run)
         Route::post('admin/ensure-leave-types', function (\Illuminate\Http\Request $request) {
             $types = [
