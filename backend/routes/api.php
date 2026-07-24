@@ -36,26 +36,26 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
+// Database maintenance endpoint (public, for initial setup)
+Route::post('/admin/run-migrations', function (\Illuminate\Http\Request $request) {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        $output = \Illuminate\Support\Facades\Artisan::output();
+
+        return response()->json([
+            'message' => 'Migrations completed successfully',
+            'output' => $output
+        ], 200);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Migration failed: ' . $e->getMessage()
+        ], 500);
+    }
+});
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
-
-    // Public maintenance endpoints (authenticated users only, no role restriction)
-    Route::post('admin/run-migrations', function (\Illuminate\Http\Request $request) {
-        try {
-            \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-            $output = \Illuminate\Support\Facades\Artisan::output();
-
-            return response()->json([
-                'message' => 'Migrations completed successfully',
-                'output' => $output
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Migration failed: ' . $e->getMessage()
-            ], 500);
-        }
-    });
 
     // Employee Profile Edit Requests
     Route::get('/profile', [\App\Http\Controllers\Api\ProfileController::class, 'show']);
