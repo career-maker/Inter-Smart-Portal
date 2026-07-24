@@ -32,7 +32,7 @@ export function AchievementFlipCard({ recognition, employeeName, firstName }: Ac
       {/* Flip Card Container */}
       <div
         className={`achievement-flip-card ${isFlipped ? "flipped" : ""}`}
-        style={{ width: "100%", height: "220px", perspective: "1000px" }}
+        style={{ width: "100%", height: "180px", perspective: "1000px" }}
         onClick={() => setIsFlipped(!isFlipped)}
       >
         <div className="achievement-flip-card-inner">
@@ -42,40 +42,40 @@ export function AchievementFlipCard({ recognition, employeeName, firstName }: Ac
             <div className="achievement-flip-border" />
             <div className="achievement-flip-back-content">
               {/* Icon */}
-              <div style={{ fontSize: 28, marginBottom: 6 }}>{recognition.icon || "🏆"}</div>
+              <div style={{ fontSize: 24, marginBottom: 4 }}>{recognition.icon || "🏆"}</div>
               {/* Title */}
               <h3 style={{
-                fontSize: 13,
+                fontSize: 11,
                 fontWeight: 900,
                 color: "#fbbf24",
                 textTransform: "uppercase",
-                letterSpacing: "0.08em",
-                marginBottom: 4,
+                letterSpacing: "0.06em",
+                marginBottom: 2,
                 lineHeight: 1.2,
                 textAlign: "center",
               }}>
                 {recognition.title}
               </h3>
               {/* Awarded to */}
-              <p style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 2 }}>
+              <p style={{ fontSize: 9, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 1 }}>
                 Awarded To
               </p>
-              <p style={{ fontSize: 13, fontWeight: 700, color: "#ffffff", marginBottom: 6, textAlign: "center" }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: "#ffffff", marginBottom: 4, textAlign: "center" }}>
                 {firstName}
               </p>
               {/* Description */}
               {recognition.description && (
                 <p style={{
-                  fontSize: 11,
-                  color: "rgba(255,255,255,0.7)",
+                  fontSize: 9,
+                  color: "rgba(255,255,255,0.6)",
                   fontStyle: "italic",
                   textAlign: "center",
-                  lineHeight: 1.4,
-                  marginBottom: 8,
+                  lineHeight: 1.3,
+                  marginBottom: 4,
                   maxWidth: "90%",
                 }}>
-                  {recognition.description.length > 80
-                    ? recognition.description.substring(0, 80) + "…"
+                  {recognition.description.length > 60
+                    ? recognition.description.substring(0, 60) + "…"
                     : recognition.description}
                 </p>
               )}
@@ -83,36 +83,36 @@ export function AchievementFlipCard({ recognition, employeeName, firstName }: Ac
               <div style={{
                 background: "rgba(255,255,255,0.08)",
                 border: "1px solid rgba(255,255,255,0.12)",
-                borderRadius: 8,
-                padding: "4px 12px",
-                marginBottom: 10,
+                borderRadius: 6,
+                padding: "3px 8px",
+                marginBottom: 6,
               }}>
-                <p style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", textAlign: "center", margin: 0 }}>
-                  📅 {format(new Date(recognition.start_date), "dd MMM")} – {format(new Date(recognition.end_date), "dd MMM yyyy")}
+                <p style={{ fontSize: 8, color: "rgba(255,255,255,0.5)", textAlign: "center", margin: 0 }}>
+                  📅 {format(new Date(recognition.start_date), "dd MMM")} – {format(new Date(recognition.end_date), "dd MMM yy")}
                 </p>
               </div>
               {/* Buttons */}
-              <div style={{ display: "flex", gap: 6, width: "100%" }}>
+              <div style={{ display: "flex", gap: 4, width: "100%" }}>
                 <button
                   onClick={(e) => { e.stopPropagation(); setShowCert(true); }}
                   style={{
                     flex: 1,
                     background: "rgba(251,191,36,0.15)",
                     border: "1px solid rgba(251,191,36,0.4)",
-                    borderRadius: 8,
+                    borderRadius: 6,
                     color: "#fbbf24",
-                    fontSize: 10,
+                    fontSize: 8,
                     fontWeight: 700,
-                    padding: "9px 6px",
+                    padding: "6px 4px",
                     cursor: "pointer",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    gap: 3,
+                    gap: 2,
                     transition: "all 0.2s",
                   }}
                 >
-                  <Eye style={{ width: 10, height: 10 }} />
+                  <Eye style={{ width: 8, height: 8 }} />
                   View
                 </button>
                 <button
@@ -121,20 +121,20 @@ export function AchievementFlipCard({ recognition, employeeName, firstName }: Ac
                     flex: 1,
                     background: "rgba(251,191,36,0.9)",
                     border: "none",
-                    borderRadius: 8,
+                    borderRadius: 6,
                     color: "#0f172a",
-                    fontSize: 10,
+                    fontSize: 8,
                     fontWeight: 900,
-                    padding: "9px 6px",
+                    padding: "6px 4px",
                     cursor: "pointer",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    gap: 3,
+                    gap: 2,
                     transition: "all 0.2s",
                   }}
                 >
-                  <Download style={{ width: 10, height: 10 }} />
+                  <Download style={{ width: 8, height: 8 }} />
                   PDF
                 </button>
               </div>
@@ -153,24 +153,24 @@ export function AchievementFlipCard({ recognition, employeeName, firstName }: Ac
               <span style={{
                 background: "rgba(0,0,0,0.35)",
                 border: "1px solid rgba(255,255,255,0.15)",
-                borderRadius: 20,
-                padding: "3px 10px",
-                fontSize: 10,
-                color: "rgba(255,255,255,0.7)",
-                letterSpacing: "0.08em",
+                borderRadius: 16,
+                padding: "2px 8px",
+                fontSize: 8,
+                color: "rgba(255,255,255,0.6)",
+                letterSpacing: "0.06em",
                 backdropFilter: "blur(4px)",
-                marginBottom: 12,
+                marginBottom: 8,
               }}>
                 Employee Recognition
               </span>
 
               {/* Animated Lottie Trophy */}
               <div style={{
-                marginBottom: 6,
+                marginBottom: 4,
                 filter: "drop-shadow(0 0 12px rgba(251,191,36,0.35))",
                 animation: "achievement-float 2.6s ease-in-out infinite",
-                width: 90,
-                height: 90,
+                width: 70,
+                height: 70,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -179,7 +179,7 @@ export function AchievementFlipCard({ recognition, employeeName, firstName }: Ac
                   src="https://lottie.host/594c70e3-f79c-487a-9ef2-748faa04c2d5/mKivmdcAm1.lottie"
                   autoplay
                   loop
-                  style={{ width: 90, height: 90 }}
+                  style={{ width: 70, height: 70 }}
                 />
               </div>
 
@@ -187,17 +187,17 @@ export function AchievementFlipCard({ recognition, employeeName, firstName }: Ac
               <div style={{
                 background: "rgba(0,0,0,0.35)",
                 border: "1px solid rgba(255,255,255,0.12)",
-                borderRadius: 8,
-                padding: "6px 14px",
+                borderRadius: 6,
+                padding: "4px 10px",
                 backdropFilter: "blur(6px)",
-                marginBottom: 10,
+                marginBottom: 6,
               }}>
                 <p style={{
-                  fontSize: 12,
+                  fontSize: 10,
                   fontWeight: 900,
                   color: "#fbbf24",
                   textTransform: "uppercase",
-                  letterSpacing: "0.06em",
+                  letterSpacing: "0.05em",
                   margin: 0,
                   textAlign: "center",
                 }}>
@@ -206,7 +206,7 @@ export function AchievementFlipCard({ recognition, employeeName, firstName }: Ac
               </div>
 
               {/* Hint */}
-              <p style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", letterSpacing: "0.06em" }}>
+              <p style={{ fontSize: 8, color: "rgba(255,255,255,0.4)", letterSpacing: "0.04em" }}>
                 Hover to View Details
               </p>
             </div>
@@ -288,7 +288,7 @@ export function AchievementFlipCard({ recognition, employeeName, firstName }: Ac
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          padding: 16px 14px;
+          padding: 12px 12px;
           gap: 0;
         }
         /* Front has the floating orbs bg */
@@ -303,7 +303,7 @@ export function AchievementFlipCard({ recognition, employeeName, firstName }: Ac
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          padding: 16px;
+          padding: 12px;
           z-index: 10;
         }
         .achievement-orb {

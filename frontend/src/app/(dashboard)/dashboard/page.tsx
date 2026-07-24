@@ -58,6 +58,7 @@ export default function DashboardPage() {
   const [time, setTime] = useState(new Date());
   const [leaveModalData, setLeaveModalData] = useState<{title: string, list: any[]} | null>(null);
   const [currentRecognitionIndex, setCurrentRecognitionIndex] = useState(0);
+  const [liveServiceStats, setLiveServiceStats] = useState<any>(null);
 
   const leaveSummaryRef = useRef<HTMLDivElement>(null);
   const [isLeaveSummaryVisible, setIsLeaveSummaryVisible] = useState(false);
@@ -107,6 +108,49 @@ export default function DashboardPage() {
 
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (!data?.profile?.joining_date) return;
+
+    const calculateLiveServiceStats = () => {
+      const joiningDate = new Date(data.profile.joining_date);
+      const now = new Date();
+
+      let years = now.getFullYear() - joiningDate.getFullYear();
+      let months = now.getMonth() - joiningDate.getMonth();
+      let days = now.getDate() - joiningDate.getDate();
+      let hours = now.getHours() - joiningDate.getHours();
+      let minutes = now.getMinutes() - joiningDate.getMinutes();
+      let seconds = now.getSeconds() - joiningDate.getSeconds();
+
+      if (seconds < 0) {
+        seconds += 60;
+        minutes -= 1;
+      }
+      if (minutes < 0) {
+        minutes += 60;
+        hours -= 1;
+      }
+      if (hours < 0) {
+        hours += 24;
+        days -= 1;
+      }
+      if (days < 0) {
+        days += 30;
+        months -= 1;
+      }
+      if (months < 0) {
+        months += 12;
+        years -= 1;
+      }
+
+      setLiveServiceStats({ years, months, days, hours, minutes, seconds });
+    };
+
+    calculateLiveServiceStats();
+    const interval = setInterval(calculateLiveServiceStats, 1000);
+    return () => clearInterval(interval);
+  }, [data]);
 
   if (loading) return <PageLoader />;
 
@@ -564,8 +608,8 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Right: Service Days Widget — Independent Card */}
-          {profile.service_stats && (
+          {/* Right: Service Days Widget — Independent Card with Live Timer */}
+          {(profile.service_stats || liveServiceStats) && (
             <Link
               href="#"
               onClick={(e) => e.preventDefault()}
@@ -575,8 +619,11 @@ export default function DashboardPage() {
                 <span className="text-base">🌟</span>
                 Growing Together
               </p>
-              <p className="text-sm lg:text-base font-black text-slate-900 dark:text-white">
-                {profile.service_stats.years}Y {profile.service_stats.months}M {profile.service_stats.days}D
+              <p className="text-sm lg:text-base font-black text-slate-900 dark:text-white font-mono">
+                {liveServiceStats
+                  ? `${liveServiceStats.years}Y ${liveServiceStats.months}M ${liveServiceStats.days}D ${liveServiceStats.hours}H ${liveServiceStats.minutes}M ${liveServiceStats.seconds}S`
+                  : `${profile.service_stats.years}Y ${profile.service_stats.months}M ${profile.service_stats.days}D`
+                }
               </p>
             </Link>
           )}
@@ -585,10 +632,10 @@ export default function DashboardPage() {
 
       {/* Achievement Flip Card Carousel — show all active recognitions with slider */}
       {hasActiveRec && profile.active_recognitions && profile.active_recognitions.length > 0 && (
-        <div className="mb-8 flex justify-center">
-          <div className="relative w-full max-w-2xl">
+        <div className="mb-8 flex justify-center px-4">
+          <div className="relative w-full max-w-md">
             {/* Recognition Card */}
-            <div className="min-h-[320px]">
+            <div>
               <AchievementFlipCard
                 recognition={profile.active_recognitions[currentRecognitionIndex]}
                 employeeName={`${profile.first_name} ${profile.last_name}`}
@@ -598,7 +645,7 @@ export default function DashboardPage() {
 
             {/* Navigation Dots - Only show if multiple recognitions */}
             {profile.active_recognitions.length > 1 && (
-              <div className="flex justify-center gap-2 mt-2">
+              <div className="flex justify-center gap-2 mt-4">
                 {profile.active_recognitions.map((_: any, idx: number) => (
                   <button
                     key={idx}
