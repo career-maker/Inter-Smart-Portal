@@ -2998,7 +2998,7 @@ body {
   }
 
   .table-semantic th {
-    @apply px-4 py-3 text-left font-semibold text-sm uppercase letter-spacing-widest border-b;
+    @apply px-4 py-3 text-left font-semibold text-sm uppercase tracking-widest border-b;
     color: var(--text-primary);
     border-color: var(--border-light);
   }
