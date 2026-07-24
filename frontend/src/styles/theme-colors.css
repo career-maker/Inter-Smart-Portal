@@ -1,0 +1,436 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   GLOBAL THEME COLOR SYSTEM
+   Color & Light/Dark Mode Parity with Role Accent Palettes
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ─── SEMANTIC COLOR TOKENS ─── */
+  /* Text Colors - Light Mode (overridable for dark mode) */
+  --text-primary: #0F172A;      /* Headings, primary text */
+  --text-secondary: #1E293B;    /* Body text */
+  --text-tertiary: #64748B;     /* Secondary text, labels */
+  --text-muted: #94A3B8;        /* Disabled, hints, placeholders */
+  --text-inverse: #F8FAFC;      /* Text on dark backgrounds */
+
+  /* Background Colors - Light Mode */
+  --bg-primary: #FFFFFF;        /* Main card/section backgrounds */
+  --bg-secondary: #F8FAFC;      /* Alternative background */
+  --bg-tertiary: #F1F5F9;       /* Input, hover states */
+  --bg-overlay: rgba(0, 0, 0, 0.08);  /* Modal backdrop */
+
+  /* Border Colors - Light Mode */
+  --border-light: #E5E7EB;      /* Primary borders */
+  --border-medium: #D1D5DB;     /* Hover/active borders */
+  --border-dark: #CBD5E1;       /* Disabled borders */
+
+  /* Shadow System - Light Mode */
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-sm: 0 4px 12px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 12px 40px rgba(15, 23, 42, 0.12);
+  --shadow-xl: 0 16px 48px rgba(15, 23, 42, 0.15);
+
+  /* Role-Based Accent Palettes */
+  /* Super Admin: Crimson/Coral */
+  --role-admin-bg: rgba(244, 63, 94, 0.08);
+  --role-admin-border: rgba(244, 63, 94, 0.2);
+  --role-admin-text: #BE184D;
+  --role-admin-light: #FFE4E6;
+  --role-admin-accent: #F63E7F;
+
+  /* Team Lead: Indigo/Cyan */
+  --role-lead-bg: rgba(99, 102, 241, 0.08);
+  --role-lead-border: rgba(99, 102, 241, 0.2);
+  --role-lead-text: #4F46E5;
+  --role-lead-light: #E0E7FF;
+  --role-lead-accent: #6366F1;
+
+  /* Employee: Emerald/Amber */
+  --role-employee-bg: rgba(16, 185, 129, 0.08);
+  --role-employee-border: rgba(16, 185, 129, 0.2);
+  --role-employee-text: #059669;
+  --role-employee-light: #D1FAE5;
+  --role-employee-accent: #10B981;
+
+  /* Status Colors - Light Mode */
+  --status-success: #10B981;
+  --status-success-bg: #F0FDF4;
+  --status-success-border: #BBF7D0;
+
+  --status-warning: #B45309;
+  --status-warning-bg: #FFFBEB;
+  --status-warning-border: #FEF08A;
+
+  --status-error: #991B1B;
+  --status-error-bg: #FEF2F2;
+  --status-error-border: #FECACA;
+
+  --status-info: #0C2D6B;
+  --status-info-bg: #EFF6FF;
+  --status-info-border: #BFDBFE;
+}
+
+.dark {
+  /* ─── DARK MODE SEMANTIC OVERRIDES ─── */
+  --text-primary: #F8FAFC;      /* Light text */
+  --text-secondary: #E2E8F0;    /* Body text */
+  --text-tertiary: #94A3B8;     /* Secondary text */
+  --text-muted: #64748B;        /* Disabled, hints */
+  --text-inverse: #0F172A;      /* Text on light backgrounds */
+
+  /* Background Colors - Dark Mode */
+  --bg-primary: #1E293B;        /* Main backgrounds */
+  --bg-secondary: #0F172A;      /* Alternative background */
+  --bg-tertiary: #334155;       /* Input, hover states */
+  --bg-overlay: rgba(0, 0, 0, 0.4);  /* Modal backdrop */
+
+  /* Border Colors - Dark Mode */
+  --border-light: rgba(255, 255, 255, 0.1);
+  --border-medium: rgba(255, 255, 255, 0.15);
+  --border-dark: rgba(255, 255, 255, 0.2);
+
+  /* Shadow System - Dark Mode (glassmorphic) */
+  --shadow-xs: 0 4px 12px rgba(0, 0, 0, 0.2);
+  --shadow-sm: 0 8px 20px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 64px rgba(0, 0, 0, 0.6);
+
+  /* Role-Based Accent Palettes - Dark Mode */
+  /* Super Admin: Crimson/Coral */
+  --role-admin-bg: rgba(244, 63, 94, 0.15);
+  --role-admin-border: rgba(244, 63, 94, 0.3);
+  --role-admin-text: #FF6B9D;
+  --role-admin-light: #7D1D3B;
+  --role-admin-accent: #F63E7F;
+
+  /* Team Lead: Indigo/Cyan */
+  --role-lead-bg: rgba(99, 102, 241, 0.15);
+  --role-lead-border: rgba(99, 102, 241, 0.3);
+  --role-lead-text: #A5B4FC;
+  --role-lead-light: #3730A3;
+  --role-lead-accent: #818CF8;
+
+  /* Employee: Emerald/Amber */
+  --role-employee-bg: rgba(16, 185, 129, 0.15);
+  --role-employee-border: rgba(16, 185, 129, 0.3);
+  --role-employee-text: #6EE7B7;
+  --role-employee-light: #064E3B;
+  --role-employee-accent: #34D399;
+
+  /* Status Colors - Dark Mode */
+  --status-success: #34D399;
+  --status-success-bg: rgba(52, 211, 153, 0.1);
+  --status-success-border: rgba(52, 211, 153, 0.25);
+
+  --status-warning: #FBBF24;
+  --status-warning-bg: rgba(251, 191, 36, 0.1);
+  --status-warning-border: rgba(251, 191, 36, 0.25);
+
+  --status-error: #EF5350;
+  --status-error-bg: rgba(239, 83, 80, 0.1);
+  --status-error-border: rgba(239, 83, 80, 0.25);
+
+  --status-info: #60A5FA;
+  --status-info-bg: rgba(96, 165, 250, 0.1);
+  --status-info-border: rgba(96, 165, 250, 0.25);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   UTILITY CLASSES - THEME-AWARE
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@layer components {
+  /* Text color utilities */
+  .text-primary {
+    color: var(--text-primary);
+  }
+
+  .text-secondary {
+    color: var(--text-secondary);
+  }
+
+  .text-tertiary {
+    color: var(--text-tertiary);
+  }
+
+  .text-muted {
+    color: var(--text-muted);
+  }
+
+  /* Background utilities */
+  .bg-primary {
+    background-color: var(--bg-primary);
+  }
+
+  .bg-secondary {
+    background-color: var(--bg-secondary);
+  }
+
+  .bg-tertiary {
+    background-color: var(--bg-tertiary);
+  }
+
+  /* Border utilities */
+  .border-primary {
+    border-color: var(--border-light);
+  }
+
+  .border-secondary {
+    border-color: var(--border-medium);
+  }
+
+  .border-tertiary {
+    border-color: var(--border-dark);
+  }
+
+  /* Shadow utilities */
+  .shadow-xs {
+    box-shadow: var(--shadow-xs);
+  }
+
+  .shadow-sm {
+    box-shadow: var(--shadow-sm);
+  }
+
+  .shadow-md {
+    box-shadow: var(--shadow-md);
+  }
+
+  .shadow-lg {
+    box-shadow: var(--shadow-lg);
+  }
+
+  .shadow-xl {
+    box-shadow: var(--shadow-xl);
+  }
+
+  /* ─── ROLE-BASED CARD STYLING ─── */
+  .role-card {
+    @apply rounded-2xl p-6 border transition-all duration-300;
+    background-color: var(--bg-primary);
+    border-color: var(--border-light);
+  }
+
+  .role-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--border-medium);
+  }
+
+  /* Super Admin Role Badge */
+  .role-admin-card {
+    background: linear-gradient(135deg, var(--role-admin-bg) 0%, rgba(244, 63, 94, 0.04) 100%);
+    border: 1px solid var(--role-admin-border);
+  }
+
+  .role-admin-card:hover {
+    box-shadow: 0 0 20px rgba(244, 63, 94, 0.15);
+  }
+
+  .role-admin-badge {
+    @apply inline-flex items-center gap-2 px-3 py-1 rounded-lg text-sm font-semibold;
+    background-color: var(--role-admin-bg);
+    color: var(--role-admin-text);
+    border: 1px solid var(--role-admin-border);
+  }
+
+  .role-admin-text {
+    color: var(--role-admin-accent);
+  }
+
+  /* Team Lead Role Badge */
+  .role-lead-card {
+    background: linear-gradient(135deg, var(--role-lead-bg) 0%, rgba(99, 102, 241, 0.04) 100%);
+    border: 1px solid var(--role-lead-border);
+  }
+
+  .role-lead-card:hover {
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.15);
+  }
+
+  .role-lead-badge {
+    @apply inline-flex items-center gap-2 px-3 py-1 rounded-lg text-sm font-semibold;
+    background-color: var(--role-lead-bg);
+    color: var(--role-lead-text);
+    border: 1px solid var(--role-lead-border);
+  }
+
+  .role-lead-text {
+    color: var(--role-lead-accent);
+  }
+
+  /* Employee Role Badge */
+  .role-employee-card {
+    background: linear-gradient(135deg, var(--role-employee-bg) 0%, rgba(16, 185, 129, 0.04) 100%);
+    border: 1px solid var(--role-employee-border);
+  }
+
+  .role-employee-card:hover {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
+  }
+
+  .role-employee-badge {
+    @apply inline-flex items-center gap-2 px-3 py-1 rounded-lg text-sm font-semibold;
+    background-color: var(--role-employee-bg);
+    color: var(--role-employee-text);
+    border: 1px solid var(--role-employee-border);
+  }
+
+  .role-employee-text {
+    color: var(--role-employee-accent);
+  }
+
+  /* ─── STATUS BADGE UTILITIES ─── */
+  .badge-success {
+    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-semibold;
+    background-color: var(--status-success-bg);
+    color: var(--status-success);
+    border: 1px solid var(--status-success-border);
+  }
+
+  .badge-warning {
+    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-semibold;
+    background-color: var(--status-warning-bg);
+    color: var(--status-warning);
+    border: 1px solid var(--status-warning-border);
+  }
+
+  .badge-error {
+    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-semibold;
+    background-color: var(--status-error-bg);
+    color: var(--status-error);
+    border: 1px solid var(--status-error-border);
+  }
+
+  .badge-info {
+    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-semibold;
+    background-color: var(--status-info-bg);
+    color: var(--status-info);
+    border: 1px solid var(--status-info-border);
+  }
+
+  /* ─── SEMANTIC CARD COMPONENTS ─── */
+  .semantic-card {
+    @apply rounded-2xl p-6 border transition-all duration-300;
+    background-color: var(--bg-primary);
+    color: var(--text-secondary);
+    border-color: var(--border-light);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .semantic-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--border-medium);
+  }
+
+  /* ─── INPUT & FORM ELEMENTS ─── */
+  .form-input,
+  .form-select,
+  .form-textarea {
+    @apply w-full rounded-lg border px-4 py-2 text-sm transition-all duration-200;
+    background-color: var(--bg-primary);
+    color: var(--text-secondary);
+    border-color: var(--border-light);
+  }
+
+  .form-input:hover,
+  .form-select:hover,
+  .form-textarea:hover {
+    border-color: var(--border-medium);
+    background-color: var(--bg-secondary);
+  }
+
+  .form-input:focus,
+  .form-select:focus,
+  .form-textarea:focus {
+    outline: none;
+    border-color: #3B82F6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    background-color: var(--bg-primary);
+  }
+
+  .form-input::placeholder,
+  .form-select::placeholder,
+  .form-textarea::placeholder {
+    color: var(--text-muted);
+  }
+
+  /* ─── BUTTON VARIANTS ─── */
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-lg px-4 py-2 font-semibold transition-all duration-200;
+    background-color: #3B82F6;
+    color: white;
+    border: 1px solid #3B82F6;
+  }
+
+  .btn-primary:hover {
+    background-color: #2563EB;
+    border-color: #2563EB;
+    box-shadow: 0 0 20px rgba(37, 99, 235, 0.2);
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-lg px-4 py-2 font-semibold transition-all duration-200;
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-light);
+  }
+
+  .btn-secondary:hover {
+    background-color: var(--bg-secondary);
+    border-color: var(--border-medium);
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center rounded-lg px-4 py-2 font-semibold transition-all duration-200;
+    background-color: transparent;
+    color: var(--text-tertiary);
+    border: 1px solid transparent;
+  }
+
+  .btn-ghost:hover {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-light);
+  }
+
+  /* ─── DIVIDER ─── */
+  .divider {
+    @apply my-4;
+    height: 1px;
+    background-color: var(--border-light);
+  }
+
+  /* ─── ALERT/CALLOUT ─── */
+  .alert {
+    @apply rounded-lg border p-4;
+    background-color: var(--bg-secondary);
+    border-color: var(--border-light);
+    color: var(--text-secondary);
+  }
+
+  .alert-success {
+    background-color: var(--status-success-bg);
+    border-color: var(--status-success-border);
+    color: var(--status-success);
+  }
+
+  .alert-warning {
+    background-color: var(--status-warning-bg);
+    border-color: var(--status-warning-border);
+    color: var(--status-warning);
+  }
+
+  .alert-error {
+    background-color: var(--status-error-bg);
+    border-color: var(--status-error-border);
+    color: var(--status-error);
+  }
+
+  .alert-info {
+    background-color: var(--status-info-bg);
+    border-color: var(--status-info-border);
+    color: var(--status-info);
+  }
+}
