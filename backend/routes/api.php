@@ -24,6 +24,14 @@ Route::prefix('leave-requests')->group(function () {
         ->name('leave-request.email-reject');
 });
 
+// TA Email action routes (signed URLs, no auth required)
+Route::prefix('ta-requests')->group(function () {
+    Route::get('{taRequest}/email-approve', [\App\Http\Controllers\Api\TARequestController::class, 'emailApprove'])
+        ->name('ta-request.email-approve');
+    Route::get('{taRequest}/email-reject', [\App\Http\Controllers\Api\TARequestController::class, 'emailReject'])
+        ->name('ta-request.email-reject');
+});
+
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);

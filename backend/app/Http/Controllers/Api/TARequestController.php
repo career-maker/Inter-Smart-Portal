@@ -5,9 +5,12 @@ namespace App\Http\Controllers\Api;
 use App\Models\TARequest;
 use App\Models\TARequestItem;
 use App\Models\Notification;
+use App\Mail\TARequestMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
 
 class TARequestController
 {
@@ -106,6 +109,22 @@ class TARequestController
                 'data' => json_encode(['ta_request_id' => $taRequest->id]),
                 'is_read' => false,
             ]);
+        }
+
+        // Send email to HR and admin
+        $approveUrl = URL::signedRoute('ta-request.email-approve', ['taRequest' => $taRequest->id]);
+        $rejectUrl = URL::signedRoute('ta-request.email-reject', ['taRequest' => $taRequest->id]);
+
+        $emailData = [
+            'employee_name' => "{$user->first_name} {$user->last_name}",
+            'approve_url' => $approveUrl,
+            'reject_url' => $rejectUrl,
+        ];
+
+        // Send to HR emails
+        $hrEmails = ['HR@intersmart.in', 'Ameesha@intersmart.in'];
+        foreach ($hrEmails as $email) {
+            Mail::to($email)->send(new TARequestMail($taRequest, $emailData));
         }
 
         return response()->json([
@@ -263,5 +282,33 @@ class TARequestController
                 'last_page' => $requests->lastPage(),
             ],
         ]);
+    }
+
+    public function emailApprove(Request $request, TARequest $taRequest)
+    {
+        // Verify signature - no auth required, but URL must be signed
+        if (!$request->hasValidSignature()) {
+            return response()->json(['message' => 'Invalid or expired link'], 401);
+        }
+
+        // Get frontend URL from environment or config
+        $frontendUrl = env('FRONTEND_URL', config('app.frontend_url', 'http://localhost:3000'));
+
+        // Redirect to frontend TA management page with the request ID
+        return redirect("{$frontendUrl}/ta/management?action=approve&id={$taRequest->id}");
+    }
+
+    public function emailReject(Request $request, TARequest $taRequest)
+    {
+        // Verify signature - no auth required, but URL must be signed
+        if (!$request->hasValidSignature()) {
+            return response()->json(['message' => 'Invalid or expired link'], 401);
+        }
+
+        // Get frontend URL from environment or config
+        $frontendUrl = env('FRONTEND_URL', config('app.frontend_url', 'http://localhost:3000'));
+
+        // Redirect to frontend TA management page with the request ID
+        return redirect("{$frontendUrl}/ta/management?action=reject&id={$taRequest->id}");
     }
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Loader2,
   CheckCircle,
@@ -9,6 +9,7 @@ import {
   Clock,
   DollarSign,
   Download,
+  AlertCircle,
 } from "lucide-react";
 import api from "@/services/api";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -33,6 +34,7 @@ interface TARequest {
 
 export default function TAManagementPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuthStore();
 
   const [requests, setRequests] = useState<TARequest[]>([]);
@@ -41,11 +43,21 @@ export default function TAManagementPage() {
   const [actionLoading, setActionLoading] = useState<number | null>(null);
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [approvalNotes, setApprovalNotes] = useState<{ [key: number]: string }>({});
+  const [emailAction, setEmailAction] = useState<{ action: string; id: number } | null>(null);
+
+  useEffect(() => {
+    // Check for email action parameters
+    const action = searchParams.get("action");
+    const id = searchParams.get("id");
+    if (action && id) {
+      setEmailAction({ action, id: parseInt(id) });
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (user && user.role !== "Super Admin") {
       router.push("/dashboard");
-    } else {
+    } else if (user && user.role === "Super Admin") {
       fetchRequests();
     }
   }, [user, router, filter]);
@@ -155,6 +167,22 @@ export default function TAManagementPage() {
         </p>
       </div>
 
+      {/* Email Action Alert */}
+      {emailAction && (
+        <div className={`rounded-lg p-4 flex items-center gap-3 ${
+          emailAction.action === "approve"
+            ? "bg-emerald-500/20 border border-emerald-500/50 text-emerald-300"
+            : "bg-red-500/20 border border-red-500/50 text-red-300"
+        }`}>
+          <AlertCircle className="w-5 h-5" />
+          <p>
+            {emailAction.action === "approve"
+              ? "You clicked the approval link. Please review the request below and confirm."
+              : "You clicked the rejection link. Please review the request below and provide rejection notes."}
+          </p>
+        </div>
+      )}
+
       {/* Filter */}
       <div className="flex gap-2 overflow-x-auto pb-2">
         {filterOptions.map((option) => (
@@ -188,10 +216,19 @@ export default function TAManagementPage() {
         </Card>
       ) : (
         <div className="space-y-4">
-          {requests.map((request) => (
+          {requests.map((request) => {
+            // Auto-expand if accessed via email link
+            const isEmailTarget = emailAction && emailAction.id === request.id;
+            const isExpanded = expandedId === request.id || isEmailTarget;
+
+            return (
             <Card
               key={request.id}
-              className="border-slate-700 bg-slate-800/50 text-white hover:bg-slate-800/80 transition-colors"
+              className={`border-slate-700 text-white transition-colors ${
+                isEmailTarget
+                  ? "bg-slate-800 border-amber-500/50"
+                  : "bg-slate-800/50 hover:bg-slate-800/80"
+              }`}
             >
               <CardHeader>
                 <div className="flex items-start justify-between gap-4">
@@ -199,7 +236,7 @@ export default function TAManagementPage() {
                     <div className="flex items-center gap-3 mb-2">
                       <button
                         onClick={() =>
-                          setExpandedId(expandedId === request.id ? null : request.id)
+                          setExpandedId(isExpanded ? null : request.id)
                         }
                         className="flex items-center gap-2 flex-1 hover:opacity-80 transition"
                       >
@@ -247,7 +284,7 @@ export default function TAManagementPage() {
               </CardHeader>
 
               {/* Expanded Details */}
-              {expandedId === request.id && (
+              {isExpanded && (
                 <CardContent className="space-y-4 border-t border-slate-700 pt-4">
                   {/* Breakdown */}
                   <div className="bg-slate-900/50 rounded-lg p-4 space-y-2">
@@ -377,7 +414,8 @@ export default function TAManagementPage() {
                 </CardContent>
               )}
             </Card>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

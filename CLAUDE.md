@@ -273,6 +273,11 @@ amount (decimal 10,2), description (text, nullable), timestamps
 - `POST /api/ta-requests/{id}/reject` — reject TA request
 - `POST /api/ta-requests/{id}/mark-paid` — mark as paid/unpaid
 
+**Email Action Routes (Signed URLs, No Auth Required):**
+- `GET /api/ta-requests/{id}/email-approve` — email link for quick approval
+- `GET /api/ta-requests/{id}/email-reject` — email link for quick rejection
+- These routes redirect to frontend management page with action and ID parameters
+
 ---
 
 ## 8. Leave Management Rules
@@ -306,6 +311,28 @@ Jan 1 2028: Only unused from the 12 (2027 allocation) carry forward
 ---
 
 ## 9. Key Implementation Details
+
+### Travel Allowance Email Notifications
+**When TA is Applied:**
+- Emails sent to: `HR@intersmart.in` and `Ameesha@intersmart.in`
+- Email includes: Employee details, travel date, expense breakdown, total amount, bill attachment link
+- Email contains two action buttons (with signed URLs):
+  - **Approve** link: Redirects to admin management page with `action=approve&id={taRequestId}`
+  - **Reject** link: Redirects to admin management page with `action=reject&id={taRequestId}`
+- Signed URLs expire (Laravel's URL signature validation prevents tampering)
+
+**Email Click Workflow:**
+1. HR clicks approve/reject in email
+2. Backend validates signed URL (no authentication required)
+3. Backend redirects to frontend: `/ta/management?action=approve&id={id}`
+4. Frontend checks if user is Super Admin; if not, redirects to login
+5. If admin is logged in, shows alert about email action and auto-expands the request
+6. Admin can then confirm the action with optional notes
+
+**Configuration:**
+- Frontend URL needed for email redirects: Set `FRONTEND_URL` in backend `.env`
+  - Example: `FRONTEND_URL=https://intersmart-portal.vercel.app`
+  - Falls back to `http://localhost:3000` if not set
 
 ### Team Code Auto-Generation (TeamController@store)
 ```php
