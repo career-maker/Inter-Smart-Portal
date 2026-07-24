@@ -69,7 +69,7 @@ class TARequestController
             'items.*.category' => 'required|string',
             'items.*.amount' => 'required|numeric|min:0',
             'items.*.description' => 'nullable|string',
-            'bill' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'bill_link' => 'nullable|url|max:500',
         ]);
 
         $totalAmount = collect($validated['items'])->sum('amount');
@@ -79,14 +79,9 @@ class TARequestController
             'reason' => $validated['reason'],
             'date_travelled' => $validated['date_travelled'],
             'total_amount' => $totalAmount,
+            'bill_link' => $validated['bill_link'] ?? null,
             'created_by' => $user->id,
         ]);
-
-        // Handle file upload
-        if ($request->hasFile('bill')) {
-            $path = $request->file('bill')->store('ta-bills', 'public');
-            $taRequest->update(['bill_path' => $path]);
-        }
 
         // Create breakdown items
         foreach ($validated['items'] as $item) {

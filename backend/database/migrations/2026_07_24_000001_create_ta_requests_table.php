@@ -14,7 +14,7 @@ return new class extends Migration
             $table->text('reason');
             $table->date('date_travelled');
             $table->decimal('total_amount', 10, 2);
-            $table->string('bill_path')->nullable();
+            $table->text('bill_link')->nullable();
             $table->enum('status', ['Applied', 'Approved', 'Rejected', 'Paid', 'Unpaid'])->default('Applied');
             $table->foreignId('approver_id')->nullable()->constrained('users')->nullOnDelete();
             $table->text('approval_notes')->nullable();

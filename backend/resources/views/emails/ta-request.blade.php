@@ -292,6 +292,14 @@
                     </table>
                 </div>
 
+                <!-- Bill Link -->
+                @if($taRequest->bill_link)
+                    <div style="margin-top: 20px; background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 15px; border-radius: 4px;">
+                        <div style="font-size: 13px; font-weight: 600; color: #1e40af; text-transform: uppercase; margin-bottom: 8px;">Bill/Receipt</div>
+                        <a href="{{ $taRequest->bill_link }}" target="_blank" style="color: #3b82f6; text-decoration: none; font-weight: 600;">View Bill/Receipt →</a>
+                    </div>
+                @endif
+
                 <!-- Action -->
                 <div class="action-box">
                     <div class="action-title">Next Steps</div>

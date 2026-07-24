@@ -24,7 +24,7 @@ export function TAApplyModal({ isOpen, onClose, onSuccess }: TAApplyModalProps) 
   const [items, setItems] = useState<TAItem[]>([
     { category: "Travel", amount: 0, description: "" },
   ]);
-  const [billFile, setBillFile] = useState<File | null>(null);
+  const [billLink, setBillLink] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -60,30 +60,26 @@ export function TAApplyModal({ isOpen, onClose, onSuccess }: TAApplyModalProps) 
     setIsLoading(true);
 
     try {
-      const formData = new FormData();
-      formData.append("reason", reason);
-      formData.append("date_travelled", dateTravelled);
+      const payload: any = {
+        reason,
+        date_travelled: dateTravelled,
+        items: items.map(item => ({
+          category: item.category,
+          amount: item.amount,
+          description: item.description || null,
+        })),
+      };
 
-      items.forEach((item, index) => {
-        formData.append(`items[${index}][category]`, item.category);
-        formData.append(`items[${index}][amount]`, item.amount.toString());
-        if (item.description) {
-          formData.append(`items[${index}][description]`, item.description);
-        }
-      });
-
-      if (billFile) {
-        formData.append("bill", billFile);
+      if (billLink) {
+        payload.bill_link = billLink;
       }
 
-      await api.post("/ta-requests", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      await api.post("/ta-requests", payload);
 
       setReason("");
       setDateTravelled("");
       setItems([{ category: "Travel", amount: 0, description: "" }]);
-      setBillFile(null);
+      setBillLink("");
       onSuccess();
       onClose();
     } catch (err: any) {
@@ -213,23 +209,24 @@ export function TAApplyModal({ isOpen, onClose, onSuccess }: TAApplyModalProps) 
             </div>
           </div>
 
-          {/* Bill Upload */}
+          {/* Bill Link */}
           <div>
             <label className="block text-sm font-semibold mb-2 text-slate-300">
-              Upload Bill/Receipt
+              Bill/Receipt Link (Optional)
             </label>
             <input
-              type="file"
-              accept=".pdf,.jpg,.jpeg,.png"
-              onChange={(e) => setBillFile(e.target.files?.[0] || null)}
-              className="w-full px-4 py-3 bg-slate-800 border border-white/10 rounded-lg text-white text-sm file:bg-amber-600 file:text-white file:border-0 file:px-3 file:py-2 file:rounded file:cursor-pointer file:hover:bg-amber-700 transition-colors"
+              type="url"
+              value={billLink}
+              onChange={(e) => setBillLink(e.target.value)}
+              placeholder="https://drive.google.com/... or https://example.com/bill"
+              className="w-full px-4 py-3 bg-slate-800 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-400"
             />
             <p className="text-xs text-slate-400 mt-1">
-              Accepted formats: PDF, JPG, PNG (Max 5MB)
+              Provide a direct link to your bill or receipt (Google Drive, OneDrive, etc.)
             </p>
-            {billFile && (
+            {billLink && (
               <p className="text-sm text-emerald-400 mt-2">
-                ✓ {billFile.name}
+                ✓ Link added: {billLink}
               </p>
             )}
           </div>

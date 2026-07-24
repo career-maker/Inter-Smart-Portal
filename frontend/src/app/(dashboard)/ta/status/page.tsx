@@ -18,7 +18,7 @@ interface TARequest {
   reason: string;
   date_travelled: string;
   total_amount: number;
-  bill_path?: string;
+  bill_link?: string;
   status: string;
   is_paid: boolean;
   approval_notes?: string;
@@ -220,11 +220,11 @@ export default function TAStatusPage() {
                   ))}
                 </div>
 
-                {/* Bill & Notes */}
+                {/* Bill Link & Date */}
                 <div className="flex items-center justify-between text-sm">
-                  {request.bill_path ? (
+                  {request.bill_link ? (
                     <a
-                      href={`/storage/${request.bill_path}`}
+                      href={request.bill_link}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-amber-400 hover:text-amber-300 flex items-center gap-2"
@@ -233,7 +233,7 @@ export default function TAStatusPage() {
                       View Bill
                     </a>
                   ) : (
-                    <span className="text-slate-500">No bill attached</span>
+                    <span className="text-slate-500">No bill link provided</span>
                   )}
                   <p className="text-slate-500">
                     {formatDate(request.created_at)}

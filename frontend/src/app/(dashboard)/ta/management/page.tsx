@@ -23,7 +23,7 @@ interface TARequest {
   reason: string;
   date_travelled: string;
   total_amount: number;
-  bill_path?: string;
+  bill_link?: string;
   status: string;
   is_paid: boolean;
   approval_notes?: string;
@@ -316,9 +316,9 @@ export default function TAManagementPage() {
                   </div>
 
                   {/* Bill Link */}
-                  {request.bill_path && (
+                  {request.bill_link && (
                     <a
-                      href={`/storage/${request.bill_path}`}
+                      href={request.bill_link}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 px-4 py-2 bg-slate-700/50 hover:bg-slate-700 rounded-lg text-amber-400 text-sm transition-colors"

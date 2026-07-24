@@ -210,7 +210,7 @@ id, user_id, date, check_in, check_out, break_start, break_end, status, timestam
 ### ta_requests
 ```
 id, user_id (FK→users), reason (text), date_travelled (date), total_amount (decimal 10,2),
-bill_path (string, nullable), status (enum: Applied/Approved/Rejected/Paid/Unpaid),
+bill_link (text, nullable), status (enum: Applied/Approved/Rejected/Paid/Unpaid),
 approver_id (FK→users, nullable), approval_notes (text, nullable), is_paid (boolean),
 paid_at (datetime, nullable), created_by (FK→users), updated_by (FK→users, nullable),
 deleted_at (soft delete), timestamps
