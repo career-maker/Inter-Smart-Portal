@@ -222,29 +222,29 @@ export default function AttendancePage() {
           ) : (
             <div className="overflow-x-auto rounded-md border border-slate-200 dark:border-white/10">
               <table className="w-full text-sm text-left">
-                <thead className="text-xs text-slate-600 dark:text-slate-300 uppercase bg-slate-100/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-white/10">
+                <thead className="sticky top-0 text-xs text-slate-600 dark:text-slate-300 uppercase bg-slate-100/80 dark:bg-slate-900/90 border-b border-slate-200 dark:border-white/10 backdrop-blur-sm">
                   <tr>
-                    <th className="px-4 py-4">Date</th>
-                    <th className="px-4 py-4">Day</th>
-                    <th className="px-4 py-4">Clock In</th>
-                    <th className="px-4 py-4">Clock Out</th>
-                    <th className="px-4 py-4">Break Time</th>
-                    <th className="px-4 py-4 text-right">Effective Hours</th>
-                    <th className="px-4 py-4">Status</th>
-                    <th className="px-4 py-4 text-center">Actions</th>
+                    <th className="px-4 py-4 font-semibold">Date</th>
+                    <th className="px-4 py-4 font-semibold">Day</th>
+                    <th className="px-4 py-4 font-semibold">Clock In</th>
+                    <th className="px-4 py-4 font-semibold">Clock Out</th>
+                    <th className="px-4 py-4 font-semibold">Break Time</th>
+                    <th className="px-4 py-4 text-right font-semibold">Effective Hours</th>
+                    <th className="px-4 py-4 font-semibold">Status</th>
+                    <th className="px-4 py-4 text-center font-semibold">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="text-slate-200">
-                  {getFilteredHistory().map((record) => {
+                  {getFilteredHistory().map((record, idx) => {
                     const totalBreakMins = record.breaks?.reduce((acc: number, b: any) => acc + (b.total_break_minutes || 0), 0) || 0;
                     const recordDate = new Date(record.date);
                     const dayName = recordDate.toLocaleDateString([], { weekday: 'short' });
                     return (
-                      <tr key={record.id} className="border-b border-slate-200 dark:border-white/5 hover:bg-slate-700/50 transition-colors">
+                      <tr key={record.id} className={`border-b border-slate-200 dark:border-white/5 transition-colors ${idx % 2 === 0 ? "bg-slate-50/50 dark:bg-slate-800/20" : ""} hover:bg-slate-100 dark:hover:bg-white/10`}>
                         <td className="px-4 py-4 font-medium text-slate-900 dark:text-white">{recordDate.toLocaleDateString()}</td>
-                        <td className="px-4 py-4 text-slate-600 dark:text-slate-300 text-xs">{dayName}</td>
-                        <td className="px-4 py-4 text-emerald-400 font-medium">{formatTime(record.check_in_time)}</td>
-                        <td className="px-4 py-4 text-rose-400 font-medium">{formatTime(record.check_out_time)}</td>
+                        <td className="px-4 py-4 text-slate-600 dark:text-slate-300 text-xs font-medium">{dayName}</td>
+                        <td className="px-4 py-4 text-emerald-400 font-semibold">{formatTime(record.check_in_time)}</td>
+                        <td className="px-4 py-4 text-rose-400 font-semibold">{formatTime(record.check_out_time)}</td>
                         <td className="px-4 py-4 text-slate-600 dark:text-slate-300">{formatMinutesToHours(totalBreakMins)}</td>
                         <td className="px-4 py-4 text-right font-bold text-blue-400">
                           {record.total_working_minutes !== null ? formatMinutesToHours(record.total_working_minutes) : '--'}

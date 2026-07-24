@@ -20,7 +20,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { PageLoader } from "@/components/ui/PageLoader";
 import { useAuthStore } from "@/store/auth";
-import { DailySummaryCard, DailyActivityTimeline, AdminLeaveWfhModal } from "@/components/attendance";
+import { BiometricPunchTimeline } from "@/components/attendance/BiometricPunchTimeline";
+import { DailySummaryCard, AdminLeaveWfhModal } from "@/components/attendance";
 
 type ViewMode = "selector" | "dateWise" | "dateAllEmployees";
 
@@ -554,7 +555,7 @@ export default function AttendanceManagementPage() {
                   {/* Table */}
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
-                      <thead className="border-b border-slate-200 dark:border-white/10">
+                      <thead className="sticky top-0 bg-slate-900/50 dark:bg-slate-900/80 border-b border-slate-200 dark:border-white/10 backdrop-blur-sm">
                         <tr>
                           <SortHeader column="name" label="Employee" />
                           <SortHeader column="code" label="Code" />
@@ -567,25 +568,25 @@ export default function AttendanceManagementPage() {
                         </tr>
                       </thead>
                     <tbody>
-                      {sortedEmployeesData().map((emp) => {
+                      {sortedEmployeesData().map((emp, idx) => {
                         const attendance = emp.attendance || {};
                         return (
-                          <tr key={emp.id} className="border-b border-slate-200 dark:border-white/5 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
-                            <td className="py-3 px-4 text-slate-900 dark:text-white">{emp.first_name} {emp.last_name}</td>
-                            <td className="py-3 px-4 text-slate-600 dark:text-slate-300">{emp.employee_code}</td>
+                          <tr key={emp.id} className={`border-b border-slate-200 dark:border-white/5 transition-colors ${idx % 2 === 0 ? "bg-slate-50/50 dark:bg-slate-800/20" : ""} hover:bg-slate-100 dark:hover:bg-white/10`}>
+                            <td className="py-3 px-4 text-slate-900 dark:text-white font-medium">{emp.first_name} {emp.last_name}</td>
+                            <td className="py-3 px-4 text-slate-600 dark:text-slate-300 font-mono text-xs">{emp.employee_code}</td>
                             <td className="py-3 px-4 text-slate-600 dark:text-slate-300">{emp.designation || "N/A"}</td>
                             <td className="py-3 px-4 text-slate-600 dark:text-slate-300">{emp.team?.name || "Unassigned"}</td>
-                            <td className="py-3 px-4 text-center text-emerald-400">
+                            <td className="py-3 px-4 text-center text-emerald-400 font-semibold">
                               {attendance.first_in ? formatTime(attendance.first_in) : "--:--"}
                             </td>
-                            <td className="py-3 px-4 text-center text-rose-400">
+                            <td className="py-3 px-4 text-center text-rose-400 font-semibold">
                               {attendance.last_out ? formatTime(attendance.last_out) : "--:--"}
                             </td>
-                            <td className="py-3 px-4 text-center text-blue-400">
+                            <td className="py-3 px-4 text-center text-blue-400 font-semibold">
                               {attendance.total_working_minutes ? formatMinutesToHours(attendance.total_working_minutes) : "--"}
                             </td>
                             <td className="py-3 px-4 text-center">
-                              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              <span className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold ${
                                 attendance.status_label === "Present" ? "bg-emerald-500/20 text-emerald-400" :
                                 attendance.status_label === "Absent" ? "bg-rose-500/20 text-rose-400" :
                                 "bg-slate-500/20 text-slate-400"
@@ -726,17 +727,15 @@ export default function AttendanceManagementPage() {
 
                   <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white">
                     <CardHeader className="pb-4 border-b border-slate-200 dark:border-white/5">
-                      <CardTitle>Daily Activity Timeline</CardTitle>
+                      <CardTitle>Biometric Punch Timeline</CardTitle>
                       <CardDescription className="text-slate-500 dark:text-slate-400">
-                        Chronological record of all punch events
+                        Complete record of all punch events in chronological order
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="pt-6">
-                      <DailyActivityTimeline
-                        rawPunches={dailyDetails.raw_punches || []}
+                      <BiometricPunchTimeline
+                        punches={dailyDetails.raw_punches || []}
                         isCurrentlyWorking={dailyDetails.is_currently_working}
-                        firstIn={dailyDetails.first_in}
-                        lastOut={dailyDetails.last_out}
                       />
                     </CardContent>
                   </Card>
