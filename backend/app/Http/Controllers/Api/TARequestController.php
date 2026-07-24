@@ -55,52 +55,64 @@ class TARequestController
 
     public function store(Request $request)
     {
-        $user = Auth::user();
+        try {
+            $user = Auth::user();
 
-        // Only Employee and Team Lead can apply (using Spatie roles)
-        $allowedRoles = ['Employee', 'Team Lead'];
-        $hasAllowedRole = false;
+            // Only Employee and Team Lead can apply (using Spatie roles)
+            $allowedRoles = ['Employee', 'Team Lead'];
+            $hasAllowedRole = false;
 
-        foreach ($allowedRoles as $role) {
-            if ($user->hasRole($role)) {
-                $hasAllowedRole = true;
-                break;
+            foreach ($allowedRoles as $role) {
+                if ($user->hasRole($role)) {
+                    $hasAllowedRole = true;
+                    break;
+                }
             }
-        }
 
-        if (!$hasAllowedRole) {
-            return response()->json(['message' => 'Only employees and team leads can apply for travel allowance'], 403);
-        }
+            if (!$hasAllowedRole) {
+                return response()->json(['message' => 'Only employees and team leads can apply for travel allowance'], 403);
+            }
 
-        $validated = $request->validate([
-            'reason' => 'required|string|max:500',
-            'date_travelled' => 'required|date',
-            'items' => 'required|array|min:1',
-            'items.*.category' => 'required|string',
-            'items.*.amount' => 'required|numeric|min:0',
-            'items.*.description' => 'nullable|string',
-            'bill_link' => 'nullable|url|max:500',
-        ]);
-
-        $totalAmount = collect($validated['items'])->sum('amount');
-
-        $taRequest = TARequest::create([
-            'user_id' => $user->id,
-            'reason' => $validated['reason'],
-            'date_travelled' => $validated['date_travelled'],
-            'total_amount' => $totalAmount,
-            'bill_link' => $validated['bill_link'] ?? null,
-            'created_by' => $user->id,
-        ]);
-
-        // Create breakdown items
-        foreach ($validated['items'] as $item) {
-            TARequestItem::create([
-                'ta_request_id' => $taRequest->id,
-                'category' => $item['category'],
-                'amount' => $item['amount'],
-                'description' => $item['description'] ?? null,
+            $validated = $request->validate([
+                'reason' => 'required|string|max:500',
+                'date_travelled' => 'required|date',
+                'items' => 'required|array|min:1',
+                'items.*.category' => 'required|string',
+                'items.*.amount' => 'required|numeric|min:0',
+                'items.*.description' => 'nullable|string',
+                'bill_link' => 'nullable|url|max:500',
             ]);
+
+            $totalAmount = collect($validated['items'])->sum('amount');
+
+            $taRequest = TARequest::create([
+                'user_id' => $user->id,
+                'reason' => $validated['reason'],
+                'date_travelled' => $validated['date_travelled'],
+                'total_amount' => $totalAmount,
+                'bill_link' => $validated['bill_link'] ?? null,
+                'created_by' => $user->id,
+            ]);
+
+            // Create breakdown items
+            foreach ($validated['items'] as $item) {
+                TARequestItem::create([
+                    'ta_request_id' => $taRequest->id,
+                    'category' => $item['category'],
+                    'amount' => $item['amount'],
+                    'description' => $item['description'] ?? null,
+                ]);
+            }
+        } catch (\Illuminate\Database\QueryException $e) {
+            \Log::error('Database error creating TA request: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Database error: ' . ($e->getCode() === '42P01' ? 'Tables not created. Please run migrations.' : $e->getMessage())
+            ], 500);
+        } catch (\Exception $e) {
+            \Log::error('Error creating TA request: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
         }
 
         // Send notification to Super Admin/HR (non-blocking)
