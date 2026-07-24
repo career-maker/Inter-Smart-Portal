@@ -113,44 +113,58 @@ export default function DashboardPage() {
     if (!data?.profile?.joining_date) return;
 
     const calculateLiveServiceStats = () => {
-      const joiningDate = new Date(data.profile.joining_date);
-      const now = new Date();
+      try {
+        const joiningDate = new Date(data.profile.joining_date);
+        const now = new Date();
 
-      let years = now.getFullYear() - joiningDate.getFullYear();
-      let months = now.getMonth() - joiningDate.getMonth();
-      let days = now.getDate() - joiningDate.getDate();
-      let hours = now.getHours() - joiningDate.getHours();
-      let minutes = now.getMinutes() - joiningDate.getMinutes();
-      let seconds = now.getSeconds() - joiningDate.getSeconds();
+        // Validate dates
+        if (isNaN(joiningDate.getTime())) {
+          console.warn("Invalid joining date");
+          return;
+        }
 
-      if (seconds < 0) {
-        seconds += 60;
-        minutes -= 1;
-      }
-      if (minutes < 0) {
-        minutes += 60;
-        hours -= 1;
-      }
-      if (hours < 0) {
-        hours += 24;
-        days -= 1;
-      }
-      if (days < 0) {
-        days += 30;
-        months -= 1;
-      }
-      if (months < 0) {
-        months += 12;
-        years -= 1;
-      }
+        let years = now.getFullYear() - joiningDate.getFullYear();
+        let months = now.getMonth() - joiningDate.getMonth();
+        let days = now.getDate() - joiningDate.getDate();
+        let hours = now.getHours() - joiningDate.getHours();
+        let minutes = now.getMinutes() - joiningDate.getMinutes();
+        let seconds = now.getSeconds() - joiningDate.getSeconds();
 
-      setLiveServiceStats({ years, months, days, hours, minutes, seconds });
+        if (seconds < 0) {
+          seconds += 60;
+          minutes -= 1;
+        }
+        if (minutes < 0) {
+          minutes += 60;
+          hours -= 1;
+        }
+        if (hours < 0) {
+          hours += 24;
+          days -= 1;
+        }
+        if (days < 0) {
+          const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+          days += prevMonth.getDate();
+          months -= 1;
+        }
+        if (months < 0) {
+          months += 12;
+          years -= 1;
+        }
+
+        setLiveServiceStats({ years, months, days, hours, minutes, seconds });
+      } catch (error) {
+        console.error("Error calculating service stats:", error);
+      }
     };
 
+    // Calculate immediately on first load
     calculateLiveServiceStats();
+
+    // Then update every second
     const interval = setInterval(calculateLiveServiceStats, 1000);
     return () => clearInterval(interval);
-  }, [data]);
+  }, [data?.profile?.joining_date]);
 
   if (loading) return <PageLoader />;
 
@@ -609,7 +623,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Right: Service Days Widget — Independent Card with Live Timer */}
-          {(profile.service_stats || liveServiceStats) && (
+          {profile.service_stats && (
             <Link
               href="#"
               onClick={(e) => e.preventDefault()}
@@ -619,9 +633,9 @@ export default function DashboardPage() {
                 <span className="text-base">🌟</span>
                 Growing Together
               </p>
-              <p className="text-sm lg:text-base font-black text-slate-900 dark:text-white font-mono">
-                {liveServiceStats
-                  ? `${liveServiceStats.years}Y ${liveServiceStats.months}M ${liveServiceStats.days}D ${liveServiceStats.hours}H ${liveServiceStats.minutes}M ${liveServiceStats.seconds}S`
+              <p className="text-sm lg:text-base font-black text-slate-900 dark:text-white font-mono tracking-tight">
+                {liveServiceStats && liveServiceStats.years !== undefined
+                  ? `${liveServiceStats.years}Y ${liveServiceStats.months}M ${liveServiceStats.days}D ${String(liveServiceStats.hours).padStart(2, '0')}H ${String(liveServiceStats.minutes).padStart(2, '0')}M ${String(liveServiceStats.seconds).padStart(2, '0')}S`
                   : `${profile.service_stats.years}Y ${profile.service_stats.months}M ${profile.service_stats.days}D`
                 }
               </p>
