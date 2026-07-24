@@ -103,33 +103,43 @@ class TARequestController
             ]);
         }
 
-        // Send notification to Super Admin/HR
-        $admins = \App\Models\User::where('role', 'Super Admin')->get();
-        foreach ($admins as $admin) {
-            Notification::create([
-                'user_id' => $admin->id,
-                'type' => 'ta_request_applied',
-                'title' => 'New TA Request',
-                'message' => "{$user->first_name} {$user->last_name} has applied for travel allowance",
-                'data' => json_encode(['ta_request_id' => $taRequest->id]),
-                'is_read' => false,
-            ]);
+        // Send notification to Super Admin/HR (non-blocking)
+        try {
+            $admins = \App\Models\User::where('role', 'Super Admin')->get();
+            foreach ($admins as $admin) {
+                Notification::create([
+                    'user_id' => $admin->id,
+                    'type' => 'ta_request_applied',
+                    'title' => 'New TA Request',
+                    'message' => "{$user->first_name} {$user->last_name} has applied for travel allowance",
+                    'data' => json_encode(['ta_request_id' => $taRequest->id]),
+                    'is_read' => false,
+                ]);
+            }
+        } catch (\Exception $e) {
+            // Log the error but don't fail the request
+            \Log::error('Failed to create TA notification: ' . $e->getMessage());
         }
 
-        // Send email to HR and admin
-        $approveUrl = URL::signedRoute('ta-request.email-approve', ['taRequest' => $taRequest->id]);
-        $rejectUrl = URL::signedRoute('ta-request.email-reject', ['taRequest' => $taRequest->id]);
+        // Send email to HR and admin (non-blocking - don't fail if email fails)
+        try {
+            $approveUrl = URL::signedRoute('ta-request.email-approve', ['taRequest' => $taRequest->id]);
+            $rejectUrl = URL::signedRoute('ta-request.email-reject', ['taRequest' => $taRequest->id]);
 
-        $emailData = [
-            'employee_name' => "{$user->first_name} {$user->last_name}",
-            'approve_url' => $approveUrl,
-            'reject_url' => $rejectUrl,
-        ];
+            $emailData = [
+                'employee_name' => "{$user->first_name} {$user->last_name}",
+                'approve_url' => $approveUrl,
+                'reject_url' => $rejectUrl,
+            ];
 
-        // Send to HR emails
-        $hrEmails = ['HR@intersmart.in', 'Ameesha@intersmart.in'];
-        foreach ($hrEmails as $email) {
-            Mail::to($email)->send(new TARequestMail($taRequest, $emailData));
+            // Send to HR emails
+            $hrEmails = ['HR@intersmart.in', 'Ameesha@intersmart.in'];
+            foreach ($hrEmails as $email) {
+                Mail::to($email)->send(new TARequestMail($taRequest, $emailData));
+            }
+        } catch (\Exception $e) {
+            // Log the error but don't fail the request
+            \Log::error('Failed to send TA request email: ' . $e->getMessage());
         }
 
         return response()->json([
