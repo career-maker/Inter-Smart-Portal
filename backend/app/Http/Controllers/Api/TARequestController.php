@@ -19,7 +19,7 @@ class TARequestController
         $user = Auth::user();
         $query = TARequest::with('user', 'items', 'approver');
 
-        if ($user->role !== 'Super Admin') {
+        if (!$user->hasRole('Super Admin')) {
             $query->where('user_id', $user->id);
         }
 
@@ -46,7 +46,7 @@ class TARequestController
         $request = TARequest::with('user', 'items', 'approver')->findOrFail($id);
         $user = Auth::user();
 
-        if ($user->role !== 'Super Admin' && $request->user_id !== $user->id) {
+        if (!$user->hasRole('Super Admin') && $request->user_id !== $user->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -57,8 +57,18 @@ class TARequestController
     {
         $user = Auth::user();
 
-        // Only Employee and Team Lead can apply
-        if (!in_array($user->role, ['Employee', 'Team Lead'])) {
+        // Only Employee and Team Lead can apply (using Spatie roles)
+        $allowedRoles = ['Employee', 'Team Lead'];
+        $hasAllowedRole = false;
+
+        foreach ($allowedRoles as $role) {
+            if ($user->hasRole($role)) {
+                $hasAllowedRole = true;
+                break;
+            }
+        }
+
+        if (!$hasAllowedRole) {
             return response()->json(['message' => 'Only employees and team leads can apply for travel allowance'], 403);
         }
 
@@ -132,7 +142,7 @@ class TARequestController
     {
         $user = Auth::user();
 
-        if ($user->role !== 'Super Admin') {
+        if (!$user->hasRole('Super Admin')) {
             return response()->json(['message' => 'Only super admin can approve TA requests'], 403);
         }
 
@@ -170,7 +180,7 @@ class TARequestController
     {
         $user = Auth::user();
 
-        if ($user->role !== 'Super Admin') {
+        if (!$user->hasRole('Super Admin')) {
             return response()->json(['message' => 'Only super admin can reject TA requests'], 403);
         }
 
@@ -208,7 +218,7 @@ class TARequestController
     {
         $user = Auth::user();
 
-        if ($user->role !== 'Super Admin') {
+        if (!$user->hasRole('Super Admin')) {
             return response()->json(['message' => 'Only super admin can mark as paid'], 403);
         }
 
@@ -247,7 +257,7 @@ class TARequestController
     {
         $user = Auth::user();
 
-        if ($user->role !== 'Super Admin') {
+        if (!$user->hasRole('Super Admin')) {
             return response()->json(['message' => 'Only super admin can view all requests'], 403);
         }
 
