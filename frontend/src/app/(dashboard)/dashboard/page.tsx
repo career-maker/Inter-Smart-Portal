@@ -114,7 +114,16 @@ export default function DashboardPage() {
     if (!joiningDateStr) return null;
 
     try {
-      const joiningDate = new Date(joiningDateStr);
+      // Handle different date formats
+      let joiningDate = new Date(joiningDateStr);
+
+      // If parsing failed, try parsing as YYYY-MM-DD format
+      if (isNaN(joiningDate.getTime())) {
+        const parts = joiningDateStr.split('-');
+        if (parts.length === 3) {
+          joiningDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+        }
+      }
 
       if (isNaN(joiningDate.getTime())) {
         console.warn("Invalid joining date format:", joiningDateStr);
@@ -160,10 +169,16 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
-    if (!data?.profile?.joining_date) return;
+    if (!data?.profile?.joining_date) {
+      console.log("No joining date available");
+      return;
+    }
+
+    console.log("Calculating service stats for:", data.profile.joining_date);
 
     // Calculate and set immediately
     const stats = calculateServiceStats(data.profile.joining_date);
+    console.log("Calculated stats:", stats);
     if (stats) {
       setLiveServiceStats(stats);
     }
