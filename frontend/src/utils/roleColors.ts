@@ -5,7 +5,17 @@
 
 export type UserRole = "Super Admin" | "Team Lead" | "Employee" | "HR";
 
-export const getRoleColors = (role: UserRole | null | undefined) => {
+export type RoleColorPalette = {
+  badge: string;
+  card: string;
+  text: string;
+  bg: string;
+  border: string;
+  accent: string;
+  lightBg: string;
+};
+
+export const getRoleColors = (role: UserRole | null | undefined): RoleColorPalette => {
   if (!role) return getRoleColors("Employee");
 
   switch (role) {
