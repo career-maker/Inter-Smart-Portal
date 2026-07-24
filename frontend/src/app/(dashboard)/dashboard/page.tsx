@@ -209,6 +209,27 @@ export default function DashboardPage() {
       {/* Team Lead Dashboard: Pending Approvals & Team Status */}
       {user?.role === "Team Lead" && data && (
         <div className="space-y-4 mb-6">
+          {/* Quick Action: Team Tracker */}
+          <a
+            href="https://qa-tracker-pro.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-2xl p-6 border border-purple-200 dark:border-purple-500/30 hover:border-purple-300 dark:hover:border-purple-400 transition-colors group"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-purple-100 dark:bg-purple-500/20 rounded-lg flex items-center justify-center border border-purple-200 dark:border-purple-500/30 group-hover:scale-110 transition-transform">
+                  <ArrowRight className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-purple-900 dark:text-purple-300">Team Tracker</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Track team progress and issues</p>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-purple-600 dark:text-purple-400 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </a>
+
           {/* Pending Approvals Section */}
           <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-2xl p-6 border border-blue-200 dark:border-blue-500/30">
             <div className="flex items-center justify-between mb-4">
