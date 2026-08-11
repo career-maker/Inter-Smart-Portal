@@ -4,20 +4,20 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 
-Route::get('/api/ping', function () {
+Route::get('/ping', function () {
     return response()->json(['status' => 'alive']);
 });
 
-Route::get('/api/debug-employee', function () {
+Route::get('/debug-employee', function () {
     return new \App\Http\Resources\EmployeeResource(\App\Models\User::find(2));
 });
 
-Route::get('/api/photos/{path}', [\App\Http\Controllers\Api\EmployeeController::class, 'showPhoto'])->where('path', '.*');
+Route::get('/photos/{path}', [\App\Http\Controllers\Api\EmployeeController::class, 'showPhoto'])->where('path', '.*');
 
-Route::get('/api/wfh-requests/diagnose/schema', [\App\Http\Controllers\Api\WfhRequestController::class, 'diagnose']);
+Route::get('/wfh-requests/diagnose/schema', [\App\Http\Controllers\Api\WfhRequestController::class, 'diagnose']);
 
 // Email action routes (signed URLs, no auth required)
-Route::prefix('api/leave-requests')->group(function () {
+Route::prefix('leave-requests')->group(function () {
     Route::get('{leaveRequest}/email-approve', [\App\Http\Controllers\Api\LeaveRequestController::class, 'emailApprove'])
         ->name('leave-request.email-approve');
     Route::get('{leaveRequest}/email-reject', [\App\Http\Controllers\Api\LeaveRequestController::class, 'emailReject'])
@@ -25,19 +25,19 @@ Route::prefix('api/leave-requests')->group(function () {
 });
 
 // TA Email action routes (signed URLs, no auth required)
-Route::prefix('api/ta-requests')->group(function () {
+Route::prefix('ta-requests')->group(function () {
     Route::get('{taRequest}/email-approve', [\App\Http\Controllers\Api\TARequestController::class, 'emailApprove'])
         ->name('ta-request.email-approve');
     Route::get('{taRequest}/email-reject', [\App\Http\Controllers\Api\TARequestController::class, 'emailReject'])
         ->name('ta-request.email-reject');
 });
 
-Route::post('/api/login', [AuthController::class, 'login']);
-Route::post('/api/forgot-password', [AuthController::class, 'forgotPassword']);
-Route::post('/api/reset-password', [AuthController::class, 'resetPassword']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 // Database maintenance endpoint (public, for initial setup)
-Route::post('/api/admin/run-migrations', function (\Illuminate\Http\Request $request) {
+Route::post('/admin/run-migrations', function (\Illuminate\Http\Request $request) {
     try {
         \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
         $output = \Illuminate\Support\Facades\Artisan::output();
@@ -53,7 +53,7 @@ Route::post('/api/admin/run-migrations', function (\Illuminate\Http\Request $req
     }
 });
 
-Route::prefix('api')->middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('me', [AuthController::class, 'me']);
 
@@ -73,14 +73,14 @@ Route::prefix('api')->middleware('auth:sanctum')->group(function () {
         Route::post('employees/{employee}/status', [\App\Http\Controllers\Api\EmployeeController::class, 'updateStatus']);
         Route::get('employees/import/sample', [\App\Http\Controllers\Api\EmployeeController::class, 'sampleCSV']);
         Route::post('employees/import/csv', [\App\Http\Controllers\Api\EmployeeController::class, 'importCSV']);
-        
+
         // Team Routes
         Route::apiResource('teams', \App\Http\Controllers\Api\TeamController::class);
         Route::post('teams/{team}/members', [\App\Http\Controllers\Api\TeamController::class, 'syncMembers']);
-        
+
         // Admin/HR Leave Configuration
         Route::apiResource('leave-types', \App\Http\Controllers\Api\LeaveTypeController::class)->except(['index', 'show']);
-        
+
         // Reports
         Route::prefix('reports')->group(function () {
             Route::get('employees', [\App\Http\Controllers\Api\ReportController::class, 'employees']);
@@ -94,7 +94,7 @@ Route::prefix('api')->middleware('auth:sanctum')->group(function () {
         Route::post('leave-requests/{leaveRequest}/status', [\App\Http\Controllers\Api\LeaveRequestController::class, 'updateStatus']);
         Route::post('wfh-requests/{wfhRequest}/status', [\App\Http\Controllers\Api\WfhRequestController::class, 'updateStatus']);
     });
-    
+
     // Super Admin Routes
     Route::middleware(['role:Super Admin'])->group(function () {
         Route::get('settings', [\App\Http\Controllers\Api\SystemSettingController::class, 'index']);
@@ -233,7 +233,7 @@ Route::prefix('api')->middleware('auth:sanctum')->group(function () {
             ], 200);
         });
     });
-    
+
     // Employee Leave Routes
     Route::get('leave-types', [\App\Http\Controllers\Api\LeaveTypeController::class, 'index']);
     Route::get('leave-types/{leaveType}', [\App\Http\Controllers\Api\LeaveTypeController::class, 'show']);
@@ -246,7 +246,7 @@ Route::prefix('api')->middleware('auth:sanctum')->group(function () {
     Route::post('leaves/calculate', [\App\Http\Controllers\Api\LeaveRequestController::class, 'calculate']);
     Route::apiResource('leave-requests', \App\Http\Controllers\Api\LeaveRequestController::class)->only(['index', 'store']);
     Route::apiResource('wfh-requests', \App\Http\Controllers\Api\WfhRequestController::class)->only(['index', 'store']);
-    
+
     // Attendance Routes
     Route::prefix('attendance')->group(function () {
         Route::get('status',  [\App\Http\Controllers\Api\AttendanceController::class, 'status']);
@@ -297,15 +297,15 @@ Route::prefix('api')->middleware('auth:sanctum')->group(function () {
     // Document Requests (all authenticated users can submit/view own)
     Route::get('document-requests', [\App\Http\Controllers\Api\DocumentRequestController::class, 'index']);
     Route::post('document-requests', [\App\Http\Controllers\Api\DocumentRequestController::class, 'store']);
-    
+
     // HR/Admin: Upload fulfilled document
     Route::post('document-requests/{documentRequest}/upload', [\App\Http\Controllers\Api\DocumentRequestController::class, 'upload']);
-    
+
     // HR Policies (all can read, admin/HR can write)
     Route::get('hr-policies', [\App\Http\Controllers\Api\HrPolicyController::class, 'index']);
     Route::post('hr-policies', [\App\Http\Controllers\Api\HrPolicyController::class, 'store']);
     Route::delete('hr-policies/{hrPolicy}', [\App\Http\Controllers\Api\HrPolicyController::class, 'destroy']);
-    
+
     // Dashboard Data
     Route::get('dashboard', [\App\Http\Controllers\Api\DashboardController::class, 'index']);
     Route::get('activities', [\App\Http\Controllers\Api\DashboardController::class, 'activities']);
@@ -399,17 +399,17 @@ Route::post('/v1/biometric/ingest', [BiometricIngestionController::class, 'inges
     ->middleware(VerifyBiometricAgent::class);
 
 // System Scheduler Trigger
-Route::post('/api/system/scheduler/run', function (\Illuminate\Http\Request $request) {
+Route::post('/system/scheduler/run', function (\Illuminate\Http\Request $request) {
     $secret = config('services.scheduler_secret');
     if (empty($secret)) {
         abort(500, 'Scheduler secret unconfigured');
     }
-    
+
     if (!hash_equals($secret, $request->bearerToken() ?? '')) {
         abort(401, 'Unauthorized');
     }
-    
+
     \Illuminate\Support\Facades\Artisan::call('schedule:run');
-    
+
     return response()->json(['status' => 'scheduler_invoked']);
 })->middleware('throttle:5,1');
