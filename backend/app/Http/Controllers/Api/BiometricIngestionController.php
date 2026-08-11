@@ -169,47 +169,52 @@ class BiometricIngestionController extends Controller
         // 5. Database Transaction (Insert & Sync State)
         if (!empty($insertPayload) || !empty($uniqueSourceTables)) {
             DB::transaction(function () use ($insertPayload, $attemptedComposites, &$responses, $sourceSystem, $uniqueSourceTables) {
-                    
+
+                    // Initialize insertedRows to avoid undefined variable error
+                    $insertedRows = [];
+
                     if (!empty($insertPayload)) {
                         $bindings = [];
                         $values = [];
-                    
-                    foreach ($insertPayload as $row) {
-                        $placeholders = implode(', ', array_fill(0, count($row), '?'));
-                        $values[] = "({$placeholders})";
-                        foreach ($row as $val) {
-                            $bindings[] = $val;
+
+                        foreach ($insertPayload as $row) {
+                            $placeholders = implode(', ', array_fill(0, count($row), '?'));
+                            $values[] = "({$placeholders})";
+                            foreach ($row as $val) {
+                                $bindings[] = $val;
+                            }
                         }
-                    }
-                    
-                    $columns = array_keys($insertPayload[0]);
-                    $columnList = implode(', ', $columns);
-                    $valueString = implode(', ', $values);
-                    
-                    // PostgreSQL raw UPSERT
-                    $sql = "INSERT INTO biometric_events ({$columnList}) VALUES {$valueString} ON CONFLICT (source_system, source_table, source_event_id) DO NOTHING RETURNING source_system, source_table, source_event_id";
-                    
-                    $insertedRows = DB::select($sql, $bindings);
-                    
-                    $insertedComposites = [];
-                    foreach ($insertedRows as $row) {
-                        // Normalize to object property access 
-                        $insertedComposites["{$row->source_system}|{$row->source_table}|{$row->source_event_id}"] = true;
-                    }
-                    
-                    foreach ($attemptedComposites as $compKey => $meta) {
-                        if (isset($insertedComposites[$compKey])) {
-                            // Won the race, inserted successfully
-                            $responses[$meta['index']]['status'] = $meta['status'];
-                        } else {
-                            // Lost the race, duplicate already existed
-                            $responses[$meta['index']]['status'] = 'already_exists';
+
+                        $columns = array_keys($insertPayload[0]);
+                        $columnList = implode(', ', $columns);
+                        $valueString = implode(', ', $values);
+
+                        // PostgreSQL raw UPSERT
+                        $sql = "INSERT INTO biometric_events ({$columnList}) VALUES {$valueString} ON CONFLICT (source_system, source_table, source_event_id) DO NOTHING RETURNING source_system, source_table, source_event_id";
+
+                        $insertedRows = DB::select($sql, $bindings);
+
+                        $insertedComposites = [];
+                        foreach ($insertedRows as $row) {
+                            // Normalize to object property access
+                            $insertedComposites["{$row->source_system}|{$row->source_table}|{$row->source_event_id}"] = true;
                         }
+
+                        foreach ($attemptedComposites as $compKey => $meta) {
+                            if (isset($insertedComposites[$compKey])) {
+                                // Won the race, inserted successfully
+                                $responses[$meta['index']]['status'] = $meta['status'];
+                            } else {
+                                // Lost the race, duplicate already existed
+                                $responses[$meta['index']]['status'] = 'already_exists';
+                            }
                         }
                     }
 
-                    // Sync punch-out events to Attendance table
-                    $this->syncBiometricToAttendance($insertedRows);
+                    // Sync punch-out events to Attendance table (only if we have inserted rows)
+                    if (!empty($insertedRows)) {
+                        $this->syncBiometricToAttendance($insertedRows);
+                    }
 
                     // Update Sync States for successfully processed source tables
                     foreach (array_keys($uniqueSourceTables) as $table) {
