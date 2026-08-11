@@ -17,24 +17,30 @@ class VerifyBiometricAgent
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $configuredHash = trim((string) Config::get('services.biometric.agent_secret_hash'));
-
-        // Fail closed if hash is missing, null, or empty
-        if (empty($configuredHash) || !is_string($configuredHash)) {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
-
         $token = $request->bearerToken();
 
         if (empty($token)) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        // Constant-safe hash verification
-        if (!password_verify($token, $configuredHash)) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+        // Check for bcrypt hash first (production)
+        $configuredHash = trim((string) Config::get('services.biometric.agent_secret_hash'));
+        if (!empty($configuredHash) && is_string($configuredHash)) {
+            // Constant-safe hash verification
+            if (password_verify($token, $configuredHash)) {
+                return $next($request);
+            }
         }
 
-        return $next($request);
+        // Check for plaintext secret (development)
+        $plainSecret = trim((string) Config::get('services.biometric.agent_secret'));
+        if (!empty($plainSecret) && is_string($plainSecret)) {
+            if (hash_equals($plainSecret, $token)) {
+                return $next($request);
+            }
+        }
+
+        // No matching secret found
+        return response()->json(['error' => 'Unauthorized'], 401);
     }
 }
