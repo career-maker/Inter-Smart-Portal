@@ -4,20 +4,20 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 
-Route::get('/ping', function () {
+Route::get('/api/ping', function () {
     return response()->json(['status' => 'alive']);
 });
 
-Route::get('/debug-employee', function () {
+Route::get('/api/debug-employee', function () {
     return new \App\Http\Resources\EmployeeResource(\App\Models\User::find(2));
 });
 
-Route::get('/photos/{path}', [\App\Http\Controllers\Api\EmployeeController::class, 'showPhoto'])->where('path', '.*');
+Route::get('/api/photos/{path}', [\App\Http\Controllers\Api\EmployeeController::class, 'showPhoto'])->where('path', '.*');
 
-Route::get('/wfh-requests/diagnose/schema', [\App\Http\Controllers\Api\WfhRequestController::class, 'diagnose']);
+Route::get('/api/wfh-requests/diagnose/schema', [\App\Http\Controllers\Api\WfhRequestController::class, 'diagnose']);
 
 // Email action routes (signed URLs, no auth required)
-Route::prefix('leave-requests')->group(function () {
+Route::prefix('api/leave-requests')->group(function () {
     Route::get('{leaveRequest}/email-approve', [\App\Http\Controllers\Api\LeaveRequestController::class, 'emailApprove'])
         ->name('leave-request.email-approve');
     Route::get('{leaveRequest}/email-reject', [\App\Http\Controllers\Api\LeaveRequestController::class, 'emailReject'])
@@ -25,19 +25,19 @@ Route::prefix('leave-requests')->group(function () {
 });
 
 // TA Email action routes (signed URLs, no auth required)
-Route::prefix('ta-requests')->group(function () {
+Route::prefix('api/ta-requests')->group(function () {
     Route::get('{taRequest}/email-approve', [\App\Http\Controllers\Api\TARequestController::class, 'emailApprove'])
         ->name('ta-request.email-approve');
     Route::get('{taRequest}/email-reject', [\App\Http\Controllers\Api\TARequestController::class, 'emailReject'])
         ->name('ta-request.email-reject');
 });
 
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
-Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+Route::post('/api/login', [AuthController::class, 'login']);
+Route::post('/api/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/api/reset-password', [AuthController::class, 'resetPassword']);
 
 // Database maintenance endpoint (public, for initial setup)
-Route::post('/admin/run-migrations', function (\Illuminate\Http\Request $request) {
+Route::post('/api/admin/run-migrations', function (\Illuminate\Http\Request $request) {
     try {
         \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
         $output = \Illuminate\Support\Facades\Artisan::output();
@@ -53,16 +53,16 @@ Route::post('/admin/run-migrations', function (\Illuminate\Http\Request $request
     }
 });
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/me', [AuthController::class, 'me']);
+Route::prefix('api')->middleware('auth:sanctum')->group(function () {
+    Route::post('logout', [AuthController::class, 'logout']);
+    Route::get('me', [AuthController::class, 'me']);
 
     // Employee Profile Edit Requests
-    Route::get('/profile', [\App\Http\Controllers\Api\ProfileController::class, 'show']);
-    Route::get('/me/profile/request', [\App\Http\Controllers\Api\ProfileUpdateRequestController::class, 'currentRequest']);
-    Route::post('/me/profile/request', [\App\Http\Controllers\Api\ProfileUpdateRequestController::class, 'storeRequest']);
-    Route::put('/me/profile', [\App\Http\Controllers\Api\ProfileController::class, 'update']);
-    Route::get('/me/recognitions', [\App\Http\Controllers\Api\RecognitionController::class, 'myRecognitions']);
+    Route::get('profile', [\App\Http\Controllers\Api\ProfileController::class, 'show']);
+    Route::get('me/profile/request', [\App\Http\Controllers\Api\ProfileUpdateRequestController::class, 'currentRequest']);
+    Route::post('me/profile/request', [\App\Http\Controllers\Api\ProfileUpdateRequestController::class, 'storeRequest']);
+    Route::put('me/profile', [\App\Http\Controllers\Api\ProfileController::class, 'update']);
+    Route::get('me/recognitions', [\App\Http\Controllers\Api\RecognitionController::class, 'myRecognitions']);
 
     // Employee Routes
     Route::middleware(['role:Super Admin|Team Lead|HR'])->group(function () {
@@ -261,11 +261,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // Travel Allowance (TA) Routes
     Route::prefix('ta-requests')->group(function () {
         Route::get('/', [\App\Http\Controllers\Api\TARequestController::class, 'index']);
-        Route::get('/{id}', [\App\Http\Controllers\Api\TARequestController::class, 'show']);
+        Route::get('{id}', [\App\Http\Controllers\Api\TARequestController::class, 'show']);
         Route::post('/', [\App\Http\Controllers\Api\TARequestController::class, 'store']);
 
         // Diagnostic endpoint (Super Admin only)
-        Route::middleware('role:Super Admin')->get('/diagnose/schema', function () {
+        Route::middleware('role:Super Admin')->get('diagnose/schema', function () {
             $tables = [
                 'ta_requests' => \Illuminate\Support\Facades\Schema::hasTable('ta_requests'),
                 'ta_request_items' => \Illuminate\Support\Facades\Schema::hasTable('ta_request_items'),
@@ -286,13 +286,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Admin routes
         Route::middleware('role:Super Admin')->group(function () {
-            Route::post('/{id}/approve', [\App\Http\Controllers\Api\TARequestController::class, 'approve']);
-            Route::post('/{id}/reject', [\App\Http\Controllers\Api\TARequestController::class, 'reject']);
-            Route::post('/{id}/mark-paid', [\App\Http\Controllers\Api\TARequestController::class, 'markPaid']);
+            Route::post('{id}/approve', [\App\Http\Controllers\Api\TARequestController::class, 'approve']);
+            Route::post('{id}/reject', [\App\Http\Controllers\Api\TARequestController::class, 'reject']);
+            Route::post('{id}/mark-paid', [\App\Http\Controllers\Api\TARequestController::class, 'markPaid']);
         });
     });
 
-    Route::middleware('role:Super Admin')->get('/admin/ta-requests', [\App\Http\Controllers\Api\TARequestController::class, 'adminIndex']);
+    Route::middleware('role:Super Admin')->get('admin/ta-requests', [\App\Http\Controllers\Api\TARequestController::class, 'adminIndex']);
 
     // Document Requests (all authenticated users can submit/view own)
     Route::get('document-requests', [\App\Http\Controllers\Api\DocumentRequestController::class, 'index']);
@@ -350,32 +350,32 @@ Route::middleware('auth:sanctum')->group(function () {
     // Notifications
     Route::prefix('notifications')->group(function () {
         Route::get('/', [\App\Http\Controllers\Api\NotificationController::class, 'index']);
-        Route::get('/unread', [\App\Http\Controllers\Api\NotificationController::class, 'unread']);
-        Route::post('/mark-as-read/{id?}', [\App\Http\Controllers\Api\NotificationController::class, 'markAsRead']);
-        Route::delete('/{id}', [\App\Http\Controllers\Api\NotificationController::class, 'destroy']);
+        Route::get('unread', [\App\Http\Controllers\Api\NotificationController::class, 'unread']);
+        Route::post('mark-as-read/{id?}', [\App\Http\Controllers\Api\NotificationController::class, 'markAsRead']);
+        Route::delete('{id}', [\App\Http\Controllers\Api\NotificationController::class, 'destroy']);
     });
 
     // Issues / Helpdesk
     Route::prefix('issues')->group(function () {
         Route::get('/', [\App\Http\Controllers\Api\IssueController::class, 'index']);
         Route::post('/', [\App\Http\Controllers\Api\IssueController::class, 'store']);
-        Route::get('/{id}', [\App\Http\Controllers\Api\IssueController::class, 'show']);
-        Route::post('/{id}/comments', [\App\Http\Controllers\Api\IssueController::class, 'addComment']);
-        Route::put('/{id}/status', [\App\Http\Controllers\Api\IssueController::class, 'updateStatus']);
+        Route::get('{id}', [\App\Http\Controllers\Api\IssueController::class, 'show']);
+        Route::post('{id}/comments', [\App\Http\Controllers\Api\IssueController::class, 'addComment']);
+        Route::put('{id}/status', [\App\Http\Controllers\Api\IssueController::class, 'updateStatus']);
     });
 
     // Recognitions
-    Route::get('/active-recognitions', [\App\Http\Controllers\Api\RecognitionController::class, 'activeRecognitions']);
+    Route::get('active-recognitions', [\App\Http\Controllers\Api\RecognitionController::class, 'activeRecognitions']);
     // Leaderboard — accessible by all authenticated users
-    Route::get('/recognitions/leaderboard', [\App\Http\Controllers\Api\RecognitionController::class, 'leaderboard']);
+    Route::get('recognitions/leaderboard', [\App\Http\Controllers\Api\RecognitionController::class, 'leaderboard']);
     Route::middleware(['role:Super Admin'])->prefix('recognitions')->group(function () {
         Route::get('/', [\App\Http\Controllers\Api\RecognitionController::class, 'index']);
         Route::post('/', [\App\Http\Controllers\Api\RecognitionController::class, 'store']);
         Route::put('/{id}', [\App\Http\Controllers\Api\RecognitionController::class, 'update']);
-        Route::put('/{id}/toggle', [\App\Http\Controllers\Api\RecognitionController::class, 'toggleActive']);
-        Route::delete('/{id}', [\App\Http\Controllers\Api\RecognitionController::class, 'destroy']);
+        Route::put('{id}/toggle', [\App\Http\Controllers\Api\RecognitionController::class, 'toggleActive']);
+        Route::delete('{id}', [\App\Http\Controllers\Api\RecognitionController::class, 'destroy']);
         // Super Admin: view any employee's full recognition history
-        Route::get('/employee/{userId}', [\App\Http\Controllers\Api\RecognitionController::class, 'employeeRecognitions']);
+        Route::get('employee/{userId}', [\App\Http\Controllers\Api\RecognitionController::class, 'employeeRecognitions']);
     });
 
     // View The Hall (All authenticated users can view)
@@ -385,8 +385,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('favorites')->group(function () {
         Route::get('/', [\App\Http\Controllers\Api\FavoriteController::class, 'index']);
         Route::post('/', [\App\Http\Controllers\Api\FavoriteController::class, 'store']);
-        Route::delete('/{pageHref}', [\App\Http\Controllers\Api\FavoriteController::class, 'destroy'])->where('pageHref', '.*');
-        Route::get('/check/{pageHref}', [\App\Http\Controllers\Api\FavoriteController::class, 'check'])->where('pageHref', '.*');
+        Route::delete('{pageHref}', [\App\Http\Controllers\Api\FavoriteController::class, 'destroy'])->where('pageHref', '.*');
+        Route::get('check/{pageHref}', [\App\Http\Controllers\Api\FavoriteController::class, 'check'])->where('pageHref', '.*');
     });
 });
 
@@ -399,7 +399,7 @@ Route::post('/v1/biometric/ingest', [BiometricIngestionController::class, 'inges
     ->middleware(VerifyBiometricAgent::class);
 
 // System Scheduler Trigger
-Route::post('/system/scheduler/run', function (\Illuminate\Http\Request $request) {
+Route::post('/api/system/scheduler/run', function (\Illuminate\Http\Request $request) {
     $secret = config('services.scheduler_secret');
     if (empty($secret)) {
         abort(500, 'Scheduler secret unconfigured');
