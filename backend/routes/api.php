@@ -4,17 +4,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 
-Route::get('/ping', function () {
+Route::get('ping', function () {
     return response()->json(['status' => 'alive']);
 });
 
-Route::get('/debug-employee', function () {
+Route::get('debug-employee', function () {
     return new \App\Http\Resources\EmployeeResource(\App\Models\User::find(2));
 });
 
-Route::get('/photos/{path}', [\App\Http\Controllers\Api\EmployeeController::class, 'showPhoto'])->where('path', '.*');
+Route::get('photos/{path}', [\App\Http\Controllers\Api\EmployeeController::class, 'showPhoto'])->where('path', '.*');
 
-Route::get('/wfh-requests/diagnose/schema', [\App\Http\Controllers\Api\WfhRequestController::class, 'diagnose']);
+Route::get('wfh-requests/diagnose/schema', [\App\Http\Controllers\Api\WfhRequestController::class, 'diagnose']);
 
 // Email action routes (signed URLs, no auth required)
 Route::prefix('leave-requests')->group(function () {
@@ -32,12 +32,12 @@ Route::prefix('ta-requests')->group(function () {
         ->name('ta-request.email-reject');
 });
 
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
-Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+Route::post('login', [AuthController::class, 'login']);
+Route::post('forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('reset-password', [AuthController::class, 'resetPassword']);
 
 // Database maintenance endpoint (public, for initial setup)
-Route::post('/admin/run-migrations', function (\Illuminate\Http\Request $request) {
+Route::post('admin/run-migrations', function (\Illuminate\Http\Request $request) {
     try {
         \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
         $output = \Illuminate\Support\Facades\Artisan::output();
@@ -399,7 +399,7 @@ Route::post('/v1/biometric/ingest', [BiometricIngestionController::class, 'inges
     ->middleware(VerifyBiometricAgent::class);
 
 // System Scheduler Trigger
-Route::post('/system/scheduler/run', function (\Illuminate\Http\Request $request) {
+Route::post('system/scheduler/run', function (\Illuminate\Http\Request $request) {
     $secret = config('services.scheduler_secret');
     if (empty($secret)) {
         abort(500, 'Scheduler secret unconfigured');
