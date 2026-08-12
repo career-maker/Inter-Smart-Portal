@@ -593,7 +593,7 @@ export default function ApplyLeavePage() {
               <button
                 onClick={() => {
                   setShowSuccess(false);
-                  router.push("/leaves");
+                  router.push(`/leaves?refresh=${Date.now()}`);
                 }}
                 className="w-full mt-6 px-5 py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold rounded-xl transition-all duration-200 hover:shadow-lg hover:shadow-emerald-500/20"
               >

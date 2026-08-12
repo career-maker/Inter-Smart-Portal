@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Plus, Search, MoreHorizontal, FileEdit, Trash2, Ban, CheckCircle, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import api from "@/services/api";
 import { FavoriteButton } from "@/components/layout/FavoriteButton";
+import { useRefreshKey } from "@/hooks/useRefreshKey";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -22,6 +23,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function EmployeesPage() {
   const router = useRouter();
+  const refreshKey = useRefreshKey();
   const [employees, setEmployees] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -31,7 +33,7 @@ export default function EmployeesPage() {
   useEffect(() => {
     setCurrentPage(1);
     fetchEmployees(1);
-  }, [search]);
+  }, [search, refreshKey]);
 
   useEffect(() => {
     fetchEmployees(currentPage);

@@ -92,8 +92,7 @@ export default function TeamForm({ initialData, isEdit }: TeamFormProps) {
       } else {
         await api.post("/teams", payload);
       }
-      router.push("/teams");
-      router.refresh();
+      router.push(`/teams?refresh=${Date.now()}`);
     } catch (e: any) {
       console.error(e);
       alert(e.response?.data?.message || "An error occurred");

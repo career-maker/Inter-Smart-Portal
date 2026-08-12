@@ -127,8 +127,7 @@ export default function EmployeeForm({ initialData, isEdit }: EmployeeFormProps)
       } else {
         await api.post("/employees", payload);
       }
-      router.push("/employees");
-      router.refresh();
+      router.push(`/employees?refresh=${Date.now()}`);
     } catch (e: any) {
       console.error(e);
       alert(e.response?.data?.message || "An error occurred");

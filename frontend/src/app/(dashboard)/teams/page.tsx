@@ -8,12 +8,14 @@ import api from "@/services/api";
 import { TeamHierarchyChart } from "@/components/teams/TeamHierarchyChart";
 import { TeamCard } from "@/components/teams/TeamCard";
 import { FavoriteButton } from "@/components/layout/FavoriteButton";
+import { useRefreshKey } from "@/hooks/useRefreshKey";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export default function TeamsPage() {
   const router = useRouter();
+  const refreshKey = useRefreshKey();
   const [teams, setTeams] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -23,7 +25,7 @@ export default function TeamsPage() {
 
   useEffect(() => {
     fetchTeams();
-  }, [search]);
+  }, [search, refreshKey]);
 
   const fetchTeams = async () => {
     setIsLoading(true);

@@ -7,9 +7,11 @@ import { Plus, Calendar, Clock, CheckCircle, XCircle } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
 import { FavoriteButton } from "@/components/layout/FavoriteButton";
+import { useRefreshKey } from "@/hooks/useRefreshKey";
 
 export default function LeavesPage() {
   const router = useRouter();
+  const refreshKey = useRefreshKey();
   const { user } = useAuthStore();
   const isSuperAdmin = user?.role === "Super Admin";
 
@@ -26,7 +28,7 @@ export default function LeavesPage() {
 
   useEffect(() => {
     fetchData(currentPage);
-  }, [currentPage, filterType, filterFromDate, filterToDate]);
+  }, [currentPage, filterType, filterFromDate, filterToDate, refreshKey]);
 
   const clearFilters = () => {
     setFilterType("");
