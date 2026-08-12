@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { PageLoader } from "@/components/ui/PageLoader";
 import Link from "next/link";
 import { ArrowLeft, Users } from "lucide-react";
@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 export default function EditTeamPage() {
   const params = useParams();
+  const router = useRouter();
   const [team, setTeam] = useState<any>(null);
   const [allUsers, setAllUsers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -89,11 +90,9 @@ export default function EditTeamPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/teams">
-          <Button variant="outline" size="icon">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-        </Link>
+        <Button variant="outline" size="icon" onClick={() => router.push(`/teams?refresh=${Date.now()}`)}>
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Manage {team.name}</h1>
           <p className="text-slate-600 dark:text-slate-300">{selectedMemberIds.length} Members</p>

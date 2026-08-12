@@ -18,6 +18,10 @@ api.interceptors.request.use((config) => {
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    // Clear cache on any mutation (POST, PUT, DELETE, PATCH)
+    if (config.method && config.method.toLowerCase() !== 'get') {
+      apiCache.clearAll();
+    }
 
     // Cache GET requests
     if (config.method?.toLowerCase() === 'get') {
