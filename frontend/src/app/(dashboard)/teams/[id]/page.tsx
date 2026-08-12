@@ -125,7 +125,7 @@ export default function EditTeamPage() {
                     {allUsers
                       .filter((user) => !user.team_id || user.team_id === team.id)
                       .map((user) => (
-                      <div key={user.id} className="flex items-center gap-3 p-3 hover:bg-gray-100 transition-colors">
+                      <div key={user.id} className="flex items-center gap-3 p-3 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition-colors rounded-md">
                         <input
                           type="checkbox"
                           id={`user-${user.id}`}
@@ -139,11 +139,11 @@ export default function EditTeamPage() {
                             <AvatarFallback>{user.first_name?.charAt(0)}</AvatarFallback>
                           </Avatar>
                           <div className="flex flex-col">
-                            <span className="font-medium text-sm">{user.first_name} {user.last_name}</span>
-                            <span className="text-xs text-muted-foreground">{user.designation || 'No Designation'} • {user.email}</span>
+                            <span className="font-medium text-sm text-slate-900 dark:text-slate-100">{user.first_name} {user.last_name}</span>
+                            <span className="text-xs text-slate-500 dark:text-slate-400">{user.designation || 'No Designation'} • {user.email}</span>
                           </div>
                         </label>
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-xs text-slate-500 dark:text-slate-400">
                           {user.team_id === team.id ? (
                             <span className="text-primary font-medium">In this team</span>
                           ) : (
