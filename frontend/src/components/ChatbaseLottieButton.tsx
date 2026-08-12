@@ -182,12 +182,11 @@ export default function ChatbaseLottieButton() {
         />
       </button>
 
-      {/* Mobile offset — clear the fixed apply-leave bar */}
+      {/* Hide entirely on mobile devices */}
       <style>{`
         @media (max-width: 768px) {
           [aria-label="Open AI Assistant"] {
-            width: 56px !important;
-            height: 56px !important;
+            display: none !important;
           }
         }
       `}</style>
