@@ -1444,13 +1444,13 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
 
       {/* Leave Details Modal */}
       <Dialog open={!!leaveModalData} onOpenChange={(open) => !open && setLeaveModalData(null)}>
-        <DialogContent className="sm:max-w-md bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white">
+        <DialogContent className="sm:max-w-md border-slate-200 dark:border-white/10">
           <DialogHeader>
-            <DialogTitle className="text-slate-900 dark:text-white">{leaveModalData?.title}</DialogTitle>
+            <DialogTitle>{leaveModalData?.title}</DialogTitle>
           </DialogHeader>
           <div className="max-h-[60vh] overflow-y-auto space-y-3 mt-4">
             {leaveModalData?.list.length === 0 ? (
-              <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-4">No employees to show.</p>
+              <p className="text-sm text-muted-foreground text-center py-4">No employees to show.</p>
             ) : (
               leaveModalData?.list.map((item: any, idx: number) => (
                 <div key={idx} className="flex items-center justify-between p-3 bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl">
@@ -1459,8 +1459,8 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                       {item.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2)}
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-slate-900 dark:text-white">{item.name}</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">{item.leave_type || item.designation}</p>
+                      <p className="text-sm font-bold">{item.name}</p>
+                      <p className="text-xs text-muted-foreground">{item.leave_type || item.designation}</p>
                     </div>
                   </div>
                 </div>
