@@ -36,13 +36,7 @@ export function RecognitionTicker() {
             type: "announcement",
           }));
 
-        console.log("Ticker - Birthdays today:", birthdays);
-        console.log("Ticker - Recognitions:", recognitions);
-        console.log("Ticker - Pinned Announcements:", pinnedAnnouncements);
-
         const allItems = [...pinnedAnnouncements, ...birthdays, ...recognitions];
-        console.log("Ticker - All items to display:", allItems);
-
         setItems(allItems);
       } catch (error) {
         console.error("Failed to fetch recognitions/birthdays/announcements for ticker", error);

@@ -54,21 +54,19 @@ export default function TeamForm({ initialData, isEdit }: TeamFormProps) {
   const fetchUsers = async () => {
     setUsersLoading(true);
     try {
-      // Fetch all pages of employees
-      let allEmployees: any[] = [];
-      let page = 1;
-      let hasMore = true;
+      // Fetch page 1 first to discover total pages
+      const firstRes = await api.get(`/employees?page=1`);
+      const firstPage = firstRes.data.data || [];
+      const lastPage = firstRes.data.meta?.last_page ?? 1;
 
-      while (hasMore) {
-        const res = await api.get(`/employees?page=${page}`);
-        const pageData = res.data.data || [];
-        allEmployees = [...allEmployees, ...pageData];
-
-        // Check if there are more pages
-        if (!res.data.meta?.last_page || page >= res.data.meta.last_page) {
-          hasMore = false;
-        }
-        page++;
+      // Fetch remaining pages in parallel
+      let allEmployees: any[] = [...firstPage];
+      if (lastPage > 1) {
+        const pageNums = Array.from({ length: lastPage - 1 }, (_, i) => i + 2);
+        const results = await Promise.all(pageNums.map((p) => api.get(`/employees?page=${p}`)));
+        results.forEach((res) => {
+          allEmployees = [...allEmployees, ...(res.data.data || [])];
+        });
       }
 
       // Filter only active employees

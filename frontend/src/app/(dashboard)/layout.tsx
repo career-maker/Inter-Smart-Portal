@@ -205,14 +205,31 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (isHydrated && !isAuthenticated) router.push("/login");
   }, [isHydrated, isAuthenticated, router]);
 
+  // Refresh user profile once on initial authenticated load only (not on every route change)
+  const [meFetched, setMeFetched] = useState(false);
   useEffect(() => {
-    if (!isHydrated || !isAuthenticated) return;
+    if (!isHydrated || !isAuthenticated || meFetched) return;
+    setMeFetched(true);
     api.get("/me").then((res) => {
       if (res.data?.user) updateUser(res.data.user);
     }).catch(() => {});
   }, [isHydrated, isAuthenticated]);
 
-  if (!isHydrated || !isAuthenticated) return null;
+  // Show a minimal skeleton shell during hydration instead of a blank black screen
+  if (!isHydrated) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex flex-col">
+        <div className="h-16 bg-slate-900 border-b border-white/10" />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-3 opacity-60">
+            <div className="w-8 h-8 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) return null;
 
   const userRole = user?.role ?? "";
 
