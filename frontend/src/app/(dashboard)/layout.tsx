@@ -254,13 +254,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-white/10 shadow-lg">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           {/* Logo */}
-          <Link href="/dashboard" className="flex items-center shrink-0 pr-4">
-            <img src="/logo-dark.png" alt="Inter Smart Logo" className="h-14 scale-110 origin-left w-auto object-contain dark:hidden" />
-            <img src="/logo.png" alt="Inter Smart Logo" className="h-10 w-auto object-contain hidden dark:block" />
+          <Link href="/dashboard" className="flex items-center shrink min-w-0 pr-2 sm:pr-4">
+            <img src="/logo-dark.png" alt="Inter Smart Logo" className="h-10 sm:h-14 sm:scale-110 origin-left w-auto object-contain dark:hidden max-w-[140px] sm:max-w-none" />
+            <img src="/logo.png" alt="Inter Smart Logo" className="h-8 sm:h-10 w-auto object-contain hidden dark:block max-w-[140px] sm:max-w-none" />
           </Link>
 
           {/* Right side */}
-          <div className="flex items-center gap-3 shrink-0 ml-auto">
+          <div className="flex items-center gap-1 sm:gap-3 shrink-0 ml-auto">
             <ThemeToggle />
             <NotificationDropdown />
 
