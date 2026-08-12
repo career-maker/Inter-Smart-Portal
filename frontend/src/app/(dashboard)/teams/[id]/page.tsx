@@ -125,25 +125,25 @@ export default function EditTeamPage() {
                     {allUsers
                       .filter((user) => !user.team_id || user.team_id === team.id)
                       .map((user) => (
-                      <div key={user.id} className="flex items-center gap-3 p-3 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition-colors rounded-md">
+                      <div key={user.id} className="group flex items-center gap-3 p-3 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors rounded-md cursor-pointer">
                         <input
                           type="checkbox"
                           id={`user-${user.id}`}
-                          className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                          className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
                           checked={selectedMemberIds.includes(user.id)}
                           onChange={() => toggleMemberSelection(user.id)}
                         />
                         <label htmlFor={`user-${user.id}`} className="flex items-center gap-3 flex-1 cursor-pointer">
                           <Avatar className="h-8 w-8">
                             <AvatarImage src={user.profile_photo_path} alt={user.first_name} />
-                            <AvatarFallback>{user.first_name?.charAt(0)}</AvatarFallback>
+                            <AvatarFallback className="group-hover:bg-slate-200 group-hover:text-slate-800">{user.first_name?.charAt(0)}</AvatarFallback>
                           </Avatar>
                           <div className="flex flex-col">
-                            <span className="font-medium text-sm text-slate-900 dark:text-slate-100">{user.first_name} {user.last_name}</span>
-                            <span className="text-xs text-slate-500 dark:text-slate-400">{user.designation || 'No Designation'} • {user.email}</span>
+                            <span className="font-medium text-sm text-slate-100 group-hover:text-slate-900 dark:group-hover:text-slate-100 transition-colors">{user.first_name} {user.last_name}</span>
+                            <span className="text-xs text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors">{user.designation || 'No Designation'} • {user.email}</span>
                           </div>
                         </label>
-                        <div className="text-xs text-slate-500 dark:text-slate-400">
+                        <div className="text-xs text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors">
                           {user.team_id === team.id ? (
                             <span className="text-primary font-medium">In this team</span>
                           ) : (
