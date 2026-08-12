@@ -48,7 +48,7 @@ class TeamController extends Controller
 
     public function show(Team $team)
     {
-        return new TeamResource($team->load(['teamLead', 'members']));
+        return new TeamResource($team->load(['teamLead', 'members'])->loadCount('members'));
     }
 
     public function update(UpdateTeamRequest $request, Team $team)

@@ -34,21 +34,18 @@ export default function EditTeamPage() {
 
       setTeam(teamRes.data.data);
 
-      // Fetch all employees - paginate through all pages
-      let allEmployees: any[] = [];
-      let page = 1;
-      let hasMore = true;
+      // Fetch all employees — page 1 first to get total count, then rest in parallel
+      const firstRes = await api.get(`/employees?page=1`);
+      const firstPage = firstRes.data.data || [];
+      const lastPage = firstRes.data.meta?.last_page ?? 1;
 
-      while (hasMore) {
-        const usersRes = await api.get(`/employees?page=${page}`);
-        const pageData = usersRes.data.data || [];
-        allEmployees = [...allEmployees, ...pageData];
-
-        // Check if there are more pages
-        if (!usersRes.data.meta?.last_page || page >= usersRes.data.meta.last_page) {
-          hasMore = false;
-        }
-        page++;
+      let allEmployees: any[] = [...firstPage];
+      if (lastPage > 1) {
+        const pageNums = Array.from({ length: lastPage - 1 }, (_, i) => i + 2);
+        const results = await Promise.all(pageNums.map((p) => api.get(`/employees?page=${p}`)));
+        results.forEach((res) => {
+          allEmployees = [...allEmployees, ...(res.data.data || [])];
+        });
       }
 
       setAllUsers(allEmployees);
@@ -99,7 +96,7 @@ export default function EditTeamPage() {
         </Link>
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Manage {team.name}</h1>
-          <p className="text-slate-600 dark:text-slate-300">{team.members_count || 0} Members</p>
+          <p className="text-slate-600 dark:text-slate-300">{selectedMemberIds.length} Members</p>
         </div>
       </div>
 
