@@ -294,17 +294,23 @@ class EmailService
             throw new \Exception("BREVO_API_KEY not configured");
         }
 
-        $fromAddress = env('MAIL_FROM_ADDRESS', 'hello@example.com');
+        $fromAddress = env('MAIL_FROM_ADDRESS');
+        if (empty($fromAddress) || $fromAddress === 'hello@example.com') {
+            $fromAddress = 'hr@intersmart.in';
+        }
         $fromName = env('MAIL_FROM_NAME', 'Inter Smart HR Portal');
 
         // Build recipient list
         $to = [['email' => $toEmail]];
         $cc = [];
-        foreach ($ccEmails as $email) {
+        $uniqueCc = array_diff(array_unique($ccEmails), [$toEmail]);
+        foreach ($uniqueCc as $email) {
             $cc[] = ['email' => $email];
         }
+        
         $bcc = [];
-        foreach ($bccEmails as $email) {
+        $uniqueBcc = array_diff(array_unique($bccEmails), [$toEmail], $uniqueCc);
+        foreach ($uniqueBcc as $email) {
             $bcc[] = ['email' => $email];
         }
 
