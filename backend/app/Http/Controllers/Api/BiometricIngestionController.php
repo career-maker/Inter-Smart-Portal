@@ -15,11 +15,15 @@ class BiometricIngestionController extends Controller
     {
         error_log('BIOMETRIC_TRACE_01_ENTERED_CONTROLLER');
         try {
-            error_log('BIOMETRIC_TRACE_02_ENTERED_TRY');
-            error_log('BIOMETRIC_TRACE_03_BEFORE_VALIDATED');
             \Log::info('BIOMETRIC_TRACE_1_START');
-            $events = $request->validated()['events'];
-            error_log('BIOMETRIC_TRACE_04_AFTER_VALIDATED');
+            $events = $request->input('events');
+            
+            if (empty($events) || !is_array($events)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Invalid payload: missing or invalid events array'
+                ], 422);
+            }
         $sourceSystem = 'essl';
 
         $responses = [];
