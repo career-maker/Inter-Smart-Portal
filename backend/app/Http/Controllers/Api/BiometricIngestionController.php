@@ -43,6 +43,7 @@ class BiometricIngestionController extends Controller
                 || !is_string($event['source_table'])
                 || !preg_match('/^DeviceLogs_(1[0-2]|0?[1-9])_20[0-9]{2}$/', $event['source_table'])
             ) {
+                error_log('BIOMETRIC_REJECT_INVALID_STRUCTURE: ' . json_encode($event));
                 $responses[] = $response;
                 continue;
             }
@@ -50,6 +51,7 @@ class BiometricIngestionController extends Controller
             // Direction strict validation
             $direction = strtolower($event['direction']);
             if (!in_array($direction, ['in', 'out'], true)) {
+                error_log('BIOMETRIC_REJECT_INVALID_DIRECTION: ' . $direction);
                 $responses[] = $response;
                 continue;
             }
@@ -67,10 +69,11 @@ class BiometricIngestionController extends Controller
 
             // Date processing
             try {
-                $localTime = Carbon::createFromFormat('Y-m-d H:i:s', $event['local_punch_time'], 'Asia/Kolkata');
+                $localTime = Carbon::parse($event['local_punch_time'], 'Asia/Kolkata');
                 $utcTime = clone $localTime;
                 $utcTime->setTimezone('UTC');
             } catch (\Exception $e) {
+                error_log('BIOMETRIC_REJECT_INVALID_DATE: ' . $event['local_punch_time'] . ' error: ' . $e->getMessage());
                 $responses[] = $response;
                 continue;
             }
