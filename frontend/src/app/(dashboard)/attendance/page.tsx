@@ -236,7 +236,14 @@ export default function AttendancePage() {
                 </thead>
                 <tbody className="text-slate-200">
                   {getFilteredHistory().map((record, idx) => {
-                    const totalBreakMins = record.breaks?.reduce((acc: number, b: any) => acc + (b.total_break_minutes || 0), 0) || 0;
+                    let totalBreakMins = record.breaks?.reduce((acc: number, b: any) => acc + (b.total_break_minutes || 0), 0) || 0;
+                    const openBreak = record.breaks?.find((b: any) => !b.break_end);
+                    if (openBreak && openBreak.break_start) {
+                      const breakStart = new Date(openBreak.break_start).getTime();
+                      const now = new Date().getTime();
+                      const ongoingMins = Math.max(0, (now - breakStart) / 1000 / 60);
+                      totalBreakMins += Math.round(ongoingMins);
+                    }
                     const recordDate = new Date(record.date);
                     const dayName = recordDate.toLocaleDateString([], { weekday: 'short' });
                     return (

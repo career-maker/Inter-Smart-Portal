@@ -330,10 +330,9 @@ class BiometricProcessorService
         $recovered = 0;
         $errors = 0;
 
-        // Find all unmatched_employee events for this employee_code
+        // Find all error events for this employee_code (including dependent invalid_sequence ones)
         $orphanedEventIds = BiometricEvent::where('employee_code', $employeeCode)
             ->where('processing_status', 'error')
-            ->where('error_reason', 'unmatched_employee')
             ->pluck('id')
             ->toArray();
 

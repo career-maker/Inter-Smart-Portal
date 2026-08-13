@@ -151,7 +151,8 @@ class BiometricTimelineService
                     $completedBreaks[] = [
                         'start'   => $breakStart,
                         'end'     => $point['time'],
-                        'minutes' => (int) floor($breakStart->diffInMinutes($point['time'])),
+                        'minutes' => (int) floor($breakStart->diffInSeconds($point['time']) / 60),
+                        'seconds' => (int) $breakStart->diffInSeconds($point['time']),
                     ];
                     $breakStart = null;
                 }
@@ -165,7 +166,8 @@ class BiometricTimelineService
                     $workingSessions[] = [
                         'start'   => $sessionStart,
                         'end'     => $point['time'],
-                        'minutes' => (int) floor($sessionStart->diffInMinutes($point['time'])),
+                        'minutes' => (int) floor($sessionStart->diffInSeconds($point['time']) / 60),
+                        'seconds' => (int) $sessionStart->diffInSeconds($point['time']),
                     ];
                     $sessionStart = null;
                 }
@@ -197,18 +199,19 @@ class BiometricTimelineService
                 'start'   => $sessionStart,
                 'end'     => null,
                 'minutes' => null,
+                'seconds' => null,
             ];
         }
 
-        // Total working minutes: sum only completed sessions
+        // Total working minutes: sum only completed sessions using raw seconds
         $totalWorkingMinutes = null;
-        $completedSessionMinutes = array_reduce(
+        $completedSessionSeconds = array_reduce(
             array_filter($workingSessions, fn($s) => $s['end'] !== null),
-            fn($carry, $s) => $carry + $s['minutes'],
+            fn($carry, $s) => $carry + $s['seconds'],
             0
         );
         if (count(array_filter($workingSessions, fn($s) => $s['end'] !== null)) > 0) {
-            $totalWorkingMinutes = $completedSessionMinutes;
+            $totalWorkingMinutes = (int) floor($completedSessionSeconds / 60);
         }
 
         return [

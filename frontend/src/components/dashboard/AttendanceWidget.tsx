@@ -76,7 +76,7 @@ export function AttendanceWidget({ initialData }: { initialData?: any }) {
     calcSeconds(); // Initial calculation
 
     let interval: NodeJS.Timeout;
-    if (data.status === 'Checked In') {
+    if (data.status === 'Checked In' || data.status === 'On Break') {
       interval = setInterval(calcSeconds, 1000);
     }
 
@@ -124,6 +124,15 @@ export function AttendanceWidget({ initialData }: { initialData?: any }) {
   } else {
     // Fallback to summing breaks array if times not available
     totalBreakMins = data?.attendance?.breaks?.reduce((acc: number, b: any) => acc + (b.total_break_minutes || 0), 0) || 0;
+    
+    // Unresolved eSSL break parity: add time of ongoing open break
+    const openBreak = data?.attendance?.breaks?.find((b: any) => !b.break_end);
+    if (openBreak && openBreak.break_start) {
+      const breakStart = new Date(openBreak.break_start).getTime();
+      const now = new Date().getTime();
+      const ongoingMins = Math.max(0, (now - breakStart) / 1000 / 60);
+      totalBreakMins += Math.round(ongoingMins);
+    }
   }
   const breakDurationStr = totalBreakMins > 0 ? `${Math.floor(totalBreakMins / 60)}h ${totalBreakMins % 60}m` : '0m';
 

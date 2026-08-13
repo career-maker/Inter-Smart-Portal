@@ -3,8 +3,6 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use App\Models\BiometricEvent;
-use App\Observers\BiometricEventObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,6 +19,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        BiometricEvent::observe(BiometricEventObserver::class);
+        //
     }
 }
