@@ -123,7 +123,7 @@ class EmailService
 
         $recipients = [
             'to' => [],
-            'cc' => ['hr@intersmart.in', 'admin@intersmart.in'],
+            'cc' => [],
             'bcc' => []
         ];
 
@@ -131,14 +131,17 @@ class EmailService
         if ($teamLead && $teamLead->email && $teamLead->id !== $user->id) {
             error_log("✅ Adding team lead to recipients: {$teamLead->email}");
             $recipients['to'][] = $teamLead->email;
+            $recipients['cc'] = ['hr@intersmart.in', 'admin@intersmart.in'];
         } else {
             if (!$teamLead) {
-                error_log("❌ NO TEAM LEAD FOUND");
+                error_log("❌ NO TEAM LEAD FOUND. Falling back to Admin.");
             } elseif (!$teamLead->email) {
-                error_log("❌ TEAM LEAD HAS NO EMAIL");
+                error_log("❌ TEAM LEAD HAS NO EMAIL. Falling back to Admin.");
             } elseif ($teamLead->id === $user->id) {
-                error_log("❌ TEAM LEAD IS SAME USER (cannot send to self)");
+                error_log("❌ TEAM LEAD IS SAME USER. Falling back to Admin.");
             }
+            $recipients['to'][] = 'admin@intersmart.in';
+            $recipients['cc'] = ['hr@intersmart.in'];
         }
 
         return $recipients;
@@ -157,13 +160,17 @@ class EmailService
 
         $recipients = [
             'to' => [],
-            'cc' => ['hr@intersmart.in', 'admin@intersmart.in'],
+            'cc' => [],
             'bcc' => []
         ];
 
         // Notify Team Lead if available
         if ($teamLead && $teamLead->email && $teamLead->id !== $user->id) {
             $recipients['to'][] = $teamLead->email;
+            $recipients['cc'] = ['hr@intersmart.in', 'admin@intersmart.in'];
+        } else {
+            $recipients['to'][] = 'admin@intersmart.in';
+            $recipients['cc'] = ['hr@intersmart.in'];
         }
 
         return $recipients;
