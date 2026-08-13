@@ -216,6 +216,7 @@ class BiometricIngestionController extends Controller
                         // because rebuilding timelines for 50+ events synchronously takes too long
                         // and causes the eSSL agent to timeout (Status: Network/Timeout).
                         // The scheduled 5-minute cron job (biometric:process) will handle it.
+                    }
 
 
 
