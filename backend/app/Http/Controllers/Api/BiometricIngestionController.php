@@ -17,6 +17,7 @@ class BiometricIngestionController extends Controller
         try {
             error_log('BIOMETRIC_TRACE_02_ENTERED_TRY');
             error_log('BIOMETRIC_TRACE_03_BEFORE_VALIDATED');
+            \Log::info('BIOMETRIC_TRACE_1_START');
             $events = $request->validated()['events'];
             error_log('BIOMETRIC_TRACE_04_AFTER_VALIDATED');
         $sourceSystem = 'essl';
@@ -98,6 +99,7 @@ class BiometricIngestionController extends Controller
             return $this->formatResponse($responses);
         }
 
+        \Log::info('BIOMETRIC_TRACE_2_VALIDATION_DONE', ['count' => count($validEventsToProcess)]);
         // 2. Pre-check Database for Existing Events (Composite ID)
         $existingComposites = [];
         // Chunk query if too many, max 500 is fine
@@ -118,15 +120,19 @@ class BiometricIngestionController extends Controller
             }
         });
         
+        \Log::info('BIOMETRIC_TRACE_3_PRECHECK_QUERY_START');
         $existingRecords = $query->get();
+        \Log::info('BIOMETRIC_TRACE_4_PRECHECK_QUERY_END', ['found' => $existingRecords->count()]);
         foreach ($existingRecords as $rec) {
             $existingComposites["$sourceSystem|{$rec->source_table}|{$rec->source_event_id}"] = true;
         }
 
+        \Log::info('BIOMETRIC_TRACE_5_EMPLOYEE_LOOKUP_START');
         // 3. Employee Lookup
         $users = User::whereIn('employee_code', array_unique($employeeCodes))
                      ->get(['id', 'employee_code'])
                      ->keyBy('employee_code');
+        \Log::info('BIOMETRIC_TRACE_6_EMPLOYEE_LOOKUP_END');
 
         // 4. Prepare Insert Payload
         $insertPayload = [];
@@ -174,15 +180,19 @@ class BiometricIngestionController extends Controller
         }
 
         // 5. Database Transaction (Insert & Sync State)
+        \Log::info('BIOMETRIC_TRACE_7_PREPARE_PAYLOAD_END', ['payload_size' => count($insertPayload)]);
         if (!empty($insertPayload) || !empty($uniqueSourceTables)) {
             DB::transaction(function () use ($insertPayload, $attemptedComposites, &$responses, $sourceSystem, $uniqueSourceTables) {
+                \Log::info('BIOMETRIC_TRACE_8_TRANSACTION_START');
 
                     // Initialize insertedRows to avoid undefined variable error
                     $insertedRows = [];
 
                     if (!empty($insertPayload)) {
+                        \Log::info('BIOMETRIC_TRACE_9_INSERT_START');
                         // Use Laravel's insertOrIgnore for MySQL/PostgreSQL cross-compatibility
                         DB::table('biometric_events')->insertOrIgnore($insertPayload);
+                        \Log::info('BIOMETRIC_TRACE_10_INSERT_END');
 
                         // Since MySQL doesn't support RETURNING, we must re-query the newly inserted rows
                         // using the composite keys we just attempted to insert.
@@ -202,6 +212,7 @@ class BiometricIngestionController extends Controller
                                 }
                             })
                             ->get();
+                        \Log::info('BIOMETRIC_TRACE_11_SELECT_END');
 
                         $insertedComposites = [];
                         foreach ($insertedRows as $row) {
@@ -225,6 +236,7 @@ class BiometricIngestionController extends Controller
 
 
                     // Update Sync States for successfully processed source tables
+                    \Log::info('BIOMETRIC_TRACE_12_SYNC_STATE_START');
                     foreach (array_keys($uniqueSourceTables) as $table) {
                         BiometricSyncState::updateOrCreate(
                             ['source_system' => $sourceSystem, 'source_table' => $table],
@@ -235,6 +247,7 @@ class BiometricIngestionController extends Controller
                             ]
                         );
                     }
+                    \Log::info('BIOMETRIC_TRACE_13_TRANSACTION_END');
                 });
             }
 
