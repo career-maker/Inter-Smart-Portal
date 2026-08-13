@@ -53,8 +53,7 @@ export function NotificationDropdown() {
 
   const handleMarkAllAsRead = async () => {
     try {
-      // Optimistically update UI
-      setNotifications([]);
+      // Optimistically update UI - keep notifications visible but clear badge
       setUnreadCount(0);
 
       // Make API call in background to mark all as read
@@ -76,13 +75,19 @@ export function NotificationDropdown() {
 
   useEffect(() => {
     fetchUnread();
-    const interval = setInterval(fetchUnread, 15000);
+    let interval: NodeJS.Timeout | null = null;
+    
+    // Only poll if the dropdown is closed
+    if (!isOpen) {
+      interval = setInterval(fetchUnread, 15000);
+    }
+    
     window.addEventListener('notifications-refresh', fetchUnread);
     return () => {
-      clearInterval(interval);
+      if (interval) clearInterval(interval);
       window.removeEventListener('notifications-refresh', fetchUnread);
     };
-  }, []);
+  }, [isOpen]);
 
   const handleMarkAsRead = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
