@@ -446,8 +446,8 @@ class DashboardController extends Controller
                                     ->where('start_date', '<=', $todayStr)
                                     ->where('end_date', '>=', $todayStr)
                                     ->whereHas('leaveType', function($q) {
-                                        $q->where('name', 'not ilike', '%Work From Home%')
-                                          ->where('name', 'not ilike', '%WFH%');
+                                        $q->where('name', 'not like', '%Work From Home%')
+                                          ->where('name', 'not like', '%WFH%');
                                     })
                                     ->exists();
 
@@ -457,8 +457,8 @@ class DashboardController extends Controller
                                     ->where('start_date', '<=', $todayStr)
                                     ->where('end_date', '>=', $todayStr)
                                     ->whereHas('leaveType', function($q) {
-                                        $q->where('name', 'ilike', '%Work From Home%')
-                                          ->orWhere('name', 'ilike', '%WFH%');
+                                        $q->where('name', 'like', '%Work From Home%')
+                                          ->orWhere('name', 'like', '%WFH%');
                                     })
                                     ->exists();
 
