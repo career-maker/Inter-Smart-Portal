@@ -38,9 +38,13 @@ class TeamController extends Controller
 
         $team = Team::create($data);
 
-        // Set the Team Lead's team_id to this team
+        // Set the Team Lead's team_id to this team and assign role
         if ($team->team_lead_id) {
-            User::find($team->team_lead_id)->update(['team_id' => $team->id]);
+            $tl = User::find($team->team_lead_id);
+            if ($tl) {
+                $tl->update(['team_id' => $team->id]);
+                $tl->assignRole('Team Lead');
+            }
         }
 
         return new TeamResource($team->load('teamLead')->loadCount('members'));
@@ -57,15 +61,26 @@ class TeamController extends Controller
         $data = $request->validated();
         $team->update($data);
 
-        // If Team Lead changed, update team_id accordingly
+        // If Team Lead changed, update team_id and roles accordingly
         if (isset($data['team_lead_id']) && $data['team_lead_id'] !== $oldTeamLeadId) {
             // Remove old team lead's team_id if there was one
             if ($oldTeamLeadId) {
-                User::find($oldTeamLeadId)->update(['team_id' => null]);
+                $oldTl = User::find($oldTeamLeadId);
+                if ($oldTl) {
+                    $oldTl->update(['team_id' => null]);
+                    // Only remove role if they aren't leading any other teams
+                    if (Team::where('team_lead_id', $oldTeamLeadId)->count() === 0) {
+                        $oldTl->removeRole('Team Lead');
+                    }
+                }
             }
-            // Set new team lead's team_id
+            // Set new team lead's team_id and assign role
             if ($data['team_lead_id']) {
-                User::find($data['team_lead_id'])->update(['team_id' => $team->id]);
+                $newTl = User::find($data['team_lead_id']);
+                if ($newTl) {
+                    $newTl->update(['team_id' => $team->id]);
+                    $newTl->assignRole('Team Lead');
+                }
             }
         }
 
@@ -74,10 +89,20 @@ class TeamController extends Controller
 
     public function destroy(Team $team)
     {
+        $oldTeamLeadId = $team->team_lead_id;
+
         // Nullify the team_id for all current members
         User::where('team_id', $team->id)->update(['team_id' => null]);
         
         $team->delete();
+
+        // If the team lead isn't leading any other teams now, remove the role
+        if ($oldTeamLeadId) {
+            $oldTl = User::find($oldTeamLeadId);
+            if ($oldTl && Team::where('team_lead_id', $oldTeamLeadId)->count() === 0) {
+                $oldTl->removeRole('Team Lead');
+            }
+        }
         
         return response()->json(['message' => 'Team deleted successfully.']);
     }
