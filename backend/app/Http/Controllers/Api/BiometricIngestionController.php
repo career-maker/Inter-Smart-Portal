@@ -104,31 +104,24 @@ class BiometricIngestionController extends Controller
         }
 
         \Log::info('BIOMETRIC_TRACE_2_VALIDATION_DONE', ['count' => count($validEventsToProcess)]);
-        // 2. Pre-check Database for Existing Events (Composite ID)
+        // 2. Pre-check existing events using deterministic indexed queries (avoiding OR clauses)
         $existingComposites = [];
-        // Chunk query if too many, max 500 is fine
-        $query = DB::table('biometric_events')
-                   ->select('source_table', 'source_event_id')
-                   ->where('source_system', $sourceSystem);
-                   
-        $query->where(function($q) use ($validEventsToProcess) {
-            $grouped = [];
-            foreach ($validEventsToProcess as $item) {
-                $grouped[$item['event']['source_table']][] = $item['event']['source_event_id'];
+        $grouped = [];
+        foreach ($validEventsToProcess as $item) {
+            $grouped[$item['event']['source_table']][] = $item['event']['source_event_id'];
+        }
+
+        foreach ($grouped as $table => $ids) {
+            $records = DB::table('biometric_events')
+                ->select('source_table', 'source_event_id')
+                ->where('source_system', $sourceSystem)
+                ->where('source_table', $table)
+                ->whereIn('source_event_id', $ids)
+                ->get();
+                
+            foreach ($records as $rec) {
+                $existingComposites["$sourceSystem|{$rec->source_table}|{$rec->source_event_id}"] = true;
             }
-            foreach ($grouped as $table => $ids) {
-                $q->orWhere(function($sub) use ($table, $ids) {
-                    $sub->where('source_table', $table)
-                        ->whereIn('source_event_id', $ids);
-                });
-            }
-        });
-        
-        \Log::info('BIOMETRIC_TRACE_3_PRECHECK_QUERY_START');
-        $existingRecords = $query->get();
-        \Log::info('BIOMETRIC_TRACE_4_PRECHECK_QUERY_END', ['found' => $existingRecords->count()]);
-        foreach ($existingRecords as $rec) {
-            $existingComposites["$sourceSystem|{$rec->source_table}|{$rec->source_event_id}"] = true;
         }
 
         \Log::info('BIOMETRIC_TRACE_5_EMPLOYEE_LOOKUP_START');
@@ -190,7 +183,7 @@ class BiometricIngestionController extends Controller
                 \Log::info('BIOMETRIC_TRACE_8_TRANSACTION_START');
 
                     // Initialize insertedRows to avoid undefined variable error
-                    $insertedRows = [];
+                    $insertedRows = collect();
 
                     if (!empty($insertPayload)) {
                         \Log::info('BIOMETRIC_TRACE_9_INSERT_START');
@@ -200,27 +193,25 @@ class BiometricIngestionController extends Controller
 
                         // Since MySQL doesn't support RETURNING, we must re-query the newly inserted rows
                         // using the composite keys we just attempted to insert.
-                        $insertedRows = DB::table('biometric_events')
-                            ->select('id', 'source_system', 'source_table', 'source_event_id', 'user_id', 'direction', 'local_punch_time')
-                            ->where('source_system', $sourceSystem)
-                            ->where(function($q) use ($insertPayload) {
-                                $grouped = [];
-                                foreach ($insertPayload as $row) {
-                                    $grouped[$row['source_table']][] = $row['source_event_id'];
-                                }
-                                foreach ($grouped as $table => $ids) {
-                                    $q->orWhere(function($sub) use ($table, $ids) {
-                                        $sub->where('source_table', $table)
-                                            ->whereIn('source_event_id', $ids);
-                                    });
-                                }
-                            })
-                            ->get();
+                        $groupedInsert = [];
+                        foreach ($insertPayload as $row) {
+                            $groupedInsert[$row['source_table']][] = $row['source_event_id'];
+                        }
+
+                        foreach ($groupedInsert as $table => $ids) {
+                            $records = DB::table('biometric_events')
+                                ->select('source_table', 'source_event_id', 'id')
+                                ->where('source_system', $sourceSystem)
+                                ->where('source_table', $table)
+                                ->whereIn('source_event_id', $ids)
+                                ->get();
+                            $insertedRows = $insertedRows->concat($records);
+                        }
                         \Log::info('BIOMETRIC_TRACE_11_SELECT_END');
 
                         $insertedComposites = [];
                         foreach ($insertedRows as $row) {
-                            $insertedComposites["{$row->source_system}|{$row->source_table}|{$row->source_event_id}"] = true;
+                            $insertedComposites["$sourceSystem|{$row->source_table}|{$row->source_event_id}"] = true;
                         }
 
                         foreach ($attemptedComposites as $compKey => $meta) {
