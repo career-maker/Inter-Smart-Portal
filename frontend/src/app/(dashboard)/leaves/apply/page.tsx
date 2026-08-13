@@ -311,7 +311,7 @@ export default function ApplyLeavePage() {
   const isMorningOrAfternoonSpecified = selectedType?.name?.toLowerCase().includes("morning") || selectedType?.name?.toLowerCase().includes("afternoon");
   const showDurationSelector = isHalfDayType && !isMorningOrAfternoonSpecified;
 
-  const inputCls = "w-full bg-slate-700 border border-white/10 text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 placeholder:text-slate-500 transition-colors [color-scheme:dark]";
+  const inputCls = "w-full bg-white dark:bg-slate-700/50 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-colors [color-scheme:light_dark]";
 
   return (
     <div className="space-y-6">
@@ -502,8 +502,8 @@ export default function ApplyLeavePage() {
               )}
 
               {/* Pure CSS sticky action bar at bottom on mobile, inline on desktop */}
-              <div className="sticky bottom-0 left-0 right-0 -mx-6 -mb-6 p-4 bg-slate-100/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-white/10 z-40 flex justify-end gap-4 md:relative md:bottom-auto md:left-auto md:right-auto md:mx-0 md:mb-0 md:p-0 md:bg-transparent md:backdrop-blur-none md:border-none md:z-auto md:pt-5">
-                <button type="button" onClick={() => router.push("/leaves")} className="px-5 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/10 bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors">
+              <div className="sticky bottom-0 left-0 right-0 -mx-6 -mb-6 p-4 bg-slate-100/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-white/10 z-40 flex justify-end gap-4 md:relative md:bottom-auto md:left-auto md:right-auto md:mx-0 md:mb-0 md:p-0 md:bg-transparent md:dark:bg-transparent md:backdrop-blur-none md:border-none md:z-auto md:pt-5 rounded-b-2xl">
+                <button type="button" onClick={() => router.push("/leaves")} className="px-5 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/10 bg-white hover:bg-slate-100 dark:bg-white/5 dark:hover:bg-white/10 transition-colors">
                   Cancel
                 </button>
                 <button type="submit" disabled={isLoading || !leaveTypeId || !startDate || !endDate || !reason.trim() || !!overlapError} className="px-5 py-2 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-600 text-white disabled:opacity-50 transition-colors">
