@@ -174,51 +174,46 @@ class BiometricIngestionController extends Controller
                     $insertedRows = [];
 
                     if (!empty($insertPayload)) {
-                        $bindings = [];
-                        $values = [];
+                        // Use Laravel's insertOrIgnore for MySQL/PostgreSQL cross-compatibility
+                        DB::table('biometric_events')->insertOrIgnore($insertPayload);
 
-                        foreach ($insertPayload as $row) {
-                            $placeholders = implode(', ', array_fill(0, count($row), '?'));
-                            $values[] = "({$placeholders})";
-                            foreach ($row as $val) {
-                                $bindings[] = $val;
-                            }
-                        }
-
-                        $columns = array_keys($insertPayload[0]);
-                        $columnList = implode(', ', $columns);
-                        $valueString = implode(', ', $values);
-
-                        // PostgreSQL raw UPSERT - returns composite keys of inserted rows
-                        $sql = "INSERT INTO biometric_events ({$columnList}) VALUES {$valueString} ON CONFLICT (source_system, source_table, source_event_id) DO NOTHING RETURNING id, source_system, source_table, source_event_id, user_id, direction, local_punch_time";
-
-                        $insertedRows = DB::select($sql, $bindings);
+                        // Since MySQL doesn't support RETURNING, we must re-query the newly inserted rows
+                        // using the composite keys we just attempted to insert.
+                        $insertedRows = DB::table('biometric_events')
+                            ->select('id', 'source_system', 'source_table', 'source_event_id', 'user_id', 'direction', 'local_punch_time')
+                            ->where('source_system', $sourceSystem)
+                            ->where(function($q) use ($insertPayload) {
+                                foreach (array_chunk($insertPayload, 100) as $chunk) {
+                                    $q->orWhere(function($sub) use ($chunk) {
+                                        foreach ($chunk as $row) {
+                                            $sub->orWhere(function($sub2) use ($row) {
+                                                $sub2->where('source_table', $row['source_table'])
+                                                     ->where('source_event_id', $row['source_event_id']);
+                                            });
+                                        }
+                                    });
+                                }
+                            })
+                            ->get();
 
                         $insertedComposites = [];
                         foreach ($insertedRows as $row) {
-                            // Normalize to object property access
                             $insertedComposites["{$row->source_system}|{$row->source_table}|{$row->source_event_id}"] = true;
                         }
 
                         foreach ($attemptedComposites as $compKey => $meta) {
                             if (isset($insertedComposites[$compKey])) {
-                                // Won the race, inserted successfully
                                 $responses[$meta['index']]['status'] = $meta['status'];
                             } else {
-                                // Lost the race, duplicate already existed
                                 $responses[$meta['index']]['status'] = 'already_exists';
                             }
                         }
 
                         // Trigger observer logic manually for inserted events
-                        // Since raw SQL bypasses Eloquent observers, we process events here
                         $this->processInsertedEventsManually($insertedRows);
                     }
 
-                    // Sync punch-out events to Attendance table (only if we have inserted rows)
-                    if (!empty($insertedRows)) {
-                        $this->syncBiometricToAttendance($insertedRows);
-                    }
+
 
                     // Update Sync States for successfully processed source tables
                     foreach (array_keys($uniqueSourceTables) as $table) {
@@ -268,170 +263,39 @@ class BiometricIngestionController extends Controller
     }
 
     /**
-     * Process inserted events manually since raw SQL insert bypasses Eloquent observers.
-     * This mimics the observer logic from BiometricEventObserver.
+     * Process inserted events and rebuild the timeline instantly.
      */
     private function processInsertedEventsManually($insertedRows)
     {
+        $userIdsToUpdate = [];
+        $datesToUpdate = [];
+
         foreach ($insertedRows as $row) {
-            // Only process mapped, punch-out events (as per observer logic)
             if (!isset($row->user_id) || !$row->user_id) {
                 continue;
             }
-
-            if ($row->direction !== 'out') {
-                continue;
-            }
-
-            try {
-                $eventDate = Carbon::parse($row->local_punch_time)->toDateString();
-
-                // Find or create attendance record
-                $attendance = DB::table('attendances')
-                    ->where('user_id', $row->user_id)
-                    ->where('date', $eventDate)
-                    ->first();
-
-                if (!$attendance) {
-                    // Create new attendance record
-                    DB::table('attendances')->insert([
-                        'user_id' => $row->user_id,
-                        'date' => $eventDate,
-                        'check_in_time' => $row->local_punch_time,
-                        'check_out_time' => $row->local_punch_time,
-                        'status' => 'Present',
-                        'source' => 'biometric',
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
-                } else {
-                    // Update existing attendance with check-out time if this is later
-                    $existingCheckOut = $attendance->check_out_time ? Carbon::parse($attendance->check_out_time) : null;
-                    $newCheckOut = Carbon::parse($row->local_punch_time);
-
-                    if (!$existingCheckOut || $newCheckOut > $existingCheckOut) {
-                        DB::table('attendances')
-                            ->where('id', $attendance->id)
-                            ->update([
-                                'check_out_time' => $row->local_punch_time,
-                                'source' => 'biometric',
-                                'updated_at' => now(),
-                            ]);
-                    }
-                }
-            } catch (\Exception $e) {
-                \Log::error('Failed to process inserted biometric event', [
-                    'event_id' => $row->id ?? 'unknown',
-                    'user_id' => $row->user_id ?? 'unknown',
-                    'error' => $e->getMessage(),
-                ]);
-            }
+            $userIdsToUpdate[] = $row->user_id;
+            $datesToUpdate[] = Carbon::parse($row->local_punch_time)->format('Y-m-d');
         }
-    }
 
-    private function syncBiometricToAttendance($insertedRows)
-    {
-        if (empty($insertedRows)) {
+        $userIdsToUpdate = array_unique($userIdsToUpdate);
+        $datesToUpdate = array_unique($datesToUpdate);
+
+        if (empty($userIdsToUpdate) || empty($datesToUpdate)) {
             return;
         }
 
-        // Group inserted events by user and date to build attendance records
-        $eventsByUserDate = [];
-        foreach ($insertedRows as $row) {
-            if (!isset($row->user_id) || !$row->user_id) {
-                continue; // Skip unmapped events
+        try {
+            $timelineService = app(\App\Services\BiometricTimelineService::class);
+            foreach ($userIdsToUpdate as $userId) {
+                foreach ($datesToUpdate as $dateString) {
+                    $timelineService->rebuildAttendanceForEmployee($userId, $dateString);
+                }
             }
-
-            $eventDate = Carbon::parse($row->local_punch_time)->toDateString();
-            $key = "{$row->user_id}|{$eventDate}";
-
-            if (!isset($eventsByUserDate[$key])) {
-                $eventsByUserDate[$key] = [
-                    'user_id' => $row->user_id,
-                    'date' => $eventDate,
-                    'events' => []
-                ];
-            }
-            $eventsByUserDate[$key]['events'][] = $row;
-        }
-
-        \Log::info('Syncing biometric events to attendance', [
-            'user_date_combinations' => count($eventsByUserDate),
-        ]);
-
-        // Process each user-date combination
-        foreach ($eventsByUserDate as $item) {
-            try {
-                $userId = $item['user_id'];
-                $date = $item['date'];
-                $events = $item['events'];
-
-                // Sort events by time
-                usort($events, function ($a, $b) {
-                    return strtotime($a->local_punch_time) - strtotime($b->local_punch_time);
-                });
-
-                // Extract first IN and last OUT times
-                $firstInTime = null;
-                $lastOutTime = null;
-
-                foreach ($events as $event) {
-                    if ($event->direction === 'in' && !$firstInTime) {
-                        $firstInTime = $event->local_punch_time;
-                    }
-                    if ($event->direction === 'out') {
-                        $lastOutTime = $event->local_punch_time;
-                    }
-                }
-
-                // Find or create attendance record
-                $attendance = DB::table('attendances')
-                    ->where('user_id', $userId)
-                    ->where('date', $date)
-                    ->first();
-
-                $updateData = [
-                    'status' => 'Present',
-                    'source' => 'biometric',
-                    'updated_at' => now(),
-                ];
-
-                if ($firstInTime) {
-                    $updateData['check_in_time'] = $firstInTime;
-                }
-                if ($lastOutTime) {
-                    $updateData['check_out_time'] = $lastOutTime;
-                }
-
-                if (!$attendance) {
-                    $updateData['user_id'] = $userId;
-                    $updateData['date'] = $date;
-                    $updateData['created_at'] = now();
-                    DB::table('attendances')->insert($updateData);
-                    \Log::info('Created attendance record from biometric', [
-                        'user_id' => $userId,
-                        'date' => $date,
-                        'check_in' => $firstInTime,
-                        'check_out' => $lastOutTime,
-                    ]);
-                } else {
-                    DB::table('attendances')
-                        ->where('id', $attendance->id)
-                        ->update($updateData);
-                    \Log::info('Updated attendance record from biometric', [
-                        'user_id' => $userId,
-                        'date' => $date,
-                        'check_in' => $firstInTime,
-                        'check_out' => $lastOutTime,
-                    ]);
-                }
-            } catch (\Exception $e) {
-                \Log::error('Failed to sync biometric events to attendance', [
-                    'user_id' => $item['user_id'] ?? 'unknown',
-                    'date' => $item['date'] ?? 'unknown',
-                    'error' => $e->getMessage(),
-                ]);
-            }
+        } catch (\Exception $e) {
+            \Log::error('Failed to rebuild timeline during biometric ingestion', [
+                'error' => $e->getMessage(),
+            ]);
         }
     }
 
