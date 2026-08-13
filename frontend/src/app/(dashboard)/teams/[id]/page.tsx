@@ -138,7 +138,7 @@ export default function EditTeamPage() {
                             <AvatarFallback className="group-hover:bg-slate-200 group-hover:text-slate-800">{user.first_name?.charAt(0)}</AvatarFallback>
                           </Avatar>
                           <div className="flex flex-col">
-                            <span className="font-medium text-sm text-slate-100 group-hover:text-slate-900 dark:group-hover:text-slate-100 transition-colors">{user.first_name} {user.last_name}</span>
+                            <span className="font-medium text-sm text-slate-900 dark:text-slate-100 group-hover:text-slate-900 dark:group-hover:text-slate-100 transition-colors">{user.first_name} {user.last_name}</span>
                             <span className="text-xs text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors">{user.designation || 'No Designation'} • {user.email}</span>
                           </div>
                         </label>

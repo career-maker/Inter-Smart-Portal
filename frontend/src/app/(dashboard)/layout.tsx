@@ -296,7 +296,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             {/* Hamburger */}
             <button
-              className="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-white/10 transition-colors lg:hidden shrink-0"
               onClick={() => setMenuOpen((v) => !v)}
               aria-label="Toggle menu"
             >

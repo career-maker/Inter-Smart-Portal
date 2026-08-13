@@ -185,8 +185,15 @@ export default function ChatbaseLottieButton() {
       {/* Hide entirely on mobile devices */}
       <style>{`
         @media (max-width: 768px) {
-          [aria-label="Open AI Assistant"] {
+          [aria-label="Open AI Assistant"],
+          #chatbase-bubble-button,
+          #chatbase-bubble-button-container,
+          #chatbase-message-bubbles,
+          iframe[src*="chatbase"] {
             display: none !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            visibility: hidden !important;
           }
         }
       `}</style>

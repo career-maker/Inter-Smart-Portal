@@ -8,3 +8,7 @@ vendor
 
 .vercel
 .env*
+
+database/migration/.migration_secret
+database/migration/source/
+database/migration/scripts/schema_meta.json
