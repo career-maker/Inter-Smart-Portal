@@ -41,7 +41,7 @@ class BiometricIngestionController extends Controller
             if (
                 !isset($event['source_table'], $event['source_event_id'], $event['direction'], $event['employee_code'], $event['device_id'], $event['local_punch_time'])
                 || !is_string($event['source_table'])
-                || !preg_match('/^DeviceLogs_(1[0-2]|[1-9])_20[0-9]{2}$/', $event['source_table'])
+                || !preg_match('/^DeviceLogs_(1[0-2]|0?[1-9])_20[0-9]{2}$/', $event['source_table'])
             ) {
                 $responses[] = $response;
                 continue;
