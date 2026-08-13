@@ -106,10 +106,14 @@ class BiometricIngestionController extends Controller
                    ->where('source_system', $sourceSystem);
                    
         $query->where(function($q) use ($validEventsToProcess) {
+            $grouped = [];
             foreach ($validEventsToProcess as $item) {
-                $q->orWhere(function($sub) use ($item) {
-                    $sub->where('source_table', $item['event']['source_table'])
-                        ->where('source_event_id', $item['event']['source_event_id']);
+                $grouped[$item['event']['source_table']][] = $item['event']['source_event_id'];
+            }
+            foreach ($grouped as $table => $ids) {
+                $q->orWhere(function($sub) use ($table, $ids) {
+                    $sub->where('source_table', $table)
+                        ->whereIn('source_event_id', $ids);
                 });
             }
         });
@@ -186,14 +190,14 @@ class BiometricIngestionController extends Controller
                             ->select('id', 'source_system', 'source_table', 'source_event_id', 'user_id', 'direction', 'local_punch_time')
                             ->where('source_system', $sourceSystem)
                             ->where(function($q) use ($insertPayload) {
-                                foreach (array_chunk($insertPayload, 100) as $chunk) {
-                                    $q->orWhere(function($sub) use ($chunk) {
-                                        foreach ($chunk as $row) {
-                                            $sub->orWhere(function($sub2) use ($row) {
-                                                $sub2->where('source_table', $row['source_table'])
-                                                     ->where('source_event_id', $row['source_event_id']);
-                                            });
-                                        }
+                                $grouped = [];
+                                foreach ($insertPayload as $row) {
+                                    $grouped[$row['source_table']][] = $row['source_event_id'];
+                                }
+                                foreach ($grouped as $table => $ids) {
+                                    $q->orWhere(function($sub) use ($table, $ids) {
+                                        $sub->where('source_table', $table)
+                                            ->whereIn('source_event_id', $ids);
                                     });
                                 }
                             })
