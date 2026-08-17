@@ -443,23 +443,14 @@ body {
   }
 
   .dark .premium-card {
-    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.04) 100%);
-    box-shadow:
-      10px 10px 30px rgba(0, 0, 0, 0.45),
-      -4px -4px 16px rgba(255, 255, 255, 0.03),
-      inset 0 1px 0 rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: rgba(30, 41, 59, 0.4); /* slate-800/40 */
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+    border: 1px solid rgba(51, 65, 85, 0.6); /* slate-700/60 */
   }
 
   .dark .premium-card:hover {
-    transform: translateY(-3px);
-    box-shadow:
-      14px 14px 40px rgba(0, 0, 0, 0.5),
-      -6px -6px 20px rgba(255, 255, 255, 0.04),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    background-color: transparent;
+    background: rgba(30, 41, 59, 0.6); /* slate-800/60 on hover */
+    border-color: rgba(71, 85, 105, 0.8); /* slate-600/80 */
   }
 
   /* Light Mode Icon Container */
