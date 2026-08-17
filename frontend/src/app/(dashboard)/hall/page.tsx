@@ -44,11 +44,11 @@ export default function HallPage() {
   };
 
   const getStatusColor = (status: string) => {
-    if (status === "Working") return "bg-green-100 text-green-700 border-green-200";
-    if (status.includes("Leave")) return "bg-red-100 text-red-700 border-red-200";
-    if (status.includes("WFH")) return "bg-blue-100 text-blue-700 border-blue-200";
-    if (status === "Holiday") return "bg-purple-100 text-purple-700 border-purple-200";
-    return "bg-gray-100 text-gray-700 border-gray-200";
+    if (status === "Working") return "bg-green-100 text-green-700 border-green-200 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/30";
+    if (status.includes("Leave")) return "bg-red-100 text-red-700 border-red-200 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/30";
+    if (status.includes("WFH")) return "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/30";
+    if (status === "Holiday") return "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-500/20 dark:text-purple-400 dark:border-purple-500/30";
+    return "bg-gray-100 text-gray-700 border-gray-200 dark:bg-slate-500/20 dark:text-slate-400 dark:border-slate-500/30";
   };
 
   if (isLoading || !data) {
@@ -84,7 +84,7 @@ export default function HallPage() {
         <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">View The Hall</h1>
           <p className="text-slate-600 dark:text-slate-300">Today's organization-wide employee availability.</p>
         {data.is_holiday && (
-          <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
+          <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300 rounded-full text-sm font-medium">
             🎉 Today is a company holiday: {data.holiday_name}
           </div>
         )}
@@ -92,46 +92,46 @@ export default function HallPage() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        <div className="bg-white p-5 rounded-xl border shadow-sm flex flex-col justify-between">
+        <div className="bg-white dark:bg-[#182433] p-5 rounded-xl border border-slate-200 dark:border-slate-700/60 shadow-sm flex flex-col justify-between">
           <div className="flex justify-between items-start">
-            <span className="text-sm font-medium text-slate-500">Total Employees</span>
+            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Employees</span>
             <Users className="h-5 w-5 text-slate-500 dark:text-slate-400" />
           </div>
-          <span className="text-3xl font-bold mt-2 text-slate-900">{data.summary.total}</span>
+          <span className="text-3xl font-bold mt-2 text-slate-900 dark:text-white">{data.summary.total}</span>
         </div>
         
-        <div className="bg-white p-5 rounded-xl border border-b-4 border-b-green-500 shadow-sm flex flex-col justify-between">
+        <div className="bg-white dark:bg-[#182433] p-5 rounded-xl border border-slate-200 dark:border-slate-700/60 border-b-4 border-b-green-500 dark:border-b-green-500 shadow-sm flex flex-col justify-between">
           <div className="flex justify-between items-start">
-            <span className="text-sm font-medium text-slate-500">Working</span>
+            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Working</span>
             <Building2 className="h-5 w-5 text-green-500" />
           </div>
-          <span className="text-3xl font-bold mt-2 text-green-600">{data.summary.working}</span>
+          <span className="text-3xl font-bold mt-2 text-green-600 dark:text-green-400">{data.summary.working}</span>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-b-4 border-b-red-500 shadow-sm flex flex-col justify-between">
+        <div className="bg-white dark:bg-[#182433] p-5 rounded-xl border border-slate-200 dark:border-slate-700/60 border-b-4 border-b-red-500 dark:border-b-red-500 shadow-sm flex flex-col justify-between">
           <div className="flex justify-between items-start">
-            <span className="text-sm font-medium text-slate-500">On Leave</span>
+            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">On Leave</span>
             <Palmtree className="h-5 w-5 text-red-500" />
           </div>
-          <span className="text-3xl font-bold mt-2 text-red-600">{data.summary.on_leave}</span>
+          <span className="text-3xl font-bold mt-2 text-red-600 dark:text-red-400">{data.summary.on_leave}</span>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-b-4 border-b-blue-500 shadow-sm flex flex-col justify-between">
+        <div className="bg-white dark:bg-[#182433] p-5 rounded-xl border border-slate-200 dark:border-slate-700/60 border-b-4 border-b-blue-500 dark:border-b-blue-500 shadow-sm flex flex-col justify-between">
           <div className="flex justify-between items-start">
-            <span className="text-sm font-medium text-slate-500">WFH</span>
+            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">WFH</span>
             <Home className="h-5 w-5 text-blue-500" />
           </div>
-          <span className="text-3xl font-bold mt-2 text-blue-600">{data.summary.wfh}</span>
+          <span className="text-3xl font-bold mt-2 text-blue-600 dark:text-blue-400">{data.summary.wfh}</span>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-b-4 border-b-orange-400 shadow-sm flex flex-col justify-between">
+        <div className="bg-white dark:bg-[#182433] p-5 rounded-xl border border-slate-200 dark:border-slate-700/60 border-b-4 border-b-orange-400 dark:border-b-orange-400 shadow-sm flex flex-col justify-between">
           <div className="flex justify-between items-start">
-            <span className="text-sm font-medium text-slate-500">Half Day</span>
+            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Half Day</span>
             <div className="flex -space-x-1">
-              <span className="h-5 w-5 border-2 border-white rounded-full bg-orange-400" />
+              <span className="h-5 w-5 border-2 border-white dark:border-[#182433] rounded-full bg-orange-400" />
             </div>
           </div>
-          <span className="text-3xl font-bold mt-2 text-orange-500">{data.summary.half_day}</span>
+          <span className="text-3xl font-bold mt-2 text-orange-500 dark:text-orange-400">{data.summary.half_day}</span>
         </div>
       </div>
 
@@ -142,7 +142,7 @@ export default function HallPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search employee or code..."
-              className="pl-9 bg-white"
+              className="pl-9 bg-white dark:bg-[#182433] dark:text-white dark:border-slate-700/60"
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
@@ -150,7 +150,7 @@ export default function HallPage() {
         </div>
         <div className="w-full sm:w-[200px]">
           <Select value={teamFilter} onValueChange={(v) => setTeamFilter(v as string)}>
-            <SelectTrigger className="bg-white">
+            <SelectTrigger className="bg-white dark:bg-[#182433] dark:text-white dark:border-slate-700/60">
               <Filter className="w-4 h-4 mr-2" />
               <SelectValue placeholder="Team" />
             </SelectTrigger>
@@ -162,7 +162,7 @@ export default function HallPage() {
         </div>
         <div className="w-full sm:w-[200px]">
           <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as string)}>
-            <SelectTrigger className="bg-white">
+            <SelectTrigger className="bg-white dark:bg-[#182433] dark:text-white dark:border-slate-700/60">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
@@ -176,10 +176,10 @@ export default function HallPage() {
       </div>
 
       {/* Employee Grid */}
-      <div className="bg-white border rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-[#182433] border border-slate-200 dark:border-slate-700/60 rounded-xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="bg-gray-50/50 text-gray-500 font-medium border-b">
+            <thead className="bg-gray-50/50 dark:bg-slate-800/40 text-gray-500 dark:text-slate-400 font-medium border-b border-slate-200 dark:border-slate-700/60">
               <tr>
                 <th className="px-6 py-4">Employee</th>
                 <th className="px-6 py-4">ID</th>
@@ -188,7 +188,7 @@ export default function HallPage() {
                 <th className="px-6 py-4 text-right">Today's Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y">
+            <tbody className="divide-y divide-slate-200 dark:divide-slate-700/60">
               {filteredEmployees.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-8 text-center text-muted-foreground">
@@ -197,18 +197,18 @@ export default function HallPage() {
                 </tr>
               ) : (
                 filteredEmployees.map((emp: any) => (
-                  <tr key={emp.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-6 py-4 font-medium text-gray-900">
+                  <tr key={emp.id} className="hover:bg-gray-50/50 dark:hover:bg-slate-800/50 transition-colors">
+                    <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">
                       {emp.first_name} {emp.last_name}
                     </td>
-                    <td className="px-6 py-4 text-gray-500">
+                    <td className="px-6 py-4 text-gray-500 dark:text-slate-400">
                       {emp.employee_code}
                     </td>
-                    <td className="px-6 py-4 text-gray-600">
+                    <td className="px-6 py-4 text-gray-600 dark:text-slate-400">
                       {emp.designation || "-"}
                     </td>
                     <td className="px-6 py-4">
-                      <span className="inline-flex items-center px-2 py-1 rounded-md bg-gray-100 text-gray-600 text-xs">
+                      <span className="inline-flex items-center px-2 py-1 rounded-md bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-300 text-xs border border-transparent dark:border-slate-700/60">
                         {emp.team}
                       </span>
                     </td>
@@ -227,3 +227,4 @@ export default function HallPage() {
     </div>
   );
 }
+
