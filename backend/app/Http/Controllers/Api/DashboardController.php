@@ -301,14 +301,17 @@ class DashboardController extends Controller
                 'leaves_by_month' => $chartData
             ],
             'recent_activities' => $recentActivities,
+            'issue_metrics' => [
+                'total_open' => \App\Models\Issue::where('status', 'Open')->count(),
+            ],
         ];
 
         if ($user->hasRole('Super Admin') || $user->hasRole('Team Lead')) {
             $totalEmployees = User::where('status', 'Active')->count();
             $yesterdayStr = Carbon::yesterday()->toDateString();
             
-            $presentToday = \App\Models\Attendance::where('date', $todayStr)->whereNotNull('check_in_time')->distinct('user_id')->count('user_id');
-            $presentYesterday = \App\Models\Attendance::where('date', $yesterdayStr)->whereNotNull('check_in_time')->distinct('user_id')->count('user_id');
+            $presentToday = \App\Models\BiometricEvent::whereDate('local_punch_time', $todayStr)->distinct('user_id')->count('user_id');
+            $presentYesterday = \App\Models\BiometricEvent::whereDate('local_punch_time', $yesterdayStr)->distinct('user_id')->count('user_id');
             
             $attendanceTrend = 0;
             if ($presentYesterday > 0) {
@@ -316,25 +319,20 @@ class DashboardController extends Controller
             }
 
             // Get list of employees present today
-            $presentTodayList = \App\Models\Attendance::with('user:id,first_name,last_name,designation')
-                ->where('date', $todayStr)
-                ->whereNotNull('check_in_time')
-                ->distinct('user_id')
+            $presentTodayList = \App\Models\BiometricEvent::with('user:id,first_name,last_name,designation')
+                ->whereDate('local_punch_time', $todayStr)
                 ->get()
-                ->map(function ($attendance) {
+                ->unique('user_id')
+                ->map(function ($event) {
                     return [
-                        'name' => $attendance->user->first_name . ' ' . $attendance->user->last_name,
-                        'designation' => $attendance->user->designation ?? 'Employee'
+                        'name' => $event->user ? ($event->user->first_name . ' ' . $event->user->last_name) : 'Unknown',
+                        'designation' => $event->user->designation ?? 'Employee'
                     ];
                 })
                 ->sortBy('name')
                 ->values();
 
             $onLeaveTodayRequests = LeaveRequest::with('user:id,first_name,last_name', 'leaveType:id,name')
-                ->whereHas('leaveType', function ($query) {
-                    $query->where('name', 'not like', '%Work From Home%')
-                          ->where('name', 'not like', '%WFH%');
-                })
                 ->where('status', 'Approved')
                 ->where('start_date', '<=', $todayStr)
                 ->where('end_date', '>=', $todayStr)
@@ -342,16 +340,12 @@ class DashboardController extends Controller
             $onLeaveToday = $onLeaveTodayRequests->count();
             $onLeaveTodayList = $onLeaveTodayRequests->map(function ($req) {
                 return [
-                    'name' => $req->user->first_name . ' ' . $req->user->last_name,
+                    'name' => $req->user ? ($req->user->first_name . ' ' . $req->user->last_name) : 'Unknown',
                     'leave_type' => $req->leaveType ? $req->leaveType->name : 'Leave'
                 ];
             });
 
-            $wfhTodayRequests = LeaveRequest::with('user:id,first_name,last_name', 'leaveType:id,name')
-                ->whereHas('leaveType', function ($query) {
-                    $query->where('name', 'like', '%Work From Home%')
-                          ->orWhere('name', 'like', '%WFH%');
-                })
+            $wfhTodayRequests = \App\Models\WfhRequest::with('user:id,first_name,last_name')
                 ->where('status', 'Approved')
                 ->where('start_date', '<=', $todayStr)
                 ->where('end_date', '>=', $todayStr)
@@ -359,8 +353,8 @@ class DashboardController extends Controller
             $wfhToday = $wfhTodayRequests->count();
             $wfhTodayList = $wfhTodayRequests->map(function ($req) {
                 return [
-                    'name' => $req->user->first_name . ' ' . $req->user->last_name,
-                    'leave_type' => $req->leaveType ? $req->leaveType->name : 'WFH'
+                    'name' => $req->user ? ($req->user->first_name . ' ' . $req->user->last_name) : 'Unknown',
+                    'leave_type' => 'WFH'
                 ];
             });
                 
