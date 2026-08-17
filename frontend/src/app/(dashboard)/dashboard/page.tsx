@@ -294,13 +294,13 @@ export default function DashboardPage() {
 
       {/* Team Lead Dashboard: Pending Approvals & Team Status */}
       {user?.role === "Team Lead" && data && (
-        <div className="space-y-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           {/* Quick Action: Team Tracker */}
           <a
             href="https://qa-tracker-pro.vercel.app/"
             target="_blank"
             rel="noopener noreferrer"
-            className="block bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-md p-6 border border-purple-200 dark:border-purple-500/30 hover:border-purple-300 dark:hover:border-purple-400 transition-colors group"
+            className="block h-full bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-md p-6 border border-purple-200 dark:border-purple-500/30 hover:border-purple-300 dark:hover:border-purple-400 transition-colors group"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
