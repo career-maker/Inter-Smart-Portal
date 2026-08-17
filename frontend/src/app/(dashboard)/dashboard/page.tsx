@@ -349,46 +349,63 @@ export default function DashboardPage() {
             )}
           </div>
 
-          {/* Team Member Status Cards */}
+          {/* Team Member Status Pills */}
           <div>
-            <p className="text-sm font-semibold text-slate-600 dark:text-slate-300 mb-3 flex items-center gap-2">
-              <Briefcase className="w-4 h-4 text-blue-400" />
-              Team Status Today
-            </p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2">
+              <p className="text-sm font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-2 shrink-0">
+                <Briefcase className="w-4 h-4 text-blue-400" />
+                Team Status Today
+              </p>
+              
+              {/* Legend */}
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="flex items-center gap-1 text-[10px] font-medium text-slate-500 dark:text-slate-400">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500"></div> Present
+                </span>
+                <span className="flex items-center gap-1 text-[10px] font-medium text-slate-500 dark:text-slate-400">
+                  <div className="w-2 h-2 rounded-full bg-red-500"></div> Absent
+                </span>
+                <span className="flex items-center gap-1 text-[10px] font-medium text-slate-500 dark:text-slate-400">
+                  <div className="w-2 h-2 rounded-full bg-blue-500"></div> WFH
+                </span>
+                <span className="flex items-center gap-1 text-[10px] font-medium text-slate-500 dark:text-slate-400">
+                  <div className="w-2 h-2 rounded-full bg-amber-500"></div> Half Day Leave
+                </span>
+                <span className="flex items-center gap-1 text-[10px] font-medium text-slate-500 dark:text-slate-400">
+                  <div className="w-2 h-2 rounded-full bg-purple-500"></div> Half Day WFH
+                </span>
+              </div>
+            </div>
+
             {data?.widgets?.team_members && data.widgets.team_members.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-                {data.widgets.team_members.slice(0, 6).map((member: any, index: number) => {
-                  const getStatusClasses = (status: string) => {
-                    switch (status) {
-                      case 'Present':
-                        return { text: 'text-emerald-500 dark:text-emerald-400', icon: '✓' };
-                      case 'On Leave':
-                        return { text: 'text-red-500 dark:text-red-400', icon: '🏖️' };
-                      case 'WFH':
-                        return { text: 'text-cyan-500 dark:text-cyan-400', icon: '🏠' };
-                      default:
-                        return { text: 'text-slate-500 dark:text-slate-400', icon: '❓' };
+              <div className="flex flex-wrap gap-2">
+                {data.widgets.team_members.map((member: any) => {
+                  const getPillClasses = (status: string) => {
+                    const lower = status.toLowerCase();
+                    if (lower.includes('half day wfh')) {
+                      return 'bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400 border-purple-200 dark:border-purple-500/30';
                     }
+                    if (lower.includes('half day leave')) {
+                      return 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400 border-amber-200 dark:border-amber-500/30';
+                    }
+                    if (lower === 'wfh') {
+                      return 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400 border-blue-200 dark:border-blue-500/30';
+                    }
+                    if (lower === 'present') {
+                      return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30';
+                    }
+                    // Absent, Not Checked In, On Leave
+                    return 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 border-red-200 dark:border-red-500/30';
                   };
-                  const statusClasses = getStatusClasses(member.status);
-                  const bgColors = [
-                    'from-blue-50 to-indigo-50 border-blue-100',
-                    'from-emerald-50 to-teal-50 border-emerald-100',
-                    'from-rose-50 to-pink-50 border-rose-100',
-                    'from-amber-50 to-yellow-50 border-amber-100',
-                    'from-fuchsia-50 to-purple-50 border-fuchsia-100',
-                    'from-cyan-50 to-sky-50 border-cyan-100'
-                  ];
-                  const lightBg = bgColors[index % bgColors.length];
                   
                   return (
-                    <div key={member.id} className={`bg-gradient-to-br ${lightBg} dark:from-slate-800/50 dark:to-slate-900/50 rounded-lg p-3 border dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 transition-colors`}>
-                      <p className="text-xs font-bold text-slate-800 dark:text-slate-300 truncate">{member.name}</p>
-                      <div className="flex items-center gap-2 mt-2">
-                        <span className={`text-lg ${statusClasses.text}`}>{statusClasses.icon}</span>
-                        <span className={`text-xs font-semibold ${statusClasses.text}`}>{member.status}</span>
-                      </div>
-                    </div>
+                    <span 
+                      key={member.id} 
+                      className={`px-3 py-1 text-xs font-semibold rounded-full border ${getPillClasses(member.status)}`}
+                      title={member.status}
+                    >
+                      {member.name}
+                    </span>
                   );
                 })}
               </div>
