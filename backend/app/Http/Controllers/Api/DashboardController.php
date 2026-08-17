@@ -310,16 +310,9 @@ class DashboardController extends Controller
             $totalEmployees = User::where('status', 'Active')->count();
             $yesterdayStr = Carbon::yesterday()->toDateString();
             
-            $presentToday = \App\Models\BiometricEvent::whereDate('local_punch_time', $todayStr)->distinct('user_id')->count('user_id');
-            $presentYesterday = \App\Models\BiometricEvent::whereDate('local_punch_time', $yesterdayStr)->distinct('user_id')->count('user_id');
-            
-            $attendanceTrend = 0;
-            if ($presentYesterday > 0) {
-                $attendanceTrend = round((($presentToday - $presentYesterday) / $presentYesterday) * 100);
-            }
-
-            // Get list of employees present today
+            // Calculate present list first to avoid distinct/count SQL aggregate quirks
             $presentTodayList = \App\Models\BiometricEvent::with('user:id,first_name,last_name,designation')
+                ->whereNotNull('user_id')
                 ->whereDate('local_punch_time', $todayStr)
                 ->get()
                 ->unique('user_id')
@@ -332,10 +325,24 @@ class DashboardController extends Controller
                 ->sortBy('name')
                 ->values();
 
+            $presentToday = $presentTodayList->count();
+            
+            $presentYesterday = \App\Models\BiometricEvent::whereNotNull('user_id')
+                ->whereDate('local_punch_time', $yesterdayStr)
+                ->distinct('user_id')
+                ->count('user_id');
+            
+            $attendanceTrend = 0;
+            if ($presentYesterday > 0) {
+                $attendanceTrend = round((($presentToday - $presentYesterday) / $presentYesterday) * 100);
+            }
+
+            // $presentTodayList is already calculated above
+
             $onLeaveTodayRequests = LeaveRequest::with('user:id,first_name,last_name', 'leaveType:id,name')
                 ->where('status', 'Approved')
-                ->where('start_date', '<=', $todayStr)
-                ->where('end_date', '>=', $todayStr)
+                ->whereDate('start_date', '<=', $todayStr)
+                ->whereDate('end_date', '>=', $todayStr)
                 ->get();
             $onLeaveToday = $onLeaveTodayRequests->count();
             $onLeaveTodayList = $onLeaveTodayRequests->map(function ($req) {
@@ -347,8 +354,8 @@ class DashboardController extends Controller
 
             $wfhTodayRequests = \App\Models\WfhRequest::with('user:id,first_name,last_name')
                 ->where('status', 'Approved')
-                ->where('start_date', '<=', $todayStr)
-                ->where('end_date', '>=', $todayStr)
+                ->whereDate('start_date', '<=', $todayStr)
+                ->whereDate('end_date', '>=', $todayStr)
                 ->get();
             $wfhToday = $wfhTodayRequests->count();
             $wfhTodayList = $wfhTodayRequests->map(function ($req) {
