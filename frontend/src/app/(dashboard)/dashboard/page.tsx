@@ -501,11 +501,11 @@ export default function DashboardPage() {
                         { name: 'On Leave', value: (data?.widgets?.total_employees ?? 0) - (data?.widgets?.active_employees ?? 0) - (data?.widgets?.absent_today ?? 0) }
                       ]}
                       cx="50%"
-                      cy="75%"
+                      cy="80%"
                       startAngle={180}
                       endAngle={0}
-                      innerRadius={70}
-                      outerRadius={90}
+                      innerRadius={90}
+                      outerRadius={120}
                       paddingAngle={2}
                       labelLine={false}
                       label={false}
@@ -1172,12 +1172,12 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                       { name: 'WFH', value: kpis.wfh_today ?? 0 },
                       { name: 'Absent', value: Math.max(0, (kpis.total_employees ?? 0) - (kpis.present_today ?? 0) - (kpis.on_leave_today ?? 0) - (kpis.wfh_today ?? 0)) }
                     ]}
-                    cx="50%"
-                    cy="75%"
+                    cx="40%"
+                    cy="80%"
                     startAngle={180}
                     endAngle={0}
-                    innerRadius={70}
-                    outerRadius={90}
+                    innerRadius={90}
+                    outerRadius={120}
                     paddingAngle={2}
                     labelLine={false}
                     label={false}
