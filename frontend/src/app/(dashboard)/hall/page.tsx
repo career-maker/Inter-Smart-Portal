@@ -92,7 +92,7 @@ export default function HallPage() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700/60 shadow-sm flex flex-col justify-between">
+        <div className="bg-white dark:bg-slate-800 p-5 rounded-md border border-slate-200 dark:border-slate-700/60 shadow-sm flex flex-col justify-between">
           <div className="flex justify-between items-start">
             <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Employees</span>
             <Users className="h-5 w-5 text-slate-500 dark:text-slate-400" />
@@ -100,7 +100,7 @@ export default function HallPage() {
           <span className="text-3xl font-bold mt-2 text-slate-900 dark:text-white">{data.summary.total}</span>
         </div>
         
-        <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700/60 border-b-4 border-b-green-500 dark:border-b-green-500 shadow-sm flex flex-col justify-between">
+        <div className="bg-white dark:bg-slate-800 p-5 rounded-md border border-slate-200 dark:border-slate-700/60 border-b-4 border-b-green-500 dark:border-b-green-500 shadow-sm flex flex-col justify-between">
           <div className="flex justify-between items-start">
             <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Working</span>
             <Building2 className="h-5 w-5 text-green-500" />
@@ -108,7 +108,7 @@ export default function HallPage() {
           <span className="text-3xl font-bold mt-2 text-green-600 dark:text-green-400">{data.summary.working}</span>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700/60 border-b-4 border-b-red-500 dark:border-b-red-500 shadow-sm flex flex-col justify-between">
+        <div className="bg-white dark:bg-slate-800 p-5 rounded-md border border-slate-200 dark:border-slate-700/60 border-b-4 border-b-red-500 dark:border-b-red-500 shadow-sm flex flex-col justify-between">
           <div className="flex justify-between items-start">
             <span className="text-sm font-medium text-slate-500 dark:text-slate-400">On Leave</span>
             <Palmtree className="h-5 w-5 text-red-500" />
@@ -116,7 +116,7 @@ export default function HallPage() {
           <span className="text-3xl font-bold mt-2 text-red-600 dark:text-red-400">{data.summary.on_leave}</span>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700/60 border-b-4 border-b-blue-500 dark:border-b-blue-500 shadow-sm flex flex-col justify-between">
+        <div className="bg-white dark:bg-slate-800 p-5 rounded-md border border-slate-200 dark:border-slate-700/60 border-b-4 border-b-blue-500 dark:border-b-blue-500 shadow-sm flex flex-col justify-between">
           <div className="flex justify-between items-start">
             <span className="text-sm font-medium text-slate-500 dark:text-slate-400">WFH</span>
             <Home className="h-5 w-5 text-blue-500" />
@@ -124,7 +124,7 @@ export default function HallPage() {
           <span className="text-3xl font-bold mt-2 text-blue-600 dark:text-blue-400">{data.summary.wfh}</span>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700/60 border-b-4 border-b-orange-400 dark:border-b-orange-400 shadow-sm flex flex-col justify-between">
+        <div className="bg-white dark:bg-slate-800 p-5 rounded-md border border-slate-200 dark:border-slate-700/60 border-b-4 border-b-orange-400 dark:border-b-orange-400 shadow-sm flex flex-col justify-between">
           <div className="flex justify-between items-start">
             <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Half Day</span>
             <div className="flex -space-x-1">
@@ -176,7 +176,7 @@ export default function HallPage() {
       </div>
 
       {/* Employee Grid */}
-      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-md shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
             <thead className="bg-gray-50/50 dark:bg-slate-800/40 text-gray-500 dark:text-slate-400 font-medium border-b border-slate-200 dark:border-slate-700/60">

@@ -47,7 +47,7 @@ import { AttendanceWidget } from "@/components/dashboard/AttendanceWidget";
 import { AchievementFlipCard } from "@/components/recognition/AchievementFlipCard";
 import { LeaderboardWidget } from "@/components/dashboard/LeaderboardWidget";
 import { UpcomingBirthdaysWithWishes } from "@/components/dashboard/UpcomingBirthdaysWithWishes";
-import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, AreaChart, Area } from "recharts";
 
 
 export default function DashboardPage() {
@@ -199,7 +199,7 @@ export default function DashboardPage() {
   if (error || !data) {
     return (
       <div className="flex justify-center items-center h-[70vh]">
-        <div className="bg-rose-500/10 text-rose-300 p-6 rounded-xl border border-rose-500/30 max-w-md text-center">
+        <div className="bg-rose-500/10 text-rose-300 p-6 rounded-md border border-rose-500/30 max-w-md text-center">
           <AlertCircle className="w-12 h-12 text-rose-400 mx-auto mb-4" />
           <h2 className="text-lg font-bold mb-2 text-slate-900 dark:text-white">Error Loading Dashboard</h2>
           <p className="text-sm">{error || "No data received from server."}</p>
@@ -281,7 +281,7 @@ export default function DashboardPage() {
 
       {/* Employee Dashboard: Upcoming Holidays Banner */}
       {user?.role === "Employee" && data?.widgets?.upcoming_holidays && data.widgets.upcoming_holidays.length > 0 && (
-        <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/30 dark:to-blue-900/30 border border-purple-200 dark:border-purple-500/30 rounded-2xl p-4 flex items-start gap-3 animate-slideDown">
+        <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/30 dark:to-blue-900/30 border border-purple-200 dark:border-purple-500/30 rounded-md p-4 flex items-start gap-3 animate-slideDown">
           <CalendarDays className="w-5 h-5 text-purple-600 dark:text-purple-400 flex-shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-semibold text-purple-900 dark:text-purple-300">Upcoming Holidays</p>
@@ -300,7 +300,7 @@ export default function DashboardPage() {
             href="https://qa-tracker-pro.vercel.app/"
             target="_blank"
             rel="noopener noreferrer"
-            className="block bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-2xl p-6 border border-purple-200 dark:border-purple-500/30 hover:border-purple-300 dark:hover:border-purple-400 transition-colors group"
+            className="block bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-md p-6 border border-purple-200 dark:border-purple-500/30 hover:border-purple-300 dark:hover:border-purple-400 transition-colors group"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -317,7 +317,7 @@ export default function DashboardPage() {
           </a>
 
           {/* Pending Approvals Section */}
-          <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-2xl p-6 border border-blue-200 dark:border-blue-500/30">
+          <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-md p-6 border border-blue-200 dark:border-blue-500/30">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-blue-100 dark:bg-blue-500/20 rounded-lg flex items-center justify-center border border-blue-200 dark:border-blue-500/30">
@@ -404,7 +404,7 @@ export default function DashboardPage() {
         <div className="space-y-4 mb-6">
           {/* Critical Alerts Banner */}
           {data?.widgets?.critical_alerts && Array.isArray(data.widgets.critical_alerts) && data.widgets.critical_alerts.length > 0 && (
-            <div className="bg-gradient-to-br from-red-900/30 to-rose-900/30 rounded-2xl p-4 border border-red-500/40">
+            <div className="bg-gradient-to-br from-red-900/30 to-rose-900/30 rounded-md p-4 border border-red-500/40">
               <div className="flex items-start gap-3">
                 <ShieldAlert className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
                 <div className="flex-1 min-w-0">
@@ -493,7 +493,7 @@ export default function DashboardPage() {
               </div>
               {data?.widgets?.total_employees && data.widgets.total_employees > 0 ? (
                 <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
+                  <PieChart margin={{ top: 20, right: 0, bottom: 0, left: 0 }}>
                     <Pie
                       data={[
                         { name: 'Active', value: data?.widgets?.active_employees ?? 0 },
@@ -501,10 +501,14 @@ export default function DashboardPage() {
                         { name: 'On Leave', value: (data?.widgets?.total_employees ?? 0) - (data?.widgets?.active_employees ?? 0) - (data?.widgets?.absent_today ?? 0) }
                       ]}
                       cx="50%"
-                      cy="50%"
+                      cy="100%"
+                      startAngle={180}
+                      endAngle={0}
+                      innerRadius={70}
+                      outerRadius={90}
+                      paddingAngle={2}
                       labelLine={false}
-                      label={({ name, value, percent }: any) => `${name}: ${value} (${percent ? (percent * 100).toFixed(0) : '0'}%)`}
-                      outerRadius={80}
+                      label={false}
                       fill="#8884d8"
                       dataKey="value"
                     >
@@ -655,7 +659,7 @@ export default function DashboardPage() {
             <Link
               href="#"
               onClick={(e) => e.preventDefault()}
-              className="group lg:self-end w-full lg:w-auto flex flex-col justify-center bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-300 rounded-2xl p-5 md:p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm hover:shadow-md"
+              className="group lg:self-end w-full lg:w-auto flex flex-col justify-center bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-300 rounded-md p-5 md:p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm hover:shadow-md"
             >
               <p className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
                 <span className="text-base">🌟</span>
@@ -873,7 +877,7 @@ export default function DashboardPage() {
             
             <Link 
               href="/dashboard/hall-of-fame"
-              className="md:col-span-3 lg:col-span-2 group relative overflow-hidden rounded-3xl p-6 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm hover:shadow-md dark:hover:bg-slate-700 transition-all duration-300 border border-slate-200 dark:border-slate-700/60"
+              className="md:col-span-3 lg:col-span-2 group relative overflow-hidden rounded-md p-6 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm hover:shadow-md dark:hover:bg-slate-700 transition-all duration-300 border border-slate-200 dark:border-slate-700/60"
             >
               <div className="absolute -bottom-10 -left-10 w-6 h-6 rounded-full scale-0 group-hover:scale-[35] transition-transform duration-700 ease-out bg-indigo-50 z-0 dark:hidden" />
               <div className="absolute top-0 right-0 w-32 h-32 bg-slate-100/50 dark:bg-white/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-slate-200/50 dark:group-hover:bg-white/10 transition-colors z-0"></div>
@@ -887,7 +891,7 @@ export default function DashboardPage() {
                   )}
                   <span className="text-sm font-bold text-slate-900 dark:text-white relative z-10">View The Hall</span>
                 </div>
-                <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center shadow-sm group-hover:scale-95 transition-transform">
+                <div className="w-12 h-12 rounded-md bg-white/10 flex items-center justify-center shadow-sm group-hover:scale-95 transition-transform">
                   <ArrowRight className="w-6 h-6" />
                 </div>
               </div>
@@ -942,7 +946,7 @@ export default function DashboardPage() {
 
             {/* Probation notice */}
             {leave_metrics.is_in_probation && (
-              <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 text-amber-300 text-sm space-y-1">
+              <div className="bg-amber-500/10 border border-amber-500/30 rounded-md p-4 text-amber-300 text-sm space-y-1">
                 <p className="font-bold flex items-center gap-2">🔒 Currently Under Probation</p>
                 <p className="text-amber-300/80 text-xs">Paid leave benefits will become active on <strong className="text-amber-200">{new Date(leave_metrics.probation_end_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</strong>. All leaves during probation are treated as Unpaid (LOP).</p>
               </div>
@@ -950,7 +954,7 @@ export default function DashboardPage() {
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {/* Casual Leave Indicator */}
-              <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-slate-200 dark:border-white/10 group hover:bg-slate-200 dark:hover:bg-white/10 transition-all duration-300">
+              <div className="flex items-center justify-between p-4 rounded-md bg-white/5 border border-slate-200 dark:border-white/10 group hover:bg-slate-200 dark:hover:bg-white/10 transition-all duration-300">
                 <div>
                   <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Casual Leaves</p>
                   <p className="text-2xl font-black text-slate-900 dark:text-white mt-1">{Math.max(0, leave_metrics.casual_leave_balance)}</p>
@@ -961,7 +965,7 @@ export default function DashboardPage() {
               </div>
 
               {/* Sick Leave Indicator */}
-              <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-slate-200 dark:border-white/10 group hover:bg-slate-200 dark:hover:bg-white/10 transition-all duration-300">
+              <div className="flex items-center justify-between p-4 rounded-md bg-white/5 border border-slate-200 dark:border-white/10 group hover:bg-slate-200 dark:hover:bg-white/10 transition-all duration-300">
                 <div>
                   <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Sick Leaves</p>
                   <p className="text-2xl font-black text-slate-900 dark:text-white mt-1">{Math.max(0, leave_metrics.sick_leave_balance)}</p>
@@ -972,7 +976,7 @@ export default function DashboardPage() {
               </div>
 
               {/* Total Leaves Taken Indicator */}
-              <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-slate-200 dark:border-white/10 group hover:bg-slate-200 dark:hover:bg-white/10 transition-all duration-300">
+              <div className="flex items-center justify-between p-4 rounded-md bg-white/5 border border-slate-200 dark:border-white/10 group hover:bg-slate-200 dark:hover:bg-white/10 transition-all duration-300">
                 <div>
                   <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Taken</p>
                   <p className="text-2xl font-black text-slate-900 dark:text-white mt-1">{Math.max(0, leave_metrics.total_leaves_taken)}</p>
@@ -987,7 +991,7 @@ export default function DashboardPage() {
           {/* Right section: pending notice and apply action */}
           <div className="flex flex-col justify-center items-stretch lg:items-end gap-3 shrink-0 min-w-[260px] w-full lg:w-auto pt-4 lg:pt-8">
             {leave_metrics.pending_leaves > 0 && (
-              <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl px-4 py-2 flex items-center gap-2 text-orange-400 text-xs justify-center lg:justify-start w-full">
+              <div className="bg-orange-500/10 border border-orange-500/20 rounded-md px-4 py-2 flex items-center gap-2 text-orange-400 text-xs justify-center lg:justify-start w-full">
                 <Clock className="w-4 h-4 shrink-0 animate-pulse" />
                 <span>{leave_metrics.pending_leaves} request(s) pending approval</span>
               </div>
@@ -995,7 +999,7 @@ export default function DashboardPage() {
             
             <Link 
               href="/leaves/apply" 
-              className="w-full flex items-center justify-center gap-2 bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold py-3.5 px-6 rounded-2xl hover:shadow-xl hover:shadow-amber-400/15 transition-all duration-300 active:scale-95 whitespace-nowrap"
+              className="w-full flex items-center justify-center gap-2 bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold py-3.5 px-6 rounded-md hover:shadow-xl hover:shadow-amber-400/15 transition-all duration-300 active:scale-95 whitespace-nowrap"
             >
               <Palmtree className="w-5 h-5" />
               Apply for Leave
@@ -1008,7 +1012,7 @@ export default function DashboardPage() {
         <div className="fixed bottom-4 left-4 right-4 z-40 md:hidden animate-in fade-in slide-in-from-bottom-5 duration-300">
           <Link
             href="/leaves/apply"
-            className="w-full flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-bold py-3.5 px-6 rounded-2xl shadow-xl shadow-amber-500/20 active:scale-95 transition-all duration-150 border border-amber-400/30"
+            className="w-full flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-bold py-3.5 px-6 rounded-md shadow-xl shadow-amber-500/20 active:scale-95 transition-all duration-150 border border-amber-400/30"
           >
             <Plus className="w-5 h-5" />
             Apply Leave
@@ -1091,7 +1095,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           {/* Right: Pending Requests Widget — Independent Card */}
           <Link
             href="/leaves/approvals"
-            className="group lg:self-end w-full lg:w-auto flex flex-col justify-center bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-300 rounded-2xl p-5 md:p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer"
+            className="group lg:self-end w-full lg:w-auto flex flex-col justify-center bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-300 rounded-md p-5 md:p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer"
           >
             <p className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
@@ -1152,7 +1156,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
       {/* Analytics Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
         {/* Employee Status Pie Chart */}
-        <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm">
+        <div className="bg-white dark:bg-slate-800 rounded-md p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
             <Users className="w-5 h-5 text-blue-400" />
             Employee Status Distribution
@@ -1160,7 +1164,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           {kpis?.total_employees ? (
             <div className="h-80 flex flex-col">
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+                <PieChart margin={{ top: 20, right: 0, bottom: 0, left: 0 }}>
                   <Pie
                     data={[
                       { name: 'Present', value: kpis.present_today ?? 0 },
@@ -1168,12 +1172,15 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                       { name: 'WFH', value: kpis.wfh_today ?? 0 },
                       { name: 'Absent', value: Math.max(0, (kpis.total_employees ?? 0) - (kpis.present_today ?? 0) - (kpis.on_leave_today ?? 0) - (kpis.wfh_today ?? 0)) }
                     ]}
-                    cx="40%"
-                    cy="50%"
+                    cx="50%"
+                    cy="100%"
+                    startAngle={180}
+                    endAngle={0}
+                    innerRadius={70}
+                    outerRadius={90}
+                    paddingAngle={2}
                     labelLine={false}
                     label={false}
-                    outerRadius={70}
-                    innerRadius={0}
                     fill="#8884d8"
                     dataKey="value"
                   >
@@ -1193,7 +1200,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
         </div>
 
         {/* Leave Requests Status Bar Chart */}
-        <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm">
+        <div className="bg-white dark:bg-slate-800 rounded-md p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
             <Palmtree className="w-5 h-5 text-orange-400" />
             Leave Requests Today
@@ -1334,14 +1341,14 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
              
              <Link 
               href="/hall" 
-              className="lg:col-span-2 group relative overflow-hidden rounded-3xl p-6 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm hover:shadow-md dark:hover:bg-slate-700 transition-all duration-300 border border-slate-200 dark:border-slate-700/60"
+              className="lg:col-span-2 group relative overflow-hidden rounded-md p-6 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm hover:shadow-md dark:hover:bg-slate-700 transition-all duration-300 border border-slate-200 dark:border-slate-700/60"
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-white/10 transition-colors"></div>
               <div className="relative z-10 flex items-center justify-between h-full">
                 <div className="space-y-1">
                   <span className="text-sm font-bold text-slate-900 dark:text-white relative z-10">View The Hall</span>
                 </div>
-                <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center shadow-sm group-hover:scale-95 transition-transform">
+                <div className="w-10 h-10 rounded-md bg-white/10 flex items-center justify-center shadow-sm group-hover:scale-95 transition-transform">
                   <ArrowRight className="w-5 h-5" />
                 </div>
               </div>
@@ -1428,11 +1435,11 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
               Company Leave Overview
             </h2>
             <div className="space-y-4">
-               <div className="flex justify-between items-center bg-white/5 border border-slate-200 dark:border-white/10 p-4 rounded-xl">
+               <div className="flex justify-between items-center bg-white/5 border border-slate-200 dark:border-white/10 p-4 rounded-md">
                  <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">Pending Requests</span>
                  <span className="text-xl font-bold text-slate-900 dark:text-white">{kpis.pending_requests}</span>
                </div>
-               <div className="flex justify-between items-center bg-white/5 border border-slate-200 dark:border-white/10 p-4 rounded-xl">
+               <div className="flex justify-between items-center bg-white/5 border border-slate-200 dark:border-white/10 p-4 rounded-md">
                  <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">On Leave Today</span>
                  <span className="text-xl font-bold text-slate-900 dark:text-white">{kpis.on_leave_today}</span>
                </div>
@@ -1453,7 +1460,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
               <p className="text-sm text-muted-foreground text-center py-4">No employees to show.</p>
             ) : (
               leaveModalData?.list.map((item: any, idx: number) => (
-                <div key={idx} className="flex items-center justify-between p-3 bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl">
+                <div key={idx} className="flex items-center justify-between p-3 bg-white/5 border border-slate-200 dark:border-white/10 rounded-md">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-sm">
                       {item.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2)}
@@ -1484,13 +1491,13 @@ function KPICard({ title, value, trend, icon: Icon, color, href, onClick }: any)
   const accent = accentMap[color] || accentMap['bg-blue-500'];
 
   const CardContent = (
-    <div className={`wave-card relative overflow-hidden h-full rounded-3xl p-6 bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700/60 transition-all duration-300 ${(href || onClick) ? 'cursor-pointer group hover:bg-slate-50 dark:hover:bg-slate-700 hover:shadow-md' : ''}  `} style={{ '--wave-color': `var(--tw-color-${color.replace('bg-', '').replace('-500', '')}-50)` } as any}>
+    <div className={`wave-card relative overflow-hidden h-full rounded-md p-6 bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700/60 transition-all duration-300 ${(href || onClick) ? 'cursor-pointer group hover:bg-slate-50 dark:hover:bg-slate-700 hover:shadow-md' : ''}  `} style={{ '--wave-color': `var(--tw-color-${color.replace('bg-', '').replace('-500', '')}-50)` } as any}>
       <div className="flex justify-between items-start relative z-10">
         <div>
           <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">{title}</p>
           <h3 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">{value}</h3>
         </div>
-        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${accent.icon} shadow-sm ${(href || onClick) ? 'group-hover:scale-90 transition-transform duration-300' : ''}`}>
+        <div className={`w-12 h-12 rounded-md flex items-center justify-center ${accent.icon} shadow-sm ${(href || onClick) ? 'group-hover:scale-90 transition-transform duration-300' : ''}`}>
           <Icon className="w-5 h-5" />
         </div>
       </div>
@@ -1534,10 +1541,10 @@ function QuickActionCard({ href, icon: Icon, title, color }: any) {
 
   return (
     <Link href={href}>
-      <div className="bg-white dark:bg-slate-800 rounded-3xl p-5 h-full relative overflow-hidden shadow-sm dark:hover:bg-slate-700 hover:shadow-md border border-slate-200 dark:border-slate-700/60 transition-all duration-300 group flex flex-col items-start gap-3">
+      <div className="bg-white dark:bg-slate-800 rounded-md p-5 h-full relative overflow-hidden shadow-sm dark:hover:bg-slate-700 hover:shadow-md border border-slate-200 dark:border-slate-700/60 transition-all duration-300 group flex flex-col items-start gap-3">
         <div className={`absolute -bottom-10 -left-10 w-6 h-6 rounded-full scale-0 group-hover:scale-[35] transition-transform duration-700 ease-out ${waveBg} z-0 dark:hidden`} />
         <div className="absolute top-0 right-0 w-20 h-20 bg-white/[0.03] rounded-bl-full -mr-4 -mt-4 group-hover:bg-white/[0.06] transition-colors z-0" />
-        <div className={`w-10 h-10 rounded-2xl ${accent} flex items-center justify-center shadow-sm group-hover:scale-90 transition-transform duration-300 relative z-10`}>
+        <div className={`w-10 h-10 rounded-md ${accent} flex items-center justify-center shadow-sm group-hover:scale-90 transition-transform duration-300 relative z-10`}>
           <Icon className="w-5 h-5" />
         </div>
         <span className="text-sm font-bold text-slate-900 dark:text-white relative z-10">{title}</span>
@@ -1550,7 +1557,7 @@ function EngagementCard({ title, items, icon: Icon, colorClass = "bg-orange-50/7
   const bg = colorClass.split(' ')[0];
   const colorName = bg.replace('bg-', '').replace('-50/70', '');
   return (
-    <div className={`wave-card group ${bg} rounded-3xl p-5 shadow-sm border border-slate-200 dark:border-slate-700/60 transition-colors`} style={{ '--wave-color': `var(--tw-color-${colorName}-100, #ffedd5)` } as any}>
+    <div className={`wave-card group ${bg} rounded-md p-5 shadow-sm border border-slate-200 dark:border-slate-700/60 transition-colors`} style={{ '--wave-color': `var(--tw-color-${colorName}-100, #ffedd5)` } as any}>
       <h3 className={`font-bold ${colorClass.split(' ')[1]} text-sm flex items-center gap-2 mb-3 relative z-10`}>
         <Icon className="w-5 h-5" />
         {title}
@@ -1694,7 +1701,7 @@ function UpcomingBirthdaysWidget({ items }: { items: any[] }) {
 function CelebrationCard({ recognition, firstName }: { recognition: any; firstName: string }) {
   return (
     <div
-      className="relative rounded-3xl overflow-hidden mb-6"
+      className="relative rounded-md overflow-hidden mb-6"
       style={{
         background: 'linear-gradient(135deg, #16213E 0%, #243B67 50%, #3B2F80 100%)',
         boxShadow: '0 20px 60px rgba(67,56,202,0.35), 0 8px 24px rgba(0,0,0,0.4)',
@@ -1766,7 +1773,7 @@ function CelebrationCard({ recognition, firstName }: { recognition: any; firstNa
 
           {/* Recognition title — glowing */}
           <div
-            className="mb-3 px-5 py-2 rounded-2xl"
+            className="mb-3 px-5 py-2 rounded-md"
             style={{
               background: 'rgba(255,255,255,0.06)',
               border: '1px solid rgba(255,215,0,0.25)',
@@ -1804,7 +1811,7 @@ function CelebrationCard({ recognition, firstName }: { recognition: any; firstNa
           {/* Description */}
           {recognition.description && (
             <p
-              className="mb-5 italic max-w-lg text-sm md:text-base leading-relaxed px-4 py-3 rounded-xl"
+              className="mb-5 italic max-w-lg text-sm md:text-base leading-relaxed px-4 py-3 rounded-md"
               style={{
                 color: 'rgba(255,255,255,0.85)',
                 background: 'rgba(255,255,255,0.06)',
@@ -1880,11 +1887,11 @@ function MenuCard({ href, icon: Icon, title, subtitle, color, className = "" }: 
 
   return (
     <Link href={href} className={`block ${className}`}>
-      <div className="bg-white dark:bg-slate-800 rounded-3xl p-5 h-full relative overflow-hidden shadow-sm hover:shadow-md dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700/60 transition-all duration-300 group">
+      <div className="bg-white dark:bg-slate-800 rounded-md p-5 h-full relative overflow-hidden shadow-sm hover:shadow-md dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700/60 transition-all duration-300 group">
         <div className={`absolute -bottom-10 -left-10 w-6 h-6 rounded-full scale-0 group-hover:scale-[35] transition-transform duration-700 ease-out ${waveBg} z-0 dark:hidden`} />
         <div className="absolute top-0 right-0 w-20 h-20 bg-black/[0.02] dark:bg-white/[0.03] rounded-bl-full -mr-4 -mt-4 group-hover:bg-black/[0.04] dark:group-hover:bg-white/[0.06] transition-colors z-0" />
         <div className="relative z-10">
-          <div className={`w-10 h-10 rounded-2xl ${accent} flex items-center justify-center mb-4 shadow-sm group-hover:scale-90 transition-transform duration-300`}>
+          <div className={`w-10 h-10 rounded-md ${accent} flex items-center justify-center mb-4 shadow-sm group-hover:scale-90 transition-transform duration-300`}>
             <Icon className="w-5 h-5" />
           </div>
           <h3 className="font-bold text-slate-900 dark:text-white text-sm leading-tight mb-1">{title}</h3>

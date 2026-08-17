@@ -110,7 +110,7 @@ export function AttendanceWidget({ initialData }: { initialData?: any }) {
   };
 
   if (isLoading) {
-    return <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-3xl p-6 shadow-sm animate-pulse h-48 mb-6"></div>;
+    return <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-md p-6 shadow-sm animate-pulse h-48 mb-6"></div>;
   }
 
   // Calculate break time: total time - working time
@@ -137,7 +137,7 @@ export function AttendanceWidget({ initialData }: { initialData?: any }) {
   const breakDurationStr = totalBreakMins > 0 ? `${Math.floor(totalBreakMins / 60)}h ${totalBreakMins % 60}m` : '0m';
 
   return (
-    <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-3xl p-5 md:p-6 shadow-sm mb-6 relative overflow-hidden group">
+    <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-md p-5 md:p-6 shadow-sm mb-6 relative overflow-hidden group">
       <div className="absolute -bottom-10 -left-10 w-6 h-6 rounded-full scale-0 group-hover:scale-[50] transition-transform duration-700 ease-out bg-cyan-50 z-0 dark:hidden pointer-events-none" />
       <div className="absolute -top-16 -right-16 w-40 h-40 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none z-0" />
       
@@ -161,22 +161,22 @@ export function AttendanceWidget({ initialData }: { initialData?: any }) {
         <div className="flex-1 w-full">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {/* Punch In */}
-            <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 text-center shadow-sm border border-emerald-500/25">
+            <div className="bg-white dark:bg-slate-800 rounded-md p-4 text-center shadow-sm border border-emerald-500/25">
               <p className="text-xs text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest mb-2">Punch In</p>
               <p className="font-black text-lg text-slate-900 dark:text-white">{formatTime(data?.attendance?.check_in_time)}</p>
             </div>
             {/* Punch Out */}
-            <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 text-center shadow-sm border border-rose-500/25">
+            <div className="bg-white dark:bg-slate-800 rounded-md p-4 text-center shadow-sm border border-rose-500/25">
               <p className="text-xs text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest mb-2">Punch Out</p>
               <p className="font-black text-lg text-slate-900 dark:text-white">{formatTime(data?.attendance?.check_out_time)}</p>
             </div>
             {/* Total Break */}
-            <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 text-center shadow-sm border border-amber-500/25">
+            <div className="bg-white dark:bg-slate-800 rounded-md p-4 text-center shadow-sm border border-amber-500/25">
               <p className="text-xs text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest mb-2">Total Break</p>
               <p className="font-black text-lg text-slate-900 dark:text-white">{breakDurationStr}</p>
             </div>
             {/* Worked Time */}
-            <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 text-center shadow-sm border border-cyan-500/25">
+            <div className="bg-white dark:bg-slate-800 rounded-md p-4 text-center shadow-sm border border-cyan-500/25">
               <p className="text-xs text-cyan-400 uppercase font-bold tracking-widest mb-2">Worked Time</p>
               <p className="font-black text-xl text-cyan-300 font-mono tracking-tight">{formatDuration(elapsedSeconds)}</p>
             </div>
@@ -184,7 +184,7 @@ export function AttendanceWidget({ initialData }: { initialData?: any }) {
         </div>
 
         {/* Biometric Entry Notice */}
-        <div className="flex-shrink-0 w-full lg:w-auto min-w-[180px] p-4 bg-blue-500/10 border border-blue-500/30 rounded-2xl hover:bg-blue-500/20 transition-colors cursor-default">
+        <div className="flex-shrink-0 w-full lg:w-auto min-w-[180px] p-4 bg-blue-500/10 border border-blue-500/30 rounded-md hover:bg-blue-500/20 transition-colors cursor-default">
           <p className="text-center text-xs text-blue-300">
             <span className="font-semibold block">Biometric Entry</span>
             Attendance is recorded automatically via biometric device

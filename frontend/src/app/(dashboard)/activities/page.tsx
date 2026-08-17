@@ -62,10 +62,10 @@ export default function ActivitiesPage() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700/60 p-6">
+      <div className="bg-white dark:bg-slate-800 rounded-md shadow-sm border border-slate-200 dark:border-slate-700/60 p-6">
         <div className="space-y-6">
           {data?.data.map((act: any, i: number) => (
-            <div key={i} className="flex items-start gap-4 p-4 rounded-xl hover:bg-gray-50/70 transition-colors border border-transparent hover:border-gray-100">
+            <div key={i} className="flex items-start gap-4 p-4 rounded-md hover:bg-gray-50/70 transition-colors border border-transparent hover:border-gray-100">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${act.type === 'leave' ? 'bg-orange-100 text-orange-600' : act.type === 'user' ? 'bg-emerald-100 text-emerald-600' : 'bg-blue-100 text-blue-600'}`}>
                 {act.type === 'leave' ? <Palmtree className="w-5 h-5"/> : act.type === 'user' ? <UserCircle className="w-5 h-5"/> : <BookOpen className="w-5 h-5"/>}
               </div>
