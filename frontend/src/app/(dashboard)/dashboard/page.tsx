@@ -604,7 +604,7 @@ export default function DashboardPage() {
             <PhotoAvatar
               src={profile.profile_photo_path}
               name={`${profile.first_name} ${profile.last_name}`}
-              className="w-14 h-14 lg:w-16 lg:h-16 rounded-full bg-slate-100 dark:bg-[#182433] text-slate-900 dark:text-white text-lg lg:text-xl shrink-0 border border-slate-200 dark:border-slate-700"
+              className="w-14 h-14 lg:w-16 lg:h-16 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white text-lg lg:text-xl shrink-0 border border-slate-200 dark:border-slate-700"
               textClass="text-slate-900 dark:text-white"
             />
 
@@ -655,7 +655,7 @@ export default function DashboardPage() {
             <Link
               href="#"
               onClick={(e) => e.preventDefault()}
-              className="group lg:self-end w-full lg:w-auto flex flex-col justify-center bg-white dark:bg-[#182433] hover:bg-slate-50 dark:hover:bg-[#1f2d3d] transition-all duration-300 rounded-2xl p-5 md:p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm hover:shadow-md"
+              className="group lg:self-end w-full lg:w-auto flex flex-col justify-center bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-300 rounded-2xl p-5 md:p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm hover:shadow-md"
             >
               <p className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
                 <span className="text-base">🌟</span>
@@ -873,7 +873,7 @@ export default function DashboardPage() {
             
             <Link 
               href="/dashboard/hall-of-fame"
-              className="md:col-span-3 lg:col-span-2 group relative overflow-hidden rounded-3xl p-6 bg-white dark:bg-[#182433] text-slate-900 dark:text-white shadow-sm hover:shadow-md dark:hover:bg-[#1f2d3d] transition-all duration-300 border border-slate-200 dark:border-slate-700/60"
+              className="md:col-span-3 lg:col-span-2 group relative overflow-hidden rounded-3xl p-6 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm hover:shadow-md dark:hover:bg-slate-700 transition-all duration-300 border border-slate-200 dark:border-slate-700/60"
             >
               <div className="absolute -bottom-10 -left-10 w-6 h-6 rounded-full scale-0 group-hover:scale-[35] transition-transform duration-700 ease-out bg-indigo-50 z-0 dark:hidden" />
               <div className="absolute top-0 right-0 w-32 h-32 bg-slate-100/50 dark:bg-white/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-slate-200/50 dark:group-hover:bg-white/10 transition-colors z-0"></div>
@@ -1058,7 +1058,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
             <PhotoAvatar
               src={profile.profile_photo_path}
               name={`${profile.first_name} ${profile.last_name}`}
-              className="w-14 h-14 lg:w-16 lg:h-16 rounded-full bg-slate-100 dark:bg-[#182433] text-slate-900 dark:text-white text-lg lg:text-xl shrink-0 border border-slate-200 dark:border-slate-700"
+              className="w-14 h-14 lg:w-16 lg:h-16 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white text-lg lg:text-xl shrink-0 border border-slate-200 dark:border-slate-700"
               textClass="text-slate-900 dark:text-white"
             />
 
@@ -1091,7 +1091,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           {/* Right: Pending Requests Widget — Independent Card */}
           <Link
             href="/leaves/approvals"
-            className="group lg:self-end w-full lg:w-auto flex flex-col justify-center bg-white dark:bg-[#182433] hover:bg-slate-50 dark:hover:bg-[#1f2d3d] transition-all duration-300 rounded-2xl p-5 md:p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer"
+            className="group lg:self-end w-full lg:w-auto flex flex-col justify-center bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-300 rounded-2xl p-5 md:p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer"
           >
             <p className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
@@ -1152,7 +1152,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
       {/* Analytics Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
         {/* Employee Status Pie Chart */}
-        <div className="bg-white dark:bg-[#182433] rounded-2xl p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
             <Users className="w-5 h-5 text-blue-400" />
             Employee Status Distribution
@@ -1193,7 +1193,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
         </div>
 
         {/* Leave Requests Status Bar Chart */}
-        <div className="bg-white dark:bg-[#182433] rounded-2xl p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
             <Palmtree className="w-5 h-5 text-orange-400" />
             Leave Requests Today
@@ -1334,7 +1334,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
              
              <Link 
               href="/hall" 
-              className="lg:col-span-2 group relative overflow-hidden rounded-3xl p-6 bg-white dark:bg-[#182433] text-slate-900 dark:text-white shadow-sm hover:shadow-md dark:hover:bg-[#1f2d3d] transition-all duration-300 border border-slate-200 dark:border-slate-700/60"
+              className="lg:col-span-2 group relative overflow-hidden rounded-3xl p-6 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm hover:shadow-md dark:hover:bg-slate-700 transition-all duration-300 border border-slate-200 dark:border-slate-700/60"
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-white/10 transition-colors"></div>
               <div className="relative z-10 flex items-center justify-between h-full">
@@ -1484,7 +1484,7 @@ function KPICard({ title, value, trend, icon: Icon, color, href, onClick }: any)
   const accent = accentMap[color] || accentMap['bg-blue-500'];
 
   const CardContent = (
-    <div className={`wave-card relative overflow-hidden h-full rounded-3xl p-6 bg-white dark:bg-[#182433] shadow-sm border border-slate-200 dark:border-slate-700/60 transition-all duration-300 ${(href || onClick) ? 'cursor-pointer group hover:bg-slate-50 dark:hover:bg-[#1f2d3d] hover:shadow-md' : ''}  `} style={{ '--wave-color': `var(--tw-color-${color.replace('bg-', '').replace('-500', '')}-50)` } as any}>
+    <div className={`wave-card relative overflow-hidden h-full rounded-3xl p-6 bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700/60 transition-all duration-300 ${(href || onClick) ? 'cursor-pointer group hover:bg-slate-50 dark:hover:bg-slate-700 hover:shadow-md' : ''}  `} style={{ '--wave-color': `var(--tw-color-${color.replace('bg-', '').replace('-500', '')}-50)` } as any}>
       <div className="flex justify-between items-start relative z-10">
         <div>
           <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">{title}</p>
@@ -1534,7 +1534,7 @@ function QuickActionCard({ href, icon: Icon, title, color }: any) {
 
   return (
     <Link href={href}>
-      <div className="bg-white dark:bg-[#182433] rounded-3xl p-5 h-full relative overflow-hidden shadow-sm dark:hover:bg-[#1f2d3d] hover:shadow-md border border-slate-200 dark:border-slate-700/60 transition-all duration-300 group flex flex-col items-start gap-3">
+      <div className="bg-white dark:bg-slate-800 rounded-3xl p-5 h-full relative overflow-hidden shadow-sm dark:hover:bg-slate-700 hover:shadow-md border border-slate-200 dark:border-slate-700/60 transition-all duration-300 group flex flex-col items-start gap-3">
         <div className={`absolute -bottom-10 -left-10 w-6 h-6 rounded-full scale-0 group-hover:scale-[35] transition-transform duration-700 ease-out ${waveBg} z-0 dark:hidden`} />
         <div className="absolute top-0 right-0 w-20 h-20 bg-white/[0.03] rounded-bl-full -mr-4 -mt-4 group-hover:bg-white/[0.06] transition-colors z-0" />
         <div className={`w-10 h-10 rounded-2xl ${accent} flex items-center justify-center shadow-sm group-hover:scale-90 transition-transform duration-300 relative z-10`}>
@@ -1880,7 +1880,7 @@ function MenuCard({ href, icon: Icon, title, subtitle, color, className = "" }: 
 
   return (
     <Link href={href} className={`block ${className}`}>
-      <div className="bg-white dark:bg-[#182433] rounded-3xl p-5 h-full relative overflow-hidden shadow-sm hover:shadow-md dark:hover:bg-[#1f2d3d] border border-slate-200 dark:border-slate-700/60 transition-all duration-300 group">
+      <div className="bg-white dark:bg-slate-800 rounded-3xl p-5 h-full relative overflow-hidden shadow-sm hover:shadow-md dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700/60 transition-all duration-300 group">
         <div className={`absolute -bottom-10 -left-10 w-6 h-6 rounded-full scale-0 group-hover:scale-[35] transition-transform duration-700 ease-out ${waveBg} z-0 dark:hidden`} />
         <div className="absolute top-0 right-0 w-20 h-20 bg-black/[0.02] dark:bg-white/[0.03] rounded-bl-full -mr-4 -mt-4 group-hover:bg-black/[0.04] dark:group-hover:bg-white/[0.06] transition-colors z-0" />
         <div className="relative z-10">
