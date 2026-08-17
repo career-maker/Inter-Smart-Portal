@@ -4,6 +4,9 @@ namespace App\Services\Email;
 
 use App\Models\LeaveRequest;
 use App\Models\WfhRequest;
+use App\Mail\LeaveRequestMail;
+use App\Mail\WfhRequestMail;
+use App\Mail\RecognitionMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 
@@ -16,44 +19,42 @@ class EmailService
     public static function sendLeaveRequestEmail(LeaveRequest $leaveRequest): void
     {
         try {
-            error_log("🔵 EmailService: sendLeaveRequestEmail called for request ID: {$leaveRequest->id}");
+            Log::info("🔵 EmailService: sendLeaveRequestEmail called for request ID: {$leaveRequest->id}");
 
             $leaveRequest->load(['user', 'leaveType']);
-            error_log("📋 User loaded: {$leaveRequest->user->first_name}, team_id: " . ($leaveRequest->user->team_id ?? 'NULL'));
+            Log::info("📋 User loaded: {$leaveRequest->user->first_name}, team_id: " . ($leaveRequest->user->team_id ?? 'NULL'));
 
             $emailData = self::prepareLeaveEmailData($leaveRequest);
             $recipients = self::getLeaveEmailRecipients($leaveRequest->user);
 
-            error_log("📧 Recipients resolved: TO=" . json_encode($recipients['to']) . " CC=" . json_encode($recipients['cc']));
+            Log::info("📧 Recipients resolved: TO=" . json_encode($recipients['to']) . " CC=" . json_encode($recipients['cc']));
 
             if (empty($recipients['to'])) {
-                error_log("❌ NO RECIPIENTS - user {$leaveRequest->user->id} has no team lead email");
+                Log::warning("❌ NO RECIPIENTS - user {$leaveRequest->user->id} has no team lead email");
                 return;
             }
 
-            // Generate HTML email content
-            $html = view('emails.leave-request', ['data' => $emailData, 'leaveRequest' => $leaveRequest])->render();
-
             foreach ($recipients['to'] as $email) {
                 try {
-                    error_log("📬 Attempting to send email via Brevo API to: {$email}");
-                    $dateRange = $emailData['is_single_day']
-                        ? $emailData['start_date']
-                        : $emailData['start_date'] . ' - ' . $emailData['end_date'];
-                    self::sendViaBrevoAPI(
-                        $email,
-                        "Leave Request | {$emailData['employee_name']} | {$emailData['leave_type']} | {$dateRange}",
-                        $html,
-                        $recipients['cc'],
-                        $recipients['bcc']
-                    );
-                    error_log("✅ LEAVE EMAIL SENT to {$email}");
+                    Log::info("📬 Attempting to send email via Laravel Mail to: {$email}");
+                    
+                    $mail = Mail::to($email);
+                    if (!empty($recipients['cc'])) {
+                        $mail->cc($recipients['cc']);
+                    }
+                    if (!empty($recipients['bcc'])) {
+                        $mail->bcc($recipients['bcc']);
+                    }
+                    
+                    $mail->send(new LeaveRequestMail($emailData, $leaveRequest));
+                    
+                    Log::info("✅ LEAVE EMAIL SENT to {$email}");
                 } catch (\Exception $e) {
-                    error_log("❌ FAILED to send leave email to {$email}: " . $e->getMessage());
+                    Log::error("❌ FAILED to send leave email to {$email}: " . $e->getMessage());
                 }
             }
         } catch (\Exception $e) {
-            error_log("💥 CRITICAL EMAIL SERVICE ERROR: " . $e->getMessage());
+            Log::error("💥 CRITICAL EMAIL SERVICE ERROR: " . $e->getMessage());
         }
     }
 
@@ -63,40 +64,41 @@ class EmailService
     public static function sendWfhRequestEmail(WfhRequest $wfhRequest): void
     {
         try {
-            error_log("🔵 EmailService: sendWfhRequestEmail called for request ID: {$wfhRequest->id}");
+            Log::info("🔵 EmailService: sendWfhRequestEmail called for request ID: {$wfhRequest->id}");
 
             $wfhRequest->load(['user']);
 
             $emailData = self::prepareWfhEmailData($wfhRequest);
             $recipients = self::getWfhEmailRecipients($wfhRequest->user);
 
-            error_log("📧 WFH Recipients resolved: TO=" . json_encode($recipients['to']) . " CC=" . json_encode($recipients['cc']));
+            Log::info("📧 WFH Recipients resolved: TO=" . json_encode($recipients['to']) . " CC=" . json_encode($recipients['cc']));
 
             if (empty($recipients['to'])) {
-                error_log("❌ NO RECIPIENTS - WFH request {$wfhRequest->id}");
+                Log::warning("❌ NO RECIPIENTS - WFH request {$wfhRequest->id}");
                 return;
             }
 
-            // Generate HTML email content
-            $html = view('emails.wfh-request', ['data' => $emailData, 'wfhRequest' => $wfhRequest])->render();
-
             foreach ($recipients['to'] as $email) {
                 try {
-                    error_log("📬 Attempting to send WFH email via Brevo API to: {$email}");
-                    self::sendViaBrevoAPI(
-                        $email,
-                        "WFH Request | {$emailData['employee_name']} | {$emailData['start_date']}",
-                        $html,
-                        $recipients['cc'],
-                        $recipients['bcc']
-                    );
-                    error_log("✅ WFH EMAIL SENT to {$email}");
+                    Log::info("📬 Attempting to send WFH email via Laravel Mail to: {$email}");
+                    
+                    $mail = Mail::to($email);
+                    if (!empty($recipients['cc'])) {
+                        $mail->cc($recipients['cc']);
+                    }
+                    if (!empty($recipients['bcc'])) {
+                        $mail->bcc($recipients['bcc']);
+                    }
+                    
+                    $mail->send(new WfhRequestMail($emailData, $wfhRequest));
+                    
+                    Log::info("✅ WFH EMAIL SENT to {$email}");
                 } catch (\Exception $e) {
-                    error_log("❌ FAILED to send WFH email to {$email}: " . $e->getMessage());
+                    Log::error("❌ FAILED to send WFH email to {$email}: " . $e->getMessage());
                 }
             }
         } catch (\Exception $e) {
-            error_log("💥 CRITICAL WFH EMAIL SERVICE ERROR: " . $e->getMessage());
+            Log::error("💥 CRITICAL WFH EMAIL SERVICE ERROR: " . $e->getMessage());
         }
     }
 
@@ -105,20 +107,20 @@ class EmailService
      */
     private static function getLeaveEmailRecipients($user): array
     {
-        error_log("🔎 Recipient lookup for user ID: {$user->id}, team_id: " . ($user->team_id ?? 'NULL'));
+        Log::info("🔎 Recipient lookup for user ID: {$user->id}, team_id: " . ($user->team_id ?? 'NULL'));
 
         $teamLead = null;
         if ($user->team_id) {
             $team = \App\Models\Team::find($user->team_id);
             if ($team) {
-                error_log("🏢 Team found: {$team->name} (ID: {$team->id}), team_lead_id: " . ($team->team_lead_id ?? 'NULL'));
+                Log::info("🏢 Team found: {$team->name} (ID: {$team->id}), team_lead_id: " . ($team->team_lead_id ?? 'NULL'));
                 $teamLead = $team->teamLead;
-                error_log("👤 Team Lead found: " . ($teamLead ? $teamLead->email : 'NULL'));
+                Log::info("👤 Team Lead found: " . ($teamLead ? $teamLead->email : 'NULL'));
             } else {
-                error_log("❌ Team not found for team_id: {$user->team_id}");
+                Log::warning("❌ Team not found for team_id: {$user->team_id}");
             }
         } else {
-            error_log("⚠️  User has NO team_id");
+            Log::warning("⚠️  User has NO team_id");
         }
 
         $recipients = [
@@ -129,16 +131,16 @@ class EmailService
 
         // Always notify Team Lead if available
         if ($teamLead && $teamLead->email && $teamLead->id !== $user->id) {
-            error_log("✅ Adding team lead to recipients: {$teamLead->email}");
+            Log::info("✅ Adding team lead to recipients: {$teamLead->email}");
             $recipients['to'][] = $teamLead->email;
             $recipients['cc'] = ['hr@intersmart.in', 'admin@intersmart.in'];
         } else {
             if (!$teamLead) {
-                error_log("❌ NO TEAM LEAD FOUND. Falling back to Admin.");
+                Log::warning("❌ NO TEAM LEAD FOUND. Falling back to Admin.");
             } elseif (!$teamLead->email) {
-                error_log("❌ TEAM LEAD HAS NO EMAIL. Falling back to Admin.");
+                Log::warning("❌ TEAM LEAD HAS NO EMAIL. Falling back to Admin.");
             } elseif ($teamLead->id === $user->id) {
-                error_log("❌ TEAM LEAD IS SAME USER. Falling back to Admin.");
+                Log::warning("❌ TEAM LEAD IS SAME USER. Falling back to Admin.");
             }
             $recipients['to'][] = 'admin@intersmart.in';
             $recipients['cc'] = ['hr@intersmart.in'];
@@ -230,8 +232,7 @@ class EmailService
             'reference_number' => "WFH-{$wfhRequest->id}",
             'request_id' => $wfhRequest->id,
             'portal_url' => config('app.frontend_url', 'https://intersmart-portal.vercel.app'),
-            'approvals_url' => config('app.frontend_url', 'https://intersmart-portal.vercel.app') . '/wfh/approvals',
-            'approvals_url' => config('app.frontend_url', 'https://intersmart-portal.vercel.app') . '/leaves/approvals'
+            'approvals_url' => config('app.frontend_url', 'https://intersmart-portal.vercel.app') . '/wfh/approvals'
         ];
     }
 
@@ -241,10 +242,10 @@ class EmailService
     public static function sendRecognitionEmail($user, $recognition): void
     {
         try {
-            error_log("🔵 EmailService: sendRecognitionEmail called for user ID: {$user->id}");
+            Log::info("🔵 EmailService: sendRecognitionEmail called for user ID: {$user->id}");
 
             if (!$user->email) {
-                error_log("❌ NO EMAIL - user {$user->id} has no email address");
+                Log::warning("❌ NO EMAIL - user {$user->id} has no email address");
                 return;
             }
 
@@ -261,89 +262,20 @@ class EmailService
                 'awarded_by' => $recognition->creator ? "{$recognition->creator->first_name} {$recognition->creator->last_name}" : 'Management',
             ];
 
-            error_log("📧 Recognition email data prepared for user: {$user->email}");
-
-            // Generate HTML email content
-            $html = view('emails.recognition-award', ['data' => $emailData])->render();
+            Log::info("📧 Recognition email data prepared for user: {$user->email}");
 
             try {
-                error_log("📬 Attempting to send recognition email via Brevo API to: {$user->email}");
-                self::sendViaBrevoAPI(
-                    $user->email,
-                    "🏆 Recognition Award: {$recognition->title} | {$user->first_name} {$user->last_name}",
-                    $html,
-                    [],
-                    []
-                );
-                error_log("✅ RECOGNITION EMAIL SENT to {$user->email}");
+                Log::info("📬 Attempting to send recognition email via Laravel Mail to: {$user->email}");
+                
+                Mail::to($user->email)->send(new RecognitionMail($emailData));
+                
+                Log::info("✅ RECOGNITION EMAIL SENT to {$user->email}");
             } catch (\Exception $e) {
-                error_log("❌ FAILED to send recognition email to {$user->email}: " . $e->getMessage());
+                Log::error("❌ FAILED to send recognition email to {$user->email}: " . $e->getMessage());
             }
         } catch (\Exception $e) {
-            error_log("💥 CRITICAL RECOGNITION EMAIL SERVICE ERROR: " . $e->getMessage());
-        }
-    }
-
-    /**
-     * Send email via Brevo HTTP API
-     */
-    private static function sendViaBrevoAPI($toEmail, $subject, $htmlContent, $ccEmails = [], $bccEmails = []): void
-    {
-        $apiKey = env('BREVO_API_KEY');
-        if (!$apiKey) {
-            throw new \Exception("BREVO_API_KEY not configured");
-        }
-
-        $fromAddress = env('MAIL_FROM_ADDRESS');
-        if (empty($fromAddress) || $fromAddress === 'hello@example.com') {
-            $fromAddress = 'hr@intersmart.in';
-        }
-        $fromName = env('MAIL_FROM_NAME', 'Inter Smart HR Portal');
-
-        // Build recipient list
-        $to = [['email' => $toEmail]];
-        $cc = [];
-        $uniqueCc = array_diff(array_unique($ccEmails), [$toEmail]);
-        foreach ($uniqueCc as $email) {
-            $cc[] = ['email' => $email];
-        }
-        
-        $bcc = [];
-        $uniqueBcc = array_diff(array_unique($bccEmails), [$toEmail], $uniqueCc);
-        foreach ($uniqueBcc as $email) {
-            $bcc[] = ['email' => $email];
-        }
-
-        // Prepare API payload
-        $payload = [
-            'sender' => [
-                'email' => $fromAddress,
-                'name' => $fromName
-            ],
-            'to' => $to,
-            'subject' => $subject,
-            'htmlContent' => $htmlContent
-        ];
-
-        if (!empty($cc)) {
-            $payload['cc'] = $cc;
-        }
-        if (!empty($bcc)) {
-            $payload['bcc'] = $bcc;
-        }
-
-        // Make API request
-        $client = new \GuzzleHttp\Client();
-        $response = $client->post('https://api.brevo.com/v3/smtp/email', [
-            'headers' => [
-                'api-key' => $apiKey,
-                'Content-Type' => 'application/json'
-            ],
-            'json' => $payload
-        ]);
-
-        if ($response->getStatusCode() !== 201) {
-            throw new \Exception("Brevo API returned status " . $response->getStatusCode());
+            Log::error("💥 CRITICAL RECOGNITION EMAIL SERVICE ERROR: " . $e->getMessage());
         }
     }
 }
+
