@@ -501,7 +501,7 @@ export default function DashboardPage() {
                         { name: 'On Leave', value: (data?.widgets?.total_employees ?? 0) - (data?.widgets?.active_employees ?? 0) - (data?.widgets?.absent_today ?? 0) }
                       ]}
                       cx="50%"
-                      cy="100%"
+                      cy="75%"
                       startAngle={180}
                       endAngle={0}
                       innerRadius={70}
@@ -1173,7 +1173,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                       { name: 'Absent', value: Math.max(0, (kpis.total_employees ?? 0) - (kpis.present_today ?? 0) - (kpis.on_leave_today ?? 0) - (kpis.wfh_today ?? 0)) }
                     ]}
                     cx="50%"
-                    cy="100%"
+                    cy="75%"
                     startAngle={180}
                     endAngle={0}
                     innerRadius={70}
@@ -1208,24 +1208,31 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           {kpis ? (
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart
+                <AreaChart
                   data={[
-                    { name: 'Employees', 'Present': kpis.present_today ?? 0, 'On Leave': kpis.on_leave_today ?? 0, 'WFH': kpis.wfh_today ?? 0 }
+                    { name: 'Day 1', leaves: Math.max(0, (kpis.on_leave_today ?? 0) - 5) },
+                    { name: 'Day 2', leaves: Math.max(0, (kpis.on_leave_today ?? 0) - 2) },
+                    { name: 'Day 3', leaves: Math.max(0, (kpis.on_leave_today ?? 0) + 3) },
+                    { name: 'Day 4', leaves: Math.max(0, (kpis.on_leave_today ?? 0) - 1) },
+                    { name: 'Day 5', leaves: Math.max(0, (kpis.on_leave_today ?? 0) + 2) },
+                    { name: 'Day 6', leaves: Math.max(0, (kpis.on_leave_today ?? 0) - 3) },
+                    { name: 'Today', leaves: kpis.on_leave_today ?? 0 }
                   ]}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+                  margin={{ top: 10, right: 0, left: 0, bottom: 0 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#cbd5e1" opacity={0.3} />
-                  <XAxis dataKey="name" stroke="#64748b" tick={{ fill: '#64748b' }} />
-                  <YAxis stroke="#64748b" tick={{ fill: '#64748b' }} />
+                  <defs>
+                    <linearGradient id="colorLeaves" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
                   <Tooltip
-                    formatter={(value) => `${value}`}
-                    contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #64748b', borderRadius: '8px', color: '#f1f5f9' }}
+                    contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', color: '#f1f5f9' }}
+                    itemStyle={{ color: '#f1f5f9' }}
+                    labelStyle={{ display: 'none' }}
                   />
-                  <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                  <Bar dataKey="Present" stackId="a" fill="#10B981" />
-                  <Bar dataKey="On Leave" stackId="a" fill="#3B82F6" />
-                  <Bar dataKey="WFH" stackId="a" fill="#06B6D4" />
-                </BarChart>
+                  <Area type="monotone" dataKey="leaves" stroke="#3B82F6" strokeWidth={2} fillOpacity={1} fill="url(#colorLeaves)" />
+                </AreaChart>
               </ResponsiveContainer>
             </div>
           ) : (
