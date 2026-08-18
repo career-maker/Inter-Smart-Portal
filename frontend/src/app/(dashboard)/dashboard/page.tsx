@@ -735,7 +735,7 @@ export default function DashboardPage() {
         ENGAGEMENT SECTION: Updates, Celebrations, Birthdays
         ========================================
       */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
         {/* Updates Widget — Rotating Card */}
         {widgets.company_updates.length > 1 ? (
           <RotatingCard
@@ -1133,7 +1133,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
       </div>
 
       {/* KPI Cards (4 cols) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6">
         <KPICard title="Employees" value={kpis.total_employees} trend={kpis.trends.employees} icon={UserCircle} color="bg-blue-500" href="/employees" />
         <KPICard
           title="Present"

@@ -151,7 +151,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname();
   const [isHydrated, setIsHydrated] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [pendingApprovalsCount, setPendingApprovalsCount] = useState(0);
 
