@@ -26,32 +26,77 @@ class AttendanceController extends Controller
 
     public function status(Request $request)
     {
+        $user       = $request->user();
         $today      = Carbon::today('Asia/Kolkata')->toDateString();
+        
         $attendance = Attendance::with('breaks')
-            ->where('user_id', $request->user()->id)
+            ->where('user_id', $user->id)
             ->where('date', $today)
             ->first();
+
+        // 1. Fetch raw biometric events for today to ensure real-time accuracy without waiting for cron
+        $rawEvents = BiometricEvent::where('user_id', $user->id)
+            ->whereDate('local_punch_time', $today)
+            ->orderBy('local_punch_time', 'asc')
+            ->get();
+
+        // 2. If there are raw events and NO manual override, rebuild on the fly
+        if ($rawEvents->isNotEmpty() && (!$attendance || $attendance->source === 'biometric')) {
+            $previousDate         = Carbon::parse($today)->subDay()->format('Y-m-d');
+            $hasOpenPreviousShift = Attendance::where('user_id', $user->id)
+                ->where('date', $previousDate)
+                ->where('source', 'biometric')
+                ->whereNotNull('check_in_time')
+                ->whereNull('check_out_time')
+                ->exists();
+
+            $build = $this->timeline->buildTimeline($rawEvents, $hasOpenPreviousShift);
+            
+            if ($build['ok'] && !empty($build['timeline']) && $build['timeline'][0]['type'] === 'in') {
+                $interp = $this->timeline->interpretTimeline($build['timeline'], $today);
+                
+                if (!$attendance) {
+                    $attendance = new Attendance();
+                    $attendance->user_id = $user->id;
+                    $attendance->date = $today;
+                    $attendance->source = 'biometric';
+                }
+                
+                $attendance->check_in_time         = $interp['first_in'];
+                $attendance->check_out_time        = $interp['is_currently_working'] ? null : $interp['last_out'];
+                $attendance->total_working_minutes = $interp['total_working_minutes'];
+                $attendance->status                = 'Present';
+                
+                // Construct in-memory breaks
+                $breaksCollection = collect();
+                foreach ($interp['completed_breaks'] as $b) {
+                    $breakObj = new AttendanceBreak();
+                    $breakObj->break_start = $b['start'];
+                    $breakObj->break_end = $b['end'];
+                    $breakObj->total_break_minutes = $b['minutes'];
+                    $breaksCollection->push($breakObj);
+                }
+                $attendance->setRelation('breaks', $breaksCollection);
+            }
+        }
 
         if (!$attendance) {
             return response()->json(['status' => 'Not Checked In', 'attendance' => null]);
         }
 
         // Biometric punch reconciliation is handled securely and canonically 
-        // by the BiometricProcessorService cron job running every 5 minutes.
-        // This ensures the timeline logic (e.g. clearing stale checkouts) is never bypassed.
+        // by the BiometricProcessorService cron job, but building on the fly above
+        // ensures instant UI updates before the cron runs.
 
         $status = 'Checked In';
         if ($attendance->check_out_time) {
             $status = 'Checked Out';
         } else {
-            $openBreak = $attendance->breaks()->whereNull('break_end')->first();
+            $openBreak = collect($attendance->breaks)->first(fn($b) => is_null($b->break_end));
             if ($openBreak) {
                 $status = 'On Break';
             }
         }
-
-        // Reload attendance to get the latest data
-        $attendance = $attendance->fresh(['breaks']);
 
         return response()->json([
             'status'     => $status,
