@@ -53,6 +53,23 @@ Route::post('admin/run-migrations', function (\Illuminate\Http\Request $request)
     }
 });
 
+// Cache optimization endpoint (public, for cPanel performance)
+Route::post('admin/optimize-cache', function (\Illuminate\Http\Request $request) {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('optimize');
+        $output = \Illuminate\Support\Facades\Artisan::output();
+
+        return response()->json([
+            'message' => 'Cache optimization completed successfully',
+            'output' => $output
+        ], 200);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Optimization failed: ' . $e->getMessage()
+        ], 500);
+    }
+});
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('me', [AuthController::class, 'me']);
