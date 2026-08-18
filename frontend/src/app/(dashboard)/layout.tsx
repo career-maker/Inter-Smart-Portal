@@ -396,8 +396,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </Link>
             </div>
 
-            {/* Desktop Left: Blank space to push Right Side */}
-            <div className="hidden md:block flex-1" />
+            {/* Desktop Left: Logo when sidebar is collapsed */}
+            <div className="hidden md:flex flex-1 items-center">
+              {isSidebarCollapsed && (
+                <Link href="/dashboard" className="flex items-center shrink min-w-0">
+                  <img src="/logo-dark.png" alt="Inter Smart Logo" className="h-8 object-contain dark:hidden" />
+                  <img src="/logo.png" alt="Inter Smart Logo" className="h-8 object-contain hidden dark:block" />
+                </Link>
+              )}
+            </div>
 
             {/* Right side */}
             <div className="flex items-center gap-2 sm:gap-4 shrink-0 ml-auto">
