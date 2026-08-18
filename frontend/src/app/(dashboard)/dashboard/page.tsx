@@ -1134,7 +1134,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
       </div>
 
       {/* KPI Cards (4 cols) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <KPICard title="Employees" value={kpis.total_employees} trend={kpis.trends.employees} icon={UserCircle} color="bg-blue-500" href="/employees" />
         <KPICard
           title="Present"
