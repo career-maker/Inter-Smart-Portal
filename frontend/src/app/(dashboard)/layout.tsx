@@ -58,7 +58,8 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Leave & WFH",
     icon: CalendarCheck,
     items: [
-      { href: "/leaves",           label: "My Leaves" },
+      { href: "/leaves",           label: "All Leaves", roles: ["Super Admin"] },
+      { href: "/leaves",           label: "My Leaves", roles: ["Employee", "Team Lead", "HR"] },
       { href: "/leaves/apply",     label: "Apply Leave", roles: ["Employee", "Team Lead"] },
       { href: "/wfh",              label: "WFH Requests" },
       { href: "/calendar",         label: "Leave Calendar" },

@@ -129,10 +129,10 @@ export default function LeavesPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Leave Management</h1>
-          <p className="text-slate-600 dark:text-slate-300">View your balances and leave history.</p>
+          <p className="text-slate-600 dark:text-slate-300">{isSuperAdmin ? "View all leave history." : "View your balances and leave history."}</p>
         </div>
         <div className="flex items-center gap-2">
-          <FavoriteButton label="My Leaves" />
+          <FavoriteButton label={isSuperAdmin ? "All Leaves" : "My Leaves"} />
           {!isSuperAdmin && (
             <button
               onClick={() => router.push("/leaves/apply")}
