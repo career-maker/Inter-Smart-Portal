@@ -469,6 +469,16 @@ class ReportController extends Controller
                     }
                 }
 
+                // If biometric check-in is found but dayStatus says Absent, override to Present
+                if ($checkInTime && $dayStatus['status'] === 'A') {
+                    $dayStatus['status'] = 'P';
+                    $parsedCheckIn = Carbon::parse($checkInTime)->setTimezone('Asia/Kolkata');
+                    $lateThreshold = Carbon::parse($dateStr . ' 09:45:00', 'Asia/Kolkata');
+                    if ($parsedCheckIn->greaterThan($lateThreshold)) {
+                        $dayStatus['is_late'] = true;
+                    }
+                }
+
                 $empData['daily_status'][] = [
                     'date' => $dateStr,
                     'day_name' => $current->format('D'),
