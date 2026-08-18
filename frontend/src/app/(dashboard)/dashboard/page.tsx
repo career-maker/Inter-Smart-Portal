@@ -414,6 +414,7 @@ export default function DashboardPage() {
               <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-4">No pending approvals 🎉</p>
             )}
           </div>
+        </div>
       )}
 
       {/* Super Admin Dashboard: System Health & Alerts */}
