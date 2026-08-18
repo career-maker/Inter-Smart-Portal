@@ -84,6 +84,22 @@ class DashboardController extends Controller
                     $attendanceWidgetStatus = 'Checked In';
                 }
             }
+        } else {
+            // Fallback to raw biometric events if cron hasn't processed Attendance yet
+            $rawEvents = \App\Models\BiometricEvent::where('user_id', $user->id)
+                ->whereDate('local_punch_time', $todayStr)
+                ->orderBy('local_punch_time', 'desc')
+                ->get();
+            if ($rawEvents->isNotEmpty()) {
+                $lastPunch = $rawEvents->first();
+                if ($lastPunch->direction === 'in') {
+                    $profile['attendance_status'] = 'Punched In';
+                    $attendanceWidgetStatus = 'Checked In';
+                } else {
+                    $profile['attendance_status'] = 'Punched Out';
+                    $attendanceWidgetStatus = 'Checked Out';
+                }
+            }
         }
 
         $attendanceWidgetData = [
@@ -440,6 +456,14 @@ class DashboardController extends Controller
                                     ->where('date', $todayStr)
                                     ->whereNotNull('check_in_time')
                                     ->exists();
+                                
+                                // Fallback to raw biometric events if cron hasn't processed Attendance yet
+                                if (!$hasCheckIn) {
+                                    $hasCheckIn = \App\Models\BiometricEvent::where('user_id', $member->id)
+                                        ->whereDate('local_punch_time', $todayStr)
+                                        ->where('direction', 'in')
+                                        ->exists();
+                                }
 
                                 // Check if on leave today
                                 $isOnLeave = LeaveRequest::where('user_id', $member->id)
