@@ -253,19 +253,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <div className="min-h-screen bg-slate-50 dark:bg-background flex">
       {/* Desktop Sidebar */}
       <aside className={`hidden md:flex flex-col fixed inset-y-0 left-0 z-50 bg-slate-900 border-r border-slate-800 transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}>
-        <div className="h-16 flex items-center justify-between px-4 border-b border-slate-800 shrink-0">
-          <Link href="/dashboard" className="flex items-center min-w-0">
-            {isSidebarCollapsed ? (
-              <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white shrink-0">IS</div>
-            ) : (
-              <img src="/logo-dark.png" alt="Inter Smart Logo" className="h-10 w-auto object-contain shrink-0" />
-            )}
-          </Link>
+        <div className={`h-16 flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-between px-4'} border-b border-slate-800 shrink-0 relative`}>
+          {!isSidebarCollapsed && (
+            <Link href="/dashboard" className="flex items-center min-w-0 pr-2">
+              <img src="/logo-dark.png" alt="Inter Smart Logo" className="h-10 sm:h-12 w-auto object-contain shrink-0 max-w-[150px]" />
+            </Link>
+          )}
           <button 
             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} 
-            className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors shrink-0"
+            className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors shrink-0"
           >
-            {isSidebarCollapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
+            {isSidebarCollapsed ? <PanelLeftOpen className="w-6 h-6" /> : <PanelLeftClose className="w-5 h-5" />}
           </button>
         </div>
 
@@ -504,7 +502,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
         )}
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 w-full max-w-7xl mx-auto">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 w-full">
           {/* Breadcrumbs */}
           {pathname !== "/dashboard" && (
             <div className="flex items-center flex-wrap gap-1 text-sm text-slate-500 dark:text-slate-400 mb-7 font-medium">
