@@ -384,7 +384,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {/* Mobile Left: Hamburger + Logo */}
             <div className="flex items-center gap-3 md:hidden">
               <button
-                className="p-2 -ml-2 rounded-lg transition-colors shrink-0"
+                className="p-2 -ml-2 rounded-lg transition-colors shrink-0 hover:!bg-transparent active:!bg-transparent"
                 onClick={() => setMenuOpen((v) => !v)}
                 aria-label="Toggle menu"
               >
@@ -442,7 +442,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 {STANDALONE.map(({ href, label, icon: Icon }) => {
                   const active = pathname === href;
                   return (
-                    <Link key={href} href={href} onClick={closeMenu} className={`flex items-center gap-3 px-3 py-2.5 text-sm font-semibold transition-colors rounded-xl ${active ? "bg-amber-500/20 text-amber-400" : "text-slate-300"}`}>
+                    <Link key={href} href={href} onClick={closeMenu} className={`flex items-center gap-3 px-3 py-2.5 text-sm font-semibold transition-colors rounded-xl hover:!bg-transparent active:!bg-transparent ${active ? "bg-amber-500/20 text-amber-400" : "text-slate-300"}`}>
                       <Icon className="h-5 w-5 shrink-0" />
                       {label}
                     </Link>
@@ -459,7 +459,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   const GroupIcon = group.icon;
                   return (
                     <div key={group.id} className="mt-1">
-                      <button onClick={() => toggleGroup(group.id)} className={`w-full flex items-center justify-between gap-2 px-3 py-2.5 text-sm font-semibold transition-colors rounded-xl ${groupActive && !isOpen ? "text-amber-400" : "text-slate-300"}`}>
+                      <button onClick={() => toggleGroup(group.id)} className={`w-full flex items-center justify-between gap-2 px-3 py-2.5 text-sm font-semibold transition-colors rounded-xl hover:!bg-transparent active:!bg-transparent ${groupActive && !isOpen ? "text-amber-400" : "text-slate-300"}`}>
                         <span className="flex items-center gap-3">
                           <GroupIcon className="h-5 w-5 shrink-0" />
                           {group.label}
@@ -488,13 +488,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             if (isExternal) {
                               return (
                                 <a key={item.href} href={item.href} target="_blank" rel="noopener noreferrer" onClick={closeMenu} className="flex items-center gap-3 pl-8 pr-3 py-2 text-sm transition-colors rounded-xl text-slate-400">
+                                <a key={item.href} href={item.href} target="_blank" rel="noopener noreferrer" onClick={closeMenu} className="flex items-center gap-3 pl-8 pr-3 py-2 text-sm transition-colors rounded-xl text-slate-400 hover:!bg-transparent active:!bg-transparent">
                                   {itemContent}
                                 </a>
                               );
                             }
 
                             return (
-                              <Link key={item.href} href={item.href} onClick={closeMenu} className={`flex items-center gap-3 pl-8 pr-3 py-2 text-sm transition-colors rounded-xl ${active ? "bg-amber-500/20 text-amber-400 font-semibold" : "text-slate-400"}`}>
+                              <Link key={item.href} href={item.href} onClick={closeMenu} className={`flex items-center gap-3 pl-8 pr-3 py-2 text-sm transition-colors rounded-xl hover:!bg-transparent active:!bg-transparent ${active ? "bg-amber-500/20 text-amber-400 font-semibold" : "text-slate-400"}`}>
                                 {itemContent}
                               </Link>
                             );
