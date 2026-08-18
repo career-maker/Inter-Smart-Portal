@@ -1,4 +1,4 @@
-﻿# InterSmart Employee Portal Agent Instructions
+# InterSmart Employee Portal Agent Instructions
 
 This repository is under active production debugging. Current code, tests, and verified runtime behavior override older handoff notes, but the handoff context must be preserved unless proven stale.
 
@@ -6,8 +6,9 @@ This repository is under active production debugging. Current code, tests, and v
 
 - Root: `D:\iss\Inter Smart-Employee-Portal`
 - Frontend: `frontend` (Next.js App Router, TypeScript)
-- Backend: `backend` (Laravel API, PHP 8.2+, Sanctum, PostgreSQL/Supabase)
-- Production deploys from `main`; do not push or deploy without explicit approval.
+- Backend: `backend` (Laravel API, PHP 8.2+, Sanctum, MySQL on cPanel)
+- Infrastructure: Frontend hosted on Vercel, Backend hosted on cPanel, Database is MySQL on cPanel.
+- Production deploys: Manual pull on cPanel might be required for backend changes (no longer using Render auto-deploy). Do not push or deploy without explicit approval.
 - Live eSSL source data is external and must remain SELECT-only.
 
 ## Controller Rules

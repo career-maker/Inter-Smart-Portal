@@ -1,0 +1,12 @@
+{
+  "events": [
+    {
+      "source_table": "DeviceLogs_8_2026",
+      "source_event_id": "999999",
+      "direction": "in",
+      "employee_code": "1",
+      "device_id": "1",
+      "local_punch_time": "2026-08-13 09:00:00"
+    }
+  ]
+}

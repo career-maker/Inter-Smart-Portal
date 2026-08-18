@@ -295,26 +295,92 @@ export default function DashboardPage() {
       {/* Team Lead Dashboard: Pending Approvals & Team Status */}
       {user?.role === "Team Lead" && data && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          {/* Quick Action: Team Tracker */}
-          <a
-            href="https://qa-tracker-pro.vercel.app/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block h-full bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-md p-6 border border-purple-200 dark:border-purple-500/30 hover:border-purple-300 dark:hover:border-purple-400 transition-colors group"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-purple-100 dark:bg-purple-500/20 rounded-lg flex items-center justify-center border border-purple-200 dark:border-purple-500/30 group-hover:scale-110 transition-transform">
-                  <ArrowRight className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+          {/* Left Column: Team Tracker + Team Status */}
+          <div className="flex flex-col gap-4">
+            {/* Quick Action: Team Tracker */}
+            <a
+              href="https://qa-tracker-pro.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-md p-6 border border-purple-200 dark:border-purple-500/30 hover:border-purple-300 dark:hover:border-purple-400 transition-colors group"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-purple-100 dark:bg-purple-500/20 rounded-lg flex items-center justify-center border border-purple-200 dark:border-purple-500/30 group-hover:scale-110 transition-transform">
+                    <ArrowRight className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-purple-900 dark:text-purple-300">Team Tracker</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Track team progress and issues</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-semibold text-purple-900 dark:text-purple-300">Team Tracker</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Track team progress and issues</p>
+                <ChevronRight className="w-5 h-5 text-purple-600 dark:text-purple-400 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </a>
+
+
+            {/* Team Member Status Pills */}
+            <div className="bg-white dark:bg-slate-800 rounded-md p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm flex-1">
+              <div className="flex flex-col xl:flex-row xl:items-center justify-between mb-4 gap-3">
+                <p className="text-sm font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-2 shrink-0">
+                  <Briefcase className="w-4 h-4 text-blue-400" />
+                  Team Status Today
+                </p>
+                
+                {/* Legend */}
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="flex items-center gap-1 text-[10px] font-medium text-slate-500 dark:text-slate-400">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500"></div> Present
+                  </span>
+                  <span className="flex items-center gap-1 text-[10px] font-medium text-slate-500 dark:text-slate-400">
+                    <div className="w-2 h-2 rounded-full bg-red-500"></div> Absent
+                  </span>
+                  <span className="flex items-center gap-1 text-[10px] font-medium text-slate-500 dark:text-slate-400">
+                    <div className="w-2 h-2 rounded-full bg-blue-500"></div> WFH
+                  </span>
+                  <span className="flex items-center gap-1 text-[10px] font-medium text-slate-500 dark:text-slate-400">
+                    <div className="w-2 h-2 rounded-full bg-amber-500"></div> Half Day
+                  </span>
                 </div>
               </div>
-              <ChevronRight className="w-5 h-5 text-purple-600 dark:text-purple-400 group-hover:translate-x-1 transition-transform" />
+  
+              {data?.widgets?.team_members && data.widgets.team_members.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {data.widgets.team_members.map((member: any) => {
+                    const getPillClasses = (status: string) => {
+                      const lower = status.toLowerCase();
+                      if (lower.includes('half day wfh')) {
+                        return 'bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400 border-purple-200 dark:border-purple-500/30';
+                      }
+                      if (lower.includes('half day leave')) {
+                        return 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400 border-amber-200 dark:border-amber-500/30';
+                      }
+                      if (lower === 'wfh') {
+                        return 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400 border-blue-200 dark:border-blue-500/30';
+                      }
+                      if (lower === 'present') {
+                        return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30';
+                      }
+                      // Absent, Not Checked In, On Leave
+                      return 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 border-red-200 dark:border-red-500/30';
+                    };
+                    
+                    return (
+                      <span 
+                        key={member.id} 
+                        className={`px-3 py-1 text-xs font-semibold rounded-full border ${getPillClasses(member.status)}`}
+                        title={member.status}
+                      >
+                        {member.name}
+                      </span>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-sm text-slate-500 dark:text-slate-400">No team members assigned</p>
+              )}
             </div>
-          </a>
+          </div>
 
           {/* Pending Approvals Section */}
           <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-md p-6 border border-blue-200 dark:border-blue-500/30">
@@ -348,72 +414,6 @@ export default function DashboardPage() {
               <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-4">No pending approvals 🎉</p>
             )}
           </div>
-
-          {/* Team Member Status Pills */}
-          <div>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2">
-              <p className="text-sm font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-2 shrink-0">
-                <Briefcase className="w-4 h-4 text-blue-400" />
-                Team Status Today
-              </p>
-              
-              {/* Legend */}
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="flex items-center gap-1 text-[10px] font-medium text-slate-500 dark:text-slate-400">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500"></div> Present
-                </span>
-                <span className="flex items-center gap-1 text-[10px] font-medium text-slate-500 dark:text-slate-400">
-                  <div className="w-2 h-2 rounded-full bg-red-500"></div> Absent
-                </span>
-                <span className="flex items-center gap-1 text-[10px] font-medium text-slate-500 dark:text-slate-400">
-                  <div className="w-2 h-2 rounded-full bg-blue-500"></div> WFH
-                </span>
-                <span className="flex items-center gap-1 text-[10px] font-medium text-slate-500 dark:text-slate-400">
-                  <div className="w-2 h-2 rounded-full bg-amber-500"></div> Half Day Leave
-                </span>
-                <span className="flex items-center gap-1 text-[10px] font-medium text-slate-500 dark:text-slate-400">
-                  <div className="w-2 h-2 rounded-full bg-purple-500"></div> Half Day WFH
-                </span>
-              </div>
-            </div>
-
-            {data?.widgets?.team_members && data.widgets.team_members.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {data.widgets.team_members.map((member: any) => {
-                  const getPillClasses = (status: string) => {
-                    const lower = status.toLowerCase();
-                    if (lower.includes('half day wfh')) {
-                      return 'bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400 border-purple-200 dark:border-purple-500/30';
-                    }
-                    if (lower.includes('half day leave')) {
-                      return 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400 border-amber-200 dark:border-amber-500/30';
-                    }
-                    if (lower === 'wfh') {
-                      return 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400 border-blue-200 dark:border-blue-500/30';
-                    }
-                    if (lower === 'present') {
-                      return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30';
-                    }
-                    // Absent, Not Checked In, On Leave
-                    return 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 border-red-200 dark:border-red-500/30';
-                  };
-                  
-                  return (
-                    <span 
-                      key={member.id} 
-                      className={`px-3 py-1 text-xs font-semibold rounded-full border ${getPillClasses(member.status)}`}
-                      title={member.status}
-                    >
-                      {member.name}
-                    </span>
-                  );
-                })}
-              </div>
-            ) : (
-              <p className="text-sm text-slate-500 dark:text-slate-400">No team members assigned</p>
-            )}
-          </div>
-        </div>
       )}
 
       {/* Super Admin Dashboard: System Health & Alerts */}
