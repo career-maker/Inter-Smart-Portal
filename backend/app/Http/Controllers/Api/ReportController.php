@@ -445,6 +445,7 @@ class ReportController extends Controller
                 // Calculate times from biometric data for accuracy (not from stored attendance)
                 $checkInTime = null;
                 $checkOutTime = null;
+                $totalWorkingMinutes = null;
                 if (!$leave && !$wfh) {  // Only calculate from biometric if not on leave/WFH
                     $biometricEvents = BiometricEvent::where('user_id', $emp->id)
                         ->whereDate('local_punch_time', $dateStr)
@@ -461,6 +462,9 @@ class ReportController extends Controller
                             if ($interp['last_out']) {
                                 $checkOutTime = $interp['last_out']->setTimezone('Asia/Kolkata')->toIso8601String();
                             }
+                            if (isset($interp['total_working_minutes'])) {
+                                $totalWorkingMinutes = $interp['total_working_minutes'];
+                            }
                         }
                     }
                 }
@@ -473,6 +477,7 @@ class ReportController extends Controller
                     'is_late' => $dayStatus['is_late'],
                     'check_in' => $checkInTime,
                     'check_out' => $checkOutTime,
+                    'total_working_minutes' => $totalWorkingMinutes,
                 ];
 
                 // Update daily stats
