@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import EmployeeForm from "@/components/employees/EmployeeForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { MonthlyReportModal } from "@/components/employees/MonthlyReportModal";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -37,6 +38,10 @@ export default function EditEmployeePage() {
   const [urlLoading, setUrlLoading] = useState(false);
   const [urlSuccess, setUrlSuccess] = useState(false);
   const [imgError, setImgError] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+
+  const { user } = useAuthStore();
+  const isSuperAdmin = user?.role === "Super Admin";
 
   useEffect(() => {
     fetchEmployee();
@@ -127,17 +132,30 @@ export default function EditEmployeePage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Link href="/employees">
-          <Button variant="outline" size="icon">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Manage {employee.first_name}</h1>
-          <p className="text-slate-600 dark:text-slate-300">{employee.employee_id} • {employee.designation}</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex items-center gap-4">
+          <Link href="/employees">
+            <Button variant="outline" size="icon">
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Manage {employee.first_name}</h1>
+            <p className="text-slate-600 dark:text-slate-300">{employee.employee_id} • {employee.designation}</p>
+          </div>
         </div>
+        {isSuperAdmin && (
+          <Button onClick={() => setIsReportModalOpen(true)} variant="outline">
+            Generate Leave Report
+          </Button>
+        )}
       </div>
+
+      <MonthlyReportModal 
+        employee={employee} 
+        isOpen={isReportModalOpen} 
+        onClose={() => setIsReportModalOpen(false)} 
+      />
 
       <Tabs defaultValue="profile" className="w-full">
         <TabsList className="mb-4">

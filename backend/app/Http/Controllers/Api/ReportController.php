@@ -320,11 +320,16 @@ class ReportController extends Controller
 
             \Log::info('Attendance summary requested', ['start' => $startDate, 'end' => $endDate]);
 
-        // Get all active employees
-        $employees = User::where('status', 'Active')
+        // Get active employees, optionally filtered by user_id
+        $query = User::where('status', 'Active')
             ->with(['team', 'leaveBalance'])
-            ->orderBy('first_name')
-            ->get();
+            ->orderBy('first_name');
+
+        if ($request->filled('user_id')) {
+            $query->where('id', $request->input('user_id'));
+        }
+
+        $employees = $query->get();
 
         $employeeIds = $employees->pluck('id')->toArray();
 
@@ -411,6 +416,10 @@ class ReportController extends Controller
                 'sl_count' => round($slCount, 1),
                 'lop_count' => round($lopCount, 1),
                 'wfh_count' => round($wfhCount, 1),
+                'leave_balance' => [
+                    'sick_leave_balance' => $emp->leaveBalance?->sick_leave_balance ?? 0,
+                    'casual_leave_balance' => ($emp->leaveBalance?->casual_leave_balance ?? 0) + ($emp->leaveBalance?->cl_carry_forward ?? 0),
+                ],
                 'daily_status' => [],
             ];
 
