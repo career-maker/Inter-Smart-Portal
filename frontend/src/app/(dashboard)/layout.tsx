@@ -7,7 +7,7 @@ import { useAuthStore } from "@/store/auth";
 import {
   LogOut, Menu, X, ChevronRight, Home, ChevronDown,
   LayoutDashboard, CalendarCheck, Briefcase, UserCircle,
-  Users, ShieldCheck
+  Users, ShieldCheck, PanelLeftClose, PanelLeftOpen
 } from "lucide-react";
 import { NotificationDropdown } from "@/components/layout/NotificationDropdown";
 import { RecognitionTicker } from "@/components/layout/RecognitionTicker";
@@ -151,6 +151,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname();
   const [isHydrated, setIsHydrated] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [pendingApprovalsCount, setPendingApprovalsCount] = useState(0);
 
@@ -249,206 +250,314 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const closeMenu = () => setMenuOpen(false);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-background">
-      <RecognitionTicker />
-      <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-white/10 shadow-lg">
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-          {/* Logo */}
-          <Link href="/dashboard" className="flex items-center shrink min-w-0 pr-2 sm:pr-4">
-            <img src="/logo-dark.png" alt="Inter Smart Logo" className="h-10 sm:h-14 sm:scale-110 origin-left w-auto object-contain dark:hidden max-w-[140px] sm:max-w-none" />
-            <img src="/logo.png" alt="Inter Smart Logo" className="h-8 sm:h-10 w-auto object-contain hidden dark:block max-w-[140px] sm:max-w-none" />
+    <div className="min-h-screen bg-slate-50 dark:bg-background flex">
+      {/* Desktop Sidebar */}
+      <aside className={`hidden md:flex flex-col fixed inset-y-0 left-0 z-50 bg-slate-900 border-r border-slate-800 transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}>
+        <div className="h-16 flex items-center justify-between px-4 border-b border-slate-800 shrink-0">
+          <Link href="/dashboard" className="flex items-center min-w-0">
+            {isSidebarCollapsed ? (
+              <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white shrink-0">IS</div>
+            ) : (
+              <img src="/logo-dark.png" alt="Inter Smart Logo" className="h-10 w-auto object-contain shrink-0" />
+            )}
           </Link>
-
-          {/* Right side */}
-          <div className="flex items-center gap-1 sm:gap-3 shrink-0 ml-auto">
-            <ThemeToggle />
-            <NotificationDropdown />
-
-            {/* User info (desktop) */}
-            <Link href="/profile" className="hidden sm:flex items-center gap-3 hover:opacity-85 transition-opacity cursor-pointer">
-              <div className="flex flex-col items-end text-right">
-                <span className="text-sm font-medium leading-none text-slate-900 dark:text-white">
-                  {user?.first_name} {user?.last_name}
-                </span>
-                <span className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{user?.role}</span>
-              </div>
-              <div className="w-8 h-8 rounded-full border border-slate-200 dark:border-white/10 bg-amber-400 overflow-hidden flex items-center justify-center text-xs font-bold text-white relative shrink-0">
-                <span>{user?.first_name?.[0]}{user?.last_name?.[0]}</span>
-                {user?.profile_photo_path && (
-                  <img
-                    src={user.profile_photo_path}
-                    alt=""
-                    className="absolute inset-0 w-full h-full object-cover"
-                    onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
-                  />
-                )}
-              </div>
-            </Link>
-
-            {/* Logout (desktop) */}
-            <button
-              onClick={handleLogout}
-              className="hidden sm:flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 hover:text-rose-400 transition-colors px-2 py-1.5 rounded-lg hover:bg-rose-500/10"
-            >
-              <LogOut className="h-4 w-4" />
-              <span>Logout</span>
-            </button>
-
-            {/* Hamburger */}
-            <button
-              className="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-white/10 transition-colors shrink-0"
-              onClick={() => setMenuOpen((v) => !v)}
-              aria-label="Toggle menu"
-            >
-              {menuOpen ? <X className="h-6 w-6 text-slate-600 dark:text-slate-300" /> : <Menu className="h-6 w-6 text-slate-600 dark:text-slate-300" />}
-            </button>
-          </div>
+          <button 
+            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} 
+            className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors shrink-0"
+          >
+            {isSidebarCollapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
+          </button>
         </div>
-      </header>
 
-      {/* Hamburger Menu - Slide-in Sidebar */}
-      {menuOpen && (
-        <>
-          <div className="fixed inset-0 top-16 bg-black/40 z-[998]" onClick={closeMenu} />
-          <div role="navigation" className="fixed top-20 right-4 w-72 max-h-[calc(100vh-7rem)] bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl z-[9999] overflow-y-auto">
-            <Link href="/profile" onClick={closeMenu} className="sm:hidden px-4 py-4 border-b border-slate-200 dark:border-white/10 flex items-center gap-3 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors cursor-pointer">
-            <div className="w-10 h-10 rounded-full bg-amber-400 overflow-hidden flex items-center justify-center text-sm font-bold text-white relative shrink-0">
-              <span>{user?.first_name?.[0]}{user?.last_name?.[0]}</span>
-              {user?.profile_photo_path && <img src={user.profile_photo_path} alt="" className="absolute inset-0 w-full h-full object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden py-4 custom-scrollbar">
+          <nav className="space-y-6">
+            {/* Standalone Links */}
+            <div className="px-3">
+              {STANDALONE.map(({ href, label, icon: Icon }) => {
+                const active = pathname === href;
+                return (
+                  <Link key={href} href={href} className={`flex items-center gap-3 px-3 py-2.5 text-sm font-semibold transition-colors rounded-xl ${active ? "bg-amber-500/20 text-amber-400" : "text-slate-400 hover:bg-slate-800 hover:text-white"}`} title={isSidebarCollapsed ? label : undefined}>
+                    <Icon className="h-5 w-5 shrink-0" />
+                    {!isSidebarCollapsed && <span className="truncate">{label}</span>}
+                  </Link>
+                );
+              })}
             </div>
-            <div>
-              <p className="text-sm font-semibold text-slate-900 dark:text-white">{user?.first_name} {user?.last_name}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">{user?.role}</p>
-            </div>
-          </Link>
-          <nav className="py-2">
-            {STANDALONE.map(({ href, label, icon: Icon }) => {
-              const active = pathname === href;
-              return (
-                <Link key={href} href={href} onClick={closeMenu} className={`flex items-center gap-3 px-4 py-2.5 text-sm font-semibold transition-colors mx-2 rounded-xl ${active ? "bg-amber-500/20 text-amber-400" : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white"}`}>
-                  <Icon className="h-4 w-4 shrink-0" />
-                  {label}
-                </Link>
-              );
-            })}
-            <FavoritesNav onClose={closeMenu} />
+
+            {/* Nav Groups */}
             {NAV_GROUPS.map((group) => {
               if (!groupHasVisibleItems(group, userRole)) return null;
               const visibleItems = group.items.filter((item) => isItemVisible(item, userRole));
               const isOpen = openGroup === group.id;
               const groupActive = pathBelongsToGroup(group, pathname);
               const GroupIcon = group.icon;
+
               return (
-                <div key={group.id} className="mt-1">
-                  <button onClick={() => toggleGroup(group.id)} className={`w-full flex items-center justify-between gap-2 px-4 py-2.5 text-sm font-semibold transition-colors mx-2 rounded-xl ${groupActive && !isOpen ? "text-amber-400" : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5"}`} style={{ width: "calc(100% - 1rem)" }}>
-                    <span className="flex items-center gap-3">
-                      <GroupIcon className="h-4 w-4 shrink-0" />
+                <div key={group.id} className="px-3">
+                  {!isSidebarCollapsed && (
+                    <div className="px-3 mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">
                       {group.label}
-                    </span>
-                    <ChevronDown className={`h-4 w-4 shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
-                  </button>
-                  {isOpen && (
-                    <div className="mt-0.5 mb-1">
-                      {visibleItems.map((item) => {
-                        const hasExactMatch = visibleItems.some((i) => pathname === i.href);
-                        const active = hasExactMatch ? pathname === item.href : pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"));
-                        const isExternal = (item as any).external;
+                    </div>
+                  )}
+                  
+                  {isSidebarCollapsed ? (
+                    // Collapsed state: just show the icon and expand when clicked
+                    <button onClick={() => { setIsSidebarCollapsed(false); setOpenGroup(group.id); }} className={`w-full flex items-center justify-center p-2.5 text-sm font-semibold transition-colors rounded-xl ${groupActive ? "text-amber-400 bg-amber-500/10" : "text-slate-400 hover:text-white hover:bg-slate-800"}`} title={group.label}>
+                       <GroupIcon className="h-5 w-5 shrink-0" />
+                    </button>
+                  ) : (
+                    // Expanded state
+                    <div className="space-y-1">
+                      <button onClick={() => toggleGroup(group.id)} className={`w-full flex items-center justify-between gap-2 px-3 py-2.5 text-sm font-semibold transition-colors rounded-xl ${groupActive && !isOpen ? "text-amber-400" : "text-slate-400 hover:text-white hover:bg-slate-800"}`}>
+                        <span className="flex items-center gap-3 min-w-0">
+                          <GroupIcon className="h-5 w-5 shrink-0" />
+                          <span className="truncate">{group.label}</span>
+                        </span>
+                        <ChevronDown className={`h-4 w-4 shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
+                      </button>
+                      
+                      {isOpen && (
+                        <div className="mt-1 space-y-1">
+                          {visibleItems.map((item) => {
+                            const hasExactMatch = visibleItems.some((i) => pathname === i.href);
+                            const active = hasExactMatch ? pathname === item.href : pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"));
+                            const isExternal = (item as any).external;
 
-                        const itemContent = (
-                          <>
-                            <span className="w-1 h-1 rounded-full bg-current shrink-0 opacity-60" />
-                            <span className="flex items-center gap-2">
-                              {item.label}
-                              {item.href === "/leaves/approvals" && user?.role === "Team Lead" && pendingApprovalsCount > 0 && (
-                                <span className="bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">{pendingApprovalsCount}</span>
-                              )}
-                            </span>
-                          </>
-                        );
+                            const itemContent = (
+                              <>
+                                <span className="w-1.5 h-1.5 rounded-full bg-current shrink-0 opacity-60 ml-2" />
+                                <span className="flex items-center gap-2 truncate">
+                                  {item.label}
+                                  {item.href === "/leaves/approvals" && user?.role === "Team Lead" && pendingApprovalsCount > 0 && (
+                                    <span className="bg-red-500 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center shrink-0">{pendingApprovalsCount}</span>
+                                  )}
+                                </span>
+                              </>
+                            );
 
-                        if (isExternal) {
-                          return (
-                            <a key={item.href} href={item.href} target="_blank" rel="noopener noreferrer" onClick={closeMenu} className="flex items-center gap-2 pl-11 pr-4 py-2 text-sm transition-colors mx-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white" style={{ width: "calc(100% - 1rem)" }}>
-                              {itemContent}
-                            </a>
-                          );
-                        }
+                            if (isExternal) {
+                              return (
+                                <a key={item.href} href={item.href} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-3 pl-8 pr-3 py-2 text-sm transition-colors rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white`}>
+                                  {itemContent}
+                                </a>
+                              );
+                            }
 
-                        return (
-                          <Link key={item.href} href={item.href} onClick={closeMenu} className={`flex items-center gap-2 pl-11 pr-4 py-2 text-sm transition-colors mx-2 rounded-xl ${active ? "bg-amber-500/20 text-amber-400 font-semibold" : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white"}`} style={{ width: "calc(100% - 1rem)" }}>
-                            {itemContent}
-                          </Link>
-                        );
-                      })}
+                            return (
+                              <Link key={item.href} href={item.href} className={`flex items-center gap-3 pl-8 pr-3 py-2 text-sm transition-colors rounded-xl ${active ? "bg-amber-500/20 text-amber-400 font-semibold" : "text-slate-400 hover:bg-slate-800 hover:text-white"}`}>
+                                {itemContent}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
               );
             })}
-            <div className="mt-2 pt-2 border-t border-slate-200 dark:border-white/10 sm:hidden">
-              <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 text-sm text-red-400 px-4 py-3 rounded-xl hover:bg-red-500/10 transition-colors mx-2" style={{ width: "calc(100% - 1rem)" }}>
-                <LogOut className="h-4 w-4" />
-                Logout
-              </button>
-            </div>
           </nav>
         </div>
-        </>
-      )}
-
-      <main className="max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8">
-        {/* Breadcrumbs */}
-        {pathname !== "/dashboard" && (
-          <div className="flex items-center flex-wrap gap-1 text-sm text-slate-500 dark:text-slate-400 mb-7 font-medium">
-            <Link href="/dashboard" className="breadcrumb-item hover:text-slate-900 dark:hover:text-white flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
-              <Home className="w-4 h-4" />
-              Dashboard
+        
+        {/* User Profile Area (Desktop Bottom) */}
+        {!isSidebarCollapsed && (
+          <div className="p-4 border-t border-slate-800 shrink-0">
+             <Link href="/profile" className="flex items-center gap-3 hover:bg-slate-800 p-2 rounded-xl transition-colors cursor-pointer">
+              <div className="w-9 h-9 rounded-full bg-amber-400 overflow-hidden flex items-center justify-center text-sm font-bold text-white relative shrink-0">
+                <span>{user?.first_name?.[0]}{user?.last_name?.[0]}</span>
+                {user?.profile_photo_path && <img src={user.profile_photo_path} alt="" className="absolute inset-0 w-full h-full object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-white truncate">{user?.first_name} {user?.last_name}</p>
+                <p className="text-xs text-slate-400 truncate">{user?.role}</p>
+              </div>
             </Link>
-            {pathname
-              .split("/")
-              .filter(Boolean)
-              .filter(segment => !["attendance"].includes(segment.toLowerCase()))
-              .map((segment, index, array) => {
-                const href = "/" + array.slice(0, index + 1).join("/");
-                const isLast = index === array.length - 1;
-                const title =
-                  segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, " ");
-                return (
-                  <div key={segment + index} className="flex items-center gap-1">
-                    <ChevronRight className="w-4 h-4 text-slate-600" />
-                    {isLast ? (
-                      <span className="text-slate-900 dark:text-white font-semibold">{title}</span>
-                    ) : (
-                      <Link href={href} className="breadcrumb-item hover:text-slate-900 dark:hover:text-white text-slate-600 dark:text-slate-300">
-                        {title}
-                      </Link>
-                    )}
-                  </div>
-                );
-              })}
           </div>
         )}
-        {children}
-      </main>
-      {/* Chatbase AI Assistant Widget — hidden default bubble, custom Lottie button below */}
-      <Script
-        id="chatbase-embed"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{
-          __html: `
-            window.chatbaseConfig = { chatbotId: "NWjkUsLKs1X83cNdAnodJ" };
-            (function() {
-              var s = document.createElement("script");
-              s.src = "https://www.chatbase.co/embed.min.js";
-              s.setAttribute("chatbotId", "NWjkUsLKs1X83cNdAnodJ");
-              s.setAttribute("domain", "www.chatbase.co");
-              s.defer = true;
-              document.body.appendChild(s);
-            })();
-          `,
-        }}
-      />
-      <ChatbaseLottieButton />
+      </aside>
+
+      {/* Main Wrapper */}
+      <div className={`flex-1 flex flex-col min-w-0 min-h-screen transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'md:pl-20' : 'md:pl-64'}`}>
+        <RecognitionTicker />
+        
+        <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-white/10 shadow-sm sticky top-0 z-40">
+          <div className="px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            
+            {/* Mobile Left: Hamburger + Logo */}
+            <div className="flex items-center gap-3 md:hidden">
+              <button
+                className="p-2 -ml-2 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 transition-colors shrink-0"
+                onClick={() => setMenuOpen((v) => !v)}
+                aria-label="Toggle menu"
+              >
+                {menuOpen ? <X className="h-6 w-6 text-slate-600 dark:text-slate-300" /> : <Menu className="h-6 w-6 text-slate-600 dark:text-slate-300" />}
+              </button>
+              <Link href="/dashboard" className="flex items-center shrink min-w-0">
+                <img src="/logo-dark.png" alt="Inter Smart Logo" className="h-8 object-contain dark:hidden" />
+                <img src="/logo.png" alt="Inter Smart Logo" className="h-8 object-contain hidden dark:block" />
+              </Link>
+            </div>
+
+            {/* Desktop Left: Blank space to push Right Side */}
+            <div className="hidden md:block flex-1" />
+
+            {/* Right side */}
+            <div className="flex items-center gap-2 sm:gap-4 shrink-0 ml-auto">
+              <ThemeToggle />
+              <NotificationDropdown />
+
+              <button
+                onClick={handleLogout}
+                className="hidden sm:flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 hover:text-rose-500 transition-colors px-3 py-2 rounded-lg hover:bg-rose-500/10 font-medium"
+              >
+                <LogOut className="h-4 w-4" />
+                <span>Logout</span>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        {/* Hamburger Menu - Mobile Overlay Drawer */}
+        {menuOpen && (
+          <div className="md:hidden">
+            <div className="fixed inset-0 top-16 bg-black/40 z-[998]" onClick={closeMenu} />
+            <div role="navigation" className="fixed top-16 bottom-0 left-0 w-72 bg-slate-900 border-r border-slate-800 shadow-2xl z-[9999] overflow-y-auto py-4">
+              <Link href="/profile" onClick={closeMenu} className="px-4 py-4 mb-2 border-b border-slate-800 flex items-center gap-3 hover:bg-slate-800 transition-colors cursor-pointer">
+                <div className="w-10 h-10 rounded-full bg-amber-400 overflow-hidden flex items-center justify-center text-sm font-bold text-white relative shrink-0">
+                  <span>{user?.first_name?.[0]}{user?.last_name?.[0]}</span>
+                  {user?.profile_photo_path && <img src={user.profile_photo_path} alt="" className="absolute inset-0 w-full h-full object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />}
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white">{user?.first_name} {user?.last_name}</p>
+                  <p className="text-xs text-slate-400">{user?.role}</p>
+                </div>
+              </Link>
+              
+              <nav className="space-y-1 px-2">
+                {STANDALONE.map(({ href, label, icon: Icon }) => {
+                  const active = pathname === href;
+                  return (
+                    <Link key={href} href={href} onClick={closeMenu} className={`flex items-center gap-3 px-3 py-2.5 text-sm font-semibold transition-colors rounded-xl ${active ? "bg-amber-500/20 text-amber-400" : "text-slate-300 hover:bg-slate-800 hover:text-white"}`}>
+                      <Icon className="h-5 w-5 shrink-0" />
+                      {label}
+                    </Link>
+                  );
+                })}
+                
+                <div className="my-2 border-t border-slate-800" />
+                
+                {NAV_GROUPS.map((group) => {
+                  if (!groupHasVisibleItems(group, userRole)) return null;
+                  const visibleItems = group.items.filter((item) => isItemVisible(item, userRole));
+                  const isOpen = openGroup === group.id;
+                  const groupActive = pathBelongsToGroup(group, pathname);
+                  const GroupIcon = group.icon;
+                  return (
+                    <div key={group.id} className="mt-1">
+                      <button onClick={() => toggleGroup(group.id)} className={`w-full flex items-center justify-between gap-2 px-3 py-2.5 text-sm font-semibold transition-colors rounded-xl ${groupActive && !isOpen ? "text-amber-400" : "text-slate-300 hover:text-white hover:bg-slate-800"}`}>
+                        <span className="flex items-center gap-3">
+                          <GroupIcon className="h-5 w-5 shrink-0" />
+                          {group.label}
+                        </span>
+                        <ChevronDown className={`h-4 w-4 shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
+                      </button>
+                      {isOpen && (
+                        <div className="mt-1 space-y-1">
+                          {visibleItems.map((item) => {
+                            const hasExactMatch = visibleItems.some((i) => pathname === i.href);
+                            const active = hasExactMatch ? pathname === item.href : pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"));
+                            const isExternal = (item as any).external;
+
+                            const itemContent = (
+                              <>
+                                <span className="w-1.5 h-1.5 rounded-full bg-current shrink-0 opacity-60 ml-2" />
+                                <span className="flex items-center gap-2 truncate">
+                                  {item.label}
+                                  {item.href === "/leaves/approvals" && user?.role === "Team Lead" && pendingApprovalsCount > 0 && (
+                                    <span className="bg-red-500 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center shrink-0">{pendingApprovalsCount}</span>
+                                  )}
+                                </span>
+                              </>
+                            );
+
+                            if (isExternal) {
+                              return (
+                                <a key={item.href} href={item.href} target="_blank" rel="noopener noreferrer" onClick={closeMenu} className="flex items-center gap-3 pl-8 pr-3 py-2 text-sm transition-colors rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white">
+                                  {itemContent}
+                                </a>
+                              );
+                            }
+
+                            return (
+                              <Link key={item.href} href={item.href} onClick={closeMenu} className={`flex items-center gap-3 pl-8 pr-3 py-2 text-sm transition-colors rounded-xl ${active ? "bg-amber-500/20 text-amber-400 font-semibold" : "text-slate-400 hover:bg-slate-800 hover:text-white"}`}>
+                                {itemContent}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </nav>
+            </div>
+          </div>
+        )}
+
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 w-full max-w-7xl mx-auto">
+          {/* Breadcrumbs */}
+          {pathname !== "/dashboard" && (
+            <div className="flex items-center flex-wrap gap-1 text-sm text-slate-500 dark:text-slate-400 mb-7 font-medium">
+              <Link href="/dashboard" className="hover:text-slate-900 dark:hover:text-white flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                <Home className="w-4 h-4" />
+                Dashboard
+              </Link>
+              {pathname
+                .split("/")
+                .filter(Boolean)
+                .filter(segment => !["attendance"].includes(segment.toLowerCase()))
+                .map((segment, index, array) => {
+                  const href = "/" + array.slice(0, index + 1).join("/");
+                  const isLast = index === array.length - 1;
+                  const title = segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, " ");
+                  return (
+                    <div key={segment + index} className="flex items-center gap-1">
+                      <ChevronRight className="w-4 h-4 text-slate-400" />
+                      {isLast ? (
+                        <span className="text-slate-900 dark:text-white font-semibold">{title}</span>
+                      ) : (
+                        <Link href={href} className="hover:text-slate-900 dark:hover:text-white text-slate-600 dark:text-slate-300">
+                          {title}
+                        </Link>
+                      )}
+                    </div>
+                  );
+                })}
+            </div>
+          )}
+          {children}
+        </main>
+        
+        {/* Chatbase AI Assistant Widget */}
+        <Script
+          id="chatbase-embed"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.chatbaseConfig = { chatbotId: "NWjkUsLKs1X83cNdAnodJ" };
+              (function() {
+                var s = document.createElement("script");
+                s.src = "https://www.chatbase.co/embed.min.js";
+                s.setAttribute("chatbotId", "NWjkUsLKs1X83cNdAnodJ");
+                s.setAttribute("domain", "www.chatbase.co");
+                s.defer = true;
+                document.body.appendChild(s);
+              })();
+            `,
+          }}
+        />
+        <ChatbaseLottieButton />
+      </div>
     </div>
   );
 }
