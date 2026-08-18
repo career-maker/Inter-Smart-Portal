@@ -1191,8 +1191,8 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                       { name: 'WFH', value: kpis.wfh_today ?? 0 },
                       { name: 'Absent', value: Math.max(0, (kpis.total_employees ?? 0) - (kpis.present_today ?? 0) - (kpis.on_leave_today ?? 0) - (kpis.wfh_today ?? 0)) }
                     ]}
-                    cx="40%"
-                    cy="80%"
+                    cx="50%"
+                    cy="70%"
                     startAngle={180}
                     endAngle={0}
                     innerRadius={90}
@@ -1209,7 +1209,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                     <Cell fill="#EF4444" />
                   </Pie>
                   <Tooltip formatter={(value) => `${value} employees`} contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #64748b', borderRadius: '8px', color: '#f1f5f9' }} />
-                  <Legend layout="vertical" align="right" verticalAlign="middle" formatter={(value) => <span className="text-slate-600 dark:text-slate-400 text-sm">{value}</span>} />
+                  <Legend layout="horizontal" align="center" verticalAlign="bottom" formatter={(value) => <span className="text-slate-600 dark:text-slate-400 text-sm">{value}</span>} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
