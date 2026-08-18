@@ -1478,10 +1478,10 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
       {/* Leave Details Modal */}
       <Dialog open={!!leaveModalData} onOpenChange={(open) => !open && setLeaveModalData(null)}>
         <DialogContent className="sm:max-w-md bg-slate-900 border-slate-800 text-white">
-          <DialogHeader>
+          <DialogHeader className="!bg-transparent !border-none !shadow-none p-0">
             <DialogTitle className="text-white">{leaveModalData?.title}</DialogTitle>
           </DialogHeader>
-          <div className="max-h-[60vh] overflow-y-auto space-y-3 mt-4">
+          <div className="max-h-[60vh] overflow-y-auto space-y-3 mt-4 !bg-transparent !border-none !shadow-none p-0">
             {leaveModalData?.list.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-4">No employees to show.</p>
             ) : (
