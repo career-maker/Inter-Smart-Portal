@@ -202,6 +202,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return () => unsub();
   }, []);
 
+  // Force hide scrollbar during hydration on mobile
+  useEffect(() => {
+    if (!isHydrated) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isHydrated]);
+
   useEffect(() => {
     if (isHydrated && !isAuthenticated) router.push("/login");
   }, [isHydrated, isAuthenticated, router]);
