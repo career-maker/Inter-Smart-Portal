@@ -27,7 +27,7 @@ class EmployeeController extends Controller
     {
         $query = User::with(['team', 'roles']);
 
-        if ($request->has('search')) {
+        if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('first_name', 'like', "%{$search}%")
