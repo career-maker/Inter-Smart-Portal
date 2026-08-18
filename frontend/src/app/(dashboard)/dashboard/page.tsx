@@ -16,6 +16,7 @@ import {
   BookOpen,
   UserCircle,
   Building2,
+  Fingerprint,
   ChevronRight,
   Gift,
   Plus,
@@ -1139,7 +1140,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           title="Present"
           value={kpis.present_today}
           trend={kpis.trends.attendance}
-          icon={Building2}
+          icon={Fingerprint}
           color="bg-emerald-500"
           onClick={() => setLeaveModalData({
             title: "Present Today",
