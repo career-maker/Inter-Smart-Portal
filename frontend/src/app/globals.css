@@ -572,30 +572,30 @@ body {
   /* ──── Light Mode UI Elements ──── */
 
   /* Light Mode Button Styles - Premium */
-  :not(.dark) button,
-  :not(.dark) [role="button"] {
+  :where(:not(.dark)) button,
+  :where(:not(.dark)) [role="button"] {
     border-color: #E5E7EB;
     transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
     font-weight: 500;
   }
 
   @media (hover: hover) {
-    :not(.dark) button:hover,
-    :not(.dark) [role="button"]:hover {
+    :where(:not(.dark)) button:hover,
+    :where(:not(.dark)) [role="button"]:hover {
       border-color: #D1D5DB;
       background-color: #F8FAFC;
       transform: translateY(-1px);
     }
   }
 
-  :not(.dark) button:active,
-  :not(.dark) [role="button"]:active {
+  :where(:not(.dark)) button:active,
+  :where(:not(.dark)) [role="button"]:active {
     transform: translateY(0);
   }
 
   /* Light Mode Primary Button */
-  :not(.dark) button.primary,
-  :not(.dark) [role="button"].primary,
+  :where(:not(.dark)) button.primary,
+  :where(:not(.dark)) [role="button"].primary,
   :not(.dark) [data-button="primary"] {
     background-color: #3B82F6;
     color: #FFFFFF;
@@ -604,8 +604,8 @@ body {
   }
 
   @media (hover: hover) {
-    :not(.dark) button.primary:hover,
-    :not(.dark) [role="button"].primary:hover,
+    :where(:not(.dark)) button.primary:hover,
+    :where(:not(.dark)) [role="button"].primary:hover,
     :not(.dark) [data-button="primary"]:hover {
       background-color: #2563EB;
       border-color: #2563EB;
@@ -614,8 +614,8 @@ body {
   }
 
   /* Light Mode Secondary Button */
-  :not(.dark) button.secondary,
-  :not(.dark) [role="button"].secondary,
+  :where(:not(.dark)) button.secondary,
+  :where(:not(.dark)) [role="button"].secondary,
   :not(.dark) [data-button="secondary"] {
     background-color: #F1F5F9;
     color: #0F172A;
@@ -623,8 +623,8 @@ body {
   }
 
   @media (hover: hover) {
-    :not(.dark) button.secondary:hover,
-    :not(.dark) [role="button"].secondary:hover,
+    :where(:not(.dark)) button.secondary:hover,
+    :where(:not(.dark)) [role="button"].secondary:hover,
     :not(.dark) [data-button="secondary"]:hover {
       background-color: #E2E8F0;
       border-color: #CBD5E1;
@@ -632,9 +632,9 @@ body {
   }
 
   /* Light Mode Input Styles - Premium */
-  :not(.dark) input,
-  :not(.dark) textarea,
-  :not(.dark) select {
+  :where(:not(.dark)) input,
+  :where(:not(.dark)) textarea,
+  :where(:not(.dark)) select {
     border: 1px solid #E5E7EB;
     background-color: #FFFFFF;
     color: #1E293B;
@@ -645,45 +645,45 @@ body {
     font-family: inherit;
   }
 
-  :not(.dark) input::placeholder,
-  :not(.dark) textarea::placeholder,
-  :not(.dark) select::placeholder {
+  :where(:not(.dark)) input::placeholder,
+  :where(:not(.dark)) textarea::placeholder,
+  :where(:not(.dark)) select::placeholder {
     color: #94A3B8;
   }
 
   @media (hover: hover) {
-    :not(.dark) input:hover,
-    :not(.dark) textarea:hover,
-    :not(.dark) select:hover {
+    :where(:not(.dark)) input:hover,
+    :where(:not(.dark)) textarea:hover,
+    :where(:not(.dark)) select:hover {
       border-color: #D1D5DB;
       background-color: #F8FAFC;
     }
   }
 
-  :not(.dark) input:focus,
-  :not(.dark) textarea:focus,
-  :not(.dark) select:focus {
+  :where(:not(.dark)) input:focus,
+  :where(:not(.dark)) textarea:focus,
+  :where(:not(.dark)) select:focus {
     border-color: #3B82F6;
     background-color: #FFFFFF;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.08), inset 0 0 0 1px rgba(59, 130, 246, 0.2);
     outline: none;
   }
 
-  :not(.dark) input:disabled,
-  :not(.dark) textarea:disabled,
-  :not(.dark) select:disabled {
+  :where(:not(.dark)) input:disabled,
+  :where(:not(.dark)) textarea:disabled,
+  :where(:not(.dark)) select:disabled {
     background-color: #F1F5F9;
     color: #94A3B8;
     cursor: not-allowed;
   }
 
   /* Light Mode Table Styles - Premium */
-  :not(.dark) table {
+  :where(:not(.dark)) table {
     border-collapse: collapse;
     width: 100%;
   }
 
-  :not(.dark) th {
+  :where(:not(.dark)) th {
     background-color: transparent;
     color: #0F172A;
     font-weight: 600;
@@ -695,24 +695,24 @@ body {
     text-align: left;
   }
 
-  :not(.dark) td {
+  :where(:not(.dark)) td {
     border-bottom: 1px solid #F1F5F9;
     padding: 12px 0;
     color: #1E293B;
     font-size: 0.9375rem;
   }
 
-  :not(.dark) tbody tr {
+  :where(:not(.dark)) tbody tr {
     transition: background-color 200ms ease;
   }
 
   @media (hover: hover) {
-    :not(.dark) tbody tr:hover {
+    :where(:not(.dark)) tbody tr:hover {
       background-color: #F8FAFC;
     }
   }
 
-  :not(.dark) tbody tr:last-child td {
+  :where(:not(.dark)) tbody tr:last-child td {
     border-bottom: none;
   }
 
@@ -756,14 +756,14 @@ body {
   }
 
   /* Light Mode Link Styles */
-  :not(.dark) a {
+  :where(:not(.dark)) a {
     color: #3B82F6;
     text-decoration: none;
     transition: color 250ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   @media (hover: hover) {
-    :not(.dark) a:hover {
+    :where(:not(.dark)) a:hover {
       color: #2563EB;
     }
   }
@@ -781,8 +781,8 @@ body {
   }
 
   /* Light Mode Divider - Refined */
-  :not(.dark) hr,
-  :not(.dark) [role="separator"] {
+  :where(:not(.dark)) hr,
+  :where(:not(.dark)) [role="separator"] {
     border: none;
     height: 1px;
     background-color: #E5E7EB;
@@ -790,13 +790,13 @@ body {
   }
 
   /* Light Mode Modal/Dialog Backdrop */
-  :not(.dark) [role="dialog"],
+  :where(:not(.dark)) [role="dialog"],
   :not(.dark) .dialog-overlay {
     background-color: rgba(0, 0, 0, 0.08);
   }
 
   /* Light Mode Modal/Dialog Content - Premium */
-  :not(.dark) [role="dialog"] > div,
+  :where(:not(.dark)) [role="dialog"] > div,
   :not(.dark) .dialog-content {
     background-color: #FFFFFF;
     border: 1px solid #E5E7EB;
@@ -1151,7 +1151,7 @@ body {
     background: linear-gradient(90deg, #3B82F6, #2563EB);
   }
 
-  :not(.dark) [role="progressbar"],
+  :where(:not(.dark)) [role="progressbar"],
   :not(.dark) .progress {
     background-color: #E5E7EB;
     border-radius: 12px;
@@ -1159,7 +1159,7 @@ body {
     overflow: hidden;
   }
 
-  :not(.dark) [role="progressbar"] > div,
+  :where(:not(.dark)) [role="progressbar"] > div,
   :not(.dark) .progress > div {
     background: linear-gradient(90deg, #3B82F6, #2563EB);
     height: 100%;
