@@ -1479,21 +1479,21 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
       <Dialog open={!!leaveModalData} onOpenChange={(open) => !open && setLeaveModalData(null)}>
         <DialogContent className="sm:max-w-md border-slate-200 dark:border-white/10">
           <DialogHeader>
-            <DialogTitle>{leaveModalData?.title}</DialogTitle>
+            <DialogTitle className="text-slate-900 dark:text-white">{leaveModalData?.title}</DialogTitle>
           </DialogHeader>
           <div className="max-h-[60vh] overflow-y-auto space-y-3 mt-4">
             {leaveModalData?.list.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-4">No employees to show.</p>
             ) : (
               leaveModalData?.list.map((item: any, idx: number) => (
-                <div key={idx} className="flex items-center justify-between p-3 bg-white/5 border border-slate-200 dark:border-white/10 rounded-md">
+                <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-md">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-sm">
+                    <div className="w-10 h-10 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-sm">
                       {item.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2)}
                     </div>
                     <div>
-                      <p className="text-sm font-bold">{item.name}</p>
-                      <p className="text-xs text-muted-foreground">{item.leave_type || item.designation}</p>
+                      <p className="text-sm font-bold text-slate-900 dark:text-white">{item.name}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">{item.leave_type || item.designation}</p>
                     </div>
                   </div>
                 </div>
