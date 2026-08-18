@@ -499,7 +499,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
                             if (isExternal) {
                               return (
-                                <a key={item.href} href={item.href} target="_blank" rel="noopener noreferrer" onClick={closeMenu} className="flex items-center gap-3 pl-8 pr-3 py-2 text-sm transition-colors rounded-xl text-slate-400">
                                 <a key={item.href} href={item.href} target="_blank" rel="noopener noreferrer" onClick={closeMenu} className="flex items-center gap-3 pl-8 pr-3 py-2 text-sm transition-colors rounded-xl text-slate-400 hover:!bg-transparent active:!bg-transparent">
                                   {itemContent}
                                 </a>
