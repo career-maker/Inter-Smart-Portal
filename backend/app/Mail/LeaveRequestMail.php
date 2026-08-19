@@ -5,6 +5,8 @@ namespace App\Mail;
 use App\Models\LeaveRequest;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Content;
+use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
 class LeaveRequestMail extends Mailable
@@ -13,14 +15,20 @@ class LeaveRequestMail extends Mailable
 
     public array $emailData;
     public LeaveRequest $leaveRequest;
+    public array $ccRecipients;
 
-    public function __construct(array $emailData, LeaveRequest $leaveRequest)
+    public function __construct(array $emailData, LeaveRequest $leaveRequest, array $ccRecipients = [])
     {
         $this->emailData = $emailData;
         $this->leaveRequest = $leaveRequest;
+        $this->ccRecipients = $ccRecipients;
+
+        if (!empty($ccRecipients)) {
+            $this->cc($ccRecipients);
+        }
     }
 
-    public function envelope()
+    public function envelope(): Envelope
     {
         $isSingleDay = $this->emailData['is_single_day'];
         $dateStr = $isSingleDay
@@ -29,14 +37,15 @@ class LeaveRequestMail extends Mailable
 
         $subject = "Leave Request | {$this->emailData['employee_name']} | {$this->emailData['leave_type']} | {$dateStr}";
 
-        return new \Illuminate\Mail\Mailables\Envelope(
-            subject: $subject
+        return new Envelope(
+            subject: $subject,
+            cc: $this->ccRecipients
         );
     }
 
-    public function content()
+    public function content(): Content
     {
-        return new \Illuminate\Mail\Mailables\Content(
+        return new Content(
             view: 'emails.leave-request',
             with: [
                 'data' => $this->emailData,
@@ -45,7 +54,7 @@ class LeaveRequestMail extends Mailable
         );
     }
 
-    public function attachments()
+    public function attachments(): array
     {
         return [];
     }

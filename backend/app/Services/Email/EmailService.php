@@ -38,17 +38,20 @@ class EmailService
                 try {
                     Log::info("📬 Attempting to send email via Laravel Mail to: {$email}");
                     
+                    // Filter out TO address from CC list to prevent duplicate headers/deliveries
+                    $ccList = array_values(array_filter($recipients['cc'], fn($cc) => strtolower($cc) !== strtolower($email)));
+
                     $mail = Mail::to($email);
-                    if (!empty($recipients['cc'])) {
-                        $mail->cc($recipients['cc']);
+                    if (!empty($ccList)) {
+                        $mail->cc($ccList);
                     }
                     if (!empty($recipients['bcc'])) {
                         $mail->bcc($recipients['bcc']);
                     }
                     
-                    $mail->send(new LeaveRequestMail($emailData, $leaveRequest));
+                    $mail->send(new LeaveRequestMail($emailData, $leaveRequest, $ccList));
                     
-                    Log::info("✅ LEAVE EMAIL SENT to {$email}");
+                    Log::info("✅ LEAVE EMAIL SENT to {$email} (CC: " . json_encode($ccList) . ")");
                 } catch (\Exception $e) {
                     Log::error("❌ FAILED to send leave email to {$email}: " . $e->getMessage());
                 }
@@ -82,17 +85,20 @@ class EmailService
                 try {
                     Log::info("📬 Attempting to send WFH email via Laravel Mail to: {$email}");
                     
+                    // Filter out TO address from CC list
+                    $ccList = array_values(array_filter($recipients['cc'], fn($cc) => strtolower($cc) !== strtolower($email)));
+
                     $mail = Mail::to($email);
-                    if (!empty($recipients['cc'])) {
-                        $mail->cc($recipients['cc']);
+                    if (!empty($ccList)) {
+                        $mail->cc($ccList);
                     }
                     if (!empty($recipients['bcc'])) {
                         $mail->bcc($recipients['bcc']);
                     }
                     
-                    $mail->send(new WfhRequestMail($emailData, $wfhRequest));
+                    $mail->send(new WfhRequestMail($emailData, $wfhRequest, $ccList));
                     
-                    Log::info("✅ WFH EMAIL SENT to {$email}");
+                    Log::info("✅ WFH EMAIL SENT to {$email} (CC: " . json_encode($ccList) . ")");
                 } catch (\Exception $e) {
                     Log::error("❌ FAILED to send WFH email to {$email}: " . $e->getMessage());
                 }
@@ -146,6 +152,14 @@ class EmailService
             $recipients['cc'] = ['hr@intersmart.in'];
         }
 
+        // Add applicant employee's email to CC so they receive a copy
+        if (!empty($user->email)) {
+            $recipients['cc'][] = $user->email;
+        }
+
+        // Unique & clean CC list
+        $recipients['cc'] = array_values(array_unique(array_filter($recipients['cc'])));
+
         return $recipients;
     }
 
@@ -174,6 +188,14 @@ class EmailService
             $recipients['to'][] = 'admin@intersmart.in';
             $recipients['cc'] = ['hr@intersmart.in'];
         }
+
+        // Add applicant employee's email to CC so they receive a copy
+        if (!empty($user->email)) {
+            $recipients['cc'][] = $user->email;
+        }
+
+        // Unique & clean CC list
+        $recipients['cc'] = array_values(array_unique(array_filter($recipients['cc'])));
 
         return $recipients;
     }
