@@ -676,24 +676,12 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Right: Service Days Widget — Independent Card with Live Timer */}
+          {/* Right: Growing Together Card — Redesigned with 6 Metrics Boxes & Live Clock */}
           {profile.service_stats && (
-            <Link
-              href="#"
-              onClick={(e) => e.preventDefault()}
-              className="group lg:self-end w-full lg:w-auto flex flex-col justify-center bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-300 rounded-md p-5 md:p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm hover:shadow-md"
-            >
-              <p className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
-                <span className="text-base">🌟</span>
-                Growing Together
-              </p>
-              <p className="text-sm lg:text-base font-black text-slate-900 dark:text-white font-mono tracking-tight">
-                {liveServiceStats
-                  ? `${liveServiceStats.years}Y ${liveServiceStats.months}M ${liveServiceStats.days}D ${String(liveServiceStats.hours).padStart(2, '0')}H ${String(liveServiceStats.minutes).padStart(2, '0')}M ${String(liveServiceStats.seconds).padStart(2, '0')}S`
-                  : `${profile.service_stats.years}Y ${profile.service_stats.months}M ${profile.service_stats.days}D`
-                }
-              </p>
-            </Link>
+            <GrowingTogetherCard
+              liveStats={liveServiceStats}
+              defaultStats={profile.service_stats}
+            />
           )}
         </div>
       </div>
@@ -1041,6 +1029,77 @@ export default function DashboardPage() {
           </Link>
         </div>
       )}
+    </div>
+  );
+}
+
+// Growing Together Card — Redesigned with 6 Metrics Boxes & Gold Accents
+function GrowingTogetherCard({ liveStats, defaultStats }: { liveStats: any; defaultStats?: any }) {
+  const current = liveStats || defaultStats;
+  if (!current) return null;
+
+  const years = current.years ?? 0;
+  const months = current.months ?? 0;
+  const days = current.days ?? 0;
+  const hours = String(current.hours ?? 0).padStart(2, "0");
+  const minutes = String(current.minutes ?? 0).padStart(2, "0");
+  const seconds = String(current.seconds ?? 0).padStart(2, "0");
+
+  const statBoxes = [
+    { label: "YRS", value: years },
+    { label: "MTH", value: months },
+    { label: "DAYS", value: days },
+    { label: "HRS", value: hours },
+    { label: "MINS", value: minutes },
+    { label: "SECS", value: seconds },
+  ];
+
+  return (
+    <div className="lg:self-end w-full lg:w-auto bg-slate-900/90 dark:bg-slate-900/90 border border-slate-700/50 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-2xl backdrop-blur-md">
+      {/* Top Header */}
+      <div className="flex items-center justify-between gap-6 mb-3">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full border border-amber-400/80 bg-amber-400/10 flex items-center justify-center text-amber-400 shrink-0 shadow-inner">
+            <svg className="w-5 h-5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+          </div>
+          <span className="text-sm font-black uppercase tracking-wider text-white">
+            GROWING TOGETHER
+          </span>
+        </div>
+
+        {/* Right Sparkle / Dial Accent */}
+        <div className="flex items-center justify-center text-amber-400/90 pr-1">
+          <svg className="w-5 h-5 animate-[spin_10s_linear_infinite]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <circle cx="12" cy="12" r="9" strokeDasharray="1.5 3.5" strokeLinecap="round" />
+            <path d="M12 7.5v4.5l3 2" strokeLinecap="round" />
+          </svg>
+        </div>
+      </div>
+
+      {/* Horizontal Divider */}
+      <div className="border-t border-slate-700/40 dark:border-slate-800 my-3" />
+
+      {/* 6 Stat Boxes */}
+      <div className="grid grid-cols-6 gap-2 sm:gap-2.5">
+        {statBoxes.map((box, idx) => (
+          <div
+            key={idx}
+            className="bg-slate-950/70 dark:bg-slate-950/80 border border-slate-800/90 rounded-xl py-2.5 px-2.5 sm:px-3 flex flex-col items-center justify-center text-center min-w-[48px] sm:min-w-[54px] shadow-inner"
+          >
+            <span className="text-xl sm:text-2xl font-black text-white font-mono leading-none tracking-tight">
+              {box.value}
+            </span>
+            <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1.5 leading-none">
+              {box.label}
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
