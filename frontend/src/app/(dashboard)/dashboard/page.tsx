@@ -895,7 +895,7 @@ export default function DashboardPage() {
             />
             
             <Link 
-              href="/dashboard/hall-of-fame"
+              href="/hall"
               className="md:col-span-3 lg:col-span-2 group relative overflow-hidden rounded-md p-6 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm hover:shadow-md dark:hover:bg-slate-700 transition-all duration-300 border border-slate-200 dark:border-slate-700/60"
             >
               <div className="absolute -bottom-10 -left-10 w-6 h-6 rounded-full scale-0 group-hover:scale-[35] transition-transform duration-700 ease-out bg-indigo-50 z-0 dark:hidden" />
