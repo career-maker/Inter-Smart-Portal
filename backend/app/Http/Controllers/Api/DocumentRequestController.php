@@ -6,8 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\DocumentRequest;
 use App\Models\DocumentUpload;
 use App\Models\User;
+use App\Mail\DocumentFulfilledMail;
 use App\Notifications\DocumentRequestNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class DocumentRequestController extends Controller
@@ -54,7 +57,9 @@ class DocumentRequestController extends Controller
                     $admin->notify(new DocumentRequestNotification($docRequest, $message));
                 }
             }
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+            Log::error("Failed to notify admins of document request: " . $e->getMessage());
+        }
 
         return response()->json([
             'message' => 'Document request submitted successfully.',
@@ -91,7 +96,7 @@ class DocumentRequestController extends Controller
             $documentUrl = $request->document_url;
         }
 
-        DocumentUpload::create([
+        $upload = DocumentUpload::create([
             'document_request_id' => $documentRequest->id,
             'file_path'           => $filePath,
             'document_url'        => $documentUrl,
@@ -100,6 +105,33 @@ class DocumentRequestController extends Controller
         ]);
 
         $documentRequest->update(['status' => 'Uploaded']);
+
+        $employee = $documentRequest->user;
+
+        // 1. Send in-app notification to employee
+        try {
+            if ($employee) {
+                $employee->notify(new DocumentRequestNotification(
+                    $documentRequest,
+                    "Your requested document for \"{$documentRequest->subject}\" ({$documentRequest->request_number}) is ready.",
+                    'Document Request Fulfilled',
+                    'document_fulfilled',
+                    '/documents'
+                ));
+            }
+        } catch (\Exception $e) {
+            Log::error("Failed to send in-app notification for document fulfillment: " . $e->getMessage());
+        }
+
+        // 2. Send email notification to employee
+        try {
+            if ($employee && $employee->email) {
+                Mail::to($employee->email)->send(new DocumentFulfilledMail($documentRequest, $upload, $employee));
+                Log::info("✅ Document fulfillment email sent to {$employee->email}");
+            }
+        } catch (\Exception $e) {
+            Log::error("Failed to send email for document fulfillment: " . $e->getMessage());
+        }
 
         return response()->json([
             'message' => 'Document fulfilled successfully.',

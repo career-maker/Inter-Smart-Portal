@@ -9,7 +9,10 @@ class DocumentRequestNotification extends Notification
 {
     public function __construct(
         public DocumentRequest $documentRequest,
-        public string $message
+        public string $message,
+        public string $title = 'New HR Document Request',
+        public string $event = 'document_requested',
+        public string $actionUrl = '/documents'
     ) {}
 
     public function via($notifiable): array
@@ -20,11 +23,11 @@ class DocumentRequestNotification extends Notification
     public function toDatabase($notifiable): array
     {
         return [
-            'title'               => 'New HR Document Request',
+            'title'               => $this->title,
             'message'             => $this->message,
-            'event'               => 'document_requested',
+            'event'               => $this->event,
             'document_request_id' => $this->documentRequest->id,
-            'action_url'          => '/documents',
+            'action_url'          => $this->actionUrl,
         ];
     }
 }
