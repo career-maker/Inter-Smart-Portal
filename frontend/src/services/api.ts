@@ -59,9 +59,19 @@ api.interceptors.response.use(
     }
 
     if (error.response?.status === 401) {
-      // Handle unauthorized access (e.g., redirect to login)
       if (typeof window !== 'undefined') {
-        window.location.href = '/login';
+        const currentPath = window.location.pathname;
+        const isAuthPage =
+          currentPath.startsWith('/login') ||
+          currentPath.startsWith('/forgot-password') ||
+          currentPath.startsWith('/reset-password');
+        const isLoginRequest = error.config?.url?.includes('/login');
+
+        // Never force-reload if we are already on an auth page or it is a login request
+        if (!isAuthPage && !isLoginRequest) {
+          localStorage.removeItem('token');
+          window.location.href = '/login';
+        }
       }
     }
     return Promise.reject(error);

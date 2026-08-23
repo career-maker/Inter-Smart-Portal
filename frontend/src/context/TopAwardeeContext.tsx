@@ -49,6 +49,10 @@ export function TopAwardeeProvider({ children }: { children: React.ReactNode }) 
   }, []);
 
   const fetchTopAwardee = async () => {
+    if (typeof window === "undefined") return;
+    const token = localStorage.getItem("token");
+    if (!token || window.location.pathname.startsWith("/login")) return;
+
     try {
       const res = await api.get("/recognitions/top-awardee");
       if (res.data?.top_awardee_id && Number(res.data?.total_awards) > 0) {
