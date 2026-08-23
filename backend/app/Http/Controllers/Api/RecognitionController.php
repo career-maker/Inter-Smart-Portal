@@ -150,51 +150,58 @@ class RecognitionController extends Controller
         }
 
         $recognitions = $query
-            ->with([
-                'user:id,first_name,last_name,designation,team_id,profile_photo_path,joining_date',
-                'user.team:id,name',
-            ])
+            ->with(['creator:id,first_name,last_name'])
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Group by user
-        $grouped = $recognitions->groupBy('user_id');
+        $recsByUser = $recognitions->groupBy('user_id');
 
-        $leaderboard = $grouped->map(function ($recs, $userId) use ($today) {
-            $firstRec = $recs->first();
-            $user = $firstRec ? $firstRec->user : null;
-            if (!$user) return null;
+        $users = User::where('status', 'Active')
+            ->with(['team:id,name'])
+            ->get();
 
-            $latestRec = $recs->sortByDesc('created_at')->first();
+        $leaderboard = $users->map(function ($user) use ($recsByUser, $today) {
+            $userRecs = $recsByUser->get($user->id, collect());
+            $latestRec = $userRecs->sortByDesc('created_at')->first();
 
-            $activeRec = $recs->first(function ($r) use ($today) {
-                return $r->start_date->toDateString() <= $today
-                    && $r->end_date->toDateString() >= $today;
+            $activeRec = $userRecs->first(function ($r) use ($today) {
+                $start = $r->start_date instanceof Carbon ? $r->start_date->toDateString() : (string)$r->start_date;
+                $end   = $r->end_date instanceof Carbon ? $r->end_date->toDateString() : (string)$r->end_date;
+                return $start <= $today && $end >= $today;
             });
 
+            $latestDate = null;
+            if ($latestRec && $latestRec->start_date) {
+                $latestDate = $latestRec->start_date instanceof Carbon 
+                    ? $latestRec->start_date->format('d M Y') 
+                    : Carbon::parse($latestRec->start_date)->format('d M Y');
+            }
+
             return [
-                'user_id'                  => $userId,
+                'user_id'                  => $user->id,
                 'name'                     => $user->first_name . ' ' . $user->last_name,
                 'first_name'               => $user->first_name,
                 'last_name'                => $user->last_name,
                 'designation'              => $user->designation ?? 'Employee',
                 'department'               => $user->team?->name ?? 'Unassigned',
                 'profile_photo_path'       => $user->profilePhotoUrl(),
-                'total_achievements'       => $recs->count(),
+                'total_achievements'       => $userRecs->count(),
                 'latest_achievement_title' => $latestRec?->title,
-                'latest_achievement_icon'  => $latestRec?->icon,
+                'latest_achievement_icon'  => $latestRec?->icon ?? '🏆',
+                'latest_achievement_date'  => $latestDate,
                 'active_achievement'       => $activeRec ? [
                     'title' => $activeRec->title,
-                    'icon'  => $activeRec->icon,
+                    'icon'  => $activeRec->icon ?? '🏆',
                 ] : null,
                 'joining_date'             => $user->joining_date,
             ];
-        })->filter()->values();
+        });
 
-        // Sort: most achievements first, then by joining date (earliest = more senior)
+        // Sort: most achievements first, then by joining date / name
         $leaderboard = $leaderboard->sortBy([
             ['total_achievements', 'desc'],
             ['joining_date', 'asc'],
+            ['name', 'asc'],
         ])->values();
 
         // Assign ranks
@@ -210,7 +217,7 @@ class RecognitionController extends Controller
             ->distinct('user_id')
             ->count('user_id');
 
-        $topEntry = $leaderboard->first();
+        $topEntry = $leaderboard->first(fn($item) => $item['total_achievements'] > 0) ?? $leaderboard->first();
 
         $mostAwardedRow = Recognition::selectRaw('title, icon, COUNT(*) as award_count')
             ->groupBy('title', 'icon')
@@ -220,11 +227,14 @@ class RecognitionController extends Controller
         return response()->json([
             'data'  => $leaderboard,
             'stats' => [
-                'total_issued'   => $totalIssued,
-                'active_holders' => $activeHolders,
-                'top_performer'  => $topEntry ? $topEntry['name'] : null,
+                'total_issued'              => $totalIssued,
+                'active_holders'            => $activeHolders,
+                'top_performer'             => $topEntry ? $topEntry['name'] : null,
                 'top_performer_designation' => $topEntry ? $topEntry['designation'] : null,
-                'most_awarded'   => $mostAwardedRow ? ($mostAwardedRow->icon . ' ' . $mostAwardedRow->title) : null,
+                'top_performer_department'  => $topEntry ? $topEntry['department'] : null,
+                'top_performer_photo'       => $topEntry ? $topEntry['profile_photo_path'] : null,
+                'top_performer_user_id'     => $topEntry ? $topEntry['user_id'] : null,
+                'most_awarded'              => $mostAwardedRow ? ($mostAwardedRow->icon . ' ' . $mostAwardedRow->title) : null,
             ],
         ]);
     }
