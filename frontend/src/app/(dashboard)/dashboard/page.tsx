@@ -1347,10 +1347,59 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           );
         })()}
 
-        <UpcomingBirthdaysWidget items={widgets.upcoming_birthdays} />
+        {/* Upcoming Birthdays Widget with Wishes */}
+        <UpcomingBirthdaysWithWishes items={widgets.upcoming_birthdays} />
 
         {/* Leaderboard Widget */}
         <LeaderboardWidget />
+
+        {/* Manage Employees Widget */}
+        <Link href="/employees" className="block h-full group">
+          <div className="premium-card p-6 h-full flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300">
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Users className="w-4 h-4 text-emerald-400" />
+                  Manage Employees
+                </h3>
+                <span className="text-xs font-semibold text-emerald-400 group-hover:underline flex items-center gap-1">
+                  Manage <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                View directory, create & edit employee profiles, and manage team allocations.
+              </p>
+            </div>
+            <div className="pt-4 mt-4 border-t border-slate-200 dark:border-white/10 flex items-center justify-between">
+              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Employee Directory</span>
+              <span className="text-xs font-bold text-emerald-400">Go to section →</span>
+            </div>
+          </div>
+        </Link>
+
+        {/* Attendance Management Widget */}
+        <Link href="/attendance/management" className="block h-full group">
+          <div className="premium-card p-6 h-full flex flex-col justify-between hover:border-blue-500/40 transition-all duration-300">
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-blue-400" />
+                  Attendance Management
+                </h3>
+                <span className="text-xs font-semibold text-blue-400 group-hover:underline flex items-center gap-1">
+                  Manage <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                Review daily attendance logs, biometric punches, check-in/out times & corrections.
+              </p>
+            </div>
+            <div className="pt-4 mt-4 border-t border-slate-200 dark:border-white/10 flex items-center justify-between">
+              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Live Attendance</span>
+              <span className="text-xs font-bold text-blue-400">Open Console →</span>
+            </div>
+          </div>
+        </Link>
       </div>
 
       {/* 12-Column Layout */}
