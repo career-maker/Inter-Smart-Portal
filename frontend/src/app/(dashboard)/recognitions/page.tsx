@@ -182,7 +182,7 @@ export default function RecognitionsPage() {
   if (loading) return <PageLoader />;
 
   return (
-    <div style={{ width: "min(96vw, 1800px)", margin: "0 auto" }} className="space-y-6">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>

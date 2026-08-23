@@ -271,17 +271,36 @@ class EmailService
                 return;
             }
 
+            $user->loadMissing('team');
+            $recognition->loadMissing('creator');
+
+            // Robust start/end date formatting
+            $startDate = $recognition->start_date;
+            if (is_string($startDate)) {
+                $startDate = \Carbon\Carbon::parse($startDate);
+            }
+            $startDateFormatted = $startDate ? $startDate->format('d M Y') : 'N/A';
+
+            $endDate = $recognition->end_date;
+            if (is_string($endDate)) {
+                $endDate = \Carbon\Carbon::parse($endDate);
+            }
+            $endDateFormatted = $endDate ? $endDate->format('d M Y') : 'N/A';
+
+            $creator = $recognition->creator;
+            $awardedBy = $creator ? "{$creator->first_name} {$creator->last_name}" : 'Management';
+
             $emailData = [
                 'employee_name' => "{$user->first_name} {$user->last_name}",
-                'employee_id' => $user->employee_code,
-                'department' => $user->team?->name ?? 'N/A',
-                'designation' => $user->designation ?? 'N/A',
-                'title' => $recognition->title,
-                'description' => $recognition->description,
-                'icon' => $recognition->icon ?? '⭐',
-                'start_date' => $recognition->start_date->format('d M Y'),
-                'end_date' => $recognition->end_date->format('d M Y'),
-                'awarded_by' => $recognition->creator ? "{$recognition->creator->first_name} {$recognition->creator->last_name}" : 'Management',
+                'employee_id'   => $user->employee_code ?? 'N/A',
+                'department'    => $user->team?->name ?? 'N/A',
+                'designation'   => $user->designation ?? 'N/A',
+                'title'         => $recognition->title,
+                'description'   => $recognition->description,
+                'icon'          => $recognition->icon ?? '⭐',
+                'start_date'    => $startDateFormatted,
+                'end_date'      => $endDateFormatted,
+                'awarded_by'    => $awardedBy,
             ];
 
             Log::info("📧 Recognition email data prepared for user: {$user->email}");
@@ -292,10 +311,10 @@ class EmailService
                 Mail::to($user->email)->send(new RecognitionMail($emailData));
                 
                 Log::info("✅ RECOGNITION EMAIL SENT to {$user->email}");
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 Log::error("❌ FAILED to send recognition email to {$user->email}: " . $e->getMessage());
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error("💥 CRITICAL RECOGNITION EMAIL SERVICE ERROR: " . $e->getMessage());
         }
     }

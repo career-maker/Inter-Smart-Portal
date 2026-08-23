@@ -46,24 +46,24 @@ class RecognitionController extends Controller
         $recognition->load(['user:id,first_name,last_name,employee_code,email,designation,team_id', 'user.team:id,name', 'creator:id,first_name,last_name']);
 
         try {
-            $employee = \App\Models\User::find($recognition->user_id);
+            $employee = $recognition->user ?? User::with('team')->find($recognition->user_id);
             if ($employee) {
-                $creatorName = Auth::user() ? (Auth::user()->first_name . ' ' . Auth::user()->last_name) : 'Management';
+                $creator = Auth::user() ?? $recognition->creator;
+                $creatorName = $creator ? ($creator->first_name . ' ' . $creator->last_name) : 'Management';
                 $message = "Congratulations! You have been awarded the \"{$recognition->title}\" achievement by {$creatorName}.";
                 $employee->notify(new \App\Notifications\RecognitionNotification($recognition, $message));
             }
-        } catch (\Exception $e) {
-            // Never let notification failure block saving
+        } catch (\Throwable $e) {
+            \Log::warning('Recognition in-app notification failed: ' . $e->getMessage());
         }
 
         // Send email notification (isolated, failures don't affect recognition creation)
         try {
-            $employee = \App\Models\User::find($recognition->user_id);
+            $employee = $recognition->user ?? User::with('team')->find($recognition->user_id);
             if ($employee) {
                 \App\Services\Email\EmailService::sendRecognitionEmail($employee, $recognition);
             }
-        } catch (\Exception $e) {
-            // Log but don't fail
+        } catch (\Throwable $e) {
             \Log::warning('Recognition email notification failed: ' . $e->getMessage());
         }
 
