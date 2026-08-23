@@ -93,6 +93,7 @@ export default function LoginPage() {
           return {
             title: "Sign in failed",
             description: err.message || "Please check your email and password.",
+            duration: 8000,
           };
         },
       });

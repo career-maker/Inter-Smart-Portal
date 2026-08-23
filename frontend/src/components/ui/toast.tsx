@@ -78,7 +78,8 @@ class ToastManager {
     this.toasts = this.toasts.map((t) => (t.id === id ? { ...t, ...updated } : t));
     this.notify();
 
-    const duration = typeof input === "object" && input.duration !== undefined ? input.duration : 4000;
+    const defaultDuration = (typeof input === "object" && input.type === "error") ? 8000 : 5000;
+    const duration = typeof input === "object" && input.duration !== undefined ? input.duration : defaultDuration;
     if (duration && duration !== Infinity) {
       setTimeout(() => {
         this.dismiss(id);

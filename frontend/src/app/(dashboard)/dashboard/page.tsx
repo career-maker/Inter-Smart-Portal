@@ -49,6 +49,8 @@ import { AchievementFlipCard } from "@/components/recognition/AchievementFlipCar
 import { LeaderboardWidget } from "@/components/dashboard/LeaderboardWidget";
 import { UpcomingBirthdaysWithWishes } from "@/components/dashboard/UpcomingBirthdaysWithWishes";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, AreaChart, Area } from "recharts";
+import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
+import { useTopAwardee } from "@/context/TopAwardeeContext";
 
 
 export default function DashboardPage() {
@@ -372,7 +374,7 @@ export default function DashboardPage() {
                         className={`px-3 py-1 text-xs font-semibold rounded-full border ${getPillClasses(member.status)}`}
                         title={member.status}
                       >
-                        {member.name}
+                        <RoyalName name={member.name} userId={member.id} showCrownIcon={false} />
                       </span>
                     );
                   })}
@@ -624,10 +626,11 @@ export default function DashboardPage() {
 
           {/* Left: Avatar, Greeting, Metadata */}
           <div className="flex items-start gap-4 lg:gap-6">
-            <PhotoAvatar
+            <RoyalAvatar
               src={profile.profile_photo_path}
               name={`${profile.first_name} ${profile.last_name}`}
-              className="w-14 h-14 lg:w-16 lg:h-16 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white text-lg lg:text-xl shrink-0 border border-slate-200 dark:border-slate-700"
+              userId={user?.id}
+              className="w-14 h-14 lg:w-16 lg:h-16 rounded-full text-slate-900 dark:text-white text-lg lg:text-xl shrink-0"
               textClass="text-slate-900 dark:text-white"
             />
 
@@ -642,7 +645,7 @@ export default function DashboardPage() {
               {/* User Name & Role/Designation */}
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-lg lg:text-xl font-bold text-slate-600 dark:text-slate-300">
-                  {profile.first_name}
+                  <RoyalName name={profile.first_name} userId={user?.id} />
                 </span>
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 dark:bg-blue-500/15 text-blue-700 dark:text-blue-300 text-xs font-bold uppercase tracking-wider rounded-lg border border-blue-200/50 dark:border-blue-500/30">
                   {profile.designation}
@@ -1078,10 +1081,11 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
 
           {/* Left: Avatar, Greeting, Metadata */}
           <div className="flex items-start gap-4 lg:gap-6">
-            <PhotoAvatar
+            <RoyalAvatar
               src={profile.profile_photo_path}
               name={`${profile.first_name} ${profile.last_name}`}
-              className="w-14 h-14 lg:w-16 lg:h-16 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white text-lg lg:text-xl shrink-0 border border-slate-200 dark:border-slate-700"
+              userId={user?.id}
+              className="w-14 h-14 lg:w-16 lg:h-16 rounded-full text-slate-900 dark:text-white text-lg lg:text-xl shrink-0"
               textClass="text-slate-900 dark:text-white"
             />
 
@@ -1096,7 +1100,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
               {/* Admin Name & Title */}
               <div className="flex items-center gap-2">
                 <span className="text-lg lg:text-xl font-bold text-slate-600 dark:text-slate-300">
-                  {profile.first_name}
+                  <RoyalName name={profile.first_name} userId={user?.id} />
                 </span>
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300 text-xs font-bold uppercase tracking-wider rounded-lg border border-amber-200/50 dark:border-amber-500/30">
                   <Crown className="w-3 h-3" />
