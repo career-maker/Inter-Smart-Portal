@@ -6,6 +6,7 @@ import api from "@/services/api";
 import { Trophy, Star, Award, TrendingUp, Crown, Info, X, Loader2 } from "lucide-react";
 import { AchievementFlipCard } from "@/components/recognition/AchievementFlipCard";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
+import { useTopAwardee } from "@/context/TopAwardeeContext";
 
 function LaurelLeft() {
   return (
@@ -100,7 +101,7 @@ function TopPerformerBox({
       {/* Name and Designation */}
       <div className="mt-2 min-w-0 w-full px-2">
         <h4 className="text-sm font-bold truncate leading-tight">
-          <RoyalName name={name} isTopAwardee={true} className="text-white" />
+          <RoyalName name={name} isTopAwardee={true} />
         </h4>
         <p className="text-xs text-slate-400 truncate mt-0.5">{roleText || "Employee"}</p>
       </div>
@@ -141,6 +142,7 @@ export default function RecognitionLeaderboardPage() {
   const [tab, setTab] = useState<"overall" | "week">("overall");
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const { setTopAwardeeFromLeaderboard } = useTopAwardee();
 
   // Employee Awards Modal State
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
@@ -154,6 +156,9 @@ export default function RecognitionLeaderboardPage() {
       try {
         const res = await api.get(`/recognitions/leaderboard?period=${tab}`);
         setData(res.data);
+        if (res.data) {
+          setTopAwardeeFromLeaderboard(res.data);
+        }
       } catch (err) {
         console.error("Failed to load leaderboard", err);
       } finally {
@@ -161,7 +166,7 @@ export default function RecognitionLeaderboardPage() {
       }
     };
     fetchLeaderboard();
-  }, [tab]);
+  }, [tab, setTopAwardeeFromLeaderboard]);
 
   const handleEmployeeClick = async (userId: number) => {
     setSelectedUserId(userId);
@@ -337,11 +342,16 @@ export default function RecognitionLeaderboardPage() {
                               src={entry.profile_photo_path}
                               name={entry.name}
                               userId={entry.user_id}
+                              isTopAwardee={isRank1 || undefined}
                               className="w-10 h-10 rounded-full"
                             />
                             <div>
                               <div className="font-bold text-sm leading-snug">
-                                <RoyalName name={entry.name} userId={entry.user_id} className="text-white" />
+                                <RoyalName
+                                  name={entry.name}
+                                  userId={entry.user_id}
+                                  isTopAwardee={isRank1 || undefined}
+                                />
                               </div>
                               {entry.latest_achievement_title && (
                                 <div className="text-xs text-amber-400 font-semibold flex items-center gap-1 mt-0.5">
@@ -422,7 +432,10 @@ export default function RecognitionLeaderboardPage() {
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
                     <h3 className="text-xl font-bold truncate">
-                      <RoyalName name={employeeDetails?.name || "Employee Awards"} userId={employeeDetails?.id} className="text-white" />
+                      <RoyalName
+                        name={employeeDetails?.name || "Employee Awards"}
+                        userId={employeeDetails?.id}
+                      />
                     </h3>
                     <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-bold flex items-center gap-1">
                       <Star className="w-3 h-3 fill-amber-400" />

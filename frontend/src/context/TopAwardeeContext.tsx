@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
 import api from "@/services/api";
 
 interface TopAwardeeContextType {
@@ -9,6 +9,7 @@ interface TopAwardeeContextType {
   totalAwards: number;
   topAwardee: any | null;
   isTopAwardee: (userOrId?: number | string | { id?: number; user_id?: number; employee_code?: string } | null) => boolean;
+  setTopAwardeeFromLeaderboard: (leaderboardData: { top_performer_user_id?: number | null; data?: any[] }) => void;
   refreshTopAwardee: () => Promise<void>;
 }
 
@@ -18,6 +19,7 @@ const TopAwardeeContext = createContext<TopAwardeeContextType>({
   totalAwards: 0,
   topAwardee: null,
   isTopAwardee: () => false,
+  setTopAwardeeFromLeaderboard: () => {},
   refreshTopAwardee: async () => {},
 });
 
@@ -27,28 +29,52 @@ export function TopAwardeeProvider({ children }: { children: React.ReactNode }) 
   const [totalAwards, setTotalAwards] = useState<number>(0);
   const [topAwardee, setTopAwardee] = useState<any | null>(null);
 
+  const setTopAwardeeFromLeaderboard = useCallback((lbData: { top_performer_user_id?: number | null; data?: any[] }) => {
+    if (lbData?.top_performer_user_id) {
+      const topUserId = Number(lbData.top_performer_user_id);
+      const topEntry = lbData.data?.find((d: any) => Number(d.user_id) === topUserId || d.rank === 1);
+      if (topEntry && Number(topEntry.total_achievements) > 0) {
+        setTopAwardeeId(Number(topEntry.user_id));
+        setTotalAwards(Number(topEntry.total_achievements));
+        setTopAwardee(topEntry);
+        return;
+      }
+    }
+    const rank1 = lbData?.data?.find((d: any) => d.rank === 1 && Number(d.total_achievements) > 0);
+    if (rank1) {
+      setTopAwardeeId(Number(rank1.user_id));
+      setTotalAwards(Number(rank1.total_achievements));
+      setTopAwardee(rank1);
+    }
+  }, []);
+
   const fetchTopAwardee = async () => {
     try {
       const res = await api.get("/recognitions/top-awardee");
-      if (res.data?.top_awardee_id && res.data?.total_awards > 0) {
-        setTopAwardeeId(res.data.top_awardee_id);
+      if (res.data?.top_awardee_id && Number(res.data?.total_awards) > 0) {
+        setTopAwardeeId(Number(res.data.top_awardee_id));
         setTopAwardeeCode(res.data.employee?.employee_code || null);
-        setTotalAwards(res.data.total_awards);
+        setTotalAwards(Number(res.data.total_awards));
         setTopAwardee(res.data.employee);
-      } else {
-        setTopAwardeeId(null);
-        setTopAwardeeCode(null);
-        setTotalAwards(0);
-        setTopAwardee(null);
+        return;
       }
     } catch {
-      // Ignore if unauthenticated or error
+      // Fallback to /recognitions/leaderboard
+    }
+
+    try {
+      const lbRes = await api.get("/recognitions/leaderboard?period=overall");
+      if (lbRes.data) {
+        setTopAwardeeFromLeaderboard(lbRes.data);
+      }
+    } catch {
+      // Ignore
     }
   };
 
   useEffect(() => {
     fetchTopAwardee();
-  }, []);
+  }, [fetchTopAwardee]);
 
   const isTopAwardee = (
     userOrId?: number | string | { id?: number; user_id?: number; employee_code?: string } | null
@@ -56,19 +82,18 @@ export function TopAwardeeProvider({ children }: { children: React.ReactNode }) 
     if (!topAwardeeId || totalAwards <= 0 || !userOrId) return false;
 
     if (typeof userOrId === "number") {
-      return userOrId === topAwardeeId;
+      return Number(userOrId) === Number(topAwardeeId);
     }
 
     if (typeof userOrId === "string") {
-      // Check if matches ID string or employee_code
-      if (userOrId === String(topAwardeeId)) return true;
+      if (userOrId === String(topAwardeeId) || Number(userOrId) === Number(topAwardeeId)) return true;
       if (topAwardeeCode && userOrId.toLowerCase() === topAwardeeCode.toLowerCase()) return true;
       return false;
     }
 
     if (typeof userOrId === "object") {
-      if (userOrId.id && userOrId.id === topAwardeeId) return true;
-      if (userOrId.user_id && userOrId.user_id === topAwardeeId) return true;
+      if (userOrId.id && Number(userOrId.id) === Number(topAwardeeId)) return true;
+      if (userOrId.user_id && Number(userOrId.user_id) === Number(topAwardeeId)) return true;
       if (topAwardeeCode && userOrId.employee_code && userOrId.employee_code.toLowerCase() === topAwardeeCode.toLowerCase()) {
         return true;
       }
@@ -85,6 +110,7 @@ export function TopAwardeeProvider({ children }: { children: React.ReactNode }) 
         totalAwards,
         topAwardee,
         isTopAwardee,
+        setTopAwardeeFromLeaderboard,
         refreshTopAwardee: fetchTopAwardee,
       }}
     >
