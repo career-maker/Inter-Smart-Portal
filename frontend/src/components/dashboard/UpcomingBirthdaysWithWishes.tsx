@@ -8,6 +8,7 @@ import api from "@/services/api";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuthStore } from "@/store/auth";
 import { WishButton } from "@/components/ui/WishButton";
+import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 
 interface UpcomingBirthdaysProps {
   items: any[];
@@ -112,12 +113,12 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
         <div className="flex flex-col items-center justify-center gap-2.5 flex-1">
           {/* Avatar centered */}
           <div className="group relative shrink-0">
-            <Avatar className="h-12 w-12 cursor-help">
-              <AvatarImage src={person.profile_photo_path} />
-              <AvatarFallback>
-                {typeof person.name === 'string' ? person.name?.[0] : '?'}
-              </AvatarFallback>
-            </Avatar>
+            <RoyalAvatar
+              src={person.profile_photo_path}
+              name={typeof person.name === 'string' ? person.name : 'Unknown'}
+              userId={person.id}
+              className="h-12 w-12 rounded-full cursor-help"
+            />
             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 shadow-lg font-medium">
               {typeof person.name === 'string' ? person.name : 'Unknown'}
             </div>
@@ -125,8 +126,12 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
 
           {/* Name pill below avatar */}
           <div className="bg-slate-50 dark:bg-slate-900 px-3 py-1 rounded-full text-center">
-            <p className="font-semibold text-slate-900 dark:text-white text-xs line-clamp-1">
-              {typeof person.name === 'string' ? person.name : 'Unknown'}
+            <p className="font-semibold text-xs line-clamp-1">
+              <RoyalName
+                name={typeof person.name === 'string' ? person.name : 'Unknown'}
+                userId={person.id}
+                className="text-slate-900 dark:text-white"
+              />
             </p>
           </div>
 

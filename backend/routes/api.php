@@ -383,8 +383,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Recognitions
     Route::get('active-recognitions', [\App\Http\Controllers\Api\RecognitionController::class, 'activeRecognitions']);
-    // Leaderboard — accessible by all authenticated users
+    // Leaderboard & Top Awardee — accessible by all authenticated users
     Route::get('recognitions/leaderboard', [\App\Http\Controllers\Api\RecognitionController::class, 'leaderboard']);
+    Route::get('recognitions/top-awardee', [\App\Http\Controllers\Api\RecognitionController::class, 'topAwardee']);
     Route::get('recognitions/employee/{userId}', [\App\Http\Controllers\Api\RecognitionController::class, 'employeeRecognitions']);
     Route::middleware(['role:Super Admin'])->prefix('recognitions')->group(function () {
         Route::get('/', [\App\Http\Controllers\Api\RecognitionController::class, 'index']);

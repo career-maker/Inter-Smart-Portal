@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Building2, Users, ChevronDown, ChevronRight } from "lucide-react";
 import api from "@/services/api";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 
 interface Team {
   id: number;
@@ -99,18 +100,19 @@ export function TeamHierarchyChart() {
                     {/* Team Lead */}
                     {team.team_lead ? (
                       <div className="flex items-center gap-2 mb-2">
-                        <Avatar className="h-6 w-6 border border-amber-400/30">
-                          <AvatarImage
-                            src={team.team_lead.profile_photo_path}
-                            alt={team.team_lead.first_name}
-                          />
-                          <AvatarFallback className="text-xs">
-                            {team.team_lead.first_name?.charAt(0)}
-                          </AvatarFallback>
-                        </Avatar>
+                        <RoyalAvatar
+                          src={team.team_lead.profile_photo_path}
+                          name={`${team.team_lead.first_name} ${team.team_lead.last_name}`}
+                          userId={team.team_lead.id}
+                          className="h-6 w-6 rounded-full"
+                        />
                         <div className="min-w-0">
-                          <p className="text-sm font-medium text-slate-900 dark:text-white">
-                            {team.team_lead.first_name} {team.team_lead.last_name}
+                          <p className="text-sm font-medium">
+                            <RoyalName
+                              name={`${team.team_lead.first_name} ${team.team_lead.last_name}`}
+                              userId={team.team_lead.id}
+                              className="text-slate-900 dark:text-white"
+                            />
                           </p>
                           <p className="text-xs text-slate-500 dark:text-slate-400">
                             {team.team_lead.designation || "Team Lead"}
@@ -165,21 +167,22 @@ export function TeamHierarchyChart() {
                           </div>
                         )}
                         {index !== 0 && (
-                          <Avatar className="h-8 w-8">
-                            <AvatarImage
-                              src={member.profile_photo_path}
-                              alt={member.first_name}
-                            />
-                            <AvatarFallback className="text-xs">
-                              {member.first_name?.charAt(0)}
-                            </AvatarFallback>
-                          </Avatar>
+                          <RoyalAvatar
+                            src={member.profile_photo_path}
+                            name={`${member.first_name} ${member.last_name}`}
+                            userId={member.id}
+                            className="h-8 w-8 rounded-full"
+                          />
                         )}
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-slate-900 dark:text-white">
-                          {member.first_name} {member.last_name}
+                        <p className="text-sm font-medium">
+                          <RoyalName
+                            name={`${member.first_name} ${member.last_name}`}
+                            userId={member.id}
+                            className="text-slate-900 dark:text-white"
+                          />
                         </p>
                         <p className="text-xs text-slate-500 dark:text-slate-400">
                           {member.designation || "Employee"}

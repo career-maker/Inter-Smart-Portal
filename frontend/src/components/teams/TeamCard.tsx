@@ -14,6 +14,7 @@ import {
   Clock,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -153,18 +154,19 @@ export function TeamCard({
             Team Lead
           </p>
           <div className="flex items-center gap-3">
-            <Avatar className="h-10 w-10 border-2 border-amber-400/30">
-              <AvatarImage
-                src={team.team_lead.profile_photo_path}
-                alt={team.team_lead.first_name}
-              />
-              <AvatarFallback>
-                {team.team_lead.first_name?.charAt(0)}
-              </AvatarFallback>
-            </Avatar>
+            <RoyalAvatar
+              src={team.team_lead.profile_photo_path}
+              name={`${team.team_lead.first_name} ${team.team_lead.last_name}`}
+              userId={team.team_lead.id}
+              className="h-10 w-10 rounded-full"
+            />
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                {team.team_lead.first_name} {team.team_lead.last_name}
+              <p className="text-sm font-semibold">
+                <RoyalName
+                  name={`${team.team_lead.first_name} ${team.team_lead.last_name}`}
+                  userId={team.team_lead.id}
+                  className="text-gray-900 dark:text-white"
+                />
               </p>
               <p className="text-xs text-gray-500 dark:text-slate-400">
                 {team.team_lead.designation || "Team Lead"}
@@ -182,19 +184,13 @@ export function TeamCard({
           </p>
           <div className="flex items-center gap-2">
             {displayMembers.map((member, index) => (
-              <Avatar
+              <RoyalAvatar
                 key={member.id}
-                className="h-8 w-8 border-2 border-white dark:border-slate-700"
-                title={`${member.first_name} ${member.last_name}`}
-              >
-                <AvatarImage
-                  src={member.profile_photo_path}
-                  alt={member.first_name}
-                />
-                <AvatarFallback className="text-xs bg-slate-200 dark:bg-slate-600">
-                  {member.first_name?.charAt(0)}
-                </AvatarFallback>
-              </Avatar>
+                src={member.profile_photo_path}
+                name={`${member.first_name} ${member.last_name}`}
+                userId={member.id}
+                className="h-8 w-8 rounded-full"
+              />
             ))}
             {(team.members_count || 0) > 4 && (
               <div className="h-8 w-8 rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center text-xs font-bold text-slate-700 dark:text-slate-200 border-2 border-white dark:border-slate-700">

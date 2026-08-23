@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Trophy, Medal, Crown } from "lucide-react";
 import api from "@/services/api";
+import { RoyalName } from "@/components/ui/RoyalAvatar";
 
 const RANK_STYLES = [
   { bg: "from-amber-500/20 to-yellow-500/10", border: "border-amber-500/40", text: "text-amber-300", icon: "🥇" },
@@ -58,8 +59,8 @@ export function LeaderboardWidget() {
                   {rankStyle.icon}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight truncate">
-                    {entry.name}
+                  <p className="text-sm font-bold leading-tight truncate">
+                    <RoyalName name={entry.name} userId={entry.user_id} className="text-slate-900 dark:text-white" />
                   </p>
                   <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate uppercase tracking-wider">
                     {entry.total_achievements} Award{entry.total_achievements !== 1 ? 's' : ''}

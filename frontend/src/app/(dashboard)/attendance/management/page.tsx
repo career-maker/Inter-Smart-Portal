@@ -22,6 +22,7 @@ import { PageLoader } from "@/components/ui/PageLoader";
 import { useAuthStore } from "@/store/auth";
 import { BiometricPunchTimeline } from "@/components/attendance/BiometricPunchTimeline";
 import { DailySummaryCard, AdminLeaveWfhModal } from "@/components/attendance";
+import { RoyalName } from "@/components/ui/RoyalAvatar";
 
 type ViewMode = "selector" | "dateWise" | "dateAllEmployees";
 
@@ -572,7 +573,9 @@ export default function AttendanceManagementPage() {
                         const attendance = emp.attendance || {};
                         return (
                           <tr key={emp.id} className={`border-b border-slate-200 dark:border-white/5 transition-colors ${idx % 2 === 0 ? "bg-slate-50/50 dark:bg-slate-800/20" : ""} hover:bg-slate-100 dark:hover:bg-white/10`}>
-                            <td className="py-3 px-4 text-slate-900 dark:text-white font-medium">{emp.first_name} {emp.last_name}</td>
+                            <td className="py-3 px-4 font-medium">
+                              <RoyalName name={`${emp.first_name} ${emp.last_name}`} userId={emp.id} employeeCode={emp.employee_code} className="text-slate-900 dark:text-white" />
+                            </td>
                             <td className="py-3 px-4 text-slate-600 dark:text-slate-300 font-mono text-xs">{emp.employee_code}</td>
                             <td className="py-3 px-4 text-slate-600 dark:text-slate-300">{emp.designation || "N/A"}</td>
                             <td className="py-3 px-4 text-slate-600 dark:text-slate-300">{emp.team?.name || "Unassigned"}</td>

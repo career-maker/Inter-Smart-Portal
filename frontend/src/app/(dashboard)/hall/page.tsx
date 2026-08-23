@@ -13,6 +13,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 
 export default function HallPage() {
   const router = useRouter();
@@ -199,7 +200,21 @@ export default function HallPage() {
                 filteredEmployees.map((emp: any) => (
                   <tr key={emp.id} className="hover:bg-gray-50/50 dark:hover:bg-slate-800/50 transition-colors">
                     <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">
-                      {emp.first_name} {emp.last_name}
+                      <div className="flex items-center gap-3">
+                        <RoyalAvatar
+                          src={emp.profile_photo_path}
+                          name={`${emp.first_name} ${emp.last_name}`}
+                          userId={emp.id}
+                          employeeCode={emp.employee_code}
+                          className="w-8 h-8 rounded-full"
+                        />
+                        <RoyalName
+                          name={`${emp.first_name} ${emp.last_name}`}
+                          userId={emp.id}
+                          employeeCode={emp.employee_code}
+                          className="text-gray-900 dark:text-white"
+                        />
+                      </div>
                     </td>
                     <td className="px-6 py-4 text-gray-500 dark:text-slate-400">
                       {emp.employee_code}

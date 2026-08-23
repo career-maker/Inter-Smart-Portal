@@ -13,12 +13,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuGroup,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function EmployeesPage() {
@@ -137,12 +138,20 @@ export default function EmployeesPage() {
                     <tr key={emp.id} className="border-b border-slate-200 dark:border-white/5 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-3">
-                          <Avatar className="h-9 w-9 bg-slate-700 border border-slate-200 dark:border-white/10">
-                            <AvatarImage src={emp.profile_photo_path} alt={emp.first_name} />
-                            <AvatarFallback className="bg-slate-700 text-slate-900 dark:text-white text-xs font-semibold">{emp.first_name.charAt(0)}{emp.last_name?.charAt(0)}</AvatarFallback>
-                          </Avatar>
+                          <RoyalAvatar
+                            src={emp.profile_photo_path}
+                            name={`${emp.first_name} ${emp.last_name}`}
+                            userId={emp.id}
+                            employeeCode={emp.employee_code}
+                            className="h-9 w-9 rounded-full"
+                          />
                           <div className="flex flex-col">
-                            <span className="font-medium text-slate-900 dark:text-white">{emp.first_name} {emp.last_name}</span>
+                            <RoyalName
+                              name={`${emp.first_name} ${emp.last_name}`}
+                              userId={emp.id}
+                              employeeCode={emp.employee_code}
+                              className="font-medium text-slate-900 dark:text-white"
+                            />
                             <span className="text-xs text-slate-500 dark:text-slate-400">{emp.email}</span>
                           </div>
                         </div>

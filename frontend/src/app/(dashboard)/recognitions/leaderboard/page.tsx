@@ -5,6 +5,7 @@ import { PageLoader } from "@/components/ui/PageLoader";
 import api from "@/services/api";
 import { Trophy, Star, Award, TrendingUp, Crown, Info, X, Loader2 } from "lucide-react";
 import { AchievementFlipCard } from "@/components/recognition/AchievementFlipCard";
+import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 
 function LaurelLeft() {
   return (
@@ -27,23 +28,6 @@ function LaurelRight() {
       <path d="M14 23C10 23 6 26 9 30C11 33 15 28 14 23Z" fill="currentColor"/>
       <path d="M9 32C5 33 2 37 6 41C9 43 12 37 9 32Z" fill="currentColor"/>
     </svg>
-  );
-}
-
-function PhotoAvatar({ src, name, className = "" }: { src?: string | null; name: string; className?: string }) {
-  const initials = name.split(" ").filter(Boolean).map((n) => n[0]).join("").substring(0, 2).toUpperCase();
-  return (
-    <div className={`relative overflow-hidden flex items-center justify-center font-bold text-slate-300 bg-slate-800 shrink-0 ${className}`}>
-      <span>{initials}</span>
-      {src && (
-        <img
-          src={src}
-          alt={name}
-          className="absolute inset-0 w-full h-full object-cover"
-          onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
-        />
-      )}
-    </div>
   );
 }
 
@@ -103,9 +87,10 @@ function TopPerformerBox({
       <div className="flex items-center justify-center gap-1 my-1">
         <LaurelLeft />
         <div className="relative">
-          <PhotoAvatar
+          <RoyalAvatar
             src={photo}
             name={name}
+            isTopAwardee={true}
             className="w-14 h-14 rounded-full ring-2 ring-violet-400/40 shadow-md"
           />
         </div>
@@ -114,7 +99,9 @@ function TopPerformerBox({
 
       {/* Name and Designation */}
       <div className="mt-2 min-w-0 w-full px-2">
-        <h4 className="text-sm font-bold text-white truncate leading-tight">{name}</h4>
+        <h4 className="text-sm font-bold truncate leading-tight">
+          <RoyalName name={name} isTopAwardee={true} className="text-white" />
+        </h4>
         <p className="text-xs text-slate-400 truncate mt-0.5">{roleText || "Employee"}</p>
       </div>
     </div>
@@ -346,14 +333,15 @@ export default function RecognitionLeaderboardPage() {
                         {/* Employee */}
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <PhotoAvatar
+                            <RoyalAvatar
                               src={entry.profile_photo_path}
                               name={entry.name}
+                              userId={entry.user_id}
                               className="w-10 h-10 rounded-full"
                             />
                             <div>
-                              <div className="font-bold text-white text-sm leading-snug">
-                                {entry.name}
+                              <div className="font-bold text-sm leading-snug">
+                                <RoyalName name={entry.name} userId={entry.user_id} className="text-white" />
                               </div>
                               {entry.latest_achievement_title && (
                                 <div className="text-xs text-amber-400 font-semibold flex items-center gap-1 mt-0.5">
@@ -425,15 +413,16 @@ export default function RecognitionLeaderboardPage() {
             {/* Modal Header */}
             <div className="p-6 border-b border-white/10 bg-slate-950/60 flex items-center justify-between gap-4">
               <div className="flex items-center gap-4 min-w-0">
-                <PhotoAvatar
+                <RoyalAvatar
                   src={employeeDetails?.profile_photo_path}
                   name={employeeDetails?.name || "Employee"}
-                  className="w-14 h-14 rounded-2xl ring-2 ring-amber-400/40 text-lg shadow-md"
+                  userId={employeeDetails?.id}
+                  className="w-14 h-14 rounded-2xl text-lg shadow-md"
                 />
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <h3 className="text-xl font-bold text-white truncate">
-                      {employeeDetails?.name || "Employee Awards"}
+                    <h3 className="text-xl font-bold truncate">
+                      <RoyalName name={employeeDetails?.name || "Employee Awards"} userId={employeeDetails?.id} className="text-white" />
                     </h3>
                     <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-bold flex items-center gap-1">
                       <Star className="w-3 h-3 fill-amber-400" />

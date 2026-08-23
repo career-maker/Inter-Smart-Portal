@@ -12,6 +12,7 @@ import { UserCircle, ShieldAlert, Award, Eye, Download, CheckCircle2, Clock } fr
 import { format } from "date-fns";
 import { CertificateModal } from "@/components/recognition/CertificateModal";
 import { FavoriteButton } from "@/components/layout/FavoriteButton";
+import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 
 export default function MyProfilePage() {
   const { user } = useAuthStore();
@@ -136,18 +137,21 @@ export default function MyProfilePage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex justify-center mb-4">
-              <img
-                src={
-                  profileUser.profile_photo_path ||
-                  `https://ui-avatars.com/api/?name=${profileUser.first_name}`
-                }
-                alt="Profile"
-                className="w-32 h-32 rounded-full object-cover border-4 border-amber-400/30"
+              <RoyalAvatar
+                src={profileUser.profile_photo_path}
+                name={`${profileUser.first_name} ${profileUser.last_name}`}
+                userId={profileUser.id}
+                className="w-32 h-32 rounded-full text-3xl"
               />
             </div>
             <div>
               <Label className="text-muted-foreground">Full Name</Label>
-              <div className="font-medium text-slate-900 dark:text-white">{profileUser.first_name} {profileUser.last_name}</div>
+              <div className="font-medium text-slate-900 dark:text-white">
+                <RoyalName
+                  name={`${profileUser.first_name} ${profileUser.last_name}`}
+                  userId={profileUser.id}
+                />
+              </div>
             </div>
             <div>
               <Label className="text-muted-foreground">Employee ID</Label>

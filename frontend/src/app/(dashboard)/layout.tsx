@@ -16,6 +16,7 @@ import { FavoritesNav } from "@/components/layout/FavoritesNav";
 import api from "@/services/api";
 import Script from "next/script";
 import ChatbaseLottieButton from "@/components/ChatbaseLottieButton";
+import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 
 type NavItem = {
   href: string;
@@ -374,12 +375,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {!isSidebarCollapsed && (
           <div className="p-4 border-t border-slate-800 shrink-0">
              <Link href="/profile" className="flex items-center gap-3 hover:bg-slate-800 p-2 rounded-xl transition-colors cursor-pointer">
-              <div className="w-9 h-9 rounded-full bg-amber-400 overflow-hidden flex items-center justify-center text-sm font-bold text-white relative shrink-0">
-                <span>{user?.first_name?.[0]}{user?.last_name?.[0]}</span>
-                {user?.profile_photo_path && <img src={user.profile_photo_path} alt="" className="absolute inset-0 w-full h-full object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />}
-              </div>
+              <RoyalAvatar
+                src={user?.profile_photo_path}
+                name={`${user?.first_name} ${user?.last_name}`}
+                userId={user?.id}
+                className="w-9 h-9 rounded-full bg-amber-400 text-sm font-bold text-white"
+              />
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-white truncate">{user?.first_name} {user?.last_name}</p>
+                <RoyalName
+                  name={`${user?.first_name} ${user?.last_name}`}
+                  userId={user?.id}
+                  className="text-sm font-semibold text-white truncate"
+                />
                 <p className="text-xs text-slate-400 truncate">{user?.role}</p>
               </div>
             </Link>
@@ -439,12 +446,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="fixed inset-0 top-16 bg-black/40 z-[998]" onClick={closeMenu} />
             <div role="navigation" className="fixed top-16 bottom-0 left-0 w-72 bg-slate-900 border-r border-slate-800 shadow-2xl z-[9999] overflow-y-auto py-4">
               <Link href="/profile" onClick={closeMenu} className="px-4 py-4 mb-2 border-b border-slate-800 flex items-center gap-3 transition-colors cursor-pointer">
-                <div className="w-10 h-10 rounded-full bg-amber-400 overflow-hidden flex items-center justify-center text-sm font-bold text-white relative shrink-0">
-                  <span>{user?.first_name?.[0]}{user?.last_name?.[0]}</span>
-                  {user?.profile_photo_path && <img src={user.profile_photo_path} alt="" className="absolute inset-0 w-full h-full object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />}
-                </div>
+                <RoyalAvatar
+                  src={user?.profile_photo_path}
+                  name={`${user?.first_name} ${user?.last_name}`}
+                  userId={user?.id}
+                  className="w-10 h-10 rounded-full bg-amber-400 text-sm font-bold text-white"
+                />
                 <div>
-                  <p className="text-sm font-semibold text-white">{user?.first_name} {user?.last_name}</p>
+                  <RoyalName
+                    name={`${user?.first_name} ${user?.last_name}`}
+                    userId={user?.id}
+                    className="text-sm font-semibold text-white truncate"
+                  />
                   <p className="text-xs text-slate-400">{user?.role}</p>
                 </div>
               </Link>

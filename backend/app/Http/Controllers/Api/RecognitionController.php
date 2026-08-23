@@ -268,4 +268,48 @@ class RecognitionController extends Controller
             ],
         ]);
     }
+
+    /**
+     * Get the current lifetime top awardee (employee with highest awards count).
+     */
+    public function topAwardee()
+    {
+        $top = Recognition::selectRaw('user_id, count(*) as award_count')
+            ->groupBy('user_id')
+            ->orderByDesc('award_count')
+            ->first();
+
+        if (!$top || $top->award_count <= 0) {
+            return response()->json([
+                'top_awardee_id' => null,
+                'total_awards'   => 0,
+                'employee'       => null,
+            ]);
+        }
+
+        $user = User::with('team:id,name')->find($top->user_id);
+
+        if (!$user) {
+            return response()->json([
+                'top_awardee_id' => null,
+                'total_awards'   => 0,
+                'employee'       => null,
+            ]);
+        }
+
+        return response()->json([
+            'top_awardee_id' => (int)$user->id,
+            'total_awards'   => (int)$top->award_count,
+            'employee'       => [
+                'id'                 => $user->id,
+                'employee_code'      => $user->employee_code,
+                'name'               => $user->first_name . ' ' . $user->last_name,
+                'first_name'         => $user->first_name,
+                'last_name'          => $user->last_name,
+                'designation'        => $user->designation ?? 'Employee',
+                'department'         => $user->team?->name ?? 'Unassigned',
+                'profile_photo_path' => $user->profilePhotoUrl(),
+            ],
+        ]);
+    }
 }
