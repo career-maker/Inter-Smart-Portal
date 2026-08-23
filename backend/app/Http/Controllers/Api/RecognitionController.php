@@ -162,6 +162,10 @@ class RecognitionController extends Controller
 
         $leaderboard = $users->map(function ($user) use ($recsByUser, $today) {
             $userRecs = $recsByUser->get($user->id, collect());
+            if ($userRecs->isEmpty()) {
+                return null;
+            }
+
             $latestRec = $userRecs->sortByDesc('created_at')->first();
 
             $activeRec = $userRecs->first(function ($r) use ($today) {
@@ -195,7 +199,7 @@ class RecognitionController extends Controller
                 ] : null,
                 'joining_date'             => $user->joining_date,
             ];
-        });
+        })->filter()->values();
 
         // Sort: most achievements first, then by joining date / name
         $leaderboard = $leaderboard->sortBy([

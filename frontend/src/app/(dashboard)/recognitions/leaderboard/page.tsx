@@ -269,103 +269,123 @@ export default function RecognitionLeaderboardPage() {
           </span>
         </div>
 
-        {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left border-collapse">
-            <thead>
-              <tr className="border-b border-white/10 bg-white/[0.02] text-xs uppercase font-semibold text-slate-400 tracking-wider">
-                <th className="px-6 py-4 w-24">RANK</th>
-                <th className="px-6 py-4">EMPLOYEE</th>
-                <th className="px-6 py-4">DESIGNATION</th>
-                <th className="px-6 py-4">DEPARTMENT</th>
-                <th className="px-6 py-4 text-center">TOTAL AWARDS</th>
-                <th className="px-6 py-4">LATEST AWARD</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {data?.data?.map((entry: any) => {
-                const isRank1 = entry.rank === 1 && entry.total_achievements > 0;
+        {/* Table / Empty State */}
+        {(() => {
+          const awardedEntries = data?.data?.filter((e: any) => e.total_achievements > 0) || [];
 
-                return (
-                  <tr
-                    key={entry.user_id}
-                    onClick={() => handleEmployeeClick(entry.user_id)}
-                    className={`cursor-pointer transition-colors duration-150 ${
-                      isRank1
-                        ? "bg-amber-500/10 hover:bg-amber-500/15"
-                        : "hover:bg-white/[0.04]"
-                    }`}
-                  >
-                    {/* Rank */}
-                    <td className="px-6 py-4">
-                      <RankMedal rank={entry.rank} />
-                    </td>
+          if (awardedEntries.length === 0) {
+            return (
+              <div className="text-center py-16 px-4">
+                <Trophy className="w-12 h-12 text-amber-400/40 mx-auto mb-3" />
+                <p className="text-white font-bold text-base">No achievements recorded yet</p>
+                <p className="text-slate-400 text-sm mt-1">
+                  {tab === "week"
+                    ? "No awards have been issued for this week."
+                    : "Start by assigning recognitions to employees from the recognitions management page."}
+                </p>
+              </div>
+            );
+          }
 
-                    {/* Employee */}
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <PhotoAvatar
-                          src={entry.profile_photo_path}
-                          name={entry.name}
-                          className="w-10 h-10 rounded-full"
-                        />
-                        <div>
-                          <div className="font-bold text-white text-sm leading-snug">
-                            {entry.name}
-                          </div>
-                          {entry.latest_achievement_title && (
-                            <div className="text-xs text-amber-400 font-semibold flex items-center gap-1 mt-0.5">
-                              <span>{entry.latest_achievement_icon || "🏆"}</span>
-                              <span>{entry.latest_achievement_title}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-
-                    {/* Designation */}
-                    <td className="px-6 py-4 text-slate-300 font-medium text-sm">
-                      {entry.designation || "—"}
-                    </td>
-
-                    {/* Department */}
-                    <td className="px-6 py-4 text-slate-400 font-medium text-sm">
-                      {entry.department || "—"}
-                    </td>
-
-                    {/* Total Awards */}
-                    <td className="px-6 py-4 text-center">
-                      <div className="inline-flex items-center gap-1.5 font-bold text-amber-300 text-sm">
-                        <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                        <span>{entry.total_achievements}</span>
-                      </div>
-                    </td>
-
-                    {/* Latest Award */}
-                    <td className="px-6 py-4">
-                      {entry.latest_achievement_title ? (
-                        <div>
-                          <div className="text-amber-300 font-semibold text-sm flex items-center gap-1.5">
-                            <span>{entry.latest_achievement_icon || "🏆"}</span>
-                            <span>{entry.latest_achievement_title}</span>
-                          </div>
-                          {entry.latest_achievement_date && (
-                            <div className="text-xs text-slate-400 mt-0.5 flex items-center gap-1">
-                              <span>🏆</span>
-                              <span>{entry.latest_achievement_date}</span>
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <span className="text-xs text-slate-500 italic">No awards yet</span>
-                      )}
-                    </td>
+          return (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-white/10 bg-white/[0.02] text-xs uppercase font-semibold text-slate-400 tracking-wider">
+                    <th className="px-6 py-4 w-24">RANK</th>
+                    <th className="px-6 py-4">EMPLOYEE</th>
+                    <th className="px-6 py-4">DESIGNATION</th>
+                    <th className="px-6 py-4">DEPARTMENT</th>
+                    <th className="px-6 py-4 text-center">TOTAL AWARDS</th>
+                    <th className="px-6 py-4">LATEST AWARD</th>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {awardedEntries.map((entry: any) => {
+                    const isRank1 = entry.rank === 1;
+
+                    return (
+                      <tr
+                        key={entry.user_id}
+                        onClick={() => handleEmployeeClick(entry.user_id)}
+                        className={`cursor-pointer transition-colors duration-150 ${
+                          isRank1
+                            ? "bg-amber-500/10 hover:bg-amber-500/15"
+                            : "hover:bg-white/[0.04]"
+                        }`}
+                      >
+                        {/* Rank */}
+                        <td className="px-6 py-4">
+                          <RankMedal rank={entry.rank} />
+                        </td>
+
+                        {/* Employee */}
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <PhotoAvatar
+                              src={entry.profile_photo_path}
+                              name={entry.name}
+                              className="w-10 h-10 rounded-full"
+                            />
+                            <div>
+                              <div className="font-bold text-white text-sm leading-snug">
+                                {entry.name}
+                              </div>
+                              {entry.latest_achievement_title && (
+                                <div className="text-xs text-amber-400 font-semibold flex items-center gap-1 mt-0.5">
+                                  <span>{entry.latest_achievement_icon || "🏆"}</span>
+                                  <span>{entry.latest_achievement_title}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* Designation */}
+                        <td className="px-6 py-4 text-slate-300 font-medium text-sm">
+                          {entry.designation || "—"}
+                        </td>
+
+                        {/* Department */}
+                        <td className="px-6 py-4 text-slate-400 font-medium text-sm">
+                          {entry.department || "—"}
+                        </td>
+
+                        {/* Total Awards */}
+                        <td className="px-6 py-4 text-center">
+                          <div className="inline-flex items-center gap-1.5 font-bold text-amber-300 text-sm">
+                            <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                            <span>{entry.total_achievements}</span>
+                          </div>
+                        </td>
+
+                        {/* Latest Award */}
+                        <td className="px-6 py-4">
+                          {entry.latest_achievement_title ? (
+                            <div>
+                              <div className="text-amber-300 font-semibold text-sm flex items-center gap-1.5">
+                                <span>{entry.latest_achievement_icon || "🏆"}</span>
+                                <span>{entry.latest_achievement_title}</span>
+                              </div>
+                              {entry.latest_achievement_date && (
+                                <div className="text-xs text-slate-400 mt-0.5 flex items-center gap-1">
+                                  <span>🏆</span>
+                                  <span>{entry.latest_achievement_date}</span>
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-xs text-slate-500 italic">No awards yet</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          );
+        })()}
 
         {/* Footer info note */}
         <div className="p-4 border-t border-white/10 flex items-center justify-center gap-2 text-xs text-slate-400 bg-white/[0.01]">
