@@ -269,7 +269,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className={`h-16 flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-between px-4'} border-b border-slate-800 shrink-0 relative`}>
           {!isSidebarCollapsed && (
             <Link href="/dashboard" className="flex items-center min-w-0 pr-2">
-              <img src="/logo-dark.png" alt="Inter Smart Logo" className="h-10 sm:h-12 w-auto object-contain shrink-0 max-w-[150px]" />
+              <img src="/logo.png" alt="Inter Smart Logo" className="h-10 sm:h-12 w-auto object-contain shrink-0 max-w-[150px]" />
             </Link>
           )}
           <button 
@@ -404,8 +404,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 {menuOpen ? <X className="h-6 w-6 text-slate-600 dark:text-slate-300" /> : <Menu className="h-6 w-6 text-slate-600 dark:text-slate-300" />}
               </button>
               <Link href="/dashboard" className="flex items-center shrink min-w-0">
-                <img src="/logo-dark.png" alt="Inter Smart Logo" className="h-8 object-contain dark:hidden" />
-                <img src="/logo.png" alt="Inter Smart Logo" className="h-8 object-contain hidden dark:block" />
+                <img src="/logo.png" alt="Inter Smart Logo" className="h-8 object-contain" />
               </Link>
             </div>
 
@@ -413,8 +412,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="hidden md:flex flex-1 items-center">
               {isSidebarCollapsed && (
                 <Link href="/dashboard" className="flex items-center shrink min-w-0">
-                  <img src="/logo-dark.png" alt="Inter Smart Logo" className="h-8 object-contain dark:hidden" />
-                  <img src="/logo.png" alt="Inter Smart Logo" className="h-8 object-contain hidden dark:block" />
+                  <img src="/logo.png" alt="Inter Smart Logo" className="h-8 object-contain" />
                 </Link>
               )}
             </div>
