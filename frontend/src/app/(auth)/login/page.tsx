@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
-import { Eye, EyeOff, LogIn, Lock, Mail, Check } from "lucide-react";
+import { toastManager } from "@/components/ui/toast";
+import { Eye, EyeOff, LogIn, Lock, Mail } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -16,7 +17,6 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
   const [isLoading, setIsLoading] = useState(false);
-  const [loginSuccess, setLoginSuccess] = useState(false);
 
   const getErrorIcon = (message: string) => {
     if (message.toLowerCase().includes("inactive") || message.toLowerCase().includes("disabled")) {
@@ -50,26 +50,54 @@ export default function LoginPage() {
     }
 
     setIsLoading(true);
-    try {
-      const response = await api.post("/login", { email, password });
-      if (response.data.token) {
-        localStorage.setItem("token", response.data.token);
-        if (rememberDevice) {
-          localStorage.setItem("rememberDevice", "true");
-        }
-        setLoginSuccess(true);
-        setTimeout(() => {
+
+    const loginPromise = new Promise<{ user: any; token: string }>(async (resolve, reject) => {
+      try {
+        const response = await api.post("/login", { email, password });
+        if (response.data.token) {
+          localStorage.setItem("token", response.data.token);
+          if (rememberDevice) {
+            localStorage.setItem("rememberDevice", "true");
+          }
           setAuth(response.data.user, response.data.token);
-          router.push("/dashboard");
-        }, 1500);
+          resolve(response.data);
+        } else {
+          reject(new Error("Login failed. No token received."));
+        }
+      } catch (err: any) {
+        const errorMessage =
+          err.response?.data?.message ||
+          err.message ||
+          "Invalid email or password. Please try again.";
+        reject(new Error(errorMessage));
       }
-    } catch (err: any) {
-      console.error("Login error:", err);
-      const errorMessage =
-        err.response?.data?.message ||
-        err.message ||
-        "Invalid email or password. Please try again.";
-      setError(errorMessage);
+    });
+
+    try {
+      await toastManager.promise(loginPromise, {
+        loading: {
+          title: "Signing in…",
+          description: "Verifying your credentials.",
+        },
+        success: (data: any) => {
+          setTimeout(() => {
+            router.push("/dashboard");
+          }, 800);
+          return {
+            title: "Login Successful!",
+            description: `Welcome back, ${data.user?.first_name || "Employee"}! Redirecting to dashboard…`,
+          };
+        },
+        error: (err: any) => {
+          setError(err.message);
+          return {
+            title: "Sign in failed",
+            description: err.message || "Please check your email and password.",
+          };
+        },
+      });
+    } catch {
+      // Handled inside toast promise
     } finally {
       setIsLoading(false);
     }
@@ -134,21 +162,6 @@ export default function LoginPage() {
           <div className="flex items-center justify-center mb-8 lg:hidden">
             <img src="/logo.png" alt="Inter Smart Logo" className="h-12 w-auto object-contain" />
           </div>
-
-          {/* Success overlay */}
-          {loginSuccess && (
-            <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/60 backdrop-blur-md animate-fadeIn">
-              <div className="bg-gradient-to-br from-white to-slate-50 rounded-3xl p-12 text-center animate-scaleIn shadow-2xl border border-white/20">
-                <div className="mb-6 flex justify-center">
-                  <div className="w-24 h-24 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center animate-scaleIn shadow-lg">
-                    <Check className="w-12 h-12 text-white animate-slideDown" />
-                  </div>
-                </div>
-                <h3 className="text-3xl font-black text-blue-900 mb-3">Login Successful!</h3>
-                <p className="text-blue-800 text-base font-medium">Redirecting to dashboard...</p>
-              </div>
-            </div>
-          )}
 
           <div className="bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-sm shadow-2xl relative">
             {/* Contact HR link - moved to top-right */}
