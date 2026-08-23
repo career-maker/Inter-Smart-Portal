@@ -244,11 +244,11 @@ class RecognitionController extends Controller
     }
 
     /**
-     * Get all recognitions for a specific employee (Super Admin only).
+     * Get all recognitions for a specific employee.
      */
     public function employeeRecognitions($userId)
     {
-        $employee = User::findOrFail($userId);
+        $employee = User::with('team:id,name')->findOrFail($userId);
 
         $recognitions = Recognition::where('user_id', $userId)
             ->with(['creator:id,first_name,last_name'])
@@ -258,9 +258,13 @@ class RecognitionController extends Controller
         return response()->json([
             'data'     => $recognitions,
             'employee' => [
-                'id'         => $employee->id,
-                'name'       => $employee->first_name . ' ' . $employee->last_name,
-                'designation' => $employee->designation,
+                'id'                 => $employee->id,
+                'name'               => $employee->first_name . ' ' . $employee->last_name,
+                'first_name'         => $employee->first_name,
+                'last_name'          => $employee->last_name,
+                'designation'        => $employee->designation ?? 'Employee',
+                'department'         => $employee->team?->name ?? 'Unassigned',
+                'profile_photo_path' => $employee->profilePhotoUrl(),
             ],
         ]);
     }
