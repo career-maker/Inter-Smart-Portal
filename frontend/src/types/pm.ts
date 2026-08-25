@@ -347,3 +347,20 @@ export interface StoreProjectTaskCatalogPayload {
 }
 
 export type UpdateProjectTaskCatalogPayload = Partial<StoreProjectTaskCatalogPayload>;
+
+// ── Hubstaff Integration Types ───────────────────────────────────────────────
+
+export interface HubstaffProject {
+  id: string;
+  name: string;
+  status?: string;
+  is_already_linked: boolean;
+  linked_project_id?: number | null;
+}
+
+export interface HubstaffProjectsResponse {
+  configured: boolean;
+  projects: HubstaffProject[];
+  error?: string | null;
+  message?: string | null;
+}

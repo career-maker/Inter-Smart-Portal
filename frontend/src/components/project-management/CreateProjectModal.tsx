@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Loader2, FolderPlus, AlertCircle, Calendar, Building2, User } from "lucide-react";
+import { X, Loader2, FolderPlus, AlertCircle, Calendar, Building2, User, Link2, Unlink } from "lucide-react";
 import api from "@/services/api";
 import pmApi from "@/services/pm";
-import { Project, ProjectStatus, PROJECT_STATUSES, StoreProjectPayload } from "@/types/pm";
+import { Project, ProjectStatus, PROJECT_STATUSES, StoreProjectPayload, HubstaffProject } from "@/types/pm";
 
 interface CreateProjectModalProps {
   isOpen: boolean;
@@ -24,6 +24,10 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
     start_date: new Date().toISOString().split("T")[0],
     expected_end_date: "",
     allotted_effort: null,
+    confirmed_effort: null,
+    expected_effort: null,
+    committed_effort: null,
+    hubstaff_project_id: null,
     budget: null,
     blockers: "",
     live_notes: "",
@@ -34,6 +38,8 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
   const [coordinators, setCoordinators] = useState<
     { id: number; first_name: string; last_name: string; employee_code?: string; department?: string }[]
   >([]);
+  const [hubstaffProjects, setHubstaffProjects] = useState<HubstaffProject[]>([]);
+  const [loadingHubstaff, setLoadingHubstaff] = useState(false);
   const [loadingMeta, setLoadingMeta] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -43,10 +49,12 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
 
     const fetchMeta = async () => {
       setLoadingMeta(true);
+      setLoadingHubstaff(true);
       try {
-        const [teamsRes, empsRes] = await Promise.allSettled([
+        const [teamsRes, empsRes, hsRes] = await Promise.allSettled([
           api.get("/teams"),
           api.get("/employees?per_page=200"),
+          pmApi.getHubstaffProjects(),
         ]);
 
         if (teamsRes.status === "fulfilled") {
@@ -57,7 +65,6 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
         if (empsRes.status === "fulfilled") {
           const rawEmps = empsRes.value.data?.data?.data || empsRes.value.data?.data || [];
           if (Array.isArray(rawEmps)) {
-            // Filter or flag candidates from the "Project Coordinators" department
             const mapped = rawEmps.map((e: any) => ({
               id: e.id,
               first_name: e.first_name,
@@ -68,10 +75,18 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
             setCoordinators(mapped);
           }
         }
+
+        if (hsRes.status === "fulfilled") {
+          const hsData = hsRes.value;
+          if (hsData?.projects && Array.isArray(hsData.projects)) {
+            setHubstaffProjects(hsData.projects);
+          }
+        }
       } catch (err) {
-        console.warn("Failed to load teams/coordinators metadata", err);
+        console.warn("Failed to load metadata/Hubstaff projects", err);
       } finally {
         setLoadingMeta(false);
+        setLoadingHubstaff(false);
       }
     };
 
@@ -82,6 +97,19 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
 
   const handleChange = (field: keyof StoreProjectPayload, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleHubstaffSelect = (hubstaffId: string) => {
+    if (!hubstaffId) {
+      handleChange("hubstaff_project_id", null);
+      return;
+    }
+
+    const selected = hubstaffProjects.find((p) => p.id === hubstaffId);
+    if (selected) {
+      handleChange("hubstaff_project_id", selected.id);
+      handleChange("name", selected.name);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -95,7 +123,6 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
 
     setSubmitting(true);
     try {
-      // Clean empty string dates and nulls
       const payload: StoreProjectPayload = {
         ...formData,
         name: formData.name.trim(),
@@ -109,6 +136,10 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
         start_date: formData.start_date || null,
         expected_end_date: formData.expected_end_date || null,
         allotted_effort: formData.allotted_effort ? Number(formData.allotted_effort) : null,
+        confirmed_effort: formData.confirmed_effort ? Number(formData.confirmed_effort) : null,
+        expected_effort: formData.expected_effort ? Number(formData.expected_effort) : null,
+        committed_effort: formData.committed_effort ? Number(formData.committed_effort) : null,
+        hubstaff_project_id: formData.hubstaff_project_id || null,
         budget: formData.budget ? Number(formData.budget) : null,
         blockers: formData.blockers?.trim() || null,
         live_notes: formData.live_notes?.trim() || null,
@@ -163,6 +194,61 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
 
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+          {/* Optional Hubstaff Linking */}
+          <div className="p-3.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/60 space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300">
+                <Link2 className="w-3.5 h-3.5 text-blue-500" />
+                <span>Link with Hubstaff Project (Optional)</span>
+              </label>
+              {formData.hubstaff_project_id && (
+                <button
+                  type="button"
+                  onClick={() => handleChange("hubstaff_project_id", null)}
+                  className="text-[11px] text-slate-400 hover:text-rose-500 font-medium inline-flex items-center gap-1 transition-colors"
+                >
+                  <Unlink className="w-3 h-3" />
+                  <span>Unlink Hubstaff</span>
+                </button>
+              )}
+            </div>
+
+            {loadingHubstaff ? (
+              <div className="flex items-center gap-2 text-xs text-slate-400 py-1">
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-500" />
+                <span>Checking Hubstaff project availability…</span>
+              </div>
+            ) : hubstaffProjects.length > 0 ? (
+              <div className="space-y-1.5">
+                <select
+                  value={formData.hubstaff_project_id || ""}
+                  onChange={(e) => handleHubstaffSelect(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                >
+                  <option value="">-- None (Manual Project Creation) --</option>
+                  {hubstaffProjects.map((p) => (
+                    <option
+                      key={p.id}
+                      value={p.id}
+                      disabled={p.is_already_linked && p.id !== formData.hubstaff_project_id}
+                    >
+                      {p.name} {p.is_already_linked ? "(Already Linked)" : ""}
+                    </option>
+                  ))}
+                </select>
+                {formData.hubstaff_project_id && (
+                  <p className="text-[11px] text-blue-600 dark:text-blue-400 font-medium">
+                    ✓ Authoritative Hubstaff project linked (ID: {formData.hubstaff_project_id})
+                  </p>
+                )}
+              </div>
+            ) : (
+              <p className="text-[11px] text-slate-400 dark:text-slate-500">
+                Hubstaff projects not loaded or integration not configured. Manual project creation is active.
+              </p>
+            )}
+          </div>
+
           {/* Project Name (Required) */}
           <div>
             <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
@@ -199,7 +285,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                 Initial Status
               </label>
               <select
-                value={formData.status || "Planning"}
+                value={formData.status}
                 onChange={(e) => handleChange("status", e.target.value as ProjectStatus)}
                 className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
               >
@@ -219,24 +305,24 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                 type="text"
                 value={formData.category || ""}
                 onChange={(e) => handleChange("category", e.target.value)}
-                placeholder="e.g. Web App, Mobile, QA"
+                placeholder="e.g. Web Development, Mobile App, SEO"
                 className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
               />
             </div>
           </div>
 
-          {/* 2-Column: Owning Department & Project Coordinator */}
+          {/* 2-Column: Owning Team & Project Coordinator */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Owning Department / Team
+                Owning HR Team
               </label>
               <select
                 value={formData.team_id || ""}
                 onChange={(e) => handleChange("team_id", e.target.value ? Number(e.target.value) : null)}
                 className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
               >
-                <option value="">Cross-Team / Unassigned</option>
+                <option value="">-- No Team (Cross-functional) --</option>
                 {teams.map((t) => (
                   <option key={t.id} value={t.id}>
                     {t.name}
@@ -252,27 +338,21 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
               <select
                 value={formData.project_coordinator_id || ""}
                 onChange={(e) =>
-                  handleChange(
-                    "project_coordinator_id",
-                    e.target.value ? Number(e.target.value) : null
-                  )
+                  handleChange("project_coordinator_id", e.target.value ? Number(e.target.value) : null)
                 }
                 className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
               >
-                <option value="">Select Coordinator (Optional)</option>
+                <option value="">-- Unassigned Coordinator --</option>
                 {coordinators.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.first_name} {c.last_name} ({c.department})
                   </option>
                 ))}
               </select>
-              <span className="text-[10px] text-slate-400 mt-1 block">
-                Validated server-side against &quot;Project Coordinators&quot; department.
-              </span>
             </div>
           </div>
 
-          {/* 2-Column: Start Date & Target End Date */}
+          {/* 2-Column: Dates */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
@@ -300,11 +380,11 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
             </div>
           </div>
 
-          {/* Effort & Budget */}
+          {/* 2-Column: Effort & Budget */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Allotted Effort (Hours / Days)
+                Allotted Effort (Days/Hours)
               </label>
               <input
                 type="number"
@@ -312,43 +392,29 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                 min="0"
                 value={formData.allotted_effort ?? ""}
                 onChange={(e) =>
-                  handleChange("allotted_effort", e.target.value ? Number(e.target.value) : null)
+                  handleChange("allotted_effort", e.target.value === "" ? null : Number(e.target.value))
                 }
-                placeholder="e.g. 120"
+                placeholder="e.g. 45"
                 className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
               />
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Budget (INR)
+                Budget (Optional)
               </label>
               <input
                 type="number"
-                step="1"
+                step="0.01"
                 min="0"
                 value={formData.budget ?? ""}
                 onChange={(e) =>
-                  handleChange("budget", e.target.value ? Number(e.target.value) : null)
+                  handleChange("budget", e.target.value === "" ? null : Number(e.target.value))
                 }
                 placeholder="e.g. 50000"
                 className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
               />
             </div>
-          </div>
-
-          {/* Blockers */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-              Active Blockers / Risks
-            </label>
-            <input
-              type="text"
-              value={formData.blockers || ""}
-              onChange={(e) => handleChange("blockers", e.target.value)}
-              placeholder="Any current impediments or client dependencies..."
-              className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-            />
           </div>
 
           {/* Modal Footer */}
@@ -357,19 +423,19 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
               type="button"
               onClick={onClose}
               disabled={submitting}
-              className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs sm:text-sm font-semibold transition-colors"
+              className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs sm:text-sm font-semibold transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              disabled={submitting}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold shadow-sm shadow-blue-500/20 transition-colors disabled:opacity-50"
+              disabled={submitting || !formData.name.trim()}
+              className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold shadow-sm shadow-blue-500/20 transition-colors disabled:opacity-50"
             >
               {submitting ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Creating Project…</span>
+                  <span>Creating…</span>
                 </>
               ) : (
                 <span>Create Project</span>

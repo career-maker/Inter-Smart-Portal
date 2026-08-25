@@ -485,3 +485,7 @@ Route::middleware('auth:sanctum')->prefix('pm-task-catalog')->group(function () 
     Route::put('{catalog}', [\App\Http\Controllers\Api\ProjectTaskCatalogController::class, 'update']);
     Route::delete('{catalog}', [\App\Http\Controllers\Api\ProjectTaskCatalogController::class, 'destroy']);
 });
+
+Route::middleware('auth:sanctum')->prefix('pm/hubstaff')->group(function () {
+    Route::get('projects', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'index']);
+});

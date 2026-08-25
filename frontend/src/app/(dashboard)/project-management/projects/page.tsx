@@ -19,7 +19,8 @@ import {
   Layers,
   ArrowRight,
   CheckCircle2,
-  Clock
+  Clock,
+  Link2,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import api from "@/services/api";
@@ -296,12 +297,23 @@ export default function ProjectsListPage() {
                   >
                     {/* Project Name & Category */}
                     <td className="py-4 px-5">
-                      <Link
-                        href={`/project-management/projects/${project.id}`}
-                        className="font-bold text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors block line-clamp-1"
-                      >
-                        {project.name}
-                      </Link>
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/project-management/projects/${project.id}`}
+                          className="font-bold text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors block line-clamp-1"
+                        >
+                          {project.name}
+                        </Link>
+                        {project.hubstaff_project_id && (
+                          <span
+                            className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 shrink-0"
+                            title={`Linked to Hubstaff project #${project.hubstaff_project_id}`}
+                          >
+                            <Link2 className="w-2.5 h-2.5" />
+                            <span>Hubstaff</span>
+                          </span>
+                        )}
+                      </div>
                       <div className="flex items-center gap-2 mt-1">
                         {project.category && (
                           <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">

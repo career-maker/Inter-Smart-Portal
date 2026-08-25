@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Loader2, Edit3, AlertCircle } from "lucide-react";
+import { X, Loader2, Edit3, AlertCircle, Link2 } from "lucide-react";
 import api from "@/services/api";
 import pmApi from "@/services/pm";
 import { Project, ProjectStatus, PROJECT_STATUSES, UpdateProjectPayload } from "@/types/pm";
@@ -173,6 +173,13 @@ export function EditProjectModal({ project, isOpen, onClose, onSuccess }: EditPr
 
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+          {project.hubstaff_project_id && (
+            <div className="p-2.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200/70 dark:border-emerald-800/50 flex items-center gap-2 text-xs text-emerald-800 dark:text-emerald-300">
+              <Link2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <span>Linked to Hubstaff project ID: <strong>{project.hubstaff_project_id}</strong></span>
+            </div>
+          )}
+
           {/* Project Name */}
           <div>
             <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">

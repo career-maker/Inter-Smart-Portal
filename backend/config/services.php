@@ -48,4 +48,11 @@ return [
 
     'scheduler_secret' => env('SCHEDULER_SECRET'),
 
+    'hubstaff' => [
+        'personal_token' => env('HUBSTAFF_PERSONAL_TOKEN'),
+        'access_token' => env('HUBSTAFF_ACCESS_TOKEN'),
+        'org_id' => env('HUBSTAFF_ORG_ID'),
+        'base_url' => env('HUBSTAFF_BASE_URL', 'https://api.hubstaff.com/v2'),
+    ],
+
 ];

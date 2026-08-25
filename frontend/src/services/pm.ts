@@ -271,6 +271,21 @@ export const pmApi = {
     const res = await api.delete<ApiResponse<null>>(`/pm-task-catalog/${id}`);
     return res.data;
   },
+
+  // ── Hubstaff Integration ───────────────────────────────────────────────────
+
+  /**
+   * Fetch available Hubstaff projects for project linking during creation.
+   */
+  getHubstaffProjects: async (): Promise<{
+    configured: boolean;
+    projects: { id: string; name: string; status?: string; is_already_linked: boolean; linked_project_id?: number | null }[];
+    error?: string | null;
+    message?: string | null;
+  }> => {
+    const res = await api.get('/pm/hubstaff/projects');
+    return res.data;
+  },
 };
 
 export default pmApi;

@@ -25,7 +25,8 @@ import {
   DollarSign,
   Layers,
   CheckCircle2,
-  Info
+  Info,
+  Link2,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import api from "@/services/api";
@@ -243,6 +244,12 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
               {project.name}
             </h1>
             <ProjectStatusBadge status={project.status} />
+            {project.hubstaff_project_id && (
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 px-2.5 py-0.5 rounded-full">
+                <Link2 className="w-3 h-3 text-emerald-600" />
+                <span>Hubstaff Linked (#{project.hubstaff_project_id})</span>
+              </span>
+            )}
             {project.category && (
               <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 rounded-full border border-slate-200 dark:border-slate-700">
                 {project.category}
