@@ -17,6 +17,13 @@ class StoreProjectTaskRequest extends FormRequest
     {
         return [
             'sub_phase_id' => ['nullable', 'integer', 'exists:pm_sub_phases,id'],
+            'catalog_task_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('pm_task_catalogs', 'id')
+                    ->whereNull('deleted_at')
+                    ->where('is_active', true),
+            ],
             'coordinator_id' => ['nullable', 'integer', 'exists:users,id'],
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:5000'],

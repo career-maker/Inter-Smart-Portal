@@ -25,6 +25,12 @@ class UpdateProjectTaskRequest extends FormRequest
         return [
             // Planning fields
             'sub_phase_id' => ['sometimes', 'nullable', 'integer', 'exists:pm_sub_phases,id'],
+            'catalog_task_id' => [
+                'sometimes',
+                'nullable',
+                'integer',
+                Rule::exists('pm_task_catalogs', 'id')->whereNull('deleted_at'),
+            ],
             'coordinator_id' => ['sometimes', 'nullable', 'integer', 'exists:users,id'],
             'title' => ['sometimes', 'required', 'string', 'max:255'],
             'description' => ['sometimes', 'nullable', 'string', 'max:5000'],

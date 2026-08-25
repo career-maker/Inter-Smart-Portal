@@ -23,7 +23,7 @@ class ProjectTaskController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $query = ProjectTask::query()->with(['project:id,name', 'subPhase:id,name']);
+        $query = ProjectTask::query()->with(['project:id,name', 'subPhase:id,name', 'catalogTask:id,name,category', 'assignees:id,first_name,last_name']);
 
         if (!$user->hasRole('Super Admin') && !$user->can('view all projects')) {
             $query->where(function ($q) use ($user) {
@@ -70,7 +70,7 @@ class ProjectTaskController extends Controller
 
         $tasks = ProjectTask::query()
             ->whereHas('taskAssignees', fn ($a) => $a->where('user_id', $user->id))
-            ->with(['project:id,name', 'subPhase:id,name'])
+            ->with(['project:id,name', 'subPhase:id,name', 'catalogTask:id,name,category', 'assignees:id,first_name,last_name'])
             ->orderBy('due_date')
             ->paginate(20);
 
@@ -81,7 +81,7 @@ class ProjectTaskController extends Controller
     {
         $user = $request->user();
 
-        if (!$this->auth->canCreateTaskForTeam($user, $project->team_id)) {
+        if (!$this->auth->canCreateTask($user, $project)) {
             return response()->json(['message' => 'Unauthorized to create tasks for this project.'], 403);
         }
 
@@ -89,13 +89,31 @@ class ProjectTaskController extends Controller
         $assigneeIds = $data['assignee_ids'] ?? [];
         unset($data['assignee_ids']);
 
+        // Team Leads create tasks for their own HR team by default and can only assign own-team members
+        if ($user->hasRole('Team Lead') && !$user->hasRole('Super Admin')) {
+            $data['team_id'] = $user->team_id;
+
+            if (!empty($assigneeIds)) {
+                $invalidCount = \App\Models\User::whereIn('id', $assigneeIds)
+                    ->where(function ($q) use ($user) {
+                        $q->whereNull('team_id')
+                          ->orWhere('team_id', '!=', $user->team_id);
+                    })
+                    ->count();
+
+                if ($invalidCount > 0) {
+                    return response()->json(['message' => 'Team Leads may only assign tasks to members of their own HR team.'], 403);
+                }
+            }
+        }
+
         $task = $this->tasks->createTask($project, $data, $user, $request);
 
         foreach ($assigneeIds as $index => $assigneeId) {
             $this->tasks->assignUser($task, (int) $assigneeId, $user, $index === 0, $request);
         }
 
-        return response()->json(['message' => 'Task created successfully.', 'data' => $task->load('assignees')], 201);
+        return response()->json(['message' => 'Task created successfully.', 'data' => $task->load(['assignees', 'catalogTask'])], 201);
     }
 
     public function show(Request $request, ProjectTask $task)
@@ -106,7 +124,7 @@ class ProjectTaskController extends Controller
             return response()->json(['message' => 'Unauthorized.'], 403);
         }
 
-        $task->load(['project:id,name,team_id', 'subPhase:id,name', 'coordinator:id,first_name,last_name', 'assignees:id,first_name,last_name']);
+        $task->load(['project:id,name,team_id', 'subPhase:id,name', 'catalogTask:id,name,category', 'coordinator:id,first_name,last_name', 'assignees:id,first_name,last_name']);
 
         return response()->json(['data' => $task]);
     }
@@ -140,7 +158,7 @@ class ProjectTaskController extends Controller
 
         $task = $this->tasks->updateTask($task, $data, $user, $request);
 
-        return response()->json(['message' => 'Task updated successfully.', 'data' => $task]);
+        return response()->json(['message' => 'Task updated successfully.', 'data' => $task->load('catalogTask')]);
     }
 
     public function updateStatus(UpdateProjectTaskStatusRequest $request, ProjectTask $task)
@@ -165,6 +183,16 @@ class ProjectTaskController extends Controller
         }
 
         $data = $request->validated();
+        $targetUser = \App\Models\User::find((int) $data['user_id']);
+
+        if (!$targetUser) {
+            return response()->json(['message' => 'Target user not found.'], 404);
+        }
+
+        if (!$this->auth->canAssignUserToTask($user, $task, $targetUser)) {
+            return response()->json(['message' => 'Team Leads may only assign tasks to members of their own HR team.'], 403);
+        }
+
         $assignee = $this->tasks->assignUser($task, (int) $data['user_id'], $user, (bool) ($data['is_primary'] ?? false), $request);
 
         return response()->json(['message' => 'Assignee added successfully.', 'data' => $assignee], 201);

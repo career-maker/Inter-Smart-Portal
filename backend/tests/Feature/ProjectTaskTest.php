@@ -216,4 +216,206 @@ class ProjectTaskTest extends TestCase
         $response->assertStatus(201);
         $this->assertDatabaseHas('pm_tasks', ['title' => 'Field Injection Test']);
     }
+
+    public function test_team_lead_cannot_assign_task_to_member_of_another_team()
+    {
+        $teamHtml = Team::create(['name' => 'HTML']);
+        $teamPhp = Team::create(['name' => 'PHP']);
+
+        $teamLead = User::factory()->create(['team_id' => $teamHtml->id]);
+        $teamLead->assignRole('Team Lead');
+
+        $otherTeamUser = User::factory()->create(['team_id' => $teamPhp->id]);
+        $otherTeamUser->assignRole('Employee');
+
+        $project = $this->makeProject($teamLead, $teamHtml->id);
+        $task = ProjectTask::create([
+            'project_id' => $project->id,
+            'team_id' => $teamHtml->id,
+            'title' => 'HTML Team Task',
+            'created_by' => $teamLead->id,
+        ]);
+
+        // Attempting to add otherTeamUser should be rejected with 403
+        $response = $this->withHeaders($this->authHeaders($teamLead))
+            ->postJson("/api/project-tasks/{$task->id}/assignees", [
+                'user_id' => $otherTeamUser->id,
+            ]);
+
+        $response->assertStatus(403);
+        $this->assertDatabaseMissing('pm_task_assignees', [
+            'task_id' => $task->id,
+            'user_id' => $otherTeamUser->id,
+        ]);
+    }
+
+    public function test_team_lead_can_assign_task_to_member_of_own_team()
+    {
+        $teamHtml = Team::create(['name' => 'HTML']);
+
+        $teamLead = User::factory()->create(['team_id' => $teamHtml->id]);
+        $teamLead->assignRole('Team Lead');
+
+        $ownTeamMember = User::factory()->create(['team_id' => $teamHtml->id]);
+        $ownTeamMember->assignRole('Employee');
+
+        $project = $this->makeProject($teamLead, $teamHtml->id);
+        $task = ProjectTask::create([
+            'project_id' => $project->id,
+            'team_id' => $teamHtml->id,
+            'title' => 'HTML Team Task',
+            'created_by' => $teamLead->id,
+        ]);
+
+        $response = $this->withHeaders($this->authHeaders($teamLead))
+            ->postJson("/api/project-tasks/{$task->id}/assignees", [
+                'user_id' => $ownTeamMember->id,
+            ]);
+
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('pm_task_assignees', [
+            'task_id' => $task->id,
+            'user_id' => $ownTeamMember->id,
+        ]);
+    }
+
+    public function test_super_admin_can_assign_task_cross_team()
+    {
+        $teamHtml = Team::create(['name' => 'HTML']);
+        $teamPhp = Team::create(['name' => 'PHP']);
+
+        $superAdmin = User::factory()->create();
+        $superAdmin->assignRole('Super Admin');
+
+        $phpUser = User::factory()->create(['team_id' => $teamPhp->id]);
+        $phpUser->assignRole('Employee');
+
+        $project = $this->makeProject($superAdmin, $teamHtml->id);
+        $task = ProjectTask::create([
+            'project_id' => $project->id,
+            'team_id' => $teamHtml->id,
+            'title' => 'Admin Managed Task',
+            'created_by' => $superAdmin->id,
+        ]);
+
+        $response = $this->withHeaders($this->authHeaders($superAdmin))
+            ->postJson("/api/project-tasks/{$task->id}/assignees", [
+                'user_id' => $phpUser->id,
+            ]);
+
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('pm_task_assignees', [
+            'task_id' => $task->id,
+            'user_id' => $phpUser->id,
+        ]);
+    }
+
+    public function test_task_creation_with_active_catalog_task_id_and_custom_title()
+    {
+        $superAdmin = User::factory()->create();
+        $superAdmin->assignRole('Super Admin');
+
+        $catalog = \App\Models\ProjectTaskCatalog::create([
+            'name' => 'Header & Navigation QA',
+            'category' => 'QA',
+            'is_active' => true,
+        ]);
+
+        $project = $this->makeProject($superAdmin);
+
+        $response = $this->withHeaders($this->authHeaders($superAdmin))
+            ->postJson("/api/projects/{$project->id}/tasks", [
+                'title' => 'Header & Navigation QA — Custom Variant',
+                'catalog_task_id' => $catalog->id,
+            ]);
+
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('pm_tasks', [
+            'title' => 'Header & Navigation QA — Custom Variant',
+            'catalog_task_id' => $catalog->id,
+        ]);
+    }
+
+    public function test_task_creation_rejects_inactive_catalog_task_id()
+    {
+        $superAdmin = User::factory()->create();
+        $superAdmin->assignRole('Super Admin');
+
+        $inactiveCatalog = \App\Models\ProjectTaskCatalog::create([
+            'name' => 'Deprecated Legacy Review',
+            'category' => 'General',
+            'is_active' => false,
+        ]);
+
+        $project = $this->makeProject($superAdmin);
+
+        $response = $this->withHeaders($this->authHeaders($superAdmin))
+            ->postJson("/api/projects/{$project->id}/tasks", [
+                'title' => 'Should Fail Inactive Catalog',
+                'catalog_task_id' => $inactiveCatalog->id,
+            ]);
+
+        $response->assertStatus(422)->assertJsonValidationErrors(['catalog_task_id']);
+    }
+
+    public function test_team_lead_can_create_task_on_another_teams_project_for_own_team()
+    {
+        $teamHtml = Team::create(['name' => 'HTML']);
+        $teamPhp = Team::create(['name' => 'PHP']);
+
+        $phpTeamLead = User::factory()->create(['team_id' => $teamPhp->id]);
+        $phpTeamLead->assignRole('Team Lead');
+
+        $phpMember = User::factory()->create(['team_id' => $teamPhp->id]);
+        $phpMember->assignRole('Employee');
+
+        $htmlProjectOwner = User::factory()->create(['team_id' => $teamHtml->id]);
+        $htmlProjectOwner->assignRole('Team Lead');
+
+        // Project is owned by the HTML team
+        $htmlProject = $this->makeProject($htmlProjectOwner, $teamHtml->id);
+
+        // PHP Team Lead creates a task on the HTML project and assigns to PHP member
+        $response = $this->withHeaders($this->authHeaders($phpTeamLead))
+            ->postJson("/api/projects/{$htmlProject->id}/tasks", [
+                'title' => 'PHP API Backend Endpoint',
+                'assignee_ids' => [$phpMember->id],
+            ]);
+
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('pm_tasks', [
+            'project_id' => $htmlProject->id,
+            'team_id' => $teamPhp->id,
+            'title' => 'PHP API Backend Endpoint',
+        ]);
+        $this->assertDatabaseHas('pm_task_assignees', [
+            'user_id' => $phpMember->id,
+        ]);
+    }
+
+    public function test_team_lead_cannot_edit_or_manage_another_teams_project()
+    {
+        $teamHtml = Team::create(['name' => 'HTML']);
+        $teamPhp = Team::create(['name' => 'PHP']);
+
+        $phpTeamLead = User::factory()->create(['team_id' => $teamPhp->id]);
+        $phpTeamLead->assignRole('Team Lead');
+
+        $htmlTeamLead = User::factory()->create(['team_id' => $teamHtml->id]);
+        $htmlTeamLead->assignRole('Team Lead');
+
+        $htmlProject = $this->makeProject($htmlTeamLead, $teamHtml->id);
+
+        // PHP Team Lead tries to edit HTML Project details -> Must be rejected with 403
+        $response = $this->withHeaders($this->authHeaders($phpTeamLead))
+            ->putJson("/api/projects/{$htmlProject->id}", [
+                'name' => 'Renamed By Unauthorized Team Lead',
+            ]);
+
+        $response->assertStatus(403);
+        $this->assertDatabaseMissing('pm_projects', [
+            'id' => $htmlProject->id,
+            'name' => 'Renamed By Unauthorized Team Lead',
+        ]);
+    }
 }

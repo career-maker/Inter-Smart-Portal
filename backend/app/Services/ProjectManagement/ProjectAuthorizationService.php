@@ -152,8 +152,24 @@ class ProjectAuthorizationService
     }
 
     /**
-     * Can $user create a task under a project owned by $teamId (or team-
-     * less/global projects, where any manage-tasks holder may act)?
+     * Can $user create a task under $project?
+     * Per Decision 7 (Project↔Team Relationship), project ownership and task
+     * participation are separate: a Team Lead holding `manage tasks` may create
+     * tasks for their own HR team under any project, enabling cross-team
+     * contributions. Assignment of that task remains strictly restricted to the
+     * Team Lead's own HR team (see canAssignUserToTask()).
+     */
+    public function canCreateTask(User $user, Project $project): bool
+    {
+        if ($user->hasRole('Super Admin')) {
+            return true;
+        }
+
+        return $user->can('manage tasks');
+    }
+
+    /**
+     * Legacy helper retained for compatibility.
      */
     public function canCreateTaskForTeam(User $user, ?int $teamId): bool
     {
@@ -161,12 +177,7 @@ class ProjectAuthorizationService
             return true;
         }
 
-        if (!$user->can('manage tasks')) {
-            return false;
-        }
-
-        return $teamId === null
-            || ($user->hasRole('Team Lead') && $teamId === $user->team_id);
+        return $user->can('manage tasks');
     }
 
     /** Can $user edit this task's own execution fields (status, current_updates, actual dates, time/days taken)? */
@@ -189,5 +200,26 @@ class ProjectAuthorizationService
     public function canManageProjectMembers(User $user, Project $project): bool
     {
         return $this->canManageProject($user, $project);
+    }
+
+    /**
+     * Can $actor assign $targetUser to $task?
+     * Super Admin can assign any user.
+     * Team Lead can only assign users who belong to their own HR team.
+     * Regular employees cannot assign tasks.
+     */
+    public function canAssignUserToTask(User $actor, ProjectTask $task, User $targetUser): bool
+    {
+        if ($actor->hasRole('Super Admin')) {
+            return true;
+        }
+
+        if ($actor->hasRole('Team Lead')) {
+            return $this->canManageTask($actor, $task)
+                && $targetUser->team_id !== null
+                && $targetUser->team_id === $actor->team_id;
+        }
+
+        return false;
     }
 }
