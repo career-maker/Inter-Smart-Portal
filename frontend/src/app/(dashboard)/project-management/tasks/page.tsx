@@ -333,9 +333,12 @@ export default function AllTasksPage() {
                     >
                       {/* Task Title & Catalog indicator */}
                       <td className="py-4 px-5">
-                        <span className="font-bold text-slate-900 dark:text-white block line-clamp-1">
+                        <Link
+                          href={`/project-management/tasks/${task.id}`}
+                          className="font-bold text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors block line-clamp-1"
+                        >
                           {task.title}
-                        </span>
+                        </Link>
                         <div className="flex items-center gap-2 mt-1">
                           {task.catalogTask && (
                             <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/60 px-2 py-0.5 rounded">
