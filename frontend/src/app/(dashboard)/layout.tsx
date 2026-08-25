@@ -7,7 +7,8 @@ import { useAuthStore } from "@/store/auth";
 import {
   LogOut, Menu, X, ChevronRight, Home, ChevronDown,
   LayoutDashboard, CalendarCheck, Briefcase, UserCircle,
-  Users, ShieldCheck, PanelLeftClose, PanelLeftOpen
+  Users, ShieldCheck, PanelLeftClose, PanelLeftOpen,
+  FolderKanban
 } from "lucide-react";
 import { NotificationDropdown } from "@/components/layout/NotificationDropdown";
 import { RecognitionTicker } from "@/components/layout/RecognitionTicker";
@@ -68,6 +69,17 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/leaves/approvals", label: "Leave Approvals", roles: ["Super Admin", "Team Lead"] },
       { href: "/leave-balances",   label: "Leave Balances", roles: ["Super Admin"] },
       { href: "/manage-leaves",    label: "Manage Approved Leaves/WFH", roles: ["Super Admin"] },
+    ],
+  },
+  {
+    id: "project-management",
+    label: "Project Management",
+    icon: FolderKanban,
+    items: [
+      { href: "/project-management",          label: "Overview" },
+      { href: "/project-management/projects",  label: "Projects" },
+      { href: "/project-management/tasks",     label: "All Tasks", roles: ["Super Admin", "Team Lead"] },
+      { href: "/project-management/tasks/my",  label: "My Tasks" },
     ],
   },
   {
