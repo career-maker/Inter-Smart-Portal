@@ -347,253 +347,107 @@ export default function ApprovalsPage() {
 
 
 
-  const LeaveCard = ({ req }: { req: any }) => (
-    <div className="bg-[#0b1322]/90 dark:bg-[#0b1322]/90 border border-slate-800/80 rounded-2xl p-6 shadow-xl space-y-4">
-      {/* Card Top Row: Avatar, Name, Designation & Status/Approve */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3 min-w-0">
-          <RoyalAvatar
-            src={req.user?.profile_photo_path}
-            name={`${req.user?.first_name} ${req.user?.last_name || ""}`.trim()}
-            userId={req.user_id || req.user?.id}
-            employeeCode={req.user?.employee_code}
-            className="w-10 h-10 rounded-full text-xs font-bold bg-amber-600 text-white"
-          />
-          <div className="min-w-0">
-            <h3 className="font-bold text-sm text-white leading-tight truncate">
-              <RoyalName
-                name={`${req.user?.first_name} ${req.user?.last_name || ""}`.trim()}
-                userId={req.user_id || req.user?.id}
-                employeeCode={req.user?.employee_code}
-              />
-            </h3>
-            <p className="text-xs text-slate-400 mt-0.5 truncate">{req.user?.designation || req.user?.role || "Employee"}</p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2.5 shrink-0">
-          {req.pending_lop_conversion ? (
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-500/15 text-rose-400 border border-rose-500/30">
-              <AlertTriangle className="w-3.5 h-3.5 animate-pulse" /> Pending LOP
-            </div>
-          ) : req.status === "Approved" ? (
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-              <CheckCircle className="w-3.5 h-3.5" /> Approved
-            </div>
-          ) : req.status === "Rejected" ? (
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-500/15 text-rose-400 border border-rose-500/30">
-              <XCircle className="w-3.5 h-3.5" /> Rejected
-            </div>
-          ) : (
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
-              <Clock className="w-3.5 h-3.5" /> Pending
-            </div>
-          )}
-
-          {req.status === "Pending" && !req.pending_lop_conversion && canApprove(req) && (
-            <button
-              onClick={() => approve("leave", req.id)}
-              disabled={actionLoading}
-              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold bg-[#10b981] hover:bg-[#059669] text-slate-950 shadow-md shadow-emerald-500/20 transition-transform hover:scale-105 disabled:opacity-50"
-            >
-              {actionLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <span>✓ Approve</span>}
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* 3-Column Info Row: TYPE, DURATION, DAYS */}
-      <div className="grid grid-cols-3 gap-6 pt-1">
-        <div>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">TYPE</p>
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-200">
-            <LeaveTypeIcon leaveTypeName={req.leave_type?.name} />
-            <span>{req.leave_type?.name || "Leave"}</span>
-          </div>
-        </div>
-
-        <div>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">DURATION</p>
-          <p className="text-xs font-semibold text-slate-200">
-            {fmtDate(req.start_date)} — {fmtDate(req.end_date)}
-          </p>
-        </div>
-
-        <div>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">DAYS</p>
-          <p className="text-xs font-bold text-slate-200">
-            {Number(req.days_taken ?? req.days ?? 0).toFixed(1)}
-          </p>
-        </div>
-      </div>
-
-      {/* Reason Inset Container */}
-      {req.reason && (
-        <div className="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3.5">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">REASON</p>
-          <p className="text-xs text-slate-300 font-normal leading-relaxed">{req.reason}</p>
-        </div>
-      )}
-
-      {/* Attachment (if any) */}
-      {req.attachment_link && (
-        <div className="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3.5 flex items-center justify-between gap-4">
-          <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">ATTACHMENT</p>
-            <p className="text-xs text-slate-300 truncate">{req.attachment_link}</p>
-          </div>
-          <a
-            href={req.attachment_link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg hover:bg-amber-500/30 transition shrink-0"
-          >
-            <Link2 className="h-3.5 w-3.5" /> View
-          </a>
-        </div>
-      )}
-
-      {/* Unpaid / LOP Warning Banner */}
-      {req.is_unpaid && (
-        <div className="bg-rose-950/20 border border-rose-900/40 rounded-xl p-3.5 space-y-1">
-          <div className="text-xs font-bold text-rose-400 flex items-center gap-1.5">
-            <span>⚠️</span>
-            <span>Marked as Unpaid (LOP)</span>
-          </div>
-          <p className="text-[11px] text-rose-300/80 leading-relaxed">
-            {req.unpaid_reason ||
-              `Insufficient ${req.leave_type?.name || "Leave"} balance. ${req.lop_days || req.days || 1} eligible working day(s) are Unpaid (LOP) due to exhausted balance.`}
-          </p>
-        </div>
-      )}
-
-      {/* Bottom Actions Row */}
-      {req.pending_lop_conversion ? (
-        <div className="flex flex-wrap gap-2 pt-1">
-          <button
-            onClick={() => handleLopConversion(req.id, "confirm")}
-            disabled={actionLoading}
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30 hover:bg-rose-500/30 transition disabled:opacity-50"
-          >
-            <CheckCircle className="h-3.5 w-3.5" /> Confirm LOP Conversion
-          </button>
-          <button
-            onClick={() => handleLopConversion(req.id, "reject")}
-            disabled={actionLoading}
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold bg-white/10 text-slate-300 border border-slate-700 hover:bg-white/15 transition disabled:opacity-50"
-          >
-            <XCircle className="h-3.5 w-3.5" /> Decline (Keep Paid)
-          </button>
-        </div>
-      ) : req.status === "Pending" ? (
-        <div className="flex items-center gap-3 pt-1">
-          <button
-            onClick={() => { setRejectDialog({ type: "leave", id: req.id }); setRejectReason(""); }}
-            disabled={actionLoading}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold text-rose-400 border border-rose-500/30 hover:bg-rose-500/10 transition-colors disabled:opacity-50"
-          >
-            <XCircle className="h-3.5 w-3.5" /> Reject
-          </button>
-
-          {isSuperAdmin && (
-            <button
-              onClick={() => openOverride(req)}
-              disabled={actionLoading}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold text-blue-400 border border-blue-500/30 hover:bg-blue-500/10 transition-colors disabled:opacity-50"
-            >
-              <Edit className="h-3.5 w-3.5" /> Override
-            </button>
-          )}
-        </div>
-      ) : null}
-    </div>
-  );
-
-  const WfhCard = ({ req }: { req: any }) => (
-    <div className="bg-[#0b1322]/90 dark:bg-[#0b1322]/90 border border-slate-800/80 rounded-2xl p-6 shadow-xl space-y-4">
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3 min-w-0">
-          <RoyalAvatar
-            src={req.user?.profile_photo_path}
-            name={`${req.user?.first_name} ${req.user?.last_name || ""}`.trim()}
-            userId={req.user_id || req.user?.id}
-            employeeCode={req.user?.employee_code}
-            className="w-10 h-10 rounded-full text-xs font-bold bg-indigo-600 text-white"
-          />
-          <div className="min-w-0">
-            <h3 className="font-bold text-sm text-white leading-tight truncate">
-              <RoyalName
-                name={`${req.user?.first_name} ${req.user?.last_name || ""}`.trim()}
-                userId={req.user_id || req.user?.id}
-                employeeCode={req.user?.employee_code}
-              />
-            </h3>
-            <p className="text-xs text-slate-400 mt-0.5 truncate">{req.user?.designation || req.user?.role || "Employee"}</p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2.5 shrink-0">
-          {req.duration_type && <DurationBadge type={req.duration_type} />}
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
-            <Clock className="w-3.5 h-3.5" /> Pending
-          </div>
-          {canApprove(req) && (
-            <button
-              onClick={() => approve("wfh", req.id)}
-              disabled={actionLoading}
-              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold bg-[#10b981] hover:bg-[#059669] text-slate-950 shadow-md shadow-emerald-500/20 transition-transform hover:scale-105 disabled:opacity-50"
-              title="Quick approve"
-            >
-              ✓ Approve
-            </button>
-          )}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-3 gap-6 pt-1">
-        <div>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">TYPE</p>
-          <p className="text-xs font-semibold text-slate-200">WFH (Work From Home)</p>
-        </div>
-        <div>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">DURATION</p>
-          <p className="text-xs font-semibold text-slate-200">{fmtDate(req.start_date)}{req.end_date && req.end_date !== req.start_date ? ` — ${fmtDate(req.end_date)}` : ""}</p>
-        </div>
-        <div>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">TL STATUS</p>
-          <p className={`text-xs font-bold ${req.tl_status === "Approved" ? "text-emerald-400" : req.tl_status === "Rejected" ? "text-red-400" : "text-amber-400"}`}>
-            {req.tl_status ?? "Pending"}
-          </p>
-        </div>
-      </div>
-
-      {req.reason && (
-        <div className="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3.5">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">REASON</p>
-          <p className="text-xs text-slate-300 font-normal leading-relaxed">{req.reason}</p>
-        </div>
-      )}
-
-      {req.status === "Pending" && (
-        <div className="flex items-center gap-3 pt-1">
-          <button
-            onClick={() => { setRejectDialog({ type: "wfh", id: req.id }); setRejectReason(""); }}
-            disabled={actionLoading}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold text-rose-400 border border-rose-500/30 hover:bg-rose-500/10 transition-colors disabled:opacity-50"
-          >
-            <XCircle className="h-3.5 w-3.5" /> Reject
-          </button>
-        </div>
-      )}
-    </div>
-  );
-
   return (
-    <div className="space-y-6 max-w-[1400px]">
-      {/* Page Title & Subtitle */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-white">Approvals Queue</h1>
-        <p className="text-xs text-slate-400 mt-1">Review and process pending leave and WFH requests from your team.</p>
+    <div className="space-y-6 w-full">
+      {/* Header Row: Title & Tabs on Left, Decorative Illustration on Right */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div className="space-y-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-white">Approvals Queue</h1>
+            <p className="text-xs text-slate-400 mt-1">Review and process pending leave and WFH requests from your team.</p>
+          </div>
+
+          {/* Row 1: Status Filter Tabs */}
+          <div className="flex flex-wrap items-center gap-2 border-b border-slate-800/80 pb-3">
+            {(["Pending", "Approved", "Rejected", "All"] as const).map((status) => {
+              let count = 0;
+              if (tab === "leaves") {
+                if (status === "Pending") count = leaveRequests.length;
+                else if (status === "Approved") count = approvedLeaves.length;
+                else if (status === "Rejected") count = rejectedLeaves.length;
+                else count = leaveRequests.length + approvedLeaves.length + rejectedLeaves.length;
+              } else {
+                count = status === "Pending" ? wfhRequests.length : 0;
+              }
+
+              const isActive = statusFilter === status;
+
+              return (
+                <button
+                  key={status}
+                  onClick={() => setStatusFilter(status)}
+                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
+                    isActive
+                      ? "bg-amber-500/10 border border-amber-500/30 text-amber-400 font-bold shadow-sm"
+                      : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+                  }`}
+                >
+                  {status === "Pending" && <Calendar className="w-3.5 h-3.5 text-amber-400" />}
+                  {status === "Approved" && <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />}
+                  {status === "Rejected" && <XCircle className="w-3.5 h-3.5 text-rose-400" />}
+                  {status === "All" && <History className="w-3.5 h-3.5 text-slate-400" />}
+                  <span>{status}</span>
+                  <span
+                    className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${
+                      isActive ? "bg-amber-500 text-slate-950" : "bg-white/10 text-slate-300"
+                    }`}
+                  >
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Row 2: Type Switcher (Leaves/WFH) */}
+          <div className="inline-flex items-center gap-1.5 bg-slate-900/80 border border-slate-800 p-1 rounded-2xl">
+            {(["leaves", "wfh"] as const).map((t) => {
+              const isActive = tab === t;
+              return (
+                <button
+                  key={t}
+                  onClick={() => setTab(t)}
+                  className={`flex items-center gap-2 px-4 py-1.5 text-xs font-bold rounded-xl transition-all whitespace-nowrap ${
+                    isActive
+                      ? "bg-blue-600/30 border border-blue-500/40 text-blue-300 shadow-sm"
+                      : "text-slate-400 hover:text-white hover:bg-white/5 font-semibold"
+                  }`}
+                >
+                  {t === "leaves" ? <Calendar className="w-3.5 h-3.5" /> : <Users className="w-3.5 h-3.5" />}
+                  <span>{t === "leaves" ? "Leave Requests" : "WFH Requests"}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Right: Decorative Illustrated Graphic */}
+        <div className="hidden lg:flex items-center justify-center pr-6">
+          <div className="relative w-44 h-32 flex items-center justify-center select-none pointer-events-none opacity-90">
+            <div className="absolute inset-0 bg-blue-500/10 blur-2xl rounded-full" />
+            <svg className="w-36 h-28 drop-shadow-2xl" viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+              {/* Clipboard Base */}
+              <rect x="35" y="18" width="90" height="96" rx="12" fill="#0f1f38" stroke="#1e3a6a" strokeWidth="2.5" />
+              {/* Clipboard Header Clip */}
+              <path d="M60 14C60 10.6863 62.6863 8 66 8H94C97.3137 8 100 10.6863 100 14V20H60V14Z" fill="#1e293b" stroke="#334155" strokeWidth="2" />
+              <rect x="72" y="12" width="16" height="4" rx="2" fill="#64748b" />
+              {/* Checklist rows */}
+              <path d="M50 38L55 43L66 32" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              <line x1="74" y1="38" x2="108" y2="38" stroke="#334155" strokeWidth="3" strokeLinecap="round" />
+
+              <path d="M50 58L55 63L66 52" stroke="#38bdf8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              <line x1="74" y1="58" x2="114" y2="58" stroke="#334155" strokeWidth="3" strokeLinecap="round" />
+
+              <path d="M50 78L55 83L66 72" stroke="#818cf8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              <line x1="74" y1="78" x2="102" y2="78" stroke="#334155" strokeWidth="3" strokeLinecap="round" />
+
+              {/* Glowing Clock Badge */}
+              <circle cx="120" cy="88" r="14" fill="#f59e0b" filter="drop-shadow(0 4px 10px rgba(245, 158, 11, 0.4))" />
+              <circle cx="120" cy="88" r="11" fill="#fbbf24" />
+              <path d="M120 82V88L124 90" stroke="#0f172a" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </div>
+        </div>
       </div>
 
       {successMessage && (
@@ -602,59 +456,11 @@ export default function ApprovalsPage() {
         </div>
       )}
 
-      {/* Row 1: Status Filter Tabs */}
-      <div className="flex flex-wrap items-center gap-2">
-        {(["Pending", "Approved", "Rejected", "All"] as const).map((status) => {
-          let count = 0;
-          if (tab === "leaves") {
-            if (status === "Pending") count = leaveRequests.length;
-            else if (status === "Approved") count = approvedLeaves.length;
-            else if (status === "Rejected") count = rejectedLeaves.length;
-            else count = leaveRequests.length + approvedLeaves.length + rejectedLeaves.length;
-          } else {
-            count = status === "Pending" ? wfhRequests.length : 0;
-          }
-
-          const isActive = statusFilter === status;
-
-          return (
-            <button
-              key={status}
-              onClick={() => setStatusFilter(status)}
-              className={`px-4 py-1.5 text-xs font-bold rounded-full transition-all whitespace-nowrap ${
-                isActive
-                  ? "bg-[#f59e0b] text-slate-950 shadow-md shadow-amber-500/25"
-                  : "text-slate-300 hover:text-white hover:bg-white/5 font-semibold"
-              }`}
-            >
-              {status} <span className="ml-0.5 opacity-90">({count})</span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Row 2: Type Switcher (Leaves/WFH) */}
-      <div className="flex items-center gap-2 mb-2">
-        {(["leaves", "wfh"] as const).map((t) => {
-          const isActive = tab === t;
-          return (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`px-4 py-2 text-xs font-bold rounded-full transition-all whitespace-nowrap ${
-                isActive
-                  ? "bg-[#2563eb] text-white shadow-md shadow-blue-600/30"
-                  : "text-slate-300 hover:text-white hover:bg-white/5 font-semibold"
-              }`}
-            >
-              {t === "leaves" ? "Leave Requests" : "WFH Requests"}
-            </button>
-          );
-        })}
-      </div>
-
+      {/* Full-Width Table View */}
       {isLoading ? (
-        <div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-slate-400" /></div>
+        <div className="flex justify-center py-20 bg-[#0b1322]/80 border border-slate-800/80 rounded-2xl">
+          <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
+        </div>
       ) : tab === "leaves" ? (
         (() => {
           let displayRequests = [];
@@ -663,26 +469,357 @@ export default function ApprovalsPage() {
           else if (statusFilter === "Rejected") displayRequests = rejectedLeaves;
           else displayRequests = [...leaveRequests, ...approvedLeaves, ...rejectedLeaves];
 
-          return displayRequests.length === 0 ? (
-            <div className="bg-[#0b1322]/60 border border-slate-800/60 rounded-2xl py-16 text-center text-slate-400 text-sm">
-              No {statusFilter === "All" ? "" : statusFilter.toLowerCase()} leave requests.
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {displayRequests.map((req) => <LeaveCard key={req.id} req={req} />)}
+          return (
+            <div className="w-full bg-[#0b1322]/90 dark:bg-[#0b1322]/90 border border-slate-800/80 rounded-2xl shadow-xl overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-800/80 bg-slate-900/40 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                      <th className="py-4 px-6">Employee</th>
+                      <th className="py-4 px-6">Type</th>
+                      <th className="py-4 px-6">Duration</th>
+                      <th className="py-4 px-6">Days</th>
+                      <th className="py-4 px-6">Reason</th>
+                      <th className="py-4 px-6">Status</th>
+                      <th className="py-4 px-6 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/50 text-sm">
+                    {displayRequests.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} className="py-16 text-center text-slate-400 text-sm">
+                          No {statusFilter === "All" ? "" : statusFilter.toLowerCase()} leave requests found.
+                        </td>
+                      </tr>
+                    ) : (
+                      displayRequests.map((req) => (
+                        <tr key={req.id} className="hover:bg-slate-800/20 transition-colors">
+                          {/* Column 1: Employee */}
+                          <td className="py-4 px-6 align-top">
+                            <div className="flex items-center gap-3">
+                              <RoyalAvatar
+                                src={req.user?.profile_photo_path}
+                                name={`${req.user?.first_name} ${req.user?.last_name || ""}`.trim()}
+                                userId={req.user_id || req.user?.id}
+                                employeeCode={req.user?.employee_code}
+                                className="w-10 h-10 rounded-full text-xs font-bold bg-amber-600 text-white shrink-0"
+                              />
+                              <div className="min-w-0">
+                                <h3 className="font-bold text-sm text-white leading-tight truncate">
+                                  <RoyalName
+                                    name={`${req.user?.first_name} ${req.user?.last_name || ""}`.trim()}
+                                    userId={req.user_id || req.user?.id}
+                                    employeeCode={req.user?.employee_code}
+                                  />
+                                </h3>
+                                <p className="text-xs text-slate-400 mt-0.5 truncate">
+                                  {req.user?.designation || req.user?.role || "Employee"}
+                                </p>
+                              </div>
+                            </div>
+                          </td>
+
+                          {/* Column 2: Type */}
+                          <td className="py-4 px-6 align-top">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+                                <LeaveTypeIcon leaveTypeName={req.leave_type?.name} />
+                              </div>
+                              <span className="text-xs font-semibold text-slate-200">
+                                {req.leave_type?.name || "Leave"}
+                              </span>
+                            </div>
+                          </td>
+
+                          {/* Column 3: Duration */}
+                          <td className="py-4 px-6 align-top">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-8 h-8 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0">
+                                <Calendar className="w-4 h-4" />
+                              </div>
+                              <div className="text-xs text-slate-200">
+                                <p className="font-medium whitespace-nowrap">{fmtDate(req.start_date)}</p>
+                                <p className="text-slate-500 text-[10px] leading-tight">—</p>
+                                <p className="font-medium whitespace-nowrap">{fmtDate(req.end_date)}</p>
+                              </div>
+                            </div>
+                          </td>
+
+                          {/* Column 4: Days */}
+                          <td className="py-4 px-6 align-top">
+                            <span className="text-sm font-bold text-slate-200">
+                              {Number(req.days_taken ?? req.days ?? 0).toFixed(1)}
+                            </span>
+                            <span className="block text-[10px] text-slate-400">
+                              {Number(req.days_taken ?? req.days ?? 0) === 1 ? "day" : "days"}
+                            </span>
+                          </td>
+
+                          {/* Column 5: Reason */}
+                          <td className="py-4 px-6 align-top">
+                            <div className="max-w-[200px]">
+                              <p className="text-xs text-slate-300 font-normal leading-relaxed break-words">
+                                {req.reason || "—"}
+                              </p>
+                              {req.attachment_link && (
+                                <a
+                                  href={req.attachment_link}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 text-[10px] text-amber-400 hover:underline mt-1"
+                                >
+                                  <Link2 className="w-3 h-3" /> View Attachment
+                                </a>
+                              )}
+                            </div>
+                          </td>
+
+                          {/* Column 6: Status */}
+                          <td className="py-4 px-6 align-top">
+                            <div className="space-y-1.5 max-w-[240px]">
+                              {req.pending_lop_conversion ? (
+                                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-500/15 text-rose-400 border border-rose-500/30">
+                                  <AlertTriangle className="w-3 h-3 animate-pulse" /> Pending LOP
+                                </div>
+                              ) : req.status === "Approved" ? (
+                                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                                  <CheckCircle className="w-3 h-3" /> Approved
+                                </div>
+                              ) : req.status === "Rejected" ? (
+                                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-500/15 text-rose-400 border border-rose-500/30">
+                                  <XCircle className="w-3 h-3" /> Rejected
+                                </div>
+                              ) : (
+                                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                                  <Clock className="w-3 h-3" /> Pending
+                                </div>
+                              )}
+
+                              {req.is_unpaid && (
+                                <div className="pt-1">
+                                  <p className="text-xs font-bold text-rose-400">Marked as Unpaid (LOP)</p>
+                                  <p className="text-[10px] text-slate-400 leading-tight mt-0.5">
+                                    {req.unpaid_reason ||
+                                      `Insufficient ${req.leave_type?.name || "Leave"} balance. ${
+                                        req.lop_days || req.days || 1
+                                      } eligible working day(s) are Unpaid (LOP) due to exhausted balance.`}
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          </td>
+
+                          {/* Column 7: Actions */}
+                          <td className="py-4 px-6 align-top text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <div className="flex flex-col gap-1.5">
+                                {req.pending_lop_conversion ? (
+                                  <>
+                                    <button
+                                      onClick={() => handleLopConversion(req.id, "confirm")}
+                                      disabled={actionLoading}
+                                      className="inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30 hover:bg-rose-500/30 transition disabled:opacity-50"
+                                    >
+                                      <CheckCircle className="w-3.5 h-3.5" /> Confirm LOP
+                                    </button>
+                                    <button
+                                      onClick={() => handleLopConversion(req.id, "reject")}
+                                      disabled={actionLoading}
+                                      className="inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-white/10 text-slate-300 border border-slate-700 hover:bg-white/15 transition disabled:opacity-50"
+                                    >
+                                      <XCircle className="w-3.5 h-3.5" /> Decline
+                                    </button>
+                                  </>
+                                ) : req.status === "Pending" ? (
+                                  <>
+                                    {canApprove(req) && (
+                                      <button
+                                        onClick={() => approve("leave", req.id)}
+                                        disabled={actionLoading}
+                                        className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold border border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10 transition-colors disabled:opacity-50"
+                                      >
+                                        <Check className="w-3.5 h-3.5" /> Approve
+                                      </button>
+                                    )}
+                                    <button
+                                      onClick={() => {
+                                        setRejectDialog({ type: "leave", id: req.id });
+                                        setRejectReason("");
+                                      }}
+                                      disabled={actionLoading}
+                                      className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold border border-rose-500/40 text-rose-400 hover:bg-rose-500/10 transition-colors disabled:opacity-50"
+                                    >
+                                      <XCircle className="w-3.5 h-3.5" /> Reject
+                                    </button>
+                                  </>
+                                ) : null}
+                              </div>
+
+                              {/* Super Admin Override button */}
+                              {isSuperAdmin && req.status === "Pending" && (
+                                <button
+                                  onClick={() => openOverride(req)}
+                                  className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors"
+                                  title="Override Leave Request"
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Table Footer / Pagination */}
+              {displayRequests.length > 0 && (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-slate-800/80 bg-slate-900/30 text-xs text-slate-400">
+                  <span>Showing 1 to {displayRequests.length} of {displayRequests.length} requests</span>
+                  <div className="flex items-center gap-2">
+                    <button className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors disabled:opacity-40" disabled>
+                      ‹
+                    </button>
+                    <span className="px-2.5 py-1 rounded-lg bg-blue-600 text-white font-bold text-xs">1</span>
+                    <button className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors disabled:opacity-40" disabled>
+                      ›
+                    </button>
+                    <span className="ml-2 px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 font-medium">10 / page</span>
+                  </div>
+                </div>
+              )}
             </div>
           );
         })()
       ) : (
-        wfhRequests.length === 0 ? (
-          <div className="bg-[#0b1322]/60 border border-slate-800/60 rounded-2xl py-16 text-center text-slate-400 text-sm">
-            No pending WFH requests.
+        /* WFH Table */
+        <div className="w-full bg-[#0b1322]/90 dark:bg-[#0b1322]/90 border border-slate-800/80 rounded-2xl shadow-xl overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-slate-800/80 bg-slate-900/40 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                  <th className="py-4 px-6">Employee</th>
+                  <th className="py-4 px-6">Type</th>
+                  <th className="py-4 px-6">Duration</th>
+                  <th className="py-4 px-6">TL Status</th>
+                  <th className="py-4 px-6">Reason</th>
+                  <th className="py-4 px-6">Status</th>
+                  <th className="py-4 px-6 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800/50 text-sm">
+                {wfhRequests.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="py-16 text-center text-slate-400 text-sm">
+                      No pending WFH requests.
+                    </td>
+                  </tr>
+                ) : (
+                  wfhRequests.map((req) => (
+                    <tr key={req.id} className="hover:bg-slate-800/20 transition-colors">
+                      {/* Employee */}
+                      <td className="py-4 px-6 align-top">
+                        <div className="flex items-center gap-3">
+                          <RoyalAvatar
+                            src={req.user?.profile_photo_path}
+                            name={`${req.user?.first_name} ${req.user?.last_name || ""}`.trim()}
+                            userId={req.user_id || req.user?.id}
+                            employeeCode={req.user?.employee_code}
+                            className="w-10 h-10 rounded-full text-xs font-bold bg-indigo-600 text-white shrink-0"
+                          />
+                          <div className="min-w-0">
+                            <h3 className="font-bold text-sm text-white leading-tight truncate">
+                              <RoyalName
+                                name={`${req.user?.first_name} ${req.user?.last_name || ""}`.trim()}
+                                userId={req.user_id || req.user?.id}
+                                employeeCode={req.user?.employee_code}
+                              />
+                            </h3>
+                            <p className="text-xs text-slate-400 mt-0.5 truncate">
+                              {req.user?.designation || req.user?.role || "Employee"}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Type */}
+                      <td className="py-4 px-6 align-top">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-semibold text-slate-200">WFH</span>
+                          {req.duration_type && <DurationBadge type={req.duration_type} />}
+                        </div>
+                      </td>
+
+                      {/* Duration */}
+                      <td className="py-4 px-6 align-top">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0">
+                            <Calendar className="w-4 h-4" />
+                          </div>
+                          <div className="text-xs text-slate-200">
+                            <p className="font-medium whitespace-nowrap">{fmtDate(req.start_date)}</p>
+                            {req.end_date && req.end_date !== req.start_date && (
+                              <>
+                                <p className="text-slate-500 text-[10px] leading-tight">—</p>
+                                <p className="font-medium whitespace-nowrap">{fmtDate(req.end_date)}</p>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* TL Status */}
+                      <td className="py-4 px-6 align-top">
+                        <span className={`text-xs font-bold ${req.tl_status === "Approved" ? "text-emerald-400" : req.tl_status === "Rejected" ? "text-red-400" : "text-amber-400"}`}>
+                          {req.tl_status ?? "Pending"}
+                        </span>
+                      </td>
+
+                      {/* Reason */}
+                      <td className="py-4 px-6 align-top">
+                        <p className="text-xs text-slate-300 max-w-[200px] leading-relaxed break-words">{req.reason || "—"}</p>
+                      </td>
+
+                      {/* Status */}
+                      <td className="py-4 px-6 align-top">
+                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                          <Clock className="w-3 h-3" /> Pending
+                        </div>
+                      </td>
+
+                      {/* Actions */}
+                      <td className="py-4 px-6 align-top text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          {canApprove(req) && (
+                            <button
+                              onClick={() => approve("wfh", req.id)}
+                              disabled={actionLoading}
+                              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold border border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10 transition-colors disabled:opacity-50"
+                            >
+                              <Check className="w-3.5 h-3.5" /> Approve
+                            </button>
+                          )}
+                          <button
+                            onClick={() => {
+                              setRejectDialog({ type: "wfh", id: req.id });
+                              setRejectReason("");
+                            }}
+                            disabled={actionLoading}
+                            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold border border-rose-500/40 text-rose-400 hover:bg-rose-500/10 transition-colors disabled:opacity-50"
+                          >
+                            <XCircle className="w-3.5 h-3.5" /> Reject
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
-        ) : (
-          <div className="space-y-4">
-            {wfhRequests.map((req) => <WfhCard key={req.id} req={req} />)}
-          </div>
-        )
+        </div>
       )}
 
       {/* ── Reject Dialog ── */}
