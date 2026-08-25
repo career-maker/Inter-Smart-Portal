@@ -31,6 +31,7 @@ import { TaskStatusBadge } from "@/components/project-management/TaskStatusBadge
 import { TaskPriorityBadge } from "@/components/project-management/TaskPriorityBadge";
 import { TaskExecutionModal } from "@/components/project-management/TaskExecutionModal";
 import { TaskAssigneeModal } from "@/components/project-management/TaskAssigneeModal";
+import { TaskComments } from "@/components/project-management/TaskComments";
 
 function formatDateDisplay(dateStr?: string | null): string {
   if (!dateStr) return "—";
@@ -354,6 +355,9 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ id: stri
               </div>
             )}
           </div>
+
+          {/* ── Discussion & Comments ── */}
+          <TaskComments taskId={task.id} />
         </div>
 
         {/* ── Right Column: Assignees, Project & Meta (1/3) ── */}
