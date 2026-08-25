@@ -430,3 +430,50 @@ Route::post('system/scheduler/run', function (\Illuminate\Http\Request $request)
 
     return response()->json(['status' => 'scheduler_invoked']);
 })->middleware('throttle:5,1');
+
+
+// ──────────────────────────────────────────────────────────────────────────
+// Project Management Module (PM) — Stage 7 backend foundation.
+//
+// Fully isolated/additive: no existing route above this block is touched.
+// Every route below requires auth:sanctum (the existing HR Sanctum session
+// — no new auth mechanism). Fine-grained capability checks use the
+// existing Spatie `$user->can('...')` pattern (new PM permissions only,
+// seeded separately — see database/seeders/ProjectManagementPermissionsSeeder.php,
+// RolesAndPermissionsSeeder itself is never edited). Object-level checks
+// (project membership, task assignee, resolved coordinator, team match)
+// are enforced inside the controllers via ProjectAuthorizationService —
+// matching the existing codebase's only real authorization pattern
+// (inline manual checks, no Laravel Policies, no `permission:` route
+// middleware — see LeaveRequestController/WfhRequestController for the
+// existing precedent this mirrors).
+//
+// Project Coordinator is NOT a role and NOT a permission — see
+// ProjectAuthorizationService::isEligibleCoordinator() /
+// resolveTaskCoordinator(). See PROJECT_MANAGEMENT_MODULE_DESIGN.md.
+// ──────────────────────────────────────────────────────────────────────────
+Route::middleware('auth:sanctum')->prefix('projects')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Api\ProjectController::class, 'index']);
+    Route::post('/', [\App\Http\Controllers\Api\ProjectController::class, 'store']);
+    Route::get('{project}', [\App\Http\Controllers\Api\ProjectController::class, 'show']);
+    Route::put('{project}', [\App\Http\Controllers\Api\ProjectController::class, 'update']);
+    Route::delete('{project}', [\App\Http\Controllers\Api\ProjectController::class, 'destroy']);
+    Route::get('{project}/members', [\App\Http\Controllers\Api\ProjectController::class, 'members']);
+    Route::post('{project}/members', [\App\Http\Controllers\Api\ProjectController::class, 'addMember']);
+    Route::delete('{project}/members/{userId}', [\App\Http\Controllers\Api\ProjectController::class, 'removeMember']);
+    Route::post('{project}/coordinator', [\App\Http\Controllers\Api\ProjectController::class, 'setCoordinator']);
+    Route::post('{project}/tasks', [\App\Http\Controllers\Api\ProjectTaskController::class, 'store']);
+});
+
+Route::middleware('auth:sanctum')->prefix('project-tasks')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Api\ProjectTaskController::class, 'index']);
+    Route::get('my', [\App\Http\Controllers\Api\ProjectTaskController::class, 'my']);
+    Route::get('{task}', [\App\Http\Controllers\Api\ProjectTaskController::class, 'show']);
+    Route::put('{task}', [\App\Http\Controllers\Api\ProjectTaskController::class, 'update']);
+    Route::post('{task}/status', [\App\Http\Controllers\Api\ProjectTaskController::class, 'updateStatus']);
+    Route::post('{task}/assignees', [\App\Http\Controllers\Api\ProjectTaskController::class, 'addAssignee']);
+    Route::delete('{task}/assignees/{userId}', [\App\Http\Controllers\Api\ProjectTaskController::class, 'removeAssignee']);
+    Route::post('{task}/coordinator', [\App\Http\Controllers\Api\ProjectTaskController::class, 'setCoordinator']);
+    Route::get('{task}/comments', [\App\Http\Controllers\Api\ProjectTaskCommentController::class, 'index']);
+    Route::post('{task}/comments', [\App\Http\Controllers\Api\ProjectTaskCommentController::class, 'store']);
+});
