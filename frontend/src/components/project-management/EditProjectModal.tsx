@@ -5,6 +5,7 @@ import { X, Loader2, Edit3, AlertCircle, Link2 } from "lucide-react";
 import api from "@/services/api";
 import pmApi from "@/services/pm";
 import { Project, ProjectStatus, PROJECT_STATUSES, UpdateProjectPayload } from "@/types/pm";
+import { SearchableCoordinatorSelect } from "./SearchableCoordinatorSelect";
 
 interface EditProjectModalProps {
   project: Project;
@@ -33,7 +34,7 @@ export function EditProjectModal({ project, isOpen, onClose, onSuccess }: EditPr
 
   const [teams, setTeams] = useState<{ id: number; name: string }[]>([]);
   const [coordinators, setCoordinators] = useState<
-    { id: number; first_name: string; last_name: string; department?: string }[]
+    { id: number; first_name: string; last_name: string; employee_code?: string; department?: string }[]
   >([]);
   const [loadingMeta, setLoadingMeta] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -64,7 +65,7 @@ export function EditProjectModal({ project, isOpen, onClose, onSuccess }: EditPr
       try {
         const [teamsRes, empsRes] = await Promise.allSettled([
           api.get("/teams"),
-          api.get("/employees?per_page=200"),
+          api.get("/employees?per_page=all"),
         ]);
 
         if (teamsRes.status === "fulfilled") {
@@ -79,6 +80,7 @@ export function EditProjectModal({ project, isOpen, onClose, onSuccess }: EditPr
               id: e.id,
               first_name: e.first_name,
               last_name: e.last_name,
+              employee_code: e.employee_code,
               department: e.team?.name || "General",
             }));
             setCoordinators(mapped);
@@ -263,23 +265,12 @@ export function EditProjectModal({ project, isOpen, onClose, onSuccess }: EditPr
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Project Coordinator
               </label>
-              <select
-                value={formData.project_coordinator_id || ""}
-                onChange={(e) =>
-                  handleChange(
-                    "project_coordinator_id",
-                    e.target.value ? Number(e.target.value) : null
-                  )
-                }
-                className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-              >
-                <option value="">Unassigned</option>
-                {coordinators.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.first_name} {c.last_name} ({c.department})
-                  </option>
-                ))}
-              </select>
+              <SearchableCoordinatorSelect
+                value={formData.project_coordinator_id}
+                onChange={(val) => handleChange("project_coordinator_id", val)}
+                coordinators={coordinators}
+                placeholder="Unassigned"
+              />
             </div>
           </div>
 

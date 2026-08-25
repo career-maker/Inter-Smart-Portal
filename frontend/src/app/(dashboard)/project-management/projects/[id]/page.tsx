@@ -40,6 +40,7 @@ import {
 import { ProjectStatusBadge } from "@/components/project-management/ProjectStatusBadge";
 import { EditProjectModal } from "@/components/project-management/EditProjectModal";
 import { AddProjectMemberModal } from "@/components/project-management/AddProjectMemberModal";
+import { SearchableCoordinatorSelect } from "@/components/project-management/SearchableCoordinatorSelect";
 
 function formatDateDisplay(dateStr?: string | null): string {
   if (!dateStr) return "—";
@@ -78,7 +79,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
 
   // Coordinator change selector state
   const [coordinators, setCoordinators] = useState<
-    { id: number; first_name: string; last_name: string; department?: string }[]
+    { id: number; first_name: string; last_name: string; employee_code?: string; department?: string }[]
   >([]);
   const [selectedCoordinatorId, setSelectedCoordinatorId] = useState<string>("");
   const [savingCoordinator, setSavingCoordinator] = useState(false);
@@ -134,13 +135,14 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
   useEffect(() => {
     const fetchCoordinators = async () => {
       try {
-        const res = await api.get("/employees?per_page=300");
+        const res = await api.get("/employees?per_page=all");
         const raw = res.data?.data?.data || res.data?.data || [];
         if (Array.isArray(raw)) {
           const mapped = raw.map((e: any) => ({
             id: e.id,
             first_name: e.first_name,
             last_name: e.last_name,
+            employee_code: e.employee_code,
             department: e.team?.name || "General",
           }));
           setCoordinators(mapped);
@@ -504,18 +506,12 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
 
             {(isSuperAdmin || isTeamLead) ? (
               <div className="space-y-3 pt-2">
-                <select
-                  value={selectedCoordinatorId}
-                  onChange={(e) => setSelectedCoordinatorId(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                >
-                  <option value="">No Coordinator Assigned</option>
-                  {coordinators.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.first_name} {c.last_name} ({c.department})
-                    </option>
-                  ))}
-                </select>
+                <SearchableCoordinatorSelect
+                  value={selectedCoordinatorId ? Number(selectedCoordinatorId) : null}
+                  onChange={(val) => setSelectedCoordinatorId(val ? String(val) : "")}
+                  coordinators={coordinators}
+                  placeholder="No Coordinator Assigned"
+                />
 
                 <button
                   type="button"

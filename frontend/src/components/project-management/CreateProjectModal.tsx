@@ -5,6 +5,7 @@ import { X, Loader2, FolderPlus, AlertCircle, Calendar, Building2, User, Link2, 
 import api from "@/services/api";
 import pmApi from "@/services/pm";
 import { Project, ProjectStatus, PROJECT_STATUSES, StoreProjectPayload, HubstaffProject } from "@/types/pm";
+import { SearchableCoordinatorSelect } from "./SearchableCoordinatorSelect";
 
 interface CreateProjectModalProps {
   isOpen: boolean;
@@ -53,7 +54,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
       try {
         const [teamsRes, empsRes, hsRes] = await Promise.allSettled([
           api.get("/teams"),
-          api.get("/employees?per_page=200"),
+          api.get("/employees?per_page=all"),
           pmApi.getHubstaffProjects(),
         ]);
 
@@ -335,20 +336,12 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Project Coordinator
               </label>
-              <select
-                value={formData.project_coordinator_id || ""}
-                onChange={(e) =>
-                  handleChange("project_coordinator_id", e.target.value ? Number(e.target.value) : null)
-                }
-                className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-              >
-                <option value="">-- Unassigned Coordinator --</option>
-                {coordinators.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.first_name} {c.last_name} ({c.department})
-                  </option>
-                ))}
-              </select>
+              <SearchableCoordinatorSelect
+                value={formData.project_coordinator_id}
+                onChange={(val) => handleChange("project_coordinator_id", val)}
+                coordinators={coordinators}
+                placeholder="-- Unassigned Coordinator --"
+              />
             </div>
           </div>
 

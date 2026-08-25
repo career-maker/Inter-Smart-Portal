@@ -49,7 +49,12 @@ class EmployeeController extends Controller
             $query->role($request->role);
         }
 
-        return EmployeeResource::collection($query->paginate(10));
+        $perPage = $request->input('per_page', 10);
+        if ($perPage === 'all' || (int)$perPage === -1) {
+            return EmployeeResource::collection($query->get());
+        }
+
+        return EmployeeResource::collection($query->paginate((int)$perPage));
     }
 
     public function store(StoreEmployeeRequest $request)
