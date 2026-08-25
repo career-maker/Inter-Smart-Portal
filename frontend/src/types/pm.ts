@@ -138,21 +138,37 @@ export interface ProjectTaskAssigneeSummary {
   };
 }
 
+export interface ProjectTaskCatalog {
+  id: number;
+  name: string;
+  category?: string | null;
+  description?: string | null;
+  is_active: boolean;
+  created_by?: number | null;
+  updated_by?: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ProjectTask {
   id: number;
   project_id: number;
   sub_phase_id?: number | null;
+  catalog_task_id?: number | null;
   team_id?: number | null;
   coordinator_id?: number | null;
   title: string;
   description?: string | null;
   status: TaskStatus;
   priority: TaskPriority;
-  planned_start_date?: string | null;
+  start_date?: string | null;
   due_date?: string | null;
   actual_start_date?: string | null;
-  achievement_date?: string | null;
-  allotted_effort?: number | null;
+  actual_completion_date?: string | null;
+  include_saturday?: boolean;
+  include_sunday?: boolean;
+  sprint?: string | null;
+  sprint_link?: string | null;
   allotted_days?: number | null;
   time_taken?: number | null;
   days_taken?: number | null;
@@ -168,6 +184,8 @@ export interface ProjectTask {
   // Eager-loaded relations
   project?: { id: number; name: string; team_id?: number | null };
   sub_phase?: { id: number; name: string } | null;
+  catalog_task?: ProjectTaskCatalog | null;
+  catalogTask?: ProjectTaskCatalog | null;
   coordinator?: ProjectCoordinatorSummary | null;
   assignees?: ProjectTaskAssigneeSummary[];
 }
@@ -218,8 +236,8 @@ export interface PaginatedResponse<T> {
 }
 
 export interface ApiResponse<T> {
-  message?: string;
   data: T;
+  message?: string;
 }
 
 // ── Request Payloads ─────────────────────────────────────────────────────────
@@ -265,27 +283,31 @@ export interface ProjectFilterParams {
 
 export interface StoreProjectTaskPayload {
   title: string;
+  catalog_task_id?: number | null;
   description?: string | null;
   sub_phase_id?: number | null;
   team_id?: number | null;
   coordinator_id?: number | null;
   status?: TaskStatus;
   priority?: TaskPriority;
-  planned_start_date?: string | null;
+  start_date?: string | null;
   due_date?: string | null;
-  allotted_effort?: number | null;
+  include_saturday?: boolean;
+  include_sunday?: boolean;
+  sprint?: string | null;
+  sprint_link?: string | null;
   allotted_days?: number | null;
+  current_updates?: string | null;
   assignee_ids?: number[];
 }
 
 export interface UpdateProjectTaskPayload extends Partial<StoreProjectTaskPayload> {
   actual_start_date?: string | null;
-  achievement_date?: string | null;
+  actual_completion_date?: string | null;
   time_taken?: number | null;
   days_taken?: number | null;
   deviation_reason?: string | null;
   activity_percentage?: number | null;
-  current_updates?: string | null;
 }
 
 export interface UpdateProjectTaskStatusPayload {
@@ -307,7 +329,9 @@ export interface TaskFilterParams {
   sub_phase_id?: number;
   team_id?: number;
   status?: string;
+  priority?: string;
   assignee_id?: number;
+  search?: string;
   page?: number;
 }
 

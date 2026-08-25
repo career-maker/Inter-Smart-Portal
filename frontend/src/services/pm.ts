@@ -11,6 +11,7 @@ import {
   ProjectMember,
   ProjectMemberUser,
   ProjectTask,
+  ProjectTaskCatalog,
   ProjectTaskAssignee,
   ProjectTaskComment,
   PaginatedResponse,
@@ -223,6 +224,22 @@ export const pmApi = {
       `/project-tasks/${taskId}/comments`,
       payload
     );
+    return res.data;
+  },
+
+  // ── Task Catalog ───────────────────────────────────────────────────────────
+
+  /**
+   * List task catalog items (active items for selectors, or paginated list for administration).
+   */
+  getTaskCatalog: async (params?: {
+    is_active?: boolean;
+    search?: string;
+    category?: string;
+    all?: boolean;
+    page?: number;
+  }): Promise<{ data: ProjectTaskCatalog[] } | PaginatedResponse<ProjectTaskCatalog>> => {
+    const res = await api.get('/pm-task-catalog', { params });
     return res.data;
   },
 };
