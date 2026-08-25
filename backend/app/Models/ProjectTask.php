@@ -40,13 +40,13 @@ class ProjectTask extends Model
 
     /** Fields that require `manage tasks` (or being the owning team's Team Lead / Super Admin) — Decision 2. */
     public const PLANNING_FIELDS = [
-        'project_id', 'sub_phase_id', 'coordinator_id', 'title', 'description',
+        'project_id', 'sub_phase_id', 'catalog_task_id', 'coordinator_id', 'title', 'description',
         'priority', 'start_date', 'due_date', 'include_saturday', 'include_sunday',
         'sprint', 'sprint_link', 'allotted_days', 'activity_percentage', 'team_id',
     ];
 
     protected $fillable = [
-        'project_id', 'sub_phase_id', 'coordinator_id', 'title', 'description',
+        'project_id', 'sub_phase_id', 'catalog_task_id', 'coordinator_id', 'title', 'description',
         'status', 'priority', 'start_date', 'due_date', 'actual_start_date',
         'actual_completion_date', 'include_saturday', 'include_sunday',
         'current_updates', 'deviation_reason', 'sprint', 'sprint_link',
@@ -77,6 +77,11 @@ class ProjectTask extends Model
     public function subPhase(): BelongsTo
     {
         return $this->belongsTo(ProjectSubPhase::class, 'sub_phase_id');
+    }
+
+    public function catalogTask(): BelongsTo
+    {
+        return $this->belongsTo(ProjectTaskCatalog::class, 'catalog_task_id');
     }
 
     /** Task-level coordinator override; falls back to project()->coordinator when null. */

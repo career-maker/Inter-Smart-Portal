@@ -477,3 +477,11 @@ Route::middleware('auth:sanctum')->prefix('project-tasks')->group(function () {
     Route::get('{task}/comments', [\App\Http\Controllers\Api\ProjectTaskCommentController::class, 'index']);
     Route::post('{task}/comments', [\App\Http\Controllers\Api\ProjectTaskCommentController::class, 'store']);
 });
+
+Route::middleware('auth:sanctum')->prefix('pm-task-catalog')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Api\ProjectTaskCatalogController::class, 'index']);
+    Route::post('/', [\App\Http\Controllers\Api\ProjectTaskCatalogController::class, 'store']);
+    Route::get('{catalog}', [\App\Http\Controllers\Api\ProjectTaskCatalogController::class, 'show']);
+    Route::put('{catalog}', [\App\Http\Controllers\Api\ProjectTaskCatalogController::class, 'update']);
+    Route::delete('{catalog}', [\App\Http\Controllers\Api\ProjectTaskCatalogController::class, 'destroy']);
+});
