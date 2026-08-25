@@ -25,13 +25,26 @@ return new class extends Migration
      * normalized name into one generated string, then putting a single
      * plain UNIQUE index on it, correctly enforces "unique per team, and
      * unique among global entries" with standard portable SQL only.
+     *
+     * team_id's delete action is RESTRICT, not CASCADE. Two reasons:
+     * (1) required — MySQL/InnoDB forbids ON DELETE CASCADE/SET NULL on
+     * any column a generated column's expression depends on, and
+     * scope_key below reads team_id directly (this is the exact cause
+     * of the earlier "SQLSTATE[HY000]: 1215 Cannot add foreign key
+     * constraint" failure); (2) correct regardless — an HR team
+     * deletion should never silently wipe a team's sub-phase taxonomy
+     * (and, transitively, orphan pm_tasks still pointing at it). RESTRICT
+     * forces that to be an explicit decision instead of a silent cascade.
+     * No existing HR table has any enforced FK to teams.id to match a
+     * convention against — this is reasoned from the architecture, not
+     * borrowed from precedent that doesn't exist.
      */
     public function up(): void
     {
         Schema::create('pm_sub_phases', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->foreignId('team_id')->nullable()->constrained('teams')->onDelete('cascade'); // NULL = global
+            $table->foreignId('team_id')->nullable()->constrained('teams')->onDelete('restrict'); // NULL = global
             $table->text('description')->nullable();
             $table->integer('display_order')->default(0);
             $table->boolean('is_active')->default(true);
