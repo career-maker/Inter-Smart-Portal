@@ -6,6 +6,7 @@ import { Check, X, Calendar, Clock, User, Edit, Loader2, CheckCircle, XCircle, A
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
 import { format } from "date-fns";
+import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 
 type RejectDialogState = { type: "leave" | "wfh"; id: number } | null;
 type OverrideDialogState = { id: number; is_unpaid: boolean; days: number } | null;
@@ -347,89 +348,99 @@ export default function ApprovalsPage() {
 
 
   const LeaveCard = ({ req }: { req: any }) => (
-    <div className={`bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-5 space-y-4 border-l-4 ${
-      req.pending_lop_conversion ? "border-l-rose-500" : "border-l-amber-500"
-    }`}>
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-center gap-3 flex-1">
-          <AvatarWithPhoto photoPath={req.user?.profile_photo_path} firstName={req.user?.first_name} lastName={req.user?.last_name} />
-          <div className="flex-1 min-w-0">
-            <p className="font-semibold text-slate-900 dark:text-white">{req.user?.first_name} {req.user?.last_name}</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{req.user?.designation || req.user?.role}</p>
+    <div className="bg-[#0b1322]/90 dark:bg-[#0b1322]/90 border border-slate-800/80 rounded-2xl p-6 shadow-xl space-y-4">
+      {/* Card Top Row: Avatar, Name, Designation & Status/Approve */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3 min-w-0">
+          <RoyalAvatar
+            src={req.user?.profile_photo_path}
+            name={`${req.user?.first_name} ${req.user?.last_name || ""}`.trim()}
+            userId={req.user_id || req.user?.id}
+            employeeCode={req.user?.employee_code}
+            className="w-10 h-10 rounded-full text-xs font-bold bg-amber-600 text-white"
+          />
+          <div className="min-w-0">
+            <h3 className="font-bold text-sm text-white leading-tight truncate">
+              <RoyalName
+                name={`${req.user?.first_name} ${req.user?.last_name || ""}`.trim()}
+                userId={req.user_id || req.user?.id}
+                employeeCode={req.user?.employee_code}
+              />
+            </h3>
+            <p className="text-xs text-slate-400 mt-0.5 truncate">{req.user?.designation || req.user?.role || "Employee"}</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2.5 shrink-0">
           {req.pending_lop_conversion ? (
-            <div className="flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-400">
-              <AlertTriangle className="w-3 h-3 animate-pulse" /> Pending LOP
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-500/15 text-rose-400 border border-rose-500/30">
+              <AlertTriangle className="w-3.5 h-3.5 animate-pulse" /> Pending LOP
             </div>
           ) : req.status === "Approved" ? (
-            <div className="flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400">
-              <CheckCircle className="w-3 h-3" /> Approved
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+              <CheckCircle className="w-3.5 h-3.5" /> Approved
             </div>
           ) : req.status === "Rejected" ? (
-            <div className="flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-red-500/20 text-red-400">
-              <XCircle className="w-3 h-3" /> Rejected
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-500/15 text-rose-400 border border-rose-500/30">
+              <XCircle className="w-3.5 h-3.5" /> Rejected
             </div>
           ) : (
-            <div className="flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-400">
-              <Clock className="w-3 h-3" /> Pending
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
+              <Clock className="w-3.5 h-3.5" /> Pending
             </div>
           )}
+
           {req.status === "Pending" && !req.pending_lop_conversion && canApprove(req) && (
             <button
               onClick={() => approve("leave", req.id)}
               disabled={actionLoading}
-              className="px-2.5 py-1.5 text-xs font-bold bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition disabled:opacity-50 whitespace-nowrap flex items-center gap-1.5"
-              title="Quick approve"
+              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold bg-[#10b981] hover:bg-[#059669] text-slate-950 shadow-md shadow-emerald-500/20 transition-transform hover:scale-105 disabled:opacity-50"
             >
-              {actionLoading ? (
-                <>
-                  <Loader2 className="w-3 h-3 animate-spin" />
-                  <span>Approving...</span>
-                </>
-              ) : (
-                <>
-                  <span>✓</span>
-                  <span>Approve</span>
-                </>
-              )}
+              {actionLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <span>✓ Approve</span>}
             </button>
           )}
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
-        <div className="flex items-center gap-2">
-          <LeaveTypeIcon leaveTypeName={req.leave_type?.name} />
-          <div>
-            <p className="text-xs text-slate-500 uppercase tracking-wider mb-0.5">Type</p>
-            <p className="text-slate-200 font-medium text-xs">{req.leave_type?.name}</p>
+      {/* 3-Column Info Row: TYPE, DURATION, DAYS */}
+      <div className="grid grid-cols-3 gap-6 pt-1">
+        <div>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">TYPE</p>
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-200">
+            <LeaveTypeIcon leaveTypeName={req.leave_type?.name} />
+            <span>{req.leave_type?.name || "Leave"}</span>
           </div>
         </div>
+
         <div>
-          <p className="text-xs text-slate-500 uppercase tracking-wider mb-0.5">Duration</p>
-          <p className="text-slate-200 text-xs">{fmtDate(req.start_date)} — {fmtDate(req.end_date)}</p>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">DURATION</p>
+          <p className="text-xs font-semibold text-slate-200">
+            {fmtDate(req.start_date)} — {fmtDate(req.end_date)}
+          </p>
         </div>
+
         <div>
-          <p className="text-xs text-slate-500 uppercase tracking-wider mb-0.5">Days</p>
-          <p className="text-slate-200 font-medium text-xs">{req.days_taken ?? req.days ?? "—"}</p>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">DAYS</p>
+          <p className="text-xs font-bold text-slate-200">
+            {Number(req.days_taken ?? req.days ?? 0).toFixed(1)}
+          </p>
         </div>
       </div>
 
+      {/* Reason Inset Container */}
       {req.reason && (
-        <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl p-3">
-          <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Reason</p>
-          <p className="text-slate-600 dark:text-slate-300 text-sm">{req.reason}</p>
+        <div className="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3.5">
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">REASON</p>
+          <p className="text-xs text-slate-300 font-normal leading-relaxed">{req.reason}</p>
         </div>
       )}
 
+      {/* Attachment (if any) */}
       {req.attachment_link && (
-        <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl p-3 flex items-center justify-between gap-4">
+        <div className="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3.5 flex items-center justify-between gap-4">
           <div className="min-w-0 flex-1">
-            <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Attachment</p>
-            <p className="text-slate-600 dark:text-slate-300 text-sm truncate">{req.attachment_link}</p>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">ATTACHMENT</p>
+            <p className="text-xs text-slate-300 truncate">{req.attachment_link}</p>
           </div>
           <a
             href={req.attachment_link}
@@ -442,75 +453,95 @@ export default function ApprovalsPage() {
         </div>
       )}
 
+      {/* Unpaid / LOP Warning Banner */}
       {req.is_unpaid && (
-        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 text-sm text-red-300">
-          ⚠️ <strong>Marked as Unpaid (LOP)</strong>
-          {req.unpaid_reason && <p className="text-xs mt-1 opacity-80">{req.unpaid_reason}</p>}
+        <div className="bg-rose-950/20 border border-rose-900/40 rounded-xl p-3.5 space-y-1">
+          <div className="text-xs font-bold text-rose-400 flex items-center gap-1.5">
+            <span>⚠️</span>
+            <span>Marked as Unpaid (LOP)</span>
+          </div>
+          <p className="text-[11px] text-rose-300/80 leading-relaxed">
+            {req.unpaid_reason ||
+              `Insufficient ${req.leave_type?.name || "Leave"} balance. ${req.lop_days || req.days || 1} eligible working day(s) are Unpaid (LOP) due to exhausted balance.`}
+          </p>
         </div>
       )}
 
+      {/* Bottom Actions Row */}
       {req.pending_lop_conversion ? (
         <div className="flex flex-wrap gap-2 pt-1">
           <button
             onClick={() => handleLopConversion(req.id, "confirm")}
             disabled={actionLoading}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-lg hover:bg-rose-500/30 transition disabled:opacity-50"
+            className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30 hover:bg-rose-500/30 transition disabled:opacity-50"
           >
             <CheckCircle className="h-3.5 w-3.5" /> Confirm LOP Conversion
           </button>
           <button
             onClick={() => handleLopConversion(req.id, "reject")}
             disabled={actionLoading}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-white/10 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/10 rounded-lg hover:bg-white/15 transition disabled:opacity-50"
+            className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold bg-white/10 text-slate-300 border border-slate-700 hover:bg-white/15 transition disabled:opacity-50"
           >
             <XCircle className="h-3.5 w-3.5" /> Decline (Keep Paid)
           </button>
         </div>
-      ) : (
-        <div className="flex flex-wrap gap-2 pt-1">
-          {isSuperAdmin && req.status === "Pending" && (
+      ) : req.status === "Pending" ? (
+        <div className="flex items-center gap-3 pt-1">
+          <button
+            onClick={() => { setRejectDialog({ type: "leave", id: req.id }); setRejectReason(""); }}
+            disabled={actionLoading}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold text-rose-400 border border-rose-500/30 hover:bg-rose-500/10 transition-colors disabled:opacity-50"
+          >
+            <XCircle className="h-3.5 w-3.5" /> Reject
+          </button>
+
+          {isSuperAdmin && (
             <button
               onClick={() => openOverride(req)}
               disabled={actionLoading}
-              className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-lg hover:bg-blue-500/30 transition disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold text-blue-400 border border-blue-500/30 hover:bg-blue-500/10 transition-colors disabled:opacity-50"
             >
               <Edit className="h-3.5 w-3.5" /> Override
             </button>
           )}
-          {req.status === "Pending" && (
-            <button
-              onClick={() => { setRejectDialog({ type: "leave", id: req.id }); setRejectReason(""); }}
-              disabled={actionLoading}
-              className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-red-500/20 text-red-300 border border-red-500/30 rounded-lg hover:bg-red-500/30 transition disabled:opacity-50"
-            >
-              <XCircle className="h-3.5 w-3.5" /> Reject
-            </button>
-          )}
         </div>
-      )}
+      ) : null}
     </div>
   );
 
   const WfhCard = ({ req }: { req: any }) => (
-    <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-5 space-y-4 border-l-4 border-l-indigo-500">
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-center gap-3 flex-1">
-          <AvatarWithPhoto photoPath={req.user?.profile_photo_path} firstName={req.user?.first_name} lastName={req.user?.last_name} />
-          <div className="flex-1 min-w-0">
-            <p className="font-semibold text-slate-900 dark:text-white">{req.user?.first_name} {req.user?.last_name}</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{req.user?.designation || req.user?.role}</p>
+    <div className="bg-[#0b1322]/90 dark:bg-[#0b1322]/90 border border-slate-800/80 rounded-2xl p-6 shadow-xl space-y-4">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3 min-w-0">
+          <RoyalAvatar
+            src={req.user?.profile_photo_path}
+            name={`${req.user?.first_name} ${req.user?.last_name || ""}`.trim()}
+            userId={req.user_id || req.user?.id}
+            employeeCode={req.user?.employee_code}
+            className="w-10 h-10 rounded-full text-xs font-bold bg-indigo-600 text-white"
+          />
+          <div className="min-w-0">
+            <h3 className="font-bold text-sm text-white leading-tight truncate">
+              <RoyalName
+                name={`${req.user?.first_name} ${req.user?.last_name || ""}`.trim()}
+                userId={req.user_id || req.user?.id}
+                employeeCode={req.user?.employee_code}
+              />
+            </h3>
+            <p className="text-xs text-slate-400 mt-0.5 truncate">{req.user?.designation || req.user?.role || "Employee"}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+
+        <div className="flex items-center gap-2.5 shrink-0">
           {req.duration_type && <DurationBadge type={req.duration_type} />}
-          <div className="flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-400">
-            <Clock className="w-3 h-3" /> Pending
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
+            <Clock className="w-3.5 h-3.5" /> Pending
           </div>
           {canApprove(req) && (
             <button
               onClick={() => approve("wfh", req.id)}
               disabled={actionLoading}
-              className="px-2.5 py-1.5 text-xs font-bold bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition disabled:opacity-50 whitespace-nowrap"
+              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold bg-[#10b981] hover:bg-[#059669] text-slate-950 shadow-md shadow-emerald-500/20 transition-transform hover:scale-105 disabled:opacity-50"
               title="Quick approve"
             >
               ✓ Approve
@@ -519,32 +550,36 @@ export default function ApprovalsPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 text-sm">
+      <div className="grid grid-cols-3 gap-6 pt-1">
         <div>
-          <p className="text-xs text-slate-500 uppercase tracking-wider mb-0.5">Date(s)</p>
-          <p className="text-slate-200">{fmtDate(req.start_date)}{req.end_date && req.end_date !== req.start_date ? ` — ${fmtDate(req.end_date)}` : ""}</p>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">TYPE</p>
+          <p className="text-xs font-semibold text-slate-200">WFH (Work From Home)</p>
         </div>
         <div>
-          <p className="text-xs text-slate-500 uppercase tracking-wider mb-0.5">TL Status</p>
-          <p className={`font-medium ${req.tl_status === "Approved" ? "text-emerald-400" : req.tl_status === "Rejected" ? "text-red-400" : "text-amber-400"}`}>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">DURATION</p>
+          <p className="text-xs font-semibold text-slate-200">{fmtDate(req.start_date)}{req.end_date && req.end_date !== req.start_date ? ` — ${fmtDate(req.end_date)}` : ""}</p>
+        </div>
+        <div>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">TL STATUS</p>
+          <p className={`text-xs font-bold ${req.tl_status === "Approved" ? "text-emerald-400" : req.tl_status === "Rejected" ? "text-red-400" : "text-amber-400"}`}>
             {req.tl_status ?? "Pending"}
           </p>
         </div>
       </div>
 
       {req.reason && (
-        <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl p-3">
-          <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Reason</p>
-          <p className="text-slate-600 dark:text-slate-300 text-sm">{req.reason}</p>
+        <div className="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3.5">
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">REASON</p>
+          <p className="text-xs text-slate-300 font-normal leading-relaxed">{req.reason}</p>
         </div>
       )}
 
       {req.status === "Pending" && (
-        <div className="flex gap-2 pt-1">
+        <div className="flex items-center gap-3 pt-1">
           <button
             onClick={() => { setRejectDialog({ type: "wfh", id: req.id }); setRejectReason(""); }}
             disabled={actionLoading}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-red-500/20 text-red-300 border border-red-500/30 rounded-lg hover:bg-red-500/30 transition disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold text-rose-400 border border-rose-500/30 hover:bg-rose-500/10 transition-colors disabled:opacity-50"
           >
             <XCircle className="h-3.5 w-3.5" /> Reject
           </button>
@@ -554,20 +589,21 @@ export default function ApprovalsPage() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-[1400px]">
+      {/* Page Title & Subtitle */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Approvals Queue</h1>
-        <p className="text-slate-600 dark:text-slate-300 mt-1">Review and process pending leave and WFH requests from your team.</p>
+        <h1 className="text-2xl font-bold tracking-tight text-white">Approvals Queue</h1>
+        <p className="text-xs text-slate-400 mt-1">Review and process pending leave and WFH requests from your team.</p>
       </div>
 
       {successMessage && (
-        <div className="p-4 bg-green-500/10 border border-green-500/30 rounded text-green-400 animate-in fade-in">
+        <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-xl text-green-400 text-xs font-semibold animate-in fade-in">
           ✓ {successMessage}
         </div>
       )}
 
-      {/* Status Filter Tabs */}
-      <div className="flex gap-1 bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl p-1 w-fit">
+      {/* Row 1: Status Filter Tabs */}
+      <div className="flex flex-wrap items-center gap-2">
         {(["Pending", "Approved", "Rejected", "All"] as const).map((status) => {
           let count = 0;
           if (tab === "leaves") {
@@ -575,39 +611,50 @@ export default function ApprovalsPage() {
             else if (status === "Approved") count = approvedLeaves.length;
             else if (status === "Rejected") count = rejectedLeaves.length;
             else count = leaveRequests.length + approvedLeaves.length + rejectedLeaves.length;
+          } else {
+            count = status === "Pending" ? wfhRequests.length : 0;
           }
+
+          const isActive = statusFilter === status;
 
           return (
             <button
               key={status}
               onClick={() => setStatusFilter(status)}
-              className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors whitespace-nowrap ${
-                statusFilter === status ? "bg-amber-500 text-white shadow" : "text-slate-400 hover:text-white"
+              className={`px-4 py-1.5 text-xs font-bold rounded-full transition-all whitespace-nowrap ${
+                isActive
+                  ? "bg-[#f59e0b] text-slate-950 shadow-md shadow-amber-500/25"
+                  : "text-slate-300 hover:text-white hover:bg-white/5 font-semibold"
               }`}
             >
-              {status} {count > 0 && <span className="text-xs ml-1">({count})</span>}
+              {status} <span className="ml-0.5 opacity-90">({count})</span>
             </button>
           );
         })}
       </div>
 
-      {/* Type Switcher (Leaves/WFH) */}
-      <div className="flex gap-1 bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl p-1 w-fit">
-        {(["leaves", "wfh"] as const).map((t) => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`px-5 py-2 text-sm font-semibold rounded-lg transition-colors ${
-              tab === t ? "bg-blue-500 text-white shadow" : "text-slate-400 hover:text-white"
-            }`}
-          >
-            {t === "leaves" ? "Leave Requests" : "WFH Requests"}
-          </button>
-        ))}
+      {/* Row 2: Type Switcher (Leaves/WFH) */}
+      <div className="flex items-center gap-2 mb-2">
+        {(["leaves", "wfh"] as const).map((t) => {
+          const isActive = tab === t;
+          return (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`px-4 py-2 text-xs font-bold rounded-full transition-all whitespace-nowrap ${
+                isActive
+                  ? "bg-[#2563eb] text-white shadow-md shadow-blue-600/30"
+                  : "text-slate-300 hover:text-white hover:bg-white/5 font-semibold"
+              }`}
+            >
+              {t === "leaves" ? "Leave Requests" : "WFH Requests"}
+            </button>
+          );
+        })}
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-slate-500 dark:text-slate-400" /></div>
+        <div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-slate-400" /></div>
       ) : tab === "leaves" ? (
         (() => {
           let displayRequests = [];
@@ -617,7 +664,7 @@ export default function ApprovalsPage() {
           else displayRequests = [...leaveRequests, ...approvedLeaves, ...rejectedLeaves];
 
           return displayRequests.length === 0 ? (
-            <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl py-16 text-center text-slate-500 dark:text-slate-400">
+            <div className="bg-[#0b1322]/60 border border-slate-800/60 rounded-2xl py-16 text-center text-slate-400 text-sm">
               No {statusFilter === "All" ? "" : statusFilter.toLowerCase()} leave requests.
             </div>
           ) : (
@@ -628,7 +675,7 @@ export default function ApprovalsPage() {
         })()
       ) : (
         wfhRequests.length === 0 ? (
-          <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl py-16 text-center text-slate-500 dark:text-slate-400">
+          <div className="bg-[#0b1322]/60 border border-slate-800/60 rounded-2xl py-16 text-center text-slate-400 text-sm">
             No pending WFH requests.
           </div>
         ) : (
