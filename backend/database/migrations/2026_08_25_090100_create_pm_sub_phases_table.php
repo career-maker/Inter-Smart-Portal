@@ -3,7 +3,6 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -13,6 +12,19 @@ return new class extends Migration
      * Global (team_id NULL) + optional team-specific taxonomy, per the
      * finalized design (Decision 4). References the existing HR `teams`
      * table; no new team/department concept is introduced.
+     *
+     * scope_key: a STORED generated column replacing what would
+     * otherwise need two Postgres-only partial unique indexes (one
+     * scoped `WHERE team_id IS NOT NULL`, one `WHERE team_id IS NULL`)
+     * — MySQL/MariaDB have no partial-index equivalent and reject that
+     * syntax outright. A plain composite UNIQUE(team_id, name) doesn't
+     * work either: SQL treats every NULL team_id as distinct from every
+     * other NULL, so it would silently let duplicate *global* names
+     * through. Collapsing team_id (or a '0' sentinel for global rows,
+     * which never collides with a real auto-increment team id) and the
+     * normalized name into one generated string, then putting a single
+     * plain UNIQUE index on it, correctly enforces "unique per team, and
+     * unique among global entries" with standard portable SQL only.
      */
     public function up(): void
     {
@@ -26,15 +38,13 @@ return new class extends Migration
             $table->foreignId('created_by')->constrained('users');
             $table->timestamps();
 
-            $table->index('team_id');
-        });
+            $table->string('scope_key', 300)
+                ->nullable()
+                ->storedAs("CONCAT(COALESCE(team_id, 0), '|', LOWER(TRIM(name)))");
 
-        // Two partial unique indexes (Postgres): a plain composite unique on
-        // (name, team_id) would NOT actually prevent duplicate global rows,
-        // since SQL NULLs are never equal to each other. These enforce
-        // uniqueness correctly for both the global and per-team cases.
-        DB::statement('CREATE UNIQUE INDEX pm_sub_phases_team_name_unique ON pm_sub_phases (team_id, LOWER(TRIM(name))) WHERE team_id IS NOT NULL');
-        DB::statement('CREATE UNIQUE INDEX pm_sub_phases_global_name_unique ON pm_sub_phases (LOWER(TRIM(name))) WHERE team_id IS NULL');
+            $table->index('team_id');
+            $table->unique('scope_key', 'pm_sub_phases_scope_name_unique');
+        });
     }
 
     public function down(): void

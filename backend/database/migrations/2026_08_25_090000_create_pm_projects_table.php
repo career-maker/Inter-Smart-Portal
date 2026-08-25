@@ -3,7 +3,6 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -20,6 +19,18 @@ return new class extends Migration
      * department) is enforced in application code at write time, not
      * at the database layer — the FK only guarantees the value is a
      * real user.
+     *
+     * name_normalized: a STORED generated column, not a raw partial/
+     * expression index. Postgres partial indexes (`CREATE UNIQUE INDEX
+     * ... WHERE deleted_at IS NULL`) have no MySQL/MariaDB equivalent —
+     * MySQL rejects that syntax outright (SQLSTATE 42000 / 1064).
+     * A generated column evaluates to NULL for soft-deleted rows and to
+     * the normalized name for active rows; a plain UNIQUE index on that
+     * column then enforces "no two ACTIVE projects share a normalized
+     * name" — full parity with the original intent, no business rule
+     * dropped or weakened — using only standard generated-column +
+     * unique-index features supported by MySQL 5.7+/8.0, MariaDB 10.2+,
+     * and PostgreSQL 12+ alike, via Laravel's portable storedAs().
      */
     public function up(): void
     {
@@ -48,15 +59,18 @@ return new class extends Migration
             $table->softDeletes();
             $table->timestamps();
 
+            // NULL while soft-deleted (deleted_at IS NOT NULL) so a deleted
+            // project's name never blocks reuse; the normalized name while
+            // active, so two active projects can never share one.
+            $table->string('name_normalized', 255)
+                ->nullable()
+                ->storedAs("CASE WHEN deleted_at IS NULL THEN LOWER(TRIM(name)) ELSE NULL END");
+
             $table->index('team_id');
             $table->index('project_coordinator_id');
             $table->index('status');
+            $table->unique('name_normalized', 'pm_projects_name_unique');
         });
-
-        // Case/whitespace-insensitive unique project name (Postgres expression index).
-        // Prevents the duplicate-named-project data-quality issue documented in the
-        // legacy QA Tracker migration notes.
-        DB::statement('CREATE UNIQUE INDEX pm_projects_name_unique ON pm_projects (LOWER(TRIM(name))) WHERE deleted_at IS NULL');
     }
 
     public function down(): void
