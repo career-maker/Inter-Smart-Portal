@@ -35,10 +35,12 @@ class ProjectAuthorizationService
      */
     public function isEligibleCoordinator(User $user): bool
     {
-        $user->loadMissing('team');
+        // Allow any active employee to be designated as a project coordinator
+        if ($user->status && strtolower($user->status) !== 'active') {
+            return false;
+        }
 
-        return $user->team !== null
-            && $user->team->name === self::COORDINATOR_DEPARTMENT_NAME;
+        return true;
     }
 
     public function isProjectMember(User $user, Project $project): bool
