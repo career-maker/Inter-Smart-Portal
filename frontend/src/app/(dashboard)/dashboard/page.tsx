@@ -45,6 +45,7 @@ import { format, parseISO } from "date-fns";
 import { DotLottiePlayer } from "@dotlottie/react-player";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AttendanceWidget } from "@/components/dashboard/AttendanceWidget";
+import { CertificateModal } from "@/components/recognition/CertificateModal";
 import { AchievementFlipCard } from "@/components/recognition/AchievementFlipCard";
 import { LeaderboardWidget } from "@/components/dashboard/LeaderboardWidget";
 import { UpcomingBirthdaysWithWishes } from "@/components/dashboard/UpcomingBirthdaysWithWishes";
@@ -61,6 +62,7 @@ export default function DashboardPage() {
   const [time, setTime] = useState(new Date());
   const [leaveModalData, setLeaveModalData] = useState<{title: string, list: any[]} | null>(null);
   const [currentRecognitionIndex, setCurrentRecognitionIndex] = useState(0);
+  const [showRecognitionModal, setShowRecognitionModal] = useState(false);
   const [liveServiceStats, setLiveServiceStats] = useState<any>(null);
 
   const leaveSummaryRef = useRef<HTMLDivElement>(null);
@@ -628,8 +630,9 @@ export default function DashboardPage() {
           <div className="flex items-start gap-4 lg:gap-6">
             <RoyalAvatar
               src={profile.profile_photo_path}
-              name={`${profile.first_name} ${profile.last_name}`}
-              userId={user?.id}
+              name={`${profile.first_name} ${profile.last_name || ""}`.trim()}
+              userId={user?.id || profile?.id}
+              employeeCode={profile?.employee_code || (user as any)?.employee_code}
               className="w-14 h-14 lg:w-16 lg:h-16 rounded-full text-slate-900 dark:text-white text-lg lg:text-xl shrink-0"
               textClass="text-slate-900 dark:text-white"
             />
@@ -642,14 +645,42 @@ export default function DashboardPage() {
                 </h1>
               </div>
 
-              {/* User Name & Role/Designation */}
-              <div className="flex items-center gap-2 flex-wrap">
+              {/* User Name & Role/Designation & Active Recognition Trophy */}
+              <div className="flex items-center gap-2.5 flex-wrap">
                 <span className="text-lg lg:text-xl font-bold text-slate-600 dark:text-slate-300">
-                  <RoyalName name={profile.first_name} userId={user?.id} />
+                  <RoyalName
+                    name={profile.first_name}
+                    userId={user?.id || profile?.id}
+                    employeeCode={profile?.employee_code || (user as any)?.employee_code}
+                  />
                 </span>
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 dark:bg-blue-500/15 text-blue-700 dark:text-blue-300 text-xs font-bold uppercase tracking-wider rounded-lg border border-blue-200/50 dark:border-blue-500/30">
                   {profile.designation}
                 </span>
+
+                {/* Active Achievement Animating Trophy Badge */}
+                {hasActiveRec && profile.active_recognition && (
+                  <button
+                    onClick={() => setShowRecognitionModal(true)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-amber-500/20 via-yellow-500/15 to-amber-500/20 hover:from-amber-500/30 hover:to-amber-500/30 text-amber-300 border border-amber-500/40 rounded-full text-xs font-black shadow-[0_0_14px_rgba(245,158,11,0.25)] transition-all transform hover:scale-105 cursor-pointer group"
+                    title={`${profile.active_recognition.title} - Click to view certificate`}
+                  >
+                    <div className="w-5 h-5 flex items-center justify-center shrink-0">
+                      <DotLottiePlayer
+                        src="https://assets2.lottiefiles.com/packages/lf20_touohxv0.json"
+                        background="transparent"
+                        speed={1}
+                        style={{ width: 22, height: 22 }}
+                        loop
+                        autoplay
+                      />
+                    </div>
+                    <span className="tracking-wide uppercase text-[11px] font-black drop-shadow-sm">
+                      {profile.active_recognition.title}
+                    </span>
+                    <span className="text-[10px] text-amber-400/80 group-hover:translate-x-0.5 transition-transform">✨</span>
+                  </button>
+                )}
               </div>
 
               {/* Attendance Status Badge */}
@@ -686,38 +717,13 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Achievement Flip Card Carousel — show all active recognitions with slider */}
-      {hasActiveRec && profile.active_recognitions && profile.active_recognitions.length > 0 && (
-        <div className="mb-8 flex justify-center px-4">
-          <div className="relative w-full max-w-md">
-            {/* Recognition Card */}
-            <div>
-              <AchievementFlipCard
-                recognition={profile.active_recognitions[currentRecognitionIndex]}
-                employeeName={`${profile.first_name} ${profile.last_name}`}
-                firstName={profile.first_name}
-              />
-            </div>
-
-            {/* Navigation Dots - Only show if multiple recognitions */}
-            {profile.active_recognitions.length > 1 && (
-              <div className="flex justify-center gap-2 mt-4">
-                {profile.active_recognitions.map((_: any, idx: number) => (
-                  <button
-                    key={idx}
-                    onClick={() => setCurrentRecognitionIndex(idx)}
-                    className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                      idx === currentRecognitionIndex
-                        ? "bg-amber-400 w-8"
-                        : "bg-slate-400 hover:bg-slate-500 dark:bg-slate-600 dark:hover:bg-slate-500"
-                    }`}
-                    aria-label={`Award ${idx + 1}`}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+      {/* Active Certificate Modal Popup */}
+      {showRecognitionModal && profile.active_recognition && (
+        <CertificateModal
+          recognition={profile.active_recognition}
+          employeeName={`${profile.first_name} ${profile.last_name || ""}`.trim()}
+          onClose={() => setShowRecognitionModal(false)}
+        />
       )}
 
       <AttendanceWidget initialData={data.attendance_widget_data} />
@@ -1142,8 +1148,9 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           <div className="flex items-start gap-4 lg:gap-6">
             <RoyalAvatar
               src={profile.profile_photo_path}
-              name={`${profile.first_name} ${profile.last_name}`}
-              userId={user?.id}
+              name={`${profile.first_name} ${profile.last_name || ""}`.trim()}
+              userId={user?.id || profile?.id}
+              employeeCode={profile.employee_code || (user as any)?.employee_code}
               className="w-14 h-14 lg:w-16 lg:h-16 rounded-full text-slate-900 dark:text-white text-lg lg:text-xl shrink-0"
               textClass="text-slate-900 dark:text-white"
             />
@@ -1159,7 +1166,11 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
               {/* Admin Name & Title */}
               <div className="flex items-center gap-2">
                 <span className="text-lg lg:text-xl font-bold text-slate-600 dark:text-slate-300">
-                  <RoyalName name={profile.first_name} userId={user?.id} />
+                  <RoyalName
+                    name={profile.first_name}
+                    userId={user?.id || profile?.id}
+                    employeeCode={profile.employee_code || (user as any)?.employee_code}
+                  />
                 </span>
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300 text-xs font-bold uppercase tracking-wider rounded-lg border border-amber-200/50 dark:border-amber-500/30">
                   <Crown className="w-3 h-3" />

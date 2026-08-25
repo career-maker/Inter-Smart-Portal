@@ -30,12 +30,13 @@ export function RoyalAvatar({
   const { isTopAwardee: checkTopAwardee } = useTopAwardee();
 
   const isEligible =
-    forcedIsTopAwardee ??
-    (userId
-      ? checkTopAwardee(userId)
-      : employeeCode
-      ? checkTopAwardee(employeeCode)
-      : false);
+    forcedIsTopAwardee !== undefined
+      ? forcedIsTopAwardee
+      : Boolean(
+          (userId && checkTopAwardee(userId)) ||
+          (employeeCode && checkTopAwardee(employeeCode)) ||
+          (name && checkTopAwardee(name))
+        );
 
   const initials = (name || "Employee")
     .split(" ")
@@ -106,12 +107,13 @@ export function RoyalName({
   const { isTopAwardee: checkTopAwardee } = useTopAwardee();
 
   const isEligible =
-    forcedIsTopAwardee ??
-    (userId
-      ? checkTopAwardee(userId)
-      : employeeCode
-      ? checkTopAwardee(employeeCode)
-      : false);
+    forcedIsTopAwardee !== undefined
+      ? forcedIsTopAwardee
+      : Boolean(
+          (userId && checkTopAwardee(userId)) ||
+          (employeeCode && checkTopAwardee(employeeCode)) ||
+          (name && checkTopAwardee(name))
+        );
 
   if (isEligible) {
     // Strip any conflicting neutral text colors (e.g. text-white, text-slate-*, text-gray-*)
