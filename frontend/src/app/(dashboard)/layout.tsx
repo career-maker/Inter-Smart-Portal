@@ -80,6 +80,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/project-management/projects",  label: "Projects" },
       { href: "/project-management/tasks",     label: "All Tasks", roles: ["Super Admin", "Team Lead"] },
       { href: "/project-management/tasks/my",  label: "My Tasks" },
+      { href: "/project-management/task-catalog", label: "Task Catalog", roles: ["Super Admin", "HR"] },
     ],
   },
   {

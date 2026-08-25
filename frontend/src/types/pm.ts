@@ -338,3 +338,12 @@ export interface TaskFilterParams {
 export interface StoreProjectTaskCommentPayload {
   comment: string;
 }
+
+export interface StoreProjectTaskCatalogPayload {
+  name: string;
+  category?: string | null;
+  description?: string | null;
+  is_active?: boolean;
+}
+
+export type UpdateProjectTaskCatalogPayload = Partial<StoreProjectTaskCatalogPayload>;

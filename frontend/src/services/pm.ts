@@ -242,6 +242,35 @@ export const pmApi = {
     const res = await api.get('/pm-task-catalog', { params });
     return res.data;
   },
+
+  /**
+   * Create a new task catalog item (Super Admin only).
+   */
+  createTaskCatalogItem: async (
+    payload: { name: string; category?: string | null; description?: string | null; is_active?: boolean }
+  ): Promise<ApiResponse<ProjectTaskCatalog>> => {
+    const res = await api.post<ApiResponse<ProjectTaskCatalog>>('/pm-task-catalog', payload);
+    return res.data;
+  },
+
+  /**
+   * Update a task catalog item (Super Admin only).
+   */
+  updateTaskCatalogItem: async (
+    id: number,
+    payload: { name?: string; category?: string | null; description?: string | null; is_active?: boolean }
+  ): Promise<ApiResponse<ProjectTaskCatalog>> => {
+    const res = await api.put<ApiResponse<ProjectTaskCatalog>>(`/pm-task-catalog/${id}`, payload);
+    return res.data;
+  },
+
+  /**
+   * Soft-delete a task catalog item (Super Admin only).
+   */
+  deleteTaskCatalogItem: async (id: number): Promise<ApiResponse<null>> => {
+    const res = await api.delete<ApiResponse<null>>(`/pm-task-catalog/${id}`);
+    return res.data;
+  },
 };
 
 export default pmApi;
