@@ -17,6 +17,8 @@ use App\Notifications\PraiseReceivedNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
 
 class CommunityController extends Controller
 {
@@ -138,6 +140,18 @@ class CommunityController extends Controller
                 'badge' => $badge,
                 'project_name' => $projectName,
             ];
+        }
+
+        
+        // Auto-safeguard: Ensure poll_data column exists
+        if (!Schema::hasColumn('community_posts', 'poll_data')) {
+            try {
+                Schema::table('community_posts', function (Blueprint $table) {
+                    $table->json('poll_data')->nullable()->after('media_url');
+                });
+            } catch (\Exception $e) {
+                // Ignore if already added concurrently
+            }
         }
 
         $post = CommunityPost::create([
