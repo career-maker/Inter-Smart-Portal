@@ -1524,7 +1524,9 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
         })()}
 
         {/* Upcoming Birthdays Widget with Wishes */}
-        <UpcomingBirthdaysWithWishes items={widgets.upcoming_birthdays} />
+        <div className="bg-white dark:bg-slate-800 rounded-md p-5 border border-slate-200/90 dark:border-slate-700/60 shadow-sm min-h-[240px] flex flex-col justify-between">
+          <UpcomingBirthdaysWithWishes items={widgets.upcoming_birthdays} />
+        </div>
 
         {/* Leaderboard Widget */}
         <LeaderboardWidget />
