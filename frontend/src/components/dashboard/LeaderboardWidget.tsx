@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Trophy, Medal, Crown } from "lucide-react";
+import { Trophy } from "lucide-react";
 import api from "@/services/api";
 import { RoyalName } from "@/components/ui/RoyalAvatar";
 
@@ -20,7 +20,6 @@ export function LeaderboardWidget() {
     const fetch = async () => {
       try {
         const res = await api.get("/recognitions/leaderboard?period=overall");
-        // Get top 3
         setLeaders(res.data.data.slice(0, 3));
       } catch (err) {
         console.error("Failed to load leaderboard widget", err);
@@ -32,39 +31,84 @@ export function LeaderboardWidget() {
   }, []);
 
   return (
-    <div className="premium-card p-6 h-full">
+    <div
+      style={{
+        fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      }}
+      className="bg-white dark:bg-slate-800 rounded-md p-5 border border-slate-200/90 dark:border-slate-700/60 shadow-sm"
+    >
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
-          <Trophy className="w-4 h-4 text-amber-500" />
-          Hall of Fame
-        </h3>
-        <Link href="/recognitions/leaderboard" className="text-xs font-semibold text-amber-500 hover:underline">
+        <div>
+          <h3
+            style={{
+              fontSize: "16px",
+              lineHeight: "28px",
+              fontWeight: 500,
+              color: "rgb(15, 24, 36)"
+            }}
+            className="dark:text-white flex items-center gap-2"
+          >
+            <Trophy className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
+            Hall of Fame
+          </h3>
+          <p
+            style={{
+              fontSize: "12px",
+              lineHeight: "20px",
+              color: "rgb(94, 105, 120)"
+            }}
+            className="dark:text-slate-400 font-normal"
+          >
+            Top recognized employees and awardees
+          </p>
+        </div>
+        <Link
+          href="/recognitions/leaderboard"
+          className="text-xs font-medium text-[#56348f] dark:text-purple-400 hover:underline"
+        >
           View All
         </Link>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2.5">
         {loading ? (
           <div className="flex justify-center py-4">
-            <div className="w-5 h-5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+            <div className="w-5 h-5 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
           </div>
         ) : leaders.length === 0 ? (
-          <p className="text-sm text-slate-500 dark:text-slate-400">No achievements yet.</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 py-3 text-center">No achievements yet.</p>
         ) : (
-          leaders.map((entry: any, i: number) => {
+          leaders.map((entry: any) => {
             const rankStyle = RANK_STYLES[entry.rank - 1] || RANK_STYLES[2];
             return (
-              <div key={entry.user_id} className="flex items-center gap-3">
-                <div className="w-8 shrink-0 text-center text-xl">
-                  {rankStyle.icon}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold leading-tight truncate">
-                    <RoyalName name={entry.name} userId={entry.user_id} className="text-slate-900 dark:text-white" />
-                  </p>
-                  <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate uppercase tracking-wider">
-                    {entry.total_achievements} Award{entry.total_achievements !== 1 ? 's' : ''}
-                  </p>
+              <div
+                key={entry.user_id}
+                className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900/50 rounded-md border border-slate-200/60 dark:border-slate-800"
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <span className="text-lg shrink-0">{rankStyle.icon}</span>
+                  <div className="min-w-0">
+                    <p
+                      style={{
+                        fontSize: "13px",
+                        lineHeight: "20px",
+                        fontWeight: 500
+                      }}
+                      className="text-slate-900 dark:text-white truncate"
+                    >
+                      <RoyalName name={entry.name} userId={entry.user_id} className="text-slate-900 dark:text-white" />
+                    </p>
+                    <p
+                      style={{
+                        fontSize: "11px",
+                        lineHeight: "16px",
+                        color: "rgb(94, 105, 120)"
+                      }}
+                      className="dark:text-slate-400 truncate"
+                    >
+                      {entry.total_achievements} Award{entry.total_achievements !== 1 ? "s" : ""}
+                    </p>
+                  </div>
                 </div>
               </div>
             );
