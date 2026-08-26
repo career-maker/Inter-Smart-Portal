@@ -168,8 +168,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [menuOpen, setMenuOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
-  const [hoveredGroupId, setHoveredGroupId] = useState<string | null>(null);
-  const [activeFlyoutGroup, setActiveFlyoutGroup] = useState<string | null>(null);
+  
+  // Flyout State for Light Theme
+  const [flyoutState, setFlyoutState] = useState<{ groupId: string; top: number } | null>(null);
   const [pendingApprovalsCount, setPendingApprovalsCount] = useState(0);
   const flyoutTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -210,8 +211,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     const handleOutsideClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      if (!target.closest('#light-theme-sidebar') && !target.closest('#light-theme-flyout')) {
-        setActiveFlyoutGroup(null);
+      if (!target.closest('#light-theme-sidebar') && !target.closest('#light-theme-flyout-portal')) {
+        setFlyoutState(null);
       }
     };
     document.addEventListener('mousedown', handleOutsideClick);
@@ -288,16 +289,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const closeMenu = () => setMenuOpen(false);
 
-  const handleLightGroupMouseEnter = (groupId: string) => {
+  const handleLightGroupMouseEnter = (groupId: string, e: React.MouseEvent<HTMLElement>) => {
     if (flyoutTimeoutRef.current) clearTimeout(flyoutTimeoutRef.current);
-    setHoveredGroupId(groupId);
-    setActiveFlyoutGroup(groupId);
+    const rect = e.currentTarget.getBoundingClientRect();
+    setFlyoutState({ groupId, top: Math.max(10, rect.top) });
   };
 
   const handleLightGroupMouseLeave = () => {
     flyoutTimeoutRef.current = setTimeout(() => {
-      setHoveredGroupId(null);
-      setActiveFlyoutGroup(null);
+      setFlyoutState(null);
     }, 250);
   };
 
@@ -307,201 +307,210 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const handleLightFlyoutMouseLeave = () => {
     flyoutTimeoutRef.current = setTimeout(() => {
-      setHoveredGroupId(null);
-      setActiveFlyoutGroup(null);
+      setFlyoutState(null);
     }, 250);
   };
+
+  // Resolve currently open flyout group definition
+  const activeFlyoutGroupObj = flyoutState ? NAV_GROUPS.find((g) => g.id === flyoutState.groupId) : null;
+  const activeFlyoutVisibleItems = activeFlyoutGroupObj ? activeFlyoutGroupObj.items.filter((i) => isItemVisible(i, userRole)) : [];
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-background flex">
       {/* ─────────────────────────────────────────────────────────────────────────────
-          SIDEBAR - LIGHT THEME (KEKA STYLE: FIXED 82px, ICON ON TOP, LABEL UNDERNEATH,
-          DROPDOWN FLYOUT SUBMENU, SAME COLOR #0e2638, SAME 11px 500 FONT, NO EXPAND)
+          SIDEBAR - LIGHT THEME (KEKA STYLE: FIXED 84px, NO HORIZONTAL SCROLL,
+          HIGH-CONTRAST LABELS, OUTSIDE PORTAL FLYOUT DROPDOWN, UNTOUCHED DARK THEME)
       ───────────────────────────────────────────────────────────────────────────── */}
       {!isDark && (
-        <aside
-          id="light-theme-sidebar"
-          style={{
-            backgroundColor: "#0e2638",
-            fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-          }}
-          className="hidden md:flex flex-col fixed inset-y-0 left-0 z-50 w-[84px] border-r border-[#1a3a52] select-none text-white shadow-xl"
-        >
-          {/* Top spacer matching header height */}
-          <div className="h-16 flex items-center justify-center border-b border-[#1a3a52] shrink-0 bg-[#0a1d2c]">
-            <div className="w-8 h-1 bg-white/20 rounded-full" />
-          </div>
+        <>
+          <aside
+            id="light-theme-sidebar"
+            style={{
+              backgroundColor: "#0e2638",
+              fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+            }}
+            className="hidden md:flex flex-col fixed inset-y-0 left-0 z-50 w-[84px] border-r border-[#1a3a52] select-none text-white shadow-xl overflow-hidden"
+          >
+            {/* Top spacer matching header height */}
+            <div className="h-16 flex items-center justify-center border-b border-[#1a3a52] shrink-0 bg-[#0a1d2c]" />
 
-          {/* Navigation Items (Icon on top, high-contrast Label underneath) */}
-          <div className="flex-1 overflow-y-auto overflow-x-visible py-3 custom-scrollbar">
-            <nav className="space-y-1.5 px-1.5">
-              {/* Standalone Link (Home / Dashboard) */}
-              {STANDALONE.map(({ href, label, icon: Icon }) => {
-                const active = pathname === href;
-                return (
-                  <Link
-                    key={href}
-                    href={href}
-                    onClick={() => setActiveFlyoutGroup(null)}
-                    style={{
-                      backgroundColor: active ? "#071520" : undefined,
-                    }}
-                    className={`group w-full flex flex-col items-center justify-center py-3 px-1 rounded-xl transition-all relative cursor-pointer hover:bg-[#133249] ${
-                      active ? "text-white font-bold shadow-md border-l-2 border-amber-400" : "text-[#e2e8f0] hover:text-white"
-                    }`}
-                  >
-                    <Icon className={`w-5 h-5 mb-1.5 shrink-0 transition-colors ${active ? "text-amber-400" : "text-[#cbd5e1] group-hover:text-white"}`} />
-                    <span className={`text-[11.5px] leading-[15px] font-[500] text-center tracking-tight truncate max-w-full px-0.5 ${
-                      active ? "text-white font-bold" : "text-[#e2e8f0] group-hover:text-white"
-                    }`}>
-                      {label}
-                    </span>
-                  </Link>
-                );
-              })}
-
-              {/* Nav Groups with Dropdown Flyouts */}
-              {NAV_GROUPS.map((group) => {
-                if (!groupHasVisibleItems(group, userRole)) return null;
-                const visibleItems = group.items.filter((item) => isItemVisible(item, userRole));
-                const groupActive = pathBelongsToGroup(group, pathname);
-                const isFlyoutOpen = activeFlyoutGroup === group.id;
-                const GroupIcon = group.icon;
-
-                const hasBadge = group.id === "leave-wfh" && user?.role === "Team Lead" && pendingApprovalsCount > 0;
-
-                return (
-                  <div
-                    key={group.id}
-                    className="relative"
-                    onMouseEnter={() => handleLightGroupMouseEnter(group.id)}
-                    onMouseLeave={handleLightGroupMouseLeave}
-                  >
-                    <button
-                      type="button"
-                      onClick={() => setActiveFlyoutGroup(isFlyoutOpen ? null : group.id)}
+            {/* Navigation Items (Icon on top, Label underneath, NO horizontal scroll) */}
+            <div className="flex-1 overflow-y-auto overflow-x-hidden py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <nav className="space-y-1 px-1">
+                {/* Standalone Link (Home / Dashboard) */}
+                {STANDALONE.map(({ href, label, icon: Icon }) => {
+                  const active = pathname === href;
+                  return (
+                    <Link
+                      key={href}
+                      href={href}
+                      onClick={() => setFlyoutState(null)}
                       style={{
-                        backgroundColor: groupActive || isFlyoutOpen ? "#071520" : undefined,
+                        backgroundColor: active ? "#071520" : undefined,
                       }}
-                      className={`group w-full flex flex-col items-center justify-center py-3 px-1 rounded-xl transition-all relative cursor-pointer hover:bg-[#133249] ${
-                        groupActive ? "text-white font-bold shadow-md border-l-2 border-amber-400" : "text-[#e2e8f0] hover:text-white"
+                      className={`group w-full flex flex-col items-center justify-center py-2.5 px-0.5 rounded-xl transition-all relative cursor-pointer hover:bg-[#133249] ${
+                        active ? "text-white font-bold shadow-inner border-l-2 border-amber-400" : "text-[#e2e8f0] hover:text-white"
                       }`}
                     >
-                      {/* Red notification badge on icon top-right */}
-                      {hasBadge && (
-                        <span className="absolute top-1.5 right-2 bg-[#ff5252] text-white text-[10px] font-bold rounded-full px-1.5 py-0.2 min-w-[18px] text-center shadow-md animate-pulse">
+                      <Icon className={`w-5 h-5 mb-1 shrink-0 transition-colors ${active ? "text-amber-400" : "text-[#cbd5e1] group-hover:text-white"}`} />
+                      <span className={`text-[11.5px] leading-[14px] font-[500] text-center tracking-tight truncate max-w-full px-0.5 ${
+                        active ? "text-white font-bold" : "text-[#e2e8f0] group-hover:text-white"
+                      }`}>
+                        {label}
+                      </span>
+                    </Link>
+                  );
+                })}
+
+                {/* Nav Groups with Dropdown Flyouts */}
+                {NAV_GROUPS.map((group) => {
+                  if (!groupHasVisibleItems(group, userRole)) return null;
+                  const groupActive = pathBelongsToGroup(group, pathname);
+                  const isFlyoutOpen = flyoutState?.groupId === group.id;
+                  const GroupIcon = group.icon;
+                  const hasBadge = group.id === "leave-wfh" && user?.role === "Team Lead" && pendingApprovalsCount > 0;
+
+                  return (
+                    <div
+                      key={group.id}
+                      className="relative w-full"
+                      onMouseEnter={(e) => handleLightGroupMouseEnter(group.id, e)}
+                      onMouseLeave={handleLightGroupMouseLeave}
+                    >
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          if (isFlyoutOpen) {
+                            setFlyoutState(null);
+                          } else {
+                            const rect = e.currentTarget.getBoundingClientRect();
+                            setFlyoutState({ groupId: group.id, top: Math.max(10, rect.top) });
+                          }
+                        }}
+                        style={{
+                          backgroundColor: groupActive || isFlyoutOpen ? "#071520" : undefined,
+                        }}
+                        className={`group w-full flex flex-col items-center justify-center py-2.5 px-0.5 rounded-xl transition-all relative cursor-pointer hover:bg-[#133249] ${
+                          groupActive ? "text-white font-bold shadow-inner border-l-2 border-amber-400" : "text-[#e2e8f0] hover:text-white"
+                        }`}
+                      >
+                        {/* Red notification badge on icon top-right */}
+                        {hasBadge && (
+                          <span className="absolute top-1 right-1.5 bg-[#ff5252] text-white text-[10px] font-bold rounded-full px-1.5 py-0.2 min-w-[18px] text-center shadow-md animate-pulse">
+                            {pendingApprovalsCount}
+                          </span>
+                        )}
+
+                        <GroupIcon className={`w-5 h-5 mb-1 shrink-0 transition-colors ${groupActive || isFlyoutOpen ? "text-amber-400" : "text-[#cbd5e1] group-hover:text-white"}`} />
+                        <span className={`text-[11.5px] leading-[14px] font-[500] text-center tracking-tight truncate max-w-full px-0.5 ${
+                          groupActive || isFlyoutOpen ? "text-white font-bold" : "text-[#e2e8f0] group-hover:text-white"
+                        }`}>
+                          {group.shortLabel || group.label}
+                        </span>
+                      </button>
+                    </div>
+                  );
+                })}
+              </nav>
+            </div>
+
+            {/* User Profile Mini Badge (Bottom) */}
+            <div className="p-2 border-t border-[#1a3a52] shrink-0 bg-[#0a1d2c] flex flex-col items-center justify-center">
+              <Link
+                href="/profile"
+                className="flex flex-col items-center justify-center p-1 rounded-xl hover:bg-[#133249] transition-colors group cursor-pointer"
+                title={`${user?.first_name} ${user?.last_name} (${user?.role})`}
+              >
+                <RoyalAvatar
+                  src={user?.profile_photo_path}
+                  name={`${user?.first_name} ${user?.last_name}`}
+                  userId={user?.id}
+                  className="w-8 h-8 rounded-full bg-amber-400 text-xs font-bold text-white mb-0.5"
+                />
+                <span className="text-[10.5px] text-[#e2e8f0] font-medium truncate max-w-[74px] text-center">
+                  {user?.first_name}
+                </span>
+              </Link>
+            </div>
+          </aside>
+
+          {/* ── Fixed Position Floating Submenu Flyout (Never Clipped by Overflow) ── */}
+          {flyoutState && activeFlyoutGroupObj && activeFlyoutVisibleItems.length > 0 && (
+            <div
+              id="light-theme-flyout-portal"
+              onMouseEnter={handleLightFlyoutMouseEnter}
+              onMouseLeave={handleLightFlyoutMouseLeave}
+              style={{
+                top: `${flyoutState.top}px`,
+                backgroundColor: "#0e2638",
+                borderColor: "#1a3a52",
+                fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+              }}
+              className="fixed left-[84px] w-64 rounded-r-2xl rounded-bl-2xl shadow-2xl border border-[#1a3a52] overflow-hidden z-[999] py-2 animate-in fade-in zoom-in-95 duration-150"
+            >
+              {/* Submenu Title */}
+              <div className="px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider text-slate-300 border-b border-[#1a3a52] flex items-center justify-between bg-[#0a1d2c]/80">
+                <span className="text-white font-bold">{activeFlyoutGroupObj.label}</span>
+                <span className="text-[10px] text-slate-400 font-medium">Menu</span>
+              </div>
+
+              {/* Submenu Links */}
+              <div className="py-1.5 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                {activeFlyoutVisibleItems.map((item) => {
+                  const hasExactMatch = activeFlyoutVisibleItems.some((i) => pathname === i.href);
+                  const active = hasExactMatch
+                    ? pathname === item.href
+                    : pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"));
+                  const isExternal = (item as any).external;
+
+                  const itemContent = (
+                    <div className="flex items-center justify-between w-full">
+                      <span className="truncate">{item.label}</span>
+                      {item.href === "/leaves/approvals" && user?.role === "Team Lead" && pendingApprovalsCount > 0 && (
+                        <span className="bg-[#ff5252] text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center ml-2">
                           {pendingApprovalsCount}
                         </span>
                       )}
+                      <ChevronRight className="w-3.5 h-3.5 text-slate-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all shrink-0 ml-1" />
+                    </div>
+                  );
 
-                      <GroupIcon className={`w-5 h-5 mb-1.5 shrink-0 transition-colors ${groupActive || isFlyoutOpen ? "text-amber-400" : "text-[#cbd5e1] group-hover:text-white"}`} />
-                      <span className={`text-[11.5px] leading-[15px] font-[500] text-center tracking-tight truncate max-w-full px-0.5 ${
-                        groupActive || isFlyoutOpen ? "text-white font-bold" : "text-[#e2e8f0] group-hover:text-white"
-                      }`}>
-                        {group.shortLabel || group.label}
-                      </span>
-                    </button>
-
-                    {/* Dropdown Flyout Submenu */}
-                    {isFlyoutOpen && (
-                      <div
-                        id="light-theme-flyout"
-                        onMouseEnter={handleLightFlyoutMouseEnter}
-                        onMouseLeave={handleLightFlyoutMouseLeave}
-                        style={{
-                          backgroundColor: "#0e2638",
-                          borderColor: "#1a3a52",
-                          fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-                        }}
-                        className="absolute left-[80px] top-0 w-64 rounded-r-2xl rounded-bl-2xl shadow-2xl border border-[#1a3a52] overflow-hidden z-[100] py-2 animate-in fade-in zoom-in-95 duration-150"
+                  if (isExternal) {
+                    return (
+                      <a
+                        key={item.href}
+                        href={item.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group flex items-center px-4 py-2.5 text-[13px] font-[500] text-[#e2e8f0] hover:text-white hover:bg-[#163b56] transition-colors"
                       >
-                        {/* Submenu Title */}
-                        <div className="px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider text-slate-300 border-b border-[#1a3a52] flex items-center justify-between bg-[#0a1d2c]/60">
-                          <span className="text-white font-bold">{group.label}</span>
-                          <span className="text-[10px] text-slate-400 font-medium">Menu</span>
-                        </div>
+                        {itemContent}
+                      </a>
+                    );
+                  }
 
-                        {/* Submenu Links */}
-                        <div className="py-1.5 max-h-[70vh] overflow-y-auto custom-scrollbar">
-                          {visibleItems.map((item) => {
-                            const hasExactMatch = visibleItems.some((i) => pathname === i.href);
-                            const active = hasExactMatch
-                              ? pathname === item.href
-                              : pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"));
-                            const isExternal = (item as any).external;
-
-                            const itemContent = (
-                              <div className="flex items-center justify-between w-full">
-                                <span className="truncate">{item.label}</span>
-                                {item.href === "/leaves/approvals" && user?.role === "Team Lead" && pendingApprovalsCount > 0 && (
-                                  <span className="bg-[#ff5252] text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center ml-2">
-                                    {pendingApprovalsCount}
-                                  </span>
-                                )}
-                                <ChevronRight className="w-3.5 h-3.5 text-slate-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all shrink-0 ml-1" />
-                              </div>
-                            );
-
-                            if (isExternal) {
-                              return (
-                                <a
-                                  key={item.href}
-                                  href={item.href}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="group flex items-center px-4 py-2.5 text-[12.5px] font-[500] text-[#e2e8f0] hover:text-white hover:bg-[#163b56] transition-colors"
-                                >
-                                  {itemContent}
-                                </a>
-                              );
-                            }
-
-                            return (
-                              <Link
-                                key={item.href}
-                                href={item.href}
-                                onClick={() => setActiveFlyoutGroup(null)}
-                                style={{
-                                  backgroundColor: active ? "#071520" : undefined,
-                                }}
-                                className={`group flex items-center px-4 py-2.5 text-[12.5px] font-[500] transition-colors ${
-                                  active
-                                    ? "text-white font-bold bg-[#071520] border-l-2 border-amber-400"
-                                    : "text-[#e2e8f0] hover:text-white hover:bg-[#163b56]"
-                                }`}
-                              >
-                                {itemContent}
-                              </Link>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </nav>
-          </div>
-
-          {/* User Profile Mini Badge (Bottom) */}
-          <div className="p-2 border-t border-[#1a3a52] shrink-0 bg-[#0a1d2c] flex flex-col items-center justify-center">
-            <Link
-              href="/profile"
-              className="flex flex-col items-center justify-center p-1 rounded-xl hover:bg-[#133249] transition-colors group cursor-pointer"
-              title={`${user?.first_name} ${user?.last_name} (${user?.role})`}
-            >
-              <RoyalAvatar
-                src={user?.profile_photo_path}
-                name={`${user?.first_name} ${user?.last_name}`}
-                userId={user?.id}
-                className="w-8 h-8 rounded-full bg-amber-400 text-xs font-bold text-white mb-0.5"
-              />
-              <span className="text-[10.5px] text-[#e2e8f0] font-medium truncate max-w-[72px] text-center">
-                {user?.first_name}
-              </span>
-            </Link>
-          </div>
-        </aside>
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setFlyoutState(null)}
+                      style={{
+                        backgroundColor: active ? "#071520" : undefined,
+                      }}
+                      className={`group flex items-center px-4 py-2.5 text-[13px] font-[500] transition-colors ${
+                        active
+                          ? "text-white font-bold bg-[#071520] border-l-2 border-amber-400"
+                          : "text-[#e2e8f0] hover:text-white hover:bg-[#163b56]"
+                      }`}
+                    >
+                      {itemContent}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {/* ─────────────────────────────────────────────────────────────────────────────
@@ -512,7 +521,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className={`h-16 flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-between px-4'} border-b border-slate-800 shrink-0 relative`}>
             {!isSidebarCollapsed && (
               <Link href="/dashboard" className="flex items-center min-w-0 pr-2">
-                <img src="/logo.png" alt="Inter Smart Logo" className="h-10 sm:h-12 w-auto object-contain shrink-0 max-w-[150px]" />
+                <img src="/logo-dark.png" alt="Inter Smart Logo" className="h-10 sm:h-12 w-auto object-contain shrink-0 max-w-[150px]" />
               </Link>
             )}
             <button 
@@ -637,11 +646,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Main Wrapper */}
       <div className={`flex-1 flex flex-col min-w-0 min-h-screen transition-all duration-300 ease-in-out ${
-        !isDark ? 'md:pl-[82px]' : isSidebarCollapsed ? 'md:pl-20' : 'md:pl-64'
+        !isDark ? 'md:pl-[84px]' : isSidebarCollapsed ? 'md:pl-20' : 'md:pl-64'
       }`}>
         <RecognitionTicker />
         
-        <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-white/10 shadow-sm sticky top-0 z-40">
+        <header className="bg-white/95 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-white/10 shadow-sm sticky top-0 z-40">
           <div className="px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
             
             {/* Mobile Left: Hamburger + Logo */}
@@ -654,17 +663,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 {menuOpen ? <X className="h-6 w-6 text-slate-600 dark:text-slate-300" /> : <Menu className="h-6 w-6 text-slate-600 dark:text-slate-300" />}
               </button>
               <Link href="/dashboard" className="flex items-center shrink min-w-0">
-                <img src="/logo.png" alt="Inter Smart Logo" className="h-8 object-contain" />
+                <img src={isDark ? "/logo-dark.png" : "/logo.png"} alt="Inter Smart Logo" className="h-8 object-contain" />
               </Link>
             </div>
 
-            {/* Desktop Left: Logo when sidebar is collapsed in dark mode or fixed in light mode */}
+            {/* Desktop Left: Colored Logo for Light Theme, Dark Logo for Dark Theme */}
             <div className="hidden md:flex flex-1 items-center">
-              {((isDark && isSidebarCollapsed) || !isDark) && (
-                <Link href="/dashboard" className="flex items-center shrink min-w-0">
-                  <img src="/logo.png" alt="Inter Smart Logo" className="h-8 object-contain" />
-                </Link>
-              )}
+              <Link href="/dashboard" className="flex items-center shrink min-w-0">
+                <img
+                  src={isDark ? "/logo-dark.png" : "/logo.png"}
+                  alt="Inter Smart Logo"
+                  className="h-10 sm:h-12 w-auto object-contain shrink-0 max-w-[180px]"
+                />
+              </Link>
             </div>
 
             {/* Right side */}
@@ -701,7 +712,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={closeMenu} />
           <div className="relative w-4/5 max-w-xs bg-slate-900 border-r border-slate-800 flex flex-col h-full z-10">
             <div className="h-16 flex items-center justify-between px-4 border-b border-slate-800">
-              <img src="/logo.png" alt="Inter Smart Logo" className="h-8 object-contain" />
+              <img src="/logo-dark.png" alt="Inter Smart Logo" className="h-8 object-contain" />
               <button onClick={closeMenu} className="p-1 rounded-lg text-slate-400 hover:text-white">
                 <X className="h-6 w-6" />
               </button>
