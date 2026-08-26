@@ -825,14 +825,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
           </div>
         </header>
-        {/* ── KEKA SUB-HEADER TAB NAVIGATION BAR (STICKY BELOW PURPLE HEADER) ── */}
+        {/* ── KEKA SUB-HEADER TAB NAVIGATION BAR (STICKY BELOW PURPLE HEADER - ZERO SCROLLBAR, FULL HEIGHT) ── */}
         <div
+          id="sub-header-tabs-bar"
           style={{
             fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
           }}
-          className="sticky top-16 z-30 bg-white dark:bg-slate-900 border-b border-slate-200/90 dark:border-slate-800 shadow-sm"
+          className="sticky top-16 z-30 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden"
         >
-          <div className="px-4 sm:px-8 flex items-center gap-6 sm:gap-8 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <style>{`
+            #sub-header-tabs-bar, #sub-header-tabs-bar * {
+              scrollbar-width: none !important;
+              -ms-overflow-style: none !important;
+            }
+            #sub-header-tabs-bar ::-webkit-scrollbar {
+              display: none !important;
+              width: 0 !important;
+              height: 0 !important;
+            }
+          `}</style>
+          <div className="px-4 sm:px-8 flex items-center gap-6 sm:gap-8 h-10 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {subTabs.map((tab) => {
               const active = tab.href === "/dashboard"
                 ? pathname === "/dashboard"
@@ -849,15 +861,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     fontWeight: active ? 600 : 500,
                     color: active ? "#56348f" : "rgb(15, 24, 36)",
                   }}
-                  className={`relative py-2.5 uppercase tracking-wider transition-colors shrink-0 flex items-center gap-1.5 cursor-pointer ${
-                    active
-                      ? "border-b-2 border-[#56348f] dark:border-purple-400 -mb-[1px]"
-                      : "hover:text-[#56348f]"
-                  }`}
+                  className="relative h-full flex items-center uppercase tracking-wider transition-colors shrink-0 gap-1.5 cursor-pointer hover:!text-[#56348f]"
                 >
-                  <span>{tab.label}</span>
+                  <span className="py-2">{tab.label}</span>
                   {tab.badge && (
                     <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse inline-block" />
+                  )}
+                  {active && (
+                    <span className="absolute bottom-0 inset-x-0 h-[2px] bg-[#56348f] dark:bg-purple-400" />
                   )}
                 </Link>
               );
