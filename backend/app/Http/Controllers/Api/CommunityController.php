@@ -74,11 +74,22 @@ class CommunityController extends Controller
             } catch (\Exception $e) {}
         }
 
-        $allLikes = CommunityPostLike::whereIn('post_id', $postIds)->get();
+        // Fetch distinct reactions per user per post (preventing duplicate rows from multiple test clicks)
+        $allLikes = CommunityPostLike::whereIn('post_id', $postIds)
+            ->orderBy('id', 'desc')
+            ->get();
+
         $likesByPost = [];
         $userReactions = [];
+        $processedUserPosts = [];
 
         foreach ($allLikes as $l) {
+            $pairKey = "{$l->post_id}_{$l->user_id}";
+            if (isset($processedUserPosts[$pairKey])) {
+                continue; // Skip duplicate records for the same user on this post
+            }
+            $processedUserPosts[$pairKey] = true;
+
             $rType = $l->reaction_type ?: 'like';
             if (!isset($likesByPost[$l->post_id])) {
                 $likesByPost[$l->post_id] = [];
@@ -411,38 +422,53 @@ class CommunityController extends Controller
             } catch (\Exception $e) {}
         }
 
-        $existing = CommunityPostLike::where('post_id', $id)->where('user_id', $userId)->first();
+        // Clean up any potential duplicates for this user and post
+        $userLikes = CommunityPostLike::where('post_id', $id)->where('user_id', $userId)->get();
         $userReaction = null;
 
-        if ($existing) {
-            if ($existing->reaction_type === $reactionType) {
-                // Remove reaction if clicking the same emoji
-                $existing->delete();
-                $post->decrement('likes_count');
+        if ($userLikes->isNotEmpty()) {
+            $currentReaction = $userLikes->first()->reaction_type ?: 'like';
+            // Delete all existing user likes for this post
+            CommunityPostLike::where('post_id', $id)->where('user_id', $userId)->delete();
+
+            if ($currentReaction === $reactionType) {
+                // Toggled off
                 $userReaction = null;
             } else {
-                // Switch reaction to new emoji
-                $existing->reaction_type = $reactionType;
-                $existing->save();
+                // Switched to new reaction
+                CommunityPostLike::create([
+                    'post_id' => $id,
+                    'user_id' => $userId,
+                    'reaction_type' => $reactionType,
+                ]);
                 $userReaction = $reactionType;
             }
         } else {
+            // New reaction
             CommunityPostLike::create([
                 'post_id' => $id,
                 'user_id' => $userId,
                 'reaction_type' => $reactionType,
             ]);
-            $post->increment('likes_count');
             $userReaction = $reactionType;
         }
 
-        $reactions = CommunityPostLike::where('post_id', $id)
-            ->select('reaction_type', DB::raw('count(*) as count'))
-            ->groupBy('reaction_type')
-            ->pluck('count', 'reaction_type')
-            ->toArray();
+        // Deduplicated reaction breakdown
+        $allPostLikes = CommunityPostLike::where('post_id', $id)->orderBy('id', 'desc')->get();
+        $reactions = [];
+        $countedUsers = [];
+
+        foreach ($allPostLikes as $pl) {
+            if (isset($countedUsers[$pl->user_id])) continue;
+            $countedUsers[$pl->user_id] = true;
+            $r = $pl->reaction_type ?: 'like';
+            $reactions[$r] = ($reactions[$r] ?? 0) + 1;
+        }
 
         $freshCount = array_sum($reactions);
+
+        // Update post column cache
+        $post->update(['likes_count' => $freshCount]);
 
         return response()->json([
             'user_reaction' => $userReaction,

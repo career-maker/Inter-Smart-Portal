@@ -392,6 +392,38 @@ export function CommunityFeed() {
 
   const handleToggleLike = async (postId: number, reaction = "like") => {
     setHoveredReactionPostId(null);
+
+    // 0ms Instant Optimistic UI update
+    setPosts((prev) =>
+      prev.map((p) => {
+        if (p.id !== postId) return p;
+
+        const currentReaction = p.user_reaction;
+        const willRemove = currentReaction === reaction;
+        const newReaction = willRemove ? null : reaction;
+        const newBreakdown = { ...(p.reactions_breakdown || {}) };
+
+        if (currentReaction && newBreakdown[currentReaction]) {
+          newBreakdown[currentReaction] = Math.max(0, newBreakdown[currentReaction] - 1);
+          if (newBreakdown[currentReaction] === 0) delete newBreakdown[currentReaction];
+        }
+
+        if (!willRemove) {
+          newBreakdown[reaction] = (newBreakdown[reaction] || 0) + 1;
+        }
+
+        const newTotal = Object.values(newBreakdown).reduce((a: any, b: any) => a + Number(b), 0) as number;
+
+        return {
+          ...p,
+          user_has_liked: !willRemove,
+          user_reaction: newReaction,
+          likes_count: newTotal,
+          reactions_breakdown: newBreakdown,
+        };
+      })
+    );
+
     try {
       const res = await api.post(`/community/posts/${postId}/like`, { reaction });
       const { liked, likes_count, user_reaction, reactions_breakdown } = res.data;
@@ -411,6 +443,8 @@ export function CommunityFeed() {
       );
     } catch (err) {
       console.error("Failed to react to post", err);
+      // Re-fetch on error to sync state
+      fetchPosts(currentPage);
     }
   };
 
@@ -1510,19 +1544,7 @@ export function CommunityFeed() {
                   )}
                 </div>
 
-                {/* "Be the first person to comment" prompt if 0 comments and closed */}
-                {!isCommentsOpen && (!post.comments || post.comments.length === 0) && (
-                  <div className="pt-2 text-xs">
-                    <button
-                      onClick={() =>
-                        setOpenComments((prev) => ({ ...prev, [post.id]: true }))
-                      }
-                      className="text-[#56348f] dark:text-purple-400 font-semibold hover:underline cursor-pointer"
-                    >
-                      Be the first person to comment
-                    </button>
-                  </div>
-                )}
+
 
                 {/* Comment Section (Collapsible) */}
                 {isCommentsOpen && (
