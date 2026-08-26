@@ -715,164 +715,168 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       }`}>
         <RecognitionTicker />
         
-        {/* ── TOP HEADER (KEKA PURPLE #5a3794 FOR LIGHT THEME, SLATE-900 FOR DARK THEME - STICKY) ── */}
-        <header
-          style={{
-            backgroundColor: !isDark ? "#56348f" : undefined,
-            fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-          }}
-          className={`${
-            !isDark ? "text-white shadow-md" : "bg-slate-900/80 backdrop-blur-md border-b border-white/10 text-slate-200"
-          } sticky top-0 z-40 transition-colors w-full`}
-        >
-          <div className="px-3 sm:px-6 h-16 flex items-center justify-between gap-3 sm:gap-6">
-            
-            {/* Left: Mobile Hamburger + Logo + Brand Pill */}
-            <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-              <button
-                style={{ backgroundColor: "transparent", border: "none", outline: "none", boxShadow: "none" }}
-                className="p-1 -ml-1 text-white bg-transparent hover:!bg-transparent active:!bg-transparent focus:!bg-transparent focus:outline-none shrink-0 md:hidden cursor-pointer"
-                onClick={() => setMenuOpen((v) => !v)}
-                aria-label="Toggle menu"
-              >
-                {menuOpen ? <X className="h-6 w-6 text-white" /> : <Menu className="h-6 w-6 text-white" />}
-              </button>
+        {/* ── STICKY TOP HEADER & SUB-TABS BAR UNIFIED WRAPPER (TOP: 0, Z: 40) ── */}
+        <div className="sticky top-0 z-40 w-full shrink-0 shadow-sm">
+          {/* ── TOP HEADER (KEKA PURPLE #56348f FOR LIGHT THEME, SLATE-900 FOR DARK THEME) ── */}
+          <header
+            style={{
+              backgroundColor: !isDark ? "#56348f" : undefined,
+              fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+            }}
+            className={`${
+              !isDark ? "text-white" : "bg-slate-900/90 backdrop-blur-md border-b border-white/10 text-slate-200"
+            } transition-colors w-full`}
+          >
+            <div className="px-3 sm:px-6 h-16 flex items-center justify-between gap-3 sm:gap-6">
               
-              <Link href="/dashboard" className="flex items-center shrink-0">
-                <img
-                  src="/logo.png"
-                  alt="Inter Smart Logo"
-                  className="h-8 sm:h-9 w-auto object-contain brightness-0 invert"
-                />
-              </Link>
-            </div>
-
-            {/* Center: Search Bar with In-Place Expandable Dropdown */}
-            <div className="flex-1 max-w-lg mx-auto hidden sm:block relative">
-              <button
-                type="button"
-                onClick={() => setSearchModalOpen((prev) => !prev)}
-                className="w-full bg-white hover:bg-slate-50 transition-all rounded-full px-4 py-2 flex items-center justify-between text-xs text-slate-600 shadow-md border border-white/30 cursor-pointer group"
-              >
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <Search className="w-4 h-4 text-purple-600 shrink-0 group-hover:scale-110 transition-transform" />
-                  <span className="text-slate-400 font-normal truncate">
-                    Search employees or actions (Ex: Apply Leave)
-                  </span>
-                </div>
-                <kbd className="text-[10px] bg-slate-100 text-slate-500 font-bold px-2.5 py-0.5 rounded-full border border-slate-200 shrink-0 ml-2 shadow-inner">
-                  Alt + K
-                </kbd>
-              </button>
-
-              {/* In-place Expandable Command Palette */}
-              <CommandPalette open={searchModalOpen} onOpenChange={setSearchModalOpen} />
-            </div>
-
-            {/* Right: Actions & User Avatar */}
-            <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 ml-auto">
-              {/* Mobile search trigger */}
-              <button
-                type="button"
-                onClick={() => setSearchModalOpen(true)}
-                className="p-2 text-white/80 hover:text-white rounded-full hover:bg-white/10 sm:hidden transition-colors"
-                aria-label="Search"
-              >
-                <Search className="w-5 h-5" />
-              </button>
-
-              <button
-                onClick={() => setSearchModalOpen(true)}
-                className="p-2 text-white hover:text-white rounded-full hover:bg-white/15 hidden md:flex transition-colors cursor-pointer"
-                title="Quick Launch"
-              >
-                <Rocket className="w-5 h-5 text-white" />
-              </button>
-
-              <NotificationDropdown />
-
-              <ThemeToggle />
-
-              <Link
-                href="/settings"
-                className="p-2 text-white hover:text-white rounded-full hover:bg-white/15 hidden sm:flex transition-colors cursor-pointer"
-                title="Settings"
-              >
-                <Settings className="w-5 h-5 text-white" />
-              </Link>
-
-              <Link
-                href="/profile"
-                className="flex items-center p-1 rounded-full hover:bg-white/15 transition-colors cursor-pointer"
-                title={`${user?.first_name} ${user?.last_name} (Top Awardee)`}
-              >
-                <RoyalAvatar
-                  src={user?.profile_photo_path}
-                  name={`${user?.first_name} ${user?.last_name}`}
-                  userId={user?.id}
-                  className="w-8 h-8 rounded-full"
-                />
-              </Link>
-
-              <button
-                onClick={handleLogout}
-                style={{ color: "#ffffff" }}
-                className="hidden lg:flex items-center gap-1.5 text-xs text-white hover:text-white bg-white/10 hover:bg-white/20 transition-colors px-3 py-1.5 rounded-lg font-medium cursor-pointer"
-              >
-                <LogOut className="h-4 w-4 text-white" />
-                <span style={{ color: "#ffffff" }} className="font-semibold text-white">Logout</span>
-              </button>
-            </div>
-          </div>
-        </header>
-        {/* ── KEKA SUB-HEADER TAB NAVIGATION BAR (STICKY BELOW PURPLE HEADER - ZERO SCROLLBAR, FULL HEIGHT) ── */}
-        <div
-          id="sub-header-tabs-bar"
-          style={{
-            fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-          }}
-          className="sticky top-16 z-30 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden"
-        >
-          <style>{`
-            #sub-header-tabs-bar, #sub-header-tabs-bar * {
-              scrollbar-width: none !important;
-              -ms-overflow-style: none !important;
-            }
-            #sub-header-tabs-bar ::-webkit-scrollbar {
-              display: none !important;
-              width: 0 !important;
-              height: 0 !important;
-            }
-          `}</style>
-          <div className="px-4 sm:px-8 flex items-center gap-6 sm:gap-8 h-10 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {subTabs.map((tab) => {
-              const active = tab.href === "/dashboard"
-                ? pathname === "/dashboard"
-                : pathname === tab.href || pathname.startsWith(tab.href + "/");
-
-              return (
-                <Link
-                  key={tab.href}
-                  href={tab.href}
-                  style={{
-                    fontFamily: '"Proxima Nova", sans-serif',
-                    fontSize: "11px",
-                    lineHeight: "16px",
-                    fontWeight: active ? 600 : 500,
-                    color: active ? "#56348f" : "rgb(15, 24, 36)",
-                  }}
-                  className="relative h-full flex items-center uppercase tracking-wider transition-colors shrink-0 gap-1.5 cursor-pointer hover:!text-[#56348f]"
+              {/* Left: Mobile Hamburger + Logo + Brand Pill */}
+              <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+                <button
+                  style={{ backgroundColor: "transparent", border: "none", outline: "none", boxShadow: "none" }}
+                  className="p-1 -ml-1 text-white bg-transparent hover:!bg-transparent active:!bg-transparent focus:!bg-transparent focus:outline-none shrink-0 md:hidden cursor-pointer"
+                  onClick={() => setMenuOpen((v) => !v)}
+                  aria-label="Toggle menu"
                 >
-                  <span className="py-2">{tab.label}</span>
-                  {tab.badge && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse inline-block" />
-                  )}
-                  {active && (
-                    <span className="absolute bottom-0 inset-x-0 h-[2px] bg-[#56348f] dark:bg-purple-400" />
-                  )}
+                  {menuOpen ? <X className="h-6 w-6 text-white" /> : <Menu className="h-6 w-6 text-white" />}
+                </button>
+                
+                <Link href="/dashboard" className="flex items-center shrink-0">
+                  <img
+                    src="/logo.png"
+                    alt="Inter Smart Logo"
+                    className="h-8 sm:h-9 w-auto object-contain brightness-0 invert"
+                  />
                 </Link>
-              );
-            })}
+              </div>
+
+              {/* Center: Search Bar with In-Place Expandable Dropdown */}
+              <div className="flex-1 max-w-lg mx-auto hidden sm:block relative">
+                <button
+                  type="button"
+                  onClick={() => setSearchModalOpen((prev) => !prev)}
+                  className="w-full bg-white hover:bg-slate-50 transition-all rounded-full px-4 py-2 flex items-center justify-between text-xs text-slate-600 shadow-md border border-white/30 cursor-pointer group"
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <Search className="w-4 h-4 text-purple-600 shrink-0 group-hover:scale-110 transition-transform" />
+                    <span className="text-slate-400 font-normal truncate">
+                      Search employees or actions (Ex: Apply Leave)
+                    </span>
+                  </div>
+                  <kbd className="text-[10px] bg-slate-100 text-slate-500 font-bold px-2.5 py-0.5 rounded-full border border-slate-200 shrink-0 ml-2 shadow-inner">
+                    Alt + K
+                  </kbd>
+                </button>
+
+                {/* In-place Expandable Command Palette */}
+                <CommandPalette open={searchModalOpen} onOpenChange={setSearchModalOpen} />
+              </div>
+
+              {/* Right: Actions & User Avatar */}
+              <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 ml-auto">
+                {/* Mobile search trigger */}
+                <button
+                  type="button"
+                  onClick={() => setSearchModalOpen(true)}
+                  className="p-2 text-white/80 hover:text-white rounded-full hover:bg-white/10 sm:hidden transition-colors"
+                  aria-label="Search"
+                >
+                  <Search className="w-5 h-5" />
+                </button>
+
+                <button
+                  onClick={() => setSearchModalOpen(true)}
+                  className="p-2 text-white hover:text-white rounded-full hover:bg-white/15 hidden md:flex transition-colors cursor-pointer"
+                  title="Quick Launch"
+                >
+                  <Rocket className="w-5 h-5 text-white" />
+                </button>
+
+                <NotificationDropdown />
+
+                <ThemeToggle />
+
+                <Link
+                  href="/settings"
+                  className="p-2 text-white hover:text-white rounded-full hover:bg-white/15 hidden sm:flex transition-colors cursor-pointer"
+                  title="Settings"
+                >
+                  <Settings className="w-5 h-5 text-white" />
+                </Link>
+
+                <Link
+                  href="/profile"
+                  className="flex items-center p-1 rounded-full hover:bg-white/15 transition-colors cursor-pointer"
+                  title={`${user?.first_name} ${user?.last_name} (Top Awardee)`}
+                >
+                  <RoyalAvatar
+                    src={user?.profile_photo_path}
+                    name={`${user?.first_name} ${user?.last_name}`}
+                    userId={user?.id}
+                    className="w-8 h-8 rounded-full"
+                  />
+                </Link>
+
+                <button
+                  onClick={handleLogout}
+                  style={{ color: "#ffffff" }}
+                  className="hidden lg:flex items-center gap-1.5 text-xs text-white hover:text-white bg-white/10 hover:bg-white/20 transition-colors px-3 py-1.5 rounded-lg font-medium cursor-pointer"
+                >
+                  <LogOut className="h-4 w-4 text-white" />
+                  <span style={{ color: "#ffffff" }} className="font-semibold text-white">Logout</span>
+                </button>
+              </div>
+            </div>
+          </header>
+
+          {/* ── KEKA SUB-HEADER TAB NAVIGATION BAR (STICKY WITH HEADER - ZERO SCROLLBAR, FULL HEIGHT) ── */}
+          <div
+            id="sub-header-tabs-bar"
+            style={{
+              fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+            }}
+            className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 overflow-hidden w-full"
+          >
+            <style>{`
+              #sub-header-tabs-bar, #sub-header-tabs-bar * {
+                scrollbar-width: none !important;
+                -ms-overflow-style: none !important;
+              }
+              #sub-header-tabs-bar ::-webkit-scrollbar {
+                display: none !important;
+                width: 0 !important;
+                height: 0 !important;
+              }
+            `}</style>
+            <div className="px-4 sm:px-8 flex items-center gap-6 sm:gap-8 h-10 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {subTabs.map((tab) => {
+                const active = tab.href === "/dashboard"
+                  ? pathname === "/dashboard"
+                  : pathname === tab.href || pathname.startsWith(tab.href + "/");
+
+                return (
+                  <Link
+                    key={tab.href}
+                    href={tab.href}
+                    style={{
+                      fontFamily: '"Proxima Nova", sans-serif',
+                      fontSize: "11px",
+                      lineHeight: "16px",
+                      fontWeight: active ? 600 : 500,
+                      color: active ? "#56348f" : "rgb(15, 24, 36)",
+                    }}
+                    className="relative h-full flex items-center uppercase tracking-wider transition-colors shrink-0 gap-1.5 cursor-pointer hover:!text-[#56348f]"
+                  >
+                    <span className="py-2">{tab.label}</span>
+                    {tab.badge && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse inline-block" />
+                    )}
+                    {active && (
+                      <span className="absolute bottom-0 inset-x-0 h-[2px] bg-[#56348f] dark:bg-purple-400" />
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         </div>
 
