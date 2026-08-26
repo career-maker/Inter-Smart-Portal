@@ -430,25 +430,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </nav>
             </div>
 
-            {/* User Profile Mini Badge (Bottom - With Profile Photo) */}
-            <div className="p-2 border-t border-[#1a3a52] shrink-0 bg-[#0c2233] flex flex-col items-center justify-center">
+            {/* User Profile Mini Badge (Bottom - With Top Awardee Golden Honor Ring & Crown) */}
+            <div className="pt-2.5 pb-2 border-t border-[#1a3a52] shrink-0 bg-[#0c2233] flex flex-col items-center justify-center">
               <Link
                 href="/profile"
-                className="flex flex-col items-center justify-center p-1 rounded-none hover:bg-[#133249] transition-colors group cursor-pointer w-full"
+                className="flex flex-col items-center justify-center px-1 py-0.5 rounded-none hover:bg-[#133249] transition-colors group cursor-pointer w-full"
                 title={`${user?.first_name} ${user?.last_name} (${user?.role})`}
               >
-                {user?.profile_photo_path ? (
-                  <img
-                    src={user.profile_photo_path}
-                    alt={user.first_name}
-                    className="w-8 h-8 rounded-full object-cover shadow-sm ring-1 ring-white/20 mb-1"
+                <div className="my-1.5 flex items-center justify-center">
+                  <RoyalAvatar
+                    src={user?.profile_photo_path}
+                    name={`${user?.first_name} ${user?.last_name}`}
+                    userId={user?.id}
+                    className="w-8 h-8 rounded-full"
                   />
-                ) : (
-                  <div className="w-8 h-8 rounded-full bg-[#3b82f6] text-white text-xs font-bold flex items-center justify-center mb-1 shadow-sm">
-                    {userInitials}
-                  </div>
-                )}
-                <span style={{ color: "#8ea7bc" }} className="text-[10.5px] font-medium truncate max-w-[74px] text-center group-hover:!text-white">
+                </div>
+                <span style={{ color: "#8ea7bc" }} className="text-[11px] font-medium truncate max-w-[74px] text-center group-hover:!text-white mt-0.5">
                   {user?.first_name}
                 </span>
               </Link>
@@ -669,7 +666,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       }`}>
         <RecognitionTicker />
         
-        {/* ── TOP HEADER (KEKA PURPLE #5a3794 FOR LIGHT THEME, SLATE-900 FOR DARK THEME) ── */}
+        {/* ── TOP HEADER (KEKA PURPLE #5a3794 FOR LIGHT THEME, SLATE-900 FOR DARK THEME - STICKY) ── */}
         <header
           style={{
             backgroundColor: !isDark ? "#56348f" : undefined,
@@ -677,7 +674,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           }}
           className={`${
             !isDark ? "text-white shadow-md" : "bg-slate-900/80 backdrop-blur-md border-b border-white/10 text-slate-200"
-          } sticky top-0 z-40 transition-colors`}
+          } sticky top-0 z-40 transition-colors w-full`}
         >
           <div className="px-3 sm:px-6 h-16 flex items-center justify-between gap-3 sm:gap-6">
             
@@ -756,20 +753,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
               <Link
                 href="/profile"
-                className="flex items-center gap-2 p-0.5 rounded-full hover:bg-white/15 transition-colors cursor-pointer"
-                title={`${user?.first_name} ${user?.last_name}`}
+                className="flex items-center p-1 rounded-full hover:bg-white/15 transition-colors cursor-pointer"
+                title={`${user?.first_name} ${user?.last_name} (Top Awardee)`}
               >
-                {user?.profile_photo_path ? (
-                  <img
-                    src={user.profile_photo_path}
-                    alt={user.first_name}
-                    className="w-8 h-8 rounded-full object-cover shadow-sm ring-1 ring-white/30"
-                  />
-                ) : (
-                  <div className="w-8 h-8 rounded-full bg-[#38bdf8] text-white text-xs font-bold flex items-center justify-center shadow-sm">
-                    {userInitials}
-                  </div>
-                )}
+                <RoyalAvatar
+                  src={user?.profile_photo_path}
+                  name={`${user?.first_name} ${user?.last_name}`}
+                  userId={user?.id}
+                  className="w-8 h-8 rounded-full"
+                />
               </Link>
 
               <button
