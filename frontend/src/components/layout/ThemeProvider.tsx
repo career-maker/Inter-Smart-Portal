@@ -1,66 +1,41 @@
 "use client";
 
-import { useEffect, useState, ReactNode } from "react";
-import { useThemeStore } from "@/store/theme";
+import { useEffect, ReactNode } from "react";
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const isDark = useThemeStore((state) => state.isDark);
-  const [isHydrated, setIsHydrated] = useState(false);
-
   useEffect(() => {
-    setIsHydrated(true);
-  }, []);
-
-  useEffect(() => {
-    if (!isHydrated) return;
+    // Purge any dark theme cached in local storage
+    try {
+      localStorage.removeItem("theme-storage");
+      localStorage.removeItem("theme");
+    } catch (e) {}
 
     const root = document.documentElement;
-    if (isDark) {
-      root.style.colorScheme = "dark";
-      root.classList.add('dark');
-      root.classList.remove('light');
-    } else {
-      root.style.colorScheme = "light";
-      root.classList.remove('dark');
-      root.classList.add('light');
-    }
-  }, [isDark, isHydrated]);
+    root.style.colorScheme = "light";
+    root.classList.remove("dark");
+    root.classList.add("light");
+  }, []);
 
   return (
     <>
       <style>{`
-      :root {
-        ${
-          isDark
-            ? `
-          --bg-primary: rgb(15, 23, 42);
-          --bg-secondary: rgb(30, 41, 59);
-          --text-primary: rgb(255, 255, 255);
-          --text-secondary: rgb(148, 163, 184);
-          --border-color: rgba(255, 255, 255, 0.1);
-          --card-bg: rgba(255, 255, 255, 0.05);
-          --card-border: rgba(255, 255, 255, 0.1);
-          --accent: rgb(251, 191, 36);
-        `
-            : `
-          --bg-primary: #E8E8E8;
-          --bg-secondary: #F5F5F5;
-          --text-primary: rgb(15, 23, 42);
-          --text-secondary: rgb(71, 85, 105);
-          --border-color: rgba(0, 0, 0, 0.1);
-          --card-bg: rgba(255, 255, 255, 0.8);
-          --card-border: rgba(0, 0, 0, 0.1);
-          --accent: rgb(251, 191, 36);
-        `
+        :root {
+          --bg-primary: #F8FAFC;
+          --bg-secondary: #F1F5F9;
+          --text-primary: rgb(15, 24, 36);
+          --text-secondary: rgb(94, 105, 120);
+          --border-color: rgba(226, 232, 240, 0.9);
+          --card-bg: #FFFFFF;
+          --card-border: rgba(226, 232, 240, 0.9);
+          --accent: #56348f;
         }
-      }
 
-      body {
-        background-color: var(--bg-primary);
-        color: var(--text-primary);
-        transition: background-color 0.3s ease, color 0.3s ease;
-      }
-    `}</style>
+        html, body {
+          background-color: #F8FAFC !important;
+          color: rgb(15, 24, 36) !important;
+          color-scheme: light !important;
+        }
+      `}</style>
       {children}
     </>
   );
