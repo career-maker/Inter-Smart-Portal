@@ -25,6 +25,10 @@ import { CommunityFeed } from "@/components/community/CommunityFeed";
 
 export default function CommunityPage() {
   const currentUser = useAuthStore((state) => state.user);
+  const isSuperAdmin =
+    currentUser?.role === "Super Admin" ||
+    (currentUser as any)?.roles?.some((r: any) => (r.name || r) === "Super Admin") ||
+    (currentUser as any)?.is_super_admin === true;
   const [summary, setSummary] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [wishTarget, setWishTarget] = useState<WishTargetPerson | null>(null);
@@ -233,57 +237,59 @@ export default function CommunityPage() {
             )}
           </div>
 
-          {/* 4. Leave Balances Card */}
-          <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200/90 dark:border-slate-700/60 shadow-sm p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h3
-                style={{
-                  fontSize: "15px",
-                  lineHeight: "24px",
-                  fontWeight: 600,
-                  color: "rgb(15, 24, 36)",
-                }}
-                className="dark:text-white"
-              >
-                Leave Balances
-              </h3>
-              <Link
-                href="/leaves"
-                className="text-xs font-medium text-[#56348f] dark:text-purple-400 hover:underline"
-              >
-                Request Leave
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col items-center justify-center p-3 bg-slate-50 dark:bg-slate-900/50 rounded-md border border-slate-200/70 dark:border-slate-800">
-                <div className="w-12 h-12 rounded-full border-4 border-emerald-500 flex items-center justify-center font-bold text-sm text-emerald-600 dark:text-emerald-400 mb-1">
-                  {leaveBalances.casual}
-                </div>
-                <span className="text-[11px] font-medium text-slate-600 dark:text-slate-300">
-                  Casual Leave
-                </span>
+          {/* 4. Leave Balances Card (Hidden for Super Admin) */}
+          {!isSuperAdmin && (
+            <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200/90 dark:border-slate-700/60 shadow-sm p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h3
+                  style={{
+                    fontSize: "15px",
+                    lineHeight: "24px",
+                    fontWeight: 600,
+                    color: "rgb(15, 24, 36)",
+                  }}
+                  className="dark:text-white"
+                >
+                  Leave Balances
+                </h3>
+                <Link
+                  href="/leaves"
+                  className="text-xs font-medium text-[#56348f] dark:text-purple-400 hover:underline"
+                >
+                  Request Leave
+                </Link>
               </div>
 
-              <div className="flex flex-col items-center justify-center p-3 bg-slate-50 dark:bg-slate-900/50 rounded-md border border-slate-200/70 dark:border-slate-800">
-                <div className="w-12 h-12 rounded-full border-4 border-sky-500 flex items-center justify-center font-bold text-sm text-sky-600 dark:text-sky-400 mb-1">
-                  {leaveBalances.sick}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col items-center justify-center p-3 bg-slate-50 dark:bg-slate-900/50 rounded-md border border-slate-200/70 dark:border-slate-800">
+                  <div className="w-12 h-12 rounded-full border-4 border-emerald-500 flex items-center justify-center font-bold text-sm text-emerald-600 dark:text-emerald-400 mb-1">
+                    {leaveBalances.casual}
+                  </div>
+                  <span className="text-[11px] font-medium text-slate-600 dark:text-slate-300">
+                    Casual Leave
+                  </span>
                 </div>
-                <span className="text-[11px] font-medium text-slate-600 dark:text-slate-300">
-                  Sick Leaves
-                </span>
+
+                <div className="flex flex-col items-center justify-center p-3 bg-slate-50 dark:bg-slate-900/50 rounded-md border border-slate-200/70 dark:border-slate-800">
+                  <div className="w-12 h-12 rounded-full border-4 border-sky-500 flex items-center justify-center font-bold text-sm text-sky-600 dark:text-sky-400 mb-1">
+                    {leaveBalances.sick}
+                  </div>
+                  <span className="text-[11px] font-medium text-slate-600 dark:text-slate-300">
+                    Sick Leaves
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700/60 text-center">
+                <Link
+                  href="/leaves"
+                  className="text-[11px] font-semibold text-[#56348f] dark:text-purple-400 hover:underline inline-flex items-center gap-0.5"
+                >
+                  View All Balances <ChevronRight className="w-3 h-3" />
+                </Link>
               </div>
             </div>
-
-            <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700/60 text-center">
-              <Link
-                href="/leaves"
-                className="text-[11px] font-semibold text-[#56348f] dark:text-purple-400 hover:underline inline-flex items-center gap-0.5"
-              >
-                View All Balances <ChevronRight className="w-3 h-3" />
-              </Link>
-            </div>
-          </div>
+          )}
 
           {/* 5. Quick Links Card */}
           <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200/90 dark:border-slate-700/60 shadow-sm p-5">
@@ -301,12 +307,21 @@ export default function CommunityPage() {
             </h3>
 
             <div className="space-y-1 text-xs">
-              <Link
-                href="/leaves"
-                className="block p-2 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded transition text-slate-700 dark:text-slate-300 hover:text-[#56348f]"
-              >
-                🏝️ Apply for Leave or WFH
-              </Link>
+              {isSuperAdmin ? (
+                <Link
+                  href="/leaves/approvals"
+                  className="block p-2 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded transition text-slate-700 dark:text-slate-300 hover:text-[#56348f] font-semibold"
+                >
+                  📋 Review Leave & WFH Approvals
+                </Link>
+              ) : (
+                <Link
+                  href="/leaves"
+                  className="block p-2 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded transition text-slate-700 dark:text-slate-300 hover:text-[#56348f]"
+                >
+                  🏝️ Apply for Leave or WFH
+                </Link>
+              )}
               <Link
                 href="/policies"
                 className="block p-2 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded transition text-slate-700 dark:text-slate-300 hover:text-[#56348f]"
