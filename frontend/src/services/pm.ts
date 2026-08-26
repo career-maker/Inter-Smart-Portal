@@ -275,7 +275,29 @@ export const pmApi = {
   // ── Hubstaff Integration ───────────────────────────────────────────────────
 
   /**
-   * Fetch available Hubstaff projects for project linking during creation.
+   * Fetch lightweight assignable team members (only own team for Team Lead, all for Super Admin).
+   */
+  getTeamMembers: async (): Promise<{
+    is_super_admin: boolean;
+    team_name: string;
+    team_id?: number | null;
+    members: Array<{
+      id: number;
+      first_name: string;
+      last_name: string;
+      employee_code?: string;
+      designation?: string;
+      department?: string;
+      team_id?: number | null;
+    }>;
+    total: number;
+  }> => {
+    const res = await api.get('/project-tasks/team-members');
+    return res.data;
+  },
+
+  /**
+   * List available Hubstaff projects for project linking during creation.
    */
   getHubstaffProjects: async (): Promise<{
     configured: boolean;

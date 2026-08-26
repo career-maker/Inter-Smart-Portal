@@ -53,12 +53,11 @@ export function CreateTaskModal({
 
   const [projects, setProjects] = useState<Project[]>([]);
   const [catalogs, setCatalogs] = useState<ProjectTaskCatalog[]>([]);
-  const [employees, setEmployees] = useState<
-    { id: number; first_name: string; last_name: string; employee_code?: string; team_id?: number | null; department?: string }[]
+  const [teamMembers, setTeamMembers] = useState<
+    { id: number; first_name: string; last_name: string; employee_code?: string; designation?: string; department?: string }[]
   >([]);
-  const [coordinators, setCoordinators] = useState<
-    { id: number; first_name: string; last_name: string; department?: string }[]
-  >([]);
+  const [teamNameLabel, setTeamNameLabel] = useState<string>("My Team");
+  const [loadingTeamMembers, setLoadingTeamMembers] = useState(false);
 
   const [loadingData, setLoadingData] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -70,13 +69,25 @@ export function CreateTaskModal({
 
     const loadFormData = async () => {
       setLoadingData(true);
+      setLoadingTeamMembers(true);
       setError(null);
+
+      // 1. Fetch team members immediately via dedicated fast endpoint
+      pmApi.getTeamMembers()
+        .then((res: any) => {
+          if (res && res.members) {
+            setTeamMembers(res.members);
+            setTeamNameLabel(res.team_name || "My Team");
+          }
+        })
+        .catch((e: any) => console.warn("Failed to fetch team members", e))
+        .finally(() => setLoadingTeamMembers(false));
+
+      // 2. Fetch projects and catalogs in parallel
       try {
-        const [projRes, catRes, empRes, teamsRes] = await Promise.allSettled([
+        const [projRes, catRes] = await Promise.allSettled([
           pmApi.getProjects({ per_page: -1 } as any),
           pmApi.getTaskCatalog({ is_active: true, all: true }),
-          api.get("/employees?per_page=all"),
-          api.get("/teams"),
         ]);
 
         if (projRes.status === "fulfilled") {
@@ -87,27 +98,6 @@ export function CreateTaskModal({
           const raw = catRes.value;
           const catList = Array.isArray(raw) ? raw : (raw as any)?.data || [];
           setCatalogs(Array.isArray(catList) ? catList : []);
-        }
-
-        let teamsList: any[] = [];
-        if (teamsRes.status === "fulfilled") {
-          teamsList = teamsRes.value.data?.data || teamsRes.value.data || [];
-        }
-
-        if (empRes.status === "fulfilled") {
-          const raw = empRes.value.data?.data?.data || empRes.value.data?.data || [];
-          if (Array.isArray(raw)) {
-            const mapped = raw.map((e: any) => ({
-              id: e.id,
-              first_name: e.first_name,
-              last_name: e.last_name,
-              employee_code: e.employee_code,
-              team_id: e.team_id || e.team?.id,
-              department: e.team?.name || e.department || "General",
-            }));
-            setEmployees(mapped);
-            setCoordinators(mapped);
-          }
         }
       } catch (err) {
         console.warn("Failed to load task creation form data", err);
@@ -148,36 +138,7 @@ export function CreateTaskModal({
     }
   };
 
-  // Resolve current user's team ID robustly
-  const roleLower = (user?.role || "").toLowerCase();
-  const isSuperAdmin = roleLower.includes("super admin") || roleLower === "admin";
-  const isTeamLead = roleLower.includes("team lead") || roleLower.includes("lead") || !isSuperAdmin;
 
-  // Find user's assigned team ID across user.team_id, user.team.id, or team matching team_lead_id
-  const resolvedTeamId = user?.team_id || (user as any)?.team?.id;
-  const userDept = (user as any)?.department || (user as any)?.team?.name;
-
-  // Filter assignees: Team Leads see their own team members; Super Admins see all
-  const availableAssignees = useMemo(() => {
-    if (isSuperAdmin) return employees;
-
-    // Filter by team_id
-    if (resolvedTeamId) {
-      const byTeam = employees.filter((e) => e.team_id === resolvedTeamId || e.id === user?.id);
-      if (byTeam.length > 0) return byTeam;
-    }
-
-    // Filter by department matching if team_id not explicit
-    if (userDept) {
-      const byDept = employees.filter(
-        (e) => (e.department && e.department.toLowerCase() === userDept.toLowerCase()) || e.id === user?.id
-      );
-      if (byDept.length > 0) return byDept;
-    }
-
-    // Fallback: If no explicit team matched, return all employees rather than empty
-    return employees;
-  }, [employees, isSuperAdmin, resolvedTeamId, userDept, user?.id]);
 
   const toggleAssignee = (userId: number) => {
     setFormData((prev) => {
@@ -426,54 +387,77 @@ export function CreateTaskModal({
             </div>
           </div>
 
-          {/* Assignees Selection (Team Lead restricted to own team) */}
-          {(isSuperAdmin || isTeamLead) && (
-            <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-              <div className="flex items-center justify-between">
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                  Assignees ({formData.assignee_ids?.length || 0} selected)
-                </label>
-                <span className="text-[10px] text-slate-400">
-                  {isTeamLead ? "Showing members of your HR team only" : "All organization employees"}
-                </span>
-              </div>
+          {/* Assignees Selection (Team Lead restricted to own team members) */}
+          <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex items-center justify-between">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                Assignees ({formData.assignee_ids?.length || 0} selected)
+              </label>
+              <span className="text-[11px] font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50 px-2 py-0.5 rounded-md border border-blue-200 dark:border-blue-800/60">
+                {teamNameLabel} ({teamMembers.length} members)
+              </span>
+            </div>
 
-              <div className="max-h-36 overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-700 divide-y divide-slate-100 dark:divide-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
-                {availableAssignees.length === 0 ? (
-                  <div className="p-3 text-center text-xs text-slate-400">No assignees available</div>
-                ) : (
-                  availableAssignees.map((emp: any) => {
-                    const isSelected = formData.assignee_ids?.includes(emp.id);
-                    return (
-                      <button
-                        type="button"
-                        key={emp.id}
-                        onClick={() => toggleAssignee(emp.id)}
-                        className={`w-full text-left px-3.5 py-2 flex items-center justify-between text-xs transition-colors ${
-                          isSelected
-                            ? "bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 font-semibold"
-                            : "hover:bg-slate-100/60 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300"
-                        }`}
-                      >
+            <div className="max-h-44 overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-700 divide-y divide-slate-100 dark:divide-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
+              {loadingTeamMembers ? (
+                <div className="p-4 text-center text-xs text-slate-400 flex items-center justify-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
+                  <span>Loading team members…</span>
+                </div>
+              ) : teamMembers.length === 0 ? (
+                <div className="p-4 text-center text-xs text-slate-400">
+                  No team members found for {teamNameLabel}.
+                </div>
+              ) : (
+                teamMembers.map((emp) => {
+                  const isSelected = formData.assignee_ids?.includes(emp.id);
+                  return (
+                    <button
+                      type="button"
+                      key={emp.id}
+                      onClick={() => toggleAssignee(emp.id)}
+                      className={`w-full text-left px-3.5 py-2.5 flex items-center justify-between text-xs transition-colors cursor-pointer ${
+                        isSelected
+                          ? "bg-blue-500/10 text-blue-600 dark:text-blue-300 font-semibold"
+                          : "hover:bg-slate-100/80 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <div
+                          className={`w-6 h-6 rounded-full text-[10px] font-bold flex items-center justify-center ${
+                            isSelected
+                              ? "bg-blue-600 text-white"
+                              : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                          }`}
+                        >
+                          {emp.first_name?.[0] || "?"}
+                        </div>
                         <div>
-                          <span>
+                          <div className="font-semibold text-slate-900 dark:text-white">
                             {emp.first_name} {emp.last_name}
                             {emp.employee_code ? ` (${emp.employee_code})` : ""}
-                          </span>
-                          <span className="text-[10px] text-slate-400 block">{emp.department}</span>
+                          </div>
+                          <div className="text-[10px] text-slate-400">
+                            {emp.designation || emp.department || "Team Member"}
+                          </div>
                         </div>
-                        {isSelected ? (
-                          <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400" />
-                        ) : (
-                          <span className="text-[10px] text-slate-400">+ Add</span>
-                        )}
-                      </button>
-                    );
-                  })
-                )}
-              </div>
+                      </div>
+
+                      {isSelected ? (
+                        <span className="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded">
+                          ✓ Assigned
+                        </span>
+                      ) : (
+                        <span className="text-[11px] text-slate-400 hover:text-blue-500 font-medium">
+                          + Assign
+                        </span>
+                      )}
+                    </button>
+                  );
+                })
+              )}
             </div>
-          )}
+          </div>
 
           {/* Modal Footer */}
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">

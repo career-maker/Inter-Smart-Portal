@@ -318,4 +318,88 @@ class ProjectTaskController extends Controller
 
         return response()->json(['message' => 'Task coordinator updated successfully.', 'data' => $task]);
     }
+    /**
+     * Dedicated lightweight endpoint to fetch assignable team members.
+     * Team Lead: Returns only their team members instantly.
+     * Super Admin / Admin: Returns all organization employees.
+     */
+    public function getTeamMembers(Request $request)
+    {
+        $user = $request->user();
+
+        $isSuperAdmin = $user->hasRole('Super Admin')
+            || $user->hasRole('Admin')
+            || in_array(strtolower($user->role ?? ''), ['super admin', 'admin'], true);
+
+        if ($isSuperAdmin) {
+            $members = \App\Models\User::where('status', 'Active')
+                ->select(['id', 'first_name', 'last_name', 'employee_code', 'designation', 'team_id'])
+                ->with('team:id,name')
+                ->orderBy('first_name')
+                ->get()
+                ->map(fn($u) => [
+                    'id' => $u->id,
+                    'first_name' => $u->first_name,
+                    'last_name' => $u->last_name,
+                    'employee_code' => $u->employee_code,
+                    'designation' => $u->designation,
+                    'team_id' => $u->team_id,
+                    'department' => $u->team?->name ?? 'General',
+                ]);
+
+            return response()->json([
+                'is_super_admin' => true,
+                'team_name' => 'All Organization Members',
+                'members' => $members,
+                'total' => $members->count(),
+            ]);
+        }
+
+        // Resolve Team Lead's team ID
+        $teamId = $user->team_id;
+        $teamName = $user->team?->name;
+
+        if (!$teamId) {
+            $ledTeam = \App\Models\Team::where('team_lead_id', $user->id)->first();
+            if ($ledTeam) {
+                $teamId = $ledTeam->id;
+                $teamName = $ledTeam->name;
+            }
+        }
+
+        $query = \App\Models\User::where('status', 'Active');
+
+        if ($teamId) {
+            $query->where(function ($q) use ($teamId, $user) {
+                $q->where('team_id', $teamId)
+                  ->orWhere('id', $user->id);
+            });
+        } else {
+            // Fallback to user themselves
+            $query->where('id', $user->id);
+        }
+
+        $members = $query->select(['id', 'first_name', 'last_name', 'employee_code', 'designation', 'team_id'])
+            ->with('team:id,name')
+            ->orderBy('first_name')
+            ->get()
+            ->map(fn($u) => [
+                'id' => $u->id,
+                'first_name' => $u->first_name,
+                'last_name' => $u->last_name,
+                'employee_code' => $u->employee_code,
+                'designation' => $u->designation,
+                'team_id' => $u->team_id,
+                'department' => $u->team?->name ?? $teamName ?? 'My Team',
+            ]);
+
+        return response()->json([
+            'is_super_admin' => false,
+            'team_id' => $teamId,
+            'team_name' => $teamName ?? 'My Team',
+            'members' => $members,
+            'total' => $members->count(),
+        ]);
+    }
+
 }

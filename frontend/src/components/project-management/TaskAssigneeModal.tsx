@@ -21,6 +21,9 @@ export function TaskAssigneeModal({
   onSuccess,
 }: TaskAssigneeModalProps) {
   const { user } = useAuthStore();
+  const roleLower = (user?.role || "").toLowerCase();
+  const isSuperAdmin = roleLower.includes("super admin") || roleLower === "admin";
+  const isTeamLead = roleLower.includes("team lead") || roleLower.includes("lead") || !isSuperAdmin;
 
   const [employees, setEmployees] = useState<
     { id: number; first_name: string; last_name: string; employee_code?: string; team_id?: number | null; department?: string }[]
@@ -40,18 +43,9 @@ export function TaskAssigneeModal({
       setLoadingEmployees(true);
       setError(null);
       try {
-        const res = await api.get("/employees?per_page=all");
-        const raw = res.data?.data?.data || res.data?.data || [];
-        if (Array.isArray(raw)) {
-          const mapped = raw.map((e: any) => ({
-            id: e.id,
-            first_name: e.first_name,
-            last_name: e.last_name,
-            employee_code: e.employee_code,
-            team_id: e.team_id || e.team?.id,
-            department: e.team?.name || e.department || "General",
-          }));
-          setEmployees(mapped);
+        const res = await (pmApi as any).getTeamMembers();
+        if (res && res.members) {
+          setEmployees(res.members);
         }
       } catch (err) {
         console.warn("Failed to load employees for assignee modal", err);
@@ -63,30 +57,7 @@ export function TaskAssigneeModal({
     loadEmployees();
   }, [isOpen]);
 
-  const roleLower = (user?.role || "").toLowerCase();
-  const isSuperAdmin = roleLower.includes("super admin") || roleLower === "admin";
-  const isTeamLead = roleLower.includes("team lead") || roleLower.includes("lead") || !isSuperAdmin;
-  const resolvedTeamId = user?.team_id || (user as any)?.team?.id;
-  const userDept = (user as any)?.department || (user as any)?.team?.name;
-
-  // Filter assignees: Team Leads see their own team members; Super Admins see all
-  const availableEmployees = useMemo(() => {
-    if (isSuperAdmin) return employees;
-
-    if (resolvedTeamId) {
-      const byTeam = employees.filter((e) => e.team_id === resolvedTeamId || e.id === user?.id);
-      if (byTeam.length > 0) return byTeam;
-    }
-
-    if (userDept) {
-      const byDept = employees.filter(
-        (e) => (e.department && e.department.toLowerCase() === userDept.toLowerCase()) || e.id === user?.id
-      );
-      if (byDept.length > 0) return byDept;
-    }
-
-    return employees;
-  }, [employees, isSuperAdmin, resolvedTeamId, userDept, user?.id]);
+  const availableEmployees = employees;
 
   const existingAssigneeIds = (task.assignees || []).map((a) => a.id);
 
