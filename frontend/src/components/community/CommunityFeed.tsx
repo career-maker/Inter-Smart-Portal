@@ -1338,14 +1338,14 @@ export function CommunityFeed() {
                   const totalSlides = postImages.length;
 
                   return (
-                    <div className="pt-2 w-full flex flex-col items-center justify-center">
-                      <div className="relative w-full rounded-xl overflow-hidden shadow-sm border border-slate-200/90 dark:border-slate-700/80 bg-slate-900/5 dark:bg-slate-950/40 max-h-[580px] flex items-center justify-center select-none group">
+                    <div className="pt-1.5 w-full flex flex-col items-center justify-center">
+                      <div className="relative w-full rounded-xl overflow-hidden shadow-sm border border-slate-200/80 dark:border-slate-700/80 max-h-[360px] md:max-h-[380px] flex items-center justify-center select-none group bg-slate-50/50 dark:bg-slate-900/30">
                         
-                        {/* Current Image */}
+                        {/* Current Image (Optimized height to fit on screen without vertical scroll) */}
                         <img
                           src={postImages[currentSlide]}
                           alt={`Post attachment ${currentSlide + 1}`}
-                          className="w-full max-h-[580px] object-contain rounded-xl block transition-all duration-300"
+                          className="max-w-full w-auto h-auto max-h-[360px] md:max-h-[380px] object-contain rounded-xl block transition-all duration-300 mx-auto"
                           loading="lazy"
                         />
 
