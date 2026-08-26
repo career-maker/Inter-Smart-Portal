@@ -71,6 +71,15 @@ Route::post('admin/optimize-cache', function (\Illuminate\Http\Request $request)
 });
 
 Route::middleware('auth:sanctum')->group(function () {
+    // Community Feed & Milestone Celebrations Routes
+    Route::get('community/summary', [\App\Http\Controllers\Api\CommunityController::class, 'getSummary']);
+    Route::get('community/posts', [\App\Http\Controllers\Api\CommunityController::class, 'index']);
+    Route::post('community/posts', [\App\Http\Controllers\Api\CommunityController::class, 'store']);
+    Route::post('community/posts/{id}/like', [\App\Http\Controllers\Api\CommunityController::class, 'toggleLike']);
+    Route::post('community/posts/{id}/comments', [\App\Http\Controllers\Api\CommunityController::class, 'addComment']);
+    Route::delete('community/posts/{id}', [\App\Http\Controllers\Api\CommunityController::class, 'destroy']);
+    Route::delete('community/comments/{id}', [\App\Http\Controllers\Api\CommunityController::class, 'destroyComment']);
+
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('me', [AuthController::class, 'me']);
 
