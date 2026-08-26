@@ -684,15 +684,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </button>
               
-              <Link href="/dashboard" className="flex items-center gap-3 shrink-0">
+              <Link href="/dashboard" className="flex items-center shrink-0">
                 <img
                   src="/logo.png"
                   alt="Inter Smart Logo"
                   className="h-8 sm:h-9 w-auto object-contain brightness-0 invert"
                 />
-                <span className="hidden sm:inline-block bg-white/15 text-white/95 px-2.5 py-1 rounded-full text-xs font-semibold tracking-wide border border-white/10">
-                  Inter Smart Inc
-                </span>
               </Link>
             </div>
 
