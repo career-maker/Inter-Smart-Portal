@@ -1151,7 +1151,7 @@ export function CommunityFeed() {
             return (
               <div
                 key={post.id}
-                className="bg-white dark:bg-slate-800 rounded-md border border-slate-200/90 dark:border-slate-700/60 shadow-sm p-6 space-y-4"
+                className="bg-white dark:bg-slate-800 rounded-md border border-slate-200/90 dark:border-slate-700/60 shadow-sm p-4 sm:p-6 space-y-4"
               >
                 {/* Author Info Header matching screenshot exact layout */}
                 <div className="flex items-start justify-between">
@@ -1419,9 +1419,9 @@ export function CommunityFeed() {
                 })()}
 
                 {/* Like & Comment Action Bar with Dual CSS + State Hover Reaction Picker */}
-                <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700/60 text-xs select-none">
+                <div className="flex items-center justify-between pt-3.5 border-t border-slate-100 dark:border-slate-700/60 text-xs select-none flex-wrap gap-y-2 gap-x-3">
                   {/* Left: Like (with seamless hover emoji picker) & Comment Buttons */}
-                  <div className="flex items-center gap-6 relative">
+                  <div className="flex items-center gap-4 sm:gap-6 relative shrink-0">
                     
                     {/* Hover Reaction Trigger Container */}
                     <div
@@ -1503,7 +1503,7 @@ export function CommunityFeed() {
 
                   {/* Right: Reactions Summary & Comments Counter (Click to see who reacted/commented) */}
                   {((post.likes_count || 0) > 0 || (post.comments_count || 0) > 0) && (
-                    <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 animate-in fade-in">
+                    <div className="flex items-center gap-1.5 sm:gap-2 text-xs text-slate-500 dark:text-slate-400 animate-in fade-in shrink-0 whitespace-nowrap">
                       {/* Likes / Reactions Breakdown Button (Opens Who Reacted Modal) */}
                       {(post.likes_count || 0) > 0 && (
                         <button

@@ -38,15 +38,15 @@ export function MilestoneCelebrationsWidget({
       }}
       className="bg-white dark:bg-slate-800 rounded-md border border-slate-200/90 dark:border-slate-700/60 shadow-sm overflow-hidden"
     >
-      {/* Tabs Header */}
-      <div className="flex items-center border-b border-slate-200/80 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-850 px-3 pt-2">
+      {/* Tabs Header - Smooth mobile horizontal scroll with no clipping */}
+      <div className="flex items-center border-b border-slate-200/80 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-850 px-2 sm:px-3 pt-2 overflow-x-auto flex-nowrap scrollbar-none">
         <button
           onClick={() => setActiveTab("birthdays")}
           style={{
             color: activeTab === "birthdays" ? "#56348f" : "rgb(94, 105, 120)",
             borderBottomColor: activeTab === "birthdays" ? "#56348f" : "transparent",
           }}
-          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold border-b-2 transition-all cursor-pointer ${
+          className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 text-xs font-semibold border-b-2 transition-all cursor-pointer shrink-0 whitespace-nowrap ${
             activeTab === "birthdays" ? "border-[#56348f]" : "border-transparent hover:text-slate-900"
           }`}
         >
@@ -63,7 +63,7 @@ export function MilestoneCelebrationsWidget({
             color: activeTab === "anniversaries" ? "#56348f" : "rgb(94, 105, 120)",
             borderBottomColor: activeTab === "anniversaries" ? "#56348f" : "transparent",
           }}
-          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold border-b-2 transition-all cursor-pointer ${
+          className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 text-xs font-semibold border-b-2 transition-all cursor-pointer shrink-0 whitespace-nowrap ${
             activeTab === "anniversaries" ? "border-[#56348f]" : "border-transparent hover:text-slate-900"
           }`}
         >
@@ -80,7 +80,7 @@ export function MilestoneCelebrationsWidget({
             color: activeTab === "joined" ? "#56348f" : "rgb(94, 105, 120)",
             borderBottomColor: activeTab === "joined" ? "#56348f" : "transparent",
           }}
-          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold border-b-2 transition-all cursor-pointer ${
+          className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 text-xs font-semibold border-b-2 transition-all cursor-pointer shrink-0 whitespace-nowrap ${
             activeTab === "joined" ? "border-[#56348f]" : "border-transparent hover:text-slate-900"
           }`}
         >
