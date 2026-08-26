@@ -287,14 +287,67 @@ export default function DashboardPage() {
           KEKA-STYLE WELCOME HERO BANNER (TOP OF DASHBOARD FOR ALL USERS)
       ───────────────────────────────────────────────────────────────────────────── */}
       <div
+        id="keka-welcome-hero-banner"
         style={{
-          backgroundImage: `linear-gradient(to right, rgba(12, 24, 45, 0.90) 0%, rgba(15, 23, 42, 0.70) 50%, rgba(12, 24, 45, 0.90) 100%), url('/welcome-banner-bg.jpg')`,
+          backgroundImage: `linear-gradient(to right, rgba(12, 24, 45, 0.92) 0%, rgba(15, 23, 42, 0.72) 50%, rgba(12, 24, 45, 0.92) 100%), url('/welcome-banner-bg.jpg')`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
         }}
         className="relative rounded-2xl overflow-hidden shadow-xl p-6 sm:p-8 min-h-[160px] flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 border border-white/15 select-none"
       >
+        <style>{`
+          #keka-welcome-hero-banner, #keka-welcome-hero-banner * {
+            box-sizing: border-box;
+          }
+          #keka-welcome-hero-banner a,
+          #keka-welcome-hero-banner h1,
+          #keka-welcome-hero-banner h2,
+          #keka-welcome-hero-banner h3 {
+            color: #ffffff !important;
+          }
+          #keka-welcome-hero-banner .hero-user-name,
+          #keka-welcome-hero-banner .hero-user-name * {
+            color: #ffffff !important;
+          }
+          #keka-welcome-hero-banner .hero-subtitle,
+          #keka-welcome-hero-banner .hero-subtitle * {
+            color: rgba(255, 255, 255, 0.95) !important;
+          }
+          #keka-welcome-hero-banner .hero-datetime,
+          #keka-welcome-hero-banner .hero-datetime * {
+            color: rgba(255, 255, 255, 0.90) !important;
+          }
+          #keka-welcome-hero-banner .hero-growing-title {
+            color: #fde047 !important;
+          }
+          #keka-welcome-hero-banner .hero-stat-box {
+            background-color: rgba(0, 0, 0, 0.6) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+          }
+          #keka-welcome-hero-banner .hero-stat-value {
+            color: #ffffff !important;
+          }
+          #keka-welcome-hero-banner .hero-stat-label {
+            color: #cbd5e1 !important;
+          }
+          #keka-welcome-hero-banner .status-punched-in {
+            color: #6ee7b7 !important;
+            border-color: rgba(110, 231, 183, 0.6) !important;
+            background-color: rgba(16, 185, 129, 0.3) !important;
+          }
+          #keka-welcome-hero-banner .status-punched-out {
+            color: #fde047 !important;
+            border-color: rgba(253, 224, 71, 0.6) !important;
+            background-color: rgba(245, 158, 11, 0.3) !important;
+          }
+          #keka-welcome-hero-banner .status-not-punched {
+            color: #fda4af !important;
+            border-color: rgba(253, 164, 175, 0.6) !important;
+            background-color: rgba(244, 63, 94, 0.3) !important;
+          }
+        `}</style>
+
         {/* Left: Avatar, Name, Role, Location, Attendance Status & Clock */}
         <div className="flex items-center gap-5 sm:gap-6 z-10 min-w-0">
           <div className="relative shrink-0">
@@ -313,10 +366,13 @@ export default function DashboardPage() {
             <div className="flex items-center gap-2.5 flex-wrap">
               <Link
                 href="/profile"
-                className="text-2xl sm:text-3xl font-bold text-white hover:text-amber-300 transition-colors flex items-center gap-2 group truncate"
+                style={{ color: "#ffffff" }}
+                className="hero-user-name text-2xl sm:text-3xl font-bold text-white hover:text-amber-300 transition-colors flex items-center gap-2 group truncate cursor-pointer"
               >
-                <span className="truncate">{profile.first_name} {profile.last_name || ""}</span>
-                <svg className="w-4 h-4 opacity-75 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all text-white shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <span style={{ color: "#ffffff" }} className="truncate font-bold">
+                  {profile.first_name} {profile.last_name || ""}
+                </span>
+                <svg className="w-4 h-4 opacity-80 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all text-white shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                   <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" strokeLinecap="round" strokeLinejoin="round"/>
                   <polyline points="15 3 21 3 21 9" strokeLinecap="round" strokeLinejoin="round"/>
                   <line x1="10" y1="14" x2="21" y2="3" strokeLinecap="round" strokeLinejoin="round"/>
@@ -353,14 +409,14 @@ export default function DashboardPage() {
                 fontFamily: '"Proxima Nova", sans-serif',
                 fontSize: "13px",
                 lineHeight: "20px",
-                color: "rgba(255, 255, 255, 0.9)",
+                color: "rgba(255, 255, 255, 0.95)",
                 fontWeight: 400
               }}
-              className="flex items-center gap-2 flex-wrap"
+              className="hero-subtitle flex items-center gap-2 flex-wrap"
             >
-              <span>{profile.designation || user?.role || "Member"}</span>
-              <span className="text-white/60">•</span>
-              <span>Inter Smart, Kochi</span>
+              <span style={{ color: "rgba(255, 255, 255, 0.95)" }}>{profile.designation || user?.role || "Member"}</span>
+              <span style={{ color: "rgba(255, 255, 255, 0.60)" }}>•</span>
+              <span style={{ color: "rgba(255, 255, 255, 0.95)" }}>Inter Smart, Kochi</span>
             </p>
 
             {/* Attendance Status Badge & Real-time Date Time */}
@@ -369,10 +425,10 @@ export default function DashboardPage() {
                 style={{ fontSize: "11px", lineHeight: "16px" }}
                 className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-bold uppercase tracking-wider ${
                   profile.attendance_status === 'Punched In'
-                    ? 'bg-emerald-500/25 text-emerald-300 border border-emerald-400/50'
+                    ? 'status-punched-in'
                     : profile.attendance_status === 'Punched Out'
-                    ? 'bg-amber-500/25 text-amber-300 border border-amber-400/50'
-                    : 'bg-rose-500/25 text-rose-300 border border-rose-400/50'
+                    ? 'status-punched-out'
+                    : 'status-not-punched'
                 }`}
               >
                 {profile.attendance_status === 'Punched In' && (
@@ -387,9 +443,9 @@ export default function DashboardPage() {
                   fontFamily: '"Proxima Nova", sans-serif',
                   fontSize: "12px",
                   lineHeight: "16px",
-                  color: "rgba(255, 255, 255, 0.85)"
+                  color: "rgba(255, 255, 255, 0.90)"
                 }}
-                className="font-medium"
+                className="hero-datetime font-medium"
               >
                 {format(time, "EEEE, d MMMM yyyy")} • {format(time, "h:mm:ss a")}
               </span>
@@ -1100,13 +1156,13 @@ function GrowingTogetherCard({ liveStats, defaultStats }: { liveStats: any; defa
               <path d="M16 3.13a4 4 0 0 1 0 7.75" />
             </svg>
           </div>
-          <span style={{ fontFamily: '"Proxima Nova", sans-serif' }} className="text-xs font-black uppercase tracking-wider text-amber-300">
+          <span style={{ fontFamily: '"Proxima Nova", sans-serif', color: '#fde047' }} className="hero-growing-title text-xs font-black uppercase tracking-wider">
             GROWING TOGETHER
           </span>
         </div>
 
         {/* Right Clock Icon */}
-        <div className="flex items-center justify-center text-amber-300/90 pr-1">
+        <div className="flex items-center justify-center text-amber-300 pr-1">
           <Clock className="w-4 h-4 animate-spin [animation-duration:15s]" />
         </div>
       </div>
@@ -1119,12 +1175,12 @@ function GrowingTogetherCard({ liveStats, defaultStats }: { liveStats: any; defa
         {statBoxes.map((box, idx) => (
           <div
             key={idx}
-            className="bg-black/50 border border-white/10 rounded-xl py-2 px-2 sm:px-2.5 flex flex-col items-center justify-center text-center min-w-[44px] sm:min-w-[50px] shadow-inner"
+            className="hero-stat-box rounded-xl py-2 px-2 sm:px-2.5 flex flex-col items-center justify-center text-center min-w-[44px] sm:min-w-[50px] shadow-inner border border-white/15"
           >
-            <span className="text-lg sm:text-xl font-black text-white font-mono leading-none tracking-tight">
+            <span style={{ color: "#ffffff" }} className="hero-stat-value text-lg sm:text-xl font-black font-mono leading-none tracking-tight">
               {box.value}
             </span>
-            <span style={{ fontFamily: '"Proxima Nova", sans-serif' }} className="text-[8.5px] sm:text-[9.5px] font-bold text-slate-300 uppercase tracking-widest mt-1 leading-none">
+            <span style={{ fontFamily: '"Proxima Nova", sans-serif', color: "#cbd5e1" }} className="hero-stat-label text-[8.5px] sm:text-[9.5px] font-bold uppercase tracking-widest mt-1 leading-none">
               {box.label}
             </span>
           </div>
