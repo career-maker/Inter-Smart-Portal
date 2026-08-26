@@ -352,8 +352,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       onClick={() => setFlyoutState(null)}
                       style={{
                         backgroundColor: active ? "#071724" : "transparent",
+                        borderRadius: 0,
                       }}
-                      className={`group w-full flex flex-col items-center justify-center py-3 px-1 rounded-none transition-colors relative cursor-pointer hover:bg-[#133249] ${
+                      className={`group w-full flex flex-col items-center justify-center py-3 px-1 !rounded-none transition-colors relative cursor-pointer hover:bg-[#133249] ${
                         active ? "font-semibold" : "font-normal"
                       }`}
                     >
@@ -399,8 +400,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         }}
                         style={{
                           backgroundColor: isHighlighted ? "#071724" : "transparent",
+                          borderRadius: 0,
                         }}
-                        className={`group w-full flex flex-col items-center justify-center py-3 px-1 rounded-none transition-colors relative cursor-pointer hover:bg-[#133249] ${
+                        className={`group w-full flex flex-col items-center justify-center py-3 px-1 !rounded-none transition-colors relative cursor-pointer hover:bg-[#133249] ${
                           isHighlighted ? "font-semibold" : "font-normal"
                         }`}
                       >
