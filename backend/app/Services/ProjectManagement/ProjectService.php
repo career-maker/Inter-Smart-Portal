@@ -23,6 +23,13 @@ class ProjectService
             $this->assertCoordinatorEligible((int) $data['project_coordinator_id']);
         }
 
+        if (empty($data['start_date'])) {
+            $data['start_date'] = now()->toDateString();
+        }
+        if (empty($data['status'])) {
+            $data['status'] = 'Planning';
+        }
+
         $project = DB::transaction(function () use ($data, $actor) {
             return Project::create(array_merge($data, [
                 'created_by' => $actor->id,

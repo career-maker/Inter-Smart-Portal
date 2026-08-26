@@ -241,4 +241,66 @@ class HubstaffService
             ];
         }
     }
+    /**
+     * Import all active projects from Hubstaff into PM Projects without duplicating.
+     */
+    public function importAllProjects(\App\Models\User $actor): array
+    {
+        $result = $this->getProjects();
+        $hubstaffProjects = $result['projects'] ?? [];
+
+        if (empty($hubstaffProjects)) {
+            return [
+                'success' => false,
+                'imported_count' => 0,
+                'skipped_count' => 0,
+                'message' => $result['error'] ?? $result['message'] ?? 'No projects found in Hubstaff to import.',
+            ];
+        }
+
+        $importedCount = 0;
+        $skippedCount = 0;
+
+        foreach ($hubstaffProjects as $hsProject) {
+            $hsId = (string) $hsProject['id'];
+            $hsName = trim($hsProject['name']);
+
+            if (empty($hsName)) {
+                continue;
+            }
+
+            // Check if already exists by hubstaff_project_id OR exact name (case-insensitive)
+            $existing = Project::where('hubstaff_project_id', $hsId)
+                ->orWhere(function ($q) use ($hsName) {
+                    $q->whereRaw('LOWER(TRIM(name)) = ?', [strtolower($hsName)]);
+                })
+                ->first();
+
+            if ($existing) {
+                // If existing project didn't have hubstaff_project_id linked, link it now
+                if (empty($existing->hubstaff_project_id)) {
+                    $existing->update(['hubstaff_project_id' => $hsId]);
+                }
+                $skippedCount++;
+            } else {
+                Project::create([
+                    'name' => $hsName,
+                    'hubstaff_project_id' => $hsId,
+                    'status' => 'Active',
+                    'project_type' => 'Client',
+                    'start_date' => now()->toDateString(),
+                    'created_by' => $actor->id,
+                ]);
+                $importedCount++;
+            }
+        }
+
+        return [
+            'success' => true,
+            'total_hubstaff_projects' => count($hubstaffProjects),
+            'imported_count' => $importedCount,
+            'skipped_count' => $skippedCount,
+            'message' => "Successfully imported {$importedCount} new projects from Hubstaff ({$skippedCount} already existed).",
+        ];
+    }
 }

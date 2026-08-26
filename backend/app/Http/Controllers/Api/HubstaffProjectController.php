@@ -28,4 +28,21 @@ class HubstaffProjectController extends Controller
 
         return response()->json($result);
     }
+
+    /**
+     * Import all Hubstaff projects at once.
+     * Prevents duplication of already imported projects.
+     */
+    public function importAll(Request $request)
+    {
+        $user = $request->user();
+
+        if ($user->role !== 'Super Admin') {
+            return response()->json(['message' => 'Only Super Admin can import all projects from Hubstaff.'], 403);
+        }
+
+        $result = $this->hubstaffService->importAllProjects($user);
+
+        return response()->json($result);
+    }
 }

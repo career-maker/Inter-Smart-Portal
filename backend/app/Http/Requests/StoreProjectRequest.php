@@ -7,9 +7,6 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreProjectRequest extends FormRequest
 {
-    // Authorization is enforced in the controller/service (object-level +
-    // capability checks), matching the existing codebase's convention —
-    // every existing FormRequest in this app hardcodes authorize() => true.
     public function authorize(): bool
     {
         return true;
@@ -25,8 +22,8 @@ class StoreProjectRequest extends FormRequest
             'category' => ['nullable', 'string', 'max:255'],
             'team_id' => ['nullable', 'integer', 'exists:teams,id'],
             'project_coordinator_id' => ['nullable', 'integer', 'exists:users,id'],
-            'start_date' => ['required', 'date'],
-            'expected_end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
+            'start_date' => ['nullable', 'date'],
+            'expected_end_date' => ['nullable', 'date'],
             'allotted_effort' => ['nullable', 'numeric', 'min:0', 'max:99999.99'],
             'confirmed_effort' => ['nullable', 'numeric', 'min:0', 'max:99999.99'],
             'expected_effort' => ['nullable', 'numeric', 'min:0', 'max:99999.99'],

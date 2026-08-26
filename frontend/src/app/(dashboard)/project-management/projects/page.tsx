@@ -21,6 +21,8 @@ import {
   CheckCircle2,
   Clock,
   Link2,
+  CloudDownload,
+  Check,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import api from "@/services/api";
@@ -30,7 +32,7 @@ import {
   ProjectStatus,
   PROJECT_STATUSES,
   PaginatedResponse,
-  ProjectFilterParams
+  ProjectFilterParams,
 } from "@/types/pm";
 import { ProjectStatusBadge } from "@/components/project-management/ProjectStatusBadge";
 import { CreateProjectModal } from "@/components/project-management/CreateProjectModal";
@@ -51,6 +53,11 @@ export default function ProjectsListPage() {
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [importingHubstaff, setImportingHubstaff] = useState(false);
+  const [importMessage, setImportMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const [projectsData, setProjectsData] = useState<PaginatedResponse<Project> | null>(null);
@@ -117,6 +124,36 @@ export default function ProjectsListPage() {
     fetchProjects(1, true);
   };
 
+  const handleImportHubstaff = async () => {
+    if (importingHubstaff) return;
+    setImportingHubstaff(true);
+    setImportMessage(null);
+    setError(null);
+
+    try {
+      const res = await pmApi.importHubstaffProjects();
+      if (res.success) {
+        setImportMessage({
+          type: "success",
+          text: res.message || `Successfully imported ${res.imported_count} new projects (${res.skipped_count} already existed).`,
+        });
+        fetchProjects(1, true);
+      } else {
+        setImportMessage({
+          type: "error",
+          text: res.message || "Failed to import Hubstaff projects.",
+        });
+      }
+    } catch (err: any) {
+      setImportMessage({
+        type: "error",
+        text: err?.response?.data?.message || err?.message || "Error importing from Hubstaff.",
+      });
+    } finally {
+      setImportingHubstaff(false);
+    }
+  };
+
   const projectsList = projectsData?.data || [];
   const totalProjects = projectsData?.total ?? projectsList.length;
   const lastPage = projectsData?.last_page || 1;
@@ -142,16 +179,29 @@ export default function ProjectsListPage() {
         </div>
 
         {/* Action Controls */}
-        <div className="flex items-center gap-2.5 self-start sm:self-auto">
+        <div className="flex items-center gap-2.5 self-start sm:self-auto flex-wrap">
           <button
             onClick={() => fetchProjects(currentPage, true)}
-            disabled={refreshing || loading}
+            disabled={refreshing || loading || importingHubstaff}
             aria-label="Refresh Projects"
             className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors disabled:opacity-50"
             title="Refresh List"
           >
             <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-blue-500" : ""}`} />
           </button>
+
+          {/* Super Admin Hubstaff Import Button */}
+          {isSuperAdmin && (
+            <button
+              onClick={handleImportHubstaff}
+              disabled={importingHubstaff || loading}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-800 text-slate-100 dark:text-white text-xs sm:text-sm font-semibold border border-slate-700 shadow-sm transition-all disabled:opacity-50 hover:border-slate-600"
+              title="Import all active projects from Hubstaff without duplicating"
+            >
+              <CloudDownload className={`w-4 h-4 text-sky-400 ${importingHubstaff ? "animate-spin" : ""}`} />
+              <span>{importingHubstaff ? "Importing Hubstaff…" : "Import from Hubstaff"}</span>
+            </button>
+          )}
 
           {(isSuperAdmin || isTeamLead) && (
             <button
@@ -164,6 +214,40 @@ export default function ProjectsListPage() {
           )}
         </div>
       </div>
+
+      {/* ── Import Notification Banner ── */}
+      {importMessage && (
+        <div
+          className={`p-4 rounded-xl border flex items-center justify-between text-xs font-semibold ${
+            importMessage.type === "success"
+              ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-300"
+              : "bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800/60 text-rose-800 dark:text-rose-300"
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            {importMessage.type === "success" ? (
+              <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+            ) : (
+              <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
+            )}
+            <span>{importMessage.text}</span>
+          </div>
+          <button
+            onClick={() => setImportMessage(null)}
+            className="text-xs underline hover:no-underline ml-4 cursor-pointer"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {/* ── Error Banner ── */}
+      {error && (
+        <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 text-rose-700 dark:text-rose-300 flex items-start gap-2.5 text-xs">
+          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+          <div className="flex-1">{error}</div>
+        </div>
+      )}
 
       {/* ── Filters & Search Header ── */}
       <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-4 sm:p-5 shadow-sm space-y-4">
@@ -180,7 +264,7 @@ export default function ProjectsListPage() {
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                   isSelected
                     ? "bg-blue-600 text-white shadow-sm shadow-blue-500/20"
-                    : "bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700/60"
+                    : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700/80"
                 }`}
               >
                 {status}
@@ -189,38 +273,24 @@ export default function ProjectsListPage() {
           })}
         </div>
 
-        {/* Search Input & Team Dropdown */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <form onSubmit={handleSearchSubmit} className="sm:col-span-2 relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+        {/* Search & Team Filter Form */}
+        <form onSubmit={handleSearchSubmit} className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search projects by name..."
-              className="w-full pl-10 pr-20 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+              className="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
             />
-            {search && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSearch("");
-                  fetchProjects(1);
-                }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-              >
-                Clear
-              </button>
-            )}
-          </form>
+          </div>
 
-          <div>
+          <div className="flex items-center gap-2">
             <select
               value={teamFilter}
-              onChange={(e) => {
-                setTeamFilter(e.target.value);
-              }}
-              className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+              onChange={(e) => setTeamFilter(e.target.value)}
+              className="px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 text-slate-700 dark:text-slate-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
             >
               <option value="">All Departments</option>
               {teams.map((t) => (
@@ -229,99 +299,76 @@ export default function ProjectsListPage() {
                 </option>
               ))}
             </select>
+
+            <button
+              type="submit"
+              className="px-4 py-2 rounded-xl bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-white text-xs sm:text-sm font-semibold transition-colors shrink-0"
+            >
+              Filter
+            </button>
           </div>
-        </div>
+        </form>
       </div>
 
-      {/* ── Error Banner (if any) ── */}
-      {error && (
-        <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 text-rose-700 dark:text-rose-300 flex items-start gap-3 text-sm">
-          <AlertCircle className="w-5 h-5 shrink-0 text-rose-500 mt-0.5" />
-          <div className="flex-1">
-            <p className="font-semibold">Unable to load projects</p>
-            <p className="text-xs text-rose-600/80 dark:text-rose-400/80 mt-0.5">{error}</p>
-          </div>
-          <button
-            onClick={() => fetchProjects(currentPage, true)}
-            className="text-xs font-semibold underline hover:no-underline text-rose-700 dark:text-rose-300 shrink-0"
-          >
-            Retry
-          </button>
-        </div>
-      )}
-
-      {/* ── Projects List / Table ── */}
+      {/* ── Projects Data Table ── */}
       <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden">
-        {loading ? (
-          <div className="py-16 text-center text-slate-500 space-y-3 animate-pulse">
-            <FolderKanban className="w-8 h-8 mx-auto text-slate-400 opacity-60" />
-            <p className="text-sm font-semibold">Loading projects directory…</p>
-          </div>
-        ) : projectsList.length === 0 ? (
-          <div className="py-16 text-center p-6 space-y-3">
-            <FolderKanban className="w-10 h-10 mx-auto text-slate-400 opacity-50" />
-            <p className="text-base font-bold text-slate-800 dark:text-slate-200">No projects found</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
-              {search || statusFilter !== "All" || teamFilter
-                ? "No projects match the selected filters. Try clearing your search parameters."
-                : "No projects have been created or assigned to your team yet."}
-            </p>
-            {(isSuperAdmin || isTeamLead) && (
-              <button
-                onClick={() => setIsCreateModalOpen(true)}
-                className="mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm transition-colors"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>Create First Project</span>
-              </button>
-            )}
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs sm:text-sm">
-              <thead>
-                <tr className="border-b border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-800/30 text-slate-500 dark:text-slate-400 font-semibold text-xs uppercase tracking-wider">
-                  <th className="py-3.5 px-5">Project Name</th>
-                  <th className="py-3.5 px-4">Department</th>
-                  <th className="py-3.5 px-4">Coordinator</th>
-                  <th className="py-3.5 px-4">Timeline</th>
-                  <th className="py-3.5 px-4">Status</th>
-                  <th className="py-3.5 px-5 text-right">Actions</th>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[10px] sm:text-[11px]">
+                <th className="py-3.5 px-4">PROJECT NAME</th>
+                <th className="py-3.5 px-4">DEPARTMENT</th>
+                <th className="py-3.5 px-4">COORDINATOR</th>
+                <th className="py-3.5 px-4">TIMELINE</th>
+                <th className="py-3.5 px-4">STATUS</th>
+                <th className="py-3.5 px-4 text-right">ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+              {loading ? (
+                <tr>
+                  <td colSpan={6} className="py-12 text-center text-slate-400">
+                    <RefreshCw className="w-5 h-5 animate-spin mx-auto text-blue-500 mb-2" />
+                    <span>Loading projects directory…</span>
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium">
-                {projectsList.map((project) => (
+              ) : projectsList.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-12 text-center text-slate-400">
+                    <FolderKanban className="w-8 h-8 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
+                    <p className="font-semibold text-slate-700 dark:text-slate-300">No projects found</p>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      Try adjusting your search criteria or create/import a project.
+                    </p>
+                  </td>
+                </tr>
+              ) : (
+                projectsList.map((project) => (
                   <tr
                     key={project.id}
                     className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors group"
                   >
                     {/* Project Name & Category */}
-                    <td className="py-4 px-5">
-                      <div className="flex items-center gap-2">
-                        <Link
-                          href={`/project-management/projects/${project.id}`}
-                          className="font-bold text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors block line-clamp-1"
-                        >
-                          {project.name}
-                        </Link>
+                    <td className="py-3.5 px-4">
+                      <Link
+                        href={`/project-management/projects/${project.id}`}
+                        className="font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors flex items-center gap-1.5"
+                      >
+                        <span>{project.name}</span>
                         {project.hubstaff_project_id && (
-                          <span
-                            className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 shrink-0"
-                            title={`Linked to Hubstaff project #${project.hubstaff_project_id}`}
-                          >
-                            <Link2 className="w-2.5 h-2.5" />
-                            <span>Hubstaff</span>
+                          <span title="Linked to Hubstaff">
+                            <Link2 className="w-3 h-3 text-sky-500 shrink-0" />
                           </span>
                         )}
-                      </div>
-                      <div className="flex items-center gap-2 mt-1">
+                      </Link>
+                      <div className="flex items-center gap-2 mt-0.5">
                         {project.category && (
-                          <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
+                          <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
                             {project.category}
                           </span>
                         )}
                         {project.project_type && (
-                          <span className="text-[11px] text-slate-400 dark:text-slate-500">
+                          <span className="text-[10px] text-slate-400">
                             • {project.project_type}
                           </span>
                         )}
@@ -329,83 +376,86 @@ export default function ProjectsListPage() {
                     </td>
 
                     {/* Department */}
-                    <td className="py-4 px-4">
-                      <span className="text-xs text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                    <td className="py-3.5 px-4 text-slate-600 dark:text-slate-300 font-medium">
+                      <div className="flex items-center gap-1.5">
                         <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                         <span>{project.team?.name || "Cross-Team"}</span>
-                      </span>
+                      </div>
                     </td>
 
                     {/* Coordinator */}
-                    <td className="py-4 px-4">
+                    <td className="py-3.5 px-4 text-slate-600 dark:text-slate-300 font-medium">
                       {project.coordinator ? (
                         <div className="flex items-center gap-2">
-                          <span className="w-6 h-6 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-400 text-[10px] font-bold flex items-center justify-center shrink-0">
-                            {project.coordinator.first_name?.[0]}
-                            {project.coordinator.last_name?.[0]}
-                          </span>
-                          <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                          <div className="w-6 h-6 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-bold flex items-center justify-center border border-blue-500/20">
+                            {project.coordinator.first_name[0]}
+                            {project.coordinator.last_name[0]}
+                          </div>
+                          <span>
                             {project.coordinator.first_name} {project.coordinator.last_name}
                           </span>
                         </div>
                       ) : (
-                        <span className="text-xs text-slate-400 italic">Unassigned</span>
+                        <span className="text-slate-400 italic">Unassigned</span>
                       )}
                     </td>
 
                     {/* Timeline */}
-                    <td className="py-4 px-4">
-                      <div className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-1">
-                        <Calendar className="w-3 h-3 text-slate-400 shrink-0" />
+                    <td className="py-3.5 px-4 text-slate-500 dark:text-slate-400 font-mono text-[11px]">
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                         <span>
-                          {formatDateDisplay(project.start_date)} → {formatDateDisplay(project.expected_end_date)}
+                          {formatDateDisplay(project.start_date)} →{" "}
+                          {formatDateDisplay(project.expected_end_date)}
                         </span>
                       </div>
                     </td>
 
                     {/* Status */}
-                    <td className="py-4 px-4">
+                    <td className="py-3.5 px-4">
                       <ProjectStatusBadge status={project.status} />
                     </td>
 
                     {/* Actions */}
-                    <td className="py-4 px-5 text-right">
+                    <td className="py-3.5 px-4 text-right">
                       <Link
                         href={`/project-management/projects/${project.id}`}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:text-blue-600 dark:hover:text-blue-400 text-slate-700 dark:text-slate-300 text-xs font-semibold transition-colors"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950/40 text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 text-xs font-semibold border border-slate-200 dark:border-slate-700/60 transition-colors"
                       >
                         <span>Details</span>
                         <ChevronRight className="w-3.5 h-3.5" />
                       </Link>
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
 
-        {/* Pagination Footer */}
-        {totalProjects > 0 && lastPage > 1 && (
-          <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-800/30 text-xs text-slate-500">
-            <div>
-              Showing page <strong className="text-slate-800 dark:text-slate-200">{currentPage}</strong>{" "}
-              of <strong className="text-slate-800 dark:text-slate-200">{lastPage}</strong> (
-              {totalProjects} total projects)
-            </div>
-
-            <div className="flex items-center gap-2">
+        {/* ── Pagination Footer ── */}
+        {lastPage > 1 && (
+          <div className="px-4 py-3 border-t border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 bg-slate-50/50 dark:bg-slate-800/20">
+            <span>
+              Showing {projectsList.length} of {totalProjects} projects
+            </span>
+            <div className="flex items-center gap-1.5">
               <button
-                onClick={() => fetchProjects(currentPage - 1)}
+                type="button"
                 disabled={currentPage <= 1 || loading}
-                className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 transition-colors"
+                onClick={() => fetchProjects(currentPage - 1)}
+                className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
+              <span className="px-2 font-semibold text-slate-800 dark:text-slate-200">
+                {currentPage} / {lastPage}
+              </span>
               <button
-                onClick={() => fetchProjects(currentPage + 1)}
+                type="button"
                 disabled={currentPage >= lastPage || loading}
-                className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 transition-colors"
+                onClick={() => fetchProjects(currentPage + 1)}
+                className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>

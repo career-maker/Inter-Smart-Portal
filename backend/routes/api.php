@@ -488,4 +488,5 @@ Route::middleware('auth:sanctum')->prefix('pm-task-catalog')->group(function () 
 
 Route::middleware('auth:sanctum')->prefix('pm/hubstaff')->group(function () {
     Route::get('projects', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'index']);
+    Route::post('projects/import-hubstaff', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'importAll']);
 });
