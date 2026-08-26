@@ -263,6 +263,7 @@ export function CommunityFeed() {
           options: pollOptions.filter((o) => o.trim().length > 0),
           expires_at: pollExpiresOn,
           is_anonymous: anonymousPoll,
+          notify_employees: notifyEmployees,
         });
 
         if (res.data?.data) {

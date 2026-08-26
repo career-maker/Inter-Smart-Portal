@@ -14,6 +14,7 @@ use App\Models\WfhRequest;
 use App\Models\LeaveBalance;
 use App\Models\Project;
 use App\Notifications\PraiseReceivedNotification;
+use App\Notifications\PollNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -121,6 +122,7 @@ class CommunityController extends Controller
             'options' => 'nullable|array',
             'expires_at' => 'nullable|date',
             'is_anonymous' => 'nullable|boolean',
+            'notify_employees' => 'nullable|boolean',
             'praised_user_id' => 'nullable|integer',
             'badge' => 'nullable|string',
             'project_name' => 'nullable|string',
@@ -205,6 +207,26 @@ class CommunityController extends Controller
                     $post->content,
                     $post->id
                 ));
+            }
+        }
+
+        // Send notification to all employees when a poll is created with notify_employees = true
+        if ($type === 'poll' && $request->boolean('notify_employees')) {
+            $authorFullName = trim("{$currentUser->first_name} {$currentUser->last_name}");
+            $allEmployees = User::where('status', 'active')
+                ->where('id', '!=', $currentUser->id)
+                ->get();
+
+            foreach ($allEmployees as $emp) {
+                try {
+                    $emp->notify(new PollNotification(
+                        $authorFullName,
+                        $post->content,
+                        $post->id
+                    ));
+                } catch (\Exception $e) {
+                    // Continue notifying other users
+                }
             }
         }
 
