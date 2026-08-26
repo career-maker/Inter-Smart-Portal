@@ -804,14 +804,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <ThemeToggle />
 
                 <Link
-                  href="/settings"
-                  className="p-2 text-white hover:text-white rounded-full hover:bg-white/15 hidden sm:flex transition-colors cursor-pointer"
-                  title="Settings"
-                >
-                  <Settings className="w-5 h-5 text-white" />
-                </Link>
-
-                <Link
                   href="/profile"
                   className="flex items-center p-1 rounded-full hover:bg-white/15 transition-colors cursor-pointer"
                   title={`${user?.first_name} ${user?.last_name} (Top Awardee)`}
