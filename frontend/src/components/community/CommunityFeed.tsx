@@ -119,6 +119,10 @@ export function CommunityFeed() {
 
   // Comment & Like State
     // Reaction Picker States
+    // Who Reacted Modal State
+  const [reactionModalPost, setReactionModalPost] = useState<any | null>(null);
+  const [reactionModalTab, setReactionModalTab] = useState<string>("all");
+
   const [hoveredReactionPostId, setHoveredReactionPostId] = useState<number | null>(null);
   const reactionTimeoutRef = useRef<{ [postId: number]: any }>({});
   const longPressTimerRef = useRef<{ [postId: number]: any }>({});
@@ -426,7 +430,7 @@ export function CommunityFeed() {
 
     try {
       const res = await api.post(`/community/posts/${postId}/like`, { reaction });
-      const { liked, likes_count, user_reaction, reactions_breakdown } = res.data;
+      const { liked, likes_count, user_reaction, reactions_breakdown, reactions_users } = res.data;
 
       setPosts((prev) =>
         prev.map((p) =>
@@ -437,6 +441,7 @@ export function CommunityFeed() {
                 user_reaction,
                 likes_count,
                 reactions_breakdown,
+                reactions_users: reactions_users || p.reactions_users,
               }
             : p
         )
@@ -1495,23 +1500,30 @@ export function CommunityFeed() {
                     </button>
                   </div>
 
-                  {/* Right: Reactions Summary (Only shown when there are real reactions or comments) */}
+                  {/* Right: Reactions Summary & Comments Counter (Click to see who reacted/commented) */}
                   {((post.likes_count || 0) > 0 || (post.comments_count || 0) > 0) && (
                     <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 animate-in fade-in">
-                      {/* Likes / Reactions Breakdown */}
+                      {/* Likes / Reactions Breakdown Button (Opens Who Reacted Modal) */}
                       {(post.likes_count || 0) > 0 && (
-                        <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setReactionModalPost(post);
+                            setReactionModalTab("all");
+                          }}
+                          className="flex items-center gap-1.5 hover:underline cursor-pointer group/reactions-btn p-0.5 rounded transition-colors"
+                          title="Click to see who reacted"
+                        >
                           {/* Active Reaction Badges */}
                           {post.reactions_breakdown && Object.keys(post.reactions_breakdown).length > 0 ? (
-                            <div className="flex items-center -space-x-1">
+                            <div className="flex items-center -space-x-1.5">
                               {Object.entries(post.reactions_breakdown).map(([rType, count]) => {
                                 const rObj = EMOJI_REACTIONS.find((re) => re.id === rType);
                                 if (!rObj || Number(count) <= 0) return null;
                                 return (
                                   <span
                                     key={rType}
-                                    title={`${rObj.label}: ${count}`}
-                                    className="w-5 h-5 rounded-full bg-slate-50 dark:bg-slate-800 border border-white dark:border-slate-900 flex items-center justify-center text-[10.5px] shadow-2xs"
+                                    className="w-5 h-5 rounded-full bg-slate-50 dark:bg-slate-800 border border-white dark:border-slate-900 flex items-center justify-center text-[11px] shadow-xs group-hover/reactions-btn:scale-110 transition-transform"
                                   >
                                     {rObj.emoji}
                                   </span>
@@ -1519,26 +1531,32 @@ export function CommunityFeed() {
                               })}
                             </div>
                           ) : (
-                            <span className="w-5 h-5 rounded-full bg-purple-100 dark:bg-purple-950/60 flex items-center justify-center text-[10px] text-[#56348f] shadow-2xs">
+                            <span className="w-5 h-5 rounded-full bg-purple-100 dark:bg-purple-950/60 flex items-center justify-center text-[11px] text-[#56348f] shadow-xs">
                               👍
                             </span>
                           )}
 
-                          <span className="font-medium text-slate-600 dark:text-slate-300">
+                          <span className="font-medium text-slate-600 dark:text-slate-300 group-hover/reactions-btn:text-[#56348f]">
                             {post.likes_count} {post.likes_count === 1 ? "reaction" : "reactions"}
                           </span>
-                        </div>
+                        </button>
                       )}
 
                       {(post.likes_count || 0) > 0 && (post.comments_count || 0) > 0 && (
                         <span>•</span>
                       )}
 
-                      {/* Comments Count */}
+                      {/* Comments Count Button */}
                       {(post.comments_count || 0) > 0 && (
-                        <span className="font-medium text-slate-600 dark:text-slate-300">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setOpenComments((prev) => ({ ...prev, [post.id]: !prev[post.id] }))
+                          }
+                          className="font-medium text-slate-600 dark:text-slate-300 hover:text-[#56348f] hover:underline cursor-pointer transition-colors"
+                        >
                           {post.comments_count} {post.comments_count === 1 ? "Comment" : "Comments"}
-                        </span>
+                        </button>
                       )}
                     </div>
                   )}
@@ -1664,6 +1682,127 @@ export function CommunityFeed() {
               </div>
             </div>
           )}
+        </div>
+      )}
+      {/* ── WHO REACTED MODAL (Facebook / LinkedIn Style) ── */}
+      {reactionModalPost && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-in fade-in"
+          onClick={() => setReactionModalPost(null)}
+        >
+          <div
+            className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800">
+              <h3 className="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+                <span>Reactions</span>
+                <span className="text-xs font-normal text-slate-400">
+                  ({reactionModalPost.likes_count || 0})
+                </span>
+              </h3>
+              <button
+                type="button"
+                onClick={() => setReactionModalPost(null)}
+                className="text-slate-400 hover:text-slate-700 dark:hover:text-white p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Reaction Type Filter Tabs */}
+            <div className="flex items-center gap-2 px-5 py-2.5 border-b border-slate-100 dark:border-slate-800 overflow-x-auto">
+              <button
+                type="button"
+                onClick={() => setReactionModalTab("all")}
+                className={`px-3 py-1 text-xs font-semibold rounded-full transition-colors cursor-pointer shrink-0 ${
+                  reactionModalTab === "all"
+                    ? "bg-[#56348f] text-white"
+                    : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200"
+                }`}
+              >
+                All {reactionModalPost.likes_count || 0}
+              </button>
+
+              {EMOJI_REACTIONS.map((re) => {
+                const count = reactionModalPost.reactions_breakdown?.[re.id] || 0;
+                if (count <= 0) return null;
+                const isSelected = reactionModalTab === re.id;
+
+                return (
+                  <button
+                    key={re.id}
+                    type="button"
+                    onClick={() => setReactionModalTab(re.id)}
+                    className={`flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-full transition-colors cursor-pointer shrink-0 ${
+                      isSelected
+                        ? "bg-[#56348f] text-white"
+                        : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200"
+                    }`}
+                  >
+                    <span>{re.emoji}</span>
+                    <span>{count}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Users List */}
+            <div className="max-h-80 overflow-y-auto p-4 space-y-3 divide-y divide-slate-100 dark:divide-slate-800/60">
+              {(() => {
+                const allUsers = reactionModalPost.reactions_users || [];
+                const filteredUsers =
+                  reactionModalTab === "all"
+                    ? allUsers
+                    : allUsers.filter((ru: any) => ru.reaction_type === reactionModalTab);
+
+                if (filteredUsers.length === 0) {
+                  return (
+                    <div className="py-8 text-center text-xs text-slate-400">
+                      No reactions found for this filter.
+                    </div>
+                  );
+                }
+
+                return filteredUsers.map((ru: any) => {
+                  const emojiObj = EMOJI_REACTIONS.find((r) => r.id === ru.reaction_type) || EMOJI_REACTIONS[0];
+                  const u = ru.user;
+
+                  return (
+                    <div key={ru.id || ru.user_id} className="pt-3 first:pt-0 flex items-center justify-between">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="relative shrink-0">
+                          <RoyalAvatar
+                            src={u?.profile_photo_path}
+                            name={u?.name || `${u?.first_name} ${u?.last_name}`}
+                            userId={u?.id}
+                            className="w-10 h-10 rounded-full"
+                          />
+                          <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-white dark:bg-slate-800 shadow-xs border border-slate-200 dark:border-slate-700 flex items-center justify-center text-xs">
+                            {emojiObj.emoji}
+                          </span>
+                        </div>
+
+                        <div className="min-w-0">
+                          <p className="text-xs font-semibold text-slate-900 dark:text-white truncate">
+                            <RoyalName name={u?.name || `${u?.first_name} ${u?.last_name}`} userId={u?.id} />
+                          </p>
+                          <p className="text-[11px] text-slate-400 truncate">
+                            {u?.designation || "Team Member"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <span className="text-xs font-bold text-slate-500 capitalize px-2.5 py-1 bg-slate-50 dark:bg-slate-800 rounded-full shrink-0">
+                        {emojiObj.label}
+                      </span>
+                    </div>
+                  );
+                });
+              })()}
+            </div>
+          </div>
         </div>
       )}
     </div>

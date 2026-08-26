@@ -74,12 +74,14 @@ class CommunityController extends Controller
             } catch (\Exception $e) {}
         }
 
-        // Fetch distinct reactions per user per post (preventing duplicate rows from multiple test clicks)
-        $allLikes = CommunityPostLike::whereIn('post_id', $postIds)
+        // Fetch distinct reactions with user profiles per post
+        $allLikes = CommunityPostLike::with('user:id,first_name,last_name,designation,profile_photo_path')
+            ->whereIn('post_id', $postIds)
             ->orderBy('id', 'desc')
             ->get();
 
         $likesByPost = [];
+        $likesListByPost = [];
         $userReactions = [];
         $processedUserPosts = [];
 
@@ -98,6 +100,22 @@ class CommunityController extends Controller
 
             if ($l->user_id === $userId) {
                 $userReactions[$l->post_id] = $rType;
+            }
+
+            if ($l->user) {
+                $likesListByPost[$l->post_id][] = [
+                    'id' => $l->id,
+                    'user_id' => $l->user_id,
+                    'reaction_type' => $rType,
+                    'user' => [
+                        'id' => $l->user->id,
+                        'name' => $l->user->first_name . ' ' . $l->user->last_name,
+                        'first_name' => $l->user->first_name,
+                        'last_name' => $l->user->last_name,
+                        'designation' => $l->user->designation ?? 'Team Member',
+                        'profile_photo_path' => $l->user->profilePhotoUrl(),
+                    ],
+                ];
             }
         }
 
@@ -123,10 +141,11 @@ class CommunityController extends Controller
                 ->keyBy('id');
         }
 
-        $posts->getCollection()->transform(function ($post) use ($userReactions, $likesByPost, $userId, $praisedUsersMap) {
+        $posts->getCollection()->transform(function ($post) use ($userReactions, $likesByPost, $likesListByPost, $userId, $praisedUsersMap) {
             $post->user_reaction = $userReactions[$post->id] ?? null;
             $post->user_has_liked = !empty($userReactions[$post->id]);
             $post->reactions_breakdown = $likesByPost[$post->id] ?? [];
+            $post->reactions_users = $likesListByPost[$post->id] ?? [];
             $post->likes_count = !empty($likesByPost[$post->id]) ? array_sum($likesByPost[$post->id]) : 0;
             $post->comments_count = $post->comments ? $post->comments->count() : 0;
             if ($post->user) {
@@ -453,9 +472,14 @@ class CommunityController extends Controller
             $userReaction = $reactionType;
         }
 
-        // Deduplicated reaction breakdown
-        $allPostLikes = CommunityPostLike::where('post_id', $id)->orderBy('id', 'desc')->get();
+        // Deduplicated reaction breakdown with users
+        $allPostLikes = CommunityPostLike::with('user:id,first_name,last_name,designation,profile_photo_path')
+            ->where('post_id', $id)
+            ->orderBy('id', 'desc')
+            ->get();
+
         $reactions = [];
+        $reactionsUsers = [];
         $countedUsers = [];
 
         foreach ($allPostLikes as $pl) {
@@ -463,6 +487,22 @@ class CommunityController extends Controller
             $countedUsers[$pl->user_id] = true;
             $r = $pl->reaction_type ?: 'like';
             $reactions[$r] = ($reactions[$r] ?? 0) + 1;
+
+            if ($pl->user) {
+                $reactionsUsers[] = [
+                    'id' => $pl->id,
+                    'user_id' => $pl->user_id,
+                    'reaction_type' => $r,
+                    'user' => [
+                        'id' => $pl->user->id,
+                        'name' => $pl->user->first_name . ' ' . $pl->user->last_name,
+                        'first_name' => $pl->user->first_name,
+                        'last_name' => $pl->user->last_name,
+                        'designation' => $pl->user->designation ?? 'Team Member',
+                        'profile_photo_path' => $pl->user->profilePhotoUrl(),
+                    ],
+                ];
+            }
         }
 
         $freshCount = array_sum($reactions);
@@ -475,6 +515,7 @@ class CommunityController extends Controller
             'liked' => !is_null($userReaction),
             'likes_count' => $freshCount,
             'reactions_breakdown' => $reactions,
+            'reactions_users' => $reactionsUsers,
         ]);
     }
 
