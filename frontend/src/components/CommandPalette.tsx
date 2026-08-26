@@ -5,53 +5,42 @@ import { useRouter } from "next/navigation";
 import {
   Search, Users, Calendar, Briefcase, FileText,
   FolderKanban, HelpCircle, User, LogOut, ArrowRight,
-  Sparkles, CheckSquare, Bell, Shield, ChevronRight, X, Home
+  Sparkles, CheckSquare, Bell, Shield, ChevronRight, X, Home,
+  ChevronDown, ChevronUp
 } from "lucide-react";
 import api from "@/services/api";
 import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/auth";
 
 interface CommandPaletteProps {
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-export function CommandPalette({ open: externalOpen, onOpenChange: externalOnOpenChange }: CommandPaletteProps) {
-  const [internalOpen, setInternalOpen] = React.useState(false);
-  const isControlled = externalOpen !== undefined;
-  const open = isControlled ? externalOpen : internalOpen;
-  const setOpen = React.useCallback(
-    (val: boolean) => {
-      if (isControlled && externalOnOpenChange) {
-        externalOnOpenChange(val);
-      } else {
-        setInternalOpen(val);
-      }
-    },
-    [isControlled, externalOnOpenChange]
-  );
-
+export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const [search, setSearch] = React.useState("");
   const [selectedIndex, setSelectedIndex] = React.useState(0);
+  const [showMore, setShowMore] = React.useState(false);
   const router = useRouter();
   const { user } = useAuthStore();
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const containerRef = React.useRef<HTMLDivElement>(null);
 
   // Keyboard shortcut listener for Alt + K, Ctrl + K, and ⌘K
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.key.toLowerCase() === "k" && (e.metaKey || e.ctrlKey || e.altKey)) || (e.altKey && e.key.toLowerCase() === "k")) {
         e.preventDefault();
-        setOpen(!open);
+        onOpenChange(!open);
       }
       if (e.key === "Escape" && open) {
-        setOpen(false);
+        onOpenChange(false);
       }
     };
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [open, setOpen]);
+  }, [open, onOpenChange]);
 
   // Focus input when opened
   React.useEffect(() => {
@@ -60,8 +49,21 @@ export function CommandPalette({ open: externalOpen, onOpenChange: externalOnOpe
       setSelectedIndex(0);
     } else {
       setSearch("");
+      setShowMore(false);
     }
   }, [open]);
+
+  // Close on outside click
+  React.useEffect(() => {
+    if (!open) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        onOpenChange(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [open, onOpenChange]);
 
   // Fetch employees when searching
   const { data: employeesData } = useQuery({
@@ -80,8 +82,8 @@ export function CommandPalette({ open: externalOpen, onOpenChange: externalOnOpe
 
   const employees = employeesData || [];
 
-  // Default Quick Actions
-  const QUICK_ACTIONS = React.useMemo(() => [
+  // Default Quick Actions matching Keka screenshots
+  const ALL_ACTIONS = React.useMemo(() => [
     {
       id: "employees",
       title: "Employee Directory",
@@ -91,9 +93,17 @@ export function CommandPalette({ open: externalOpen, onOpenChange: externalOnOpe
       keywords: "employees staff team people directory",
     },
     {
+      id: "ta",
+      title: "Expenses and Travel Summary",
+      subtitle: "Monitor and analyze expenses and travel-related data.",
+      icon: Briefcase,
+      href: "/ta/status",
+      keywords: "ta travel allowance expenses finance money",
+    },
+    {
       id: "apply-leave",
       title: "Apply Leave",
-      subtitle: "Submit casual, sick, or earned leave requests.",
+      subtitle: "Submit leave requests and check balances.",
       icon: Calendar,
       href: "/leaves/apply",
       keywords: "leave apply vacation holiday off time",
@@ -101,26 +111,10 @@ export function CommandPalette({ open: externalOpen, onOpenChange: externalOnOpe
     {
       id: "projects",
       title: "Projects & Tasks",
-      subtitle: "Manage project deliverables and task tracking.",
+      subtitle: "Track deliverables, milestones, and task allocations.",
       icon: FolderKanban,
       href: "/project-management",
       keywords: "projects tasks taskboard tracker deliverables",
-    },
-    {
-      id: "ta",
-      title: "Expenses and Travel Summary",
-      subtitle: "Monitor and submit travel allowance requests.",
-      icon: Briefcase,
-      href: "/ta/status",
-      keywords: "ta travel allowance expenses finance money",
-    },
-    {
-      id: "wfh",
-      title: "WFH Requests",
-      subtitle: "Submit work from home applications.",
-      icon: Home,
-      href: "/wfh",
-      keywords: "wfh remote home work",
     },
     {
       id: "policies",
@@ -138,32 +132,26 @@ export function CommandPalette({ open: externalOpen, onOpenChange: externalOnOpe
       href: "/issues",
       keywords: "issue help helpdesk ticket support problem",
     },
-    {
-      id: "profile",
-      title: "My Profile",
-      subtitle: "View and update your employee information.",
-      icon: User,
-      href: "/profile",
-      keywords: "profile account me details info",
-    },
   ], []);
 
   // Filter Quick Actions based on search term
   const filteredActions = React.useMemo(() => {
-    if (!search.trim()) return QUICK_ACTIONS;
+    if (!search.trim()) {
+      return showMore ? ALL_ACTIONS : ALL_ACTIONS.slice(0, 4);
+    }
     const term = search.toLowerCase();
-    return QUICK_ACTIONS.filter(
+    return ALL_ACTIONS.filter(
       (a) =>
         a.title.toLowerCase().includes(term) ||
         a.subtitle.toLowerCase().includes(term) ||
         a.keywords.toLowerCase().includes(term)
     );
-  }, [search, QUICK_ACTIONS]);
+  }, [search, showMore, ALL_ACTIONS]);
 
   const totalItems = filteredActions.length + employees.length;
 
   const navigateTo = (href: string) => {
-    setOpen(false);
+    onOpenChange(false);
     router.push(href);
   };
 
@@ -191,135 +179,145 @@ export function CommandPalette({ open: externalOpen, onOpenChange: externalOnOpe
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-16 sm:pt-24 px-4">
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
-        onClick={() => setOpen(false)}
-      />
+    <div
+      ref={containerRef}
+      style={{
+        fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      }}
+      className="absolute top-2 left-0 w-full sm:w-[540px] bg-white text-slate-800 rounded-3xl shadow-2xl border border-slate-200/80 z-[100] overflow-hidden animate-in fade-in zoom-in-98 duration-100"
+    >
+      {/* Top Search Input Box */}
+      <div className="flex items-center px-5 py-3.5 border-b border-slate-100">
+        <Search className="w-4 h-4 text-slate-400 shrink-0 mr-3" />
+        <input
+          ref={inputRef}
+          type="text"
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setSelectedIndex(0);
+          }}
+          onKeyDown={handleInputKeyDown}
+          placeholder="Search any command or help"
+          className="w-full text-[14px] text-slate-800 placeholder-slate-400 bg-transparent outline-none font-normal"
+        />
+        {search && (
+          <button onClick={() => setSearch("")} className="p-1 text-slate-400 hover:text-slate-600">
+            <X className="w-4 h-4" />
+          </button>
+        )}
+      </div>
 
-      {/* Keka-Style Search Card */}
-      <div
-        style={{ fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
-        className="relative w-full max-w-xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-150"
-      >
-        {/* Search Input Bar */}
-        <div className="flex items-center px-5 py-4 border-b border-slate-100 dark:border-slate-800">
-          <Search className="w-5 h-5 text-slate-400 shrink-0 mr-3" />
-          <input
-            ref={inputRef}
-            type="text"
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setSelectedIndex(0);
-            }}
-            onKeyDown={handleInputKeyDown}
-            placeholder="Search any command, employee or help..."
-            className="w-full text-base text-slate-800 dark:text-white placeholder-slate-400 bg-transparent outline-none font-normal"
-          />
-          {search && (
-            <button onClick={() => setSearch("")} className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-              <X className="w-4 h-4" />
-            </button>
-          )}
-        </div>
-
-        {/* Results Body */}
-        <div className="max-h-[60vh] overflow-y-auto py-3 px-2 custom-scrollbar space-y-3">
-          {/* Matched Employees (if searching) */}
-          {employees.length > 0 && (
-            <div>
-              <div className="px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                Employees
-              </div>
-              <div className="space-y-1 mt-1">
-                {employees.map((emp: any, idx: number) => {
-                  const isSelected = selectedIndex === filteredActions.length + idx;
-                  return (
-                    <button
-                      key={emp.id}
-                      onClick={() => navigateTo("/employees")}
-                      className={`w-full text-left px-3.5 py-2.5 rounded-2xl flex items-center justify-between transition-colors ${
-                        isSelected
-                          ? "bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-200 font-semibold"
-                          : "hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-200"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-purple-600 text-white text-xs font-bold flex items-center justify-center">
-                          {emp.first_name?.[0] || "E"}
-                        </div>
-                        <div>
-                          <div className="text-sm font-semibold text-slate-900 dark:text-white">
-                            {emp.first_name} {emp.last_name}
-                          </div>
-                          <div className="text-xs text-slate-500 dark:text-slate-400">
-                            {emp.designation || emp.department || "Employee"} • {emp.email}
-                          </div>
-                        </div>
-                      </div>
-                      <ChevronRight className="w-4 h-4 text-slate-400" />
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Quick Actions List */}
+      {/* Results Body */}
+      <div className="max-h-[65vh] overflow-y-auto py-2.5 px-3 custom-scrollbar space-y-3">
+        {/* Matched Employees (if searching) */}
+        {employees.length > 0 && (
           <div>
-            <div className="px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-              Quick Actions
+            <div className="px-3 py-1 text-[11px] font-semibold text-slate-400">
+              Employees
             </div>
-            <div className="space-y-1 mt-1">
-              {filteredActions.length === 0 && employees.length === 0 ? (
-                <div className="py-8 text-center text-sm text-slate-400">
-                  No matching actions or employees found.
-                </div>
-              ) : (
-                filteredActions.map((action, idx) => {
-                  const Icon = action.icon;
-                  const isSelected = selectedIndex === idx;
-                  return (
-                    <button
-                      key={action.id}
-                      onClick={() => navigateTo(action.href)}
-                      className={`w-full text-left px-3.5 py-2.5 rounded-2xl flex items-center justify-between transition-colors ${
-                        isSelected
-                          ? "bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-200 font-semibold"
-                          : "hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-200"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3.5">
-                        <div className={`p-2 rounded-xl ${isSelected ? "bg-purple-600 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"}`}>
-                          <Icon className="w-4 h-4" />
+            <div className="space-y-1 mt-0.5">
+              {employees.map((emp: any, idx: number) => {
+                const isSelected = selectedIndex === filteredActions.length + idx;
+                return (
+                  <button
+                    key={emp.id}
+                    onClick={() => navigateTo("/employees")}
+                    className={`w-full text-left px-3.5 py-2.5 rounded-xl flex items-center justify-between transition-colors cursor-pointer ${
+                      isSelected
+                        ? "bg-[#f4f4f5] text-slate-900 font-medium"
+                        : "hover:bg-[#f8fafc] text-slate-700"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-[#3b82f6] text-white text-xs font-bold flex items-center justify-center">
+                        {emp.first_name?.[0] || "E"}
+                      </div>
+                      <div>
+                        <div className="text-[13.5px] font-medium text-slate-800">
+                          {emp.first_name} {emp.last_name}
                         </div>
-                        <div>
-                          <div className="text-sm font-semibold text-slate-900 dark:text-white">
-                            {action.title}
-                          </div>
-                          <div className="text-xs text-slate-500 dark:text-slate-400">
-                            {action.subtitle}
-                          </div>
+                        <div className="text-[11.5px] text-slate-500">
+                          {emp.designation || emp.department || "Employee"} • {emp.email}
                         </div>
                       </div>
-                      <ChevronRight className="w-4 h-4 text-slate-400 opacity-60" />
-                    </button>
-                  );
-                })
-              )}
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-slate-400" />
+                  </button>
+                );
+              })}
             </div>
+          </div>
+        )}
+
+        {/* Quick Actions Header */}
+        <div>
+          <div className="px-3 py-1 text-[12px] font-semibold text-slate-400">
+            Quick Actions
+          </div>
+          <div className="space-y-0.5 mt-0.5">
+            {filteredActions.length === 0 && employees.length === 0 ? (
+              <div className="py-6 text-center text-xs text-slate-400">
+                No matching actions or employees found.
+              </div>
+            ) : (
+              filteredActions.map((action, idx) => {
+                const Icon = action.icon;
+                const isSelected = selectedIndex === idx;
+                return (
+                  <button
+                    key={action.id}
+                    onClick={() => navigateTo(action.href)}
+                    className={`w-full text-left px-3.5 py-2.5 rounded-xl flex items-start justify-between transition-colors cursor-pointer ${
+                      isSelected
+                        ? "bg-[#f4f4f5] text-slate-900"
+                        : "hover:bg-[#f8fafc] text-slate-700"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3.5">
+                      <div className="p-1 text-slate-700 mt-0.5">
+                        <Icon className="w-4 h-4 stroke-[1.75]" />
+                      </div>
+                      <div>
+                        <div className="text-[13.5px] font-medium text-slate-800 leading-snug">
+                          {action.title}
+                        </div>
+                        <div className="text-[11.5px] text-slate-500 leading-tight mt-0.5">
+                          {action.subtitle}
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })
+            )}
           </div>
         </div>
 
-        {/* Footer info bar */}
-        <div className="px-5 py-2.5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 flex items-center justify-between text-[11px] text-slate-400">
-          <div className="flex items-center gap-3">
-            <span>Navigate <kbd className="font-mono bg-white dark:bg-slate-700 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600">↑</kbd> <kbd className="font-mono bg-white dark:bg-slate-700 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600">↓</kbd></span>
-            <span>Select <kbd className="font-mono bg-white dark:bg-slate-700 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600">↵</kbd></span>
+        {/* View More / View Less Button */}
+        {!search && ALL_ACTIONS.length > 4 && (
+          <div className="flex justify-center pt-1 border-t border-slate-100">
+            <button
+              onClick={() => setShowMore((prev) => !prev)}
+              className="text-[11.5px] text-slate-500 hover:text-slate-800 font-medium px-3 py-1 rounded-full hover:bg-slate-100 transition-colors flex items-center gap-1 border border-slate-200"
+            >
+              <span>{showMore ? "View Less" : `View ${ALL_ACTIONS.length - 4} More`}</span>
+              {showMore ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+            </button>
           </div>
-          <span>Close <kbd className="font-mono bg-white dark:bg-slate-700 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600">Esc</kbd></span>
+        )}
+      </div>
+
+      {/* Footer Navigation Hints */}
+      <div className="px-5 py-2 border-t border-slate-100 bg-[#fbfbfb] flex items-center justify-end text-[11px] text-slate-400 gap-4">
+        <div className="flex items-center gap-1.5">
+          <span>Navigate</span>
+          <kbd className="font-sans bg-white px-1 py-0.2 rounded border border-slate-200 text-slate-600">↑</kbd>
+          <kbd className="font-sans bg-white px-1 py-0.2 rounded border border-slate-200 text-slate-600">↓</kbd>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span>To select</span>
+          <kbd className="font-sans bg-white px-1 py-0.2 rounded border border-slate-200 text-slate-600">↵</kbd>
         </div>
       </div>
     </div>

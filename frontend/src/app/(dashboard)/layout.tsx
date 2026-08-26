@@ -322,9 +322,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-background flex">
-      {/* ── Command Palette / Search Modal ── */}
-      <CommandPalette open={searchModalOpen} onOpenChange={setSearchModalOpen} />
-
       {/* ─────────────────────────────────────────────────────────────────────────────
           SIDEBAR - LIGHT THEME (KEKA EXACT STYLE: NAVY #0e2638, SOFT BLUE LABELS #8ea7bc,
           ACTIVE SOLID RECTANGLE #071724 WITH WHITE TEXT, CLEAN PORTAL SUBMENU, NO OUTLINES)
@@ -693,11 +690,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </Link>
             </div>
 
-            {/* Center: Search Bar with Alt + K Pill Trigger */}
-            <div className="flex-1 max-w-lg mx-auto hidden sm:block">
+            {/* Center: Search Bar with In-Place Expandable Dropdown */}
+            <div className="flex-1 max-w-lg mx-auto hidden sm:block relative">
               <button
                 type="button"
-                onClick={() => setSearchModalOpen(true)}
+                onClick={() => setSearchModalOpen((prev) => !prev)}
                 className="w-full bg-white hover:bg-slate-50 transition-all rounded-full px-4 py-2 flex items-center justify-between text-xs text-slate-600 shadow-md border border-white/30 cursor-pointer group"
               >
                 <div className="flex items-center gap-2.5 min-w-0">
@@ -710,6 +707,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   Alt + K
                 </kbd>
               </button>
+
+              {/* In-place Expandable Command Palette */}
+              <CommandPalette open={searchModalOpen} onOpenChange={setSearchModalOpen} />
             </div>
 
             {/* Right: Actions & User Avatar */}
