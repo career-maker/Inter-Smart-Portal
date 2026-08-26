@@ -256,11 +256,11 @@ export default function LeaveBalancesPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
-            <Shield className="w-8 h-8 text-amber-400" />
+          <h1 className="text-2xl font-bold flex items-center gap-2 text-slate-900 dark:text-white">
+            <Shield className="w-6 h-6 text-amber-400" />
             Leave Balance Management
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">View and manually adjust leave balances for all employees.</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">View and manually adjust leave balances for all employees.</p>
         </div>
         <button
           onClick={fetchData}
