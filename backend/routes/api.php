@@ -74,6 +74,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Community Feed & Milestone Celebrations Routes
     Route::get('community/summary', [\App\Http\Controllers\Api\CommunityController::class, 'getSummary']);
     Route::get('community/employees', [\App\Http\Controllers\Api\CommunityController::class, 'getEmployees']);
+    Route::get('community/projects', [\App\Http\Controllers\Api\CommunityController::class, 'getProjects']);
     Route::get('community/posts', [\App\Http\Controllers\Api\CommunityController::class, 'index']);
     Route::post('community/posts', [\App\Http\Controllers\Api\CommunityController::class, 'store']);
     Route::post('community/posts/{id}/like', [\App\Http\Controllers\Api\CommunityController::class, 'toggleLike']);

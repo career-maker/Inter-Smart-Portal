@@ -23,9 +23,6 @@ use Illuminate\Database\Schema\Blueprint;
 
 class CommunityController extends Controller
 {
-    /**
-     * Check if a given user is Super Admin
-     */
     private function isSuperAdmin($user): bool
     {
         if (!$user) return false;
@@ -35,9 +32,6 @@ class CommunityController extends Controller
         return false;
     }
 
-    /**
-     * Get filtered and paginated community feed posts
-     */
     public function index(Request $request)
     {
         $userId = $request->user()->id;
@@ -49,22 +43,18 @@ class CommunityController extends Controller
             ->withCount('likes')
             ->withCount('comments');
 
-        // Filter by Post Type (post, poll, praise)
         if ($request->filled('type') && $request->type !== 'all') {
             $query->where('type', $request->type);
         }
 
-        // Filter by Year
         if ($request->filled('year') && $request->year !== 'all') {
             $query->whereYear('created_at', $request->year);
         }
 
-        // Filter by Month (1-12)
         if ($request->filled('month') && $request->month !== 'all') {
             $query->whereMonth('created_at', $request->month);
         }
 
-        // Filter by exact Date (YYYY-MM-DD)
         if ($request->filled('date')) {
             $query->whereDate('created_at', $request->date);
         }
@@ -80,7 +70,29 @@ class CommunityController extends Controller
             ->pluck('post_id')
             ->toArray();
 
-        $posts->getCollection()->transform(function ($post) use ($userLikedPostIds, $userId) {
+        // Collect all praised user IDs to eager load in one query
+        $allPraisedUserIds = [];
+        foreach ($posts as $p) {
+            if ($p->type === 'praise' && !empty($p->poll_data)) {
+                if (!empty($p->poll_data['praised_user_ids']) && is_array($p->poll_data['praised_user_ids'])) {
+                    foreach ($p->poll_data['praised_user_ids'] as $uId) {
+                        $allPraisedUserIds[] = (int)$uId;
+                    }
+                } elseif (!empty($p->poll_data['praised_user_id'])) {
+                    $allPraisedUserIds[] = (int)$p->poll_data['praised_user_id'];
+                }
+            }
+        }
+
+        $praisedUsersMap = [];
+        if (!empty($allPraisedUserIds)) {
+            $praisedUsersMap = User::select('id', 'first_name', 'last_name', 'designation', 'profile_photo_path')
+                ->whereIn('id', array_unique($allPraisedUserIds))
+                ->get()
+                ->keyBy('id');
+        }
+
+        $posts->getCollection()->transform(function ($post) use ($userLikedPostIds, $userId, $praisedUsersMap) {
             $post->user_has_liked = in_array($post->id, $userLikedPostIds);
             
             if ($post->type === 'poll' && !empty($post->poll_data['options'])) {
@@ -94,10 +106,19 @@ class CommunityController extends Controller
                 $post->user_voted_option_id = $userVotedOptionId;
             }
 
-            if ($post->type === 'praise' && !empty($post->poll_data['praised_user_id'])) {
-                $praisedUser = User::select('id', 'first_name', 'last_name', 'designation', 'profile_photo_path')
-                    ->find($post->poll_data['praised_user_id']);
-                $post->praised_user = $praisedUser;
+            if ($post->type === 'praise' && !empty($post->poll_data)) {
+                $recipients = [];
+                if (!empty($post->poll_data['praised_user_ids']) && is_array($post->poll_data['praised_user_ids'])) {
+                    foreach ($post->poll_data['praised_user_ids'] as $uId) {
+                        if (isset($praisedUsersMap[$uId])) {
+                            $recipients[] = $praisedUsersMap[$uId];
+                        }
+                    }
+                } elseif (!empty($post->poll_data['praised_user_id']) && isset($praisedUsersMap[$post->poll_data['praised_user_id']])) {
+                    $recipients[] = $praisedUsersMap[$post->poll_data['praised_user_id']];
+                }
+                $post->praised_users = $recipients;
+                $post->praised_user = $recipients[0] ?? null;
             }
 
             if ($post->media_url && !str_starts_with($post->media_url, 'http')) {
@@ -109,9 +130,6 @@ class CommunityController extends Controller
         return response()->json($posts);
     }
 
-    /**
-     * Create a new community post
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -124,6 +142,7 @@ class CommunityController extends Controller
             'is_anonymous' => 'nullable|boolean',
             'notify_employees' => 'nullable|boolean',
             'praised_user_id' => 'nullable|integer',
+            'praised_user_ids' => 'nullable',
             'badge' => 'nullable|string',
             'project_name' => 'nullable|string',
         ]);
@@ -165,26 +184,37 @@ class CommunityController extends Controller
                 'total_votes' => 0,
             ];
         } elseif ($type === 'praise') {
-            $praisedUserId = $request->input('praised_user_id');
             $badge = $request->input('badge');
             $projectName = $request->input('project_name');
 
+            // Handle multiple praised employees
+            $praisedUserIds = [];
+            $rawIds = $request->input('praised_user_ids');
+            if (is_string($rawIds)) {
+                $decoded = json_decode($rawIds, true);
+                if (is_array($decoded)) $praisedUserIds = array_map('intval', $decoded);
+            } elseif (is_array($rawIds)) {
+                $praisedUserIds = array_map('intval', $rawIds);
+            }
+
+            if (empty($praisedUserIds) && $request->filled('praised_user_id')) {
+                $praisedUserIds = [(int)$request->input('praised_user_id')];
+            }
+
             $pollData = [
-                'praised_user_id' => $praisedUserId,
+                'praised_user_ids' => array_values(array_unique($praisedUserIds)),
+                'praised_user_id' => $praisedUserIds[0] ?? null,
                 'badge' => $badge,
                 'project_name' => $projectName,
             ];
         }
 
-        // Auto-safeguard: Ensure poll_data column exists
         if (!Schema::hasColumn('community_posts', 'poll_data')) {
             try {
                 Schema::table('community_posts', function (Blueprint $table) {
                     $table->json('poll_data')->nullable()->after('media_url');
                 });
-            } catch (\Exception $e) {
-                // Ignore if already added concurrently
-            }
+            } catch (\Exception $e) {}
         }
 
         $post = CommunityPost::create([
@@ -196,17 +226,22 @@ class CommunityController extends Controller
             'pinned' => false,
         ]);
 
-        // Send notification to the praised employee
-        if ($type === 'praise' && !empty($pollData['praised_user_id'])) {
-            $recipient = User::find($pollData['praised_user_id']);
-            if ($recipient && $recipient->id !== $currentUser->id) {
-                $authorFullName = trim("{$currentUser->first_name} {$currentUser->last_name}");
-                $recipient->notify(new PraiseReceivedNotification(
-                    $authorFullName,
-                    $pollData['badge'] ?? null,
-                    $post->content,
-                    $post->id
-                ));
+        // Send notification to ALL praised employees
+        if ($type === 'praise' && !empty($pollData['praised_user_ids'])) {
+            $authorFullName = trim("{$currentUser->first_name} {$currentUser->last_name}");
+            $recipients = User::whereIn('id', $pollData['praised_user_ids'])
+                ->where('id', '!=', $currentUser->id)
+                ->get();
+
+            foreach ($recipients as $recipient) {
+                try {
+                    $recipient->notify(new PraiseReceivedNotification(
+                        $authorFullName,
+                        $pollData['badge'] ?? null,
+                        $post->content,
+                        $post->id
+                    ));
+                } catch (\Exception $e) {}
             }
         }
 
@@ -224,9 +259,7 @@ class CommunityController extends Controller
                         $post->content,
                         $post->id
                     ));
-                } catch (\Exception $e) {
-                    // Continue notifying other users
-                }
+                } catch (\Exception $e) {}
             }
         }
 
@@ -236,9 +269,11 @@ class CommunityController extends Controller
         $post->likes_count = 0;
         $post->comments_count = 0;
 
-        if ($type === 'praise' && !empty($pollData['praised_user_id'])) {
-            $post->praised_user = User::select('id', 'first_name', 'last_name', 'designation', 'profile_photo_path')
-                ->find($pollData['praised_user_id']);
+        if ($type === 'praise' && !empty($pollData['praised_user_ids'])) {
+            $post->praised_users = User::select('id', 'first_name', 'last_name', 'designation', 'profile_photo_path')
+                ->whereIn('id', $pollData['praised_user_ids'])
+                ->get();
+            $post->praised_user = $post->praised_users[0] ?? null;
         }
 
         if ($post->media_url && !str_starts_with($post->media_url, 'http')) {
@@ -251,9 +286,6 @@ class CommunityController extends Controller
         ], 201);
     }
 
-    /**
-     * Vote on a poll post
-     */
     public function votePoll(Request $request, $id)
     {
         $request->validate([
@@ -299,9 +331,6 @@ class CommunityController extends Controller
         ]);
     }
 
-    /**
-     * Toggle like on a post
-     */
     public function toggleLike(Request $request, $id)
     {
         $userId = $request->user()->id;
@@ -330,9 +359,6 @@ class CommunityController extends Controller
         ]);
     }
 
-    /**
-     * Add comment to post
-     */
     public function addComment(Request $request, $id)
     {
         $request->validate([
@@ -357,9 +383,6 @@ class CommunityController extends Controller
         ], 201);
     }
 
-    /**
-     * Delete post (author or super admin)
-     */
     public function destroy(Request $request, $id)
     {
         $user = $request->user();
@@ -374,9 +397,6 @@ class CommunityController extends Controller
         return response()->json(['message' => 'Post deleted successfully.']);
     }
 
-    /**
-     * Delete comment (author or super admin)
-     */
     public function destroyComment(Request $request, $id)
     {
         $user = $request->user();
@@ -393,13 +413,6 @@ class CommunityController extends Controller
         return response()->json(['message' => 'Comment deleted successfully.']);
     }
 
-    /**
-     * Get aggregated dynamic community summary
-     */
-    
-    /**
-     * Fast dedicated endpoint to fetch all active employees for Praise search
-     */
     public function getEmployees(Request $request)
     {
         $users = User::select('id', 'first_name', 'last_name', 'designation', 'profile_photo_path', 'email')
@@ -416,6 +429,28 @@ class CommunityController extends Controller
             });
 
         return response()->json($users);
+    }
+
+    public function getProjects(Request $request)
+    {
+        try {
+            $projects = DB::table('pm_projects')
+                ->whereNull('deleted_at')
+                ->select('id', 'name')
+                ->orderBy('name', 'asc')
+                ->get();
+        } catch (\Exception $e) {
+            try {
+                $projects = DB::table('projects')
+                    ->select('id', 'name')
+                    ->orderBy('name', 'asc')
+                    ->get();
+            } catch (\Exception $e2) {
+                $projects = [];
+            }
+        }
+
+        return response()->json($projects);
     }
 
     public function getSummary(Request $request)
@@ -469,7 +504,6 @@ class CommunityController extends Controller
         $casualDays = $casualBalance ? ($casualBalance->balance ?? $casualBalance->remaining_days ?? 12) : 12;
         $sickDays = $sickBalance ? ($sickBalance->balance ?? $sickBalance->remaining_days ?? 10) : 10;
 
-        // Fetch ALL users for birthday/anniversary calculations and praise selector
         $allUsers = User::select('id', 'first_name', 'last_name', 'designation', 'profile_photo_path', 'email', 'date_of_birth', 'date_of_joining', 'status')
             ->get();
 
@@ -552,8 +586,16 @@ class CommunityController extends Controller
         usort($birthdaysUpcoming, fn($a, $b) => $a['days_remaining'] <=> $b['days_remaining']);
         usort($anniversariesUpcoming, fn($a, $b) => $a['days_remaining'] <=> $b['days_remaining']);
 
-        // Fetch active projects for Praise dropdown
-        $projects = Project::select('id', 'name')->orderBy('name')->get();
+        // Fetch active projects
+        try {
+            $projects = DB::table('pm_projects')
+                ->whereNull('deleted_at')
+                ->select('id', 'name')
+                ->orderBy('name', 'asc')
+                ->get();
+        } catch (\Exception $e) {
+            $projects = [];
+        }
 
         return response()->json([
             'upcoming_holiday' => $upcomingHoliday,

@@ -24,6 +24,7 @@ import {
   ChevronLeft,
   ChevronRight,
   RotateCcw,
+  UserPlus,
 } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
@@ -93,11 +94,11 @@ export function CommunityFeed() {
   const [notifyEmployees, setNotifyEmployees] = useState(false);
   const [anonymousPoll, setAnonymousPoll] = useState(false);
 
-  // Praise Form State
+  // Praise Form State (Multiple Employees Support)
   const [employeesList, setEmployeesList] = useState<any[]>([]);
   const [projectsList, setProjectsList] = useState<any[]>([]);
   const [employeeSearch, setEmployeeSearch] = useState("");
-  const [selectedEmployee, setSelectedEmployee] = useState<any | null>(null);
+  const [selectedEmployees, setSelectedEmployees] = useState<any[]>([]);
   const [isEmployeeDropdownOpen, setIsEmployeeDropdownOpen] = useState(false);
   const [praiseDescription, setPraiseDescription] = useState("");
   const [selectedBadge, setSelectedBadge] = useState<any>(PRAISE_BADGES[0]);
@@ -141,19 +142,28 @@ export function CommunityFeed() {
 
   const fetchMetadataAndEmployees = async () => {
     try {
-      // 1. Fetch lightweight direct employee list (Fast & Unrestricted)
+      // 1. Fetch lightweight direct employee list
       api.get("/community/employees")
         .then((res) => {
           if (Array.isArray(res.data) && res.data.length > 0) {
             setEmployeesList(res.data);
           }
         })
-        .catch((e) => console.log("Direct employees fetch fallback", e));
+        .catch(() => {});
 
-      // 2. Fetch summary metadata for projects
+      // 2. Fetch projects list
+      api.get("/community/projects")
+        .then((res) => {
+          if (Array.isArray(res.data) && res.data.length > 0) {
+            setProjectsList(res.data);
+          }
+        })
+        .catch(() => {});
+
+      // 3. Summary metadata
       const summaryRes = await api.get("/community/summary");
-      if (summaryRes.data?.projects) {
-        setProjectsList(summaryRes.data.projects);
+      if (summaryRes.data?.projects && summaryRes.data.projects.length > 0) {
+        setProjectsList((prev) => (prev.length > 0 ? prev : summaryRes.data.projects));
       }
       if (summaryRes.data?.all_employees && summaryRes.data.all_employees.length > 0) {
         setEmployeesList((prev) => (prev.length > 0 ? prev : summaryRes.data.all_employees));
@@ -196,6 +206,18 @@ export function CommunityFeed() {
     setPollOptions(updated);
   };
 
+  const handleSelectEmployee = (emp: any) => {
+    if (!selectedEmployees.some((e) => e.id === emp.id)) {
+      setSelectedEmployees([...selectedEmployees, emp]);
+    }
+    setEmployeeSearch("");
+    setIsEmployeeDropdownOpen(false);
+  };
+
+  const handleRemoveSelectedEmployee = (id: number) => {
+    setSelectedEmployees(selectedEmployees.filter((e) => e.id !== id));
+  };
+
   const handleResetFilters = () => {
     setFilterType("all");
     setFilterYear("all");
@@ -216,8 +238,8 @@ export function CommunityFeed() {
         return;
       }
     } else if (activeType === "praise") {
-      if (!selectedEmployee) {
-        alert("Please search and select an employee to praise.");
+      if (selectedEmployees.length === 0) {
+        alert("Please search and select at least one employee to praise.");
         return;
       }
       if (!praiseDescription.trim()) {
@@ -253,7 +275,8 @@ export function CommunityFeed() {
         const formData = new FormData();
         formData.append("content", praiseDescription.trim());
         formData.append("type", "praise");
-        formData.append("praised_user_id", String(selectedEmployee.id));
+        formData.append("praised_user_ids", JSON.stringify(selectedEmployees.map((e) => e.id)));
+        formData.append("praised_user_id", String(selectedEmployees[0]?.id || ""));
         if (selectedBadge?.name) {
           formData.append("badge", selectedBadge.name);
         }
@@ -273,7 +296,7 @@ export function CommunityFeed() {
           setTotalPosts((prev) => prev + 1);
         }
         setPraiseDescription("");
-        setSelectedEmployee(null);
+        setSelectedEmployees([]);
         setEmployeeSearch("");
         setSelectedProject("");
         handleRemoveImage();
@@ -389,10 +412,12 @@ export function CommunityFeed() {
     }
   };
 
-  // Filtered employees for search
+  // Filtered employees for search (excluding already selected)
   const filteredEmployees = employeesList.filter((emp) => {
+    const isAlreadySelected = selectedEmployees.some((se) => se.id === emp.id);
+    if (isAlreadySelected) return false;
     const q = employeeSearch.trim().toLowerCase();
-    if (!q) return true; // Show all when empty
+    if (!q) return true;
     const matchName = emp.name ? emp.name.toLowerCase().includes(q) : false;
     const matchEmail = emp.email ? emp.email.toLowerCase().includes(q) : false;
     const matchDesig = emp.designation ? emp.designation.toLowerCase().includes(q) : false;
@@ -454,92 +479,84 @@ export function CommunityFeed() {
           </button>
         </div>
 
-        {/* ── PRAISE CREATION FORM ── */}
+        {/* ── PRAISE CREATION FORM (Multiple Employees Supported) ── */}
         {activeType === "praise" ? (
           <div className="space-y-4 pt-1">
-            {/* 1. Search Employee Input */}
+            {/* 1. Multiple Employees Selection & Search */}
             <div className="relative">
-              {selectedEmployee ? (
-                <div className="flex items-center justify-between p-2.5 bg-purple-50 dark:bg-purple-950/30 border border-[#56348f]/40 rounded-md">
-                  <div className="flex items-center gap-2.5">
-                    <RoyalAvatar
-                      src={selectedEmployee.profile_photo_path}
-                      name={selectedEmployee.name}
-                      userId={selectedEmployee.id}
-                      className="w-8 h-8 rounded-full"
-                    />
-                    <div>
-                      <p className="text-xs font-bold text-slate-900 dark:text-white">
-                        {selectedEmployee.name}
-                      </p>
-                      <p className="text-[10px] text-slate-500 dark:text-slate-400">
-                        {selectedEmployee.designation}
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedEmployee(null);
-                      setEmployeeSearch("");
-                    }}
-                    className="text-slate-400 hover:text-slate-700 p-1 rounded transition cursor-pointer"
+              <div className="flex flex-wrap items-center gap-2 p-2.5 border-b-2 border-[#56348f] bg-slate-50/50 dark:bg-slate-900/40 rounded-t-md">
+                {/* Selected Employee Pills */}
+                {selectedEmployees.map((emp) => (
+                  <span
+                    key={emp.id}
+                    className="inline-flex items-center gap-1.5 bg-purple-100 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-200 px-2.5 py-1 rounded-full text-xs font-semibold shadow-2xs animate-in fade-in"
                   >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              ) : (
-                <div>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      value={employeeSearch}
-                      onChange={(e) => {
-                        setEmployeeSearch(e.target.value);
-                        setIsEmployeeDropdownOpen(true);
-                      }}
-                      onFocus={() => setIsEmployeeDropdownOpen(true)}
-                      placeholder="Search Employee"
-                      className="w-full text-[14px] font-medium py-2 px-1 border-b-2 border-[#56348f] bg-transparent focus:outline-none text-slate-900 dark:text-white placeholder:text-slate-400"
+                    <RoyalAvatar
+                      src={emp.profile_photo_path}
+                      name={emp.name}
+                      userId={emp.id}
+                      className="w-4 h-4 rounded-full"
                     />
-                  </div>
+                    <span className="truncate max-w-[130px]">{emp.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveSelectedEmployee(emp.id)}
+                      className="hover:text-red-500 transition-colors cursor-pointer p-0.5"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
 
-                  {/* Dropdown Results */}
-                  {isEmployeeDropdownOpen && (
-                    <div className="absolute z-30 top-full left-0 right-0 mt-1 max-h-56 overflow-y-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md shadow-xl custom-scrollbar">
-                      {filteredEmployees.length === 0 ? (
-                        <div className="p-3 text-xs text-slate-500 text-center">
-                          {employeesList.length === 0 ? "Loading employee directory..." : "No employees found matching search"}
-                        </div>
-                      ) : (
-                        filteredEmployees.map((emp) => (
-                          <button
-                            key={emp.id}
-                            type="button"
-                            onClick={() => {
-                              setSelectedEmployee(emp);
-                              setIsEmployeeDropdownOpen(false);
-                            }}
-                            className="w-full flex items-center gap-3 p-2.5 hover:bg-slate-50 dark:hover:bg-slate-800 text-left transition cursor-pointer border-b border-slate-100 dark:border-slate-800 last:border-0"
-                          >
-                            <RoyalAvatar
-                              src={emp.profile_photo_path}
-                              name={emp.name}
-                              userId={emp.id}
-                              className="w-8 h-8 rounded-full shrink-0"
-                            />
-                            <div className="min-w-0">
-                              <p className="text-xs font-semibold text-slate-900 dark:text-white truncate">
-                                {emp.name}
-                              </p>
-                              <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
-                                {emp.designation}
-                              </p>
-                            </div>
-                          </button>
-                        ))
-                      )}
+                {/* Search Input */}
+                <input
+                  type="text"
+                  value={employeeSearch}
+                  onChange={(e) => {
+                    setEmployeeSearch(e.target.value);
+                    setIsEmployeeDropdownOpen(true);
+                  }}
+                  onFocus={() => setIsEmployeeDropdownOpen(true)}
+                  placeholder={
+                    selectedEmployees.length === 0
+                      ? "Search Employee (type name or select)"
+                      : "+ Add more employees..."
+                  }
+                  className="flex-1 min-w-[160px] text-[13px] font-medium py-1 px-1 bg-transparent focus:outline-none text-slate-900 dark:text-white placeholder:text-slate-400"
+                />
+              </div>
+
+              {/* Dropdown Results */}
+              {isEmployeeDropdownOpen && (
+                <div className="absolute z-30 top-full left-0 right-0 mt-1 max-h-56 overflow-y-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md shadow-xl custom-scrollbar">
+                  {filteredEmployees.length === 0 ? (
+                    <div className="p-3 text-xs text-slate-500 text-center">
+                      {employeesList.length === 0 ? "Loading employee directory..." : "No matching employees found"}
                     </div>
+                  ) : (
+                    filteredEmployees.map((emp) => (
+                      <button
+                        key={emp.id}
+                        type="button"
+                        onClick={() => handleSelectEmployee(emp)}
+                        className="w-full flex items-center gap-3 p-2.5 hover:bg-slate-50 dark:hover:bg-slate-800 text-left transition cursor-pointer border-b border-slate-100 dark:border-slate-800 last:border-0"
+                      >
+                        <RoyalAvatar
+                          src={emp.profile_photo_path}
+                          name={emp.name}
+                          userId={emp.id}
+                          className="w-8 h-8 rounded-full shrink-0"
+                        />
+                        <div className="min-w-0">
+                          <p className="text-xs font-semibold text-slate-900 dark:text-white truncate">
+                            {emp.name}
+                          </p>
+                          <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                            {emp.designation}
+                          </p>
+                        </div>
+                      </button>
+                    ))
                   )}
                 </div>
               )}
@@ -576,12 +593,12 @@ export function CommunityFeed() {
                   <ChevronDown className="w-3.5 h-3.5" />
                 </button>
                 <p className="text-[11px] text-slate-400 mt-0.5">
-                  Choose a recognition badge for your colleague
+                  Choose a recognition badge for your colleague(s)
                 </p>
               </div>
             </div>
 
-            {/* Badge Selection Modal / Grid */}
+            {/* Badge Selection Grid */}
             {isBadgeModalOpen && (
               <div className="p-3 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-md grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {PRAISE_BADGES.map((b) => (
@@ -674,7 +691,7 @@ export function CommunityFeed() {
 
               <button
                 onClick={handleCreatePost}
-                disabled={posting || !selectedEmployee || !praiseDescription.trim()}
+                disabled={posting || selectedEmployees.length === 0 || !praiseDescription.trim()}
                 style={{
                   backgroundColor: "#56348f",
                   color: "#ffffff",
@@ -808,7 +825,7 @@ export function CommunityFeed() {
                 onChange={(e) => setContent(e.target.value)}
                 rows={3}
                 placeholder="Write your message or company update here..."
-                className="w-full text-[13px] leading-relaxed p-3 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-md focus:outline-none focus:ring-1 focus:ring-[#56348f] dark:text-white resize-none"
+                className="w-full text-[13px] leading-relaxed p-3 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-md focus:outline-none focus:ring-1 focus:ring-[#56348f] focus:border-[#56348f] dark:text-white resize-none"
               />
 
               {imagePreview && (
@@ -981,6 +998,7 @@ export function CommunityFeed() {
             const isCommentsOpen = !!openComments[post.id];
             const isPoll = post.type === "poll" && post.poll_data?.options;
             const isPraise = post.type === "praise";
+            const praisedList = post.praised_users || (post.praised_user ? [post.praised_user] : []);
 
             return (
               <div
@@ -1020,7 +1038,7 @@ export function CommunityFeed() {
                   )}
                 </div>
 
-                {/* Praise Highlight Card */}
+                {/* Praise Highlight Card (Multi-recipient supported) */}
                 {isPraise && (
                   <div className="p-3.5 bg-gradient-to-r from-amber-50/80 via-purple-50/50 to-pink-50/60 dark:from-amber-950/20 dark:via-purple-950/20 dark:to-pink-950/20 rounded-md border border-amber-200/80 dark:border-amber-900/30 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
@@ -1028,14 +1046,17 @@ export function CommunityFeed() {
                         🎖️
                       </div>
                       <div className="min-w-0">
-                        <p className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                        <p className="text-xs font-bold text-slate-900 dark:text-white flex flex-wrap items-center gap-1">
                           <span>Praise for</span>
-                          {post.praised_user ? (
-                            <span className="text-[#56348f] dark:text-purple-300 font-bold">
-                              {post.praised_user.first_name} {post.praised_user.last_name}
-                            </span>
+                          {praisedList.length > 0 ? (
+                            praisedList.map((pUser: any, pIdx: number) => (
+                              <span key={pUser.id || pIdx} className="text-[#56348f] dark:text-purple-300 font-bold">
+                                {pUser.first_name} {pUser.last_name}
+                                {pIdx < praisedList.length - 1 ? "," : ""}
+                              </span>
+                            ))
                           ) : (
-                            <span>a Colleague</span>
+                            <span>Colleague</span>
                           )}
                         </p>
                         {post.poll_data?.badge && (
@@ -1051,13 +1072,24 @@ export function CommunityFeed() {
                       </div>
                     </div>
 
-                    {post.praised_user && (
-                      <RoyalAvatar
-                        src={post.praised_user.profile_photo_path}
-                        name={`${post.praised_user.first_name} ${post.praised_user.last_name}`}
-                        userId={post.praised_user.id}
-                        className="w-9 h-9 rounded-full ring-2 ring-amber-400 shrink-0"
-                      />
+                    {/* Recipient Avatars */}
+                    {praisedList.length > 0 && (
+                      <div className="flex items-center -space-x-2 shrink-0">
+                        {praisedList.slice(0, 3).map((pUser: any, pIdx: number) => (
+                          <RoyalAvatar
+                            key={pUser.id || pIdx}
+                            src={pUser.profile_photo_path}
+                            name={`${pUser.first_name} ${pUser.last_name}`}
+                            userId={pUser.id}
+                            className="w-8 h-8 rounded-full ring-2 ring-amber-400"
+                          />
+                        ))}
+                        {praisedList.length > 3 && (
+                          <span className="w-8 h-8 rounded-full bg-purple-200 text-[#56348f] text-[10px] font-bold flex items-center justify-center ring-2 ring-white">
+                            +{praisedList.length - 3}
+                          </span>
+                        )}
+                      </div>
                     )}
                   </div>
                 )}
