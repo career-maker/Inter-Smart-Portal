@@ -137,57 +137,85 @@ export function AttendanceWidget({ initialData }: { initialData?: any }) {
   const breakDurationStr = totalBreakMins > 0 ? `${Math.floor(totalBreakMins / 60)}h ${totalBreakMins % 60}m` : '0m';
 
   return (
-    <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-md p-5 md:p-6 shadow-sm mb-6 relative overflow-hidden group">
-      <div className="absolute -bottom-10 -left-10 w-6 h-6 rounded-full scale-0 group-hover:scale-[50] transition-transform duration-700 ease-out bg-cyan-50 z-0 dark:hidden pointer-events-none" />
-      <div className="absolute -top-16 -right-16 w-40 h-40 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none z-0" />
-      
-      <div className="flex items-center justify-between mb-5 relative z-10">
-        <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-          <Clock className="w-5 h-5 text-cyan-400" />
-          Today's Attendance
-        </h2>
-        <span className={`px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border ${
-          data?.status === 'Checked In'  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' :
-          data?.status === 'On Break'    ? 'bg-amber-500/20 text-amber-300 border-amber-500/30' :
-          data?.status === 'Checked Out' ? 'bg-slate-500/20 text-slate-300 border-slate-500/30' :
-          'bg-rose-500/20 text-rose-300 border-rose-500/30'
-        }`}>
+    <div
+      style={{
+        fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      }}
+      className="bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700/60 rounded-md p-5 sm:p-6 shadow-sm relative overflow-hidden"
+    >
+      <div className="flex items-center justify-between mb-4 relative z-10">
+        <div>
+          <h2
+            style={{
+              fontSize: "16px",
+              lineHeight: "28px",
+              fontWeight: 500,
+              color: "rgb(15, 24, 36)"
+            }}
+            className="dark:text-white flex items-center gap-2"
+          >
+            <Clock className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
+            Today's Attendance
+          </h2>
+          <p
+            style={{
+              fontSize: "12px",
+              lineHeight: "20px",
+              color: "rgb(94, 105, 120)"
+            }}
+            className="dark:text-slate-400 font-normal"
+          >
+            Real-time biometric punch logs and work duration
+          </p>
+        </div>
+        <span
+          style={{
+            fontSize: "11px",
+            lineHeight: "16px"
+          }}
+          className={`px-3 py-1 rounded-full font-semibold uppercase tracking-wider border ${
+            data?.status === 'Checked In'  ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 border-emerald-500/30' :
+            data?.status === 'On Break'    ? 'bg-amber-500/15 text-amber-600 dark:text-amber-300 border-amber-500/30' :
+            data?.status === 'Checked Out' ? 'bg-slate-500/15 text-slate-600 dark:text-slate-300 border-slate-500/30' :
+            'bg-rose-500/15 text-rose-600 dark:text-rose-300 border-rose-500/30'
+          }`}
+        >
           {data?.status || 'Not Checked In'}
         </span>
       </div>
 
-      <div className="flex flex-col lg:flex-row items-center gap-6 relative z-10">
-        {/* Metrics Grid — same KPI card style as Super Admin dashboard */}
+      <div className="flex flex-col lg:flex-row items-center gap-4 relative z-10">
+        {/* Metrics Grid */}
         <div className="flex-1 w-full">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {/* Punch In */}
-            <div className="bg-white dark:bg-slate-800 rounded-md p-4 text-center shadow-sm border border-emerald-500/25">
-              <p className="text-xs text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest mb-2">Punch In</p>
-              <p className="font-black text-lg text-slate-900 dark:text-white">{formatTime(data?.attendance?.check_in_time)}</p>
+            <div className="bg-slate-50 dark:bg-slate-900/50 rounded-md p-3.5 text-center border border-slate-200/70 dark:border-slate-800">
+              <p style={{ fontSize: "11px", lineHeight: "16px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 uppercase font-medium tracking-wider mb-1">Punch In</p>
+              <p style={{ fontSize: "15px", lineHeight: "22px", color: "rgb(15, 24, 36)" }} className="font-semibold dark:text-white">{formatTime(data?.attendance?.check_in_time)}</p>
             </div>
             {/* Punch Out */}
-            <div className="bg-white dark:bg-slate-800 rounded-md p-4 text-center shadow-sm border border-rose-500/25">
-              <p className="text-xs text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest mb-2">Punch Out</p>
-              <p className="font-black text-lg text-slate-900 dark:text-white">{formatTime(data?.attendance?.check_out_time)}</p>
+            <div className="bg-slate-50 dark:bg-slate-900/50 rounded-md p-3.5 text-center border border-slate-200/70 dark:border-slate-800">
+              <p style={{ fontSize: "11px", lineHeight: "16px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 uppercase font-medium tracking-wider mb-1">Punch Out</p>
+              <p style={{ fontSize: "15px", lineHeight: "22px", color: "rgb(15, 24, 36)" }} className="font-semibold dark:text-white">{formatTime(data?.attendance?.check_out_time)}</p>
             </div>
             {/* Total Break */}
-            <div className="bg-white dark:bg-slate-800 rounded-md p-4 text-center shadow-sm border border-amber-500/25">
-              <p className="text-xs text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest mb-2">Total Break</p>
-              <p className="font-black text-lg text-slate-900 dark:text-white">{breakDurationStr}</p>
+            <div className="bg-slate-50 dark:bg-slate-900/50 rounded-md p-3.5 text-center border border-slate-200/70 dark:border-slate-800">
+              <p style={{ fontSize: "11px", lineHeight: "16px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 uppercase font-medium tracking-wider mb-1">Total Break</p>
+              <p style={{ fontSize: "15px", lineHeight: "22px", color: "rgb(15, 24, 36)" }} className="font-semibold dark:text-white">{breakDurationStr}</p>
             </div>
             {/* Worked Time */}
-            <div className="bg-white dark:bg-slate-800 rounded-md p-4 text-center shadow-sm border border-cyan-500/25">
-              <p className="text-xs text-cyan-400 uppercase font-bold tracking-widest mb-2">Worked Time</p>
-              <p className="font-black text-xl text-cyan-300 font-mono tracking-tight">{formatDuration(elapsedSeconds)}</p>
+            <div className="bg-slate-50 dark:bg-slate-900/50 rounded-md p-3.5 text-center border border-slate-200/70 dark:border-slate-800">
+              <p style={{ fontSize: "11px", lineHeight: "16px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 uppercase font-medium tracking-wider mb-1">Worked Time</p>
+              <p style={{ fontSize: "15px", lineHeight: "22px" }} className="font-semibold text-cyan-600 dark:text-cyan-300 font-mono tracking-tight">{formatDuration(elapsedSeconds)}</p>
             </div>
           </div>
         </div>
 
         {/* Biometric Entry Notice */}
-        <div className="flex-shrink-0 w-full lg:w-auto min-w-[180px] p-4 bg-blue-500/10 border border-blue-500/30 rounded-md hover:bg-blue-500/20 transition-colors cursor-default">
-          <p className="text-center text-xs text-blue-300">
-            <span className="font-semibold block">Biometric Entry</span>
-            Attendance is recorded automatically via biometric device
+        <div className="flex-shrink-0 w-full lg:w-auto min-w-[180px] p-3.5 bg-purple-50/60 dark:bg-purple-900/20 border border-purple-200/60 dark:border-purple-800/40 rounded-md cursor-default">
+          <p style={{ fontSize: "12px", lineHeight: "18px" }} className="text-center text-slate-600 dark:text-slate-300">
+            <span style={{ fontWeight: 600, color: "#56348f" }} className="dark:text-purple-300 block">Biometric Entry</span>
+            Attendance logged automatically via device
           </p>
         </div>
       </div>

@@ -518,38 +518,43 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Team Lead Dashboard: Pending Approvals, Team Status & Emergency Contacts */}
+      {/* Team Lead Dashboard: Left (Team Status + Today's Attendance), Right (Pending Approvals + Emergency Contacts) */}
       {user?.role === "Team Lead" && data && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          {/* Left Column: Team Status (Spans 2 cols on desktop) */}
-          <div className="lg:col-span-2 flex flex-col gap-4">
-            {/* Team Member Status Pills */}
-            <div className="bg-white dark:bg-slate-800 rounded-md p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm flex-1">
-              <div className="flex flex-col xl:flex-row xl:items-center justify-between mb-4 gap-3">
-                <p className="text-sm font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-2 shrink-0">
-                  <Briefcase className="w-4 h-4 text-blue-400" />
-                  Team Status Today
-                </p>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6 items-start">
+          {/* Left Column: Team Status + Today's Attendance (Spans 2 cols on desktop) */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Team Member Status Pills (Auto-height, no empty space) */}
+            <div className="bg-white dark:bg-slate-800 rounded-md p-5 border border-slate-200/90 dark:border-slate-700/60 shadow-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2">
+                <div>
+                  <h2 style={{ fontSize: "16px", lineHeight: "28px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2">
+                    <Briefcase className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
+                    Team Status Today
+                  </h2>
+                  <p style={{ fontSize: "12px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
+                    Daily attendance and availability breakdown
+                  </p>
+                </div>
                 
                 {/* Legend */}
                 <div className="flex flex-wrap items-center gap-3">
-                  <span className="flex items-center gap-1 text-[10px] font-medium text-slate-500 dark:text-slate-400">
+                  <span className="flex items-center gap-1 text-[11px] font-normal text-slate-500 dark:text-slate-400">
                     <div className="w-2 h-2 rounded-full bg-emerald-500"></div> Present
                   </span>
-                  <span className="flex items-center gap-1 text-[10px] font-medium text-slate-500 dark:text-slate-400">
+                  <span className="flex items-center gap-1 text-[11px] font-normal text-slate-500 dark:text-slate-400">
                     <div className="w-2 h-2 rounded-full bg-red-500"></div> Absent
                   </span>
-                  <span className="flex items-center gap-1 text-[10px] font-medium text-slate-500 dark:text-slate-400">
+                  <span className="flex items-center gap-1 text-[11px] font-normal text-slate-500 dark:text-slate-400">
                     <div className="w-2 h-2 rounded-full bg-blue-500"></div> WFH
                   </span>
-                  <span className="flex items-center gap-1 text-[10px] font-medium text-slate-500 dark:text-slate-400">
+                  <span className="flex items-center gap-1 text-[11px] font-normal text-slate-500 dark:text-slate-400">
                     <div className="w-2 h-2 rounded-full bg-amber-500"></div> Half Day
                   </span>
                 </div>
               </div>
   
               {data?.widgets?.team_members && data.widgets.team_members.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 pt-1">
                   {data.widgets.team_members.map((member: any) => {
                     const getPillClasses = (status: string) => {
                       const lower = status.toLowerCase();
@@ -572,7 +577,7 @@ export default function DashboardPage() {
                     return (
                       <span 
                         key={member.id} 
-                        className={`px-3 py-1 text-xs font-semibold rounded-full border ${getPillClasses(member.status)}`}
+                        className={`px-3 py-1 text-xs font-medium rounded-full border ${getPillClasses(member.status)}`}
                         title={member.status}
                       >
                         <RoyalName name={member.name} userId={member.id} showCrownIcon={false} />
@@ -581,9 +586,14 @@ export default function DashboardPage() {
                   })}
                 </div>
               ) : (
-                <p className="text-sm text-slate-500 dark:text-slate-400">No team members assigned</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 py-1">No team members assigned</p>
               )}
             </div>
+
+            {/* Today's Attendance Widget placed neatly below Team Status */}
+            {user?.role !== "Team Lead" && (
+        <AttendanceWidget initialData={data.attendance_widget_data} />
+      )}
           </div>
 
           {/* Right Column: Pending Approvals & Emergency Contacts */}
@@ -592,7 +602,7 @@ export default function DashboardPage() {
             <div className="bg-white dark:bg-slate-800 rounded-md p-5 sm:p-6 border border-slate-200/90 dark:border-slate-700/60 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h2 style={{ fontSize: "16px", lineHeight: "28px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2">
+                  <h2 style={{ fontSize: "16px", lineHeight: "28px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2">
                     <Clock className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
                     Pending Approvals
                   </h2>
@@ -600,7 +610,7 @@ export default function DashboardPage() {
                     Leave requests awaiting review
                   </p>
                 </div>
-                <Link href="/leaves/approvals" className="text-xs font-semibold text-[#56348f] dark:text-purple-400 hover:underline flex items-center gap-1">
+                <Link href="/leaves/approvals" className="text-xs font-medium text-[#56348f] dark:text-purple-400 hover:underline flex items-center gap-1">
                   View All <ChevronRight className="w-3 h-3" />
                 </Link>
               </div>
@@ -609,10 +619,10 @@ export default function DashboardPage() {
                   {data.widgets.pending_approvals.slice(0, 3).map((approval: any) => (
                     <div key={approval.id} className="bg-slate-50 dark:bg-white/5 rounded-md p-3 flex items-center justify-between hover:bg-slate-100 dark:hover:bg-white/10 transition-colors border border-slate-200/60 dark:border-transparent">
                       <div className="min-w-0">
-                        <p className="text-[13px] font-semibold text-slate-900 dark:text-white truncate">{approval.employee_name}</p>
+                        <p className="text-[13px] font-medium text-slate-900 dark:text-white truncate">{approval.employee_name}</p>
                         <p className="text-[12px] text-slate-500 dark:text-slate-400">{approval.leave_type} • {format(parseISO(approval.start_date), "MMM d")} to {format(parseISO(approval.end_date), "MMM d")}</p>
                       </div>
-                      <span className="text-xs font-bold bg-purple-100 dark:bg-purple-500/20 text-[#56348f] dark:text-purple-300 px-2.5 py-1 rounded-full shrink-0">{approval.days} d</span>
+                      <span className="text-xs font-semibold bg-purple-100 dark:bg-purple-500/20 text-[#56348f] dark:text-purple-300 px-2.5 py-1 rounded-full shrink-0">{approval.days} d</span>
                     </div>
                   ))}
                 </div>
@@ -834,7 +844,9 @@ export default function DashboardPage() {
         />
       )}
 
-      <AttendanceWidget initialData={data.attendance_widget_data} />
+      {user?.role !== "Team Lead" && (
+        <AttendanceWidget initialData={data.attendance_widget_data} />
+      )}
 
       {/*
         ========================================
@@ -875,7 +887,7 @@ export default function DashboardPage() {
         ) : (
           <div className="premium-card wave-card p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <h3 style={{ fontSize: "16px", lineHeight: "28px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white dark:text-white flex items-center gap-2">
                 <Megaphone className="w-4 h-4 text-blue-500" />
                 Latest Updates
               </h3>
@@ -1548,7 +1560,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           <div className="premium-card p-6 h-full flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300">
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <h3 style={{ fontSize: "16px", lineHeight: "28px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white dark:text-white flex items-center gap-2">
                   <Users className="w-4 h-4 text-emerald-400" />
                   Manage Employees
                 </h3>
@@ -1572,7 +1584,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           <div className="premium-card p-6 h-full flex flex-col justify-between hover:border-blue-500/40 transition-all duration-300">
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <h3 style={{ fontSize: "16px", lineHeight: "28px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white dark:text-white flex items-center gap-2">
                   <Clock className="w-4 h-4 text-blue-400" />
                   Attendance Management
                 </h3>
@@ -2159,7 +2171,7 @@ function MenuCard({ href, icon: Icon, title, subtitle, color, className = "" }: 
           <div className={`w-10 h-10 rounded-md ${accent} flex items-center justify-center mb-4 shadow-sm group-hover:scale-90 transition-transform duration-300`}>
             <Icon className="w-5 h-5" />
           </div>
-          <h3 className="font-bold text-slate-900 dark:text-white text-sm leading-tight mb-1">{title}</h3>
+          <h3 style={{ fontSize: "16px", lineHeight: "28px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white dark:text-white text-sm leading-tight mb-1">{title}</h3>
           <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{subtitle}</p>
         </div>
       </div>
