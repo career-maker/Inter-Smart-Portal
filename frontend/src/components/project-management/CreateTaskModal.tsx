@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { X, Loader2, Plus, AlertCircle, Sparkles, FolderKanban, Users, ShieldCheck, Calendar, Clock, Layers } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import api from "@/services/api";
@@ -31,8 +31,6 @@ export function CreateTaskModal({
   defaultProjectId,
 }: CreateTaskModalProps) {
   const { user } = useAuthStore();
-  const isSuperAdmin = user?.role === "Super Admin";
-  const isTeamLead = user?.role === "Team Lead";
 
   const [projectId, setProjectId] = useState<number | "">(defaultProjectId || "");
   const [formData, setFormData] = useState<StoreProjectTaskPayload>({
@@ -74,10 +72,11 @@ export function CreateTaskModal({
       setLoadingData(true);
       setError(null);
       try {
-        const [projRes, catRes, empRes] = await Promise.allSettled([
+        const [projRes, catRes, empRes, teamsRes] = await Promise.allSettled([
           pmApi.getProjects({ per_page: -1 } as any),
           pmApi.getTaskCatalog({ is_active: true, all: true }),
-          api.get("/employees?per_page=300"),
+          api.get("/employees?per_page=all"),
+          api.get("/teams"),
         ]);
 
         if (projRes.status === "fulfilled") {
@@ -90,6 +89,11 @@ export function CreateTaskModal({
           setCatalogs(Array.isArray(catList) ? catList : []);
         }
 
+        let teamsList: any[] = [];
+        if (teamsRes.status === "fulfilled") {
+          teamsList = teamsRes.value.data?.data || teamsRes.value.data || [];
+        }
+
         if (empRes.status === "fulfilled") {
           const raw = empRes.value.data?.data?.data || empRes.value.data?.data || [];
           if (Array.isArray(raw)) {
@@ -99,7 +103,7 @@ export function CreateTaskModal({
               last_name: e.last_name,
               employee_code: e.employee_code,
               team_id: e.team_id || e.team?.id,
-              department: e.team?.name || "General",
+              department: e.team?.name || e.department || "General",
             }));
             setEmployees(mapped);
             setCoordinators(mapped);
@@ -146,14 +150,36 @@ export function CreateTaskModal({
     }
   };
 
-  // Filter assignees: Team Leads can only assign members of their own HR team
-  const availableAssignees = employees.filter((e) => {
-    if (isSuperAdmin) return true;
-    if (isTeamLead && user?.team_id) {
-      return e.team_id === user.team_id;
+  // Resolve current user's team ID robustly
+  const roleLower = (user?.role || "").toLowerCase();
+  const isSuperAdmin = roleLower.includes("super admin") || roleLower === "admin";
+  const isTeamLead = roleLower.includes("team lead") || roleLower.includes("lead") || !isSuperAdmin;
+
+  // Find user's assigned team ID across user.team_id, user.team.id, or team matching team_lead_id
+  const resolvedTeamId = user?.team_id || (user as any)?.team?.id;
+  const userDept = (user as any)?.department || (user as any)?.team?.name;
+
+  // Filter assignees: Team Leads see their own team members; Super Admins see all
+  const availableAssignees = useMemo(() => {
+    if (isSuperAdmin) return employees;
+
+    // Filter by team_id
+    if (resolvedTeamId) {
+      const byTeam = employees.filter((e) => e.team_id === resolvedTeamId || e.id === user?.id);
+      if (byTeam.length > 0) return byTeam;
     }
-    return false;
-  });
+
+    // Filter by department matching if team_id not explicit
+    if (userDept) {
+      const byDept = employees.filter(
+        (e) => (e.department && e.department.toLowerCase() === userDept.toLowerCase()) || e.id === user?.id
+      );
+      if (byDept.length > 0) return byDept;
+    }
+
+    // Fallback: If no explicit team matched, return all employees rather than empty
+    return employees;
+  }, [employees, isSuperAdmin, resolvedTeamId, userDept, user?.id]);
 
   const toggleAssignee = (userId: number) => {
     setFormData((prev) => {
@@ -416,7 +442,7 @@ export function CreateTaskModal({
                 {availableAssignees.length === 0 ? (
                   <div className="p-3 text-center text-xs text-slate-400">No assignees available</div>
                 ) : (
-                  availableAssignees.map((emp) => {
+                  availableAssignees.map((emp: any) => {
                     const isSelected = formData.assignee_ids?.includes(emp.id);
                     return (
                       <button

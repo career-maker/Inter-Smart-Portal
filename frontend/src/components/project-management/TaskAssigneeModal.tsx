@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { X, Loader2, UserPlus, Trash2, AlertCircle, Users, Check } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import api from "@/services/api";
@@ -21,8 +21,6 @@ export function TaskAssigneeModal({
   onSuccess,
 }: TaskAssigneeModalProps) {
   const { user } = useAuthStore();
-  const isSuperAdmin = user?.role === "Super Admin";
-  const isTeamLead = user?.role === "Team Lead";
 
   const [employees, setEmployees] = useState<
     { id: number; first_name: string; last_name: string; employee_code?: string; team_id?: number | null; department?: string }[]
@@ -42,7 +40,7 @@ export function TaskAssigneeModal({
       setLoadingEmployees(true);
       setError(null);
       try {
-        const res = await api.get("/employees?per_page=300");
+        const res = await api.get("/employees?per_page=all");
         const raw = res.data?.data?.data || res.data?.data || [];
         if (Array.isArray(raw)) {
           const mapped = raw.map((e: any) => ({
@@ -51,7 +49,7 @@ export function TaskAssigneeModal({
             last_name: e.last_name,
             employee_code: e.employee_code,
             team_id: e.team_id || e.team?.id,
-            department: e.team?.name || "General",
+            department: e.team?.name || e.department || "General",
           }));
           setEmployees(mapped);
         }
@@ -67,14 +65,30 @@ export function TaskAssigneeModal({
 
   if (!isOpen) return null;
 
-  // Filter assignees: Team Leads can only assign members of their own HR team
-  const availableEmployees = employees.filter((e) => {
-    if (isSuperAdmin) return true;
-    if (isTeamLead && user?.team_id) {
-      return e.team_id === user.team_id;
+  const roleLower = (user?.role || "").toLowerCase();
+  const isSuperAdmin = roleLower.includes("super admin") || roleLower === "admin";
+  const isTeamLead = roleLower.includes("team lead") || roleLower.includes("lead") || !isSuperAdmin;
+  const resolvedTeamId = user?.team_id || (user as any)?.team?.id;
+  const userDept = (user as any)?.department || (user as any)?.team?.name;
+
+  // Filter assignees: Team Leads see their own team members; Super Admins see all
+  const availableEmployees = useMemo(() => {
+    if (isSuperAdmin) return employees;
+
+    if (resolvedTeamId) {
+      const byTeam = employees.filter((e) => e.team_id === resolvedTeamId || e.id === user?.id);
+      if (byTeam.length > 0) return byTeam;
     }
-    return false;
-  });
+
+    if (userDept) {
+      const byDept = employees.filter(
+        (e) => (e.department && e.department.toLowerCase() === userDept.toLowerCase()) || e.id === user?.id
+      );
+      if (byDept.length > 0) return byDept;
+    }
+
+    return employees;
+  }, [employees, isSuperAdmin, resolvedTeamId, userDept, user?.id]);
 
   const existingAssigneeIds = (task.assignees || []).map((a) => a.id);
 
