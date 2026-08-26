@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 import { NotificationDropdown } from "@/components/layout/NotificationDropdown";
 import { RecognitionTicker } from "@/components/layout/RecognitionTicker";
-import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { FavoritesNav } from "@/components/layout/FavoritesNav";
 import { CommandPalette } from "@/components/CommandPalette";
 import api from "@/services/api";
@@ -801,7 +800,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
                 <NotificationDropdown />
 
-                <ThemeToggle />
 
                 <Link
                   href="/profile"

@@ -140,7 +140,7 @@ export default function HolidaysPage() {
         </button>
       </div>
 
-      <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden">
+      <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-md overflow-hidden">
         {holidays.length === 0 ? (
           <div className="py-16 text-center text-slate-500 dark:text-slate-400 space-y-3">
             <CalendarDays className="w-10 h-10 mx-auto text-slate-600" />
@@ -198,7 +198,7 @@ export default function HolidaysPage() {
       {showDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowDialog(false)} />
-          <div className="relative w-full max-w-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl z-10">
+          <div className="relative w-full max-w-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-md shadow-2xl z-10">
             <div className="px-6 py-5 border-b border-slate-200 dark:border-white/10">
               <h2 className="text-lg font-bold text-slate-900 dark:text-white">{editId ? "Edit Holiday" : "Add Holiday"}</h2>
               <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
@@ -286,7 +286,7 @@ export default function HolidaysPage() {
       {showSuccess && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => {}} />
-          <div className="relative w-full max-w-md bg-gradient-to-br from-white dark:from-slate-800 to-slate-50 dark:to-slate-900 border border-emerald-500/20 rounded-2xl shadow-2xl z-10 overflow-hidden">
+          <div className="relative w-full max-w-md bg-gradient-to-br from-white dark:from-slate-800 to-slate-50 dark:to-slate-900 border border-emerald-500/20 rounded-md shadow-2xl z-10 overflow-hidden">
             <div className="absolute inset-0 bg-emerald-500/5 opacity-0 animate-pulse" />
 
             <div className="relative px-6 py-8 text-center space-y-4">

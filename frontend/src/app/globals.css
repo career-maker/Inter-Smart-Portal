@@ -81,7 +81,7 @@
   --chart-3: #EC4899;
   --chart-4: #F59E0B;
   --chart-5: #10B981;
-  --radius: 16px;
+  --radius: 6px;
   --sidebar: #FFFFFF;
   --sidebar-foreground: #1E293B;
   --sidebar-primary: #0F172A;
@@ -3088,4 +3088,24 @@ body {
   .overlay-semantic {
     background-color: var(--bg-overlay);
   }
+}
+
+/* Standardized Dashboard Card Box & Typography */
+.premium-card,
+.wave-card,
+.glass-card,
+[data-card] {
+  background: #FFFFFF !important;
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
+  transition: all 200ms ease-in-out !important;
+  font-family: "Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+
+.dark .premium-card,
+.dark .wave-card,
+.dark .glass-card {
+  background: #1e293b !important;
+  border: 1px solid rgba(51, 65, 85, 0.7) !important;
 }

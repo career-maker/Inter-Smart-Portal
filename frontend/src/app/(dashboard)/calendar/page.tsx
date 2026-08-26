@@ -91,7 +91,7 @@ export default function CalendarPage() {
         </div>
       </div>
 
-      <div className="flex gap-4 items-center text-sm bg-white/5 border border-slate-200 dark:border-white/10 p-4 rounded-2xl flex-wrap text-slate-600 dark:text-slate-300">
+      <div className="flex gap-4 items-center text-sm bg-white/5 border border-slate-200 dark:border-white/10 p-4 rounded-md flex-wrap text-slate-600 dark:text-slate-300">
         <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-purple-500"></span> Company Holiday</div>
         <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-green-500"></span> Approved Leave</div>
         <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-amber-500"></span> Pending Leave</div>
@@ -99,7 +99,7 @@ export default function CalendarPage() {
         <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-red-500"></span> Rejected Leave</div>
       </div>
 
-      <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden relative backdrop-blur-md">
+      <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-md overflow-hidden relative backdrop-blur-md">
         {isLoading && (
           <div className="absolute inset-0 bg-slate-100/50 dark:bg-slate-900/50 backdrop-blur-sm z-10 flex items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin text-amber-500" />
@@ -184,7 +184,7 @@ export default function CalendarPage() {
 
       {/* Selected Day Events List (Solves mobile readability) */}
       {selectedDate && (
-        <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-5 backdrop-blur-md space-y-4 animate-in fade-in duration-300">
+        <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-md p-5 backdrop-blur-md space-y-4 animate-in fade-in duration-300">
           <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-3">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <CalendarIcon className="w-5 h-5 text-amber-500" />

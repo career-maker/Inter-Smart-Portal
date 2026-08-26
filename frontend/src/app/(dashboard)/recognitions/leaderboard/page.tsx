@@ -34,7 +34,7 @@ function LaurelRight() {
 
 function StatCard({ label, value, icon: Icon, color }: { label: string; value: string | number; icon: any; color: string }) {
   return (
-    <div className="bg-slate-900/90 border border-white/10 rounded-2xl p-5 flex items-center gap-4 shadow-md">
+    <div className="bg-slate-900/90 border border-white/10 rounded-md p-5 flex items-center gap-4 shadow-md">
       <div className={`w-12 h-12 rounded-xl ${color} flex items-center justify-center shrink-0`}>
         <Icon className="w-6 h-6" />
       </div>
@@ -61,7 +61,7 @@ function TopPerformerBox({
 }) {
   if (!name) {
     return (
-      <div className="bg-slate-900/90 border border-violet-500/30 rounded-2xl p-5 flex flex-col items-center justify-center text-center shadow-md shadow-violet-500/5">
+      <div className="bg-slate-900/90 border border-violet-500/30 rounded-md p-5 flex flex-col items-center justify-center text-center shadow-md shadow-violet-500/5">
         <div className="flex items-center gap-1.5 text-violet-400 mb-2">
           <Crown className="w-4 h-4" />
           <span className="text-[11px] font-bold uppercase tracking-wider">TOP PERFORMER</span>
@@ -76,7 +76,7 @@ function TopPerformerBox({
   return (
     <div
       onClick={onClick}
-      className="bg-slate-900/95 border-2 border-violet-500/40 rounded-2xl p-4 flex flex-col items-center justify-center text-center relative overflow-hidden shadow-lg shadow-violet-500/10 cursor-pointer hover:border-violet-400 transition-all duration-200"
+      className="bg-slate-900/95 border-2 border-violet-500/40 rounded-md p-4 flex flex-col items-center justify-center text-center relative overflow-hidden shadow-lg shadow-violet-500/10 cursor-pointer hover:border-violet-400 transition-all duration-200"
     >
       {/* Top Header Badge */}
       <div className="flex items-center gap-1.5 text-violet-400 mb-2.5">
@@ -264,7 +264,7 @@ export default function RecognitionLeaderboardPage() {
       )}
 
       {/* Hall of Fame Leaderboard Table */}
-      <div className="bg-slate-900/90 border border-white/10 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-md">
+      <div className="bg-slate-900/90 border border-white/10 rounded-md overflow-hidden shadow-2xl backdrop-blur-md">
         {/* Table Header Section */}
         <div className="p-6 border-b border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="flex items-center gap-3">
@@ -419,7 +419,7 @@ export default function RecognitionLeaderboardPage() {
       {/* ── Employee Awards Grid Modal ── */}
       {selectedUserId !== null && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
-          <div className="relative w-full max-w-4xl max-h-[90vh] bg-slate-900 border border-white/15 rounded-3xl overflow-hidden shadow-2xl flex flex-col animate-in zoom-in-95 duration-200">
+          <div className="relative w-full max-w-4xl max-h-[90vh] bg-slate-900 border border-white/15 rounded-md overflow-hidden shadow-2xl flex flex-col animate-in zoom-in-95 duration-200">
             {/* Modal Header */}
             <div className="p-6 border-b border-white/10 bg-slate-950/60 flex items-center justify-between gap-4">
               <div className="flex items-center gap-4 min-w-0">
@@ -427,7 +427,7 @@ export default function RecognitionLeaderboardPage() {
                   src={employeeDetails?.profile_photo_path}
                   name={employeeDetails?.name || "Employee"}
                   userId={employeeDetails?.id}
-                  className="w-14 h-14 rounded-2xl text-lg shadow-md"
+                  className="w-14 h-14 rounded-md text-lg shadow-md"
                 />
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">

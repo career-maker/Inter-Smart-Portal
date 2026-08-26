@@ -216,10 +216,10 @@ export default function RecognitionsPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white/5 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-white/10 overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200/90 dark:border-slate-700/60 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="bg-white/5 text-slate-600 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-white/10">
+            <thead className="bg-slate-50 dark:bg-slate-900/50 text-slate-600 dark:text-slate-300 font-medium text-xs uppercase tracking-wider border-b border-slate-200/80 dark:border-slate-700/60">
               <tr>
                 <th className="px-6 py-4">Employee</th>
                 <th className="px-6 py-4">Achievement</th>

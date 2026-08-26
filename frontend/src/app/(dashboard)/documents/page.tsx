@@ -135,7 +135,7 @@ export default function DocumentsPage() {
       {isLoading ? (
         <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-slate-500 dark:text-slate-400" /></div>
       ) : requests.length === 0 ? (
-        <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl py-16 text-center space-y-3">
+        <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-md py-16 text-center space-y-3">
           <FileText className="h-12 w-12 mx-auto text-slate-600" />
           <p className="text-slate-500 dark:text-slate-400">No document requests yet.</p>
           <button onClick={() => setShowRequestDialog(true)} className="text-sm text-amber-400 hover:text-amber-300 underline underline-offset-2">
@@ -143,7 +143,7 @@ export default function DocumentsPage() {
           </button>
         </div>
       ) : (
-        <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden">
+        <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-md overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
               <thead className="text-xs text-slate-500 dark:text-slate-400 uppercase bg-white/5 border-b border-slate-200 dark:border-white/10">
@@ -236,7 +236,7 @@ export default function DocumentsPage() {
       {showRequestDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowRequestDialog(false)} />
-          <div className="relative w-full max-w-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl z-10">
+          <div className="relative w-full max-w-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-md shadow-2xl z-10">
             <div className="px-6 py-5 border-b border-slate-200 dark:border-white/10">
               <h2 className="text-lg font-bold text-slate-900 dark:text-white">Request a Document</h2>
               <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Select the document type you need from HR.</p>
@@ -305,7 +305,7 @@ export default function DocumentsPage() {
       {showUploadDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowUploadDialog(null)} />
-          <div className="relative w-full max-w-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl z-10">
+          <div className="relative w-full max-w-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-md shadow-2xl z-10">
             <div className="px-6 py-5 border-b border-slate-200 dark:border-white/10">
               <h2 className="text-lg font-bold text-slate-900 dark:text-white">Fulfill Document Request</h2>
               <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
