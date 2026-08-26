@@ -641,19 +641,7 @@ export function CommunityFeed() {
               </select>
             </div>
 
-            {/* 5. Gift Rewards & Balance */}
-            <div className="flex items-center justify-between text-xs pt-1">
-              <div>
-                <span className="font-semibold text-slate-800 dark:text-slate-200">Gift Rewards</span>
-                <p className="text-[11px] text-amber-600 dark:text-amber-400 mt-0.5">
-                  You don&apos;t have enough Rewards to gift.
-                </p>
-              </div>
-              <div className="text-right">
-                <span className="text-slate-500 dark:text-slate-400">Balance</span>
-                <p className="font-bold text-slate-800 dark:text-slate-200">0 Rewards</p>
-              </div>
-            </div>
+
 
             {/* 6. Image Preview */}
             {imagePreview && (
