@@ -14,6 +14,7 @@ use App\Models\WfhRequest;
 use App\Models\LeaveBalance;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class CommunityController extends Controller
 {
@@ -24,12 +25,15 @@ class CommunityController extends Controller
     {
         $userId = $request->user()->id;
 
-        $posts = CommunityPost::with(['user:id,first_name,last_name,email,designation,profile_photo_path,role', 'comments.user:id,first_name,last_name,designation,profile_photo_path'])
+        $posts = CommunityPost::with([
+            'user:id,first_name,last_name,email,designation,profile_photo_path',
+            'comments.user:id,first_name,last_name,designation,profile_photo_path'
+        ])
             ->withCount('likes')
             ->withCount('comments')
             ->orderBy('pinned', 'desc')
             ->latest()
-            ->paginate(15);
+            ->paginate(20);
 
         // Append user_has_liked
         $postIds = $posts->pluck('id')->toArray();
@@ -40,6 +44,10 @@ class CommunityController extends Controller
 
         $posts->getCollection()->transform(function ($post) use ($userLikedPostIds) {
             $post->user_has_liked = in_array($post->id, $userLikedPostIds);
+            // Format media_url to full URL if stored relative
+            if ($post->media_url && !str_starts_with($post->media_url, 'http')) {
+                $post->media_url = url($post->media_url);
+            }
             return $post;
         });
 
@@ -47,7 +55,7 @@ class CommunityController extends Controller
     }
 
     /**
-     * Create a new community post
+     * Create a new community post (supports text, praise, poll, and image uploads)
      */
     public function store(Request $request)
     {
@@ -55,20 +63,33 @@ class CommunityController extends Controller
             'content' => 'required|string|max:5000',
             'type' => 'nullable|string|in:post,praise,poll',
             'media_url' => 'nullable|string',
+            'image' => 'nullable|image|max:10240', // 10MB max
         ]);
+
+        $mediaUrl = $request->input('media_url');
+
+        // Handle uploaded image file
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('community', 'public');
+            $mediaUrl = '/storage/' . $path;
+        }
 
         $post = CommunityPost::create([
             'user_id' => $request->user()->id,
             'content' => $request->input('content'),
             'type' => $request->input('type', 'post'),
-            'media_url' => $request->input('media_url'),
+            'media_url' => $mediaUrl,
             'pinned' => false,
         ]);
 
-        $post->load(['user:id,first_name,last_name,email,designation,profile_photo_path,role', 'comments']);
+        $post->load(['user:id,first_name,last_name,email,designation,profile_photo_path', 'comments']);
         $post->user_has_liked = false;
         $post->likes_count = 0;
         $post->comments_count = 0;
+
+        if ($post->media_url && !str_starts_with($post->media_url, 'http')) {
+            $post->media_url = url($post->media_url);
+        }
 
         return response()->json([
             'message' => 'Post created successfully',
@@ -225,7 +246,6 @@ class CommunityController extends Controller
                 $q->where('leave_type', 'like', '%Sick%')->orWhere('leave_type', 'SL');
             })->first();
 
-        // Fallbacks if not configured
         $casualDays = $casualBalance ? ($casualBalance->balance ?? $casualBalance->remaining_days ?? 12) : 12;
         $sickDays = $sickBalance ? ($sickBalance->balance ?? $sickBalance->remaining_days ?? 10) : 10;
 
@@ -310,7 +330,6 @@ class CommunityController extends Controller
             }
         }
 
-        // Sort upcoming items by days_remaining
         usort($birthdaysUpcoming, fn($a, $b) => $a['days_remaining'] <=> $b['days_remaining']);
         usort($anniversariesUpcoming, fn($a, $b) => $a['days_remaining'] <=> $b['days_remaining']);
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   MessageSquare,
   ThumbsUp,
@@ -13,7 +13,9 @@ import {
   Flame,
   Star,
   Award,
-  MoreVertical,
+  Image as ImageIcon,
+  X,
+  Paperclip,
 } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
@@ -29,6 +31,10 @@ export function CommunityFeed() {
   const [activeType, setActiveType] = useState<"post" | "praise" | "poll">("post");
   const [content, setContent] = useState("");
   const [posting, setPosting] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [commentInputs, setCommentInputs] = useState<{ [postId: number]: string }>({});
   const [openComments, setOpenComments] = useState<{ [postId: number]: boolean }>({});
   const [commentSubmitting, setCommentSubmitting] = useState<{ [postId: number]: boolean }>({});
@@ -49,20 +55,46 @@ export function CommunityFeed() {
     }
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   const handleCreatePost = async () => {
-    if (!content.trim() || posting) return;
+    if (!content.trim() && !selectedImage) return;
+    if (posting) return;
 
     setPosting(true);
     try {
-      const res = await api.post("/community/posts", {
-        content: content.trim(),
-        type: activeType,
+      const formData = new FormData();
+      formData.append("content", content.trim());
+      formData.append("type", activeType);
+      if (selectedImage) {
+        formData.append("image", selectedImage);
+      }
+
+      const res = await api.post("/community/posts", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
       if (res.data?.data) {
         setPosts([res.data.data, ...posts]);
       }
       setContent("");
+      handleRemoveImage();
     } catch (err: any) {
       console.error("Failed to create post", err);
       alert(err.response?.data?.message || "Failed to create post.");
@@ -196,22 +228,66 @@ export function CommunityFeed() {
               className="w-full text-[13px] leading-relaxed p-3 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-md focus:outline-none focus:ring-1 focus:ring-[#56348f] focus:border-[#56348f] dark:text-white resize-none"
             />
 
-            <div className="flex items-center justify-between mt-3">
-              <span className="text-[11px] text-slate-400">
-                Shared with all Inter Smart team members
-              </span>
+            {/* Image Preview */}
+            {imagePreview && (
+              <div className="relative inline-block mt-3 rounded-md overflow-hidden border border-slate-200 dark:border-slate-700 max-h-56">
+                <img
+                  src={imagePreview}
+                  alt="Post attachment"
+                  className="max-h-56 w-auto object-cover rounded-md"
+                />
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="absolute top-1.5 right-1.5 bg-black/70 hover:bg-black text-white p-1 rounded-full transition-colors cursor-pointer"
+                  title="Remove image"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+
+            {/* Hidden File Input */}
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleImageChange}
+              accept="image/*"
+              className="hidden"
+            />
+
+            {/* Actions Bar */}
+            <div className="flex items-center justify-between mt-3 pt-2">
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-[#56348f] dark:hover:text-purple-400 bg-slate-100 dark:bg-slate-700/50 hover:bg-slate-200 px-3 py-1.5 rounded-md transition-colors cursor-pointer"
+                >
+                  <ImageIcon className="w-4 h-4 text-emerald-500" />
+                  <span>Add Photo</span>
+                </button>
+                <span className="text-[11px] text-slate-400 hidden sm:inline">
+                  Shared with Inter Smart team
+                </span>
+              </div>
+
               <button
                 onClick={handleCreatePost}
-                disabled={!content.trim() || posting}
-                className="px-5 py-2 bg-[#56348f] hover:bg-[#452773] text-white text-xs font-semibold rounded-md shadow-xs transition-colors flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
+                disabled={(!content.trim() && !selectedImage) || posting}
+                style={{
+                  backgroundColor: "#56348f",
+                  color: "#ffffff",
+                }}
+                className="px-6 py-2 bg-[#56348f] hover:bg-[#452773] !text-white text-xs font-bold rounded-md shadow-xs transition-all flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
               >
                 {posting ? (
                   <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    <span>Posting...</span>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin !text-white" />
+                    <span className="!text-white font-bold">Posting...</span>
                   </>
                 ) : (
-                  <span>Post</span>
+                  <span className="!text-white font-bold">Post</span>
                 )}
               </button>
             </div>
@@ -229,7 +305,7 @@ export function CommunityFeed() {
           <MessageSquare className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-2 opacity-60" />
           <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-200">No community posts yet</h4>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Be the first to share an update, greeting, or recognition!
+            Be the first to share an update, photo, or recognition!
           </p>
         </div>
       ) : (
@@ -279,15 +355,29 @@ export function CommunityFeed() {
                   )}
                 </div>
 
-                {/* Post Body */}
-                <div className="text-[13px] leading-relaxed text-slate-800 dark:text-slate-200 whitespace-pre-wrap">
-                  {post.type === "praise" && (
-                    <div className="mb-2 inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 rounded-full">
-                      <Star className="w-3 h-3 text-amber-500" /> Shoutout / Praise
-                    </div>
-                  )}
-                  <p>{post.content}</p>
-                </div>
+                {/* Post Body Text */}
+                {post.content && (
+                  <div className="text-[13px] leading-relaxed text-slate-800 dark:text-slate-200 whitespace-pre-wrap">
+                    {post.type === "praise" && (
+                      <div className="mb-2 inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 rounded-full">
+                        <Star className="w-3 h-3 text-amber-500" /> Shoutout / Praise
+                      </div>
+                    )}
+                    <p>{post.content}</p>
+                  </div>
+                )}
+
+                {/* Attached Image if present */}
+                {post.media_url && (
+                  <div className="rounded-md overflow-hidden border border-slate-200/80 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 max-h-[480px]">
+                    <img
+                      src={post.media_url}
+                      alt="Post attachment"
+                      className="w-full h-auto max-h-[480px] object-contain rounded-md"
+                      loading="lazy"
+                    />
+                  </div>
+                )}
 
                 {/* Like & Comment Bar */}
                 <div className="flex items-center gap-6 pt-3 border-t border-slate-100 dark:border-slate-700/60 text-xs text-slate-500 dark:text-slate-400">
