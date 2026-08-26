@@ -331,20 +331,17 @@ export default function DashboardPage() {
           #keka-welcome-hero-banner .hero-stat-label {
             color: #cbd5e1 !important;
           }
-          #keka-welcome-hero-banner .status-punched-in {
+          #keka-welcome-hero-banner .status-punched-in,
+          #keka-welcome-hero-banner .status-punched-in * {
             color: #6ee7b7 !important;
-            border-color: rgba(110, 231, 183, 0.6) !important;
-            background-color: rgba(16, 185, 129, 0.3) !important;
           }
-          #keka-welcome-hero-banner .status-punched-out {
+          #keka-welcome-hero-banner .status-punched-out,
+          #keka-welcome-hero-banner .status-punched-out * {
             color: #fde047 !important;
-            border-color: rgba(253, 224, 71, 0.6) !important;
-            background-color: rgba(245, 158, 11, 0.3) !important;
           }
-          #keka-welcome-hero-banner .status-not-punched {
-            color: #fda4af !important;
-            border-color: rgba(253, 164, 175, 0.6) !important;
-            background-color: rgba(244, 63, 94, 0.3) !important;
+          #keka-welcome-hero-banner .status-not-punched,
+          #keka-welcome-hero-banner .status-not-punched * {
+            color: #fecdd3 !important;
           }
         `}</style>
 
@@ -422,8 +419,29 @@ export default function DashboardPage() {
             {/* Attendance Status Badge & Real-time Date Time */}
             <div className="flex items-center gap-3 flex-wrap pt-1">
               <span
-                style={{ fontSize: "11px", lineHeight: "16px" }}
-                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-bold uppercase tracking-wider ${
+                style={{
+                  fontSize: "11px",
+                  lineHeight: "16px",
+                  backgroundColor:
+                    profile.attendance_status === 'Punched In'
+                      ? 'rgba(16, 185, 129, 0.25)'
+                      : profile.attendance_status === 'Punched Out'
+                      ? 'rgba(245, 158, 11, 0.25)'
+                      : 'rgba(225, 29, 72, 0.25)',
+                  borderColor:
+                    profile.attendance_status === 'Punched In'
+                      ? 'rgba(52, 211, 153, 0.8)'
+                      : profile.attendance_status === 'Punched Out'
+                      ? 'rgba(253, 224, 71, 0.8)'
+                      : 'rgba(251, 113, 133, 0.8)',
+                  color:
+                    profile.attendance_status === 'Punched In'
+                      ? '#6ee7b7'
+                      : profile.attendance_status === 'Punched Out'
+                      ? '#fde047'
+                      : '#fecdd3'
+                }}
+                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-bold uppercase tracking-wider border shadow-sm ${
                   profile.attendance_status === 'Punched In'
                     ? 'status-punched-in'
                     : profile.attendance_status === 'Punched Out'
@@ -432,10 +450,32 @@ export default function DashboardPage() {
                 }`}
               >
                 {profile.attendance_status === 'Punched In' && (
-                  <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
+                  <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse shrink-0" />
                 )}
-                <Clock className="w-3.5 h-3.5" />
-                <span>{profile.attendance_status}</span>
+                <Clock
+                  className="w-3.5 h-3.5 shrink-0"
+                  style={{
+                    color:
+                      profile.attendance_status === 'Punched In'
+                        ? '#6ee7b7'
+                        : profile.attendance_status === 'Punched Out'
+                        ? '#fde047'
+                        : '#fecdd3'
+                  }}
+                />
+                <span
+                  style={{
+                    color:
+                      profile.attendance_status === 'Punched In'
+                        ? '#6ee7b7'
+                        : profile.attendance_status === 'Punched Out'
+                        ? '#fde047'
+                        : '#fecdd3',
+                    fontWeight: 700
+                  }}
+                >
+                  {profile.attendance_status}
+                </span>
               </span>
 
               <span
