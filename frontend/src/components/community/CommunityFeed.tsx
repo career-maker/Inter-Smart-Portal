@@ -31,6 +31,16 @@ import { useAuthStore } from "@/store/auth";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 import { format, parseISO, addDays } from "date-fns";
 
+
+const EMOJI_REACTIONS = [
+  { id: "like", emoji: "👍", label: "Like", color: "text-[#56348f]" },
+  { id: "smile", emoji: "😊", label: "Smile", color: "text-amber-500" },
+  { id: "heart", emoji: "❤️", label: "Love", color: "text-rose-500" },
+  { id: "clap", emoji: "👏", label: "Clap", color: "text-emerald-500" },
+  { id: "idea", emoji: "💡", label: "Idea", color: "text-purple-500" },
+  { id: "think", emoji: "💭", label: "Think", color: "text-sky-500" },
+];
+
 const PRAISE_BADGES = [
   { id: "superstar", name: "Superstar", icon: "⭐", bg: "bg-amber-100 text-amber-800 border-amber-300" },
   { id: "team_player", name: "Team Player", icon: "🚀", bg: "bg-sky-100 text-sky-800 border-sky-300" },
@@ -106,6 +116,11 @@ export function CommunityFeed() {
   const [selectedProject, setSelectedProject] = useState("");
 
   // Comment & Like State
+    // Reaction Picker States
+  const [hoveredReactionPostId, setHoveredReactionPostId] = useState<number | null>(null);
+  const reactionTimeoutRef = useRef<{ [postId: number]: any }>({});
+  const longPressTimerRef = useRef<{ [postId: number]: any }>({});
+
   const [commentInputs, setCommentInputs] = useState<{ [postId: number]: string }>({});
   const [openComments, setOpenComments] = useState<{ [postId: number]: boolean }>({});
   const [commentSubmitting, setCommentSubmitting] = useState<{ [postId: number]: boolean }>({});
@@ -351,20 +366,52 @@ export function CommunityFeed() {
     }
   };
 
-  const handleToggleLike = async (postId: number) => {
+  const handleToggleLike = async (postId: number, reaction = "like") => {
+    setHoveredReactionPostId(null);
     try {
-      const res = await api.post(`/community/posts/${postId}/like`);
-      const { liked, likes_count } = res.data;
+      const res = await api.post(`/community/posts/${postId}/like`, { reaction });
+      const { liked, likes_count, user_reaction, reactions_breakdown } = res.data;
 
       setPosts((prev) =>
         prev.map((p) =>
           p.id === postId
-            ? { ...p, user_has_liked: liked, likes_count }
+            ? {
+                ...p,
+                user_has_liked: liked,
+                user_reaction,
+                likes_count,
+                reactions_breakdown,
+              }
             : p
         )
       );
     } catch (err) {
-      console.error("Failed to like post", err);
+      console.error("Failed to react to post", err);
+    }
+  };
+
+  const handleMouseEnterLike = (postId: number) => {
+    if (reactionTimeoutRef.current[postId]) {
+      clearTimeout(reactionTimeoutRef.current[postId]);
+    }
+    setHoveredReactionPostId(postId);
+  };
+
+  const handleMouseLeaveLike = (postId: number) => {
+    reactionTimeoutRef.current[postId] = setTimeout(() => {
+      setHoveredReactionPostId((cur) => (cur === postId ? null : cur));
+    }, 350);
+  };
+
+  const handleTouchStartLike = (postId: number) => {
+    longPressTimerRef.current[postId] = setTimeout(() => {
+      setHoveredReactionPostId(postId);
+    }, 400);
+  };
+
+  const handleTouchEndLike = (postId: number) => {
+    if (longPressTimerRef.current[postId]) {
+      clearTimeout(longPressTimerRef.current[postId]);
     }
   };
 
@@ -1203,43 +1250,111 @@ export function CommunityFeed() {
                   </div>
                 )}
 
-                {/* Like & Comment Action Bar Matching Screenshot Exact Typography & Reactions Summary */}
-                <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700/60 text-xs">
-                  {/* Left: Like & Comment Action Buttons */}
-                  <div className="flex items-center gap-6">
-                    <button
-                      onClick={() => handleToggleLike(post.id)}
-                      className={`flex items-center gap-1.5 text-xs font-semibold transition-colors cursor-pointer ${
-                        post.user_has_liked
-                          ? "text-[#56348f] dark:text-purple-400"
-                          : "text-[#56348f] dark:text-purple-300 hover:text-purple-800"
-                      }`}
+                {/* Like & Comment Action Bar with Facebook-Style Emoji Popup */}
+                <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700/60 text-xs select-none">
+                  {/* Left: Like (with floating emoji picker) & Comment Buttons */}
+                  <div className="flex items-center gap-6 relative">
+                    
+                    {/* Like Button Wrapper with Hover & Long-Press Triggers */}
+                    <div
+                      className="relative"
+                      onMouseEnter={() => handleMouseEnterLike(post.id)}
+                      onMouseLeave={() => handleMouseLeaveLike(post.id)}
+                      onTouchStart={() => handleTouchStartLike(post.id)}
+                      onTouchEnd={() => handleTouchEndLike(post.id)}
                     >
-                      <ThumbsUp
-                        className={`w-4 h-4 ${
-                          post.user_has_liked ? "fill-current text-[#56348f] dark:text-purple-400" : ""
+                      {/* Floating Emoji Reactions Popup Bar */}
+                      {hoveredReactionPostId === post.id && (
+                        <div
+                          onMouseEnter={() => handleMouseEnterLike(post.id)}
+                          onMouseLeave={() => handleMouseLeaveLike(post.id)}
+                          className="absolute -top-14 left-0 z-40 flex items-center gap-1.5 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-700 p-1.5 rounded-full shadow-2xl animate-in zoom-in-95 duration-150"
+                        >
+                          {EMOJI_REACTIONS.map((re) => {
+                            const isSelected = post.user_reaction === re.id;
+                            return (
+                              <button
+                                key={re.id}
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleToggleLike(post.id, re.id);
+                                }}
+                                className={`w-9 h-9 rounded-full flex items-center justify-center text-xl transition-transform hover:scale-130 active:scale-95 cursor-pointer ${
+                                  isSelected
+                                    ? "bg-purple-100 dark:bg-purple-950/80 scale-110 shadow-xs ring-1 ring-[#56348f]"
+                                    : "hover:bg-slate-100 dark:hover:bg-slate-800"
+                                }`}
+                                title={re.label}
+                              >
+                                <span>{re.emoji}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+
+                      {/* Main Trigger Button */}
+                      <button
+                        onClick={() => handleToggleLike(post.id, post.user_reaction || "like")}
+                        className={`flex items-center gap-1.5 text-xs font-semibold transition-colors cursor-pointer py-1 ${
+                          post.user_has_liked
+                            ? (EMOJI_REACTIONS.find((r) => r.id === post.user_reaction)?.color || "text-[#56348f]")
+                            : "text-[#56348f] dark:text-purple-300 hover:text-purple-800"
                         }`}
-                      />
-                      <span>Like</span>
-                    </button>
+                      >
+                        {post.user_reaction ? (
+                          <span className="text-sm">
+                            {EMOJI_REACTIONS.find((r) => r.id === post.user_reaction)?.emoji || "👍"}
+                          </span>
+                        ) : (
+                          <ThumbsUp className="w-4 h-4 text-[#56348f]" />
+                        )}
+                        <span>
+                          {post.user_reaction
+                            ? (EMOJI_REACTIONS.find((r) => r.id === post.user_reaction)?.label || "Like")
+                            : "Like"}
+                        </span>
+                      </button>
+                    </div>
 
                     <button
                       onClick={() =>
                         setOpenComments((prev) => ({ ...prev, [post.id]: !prev[post.id] }))
                       }
-                      className="flex items-center gap-1.5 text-xs font-semibold text-[#56348f] dark:text-purple-300 hover:text-purple-800 transition-colors cursor-pointer"
+                      className="flex items-center gap-1.5 text-xs font-semibold text-[#56348f] dark:text-purple-300 hover:text-purple-800 transition-colors cursor-pointer py-1"
                     >
                       <MessageSquare className="w-4 h-4" />
                       <span>Comment</span>
                     </button>
                   </div>
 
-                  {/* Right: Reactions & Comments Counter Summary */}
+                  {/* Right: Reactions Summary (Distinct active emoji badges + count breakdown) */}
                   <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
                     <div className="flex items-center gap-1.5">
-                      <span className="w-5 h-5 rounded-full bg-rose-100 dark:bg-rose-950/60 flex items-center justify-center text-[10px] text-rose-500 shadow-2xs">
-                        ❤️
-                      </span>
+                      {/* Active Reaction Badges */}
+                      {post.reactions_breakdown && Object.keys(post.reactions_breakdown).length > 0 ? (
+                        <div className="flex items-center -space-x-1">
+                          {Object.entries(post.reactions_breakdown).map(([rType, count]) => {
+                            const rObj = EMOJI_REACTIONS.find((re) => re.id === rType);
+                            if (!rObj || Number(count) <= 0) return null;
+                            return (
+                              <span
+                                key={rType}
+                                title={`${rObj.label}: ${count}`}
+                                className="w-5 h-5 rounded-full bg-slate-50 dark:bg-slate-800 border border-white dark:border-slate-900 flex items-center justify-center text-[10.5px] shadow-2xs"
+                              >
+                                {rObj.emoji}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <span className="w-5 h-5 rounded-full bg-rose-100 dark:bg-rose-950/60 flex items-center justify-center text-[10px] text-rose-500 shadow-2xs">
+                          ❤️
+                        </span>
+                      )}
+
                       <span className="font-medium text-slate-600 dark:text-slate-300">
                         {post.likes_count || 0} {post.likes_count === 1 ? "reaction" : "reactions"}
                       </span>

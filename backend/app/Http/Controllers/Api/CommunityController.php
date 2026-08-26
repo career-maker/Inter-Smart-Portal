@@ -65,10 +65,30 @@ class CommunityController extends Controller
             ->paginate($perPage);
 
         $postIds = $posts->pluck('id')->toArray();
-        $userLikedPostIds = CommunityPostLike::where('user_id', $userId)
-            ->whereIn('post_id', $postIds)
-            ->pluck('post_id')
-            ->toArray();
+
+        if (!Schema::hasColumn('community_post_likes', 'reaction_type')) {
+            try {
+                Schema::table('community_post_likes', function (Blueprint $table) {
+                    $table->string('reaction_type', 20)->default('like')->after('user_id');
+                });
+            } catch (\Exception $e) {}
+        }
+
+        $allLikes = CommunityPostLike::whereIn('post_id', $postIds)->get();
+        $likesByPost = [];
+        $userReactions = [];
+
+        foreach ($allLikes as $l) {
+            $rType = $l->reaction_type ?: 'like';
+            if (!isset($likesByPost[$l->post_id])) {
+                $likesByPost[$l->post_id] = [];
+            }
+            $likesByPost[$l->post_id][$rType] = ($likesByPost[$l->post_id][$rType] ?? 0) + 1;
+
+            if ($l->user_id === $userId) {
+                $userReactions[$l->post_id] = $rType;
+            }
+        }
 
         // Collect all praised user IDs to eager load in one query
         $allPraisedUserIds = [];
@@ -92,8 +112,10 @@ class CommunityController extends Controller
                 ->keyBy('id');
         }
 
-        $posts->getCollection()->transform(function ($post) use ($userLikedPostIds, $userId, $praisedUsersMap) {
-            $post->user_has_liked = in_array($post->id, $userLikedPostIds);
+        $posts->getCollection()->transform(function ($post) use ($userReactions, $likesByPost, $userId, $praisedUsersMap) {
+            $post->user_reaction = $userReactions[$post->id] ?? null;
+            $post->user_has_liked = !empty($userReactions[$post->id]);
+            $post->reactions_breakdown = $likesByPost[$post->id] ?? [];
             if ($post->user) {
                 $post->user->profile_photo_path = $post->user->profilePhotoUrl();
             }
@@ -344,28 +366,55 @@ class CommunityController extends Controller
     public function toggleLike(Request $request, $id)
     {
         $userId = $request->user()->id;
+        $reactionType = $request->input('reaction', 'like'); // like, smile, heart, clap, idea, think
         $post = CommunityPost::findOrFail($id);
 
+        if (!Schema::hasColumn('community_post_likes', 'reaction_type')) {
+            try {
+                Schema::table('community_post_likes', function (Blueprint $table) {
+                    $table->string('reaction_type', 20)->default('like')->after('user_id');
+                });
+            } catch (\Exception $e) {}
+        }
+
         $existing = CommunityPostLike::where('post_id', $id)->where('user_id', $userId)->first();
+        $userReaction = null;
 
         if ($existing) {
-            $existing->delete();
-            $post->decrement('likes_count');
-            $liked = false;
+            if ($existing->reaction_type === $reactionType) {
+                // Remove reaction if clicking the same emoji
+                $existing->delete();
+                $post->decrement('likes_count');
+                $userReaction = null;
+            } else {
+                // Switch reaction to new emoji
+                $existing->reaction_type = $reactionType;
+                $existing->save();
+                $userReaction = $reactionType;
+            }
         } else {
             CommunityPostLike::create([
                 'post_id' => $id,
                 'user_id' => $userId,
+                'reaction_type' => $reactionType,
             ]);
             $post->increment('likes_count');
-            $liked = true;
+            $userReaction = $reactionType;
         }
 
-        $freshCount = CommunityPostLike::where('post_id', $id)->count();
+        $reactions = CommunityPostLike::where('post_id', $id)
+            ->select('reaction_type', DB::raw('count(*) as count'))
+            ->groupBy('reaction_type')
+            ->pluck('count', 'reaction_type')
+            ->toArray();
+
+        $freshCount = array_sum($reactions);
 
         return response()->json([
-            'liked' => $liked,
+            'user_reaction' => $userReaction,
+            'liked' => !is_null($userReaction),
             'likes_count' => $freshCount,
+            'reactions_breakdown' => $reactions,
         ]);
     }
 
