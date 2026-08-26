@@ -318,8 +318,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-background flex">
       {/* ─────────────────────────────────────────────────────────────────────────────
-          SIDEBAR - LIGHT THEME (KEKA STYLE: FIXED 84px, NO HORIZONTAL SCROLL,
-          HIGH-CONTRAST LABELS, OUTSIDE PORTAL FLYOUT DROPDOWN, UNTOUCHED DARK THEME)
+          SIDEBAR - LIGHT THEME (KEKA EXACT STYLE: NAVY #0e2638, SOFT BLUE LABELS #8ea7bc,
+          ACTIVE DARK RECTANGLE #071724 WITH WHITE TEXT, CLEAN PORTAL SUBMENU, NO OUTLINES)
       ───────────────────────────────────────────────────────────────────────────── */}
       {!isDark && (
         <>
@@ -329,12 +329,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               backgroundColor: "#0e2638",
               fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
             }}
-            className="hidden md:flex flex-col fixed inset-y-0 left-0 z-50 w-[84px] border-r border-[#1a3a52] select-none text-white shadow-xl overflow-hidden"
+            className="hidden md:flex flex-col fixed inset-y-0 left-0 z-50 w-[84px] border-r border-[#1a3a52] select-none shadow-xl overflow-hidden"
           >
-            {/* Top spacer matching header height */}
-            <div className="h-16 flex items-center justify-center border-b border-[#1a3a52] shrink-0 bg-[#0a1d2c]" />
+            {/* Top header spacer matching 64px header height */}
+            <div className="h-16 shrink-0 border-b border-[#1a3a52] bg-[#0c2233]" />
 
-            {/* Navigation Items (Icon on top, Label underneath, NO horizontal scroll) */}
+            {/* Navigation Items */}
             <div className="flex-1 overflow-y-auto overflow-x-hidden py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               <nav className="space-y-1 px-1">
                 {/* Standalone Link (Home / Dashboard) */}
@@ -346,27 +346,33 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       href={href}
                       onClick={() => setFlyoutState(null)}
                       style={{
-                        backgroundColor: active ? "#071520" : undefined,
+                        backgroundColor: active ? "#071724" : "transparent",
+                        color: active ? "#ffffff" : "#8ea7bc",
                       }}
-                      className={`group w-full flex flex-col items-center justify-center py-2.5 px-0.5 rounded-xl transition-all relative cursor-pointer hover:bg-[#133249] ${
-                        active ? "text-white font-bold shadow-inner border-l-2 border-amber-400" : "text-[#e2e8f0] hover:text-white"
+                      className={`group w-full flex flex-col items-center justify-center py-2.5 px-0.5 rounded-lg transition-colors relative cursor-pointer hover:bg-[#133249] ${
+                        active ? "font-semibold" : "font-normal"
                       }`}
                     >
-                      <Icon className={`w-5 h-5 mb-1 shrink-0 transition-colors ${active ? "text-amber-400" : "text-[#cbd5e1] group-hover:text-white"}`} />
-                      <span className={`text-[11.5px] leading-[14px] font-[500] text-center tracking-tight truncate max-w-full px-0.5 ${
-                        active ? "text-white font-bold" : "text-[#e2e8f0] group-hover:text-white"
-                      }`}>
+                      <Icon
+                        style={{ color: active ? "#ffffff" : "#8ea7bc" }}
+                        className="w-5 h-5 mb-1 shrink-0 transition-colors group-hover:!text-white"
+                      />
+                      <span
+                        style={{ color: active ? "#ffffff" : "#8ea7bc" }}
+                        className="text-[11.5px] leading-[14px] text-center tracking-tight truncate max-w-full px-0.5 group-hover:!text-white"
+                      >
                         {label}
                       </span>
                     </Link>
                   );
                 })}
 
-                {/* Nav Groups with Dropdown Flyouts */}
+                {/* Nav Groups */}
                 {NAV_GROUPS.map((group) => {
                   if (!groupHasVisibleItems(group, userRole)) return null;
                   const groupActive = pathBelongsToGroup(group, pathname);
                   const isFlyoutOpen = flyoutState?.groupId === group.id;
+                  const isHighlighted = groupActive || isFlyoutOpen;
                   const GroupIcon = group.icon;
                   const hasBadge = group.id === "leave-wfh" && user?.role === "Team Lead" && pendingApprovalsCount > 0;
 
@@ -388,10 +394,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                           }
                         }}
                         style={{
-                          backgroundColor: groupActive || isFlyoutOpen ? "#071520" : undefined,
+                          backgroundColor: isHighlighted ? "#071724" : "transparent",
+                          color: isHighlighted ? "#ffffff" : "#8ea7bc",
                         }}
-                        className={`group w-full flex flex-col items-center justify-center py-2.5 px-0.5 rounded-xl transition-all relative cursor-pointer hover:bg-[#133249] ${
-                          groupActive ? "text-white font-bold shadow-inner border-l-2 border-amber-400" : "text-[#e2e8f0] hover:text-white"
+                        className={`group w-full flex flex-col items-center justify-center py-2.5 px-0.5 rounded-lg transition-colors relative cursor-pointer hover:bg-[#133249] ${
+                          isHighlighted ? "font-semibold" : "font-normal"
                         }`}
                       >
                         {/* Red notification badge on icon top-right */}
@@ -401,10 +408,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                           </span>
                         )}
 
-                        <GroupIcon className={`w-5 h-5 mb-1 shrink-0 transition-colors ${groupActive || isFlyoutOpen ? "text-amber-400" : "text-[#cbd5e1] group-hover:text-white"}`} />
-                        <span className={`text-[11.5px] leading-[14px] font-[500] text-center tracking-tight truncate max-w-full px-0.5 ${
-                          groupActive || isFlyoutOpen ? "text-white font-bold" : "text-[#e2e8f0] group-hover:text-white"
-                        }`}>
+                        <GroupIcon
+                          style={{ color: isHighlighted ? "#ffffff" : "#8ea7bc" }}
+                          className="w-5 h-5 mb-1 shrink-0 transition-colors group-hover:!text-white"
+                        />
+                        <span
+                          style={{ color: isHighlighted ? "#ffffff" : "#8ea7bc" }}
+                          className="text-[11.5px] leading-[14px] text-center tracking-tight truncate max-w-full px-0.5 group-hover:!text-white"
+                        >
                           {group.shortLabel || group.label}
                         </span>
                       </button>
@@ -415,7 +426,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
 
             {/* User Profile Mini Badge (Bottom) */}
-            <div className="p-2 border-t border-[#1a3a52] shrink-0 bg-[#0a1d2c] flex flex-col items-center justify-center">
+            <div className="p-2 border-t border-[#1a3a52] shrink-0 bg-[#0c2233] flex flex-col items-center justify-center">
               <Link
                 href="/profile"
                 className="flex flex-col items-center justify-center p-1 rounded-xl hover:bg-[#133249] transition-colors group cursor-pointer"
@@ -427,14 +438,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   userId={user?.id}
                   className="w-8 h-8 rounded-full bg-amber-400 text-xs font-bold text-white mb-0.5"
                 />
-                <span className="text-[10.5px] text-[#e2e8f0] font-medium truncate max-w-[74px] text-center">
+                <span style={{ color: "#8ea7bc" }} className="text-[10.5px] font-medium truncate max-w-[74px] text-center group-hover:!text-white">
                   {user?.first_name}
                 </span>
               </Link>
             </div>
           </aside>
 
-          {/* ── Fixed Position Floating Submenu Flyout (Never Clipped by Overflow) ── */}
+          {/* ── Fixed Position Floating Submenu Flyout (High Contrast, Never Clipped) ── */}
           {flyoutState && activeFlyoutGroupObj && activeFlyoutVisibleItems.length > 0 && (
             <div
               id="light-theme-flyout-portal"
@@ -446,16 +457,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 borderColor: "#1a3a52",
                 fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
               }}
-              className="fixed left-[84px] w-64 rounded-r-2xl rounded-bl-2xl shadow-2xl border border-[#1a3a52] overflow-hidden z-[999] py-2 animate-in fade-in zoom-in-95 duration-150"
+              className="fixed left-[84px] w-64 rounded-r-xl rounded-bl-xl shadow-2xl border border-[#1a3a52] overflow-hidden z-[999] py-1.5 animate-in fade-in zoom-in-95 duration-150"
             >
               {/* Submenu Title */}
-              <div className="px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider text-slate-300 border-b border-[#1a3a52] flex items-center justify-between bg-[#0a1d2c]/80">
-                <span className="text-white font-bold">{activeFlyoutGroupObj.label}</span>
-                <span className="text-[10px] text-slate-400 font-medium">Menu</span>
+              <div className="px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-[#8ea7bc] border-b border-[#1a3a52] flex items-center justify-between bg-[#0a1d2c]/90">
+                <span style={{ color: "#ffffff" }} className="font-bold">{activeFlyoutGroupObj.label}</span>
+                <span style={{ color: "#8ea7bc" }} className="text-[10px] font-normal">Menu</span>
               </div>
 
               {/* Submenu Links */}
-              <div className="py-1.5 max-h-[70vh] overflow-y-auto custom-scrollbar">
+              <div className="py-1 max-h-[70vh] overflow-y-auto custom-scrollbar">
                 {activeFlyoutVisibleItems.map((item) => {
                   const hasExactMatch = activeFlyoutVisibleItems.some((i) => pathname === i.href);
                   const active = hasExactMatch
@@ -465,13 +476,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
                   const itemContent = (
                     <div className="flex items-center justify-between w-full">
-                      <span className="truncate">{item.label}</span>
+                      <span style={{ color: active ? "#ffffff" : "#cbd5e1" }} className="truncate font-medium group-hover:!text-white">
+                        {item.label}
+                      </span>
                       {item.href === "/leaves/approvals" && user?.role === "Team Lead" && pendingApprovalsCount > 0 && (
                         <span className="bg-[#ff5252] text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center ml-2">
                           {pendingApprovalsCount}
                         </span>
                       )}
-                      <ChevronRight className="w-3.5 h-3.5 text-slate-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all shrink-0 ml-1" />
+                      <ChevronRight style={{ color: "#8ea7bc" }} className="w-3.5 h-3.5 opacity-70 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all shrink-0 ml-1 group-hover:!text-white" />
                     </div>
                   );
 
@@ -482,7 +495,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         href={item.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="group flex items-center px-4 py-2.5 text-[13px] font-[500] text-[#e2e8f0] hover:text-white hover:bg-[#163b56] transition-colors"
+                        className="group flex items-center px-4 py-2.5 text-[13px] hover:bg-[#163b56] transition-colors cursor-pointer"
                       >
                         {itemContent}
                       </a>
@@ -495,13 +508,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       href={item.href}
                       onClick={() => setFlyoutState(null)}
                       style={{
-                        backgroundColor: active ? "#071520" : undefined,
+                        backgroundColor: active ? "#071724" : "transparent",
                       }}
-                      className={`group flex items-center px-4 py-2.5 text-[13px] font-[500] transition-colors ${
-                        active
-                          ? "text-white font-bold bg-[#071520] border-l-2 border-amber-400"
-                          : "text-[#e2e8f0] hover:text-white hover:bg-[#163b56]"
-                      }`}
+                      className="group flex items-center px-4 py-2.5 text-[13px] hover:bg-[#163b56] transition-colors cursor-pointer"
                     >
                       {itemContent}
                     </Link>
@@ -663,15 +672,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 {menuOpen ? <X className="h-6 w-6 text-slate-600 dark:text-slate-300" /> : <Menu className="h-6 w-6 text-slate-600 dark:text-slate-300" />}
               </button>
               <Link href="/dashboard" className="flex items-center shrink min-w-0">
-                <img src={isDark ? "/logo-dark.png" : "/logo.png"} alt="Inter Smart Logo" className="h-8 object-contain" />
+                <img src={isDark ? "/logo-dark.png" : "/logo-light.png"} alt="Inter Smart Logo" className="h-8 object-contain" />
               </Link>
             </div>
 
-            {/* Desktop Left: Colored Logo for Light Theme, Dark Logo for Dark Theme */}
+            {/* Desktop Left: Colored Dark Logo for Light Theme, Light Logo for Dark Theme */}
             <div className="hidden md:flex flex-1 items-center">
               <Link href="/dashboard" className="flex items-center shrink min-w-0">
                 <img
-                  src={isDark ? "/logo-dark.png" : "/logo.png"}
+                  src={isDark ? "/logo-dark.png" : "/logo-light.png"}
                   alt="Inter Smart Logo"
                   className="h-10 sm:h-12 w-auto object-contain shrink-0 max-w-[180px]"
                 />
