@@ -718,8 +718,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       }`}>
         <RecognitionTicker />
         
-        {/* ── STICKY TOP HEADER & SUB-TABS BAR UNIFIED WRAPPER (TOP: 0, Z: 40) ── */}
-        <div className="sticky top-0 z-40 w-full shrink-0 shadow-sm">
+        {/* ── FIXED TOP HEADER & SUB-TABS BAR (ALWAYS PINNED AT TOP ON SCROLL) ── */}
+        <div
+          id="global-fixed-header-container"
+          className={`fixed top-0 right-0 z-40 transition-all duration-300 ease-in-out shadow-md ${
+            !isDark ? 'left-0 md:left-[84px]' : isSidebarCollapsed ? 'left-0 md:left-20' : 'left-0 md:left-64'
+          }`}
+        >
           {/* ── TOP HEADER (KEKA PURPLE #56348f FOR LIGHT THEME, SLATE-900 FOR DARK THEME) ── */}
           <header
             style={{
@@ -882,6 +887,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
           </div>
         </div>
+
+        {/* Precise Spacer for Fixed 104px Header (64px Purple Bar + 40px SubTabs) */}
+        <div className="h-[104px] shrink-0 w-full" />
 
         {/* Floating AI Chat Assistant */}
         <ChatbaseLottieButton />
