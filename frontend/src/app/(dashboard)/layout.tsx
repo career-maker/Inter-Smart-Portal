@@ -764,10 +764,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
               <button
                 onClick={handleLogout}
-                className="hidden lg:flex items-center gap-1.5 text-xs text-white hover:text-rose-200 transition-colors px-2.5 py-1.5 rounded-lg hover:bg-white/15 font-medium cursor-pointer"
+                style={{ color: "#ffffff" }}
+                className="hidden lg:flex items-center gap-1.5 text-xs text-white hover:text-white bg-white/10 hover:bg-white/20 transition-colors px-3 py-1.5 rounded-lg font-medium cursor-pointer"
               >
                 <LogOut className="h-4 w-4 text-white" />
-                <span>Logout</span>
+                <span style={{ color: "#ffffff" }} className="font-semibold text-white">Logout</span>
               </button>
             </div>
           </div>

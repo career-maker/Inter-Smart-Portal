@@ -183,7 +183,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       style={{
         fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
-      className="absolute top-0 left-0 w-full bg-white text-slate-800 rounded-3xl shadow-2xl border border-slate-200/90 z-[100] overflow-hidden animate-in fade-in zoom-in-98 duration-100"
+      className="absolute top-0 left-0 w-full bg-white text-slate-800 rounded-b-3xl rounded-t-none shadow-2xl border border-t-0 border-slate-200/90 z-[100] overflow-hidden animate-in fade-in zoom-in-98 duration-100"
     >
       {/* Top Search Input Box (Clean Borderless Input matching Keka) */}
       <div className="flex items-center px-6 py-3.5 border-b border-slate-100">
