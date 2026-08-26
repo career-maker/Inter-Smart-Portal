@@ -433,6 +433,14 @@ export function CommunityFeed() {
     >
       {/* ── TOP POST PUBLISHER BOX ── */}
       <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200/90 dark:border-slate-700/60 shadow-sm p-5">
+        {/* Hidden File Input for All Tabs */}
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleImageChange}
+          accept="image/*,.pdf,.doc,.docx,.png,.jpg,.jpeg"
+          className="hidden"
+        />
         
         {/* Post Type Selector Tabs */}
         <div className="flex items-center gap-6 mb-4 pb-3 border-b border-slate-100 dark:border-slate-700/60">
@@ -834,13 +842,7 @@ export function CommunityFeed() {
                 </div>
               )}
 
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleImageChange}
-                accept="image/*"
-                className="hidden"
-              />
+
 
               <div className="flex items-center justify-between mt-3 pt-2">
                 <div className="flex items-center gap-3">
