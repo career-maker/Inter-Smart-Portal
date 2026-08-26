@@ -318,6 +318,34 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const activeFlyoutGroupObj = flyoutState ? NAV_GROUPS.find((g) => g.id === flyoutState.groupId) : null;
   const activeFlyoutVisibleItems = activeFlyoutGroupObj ? activeFlyoutGroupObj.items.filter((i) => isItemVisible(i, userRole)) : [];
 
+
+  // Role-based Sub-Header Tabs (Keka exact style)
+  const getSubTabs = () => {
+    if (userRole === "Super Admin" || userRole === "HR") {
+      return [
+        { label: "Dashboard", href: "/dashboard" },
+        { label: "Employee Management", href: "/employees" },
+        { label: "Community", href: "/community", badge: "New" },
+        { label: "Attendance Management", href: "/attendance/management" },
+      ];
+    }
+    if (userRole === "Team Lead") {
+      return [
+        { label: "Dashboard", href: "/dashboard" },
+        { label: "Community", href: "/community", badge: "New" },
+        { label: "Tasks", href: "/project-management/tasks" },
+      ];
+    }
+    // Default for Employees
+    return [
+      { label: "Dashboard", href: "/dashboard" },
+      { label: "Community", href: "/community", badge: "New" },
+      { label: "Tasks", href: "/project-management/tasks/my" },
+    ];
+  };
+
+  const subTabs = getSubTabs();
+
   const userInitials = `${user?.first_name?.[0] || ""}${user?.last_name?.[0] || ""}`.toUpperCase() || "AP";
 
   return (
@@ -775,6 +803,41 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
           </div>
         </header>
+        {/* ── KEKA SUB-HEADER TAB NAVIGATION BAR (STICKY BELOW PURPLE HEADER) ── */}
+        <div
+          style={{
+            fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+          }}
+          className="sticky top-16 z-30 bg-white dark:bg-slate-900 border-b border-slate-200/90 dark:border-slate-800 shadow-sm"
+        >
+          <div className="px-4 sm:px-8 flex items-center gap-6 sm:gap-8 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {subTabs.map((tab) => {
+              const active = tab.href === "/dashboard"
+                ? pathname === "/dashboard"
+                : pathname === tab.href || pathname.startsWith(tab.href + "/");
+
+              return (
+                <Link
+                  key={tab.href}
+                  href={tab.href}
+                  className={`relative py-3 text-[12px] sm:text-[12.5px] font-bold uppercase tracking-wider transition-colors shrink-0 flex items-center gap-1.5 ${
+                    active
+                      ? "text-[#56348f] dark:text-purple-400 font-extrabold border-b-2 border-[#56348f] dark:border-purple-400 -mb-[1px]"
+                      : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                  }`}
+                >
+                  <span>{tab.label}</span>
+                  {tab.badge && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse inline-block" />
+                  )}
+                  {active && (
+                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-b-[4px] border-b-[#56348f] dark:border-b-purple-400 hidden" />
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
 
         {/* Floating AI Chat Assistant */}
         <ChatbaseLottieButton />
