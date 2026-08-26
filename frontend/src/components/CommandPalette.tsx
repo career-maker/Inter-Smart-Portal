@@ -3,10 +3,9 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import {
-  Search, Users, Calendar, Briefcase, FileText,
-  FolderKanban, HelpCircle, User, LogOut, ArrowRight,
-  Sparkles, CheckSquare, Bell, Shield, ChevronRight, X, Home,
-  ChevronDown, ChevronUp
+  Users, Calendar, Briefcase, FileText,
+  FolderKanban, HelpCircle, User, X, ChevronRight,
+  ChevronDown, ChevronUp, CheckSquare
 } from "lucide-react";
 import api from "@/services/api";
 import { useQuery } from "@tanstack/react-query";
@@ -45,7 +44,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   // Focus input when opened
   React.useEffect(() => {
     if (open) {
-      setTimeout(() => inputRef.current?.focus(), 50);
+      setTimeout(() => inputRef.current?.focus(), 40);
       setSelectedIndex(0);
     } else {
       setSearch("");
@@ -87,7 +86,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
     {
       id: "employees",
       title: "Employee Directory",
-      subtitle: "Find your colleagues and team members.",
+      subtitle: "Find your colleagues.",
       icon: Users,
       href: "/employees",
       keywords: "employees staff team people directory",
@@ -184,11 +183,10 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       style={{
         fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
-      className="absolute top-2 left-0 w-full sm:w-[540px] bg-white text-slate-800 rounded-3xl shadow-2xl border border-slate-200/80 z-[100] overflow-hidden animate-in fade-in zoom-in-98 duration-100"
+      className="absolute top-0 left-0 w-full bg-white text-slate-800 rounded-3xl shadow-2xl border border-slate-200/90 z-[100] overflow-hidden animate-in fade-in zoom-in-98 duration-100"
     >
-      {/* Top Search Input Box */}
-      <div className="flex items-center px-5 py-3.5 border-b border-slate-100">
-        <Search className="w-4 h-4 text-slate-400 shrink-0 mr-3" />
+      {/* Top Search Input Box (Clean Borderless Input matching Keka) */}
+      <div className="flex items-center px-6 py-3.5 border-b border-slate-100">
         <input
           ref={inputRef}
           type="text"
@@ -199,7 +197,8 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
           }}
           onKeyDown={handleInputKeyDown}
           placeholder="Search any command or help"
-          className="w-full text-[14px] text-slate-800 placeholder-slate-400 bg-transparent outline-none font-normal"
+          style={{ outline: "none", border: "none", boxShadow: "none" }}
+          className="w-full text-[14.5px] text-[#27272a] placeholder-[#9ca3af] bg-transparent border-none outline-none focus:outline-none focus:ring-0 focus:border-none shadow-none p-0 font-normal"
         />
         {search && (
           <button onClick={() => setSearch("")} className="p-1 text-slate-400 hover:text-slate-600">
@@ -209,7 +208,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       </div>
 
       {/* Results Body */}
-      <div className="max-h-[65vh] overflow-y-auto py-2.5 px-3 custom-scrollbar space-y-3">
+      <div className="max-h-[65vh] overflow-y-auto py-2 px-3 custom-scrollbar space-y-3">
         {/* Matched Employees (if searching) */}
         {employees.length > 0 && (
           <div>
@@ -252,7 +251,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
 
         {/* Quick Actions Header */}
         <div>
-          <div className="px-3 py-1 text-[12px] font-semibold text-slate-400">
+          <div className="px-3 py-1.5 text-[12.5px] font-semibold text-[#71717a]">
             Quick Actions
           </div>
           <div className="space-y-0.5 mt-0.5">
@@ -268,21 +267,21 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                   <button
                     key={action.id}
                     onClick={() => navigateTo(action.href)}
-                    className={`w-full text-left px-3.5 py-2.5 rounded-xl flex items-start justify-between transition-colors cursor-pointer ${
+                    className={`w-full text-left px-3 py-2 rounded-xl flex items-start justify-between transition-colors cursor-pointer ${
                       isSelected
                         ? "bg-[#f4f4f5] text-slate-900"
                         : "hover:bg-[#f8fafc] text-slate-700"
                     }`}
                   >
                     <div className="flex items-start gap-3.5">
-                      <div className="p-1 text-slate-700 mt-0.5">
+                      <div className="p-1 text-[#3f3f46] mt-0.5">
                         <Icon className="w-4 h-4 stroke-[1.75]" />
                       </div>
                       <div>
-                        <div className="text-[13.5px] font-medium text-slate-800 leading-snug">
+                        <div className="text-[13.5px] font-medium text-[#18181b] leading-snug">
                           {action.title}
                         </div>
-                        <div className="text-[11.5px] text-slate-500 leading-tight mt-0.5">
+                        <div className="text-[11.5px] text-[#71717a] leading-tight mt-0.5">
                           {action.subtitle}
                         </div>
                       </div>
@@ -299,7 +298,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
           <div className="flex justify-center pt-1 border-t border-slate-100">
             <button
               onClick={() => setShowMore((prev) => !prev)}
-              className="text-[11.5px] text-slate-500 hover:text-slate-800 font-medium px-3 py-1 rounded-full hover:bg-slate-100 transition-colors flex items-center gap-1 border border-slate-200"
+              className="text-[11.5px] text-[#71717a] hover:text-slate-900 font-medium px-3 py-1 rounded-full hover:bg-slate-100 transition-colors flex items-center gap-1 border border-slate-200"
             >
               <span>{showMore ? "View Less" : `View ${ALL_ACTIONS.length - 4} More`}</span>
               {showMore ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
@@ -309,15 +308,15 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       </div>
 
       {/* Footer Navigation Hints */}
-      <div className="px-5 py-2 border-t border-slate-100 bg-[#fbfbfb] flex items-center justify-end text-[11px] text-slate-400 gap-4">
+      <div className="px-5 py-2.5 border-t border-slate-100 bg-[#fbfbfb] flex items-center justify-end text-[11px] text-[#a1a1aa] gap-4">
         <div className="flex items-center gap-1.5">
           <span>Navigate</span>
-          <kbd className="font-sans bg-white px-1 py-0.2 rounded border border-slate-200 text-slate-600">↑</kbd>
-          <kbd className="font-sans bg-white px-1 py-0.2 rounded border border-slate-200 text-slate-600">↓</kbd>
+          <kbd className="font-sans bg-white px-1.5 py-0.5 rounded border border-slate-200 text-slate-600 text-[10px]">↑</kbd>
+          <kbd className="font-sans bg-white px-1.5 py-0.5 rounded border border-slate-200 text-slate-600 text-[10px]">↓</kbd>
         </div>
         <div className="flex items-center gap-1.5">
           <span>To select</span>
-          <kbd className="font-sans bg-white px-1 py-0.2 rounded border border-slate-200 text-slate-600">↵</kbd>
+          <kbd className="font-sans bg-white px-1.5 py-0.5 rounded border border-slate-200 text-slate-600 text-[10px]">↵</kbd>
         </div>
       </div>
     </div>
