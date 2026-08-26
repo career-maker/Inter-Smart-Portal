@@ -392,7 +392,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                 Project Coordinator
               </label>
               <SearchableCoordinatorSelect
-                value={formData.project_coordinator_id}
+                value={formData.project_coordinator_id ?? null}
                 onChange={(val) => handleChange("project_coordinator_id", val)}
                 coordinators={coordinators}
                 placeholder="-- Unassigned Coordinator --"

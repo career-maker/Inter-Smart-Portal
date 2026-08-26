@@ -65,7 +65,7 @@ export function PMAllTasksTable({
     // Coordinator filter
     if (selectedCoordinatorId) {
       list = list.filter((t) => {
-        const taskCoordId = t.coordinator?.id || t.project?.project_coordinator_id;
+        const taskCoordId = t.coordinator?.id || (t.project as any)?.project_coordinator_id;
         return taskCoordId === selectedCoordinatorId;
       });
     }

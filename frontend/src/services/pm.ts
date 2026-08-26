@@ -283,7 +283,74 @@ export const pmApi = {
     error?: string | null;
     message?: string | null;
   }> => {
-    const res = await api.get('/pm/hubstaff/projects');
+    const res = await api.get('/hubstaff/projects');
+    return res.data;
+  },
+
+  /**
+   * Import all active projects from Hubstaff.
+   */
+  importHubstaffProjects: async (): Promise<{
+    success: boolean;
+    total_hubstaff_projects?: number;
+    imported_count: number;
+    skipped_count: number;
+    message: string;
+  }> => {
+    const res = await api.post<{
+      success: boolean;
+      total_hubstaff_projects?: number;
+      imported_count: number;
+      skipped_count: number;
+      message: string;
+    }>('/projects/import-hubstaff');
+    return res.data;
+  },
+
+  /**
+   * Get Hubstaff members and their current HR Portal links.
+   */
+  getHubstaffUsers: async (): Promise<{
+    configured: boolean;
+    users: Array<{
+      hubstaff_user_id: string;
+      name: string;
+      first_name?: string | null;
+      last_name?: string | null;
+      email?: string | null;
+      membership_role?: string;
+      linked_user?: {
+        id: number;
+        first_name: string;
+        last_name: string;
+        email?: string;
+        employee_code?: string;
+        designation?: string;
+      } | null;
+    }>;
+    error?: string;
+    message?: string;
+  }> => {
+    const res = await api.get('/hubstaff/users');
+    return res.data;
+  },
+
+  /**
+   * Link or unlink a single Hubstaff user to an HR Portal employee.
+   */
+  linkHubstaffUser: async (hubstaffUserId: string, userId: number | null): Promise<ApiResponse<any>> => {
+    const res = await api.post<ApiResponse<any>>('/hubstaff/link-user', {
+      hubstaff_user_id: hubstaffUserId,
+      user_id: userId,
+    });
+    return res.data;
+  },
+
+  /**
+   * Batch sync multiple Hubstaff user mappings.
+   */
+  syncHubstaffUsers: async (mappings: Array<{ hubstaff_user_id: string; user_id: number | null }>): Promise<ApiResponse<any>> => {
+    const res = await api.post<ApiResponse<any>>('/hubstaff/sync-users', { mappings });
     return res.data;
   },
 };
