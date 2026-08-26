@@ -872,17 +872,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </button>
             </div>
 
-            {/* Drawer Navigation List with High-Contrast Text */}
-            <div className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-3 space-y-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {/* Drawer Navigation List with High-Contrast Explicit White Text */}
+            <div
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+              className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-3 space-y-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
               {STANDALONE.map(({ href, label, icon: Icon }) => (
                 <Link
                   key={href}
                   href={href}
                   onClick={closeMenu}
-                  className="flex items-center gap-3.5 px-3.5 py-2.5 text-sm font-semibold text-[#ffffff] bg-[#071724] rounded-xl border border-white/5 shadow-sm"
+                  style={{ backgroundColor: "#071724", color: "#ffffff" }}
+                  className="flex items-center gap-3.5 px-3.5 py-2.5 text-sm font-semibold rounded-xl border border-white/10 shadow-sm cursor-pointer"
                 >
-                  <Icon className="h-5 w-5 text-amber-400" />
-                  <span className="text-white font-medium">{label}</span>
+                  <Icon className="h-5 w-5 text-amber-400 shrink-0" />
+                  <span style={{ color: "#ffffff" }} className="font-semibold text-white">{label}</span>
                 </Link>
               ))}
 
@@ -893,9 +897,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
                 return (
                   <div key={group.id} className="space-y-1.5 pt-2">
-                    <div className="px-3 text-[11px] font-bold uppercase tracking-wider text-[#8ea7bc] flex items-center gap-2">
-                      <GroupIcon className="w-3.5 h-3.5 text-purple-400" />
-                      <span>{group.label}</span>
+                    <div className="px-3 text-[11px] font-bold uppercase tracking-wider flex items-center gap-2">
+                      <GroupIcon className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                      <span style={{ color: "#8ea7bc" }} className="font-bold text-[#8ea7bc]">{group.label}</span>
                     </div>
                     <div className="space-y-1 pl-2 border-l border-[#1a3a52] ml-2">
                       {visibleItems.map((item) => {
@@ -909,14 +913,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             key={item.href}
                             href={item.href}
                             onClick={closeMenu}
-                            className={`flex items-center justify-between px-3 py-2 text-xs rounded-lg transition-colors ${
-                              active
-                                ? "bg-[#071724] text-white font-bold border-l-2 border-amber-400"
-                                : "text-[#cbd5e1] hover:text-white hover:bg-[#133249]"
+                            style={{
+                              backgroundColor: active ? "#071724" : "transparent",
+                              color: active ? "#ffffff" : "#f1f5f9",
+                            }}
+                            className={`flex items-center justify-between px-3 py-2 text-xs rounded-lg transition-colors cursor-pointer hover:bg-[#133249] ${
+                              active ? "font-bold border-l-2 border-amber-400" : "font-normal"
                             }`}
                           >
-                            <span className="truncate">{item.label}</span>
-                            <ChevronRight className="w-3.5 h-3.5 text-[#8ea7bc]" />
+                            <span style={{ color: active ? "#ffffff" : "#f1f5f9" }} className="truncate">
+                              {item.label}
+                            </span>
+                            <ChevronRight style={{ color: "#8ea7bc" }} className="w-3.5 h-3.5 shrink-0" />
                           </Link>
                         );
                       })}
