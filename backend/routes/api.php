@@ -77,6 +77,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('community/posts', [\App\Http\Controllers\Api\CommunityController::class, 'store']);
     Route::post('community/posts/{id}/like', [\App\Http\Controllers\Api\CommunityController::class, 'toggleLike']);
     Route::post('community/posts/{id}/comments', [\App\Http\Controllers\Api\CommunityController::class, 'addComment']);
+    Route::post('community/posts/{id}/vote', [\App\Http\Controllers\Api\CommunityController::class, 'votePoll']);
     Route::delete('community/posts/{id}', [\App\Http\Controllers\Api\CommunityController::class, 'destroy']);
     Route::delete('community/comments/{id}', [\App\Http\Controllers\Api\CommunityController::class, 'destroyComment']);
 

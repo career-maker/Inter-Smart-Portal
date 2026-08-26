@@ -15,11 +15,18 @@ return new class extends Migration
                 $table->text('content');
                 $table->string('type')->default('post'); // post, praise, poll
                 $table->string('media_url')->nullable();
+                $table->json('poll_data')->nullable();
                 $table->unsignedInteger('likes_count')->default(0);
                 $table->unsignedInteger('comments_count')->default(0);
                 $table->boolean('pinned')->default(false);
                 $table->timestamps();
             });
+        } else {
+            if (!Schema::hasColumn('community_posts', 'poll_data')) {
+                Schema::table('community_posts', function (Blueprint $table) {
+                    $table->json('poll_data')->nullable()->after('media_url');
+                });
+            }
         }
 
         if (!Schema::hasTable('community_post_likes')) {

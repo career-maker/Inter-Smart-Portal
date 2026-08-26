@@ -10,6 +10,7 @@ class CommunityPost extends Model
     protected $guarded = [];
     protected $casts = [
         'pinned' => 'boolean',
+        'poll_data' => 'array',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

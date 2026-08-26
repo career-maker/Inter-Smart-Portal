@@ -35,16 +35,28 @@ class CommunityController extends Controller
             ->latest()
             ->paginate(20);
 
-        // Append user_has_liked
+        // Append user_has_liked & user_voted_option_id
         $postIds = $posts->pluck('id')->toArray();
         $userLikedPostIds = CommunityPostLike::where('user_id', $userId)
             ->whereIn('post_id', $postIds)
             ->pluck('post_id')
             ->toArray();
 
-        $posts->getCollection()->transform(function ($post) use ($userLikedPostIds) {
+        $posts->getCollection()->transform(function ($post) use ($userLikedPostIds, $userId) {
             $post->user_has_liked = in_array($post->id, $userLikedPostIds);
-            // Format media_url to full URL if stored relative
+            
+            // Determine if user has voted on poll
+            if ($post->type === 'poll' && !empty($post->poll_data['options'])) {
+                $userVotedOptionId = null;
+                foreach ($post->poll_data['options'] as $opt) {
+                    if (!empty($opt['voter_ids']) && in_array($userId, $opt['voter_ids'])) {
+                        $userVotedOptionId = $opt['id'];
+                        break;
+                    }
+                }
+                $post->user_voted_option_id = $userVotedOptionId;
+            }
+
             if ($post->media_url && !str_starts_with($post->media_url, 'http')) {
                 $post->media_url = url($post->media_url);
             }
@@ -64,6 +76,9 @@ class CommunityController extends Controller
             'type' => 'nullable|string|in:post,praise,poll',
             'media_url' => 'nullable|string',
             'image' => 'nullable|image|max:10240', // 10MB max
+            'options' => 'nullable|array',
+            'expires_at' => 'nullable|date',
+            'is_anonymous' => 'nullable|boolean',
         ]);
 
         $mediaUrl = $request->input('media_url');
@@ -74,16 +89,48 @@ class CommunityController extends Controller
             $mediaUrl = '/storage/' . $path;
         }
 
+        $type = $request->input('type', 'post');
+        $pollData = null;
+
+        if ($type === 'poll') {
+            $rawOptions = $request->input('options', []);
+            $filtered = [];
+            foreach ($rawOptions as $idx => $opt) {
+                $trimmed = trim(is_array($opt) ? ($opt['text'] ?? '') : (string)$opt);
+                if (!empty($trimmed)) {
+                    $filtered[] = [
+                        'id' => count($filtered) + 1,
+                        'text' => $trimmed,
+                        'votes' => 0,
+                        'voter_ids' => [],
+                    ];
+                }
+            }
+
+            if (count($filtered) < 2) {
+                return response()->json(['message' => 'A poll must have at least 2 options.'], 422);
+            }
+
+            $pollData = [
+                'options' => $filtered,
+                'expires_at' => $request->input('expires_at') ?: Carbon::now()->addDays(7)->format('Y-m-d'),
+                'is_anonymous' => (bool)$request->input('is_anonymous', false),
+                'total_votes' => 0,
+            ];
+        }
+
         $post = CommunityPost::create([
             'user_id' => $request->user()->id,
             'content' => $request->input('content'),
-            'type' => $request->input('type', 'post'),
+            'type' => $type,
             'media_url' => $mediaUrl,
+            'poll_data' => $pollData,
             'pinned' => false,
         ]);
 
         $post->load(['user:id,first_name,last_name,email,designation,profile_photo_path', 'comments']);
         $post->user_has_liked = false;
+        $post->user_voted_option_id = null;
         $post->likes_count = 0;
         $post->comments_count = 0;
 
@@ -95,6 +142,56 @@ class CommunityController extends Controller
             'message' => 'Post created successfully',
             'data' => $post,
         ], 201);
+    }
+
+    /**
+     * Vote on a poll post
+     */
+    public function votePoll(Request $request, $id)
+    {
+        $request->validate([
+            'option_id' => 'required|integer',
+        ]);
+
+        $userId = $request->user()->id;
+        $post = CommunityPost::findOrFail($id);
+
+        if ($post->type !== 'poll' || empty($post->poll_data['options'])) {
+            return response()->json(['message' => 'This post is not an active poll.'], 422);
+        }
+
+        $pollData = $post->poll_data;
+
+        // Check if poll expired
+        if (!empty($pollData['expires_at']) && Carbon::parse($pollData['expires_at'])->isPast()) {
+            return response()->json(['message' => 'This poll has expired.'], 422);
+        }
+
+        $targetOptionId = (int)$request->input('option_id');
+        $options = $pollData['options'];
+        $totalVotes = 0;
+
+        // Remove any previous vote by this user across options
+        foreach ($options as &$opt) {
+            $opt['voter_ids'] = array_values(array_filter($opt['voter_ids'] ?? [], fn($vId) => $vId !== $userId));
+            if ($opt['id'] === $targetOptionId) {
+                $opt['voter_ids'][] = $userId;
+            }
+            $opt['votes'] = count($opt['voter_ids']);
+            $totalVotes += $opt['votes'];
+        }
+
+        $pollData['options'] = $options;
+        $pollData['total_votes'] = $totalVotes;
+
+        $post->poll_data = $pollData;
+        $post->save();
+
+        return response()->json([
+            'message' => 'Vote recorded successfully',
+            'poll_data' => $pollData,
+            'user_voted_option_id' => $targetOptionId,
+        ]);
     }
 
     /**
@@ -192,19 +289,17 @@ class CommunityController extends Controller
     }
 
     /**
-     * Get aggregated dynamic community summary (Holidays, Leaves, WFH, Balances, Birthdays, Anniversaries, New Joiners)
+     * Get aggregated dynamic community summary
      */
     public function getSummary(Request $request)
     {
         $user = $request->user();
         $today = Carbon::today();
 
-        // 1. Next Upcoming Holiday
         $upcomingHoliday = Holiday::where('date', '>=', $today->format('Y-m-d'))
             ->orderBy('date', 'asc')
             ->first();
 
-        // 2. On Leave Today
         $onLeaveToday = LeaveRequest::where('status', 'Approved')
             ->whereDate('start_date', '<=', $today)
             ->whereDate('end_date', '>=', $today)
@@ -220,7 +315,6 @@ class CommunityController extends Controller
                 ];
             });
 
-        // 3. Working Remotely (WFH) Today
         $wfhToday = WfhRequest::where('status', 'Approved')
             ->whereDate('start_date', '<=', $today)
             ->whereDate('end_date', '>=', $today)
@@ -235,7 +329,6 @@ class CommunityController extends Controller
                 ];
             });
 
-        // 4. User Leave Balances
         $casualBalance = LeaveBalance::where('user_id', $user->id)
             ->where(function ($q) {
                 $q->where('leave_type', 'like', '%Casual%')->orWhere('leave_type', 'CL');
@@ -249,7 +342,6 @@ class CommunityController extends Controller
         $casualDays = $casualBalance ? ($casualBalance->balance ?? $casualBalance->remaining_days ?? 12) : 12;
         $sickDays = $sickBalance ? ($sickBalance->balance ?? $sickBalance->remaining_days ?? 10) : 10;
 
-        // 5. Birthdays & Anniversaries from all employees
         $allUsers = User::where('status', 'active')->get();
         $birthdaysToday = [];
         $birthdaysUpcoming = [];
@@ -258,7 +350,6 @@ class CommunityController extends Controller
         $recentlyJoined = [];
 
         foreach ($allUsers as $u) {
-            // Check DOB
             if ($u->date_of_birth) {
                 $dob = Carbon::parse($u->date_of_birth);
                 $thisYearBday = Carbon::create($today->year, $dob->month, $dob->day)->startOfDay();
@@ -284,7 +375,6 @@ class CommunityController extends Controller
                 }
             }
 
-            // Check Joining Date for Anniversaries & New Joiners
             if ($u->date_of_joining) {
                 $doj = Carbon::parse($u->date_of_joining);
                 $years = $today->year - $doj->year;
@@ -314,7 +404,6 @@ class CommunityController extends Controller
                     }
                 }
 
-                // Check recently joined (within last 60 days)
                 $joinedDaysAgo = $doj->diffInDays($today, false);
                 if ($joinedDaysAgo >= 0 && $joinedDaysAgo <= 60) {
                     $recentlyJoined[] = [
