@@ -55,7 +55,7 @@ export function EmergencyContactsCard({
       style={{
         fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
-      className="bg-white dark:bg-slate-800 rounded-2xl p-5 sm:p-6 border border-slate-200/90 dark:border-slate-700/60 shadow-sm transition-all hover:shadow-md flex flex-col justify-between"
+      className="bg-white dark:bg-slate-800 rounded-md p-5 sm:p-6 border border-slate-200/90 dark:border-slate-700/60 shadow-sm transition-all hover:shadow-md flex flex-col justify-between"
     >
       {/* Card Header matching exact Keka typography */}
       <div className="mb-4">
