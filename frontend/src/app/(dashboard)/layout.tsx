@@ -339,9 +339,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {/* Top header spacer matching 64px header height */}
             <div className="h-16 shrink-0 border-b border-[#1a3a52] bg-[#0c2233]" />
 
-            {/* Navigation Items */}
-            <div className="flex-1 overflow-y-auto overflow-x-hidden py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              <nav className="space-y-1 px-1">
+            {/* Navigation Items - Full Width Rectangles (Exact Keka Match) */}
+            <div className="flex-1 overflow-y-auto overflow-x-hidden py-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <nav className="space-y-0 px-0">
                 {/* Standalone Link (Home / Dashboard) */}
                 {STANDALONE.map(({ href, label, icon: Icon }) => {
                   const active = pathname === href;
@@ -353,7 +353,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       style={{
                         backgroundColor: active ? "#071724" : "transparent",
                       }}
-                      className={`group w-full flex flex-col items-center justify-center py-2.5 px-0.5 rounded-lg transition-colors relative cursor-pointer hover:bg-[#133249] ${
+                      className={`group w-full flex flex-col items-center justify-center py-3 px-1 rounded-none transition-colors relative cursor-pointer hover:bg-[#133249] ${
                         active ? "font-semibold" : "font-normal"
                       }`}
                     >
@@ -400,13 +400,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         style={{
                           backgroundColor: isHighlighted ? "#071724" : "transparent",
                         }}
-                        className={`group w-full flex flex-col items-center justify-center py-2.5 px-0.5 rounded-lg transition-colors relative cursor-pointer hover:bg-[#133249] ${
+                        className={`group w-full flex flex-col items-center justify-center py-3 px-1 rounded-none transition-colors relative cursor-pointer hover:bg-[#133249] ${
                           isHighlighted ? "font-semibold" : "font-normal"
                         }`}
                       >
                         {/* Red notification badge on icon top-right */}
                         {hasBadge && (
-                          <span className="absolute top-1 right-1.5 bg-[#ff5252] text-white text-[10px] font-bold rounded-full px-1.5 py-0.2 min-w-[18px] text-center shadow-md animate-pulse">
+                          <span className="absolute top-1.5 right-2 bg-[#ff5252] text-white text-[10px] font-bold rounded-full px-1.5 py-0.2 min-w-[18px] text-center shadow-md animate-pulse">
                             {pendingApprovalsCount}
                           </span>
                         )}
