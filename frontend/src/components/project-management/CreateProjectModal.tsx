@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Loader2, FolderPlus, AlertCircle, Calendar, Building2, User, Link2, Unlink } from "lucide-react";
+import { X, Loader2, FolderPlus, AlertCircle, Calendar, Building2, User, Link2, Unlink, CloudDownload, Check } from "lucide-react";
 import api from "@/services/api";
 import pmApi from "@/services/pm";
 import { Project, ProjectStatus, PROJECT_STATUSES, StoreProjectPayload, HubstaffProject } from "@/types/pm";
@@ -41,6 +41,8 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
   >([]);
   const [hubstaffProjects, setHubstaffProjects] = useState<HubstaffProject[]>([]);
   const [loadingHubstaff, setLoadingHubstaff] = useState(false);
+  const [importingAll, setImportingAll] = useState(false);
+  const [bulkImportMsg, setBulkImportMsg] = useState<string | null>(null);
   const [loadingMeta, setLoadingMeta] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -98,6 +100,30 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
 
   const handleChange = (field: keyof StoreProjectPayload, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleImportAllHubstaff = async () => {
+    if (importingAll) return;
+    setImportingAll(true);
+    setBulkImportMsg(null);
+    setError(null);
+    try {
+      const res = await pmApi.importHubstaffProjects();
+      if (res.success) {
+        setBulkImportMsg(res.message || `Imported ${res.imported_count} new projects (${res.skipped_count} already existed).`);
+        // Refresh Hubstaff projects list
+        const hsData = await pmApi.getHubstaffProjects();
+        if (hsData?.projects) {
+          setHubstaffProjects(hsData.projects);
+        }
+      } else {
+        setError(res.message || "Failed to import Hubstaff projects.");
+      }
+    } catch (err: any) {
+      setError(err?.response?.data?.message || err?.message || "Error importing from Hubstaff.");
+    } finally {
+      setImportingAll(false);
+    }
   };
 
   const handleHubstaffSelect = (hubstaffId: string) => {
@@ -203,6 +229,16 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                 <span>Link with Hubstaff Project (Optional)</span>
               </label>
               <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleImportAllHubstaff}
+                  disabled={importingAll || loadingHubstaff}
+                  className="px-2.5 py-1 rounded-lg bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/30 text-[11px] font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50"
+                  title="Import all active projects from Hubstaff at once without duplicating"
+                >
+                  <CloudDownload className={`w-3.5 h-3.5 text-sky-400 ${importingAll ? "animate-spin" : ""}`} />
+                  <span>{importingAll ? "Importing all…" : "Bulk Import from Hubstaff"}</span>
+                </button>
                 {formData.hubstaff_project_id && (
                   <button
                     type="button"

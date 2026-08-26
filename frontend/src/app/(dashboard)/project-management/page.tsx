@@ -6,6 +6,7 @@ import {
   FolderKanban,
   RefreshCw,
   ListTodo,
+  CloudDownload,
   AlertCircle,
   Plus,
 } from "lucide-react";
@@ -46,6 +47,8 @@ export default function ProjectManagementDashboard() {
   // Loading & error state
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [importingHubstaff, setImportingHubstaff] = useState(false);
+  const [importNotice, setImportNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Table filter states
@@ -53,6 +56,23 @@ export default function ProjectManagementDashboard() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedCoordinatorId, setSelectedCoordinatorId] = useState<number | null>(null);
   const [showTodayOnly, setShowTodayOnly] = useState<boolean>(false);
+
+  const handleImportHubstaff = async () => {
+    if (importingHubstaff) return;
+    setImportingHubstaff(true);
+    setImportNotice(null);
+    try {
+      const res = await pmApi.importHubstaffProjects();
+      if (res.success) {
+        setImportNotice(res.message || `Imported ${res.imported_count} projects.`);
+        fetchDashboardData(true);
+      }
+    } catch (err: any) {
+      console.warn("Hubstaff import error", err);
+    } finally {
+      setImportingHubstaff(false);
+    }
+  };
 
   // Load teams and coordinators on mount
   useEffect(() => {
@@ -246,6 +266,17 @@ export default function ProjectManagementDashboard() {
             <ListTodo className="w-4 h-4 text-blue-500" />
             <span>My Tasks</span>
           </Link>
+
+          <button
+            type="button"
+            onClick={handleImportHubstaff}
+            disabled={importingHubstaff || loading}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs sm:text-sm font-semibold border border-slate-700 shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+            title="Import all active projects from Hubstaff without duplicating"
+          >
+            <CloudDownload className={`w-4 h-4 text-sky-400 ${importingHubstaff ? "animate-spin" : ""}`} />
+            <span>{importingHubstaff ? "Importing…" : "Import from Hubstaff"}</span>
+          </button>
 
           <Link
             href="/project-management/projects"

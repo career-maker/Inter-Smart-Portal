@@ -181,37 +181,37 @@ export default function ProjectsListPage() {
         {/* Action Controls */}
         <div className="flex items-center gap-2.5 self-start sm:self-auto flex-wrap">
           <button
+            type="button"
             onClick={() => fetchProjects(currentPage, true)}
             disabled={refreshing || loading || importingHubstaff}
             aria-label="Refresh Projects"
-            className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors disabled:opacity-50"
+            className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors disabled:opacity-50 cursor-pointer"
             title="Refresh List"
           >
             <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-blue-500" : ""}`} />
           </button>
 
-          {/* Super Admin Hubstaff Import Button */}
-          {isSuperAdmin && (
-            <button
-              onClick={handleImportHubstaff}
-              disabled={importingHubstaff || loading}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-800 text-slate-100 dark:text-white text-xs sm:text-sm font-semibold border border-slate-700 shadow-sm transition-all disabled:opacity-50 hover:border-slate-600"
-              title="Import all active projects from Hubstaff without duplicating"
-            >
-              <CloudDownload className={`w-4 h-4 text-sky-400 ${importingHubstaff ? "animate-spin" : ""}`} />
-              <span>{importingHubstaff ? "Importing Hubstaff…" : "Import from Hubstaff"}</span>
-            </button>
-          )}
+          {/* Hubstaff Bulk Import Button (Always visible) */}
+          <button
+            type="button"
+            onClick={handleImportHubstaff}
+            disabled={importingHubstaff || loading}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs sm:text-sm font-semibold border border-slate-700 shadow-sm transition-all disabled:opacity-50 hover:border-slate-600 cursor-pointer"
+            title="Import all active projects from Hubstaff without duplicating"
+          >
+            <CloudDownload className={`w-4 h-4 text-sky-400 ${importingHubstaff ? "animate-spin" : ""}`} />
+            <span>{importingHubstaff ? "Importing Hubstaff…" : "Import from Hubstaff"}</span>
+          </button>
 
-          {(isSuperAdmin || isTeamLead) && (
-            <button
-              onClick={() => setIsCreateModalOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold shadow-sm shadow-blue-500/20 transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Create Project</span>
-            </button>
-          )}
+          {/* Create Project Button */}
+          <button
+            type="button"
+            onClick={() => setIsCreateModalOpen(true)}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold shadow-sm shadow-blue-500/20 transition-colors cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Create Project</span>
+          </button>
         </div>
       </div>
 
