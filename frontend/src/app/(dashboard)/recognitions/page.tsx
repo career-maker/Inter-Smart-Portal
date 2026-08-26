@@ -19,6 +19,7 @@ import {
 import api from "@/services/api";
 import Link from "next/link";
 import { CertificateModal } from "@/components/recognition/CertificateModal";
+import { useAuthStore } from "@/store/auth";
 
 const PREDEFINED_TITLES = [
   { title: "Hubstaff King", icon: "👑" },
@@ -43,6 +44,8 @@ export default function RecognitionsPage() {
   const [certRec, setCertRec] = useState<any | null>(null);
   const [employeeSearch, setEmployeeSearch] = useState("");
   const [showEmployeeList, setShowEmployeeList] = useState(false);
+  const user = useAuthStore((state) => state.user);
+  const isSuperAdmin = user?.role === "Super Admin";
 
   const filteredEmployees = employees.filter((emp) =>
     `${emp.first_name} ${emp.last_name} (${emp.employee_code})`.toLowerCase().includes(employeeSearch.toLowerCase())
@@ -200,13 +203,15 @@ export default function RecognitionsPage() {
             <Trophy className="w-4 h-4" />
             View Leaderboard
           </Link>
-          <button
-            onClick={() => setShowModal(true)}
-            className="bg-amber-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-amber-600 transition flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            Assign Achievement
-          </button>
+          {isSuperAdmin && (
+            <button
+              onClick={() => setShowModal(true)}
+              className="bg-amber-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-amber-600 transition flex items-center gap-2 cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              Assign Achievement
+            </button>
+          )}
         </div>
       </div>
 
@@ -278,43 +283,47 @@ export default function RecognitionsPage() {
                       {/* View Certificate */}
                       <button
                         onClick={() => setCertRec({ ...rec, _employeeName: employeeName })}
-                        className="p-1.5 text-blue-400 hover:bg-blue-500/10 rounded-lg transition"
+                        className="p-1.5 text-blue-400 hover:bg-blue-500/10 rounded-lg transition cursor-pointer"
                         title="View Certificate"
                       >
                         <Eye className="w-4 h-4" />
                       </button>
-                      {/* Toggle */}
-                      <button
-                        onClick={() => toggleStatus(rec.id)}
-                        disabled={isToggling || isDeleting}
-                        className={`p-1.5 rounded-lg transition disabled:opacity-50 ${
-                          rec.is_active
-                            ? "text-amber-400 hover:bg-amber-500/10"
-                            : "text-emerald-400 hover:bg-emerald-500/10"
-                        }`}
-                        title={rec.is_active ? "Disable" : "Enable"}
-                      >
-                        {isToggling ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : rec.is_active ? (
-                          <PowerOff className="w-4 h-4" />
-                        ) : (
-                          <Power className="w-4 h-4" />
-                        )}
-                      </button>
-                      {/* Delete */}
-                      <button
-                        onClick={() => deleteRecognition(rec.id)}
-                        disabled={isDeleting || isToggling}
-                        className="p-1.5 text-red-400 hover:bg-red-500/10 rounded-lg transition disabled:opacity-50"
-                        title="Delete"
-                      >
-                        {isDeleting ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Trash2 className="w-4 h-4" />
-                        )}
-                      </button>
+                      {isSuperAdmin && (
+                        <>
+                          {/* Toggle */}
+                          <button
+                            onClick={() => toggleStatus(rec.id)}
+                            disabled={isToggling || isDeleting}
+                            className={`p-1.5 rounded-lg transition disabled:opacity-50 cursor-pointer ${
+                              rec.is_active
+                                ? "text-amber-400 hover:bg-amber-500/10"
+                                : "text-emerald-400 hover:bg-emerald-500/10"
+                            }`}
+                            title={rec.is_active ? "Disable" : "Enable"}
+                          >
+                            {isToggling ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : rec.is_active ? (
+                              <PowerOff className="w-4 h-4" />
+                            ) : (
+                              <Power className="w-4 h-4" />
+                            )}
+                          </button>
+                          {/* Delete */}
+                          <button
+                            onClick={() => deleteRecognition(rec.id)}
+                            disabled={isDeleting || isToggling}
+                            className="p-1.5 text-red-400 hover:bg-red-500/10 rounded-lg transition disabled:opacity-50 cursor-pointer"
+                            title="Delete"
+                          >
+                            {isDeleting ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="w-4 h-4" />
+                            )}
+                          </button>
+                        </>
+                      )}
                     </td>
                   </tr>
                 );
@@ -324,7 +333,11 @@ export default function RecognitionsPage() {
                   <td colSpan={5} className="px-6 py-12 text-center text-slate-500 dark:text-slate-400">
                     <Trophy className="w-10 h-10 mx-auto mb-3 text-slate-600" />
                     <p className="font-medium">No achievements assigned yet.</p>
-                    <p className="text-sm mt-1">Click "Assign Achievement" to get started.</p>
+                    <p className="text-sm mt-1">
+                      {isSuperAdmin
+                        ? 'Click "Assign Achievement" to get started.'
+                        : 'Recognized employees and achievements will appear here.'}
+                    </p>
                   </td>
                 </tr>
               )}
@@ -343,7 +356,7 @@ export default function RecognitionsPage() {
       )}
 
       {/* Assign Achievement Modal */}
-      {showModal && (
+      {showModal && isSuperAdmin && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
           <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-2xl w-full max-w-lg shadow-xl my-8">
             <div className="px-6 py-4 border-b border-slate-200 dark:border-white/10 flex justify-between items-center sticky top-0 bg-white dark:bg-slate-800 rounded-t-2xl z-10">
