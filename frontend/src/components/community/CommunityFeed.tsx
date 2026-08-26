@@ -1378,26 +1378,28 @@ export function CommunityFeed() {
                   );
                 })()}
 
-                {/* Like & Comment Action Bar with Facebook-Style Emoji Popup */}
+                {/* Like & Comment Action Bar with Dual CSS + State Hover Reaction Picker */}
                 <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700/60 text-xs select-none">
-                  {/* Left: Like (with floating emoji picker) & Comment Buttons */}
+                  {/* Left: Like (with seamless hover emoji picker) & Comment Buttons */}
                   <div className="flex items-center gap-6 relative">
                     
-                    {/* Like Button Wrapper with Hover & Long-Press Triggers */}
+                    {/* Hover Reaction Trigger Container */}
                     <div
-                      className="relative"
+                      className="relative group/reaction-box"
                       onMouseEnter={() => handleMouseEnterLike(post.id)}
                       onMouseLeave={() => handleMouseLeaveLike(post.id)}
                       onTouchStart={() => handleTouchStartLike(post.id)}
                       onTouchEnd={() => handleTouchEndLike(post.id)}
                     >
-                      {/* Floating Emoji Reactions Popup Bar */}
-                      {hoveredReactionPostId === post.id && (
-                        <div
-                          onMouseEnter={() => handleMouseEnterLike(post.id)}
-                          onMouseLeave={() => handleMouseLeaveLike(post.id)}
-                          className="absolute -top-14 left-0 z-40 flex items-center gap-1.5 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-700 p-1.5 rounded-full shadow-2xl animate-in zoom-in-95 duration-150"
-                        >
+                      {/* Floating Emoji Reactions Bar (Seamless hover bridge with pb-2.5) */}
+                      <div
+                        className={`absolute bottom-full left-0 pb-2.5 z-50 transition-all duration-200 ${
+                          hoveredReactionPostId === post.id
+                            ? "opacity-100 visible translate-y-0"
+                            : "opacity-0 invisible pointer-events-none translate-y-1 group-hover/reaction-box:opacity-100 group-hover/reaction-box:visible group-hover/reaction-box:pointer-events-auto group-hover/reaction-box:translate-y-0"
+                        }`}
+                      >
+                        <div className="flex items-center gap-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-2 py-1.5 rounded-full shadow-2xl backdrop-blur-md">
                           {EMOJI_REACTIONS.map((re) => {
                             const isSelected = post.user_reaction === re.id;
                             return (
@@ -1408,9 +1410,9 @@ export function CommunityFeed() {
                                   e.stopPropagation();
                                   handleToggleLike(post.id, re.id);
                                 }}
-                                className={`w-9 h-9 rounded-full flex items-center justify-center text-xl transition-transform hover:scale-130 active:scale-95 cursor-pointer ${
+                                className={`w-8 h-8 rounded-full flex items-center justify-center text-lg transition-transform hover:scale-135 active:scale-95 cursor-pointer ${
                                   isSelected
-                                    ? "bg-purple-100 dark:bg-purple-950/80 scale-110 shadow-xs ring-1 ring-[#56348f]"
+                                    ? "bg-purple-100 dark:bg-purple-950 scale-110 ring-2 ring-[#56348f]"
                                     : "hover:bg-slate-100 dark:hover:bg-slate-800"
                                 }`}
                                 title={re.label}
@@ -1420,12 +1422,13 @@ export function CommunityFeed() {
                             );
                           })}
                         </div>
-                      )}
+                      </div>
 
                       {/* Main Trigger Button */}
                       <button
+                        type="button"
                         onClick={() => handleToggleLike(post.id, post.user_reaction || "like")}
-                        className={`flex items-center gap-1.5 text-xs font-semibold transition-colors cursor-pointer py-1 ${
+                        className={`flex items-center gap-1.5 text-xs font-semibold transition-colors cursor-pointer py-1.5 ${
                           post.user_has_liked
                             ? (EMOJI_REACTIONS.find((r) => r.id === post.user_reaction)?.color || "text-[#56348f]")
                             : "text-[#56348f] dark:text-purple-300 hover:text-purple-800"
@@ -1447,51 +1450,64 @@ export function CommunityFeed() {
                     </div>
 
                     <button
+                      type="button"
                       onClick={() =>
                         setOpenComments((prev) => ({ ...prev, [post.id]: !prev[post.id] }))
                       }
-                      className="flex items-center gap-1.5 text-xs font-semibold text-[#56348f] dark:text-purple-300 hover:text-purple-800 transition-colors cursor-pointer py-1"
+                      className="flex items-center gap-1.5 text-xs font-semibold text-[#56348f] dark:text-purple-300 hover:text-purple-800 transition-colors cursor-pointer py-1.5"
                     >
                       <MessageSquare className="w-4 h-4" />
                       <span>Comment</span>
                     </button>
                   </div>
 
-                  {/* Right: Reactions Summary (Distinct active emoji badges + count breakdown) */}
-                  <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                    <div className="flex items-center gap-1.5">
-                      {/* Active Reaction Badges */}
-                      {post.reactions_breakdown && Object.keys(post.reactions_breakdown).length > 0 ? (
-                        <div className="flex items-center -space-x-1">
-                          {Object.entries(post.reactions_breakdown).map(([rType, count]) => {
-                            const rObj = EMOJI_REACTIONS.find((re) => re.id === rType);
-                            if (!rObj || Number(count) <= 0) return null;
-                            return (
-                              <span
-                                key={rType}
-                                title={`${rObj.label}: ${count}`}
-                                className="w-5 h-5 rounded-full bg-slate-50 dark:bg-slate-800 border border-white dark:border-slate-900 flex items-center justify-center text-[10.5px] shadow-2xs"
-                              >
-                                {rObj.emoji}
-                              </span>
-                            );
-                          })}
+                  {/* Right: Reactions Summary (Only shown when there are real reactions or comments) */}
+                  {((post.likes_count || 0) > 0 || (post.comments_count || 0) > 0) && (
+                    <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 animate-in fade-in">
+                      {/* Likes / Reactions Breakdown */}
+                      {(post.likes_count || 0) > 0 && (
+                        <div className="flex items-center gap-1.5">
+                          {/* Active Reaction Badges */}
+                          {post.reactions_breakdown && Object.keys(post.reactions_breakdown).length > 0 ? (
+                            <div className="flex items-center -space-x-1">
+                              {Object.entries(post.reactions_breakdown).map(([rType, count]) => {
+                                const rObj = EMOJI_REACTIONS.find((re) => re.id === rType);
+                                if (!rObj || Number(count) <= 0) return null;
+                                return (
+                                  <span
+                                    key={rType}
+                                    title={`${rObj.label}: ${count}`}
+                                    className="w-5 h-5 rounded-full bg-slate-50 dark:bg-slate-800 border border-white dark:border-slate-900 flex items-center justify-center text-[10.5px] shadow-2xs"
+                                  >
+                                    {rObj.emoji}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <span className="w-5 h-5 rounded-full bg-purple-100 dark:bg-purple-950/60 flex items-center justify-center text-[10px] text-[#56348f] shadow-2xs">
+                              👍
+                            </span>
+                          )}
+
+                          <span className="font-medium text-slate-600 dark:text-slate-300">
+                            {post.likes_count} {post.likes_count === 1 ? "reaction" : "reactions"}
+                          </span>
                         </div>
-                      ) : (
-                        <span className="w-5 h-5 rounded-full bg-rose-100 dark:bg-rose-950/60 flex items-center justify-center text-[10px] text-rose-500 shadow-2xs">
-                          ❤️
-                        </span>
                       )}
 
-                      <span className="font-medium text-slate-600 dark:text-slate-300">
-                        {post.likes_count || 0} {post.likes_count === 1 ? "reaction" : "reactions"}
-                      </span>
+                      {(post.likes_count || 0) > 0 && (post.comments_count || 0) > 0 && (
+                        <span>•</span>
+                      )}
+
+                      {/* Comments Count */}
+                      {(post.comments_count || 0) > 0 && (
+                        <span className="font-medium text-slate-600 dark:text-slate-300">
+                          {post.comments_count} {post.comments_count === 1 ? "Comment" : "Comments"}
+                        </span>
+                      )}
                     </div>
-                    <span>•</span>
-                    <span className="font-medium text-slate-600 dark:text-slate-300">
-                      {post.comments_count || 0} {post.comments_count === 1 ? "Comment" : "Comments"}
-                    </span>
-                  </div>
+                  )}
                 </div>
 
                 {/* "Be the first person to comment" prompt if 0 comments and closed */}

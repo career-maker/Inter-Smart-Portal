@@ -116,6 +116,8 @@ class CommunityController extends Controller
             $post->user_reaction = $userReactions[$post->id] ?? null;
             $post->user_has_liked = !empty($userReactions[$post->id]);
             $post->reactions_breakdown = $likesByPost[$post->id] ?? [];
+            $post->likes_count = !empty($likesByPost[$post->id]) ? array_sum($likesByPost[$post->id]) : 0;
+            $post->comments_count = $post->comments ? $post->comments->count() : 0;
             if ($post->user) {
                 $post->user->profile_photo_path = $post->user->profilePhotoUrl();
             }
