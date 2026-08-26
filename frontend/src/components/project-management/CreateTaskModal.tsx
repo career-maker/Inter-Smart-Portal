@@ -5,6 +5,7 @@ import { X, Loader2, Plus, AlertCircle, Sparkles, FolderKanban, Users, ShieldChe
 import { useAuthStore } from "@/store/auth";
 import api from "@/services/api";
 import pmApi from "@/services/pm";
+import { SearchableProjectSelect } from "@/components/project-management/SearchableProjectSelect";
 import {
   Project,
   ProjectTask,
@@ -74,7 +75,7 @@ export function CreateTaskModal({
       setError(null);
       try {
         const [projRes, catRes, empRes] = await Promise.allSettled([
-          pmApi.getProjects({ page: 1 }),
+          pmApi.getProjects({ per_page: -1 } as any),
           pmApi.getTaskCatalog({ is_active: true, all: true }),
           api.get("/employees?per_page=300"),
         ]);
@@ -248,23 +249,22 @@ export function CreateTaskModal({
         <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
           {/* Project Selector */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-              Target Project <span className="text-rose-500">*</span>
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center justify-between">
+              <span>Target Project <span className="text-rose-500">*</span></span>
+              {projects.length > 0 && (
+                <span className="text-[11px] font-normal text-slate-500 dark:text-slate-400">
+                  {projects.length} available projects
+                </span>
+              )}
             </label>
-            <select
-              required
+            <SearchableProjectSelect
+              projects={projects}
               value={projectId}
-              onChange={(e) => setProjectId(e.target.value ? Number(e.target.value) : "")}
+              onChange={(val) => setProjectId(val)}
               disabled={!!defaultProjectId}
-              className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-            >
-              <option value="">Select Project</option>
-              {projects.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name} {p.team ? `(${p.team.name})` : ""}
-                </option>
-              ))}
-            </select>
+              required
+              placeholder="Search and select target project..."
+            />
           </div>
 
           {/* Predefined Template Dropdown (Optional Helper) */}
