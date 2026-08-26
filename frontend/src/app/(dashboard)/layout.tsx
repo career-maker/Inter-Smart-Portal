@@ -265,8 +265,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className="fixed inset-0 bg-slate-900 flex flex-col overflow-hidden z-[9999]">
         <div className="h-16 bg-slate-900 border-b border-white/10" />
         <div className="flex-1 flex items-center justify-center">
-          <div className="flex flex-col items-center gap-3 opacity-60">
-            <div className="w-8 h-8 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
+          <div className="flex flex-col items-center gap-3">
+            <img
+              src="/preloader.gif"
+              alt="Loading..."
+              className="w-16 h-16 object-contain"
+            />
           </div>
         </div>
       </div>
@@ -375,8 +379,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 height: 0 !important;
               }
             `}</style>
-            {/* Top header spacer matching 64px header height */}
-            <div className="h-16 shrink-0 border-b border-[#1a3a52] bg-[#0c2233]" />
+            {/* Top header area above side menu with looping animation GIF */}
+            <div className="h-16 shrink-0 border-b border-[#1a3a52] bg-[#0c2233] flex items-center justify-center p-2 select-none">
+              <img
+                src="/preloader.gif"
+                alt="Animation"
+                className="h-10 w-10 object-contain"
+              />
+            </div>
 
             {/* Navigation Items - Full Width Rectangles (Exact Keka Match) */}
             <div className="flex-1 overflow-y-auto overflow-x-hidden py-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
