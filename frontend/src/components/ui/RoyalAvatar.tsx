@@ -17,6 +17,17 @@ interface RoyalAvatarProps {
   showCrownBadge?: boolean;
 }
 
+function resolveAvatarUrl(url?: string | null): string | null {
+  if (!url) return null;
+  if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:")) return url;
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://workplace.intersmart.in";
+  const origin = baseUrl.replace(/\/api\/?$/, "");
+  if (url.startsWith("/storage/")) return `${origin}${url}`;
+  if (url.startsWith("storage/")) return `${origin}/${url}`;
+  if (url.startsWith("/")) return `${origin}${url}`;
+  return `${origin}/api/photos/${url}`;
+}
+
 export function RoyalAvatar({
   src,
   name,
@@ -38,6 +49,7 @@ export function RoyalAvatar({
           (name && checkTopAwardee(name))
         );
 
+  const resolvedSrc = resolveAvatarUrl(src);
   const initials = (name || "Employee")
     .split(" ")
     .filter(Boolean)
@@ -62,9 +74,9 @@ export function RoyalAvatar({
         )}
       >
         <span style={{ color: "#ffffff" }} className={cn("text-white font-bold tracking-wider", textClass)}>{initials}</span>
-        {src && (
+        {resolvedSrc && (
           <img
-            src={src}
+            src={resolvedSrc}
             alt={name}
             className="absolute inset-0 w-full h-full object-cover"
             onError={(e) => {

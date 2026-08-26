@@ -1269,42 +1269,8 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
               <span style={{ color: "rgba(255, 255, 255, 0.95)" }}>Inter Smart, Kochi</span>
             </p>
 
-            {/* Attendance Status Badge & Real-time Date Time */}
+            {/* Real-time Date Time (Attendance status hidden for Super Admin) */}
             <div className="flex items-center gap-3 flex-wrap pt-1">
-              {profile.attendance_status ? (
-                <span
-                  style={{
-                    fontSize: "11px",
-                    lineHeight: "16px",
-                    backgroundColor:
-                      profile.attendance_status === 'Punched In'
-                        ? 'rgba(16, 185, 129, 0.25)'
-                        : profile.attendance_status === 'Punched Out'
-                        ? 'rgba(245, 158, 11, 0.25)'
-                        : 'rgba(225, 29, 72, 0.25)',
-                    borderColor:
-                      profile.attendance_status === 'Punched In'
-                        ? 'rgba(52, 211, 153, 0.8)'
-                        : profile.attendance_status === 'Punched Out'
-                        ? 'rgba(253, 224, 71, 0.8)'
-                        : 'rgba(251, 113, 133, 0.8)',
-                    color:
-                      profile.attendance_status === 'Punched In'
-                        ? '#6ee7b7'
-                        : profile.attendance_status === 'Punched Out'
-                        ? '#fde047'
-                        : '#fecdd3'
-                  }}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-bold uppercase tracking-wider border shadow-sm"
-                >
-                  {profile.attendance_status === 'Punched In' && (
-                    <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse shrink-0" />
-                  )}
-                  <Clock className="w-3.5 h-3.5 shrink-0" />
-                  <span className="font-bold">{profile.attendance_status}</span>
-                </span>
-              ) : null}
-
               <span
                 style={{
                   fontFamily: '"Proxima Nova", sans-serif',
@@ -1320,30 +1286,23 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           </div>
         </div>
 
-        {/* Right: Growing Together Card + Pending Items Card */}
-        <div className="z-10 shrink-0 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          {profile.service_stats && (
-            <GrowingTogetherCard
-              liveStats={profile.service_stats}
-              defaultStats={profile.service_stats}
-            />
-          )}
-
+        {/* Right: Pending Items Card Only (Growing Together hidden for Super Admin) */}
+        <div className="z-10 shrink-0">
           <Link
             href="/leaves/approvals"
-            className="group flex flex-col justify-center bg-black/40 border border-white/15 hover:border-amber-400/50 transition-all duration-300 rounded-md p-4 sm:p-4.5 shadow-2xl backdrop-blur-md cursor-pointer text-white min-w-[160px]"
+            className="group flex flex-col justify-center bg-black/40 border border-white/15 hover:border-amber-400/50 transition-all duration-300 rounded-md p-5 sm:p-6 shadow-2xl backdrop-blur-md cursor-pointer text-white min-w-[180px]"
           >
-            <p className="text-[11px] font-bold text-amber-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+            <p className="text-xs font-bold text-amber-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <Sparkles className="w-4 h-4 text-amber-300" />
               Pending Items
             </p>
             <div className="flex items-baseline gap-2">
-              <p className="text-2xl sm:text-3xl font-black text-white font-mono">
+              <p className="text-3xl sm:text-4xl font-black text-white font-mono">
                 {kpis.pending_requests}
               </p>
-              <p className="text-[11px] text-slate-300 font-semibold">request{kpis.pending_requests !== 1 ? 's' : ''}</p>
+              <p className="text-xs text-slate-300 font-semibold">request{kpis.pending_requests !== 1 ? 's' : ''}</p>
             </div>
-            <p className="text-[11px] text-slate-300 mt-1 group-hover:text-amber-300 transition-colors">
+            <p className="text-xs text-slate-300 mt-2 group-hover:text-amber-300 transition-colors">
               Awaiting review →
             </p>
           </Link>

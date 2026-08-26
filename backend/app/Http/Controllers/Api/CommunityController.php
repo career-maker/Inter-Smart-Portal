@@ -94,6 +94,16 @@ class CommunityController extends Controller
 
         $posts->getCollection()->transform(function ($post) use ($userLikedPostIds, $userId, $praisedUsersMap) {
             $post->user_has_liked = in_array($post->id, $userLikedPostIds);
+            if ($post->user) {
+                $post->user->profile_photo_path = $post->user->profilePhotoUrl();
+            }
+            if ($post->comments) {
+                foreach ($post->comments as $cmt) {
+                    if ($cmt->user) {
+                        $cmt->user->profile_photo_path = $cmt->user->profilePhotoUrl();
+                    }
+                }
+            }
             
             if ($post->type === 'poll' && !empty($post->poll_data['options'])) {
                 $userVotedOptionId = null;
@@ -111,7 +121,7 @@ class CommunityController extends Controller
                 if (!empty($post->poll_data['praised_user_ids']) && is_array($post->poll_data['praised_user_ids'])) {
                     foreach ($post->poll_data['praised_user_ids'] as $uId) {
                         if (isset($praisedUsersMap[$uId])) {
-                            $recipients[] = $praisedUsersMap[$uId];
+                            $recipients[] = (function($u) { $u->profile_photo_path = $u->profilePhotoUrl(); return $u; })($praisedUsersMap[$uId]);
                         }
                     }
                 } elseif (!empty($post->poll_data['praised_user_id']) && isset($praisedUsersMap[$post->poll_data['praised_user_id']])) {
@@ -423,7 +433,7 @@ class CommunityController extends Controller
                     'id' => $u->id,
                     'name' => trim("{$u->first_name} {$u->last_name}"),
                     'designation' => $u->designation ?? 'Team Member',
-                    'profile_photo_path' => $u->profile_photo_path,
+                    'profile_photo_path' => $u->profilePhotoUrl(),
                     'email' => $u->email,
                 ];
             });
@@ -472,7 +482,7 @@ class CommunityController extends Controller
                     'id' => $req->user_id,
                     'name' => ($req->user ? "{$req->user->first_name} {$req->user->last_name}" : 'Employee'),
                     'designation' => $req->user->designation ?? 'Team Member',
-                    'profile_photo_path' => $req->user->profile_photo_path ?? null,
+                    'profile_photo_path' => $req->user ? $req->user->profilePhotoUrl() : null,
                     'leave_type' => $req->leave_type,
                 ];
             });
@@ -487,7 +497,7 @@ class CommunityController extends Controller
                     'id' => $req->user_id,
                     'name' => ($req->user ? "{$req->user->first_name} {$req->user->last_name}" : 'Employee'),
                     'designation' => $req->user->designation ?? 'Team Member',
-                    'profile_photo_path' => $req->user->profile_photo_path ?? null,
+                    'profile_photo_path' => $req->user ? $req->user->profilePhotoUrl() : null,
                 ];
             });
 
@@ -526,7 +536,7 @@ class CommunityController extends Controller
                     'id' => $u->id,
                     'name' => trim("{$u->first_name} {$u->last_name}"),
                     'designation' => $u->designation ?? 'Team Member',
-                    'profile_photo_path' => $u->profile_photo_path,
+                    'profile_photo_path' => $u->profilePhotoUrl(),
                     'email' => $u->email,
                     'date' => $thisYearBday->format('Y-m-d'),
                     'days_remaining' => (int)$daysToBday,
@@ -554,7 +564,7 @@ class CommunityController extends Controller
                         'id' => $u->id,
                         'name' => trim("{$u->first_name} {$u->last_name}"),
                         'designation' => $u->designation ?? 'Team Member',
-                        'profile_photo_path' => $u->profile_photo_path,
+                        'profile_photo_path' => $u->profilePhotoUrl(),
                         'email' => $u->email,
                         'years' => $years,
                         'date' => $thisYearAnni->format('Y-m-d'),
@@ -574,7 +584,7 @@ class CommunityController extends Controller
                         'id' => $u->id,
                         'name' => trim("{$u->first_name} {$u->last_name}"),
                         'designation' => $u->designation ?? 'Team Member',
-                        'profile_photo_path' => $u->profile_photo_path,
+                        'profile_photo_path' => $u->profilePhotoUrl(),
                         'email' => $u->email,
                         'date_of_joining' => $u->date_of_joining,
                         'joined_days_ago' => (int)$joinedDaysAgo,
@@ -616,7 +626,7 @@ class CommunityController extends Controller
                 'id' => $u->id,
                 'name' => trim("{$u->first_name} {$u->last_name}"),
                 'designation' => $u->designation ?? 'Team Member',
-                'profile_photo_path' => $u->profile_photo_path,
+                'profile_photo_path' => $u->profilePhotoUrl(),
                 'email' => $u->email,
             ]),
             'projects' => $projects,
