@@ -63,8 +63,6 @@ export function TaskAssigneeModal({
     loadEmployees();
   }, [isOpen]);
 
-  if (!isOpen) return null;
-
   const roleLower = (user?.role || "").toLowerCase();
   const isSuperAdmin = roleLower.includes("super admin") || roleLower === "admin";
   const isTeamLead = roleLower.includes("team lead") || roleLower.includes("lead") || !isSuperAdmin;
@@ -139,6 +137,8 @@ export function TaskAssigneeModal({
       setRemovingId(null);
     }
   };
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
