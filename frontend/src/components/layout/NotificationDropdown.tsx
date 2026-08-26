@@ -133,56 +133,63 @@ export function NotificationDropdown() {
           </span>
         )}
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80 bg-white dark:bg-slate-900">
+            <DropdownMenuContent align="end" className="w-84 sm:w-96 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl rounded-lg p-0 overflow-hidden">
         <DropdownMenuGroup>
-          <DropdownMenuLabel className="flex justify-between items-center text-slate-900 dark:text-white">
-            <span>Notifications</span>
+          <div className="flex justify-between items-center px-4 py-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/50">
+            <span className="font-bold text-xs uppercase tracking-wider text-slate-800 dark:text-white">Notifications</span>
             {unreadCount > 0 && (
-              <span className="text-xs bg-primary/10 text-primary dark:bg-primary/20 dark:text-amber-300 px-2 py-0.5 rounded-full">
+              <span className="text-[11px] font-bold bg-purple-100 text-[#56348f] dark:bg-purple-950 dark:text-purple-300 px-2 py-0.5 rounded-full">
                 {unreadCount} new
               </span>
             )}
-          </DropdownMenuLabel>
-          <DropdownMenuSeparator className="dark:bg-slate-700" />
-          <div className="max-h-80 overflow-y-auto">
+          </div>
+
+          <div className="max-h-84 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800 custom-scrollbar">
             {notifications.length === 0 ? (
-              <div className="p-4 text-center text-sm text-gray-500 dark:text-slate-400">
+              <div className="py-8 text-center text-xs text-slate-500 dark:text-slate-400">
                 No new notifications
               </div>
             ) : (
               notifications.map((notif) => (
-                <DropdownMenuItem
+                <div
                   key={notif.id}
-                  className="flex flex-col items-start gap-1 p-3 cursor-pointer border-b last:border-0 border-gray-200 dark:border-slate-700 focus:bg-gray-50 dark:focus:bg-slate-800 text-slate-900 dark:text-white"
                   onClick={() => handleNotificationClick(notif)}
+                  className="group flex flex-col items-start gap-1 p-3.5 cursor-pointer bg-white hover:bg-purple-50/70 dark:bg-slate-900 dark:hover:bg-slate-800/80 transition-colors"
                 >
                   <div className="flex justify-between w-full items-start gap-2">
-                    <span className="font-medium text-sm">
+                    <span className="font-semibold text-xs text-slate-900 dark:text-white group-hover:text-[#56348f] dark:group-hover:text-purple-300 transition-colors">
                       {notif.data?.title || "Notification"}
                     </span>
                     <button
+                      type="button"
                       onClick={(e) => handleMarkAsRead(notif.id, e)}
-                      className="text-xs text-primary dark:text-amber-400 hover:underline shrink-0"
+                      className="text-[11px] font-semibold text-[#56348f] dark:text-purple-400 hover:text-purple-800 hover:underline shrink-0 cursor-pointer"
                     >
                       Mark read
                     </button>
                   </div>
-                  <p className="text-xs text-gray-500 dark:text-slate-400 line-clamp-2">
+                  <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed">
                     {notif.data?.message || "You have a new update."}
                   </p>
-                  <span className="text-[10px] text-gray-400 dark:text-slate-500 mt-1">
-                    {new Date(notif.created_at).toLocaleString()}
+                  <span className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">
+                    {new Date(notif.created_at).toLocaleString(undefined, {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    })}
                   </span>
-                </DropdownMenuItem>
+                </div>
               ))
             )}
           </div>
         </DropdownMenuGroup>
-        <DropdownMenuSeparator className="dark:bg-slate-700" />
-        <div className="p-2">
-          <Link href="/notifications">
-            <button className="w-full text-center text-sm text-primary dark:text-amber-400 font-medium p-2 hover:bg-gray-50 dark:hover:bg-slate-800 rounded-md transition-colors">
-              View all notifications
+
+        <div className="p-2 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900">
+          <Link href="/notifications" className="block w-full">
+            <button
+              type="button"
+              className="w-full text-center text-xs text-[#56348f] dark:text-purple-400 font-bold p-2 hover:bg-purple-50 dark:hover:bg-slate-800 rounded-md transition-colors cursor-pointer"
+            >
+              View all notifications →
             </button>
           </Link>
         </div>
