@@ -56,12 +56,12 @@ export function RoyalAvatar({
       {/* Avatar Container */}
       <div
         className={cn(
-          "relative overflow-hidden flex items-center justify-center font-bold bg-slate-800 shrink-0 select-none z-10",
+          "relative overflow-hidden flex items-center justify-center font-bold bg-gradient-to-tr from-[#2563eb] to-[#4f46e5] text-white shrink-0 select-none z-10",
           isEligible ? "border-2 border-slate-950 ring-1 ring-amber-400/50" : "border border-white/10",
           className
         )}
       >
-        <span className={cn("text-slate-300", textClass)}>{initials}</span>
+        <span style={{ color: "#ffffff" }} className={cn("text-white font-bold tracking-wider", textClass)}>{initials}</span>
         {src && (
           <img
             src={src}

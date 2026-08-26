@@ -364,6 +364,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             }}
             className="hidden md:flex flex-col fixed inset-y-0 left-0 z-50 w-[84px] border-r border-[#1a3a52] select-none shadow-xl overflow-hidden"
           >
+            <style>{`
+              #light-theme-sidebar, #light-theme-sidebar * {
+                scrollbar-width: none !important;
+                -ms-overflow-style: none !important;
+              }
+              #light-theme-sidebar ::-webkit-scrollbar {
+                display: none !important;
+                width: 0 !important;
+                height: 0 !important;
+              }
+            `}</style>
             {/* Top header spacer matching 64px header height */}
             <div className="h-16 shrink-0 border-b border-[#1a3a52] bg-[#0c2233]" />
 
