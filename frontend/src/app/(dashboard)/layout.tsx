@@ -842,18 +842,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <Link
                   key={tab.href}
                   href={tab.href}
-                  className={`relative py-3 text-[12px] sm:text-[12.5px] font-bold uppercase tracking-wider transition-colors shrink-0 flex items-center gap-1.5 ${
+                  style={{
+                    fontFamily: '"Proxima Nova", sans-serif',
+                    fontSize: "11px",
+                    lineHeight: "16px",
+                    fontWeight: active ? 600 : 500,
+                    color: active ? "#56348f" : "rgb(15, 24, 36)",
+                  }}
+                  className={`relative py-2.5 uppercase tracking-wider transition-colors shrink-0 flex items-center gap-1.5 cursor-pointer ${
                     active
-                      ? "text-[#56348f] dark:text-purple-400 font-extrabold border-b-2 border-[#56348f] dark:border-purple-400 -mb-[1px]"
-                      : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                      ? "border-b-2 border-[#56348f] dark:border-purple-400 -mb-[1px]"
+                      : "hover:text-[#56348f]"
                   }`}
                 >
                   <span>{tab.label}</span>
                   {tab.badge && (
                     <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse inline-block" />
-                  )}
-                  {active && (
-                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-b-[4px] border-b-[#56348f] dark:border-b-purple-400 hidden" />
                   )}
                 </Link>
               );
