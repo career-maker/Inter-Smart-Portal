@@ -1154,67 +1154,196 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
 
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-      {/* Super Admin Welcome Header — Premium Dashboard Style */}
-      <div className="mb-8 pb-6 border-b border-slate-200/40 dark:border-white/5">
-        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+      {/* ─────────────────────────────────────────────────────────────────────────────
+          SUPER ADMIN KEKA-STYLE WELCOME HERO BANNER (MATCHING ALL ROLES)
+      ───────────────────────────────────────────────────────────────────────────── */}
+      <div
+        id="keka-welcome-hero-banner"
+        style={{
+          backgroundImage: `linear-gradient(to right, rgba(12, 24, 45, 0.92) 0%, rgba(15, 23, 42, 0.72) 50%, rgba(12, 24, 45, 0.92) 100%), url('/welcome-banner-bg.jpg')`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+        }}
+        className="relative rounded-md overflow-hidden shadow-xl p-6 sm:p-8 min-h-[160px] flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 border border-white/15 select-none"
+      >
+        <style>{`
+          #keka-welcome-hero-banner, #keka-welcome-hero-banner * {
+            box-sizing: border-box;
+          }
+          #keka-welcome-hero-banner a,
+          #keka-welcome-hero-banner h1,
+          #keka-welcome-hero-banner h2,
+          #keka-welcome-hero-banner h3 {
+            color: #ffffff !important;
+          }
+          #keka-welcome-hero-banner .hero-user-name,
+          #keka-welcome-hero-banner .hero-user-name * {
+            color: #ffffff !important;
+          }
+          #keka-welcome-hero-banner .hero-subtitle,
+          #keka-welcome-hero-banner .hero-subtitle * {
+            color: rgba(255, 255, 255, 0.95) !important;
+          }
+          #keka-welcome-hero-banner .hero-datetime,
+          #keka-welcome-hero-banner .hero-datetime * {
+            color: rgba(255, 255, 255, 0.90) !important;
+          }
+          #keka-welcome-hero-banner .hero-growing-title {
+            color: #fde047 !important;
+          }
+          #keka-welcome-hero-banner .hero-stat-box {
+            background-color: rgba(0, 0, 0, 0.6) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+          }
+          #keka-welcome-hero-banner .hero-stat-value {
+            color: #ffffff !important;
+          }
+          #keka-welcome-hero-banner .hero-stat-label {
+            color: #cbd5e1 !important;
+          }
+          #keka-welcome-hero-banner .status-punched-in,
+          #keka-welcome-hero-banner .status-punched-in * {
+            color: #6ee7b7 !important;
+          }
+          #keka-welcome-hero-banner .status-punched-out,
+          #keka-welcome-hero-banner .status-punched-out * {
+            color: #fde047 !important;
+          }
+          #keka-welcome-hero-banner .status-not-punched,
+          #keka-welcome-hero-banner .status-not-punched * {
+            color: #fecdd3 !important;
+          }
+        `}</style>
 
-          {/* Left: Avatar, Greeting, Metadata */}
-          <div className="flex items-start gap-4 lg:gap-6">
+        {/* Left: Avatar, Name, Role, Location, Attendance Status & Clock */}
+        <div className="flex items-center gap-5 sm:gap-6 z-10 min-w-0">
+          <div className="relative shrink-0">
             <RoyalAvatar
               src={profile.profile_photo_path}
               name={`${profile.first_name} ${profile.last_name || ""}`.trim()}
               userId={user?.id || profile?.id}
-              employeeCode={profile.employee_code || (user as any)?.employee_code}
-              className="w-14 h-14 lg:w-16 lg:h-16 rounded-full text-slate-900 dark:text-white text-lg lg:text-xl shrink-0"
-              textClass="text-slate-900 dark:text-white"
+              employeeCode={profile?.employee_code || (user as any)?.employee_code}
+              className="w-20 h-20 sm:w-22 sm:h-22 rounded-full border-2 border-white/80 shadow-2xl shrink-0"
+              textClass="text-white text-xl font-bold"
             />
-
-            <div className="flex-1 space-y-3">
-              {/* Greeting as Primary Focal Point */}
-              <div>
-                <h1 className="text-4xl lg:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
-                  {greeting}
-                </h1>
-              </div>
-
-              {/* Admin Name & Title */}
-              <div className="flex items-center gap-2">
-                <span className="text-lg lg:text-xl font-bold text-slate-600 dark:text-slate-300">
-                  <RoyalName
-                    name={profile.first_name}
-                    userId={user?.id || profile?.id}
-                    employeeCode={profile.employee_code || (user as any)?.employee_code}
-                  />
-                </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300 text-xs font-bold uppercase tracking-wider rounded-lg border border-amber-200/50 dark:border-amber-500/30">
-                  <Crown className="w-3 h-3" />
-                  Admin
-                </span>
-              </div>
-
-              {/* Date & Time */}
-              <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
-                {format(time, "EEEE, d MMMM yyyy")} • {format(time, "h:mm a")}
-              </p>
-            </div>
           </div>
 
-          {/* Right: Pending Requests Widget — Independent Card */}
+          <div className="min-w-0 space-y-1.5">
+            {/* User Full Name with external link icon & Admin badge */}
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <Link
+                href="/profile"
+                style={{ color: "#ffffff" }}
+                className="hero-user-name text-2xl sm:text-3xl font-bold text-white hover:text-amber-300 transition-colors flex items-center gap-2 group truncate cursor-pointer"
+              >
+                <span style={{ color: "#ffffff" }} className="truncate font-bold">
+                  {profile.first_name} {profile.last_name || ""}
+                </span>
+                <svg className="w-4 h-4 opacity-80 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all text-white shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" strokeLinecap="round" strokeLinejoin="round"/>
+                  <polyline points="15 3 21 3 21 9" strokeLinecap="round" strokeLinejoin="round"/>
+                  <line x1="10" y1="14" x2="21" y2="3" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </Link>
+
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-400/20 text-amber-300 text-xs font-bold uppercase tracking-wider rounded-full border border-amber-400/40 shadow-xs">
+                <Crown className="w-3 h-3 text-amber-300" />
+                Super Admin
+              </span>
+            </div>
+
+            {/* Subtitle: Role • Location */}
+            <p
+              style={{
+                fontFamily: '"Proxima Nova", sans-serif',
+                fontSize: "13px",
+                lineHeight: "20px",
+                color: "rgba(255, 255, 255, 0.95)",
+                fontWeight: 400
+              }}
+              className="hero-subtitle flex items-center gap-2 flex-wrap"
+            >
+              <span style={{ color: "rgba(255, 255, 255, 0.95)" }}>{profile.designation || "Super Administrator"}</span>
+              <span style={{ color: "rgba(255, 255, 255, 0.60)" }}>•</span>
+              <span style={{ color: "rgba(255, 255, 255, 0.95)" }}>Inter Smart, Kochi</span>
+            </p>
+
+            {/* Attendance Status Badge & Real-time Date Time */}
+            <div className="flex items-center gap-3 flex-wrap pt-1">
+              {profile.attendance_status ? (
+                <span
+                  style={{
+                    fontSize: "11px",
+                    lineHeight: "16px",
+                    backgroundColor:
+                      profile.attendance_status === 'Punched In'
+                        ? 'rgba(16, 185, 129, 0.25)'
+                        : profile.attendance_status === 'Punched Out'
+                        ? 'rgba(245, 158, 11, 0.25)'
+                        : 'rgba(225, 29, 72, 0.25)',
+                    borderColor:
+                      profile.attendance_status === 'Punched In'
+                        ? 'rgba(52, 211, 153, 0.8)'
+                        : profile.attendance_status === 'Punched Out'
+                        ? 'rgba(253, 224, 71, 0.8)'
+                        : 'rgba(251, 113, 133, 0.8)',
+                    color:
+                      profile.attendance_status === 'Punched In'
+                        ? '#6ee7b7'
+                        : profile.attendance_status === 'Punched Out'
+                        ? '#fde047'
+                        : '#fecdd3'
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-bold uppercase tracking-wider border shadow-sm"
+                >
+                  {profile.attendance_status === 'Punched In' && (
+                    <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse shrink-0" />
+                  )}
+                  <Clock className="w-3.5 h-3.5 shrink-0" />
+                  <span className="font-bold">{profile.attendance_status}</span>
+                </span>
+              ) : null}
+
+              <span
+                style={{
+                  fontFamily: '"Proxima Nova", sans-serif',
+                  fontSize: "12px",
+                  lineHeight: "16px",
+                  color: "rgba(255, 255, 255, 0.90)"
+                }}
+                className="hero-datetime font-medium"
+              >
+                {format(time, "EEEE, d MMMM yyyy")} • {format(time, "h:mm:ss a")}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Right: Growing Together Card + Pending Items Card */}
+        <div className="z-10 shrink-0 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          {profile.service_stats && (
+            <GrowingTogetherCard
+              liveStats={profile.service_stats}
+              defaultStats={profile.service_stats}
+            />
+          )}
+
           <Link
             href="/leaves/approvals"
-            className="group lg:self-end w-full lg:w-auto flex flex-col justify-center bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-300 rounded-md p-5 md:p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer"
+            className="group flex flex-col justify-center bg-black/40 border border-white/15 hover:border-amber-400/50 transition-all duration-300 rounded-md p-4 sm:p-4.5 shadow-2xl backdrop-blur-md cursor-pointer text-white min-w-[160px]"
           >
-            <p className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <p className="text-[11px] font-bold text-amber-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
               Pending Items
             </p>
             <div className="flex items-baseline gap-2">
-              <p className="text-3xl lg:text-4xl font-black text-slate-900 dark:text-white">
+              <p className="text-2xl sm:text-3xl font-black text-white font-mono">
                 {kpis.pending_requests}
               </p>
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold">request{kpis.pending_requests !== 1 ? 's' : ''}</p>
+              <p className="text-[11px] text-slate-300 font-semibold">request{kpis.pending_requests !== 1 ? 's' : ''}</p>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">
+            <p className="text-[11px] text-slate-300 mt-1 group-hover:text-amber-300 transition-colors">
               Awaiting review →
             </p>
           </Link>
