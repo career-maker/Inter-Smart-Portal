@@ -40,8 +40,30 @@ export default function CommunityPage() {
   const fetchSummary = async () => {
     try {
       setLoading(true);
-      const res = await api.get("/community/summary");
-      setSummary(res.data);
+      const [comRes, dashRes] = await Promise.allSettled([
+        api.get("/community/summary"),
+        api.get("/dashboard/stats"),
+      ]);
+
+      const comData = comRes.status === "fulfilled" ? comRes.value.data : {};
+      const dashData = dashRes.status === "fulfilled" ? dashRes.value.data : {};
+
+      const cl =
+        dashData?.leave_metrics?.casual_leave_balance ??
+        comData?.leave_balances?.casual ??
+        0;
+      const sl =
+        dashData?.leave_metrics?.sick_leave_balance ??
+        comData?.leave_balances?.sick ??
+        0;
+
+      setSummary({
+        ...comData,
+        leave_balances: {
+          casual: cl,
+          sick: sl,
+        },
+      });
     } catch (err) {
       console.error("Failed to load community summary", err);
     } finally {
@@ -56,7 +78,10 @@ export default function CommunityPage() {
   const holiday = summary?.upcoming_holiday;
   const onLeave = summary?.on_leave_today || [];
   const onWfh = summary?.wfh_today || [];
-  const leaveBalances = summary?.leave_balances || { casual: 12, sick: 10 };
+  const leaveBalances = {
+    casual: summary?.leave_balances?.casual ?? 0,
+    sick: summary?.leave_balances?.sick ?? 0,
+  };
   const celebrations = summary?.celebrations || {
     birthdays_today: [],
     birthdays_upcoming: [],
