@@ -6,9 +6,22 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/auth";
+import { useEffect } from "react";
 
 export default function CreateEmployeePage() {
   const router = useRouter();
+  const user = useAuthStore((state) => state.user);
+
+  useEffect(() => {
+    if (user && user.role !== "Super Admin") {
+      router.push("/employees");
+    }
+  }, [user, router]);
+
+  if (user && user.role !== "Super Admin") {
+    return null;
+  }
 
   return (
     <div className="space-y-6">

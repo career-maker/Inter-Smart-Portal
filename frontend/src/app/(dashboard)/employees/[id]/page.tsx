@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { PageLoader } from "@/components/ui/PageLoader";
 import Link from "next/link";
 import { ArrowLeft, Camera, KeyRound, Link2, Upload, Loader2, CheckCircle2 } from "lucide-react";
@@ -29,6 +29,7 @@ function convertGoogleDriveUrl(url: string): string {
 
 export default function EditEmployeePage() {
   const params = useParams();
+  const router = useRouter();
   const [employee, setEmployee] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [passwordLoading, setPasswordLoading] = useState(false);
@@ -42,6 +43,12 @@ export default function EditEmployeePage() {
 
   const { user } = useAuthStore();
   const isSuperAdmin = user?.role === "Super Admin";
+
+  useEffect(() => {
+    if (user && !isSuperAdmin) {
+      router.push("/employees");
+    }
+  }, [user, isSuperAdmin, router]);
 
   useEffect(() => {
     fetchEmployee();

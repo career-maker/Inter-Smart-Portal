@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Search, MoreHorizontal, FileEdit, Trash2, Ban, CheckCircle, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import api from "@/services/api";
+import { useAuthStore } from "@/store/auth";
 import { FavoriteButton } from "@/components/layout/FavoriteButton";
 import { SyncHubstaffUsersModal } from "@/components/employees/SyncHubstaffUsersModal";
 import { Link2 } from "lucide-react";
@@ -33,6 +34,8 @@ export default function EmployeesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
+  const user = useAuthStore((state) => state.user);
+  const isSuperAdmin = user?.role === "Super Admin";
 
   useEffect(() => {
     setCurrentPage(1);
@@ -88,17 +91,21 @@ export default function EmployeesPage() {
         </div>
         <div className="flex items-center gap-2">
           <FavoriteButton label="Employees" />
-          <Button
-            onClick={() => setIsSyncModalOpen(true)}
-            variant="outline"
-            className="border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 font-semibold gap-2"
-            title="Map and sync Hubstaff users with HR Portal employee profiles"
-          >
-            <Link2 className="h-4 w-4 text-blue-500" /> Sync Users with Hubstaff
-          </Button>
-          <Button onClick={() => router.push("/employees/create")} className="bg-amber-500 hover:bg-amber-600 text-white font-semibold gap-2">
-            <Plus className="h-4 w-4" /> Add Employee
-          </Button>
+          {isSuperAdmin && (
+            <>
+              <Button
+                onClick={() => setIsSyncModalOpen(true)}
+                variant="outline"
+                className="border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 font-semibold gap-2"
+                title="Map and sync Hubstaff users with HR Portal employee profiles"
+              >
+                <Link2 className="h-4 w-4 text-blue-500" /> Sync Users with Hubstaff
+              </Button>
+              <Button onClick={() => router.push("/employees/create")} className="bg-amber-500 hover:bg-amber-600 text-white font-semibold gap-2">
+                <Plus className="h-4 w-4" /> Add Employee
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
@@ -141,7 +148,9 @@ export default function EmployeesPage() {
                     <th className="text-left py-3 px-4 font-semibold text-slate-900 dark:text-white">Role</th>
                     <th className="text-left py-3 px-4 font-semibold text-slate-900 dark:text-white">Team</th>
                     <th className="text-left py-3 px-4 font-semibold text-slate-900 dark:text-white">Status</th>
-                    <th className="text-right py-3 px-4 font-semibold text-slate-900 dark:text-white">Actions</th>
+                    {isSuperAdmin && (
+                      <th className="text-right py-3 px-4 font-semibold text-slate-900 dark:text-white">Actions</th>
+                    )}
                   </tr>
                 </thead>
                 <tbody>
@@ -179,33 +188,35 @@ export default function EmployeesPage() {
                           {emp.status === 'Active' ? 'Active' : 'Disabled'}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-white/10 transition-colors">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="bg-white dark:bg-slate-800 border-slate-200 dark:border-white/10">
-                            <DropdownMenuGroup>
-                              <DropdownMenuLabel className="text-slate-600 dark:text-slate-300">Actions</DropdownMenuLabel>
-                              <DropdownMenuItem onClick={() => router.push(`/employees/${emp.id}`)} className="text-slate-600 dark:text-slate-300 cursor-pointer hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-white/10">
-                                <FileEdit className="mr-2 h-4 w-4" /> Edit Profile
+                      {isSuperAdmin && (
+                        <td className="py-3 px-4 text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-white/10 transition-colors">
+                              <span className="sr-only">Open menu</span>
+                              <MoreHorizontal className="h-4 w-4" />
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="bg-white dark:bg-slate-800 border-slate-200 dark:border-white/10">
+                              <DropdownMenuGroup>
+                                <DropdownMenuLabel className="text-slate-600 dark:text-slate-300">Actions</DropdownMenuLabel>
+                                <DropdownMenuItem onClick={() => router.push(`/employees/${emp.id}`)} className="text-slate-600 dark:text-slate-300 cursor-pointer hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-white/10">
+                                  <FileEdit className="mr-2 h-4 w-4" /> Edit Profile
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleToggleStatus(emp.id, emp.status)} className="text-slate-600 dark:text-slate-300 cursor-pointer hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-white/10">
+                                  {emp.status === 'Active' ? (
+                                    <><Ban className="mr-2 h-4 w-4" /> Disable Account</>
+                                  ) : (
+                                    <><CheckCircle className="mr-2 h-4 w-4" /> Enable Account</>
+                                  )}
+                                </DropdownMenuItem>
+                              </DropdownMenuGroup>
+                              <DropdownMenuSeparator className="bg-white/10" />
+                              <DropdownMenuItem onClick={() => handleDelete(emp.id)} className="text-rose-400 cursor-pointer hover:text-rose-300 hover:bg-rose-500/10">
+                                <Trash2 className="mr-2 h-4 w-4" /> Delete
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleToggleStatus(emp.id, emp.status)} className="text-slate-600 dark:text-slate-300 cursor-pointer hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-white/10">
-                                {emp.status === 'Active' ? (
-                                  <><Ban className="mr-2 h-4 w-4" /> Disable Account</>
-                                ) : (
-                                  <><CheckCircle className="mr-2 h-4 w-4" /> Enable Account</>
-                                )}
-                              </DropdownMenuItem>
-                            </DropdownMenuGroup>
-                            <DropdownMenuSeparator className="bg-white/10" />
-                            <DropdownMenuItem onClick={() => handleDelete(emp.id)} className="text-rose-400 cursor-pointer hover:text-rose-300 hover:bg-rose-500/10">
-                              <Trash2 className="mr-2 h-4 w-4" /> Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </td>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
