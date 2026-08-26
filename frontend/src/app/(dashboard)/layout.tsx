@@ -325,18 +325,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             backgroundColor: "#0e2638",
             fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
           }}
-          className="hidden md:flex flex-col fixed inset-y-0 left-0 z-50 w-[82px] border-r border-[#1a3a52] select-none text-white"
+          className="hidden md:flex flex-col fixed inset-y-0 left-0 z-50 w-[84px] border-r border-[#1a3a52] select-none text-white shadow-xl"
         >
-          {/* Logo Brand Header */}
-          <div className="h-16 flex flex-col items-center justify-center border-b border-[#1a3a52] shrink-0 bg-[#0c2233]">
-            <Link href="/dashboard" className="flex items-center justify-center p-1.5">
-              <img src="/logo.png" alt="Logo" className="h-7 w-auto object-contain brightness-0 invert" />
-            </Link>
+          {/* Top spacer matching header height */}
+          <div className="h-16 flex items-center justify-center border-b border-[#1a3a52] shrink-0 bg-[#0a1d2c]">
+            <div className="w-8 h-1 bg-white/20 rounded-full" />
           </div>
 
-          {/* Navigation Items (Icon on top, Label underneath) */}
-          <div className="flex-1 overflow-y-auto overflow-x-visible py-2 custom-scrollbar">
-            <nav className="space-y-1 px-1.5">
+          {/* Navigation Items (Icon on top, high-contrast Label underneath) */}
+          <div className="flex-1 overflow-y-auto overflow-x-visible py-3 custom-scrollbar">
+            <nav className="space-y-1.5 px-1.5">
               {/* Standalone Link (Home / Dashboard) */}
               {STANDALONE.map(({ href, label, icon: Icon }) => {
                 const active = pathname === href;
@@ -347,14 +345,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     onClick={() => setActiveFlyoutGroup(null)}
                     style={{
                       backgroundColor: active ? "#071520" : undefined,
-                      color: active ? "#ffffff" : "rgba(255, 255, 255, 0.72)",
                     }}
-                    className={`group w-full flex flex-col items-center justify-center py-2.5 px-1 rounded-lg transition-colors relative cursor-pointer hover:bg-[#133249] hover:text-white ${
-                      active ? "font-semibold shadow-inner" : ""
+                    className={`group w-full flex flex-col items-center justify-center py-3 px-1 rounded-xl transition-all relative cursor-pointer hover:bg-[#133249] ${
+                      active ? "text-white font-bold shadow-md border-l-2 border-amber-400" : "text-[#e2e8f0] hover:text-white"
                     }`}
                   >
-                    <Icon className={`w-5 h-5 mb-1 shrink-0 ${active ? "text-white" : "text-white/70 group-hover:text-white"}`} />
-                    <span className="text-[11px] leading-[14px] font-[500] text-center truncate max-w-full px-0.5">
+                    <Icon className={`w-5 h-5 mb-1.5 shrink-0 transition-colors ${active ? "text-amber-400" : "text-[#cbd5e1] group-hover:text-white"}`} />
+                    <span className={`text-[11.5px] leading-[15px] font-[500] text-center tracking-tight truncate max-w-full px-0.5 ${
+                      active ? "text-white font-bold" : "text-[#e2e8f0] group-hover:text-white"
+                    }`}>
                       {label}
                     </span>
                   </Link>
@@ -383,21 +382,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       onClick={() => setActiveFlyoutGroup(isFlyoutOpen ? null : group.id)}
                       style={{
                         backgroundColor: groupActive || isFlyoutOpen ? "#071520" : undefined,
-                        color: groupActive || isFlyoutOpen ? "#ffffff" : "rgba(255, 255, 255, 0.72)",
                       }}
-                      className={`group w-full flex flex-col items-center justify-center py-2.5 px-1 rounded-lg transition-colors relative cursor-pointer hover:bg-[#133249] hover:text-white ${
-                        groupActive ? "font-semibold shadow-inner" : ""
+                      className={`group w-full flex flex-col items-center justify-center py-3 px-1 rounded-xl transition-all relative cursor-pointer hover:bg-[#133249] ${
+                        groupActive ? "text-white font-bold shadow-md border-l-2 border-amber-400" : "text-[#e2e8f0] hover:text-white"
                       }`}
                     >
                       {/* Red notification badge on icon top-right */}
                       {hasBadge && (
-                        <span className="absolute top-1 right-2 bg-[#ff5252] text-white text-[10px] font-bold rounded-full px-1.5 py-0.2 min-w-[18px] text-center shadow-md animate-pulse">
+                        <span className="absolute top-1.5 right-2 bg-[#ff5252] text-white text-[10px] font-bold rounded-full px-1.5 py-0.2 min-w-[18px] text-center shadow-md animate-pulse">
                           {pendingApprovalsCount}
                         </span>
                       )}
 
-                      <GroupIcon className={`w-5 h-5 mb-1 shrink-0 ${groupActive || isFlyoutOpen ? "text-white" : "text-white/70 group-hover:text-white"}`} />
-                      <span className="text-[11px] leading-[14px] font-[500] text-center truncate max-w-full px-0.5">
+                      <GroupIcon className={`w-5 h-5 mb-1.5 shrink-0 transition-colors ${groupActive || isFlyoutOpen ? "text-amber-400" : "text-[#cbd5e1] group-hover:text-white"}`} />
+                      <span className={`text-[11.5px] leading-[15px] font-[500] text-center tracking-tight truncate max-w-full px-0.5 ${
+                        groupActive || isFlyoutOpen ? "text-white font-bold" : "text-[#e2e8f0] group-hover:text-white"
+                      }`}>
                         {group.shortLabel || group.label}
                       </span>
                     </button>
@@ -413,16 +413,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                           borderColor: "#1a3a52",
                           fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
                         }}
-                        className="absolute left-[78px] top-0 w-60 rounded-r-xl rounded-bl-xl shadow-2xl border border-[#1a3a52] overflow-hidden z-[100] py-1.5 animate-in fade-in zoom-in-95 duration-150"
+                        className="absolute left-[80px] top-0 w-64 rounded-r-2xl rounded-bl-2xl shadow-2xl border border-[#1a3a52] overflow-hidden z-[100] py-2 animate-in fade-in zoom-in-95 duration-150"
                       >
                         {/* Submenu Title */}
-                        <div className="px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-[#1a3a52] flex items-center justify-between">
-                          <span>{group.label}</span>
-                          <span className="text-[10px] text-slate-400 font-normal">Menu</span>
+                        <div className="px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider text-slate-300 border-b border-[#1a3a52] flex items-center justify-between bg-[#0a1d2c]/60">
+                          <span className="text-white font-bold">{group.label}</span>
+                          <span className="text-[10px] text-slate-400 font-medium">Menu</span>
                         </div>
 
                         {/* Submenu Links */}
-                        <div className="py-1 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                        <div className="py-1.5 max-h-[70vh] overflow-y-auto custom-scrollbar">
                           {visibleItems.map((item) => {
                             const hasExactMatch = visibleItems.some((i) => pathname === i.href);
                             const active = hasExactMatch
@@ -449,7 +449,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                   href={item.href}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="group flex items-center px-4 py-2.5 text-[12px] font-[500] text-white/80 hover:text-white hover:bg-[#163b56] transition-colors"
+                                  className="group flex items-center px-4 py-2.5 text-[12.5px] font-[500] text-[#e2e8f0] hover:text-white hover:bg-[#163b56] transition-colors"
                                 >
                                   {itemContent}
                                 </a>
@@ -463,12 +463,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 onClick={() => setActiveFlyoutGroup(null)}
                                 style={{
                                   backgroundColor: active ? "#071520" : undefined,
-                                  color: active ? "#ffffff" : undefined,
                                 }}
-                                className={`group flex items-center px-4 py-2.5 text-[12px] font-[500] transition-colors ${
+                                className={`group flex items-center px-4 py-2.5 text-[12.5px] font-[500] transition-colors ${
                                   active
                                     ? "text-white font-bold bg-[#071520] border-l-2 border-amber-400"
-                                    : "text-white/80 hover:text-white hover:bg-[#163b56]"
+                                    : "text-[#e2e8f0] hover:text-white hover:bg-[#163b56]"
                                 }`}
                               >
                                 {itemContent}
@@ -485,10 +484,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
 
           {/* User Profile Mini Badge (Bottom) */}
-          <div className="p-2 border-t border-[#1a3a52] shrink-0 bg-[#0c2233] flex flex-col items-center justify-center">
+          <div className="p-2 border-t border-[#1a3a52] shrink-0 bg-[#0a1d2c] flex flex-col items-center justify-center">
             <Link
               href="/profile"
-              className="flex flex-col items-center justify-center p-1 rounded-lg hover:bg-[#133249] transition-colors group cursor-pointer"
+              className="flex flex-col items-center justify-center p-1 rounded-xl hover:bg-[#133249] transition-colors group cursor-pointer"
               title={`${user?.first_name} ${user?.last_name} (${user?.role})`}
             >
               <RoyalAvatar
@@ -497,7 +496,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 userId={user?.id}
                 className="w-8 h-8 rounded-full bg-amber-400 text-xs font-bold text-white mb-0.5"
               />
-              <span className="text-[10px] text-white/80 font-medium truncate max-w-[70px] text-center">
+              <span className="text-[10.5px] text-[#e2e8f0] font-medium truncate max-w-[72px] text-center">
                 {user?.first_name}
               </span>
             </Link>
