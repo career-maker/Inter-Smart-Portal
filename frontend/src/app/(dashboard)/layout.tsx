@@ -9,12 +9,14 @@ import {
   LogOut, Menu, X, ChevronRight, Home, ChevronDown,
   LayoutDashboard, CalendarCheck, Briefcase, UserCircle,
   Users, ShieldCheck, PanelLeftClose, PanelLeftOpen,
-  FolderKanban, CheckSquare, Clock, Building2, HeartHandshake, HelpCircle
+  FolderKanban, CheckSquare, Clock, Building2, HeartHandshake, HelpCircle,
+  Search, Rocket, Bell, Settings
 } from "lucide-react";
 import { NotificationDropdown } from "@/components/layout/NotificationDropdown";
 import { RecognitionTicker } from "@/components/layout/RecognitionTicker";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { FavoritesNav } from "@/components/layout/FavoritesNav";
+import { CommandPalette } from "@/components/CommandPalette";
 import api from "@/services/api";
 import Script from "next/script";
 import ChatbaseLottieButton from "@/components/ChatbaseLottieButton";
@@ -169,7 +171,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   
-  // Flyout State for Light Theme
+  // Search Modal & Flyout State
+  const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [flyoutState, setFlyoutState] = useState<{ groupId: string; top: number } | null>(null);
   const [pendingApprovalsCount, setPendingApprovalsCount] = useState(0);
   const flyoutTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -315,11 +318,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const activeFlyoutGroupObj = flyoutState ? NAV_GROUPS.find((g) => g.id === flyoutState.groupId) : null;
   const activeFlyoutVisibleItems = activeFlyoutGroupObj ? activeFlyoutGroupObj.items.filter((i) => isItemVisible(i, userRole)) : [];
 
+  const userInitials = `${user?.first_name?.[0] || ""}${user?.last_name?.[0] || ""}`.toUpperCase() || "AP";
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-background flex">
+      {/* ── Command Palette / Search Modal ── */}
+      <CommandPalette open={searchModalOpen} onOpenChange={setSearchModalOpen} />
+
       {/* ─────────────────────────────────────────────────────────────────────────────
           SIDEBAR - LIGHT THEME (KEKA EXACT STYLE: NAVY #0e2638, SOFT BLUE LABELS #8ea7bc,
-          ACTIVE DARK RECTANGLE #071724 WITH WHITE TEXT, CLEAN PORTAL SUBMENU, NO OUTLINES)
+          ACTIVE SOLID RECTANGLE #071724 WITH WHITE TEXT, CLEAN PORTAL SUBMENU, NO OUTLINES)
       ───────────────────────────────────────────────────────────────────────────── */}
       {!isDark && (
         <>
@@ -347,7 +355,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       onClick={() => setFlyoutState(null)}
                       style={{
                         backgroundColor: active ? "#071724" : "transparent",
-                        color: active ? "#ffffff" : "#8ea7bc",
                       }}
                       className={`group w-full flex flex-col items-center justify-center py-2.5 px-0.5 rounded-lg transition-colors relative cursor-pointer hover:bg-[#133249] ${
                         active ? "font-semibold" : "font-normal"
@@ -395,7 +402,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         }}
                         style={{
                           backgroundColor: isHighlighted ? "#071724" : "transparent",
-                          color: isHighlighted ? "#ffffff" : "#8ea7bc",
                         }}
                         className={`group w-full flex flex-col items-center justify-center py-2.5 px-0.5 rounded-lg transition-colors relative cursor-pointer hover:bg-[#133249] ${
                           isHighlighted ? "font-semibold" : "font-normal"
@@ -432,12 +438,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 className="flex flex-col items-center justify-center p-1 rounded-xl hover:bg-[#133249] transition-colors group cursor-pointer"
                 title={`${user?.first_name} ${user?.last_name} (${user?.role})`}
               >
-                <RoyalAvatar
-                  src={user?.profile_photo_path}
-                  name={`${user?.first_name} ${user?.last_name}`}
-                  userId={user?.id}
-                  className="w-8 h-8 rounded-full bg-amber-400 text-xs font-bold text-white mb-0.5"
-                />
+                <div className="w-8 h-8 rounded-full bg-[#3b82f6] text-white text-xs font-bold flex items-center justify-center mb-0.5 shadow-sm">
+                  {userInitials}
+                </div>
                 <span style={{ color: "#8ea7bc" }} className="text-[10.5px] font-medium truncate max-w-[74px] text-center group-hover:!text-white">
                   {user?.first_name}
                 </span>
@@ -659,44 +662,106 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       }`}>
         <RecognitionTicker />
         
-        <header className="bg-white/95 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-white/10 shadow-sm sticky top-0 z-40">
-          <div className="px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+        {/* ── TOP HEADER (KEKA PURPLE #5a3794 FOR LIGHT THEME, SLATE-900 FOR DARK THEME) ── */}
+        <header
+          style={{
+            backgroundColor: !isDark ? "#56348f" : undefined,
+            fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+          }}
+          className={`${
+            !isDark ? "text-white shadow-md" : "bg-slate-900/80 backdrop-blur-md border-b border-white/10 text-slate-200"
+          } sticky top-0 z-40 transition-colors`}
+        >
+          <div className="px-3 sm:px-6 h-16 flex items-center justify-between gap-3 sm:gap-6">
             
-            {/* Mobile Left: Hamburger + Logo */}
-            <div className="flex items-center gap-3 md:hidden">
+            {/* Left: Mobile Hamburger + Logo + Brand Pill */}
+            <div className="flex items-center gap-2 sm:gap-4 shrink-0">
               <button
-                className="p-2 -ml-2 rounded-lg transition-colors shrink-0 hover:!bg-transparent active:!bg-transparent"
+                className="p-2 -ml-2 rounded-lg transition-colors shrink-0 md:hidden text-white/90 hover:text-white"
                 onClick={() => setMenuOpen((v) => !v)}
                 aria-label="Toggle menu"
               >
-                {menuOpen ? <X className="h-6 w-6 text-slate-600 dark:text-slate-300" /> : <Menu className="h-6 w-6 text-slate-600 dark:text-slate-300" />}
+                {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </button>
-              <Link href="/dashboard" className="flex items-center shrink min-w-0">
-                <img src={isDark ? "/logo-dark.png" : "/logo-light.png"} alt="Inter Smart Logo" className="h-8 object-contain" />
-              </Link>
-            </div>
-
-            {/* Desktop Left: Colored Dark Logo for Light Theme, Light Logo for Dark Theme */}
-            <div className="hidden md:flex flex-1 items-center">
-              <Link href="/dashboard" className="flex items-center shrink min-w-0">
+              
+              <Link href="/dashboard" className="flex items-center gap-3 shrink-0">
                 <img
-                  src={isDark ? "/logo-dark.png" : "/logo-light.png"}
+                  src="/logo.png"
                   alt="Inter Smart Logo"
-                  className="h-10 sm:h-12 w-auto object-contain shrink-0 max-w-[180px]"
+                  className="h-8 sm:h-9 w-auto object-contain brightness-0 invert"
                 />
+                <span className="hidden sm:inline-block bg-white/15 text-white/95 px-2.5 py-1 rounded-full text-xs font-semibold tracking-wide border border-white/10">
+                  Inter Smart Inc
+                </span>
               </Link>
             </div>
 
-            {/* Right side */}
-            <div className="flex items-center gap-2 sm:gap-4 shrink-0 ml-auto">
-              <ThemeToggle />
+            {/* Center: Search Bar with Alt + K Pill Trigger */}
+            <div className="flex-1 max-w-lg mx-auto hidden sm:block">
+              <button
+                type="button"
+                onClick={() => setSearchModalOpen(true)}
+                className="w-full bg-white hover:bg-slate-50 transition-all rounded-full px-4 py-2 flex items-center justify-between text-xs text-slate-600 shadow-md border border-white/30 cursor-pointer group"
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <Search className="w-4 h-4 text-purple-600 shrink-0 group-hover:scale-110 transition-transform" />
+                  <span className="text-slate-400 font-normal truncate">
+                    Search employees or actions (Ex: Apply Leave)
+                  </span>
+                </div>
+                <kbd className="text-[10px] bg-slate-100 text-slate-500 font-bold px-2.5 py-0.5 rounded-full border border-slate-200 shrink-0 ml-2 shadow-inner">
+                  Alt + K
+                </kbd>
+              </button>
+            </div>
+
+            {/* Right: Actions & User Avatar */}
+            <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 ml-auto">
+              {/* Mobile search trigger */}
+              <button
+                type="button"
+                onClick={() => setSearchModalOpen(true)}
+                className="p-2 text-white/80 hover:text-white rounded-full hover:bg-white/10 sm:hidden transition-colors"
+                aria-label="Search"
+              >
+                <Search className="w-5 h-5" />
+              </button>
+
+              <button
+                onClick={() => setSearchModalOpen(true)}
+                className="p-2 text-white/80 hover:text-white rounded-full hover:bg-white/10 hidden md:flex transition-colors"
+                title="Quick Launch"
+              >
+                <Rocket className="w-4 h-4" />
+              </button>
+
               <NotificationDropdown />
+
+              <ThemeToggle />
+
+              <Link
+                href="/settings"
+                className="p-2 text-white/80 hover:text-white rounded-full hover:bg-white/10 hidden sm:flex transition-colors"
+                title="Settings"
+              >
+                <Settings className="w-4 h-4" />
+              </Link>
+
+              <Link
+                href="/profile"
+                className="flex items-center gap-2 p-1 rounded-full hover:bg-white/10 transition-colors"
+                title={`${user?.first_name} ${user?.last_name}`}
+              >
+                <div className="w-8 h-8 rounded-full bg-[#38bdf8] text-white text-xs font-bold flex items-center justify-center shadow-sm">
+                  {userInitials}
+                </div>
+              </Link>
 
               <button
                 onClick={handleLogout}
-                className="hidden sm:flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 hover:text-rose-500 transition-colors px-3 py-2 rounded-lg hover:bg-rose-500/10 font-medium"
+                className="hidden lg:flex items-center gap-1 text-xs text-white/80 hover:text-rose-200 transition-colors px-2.5 py-1.5 rounded-lg hover:bg-white/10 font-medium"
               >
-                <LogOut className="h-4 w-4" />
+                <LogOut className="h-3.5 w-3.5" />
                 <span>Logout</span>
               </button>
             </div>
@@ -715,28 +780,38 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </main>
       </div>
 
-      {/* Mobile Drawer (both modes) */}
+      {/* ─────────────────────────────────────────────────────────────────────────────
+          MOBILE DRAWER (HIGH CONTRAST BRIGHT TEXT FOR ALL DEVICES, ZERO OVERFLOW BUG)
+      ───────────────────────────────────────────────────────────────────────────── */}
       {menuOpen && (
         <div className="fixed inset-0 z-50 md:hidden flex">
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={closeMenu} />
-          <div className="relative w-4/5 max-w-xs bg-slate-900 border-r border-slate-800 flex flex-col h-full z-10">
-            <div className="h-16 flex items-center justify-between px-4 border-b border-slate-800">
-              <img src="/logo-dark.png" alt="Inter Smart Logo" className="h-8 object-contain" />
-              <button onClick={closeMenu} className="p-1 rounded-lg text-slate-400 hover:text-white">
-                <X className="h-6 w-6" />
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm" onClick={closeMenu} />
+          <div
+            style={{
+              backgroundColor: "#0e2638",
+              fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+            }}
+            className="relative w-4/5 max-w-xs border-r border-[#1a3a52] flex flex-col h-full z-10 text-white shadow-2xl overflow-hidden"
+          >
+            {/* Drawer Header */}
+            <div className="h-16 flex items-center justify-between px-5 border-b border-[#1a3a52] bg-[#0c2233]">
+              <img src="/logo.png" alt="Inter Smart Logo" className="h-8 object-contain brightness-0 invert" />
+              <button onClick={closeMenu} className="p-1.5 rounded-lg text-[#8ea7bc] hover:text-white hover:bg-[#133249]">
+                <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto py-4 px-3 space-y-4">
+            {/* Drawer Navigation List with High-Contrast Text */}
+            <div className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-3 space-y-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {STANDALONE.map(({ href, label, icon: Icon }) => (
                 <Link
                   key={href}
                   href={href}
                   onClick={closeMenu}
-                  className="flex items-center gap-3 px-3 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-800 rounded-xl"
+                  className="flex items-center gap-3.5 px-3.5 py-2.5 text-sm font-semibold text-[#ffffff] bg-[#071724] rounded-xl border border-white/5 shadow-sm"
                 >
-                  <Icon className="h-5 w-5" />
-                  <span>{label}</span>
+                  <Icon className="h-5 w-5 text-amber-400" />
+                  <span className="text-white font-medium">{label}</span>
                 </Link>
               ))}
 
@@ -746,30 +821,54 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 const GroupIcon = group.icon;
 
                 return (
-                  <div key={group.id} className="space-y-1">
-                    <div className="px-3 text-xs font-bold uppercase tracking-wider text-slate-500">
-                      {group.label}
+                  <div key={group.id} className="space-y-1.5 pt-2">
+                    <div className="px-3 text-[11px] font-bold uppercase tracking-wider text-[#8ea7bc] flex items-center gap-2">
+                      <GroupIcon className="w-3.5 h-3.5 text-purple-400" />
+                      <span>{group.label}</span>
                     </div>
-                    {visibleItems.map((item) => (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        onClick={closeMenu}
-                        className="flex items-center gap-3 px-4 py-2 text-sm text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl"
-                      >
-                        <GroupIcon className="h-4 w-4" />
-                        <span>{item.label}</span>
-                      </Link>
-                    ))}
+                    <div className="space-y-1 pl-2 border-l border-[#1a3a52] ml-2">
+                      {visibleItems.map((item) => {
+                        const hasExactMatch = visibleItems.some((i) => pathname === i.href);
+                        const active = hasExactMatch
+                          ? pathname === item.href
+                          : pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"));
+
+                        return (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            onClick={closeMenu}
+                            className={`flex items-center justify-between px-3 py-2 text-xs rounded-lg transition-colors ${
+                              active
+                                ? "bg-[#071724] text-white font-bold border-l-2 border-amber-400"
+                                : "text-[#cbd5e1] hover:text-white hover:bg-[#133249]"
+                            }`}
+                          >
+                            <span className="truncate">{item.label}</span>
+                            <ChevronRight className="w-3.5 h-3.5 text-[#8ea7bc]" />
+                          </Link>
+                        );
+                      })}
+                    </div>
                   </div>
                 );
               })}
             </div>
 
-            <div className="p-4 border-t border-slate-800">
+            {/* Drawer Bottom User & Logout */}
+            <div className="p-4 border-t border-[#1a3a52] bg-[#0c2233] space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-[#38bdf8] text-white text-xs font-bold flex items-center justify-center">
+                  {userInitials}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-bold text-white truncate">{user?.first_name} {user?.last_name}</div>
+                  <div className="text-xs text-[#8ea7bc] truncate">{user?.role}</div>
+                </div>
+              </div>
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center justify-center gap-2 p-2.5 text-sm font-semibold text-rose-400 hover:bg-rose-500/10 rounded-xl"
+                className="w-full flex items-center justify-center gap-2 py-2 text-xs font-semibold text-rose-300 hover:bg-rose-500/20 rounded-xl transition-colors border border-rose-500/30"
               >
                 <LogOut className="h-4 w-4" />
                 <span>Logout</span>
