@@ -29,14 +29,16 @@ class ProjectController extends Controller
         $user = $request->user();
         $query = Project::query()->with(['team:id,name', 'coordinator:id,first_name,last_name']);
 
-        if (!$user->hasRole('Super Admin') && !$user->can('view all projects')) {
+        $canViewAll = $user->hasRole('Super Admin')
+            || $user->hasRole('Admin')
+            || $user->hasRole('Team Lead')
+            || $user->can('view all projects')
+            || in_array(strtolower($user->role ?? ''), ['super admin', 'admin', 'team lead'], true);
+
+        if (!$canViewAll) {
             $query->where(function ($q) use ($user) {
                 $q->where('project_coordinator_id', $user->id)
                   ->orWhereHas('members', fn ($m) => $m->where('users.id', $user->id));
-
-                if ($user->hasRole('Team Lead') && $user->team_id) {
-                    $q->orWhere('team_id', $user->team_id);
-                }
             });
         }
 

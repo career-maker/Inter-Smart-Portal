@@ -83,7 +83,14 @@ class ProjectAuthorizationService
      */
     public function canViewProject(User $user, Project $project): bool
     {
-        if ($user->hasRole('Super Admin') || $user->can('view all projects')) {
+        // All projects are accessible to Super Admin, Admin, and all Team Leads
+        if (
+            $user->hasRole('Super Admin') ||
+            $user->hasRole('Admin') ||
+            $user->hasRole('Team Lead') ||
+            $user->can('view all projects') ||
+            in_array(strtolower($user->role ?? ''), ['super admin', 'admin', 'team lead'], true)
+        ) {
             return true;
         }
 
@@ -92,10 +99,6 @@ class ProjectAuthorizationService
         }
 
         if ($this->isProjectMember($user, $project)) {
-            return true;
-        }
-
-        if ($user->hasRole('Team Lead') && $project->team_id !== null && $project->team_id === $user->team_id) {
             return true;
         }
 
@@ -120,8 +123,8 @@ class ProjectAuthorizationService
         }
 
         return $user->hasRole('Team Lead')
-            && $project->team_id !== null
-            && $project->team_id === $user->team_id;
+            || $user->hasRole('Admin')
+            || in_array(strtolower($user->role ?? ''), ['super admin', 'admin', 'team lead'], true);
     }
 
     /**
