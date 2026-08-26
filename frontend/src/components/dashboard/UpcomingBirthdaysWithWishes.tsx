@@ -64,9 +64,11 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
       </div>
 
       {upcomingItems.length === 0 ? (
-        <p className="text-xs text-slate-500 dark:text-slate-400 py-4 text-center">
-          No upcoming birthdays in the next 30 days.
-        </p>
+        <div className="py-6 text-center">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            No upcoming birthdays in the next 30 days.
+          </p>
+        </div>
       ) : (
         <div className="space-y-2.5">
           {upcomingItems.slice(0, 3).map((person: any, idx: number) => {

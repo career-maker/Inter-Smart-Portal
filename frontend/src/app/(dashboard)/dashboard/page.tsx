@@ -689,39 +689,43 @@ export default function DashboardPage() {
                 return { ...a, days_remaining: Math.round((d.getTime() - today.getTime()) / 86400000) };
               });
               return (
-                <div className="bg-white dark:bg-slate-800 rounded-md p-5 border border-slate-200/90 dark:border-slate-700/60 shadow-sm">
-                  <div className="mb-3">
-                    <h3 style={{ fontSize: "16px", lineHeight: "28px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2">
-                      <PartyPopper className="w-4 h-4 text-pink-500" />
-                      Work Anniversaries
-                    </h3>
-                    <p style={{ fontSize: "12px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
-                      Upcoming work milestones in 14 days
-                    </p>
-                  </div>
-                  {filteredAnni.length === 0 ? (
-                    <p className="text-xs text-slate-500 dark:text-slate-400 py-4 text-center">No work anniversaries in the next 2 weeks.</p>
-                  ) : (
-                    <div className="space-y-2.5">
-                      {filteredAnni.slice(0, 3).map((a: any, idx: number) => (
-                        <div key={idx} className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900/50 rounded-md border border-slate-200/60 dark:border-slate-800">
-                          <div>
-                            <p className="text-[13px] font-medium text-slate-900 dark:text-white">🎉 {a.name}</p>
-                            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{a.years} Year{a.years !== 1 ? 's' : ''} at Inter Smart</p>
-                          </div>
-                          <span className="text-[11px] font-semibold bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300 px-2 py-0.5 rounded-full">
-                            {format(new Date(a.date), "MMM d")}
-                          </span>
-                        </div>
-                      ))}
+                <div className="bg-white dark:bg-slate-800 rounded-md p-5 border border-slate-200/90 dark:border-slate-700/60 shadow-sm min-h-[240px] flex flex-col justify-between">
+                  <div>
+                    <div className="mb-3">
+                      <h3 style={{ fontSize: "16px", lineHeight: "28px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2">
+                        <PartyPopper className="w-4 h-4 text-pink-500" />
+                        Work Anniversaries
+                      </h3>
+                      <p style={{ fontSize: "12px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
+                        Upcoming work milestones in 14 days
+                      </p>
                     </div>
-                  )}
+                    {filteredAnni.length === 0 ? (
+                      <div className="py-6 text-center">
+                        <p className="text-xs text-slate-500 dark:text-slate-400">No work anniversaries in the next 2 weeks.</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2.5">
+                        {filteredAnni.slice(0, 3).map((a: any, idx: number) => (
+                          <div key={idx} className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900/50 rounded-md border border-slate-200/60 dark:border-slate-800">
+                            <div>
+                              <p className="text-[13px] font-medium text-slate-900 dark:text-white">🎉 {a.name}</p>
+                              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{a.years} Year{a.years !== 1 ? 's' : ''} at Inter Smart</p>
+                            </div>
+                            <span className="text-[11px] font-semibold bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300 px-2 py-0.5 rounded-full">
+                              {format(new Date(a.date), "MMM d")}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               );
             })()}
 
             {/* Upcoming Birthdays with Wishes */}
-            <div className="bg-white dark:bg-slate-800 rounded-md p-5 border border-slate-200/90 dark:border-slate-700/60 shadow-sm">
+            <div className="bg-white dark:bg-slate-800 rounded-md p-5 border border-slate-200/90 dark:border-slate-700/60 shadow-sm min-h-[240px] flex flex-col justify-between">
               <UpcomingBirthdaysWithWishes items={widgets.upcoming_birthdays} />
             </div>
           </div>
