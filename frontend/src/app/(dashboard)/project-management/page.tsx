@@ -228,19 +228,24 @@ export default function ProjectManagementDashboard() {
   });
 
   return (
-    <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8">
+    <div
+      style={{
+        fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      }}
+      className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8"
+    >
       {/* ── Top Header Section ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800/80 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/90 dark:border-slate-800/80 pb-6">
         <div>
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400">
+          <div className="flex items-center gap-3.5">
+            <div className="p-2.5 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 text-[#56348f] dark:text-purple-300">
               <FolderKanban className="w-6 h-6" />
             </div>
             <div>
               <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                 Project Management
               </h1>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
                 Overview of ongoing deliverables, task tracking, and department metrics.
               </p>
             </div>
@@ -253,17 +258,17 @@ export default function ProjectManagementDashboard() {
             onClick={() => fetchDashboardData(true)}
             disabled={refreshing || loading}
             aria-label="Refresh Dashboard"
-            className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors disabled:opacity-50"
+            className="p-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shadow-2xs transition-colors disabled:opacity-50 cursor-pointer"
             title="Refresh Data"
           >
-            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-blue-500" : ""}`} />
+            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-[#56348f]" : ""}`} />
           </button>
 
           <Link
             href="/project-management/tasks/my"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs sm:text-sm font-semibold border border-slate-200 dark:border-slate-700 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 dark:hover:bg-purple-900/60 text-[#56348f] dark:text-purple-300 text-xs sm:text-sm font-semibold border border-purple-200 dark:border-purple-800/60 shadow-2xs transition-colors"
           >
-            <ListTodo className="w-4 h-4 text-blue-500" />
+            <ListTodo className="w-4 h-4 text-[#56348f]" />
             <span>My Tasks</span>
           </Link>
 
@@ -271,7 +276,7 @@ export default function ProjectManagementDashboard() {
             type="button"
             onClick={handleImportHubstaff}
             disabled={importingHubstaff || loading}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs sm:text-sm font-semibold border border-slate-700 shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-semibold border border-slate-800 shadow-sm transition-all disabled:opacity-50 cursor-pointer"
             title="Import all active projects from Hubstaff without duplicating"
           >
             <CloudDownload className={`w-4 h-4 text-sky-400 ${importingHubstaff ? "animate-spin" : ""}`} />
@@ -280,7 +285,7 @@ export default function ProjectManagementDashboard() {
 
           <Link
             href="/project-management/projects"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold shadow-sm shadow-blue-500/20 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] text-white text-xs sm:text-sm font-semibold shadow-sm transition-colors"
           >
             <FolderKanban className="w-4 h-4" />
             <span>View Projects</span>

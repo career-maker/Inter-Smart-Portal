@@ -103,8 +103,8 @@ export function PMDashboardStats({
             onClick={() => onFilterChange(card.filter)}
             className={`relative group cursor-pointer overflow-hidden rounded-2xl p-5 border transition-all duration-300 flex flex-col justify-between min-h-[140px] ${
               isActive
-                ? "scale-[1.02] -translate-y-0.5 border-blue-500/80 bg-slate-900/90 dark:bg-slate-950/90 shadow-xl shadow-blue-500/10 ring-2 ring-blue-500/20"
-                : "border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-900/70 backdrop-blur-xl hover:border-slate-300 dark:hover:border-slate-700 hover:-translate-y-0.5 hover:shadow-lg shadow-sm"
+                ? "scale-[1.02] -translate-y-0.5 border-[#56348f] bg-purple-50/70 dark:bg-purple-950/40 shadow-md ring-2 ring-purple-500/30"
+                : "border-slate-200/90 dark:border-slate-800/80 bg-white dark:bg-slate-900 hover:border-purple-300 dark:hover:border-slate-700 hover:-translate-y-0.5 hover:shadow-md shadow-xs"
             }`}
           >
             {/* Top gradient glow bar */}

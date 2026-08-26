@@ -172,7 +172,7 @@ export function PMDashboardCharts({ tasks }: PMDashboardChartsProps) {
       {/* 2-Column Grid: Distribution & Resource Allocation */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Chart 1: Project Status Distribution */}
-        <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-6 shadow-sm">
+        <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-sm font-bold text-slate-900 dark:text-white">
@@ -240,7 +240,7 @@ export function PMDashboardCharts({ tasks }: PMDashboardChartsProps) {
         </div>
 
         {/* Chart 2: Resource Allocation */}
-        <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-6 shadow-sm">
+        <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-sm font-bold text-slate-900 dark:text-white">
@@ -299,7 +299,7 @@ export function PMDashboardCharts({ tasks }: PMDashboardChartsProps) {
       </div>
 
       {/* Chart 3: Task Completion Trend */}
-      <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-6 shadow-sm">
+      <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 p-6 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="text-sm font-bold text-slate-900 dark:text-white">
