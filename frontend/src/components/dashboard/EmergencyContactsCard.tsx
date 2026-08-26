@@ -143,8 +143,24 @@ export function EmergencyContactsCard({
         </p>
       </div>
 
-      {/* Contacts List */}
-      <div className="space-y-4">
+      <style>{`
+        .emergency-contacts-scroll::-webkit-scrollbar {
+          width: 5px;
+        }
+        .emergency-contacts-scroll::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .emergency-contacts-scroll::-webkit-scrollbar-thumb {
+          background: rgba(148, 163, 184, 0.4);
+          border-radius: 4px;
+        }
+        .emergency-contacts-scroll::-webkit-scrollbar-thumb:hover {
+          background: rgba(148, 163, 184, 0.7);
+        }
+      `}</style>
+
+      {/* Scrollable Contacts List (Capped height to prevent height issues) */}
+      <div className="space-y-3.5 max-h-[360px] overflow-y-auto pr-2 emergency-contacts-scroll">
         
         {/* ── 1. TEAM HR SECTION ── */}
         <div className="space-y-1.5 pb-3.5 border-b border-slate-100 dark:border-slate-700/50">
