@@ -19,7 +19,6 @@ class HubstaffProjectController extends Controller
     {
         $user = $request->user();
 
-        // Check using Spatie hasRole and fallback to attribute
         $isAuthorized = $user->hasRole('Super Admin')
             || $user->hasRole('Admin')
             || $user->hasRole('Team Lead')
@@ -54,6 +53,84 @@ class HubstaffProjectController extends Controller
         }
 
         $result = $this->hubstaffService->importAllProjects($user);
+
+        return response()->json($result);
+    }
+
+    /**
+     * Get Hubstaff members and their current HR Portal links.
+     */
+    public function getUsers(Request $request)
+    {
+        $user = $request->user();
+
+        $isAuthorized = $user->hasRole('Super Admin')
+            || $user->hasRole('Admin')
+            || in_array(strtolower($user->role ?? ''), ['super admin', 'admin'], true);
+
+        if (!$isAuthorized) {
+            return response()->json(['message' => 'Unauthorized to view Hubstaff users.'], 403);
+        }
+
+        $result = $this->hubstaffService->getMembersWithUsers();
+
+        return response()->json($result);
+    }
+
+    /**
+     * Link or unlink a single Hubstaff user to an HR Portal employee.
+     */
+    public function linkUser(Request $request)
+    {
+        $user = $request->user();
+
+        $isAuthorized = $user->hasRole('Super Admin')
+            || $user->hasRole('Admin')
+            || in_array(strtolower($user->role ?? ''), ['super admin', 'admin'], true);
+
+        if (!$isAuthorized) {
+            return response()->json(['message' => 'Unauthorized to link Hubstaff users.'], 403);
+        }
+
+        $request->validate([
+            'hubstaff_user_id' => 'required|string',
+            'user_id' => 'nullable|integer|exists:users,id',
+        ]);
+
+        $result = $this->hubstaffService->linkUser(
+            $request->input('hubstaff_user_id'),
+            $request->input('user_id'),
+            $user
+        );
+
+        return response()->json($result);
+    }
+
+    /**
+     * Batch sync Hubstaff user mappings.
+     */
+    public function syncUsers(Request $request)
+    {
+        $user = $request->user();
+
+        $isAuthorized = $user->hasRole('Super Admin')
+            || $user->hasRole('Admin')
+            || in_array(strtolower($user->role ?? ''), ['super admin', 'admin'], true);
+
+        if (!$isAuthorized) {
+            return response()->json(['message' => 'Unauthorized to sync Hubstaff users.'], 403);
+        }
+
+        $request->validate([
+            'mappings' => 'required|array',
+            'mappings.*.hubstaff_user_id' => 'required|string',
+            'mappings.*.user_id' => 'nullable|integer',
+        ]);
+
+        $result = $this->hubstaffService->syncUsers(
+            $request->input('mappings'),
+            $user
+        );
 
         return response()->json($result);
     }

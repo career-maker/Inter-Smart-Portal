@@ -303,4 +303,157 @@ class HubstaffService
             'message' => "Successfully imported {$importedCount} new projects from Hubstaff ({$skippedCount} already existed).",
         ];
     }
+    /**
+     * Fetch all Hubstaff members/users and merge with existing HR portal links.
+     */
+    public function getMembersWithUsers(): array
+    {
+        $token = $this->getValidAccessToken();
+        if (empty($token)) {
+            return [
+                'configured' => false,
+                'users' => [],
+                'message' => 'Hubstaff integration not configured or token expired.',
+            ];
+        }
+
+        $baseUrl = rtrim(config('services.hubstaff.base_url', 'https://api.hubstaff.com/v2'), '/');
+        $orgId = config('services.hubstaff.org_id');
+
+        try {
+            $endpoint = !empty($orgId)
+                ? "{$baseUrl}/organizations/{$orgId}/members"
+                : "{$baseUrl}/members";
+
+            $response = Http::withToken($token)
+                ->timeout(10)
+                ->acceptJson()
+                ->get($endpoint, ['page_limit' => 500]);
+
+            if (!$response->successful()) {
+                return [
+                    'configured' => true,
+                    'users' => [],
+                    'error' => "Hubstaff API returned status {$response->status()}.",
+                ];
+            }
+
+            $members = $response->json()['members'] ?? [];
+
+            // Load all current DB links
+            $existingLinks = \App\Models\ProjectUserHubstaffLink::with([
+                'user:id,first_name,last_name,email,employee_code,designation'
+            ])->get()->keyBy('hubstaff_user_id');
+
+            $hubstaffUsers = [];
+            foreach ($members as $member) {
+                $uid = (string) ($member['user_id'] ?? '');
+                if (empty($uid)) continue;
+
+                // Fetch user info for each member
+                $uRes = Http::withToken($token)
+                    ->timeout(5)
+                    ->acceptJson()
+                    ->get("{$baseUrl}/users/{$uid}");
+
+                $uData = $uRes->successful() ? ($uRes->json()['user'] ?? []) : [];
+                $name = $uData['name'] ?? ($member['name'] ?? 'Hubstaff User');
+                $email = $uData['email'] ?? ($member['email'] ?? null);
+
+                $linkedRecord = $existingLinks->get($uid);
+
+                $hubstaffUsers[] = [
+                    'hubstaff_user_id' => $uid,
+                    'name' => $name,
+                    'first_name' => $uData['first_name'] ?? null,
+                    'last_name' => $uData['last_name'] ?? null,
+                    'email' => $email,
+                    'membership_role' => $member['membership_role'] ?? 'member',
+                    'linked_user' => $linkedRecord ? [
+                        'id' => $linkedRecord->user->id,
+                        'first_name' => $linkedRecord->user->first_name,
+                        'last_name' => $linkedRecord->user->last_name,
+                        'email' => $linkedRecord->user->email,
+                        'employee_code' => $linkedRecord->user->employee_code,
+                        'designation' => $linkedRecord->user->designation,
+                    ] : null,
+                ];
+            }
+
+            // Sort alphabetically by Hubstaff name
+            usort($hubstaffUsers, fn($a, $b) => strcasecmp($a['name'], $b['name']));
+
+            return [
+                'configured' => true,
+                'users' => $hubstaffUsers,
+            ];
+        } catch (\Throwable $e) {
+            Log::warning('Hubstaff getMembersWithUsers exception', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return [
+                'configured' => true,
+                'users' => [],
+                'error' => 'Failed to connect to Hubstaff API: ' . $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Link or unlink a single Hubstaff user to an HR Portal employee.
+     */
+    public function linkUser(string $hubstaffUserId, ?int $userId, \App\Models\User $actor): array
+    {
+        if (empty($userId)) {
+            \App\Models\ProjectUserHubstaffLink::where('hubstaff_user_id', $hubstaffUserId)->delete();
+            return [
+                'success' => true,
+                'message' => 'Hubstaff user unlinked successfully.',
+            ];
+        }
+
+        // If another record already has this hubstaff_user_id or user_id, clean it up
+        \App\Models\ProjectUserHubstaffLink::where('hubstaff_user_id', $hubstaffUserId)
+            ->where('user_id', '!=', $userId)
+            ->delete();
+
+        $link = \App\Models\ProjectUserHubstaffLink::updateOrCreate(
+            ['user_id' => $userId],
+            [
+                'hubstaff_user_id' => $hubstaffUserId,
+                'linked_by' => $actor->id,
+                'updated_at' => now(),
+            ]
+        );
+
+        return [
+            'success' => true,
+            'link' => $link,
+            'message' => 'Employee linked with Hubstaff user successfully.',
+        ];
+    }
+
+    /**
+     * Batch sync multiple user mappings.
+     */
+    public function syncUsers(array $mappings, \App\Models\User $actor): array
+    {
+        $syncedCount = 0;
+        foreach ($mappings as $mapping) {
+            $hsId = (string) ($mapping['hubstaff_user_id'] ?? '');
+            $userId = isset($mapping['user_id']) && $mapping['user_id'] ? (int) $mapping['user_id'] : null;
+
+            if (!empty($hsId)) {
+                $this->linkUser($hsId, $userId, $actor);
+                $syncedCount++;
+            }
+        }
+
+        return [
+            'success' => true,
+            'synced_count' => $syncedCount,
+            'message' => "Successfully synced {$syncedCount} Hubstaff user mappings.",
+        ];
+    }
 }

@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { Plus, Search, MoreHorizontal, FileEdit, Trash2, Ban, CheckCircle, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import api from "@/services/api";
 import { FavoriteButton } from "@/components/layout/FavoriteButton";
+import { SyncHubstaffUsersModal } from "@/components/employees/SyncHubstaffUsersModal";
+import { Link2 } from "lucide-react";
 import { useRefreshKey } from "@/hooks/useRefreshKey";
 
 import { Button } from "@/components/ui/button";
@@ -30,6 +32,7 @@ export default function EmployeesPage() {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -85,6 +88,14 @@ export default function EmployeesPage() {
         </div>
         <div className="flex items-center gap-2">
           <FavoriteButton label="Employees" />
+          <Button
+            onClick={() => setIsSyncModalOpen(true)}
+            variant="outline"
+            className="border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 font-semibold gap-2"
+            title="Map and sync Hubstaff users with HR Portal employee profiles"
+          >
+            <Link2 className="h-4 w-4 text-blue-500" /> Sync Users with Hubstaff
+          </Button>
           <Button onClick={() => router.push("/employees/create")} className="bg-amber-500 hover:bg-amber-600 text-white font-semibold gap-2">
             <Plus className="h-4 w-4" /> Add Employee
           </Button>
@@ -256,6 +267,13 @@ export default function EmployeesPage() {
           )}
         </CardContent>
       </Card>
+      <SyncHubstaffUsersModal
+        isOpen={isSyncModalOpen}
+        onClose={() => {
+          setIsSyncModalOpen(false);
+          fetchEmployees(currentPage);
+        }}
+      />
     </div>
   );
 }
