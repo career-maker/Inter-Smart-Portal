@@ -396,6 +396,28 @@ class CommunityController extends Controller
     /**
      * Get aggregated dynamic community summary
      */
+    
+    /**
+     * Fast dedicated endpoint to fetch all active employees for Praise search
+     */
+    public function getEmployees(Request $request)
+    {
+        $users = User::select('id', 'first_name', 'last_name', 'designation', 'profile_photo_path', 'email')
+            ->orderBy('first_name', 'asc')
+            ->get()
+            ->map(function ($u) {
+                return [
+                    'id' => $u->id,
+                    'name' => trim("{$u->first_name} {$u->last_name}"),
+                    'designation' => $u->designation ?? 'Team Member',
+                    'profile_photo_path' => $u->profile_photo_path,
+                    'email' => $u->email,
+                ];
+            });
+
+        return response()->json($users);
+    }
+
     public function getSummary(Request $request)
     {
         $user = $request->user();

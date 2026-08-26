@@ -141,47 +141,23 @@ export function CommunityFeed() {
 
   const fetchMetadataAndEmployees = async () => {
     try {
-      // 1. Try summary
+      // 1. Fetch lightweight direct employee list (Fast & Unrestricted)
+      api.get("/community/employees")
+        .then((res) => {
+          if (Array.isArray(res.data) && res.data.length > 0) {
+            setEmployeesList(res.data);
+          }
+        })
+        .catch((e) => console.log("Direct employees fetch fallback", e));
+
+      // 2. Fetch summary metadata for projects
       const summaryRes = await api.get("/community/summary");
-      let empMap: { [id: number]: any } = {};
-
-      if (summaryRes.data?.all_employees && summaryRes.data.all_employees.length > 0) {
-        summaryRes.data.all_employees.forEach((emp: any) => {
-          empMap[emp.id] = {
-            id: emp.id,
-            name: emp.name || `${emp.first_name || ''} ${emp.last_name || ''}`.trim(),
-            designation: emp.designation || "Team Member",
-            profile_photo_path: emp.profile_photo_path,
-            email: emp.email,
-          };
-        });
-      }
-
       if (summaryRes.data?.projects) {
         setProjectsList(summaryRes.data.projects);
       }
-
-      // 2. Also query /employees endpoint to ensure complete employee pool
-      try {
-        const empRes = await api.get("/employees?per_page=500&page=1");
-        const list = Array.isArray(empRes.data)
-          ? empRes.data
-          : empRes.data?.data || [];
-
-        list.forEach((emp: any) => {
-          empMap[emp.id] = {
-            id: emp.id,
-            name: `${emp.first_name || ''} ${emp.last_name || ''}`.trim() || emp.name || "Employee",
-            designation: emp.designation || "Team Member",
-            profile_photo_path: emp.profile_photo_path,
-            email: emp.email,
-          };
-        });
-      } catch (e) {
-        // Fallback to summary list
+      if (summaryRes.data?.all_employees && summaryRes.data.all_employees.length > 0) {
+        setEmployeesList((prev) => (prev.length > 0 ? prev : summaryRes.data.all_employees));
       }
-
-      setEmployeesList(Object.values(empMap));
     } catch (err) {
       console.error("Failed to load metadata", err);
     }
