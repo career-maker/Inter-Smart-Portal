@@ -153,6 +153,17 @@ class CommunityController extends Controller
                 $post->praised_user = $recipients[0] ?? null;
             }
 
+            // Format media_url and multi-images
+            $images = [];
+            if (!empty($post->poll_data['images']) && is_array($post->poll_data['images'])) {
+                foreach ($post->poll_data['images'] as $img) {
+                    $images[] = str_starts_with($img, 'http') ? $img : url($img);
+                }
+            } elseif ($post->media_url) {
+                $images[] = str_starts_with($post->media_url, 'http') ? $post->media_url : url($post->media_url);
+            }
+
+            $post->images = $images;
             if ($post->media_url && !str_starts_with($post->media_url, 'http')) {
                 $post->media_url = url($post->media_url);
             }
@@ -169,6 +180,7 @@ class CommunityController extends Controller
             'type' => 'nullable|string|in:post,praise,poll',
             'media_url' => 'nullable|string',
             'image' => 'nullable|image|max:10240',
+            'images.*' => 'nullable|image|max:10240',
             'options' => 'nullable|array',
             'expires_at' => 'nullable|date',
             'is_anonymous' => 'nullable|boolean',
@@ -179,15 +191,25 @@ class CommunityController extends Controller
             'project_name' => 'nullable|string',
         ]);
 
+        $mediaUrls = [];
         $mediaUrl = $request->input('media_url');
 
-        if ($request->hasFile('image')) {
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $imgFile) {
+                $path = $imgFile->store('community', 'public');
+                $mediaUrls[] = '/storage/' . $path;
+            }
+            if (!empty($mediaUrls)) {
+                $mediaUrl = $mediaUrls[0];
+            }
+        } elseif ($request->hasFile('image')) {
             $path = $request->file('image')->store('community', 'public');
             $mediaUrl = '/storage/' . $path;
+            $mediaUrls[] = $mediaUrl;
         }
 
         $type = $request->input('type', 'post');
-        $pollData = null;
+        $pollData = !empty($mediaUrls) ? ['images' => $mediaUrls] : [];
         $currentUser = $request->user();
 
         if ($type === 'poll') {
@@ -233,12 +255,12 @@ class CommunityController extends Controller
                 $praisedUserIds = [(int)$request->input('praised_user_id')];
             }
 
-            $pollData = [
+            $pollData = array_merge($pollData, [
                 'praised_user_ids' => array_values(array_unique($praisedUserIds)),
                 'praised_user_id' => $praisedUserIds[0] ?? null,
                 'badge' => $badge,
                 'project_name' => $projectName,
-            ];
+            ]);
         }
 
         if (!Schema::hasColumn('community_posts', 'poll_data')) {
@@ -307,6 +329,16 @@ class CommunityController extends Controller
                 ->get();
             $post->praised_user = $post->praised_users[0] ?? null;
         }
+
+        $images = [];
+        if (!empty($post->poll_data['images']) && is_array($post->poll_data['images'])) {
+            foreach ($post->poll_data['images'] as $img) {
+                $images[] = str_starts_with($img, 'http') ? $img : url($img);
+            }
+        } elseif ($post->media_url) {
+            $images[] = str_starts_with($post->media_url, 'http') ? $post->media_url : url($post->media_url);
+        }
+        $post->images = $images;
 
         if ($post->media_url && !str_starts_with($post->media_url, 'http')) {
             $post->media_url = url($post->media_url);

@@ -25,6 +25,7 @@ import {
   ChevronRight,
   RotateCcw,
   UserPlus,
+  Plus,
 } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
@@ -90,9 +91,10 @@ export function CommunityFeed() {
   const [filterMonth, setFilterMonth] = useState<string>("all");
   const [filterDate, setFilterDate] = useState<string>("");
 
-  // Image Upload State
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  // Image Upload State (Multi-photo supported)
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [activeSlideIndex, setActiveSlideIndex] = useState<{ [postId: number]: number }>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Poll Form State
@@ -189,20 +191,38 @@ export function CommunityFeed() {
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedImage(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      const combinedFiles = [...selectedImages, ...files].slice(0, 10);
+      setSelectedImages(combinedFiles);
+
+      const previewPromises = combinedFiles.map(
+        (file) =>
+          new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.readAsDataURL(file);
+          })
+      );
+
+      Promise.all(previewPromises).then((previews) => {
+        setImagePreviews(previews);
+      });
     }
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleRemoveSingleImage = (index: number) => {
+    const updatedFiles = selectedImages.filter((_, idx) => idx !== index);
+    const updatedPreviews = imagePreviews.filter((_, idx) => idx !== index);
+    setSelectedImages(updatedFiles);
+    setImagePreviews(updatedPreviews);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleRemoveImage = () => {
-    setSelectedImage(null);
-    setImagePreview(null);
+    setSelectedImages([]);
+    setImagePreviews([]);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -262,7 +282,7 @@ export function CommunityFeed() {
         return;
       }
     } else {
-      if (!content.trim() && !selectedImage) return;
+      if (!content.trim() && selectedImages.length === 0) return;
     }
 
     if (posting) return;
@@ -298,8 +318,10 @@ export function CommunityFeed() {
         if (selectedProject) {
           formData.append("project_name", selectedProject);
         }
-        if (selectedImage) {
-          formData.append("image", selectedImage);
+        if (selectedImages.length > 0) {
+          selectedImages.forEach((img) => {
+            formData.append("images[]", img);
+          });
         }
 
         const res = await api.post("/community/posts", formData, {
@@ -320,8 +342,10 @@ export function CommunityFeed() {
         const formData = new FormData();
         formData.append("content", content.trim());
         formData.append("type", activeType);
-        if (selectedImage) {
-          formData.append("image", selectedImage);
+        if (selectedImages.length > 0) {
+          selectedImages.forEach((img) => {
+            formData.append("images[]", img);
+          });
         }
 
         const res = await api.post("/community/posts", formData, {
@@ -486,6 +510,7 @@ export function CommunityFeed() {
           ref={fileInputRef}
           onChange={handleImageChange}
           accept="image/*,.pdf,.doc,.docx,.png,.jpg,.jpeg"
+          multiple
           className="hidden"
         />
         
@@ -698,22 +723,29 @@ export function CommunityFeed() {
 
 
 
-            {/* 6. Image Preview */}
-            {imagePreview && (
-              <div className="relative inline-block rounded-md overflow-hidden border border-slate-200 dark:border-slate-700 max-h-56">
-                <img
-                  src={imagePreview}
-                  alt="Post attachment"
-                  className="max-h-56 w-auto object-cover rounded-md"
-                />
-                <button
-                  type="button"
-                  onClick={handleRemoveImage}
-                  className="absolute top-1.5 right-1.5 bg-black/70 hover:bg-black text-white p-1 rounded-full transition-colors cursor-pointer"
-                  title="Remove image"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
+            {/* 6. Image Previews */}
+            {imagePreviews.length > 0 && (
+              <div className="flex flex-wrap gap-2.5">
+                {imagePreviews.map((preview, idx) => (
+                  <div
+                    key={idx}
+                    className="relative w-20 h-20 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 shadow-2xs group"
+                  >
+                    <img
+                      src={preview}
+                      alt={`Attachment ${idx + 1}`}
+                      className="w-full h-full object-cover rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveSingleImage(idx)}
+                      className="absolute top-1 right-1 bg-black/70 hover:bg-black text-white p-0.5 rounded-full transition-colors cursor-pointer"
+                      title="Remove photo"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
               </div>
             )}
 
@@ -871,21 +903,38 @@ export function CommunityFeed() {
                 className="w-full text-[13px] leading-relaxed p-3 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-md focus:outline-none focus:ring-1 focus:ring-[#56348f] focus:border-[#56348f] dark:text-white resize-none"
               />
 
-              {imagePreview && (
-                <div className="relative inline-block mt-3 rounded-md overflow-hidden border border-slate-200 dark:border-slate-700 max-h-56">
-                  <img
-                    src={imagePreview}
-                    alt="Post attachment"
-                    className="max-h-56 w-auto object-cover rounded-md"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleRemoveImage}
-                    className="absolute top-1.5 right-1.5 bg-black/70 hover:bg-black text-white p-1 rounded-full transition-colors cursor-pointer"
-                    title="Remove image"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
+              {imagePreviews.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-2.5">
+                  {imagePreviews.map((preview, idx) => (
+                    <div
+                      key={idx}
+                      className="relative w-24 h-24 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 shadow-2xs group"
+                    >
+                      <img
+                        src={preview}
+                        alt={`Attachment ${idx + 1}`}
+                        className="w-full h-full object-cover rounded-lg"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveSingleImage(idx)}
+                        className="absolute top-1 right-1 bg-black/70 hover:bg-black text-white p-1 rounded-full transition-colors cursor-pointer"
+                        title="Remove photo"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                  {imagePreviews.length < 10 && (
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-24 h-24 rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-700 flex flex-col items-center justify-center text-slate-400 hover:text-[#56348f] hover:border-[#56348f] transition-colors cursor-pointer"
+                    >
+                      <Plus className="w-5 h-5 mb-0.5" />
+                      <span className="text-[10px] font-semibold">Add more</span>
+                    </button>
+                  )}
                 </div>
               )}
 
@@ -908,7 +957,7 @@ export function CommunityFeed() {
 
                 <button
                   onClick={handleCreatePost}
-                  disabled={(!content.trim() && !selectedImage) || posting}
+                  disabled={(!content.trim() && selectedImages.length === 0) || posting}
                   style={{
                     backgroundColor: "#56348f",
                     color: "#ffffff",
@@ -1236,19 +1285,98 @@ export function CommunityFeed() {
                   </div>
                 )}
 
-                {/* Attached Image — Centered, natural aspect ratio, NO side background colors */}
-                {post.media_url && (
-                  <div className="pt-2 flex items-center justify-start">
-                    <div className="rounded-md overflow-hidden border border-slate-200/80 dark:border-slate-700/80 inline-block max-w-full">
-                      <img
-                        src={post.media_url}
-                        alt="Post attachment"
-                        className="max-w-full max-h-[500px] w-auto h-auto object-contain rounded-md block"
-                        loading="lazy"
-                      />
+                {/* Attached Image(s) — Instagram-style Slider Carousel with Pagination Dots & Large Centered View */}
+                {(() => {
+                  const postImages = post.images && post.images.length > 0
+                    ? post.images
+                    : post.media_url
+                    ? [post.media_url]
+                    : [];
+
+                  if (postImages.length === 0) return null;
+
+                  const currentSlide = activeSlideIndex[post.id] || 0;
+                  const totalSlides = postImages.length;
+
+                  return (
+                    <div className="pt-2 w-full flex flex-col items-center justify-center">
+                      <div className="relative w-full rounded-xl overflow-hidden shadow-sm border border-slate-200/90 dark:border-slate-700/80 bg-slate-900/5 dark:bg-slate-950/40 max-h-[580px] flex items-center justify-center select-none group">
+                        
+                        {/* Current Image */}
+                        <img
+                          src={postImages[currentSlide]}
+                          alt={`Post attachment ${currentSlide + 1}`}
+                          className="w-full max-h-[580px] object-contain rounded-xl block transition-all duration-300"
+                          loading="lazy"
+                        />
+
+                        {/* Image Counter Badge (Top Right) */}
+                        {totalSlides > 1 && (
+                          <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-md pointer-events-none">
+                            {currentSlide + 1} / {totalSlides}
+                          </div>
+                        )}
+
+                        {/* Previous Slide Button */}
+                        {totalSlides > 1 && currentSlide > 0 && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveSlideIndex((prev) => ({
+                                ...prev,
+                                [post.id]: Math.max(0, currentSlide - 1),
+                              }));
+                            }}
+                            className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 dark:bg-slate-800/90 text-slate-800 dark:text-white shadow-lg flex items-center justify-center opacity-80 group-hover:opacity-100 hover:scale-110 transition-all cursor-pointer z-10"
+                            title="Previous image"
+                          >
+                            <ChevronLeft className="w-5 h-5" />
+                          </button>
+                        )}
+
+                        {/* Next Slide Button */}
+                        {totalSlides > 1 && currentSlide < totalSlides - 1 && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveSlideIndex((prev) => ({
+                                ...prev,
+                                [post.id]: Math.min(totalSlides - 1, currentSlide + 1),
+                              }));
+                            }}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 dark:bg-slate-800/90 text-slate-800 dark:text-white shadow-lg flex items-center justify-center opacity-80 group-hover:opacity-100 hover:scale-110 transition-all cursor-pointer z-10"
+                            title="Next image"
+                          >
+                            <ChevronRight className="w-5 h-5" />
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Instagram-Style Slider Dots */}
+                      {totalSlides > 1 && (
+                        <div className="flex items-center justify-center gap-1.5 mt-2.5">
+                          {postImages.map((_: any, sIdx: number) => (
+                            <button
+                              key={sIdx}
+                              type="button"
+                              onClick={() =>
+                                setActiveSlideIndex((prev) => ({ ...prev, [post.id]: sIdx }))
+                              }
+                              className={`transition-all duration-200 rounded-full cursor-pointer ${
+                                currentSlide === sIdx
+                                  ? "w-2.5 h-2.5 bg-[#56348f] dark:bg-purple-400 scale-110 shadow-xs"
+                                  : "w-1.5 h-1.5 bg-slate-300 dark:bg-slate-600 hover:bg-slate-400"
+                              }`}
+                              title={`Go to photo ${sIdx + 1}`}
+                            />
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
 
                 {/* Like & Comment Action Bar with Facebook-Style Emoji Popup */}
                 <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700/60 text-xs select-none">
