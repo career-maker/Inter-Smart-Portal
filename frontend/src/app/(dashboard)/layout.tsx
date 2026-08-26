@@ -430,16 +430,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </nav>
             </div>
 
-            {/* User Profile Mini Badge (Bottom) */}
+            {/* User Profile Mini Badge (Bottom - With Profile Photo) */}
             <div className="p-2 border-t border-[#1a3a52] shrink-0 bg-[#0c2233] flex flex-col items-center justify-center">
               <Link
                 href="/profile"
-                className="flex flex-col items-center justify-center p-1 rounded-xl hover:bg-[#133249] transition-colors group cursor-pointer"
+                className="flex flex-col items-center justify-center p-1 rounded-none hover:bg-[#133249] transition-colors group cursor-pointer w-full"
                 title={`${user?.first_name} ${user?.last_name} (${user?.role})`}
               >
-                <div className="w-8 h-8 rounded-full bg-[#3b82f6] text-white text-xs font-bold flex items-center justify-center mb-0.5 shadow-sm">
-                  {userInitials}
-                </div>
+                <RoyalAvatar
+                  src={user?.profile_photo_path}
+                  name={`${user?.first_name} ${user?.last_name}`}
+                  userId={user?.id}
+                  className="w-8 h-8 rounded-full bg-amber-400 text-xs font-bold text-white mb-1 shadow-sm"
+                />
                 <span style={{ color: "#8ea7bc" }} className="text-[10.5px] font-medium truncate max-w-[74px] text-center group-hover:!text-white">
                   {user?.first_name}
                 </span>
@@ -728,10 +731,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
               <button
                 onClick={() => setSearchModalOpen(true)}
-                className="p-2 text-white/80 hover:text-white rounded-full hover:bg-white/10 hidden md:flex transition-colors"
+                className="p-2 text-white hover:text-white rounded-full hover:bg-white/15 hidden md:flex transition-colors cursor-pointer"
                 title="Quick Launch"
               >
-                <Rocket className="w-4 h-4" />
+                <Rocket className="w-5 h-5 text-white" />
               </button>
 
               <NotificationDropdown />
@@ -740,27 +743,30 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
               <Link
                 href="/settings"
-                className="p-2 text-white/80 hover:text-white rounded-full hover:bg-white/10 hidden sm:flex transition-colors"
+                className="p-2 text-white hover:text-white rounded-full hover:bg-white/15 hidden sm:flex transition-colors cursor-pointer"
                 title="Settings"
               >
-                <Settings className="w-4 h-4" />
+                <Settings className="w-5 h-5 text-white" />
               </Link>
 
               <Link
                 href="/profile"
-                className="flex items-center gap-2 p-1 rounded-full hover:bg-white/10 transition-colors"
+                className="flex items-center gap-2 p-0.5 rounded-full hover:bg-white/15 transition-colors cursor-pointer"
                 title={`${user?.first_name} ${user?.last_name}`}
               >
-                <div className="w-8 h-8 rounded-full bg-[#38bdf8] text-white text-xs font-bold flex items-center justify-center shadow-sm">
-                  {userInitials}
-                </div>
+                <RoyalAvatar
+                  src={user?.profile_photo_path}
+                  name={`${user?.first_name} ${user?.last_name}`}
+                  userId={user?.id}
+                  className="w-8 h-8 rounded-full bg-amber-400 text-xs font-bold text-white shadow-sm ring-1 ring-white/30"
+                />
               </Link>
 
               <button
                 onClick={handleLogout}
-                className="hidden lg:flex items-center gap-1 text-xs text-white/80 hover:text-rose-200 transition-colors px-2.5 py-1.5 rounded-lg hover:bg-white/10 font-medium"
+                className="hidden lg:flex items-center gap-1.5 text-xs text-white hover:text-rose-200 transition-colors px-2.5 py-1.5 rounded-lg hover:bg-white/15 font-medium cursor-pointer"
               >
-                <LogOut className="h-3.5 w-3.5" />
+                <LogOut className="h-4 w-4 text-white" />
                 <span>Logout</span>
               </button>
             </div>
