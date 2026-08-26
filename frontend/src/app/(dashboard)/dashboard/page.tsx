@@ -48,6 +48,7 @@ import { AttendanceWidget } from "@/components/dashboard/AttendanceWidget";
 import { CertificateModal } from "@/components/recognition/CertificateModal";
 import { AchievementFlipCard } from "@/components/recognition/AchievementFlipCard";
 import { LeaderboardWidget } from "@/components/dashboard/LeaderboardWidget";
+import { EmergencyContactsCard } from "@/components/dashboard/EmergencyContactsCard";
 import { UpcomingBirthdaysWithWishes } from "@/components/dashboard/UpcomingBirthdaysWithWishes";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, AreaChart, Area } from "recharts";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
@@ -517,11 +518,11 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Team Lead Dashboard: Pending Approvals & Team Status */}
+      {/* Team Lead Dashboard: Pending Approvals, Team Status & Emergency Contacts */}
       {user?.role === "Team Lead" && data && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          {/* Left Column: Team Tracker + Team Status */}
-          <div className="flex flex-col gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          {/* Left Column: Team Tracker + Team Status (Spans 2 cols on desktop) */}
+          <div className="lg:col-span-2 flex flex-col gap-4">
             {/* Quick Action: Team Tracker */}
             <a
               href="https://qa-tracker-pro.vercel.app/"
@@ -607,37 +608,43 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Pending Approvals Section */}
-          <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-md p-6 border border-blue-200 dark:border-blue-500/30">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-100 dark:bg-blue-500/20 rounded-lg flex items-center justify-center border border-blue-200 dark:border-blue-500/30">
-                  <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                </div>
+          {/* Right Column: Pending Approvals & Emergency Contacts */}
+          <div className="space-y-6">
+            {/* Pending Approvals Section */}
+            <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 sm:p-6 border border-slate-200/90 dark:border-slate-700/60 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
                 <div>
-                  <p className="text-sm font-semibold text-blue-900 dark:text-blue-300">Pending Approvals</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Leave requests awaiting review</p>
+                  <h2 style={{ fontSize: "16px", lineHeight: "28px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
+                    Pending Approvals
+                  </h2>
+                  <p style={{ fontSize: "12px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
+                    Leave requests awaiting review
+                  </p>
                 </div>
+                <Link href="/leaves/approvals" className="text-xs font-semibold text-[#56348f] dark:text-purple-400 hover:underline flex items-center gap-1">
+                  View All <ChevronRight className="w-3 h-3" />
+                </Link>
               </div>
-              <Link href="/leaves/approvals" className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1">
-                View All <ChevronRight className="w-3 h-3" />
-              </Link>
-            </div>
-            {data?.widgets?.pending_approvals && Array.isArray(data.widgets.pending_approvals) && data.widgets.pending_approvals.length > 0 ? (
-              <div className="space-y-2">
-                {data.widgets.pending_approvals.slice(0, 3).map((approval: any) => (
-                  <div key={approval.id} className="bg-white/50 dark:bg-white/5 rounded-lg p-3 flex items-center justify-between hover:bg-white/80 dark:hover:bg-white/10 transition-colors border border-blue-100 dark:border-transparent">
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{approval.employee_name}</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">{approval.leave_type} • {format(parseISO(approval.start_date), "MMM d")} to {format(parseISO(approval.end_date), "MMM d")}</p>
+              {data?.widgets?.pending_approvals && Array.isArray(data.widgets.pending_approvals) && data.widgets.pending_approvals.length > 0 ? (
+                <div className="space-y-2">
+                  {data.widgets.pending_approvals.slice(0, 3).map((approval: any) => (
+                    <div key={approval.id} className="bg-slate-50 dark:bg-white/5 rounded-xl p-3 flex items-center justify-between hover:bg-slate-100 dark:hover:bg-white/10 transition-colors border border-slate-200/60 dark:border-transparent">
+                      <div className="min-w-0">
+                        <p className="text-[13px] font-semibold text-slate-900 dark:text-white truncate">{approval.employee_name}</p>
+                        <p className="text-[12px] text-slate-500 dark:text-slate-400">{approval.leave_type} • {format(parseISO(approval.start_date), "MMM d")} to {format(parseISO(approval.end_date), "MMM d")}</p>
+                      </div>
+                      <span className="text-xs font-bold bg-purple-100 dark:bg-purple-500/20 text-[#56348f] dark:text-purple-300 px-2.5 py-1 rounded-full shrink-0">{approval.days} d</span>
                     </div>
-                    <span className="text-xs font-bold bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full shrink-0">{approval.days} d</span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-4">No pending approvals 🎉</p>
-            )}
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-slate-500 dark:text-slate-400 text-center py-4">No pending approvals 🎉</p>
+              )}
+            </div>
+
+            {/* Emergency Contacts Card on Right Side */}
+            <EmergencyContactsCard />
           </div>
         </div>
       )}
@@ -853,9 +860,20 @@ export default function DashboardPage() {
 
       {/*
         ========================================
-        ENGAGEMENT SECTION: Updates, Celebrations, Birthdays
+        ENGAGEMENT & ASSISTANCE SECTION
         ========================================
       */}
+      {user?.role !== "Team Lead" && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <div className="lg:col-span-2">
+            <LeaderboardWidget />
+          </div>
+          <div className="lg:col-span-1">
+            <EmergencyContactsCard />
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
         {/* Updates Widget — Rotating Card */}
         {widgets.company_updates.length > 1 ? (
