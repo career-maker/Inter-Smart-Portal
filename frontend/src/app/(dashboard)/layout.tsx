@@ -437,12 +437,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 className="flex flex-col items-center justify-center p-1 rounded-none hover:bg-[#133249] transition-colors group cursor-pointer w-full"
                 title={`${user?.first_name} ${user?.last_name} (${user?.role})`}
               >
-                <RoyalAvatar
-                  src={user?.profile_photo_path}
-                  name={`${user?.first_name} ${user?.last_name}`}
-                  userId={user?.id}
-                  className="w-8 h-8 rounded-full bg-amber-400 text-xs font-bold text-white mb-1 shadow-sm"
-                />
+                {user?.profile_photo_path ? (
+                  <img
+                    src={user.profile_photo_path}
+                    alt={user.first_name}
+                    className="w-8 h-8 rounded-full object-cover shadow-sm ring-1 ring-white/20 mb-1"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-[#3b82f6] text-white text-xs font-bold flex items-center justify-center mb-1 shadow-sm">
+                    {userInitials}
+                  </div>
+                )}
                 <span style={{ color: "#8ea7bc" }} className="text-[10.5px] font-medium truncate max-w-[74px] text-center group-hover:!text-white">
                   {user?.first_name}
                 </span>
@@ -754,12 +759,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 className="flex items-center gap-2 p-0.5 rounded-full hover:bg-white/15 transition-colors cursor-pointer"
                 title={`${user?.first_name} ${user?.last_name}`}
               >
-                <RoyalAvatar
-                  src={user?.profile_photo_path}
-                  name={`${user?.first_name} ${user?.last_name}`}
-                  userId={user?.id}
-                  className="w-8 h-8 rounded-full bg-amber-400 text-xs font-bold text-white shadow-sm ring-1 ring-white/30"
-                />
+                {user?.profile_photo_path ? (
+                  <img
+                    src={user.profile_photo_path}
+                    alt={user.first_name}
+                    className="w-8 h-8 rounded-full object-cover shadow-sm ring-1 ring-white/30"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-[#38bdf8] text-white text-xs font-bold flex items-center justify-center shadow-sm">
+                    {userInitials}
+                  </div>
+                )}
               </Link>
 
               <button
