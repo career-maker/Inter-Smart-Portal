@@ -178,15 +178,13 @@ export default function AllTasksPage() {
             <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-blue-500" : ""}`} />
           </button>
 
-          {(isSuperAdmin || isTeamLead) && (
-            <button
-              onClick={() => setIsCreateModalOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold shadow-sm shadow-blue-500/20 transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Create Task</span>
-            </button>
-          )}
+          <button
+            onClick={() => setIsCreateModalOpen(true)}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold shadow-sm shadow-blue-500/20 transition-colors cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Create Task</span>
+          </button>
         </div>
       </div>
 
@@ -302,15 +300,13 @@ export default function AllTasksPage() {
                 ? "No tasks match the selected filters. Try clearing your search parameters."
                 : "No deliverable tasks have been created yet."}
             </p>
-            {(isSuperAdmin || isTeamLead) && (
-              <button
-                onClick={() => setIsCreateModalOpen(true)}
-                className="mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm transition-colors"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>Create First Task</span>
-              </button>
-            )}
+            <button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm transition-colors cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Create First Task</span>
+            </button>
           </div>
         ) : (
           <div className="overflow-x-auto">

@@ -8,6 +8,7 @@ import {
   FolderKanban,
   Edit3,
   Trash2,
+  Plus,
   Users,
   UserPlus,
   Calendar,
@@ -40,6 +41,7 @@ import {
 import { ProjectStatusBadge } from "@/components/project-management/ProjectStatusBadge";
 import { EditProjectModal } from "@/components/project-management/EditProjectModal";
 import { AddProjectMemberModal } from "@/components/project-management/AddProjectMemberModal";
+import { CreateTaskModal } from "@/components/project-management/CreateTaskModal";
 import { SearchableCoordinatorSelect } from "@/components/project-management/SearchableCoordinatorSelect";
 
 function formatDateDisplay(dateStr?: string | null): string {
@@ -73,6 +75,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
   // Modals state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
+  const [isCreateTaskModalOpen, setIsCreateTaskModalOpen] = useState(false);
   const [isArchiveDialogOpen, setIsArchiveDialogOpen] = useState(false);
   const [archiving, setArchiving] = useState(false);
   const [removingMemberId, setRemovingMemberId] = useState<number | null>(null);
@@ -270,6 +273,14 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
             title="Refresh Details"
           >
             <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-blue-500" : ""}`} />
+          </button>
+
+          <button
+            onClick={() => setIsCreateTaskModalOpen(true)}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold shadow-sm shadow-blue-500/20 transition-colors cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add Task</span>
           </button>
 
           {(isSuperAdmin || isTeamLead) && (
