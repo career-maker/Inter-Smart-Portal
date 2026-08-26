@@ -1339,13 +1339,14 @@ export function CommunityFeed() {
 
                   return (
                     <div className="pt-1.5 w-full flex flex-col items-center justify-center">
-                      <div className="relative w-full rounded-xl overflow-hidden shadow-sm border border-slate-200/80 dark:border-slate-700/80 max-h-[360px] md:max-h-[380px] flex items-center justify-center select-none group bg-slate-50/50 dark:bg-slate-900/30">
+                      {/* Image Frame - Tightly hugs the image with zero empty side background wings */}
+                      <div className="relative w-fit max-w-full rounded-xl overflow-hidden shadow-xs border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-center select-none group bg-transparent">
                         
-                        {/* Current Image (Optimized height to fit on screen without vertical scroll) */}
+                        {/* Current Image (Tight fit, centered, no placeholder wings) */}
                         <img
                           src={postImages[currentSlide]}
                           alt={`Post attachment ${currentSlide + 1}`}
-                          className="max-w-full w-auto h-auto max-h-[360px] md:max-h-[380px] object-contain rounded-xl block transition-all duration-300 mx-auto"
+                          className="max-w-full w-auto h-auto max-h-[360px] md:max-h-[380px] object-contain rounded-xl block transition-all duration-300"
                           loading="lazy"
                         />
 
