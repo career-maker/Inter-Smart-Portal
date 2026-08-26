@@ -304,7 +304,7 @@ class HubstaffService
         ];
     }
     /**
-     * Fetch all Hubstaff members/users and merge with existing HR portal links.
+     * Fetch all Hubstaff members/users across all projects and merge with existing HR portal links.
      */
     public function getMembersWithUsers(): array
     {
@@ -318,27 +318,87 @@ class HubstaffService
         }
 
         $baseUrl = rtrim(config('services.hubstaff.base_url', 'https://api.hubstaff.com/v2'), '/');
-        $orgId = config('services.hubstaff.org_id');
+        $orgId = config('services.hubstaff.org_id', 546910);
 
         try {
-            $endpoint = !empty($orgId)
-                ? "{$baseUrl}/organizations/{$orgId}/members"
-                : "{$baseUrl}/members";
+            $cacheKey = 'hubstaff_all_discovered_users_' . $orgId;
+            $allUserProfiles = Cache::remember($cacheKey, 600, function () use ($baseUrl, $token, $orgId) {
+                $discoveredUserIds = [];
 
-            $response = Http::withToken($token)
-                ->timeout(10)
-                ->acceptJson()
-                ->get($endpoint, ['page_limit' => 500]);
+                // 1. Get org-level members
+                $orgMembersRes = Http::withToken($token)
+                    ->timeout(10)
+                    ->acceptJson()
+                    ->get("{$baseUrl}/organizations/{$orgId}/members", ['page_limit' => 500]);
 
-            if (!$response->successful()) {
-                return [
-                    'configured' => true,
-                    'users' => [],
-                    'error' => "Hubstaff API returned status {$response->status()}.",
-                ];
-            }
+                if ($orgMembersRes->successful()) {
+                    foreach ($orgMembersRes->json()['members'] ?? [] as $m) {
+                        if (!empty($m['user_id'])) {
+                            $discoveredUserIds[(int)$m['user_id']] = true;
+                        }
+                    }
+                }
 
-            $members = $response->json()['members'] ?? [];
+                // 2. Get all projects in the organization
+                $projectsRes = Http::withToken($token)
+                    ->timeout(10)
+                    ->acceptJson()
+                    ->get("{$baseUrl}/organizations/{$orgId}/projects", ['page_limit' => 500]);
+
+                if ($projectsRes->successful()) {
+                    $projects = $projectsRes->json()['projects'] ?? [];
+                    // Inspect project members for active user IDs
+                    foreach ($projects as $proj) {
+                        $pId = $proj['id'] ?? null;
+                        if (!$pId) continue;
+
+                        $pmRes = Http::withToken($token)
+                            ->timeout(5)
+                            ->acceptJson()
+                            ->get("{$baseUrl}/projects/{$pId}/members");
+
+                        if ($pmRes->successful()) {
+                            foreach ($pmRes->json()['members'] ?? [] as $pm) {
+                                if (!empty($pm['user_id'])) {
+                                    $discoveredUserIds[(int)$pm['user_id']] = true;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // 3. Retrieve user profile details for all unique user IDs
+                $profiles = [];
+                foreach (array_keys($discoveredUserIds) as $uid) {
+                    $uRes = Http::withToken($token)
+                        ->timeout(5)
+                        ->acceptJson()
+                        ->get("{$baseUrl}/users/{$uid}");
+
+                    if ($uRes->successful()) {
+                        $uData = $uRes->json()['user'] ?? [];
+                        $profiles[] = [
+                            'hubstaff_user_id' => (string) $uid,
+                            'name' => $uData['name'] ?? "User #{$uid}",
+                            'first_name' => $uData['first_name'] ?? null,
+                            'last_name' => $uData['last_name'] ?? null,
+                            'email' => $uData['email'] ?? null,
+                            'status' => $uData['status'] ?? 'active',
+                        ];
+                    } else {
+                        $profiles[] = [
+                            'hubstaff_user_id' => (string) $uid,
+                            'name' => "Hubstaff User #{$uid}",
+                            'first_name' => null,
+                            'last_name' => null,
+                            'email' => null,
+                            'status' => 'active',
+                        ];
+                    }
+                }
+
+                return $profiles;
+            });
 
             // Load all current DB links
             $existingLinks = \App\Models\ProjectUserHubstaffLink::with([
@@ -346,30 +406,18 @@ class HubstaffService
             ])->get()->keyBy('hubstaff_user_id');
 
             $hubstaffUsers = [];
-            foreach ($members as $member) {
-                $uid = (string) ($member['user_id'] ?? '');
-                if (empty($uid)) continue;
-
-                // Fetch user info for each member
-                $uRes = Http::withToken($token)
-                    ->timeout(5)
-                    ->acceptJson()
-                    ->get("{$baseUrl}/users/{$uid}");
-
-                $uData = $uRes->successful() ? ($uRes->json()['user'] ?? []) : [];
-                $name = $uData['name'] ?? ($member['name'] ?? 'Hubstaff User');
-                $email = $uData['email'] ?? ($member['email'] ?? null);
-
+            foreach ($allUserProfiles as $uData) {
+                $uid = (string) $uData['hubstaff_user_id'];
                 $linkedRecord = $existingLinks->get($uid);
 
                 $hubstaffUsers[] = [
                     'hubstaff_user_id' => $uid,
-                    'name' => $name,
-                    'first_name' => $uData['first_name'] ?? null,
-                    'last_name' => $uData['last_name'] ?? null,
-                    'email' => $email,
-                    'membership_role' => $member['membership_role'] ?? 'member',
-                    'linked_user' => $linkedRecord ? [
+                    'name' => $uData['name'],
+                    'first_name' => $uData['first_name'],
+                    'last_name' => $uData['last_name'],
+                    'email' => $uData['email'],
+                    'status' => $uData['status'] ?? 'active',
+                    'linked_user' => $linkedRecord && $linkedRecord->user ? [
                         'id' => $linkedRecord->user->id,
                         'first_name' => $linkedRecord->user->first_name,
                         'last_name' => $linkedRecord->user->last_name,
@@ -386,6 +434,7 @@ class HubstaffService
             return [
                 'configured' => true,
                 'users' => $hubstaffUsers,
+                'total_count' => count($hubstaffUsers),
             ];
         } catch (\Throwable $e) {
             Log::warning('Hubstaff getMembersWithUsers exception', [
