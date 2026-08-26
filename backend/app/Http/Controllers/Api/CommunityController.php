@@ -12,6 +12,8 @@ use App\Models\Holiday;
 use App\Models\LeaveRequest;
 use App\Models\WfhRequest;
 use App\Models\LeaveBalance;
+use App\Models\Project;
+use App\Notifications\PraiseReceivedNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -35,7 +37,6 @@ class CommunityController extends Controller
             ->latest()
             ->paginate(20);
 
-        // Append user_has_liked & user_voted_option_id
         $postIds = $posts->pluck('id')->toArray();
         $userLikedPostIds = CommunityPostLike::where('user_id', $userId)
             ->whereIn('post_id', $postIds)
@@ -57,6 +58,13 @@ class CommunityController extends Controller
                 $post->user_voted_option_id = $userVotedOptionId;
             }
 
+            // Load praised user info if praise
+            if ($post->type === 'praise' && !empty($post->poll_data['praised_user_id'])) {
+                $praisedUser = User::select('id', 'first_name', 'last_name', 'designation', 'profile_photo_path')
+                    ->find($post->poll_data['praised_user_id']);
+                $post->praised_user = $praisedUser;
+            }
+
             if ($post->media_url && !str_starts_with($post->media_url, 'http')) {
                 $post->media_url = url($post->media_url);
             }
@@ -75,15 +83,17 @@ class CommunityController extends Controller
             'content' => 'required|string|max:5000',
             'type' => 'nullable|string|in:post,praise,poll',
             'media_url' => 'nullable|string',
-            'image' => 'nullable|image|max:10240', // 10MB max
+            'image' => 'nullable|image|max:10240',
             'options' => 'nullable|array',
             'expires_at' => 'nullable|date',
             'is_anonymous' => 'nullable|boolean',
+            'praised_user_id' => 'nullable|integer',
+            'badge' => 'nullable|string',
+            'project_name' => 'nullable|string',
         ]);
 
         $mediaUrl = $request->input('media_url');
 
-        // Handle uploaded image file
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('community', 'public');
             $mediaUrl = '/storage/' . $path;
@@ -91,6 +101,7 @@ class CommunityController extends Controller
 
         $type = $request->input('type', 'post');
         $pollData = null;
+        $currentUser = $request->user();
 
         if ($type === 'poll') {
             $rawOptions = $request->input('options', []);
@@ -117,10 +128,20 @@ class CommunityController extends Controller
                 'is_anonymous' => (bool)$request->input('is_anonymous', false),
                 'total_votes' => 0,
             ];
+        } elseif ($type === 'praise') {
+            $praisedUserId = $request->input('praised_user_id');
+            $badge = $request->input('badge');
+            $projectName = $request->input('project_name');
+
+            $pollData = [
+                'praised_user_id' => $praisedUserId,
+                'badge' => $badge,
+                'project_name' => $projectName,
+            ];
         }
 
         $post = CommunityPost::create([
-            'user_id' => $request->user()->id,
+            'user_id' => $currentUser->id,
             'content' => $request->input('content'),
             'type' => $type,
             'media_url' => $mediaUrl,
@@ -128,11 +149,30 @@ class CommunityController extends Controller
             'pinned' => false,
         ]);
 
+        // Send notification to the praised employee
+        if ($type === 'praise' && !empty($pollData['praised_user_id'])) {
+            $recipient = User::find($pollData['praised_user_id']);
+            if ($recipient && $recipient->id !== $currentUser->id) {
+                $authorFullName = trim("{$currentUser->first_name} {$currentUser->last_name}");
+                $recipient->notify(new PraiseReceivedNotification(
+                    $authorFullName,
+                    $pollData['badge'] ?? null,
+                    $post->content,
+                    $post->id
+                ));
+            }
+        }
+
         $post->load(['user:id,first_name,last_name,email,designation,profile_photo_path', 'comments']);
         $post->user_has_liked = false;
         $post->user_voted_option_id = null;
         $post->likes_count = 0;
         $post->comments_count = 0;
+
+        if ($type === 'praise' && !empty($pollData['praised_user_id'])) {
+            $post->praised_user = User::select('id', 'first_name', 'last_name', 'designation', 'profile_photo_path')
+                ->find($pollData['praised_user_id']);
+        }
 
         if ($post->media_url && !str_starts_with($post->media_url, 'http')) {
             $post->media_url = url($post->media_url);
@@ -162,7 +202,6 @@ class CommunityController extends Controller
 
         $pollData = $post->poll_data;
 
-        // Check if poll expired
         if (!empty($pollData['expires_at']) && Carbon::parse($pollData['expires_at'])->isPast()) {
             return response()->json(['message' => 'This poll has expired.'], 422);
         }
@@ -171,7 +210,6 @@ class CommunityController extends Controller
         $options = $pollData['options'];
         $totalVotes = 0;
 
-        // Remove any previous vote by this user across options
         foreach ($options as &$opt) {
             $opt['voter_ids'] = array_values(array_filter($opt['voter_ids'] ?? [], fn($vId) => $vId !== $userId));
             if ($opt['id'] === $targetOptionId) {
@@ -342,7 +380,10 @@ class CommunityController extends Controller
         $casualDays = $casualBalance ? ($casualBalance->balance ?? $casualBalance->remaining_days ?? 12) : 12;
         $sickDays = $sickBalance ? ($sickBalance->balance ?? $sickBalance->remaining_days ?? 10) : 10;
 
-        $allUsers = User::where('status', 'active')->get();
+        $allUsers = User::where('status', 'active')
+            ->select('id', 'first_name', 'last_name', 'designation', 'profile_photo_path', 'email', 'date_of_birth', 'date_of_joining')
+            ->get();
+
         $birthdaysToday = [];
         $birthdaysUpcoming = [];
         $anniversariesToday = [];
@@ -422,6 +463,9 @@ class CommunityController extends Controller
         usort($birthdaysUpcoming, fn($a, $b) => $a['days_remaining'] <=> $b['days_remaining']);
         usort($anniversariesUpcoming, fn($a, $b) => $a['days_remaining'] <=> $b['days_remaining']);
 
+        // Fetch active projects for Praise dropdown
+        $projects = Project::select('id', 'name')->orderBy('name')->get();
+
         return response()->json([
             'upcoming_holiday' => $upcomingHoliday,
             'on_leave_today' => $onLeaveToday,
@@ -437,6 +481,13 @@ class CommunityController extends Controller
                 'anniversaries_upcoming' => $anniversariesUpcoming,
                 'recently_joined' => $recentlyJoined,
             ],
+            'all_employees' => $allUsers->map(fn($u) => [
+                'id' => $u->id,
+                'name' => trim("{$u->first_name} {$u->last_name}"),
+                'designation' => $u->designation ?? 'Team Member',
+                'profile_photo_path' => $u->profile_photo_path,
+            ]),
+            'projects' => $projects,
         ]);
     }
 }
