@@ -50,7 +50,18 @@ class ProjectController extends Controller
             $query->where('name', 'like', '%' . $request->string('search') . '%');
         }
 
-        return response()->json($query->orderBy('created_at', 'desc')->paginate(20));
+                $perPage = $request->input('per_page', 20);
+        if ($perPage === 'all' || (int) $perPage === -1) {
+            $items = $query->orderBy('created_at', 'desc')->get();
+            return response()->json([
+                'data' => $items,
+                'total' => $items->count(),
+                'current_page' => 1,
+                'last_page' => 1,
+            ]);
+        }
+
+        return response()->json($query->orderBy('created_at', 'desc')->paginate((int) $perPage));
     }
 
     public function store(StoreProjectRequest $request)

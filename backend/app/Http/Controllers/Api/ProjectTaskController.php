@@ -23,7 +23,16 @@ class ProjectTaskController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $query = ProjectTask::query()->with(['project:id,name', 'subPhase:id,name', 'catalogTask:id,name,category', 'assignees:id,first_name,last_name']);
+        $query = ProjectTask::query()->with([
+            'project:id,name,project_type,category,project_coordinator_id',
+            'project.coordinator:id,first_name,last_name',
+            'coordinator:id,first_name,last_name',
+            'subPhase:id,name',
+            'catalogTask:id,name,category',
+            'assignees:id,first_name,last_name',
+            'team:id,name',
+            'comments' => fn ($q) => $q->latest()->limit(1),
+        ])->withCount(['comments', 'bugs']);
 
         if (!$user->hasRole('Super Admin') && !$user->can('view all projects')) {
             $query->where(function ($q) use ($user) {
@@ -35,10 +44,6 @@ class ProjectTaskController extends Controller
                     }
                 });
 
-                // Guarded explicitly: an unguarded ->orWhere('team_id', $user->team_id)
-                // would silently become `OR team_id IS NULL` for any user with no
-                // team at all (Eloquent converts a null value to whereNull), which
-                // would over-broadly expose every team-less task to every such user.
                 if ($user->hasRole('Team Lead') && $user->team_id) {
                     $q->orWhere('team_id', $user->team_id);
                 }
@@ -54,27 +59,110 @@ class ProjectTaskController extends Controller
             }
         }
         if ($request->filled('status')) {
-            $query->where('status', $request->string('status'));
+            $statusVal = $request->string('status');
+            if (strtolower($statusVal) === 'active') {
+                $query->whereIn('status', ['In Progress', 'Being Developed', 'Ready for QA', 'Assigned to QA', 'Yet to Start', 'On Hold']);
+            } elseif (strtolower($statusVal) === 'overdue') {
+                $query->whereNotNull('due_date')
+                      ->where('due_date', '<', now()->toDateString())
+                      ->whereNotIn('status', ['Completed', 'Rejected']);
+            } else {
+                $query->where('status', $statusVal);
+            }
         }
         if ($request->filled('assignee_id')) {
             $assigneeId = (int) $request->input('assignee_id');
             $query->whereHas('taskAssignees', fn ($a) => $a->where('user_id', $assigneeId));
         }
+        if ($request->filled('coordinator_id')) {
+            $coordId = (int) $request->input('coordinator_id');
+            $query->where(function ($q) use ($coordId) {
+                $q->where('coordinator_id', $coordId)
+                  ->orWhere(function ($sq) use ($coordId) {
+                      $sq->whereNull('coordinator_id')
+                         ->whereHas('project', fn ($p) => $p->where('project_coordinator_id', $coordId));
+                  });
+            });
+        }
+        if ($request->filled('search')) {
+            $search = $request->string('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%")
+                  ->orWhereHas('project', fn ($p) => $p->where('name', 'like', "%{$search}%"))
+                  ->orWhereHas('assignees', function ($a) use ($search) {
+                      $a->where('first_name', 'like', "%{$search}%")
+                        ->orWhere('last_name', 'like', "%{$search}%");
+                  });
+            });
+        }
 
-        return response()->json($query->orderBy('due_date')->paginate(20));
+        $perPage = $request->input('per_page', 20);
+        if ($perPage === 'all' || (int) $perPage === -1) {
+            $items = $query->orderBy('due_date')->get();
+            return response()->json([
+                'data' => $items,
+                'total' => $items->count(),
+                'current_page' => 1,
+                'last_page' => 1,
+            ]);
+        }
+
+        return response()->json($query->orderBy('due_date')->paginate((int) $perPage));
     }
 
     public function my(Request $request)
     {
         $user = $request->user();
 
-        $tasks = ProjectTask::query()
+        $query = ProjectTask::query()
             ->whereHas('taskAssignees', fn ($a) => $a->where('user_id', $user->id))
-            ->with(['project:id,name', 'subPhase:id,name', 'catalogTask:id,name,category', 'assignees:id,first_name,last_name'])
-            ->orderBy('due_date')
-            ->paginate(20);
+            ->with([
+                'project:id,name,project_type,category,project_coordinator_id',
+                'project.coordinator:id,first_name,last_name',
+                'coordinator:id,first_name,last_name',
+                'subPhase:id,name',
+                'catalogTask:id,name,category',
+                'assignees:id,first_name,last_name',
+                'team:id,name',
+                'comments' => fn ($q) => $q->latest()->limit(1),
+            ])
+            ->withCount(['comments', 'bugs'])
+            ->orderBy('due_date');
 
-        return response()->json($tasks);
+        if ($request->filled('status')) {
+            $statusVal = $request->string('status');
+            if (strtolower($statusVal) === 'active') {
+                $query->whereIn('status', ['In Progress', 'Being Developed', 'Ready for QA', 'Assigned to QA', 'Yet to Start', 'On Hold']);
+            } elseif (strtolower($statusVal) === 'overdue') {
+                $query->whereNotNull('due_date')
+                      ->where('due_date', '<', now()->toDateString())
+                      ->whereNotIn('status', ['Completed', 'Rejected']);
+            } else {
+                $query->where('status', $statusVal);
+            }
+        }
+        if ($request->filled('search')) {
+            $search = $request->string('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%")
+                  ->orWhereHas('project', fn ($p) => $p->where('name', 'like', "%{$search}%"));
+            });
+        }
+
+        $perPage = $request->input('per_page', 20);
+        if ($perPage === 'all' || (int) $perPage === -1) {
+            $items = $query->get();
+            return response()->json([
+                'data' => $items,
+                'total' => $items->count(),
+                'current_page' => 1,
+                'last_page' => 1,
+            ]);
+        }
+
+        return response()->json($query->paginate((int) $perPage));
     }
 
     public function store(StoreProjectTaskRequest $request, Project $project)

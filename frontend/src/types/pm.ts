@@ -276,9 +276,10 @@ export interface SetProjectCoordinatorPayload {
 
 export interface ProjectFilterParams {
   status?: string;
-  team_id?: number;
+  team_id?: number | null;
   search?: string;
   page?: number;
+  per_page?: number | string;
 }
 
 export interface StoreProjectTaskPayload {
@@ -327,12 +328,14 @@ export interface SetTaskCoordinatorPayload {
 export interface TaskFilterParams {
   project_id?: number;
   sub_phase_id?: number;
-  team_id?: number;
+  team_id?: number | null;
   status?: string;
   priority?: string;
   assignee_id?: number;
+  coordinator_id?: number | null;
   search?: string;
   page?: number;
+  per_page?: number | string;
 }
 
 export interface StoreProjectTaskCommentPayload {
