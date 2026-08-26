@@ -40,18 +40,21 @@ import { TaskPriorityBadge } from "@/components/project-management/TaskPriorityB
 import { CreateTaskModal } from "@/components/project-management/CreateTaskModal";
 
 function formatDateDisplay(dateStr?: string | null): string {
-  if (!dateStr) return "—";
+  if (!dateStr || typeof dateStr !== "string") return "—";
   try {
-    return format(parseISO(dateStr), "dd MMM yyyy");
+    const parsed = parseISO(dateStr);
+    if (isNaN(parsed.getTime())) return dateStr;
+    return format(parsed, "dd MMM yyyy");
   } catch {
-    return dateStr;
+    return String(dateStr);
   }
 }
 
 function isTaskOverdue(dueDateStr?: string | null, status?: TaskStatus): boolean {
-  if (!dueDateStr || status === "Completed") return false;
+  if (!dueDateStr || typeof dueDateStr !== "string" || status === "Completed") return false;
   try {
     const due = parseISO(dueDateStr);
+    if (isNaN(due.getTime())) return false;
     return isPast(due) && !isToday(due);
   } catch {
     return false;
@@ -371,19 +374,23 @@ export default function AllTasksPage() {
 
                       {/* Assignees */}
                       <td className="py-4 px-4">
-                        {task.assignees && task.assignees.length > 0 ? (
+                        {task.assignees && Array.isArray(task.assignees) && task.assignees.length > 0 ? (
                           <div className="flex items-center gap-1.5 flex-wrap">
-                            {task.assignees.map((a) => (
-                              <span
-                                key={a.id}
-                                className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
-                              >
-                                <span className="w-4 h-4 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-400 text-[9px] font-bold flex items-center justify-center">
-                                  {a.first_name?.[0]}
+                            {task.assignees.map((a: any) => {
+                              const name = a?.first_name ? `${a.first_name} ${a.last_name || ""}`.trim() : a?.name || "Assignee";
+                              const initial = a?.first_name?.[0] || a?.name?.[0] || "?";
+                              return (
+                                <span
+                                  key={a?.id || Math.random()}
+                                  className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
+                                >
+                                  <span className="w-4 h-4 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-400 text-[9px] font-bold flex items-center justify-center">
+                                    {initial}
+                                  </span>
+                                  <span>{name}</span>
                                 </span>
-                                <span>{a.first_name}</span>
-                              </span>
-                            ))}
+                              );
+                            })}
                           </div>
                         ) : (
                           <span className="text-xs text-slate-400 italic">Unassigned</span>

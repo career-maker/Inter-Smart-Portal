@@ -34,22 +34,20 @@ class ProjectTaskController extends Controller
             'comments' => fn ($q) => $q->latest()->limit(1),
         ])->withCount(['comments', 'bugs']);
 
-        if (!$user->hasRole('Super Admin') && !$user->can('view all projects')) {
+        $canViewAll = $user->hasRole('Super Admin')
+            || $user->hasRole('Admin')
+            || $user->hasRole('Team Lead')
+            || $user->can('view all projects')
+            || in_array(strtolower($user->role ?? ''), ['super admin', 'admin', 'team lead'], true);
+
+        if (!$canViewAll) {
             $query->where(function ($q) use ($user) {
                 $q->whereHas('project', function ($p) use ($user) {
                     $p->where('project_coordinator_id', $user->id)
                       ->orWhereHas('members', fn ($m) => $m->where('users.id', $user->id));
-                    if ($user->hasRole('Team Lead') && $user->team_id) {
-                        $p->orWhere('team_id', $user->team_id);
-                    }
-                });
-
-                if ($user->hasRole('Team Lead') && $user->team_id) {
-                    $q->orWhere('team_id', $user->team_id);
-                }
-
-                $q->orWhere('coordinator_id', $user->id)
-                  ->orWhereHas('taskAssignees', fn ($a) => $a->where('user_id', $user->id));
+                })
+                ->orWhere('coordinator_id', $user->id)
+                ->orWhereHas('assignees', fn ($a) => $a->where('users.id', $user->id));
             });
         }
 
