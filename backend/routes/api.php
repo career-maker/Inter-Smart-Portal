@@ -453,6 +453,8 @@ Route::post('system/scheduler/run', function (\Illuminate\Http\Request $request)
 // resolveTaskCoordinator(). See PROJECT_MANAGEMENT_MODULE_DESIGN.md.
 // ──────────────────────────────────────────────────────────────────────────
 Route::middleware('auth:sanctum')->prefix('projects')->group(function () {
+    // Static endpoints MUST be registered before wildcard {project}
+    Route::post('import-hubstaff', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'importAll']);
     Route::get('/', [\App\Http\Controllers\Api\ProjectController::class, 'index']);
     Route::post('/', [\App\Http\Controllers\Api\ProjectController::class, 'store']);
     Route::get('{project}', [\App\Http\Controllers\Api\ProjectController::class, 'show']);
@@ -486,10 +488,17 @@ Route::middleware('auth:sanctum')->prefix('pm-task-catalog')->group(function () 
     Route::delete('{catalog}', [\App\Http\Controllers\Api\ProjectTaskCatalogController::class, 'destroy']);
 });
 
+Route::middleware('auth:sanctum')->prefix('hubstaff')->group(function () {
+    Route::get('projects', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'index']);
+    Route::get('users', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'getUsers']);
+    Route::post('link-user', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'linkUser']);
+    Route::post('sync-users', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'syncUsers']);
+});
+
+// Backward compatibility alias for pm/hubstaff routes
 Route::middleware('auth:sanctum')->prefix('pm/hubstaff')->group(function () {
     Route::get('projects', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'index']);
-    Route::post('projects/import-hubstaff', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'importAll']);
-    Route::get('hubstaff/users', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'getUsers']);
-    Route::post('hubstaff/link-user', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'linkUser']);
-    Route::post('hubstaff/sync-users', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'syncUsers']);
+    Route::get('users', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'getUsers']);
+    Route::post('link-user', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'linkUser']);
+    Route::post('sync-users', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'syncUsers']);
 });
