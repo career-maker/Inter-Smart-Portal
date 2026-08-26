@@ -501,18 +501,9 @@ class CommunityController extends Controller
                 ];
             });
 
-        $casualBalance = LeaveBalance::where('user_id', $user->id)
-            ->where(function ($q) {
-                $q->where('leave_type', 'like', '%Casual%')->orWhere('leave_type', 'CL');
-            })->first();
-
-        $sickBalance = LeaveBalance::where('user_id', $user->id)
-            ->where(function ($q) {
-                $q->where('leave_type', 'like', '%Sick%')->orWhere('leave_type', 'SL');
-            })->first();
-
-        $casualDays = $casualBalance ? ($casualBalance->balance ?? $casualBalance->remaining_days ?? 12) : 12;
-        $sickDays = $sickBalance ? ($sickBalance->balance ?? $sickBalance->remaining_days ?? 10) : 10;
+        $balance = LeaveBalance::where('user_id', $user->id)->first();
+        $casualDays = $balance ? (float)$balance->casual_leave_balance : 0;
+        $sickDays = $balance ? (float)$balance->sick_leave_balance : 0;
 
         $allUsers = User::select('id', 'first_name', 'last_name', 'designation', 'profile_photo_path', 'email', 'date_of_birth', 'date_of_joining', 'status')
             ->get();

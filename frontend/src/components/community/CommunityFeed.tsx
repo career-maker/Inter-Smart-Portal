@@ -990,29 +990,54 @@ export function CommunityFeed() {
             const isPraise = post.type === "praise";
             const praisedList = post.praised_users || (post.praised_user ? [post.praised_user] : []);
 
+            // Human friendly relative time
+            const formatRelativeTime = (dateStr?: string) => {
+              if (!dateStr) return "Recently";
+              try {
+                const d = parseISO(dateStr);
+                const now = new Date();
+                const diffMs = now.getTime() - d.getTime();
+                const diffSec = Math.floor(diffMs / 1000);
+                const diffMin = Math.floor(diffSec / 60);
+                const diffHour = Math.floor(diffMin / 60);
+                const diffDay = Math.floor(diffHour / 24);
+
+                if (diffSec < 60) return "Just now";
+                if (diffMin < 60) return `${diffMin}m ago`;
+                if (diffHour < 24) return `${diffHour}h ago`;
+                if (diffDay < 7) return `${diffDay} day${diffDay > 1 ? "s" : ""} ago`;
+                if (diffDay < 30) return `${diffDay} days ago`;
+                return format(d, "MMM d, yyyy");
+              } catch (e) {
+                return "Recently";
+              }
+            };
+
             return (
               <div
                 key={post.id}
-                className="bg-white dark:bg-slate-800 rounded-md border border-slate-200/90 dark:border-slate-700/60 shadow-sm p-5 space-y-4"
+                className="bg-white dark:bg-slate-800 rounded-md border border-slate-200/90 dark:border-slate-700/60 shadow-sm p-6 space-y-4"
               >
-                {/* Author Info Header */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3 min-w-0">
+                {/* Author Info Header matching screenshot exact layout */}
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3.5 min-w-0">
                     <RoyalAvatar
                       src={post.user?.profile_photo_path}
                       name={authorName}
                       userId={post.user_id}
                       className="w-10 h-10 rounded-full shrink-0"
                     />
-                    <div className="min-w-0">
-                      <p className="text-[13px] font-semibold text-slate-900 dark:text-white truncate">
-                        <RoyalName name={authorName} userId={post.user_id} />
+                    <div className="min-w-0 space-y-0.5">
+                      <p className="text-[13.5px] leading-tight text-slate-800 dark:text-white truncate flex items-center gap-1.5">
+                        <span className="font-semibold text-slate-900 dark:text-white">
+                          <RoyalName name={authorName} userId={post.user_id} />
+                        </span>
+                        <span className="text-slate-500 dark:text-slate-400 font-normal text-xs">
+                          {isPraise ? "shared a praise" : isPoll ? "created a poll" : "created a post"}
+                        </span>
                       </p>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                        {post.user?.designation || "Team Member"} •{" "}
-                        {post.created_at
-                          ? format(parseISO(post.created_at), "MMM d, yyyy 'at' h:mm a")
-                          : "Recently"}
+                      <p className="text-[11.5px] text-slate-400 dark:text-slate-500 font-normal">
+                        {formatRelativeTime(post.created_at)}
                       </p>
                     </div>
                   </div>
@@ -1020,7 +1045,7 @@ export function CommunityFeed() {
                   {canDelete && (
                     <button
                       onClick={() => handleDeletePost(post.id)}
-                      className="text-slate-400 hover:text-red-500 p-1.5 rounded-md transition-colors cursor-pointer"
+                      className="text-slate-400 hover:text-red-500 p-1 rounded-md transition-colors cursor-pointer"
                       title={isSuperAdmin ? "Delete Post (Super Admin)" : "Delete Post"}
                     >
                       <Trash2 className="w-4 h-4" />
@@ -1030,7 +1055,7 @@ export function CommunityFeed() {
 
                 {/* Praise Highlight Card (Multi-recipient supported) */}
                 {isPraise && (
-                  <div className="p-3.5 bg-gradient-to-r from-amber-50/80 via-purple-50/50 to-pink-50/60 dark:from-amber-950/20 dark:via-purple-950/20 dark:to-pink-950/20 rounded-md border border-amber-200/80 dark:border-amber-900/30 flex items-center justify-between gap-3">
+                  <div className="p-4 bg-gradient-to-r from-amber-50/90 via-purple-50/60 to-pink-50/60 dark:from-amber-950/20 dark:via-purple-950/20 dark:to-pink-950/20 rounded-md border border-amber-200/80 dark:border-amber-900/30 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 flex items-center justify-center text-xl shrink-0 shadow-xs">
                         🎖️
@@ -1084,9 +1109,9 @@ export function CommunityFeed() {
                   </div>
                 )}
 
-                {/* Post Body Text */}
+                {/* Post Body Text with proper padding and line-height */}
                 {post.content && (
-                  <div className="text-[13px] leading-relaxed text-slate-800 dark:text-slate-200 whitespace-pre-wrap">
+                  <div className="text-[13.5px] leading-relaxed text-slate-800 dark:text-slate-200 whitespace-pre-wrap pt-0.5">
                     {post.type === "poll" && (
                       <div className="mb-2 inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300 rounded-full">
                         <BarChart2 className="w-3 h-3 text-emerald-500" /> Community Poll
@@ -1164,51 +1189,81 @@ export function CommunityFeed() {
                   </div>
                 )}
 
-                {/* Attached Image */}
+                {/* Attached Image — Centered, natural aspect ratio, NO side background colors */}
                 {post.media_url && (
-                  <div className="rounded-md overflow-hidden border border-slate-200/80 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 max-h-[480px]">
-                    <img
-                      src={post.media_url}
-                      alt="Post attachment"
-                      className="w-full h-auto max-h-[480px] object-contain rounded-md"
-                      loading="lazy"
-                    />
+                  <div className="pt-2 flex items-center justify-start">
+                    <div className="rounded-md overflow-hidden border border-slate-200/80 dark:border-slate-700/80 inline-block max-w-full">
+                      <img
+                        src={post.media_url}
+                        alt="Post attachment"
+                        className="max-w-full max-h-[500px] w-auto h-auto object-contain rounded-md block"
+                        loading="lazy"
+                      />
+                    </div>
                   </div>
                 )}
 
-                {/* Like & Comment Bar */}
-                <div className="flex items-center gap-6 pt-3 border-t border-slate-100 dark:border-slate-700/60 text-xs text-slate-500 dark:text-slate-400">
-                  <button
-                    onClick={() => handleToggleLike(post.id)}
-                    className={`flex items-center gap-1.5 font-medium transition-colors cursor-pointer ${
-                      post.user_has_liked
-                        ? "text-[#56348f] dark:text-purple-400 font-semibold"
-                        : "hover:text-slate-900 dark:hover:text-white"
-                    }`}
-                  >
-                    <ThumbsUp
-                      className={`w-4 h-4 ${
-                        post.user_has_liked ? "fill-current text-[#56348f] dark:text-purple-400" : ""
+                {/* Like & Comment Action Bar Matching Screenshot Exact Typography & Reactions Summary */}
+                <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700/60 text-xs">
+                  {/* Left: Like & Comment Action Buttons */}
+                  <div className="flex items-center gap-6">
+                    <button
+                      onClick={() => handleToggleLike(post.id)}
+                      className={`flex items-center gap-1.5 text-xs font-semibold transition-colors cursor-pointer ${
+                        post.user_has_liked
+                          ? "text-[#56348f] dark:text-purple-400"
+                          : "text-[#56348f] dark:text-purple-300 hover:text-purple-800"
                       }`}
-                    />
-                    <span>
-                      {post.likes_count || 0} {post.likes_count === 1 ? "Like" : "Likes"}
-                    </span>
-                  </button>
+                    >
+                      <ThumbsUp
+                        className={`w-4 h-4 ${
+                          post.user_has_liked ? "fill-current text-[#56348f] dark:text-purple-400" : ""
+                        }`}
+                      />
+                      <span>Like</span>
+                    </button>
 
-                  <button
-                    onClick={() =>
-                      setOpenComments((prev) => ({ ...prev, [post.id]: !prev[post.id] }))
-                    }
-                    className="flex items-center gap-1.5 font-medium hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
-                  >
-                    <MessageSquare className="w-4 h-4" />
-                    <span>
-                      {post.comments_count || 0}{" "}
-                      {post.comments_count === 1 ? "Comment" : "Comments"}
+                    <button
+                      onClick={() =>
+                        setOpenComments((prev) => ({ ...prev, [post.id]: !prev[post.id] }))
+                      }
+                      className="flex items-center gap-1.5 text-xs font-semibold text-[#56348f] dark:text-purple-300 hover:text-purple-800 transition-colors cursor-pointer"
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                      <span>Comment</span>
+                    </button>
+                  </div>
+
+                  {/* Right: Reactions & Comments Counter Summary */}
+                  <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-5 h-5 rounded-full bg-rose-100 dark:bg-rose-950/60 flex items-center justify-center text-[10px] text-rose-500 shadow-2xs">
+                        ❤️
+                      </span>
+                      <span className="font-medium text-slate-600 dark:text-slate-300">
+                        {post.likes_count || 0} {post.likes_count === 1 ? "reaction" : "reactions"}
+                      </span>
+                    </div>
+                    <span>•</span>
+                    <span className="font-medium text-slate-600 dark:text-slate-300">
+                      {post.comments_count || 0} {post.comments_count === 1 ? "Comment" : "Comments"}
                     </span>
-                  </button>
+                  </div>
                 </div>
+
+                {/* "Be the first person to comment" prompt if 0 comments and closed */}
+                {!isCommentsOpen && (!post.comments || post.comments.length === 0) && (
+                  <div className="pt-2 text-xs">
+                    <button
+                      onClick={() =>
+                        setOpenComments((prev) => ({ ...prev, [post.id]: true }))
+                      }
+                      className="text-[#56348f] dark:text-purple-400 font-semibold hover:underline cursor-pointer"
+                    >
+                      Be the first person to comment
+                    </button>
+                  </div>
+                )}
 
                 {/* Comment Section (Collapsible) */}
                 {isCommentsOpen && (
