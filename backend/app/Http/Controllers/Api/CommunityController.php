@@ -23,21 +23,55 @@ use Illuminate\Database\Schema\Blueprint;
 class CommunityController extends Controller
 {
     /**
-     * Get paginated community feed posts with likes & comments
+     * Check if a given user is Super Admin
+     */
+    private function isSuperAdmin($user): bool
+    {
+        if (!$user) return false;
+        if (isset($user->role) && strtolower($user->role) === 'super admin') return true;
+        if (method_exists($user, 'hasRole') && $user->hasRole('Super Admin')) return true;
+        if (!empty($user->roles) && $user->roles->contains('name', 'Super Admin')) return true;
+        return false;
+    }
+
+    /**
+     * Get filtered and paginated community feed posts
      */
     public function index(Request $request)
     {
         $userId = $request->user()->id;
 
-        $posts = CommunityPost::with([
+        $query = CommunityPost::with([
             'user:id,first_name,last_name,email,designation,profile_photo_path',
             'comments.user:id,first_name,last_name,designation,profile_photo_path'
         ])
             ->withCount('likes')
-            ->withCount('comments')
-            ->orderBy('pinned', 'desc')
+            ->withCount('comments');
+
+        // Filter by Post Type (post, poll, praise)
+        if ($request->filled('type') && $request->type !== 'all') {
+            $query->where('type', $request->type);
+        }
+
+        // Filter by Year
+        if ($request->filled('year') && $request->year !== 'all') {
+            $query->whereYear('created_at', $request->year);
+        }
+
+        // Filter by Month (1-12)
+        if ($request->filled('month') && $request->month !== 'all') {
+            $query->whereMonth('created_at', $request->month);
+        }
+
+        // Filter by exact Date (YYYY-MM-DD)
+        if ($request->filled('date')) {
+            $query->whereDate('created_at', $request->date);
+        }
+
+        $perPage = $request->input('per_page', 10);
+        $posts = $query->orderBy('pinned', 'desc')
             ->latest()
-            ->paginate(20);
+            ->paginate($perPage);
 
         $postIds = $posts->pluck('id')->toArray();
         $userLikedPostIds = CommunityPostLike::where('user_id', $userId)
@@ -48,7 +82,6 @@ class CommunityController extends Controller
         $posts->getCollection()->transform(function ($post) use ($userLikedPostIds, $userId) {
             $post->user_has_liked = in_array($post->id, $userLikedPostIds);
             
-            // Determine if user has voted on poll
             if ($post->type === 'poll' && !empty($post->poll_data['options'])) {
                 $userVotedOptionId = null;
                 foreach ($post->poll_data['options'] as $opt) {
@@ -60,7 +93,6 @@ class CommunityController extends Controller
                 $post->user_voted_option_id = $userVotedOptionId;
             }
 
-            // Load praised user info if praise
             if ($post->type === 'praise' && !empty($post->poll_data['praised_user_id'])) {
                 $praisedUser = User::select('id', 'first_name', 'last_name', 'designation', 'profile_photo_path')
                     ->find($post->poll_data['praised_user_id']);
@@ -77,7 +109,7 @@ class CommunityController extends Controller
     }
 
     /**
-     * Create a new community post (supports text, praise, poll, and image uploads)
+     * Create a new community post
      */
     public function store(Request $request)
     {
@@ -142,7 +174,6 @@ class CommunityController extends Controller
             ];
         }
 
-        
         // Auto-safeguard: Ensure poll_data column exists
         if (!Schema::hasColumn('community_posts', 'poll_data')) {
             try {
@@ -312,7 +343,7 @@ class CommunityController extends Controller
         $user = $request->user();
         $post = CommunityPost::findOrFail($id);
 
-        if ($post->user_id !== $user->id && $user->role !== 'Super Admin') {
+        if ($post->user_id !== $user->id && !$this->isSuperAdmin($user)) {
             return response()->json(['message' => 'Unauthorized to delete this post.'], 403);
         }
 
@@ -329,7 +360,7 @@ class CommunityController extends Controller
         $user = $request->user();
         $comment = CommunityPostComment::findOrFail($id);
 
-        if ($comment->user_id !== $user->id && $user->role !== 'Super Admin') {
+        if ($comment->user_id !== $user->id && !$this->isSuperAdmin($user)) {
             return response()->json(['message' => 'Unauthorized to delete this comment.'], 403);
         }
 
@@ -394,8 +425,8 @@ class CommunityController extends Controller
         $casualDays = $casualBalance ? ($casualBalance->balance ?? $casualBalance->remaining_days ?? 12) : 12;
         $sickDays = $sickBalance ? ($sickBalance->balance ?? $sickBalance->remaining_days ?? 10) : 10;
 
-        $allUsers = User::where('status', 'active')
-            ->select('id', 'first_name', 'last_name', 'designation', 'profile_photo_path', 'email', 'date_of_birth', 'date_of_joining')
+        // Fetch ALL users for birthday/anniversary calculations and praise selector
+        $allUsers = User::select('id', 'first_name', 'last_name', 'designation', 'profile_photo_path', 'email', 'date_of_birth', 'date_of_joining', 'status')
             ->get();
 
         $birthdaysToday = [];
@@ -500,6 +531,7 @@ class CommunityController extends Controller
                 'name' => trim("{$u->first_name} {$u->last_name}"),
                 'designation' => $u->designation ?? 'Team Member',
                 'profile_photo_path' => $u->profile_photo_path,
+                'email' => $u->email,
             ]),
             'projects' => $projects,
         ]);

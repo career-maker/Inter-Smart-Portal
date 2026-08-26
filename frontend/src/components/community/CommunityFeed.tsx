@@ -20,8 +20,10 @@ import {
   Award,
   ChevronDown,
   Search,
-  Gift,
-  HelpCircle,
+  Filter,
+  ChevronLeft,
+  ChevronRight,
+  RotateCcw,
 } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
@@ -37,15 +39,45 @@ const PRAISE_BADGES = [
   { id: "customer_delight", name: "Customer Delight", icon: "🌟", bg: "bg-indigo-100 text-indigo-800 border-indigo-300" },
 ];
 
+const MONTHS = [
+  { value: "all", label: "All Months" },
+  { value: "1", label: "January" },
+  { value: "2", label: "February" },
+  { value: "3", label: "March" },
+  { value: "4", label: "April" },
+  { value: "5", label: "May" },
+  { value: "6", label: "June" },
+  { value: "7", label: "July" },
+  { value: "8", label: "August" },
+  { value: "9", label: "September" },
+  { value: "10", label: "October" },
+  { value: "11", label: "November" },
+  { value: "12", label: "December" },
+];
+
 export function CommunityFeed() {
   const currentUser = useAuthStore((state) => state.user);
-  const isSuperAdmin = currentUser?.role === "Super Admin";
+  const isSuperAdmin =
+    currentUser?.role === "Super Admin" ||
+    (currentUser as any)?.roles?.some((r: any) => (r.name || r) === "Super Admin") ||
+    (currentUser as any)?.is_super_admin === true;
 
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeType, setActiveType] = useState<"post" | "poll" | "praise">("post");
   const [content, setContent] = useState("");
   const [posting, setPosting] = useState(false);
+
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
+  const [totalPosts, setTotalPosts] = useState(0);
+
+  // Filters State
+  const [filterType, setFilterType] = useState<string>("all");
+  const [filterYear, setFilterYear] = useState<string>("all");
+  const [filterMonth, setFilterMonth] = useState<string>("all");
+  const [filterDate, setFilterDate] = useState<string>("");
 
   // Image Upload State
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -61,7 +93,7 @@ export function CommunityFeed() {
   const [notifyEmployees, setNotifyEmployees] = useState(false);
   const [anonymousPoll, setAnonymousPoll] = useState(false);
 
-  // Praise Form State (Matching Screenshot)
+  // Praise Form State
   const [employeesList, setEmployeesList] = useState<any[]>([]);
   const [projectsList, setProjectsList] = useState<any[]>([]);
   const [employeeSearch, setEmployeeSearch] = useState("");
@@ -79,15 +111,27 @@ export function CommunityFeed() {
   const [votingPostId, setVotingPostId] = useState<number | null>(null);
 
   useEffect(() => {
-    fetchPosts();
-    fetchSummaryMetadata();
+    fetchPosts(currentPage);
+  }, [currentPage, filterType, filterYear, filterMonth, filterDate]);
+
+  useEffect(() => {
+    fetchMetadataAndEmployees();
   }, []);
 
-  const fetchPosts = async () => {
+  const fetchPosts = async (page = 1) => {
     try {
       setLoading(true);
-      const res = await api.get("/community/posts");
+      const params: any = { page, per_page: 10 };
+      if (filterType !== "all") params.type = filterType;
+      if (filterYear !== "all") params.year = filterYear;
+      if (filterMonth !== "all") params.month = filterMonth;
+      if (filterDate) params.date = filterDate;
+
+      const res = await api.get("/community/posts", { params });
       setPosts(res.data?.data || []);
+      setCurrentPage(res.data?.current_page || 1);
+      setLastPage(res.data?.last_page || 1);
+      setTotalPosts(res.data?.total || 0);
     } catch (err) {
       console.error("Failed to load community posts", err);
     } finally {
@@ -95,17 +139,51 @@ export function CommunityFeed() {
     }
   };
 
-  const fetchSummaryMetadata = async () => {
+  const fetchMetadataAndEmployees = async () => {
     try {
-      const res = await api.get("/community/summary");
-      if (res.data?.all_employees) {
-        setEmployeesList(res.data.all_employees);
+      // 1. Try summary
+      const summaryRes = await api.get("/community/summary");
+      let empMap: { [id: number]: any } = {};
+
+      if (summaryRes.data?.all_employees && summaryRes.data.all_employees.length > 0) {
+        summaryRes.data.all_employees.forEach((emp: any) => {
+          empMap[emp.id] = {
+            id: emp.id,
+            name: emp.name || `${emp.first_name || ''} ${emp.last_name || ''}`.trim(),
+            designation: emp.designation || "Team Member",
+            profile_photo_path: emp.profile_photo_path,
+            email: emp.email,
+          };
+        });
       }
-      if (res.data?.projects) {
-        setProjectsList(res.data.projects);
+
+      if (summaryRes.data?.projects) {
+        setProjectsList(summaryRes.data.projects);
       }
+
+      // 2. Also query /employees endpoint to ensure complete employee pool
+      try {
+        const empRes = await api.get("/employees?per_page=500&page=1");
+        const list = Array.isArray(empRes.data)
+          ? empRes.data
+          : empRes.data?.data || [];
+
+        list.forEach((emp: any) => {
+          empMap[emp.id] = {
+            id: emp.id,
+            name: `${emp.first_name || ''} ${emp.last_name || ''}`.trim() || emp.name || "Employee",
+            designation: emp.designation || "Team Member",
+            profile_photo_path: emp.profile_photo_path,
+            email: emp.email,
+          };
+        });
+      } catch (e) {
+        // Fallback to summary list
+      }
+
+      setEmployeesList(Object.values(empMap));
     } catch (err) {
-      console.error("Failed to load summary metadata", err);
+      console.error("Failed to load metadata", err);
     }
   };
 
@@ -140,6 +218,14 @@ export function CommunityFeed() {
     const updated = [...pollOptions];
     updated[idx] = val;
     setPollOptions(updated);
+  };
+
+  const handleResetFilters = () => {
+    setFilterType("all");
+    setFilterYear("all");
+    setFilterMonth("all");
+    setFilterDate("");
+    setCurrentPage(1);
   };
 
   const handleCreatePost = async () => {
@@ -181,6 +267,7 @@ export function CommunityFeed() {
 
         if (res.data?.data) {
           setPosts([res.data.data, ...posts]);
+          setTotalPosts((prev) => prev + 1);
         }
         setPollQuestion("");
         setPollOptions(["", "", ""]);
@@ -206,6 +293,7 @@ export function CommunityFeed() {
 
         if (res.data?.data) {
           setPosts([res.data.data, ...posts]);
+          setTotalPosts((prev) => prev + 1);
         }
         setPraiseDescription("");
         setSelectedEmployee(null);
@@ -227,6 +315,7 @@ export function CommunityFeed() {
 
         if (res.data?.data) {
           setPosts([res.data.data, ...posts]);
+          setTotalPosts((prev) => prev + 1);
         }
         setContent("");
         handleRemoveImage();
@@ -311,21 +400,27 @@ export function CommunityFeed() {
   };
 
   const handleDeletePost = async (postId: number) => {
-    if (!confirm("Are you sure you want to delete this post?")) return;
+    if (!confirm("Are you sure you want to delete this item?")) return;
 
     try {
       await api.delete(`/community/posts/${postId}`);
       setPosts((prev) => prev.filter((p) => p.id !== postId));
-    } catch (err) {
+      setTotalPosts((prev) => Math.max(0, prev - 1));
+    } catch (err: any) {
       console.error("Failed to delete post", err);
+      alert(err.response?.data?.message || "Failed to delete post.");
     }
   };
 
   // Filtered employees for search
-  const filteredEmployees = employeesList.filter((emp) =>
-    emp.name.toLowerCase().includes(employeeSearch.toLowerCase()) &&
-    emp.id !== currentUser?.id
-  );
+  const filteredEmployees = employeesList.filter((emp) => {
+    const q = employeeSearch.trim().toLowerCase();
+    if (!q) return true; // Show all when empty
+    const matchName = emp.name ? emp.name.toLowerCase().includes(q) : false;
+    const matchEmail = emp.email ? emp.email.toLowerCase().includes(q) : false;
+    const matchDesig = emp.designation ? emp.designation.toLowerCase().includes(q) : false;
+    return matchName || matchEmail || matchDesig;
+  });
 
   return (
     <div
@@ -382,19 +477,19 @@ export function CommunityFeed() {
           </button>
         </div>
 
-        {/* ── PRAISE CREATION FORM (Matching Screenshot) ── */}
+        {/* ── PRAISE CREATION FORM ── */}
         {activeType === "praise" ? (
           <div className="space-y-4 pt-1">
             {/* 1. Search Employee Input */}
             <div className="relative">
               {selectedEmployee ? (
-                <div className="flex items-center justify-between p-2 bg-purple-50 dark:bg-purple-950/30 border border-[#56348f]/40 rounded-md">
+                <div className="flex items-center justify-between p-2.5 bg-purple-50 dark:bg-purple-950/30 border border-[#56348f]/40 rounded-md">
                   <div className="flex items-center gap-2.5">
                     <RoyalAvatar
                       src={selectedEmployee.profile_photo_path}
                       name={selectedEmployee.name}
                       userId={selectedEmployee.id}
-                      className="w-7 h-7 rounded-full"
+                      className="w-8 h-8 rounded-full"
                     />
                     <div>
                       <p className="text-xs font-bold text-slate-900 dark:text-white">
@@ -434,10 +529,10 @@ export function CommunityFeed() {
 
                   {/* Dropdown Results */}
                   {isEmployeeDropdownOpen && (
-                    <div className="absolute z-20 top-full left-0 right-0 mt-1 max-h-52 overflow-y-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md shadow-lg custom-scrollbar">
+                    <div className="absolute z-30 top-full left-0 right-0 mt-1 max-h-56 overflow-y-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md shadow-xl custom-scrollbar">
                       {filteredEmployees.length === 0 ? (
                         <div className="p-3 text-xs text-slate-500 text-center">
-                          No employees found
+                          {employeesList.length === 0 ? "Loading employee directory..." : "No employees found matching search"}
                         </div>
                       ) : (
                         filteredEmployees.map((emp) => (
@@ -484,7 +579,7 @@ export function CommunityFeed() {
               />
             </div>
 
-            {/* 3. Badge Selector Box (Matching Screenshot) */}
+            {/* 3. Badge Selector Box */}
             <div className="flex items-center gap-4">
               <div
                 onClick={() => setIsBadgeModalOpen(!isBadgeModalOpen)}
@@ -509,7 +604,7 @@ export function CommunityFeed() {
               </div>
             </div>
 
-            {/* Badge Selection Modal / Dropdown */}
+            {/* Badge Selection Modal / Grid */}
             {isBadgeModalOpen && (
               <div className="p-3 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-md grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {PRAISE_BADGES.map((b) => (
@@ -533,7 +628,7 @@ export function CommunityFeed() {
               </div>
             )}
 
-            {/* 4. Projects Dropdown (optional) */}
+            {/* 4. Projects Dropdown */}
             <div>
               <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
                 Projects (optional)
@@ -552,7 +647,7 @@ export function CommunityFeed() {
               </select>
             </div>
 
-            {/* 5. Gift Rewards & Balance (Matching Screenshot) */}
+            {/* 5. Gift Rewards & Balance */}
             <div className="flex items-center justify-between text-xs pt-1">
               <div>
                 <span className="font-semibold text-slate-800 dark:text-slate-200">Gift Rewards</span>
@@ -566,7 +661,7 @@ export function CommunityFeed() {
               </div>
             </div>
 
-            {/* 6. Image Preview if selected */}
+            {/* 6. Image Preview */}
             {imagePreview && (
               <div className="relative inline-block rounded-md overflow-hidden border border-slate-200 dark:border-slate-700 max-h-56">
                 <img
@@ -736,7 +831,7 @@ export function CommunityFeed() {
                 onChange={(e) => setContent(e.target.value)}
                 rows={3}
                 placeholder="Write your message or company update here..."
-                className="w-full text-[13px] leading-relaxed p-3 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-md focus:outline-none focus:ring-1 focus:ring-[#56348f] focus:border-[#56348f] dark:text-white resize-none"
+                className="w-full text-[13px] leading-relaxed p-3 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-md focus:outline-none focus:ring-1 focus:ring-[#56348f] dark:text-white resize-none"
               />
 
               {imagePreview && (
@@ -804,6 +899,88 @@ export function CommunityFeed() {
         )}
       </div>
 
+      {/* ── FILTER BAR (Date, Year, Month, Type) ── */}
+      <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200/90 dark:border-slate-700/60 shadow-sm p-3.5 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <span className="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+            <Filter className="w-3.5 h-3.5 text-[#56348f]" /> Filter Feed:
+          </span>
+
+          {/* Type Filter */}
+          <select
+            value={filterType}
+            onChange={(e) => {
+              setFilterType(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#56348f]"
+          >
+            <option value="all">All Types</option>
+            <option value="post">📝 Regular Posts</option>
+            <option value="poll">📊 Polls</option>
+            <option value="praise">🎖️ Praise & Shoutouts</option>
+          </select>
+
+          {/* Year Filter */}
+          <select
+            value={filterYear}
+            onChange={(e) => {
+              setFilterYear(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#56348f]"
+          >
+            <option value="all">All Years</option>
+            <option value="2026">2026</option>
+            <option value="2025">2025</option>
+            <option value="2024">2024</option>
+          </select>
+
+          {/* Month Filter */}
+          <select
+            value={filterMonth}
+            onChange={(e) => {
+              setFilterMonth(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#56348f]"
+          >
+            {MONTHS.map((m) => (
+              <option key={m.value} value={m.value}>
+                {m.label}
+              </option>
+            ))}
+          </select>
+
+          {/* Exact Date Filter */}
+          <div className="flex items-center gap-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md px-2 py-1">
+            <span className="text-[11px] text-slate-400">Date:</span>
+            <input
+              type="date"
+              value={filterDate}
+              onChange={(e) => {
+                setFilterDate(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="bg-transparent text-xs text-slate-700 dark:text-slate-200 focus:outline-none cursor-pointer"
+            />
+          </div>
+
+          {(filterType !== "all" || filterYear !== "all" || filterMonth !== "all" || filterDate) && (
+            <button
+              onClick={handleResetFilters}
+              className="flex items-center gap-1 text-[11px] font-semibold text-purple-600 hover:text-purple-800 dark:text-purple-400 p-1 hover:underline cursor-pointer"
+            >
+              <RotateCcw className="w-3 h-3" /> Reset
+            </button>
+          )}
+        </div>
+
+        <div className="text-slate-400 text-[11px]">
+          {totalPosts} {totalPosts === 1 ? "post" : "posts"} total
+        </div>
+      </div>
+
       {/* ── COMMUNITY POSTS STREAM ── */}
       {loading ? (
         <div className="flex justify-center py-12">
@@ -812,9 +989,9 @@ export function CommunityFeed() {
       ) : posts.length === 0 ? (
         <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200/90 dark:border-slate-700/60 shadow-sm p-8 text-center">
           <MessageSquare className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-2 opacity-60" />
-          <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-200">No community posts yet</h4>
+          <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-200">No community posts found</h4>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Be the first to share an update, poll, photo, or praise!
+            Try adjusting your filters or be the first to create a post!
           </p>
         </div>
       ) : (
@@ -849,7 +1026,7 @@ export function CommunityFeed() {
                       <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
                         {post.user?.designation || "Team Member"} •{" "}
                         {post.created_at
-                          ? format(parseISO(post.created_at), "MMM d, h:mm a")
+                          ? format(parseISO(post.created_at), "MMM d, yyyy 'at' h:mm a")
                           : "Recently"}
                       </p>
                     </div>
@@ -859,14 +1036,14 @@ export function CommunityFeed() {
                     <button
                       onClick={() => handleDeletePost(post.id)}
                       className="text-slate-400 hover:text-red-500 p-1.5 rounded-md transition-colors cursor-pointer"
-                      title="Delete Post"
+                      title={isSuperAdmin ? "Delete Post (Super Admin)" : "Delete Post"}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
                   )}
                 </div>
 
-                {/* ── PRAISE HIGHLIGHT CARD (If Praise Type) ── */}
+                {/* Praise Highlight Card */}
                 {isPraise && (
                   <div className="p-3.5 bg-gradient-to-r from-amber-50/80 via-purple-50/50 to-pink-50/60 dark:from-amber-950/20 dark:via-purple-950/20 dark:to-pink-950/20 rounded-md border border-amber-200/80 dark:border-amber-900/30 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
@@ -877,7 +1054,7 @@ export function CommunityFeed() {
                         <p className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
                           <span>Praise for</span>
                           {post.praised_user ? (
-                            <span className="text-[#56348f] dark:text-purple-300">
+                            <span className="text-[#56348f] dark:text-purple-300 font-bold">
                               {post.praised_user.first_name} {post.praised_user.last_name}
                             </span>
                           ) : (
@@ -1106,6 +1283,52 @@ export function CommunityFeed() {
               </div>
             );
           })}
+
+          {/* ── PAGINATION CONTROLS ── */}
+          {lastPage > 1 && (
+            <div className="flex items-center justify-between bg-white dark:bg-slate-800 rounded-md border border-slate-200/90 dark:border-slate-700/60 shadow-sm p-4 text-xs">
+              <span className="text-slate-500 dark:text-slate-400">
+                Page <span className="font-semibold text-slate-800 dark:text-slate-200">{currentPage}</span> of{" "}
+                <span className="font-semibold text-slate-800 dark:text-slate-200">{lastPage}</span>
+              </span>
+
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage <= 1}
+                  className="px-3 py-1.5 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 transition cursor-pointer"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5" /> Prev
+                </button>
+
+                {Array.from({ length: lastPage }, (_, i) => i + 1)
+                  .filter((p) => p === 1 || p === lastPage || Math.abs(p - currentPage) <= 1)
+                  .map((p, idx, arr) => (
+                    <span key={p} className="flex items-center">
+                      {idx > 0 && p - arr[idx - 1] > 1 && <span className="px-1 text-slate-400">...</span>}
+                      <button
+                        onClick={() => setCurrentPage(p)}
+                        className={`w-8 h-8 rounded-md text-xs font-semibold transition cursor-pointer ${
+                          currentPage === p
+                            ? "bg-[#56348f] text-white"
+                            : "border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50"
+                        }`}
+                      >
+                        {p}
+                      </button>
+                    </span>
+                  ))}
+
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(lastPage, p + 1))}
+                  disabled={currentPage >= lastPage}
+                  className="px-3 py-1.5 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 transition cursor-pointer"
+                >
+                  Next <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
