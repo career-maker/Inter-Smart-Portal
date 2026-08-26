@@ -144,23 +144,27 @@ export function EmergencyContactsCard({
       </div>
 
       <style>{`
+        .emergency-contacts-scroll {
+          scrollbar-width: thin !important;
+          scrollbar-color: rgba(148, 163, 184, 0.35) transparent !important;
+        }
         .emergency-contacts-scroll::-webkit-scrollbar {
-          width: 5px;
+          width: 3.5px !important;
         }
         .emergency-contacts-scroll::-webkit-scrollbar-track {
-          background: transparent;
+          background: transparent !important;
         }
         .emergency-contacts-scroll::-webkit-scrollbar-thumb {
-          background: rgba(148, 163, 184, 0.4);
-          border-radius: 4px;
+          background: rgba(148, 163, 184, 0.35) !important;
+          border-radius: 9999px !important;
         }
         .emergency-contacts-scroll::-webkit-scrollbar-thumb:hover {
-          background: rgba(148, 163, 184, 0.7);
+          background: rgba(86, 52, 143, 0.6) !important;
         }
       `}</style>
 
-      {/* Scrollable Contacts List (Capped height to prevent height issues) */}
-      <div className="space-y-3.5 max-h-[360px] overflow-y-auto pr-2 emergency-contacts-scroll">
+      {/* Scrollable Contacts List (Compact max-h-[210px] to balance Hall of Fame) */}
+      <div className="space-y-3 max-h-[210px] overflow-y-auto pr-1.5 emergency-contacts-scroll">
         
         {/* ── 1. TEAM HR SECTION ── */}
         <div className="space-y-1.5 pb-3.5 border-b border-slate-100 dark:border-slate-700/50">

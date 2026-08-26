@@ -833,7 +833,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-            {/* Active Certificate Modal Popup */}
+      {/* Active Certificate Modal Popup */}
       {showRecognitionModal && profile.active_recognition && (
         <CertificateModal
           recognition={profile.active_recognition}
@@ -841,122 +841,6 @@ export default function DashboardPage() {
           onClose={() => setShowRecognitionModal(false)}
         />
       )}
-
-      {user?.role !== "Team Lead" && (
-        <AttendanceWidget initialData={data.attendance_widget_data} />
-      )}
-
-      {/*
-        ========================================
-        ENGAGEMENT & ASSISTANCE SECTION
-        ========================================
-      */}
-      {user?.role !== "Team Lead" && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          <div className="lg:col-span-2">
-            <LeaderboardWidget />
-          </div>
-          <div className="lg:col-span-1">
-            <EmergencyContactsCard />
-          </div>
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-        {/* Updates Widget — Rotating Card */}
-        {widgets.company_updates.length > 1 ? (
-          <RotatingCard
-            title="Latest Updates"
-            icon={Megaphone}
-            headerClass="text-blue-300"
-            items={widgets.company_updates}
-            emptyMessage="No announcements yet"
-            renderItem={(update) => (
-              <div className="space-y-3">
-                <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight break-words">{update.title}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-4">{update.content || 'No description'}</p>
-                <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-white/10">
-                  <p className="text-xs text-slate-500">{format(parseISO(update.created_at), "MMM d, yyyy")}</p>
-                  <Link href="/announcements" className="text-xs font-semibold text-blue-400 hover:text-blue-300">View →</Link>
-                </div>
-              </div>
-            )}
-          />
-        ) : (
-          <div className="premium-card wave-card p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 style={{ fontSize: "16px", lineHeight: "28px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white dark:text-white flex items-center gap-2">
-                <Megaphone className="w-4 h-4 text-blue-500" />
-                Latest Updates
-              </h3>
-              <Link href="/announcements" className="text-xs font-semibold text-blue-600 hover:underline">View All</Link>
-            </div>
-            <div className="space-y-3">
-              {widgets.company_updates.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-8 text-center">
-                  <Megaphone className="w-8 h-8 text-slate-500 mb-2 opacity-50" />
-                  <p className="text-sm text-slate-500 dark:text-slate-400">No announcements yet</p>
-                  <p className="text-xs text-slate-500 mt-1">Updates will appear here</p>
-                </div>
-              ) : (
-                widgets.company_updates.slice(0, 1).map((update: any, idx: number) => (
-                  <div key={idx} className="flex gap-3 items-start hover:bg-slate-100 dark:hover:bg-white/5 p-2 rounded-lg transition-colors">
-                    <div className="w-2 h-2 mt-1.5 rounded-full bg-blue-400 shrink-0 animate-countUp"></div>
-                    <div>
-                      <p className="text-sm font-medium text-slate-900 dark:text-white leading-tight">{update.title}</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{format(parseISO(update.created_at), "MMM d, yyyy")}</p>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Work Anniversaries — rotating, 14-day filter */}
-        {(() => {
-          const today = new Date(); today.setHours(0,0,0,0);
-          const filteredAnni = (widgets.anniversaries || []).filter((a: any) => {
-            const d = new Date(a.date); d.setHours(0,0,0,0);
-            const diff = Math.round((d.getTime() - today.getTime()) / 86400000);
-            return diff >= 0 && diff <= 14;
-          }).map((a: any) => {
-            const d = new Date(a.date); d.setHours(0,0,0,0);
-            return { ...a, days_remaining: Math.round((d.getTime() - today.getTime()) / 86400000) };
-          });
-          return (
-            <RotatingCard
-              title="Work Anniversaries"
-              icon={PartyPopper}
-              headerClass="text-pink-300"
-              items={filteredAnni}
-              emptyMessage="No work anniversaries in the next 2 weeks."
-              renderItem={(a) => (
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-bold text-slate-900 dark:text-white">🎉 {a.name}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{a.years} Year{a.years !== 1 ? 's' : ''} with Inter Smart</p>
-                  </div>
-                  <div className="flex flex-col items-end gap-1 shrink-0">
-                    <span className="text-xs font-bold text-slate-600 dark:text-slate-300">{format(new Date(a.date), "MMM d")}</span>
-                    {a.days_remaining === 0 ? (
-                      <span className="text-[10px] uppercase tracking-wider font-bold bg-pink-500/80 text-white px-2 py-0.5 rounded-lg">Today!</span>
-                    ) : (
-                      <span className="text-[10px] uppercase tracking-wider font-bold bg-pink-500/30 text-pink-300 px-2 py-0.5 rounded-lg">In {Math.floor(a.days_remaining)} d</span>
-                    )}
-                  </div>
-                </div>
-              )}
-            />
-          );
-        })()}
-
-        {/* Upcoming Birthdays Widget with Wishes */}
-        <UpcomingBirthdaysWithWishes items={widgets.upcoming_birthdays} />
-
-        {/* Leaderboard Widget */}
-        <LeaderboardWidget />
-      </div>
 
       {/* 
         ========================================
