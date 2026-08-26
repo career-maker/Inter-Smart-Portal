@@ -379,8 +379,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 height: 0 !important;
               }
             `}</style>
-            {/* Top header area above side menu with looping animation GIF */}
-            <div className="h-16 shrink-0 border-b border-[#1a3a52] bg-[#0c2233] flex items-center justify-center p-2 select-none">
+            {/* Top header area above side menu with looping animation GIF (Clean #091A2A background) */}
+            <div
+              style={{ backgroundColor: "#091A2A" }}
+              className="h-16 shrink-0 border-b border-[#1a3a52] flex items-center justify-center p-2 select-none"
+            >
               <img
                 src="/preloader.gif"
                 alt="Animation"
