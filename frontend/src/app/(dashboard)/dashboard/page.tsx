@@ -283,6 +283,130 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {/* ─────────────────────────────────────────────────────────────────────────────
+          KEKA-STYLE WELCOME HERO BANNER (TOP OF DASHBOARD FOR ALL USERS)
+      ───────────────────────────────────────────────────────────────────────────── */}
+      <div
+        style={{
+          backgroundImage: `linear-gradient(to right, rgba(12, 24, 45, 0.90) 0%, rgba(15, 23, 42, 0.70) 50%, rgba(12, 24, 45, 0.90) 100%), url('/welcome-banner-bg.jpg')`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+        }}
+        className="relative rounded-2xl overflow-hidden shadow-xl p-6 sm:p-8 min-h-[160px] flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 border border-white/15 select-none"
+      >
+        {/* Left: Avatar, Name, Role, Location, Attendance Status & Clock */}
+        <div className="flex items-center gap-5 sm:gap-6 z-10 min-w-0">
+          <div className="relative shrink-0">
+            <RoyalAvatar
+              src={profile.profile_photo_path}
+              name={`${profile.first_name} ${profile.last_name || ""}`.trim()}
+              userId={user?.id || profile?.id}
+              employeeCode={profile?.employee_code || (user as any)?.employee_code}
+              className="w-20 h-20 sm:w-22 sm:h-22 rounded-full border-2 border-white/80 shadow-2xl shrink-0"
+              textClass="text-white text-xl font-bold"
+            />
+          </div>
+
+          <div className="min-w-0 space-y-1.5">
+            {/* User Full Name with external link icon & achievement badge */}
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <Link
+                href="/profile"
+                className="text-2xl sm:text-3xl font-bold text-white hover:text-amber-300 transition-colors flex items-center gap-2 group truncate"
+              >
+                <span className="truncate">{profile.first_name} {profile.last_name || ""}</span>
+                <svg className="w-4 h-4 opacity-75 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all text-white shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" strokeLinecap="round" strokeLinejoin="round"/>
+                  <polyline points="15 3 21 3 21 9" strokeLinecap="round" strokeLinejoin="round"/>
+                  <line x1="10" y1="14" x2="21" y2="3" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </Link>
+
+              {/* Active Achievement Animating Trophy Badge */}
+              {hasActiveRec && profile.active_recognition && (
+                <button
+                  onClick={() => setShowRecognitionModal(true)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-amber-500/25 via-yellow-500/20 to-amber-500/25 hover:from-amber-500/35 hover:to-amber-500/35 text-amber-300 border border-amber-400/50 rounded-full text-xs font-black shadow-[0_0_14px_rgba(245,158,11,0.35)] transition-all transform hover:scale-105 cursor-pointer shrink-0"
+                  title={`${profile.active_recognition.title} - Click to view certificate`}
+                >
+                  <div className="w-4 h-4 flex items-center justify-center shrink-0">
+                    <DotLottiePlayer
+                      src="https://assets2.lottiefiles.com/packages/lf20_touohxv0.json"
+                      background="transparent"
+                      speed={1}
+                      style={{ width: 18, height: 18 }}
+                      loop
+                      autoplay
+                    />
+                  </div>
+                  <span className="tracking-wide uppercase text-[10.5px] font-black drop-shadow-sm">
+                    {profile.active_recognition.title}
+                  </span>
+                </button>
+              )}
+            </div>
+
+            {/* Subtitle: Role • Location with Exact Proxima Nova 13px / 20px typography */}
+            <p
+              style={{
+                fontFamily: '"Proxima Nova", sans-serif',
+                fontSize: "13px",
+                lineHeight: "20px",
+                color: "rgba(255, 255, 255, 0.9)",
+                fontWeight: 400
+              }}
+              className="flex items-center gap-2 flex-wrap"
+            >
+              <span>{profile.designation || user?.role || "Member"}</span>
+              <span className="text-white/60">•</span>
+              <span>Inter Smart, Kochi</span>
+            </p>
+
+            {/* Attendance Status Badge & Real-time Date Time */}
+            <div className="flex items-center gap-3 flex-wrap pt-1">
+              <span
+                style={{ fontSize: "11px", lineHeight: "16px" }}
+                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-bold uppercase tracking-wider ${
+                  profile.attendance_status === 'Punched In'
+                    ? 'bg-emerald-500/25 text-emerald-300 border border-emerald-400/50'
+                    : profile.attendance_status === 'Punched Out'
+                    ? 'bg-amber-500/25 text-amber-300 border border-amber-400/50'
+                    : 'bg-rose-500/25 text-rose-300 border border-rose-400/50'
+                }`}
+              >
+                {profile.attendance_status === 'Punched In' && (
+                  <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
+                )}
+                <Clock className="w-3.5 h-3.5" />
+                <span>{profile.attendance_status}</span>
+              </span>
+
+              <span
+                style={{
+                  fontFamily: '"Proxima Nova", sans-serif',
+                  fontSize: "12px",
+                  lineHeight: "16px",
+                  color: "rgba(255, 255, 255, 0.85)"
+                }}
+                className="font-medium"
+              >
+                {format(time, "EEEE, d MMMM yyyy")} • {format(time, "h:mm:ss a")}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Right: Growing Together Card with 6 Metrics Boxes & Live Clock */}
+        {profile.service_stats && (
+          <div className="z-10 shrink-0">
+            <GrowingTogetherCard
+              liveStats={liveServiceStats}
+              defaultStats={profile.service_stats}
+            />
+          </div>
+        )}
+      </div>
 
       {/* Employee Dashboard: Upcoming Holidays Banner */}
       {user?.role === "Employee" && data?.widgets?.upcoming_holidays && data.widgets.upcoming_holidays.length > 0 && (
@@ -618,104 +742,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/*
-        ========================================
-        HEADER: Premium Dashboard Header (Employee & Team Lead)
-        ========================================
-      */}
-      <div className="mb-8 pb-6 border-b border-slate-200/40 dark:border-white/5">
-        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
 
-          {/* Left: Avatar, Greeting, Metadata */}
-          <div className="flex items-start gap-4 lg:gap-6">
-            <RoyalAvatar
-              src={profile.profile_photo_path}
-              name={`${profile.first_name} ${profile.last_name || ""}`.trim()}
-              userId={user?.id || profile?.id}
-              employeeCode={profile?.employee_code || (user as any)?.employee_code}
-              className="w-14 h-14 lg:w-16 lg:h-16 rounded-full text-slate-900 dark:text-white text-lg lg:text-xl shrink-0"
-              textClass="text-slate-900 dark:text-white"
-            />
-
-            <div className="flex-1 space-y-3">
-              {/* Greeting as Primary Focal Point */}
-              <div>
-                <h1 className="text-4xl lg:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
-                  {greeting}
-                </h1>
-              </div>
-
-              {/* User Name & Role/Designation & Active Recognition Trophy */}
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <span className="text-lg lg:text-xl font-bold text-slate-600 dark:text-slate-300">
-                  <RoyalName
-                    name={profile.first_name}
-                    userId={user?.id || profile?.id}
-                    employeeCode={profile?.employee_code || (user as any)?.employee_code}
-                  />
-                </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 dark:bg-blue-500/15 text-blue-700 dark:text-blue-300 text-xs font-bold uppercase tracking-wider rounded-lg border border-blue-200/50 dark:border-blue-500/30">
-                  {profile.designation}
-                </span>
-
-                {/* Active Achievement Animating Trophy Badge */}
-                {hasActiveRec && profile.active_recognition && (
-                  <button
-                    onClick={() => setShowRecognitionModal(true)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-amber-500/20 via-yellow-500/15 to-amber-500/20 hover:from-amber-500/30 hover:to-amber-500/30 text-amber-300 border border-amber-500/40 rounded-full text-xs font-black shadow-[0_0_14px_rgba(245,158,11,0.25)] transition-all transform hover:scale-105 cursor-pointer group"
-                    title={`${profile.active_recognition.title} - Click to view certificate`}
-                  >
-                    <div className="w-5 h-5 flex items-center justify-center shrink-0">
-                      <DotLottiePlayer
-                        src="https://assets2.lottiefiles.com/packages/lf20_touohxv0.json"
-                        background="transparent"
-                        speed={1}
-                        style={{ width: 22, height: 22 }}
-                        loop
-                        autoplay
-                      />
-                    </div>
-                    <span className="tracking-wide uppercase text-[11px] font-black drop-shadow-sm">
-                      {profile.active_recognition.title}
-                    </span>
-                    <span className="text-[10px] text-amber-400/80 group-hover:translate-x-0.5 transition-transform">✨</span>
-                  </button>
-                )}
-              </div>
-
-              {/* Attendance Status Badge */}
-              <div className="flex items-center gap-2">
-                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${
-                  profile.attendance_status === 'Punched In'
-                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                    : profile.attendance_status === 'Punched Out'
-                    ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                    : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
-                }`}>
-                  {profile.attendance_status === 'Punched In' && (
-                    <span className="w-2 h-2 bg-emerald-400 rounded-full pulse-dot"></span>
-                  )}
-                  <Clock className="w-3.5 h-3.5" />
-                  {profile.attendance_status}
-                </span>
-              </div>
-
-              {/* Date & Time */}
-              <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
-                {format(time, "EEEE, d MMMM yyyy")} • {format(time, "h:mm a")}
-              </p>
-            </div>
-          </div>
-
-          {/* Right: Growing Together Card — Redesigned with 6 Metrics Boxes & Live Clock */}
-          {profile.service_stats && (
-            <GrowingTogetherCard
-              liveStats={liveServiceStats}
-              defaultStats={profile.service_stats}
-            />
-          )}
-        </div>
-      </div>
 
       {/* Active Certificate Modal Popup */}
       {showRecognitionModal && profile.active_recognition && (
@@ -1061,46 +1088,43 @@ function GrowingTogetherCard({ liveStats, defaultStats }: { liveStats: any; defa
   ];
 
   return (
-    <div className="lg:self-end w-full lg:w-auto bg-slate-900/90 dark:bg-slate-900/90 border border-slate-700/50 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-2xl backdrop-blur-md">
+    <div className="w-full lg:w-auto bg-black/40 border border-white/15 rounded-2xl p-4 sm:p-4.5 shadow-2xl backdrop-blur-md">
       {/* Top Header */}
-      <div className="flex items-center justify-between gap-6 mb-3">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full border border-amber-400/80 bg-amber-400/10 flex items-center justify-center text-amber-400 shrink-0 shadow-inner">
-            <svg className="w-5 h-5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <div className="flex items-center justify-between gap-6 mb-2.5">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-full border border-amber-400/80 bg-amber-400/20 flex items-center justify-center text-amber-300 shrink-0 shadow-inner">
+            <svg className="w-4 h-4 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
               <circle cx="9" cy="7" r="4" />
               <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
               <path d="M16 3.13a4 4 0 0 1 0 7.75" />
             </svg>
           </div>
-          <span className="text-sm font-black uppercase tracking-wider text-white">
+          <span style={{ fontFamily: '"Proxima Nova", sans-serif' }} className="text-xs font-black uppercase tracking-wider text-amber-300">
             GROWING TOGETHER
           </span>
         </div>
 
-        {/* Right Sparkle / Dial Accent */}
-        <div className="flex items-center justify-center text-amber-400/90 pr-1">
-          <svg className="w-5 h-5 animate-[spin_10s_linear_infinite]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <circle cx="12" cy="12" r="9" strokeDasharray="1.5 3.5" strokeLinecap="round" />
-            <path d="M12 7.5v4.5l3 2" strokeLinecap="round" />
-          </svg>
+        {/* Right Clock Icon */}
+        <div className="flex items-center justify-center text-amber-300/90 pr-1">
+          <Clock className="w-4 h-4 animate-spin [animation-duration:15s]" />
         </div>
       </div>
 
       {/* Horizontal Divider */}
-      <div className="border-t border-slate-700/40 dark:border-slate-800 my-3" />
+      <div className="border-t border-white/10 my-2.5" />
 
       {/* 6 Stat Boxes */}
-      <div className="grid grid-cols-6 gap-2 sm:gap-2.5">
+      <div className="grid grid-cols-6 gap-1.5 sm:gap-2">
         {statBoxes.map((box, idx) => (
           <div
             key={idx}
-            className="bg-slate-950/70 dark:bg-slate-950/80 border border-slate-800/90 rounded-xl py-2.5 px-2.5 sm:px-3 flex flex-col items-center justify-center text-center min-w-[48px] sm:min-w-[54px] shadow-inner"
+            className="bg-black/50 border border-white/10 rounded-xl py-2 px-2 sm:px-2.5 flex flex-col items-center justify-center text-center min-w-[44px] sm:min-w-[50px] shadow-inner"
           >
-            <span className="text-xl sm:text-2xl font-black text-white font-mono leading-none tracking-tight">
+            <span className="text-lg sm:text-xl font-black text-white font-mono leading-none tracking-tight">
               {box.value}
             </span>
-            <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1.5 leading-none">
+            <span style={{ fontFamily: '"Proxima Nova", sans-serif' }} className="text-[8.5px] sm:text-[9.5px] font-bold text-slate-300 uppercase tracking-widest mt-1 leading-none">
               {box.label}
             </span>
           </div>
