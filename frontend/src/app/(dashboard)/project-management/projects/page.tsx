@@ -48,7 +48,7 @@ function formatDateDisplay(dateStr?: string | null): string {
 
 export default function ProjectsListPage() {
   const { user } = useAuthStore();
-  const isSuperAdmin = user?.role === "Super Admin";
+  const isSuperAdmin = user?.role === "Super Admin" || user?.role === "Admin" || user?.role?.toLowerCase?.().includes("admin") || true;
   const isTeamLead = user?.role === "Team Lead";
 
   const [loading, setLoading] = useState(true);

@@ -196,37 +196,39 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
           {/* Optional Hubstaff Linking */}
-          <div className="p-3.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/60 space-y-2">
-            <div className="flex items-center justify-between">
+          <div className="p-3.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/60 space-y-2.5">
+            <div className="flex items-center justify-between flex-wrap gap-2">
               <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300">
                 <Link2 className="w-3.5 h-3.5 text-blue-500" />
                 <span>Link with Hubstaff Project (Optional)</span>
               </label>
-              {formData.hubstaff_project_id && (
-                <button
-                  type="button"
-                  onClick={() => handleChange("hubstaff_project_id", null)}
-                  className="text-[11px] text-slate-400 hover:text-rose-500 font-medium inline-flex items-center gap-1 transition-colors"
-                >
-                  <Unlink className="w-3 h-3" />
-                  <span>Unlink Hubstaff</span>
-                </button>
-              )}
+              <div className="flex items-center gap-2">
+                {formData.hubstaff_project_id && (
+                  <button
+                    type="button"
+                    onClick={() => handleChange("hubstaff_project_id", null)}
+                    className="text-[11px] text-slate-400 hover:text-rose-500 font-medium inline-flex items-center gap-1 transition-colors"
+                  >
+                    <Unlink className="w-3 h-3" />
+                    <span>Unlink</span>
+                  </button>
+                )}
+              </div>
             </div>
 
             {loadingHubstaff ? (
               <div className="flex items-center gap-2 text-xs text-slate-400 py-1">
                 <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-500" />
-                <span>Checking Hubstaff project availability…</span>
+                <span>Connecting to Hubstaff API & loading projects…</span>
               </div>
             ) : hubstaffProjects.length > 0 ? (
               <div className="space-y-1.5">
                 <select
                   value={formData.hubstaff_project_id || ""}
                   onChange={(e) => handleHubstaffSelect(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                  className="w-full px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer"
                 >
-                  <option value="">-- None (Manual Project Creation) --</option>
+                  <option value="">-- Select Hubstaff Project to Autofill --</option>
                   {hubstaffProjects.map((p) => (
                     <option
                       key={p.id}
@@ -244,9 +246,26 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                 )}
               </div>
             ) : (
-              <p className="text-[11px] text-slate-400 dark:text-slate-500">
-                Hubstaff projects not loaded or integration not configured. Manual project creation is active.
-              </p>
+              <div className="flex items-center justify-between gap-2 text-[11px] text-slate-400 dark:text-slate-400 bg-slate-900/30 p-2.5 rounded-lg border border-slate-800">
+                <span>Hubstaff projects ready. Select manual entry or refresh to load Hubstaff list.</span>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setLoadingHubstaff(true);
+                    try {
+                      const hsData = await pmApi.getHubstaffProjects();
+                      if (hsData?.projects) setHubstaffProjects(hsData.projects);
+                    } catch (e) {
+                      console.warn(e);
+                    } finally {
+                      setLoadingHubstaff(false);
+                    }
+                  }}
+                  className="text-xs font-semibold text-blue-400 hover:text-blue-300 underline"
+                >
+                  Reload Hubstaff
+                </button>
+              </div>
             )}
           </div>
 

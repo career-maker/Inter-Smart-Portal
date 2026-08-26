@@ -14,13 +14,20 @@ class HubstaffProjectController extends Controller
 
     /**
      * List available Hubstaff projects for project linking during creation.
-     * Restricted to users authorized to create projects (Super Admin & Team Lead).
      */
     public function index(Request $request)
     {
         $user = $request->user();
 
-        if ($user->role !== 'Super Admin' && $user->role !== 'Team Lead') {
+        // Check using Spatie hasRole and fallback to attribute
+        $isAuthorized = $user->hasRole('Super Admin')
+            || $user->hasRole('Admin')
+            || $user->hasRole('Team Lead')
+            || $user->can('manage projects')
+            || $user->can('create projects')
+            || in_array(strtolower($user->role ?? ''), ['super admin', 'admin', 'team lead'], true);
+
+        if (!$isAuthorized) {
             return response()->json(['message' => 'Unauthorized to view Hubstaff projects.'], 403);
         }
 
@@ -37,8 +44,13 @@ class HubstaffProjectController extends Controller
     {
         $user = $request->user();
 
-        if ($user->role !== 'Super Admin') {
-            return response()->json(['message' => 'Only Super Admin can import all projects from Hubstaff.'], 403);
+        $isAuthorized = $user->hasRole('Super Admin')
+            || $user->hasRole('Admin')
+            || $user->can('manage projects')
+            || in_array(strtolower($user->role ?? ''), ['super admin', 'admin'], true);
+
+        if (!$isAuthorized) {
+            return response()->json(['message' => 'Only administrators can import projects from Hubstaff.'], 403);
         }
 
         $result = $this->hubstaffService->importAllProjects($user);
