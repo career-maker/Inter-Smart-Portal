@@ -42,7 +42,7 @@ export default function CommunityPage() {
       setLoading(true);
       const [comRes, dashRes] = await Promise.allSettled([
         api.get("/community/summary"),
-        api.get("/dashboard/stats"),
+        api.get("/dashboard"),
       ]);
 
       const comData = comRes.status === "fulfilled" ? comRes.value.data : {};
