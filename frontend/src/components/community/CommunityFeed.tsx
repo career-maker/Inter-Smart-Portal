@@ -1418,12 +1418,10 @@ export function CommunityFeed() {
                   );
                 })()}
 
-                {/* Like & Comment Action Bar with Dual CSS + State Hover Reaction Picker */}
-                <div className="flex items-center justify-between pt-3.5 border-t border-slate-100 dark:border-slate-700/60 text-xs select-none flex-wrap gap-y-2 gap-x-3">
-                  {/* Left: Like (with seamless hover emoji picker) & Comment Buttons */}
-                  <div className="flex items-center gap-4 sm:gap-6 relative shrink-0">
-                    
-                    {/* Hover Reaction Trigger Container */}
+                {/* Like & Comment Action Bar */}
+                <div className="flex items-center justify-between pt-3.5 border-t border-slate-100 dark:border-slate-700/60 text-xs select-none">
+                  {/* Left: Like */}
+                  <div className="flex items-center gap-2 shrink-0">
                     <div
                       className="relative group/reaction-box"
                       onMouseEnter={() => handleMouseEnterLike(post.id)}
@@ -1431,7 +1429,7 @@ export function CommunityFeed() {
                       onTouchStart={() => handleTouchStartLike(post.id)}
                       onTouchEnd={() => handleTouchEndLike(post.id)}
                     >
-                      {/* Floating Emoji Reactions Bar (Seamless hover bridge with pb-2.5) */}
+                      {/* Floating Emoji Reactions Bar */}
                       <div
                         className={`absolute bottom-full left-0 pb-2.5 z-50 transition-all duration-200 ${
                           hoveredReactionPostId === post.id
@@ -1489,6 +1487,29 @@ export function CommunityFeed() {
                       </button>
                     </div>
 
+                    {/* Like Count */}
+                    {(post.likes_count || 0) > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setReactionModalPost(post);
+                          setReactionModalTab("all");
+                        }}
+                        className="text-xs text-slate-500 dark:text-slate-400 hover:underline hover:text-[#56348f]"
+                        title="View reactions"
+                      >
+                        {post.likes_count}
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Right: Comment */}
+                  <div className="flex items-center gap-2 shrink-0">
+                    {(post.comments_count || 0) > 0 && (
+                      <span className="text-xs text-slate-500 dark:text-slate-400">
+                        {post.comments_count}
+                      </span>
+                    )}
                     <button
                       type="button"
                       onClick={() =>
@@ -1496,71 +1517,10 @@ export function CommunityFeed() {
                       }
                       className="flex items-center gap-1.5 text-xs font-semibold text-[#56348f] dark:text-purple-300 hover:text-purple-800 transition-colors cursor-pointer py-1.5"
                     >
-                      <MessageSquare className="w-4 h-4" />
                       <span>Comment</span>
+                      <MessageSquare className="w-4 h-4" />
                     </button>
                   </div>
-
-                  {/* Right: Reactions Summary & Comments Counter (Click to see who reacted/commented) */}
-                  {((post.likes_count || 0) > 0 || (post.comments_count || 0) > 0) && (
-                    <div className="flex items-center gap-1.5 sm:gap-2 text-xs text-slate-500 dark:text-slate-400 animate-in fade-in shrink-0 whitespace-nowrap">
-                      {/* Likes / Reactions Breakdown Button (Opens Who Reacted Modal) */}
-                      {(post.likes_count || 0) > 0 && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setReactionModalPost(post);
-                            setReactionModalTab("all");
-                          }}
-                          className="flex items-center gap-1.5 hover:underline cursor-pointer group/reactions-btn p-0.5 rounded transition-colors"
-                          title="Click to see who reacted"
-                        >
-                          {/* Active Reaction Badges */}
-                          {post.reactions_breakdown && Object.keys(post.reactions_breakdown).length > 0 ? (
-                            <div className="flex items-center -space-x-1.5">
-                              {Object.entries(post.reactions_breakdown).map(([rType, count]) => {
-                                const rObj = EMOJI_REACTIONS.find((re) => re.id === rType);
-                                if (!rObj || Number(count) <= 0) return null;
-                                return (
-                                  <span
-                                    key={rType}
-                                    className="w-5 h-5 rounded-full bg-slate-50 dark:bg-slate-800 border border-white dark:border-slate-900 flex items-center justify-center text-[11px] shadow-xs group-hover/reactions-btn:scale-110 transition-transform"
-                                  >
-                                    {rObj.emoji}
-                                  </span>
-                                );
-                              })}
-                            </div>
-                          ) : (
-                            <span className="w-5 h-5 rounded-full bg-purple-100 dark:bg-purple-950/60 flex items-center justify-center text-[11px] text-[#56348f] shadow-xs">
-                              👍
-                            </span>
-                          )}
-
-                          <span className="font-medium text-slate-600 dark:text-slate-300 group-hover/reactions-btn:text-[#56348f]">
-                            {post.likes_count} {post.likes_count === 1 ? "reaction" : "reactions"}
-                          </span>
-                        </button>
-                      )}
-
-                      {(post.likes_count || 0) > 0 && (post.comments_count || 0) > 0 && (
-                        <span>•</span>
-                      )}
-
-                      {/* Comments Count Button */}
-                      {(post.comments_count || 0) > 0 && (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setOpenComments((prev) => ({ ...prev, [post.id]: !prev[post.id] }))
-                          }
-                          className="font-medium text-slate-600 dark:text-slate-300 hover:text-[#56348f] hover:underline cursor-pointer transition-colors"
-                        >
-                          {post.comments_count} {post.comments_count === 1 ? "Comment" : "Comments"}
-                        </button>
-                      )}
-                    </div>
-                  )}
                 </div>
 
 
