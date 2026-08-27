@@ -578,7 +578,7 @@ export default function AllTasksPage() {
                       {/* Priority */}
                       <td className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80">
                         {canEditTasks ? (
-                          <div className="relative inline-flex items-center">
+                          <div className="inline-flex items-center">
                             <select
                               value={task.priority}
                               disabled={updatingTaskId === task.id}
@@ -589,7 +589,7 @@ export default function AllTasksPage() {
                                 lineHeight: "18px",
                                 fontWeight: 400,
                               }}
-                              className={`px-2.5 py-0.5 pr-6 rounded-full border text-xs font-normal appearance-none cursor-pointer transition-all focus:outline-none focus:ring-2 focus:ring-purple-500/20 disabled:opacity-50 ${getPriorityBadgeStyle(task.priority)}`}
+                              className={`px-2.5 py-0.5 rounded-full border text-xs font-normal cursor-pointer transition-all focus:outline-none focus:ring-2 focus:ring-purple-500/20 disabled:opacity-50 ${getPriorityBadgeStyle(task.priority)}`}
                             >
                               {TASK_PRIORITIES.map((pr) => (
                                 <option key={pr} value={pr} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
@@ -597,7 +597,6 @@ export default function AllTasksPage() {
                                 </option>
                               ))}
                             </select>
-                            <ChevronRight className="w-3 h-3 text-slate-400 rotate-90 absolute right-2 pointer-events-none" />
                           </div>
                         ) : (
                           <TaskPriorityBadge priority={task.priority} />
@@ -607,7 +606,7 @@ export default function AllTasksPage() {
                       {/* Status */}
                       <td className={`py-3.5 px-4 ${canEditTasks ? "border-r border-slate-200/80 dark:border-slate-800/80" : ""}`}>
                         {canEditTasks ? (
-                          <div className="relative inline-flex items-center">
+                          <div className="inline-flex items-center">
                             <select
                               value={task.status}
                               disabled={updatingTaskId === task.id}
@@ -618,7 +617,7 @@ export default function AllTasksPage() {
                                 lineHeight: "18px",
                                 fontWeight: 400,
                               }}
-                              className={`px-2.5 py-0.5 pr-6 rounded-full border text-xs font-normal appearance-none cursor-pointer transition-all focus:outline-none focus:ring-2 focus:ring-purple-500/20 disabled:opacity-50 ${getStatusBadgeStyle(task.status)}`}
+                              className={`px-2.5 py-0.5 rounded-full border text-xs font-normal cursor-pointer transition-all focus:outline-none focus:ring-2 focus:ring-purple-500/20 disabled:opacity-50 ${getStatusBadgeStyle(task.status)}`}
                             >
                               {TASK_STATUSES.map((st) => (
                                 <option key={st} value={st} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
@@ -626,7 +625,6 @@ export default function AllTasksPage() {
                                 </option>
                               ))}
                             </select>
-                            <ChevronRight className="w-3 h-3 text-slate-400 rotate-90 absolute right-2 pointer-events-none" />
                           </div>
                         ) : (
                           <TaskStatusBadge status={task.status} />
