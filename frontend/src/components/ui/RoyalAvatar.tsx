@@ -58,42 +58,68 @@ export function RoyalAvatar({
     .substring(0, 2)
     .toUpperCase();
 
-  return (
-    <div className="relative inline-block shrink-0">
-      {/* Outer Royal Golden Honor Ring */}
-      {isEligible && (
-        <div className="absolute -inset-[3.5px] rounded-full bg-gradient-to-tr from-amber-600 via-yellow-300 to-amber-500 shadow-[0_0_14px_rgba(245,158,11,0.75)] ring-1 ring-amber-200/60 z-0 animate-pulse pointer-events-none" />
-      )}
+  if (isEligible) {
+    return (
+      <div className="relative inline-flex items-center justify-center shrink-0">
+        {/* Luminous Golden Aura */}
+        <div className="absolute -inset-1 rounded-full bg-gradient-to-tr from-amber-500 via-yellow-300 to-amber-600 blur-[5px] opacity-75 animate-pulse pointer-events-none" />
 
-      {/* Avatar Container */}
-      <div
-        className={cn(
-          "relative overflow-hidden flex items-center justify-center font-bold bg-gradient-to-tr from-[#2563eb] to-[#4f46e5] text-white shrink-0 select-none z-10",
-          isEligible ? "border-2 border-slate-950 ring-1 ring-amber-400/50" : "border border-white/10",
-          className
-        )}
-      >
-        <span style={{ color: "#ffffff" }} className={cn("text-white font-bold tracking-wider", textClass)}>{initials}</span>
-        {resolvedSrc && (
-          <img
-            src={resolvedSrc}
-            alt={name}
-            className="absolute inset-0 w-full h-full object-cover"
-            onError={(e) => {
-              (e.currentTarget as HTMLImageElement).style.display = "none";
-            }}
-          />
+        {/* Physical Golden Halo Ring */}
+        <div className="relative p-[2.5px] rounded-full bg-gradient-to-tr from-amber-500 via-yellow-200 to-amber-600 shadow-[0_0_14px_rgba(245,158,11,0.85)] ring-1 ring-amber-300/80 z-10">
+          <div
+            className={cn(
+              "relative overflow-hidden rounded-full flex items-center justify-center font-bold bg-gradient-to-tr from-[#2563eb] to-[#4f46e5] text-white shrink-0 select-none border border-slate-950/20",
+              className
+            )}
+          >
+            <span style={{ color: "#ffffff" }} className={cn("text-white font-bold tracking-wider", textClass)}>
+              {initials}
+            </span>
+            {resolvedSrc && (
+              <img
+                src={resolvedSrc}
+                alt={name}
+                className="absolute inset-0 w-full h-full object-cover rounded-full"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).style.display = "none";
+                }}
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Royal Crown Badge Overlay */}
+        {showCrownBadge && (
+          <div
+            title="Most Awarded Employee (Honorary Gold Badge)"
+            className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-gradient-to-br from-amber-300 via-amber-400 to-yellow-600 rounded-full flex items-center justify-center shadow-md shadow-amber-500/60 ring-2 ring-white dark:ring-slate-900 text-slate-950 z-20"
+          >
+            <Crown className="w-2.5 h-2.5 fill-slate-950 text-slate-950" />
+          </div>
         )}
       </div>
+    );
+  }
 
-      {/* Royal Crown Badge Overlay */}
-      {isEligible && showCrownBadge && (
-        <div
-          title="Most Awarded Employee (Honorary Gold Badge)"
-          className="absolute -top-1.5 -right-1.5 w-4.5 h-4.5 bg-gradient-to-br from-amber-300 via-amber-400 to-yellow-600 rounded-full flex items-center justify-center text-[9px] shadow-md shadow-amber-500/60 ring-1 ring-slate-950 text-slate-950 z-20"
-        >
-          <Crown className="w-2.5 h-2.5 fill-slate-950 text-slate-950" />
-        </div>
+  return (
+    <div
+      className={cn(
+        "relative overflow-hidden rounded-full flex items-center justify-center font-bold bg-gradient-to-tr from-[#2563eb] to-[#4f46e5] text-white shrink-0 select-none border border-white/10",
+        className
+      )}
+    >
+      <span style={{ color: "#ffffff" }} className={cn("text-white font-bold tracking-wider", textClass)}>
+        {initials}
+      </span>
+      {resolvedSrc && (
+        <img
+          src={resolvedSrc}
+          alt={name}
+          className="absolute inset-0 w-full h-full object-cover rounded-full"
+          onError={(e) => {
+            (e.currentTarget as HTMLImageElement).style.display = "none";
+          }}
+        />
       )}
     </div>
   );
@@ -137,19 +163,19 @@ export function RoyalName({
       <span
         title="Most Awarded Employee (Honorary Royal Gold)"
         className={cn(
-          "inline-flex items-center gap-1.5 font-black text-amber-400 dark:text-amber-300 drop-shadow-[0_0_12px_rgba(251,191,36,0.5)] tracking-wide",
+          "inline-flex items-center gap-1.5 font-black text-amber-500 dark:text-amber-300 drop-shadow-[0_0_12px_rgba(251,191,36,0.5)] tracking-wide",
           safeClasses
         )}
-        style={{ color: "#fbbf24" }}
+        style={{ color: "#d97706" }}
       >
         <span
-          className="font-black text-amber-400 dark:text-amber-300 tracking-wide"
-          style={{ color: "#fbbf24", textShadow: "0 0 12px rgba(251,191,36,0.45)" }}
+          className="font-black text-amber-500 dark:text-amber-300 tracking-wide"
+          style={{ color: "#d97706", textShadow: "0 0 12px rgba(251,191,36,0.45)" }}
         >
           {name}
         </span>
         {showCrownIcon && (
-          <Crown className="w-3.5 h-3.5 fill-amber-400 text-amber-400 shrink-0 inline drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]" />
+          <Crown className="w-3.5 h-3.5 fill-amber-500 text-amber-500 dark:fill-amber-300 dark:text-amber-300 shrink-0 inline animate-bounce" />
         )}
       </span>
     );
@@ -157,3 +183,5 @@ export function RoyalName({
 
   return <span className={className}>{name}</span>;
 }
+
+export default RoyalAvatar;

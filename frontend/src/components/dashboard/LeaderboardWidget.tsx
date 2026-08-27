@@ -17,7 +17,7 @@ import {
   Flame
 } from "lucide-react";
 import api from "@/services/api";
-import { RoyalName } from "@/components/ui/RoyalAvatar";
+import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 import { useAuthStore } from "@/store/auth";
 
 const RANK_STYLES = [
@@ -108,8 +108,15 @@ export function LeaderboardWidget() {
                     key={entry.user_id}
                     className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900/50 rounded-md border border-slate-200/60 dark:border-slate-800 transition-colors"
                   >
-                    <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="flex items-center gap-3 min-w-0">
                       <span className="text-lg shrink-0">{rankStyle.icon}</span>
+                      <RoyalAvatar
+                        src={entry.profile_photo_path}
+                        name={entry.name}
+                        userId={entry.user_id}
+                        employeeCode={entry.employee_code}
+                        className="w-8 h-8 rounded-full"
+                      />
                       <div className="min-w-0">
                         <p
                           style={{
