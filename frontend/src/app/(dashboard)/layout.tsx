@@ -862,7 +862,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       fontWeight: active ? 600 : 500,
                       color: active ? "#56348f" : "rgb(15, 24, 36)",
                     }}
-                    className="relative h-full flex items-center uppercase tracking-wider transition-colors shrink-0 gap-1.5 cursor-pointer hover:!text-[#56348f]"
+                    className="relative h-full flex items-center uppercase tracking-wider transition-colors shrink-0 gap-1.5 cursor-pointer hover:!text-[#56348f] focus:outline-none focus:ring-0"
                   >
                     <span className="py-2">{tab.label}</span>
                     {tab.badge && (

@@ -151,7 +151,7 @@ export function MilestoneCelebrationsWidget({
                 {/* Upcoming Birthdays */}
                 {celebrations.birthdays_upcoming?.length > 0 && (
                   <div>
-                    <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
+                    <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2 mt-4">
                       Upcoming Birthdays
                     </h4>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
@@ -172,23 +172,27 @@ export function MilestoneCelebrationsWidget({
                           <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate max-w-full">
                             {person.designation}
                           </p>
-                          <span className="text-[10px] font-medium text-amber-600 dark:text-amber-400 mt-1">
-                            {format(new Date(person.date), "MMM d")} (in {person.days_remaining}d)
+                          <span className="text-[10px] font-medium text-amber-600 dark:text-amber-400 mt-1 mb-1">
+                            {format(new Date(person.date), "MMM d")} {person.days_remaining === 0 ? "(Today)" : `(in ${person.days_remaining}d)`}
                           </span>
-                          <button
-                            onClick={() =>
-                              onOpenWishDrawer({
-                                id: person.id,
-                                name: person.name,
-                                designation: person.designation,
-                                profile_photo_path: person.profile_photo_path,
-                                type: "birthday",
-                              })
-                            }
-                            className="mt-2 w-full py-1 bg-purple-100 dark:bg-purple-950/40 text-[#56348f] dark:text-purple-300 hover:bg-[#56348f] hover:text-white text-[11px] font-semibold rounded transition-colors cursor-pointer"
-                          >
-                            Wish
-                          </button>
+                          
+                          {/* Only show Wish button if it's today */}
+                          {person.days_remaining === 0 && (
+                            <button
+                              onClick={() =>
+                                onOpenWishDrawer({
+                                  id: person.id,
+                                  name: person.name,
+                                  designation: person.designation,
+                                  profile_photo_path: person.profile_photo_path,
+                                  type: "birthday",
+                                })
+                              }
+                              className="mt-2 w-full py-1 bg-purple-100 dark:bg-purple-950/40 text-[#56348f] dark:text-purple-300 hover:bg-[#56348f] hover:text-white text-[11px] font-semibold rounded transition-colors cursor-pointer"
+                            >
+                              Wish
+                            </button>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -225,24 +229,28 @@ export function MilestoneCelebrationsWidget({
                     <span className="text-[10px] font-bold text-pink-600 dark:text-pink-400 mt-0.5">
                       {person.years} Year{person.years !== 1 ? 's' : ''} with Inter Smart
                     </span>
-                    <span className="text-[10px] text-slate-400 mt-0.5">
+                    <span className="text-[10px] text-slate-400 mt-0.5 mb-1">
                       {person.days_remaining === 0 ? "Today!" : `In ${person.days_remaining} days`}
                     </span>
-                    <button
-                      onClick={() =>
-                        onOpenWishDrawer({
-                          id: person.id,
-                          name: person.name,
-                          designation: person.designation,
-                          profile_photo_path: person.profile_photo_path,
-                          type: "anniversary",
-                          years: person.years,
-                        })
-                      }
-                      className="mt-2 w-full py-1 bg-pink-100 dark:bg-pink-950/40 text-pink-700 dark:text-pink-300 hover:bg-pink-600 hover:text-white text-[11px] font-semibold rounded transition-colors cursor-pointer"
-                    >
-                      Wish 🎊
-                    </button>
+                    
+                    {/* Only show Wish button if it's today */}
+                    {person.days_remaining === 0 && (
+                      <button
+                        onClick={() =>
+                          onOpenWishDrawer({
+                            id: person.id,
+                            name: person.name,
+                            designation: person.designation,
+                            profile_photo_path: person.profile_photo_path,
+                            type: "anniversary",
+                            years: person.years,
+                          })
+                        }
+                        className="mt-2 w-full py-1 bg-pink-100 dark:bg-pink-950/40 text-pink-700 dark:text-pink-300 hover:bg-pink-600 hover:text-white text-[11px] font-semibold rounded transition-colors cursor-pointer"
+                      >
+                        Wish 🎊
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>
