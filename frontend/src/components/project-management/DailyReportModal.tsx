@@ -119,6 +119,18 @@ export function DailyReportModal({
 
   const isSingleMemberScope = isEmployee || reportType === "my_daily" || reportType === "my_tomorrow" || reportType === "individual_member";
 
+  const formatShortDate = (d?: string | null): string => {
+    if (!d) return "—";
+    try {
+      const clean = d.split("T")[0];
+      const dt = parseISO(clean);
+      if (isNaN(dt.getTime())) return d;
+      return format(dt, "dd MMM yyyy");
+    } catch {
+      return String(d);
+    }
+  };
+
   // Generate plain text report
   const generateTextReport = (): string => {
     if (!reportData) return "";
@@ -166,8 +178,13 @@ export function DailyReportModal({
         tasks.forEach((t: any, idx: number) => {
           const statusIcon = t.status === "Completed" ? "✅" : t.is_overdue ? "⚠️" : t.status === "Yet to Start" ? "⏳" : "🔄";
           text += `\n${idx + 1}. [${t.project_name}] ${t.title}\n`;
-          text += `   • Status: ${statusIcon} ${t.status} ${t.is_overdue ? `(! ${t.delay_days}d Overdue)` : ""}\n`;
-          text += `   • Priority: ${t.priority}\n`;
+          text += `   • Status: ${statusIcon} ${t.status} [Pty: ${t.priority}]\n`;
+          text += `   • Timeline: Start: ${formatShortDate(t.start_date)} | Due: ${formatShortDate(t.due_date)}${t.actual_completion_date ? ` | Achieved: ${formatShortDate(t.actual_completion_date)}` : ""}\n`;
+          if (t.is_overdue) {
+            text += `   • ⚠️ Deviation: Deviated by +${t.delay_days}d (Overdue)\n`;
+          } else if (t.deviation) {
+            text += `   • ⚠️ Deviation: ${t.deviation}\n`;
+          }
           if (t.current_updates || t.description) {
             text += `   • Notes: ${t.current_updates || t.description}\n`;
           }
@@ -209,9 +226,15 @@ export function DailyReportModal({
           } else {
             mTasks.forEach((t: any) => {
               const statusIcon = t.status === "Completed" ? "✅" : t.is_overdue ? "⚠️" : t.status === "Yet to Start" ? "⏳" : "🔄";
-              text += `  • [${t.project_name}] ${t.title} [${t.priority}] — ${statusIcon} ${t.status}${t.is_overdue ? ` (!${t.delay_days}d)` : ""}\n`;
+              text += `  • [${t.project_name}] ${t.title} [Pty: ${t.priority}] — ${statusIcon} ${t.status}\n`;
+              text += `    📅 Start: ${formatShortDate(t.start_date)} | Due: ${formatShortDate(t.due_date)}${t.actual_completion_date ? ` | Achieved: ${formatShortDate(t.actual_completion_date)}` : ""}\n`;
+              if (t.is_overdue) {
+                text += `    ⚠️ Deviation: Deviated by +${t.delay_days}d (Overdue)\n`;
+              } else if (t.deviation) {
+                text += `    ⚠️ Deviation: ${t.deviation}\n`;
+              }
               if (t.current_updates) {
-                text += `    ↳ ${t.current_updates}\n`;
+                text += `    ↳ Updates: ${t.current_updates}\n`;
               }
             });
           }
@@ -236,7 +259,7 @@ export function DailyReportModal({
     }
 
     const scale = 2; // High-res retina scale
-    const width = 800;
+    const width = 840;
 
     // Calculate dynamic canvas height
     let estimatedHeight = 220; // Header & metrics
@@ -244,14 +267,14 @@ export function DailyReportModal({
 
     if (isSingleMemberScope) {
       const tasks = memberReports[0]?.tasks || reportData.tasks || [];
-      estimatedHeight += Math.max(120, tasks.length * 60 + 80);
-      if (includeTimeTracking) estimatedHeight += 70;
+      estimatedHeight += Math.max(140, tasks.length * 76 + 80);
+      if (includeTimeTracking) estimatedHeight += 60;
     } else {
       memberReports.forEach((m: any) => {
-        estimatedHeight += 65; // Member header
+        estimatedHeight += 50; // Member header
         const tCount = m.tasks?.length || 1;
-        estimatedHeight += tCount * 45;
-        if (includeTimeTracking) estimatedHeight += 30;
+        estimatedHeight += tCount * 74 + 14;
+        if (includeTimeTracking) estimatedHeight += 26;
       });
       estimatedHeight += 60; // Footer
     }
@@ -260,20 +283,21 @@ export function DailyReportModal({
     canvas.height = estimatedHeight * scale;
     ctx.scale(scale, scale);
 
-    // Background
-    ctx.fillStyle = "#0f172a"; // Deep navy
+    // Deep modern dark canvas background
+    ctx.fillStyle = "#090d16";
     ctx.fillRect(0, 0, width, estimatedHeight);
 
     // Top Brand Gradient Bar
     const grad = ctx.createLinearGradient(0, 0, width, 0);
     grad.addColorStop(0, "#56348f");
-    grad.addColorStop(1, "#8b5cf6");
+    grad.addColorStop(0.5, "#7c3aed");
+    grad.addColorStop(1, "#3b82f6");
     ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, width, 12);
+    ctx.fillRect(0, 0, width, 8);
 
     // Header Content
     ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 20px 'Proxima Nova', sans-serif";
+    ctx.font = "bold 22px 'Proxima Nova', sans-serif";
     const reportTitle =
       isEmployee || reportType === "my_daily"
         ? "DAILY WORK REPORT"
@@ -285,7 +309,7 @@ export function DailyReportModal({
         ? "TEAM TOMORROW'S SCHEDULE"
         : "TEAM DAILY WORK REPORT";
 
-    ctx.fillText(reportTitle, 30, 48);
+    ctx.fillText(reportTitle, 32, 44);
 
     // Subtitle
     ctx.fillStyle = "#94a3b8";
@@ -294,16 +318,16 @@ export function DailyReportModal({
     const entityName = isSingleMemberScope
       ? `${reportData.member_reports?.[0]?.name || loggedInUserName} • ${reportData.team?.name || "Inter Smart"}`
       : `${reportData.team?.name || "Development Team"} • Inter Smart Portal`;
-    ctx.fillText(`${dateFormatted}  |  ${entityName}`, 30, 68);
+    ctx.fillText(`${dateFormatted}  |  ${entityName}`, 32, 64);
 
     // Summary Metric Pills
     const summary = reportData.summary || {};
-    const pillY = 90;
-    const pillHeight = 54;
-    const pillWidth = 138;
+    const pillY = 82;
+    const pillHeight = 52;
+    const pillWidth = 146;
 
     const pills = [
-      { label: "TOTAL TASKS", val: summary.total_tasks || 0, bg: "#1e293b", text: "#f8fafc", border: "#334155" },
+      { label: "TOTAL TASKS", val: summary.total_tasks || 0, bg: "#131b2e", text: "#f8fafc", border: "#1e293b" },
       { label: "COMPLETED", val: summary.completed || 0, bg: "#064e3b", text: "#34d399", border: "#059669" },
       { label: "IN PROGRESS", val: summary.in_progress || 0, bg: "#1e3a8a", text: "#60a5fa", border: "#2563eb" },
       { label: "PENDING", val: summary.pending || 0, bg: "#312e81", text: "#a5b4fc", border: "#4338ca" },
@@ -311,7 +335,7 @@ export function DailyReportModal({
     ];
 
     pills.forEach((p, idx) => {
-      const px = 30 + idx * (pillWidth + 8);
+      const px = 32 + idx * (pillWidth + 10);
       ctx.fillStyle = p.bg;
       ctx.strokeStyle = p.border;
       ctx.lineWidth = 1;
@@ -322,14 +346,14 @@ export function DailyReportModal({
 
       ctx.fillStyle = "#94a3b8";
       ctx.font = "bold 9px 'Proxima Nova', sans-serif";
-      ctx.fillText(p.label, px + 12, pillY + 20);
+      ctx.fillText(p.label, px + 12, pillY + 18);
 
       ctx.fillStyle = p.text;
       ctx.font = "bold 20px 'Proxima Nova', sans-serif";
-      ctx.fillText(String(p.val), px + 12, pillY + 44);
+      ctx.fillText(String(p.val), px + 12, pillY + 41);
     });
 
-    let currentY = 170;
+    let currentY = 158;
 
     // Body content
     if (isSingleMemberScope) {
@@ -340,126 +364,233 @@ export function DailyReportModal({
       // Time tracking box if enabled
       if (includeTimeTracking && reportData.time_tracking?.[targetUserIdForTime]) {
         const tt = reportData.time_tracking[targetUserIdForTime];
-        ctx.fillStyle = "#1e293b";
-        ctx.strokeStyle = "#334155";
+        ctx.fillStyle = "#131b2e";
+        ctx.strokeStyle = "#1e293b";
         ctx.beginPath();
-        ctx.roundRect(30, currentY, width - 60, 42, 8);
+        ctx.roundRect(32, currentY, width - 64, 38, 8);
         ctx.fill();
         ctx.stroke();
 
         ctx.fillStyle = "#38bdf8";
         ctx.font = "bold 11px 'Proxima Nova', sans-serif";
-        ctx.fillText("⏱️ TIME TRACKING:", 44, currentY + 26);
+        ctx.fillText("⏱️ TIME TRACKING:", 46, currentY + 24);
 
         ctx.fillStyle = "#e2e8f0";
         ctx.font = "11px 'Proxima Nova', sans-serif";
-        ctx.fillText(`Check-in: ${tt.check_in}   |   Check-out: ${tt.check_out}   |   Total: ${tt.working_hours} (Effective: ${tt.effective_hours})`, 160, currentY + 26);
+        ctx.fillText(`Check-in: ${tt.check_in}   |   Check-out: ${tt.check_out}   |   Total: ${tt.working_hours} (Effective: ${tt.effective_hours})`, 160, currentY + 24);
 
-        currentY += 56;
+        currentY += 50;
       }
 
       ctx.fillStyle = "#cbd5e1";
       ctx.font = "bold 13px 'Proxima Nova', sans-serif";
-      ctx.fillText("ASSIGNED TASKS", 30, currentY);
-      currentY += 15;
+      ctx.fillText("ASSIGNED TASKS & DELIVERABLES", 32, currentY);
+      currentY += 16;
 
       if (tasks.length === 0) {
         ctx.fillStyle = "#64748b";
         ctx.font = "italic 12px 'Proxima Nova', sans-serif";
-        ctx.fillText("No tasks recorded for this date.", 30, currentY + 20);
+        ctx.fillText("No tasks recorded for this date.", 32, currentY + 20);
         currentY += 40;
       } else {
         tasks.forEach((t: any) => {
-          ctx.fillStyle = "#1e293b";
-          ctx.strokeStyle = t.is_overdue ? "#f43f5e" : "#334155";
+          const cardHeight = 64;
+          ctx.fillStyle = "#131b2e";
+          ctx.strokeStyle = t.is_overdue ? "#f43f5e" : "#1e293b";
           ctx.lineWidth = 1;
           ctx.beginPath();
-          ctx.roundRect(30, currentY, width - 60, 48, 6);
+          ctx.roundRect(32, currentY, width - 64, cardHeight, 8);
           ctx.fill();
           ctx.stroke();
 
-          // Task Project & Title
-          ctx.fillStyle = "#a855f7";
+          // Left Priority Accent Badge (Pty: M)
+          const ptyLetter = t.priority ? t.priority.charAt(0) : "M";
+          const ptyBg = t.priority === "High" || t.priority === "Critical" ? "#7f1d1d" : t.priority === "Medium" ? "#78350f" : "#1e293b";
+          const ptyText = t.priority === "High" || t.priority === "Critical" ? "#fca5a5" : t.priority === "Medium" ? "#fde68a" : "#94a3b8";
+
+          ctx.fillStyle = ptyBg;
+          ctx.beginPath();
+          ctx.roundRect(44, currentY + 12, 22, 18, 4);
+          ctx.fill();
+          ctx.fillStyle = ptyText;
           ctx.font = "bold 10px 'Proxima Nova', sans-serif";
-          ctx.fillText(`[${t.project_name}]`, 44, currentY + 20);
+          ctx.fillText(ptyLetter, 52, currentY + 25);
+
+          // Project Name & Task Title
+          ctx.fillStyle = "#c084fc";
+          ctx.font = "bold 11px 'Proxima Nova', sans-serif";
+          const projText = `[${t.project_name}] `;
+          ctx.fillText(projText, 74, currentY + 25);
 
           ctx.fillStyle = "#f8fafc";
           ctx.font = "bold 12px 'Proxima Nova', sans-serif";
-          ctx.fillText(t.title, 44 + ctx.measureText(`[${t.project_name}] `).width, currentY + 20);
+          ctx.fillText(t.title, 74 + ctx.measureText(projText).width, currentY + 25);
 
-          // Status & Priority
-          ctx.fillStyle = t.status === "Completed" ? "#34d399" : t.is_overdue ? "#f43f5e" : "#60a5fa";
+          // Status Badge Pill (Right Side)
+          const isComp = t.status === "Completed";
+          const statusBg = isComp ? "#064e3b" : t.is_overdue ? "#881337" : "#1e3a8a";
+          const statusBorder = isComp ? "#059669" : t.is_overdue ? "#e11d48" : "#2563eb";
+          const statusColor = isComp ? "#34d399" : t.is_overdue ? "#f43f5e" : "#60a5fa";
+          const statusLabel = isComp ? "Completed" : t.is_overdue ? `Overdue (${t.delay_days}d)` : t.status;
+
           ctx.font = "bold 10px 'Proxima Nova', sans-serif";
-          const statusText = `${t.status}${t.is_overdue ? ` (! ${t.delay_days}d)` : ""}`;
-          ctx.fillText(statusText, 44, currentY + 38);
+          const badgeWidth = ctx.measureText(statusLabel).width + 18;
+          const badgeX = width - 44 - badgeWidth;
+
+          ctx.fillStyle = statusBg;
+          ctx.strokeStyle = statusBorder;
+          ctx.beginPath();
+          ctx.roundRect(badgeX, currentY + 12, badgeWidth, 20, 10);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = statusColor;
+          ctx.fillText(statusLabel, badgeX + 9, currentY + 26);
+
+          // Line 2: Start Date, End/Due Date, Achieved Date, Deviation info
+          const startStr = `Start: ${formatShortDate(t.start_date)}`;
+          const dueStr = `End: ${formatShortDate(t.due_date)}`;
+          const achStr = t.actual_completion_date ? `Achieved: ${formatShortDate(t.actual_completion_date)}` : "";
 
           ctx.fillStyle = "#94a3b8";
           ctx.font = "10px 'Proxima Nova', sans-serif";
-          ctx.fillText(`Priority: ${t.priority}   ${t.current_updates ? `| Updates: ${t.current_updates}` : ""}`, 44 + ctx.measureText(statusText).width + 16, currentY + 38);
+          let line2Text = `📅 ${startStr}   •   🎯 ${dueStr}`;
+          if (achStr) {
+            line2Text += `   •   🏁 ${achStr}`;
+          }
 
-          currentY += 56;
+          ctx.fillText(line2Text, 44, currentY + 49);
+
+          // Line 2 Right / Deviation info
+          if (t.is_overdue) {
+            ctx.fillStyle = "#f43f5e";
+            ctx.font = "bold 10px 'Proxima Nova', sans-serif";
+            ctx.fillText(`⚠️ Deviated (+${t.delay_days}d delay)`, width - 210, currentY + 49);
+          } else if (t.deviation) {
+            ctx.fillStyle = "#f59e0b";
+            ctx.font = "bold 10px 'Proxima Nova', sans-serif";
+            ctx.fillText(`⚠️ ${t.deviation}`, width - 210, currentY + 49);
+          } else if (isComp) {
+            ctx.fillStyle = "#34d399";
+            ctx.font = "10px 'Proxima Nova', sans-serif";
+            ctx.fillText("⚡ On-Time Completion", width - 180, currentY + 49);
+          }
+
+          currentY += 72;
         });
       }
     } else {
-      // Team report: Member cards
+      // Team report: Member cards with structured Task sub-cards
       memberReports.forEach((m: any) => {
-        ctx.fillStyle = "#1e293b";
-        ctx.strokeStyle = "#475569";
+        // Member Header Card
+        ctx.fillStyle = "#131b2e";
+        ctx.strokeStyle = "#334155";
         ctx.beginPath();
-        ctx.roundRect(30, currentY, width - 60, 32, 6);
+        ctx.roundRect(32, currentY, width - 64, 34, 6);
         ctx.fill();
         ctx.stroke();
 
         ctx.fillStyle = "#f8fafc";
         ctx.font = "bold 12px 'Proxima Nova', sans-serif";
-        ctx.fillText(`👤 ${m.name}  (${m.designation || "Member"})`, 44, currentY + 21);
+        ctx.fillText(`👤 ${m.name}  (${m.designation || "Member"})`, 46, currentY + 22);
 
         ctx.fillStyle = "#94a3b8";
         ctx.font = "10px 'Proxima Nova', sans-serif";
-        ctx.fillText(`Tasks: ${m.total_tasks}  |  ✅ ${m.completed_count}  |  🔄 ${m.in_progress_count}  |  ⚠️ ${m.overdue_count}`, width - 260, currentY + 21);
+        ctx.fillText(`Tasks: ${m.total_tasks}  |  ✅ ${m.completed_count}  |  🔄 ${m.in_progress_count}  |  ⚠️ ${m.overdue_count}`, width - 270, currentY + 22);
 
-        currentY += 40;
+        currentY += 42;
 
         const mTasks = m.tasks || [];
         if (mTasks.length === 0) {
           ctx.fillStyle = "#64748b";
           ctx.font = "italic 11px 'Proxima Nova', sans-serif";
-          ctx.fillText("• No tasks assigned", 44, currentY + 14);
+          ctx.fillText("• No tasks assigned for this date", 46, currentY + 14);
           currentY += 26;
         } else {
           mTasks.forEach((t: any) => {
-            ctx.fillStyle = "#0f172a";
-            ctx.strokeStyle = "#334155";
+            const isComp = t.status === "Completed";
+            ctx.fillStyle = "#0c1322";
+            ctx.strokeStyle = t.is_overdue ? "#f43f5e" : "#1e293b";
             ctx.beginPath();
-            ctx.roundRect(40, currentY, width - 80, 36, 4);
+            ctx.roundRect(44, currentY, width - 88, 62, 6);
             ctx.fill();
             ctx.stroke();
 
+            // Priority badge
+            const ptyLetter = t.priority ? t.priority.charAt(0) : "M";
+            ctx.fillStyle = t.priority === "High" || t.priority === "Critical" ? "#7f1d1d" : "#1e293b";
+            ctx.beginPath();
+            ctx.roundRect(54, currentY + 10, 18, 16, 3);
+            ctx.fill();
+            ctx.fillStyle = t.priority === "High" || t.priority === "Critical" ? "#fca5a5" : "#cbd5e1";
+            ctx.font = "bold 9px 'Proxima Nova', sans-serif";
+            ctx.fillText(ptyLetter, 60, currentY + 22);
+
+            // Project & Task Name
             ctx.fillStyle = "#c084fc";
             ctx.font = "bold 10px 'Proxima Nova', sans-serif";
             const projTag = `[${t.project_name}] `;
-            ctx.fillText(projTag, 52, currentY + 18);
+            ctx.fillText(projTag, 78, currentY + 22);
 
             ctx.fillStyle = "#f1f5f9";
             ctx.font = "11px 'Proxima Nova', sans-serif";
-            ctx.fillText(t.title, 52 + ctx.measureText(projTag).width, currentY + 18);
+            ctx.fillText(t.title, 78 + ctx.measureText(projTag).width, currentY + 22);
 
-            ctx.fillStyle = t.status === "Completed" ? "#34d399" : t.is_overdue ? "#f43f5e" : "#60a5fa";
+            // Status Pill (Right)
+            const statusLabel = isComp ? "Completed" : t.is_overdue ? `Overdue (${t.delay_days}d)` : t.status;
+            const statusColor = isComp ? "#34d399" : t.is_overdue ? "#f43f5e" : "#60a5fa";
             ctx.font = "bold 9px 'Proxima Nova', sans-serif";
-            ctx.fillText(`${t.status}${t.is_overdue ? ` (!${t.delay_days}d)` : ""}`, width - 180, currentY + 18);
+            const statusWidth = ctx.measureText(statusLabel).width + 14;
+            const statusX = width - 56 - statusWidth;
 
-            currentY += 42;
+            ctx.fillStyle = isComp ? "#064e3b" : t.is_overdue ? "#881337" : "#1e3a8a";
+            ctx.strokeStyle = isComp ? "#059669" : t.is_overdue ? "#e11d48" : "#2563eb";
+            ctx.beginPath();
+            ctx.roundRect(statusX, currentY + 10, statusWidth, 18, 8);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = statusColor;
+            ctx.fillText(statusLabel, statusX + 7, currentY + 22);
+
+            // Line 2: Start, End, Achieved & Deviation
+            const startStr = `Start: ${formatShortDate(t.start_date)}`;
+            const dueStr = `End: ${formatShortDate(t.due_date)}`;
+            const achStr = t.actual_completion_date ? `Achieved: ${formatShortDate(t.actual_completion_date)}` : "";
+
+            ctx.fillStyle = "#94a3b8";
+            ctx.font = "9px 'Proxima Nova', sans-serif";
+            let line2 = `📅 ${startStr}   •   🎯 ${dueStr}`;
+            if (achStr) line2 += `   •   🏁 ${achStr}`;
+            ctx.fillText(line2, 54, currentY + 47);
+
+            // Deviation tag if overdue / deviated
+            if (t.is_overdue) {
+              ctx.fillStyle = "#f43f5e";
+              ctx.font = "bold 9px 'Proxima Nova', sans-serif";
+              ctx.fillText(`⚠️ Deviated (+${t.delay_days}d)`, width - 200, currentY + 47);
+            } else if (t.deviation) {
+              ctx.fillStyle = "#f59e0b";
+              ctx.font = "bold 9px 'Proxima Nova', sans-serif";
+              ctx.fillText(`⚠️ ${t.deviation}`, width - 200, currentY + 47);
+            } else if (isComp) {
+              ctx.fillStyle = "#34d399";
+              ctx.font = "9px 'Proxima Nova', sans-serif";
+              ctx.fillText("⚡ On-Time", width - 150, currentY + 47);
+            }
+
+            currentY += 70;
           });
         }
 
-        currentY += 10;
+        currentY += 12;
       });
     }
 
     // Footer
     ctx.fillStyle = "#475569";
     ctx.font = "10px 'Proxima Nova', sans-serif";
-    ctx.fillText("Generated from Inter Smart Workplace Portal", 30, estimatedHeight - 15);
+    ctx.fillText("Generated from Inter Smart Workplace Portal", 32, estimatedHeight - 15);
 
     const dataUrl = canvas.toDataURL("image/png");
     setGeneratedImageUrl(dataUrl);
