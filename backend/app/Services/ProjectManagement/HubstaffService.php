@@ -517,18 +517,31 @@ class HubstaffService
             $tz = config('app.timezone', 'Asia/Kolkata');
             $startStr = \Carbon\Carbon::parse($startDate, $tz)->toDateString();
             $stopStr = \Carbon\Carbon::parse($endDate, $tz)->toDateString();
+            // Query a 1-day-padded window on both ends. Some Hubstaff v2 endpoints
+            // treat date[stop] as exclusive, which silently returns zero rows for
+            // single-day queries (start === stop). We widen the request and then
+            // strictly re-filter to [$startStr, $stopStr] below, so padding can
+            // never leak out-of-range data into the response.
+            $queryStartStr = \Carbon\Carbon::parse($startDate, $tz)->subDay()->toDateString();
+            $queryStopStr = \Carbon\Carbon::parse($endDate, $tz)->addDay()->toDateString();
             $allActivities = [];
+            $debug = [];
 
             // ── Strategy 0: /activities/daily (Pre-aggregated daily activities) ─
             $dailyEndpoint = "{$baseUrl}/organizations/{$orgId}/activities/daily";
             $dailyRes = Http::withToken($token)->timeout(15)->acceptJson()->get($dailyEndpoint, [
                 'date' => [
-                    'start' => $startStr,
-                    'stop' => $stopStr,
+                    'start' => $queryStartStr,
+                    'stop' => $queryStopStr,
                 ],
                 'time_zone' => $tz,
                 'page_limit' => 500,
             ]);
+
+            $debug['strategy_0_activities_daily'] = [
+                'status' => $dailyRes->status(),
+                'body_snippet' => substr($dailyRes->body(), 0, 300),
+            ];
 
             if ($dailyRes->successful()) {
                 $dData = $dailyRes->json();
@@ -549,8 +562,8 @@ class HubstaffService
                     $currentPage++;
                     $queryParams = [
                         'date' => [
-                            'start' => $startStr,
-                            'stop' => $stopStr,
+                            'start' => $queryStartStr,
+                            'stop' => $queryStopStr,
                         ],
                         'time_zone' => $tz,
                         'page_limit' => 500,
@@ -571,6 +584,13 @@ class HubstaffService
                                 $response = Http::withToken($token)->timeout(15)->acceptJson()->get($insightsEndpoint, $queryParams);
                             }
                         }
+                    }
+
+                    if ($currentPage === 1) {
+                        $debug['strategy_1_insights_activity'] = [
+                            'status' => $response->status(),
+                            'body_snippet' => substr($response->body(), 0, 300),
+                        ];
                     }
 
                     if (!$response->successful()) {
@@ -594,8 +614,8 @@ class HubstaffService
 
             // ── Strategy 2: /activities (Core 10-min activity blocks with timezone UTC window) ─
             if (empty($allActivities)) {
-                $startUtc = \Carbon\Carbon::parse($startDate, $tz)->startOfDay()->setTimezone('UTC')->toIso8601ZuluString();
-                $stopUtc = \Carbon\Carbon::parse($endDate, $tz)->endOfDay()->setTimezone('UTC')->toIso8601ZuluString();
+                $startUtc = \Carbon\Carbon::parse($startDate, $tz)->subDay()->startOfDay()->setTimezone('UTC')->toIso8601ZuluString();
+                $stopUtc = \Carbon\Carbon::parse($endDate, $tz)->addDay()->endOfDay()->setTimezone('UTC')->toIso8601ZuluString();
 
                 $rawActsEndpoint = "{$baseUrl}/organizations/{$orgId}/activities";
                 $nextPageStart = null;
@@ -626,6 +646,13 @@ class HubstaffService
                                 $rawRes = Http::withToken($token)->timeout(15)->acceptJson()->get($rawActsEndpoint, $rawParams);
                             }
                         }
+                    }
+
+                    if ($actPage === 1) {
+                        $debug['strategy_2_raw_activities'] = [
+                            'status' => $rawRes->status(),
+                            'body_snippet' => substr($rawRes->body(), 0, 300),
+                        ];
                     }
 
                     if (!$rawRes->successful()) {
@@ -698,10 +725,43 @@ class HubstaffService
                 }
             }
 
+            // ── Final pass: normalize each record's local date and strictly clamp to
+            // the requested [$startStr, $stopStr] window. The query above is padded
+            // by a day on each side to dodge exclusive-stop / off-by-one API quirks,
+            // so anything outside the actual requested range is dropped here.
+            $normalized = [];
+            foreach ($allActivities as $act) {
+                $dt = (string) ($act['date'] ?? '');
+                if (empty($dt) && !empty($act['starts_at'])) {
+                    try {
+                        $dt = \Carbon\Carbon::parse($act['starts_at'])->setTimezone($tz)->toDateString();
+                    } catch (\Throwable $e) {
+                        $dt = substr((string) $act['starts_at'], 0, 10);
+                    }
+                }
+                if (empty($dt) && !empty($act['time_slot'])) {
+                    try {
+                        $dt = \Carbon\Carbon::parse($act['time_slot'])->setTimezone($tz)->toDateString();
+                    } catch (\Throwable $e) {
+                        $dt = substr((string) $act['time_slot'], 0, 10);
+                    }
+                }
+                if (empty($dt)) {
+                    continue; // no resolvable date — skip rather than mis-bucket
+                }
+                if ($dt < $startStr || $dt > $stopStr) {
+                    continue; // outside requested window (padding artifact)
+                }
+                $act['date'] = $dt;
+                $normalized[] = $act;
+            }
+            $allActivities = $normalized;
+
             $result = [
                 'configured' => true,
                 'activities' => $allActivities,
                 'total_records' => count($allActivities),
+                'debug' => $debug,
             ];
 
             // Cache for 3 minutes if records exist, otherwise short 15-second cache

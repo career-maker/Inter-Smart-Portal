@@ -771,6 +771,11 @@ export default function HubstaffAnalyticsPage() {
                           <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">
                             No Hubstaff activity recorded for {dateMode === "single" ? selectedDate : `${startDate} to ${endDate}`}.
                           </p>
+                          {analyticsData?.hubstaff_status?.message && (
+                            <p className="text-[11px] font-semibold text-rose-600 dark:text-rose-400">
+                              {analyticsData.hubstaff_status.message}
+                            </p>
+                          )}
                           <button
                             onClick={() => fetchAnalytics(true)}
                             disabled={refreshing || loading}
@@ -942,6 +947,11 @@ export default function HubstaffAnalyticsPage() {
                           <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">
                             No project activity recorded for {dateMode === "single" ? selectedDate : `${startDate} to ${endDate}`}.
                           </p>
+                          {analyticsData?.hubstaff_status?.message && (
+                            <p className="text-[11px] font-semibold text-rose-600 dark:text-rose-400">
+                              {analyticsData.hubstaff_status.message}
+                            </p>
+                          )}
                           <button
                             onClick={() => fetchAnalytics(true)}
                             disabled={refreshing || loading}

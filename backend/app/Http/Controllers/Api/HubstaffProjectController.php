@@ -241,6 +241,11 @@ class HubstaffProjectController extends Controller
         // Fetch Raw Hubstaff Activities
         $hubstaffRes = $this->hubstaffService->getDailyActivities($startDate, $endDate, $forceRefresh);
         $rawActivities = $hubstaffRes['activities'] ?? [];
+        $hubstaffStatus = [
+            'configured' => $hubstaffRes['configured'] ?? true,
+            'message' => $hubstaffRes['error'] ?? $hubstaffRes['message'] ?? null,
+            'raw_records' => count($rawActivities),
+        ];
 
         // Also fetch Hubstaff project names list
         $hsProjectsRes = $this->hubstaffService->getProjects();
@@ -504,12 +509,13 @@ class HubstaffProjectController extends Controller
         $activeProjectsCount = count($formattedProjects);
         $avgTimePerUserSec = $activeUsersCount > 0 ? (int) round($totalTrackedSeconds / $activeUsersCount) : 0;
 
-        return response()->json([
+        $response = [
             'date_mode' => $dateMode,
             'start_date' => $startDate,
             'end_date' => $endDate,
             'selected_team_id' => $selectedTeamId,
             'available_teams' => $allowedTeams,
+            'hubstaff_status' => $hubstaffStatus,
             'summary' => [
                 'total_tracked_seconds' => $totalTrackedSeconds,
                 'total_tracked_formatted' => $fmtTime($totalTrackedSeconds),
@@ -522,6 +528,14 @@ class HubstaffProjectController extends Controller
             'projects' => $formattedProjects,
             'trends' => $formattedTrends,
             'last_refreshed_at' => now()->toIso8601String(),
-        ]);
+        ];
+
+        // Raw upstream Hubstaff request/response diagnostics — Super Admin only,
+        // and only when explicitly requested, to keep the normal payload lean.
+        if ($isSuperAdmin && $request->boolean('date_debug')) {
+            $response['hubstaff_debug'] = $hubstaffRes['debug'] ?? null;
+        }
+
+        return response()->json($response);
     }
 }
