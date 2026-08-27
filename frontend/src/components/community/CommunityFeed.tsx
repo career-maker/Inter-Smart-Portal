@@ -603,11 +603,11 @@ export function CommunityFeed() {
       style={{
         fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
       }}
-      className="bg-[#F0F2F5] dark:bg-slate-900 min-h-screen py-6 px-4 sm:px-0"
+      className="w-full"
     >
-      <div className="max-w-[680px] mx-auto space-y-4">
+      <div className="w-full space-y-4">
         {/* ── TOP POST PUBLISHER BOX ── */}
-        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-[0_1px_2px_rgba(0,0,0,0.1)] mb-4">
+        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 mb-4">
           {/* Hidden File Input for All Tabs */}
           <input
             type="file"
@@ -619,34 +619,34 @@ export function CommunityFeed() {
           />
           
           {/* Post Type Selector Tabs */}
-          <div className="flex items-center px-4 pt-3 pb-3 border-b border-slate-200 dark:border-slate-700 gap-1.5">
+          <div className="flex items-center px-4 pt-1 border-b border-slate-200 dark:border-slate-700 gap-6">
             <button
               onClick={() => setActiveType("post")}
-              className={`flex-1 flex items-center justify-center gap-2 text-[14px] font-semibold py-2.5 rounded-md transition-all cursor-pointer ${
-                activeType === "post" ? "bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-white" : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700"
+              className={`flex items-center gap-2 text-[14px] font-semibold py-3 border-b-2 transition-all cursor-pointer ${
+                activeType === "post" ? "border-[#56348f] text-[#56348f] dark:text-purple-400" : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
               }`}
             >
-              <Edit3 className="w-5 h-5 text-red-500" />
+              <Edit3 className="w-4 h-4 text-purple-400" />
               <span>Post</span>
             </button>
 
             <button
               onClick={() => setActiveType("poll")}
-              className={`flex-1 flex items-center justify-center gap-2 text-[14px] font-semibold py-2.5 rounded-md transition-all cursor-pointer ${
-                activeType === "poll" ? "bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-white" : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700"
+              className={`flex items-center gap-2 text-[14px] font-semibold py-3 border-b-2 transition-all cursor-pointer ${
+                activeType === "poll" ? "border-[#56348f] text-[#56348f] dark:text-purple-400" : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
               }`}
             >
-              <BarChart2 className="w-5 h-5 text-green-500" />
+              <BarChart2 className="w-4 h-4 text-green-500" />
               <span>Poll</span>
             </button>
 
             <button
               onClick={() => setActiveType("praise")}
-              className={`flex-1 flex items-center justify-center gap-2 text-[14px] font-semibold py-2.5 rounded-md transition-all cursor-pointer ${
-                activeType === "praise" ? "bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-white" : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700"
+              className={`flex items-center gap-2 text-[14px] font-semibold py-3 border-b-2 transition-all cursor-pointer ${
+                activeType === "praise" ? "border-[#56348f] text-[#56348f] dark:text-purple-400" : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
               }`}
             >
-              <Medal className="w-5 h-5 text-yellow-500" />
+              <Medal className="w-4 h-4 text-yellow-600" />
               <span>Praise</span>
             </button>
           </div>
@@ -1079,39 +1079,67 @@ export function CommunityFeed() {
 
 
 
-              <div className="flex items-center justify-between mt-3 pt-2">
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-[#56348f] dark:hover:text-purple-400 bg-slate-100 dark:bg-slate-700/50 hover:bg-slate-200 px-3 py-1.5 rounded-md transition-colors cursor-pointer"
-                  >
-                    <ImageIcon className="w-4 h-4 text-emerald-500" />
-                    <span>Add Photo</span>
-                  </button>
-                  <span className="text-[11px] text-slate-400 hidden sm:inline">
-                    Shared with Inter Smart team
-                  </span>
+              <div className="flex items-center gap-2 mt-2 pb-4">
+                <button
+                  type="button"
+                  onClick={() => setContent((prev) => prev + "@")}
+                  className="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                  title="Mention someone"
+                >
+                  <span className="text-[15px] font-medium leading-none">@</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                  title="Add photo"
+                >
+                  <ImageIcon className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  className="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                  title="Add emoji"
+                >
+                  <Smile className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-700/60">
+                <div className="flex items-center gap-2">
+                  <span className="text-[13px] text-slate-500 dark:text-slate-400">Posting to</span>
+                  <select className="border border-slate-200 dark:border-slate-700 rounded text-[13px] text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 py-1.5 px-2 focus:outline-none focus:ring-1 focus:ring-[#56348f]">
+                    <option>Organization</option>
+                  </select>
                 </div>
 
-                <button
-                  onClick={handleCreatePost}
-                  disabled={(!content.trim() && selectedImages.length === 0) || posting}
-                  style={{
-                    backgroundColor: "#56348f",
-                    color: "#ffffff",
-                  }}
-                  className="px-6 py-2 bg-[#56348f] hover:bg-[#452773] !text-white text-xs font-bold rounded-md shadow-xs transition-all flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
-                >
-                  {posting ? (
-                    <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin !text-white" />
-                      <span className="!text-white font-bold">Posting...</span>
-                    </>
-                  ) : (
-                    <span className="!text-white font-bold">Post</span>
-                  )}
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => { setContent(""); setSelectedImages([]); setImagePreviews([]); }}
+                    className="px-4 py-1.5 border border-slate-200 dark:border-slate-700 rounded-md text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleCreatePost}
+                    disabled={(!content.trim() && selectedImages.length === 0) || posting}
+                    style={{
+                      backgroundColor: "#56348f",
+                      color: "#ffffff",
+                    }}
+                    className="px-6 py-1.5 bg-[#56348f] hover:bg-[#452773] !text-white text-[13px] font-semibold rounded-md transition-all flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
+                  >
+                    {posting ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin !text-white" />
+                        <span className="!text-white font-semibold">Posting...</span>
+                      </>
+                    ) : (
+                      <span className="!text-white font-semibold">Post</span>
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
