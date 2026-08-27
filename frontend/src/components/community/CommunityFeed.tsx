@@ -27,6 +27,7 @@ import {
   UserPlus,
   Plus,
   Globe,
+  Smile,
 } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
