@@ -749,8 +749,15 @@ class HubstaffService
                 if (empty($dt)) {
                     continue; // no resolvable date — skip rather than mis-bucket
                 }
-                if ($dt < $startStr || $dt > $stopStr) {
-                    continue; // outside requested window (padding artifact)
+                if ($dt < $queryStartStr || $dt > $queryStopStr) {
+                    // Genuinely outside even the padded window — real leakage, drop it.
+                    // (Deliberately NOT clamped to the exact [$startStr, $stopStr] date:
+                    // Hubstaff's own day-bucketing can legitimately land a record one
+                    // day off from our local-tz expectation near midnight boundaries —
+                    // confirmed in production, where a same-day query's only matching
+                    // record carried date=$startStr-minus-1-day. Discarding that here
+                    // reproduced the "0h/0%/0 users" bug this fix exists to prevent.)
+                    continue;
                 }
                 $act['date'] = $dt;
                 $normalized[] = $act;
