@@ -549,12 +549,32 @@ class HubstaffService
                     }
 
                     $data = $response->json();
-                    $activities = $data['daily_activities'] ?? [];
+                    $activities = $data['daily_activities'] ?? $data['activities'] ?? [];
                     $allActivities = array_merge($allActivities, $activities);
 
                     $pagination = $data['pagination'] ?? [];
                     $nextStartId = $pagination['next_page_start_id'] ?? null;
                 } while (!empty($nextStartId) && $currentPage < $maxPages);
+
+                // If daily activities returned empty, fallback to Insights activity endpoint
+                if (empty($allActivities)) {
+                    $insightsEndpoint = "{$baseUrl}/organizations/{$orgId}/insights/activity";
+                    $insightsRes = Http::withToken($token)->timeout(15)->acceptJson()->get($insightsEndpoint, [
+                        'date' => [
+                            'start' => $startStr,
+                            'stop' => $stopStr,
+                        ],
+                        'page_limit' => 500,
+                    ]);
+
+                    if ($insightsRes->successful()) {
+                        $insData = $insightsRes->json();
+                        $insActs = $insData['activities'] ?? $insData['daily_activities'] ?? $insData['insights'] ?? [];
+                        if (!empty($insActs)) {
+                            $allActivities = $insActs;
+                        }
+                    }
+                }
 
                 return [
                     'configured' => true,
