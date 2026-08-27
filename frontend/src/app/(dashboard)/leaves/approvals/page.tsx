@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   Check,
-  X,
   Calendar,
   Clock,
   Edit,
@@ -25,13 +24,15 @@ import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 
 type RejectDialogState = { type: "leave" | "wfh"; id: number } | null;
 
+const CACHE_KEY = "intersmart_approvals_cache_v2";
+
 function fmtDate(d?: string | null) {
   if (!d) return "—";
   try {
     const clean = d.split("T")[0];
     const parsed = parseISO(clean);
     if (isNaN(parsed.getTime())) return d;
-    return format(parsed, "dd MMM yyyy");
+    return format(parsed, "dd MMM");
   } catch {
     return String(d);
   }
@@ -44,17 +45,17 @@ function DurationBadge({ type }: { type: string }) {
     "Half-Afternoon": "bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border-purple-200 dark:border-purple-800",
   };
   return (
-    <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${map[type] ?? "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700"}`}>
-      {type === "Full" ? "Full Day" : type === "Half-Morning" ? "Morning" : "Afternoon"}
+    <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded border ${map[type] ?? "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700"}`}>
+      {type === "Full" ? "Full" : type === "Half-Morning" ? "AM" : "PM"}
     </span>
   );
 }
 
 function LeaveTypeIcon({ leaveTypeName }: { leaveTypeName?: string }) {
   const name = (leaveTypeName || "").toLowerCase();
-  if (name.includes("casual")) return <Leaf className="w-4 h-4 text-emerald-500" />;
-  if (name.includes("sick")) return <Stethoscope className="w-4 h-4 text-rose-500" />;
-  return <Calendar className="w-4 h-4 text-purple-500" />;
+  if (name.includes("casual")) return <Leaf className="w-3.5 h-3.5 text-emerald-500 shrink-0" />;
+  if (name.includes("sick")) return <Stethoscope className="w-3.5 h-3.5 text-rose-500 shrink-0" />;
+  return <Calendar className="w-3.5 h-3.5 text-purple-500 shrink-0" />;
 }
 
 export default function ApprovalsPage() {
@@ -72,11 +73,46 @@ export default function ApprovalsPage() {
 
   const [tab, setTab] = useState<"leaves" | "wfh">("leaves");
   const [statusFilter, setStatusFilter] = useState<"Pending" | "Approved" | "Rejected" | "All">("Pending");
-  const [leaveRequests, setLeaveRequests] = useState<any[]>([]);
-  const [approvedLeaves, setApprovedLeaves] = useState<any[]>([]);
-  const [rejectedLeaves, setRejectedLeaves] = useState<any[]>([]);
-  const [wfhRequests, setWfhRequests] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+
+  // State with initial hydration from localStorage for 0ms page load
+  const [leaveRequests, setLeaveRequests] = useState<any[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem(`${CACHE_KEY}_pending`);
+        if (cached) return JSON.parse(cached);
+      } catch {}
+    }
+    return [];
+  });
+  const [approvedLeaves, setApprovedLeaves] = useState<any[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem(`${CACHE_KEY}_approved`);
+        if (cached) return JSON.parse(cached);
+      } catch {}
+    }
+    return [];
+  });
+  const [rejectedLeaves, setRejectedLeaves] = useState<any[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem(`${CACHE_KEY}_rejected`);
+        if (cached) return JSON.parse(cached);
+      } catch {}
+    }
+    return [];
+  });
+  const [wfhRequests, setWfhRequests] = useState<any[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem(`${CACHE_KEY}_wfh`);
+        if (cached) return JSON.parse(cached);
+      } catch {}
+    }
+    return [];
+  });
+
+  const [isLoading, setIsLoading] = useState(() => leaveRequests.length === 0);
   const [refreshing, setRefreshing] = useState(false);
 
   const [rejectDialog, setRejectDialog] = useState<RejectDialogState>(null);
@@ -96,7 +132,7 @@ export default function ApprovalsPage() {
   const [actionLoading, setActionLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Refresh profile team_id
+  // Profile refresh
   useEffect(() => {
     if (isTeamLead && user?.id) {
       api.get("/profile")
@@ -108,29 +144,53 @@ export default function ApprovalsPage() {
     }
   }, [isTeamLead, user?.id]);
 
+  // Fast staged fetcher: Fetches pending first immediately, then background fetches archives
   const fetchRequests = useCallback(async (isManual = false) => {
     if (isManual) setRefreshing(true);
-    else setIsLoading(true);
+    else if (leaveRequests.length === 0) setIsLoading(true);
 
     try {
-      const [pending, approved, rejected, wfh] = await Promise.all([
-        api.get("/leave-requests?status=Pending"),
+      // 1. Fetch pending leaves first for sub-second UI response
+      const pendingRes = await api.get("/leave-requests?status=Pending");
+      const pendingData = pendingRes.data?.data?.data ?? [];
+      setLeaveRequests(pendingData);
+      setIsLoading(false);
+
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem(`${CACHE_KEY}_pending`, JSON.stringify(pendingData));
+        } catch {}
+      }
+
+      // 2. Fetch others in parallel background
+      const [approvedRes, rejectedRes, wfhRes] = await Promise.allSettled([
         api.get("/leave-requests?status=Approved"),
         api.get("/leave-requests?status=Rejected"),
         api.get("/wfh-requests?status=Pending"),
       ]);
 
-      setLeaveRequests(pending.data.data?.data ?? []);
-      setApprovedLeaves(approved.data.data?.data ?? []);
-      setRejectedLeaves(rejected.data.data?.data ?? []);
-      setWfhRequests(wfh.data.data?.data ?? []);
+      if (approvedRes.status === "fulfilled") {
+        const d = approvedRes.value.data?.data?.data ?? [];
+        setApprovedLeaves(d);
+        try { localStorage.setItem(`${CACHE_KEY}_approved`, JSON.stringify(d)); } catch {}
+      }
+      if (rejectedRes.status === "fulfilled") {
+        const d = rejectedRes.value.data?.data?.data ?? [];
+        setRejectedLeaves(d);
+        try { localStorage.setItem(`${CACHE_KEY}_rejected`, JSON.stringify(d)); } catch {}
+      }
+      if (wfhRes.status === "fulfilled") {
+        const d = wfhRes.value.data?.data?.data ?? [];
+        setWfhRequests(d);
+        try { localStorage.setItem(`${CACHE_KEY}_wfh`, JSON.stringify(d)); } catch {}
+      }
     } catch (e) {
       console.error("Failed to load approval requests", e);
     } finally {
       setIsLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [leaveRequests.length]);
 
   useEffect(() => {
     fetchRequests();
@@ -148,11 +208,22 @@ export default function ApprovalsPage() {
         setSuccessMessage(`${type === "leave" ? "Leave" : "WFH"} request approved successfully!`);
       }
 
-      await fetchRequests(true);
+      // Optimistic update
+      if (type === "leave") {
+        const approvedItem = leaveRequests.find((r) => r.id === id);
+        if (approvedItem) {
+          setLeaveRequests((prev) => prev.filter((r) => r.id !== id));
+          setApprovedLeaves((prev) => [{ ...approvedItem, status: "Approved" }, ...prev]);
+        }
+      } else {
+        setWfhRequests((prev) => prev.filter((r) => r.id !== id));
+      }
+
+      fetchRequests(true);
       setTimeout(() => setSuccessMessage(null), 4000);
     } catch (e: any) {
       alert(e.response?.data?.message || "Error approving request.");
-      await fetchRequests(true);
+      fetchRequests(true);
     } finally {
       setActionLoading(false);
     }
@@ -175,12 +246,23 @@ export default function ApprovalsPage() {
       setRejectDialog(null);
       setRejectReason("");
 
-      await fetchRequests(true);
+      // Optimistic update
+      if (type === "leave") {
+        const rejectedItem = leaveRequests.find((r) => r.id === id);
+        if (rejectedItem) {
+          setLeaveRequests((prev) => prev.filter((r) => r.id !== id));
+          setRejectedLeaves((prev) => [{ ...rejectedItem, status: "Rejected" }, ...prev]);
+        }
+      } else {
+        setWfhRequests((prev) => prev.filter((r) => r.id !== id));
+      }
+
+      fetchRequests(true);
       setStatusFilter("Rejected");
       setTimeout(() => setSuccessMessage(null), 4000);
     } catch (e: any) {
       alert(e.response?.data?.message || "Error rejecting request.");
-      await fetchRequests(true);
+      fetchRequests(true);
     } finally {
       setActionLoading(false);
     }
@@ -191,7 +273,7 @@ export default function ApprovalsPage() {
     try {
       await api.post(`/leave-requests/${id}/lop-conversion`, { action });
       setSuccessMessage(`LOP Conversion ${action === "confirm" ? "confirmed" : "declined"}!`);
-      await fetchRequests(true);
+      fetchRequests(true);
       setTimeout(() => setSuccessMessage(null), 4000);
     } catch (e: any) {
       alert(e.response?.data?.message || "Error processing LOP conversion.");
@@ -257,11 +339,11 @@ export default function ApprovalsPage() {
       });
       setSuccessMessage("Leave request override applied and approved successfully!");
       setOverrideDialog(null);
-      await fetchRequests(true);
+      fetchRequests(true);
       setTimeout(() => setSuccessMessage(null), 4000);
     } catch (e: any) {
       alert(e.response?.data?.message || "Error processing override.");
-      await fetchRequests(true);
+      fetchRequests(true);
     } finally {
       setActionLoading(false);
     }
@@ -324,21 +406,21 @@ export default function ApprovalsPage() {
   }, [statusFilter, leaveRequests, approvedLeaves, rejectedLeaves]);
 
   return (
-    <div className="space-y-6 w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+    <div className="space-y-5 w-full max-w-7xl mx-auto p-3 sm:p-5 lg:p-6">
       {/* ── Header Row ── */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-slate-200/80 dark:border-slate-800/80 pb-6">
-        <div className="space-y-4">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800/80 pb-5">
+        <div className="space-y-3">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+            <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
               Approvals Queue
             </h1>
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
+            <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
               Review and process pending leave and WFH requests from your team.
             </p>
           </div>
 
           {/* Row 1: Status Filter Tabs */}
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-1.5">
             {(["Pending", "Approved", "Rejected", "All"] as const).map((status) => {
               let count = 0;
               if (tab === "leaves") {
@@ -356,7 +438,7 @@ export default function ApprovalsPage() {
                 <button
                   key={status}
                   onClick={() => setStatusFilter(status)}
-                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
                     isActive
                       ? "bg-amber-500/15 border border-amber-500/40 text-amber-800 dark:text-amber-300 font-bold shadow-sm"
                       : "bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/70 border border-slate-200 dark:border-slate-700"
@@ -380,7 +462,7 @@ export default function ApprovalsPage() {
 
             <button
               onClick={() => fetchRequests(true)}
-              disabled={refreshing || isLoading}
+              disabled={refreshing}
               aria-label="Refresh Approvals"
               className="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors disabled:opacity-50 ml-1"
               title="Refresh List"
@@ -390,14 +472,14 @@ export default function ApprovalsPage() {
           </div>
 
           {/* Row 2: Type Switcher (Leaves/WFH) */}
-          <div className="inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 p-1 rounded-2xl">
+          <div className="inline-flex items-center gap-1 bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 p-0.5 rounded-xl">
             {(["leaves", "wfh"] as const).map((t) => {
               const isActive = tab === t;
               return (
                 <button
                   key={t}
                   onClick={() => setTab(t)}
-                  className={`flex items-center gap-2 px-4 py-1.5 text-xs rounded-xl transition-all whitespace-nowrap cursor-pointer ${
+                  className={`flex items-center gap-1.5 px-3.5 py-1 text-xs rounded-lg transition-all whitespace-nowrap cursor-pointer ${
                     isActive
                       ? "bg-[#56348f] text-white font-bold shadow-sm"
                       : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-semibold"
@@ -412,10 +494,10 @@ export default function ApprovalsPage() {
         </div>
 
         {/* Right: Decorative Graphic */}
-        <div className="hidden lg:flex items-center justify-center pr-6">
-          <div className="relative w-44 h-32 flex items-center justify-center select-none pointer-events-none opacity-90">
+        <div className="hidden lg:flex items-center justify-center pr-4">
+          <div className="relative w-36 h-28 flex items-center justify-center select-none pointer-events-none opacity-90">
             <div className="absolute inset-0 bg-purple-500/10 blur-2xl rounded-full" />
-            <svg className="w-36 h-28 drop-shadow-md" viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg className="w-32 h-24 drop-shadow-md" viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg">
               <rect x="35" y="18" width="90" height="96" rx="12" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="2.5" className="dark:fill-[#0f1f38] dark:stroke-[#1e3a6a]" />
               <path d="M60 14C60 10.6863 62.6863 8 66 8H94C97.3137 8 100 10.6863 100 14V20H60V14Z" fill="#e2e8f0" stroke="#94a3b8" strokeWidth="2" className="dark:fill-[#1e293b] dark:stroke-[#334155]" />
               <rect x="72" y="12" width="16" height="4" rx="2" fill="#64748b" />
@@ -434,343 +516,333 @@ export default function ApprovalsPage() {
       </div>
 
       {successMessage && (
-        <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-800 dark:text-emerald-300 text-xs font-semibold animate-in fade-in">
+        <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-800 dark:text-emerald-300 text-xs font-semibold animate-in fade-in">
           ✓ {successMessage}
         </div>
       )}
 
-      {/* ── Table View ── */}
+      {/* ── Table View with ZERO Horizontal Scroll ── */}
       {isLoading ? (
-        <div className="flex justify-center py-20 bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-2xl">
-          <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+        <div className="flex justify-center py-16 bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-2xl animate-pulse">
+          <Loader2 className="h-7 w-7 animate-spin text-purple-600" />
         </div>
       ) : tab === "leaves" ? (
-        <div className="w-full bg-white/90 dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800/90 rounded-2xl shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 text-[12px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider whitespace-nowrap">
-                  <th className="py-3.5 px-5 border-r border-slate-200/80 dark:border-slate-800/80">Employee</th>
-                  <th className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80">Type</th>
-                  <th className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80">Duration</th>
-                  <th className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80">Days</th>
-                  <th className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80">Reason</th>
-                  <th className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80">Status</th>
-                  <th className="py-3.5 px-5 text-right">Actions</th>
+        <div className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
+          <table className="w-full table-fixed text-left border-collapse text-[12px] leading-[16px]">
+            <colgroup>
+              <col className="w-[23%]" />
+              <col className="w-[14%]" />
+              <col className="w-[14%]" />
+              <col className="w-[8%]" />
+              <col className="w-[15%]" />
+              <col className="w-[13%]" />
+              <col className="w-[13%]" />
+            </colgroup>
+            <thead>
+              <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                <th className="py-2.5 px-3 border-r border-slate-200/80 dark:border-slate-800">Employee</th>
+                <th className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800">Type</th>
+                <th className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800">Duration</th>
+                <th className="py-2.5 px-2 text-center border-r border-slate-200/80 dark:border-slate-800">Days</th>
+                <th className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800">Reason</th>
+                <th className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800">Status</th>
+                <th className="py-2.5 px-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+              {displayLeaves.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-12 text-center text-slate-400 dark:text-slate-500 text-xs italic">
+                    No {statusFilter === "All" ? "" : statusFilter.toLowerCase()} leave requests found.
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 text-sm">
-                {displayLeaves.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="py-16 text-center text-slate-400 dark:text-slate-500 text-sm italic">
-                      No {statusFilter === "All" ? "" : statusFilter.toLowerCase()} leave requests found.
+              ) : (
+                displayLeaves.map((req) => (
+                  <tr key={req.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors">
+                    {/* Column 1: Employee */}
+                    <td className="py-2.5 px-3 align-middle border-r border-slate-100 dark:border-slate-800/60">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <RoyalAvatar
+                          src={req.user?.profile_photo_path}
+                          name={`${req.user?.first_name} ${req.user?.last_name || ""}`.trim()}
+                          userId={req.user_id || req.user?.id}
+                          employeeCode={req.user?.employee_code}
+                          className="w-7 h-7 rounded-full text-[10px] font-bold bg-amber-600 text-white shrink-0"
+                        />
+                        <div className="min-w-0 truncate">
+                          <h3 className="font-bold text-[12px] text-slate-900 dark:text-white leading-tight truncate">
+                            <RoyalName
+                              name={`${req.user?.first_name} ${req.user?.last_name || ""}`.trim()}
+                              userId={req.user_id || req.user?.id}
+                              employeeCode={req.user?.employee_code}
+                            />
+                          </h3>
+                          <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                            {req.user?.designation || req.user?.role || "Employee"}
+                            {req.user?.employee_code && ` • ${req.user.employee_code}`}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Column 2: Type (compact) */}
+                    <td className="py-2.5 px-2.5 align-middle border-r border-slate-100 dark:border-slate-800/60">
+                      <div className="flex items-center gap-1.5 truncate">
+                        <LeaveTypeIcon leaveTypeName={req.leave_type?.name} />
+                        <span className="text-[11px] font-medium text-slate-800 dark:text-slate-200 truncate" title={req.leave_type?.name}>
+                          {req.leave_type?.name || "Leave"}
+                        </span>
+                      </div>
+                    </td>
+
+                    {/* Column 3: Duration */}
+                    <td className="py-2.5 px-2.5 align-middle border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap text-[11px] text-slate-800 dark:text-slate-200">
+                      <span className="font-medium">{fmtDate(req.start_date)}</span>
+                      {req.end_date && req.end_date !== req.start_date && (
+                        <span className="text-slate-500 dark:text-slate-400"> - {fmtDate(req.end_date)}</span>
+                      )}
+                    </td>
+
+                    {/* Column 4: Days */}
+                    <td className="py-2.5 px-2 align-middle text-center border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap font-bold text-slate-900 dark:text-white text-xs">
+                      {Number(req.days_taken ?? req.days ?? 0).toFixed(1)}
+                    </td>
+
+                    {/* Column 5: Reason */}
+                    <td className="py-2.5 px-2.5 align-middle border-r border-slate-100 dark:border-slate-800/60">
+                      <p className="text-[11px] text-slate-700 dark:text-slate-300 truncate" title={req.reason || ""}>
+                        {req.reason || "—"}
+                      </p>
+                      {req.attachment_link && (
+                        <a
+                          href={req.attachment_link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-0.5 text-[10px] text-purple-600 dark:text-purple-400 hover:underline"
+                        >
+                          <Link2 className="w-2.5 h-2.5" /> File
+                        </a>
+                      )}
+                    </td>
+
+                    {/* Column 6: Status */}
+                    <td className="py-2.5 px-2.5 align-middle border-r border-slate-100 dark:border-slate-800/60">
+                      <div className="space-y-1">
+                        {req.pending_lop_conversion ? (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
+                            <AlertTriangle className="w-2.5 h-2.5 text-rose-500" /> Pending LOP
+                          </span>
+                        ) : req.status === "Approved" ? (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                            <CheckCircle className="w-2.5 h-2.5 text-emerald-500" /> Approved
+                          </span>
+                        ) : req.status === "Rejected" ? (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
+                            <XCircle className="w-2.5 h-2.5 text-rose-500" /> Rejected
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                            <Clock className="w-2.5 h-2.5 text-amber-500" /> Pending
+                          </span>
+                        )}
+
+                        {req.is_unpaid && (
+                          <span
+                            className="block text-[9px] font-bold text-rose-600 dark:text-rose-400 truncate cursor-help"
+                            title={req.unpaid_reason || "Marked as Unpaid (LOP) due to exhausted leave balance."}
+                          >
+                            Unpaid (LOP)
+                          </span>
+                        )}
+                      </div>
+                    </td>
+
+                    {/* Column 7: Actions */}
+                    <td className="py-2.5 px-3 align-middle text-right whitespace-nowrap">
+                      <div className="flex items-center justify-end gap-1">
+                        {req.pending_lop_conversion ? (
+                          <>
+                            <button
+                              onClick={() => handleLopConversion(req.id, "confirm")}
+                              disabled={actionLoading}
+                              className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-sm transition disabled:opacity-50 cursor-pointer"
+                            >
+                              Confirm
+                            </button>
+                            <button
+                              onClick={() => handleLopConversion(req.id, "reject")}
+                              disabled={actionLoading}
+                              className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 transition disabled:opacity-50 cursor-pointer"
+                            >
+                              Decline
+                            </button>
+                          </>
+                        ) : req.status === "Pending" ? (
+                          <>
+                            {canApprove(req) && (
+                              <button
+                                onClick={() => approve("leave", req.id)}
+                                disabled={actionLoading}
+                                className="inline-flex items-center gap-0.5 px-2 py-1 rounded-md text-[11px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
+                              >
+                                <Check className="w-3 h-3" /> Approve
+                              </button>
+                            )}
+                            <button
+                              onClick={() => {
+                                setRejectDialog({ type: "leave", id: req.id });
+                                setRejectReason("");
+                              }}
+                              disabled={actionLoading}
+                              className="inline-flex items-center gap-0.5 px-2 py-1 rounded-md text-[11px] font-bold bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800 transition-colors disabled:opacity-50 cursor-pointer"
+                            >
+                              <XCircle className="w-3 h-3 text-rose-500" /> Reject
+                            </button>
+                          </>
+                        ) : null}
+
+                        {/* Super Admin Override button */}
+                        {isSuperAdmin && req.status === "Pending" && (
+                          <button
+                            onClick={() => openOverride(req)}
+                            className="p-1 text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 rounded transition-colors cursor-pointer"
+                            title="Override Leave Request"
+                          >
+                            <Edit className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
-                ) : (
-                  displayLeaves.map((req) => (
-                    <tr key={req.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors">
-                      {/* Column 1: Employee */}
-                      <td className="py-3.5 px-5 align-top border-r border-slate-100 dark:border-slate-800/60">
-                        <div className="flex items-center gap-3">
-                          <RoyalAvatar
-                            src={req.user?.profile_photo_path}
-                            name={`${req.user?.first_name} ${req.user?.last_name || ""}`.trim()}
-                            userId={req.user_id || req.user?.id}
-                            employeeCode={req.user?.employee_code}
-                            className="w-9 h-9 rounded-full text-xs font-bold bg-amber-600 text-white shrink-0"
-                          />
-                          <div className="min-w-0">
-                            <h3 className="font-bold text-sm text-slate-900 dark:text-white leading-tight truncate">
-                              <RoyalName
-                                name={`${req.user?.first_name} ${req.user?.last_name || ""}`.trim()}
-                                userId={req.user_id || req.user?.id}
-                                employeeCode={req.user?.employee_code}
-                              />
-                            </h3>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">
-                              {req.user?.designation || req.user?.role || "Employee"}
-                              {req.user?.employee_code && ` • ${req.user.employee_code}`}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Column 2: Type */}
-                      <td className="py-3.5 px-4 align-top border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
-                            <LeaveTypeIcon leaveTypeName={req.leave_type?.name} />
-                          </div>
-                          <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
-                            {req.leave_type?.name || "Leave"}
-                          </span>
-                        </div>
-                      </td>
-
-                      {/* Column 3: Duration */}
-                      <td className="py-3.5 px-4 align-top border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-950/50 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
-                            <Calendar className="w-3.5 h-3.5" />
-                          </div>
-                          <div className="text-xs text-slate-800 dark:text-slate-200 font-medium">
-                            <p className="whitespace-nowrap">{fmtDate(req.start_date)}</p>
-                            {req.end_date && req.end_date !== req.start_date && (
-                              <p className="text-slate-500 text-[11px] whitespace-nowrap">to {fmtDate(req.end_date)}</p>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Column 4: Days */}
-                      <td className="py-3.5 px-4 align-top border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap">
-                        <span className="text-sm font-bold text-slate-900 dark:text-white">
-                          {Number(req.days_taken ?? req.days ?? 0).toFixed(1)}
-                        </span>
-                        <span className="block text-[10px] text-slate-500 dark:text-slate-400">
-                          {Number(req.days_taken ?? req.days ?? 0) === 1 ? "day" : "days"}
-                        </span>
-                      </td>
-
-                      {/* Column 5: Reason */}
-                      <td className="py-3.5 px-4 align-top border-r border-slate-100 dark:border-slate-800/60 max-w-[220px]">
-                        <p className="text-xs text-slate-700 dark:text-slate-300 font-normal leading-relaxed break-words">
-                          {req.reason || "—"}
-                        </p>
-                        {req.attachment_link && (
-                          <a
-                            href={req.attachment_link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-[11px] text-purple-600 dark:text-purple-400 hover:underline mt-1"
-                          >
-                            <Link2 className="w-3 h-3" /> View Attachment
-                          </a>
-                        )}
-                      </td>
-
-                      {/* Column 6: Status */}
-                      <td className="py-3.5 px-4 align-top border-r border-slate-100 dark:border-slate-800/60 max-w-[240px]">
-                        <div className="space-y-1.5">
-                          {req.pending_lop_conversion ? (
-                            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
-                              <AlertTriangle className="w-3 h-3 animate-pulse text-rose-500" /> Pending LOP
-                            </div>
-                          ) : req.status === "Approved" ? (
-                            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                              <CheckCircle className="w-3 h-3 text-emerald-500" /> Approved
-                            </div>
-                          ) : req.status === "Rejected" ? (
-                            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
-                              <XCircle className="w-3 h-3 text-rose-500" /> Rejected
-                            </div>
-                          ) : (
-                            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
-                              <Clock className="w-3 h-3 text-amber-500" /> Pending
-                            </div>
-                          )}
-
-                          {req.is_unpaid && (
-                            <div className="p-2 rounded-lg bg-rose-50/80 dark:bg-rose-950/40 border border-rose-200/80 dark:border-rose-900/60 mt-1">
-                              <p className="text-[11px] font-bold text-rose-700 dark:text-rose-400">Marked as Unpaid (LOP)</p>
-                              <p className="text-[10px] text-rose-600/80 dark:text-rose-400/80 leading-tight mt-0.5">
-                                {req.unpaid_reason ||
-                                  `Insufficient ${req.leave_type?.name || "Leave"} balance. ${
-                                    req.lop_days || req.days || 1
-                                  } eligible working day(s) are Unpaid (LOP).`}
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      </td>
-
-                      {/* Column 7: Actions */}
-                      <td className="py-3.5 px-5 align-top text-right whitespace-nowrap">
-                        <div className="flex items-center justify-end gap-1.5">
-                          {req.pending_lop_conversion ? (
-                            <div className="flex flex-col gap-1">
-                              <button
-                                onClick={() => handleLopConversion(req.id, "confirm")}
-                                disabled={actionLoading}
-                                className="inline-flex items-center justify-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-sm transition disabled:opacity-50 cursor-pointer"
-                              >
-                                <CheckCircle className="w-3 h-3" /> Confirm LOP
-                              </button>
-                              <button
-                                onClick={() => handleLopConversion(req.id, "reject")}
-                                disabled={actionLoading}
-                                className="inline-flex items-center justify-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 transition disabled:opacity-50 cursor-pointer"
-                              >
-                                <XCircle className="w-3 h-3" /> Decline
-                              </button>
-                            </div>
-                          ) : req.status === "Pending" ? (
-                            <div className="flex items-center gap-1.5">
-                              {canApprove(req) && (
-                                <button
-                                  onClick={() => approve("leave", req.id)}
-                                  disabled={actionLoading}
-                                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
-                                >
-                                  <Check className="w-3.5 h-3.5" /> Approve
-                                </button>
-                              )}
-                              <button
-                                onClick={() => {
-                                  setRejectDialog({ type: "leave", id: req.id });
-                                  setRejectReason("");
-                                }}
-                                disabled={actionLoading}
-                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800 transition-colors disabled:opacity-50 cursor-pointer"
-                              >
-                                <XCircle className="w-3.5 h-3.5 text-rose-500" /> Reject
-                              </button>
-                            </div>
-                          ) : null}
-
-                          {/* Super Admin Override button */}
-                          {isSuperAdmin && req.status === "Pending" && (
-                            <button
-                              onClick={() => openOverride(req)}
-                              className="p-1.5 text-slate-500 hover:text-purple-600 dark:text-slate-400 dark:hover:text-purple-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                              title="Override Leave Request"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       ) : (
-        /* ── WFH Table ── */
-        <div className="w-full bg-white/90 dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800/90 rounded-2xl shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 text-[12px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider whitespace-nowrap">
-                  <th className="py-3.5 px-5 border-r border-slate-200/80 dark:border-slate-800/80">Employee</th>
-                  <th className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80">Type</th>
-                  <th className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80">Duration</th>
-                  <th className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80">TL Status</th>
-                  <th className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80">Reason</th>
-                  <th className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80">Status</th>
-                  <th className="py-3.5 px-5 text-right">Actions</th>
+        /* ── WFH Table with ZERO Horizontal Scroll ── */
+        <div className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
+          <table className="w-full table-fixed text-left border-collapse text-[12px] leading-[16px]">
+            <colgroup>
+              <col className="w-[23%]" />
+              <col className="w-[14%]" />
+              <col className="w-[15%]" />
+              <col className="w-[10%]" />
+              <col className="w-[15%]" />
+              <col className="w-[10%]" />
+              <col className="w-[13%]" />
+            </colgroup>
+            <thead>
+              <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                <th className="py-2.5 px-3 border-r border-slate-200/80 dark:border-slate-800">Employee</th>
+                <th className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800">Type</th>
+                <th className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800">Duration</th>
+                <th className="py-2.5 px-2 text-center border-r border-slate-200/80 dark:border-slate-800">TL Status</th>
+                <th className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800">Reason</th>
+                <th className="py-2.5 px-2 border-r border-slate-200/80 dark:border-slate-800">Status</th>
+                <th className="py-2.5 px-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+              {wfhRequests.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-12 text-center text-slate-400 dark:text-slate-500 text-xs italic">
+                    No pending WFH requests found.
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 text-sm">
-                {wfhRequests.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="py-16 text-center text-slate-400 dark:text-slate-500 text-sm italic">
-                      No pending WFH requests found.
+              ) : (
+                wfhRequests.map((req) => (
+                  <tr key={req.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors">
+                    {/* Employee */}
+                    <td className="py-2.5 px-3 align-middle border-r border-slate-100 dark:border-slate-800/60">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <RoyalAvatar
+                          src={req.user?.profile_photo_path}
+                          name={`${req.user?.first_name} ${req.user?.last_name || ""}`.trim()}
+                          userId={req.user_id || req.user?.id}
+                          employeeCode={req.user?.employee_code}
+                          className="w-7 h-7 rounded-full text-[10px] font-bold bg-indigo-600 text-white shrink-0"
+                        />
+                        <div className="min-w-0 truncate">
+                          <h3 className="font-bold text-[12px] text-slate-900 dark:text-white leading-tight truncate">
+                            <RoyalName
+                              name={`${req.user?.first_name} ${req.user?.last_name || ""}`.trim()}
+                              userId={req.user_id || req.user?.id}
+                              employeeCode={req.user?.employee_code}
+                            />
+                          </h3>
+                          <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                            {req.user?.designation || req.user?.role || "Employee"}
+                            {req.user?.employee_code && ` • ${req.user.employee_code}`}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Type */}
+                    <td className="py-2.5 px-2.5 align-middle border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap">
+                      <div className="flex items-center gap-1">
+                        <span className="text-[11px] font-medium text-slate-800 dark:text-slate-200">WFH</span>
+                        {req.duration_type && <DurationBadge type={req.duration_type} />}
+                      </div>
+                    </td>
+
+                    {/* Duration */}
+                    <td className="py-2.5 px-2.5 align-middle border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap text-[11px] text-slate-800 dark:text-slate-200">
+                      <span className="font-medium">{fmtDate(req.start_date)}</span>
+                      {req.end_date && req.end_date !== req.start_date && (
+                        <span className="text-slate-500 dark:text-slate-400"> - {fmtDate(req.end_date)}</span>
+                      )}
+                    </td>
+
+                    {/* TL Status */}
+                    <td className="py-2.5 px-2 align-middle text-center border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap">
+                      <span className={`text-[10px] font-bold ${req.tl_status === "Approved" ? "text-emerald-600 dark:text-emerald-400" : req.tl_status === "Rejected" ? "text-rose-600 dark:text-rose-400" : "text-amber-600 dark:text-amber-400"}`}>
+                        {req.tl_status ?? "Pending"}
+                      </span>
+                    </td>
+
+                    {/* Reason */}
+                    <td className="py-2.5 px-2.5 align-middle border-r border-slate-100 dark:border-slate-800/60">
+                      <p className="text-[11px] text-slate-700 dark:text-slate-300 truncate" title={req.reason || ""}>{req.reason || "—"}</p>
+                    </td>
+
+                    {/* Status */}
+                    <td className="py-2.5 px-2 align-middle border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap">
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                        <Clock className="w-2.5 h-2.5 text-amber-500" /> Pending
+                      </span>
+                    </td>
+
+                    {/* Actions */}
+                    <td className="py-2.5 px-3 align-middle text-right whitespace-nowrap">
+                      <div className="flex items-center justify-end gap-1">
+                        {canApprove(req) && (
+                          <button
+                            onClick={() => approve("wfh", req.id)}
+                            disabled={actionLoading}
+                            className="inline-flex items-center gap-0.5 px-2 py-1 rounded-md text-[11px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
+                          >
+                            <Check className="w-3 h-3" /> Approve
+                          </button>
+                        )}
+                        <button
+                          onClick={() => {
+                            setRejectDialog({ type: "wfh", id: req.id });
+                            setRejectReason("");
+                          }}
+                          disabled={actionLoading}
+                          className="inline-flex items-center gap-0.5 px-2 py-1 rounded-md text-[11px] font-bold bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800 transition-colors disabled:opacity-50 cursor-pointer"
+                        >
+                          <XCircle className="w-3 h-3 text-rose-500" /> Reject
+                        </button>
+                      </div>
                     </td>
                   </tr>
-                ) : (
-                  wfhRequests.map((req) => (
-                    <tr key={req.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors">
-                      {/* Employee */}
-                      <td className="py-3.5 px-5 align-top border-r border-slate-100 dark:border-slate-800/60">
-                        <div className="flex items-center gap-3">
-                          <RoyalAvatar
-                            src={req.user?.profile_photo_path}
-                            name={`${req.user?.first_name} ${req.user?.last_name || ""}`.trim()}
-                            userId={req.user_id || req.user?.id}
-                            employeeCode={req.user?.employee_code}
-                            className="w-9 h-9 rounded-full text-xs font-bold bg-indigo-600 text-white shrink-0"
-                          />
-                          <div className="min-w-0">
-                            <h3 className="font-bold text-sm text-slate-900 dark:text-white leading-tight truncate">
-                              <RoyalName
-                                name={`${req.user?.first_name} ${req.user?.last_name || ""}`.trim()}
-                                userId={req.user_id || req.user?.id}
-                                employeeCode={req.user?.employee_code}
-                              />
-                            </h3>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">
-                              {req.user?.designation || req.user?.role || "Employee"}
-                              {req.user?.employee_code && ` • ${req.user.employee_code}`}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Type */}
-                      <td className="py-3.5 px-4 align-top border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">WFH</span>
-                          {req.duration_type && <DurationBadge type={req.duration_type} />}
-                        </div>
-                      </td>
-
-                      {/* Duration */}
-                      <td className="py-3.5 px-4 align-top border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-950/50 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
-                            <Calendar className="w-3.5 h-3.5" />
-                          </div>
-                          <div className="text-xs text-slate-800 dark:text-slate-200 font-medium">
-                            <p className="whitespace-nowrap">{fmtDate(req.start_date)}</p>
-                            {req.end_date && req.end_date !== req.start_date && (
-                              <p className="text-slate-500 text-[11px] whitespace-nowrap">to {fmtDate(req.end_date)}</p>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* TL Status */}
-                      <td className="py-3.5 px-4 align-top border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap">
-                        <span className={`text-xs font-bold ${req.tl_status === "Approved" ? "text-emerald-600 dark:text-emerald-400" : req.tl_status === "Rejected" ? "text-rose-600 dark:text-rose-400" : "text-amber-600 dark:text-amber-400"}`}>
-                          {req.tl_status ?? "Pending"}
-                        </span>
-                      </td>
-
-                      {/* Reason */}
-                      <td className="py-3.5 px-4 align-top border-r border-slate-100 dark:border-slate-800/60 max-w-[220px]">
-                        <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed break-words">{req.reason || "—"}</p>
-                      </td>
-
-                      {/* Status */}
-                      <td className="py-3.5 px-4 align-top border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap">
-                        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
-                          <Clock className="w-3 h-3 text-amber-500" /> Pending
-                        </div>
-                      </td>
-
-                      {/* Actions */}
-                      <td className="py-3.5 px-5 align-top text-right whitespace-nowrap">
-                        <div className="flex items-center justify-end gap-1.5">
-                          {canApprove(req) && (
-                            <button
-                              onClick={() => approve("wfh", req.id)}
-                              disabled={actionLoading}
-                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
-                            >
-                              <Check className="w-3.5 h-3.5" /> Approve
-                            </button>
-                          )}
-                          <button
-                            onClick={() => {
-                              setRejectDialog({ type: "wfh", id: req.id });
-                              setRejectReason("");
-                            }}
-                            disabled={actionLoading}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800 transition-colors disabled:opacity-50 cursor-pointer"
-                          >
-                            <XCircle className="w-3.5 h-3.5 text-rose-500" /> Reject
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       )}
 
