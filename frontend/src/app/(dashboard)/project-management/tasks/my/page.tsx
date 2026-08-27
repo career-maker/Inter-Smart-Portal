@@ -8,7 +8,8 @@ import {
   ChevronRight,
   RefreshCw,
   AlertCircle,
-  Layers
+  Layers,
+  FileText
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import pmApi from "@/services/pm";
@@ -18,6 +19,7 @@ import {
   PaginatedResponse,
 } from "@/types/pm";
 import { TaskTrackerTable } from "@/components/project-management/TaskTrackerTable";
+import { DailyReportModal } from "@/components/project-management/DailyReportModal";
 
 export default function MyTasksPage() {
   const { user } = useAuthStore();
@@ -29,6 +31,7 @@ export default function MyTasksPage() {
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [isDailyReportOpen, setIsDailyReportOpen] = useState(false);
 
   const fetchMyTasks = useCallback(
     async (page = 1, isManual = false) => {
@@ -103,6 +106,16 @@ export default function MyTasksPage() {
 
         {/* Action Controls */}
         <div className="flex items-center gap-2.5 self-start sm:self-auto">
+          <button
+            onClick={() => setIsDailyReportOpen(true)}
+            style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-[#56348f] dark:text-purple-300 text-[13px] leading-[20px] font-normal border border-purple-200 dark:border-purple-800 transition-colors cursor-pointer"
+            title="Open My Daily Report"
+          >
+            <FileText className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
+            <span>Daily Reports</span>
+          </button>
+
           <button
             onClick={() => fetchMyTasks(currentPage, true)}
             disabled={refreshing || loading}
@@ -227,6 +240,12 @@ export default function MyTasksPage() {
           )}
         </div>
       )}
+
+      {/* ── Daily Reports Modal ── */}
+      <DailyReportModal
+        isOpen={isDailyReportOpen}
+        onClose={() => setIsDailyReportOpen(false)}
+      />
     </div>
   );
 }

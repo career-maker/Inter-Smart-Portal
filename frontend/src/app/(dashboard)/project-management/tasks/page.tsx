@@ -10,7 +10,8 @@ import {
   RefreshCw,
   AlertCircle,
   Users,
-  AlertTriangle
+  AlertTriangle,
+  FileText
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import pmApi from "@/services/pm";
@@ -27,6 +28,7 @@ import {
 import { TaskTrackerTable } from "@/components/project-management/TaskTrackerTable";
 import { TeamFilterSelector } from "@/components/project-management/TeamFilterSelector";
 import { CreateTaskModal } from "@/components/project-management/CreateTaskModal";
+import { DailyReportModal } from "@/components/project-management/DailyReportModal";
 
 export default function AllTasksPage() {
   const { user } = useAuthStore();
@@ -56,6 +58,7 @@ export default function AllTasksPage() {
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedAssigneeForModal, setSelectedAssigneeForModal] = useState<number | undefined>(undefined);
+  const [isDailyReportOpen, setIsDailyReportOpen] = useState(false);
 
   // Fetch Projects for dropdown
   useEffect(() => {
@@ -312,6 +315,16 @@ export default function AllTasksPage() {
               </button>
             </div>
           )}
+
+          <button
+            onClick={() => setIsDailyReportOpen(true)}
+            style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-[#56348f] dark:text-purple-300 text-[13px] leading-[20px] font-normal border border-purple-200 dark:border-purple-800 transition-colors cursor-pointer"
+            title="Open Role-Based Daily Reports"
+          >
+            <FileText className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
+            <span>Daily Reports</span>
+          </button>
 
           <Link
             href="/project-management/tasks/my"
@@ -620,6 +633,12 @@ export default function AllTasksPage() {
         }}
         onSuccess={handleTaskCreated}
         defaultAssigneeId={selectedAssigneeForModal}
+      />
+
+      {/* ── Role-Based Daily Report Modal ── */}
+      <DailyReportModal
+        isOpen={isDailyReportOpen}
+        onClose={() => setIsDailyReportOpen(false)}
       />
     </div>
   );

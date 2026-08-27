@@ -480,6 +480,7 @@ Route::middleware('auth:sanctum')->prefix('projects')->group(function () {
 });
 
 Route::middleware('auth:sanctum')->prefix('project-tasks')->group(function () {
+    Route::get('daily-report', [\App\Http\Controllers\Api\ProjectTaskController::class, 'dailyReport']);
     Route::get('team-members', [\App\Http\Controllers\Api\ProjectTaskController::class, 'getTeamMembers']);
     Route::get('/', [\App\Http\Controllers\Api\ProjectTaskController::class, 'index']);
     Route::get('my', [\App\Http\Controllers\Api\ProjectTaskController::class, 'my']);

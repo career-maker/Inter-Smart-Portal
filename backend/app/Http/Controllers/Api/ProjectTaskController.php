@@ -9,6 +9,9 @@ use App\Http\Requests\UpdateProjectTaskRequest;
 use App\Http\Requests\UpdateProjectTaskStatusRequest;
 use App\Models\Project;
 use App\Models\ProjectTask;
+use App\Models\Team;
+use App\Models\User;
+use App\Models\Attendance;
 use App\Services\ProjectManagement\ProjectAuthorizationService;
 use App\Services\ProjectManagement\ProjectTaskService;
 use Illuminate\Http\Request;
@@ -504,6 +507,271 @@ class ProjectTaskController extends Controller
             'team_name' => $team?->name ?? 'My Team',
             'members' => $members,
             'total' => $members->count(),
+        ]);
+    }
+
+    public function dailyReport(Request $request)
+    {
+        $this->autoSplitMultiAssigneeTasks();
+
+        $user = $request->user();
+        $isSuperAdmin = $user->hasRole('Super Admin') || in_array(strtolower($user->role ?? ''), ['super admin'], true);
+        $isAdmin = $user->hasRole('Admin') || in_array(strtolower($user->role ?? ''), ['admin'], true);
+        $isTeamLead = $user->hasRole('Team Lead')
+            || in_array(strtolower($user->role ?? ''), ['team lead'], true)
+            || Team::where('team_lead_id', $user->id)->exists();
+        $isEmployee = !$isSuperAdmin && !$isAdmin && !$isTeamLead;
+
+        $date = $request->input('date') ?: now()->toDateString();
+        $requestedType = $request->input('report_type') ?: ($isEmployee ? 'my_daily' : 'full_team_daily');
+
+        // Enforce role-based allowed types
+        if ($isEmployee) {
+            $reportType = in_array($requestedType, ['my_daily', 'my_tomorrow'], true) ? $requestedType : 'my_daily';
+        } else {
+            $allowedTypes = ['full_team_daily', 'individual_member', 'my_daily', 'tomorrow_team', 'my_tomorrow', 'full_tracker'];
+            $reportType = in_array($requestedType, $allowedTypes, true) ? $requestedType : 'full_team_daily';
+        }
+
+        $targetDate = in_array($reportType, ['my_tomorrow', 'tomorrow_team'], true)
+            ? \Carbon\Carbon::parse($date)->addDay()->toDateString()
+            : $date;
+
+        // Resolve Target Scope & Members
+        $members = collect();
+        $selectedTeam = null;
+
+        if ($isEmployee || $reportType === 'my_daily' || $reportType === 'my_tomorrow') {
+            $members = collect([$user]);
+            if ($user->team_id) {
+                $selectedTeam = Team::find($user->team_id);
+            }
+        } elseif ($reportType === 'individual_member') {
+            $targetUserId = (int) $request->input('user_id');
+            if ($isTeamLead && !$isSuperAdmin && !$isAdmin) {
+                $ledTeamIds = Team::where('team_lead_id', $user->id)->pluck('id')->toArray();
+                if ($user->team_id) {
+                    $ledTeamIds[] = $user->team_id;
+                }
+                $targetUser = User::whereIn('team_id', array_unique($ledTeamIds))->find($targetUserId);
+                if (!$targetUser) {
+                    return response()->json(['message' => 'Unauthorized: Target member not in your team.'], 403);
+                }
+                $members = collect([$targetUser]);
+                $selectedTeam = Team::find($targetUser->team_id);
+            } else {
+                $targetUser = User::find($targetUserId) ?: $user;
+                $members = collect([$targetUser]);
+                if ($targetUser->team_id) {
+                    $selectedTeam = Team::find($targetUser->team_id);
+                }
+            }
+        } else {
+            // Team level report: full_team_daily, tomorrow_team, full_tracker
+            $teamId = (int) $request->input('team_id');
+            if ($isTeamLead && !$isSuperAdmin && !$isAdmin) {
+                $ledTeams = Team::where('team_lead_id', $user->id)->get();
+                $ledTeamIds = $ledTeams->pluck('id')->toArray();
+                if ($user->team_id && !in_array($user->team_id, $ledTeamIds)) {
+                    $ledTeamIds[] = $user->team_id;
+                }
+
+                if ($teamId && in_array($teamId, $ledTeamIds, true)) {
+                    $selectedTeam = Team::find($teamId);
+                } else {
+                    $selectedTeam = $ledTeams->first() ?: ($user->team_id ? Team::find($user->team_id) : null);
+                }
+            } else {
+                // Admin / Super Admin
+                if ($teamId) {
+                    $selectedTeam = Team::find($teamId);
+                } else {
+                    $selectedTeam = Team::first();
+                }
+            }
+
+            if ($selectedTeam) {
+                $members = User::where('team_id', $selectedTeam->id)->where('status', 'Active')->orderBy('first_name')->get();
+                if ($members->isEmpty()) {
+                    $members = User::where('team_id', $selectedTeam->id)->orderBy('first_name')->get();
+                }
+            } else {
+                $members = collect([$user]);
+            }
+        }
+
+        $memberIds = $members->pluck('id')->toArray();
+
+        // Query Tasks
+        $taskQuery = ProjectTask::query()
+            ->with([
+                'project:id,name,project_type,category',
+                'subPhase:id,name',
+                'assignees:id,first_name,last_name,email,profile_photo_path',
+                'coordinator:id,first_name,last_name',
+            ])
+            ->whereHas('taskAssignees', function ($q) use ($memberIds) {
+                $q->whereIn('user_id', $memberIds);
+            });
+
+        if ($reportType !== 'full_tracker') {
+            $taskQuery->where(function ($q) use ($targetDate) {
+                $q->whereDate('due_date', $targetDate)
+                  ->orWhere(function ($activeQ) use ($targetDate) {
+                      $activeQ->where('start_date', '<=', $targetDate)
+                              ->whereNotIn('status', ['Completed', 'Rejected']);
+                  })
+                  ->orWhere(function ($compQ) use ($targetDate) {
+                      $compQ->where('status', 'Completed')
+                            ->where(function ($d) use ($targetDate) {
+                                $d->whereDate('actual_completion_date', $targetDate)
+                                  ->orWhereDate('updated_at', $targetDate);
+                            });
+                  });
+            });
+        }
+
+        $tasks = $taskQuery->get();
+
+        // Calculate IST Overdue & Metrics
+        $nowIst = now()->setTimezone('Asia/Kolkata');
+        $todayIstStr = $nowIst->toDateString();
+        $isPast630Pm = $nowIst->hour > 18 || ($nowIst->hour === 18 && $nowIst->minute >= 30);
+
+        $completedCount = 0;
+        $inProgressCount = 0;
+        $pendingCount = 0;
+        $onHoldCount = 0;
+        $overdueCount = 0;
+
+        $tasksData = $tasks->map(function ($task) use ($targetDate, $todayIstStr, $isPast630Pm, &$completedCount, &$inProgressCount, &$pendingCount, &$onHoldCount, &$overdueCount) {
+            $isCompleted = $task->status === 'Completed';
+            $isRejected = $task->status === 'Rejected';
+            $isOverdue = false;
+            $delayDays = 0;
+
+            if (!$isCompleted && !$isRejected && $task->due_date) {
+                $dueStr = \Carbon\Carbon::parse($task->due_date)->toDateString();
+                if ($dueStr < $todayIstStr) {
+                    $isOverdue = true;
+                    $delayDays = \Carbon\Carbon::parse($dueStr)->diffInDays(\Carbon\Carbon::parse($todayIstStr));
+                } elseif ($dueStr === $todayIstStr && $isPast630Pm) {
+                    $isOverdue = true;
+                    $delayDays = 1;
+                }
+            }
+
+            if ($isCompleted) {
+                $completedCount++;
+            } elseif ($task->status === 'Yet to Start') {
+                $pendingCount++;
+            } elseif ($task->status === 'On Hold') {
+                $onHoldCount++;
+            } else {
+                $inProgressCount++;
+            }
+
+            if ($isOverdue) {
+                $overdueCount++;
+            }
+
+            $primaryAssignee = $task->assignees->first();
+
+            return [
+                'id' => $task->id,
+                'title' => $task->title,
+                'status' => $task->status,
+                'priority' => $task->priority,
+                'start_date' => $task->start_date,
+                'due_date' => $task->due_date,
+                'actual_completion_date' => $task->actual_completion_date,
+                'current_updates' => $task->current_updates,
+                'description' => $task->description,
+                'deviation' => $task->deviation,
+                'is_overdue' => $isOverdue,
+                'delay_days' => $delayDays,
+                'project_name' => $task->project?->name ?? 'General / Internal',
+                'sub_phase_name' => $task->subPhase?->name,
+                'assignee_id' => $primaryAssignee?->id,
+                'assignee_name' => $primaryAssignee ? trim("{$primaryAssignee->first_name} {$primaryAssignee->last_name}") : 'Unassigned',
+                'assignee_avatar' => $primaryAssignee?->profilePhotoUrl(),
+            ];
+        });
+
+        // Group tasks by member
+        $memberReports = $members->map(function ($m) use ($tasksData) {
+            $memberTasks = $tasksData->where('assignee_id', $m->id)->values();
+            return [
+                'user_id' => $m->id,
+                'name' => trim("{$m->first_name} {$m->last_name}"),
+                'designation' => $m->designation ?? $m->role ?? 'Team Member',
+                'employee_code' => $m->employee_code,
+                'avatar' => $m->profilePhotoUrl(),
+                'total_tasks' => $memberTasks->count(),
+                'completed_count' => $memberTasks->where('status', 'Completed')->count(),
+                'in_progress_count' => $memberTasks->whereIn('status', ['In Progress', 'Being Developed', 'Ready for QA', 'Assigned to QA'])->count(),
+                'pending_count' => $memberTasks->where('status', 'Yet to Start')->count(),
+                'overdue_count' => $memberTasks->where('is_overdue', true)->count(),
+                'tasks' => $memberTasks,
+            ];
+        })->values();
+
+        // Optional time tracking / Attendance summary
+        $timeTrackingData = [];
+        if ($request->boolean('include_time_tracking')) {
+            $attendances = Attendance::whereDate('date', $targetDate)
+                ->whereIn('user_id', $memberIds)
+                ->get()
+                ->keyBy('user_id');
+
+            foreach ($members as $m) {
+                $att = $attendances->get($m->id);
+                $timeTrackingData[$m->id] = [
+                    'working_hours' => $att?->total_working_hours ?? '—',
+                    'effective_hours' => $att?->effective_working_hours ?? '—',
+                    'status' => $att?->status ?? '—',
+                    'check_in' => $att?->check_in_time ? \Carbon\Carbon::parse($att->check_in_time)->format('h:i A') : '—',
+                    'check_out' => $att?->check_out_time ? \Carbon\Carbon::parse($att->check_out_time)->format('h:i A') : '—',
+                ];
+            }
+        }
+
+        // Teams list for Team Lead / Admin selection
+        $availableTeams = [];
+        if ($isSuperAdmin || $isAdmin) {
+            $availableTeams = Team::select('id', 'name', 'code')->get();
+        } elseif ($isTeamLead) {
+            $ledTeamIds = Team::where('team_lead_id', $user->id)->pluck('id')->toArray();
+            if ($user->team_id) {
+                $ledTeamIds[] = $user->team_id;
+            }
+            $availableTeams = Team::whereIn('id', array_unique($ledTeamIds))->select('id', 'name', 'code')->get();
+        }
+
+        return response()->json([
+            'role' => $isSuperAdmin ? 'Super Admin' : ($isAdmin ? 'Admin' : ($isTeamLead ? 'Team Lead' : 'Employee')),
+            'report_type' => $reportType,
+            'date' => $targetDate,
+            'team' => $selectedTeam ? ['id' => $selectedTeam->id, 'name' => $selectedTeam->name, 'code' => $selectedTeam->code] : null,
+            'available_teams' => $availableTeams,
+            'team_members' => $members->map(fn ($m) => [
+                'id' => $m->id,
+                'name' => trim("{$m->first_name} {$m->last_name}"),
+                'designation' => $m->designation ?? $m->role,
+                'employee_code' => $m->employee_code,
+            ]),
+            'summary' => [
+                'total_members' => $members->count(),
+                'total_tasks' => $tasksData->count(),
+                'completed' => $completedCount,
+                'in_progress' => $inProgressCount,
+                'pending' => $pendingCount,
+                'on_hold' => $onHoldCount,
+                'overdue' => $overdueCount,
+            ],
+            'member_reports' => $memberReports,
+            'tasks' => $tasksData,
+            'time_tracking' => $timeTrackingData,
         ]);
     }
 }
