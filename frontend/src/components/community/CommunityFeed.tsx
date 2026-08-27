@@ -1527,10 +1527,25 @@ export function CommunityFeed() {
                     <div className="flex items-center justify-between py-2 text-[13px] text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700">
                       <div className="flex items-center gap-1.5 cursor-pointer hover:underline" onClick={() => { setReactionModalPost(post); setReactionModalTab("all"); }}>
                         {(post.likes_count || 0) > 0 && (
-                          <>
-                            <span className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center text-white text-[10px]">👍</span>
-                            <span>{post.likes_count}</span>
-                          </>
+                          <div className="flex items-center">
+                            {Object.entries(post.reactions_breakdown || {})
+                              .sort((a, b) => Number(b[1]) - Number(a[1]))
+                              .slice(0, 3)
+                              .map(([reaction], idx) => {
+                                const r = EMOJI_REACTIONS.find((er) => er.id === reaction);
+                                if (!r) return null;
+                                return (
+                                  <span 
+                                    key={reaction} 
+                                    className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] ring-2 ring-white dark:ring-slate-900 bg-slate-100 dark:bg-slate-800 -ml-1 first:ml-0`}
+                                    style={{ zIndex: 10 - idx }}
+                                  >
+                                    {r.emoji}
+                                  </span>
+                                );
+                              })}
+                            <span className="ml-1.5">{post.likes_count}</span>
+                          </div>
                         )}
                       </div>
                       <div className="cursor-pointer hover:underline" onClick={() => setOpenComments((prev) => ({ ...prev, [post.id]: true }))}>
