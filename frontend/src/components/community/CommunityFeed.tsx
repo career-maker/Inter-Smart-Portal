@@ -117,6 +117,11 @@ export function CommunityFeed() {
   const [isBadgeModalOpen, setIsBadgeModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState("");
 
+  // Mentions State
+  const [mentionQuery, setMentionQuery] = useState<string | null>(null);
+  const [mentionActiveField, setMentionActiveField] = useState<"post" | "praise" | "poll" | null>(null);
+  const [mentionCursorPos, setMentionCursorPos] = useState<number>(0);
+
   // Comment & Like State
     // Reaction Picker States
     // Who Reacted Modal State
@@ -139,6 +144,58 @@ export function CommunityFeed() {
   useEffect(() => {
     fetchMetadataAndEmployees();
   }, []);
+
+  const handleMentionChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
+    field: "post" | "praise" | "poll",
+    setter: React.Dispatch<React.SetStateAction<string>>
+  ) => {
+    const val = e.target.value;
+    setter(val);
+    
+    const cursorPos = e.target.selectionStart || 0;
+    const textBeforeCursor = val.substring(0, cursorPos);
+    const lastAtSymbolIndex = textBeforeCursor.lastIndexOf("@");
+    
+    if (lastAtSymbolIndex !== -1) {
+      const prevChar = textBeforeCursor[lastAtSymbolIndex - 1];
+      if (!prevChar || prevChar === " " || prevChar === "\n") {
+        const query = textBeforeCursor.substring(lastAtSymbolIndex + 1);
+        if (!query.includes(" ")) {
+          setMentionQuery(query.toLowerCase());
+          setMentionActiveField(field);
+          setMentionCursorPos(lastAtSymbolIndex);
+          return;
+        }
+      }
+    }
+    
+    setMentionQuery(null);
+    setMentionActiveField(null);
+  };
+
+  const handleMentionSelect = (emp: any, field: "post" | "praise" | "poll", setter: React.Dispatch<React.SetStateAction<string>>, currentVal: string) => {
+    const textBeforeMention = currentVal.substring(0, mentionCursorPos);
+    const textAfterMention = currentVal.substring(mentionCursorPos + (mentionQuery?.length || 0) + 1);
+    
+    // Insert the name with a space after it
+    const newVal = textBeforeMention + `@${emp.name} ` + textAfterMention;
+    setter(newVal);
+    
+    setMentionQuery(null);
+    setMentionActiveField(null);
+  };
+
+  const parseMentions = (text: string) => {
+    const mentionedIds: number[] = [];
+    employeesList.forEach((emp) => {
+      // Check if @Name is in the text
+      if (text.includes(`@${emp.name}`)) {
+        mentionedIds.push(emp.id);
+      }
+    });
+    return mentionedIds;
+  };
 
   const fetchPosts = async (page = 1) => {
     try {
@@ -294,6 +351,7 @@ export function CommunityFeed() {
     setPosting(true);
     try {
       if (activeType === "poll") {
+        const mentionedIds = parseMentions(pollQuestion);
         const res = await api.post("/community/posts", {
           content: pollQuestion.trim(),
           type: "poll",
@@ -301,6 +359,7 @@ export function CommunityFeed() {
           expires_at: pollExpiresOn,
           is_anonymous: anonymousPoll,
           notify_employees: notifyEmployees,
+          mentioned_user_ids: mentionedIds,
         });
 
         if (res.data?.data) {
@@ -311,11 +370,13 @@ export function CommunityFeed() {
         setPollOptions(["", "", ""]);
         setActiveType("post");
       } else if (activeType === "praise") {
+        const mentionedIds = parseMentions(praiseDescription);
         const formData = new FormData();
         formData.append("content", praiseDescription.trim());
         formData.append("type", "praise");
         formData.append("praised_user_ids", JSON.stringify(selectedEmployees.map((e) => e.id)));
         formData.append("praised_user_id", String(selectedEmployees[0]?.id || ""));
+        formData.append("mentioned_user_ids", JSON.stringify(mentionedIds));
         if (selectedBadge?.name) {
           formData.append("badge", selectedBadge.name);
         }
@@ -343,9 +404,11 @@ export function CommunityFeed() {
         handleRemoveImage();
         setActiveType("post");
       } else {
+        const mentionedIds = parseMentions(content);
         const formData = new FormData();
         formData.append("content", content.trim());
         formData.append("type", activeType);
+        formData.append("mentioned_user_ids", JSON.stringify(mentionedIds));
         if (selectedImages.length > 0) {
           selectedImages.forEach((img) => {
             formData.append("images[]", img);
@@ -672,14 +735,31 @@ export function CommunityFeed() {
             </div>
 
             {/* 2. Praise Message Textarea */}
-            <div>
+            <div className="relative">
               <textarea
                 value={praiseDescription}
-                onChange={(e) => setPraiseDescription(e.target.value)}
+                onChange={(e) => handleMentionChange(e, "praise", setPraiseDescription)}
                 rows={3}
                 placeholder="What did the employee do to deserve the praise"
                 className="w-full text-[13px] leading-relaxed p-3 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-md focus:outline-none focus:ring-1 focus:ring-[#56348f] dark:text-white resize-none"
               />
+              {mentionActiveField === "praise" && mentionQuery !== null && (
+                <div className="absolute z-40 top-full left-0 right-0 mt-1 max-h-48 overflow-y-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md shadow-xl custom-scrollbar">
+                  {employeesList.filter(e => e.name?.toLowerCase().includes(mentionQuery) || e.email?.toLowerCase().includes(mentionQuery)).map(emp => (
+                    <button
+                      key={emp.id}
+                      type="button"
+                      onClick={() => handleMentionSelect(emp, "praise", setPraiseDescription, praiseDescription)}
+                      className="w-full flex items-center gap-3 p-2 hover:bg-slate-50 dark:hover:bg-slate-800 text-left transition cursor-pointer border-b border-slate-100 dark:border-slate-800 last:border-0"
+                    >
+                      <RoyalAvatar src={emp.profile_photo_path} name={emp.name} userId={emp.id} className="w-6 h-6 rounded-full shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold text-slate-900 dark:text-white truncate">{emp.name}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* 3. Badge Selector Box */}
@@ -816,14 +896,31 @@ export function CommunityFeed() {
         ) : activeType === "poll" ? (
           /* ── POLL CREATION FORM ── */
           <div className="space-y-4">
-            <div>
+            <div className="relative">
               <input
                 type="text"
                 value={pollQuestion}
-                onChange={(e) => setPollQuestion(e.target.value)}
+                onChange={(e) => handleMentionChange(e, "poll", setPollQuestion)}
                 placeholder="What this poll is about"
                 className="w-full text-[14px] font-medium py-2 px-1 border-b border-slate-200 dark:border-slate-700 bg-transparent focus:outline-none focus:border-[#56348f] text-slate-900 dark:text-white placeholder:text-slate-400"
               />
+              {mentionActiveField === "poll" && mentionQuery !== null && (
+                <div className="absolute z-40 top-full left-0 right-0 mt-1 max-h-48 overflow-y-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md shadow-xl custom-scrollbar">
+                  {employeesList.filter(e => e.name?.toLowerCase().includes(mentionQuery) || e.email?.toLowerCase().includes(mentionQuery)).map(emp => (
+                    <button
+                      key={emp.id}
+                      type="button"
+                      onClick={() => handleMentionSelect(emp, "poll", setPollQuestion, pollQuestion)}
+                      className="w-full flex items-center gap-3 p-2 hover:bg-slate-50 dark:hover:bg-slate-800 text-left transition cursor-pointer border-b border-slate-100 dark:border-slate-800 last:border-0"
+                    >
+                      <RoyalAvatar src={emp.profile_photo_path} name={emp.name} userId={emp.id} className="w-6 h-6 rounded-full shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold text-slate-900 dark:text-white truncate">{emp.name}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="space-y-2.5 pt-2">
@@ -916,15 +1013,32 @@ export function CommunityFeed() {
           </div>
         ) : (
           /* ── STANDARD POST FORM ── */
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 relative">
             <div className="flex-1 min-w-0">
               <textarea
                 value={content}
-                onChange={(e) => setContent(e.target.value)}
+                onChange={(e) => handleMentionChange(e, "post", setContent)}
                 rows={3}
                 placeholder="Write your post here and mention your peers"
                 className="w-full text-[15px] leading-relaxed bg-transparent border-0 focus:outline-none focus:ring-0 text-slate-700 dark:text-white placeholder:text-slate-400 placeholder:font-normal resize-none p-0"
               />
+              {mentionActiveField === "post" && mentionQuery !== null && (
+                <div className="absolute z-40 top-full left-0 right-0 mt-1 max-h-48 overflow-y-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md shadow-xl custom-scrollbar">
+                  {employeesList.filter(e => e.name?.toLowerCase().includes(mentionQuery) || e.email?.toLowerCase().includes(mentionQuery)).map(emp => (
+                    <button
+                      key={emp.id}
+                      type="button"
+                      onClick={() => handleMentionSelect(emp, "post", setContent, content)}
+                      className="w-full flex items-center gap-3 p-2 hover:bg-slate-50 dark:hover:bg-slate-800 text-left transition cursor-pointer border-b border-slate-100 dark:border-slate-800 last:border-0"
+                    >
+                      <RoyalAvatar src={emp.profile_photo_path} name={emp.name} userId={emp.id} className="w-6 h-6 rounded-full shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold text-slate-900 dark:text-white truncate">{emp.name}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
 
               {imagePreviews.length > 0 && (
                 <div className="mt-3 flex flex-wrap gap-2.5">

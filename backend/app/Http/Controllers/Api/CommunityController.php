@@ -15,6 +15,7 @@ use App\Models\LeaveBalance;
 use App\Models\Project;
 use App\Notifications\PraiseReceivedNotification;
 use App\Notifications\PollNotification;
+use App\Notifications\PostMentionNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -219,6 +220,7 @@ class CommunityController extends Controller
             'notify_employees' => 'nullable|boolean',
             'praised_user_id' => 'nullable|integer',
             'praised_user_ids' => 'nullable',
+            'mentioned_user_ids' => 'nullable',
             'badge' => 'nullable|string',
             'project_name' => 'nullable|string',
         ]);
@@ -376,10 +378,39 @@ class CommunityController extends Controller
             $post->media_url = url($post->media_url);
         }
 
+        // Send mention notifications
+        $mentionedUserIds = [];
+        $rawMentionIds = $request->input('mentioned_user_ids');
+        if (is_string($rawMentionIds)) {
+            $decoded = json_decode($rawMentionIds, true);
+            if (is_array($decoded)) $mentionedUserIds = array_map('intval', $decoded);
+        } elseif (is_array($rawMentionIds)) {
+            $mentionedUserIds = array_map('intval', $rawMentionIds);
+        }
+
+        if (!empty($mentionedUserIds)) {
+            $authorFullName = trim("{$currentUser->first_name} {$currentUser->last_name}");
+            // Exclude author and ensure we only get valid active users
+            $mentionedRecipients = User::whereIn('id', $mentionedUserIds)
+                ->where('id', '!=', $currentUser->id)
+                ->where('status', 'active')
+                ->get();
+
+            foreach ($mentionedRecipients as $recipient) {
+                try {
+                    $recipient->notify(new PostMentionNotification(
+                        $authorFullName,
+                        $post->id,
+                        $type
+                    ));
+                } catch (\Exception $e) {}
+            }
+        }
+
         return response()->json([
             'message' => 'Post created successfully',
-            'data' => $post,
-        ], 201);
+            'data' => $post
+        ]);
     }
 
     public function votePoll(Request $request, $id)
