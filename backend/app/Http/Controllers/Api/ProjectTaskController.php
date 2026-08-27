@@ -553,14 +553,18 @@ class ProjectTaskController extends Controller
                 if ($user->team_id) {
                     $ledTeamIds[] = $user->team_id;
                 }
-                $targetUser = User::whereIn('team_id', array_unique($ledTeamIds))->find($targetUserId);
+                $targetUser = null;
+                if ($targetUserId > 0) {
+                    $targetUser = User::whereIn('team_id', array_unique($ledTeamIds))->find($targetUserId);
+                }
                 if (!$targetUser) {
-                    return response()->json(['message' => 'Unauthorized: Target member not in your team.'], 403);
+                    // Fallback to first active member of led team or self
+                    $targetUser = User::whereIn('team_id', array_unique($ledTeamIds))->where('status', 'Active')->first() ?: $user;
                 }
                 $members = collect([$targetUser]);
-                $selectedTeam = Team::find($targetUser->team_id);
+                $selectedTeam = $targetUser->team_id ? Team::find($targetUser->team_id) : ($user->team_id ? Team::find($user->team_id) : null);
             } else {
-                $targetUser = User::find($targetUserId) ?: $user;
+                $targetUser = ($targetUserId > 0 ? User::find($targetUserId) : null) ?: $user;
                 $members = collect([$targetUser]);
                 if ($targetUser->team_id) {
                     $selectedTeam = Team::find($targetUser->team_id);

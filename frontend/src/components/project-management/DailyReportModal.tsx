@@ -87,8 +87,10 @@ export function DailyReportModal({
       if (selectedTeamId && !isEmployee) {
         params.team_id = selectedTeamId;
       }
-      if (reportType === "individual_member" && selectedUserId && !isEmployee) {
-        params.user_id = selectedUserId;
+      if (reportType === "individual_member" && !isEmployee) {
+        if (selectedUserId) {
+          params.user_id = selectedUserId;
+        }
       }
 
       const res = await api.get("/project-tasks/daily-report", { params });
@@ -115,6 +117,8 @@ export function DailyReportModal({
 
   if (!isOpen) return null;
 
+  const isSingleMemberScope = isEmployee || reportType === "my_daily" || reportType === "my_tomorrow" || reportType === "individual_member";
+
   // Generate plain text report
   const generateTextReport = (): string => {
     if (!reportData) return "";
@@ -125,9 +129,9 @@ export function DailyReportModal({
 
     let text = "";
 
-    if (isEmployee || reportType === "my_daily" || reportType === "my_tomorrow") {
+    if (isSingleMemberScope) {
       const member = reportData.member_reports?.[0] || {};
-      const title = reportType === "my_tomorrow" ? "TOMORROW'S WORK SCHEDULE" : "DAILY WORK REPORT";
+      const title = reportType === "my_tomorrow" ? "TOMORROW'S WORK SCHEDULE" : reportType === "individual_member" ? "INDIVIDUAL MEMBER DAILY REPORT" : "DAILY WORK REPORT";
       text += `📊 ${title}\n`;
       text += `📅 ${dateFormatted}\n`;
       text += `👤 ${member.name || loggedInUserName} (${member.designation || user?.designation || "Team Member"})\n`;
@@ -144,8 +148,9 @@ export function DailyReportModal({
         text += `⚠️ Overdue: ${summary.overdue}\n`;
       }
 
-      if (includeTimeTracking && reportData.time_tracking?.[user?.id || 0]) {
-        const tt = reportData.time_tracking[user?.id || 0];
+      const targetUserIdForTime = member.user_id || user?.id || 0;
+      if (includeTimeTracking && reportData.time_tracking?.[targetUserIdForTime]) {
+        const tt = reportData.time_tracking[targetUserIdForTime];
         text += `\n⏱️ TIME TRACKING\n`;
         text += `⏰ Check-in: ${tt.check_in} | Check-out: ${tt.check_out}\n`;
         text += `⏳ Working Hours: ${tt.working_hours} (Effective: ${tt.effective_hours})\n`;
@@ -218,18 +223,6 @@ export function DailyReportModal({
     return text;
   };
 
-  const copyTextReport = async () => {
-    const text = generateTextReport();
-    if (!text) return;
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopySuccess(true);
-      setTimeout(() => setCopySuccess(false), 3000);
-    } catch (err) {
-      console.error("Failed to copy text", err);
-    }
-  };
-
   // Generate Image Report Canvas (High Resolution 2x)
   const generateImageReport = () => {
     if (!reportData) return;
@@ -249,7 +242,7 @@ export function DailyReportModal({
     let estimatedHeight = 220; // Header & metrics
     const memberReports = reportData.member_reports || [];
 
-    if (isEmployee || reportType === "my_daily" || reportType === "my_tomorrow") {
+    if (isSingleMemberScope) {
       const tasks = memberReports[0]?.tasks || reportData.tasks || [];
       estimatedHeight += Math.max(120, tasks.length * 60 + 80);
       if (includeTimeTracking) estimatedHeight += 70;
@@ -286,6 +279,8 @@ export function DailyReportModal({
         ? "DAILY WORK REPORT"
         : reportType === "my_tomorrow"
         ? "TOMORROW'S SCHEDULE"
+        : reportType === "individual_member"
+        ? "INDIVIDUAL MEMBER REPORT"
         : reportType === "tomorrow_team"
         ? "TEAM TOMORROW'S SCHEDULE"
         : "TEAM DAILY WORK REPORT";
@@ -296,10 +291,9 @@ export function DailyReportModal({
     ctx.fillStyle = "#94a3b8";
     ctx.font = "12px 'Proxima Nova', sans-serif";
     const dateFormatted = format(parseISO(reportData.date || selectedDate), "EEEE, dd MMMM yyyy");
-    const entityName =
-      isEmployee || reportType === "my_daily" || reportType === "my_tomorrow"
-        ? `${reportData.member_reports?.[0]?.name || loggedInUserName} • ${reportData.team?.name || "Inter Smart"}`
-        : `${reportData.team?.name || "Development Team"} • Inter Smart Portal`;
+    const entityName = isSingleMemberScope
+      ? `${reportData.member_reports?.[0]?.name || loggedInUserName} • ${reportData.team?.name || "Inter Smart"}`
+      : `${reportData.team?.name || "Development Team"} • Inter Smart Portal`;
     ctx.fillText(`${dateFormatted}  |  ${entityName}`, 30, 68);
 
     // Summary Metric Pills
@@ -338,13 +332,14 @@ export function DailyReportModal({
     let currentY = 170;
 
     // Body content
-    if (isEmployee || reportType === "my_daily" || reportType === "my_tomorrow") {
+    if (isSingleMemberScope) {
       const member = memberReports[0] || {};
       const tasks = member.tasks || reportData.tasks || [];
+      const targetUserIdForTime = member.user_id || user?.id || 0;
 
       // Time tracking box if enabled
-      if (includeTimeTracking && reportData.time_tracking?.[user?.id || 0]) {
-        const tt = reportData.time_tracking[user?.id || 0];
+      if (includeTimeTracking && reportData.time_tracking?.[targetUserIdForTime]) {
+        const tt = reportData.time_tracking[targetUserIdForTime];
         ctx.fillStyle = "#1e293b";
         ctx.strokeStyle = "#334155";
         ctx.beginPath();
@@ -472,6 +467,18 @@ export function DailyReportModal({
     setImageGenerating(false);
   };
 
+  const copyTextReport = async () => {
+    const text = generateTextReport();
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 3000);
+    } catch (err) {
+      console.error("Failed to copy text", err);
+    }
+  };
+
   const downloadImage = () => {
     if (!generatedImageUrl) return;
     const a = document.createElement("a");
@@ -505,11 +512,11 @@ export function DailyReportModal({
 
   return (
     <>
-      {/* ── Main Daily Report Modal ── */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5">
-        <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm transition-opacity" onClick={onClose} />
+      {/* ── Main Daily Report Right-Side Drawer ── */}
+      <div className="fixed inset-0 z-50 overflow-hidden font-sans">
+        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs transition-opacity animate-in fade-in duration-200" onClick={onClose} />
 
-        <div className="relative w-full max-w-4xl max-h-[90vh] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl z-10 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-y-0 right-0 max-w-2xl sm:max-w-3xl w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-50 animate-in slide-in-from-right duration-300">
           {/* Header Bar */}
           <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-gradient-to-r from-purple-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-900 dark:to-purple-950/30 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -533,7 +540,7 @@ export function DailyReportModal({
 
             <button
               onClick={onClose}
-              className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -657,8 +664,8 @@ export function DailyReportModal({
 
           {/* Metric Summary Ribbon */}
           <div className="px-6 py-3 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap items-center gap-3">
-              {!isEmployee && reportData?.summary?.total_members !== undefined && (
+            <div className="flex flex-wrap items-center gap-2.5">
+              {!isSingleMemberScope && reportData?.summary?.total_members !== undefined && (
                 <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300">
                   <Users className="w-3.5 h-3.5 text-slate-500" />
                   <span>{summary.total_members || 0} Members</span>
@@ -702,46 +709,68 @@ export function DailyReportModal({
               <button
                 onClick={generateImageReport}
                 disabled={loading || !reportData || imageGenerating}
-                className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shadow-md shadow-purple-500/20"
+                className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-[#56348f] hover:bg-purple-800 !text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shadow-md shadow-purple-500/20"
               >
-                {imageGenerating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ImageIcon className="w-3.5 h-3.5" />}
-                <span>Generate Image Report</span>
+                {imageGenerating ? <Loader2 className="w-3.5 h-3.5 animate-spin !text-white" /> : <ImageIcon className="w-3.5 h-3.5 !text-white" />}
+                <span className="!text-white font-bold">Generate Image Report</span>
               </button>
             </div>
           </div>
 
           {/* Report Preview Body */}
-          <div className="flex-1 p-6 overflow-y-auto max-h-[55vh] space-y-6">
+          <div className="flex-1 p-6 overflow-y-auto space-y-6">
             {loading ? (
               <div className="flex flex-col items-center justify-center py-20 gap-3">
                 <Loader2 className="w-8 h-8 text-purple-600 animate-spin" />
                 <p className="text-xs text-slate-500 dark:text-slate-400">Loading daily report data...</p>
               </div>
-            ) : !reportData || reportData.tasks?.length === 0 ? (
+            ) : !reportData || (!reportData.tasks?.length && !reportData.member_reports?.[0]?.tasks?.length) ? (
               <div className="text-center py-16 text-slate-400 dark:text-slate-500 italic text-xs">
                 No task records found for the selected date and filters.
               </div>
-            ) : isEmployee || reportType === "my_daily" || reportType === "my_tomorrow" ? (
-              /* Single Employee View */
+            ) : isSingleMemberScope ? (
+              /* Single Employee View (Employee mode OR Individual Member Mode) */
               <div className="space-y-4">
+                {/* Member Banner Card for Individual Member Report */}
+                {reportType === "individual_member" && reportData.member_reports?.[0] && (
+                  <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-purple-600 text-white font-bold text-sm flex items-center justify-center">
+                        {reportData.member_reports[0].name?.[0] || "U"}
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-sm text-slate-900 dark:text-white">
+                          {reportData.member_reports[0].name}
+                        </h3>
+                        <p className="text-xs text-slate-500">
+                          {reportData.member_reports[0].designation || "Member"} {reportData.member_reports[0].employee_code && `• ${reportData.member_reports[0].employee_code}`}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-xs font-bold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/60 px-3 py-1 rounded-full border border-purple-200 dark:border-purple-800">
+                      {reportData.member_reports[0].total_tasks} Tasks Scheduled
+                    </span>
+                  </div>
+                )}
+
                 {/* Time Tracking Card */}
-                {includeTimeTracking && reportData.time_tracking?.[user?.id || 0] && (
+                {includeTimeTracking && reportData.time_tracking && (
                   <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-3 text-xs">
                     <div className="flex items-center gap-2">
                       <Clock className="w-4 h-4 text-purple-600" />
                       <span className="font-bold text-slate-900 dark:text-white">Time Tracking:</span>
                       <span className="text-slate-600 dark:text-slate-300">
-                        Check-in: {reportData.time_tracking[user?.id || 0].check_in} | Check-out: {reportData.time_tracking[user?.id || 0].check_out}
+                        Check-in: {reportData.time_tracking[reportData.member_reports?.[0]?.user_id || user?.id || 0]?.check_in || "—"} | Check-out: {reportData.time_tracking[reportData.member_reports?.[0]?.user_id || user?.id || 0]?.check_out || "—"}
                       </span>
                     </div>
                     <div className="font-semibold text-slate-700 dark:text-slate-300">
-                      Total Working Hours: <span className="font-bold text-purple-600 dark:text-purple-400">{reportData.time_tracking[user?.id || 0].working_hours}</span>
+                      Total Working Hours: <span className="font-bold text-purple-600 dark:text-purple-400">{reportData.time_tracking[reportData.member_reports?.[0]?.user_id || user?.id || 0]?.working_hours || "0h 00m"}</span>
                     </div>
                   </div>
                 )}
 
                 <div className="space-y-2.5">
-                  {(reportData.member_reports?.[0]?.tasks || reportData.tasks).map((t: any) => (
+                  {(reportData.member_reports?.[0]?.tasks || reportData.tasks || []).map((t: any) => (
                     <div
                       key={t.id}
                       className="p-3.5 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 hover:border-purple-300 dark:hover:border-purple-800 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3"
