@@ -254,7 +254,16 @@ class HubstaffProjectController extends Controller
             $hsPid = (string) ($act['project_id'] ?? '');
             $date = (string) ($act['date'] ?? '');
             $tracked = (int) ($act['tracked'] ?? 0);
-            $activity = (int) ($act['overall'] ?? 0);
+            
+            // Hubstaff v2 returns activity in basis points (e.g. 5929 for 59.29%) or fraction (0.5929)
+            $rawActivity = (float) ($act['overall'] ?? $act['activity'] ?? 0);
+            if ($rawActivity > 100) {
+                $activity = $rawActivity / 100.0;
+            } elseif ($rawActivity > 0 && $rawActivity <= 1.0) {
+                $activity = $rawActivity * 100.0;
+            } else {
+                $activity = $rawActivity;
+            }
 
             // Filter by team scope: if team is selected and user is not in that team, skip
             if ($selectedTeamId) {

@@ -45,23 +45,34 @@ function formatDuration(sec: number): string {
   return `${h}h ${m.toString().padStart(2, "0")}m`;
 }
 
+function normalizeActivityPct(val: any): number {
+  const num = Number(val) || 0;
+  if (num > 100) return Math.min(100, Math.round(num / 100));
+  if (num > 0 && num <= 1.0) return Math.min(100, Math.round(num * 100));
+  return Math.min(100, Math.max(0, Math.round(num)));
+}
+
 function getActivityBadge(activity: number) {
-  if (activity >= 70) {
+  const pct = normalizeActivityPct(activity);
+  if (pct >= 70) {
     return {
-      label: `${activity}% High`,
+      percent: pct,
+      label: `${pct}% High`,
       bg: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800",
       bar: "bg-emerald-500",
     };
   }
-  if (activity >= 50) {
+  if (pct >= 50) {
     return {
-      label: `${activity}% Moderate`,
+      percent: pct,
+      label: `${pct}% Moderate`,
       bg: "bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-800",
       bar: "bg-amber-500",
     };
   }
   return {
-    label: `${activity}% Low`,
+    percent: pct,
+    label: `${pct}% Low`,
     bg: "bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border-rose-200 dark:border-rose-800",
     bar: "bg-rose-500",
   };
@@ -422,13 +433,13 @@ export default function HubstaffAnalyticsPage() {
             <Activity className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
           </div>
           <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-            <span>{summary.avg_activity_percentage ?? 0}%</span>
+            <span>{normalizeActivityPct(summary.avg_activity_percentage)}%</span>
             <span
               className={`text-[10px] px-2 py-0.5 rounded-full border font-bold ${
                 getActivityBadge(summary.avg_activity_percentage ?? 0).bg
               }`}
             >
-              {summary.avg_activity_percentage >= 70 ? "High" : summary.avg_activity_percentage >= 50 ? "Moderate" : "Low"}
+              {normalizeActivityPct(summary.avg_activity_percentage) >= 70 ? "High" : normalizeActivityPct(summary.avg_activity_percentage) >= 50 ? "Moderate" : "Low"}
             </span>
           </div>
           <p className="text-[10px] text-slate-500 dark:text-slate-400">Keystrokes & mouse activity</p>
@@ -624,15 +635,15 @@ export default function HubstaffAnalyticsPage() {
                           <td className="py-3 px-4 border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap">
                             <div className="space-y-1.5 min-w-[130px]">
                               <div className="flex items-center justify-between text-xs">
-                                <span className="font-bold text-slate-900 dark:text-white">{u.activity_percentage}%</span>
+                                <span className="font-bold text-slate-900 dark:text-white">{actBadge.percent}%</span>
                                 <span className={`text-[9px] px-1.5 py-0.2 rounded border font-bold ${actBadge.bg}`}>
-                                  {u.activity_level.toUpperCase()}
+                                  {actBadge.percent >= 70 ? "HIGH" : actBadge.percent >= 50 ? "MODERATE" : "LOW"}
                                 </span>
                               </div>
                               <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
                                 <div
                                   className={`h-full rounded-full ${actBadge.bar}`}
-                                  style={{ width: `${Math.min(100, Math.max(0, u.activity_percentage))}%` }}
+                                  style={{ width: `${Math.min(100, Math.max(0, actBadge.percent))}%` }}
                                 />
                               </div>
                             </div>
@@ -758,9 +769,9 @@ export default function HubstaffAnalyticsPage() {
 
                           <td className="py-3 px-4 border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap">
                             <div className="flex items-center gap-2">
-                              <span className="font-bold text-slate-900 dark:text-white">{p.activity_percentage}%</span>
+                              <span className="font-bold text-slate-900 dark:text-white">{actBadge.percent}%</span>
                               <span className={`text-[9px] px-2 py-0.5 rounded border font-bold ${actBadge.bg}`}>
-                                {p.activity_percentage >= 70 ? "High" : p.activity_percentage >= 50 ? "Moderate" : "Low"}
+                                {actBadge.percent >= 70 ? "High" : actBadge.percent >= 50 ? "Moderate" : "Low"}
                               </span>
                             </div>
                           </td>
