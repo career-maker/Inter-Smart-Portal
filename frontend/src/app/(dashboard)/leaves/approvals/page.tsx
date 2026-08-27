@@ -1,49 +1,60 @@
 "use client";
 
-import { PageLoader } from "@/components/ui/PageLoader";
-import { useState, useEffect } from "react";
-import { Check, X, Calendar, Clock, User, Edit, Loader2, CheckCircle, XCircle, AlertTriangle, Link2, Leaf, Stethoscope, Users, History } from "lucide-react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import {
+  Check,
+  X,
+  Calendar,
+  Clock,
+  Edit,
+  Loader2,
+  CheckCircle,
+  XCircle,
+  AlertTriangle,
+  Link2,
+  Leaf,
+  Stethoscope,
+  Users,
+  History,
+  RefreshCw
+} from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 
 type RejectDialogState = { type: "leave" | "wfh"; id: number } | null;
-type OverrideDialogState = { id: number; is_unpaid: boolean; days: number } | null;
 
-function fmtDate(d: string) {
-  try { return format(new Date(d), "dd MMM yyyy"); } catch { return d; }
+function fmtDate(d?: string | null) {
+  if (!d) return "—";
+  try {
+    const clean = d.split("T")[0];
+    const parsed = parseISO(clean);
+    if (isNaN(parsed.getTime())) return d;
+    return format(parsed, "dd MMM yyyy");
+  } catch {
+    return String(d);
+  }
 }
 
 function DurationBadge({ type }: { type: string }) {
   const map: Record<string, string> = {
-    Full: "bg-indigo-500/20 text-indigo-300",
-    "Half-Morning": "bg-amber-500/20 text-amber-300",
-    "Half-Afternoon": "bg-purple-500/20 text-purple-300",
+    Full: "bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800",
+    "Half-Morning": "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-800",
+    "Half-Afternoon": "bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border-purple-200 dark:border-purple-800",
   };
   return (
-    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${map[type] ?? "bg-white/10 text-slate-300"}`}>
+    <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${map[type] ?? "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700"}`}>
       {type === "Full" ? "Full Day" : type === "Half-Morning" ? "Morning" : "Afternoon"}
     </span>
   );
 }
 
-function LeaveTypeIcon({ leaveTypeName }: { leaveTypeName: string }) {
-  const name = leaveTypeName?.toLowerCase() ?? '';
-  if (name.includes('casual')) return <Leaf className="w-4 h-4 text-green-400" />;
-  if (name.includes('sick')) return <Stethoscope className="w-4 h-4 text-red-400" />;
-  return <Calendar className="w-4 h-4 text-blue-400" />;
-}
-
-function AvatarWithPhoto({ photoPath, firstName, lastName }: { photoPath?: string; firstName: string; lastName: string }) {
-  return (
-    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-sm font-bold text-white shrink-0 border border-slate-200 dark:border-white/20 overflow-hidden">
-      {photoPath ? (
-        <img src={photoPath} alt="" className="w-full h-full object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
-      ) : null}
-      <span style={{ display: photoPath ? 'none' : 'block' }}>{firstName?.[0]}{lastName?.[0]}</span>
-    </div>
-  );
+function LeaveTypeIcon({ leaveTypeName }: { leaveTypeName?: string }) {
+  const name = (leaveTypeName || "").toLowerCase();
+  if (name.includes("casual")) return <Leaf className="w-4 h-4 text-emerald-500" />;
+  if (name.includes("sick")) return <Stethoscope className="w-4 h-4 text-rose-500" />;
+  return <Calendar className="w-4 h-4 text-purple-500" />;
 }
 
 export default function ApprovalsPage() {
@@ -51,10 +62,8 @@ export default function ApprovalsPage() {
   const isSuperAdmin = user?.role === "Super Admin";
   const isTeamLead = user?.role === "Team Lead";
 
-  // Use local state for team_id to ensure re-renders work properly
   const [currentUserTeamId, setCurrentUserTeamId] = useState<number | null>(user?.team_id || null);
 
-  // Check if user can approve a leave request
   const canApprove = (request: any): boolean => {
     if (isSuperAdmin) return true;
     if (isTeamLead && request?.user?.team_id === currentUserTeamId) return true;
@@ -64,10 +73,11 @@ export default function ApprovalsPage() {
   const [tab, setTab] = useState<"leaves" | "wfh">("leaves");
   const [statusFilter, setStatusFilter] = useState<"Pending" | "Approved" | "Rejected" | "All">("Pending");
   const [leaveRequests, setLeaveRequests] = useState<any[]>([]);
-  const [wfhRequests, setWfhRequests] = useState<any[]>([]);
   const [approvedLeaves, setApprovedLeaves] = useState<any[]>([]);
   const [rejectedLeaves, setRejectedLeaves] = useState<any[]>([]);
+  const [wfhRequests, setWfhRequests] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const [rejectDialog, setRejectDialog] = useState<RejectDialogState>(null);
   const [rejectReason, setRejectReason] = useState("");
@@ -86,41 +96,21 @@ export default function ApprovalsPage() {
   const [actionLoading, setActionLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Refresh user data to get updated team_id from server on component mount
+  // Refresh profile team_id
   useEffect(() => {
-    const refreshUserData = async () => {
-      try {
-        const response = await api.get("/profile");
-        const teamId = response.data?.data?.team_id;
-        if (teamId !== undefined) {
-          setCurrentUserTeamId(teamId);
-        } else {
-          console.warn("Profile response missing team_id:", response.data?.data);
-        }
-      } catch (e) {
-        console.error("Failed to refresh user team_id:", e);
-      }
-    };
     if (isTeamLead && user?.id) {
-      refreshUserData();
+      api.get("/profile")
+        .then((res) => {
+          const tId = res.data?.data?.team_id;
+          if (tId !== undefined) setCurrentUserTeamId(tId);
+        })
+        .catch(() => {});
     }
   }, [isTeamLead, user?.id]);
 
-  useEffect(() => {
-    fetchRequests();
-  }, []);
-
-  useEffect(() => {
-    fetchRequests();
-  }, [tab, statusFilter]);
-
-  const fetchRequests = async () => {
-    setIsLoading(true);
-    // Clear all data first to prevent showing stale data
-    setLeaveRequests([]);
-    setApprovedLeaves([]);
-    setRejectedLeaves([]);
-    setWfhRequests([]);
+  const fetchRequests = useCallback(async (isManual = false) => {
+    if (isManual) setRefreshing(true);
+    else setIsLoading(true);
 
     try {
       const [pending, approved, rejected, wfh] = await Promise.all([
@@ -129,16 +119,22 @@ export default function ApprovalsPage() {
         api.get("/leave-requests?status=Rejected"),
         api.get("/wfh-requests?status=Pending"),
       ]);
+
       setLeaveRequests(pending.data.data?.data ?? []);
       setApprovedLeaves(approved.data.data?.data ?? []);
       setRejectedLeaves(rejected.data.data?.data ?? []);
       setWfhRequests(wfh.data.data?.data ?? []);
     } catch (e) {
-      console.error(e);
+      console.error("Failed to load approval requests", e);
     } finally {
       setIsLoading(false);
+      setRefreshing(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchRequests();
+  }, [fetchRequests]);
 
   const approve = async (type: "leave" | "wfh", id: number) => {
     setActionLoading(true);
@@ -152,40 +148,11 @@ export default function ApprovalsPage() {
         setSuccessMessage(`${type === "leave" ? "Leave" : "WFH"} request approved successfully!`);
       }
 
-      // Refetch to get real-time updates after a short delay
-      setTimeout(() => {
-        fetchRequests();
-        // Auto-switch to Approved tab to show the result
-        setStatusFilter("Approved");
-      }, 500);
-
+      await fetchRequests(true);
       setTimeout(() => setSuccessMessage(null), 4000);
     } catch (e: any) {
-      const errorMsg = e.response?.data?.message || e.message || "Server error - please try again";
-      console.error("Approval error:", errorMsg, e);
-      alert(errorMsg);
-      // Refetch on error to restore correct state
-      fetchRequests().catch(err => console.error("Refetch failed:", err));
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const handleLopConversion = async (id: number, action: "confirm" | "reject") => {
-    setActionLoading(true);
-    try {
-      const endpoint = `/leave-requests/${id}/${action === "confirm" ? "confirm-lop" : "reject-lop"}`;
-      await api.post(endpoint);
-      setSuccessMessage(`LOP conversion ${action === "confirm" ? "confirmed" : "declined"} successfully!`);
-
-      // Refetch to get real-time updates
-      await fetchRequests();
-
-      setTimeout(() => setSuccessMessage(null), 4000);
-    } catch (e: any) {
-      alert(e.response?.data?.message || "Error processing LOP conversion.");
-      // Refetch on error to restore correct state
-      await fetchRequests();
+      alert(e.response?.data?.message || "Error approving request.");
+      await fetchRequests(true);
     } finally {
       setActionLoading(false);
     }
@@ -195,9 +162,7 @@ export default function ApprovalsPage() {
     if (!rejectDialog || !rejectReason.trim()) return;
     setActionLoading(true);
     try {
-      const id = rejectDialog.id;
-      const type = rejectDialog.type;
-
+      const { type, id } = rejectDialog;
       const endpoint =
         type === "leave"
           ? `/leave-requests/${id}/status`
@@ -210,17 +175,26 @@ export default function ApprovalsPage() {
       setRejectDialog(null);
       setRejectReason("");
 
-      // Refetch to get real-time updates
-      await fetchRequests();
-
-      // Auto-switch to Rejected tab to show the result
+      await fetchRequests(true);
       setStatusFilter("Rejected");
-
       setTimeout(() => setSuccessMessage(null), 4000);
     } catch (e: any) {
       alert(e.response?.data?.message || "Error rejecting request.");
-      // Refetch on error to restore correct state
-      await fetchRequests();
+      await fetchRequests(true);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleLopConversion = async (id: number, action: "confirm" | "reject") => {
+    setActionLoading(true);
+    try {
+      await api.post(`/leave-requests/${id}/lop-conversion`, { action });
+      setSuccessMessage(`LOP Conversion ${action === "confirm" ? "confirmed" : "declined"}!`);
+      await fetchRequests(true);
+      setTimeout(() => setSuccessMessage(null), 4000);
+    } catch (e: any) {
+      alert(e.response?.data?.message || "Error processing LOP conversion.");
     } finally {
       setActionLoading(false);
     }
@@ -273,10 +247,6 @@ export default function ApprovalsPage() {
     setActionLoading(true);
     try {
       const id = overrideDialog.id;
-
-      // Optimistically remove from UI
-      setLeaveRequests(prev => prev.filter(req => req.id !== id));
-
       await api.put(`/leave-requests/${id}/override`, {
         start_date: overrideFields.start_date,
         end_date: overrideFields.end_date,
@@ -287,11 +257,11 @@ export default function ApprovalsPage() {
       });
       setSuccessMessage("Leave request override applied and approved successfully!");
       setOverrideDialog(null);
+      await fetchRequests(true);
       setTimeout(() => setSuccessMessage(null), 4000);
     } catch (e: any) {
       alert(e.response?.data?.message || "Error processing override.");
-      // Refetch on error to restore correct state
-      await fetchRequests();
+      await fetchRequests(true);
     } finally {
       setActionLoading(false);
     }
@@ -345,20 +315,30 @@ export default function ApprovalsPage() {
     }
   };
 
-
+  // Filtered requests computation
+  const displayLeaves = useMemo(() => {
+    if (statusFilter === "Pending") return leaveRequests;
+    if (statusFilter === "Approved") return approvedLeaves;
+    if (statusFilter === "Rejected") return rejectedLeaves;
+    return [...leaveRequests, ...approvedLeaves, ...rejectedLeaves];
+  }, [statusFilter, leaveRequests, approvedLeaves, rejectedLeaves]);
 
   return (
-    <div className="space-y-6 w-full">
-      {/* Header Row: Title & Tabs on Left, Decorative Illustration on Right */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+    <div className="space-y-6 w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+      {/* ── Header Row ── */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-slate-200/80 dark:border-slate-800/80 pb-6">
         <div className="space-y-4">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-white">Approvals Queue</h1>
-            <p className="text-xs text-slate-400 mt-1">Review and process pending leave and WFH requests from your team.</p>
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+              Approvals Queue
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
+              Review and process pending leave and WFH requests from your team.
+            </p>
           </div>
 
           {/* Row 1: Status Filter Tabs */}
-          <div className="flex flex-wrap items-center gap-2 border-b border-slate-800/80 pb-3">
+          <div className="flex flex-wrap items-center gap-2">
             {(["Pending", "Approved", "Rejected", "All"] as const).map((status) => {
               let count = 0;
               if (tab === "leaves") {
@@ -376,20 +356,20 @@ export default function ApprovalsPage() {
                 <button
                   key={status}
                   onClick={() => setStatusFilter(status)}
-                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
+                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
                     isActive
-                      ? "bg-amber-500/10 border border-amber-500/30 text-amber-400 font-bold shadow-sm"
-                      : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+                      ? "bg-amber-500/15 border border-amber-500/40 text-amber-800 dark:text-amber-300 font-bold shadow-sm"
+                      : "bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/70 border border-slate-200 dark:border-slate-700"
                   }`}
                 >
-                  {status === "Pending" && <Calendar className="w-3.5 h-3.5 text-amber-400" />}
-                  {status === "Approved" && <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />}
-                  {status === "Rejected" && <XCircle className="w-3.5 h-3.5 text-rose-400" />}
-                  {status === "All" && <History className="w-3.5 h-3.5 text-slate-400" />}
+                  {status === "Pending" && <Calendar className="w-3.5 h-3.5 text-amber-500" />}
+                  {status === "Approved" && <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />}
+                  {status === "Rejected" && <XCircle className="w-3.5 h-3.5 text-rose-500" />}
+                  {status === "All" && <History className="w-3.5 h-3.5 text-slate-500" />}
                   <span>{status}</span>
                   <span
                     className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${
-                      isActive ? "bg-amber-500 text-slate-950" : "bg-white/10 text-slate-300"
+                      isActive ? "bg-amber-500 text-white dark:text-slate-950" : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
                     }`}
                   >
                     {count}
@@ -397,20 +377,30 @@ export default function ApprovalsPage() {
                 </button>
               );
             })}
+
+            <button
+              onClick={() => fetchRequests(true)}
+              disabled={refreshing || isLoading}
+              aria-label="Refresh Approvals"
+              className="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors disabled:opacity-50 ml-1"
+              title="Refresh List"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin text-amber-500" : ""}`} />
+            </button>
           </div>
 
           {/* Row 2: Type Switcher (Leaves/WFH) */}
-          <div className="inline-flex items-center gap-1.5 bg-slate-900/80 border border-slate-800 p-1 rounded-2xl">
+          <div className="inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 p-1 rounded-2xl">
             {(["leaves", "wfh"] as const).map((t) => {
               const isActive = tab === t;
               return (
                 <button
                   key={t}
                   onClick={() => setTab(t)}
-                  className={`flex items-center gap-2 px-4 py-1.5 text-xs font-bold rounded-xl transition-all whitespace-nowrap ${
+                  className={`flex items-center gap-2 px-4 py-1.5 text-xs rounded-xl transition-all whitespace-nowrap cursor-pointer ${
                     isActive
-                      ? "bg-blue-600/30 border border-blue-500/40 text-blue-300 shadow-sm"
-                      : "text-slate-400 hover:text-white hover:bg-white/5 font-semibold"
+                      ? "bg-[#56348f] text-white font-bold shadow-sm"
+                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-semibold"
                   }`}
                 >
                   {t === "leaves" ? <Calendar className="w-3.5 h-3.5" /> : <Users className="w-3.5 h-3.5" />}
@@ -421,27 +411,20 @@ export default function ApprovalsPage() {
           </div>
         </div>
 
-        {/* Right: Decorative Illustrated Graphic */}
+        {/* Right: Decorative Graphic */}
         <div className="hidden lg:flex items-center justify-center pr-6">
           <div className="relative w-44 h-32 flex items-center justify-center select-none pointer-events-none opacity-90">
-            <div className="absolute inset-0 bg-blue-500/10 blur-2xl rounded-full" />
-            <svg className="w-36 h-28 drop-shadow-2xl" viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-              {/* Clipboard Base */}
-              <rect x="35" y="18" width="90" height="96" rx="12" fill="#0f1f38" stroke="#1e3a6a" strokeWidth="2.5" />
-              {/* Clipboard Header Clip */}
-              <path d="M60 14C60 10.6863 62.6863 8 66 8H94C97.3137 8 100 10.6863 100 14V20H60V14Z" fill="#1e293b" stroke="#334155" strokeWidth="2" />
+            <div className="absolute inset-0 bg-purple-500/10 blur-2xl rounded-full" />
+            <svg className="w-36 h-28 drop-shadow-md" viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="35" y="18" width="90" height="96" rx="12" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="2.5" className="dark:fill-[#0f1f38] dark:stroke-[#1e3a6a]" />
+              <path d="M60 14C60 10.6863 62.6863 8 66 8H94C97.3137 8 100 10.6863 100 14V20H60V14Z" fill="#e2e8f0" stroke="#94a3b8" strokeWidth="2" className="dark:fill-[#1e293b] dark:stroke-[#334155]" />
               <rect x="72" y="12" width="16" height="4" rx="2" fill="#64748b" />
-              {/* Checklist rows */}
               <path d="M50 38L55 43L66 32" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-              <line x1="74" y1="38" x2="108" y2="38" stroke="#334155" strokeWidth="3" strokeLinecap="round" />
-
+              <line x1="74" y1="38" x2="108" y2="38" stroke="#94a3b8" strokeWidth="3" strokeLinecap="round" className="dark:stroke-[#334155]" />
               <path d="M50 58L55 63L66 52" stroke="#38bdf8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-              <line x1="74" y1="58" x2="114" y2="58" stroke="#334155" strokeWidth="3" strokeLinecap="round" />
-
+              <line x1="74" y1="58" x2="114" y2="58" stroke="#94a3b8" strokeWidth="3" strokeLinecap="round" className="dark:stroke-[#334155]" />
               <path d="M50 78L55 83L66 72" stroke="#818cf8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-              <line x1="74" y1="78" x2="102" y2="78" stroke="#334155" strokeWidth="3" strokeLinecap="round" />
-
-              {/* Glowing Clock Badge */}
+              <line x1="74" y1="78" x2="102" y2="78" stroke="#94a3b8" strokeWidth="3" strokeLinecap="round" className="dark:stroke-[#334155]" />
               <circle cx="120" cy="88" r="14" fill="#f59e0b" filter="drop-shadow(0 4px 10px rgba(245, 158, 11, 0.4))" />
               <circle cx="120" cy="88" r="11" fill="#fbbf24" />
               <path d="M120 82V88L124 90" stroke="#0f172a" strokeWidth="2" strokeLinecap="round" />
@@ -451,352 +434,321 @@ export default function ApprovalsPage() {
       </div>
 
       {successMessage && (
-        <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-xl text-green-400 text-xs font-semibold animate-in fade-in">
+        <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-800 dark:text-emerald-300 text-xs font-semibold animate-in fade-in">
           ✓ {successMessage}
         </div>
       )}
 
-      {/* Full-Width Table View */}
+      {/* ── Table View ── */}
       {isLoading ? (
-        <div className="flex justify-center py-20 bg-[#0b1322]/80 border border-slate-800/80 rounded-2xl">
-          <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
+        <div className="flex justify-center py-20 bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-2xl">
+          <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
         </div>
       ) : tab === "leaves" ? (
-        (() => {
-          let displayRequests = [];
-          if (statusFilter === "Pending") displayRequests = leaveRequests;
-          else if (statusFilter === "Approved") displayRequests = approvedLeaves;
-          else if (statusFilter === "Rejected") displayRequests = rejectedLeaves;
-          else displayRequests = [...leaveRequests, ...approvedLeaves, ...rejectedLeaves];
-
-          return (
-            <div className="w-full bg-[#0b1322]/90 dark:bg-[#0b1322]/90 border border-slate-800/80 rounded-2xl shadow-xl overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="border-b border-slate-800/80 bg-slate-900/40 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                      <th className="py-4 px-6">Employee</th>
-                      <th className="py-4 px-6">Type</th>
-                      <th className="py-4 px-6">Duration</th>
-                      <th className="py-4 px-6">Days</th>
-                      <th className="py-4 px-6">Reason</th>
-                      <th className="py-4 px-6">Status</th>
-                      <th className="py-4 px-6 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800/50 text-sm">
-                    {displayRequests.length === 0 ? (
-                      <tr>
-                        <td colSpan={7} className="py-16 text-center text-slate-400 text-sm">
-                          No {statusFilter === "All" ? "" : statusFilter.toLowerCase()} leave requests found.
-                        </td>
-                      </tr>
-                    ) : (
-                      displayRequests.map((req) => (
-                        <tr key={req.id} className="hover:bg-slate-800/20 transition-colors">
-                          {/* Column 1: Employee */}
-                          <td className="py-4 px-6 align-top">
-                            <div className="flex items-center gap-3">
-                              <RoyalAvatar
-                                src={req.user?.profile_photo_path}
-                                name={`${req.user?.first_name} ${req.user?.last_name || ""}`.trim()}
-                                userId={req.user_id || req.user?.id}
-                                employeeCode={req.user?.employee_code}
-                                className="w-10 h-10 rounded-full text-xs font-bold bg-amber-600 text-white shrink-0"
-                              />
-                              <div className="min-w-0">
-                                <h3 className="font-bold text-sm text-white leading-tight truncate">
-                                  <RoyalName
-                                    name={`${req.user?.first_name} ${req.user?.last_name || ""}`.trim()}
-                                    userId={req.user_id || req.user?.id}
-                                    employeeCode={req.user?.employee_code}
-                                  />
-                                </h3>
-                                <p className="text-xs text-slate-400 mt-0.5 truncate">
-                                  {req.user?.designation || req.user?.role || "Employee"}
-                                </p>
-                              </div>
-                            </div>
-                          </td>
-
-                          {/* Column 2: Type */}
-                          <td className="py-4 px-6 align-top">
-                            <div className="flex items-center gap-2.5">
-                              <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
-                                <LeaveTypeIcon leaveTypeName={req.leave_type?.name} />
-                              </div>
-                              <span className="text-xs font-semibold text-slate-200">
-                                {req.leave_type?.name || "Leave"}
-                              </span>
-                            </div>
-                          </td>
-
-                          {/* Column 3: Duration */}
-                          <td className="py-4 px-6 align-top">
-                            <div className="flex items-center gap-2.5">
-                              <div className="w-8 h-8 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0">
-                                <Calendar className="w-4 h-4" />
-                              </div>
-                              <div className="text-xs text-slate-200">
-                                <p className="font-medium whitespace-nowrap">{fmtDate(req.start_date)}</p>
-                                <p className="text-slate-500 text-[10px] leading-tight">—</p>
-                                <p className="font-medium whitespace-nowrap">{fmtDate(req.end_date)}</p>
-                              </div>
-                            </div>
-                          </td>
-
-                          {/* Column 4: Days */}
-                          <td className="py-4 px-6 align-top">
-                            <span className="text-sm font-bold text-slate-200">
-                              {Number(req.days_taken ?? req.days ?? 0).toFixed(1)}
-                            </span>
-                            <span className="block text-[10px] text-slate-400">
-                              {Number(req.days_taken ?? req.days ?? 0) === 1 ? "day" : "days"}
-                            </span>
-                          </td>
-
-                          {/* Column 5: Reason */}
-                          <td className="py-4 px-6 align-top">
-                            <div className="max-w-[200px]">
-                              <p className="text-xs text-slate-300 font-normal leading-relaxed break-words">
-                                {req.reason || "—"}
-                              </p>
-                              {req.attachment_link && (
-                                <a
-                                  href={req.attachment_link}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1 text-[10px] text-amber-400 hover:underline mt-1"
-                                >
-                                  <Link2 className="w-3 h-3" /> View Attachment
-                                </a>
-                              )}
-                            </div>
-                          </td>
-
-                          {/* Column 6: Status */}
-                          <td className="py-4 px-6 align-top">
-                            <div className="space-y-1.5 max-w-[240px]">
-                              {req.pending_lop_conversion ? (
-                                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-500/15 text-rose-400 border border-rose-500/30">
-                                  <AlertTriangle className="w-3 h-3 animate-pulse" /> Pending LOP
-                                </div>
-                              ) : req.status === "Approved" ? (
-                                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                                  <CheckCircle className="w-3 h-3" /> Approved
-                                </div>
-                              ) : req.status === "Rejected" ? (
-                                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-500/15 text-rose-400 border border-rose-500/30">
-                                  <XCircle className="w-3 h-3" /> Rejected
-                                </div>
-                              ) : (
-                                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
-                                  <Clock className="w-3 h-3" /> Pending
-                                </div>
-                              )}
-
-                              {req.is_unpaid && (
-                                <div className="pt-1">
-                                  <p className="text-xs font-bold text-rose-400">Marked as Unpaid (LOP)</p>
-                                  <p className="text-[10px] text-slate-400 leading-tight mt-0.5">
-                                    {req.unpaid_reason ||
-                                      `Insufficient ${req.leave_type?.name || "Leave"} balance. ${
-                                        req.lop_days || req.days || 1
-                                      } eligible working day(s) are Unpaid (LOP) due to exhausted balance.`}
-                                  </p>
-                                </div>
-                              )}
-                            </div>
-                          </td>
-
-                          {/* Column 7: Actions */}
-                          <td className="py-4 px-6 align-top text-right">
-                            <div className="flex items-center justify-end gap-2">
-                              <div className="flex flex-col gap-1.5">
-                                {req.pending_lop_conversion ? (
-                                  <>
-                                    <button
-                                      onClick={() => handleLopConversion(req.id, "confirm")}
-                                      disabled={actionLoading}
-                                      className="inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30 hover:bg-rose-500/30 transition disabled:opacity-50"
-                                    >
-                                      <CheckCircle className="w-3.5 h-3.5" /> Confirm LOP
-                                    </button>
-                                    <button
-                                      onClick={() => handleLopConversion(req.id, "reject")}
-                                      disabled={actionLoading}
-                                      className="inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-white/10 text-slate-300 border border-slate-700 hover:bg-white/15 transition disabled:opacity-50"
-                                    >
-                                      <XCircle className="w-3.5 h-3.5" /> Decline
-                                    </button>
-                                  </>
-                                ) : req.status === "Pending" ? (
-                                  <>
-                                    {canApprove(req) && (
-                                      <button
-                                        onClick={() => approve("leave", req.id)}
-                                        disabled={actionLoading}
-                                        className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold border border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10 transition-colors disabled:opacity-50"
-                                      >
-                                        <Check className="w-3.5 h-3.5" /> Approve
-                                      </button>
-                                    )}
-                                    <button
-                                      onClick={() => {
-                                        setRejectDialog({ type: "leave", id: req.id });
-                                        setRejectReason("");
-                                      }}
-                                      disabled={actionLoading}
-                                      className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold border border-rose-500/40 text-rose-400 hover:bg-rose-500/10 transition-colors disabled:opacity-50"
-                                    >
-                                      <XCircle className="w-3.5 h-3.5" /> Reject
-                                    </button>
-                                  </>
-                                ) : null}
-                              </div>
-
-                              {/* Super Admin Override button */}
-                              {isSuperAdmin && req.status === "Pending" && (
-                                <button
-                                  onClick={() => openOverride(req)}
-                                  className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors"
-                                  title="Override Leave Request"
-                                >
-                                  <Edit className="w-4 h-4" />
-                                </button>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Table Footer / Pagination */}
-              {displayRequests.length > 0 && (
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-slate-800/80 bg-slate-900/30 text-xs text-slate-400">
-                  <span>Showing 1 to {displayRequests.length} of {displayRequests.length} requests</span>
-                  <div className="flex items-center gap-2">
-                    <button className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors disabled:opacity-40" disabled>
-                      ‹
-                    </button>
-                    <span className="px-2.5 py-1 rounded-lg bg-blue-600 text-white font-bold text-xs">1</span>
-                    <button className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors disabled:opacity-40" disabled>
-                      ›
-                    </button>
-                    <span className="ml-2 px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 font-medium">10 / page</span>
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        })()
-      ) : (
-        /* WFH Table */
-        <div className="w-full bg-[#0b1322]/90 dark:bg-[#0b1322]/90 border border-slate-800/80 rounded-2xl shadow-xl overflow-hidden">
+        <div className="w-full bg-white/90 dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800/90 rounded-2xl shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-slate-800/80 bg-slate-900/40 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                  <th className="py-4 px-6">Employee</th>
-                  <th className="py-4 px-6">Type</th>
-                  <th className="py-4 px-6">Duration</th>
-                  <th className="py-4 px-6">TL Status</th>
-                  <th className="py-4 px-6">Reason</th>
-                  <th className="py-4 px-6">Status</th>
-                  <th className="py-4 px-6 text-right">Actions</th>
+                <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 text-[12px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider whitespace-nowrap">
+                  <th className="py-3.5 px-5 border-r border-slate-200/80 dark:border-slate-800/80">Employee</th>
+                  <th className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80">Type</th>
+                  <th className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80">Duration</th>
+                  <th className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80">Days</th>
+                  <th className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80">Reason</th>
+                  <th className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80">Status</th>
+                  <th className="py-3.5 px-5 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/50 text-sm">
-                {wfhRequests.length === 0 ? (
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 text-sm">
+                {displayLeaves.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-16 text-center text-slate-400 text-sm">
-                      No pending WFH requests.
+                    <td colSpan={7} className="py-16 text-center text-slate-400 dark:text-slate-500 text-sm italic">
+                      No {statusFilter === "All" ? "" : statusFilter.toLowerCase()} leave requests found.
                     </td>
                   </tr>
                 ) : (
-                  wfhRequests.map((req) => (
-                    <tr key={req.id} className="hover:bg-slate-800/20 transition-colors">
-                      {/* Employee */}
-                      <td className="py-4 px-6 align-top">
+                  displayLeaves.map((req) => (
+                    <tr key={req.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors">
+                      {/* Column 1: Employee */}
+                      <td className="py-3.5 px-5 align-top border-r border-slate-100 dark:border-slate-800/60">
                         <div className="flex items-center gap-3">
                           <RoyalAvatar
                             src={req.user?.profile_photo_path}
                             name={`${req.user?.first_name} ${req.user?.last_name || ""}`.trim()}
                             userId={req.user_id || req.user?.id}
                             employeeCode={req.user?.employee_code}
-                            className="w-10 h-10 rounded-full text-xs font-bold bg-indigo-600 text-white shrink-0"
+                            className="w-9 h-9 rounded-full text-xs font-bold bg-amber-600 text-white shrink-0"
                           />
                           <div className="min-w-0">
-                            <h3 className="font-bold text-sm text-white leading-tight truncate">
+                            <h3 className="font-bold text-sm text-slate-900 dark:text-white leading-tight truncate">
                               <RoyalName
                                 name={`${req.user?.first_name} ${req.user?.last_name || ""}`.trim()}
                                 userId={req.user_id || req.user?.id}
                                 employeeCode={req.user?.employee_code}
                               />
                             </h3>
-                            <p className="text-xs text-slate-400 mt-0.5 truncate">
+                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">
                               {req.user?.designation || req.user?.role || "Employee"}
+                              {req.user?.employee_code && ` • ${req.user.employee_code}`}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Column 2: Type */}
+                      <td className="py-3.5 px-4 align-top border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap">
+                        <div className="flex items-center gap-2">
+                          <div className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
+                            <LeaveTypeIcon leaveTypeName={req.leave_type?.name} />
+                          </div>
+                          <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                            {req.leave_type?.name || "Leave"}
+                          </span>
+                        </div>
+                      </td>
+
+                      {/* Column 3: Duration */}
+                      <td className="py-3.5 px-4 align-top border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap">
+                        <div className="flex items-center gap-2">
+                          <div className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-950/50 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
+                            <Calendar className="w-3.5 h-3.5" />
+                          </div>
+                          <div className="text-xs text-slate-800 dark:text-slate-200 font-medium">
+                            <p className="whitespace-nowrap">{fmtDate(req.start_date)}</p>
+                            {req.end_date && req.end_date !== req.start_date && (
+                              <p className="text-slate-500 text-[11px] whitespace-nowrap">to {fmtDate(req.end_date)}</p>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Column 4: Days */}
+                      <td className="py-3.5 px-4 align-top border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap">
+                        <span className="text-sm font-bold text-slate-900 dark:text-white">
+                          {Number(req.days_taken ?? req.days ?? 0).toFixed(1)}
+                        </span>
+                        <span className="block text-[10px] text-slate-500 dark:text-slate-400">
+                          {Number(req.days_taken ?? req.days ?? 0) === 1 ? "day" : "days"}
+                        </span>
+                      </td>
+
+                      {/* Column 5: Reason */}
+                      <td className="py-3.5 px-4 align-top border-r border-slate-100 dark:border-slate-800/60 max-w-[220px]">
+                        <p className="text-xs text-slate-700 dark:text-slate-300 font-normal leading-relaxed break-words">
+                          {req.reason || "—"}
+                        </p>
+                        {req.attachment_link && (
+                          <a
+                            href={req.attachment_link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-[11px] text-purple-600 dark:text-purple-400 hover:underline mt-1"
+                          >
+                            <Link2 className="w-3 h-3" /> View Attachment
+                          </a>
+                        )}
+                      </td>
+
+                      {/* Column 6: Status */}
+                      <td className="py-3.5 px-4 align-top border-r border-slate-100 dark:border-slate-800/60 max-w-[240px]">
+                        <div className="space-y-1.5">
+                          {req.pending_lop_conversion ? (
+                            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
+                              <AlertTriangle className="w-3 h-3 animate-pulse text-rose-500" /> Pending LOP
+                            </div>
+                          ) : req.status === "Approved" ? (
+                            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                              <CheckCircle className="w-3 h-3 text-emerald-500" /> Approved
+                            </div>
+                          ) : req.status === "Rejected" ? (
+                            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
+                              <XCircle className="w-3 h-3 text-rose-500" /> Rejected
+                            </div>
+                          ) : (
+                            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                              <Clock className="w-3 h-3 text-amber-500" /> Pending
+                            </div>
+                          )}
+
+                          {req.is_unpaid && (
+                            <div className="p-2 rounded-lg bg-rose-50/80 dark:bg-rose-950/40 border border-rose-200/80 dark:border-rose-900/60 mt-1">
+                              <p className="text-[11px] font-bold text-rose-700 dark:text-rose-400">Marked as Unpaid (LOP)</p>
+                              <p className="text-[10px] text-rose-600/80 dark:text-rose-400/80 leading-tight mt-0.5">
+                                {req.unpaid_reason ||
+                                  `Insufficient ${req.leave_type?.name || "Leave"} balance. ${
+                                    req.lop_days || req.days || 1
+                                  } eligible working day(s) are Unpaid (LOP).`}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </td>
+
+                      {/* Column 7: Actions */}
+                      <td className="py-3.5 px-5 align-top text-right whitespace-nowrap">
+                        <div className="flex items-center justify-end gap-1.5">
+                          {req.pending_lop_conversion ? (
+                            <div className="flex flex-col gap-1">
+                              <button
+                                onClick={() => handleLopConversion(req.id, "confirm")}
+                                disabled={actionLoading}
+                                className="inline-flex items-center justify-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-sm transition disabled:opacity-50 cursor-pointer"
+                              >
+                                <CheckCircle className="w-3 h-3" /> Confirm LOP
+                              </button>
+                              <button
+                                onClick={() => handleLopConversion(req.id, "reject")}
+                                disabled={actionLoading}
+                                className="inline-flex items-center justify-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 transition disabled:opacity-50 cursor-pointer"
+                              >
+                                <XCircle className="w-3 h-3" /> Decline
+                              </button>
+                            </div>
+                          ) : req.status === "Pending" ? (
+                            <div className="flex items-center gap-1.5">
+                              {canApprove(req) && (
+                                <button
+                                  onClick={() => approve("leave", req.id)}
+                                  disabled={actionLoading}
+                                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
+                                >
+                                  <Check className="w-3.5 h-3.5" /> Approve
+                                </button>
+                              )}
+                              <button
+                                onClick={() => {
+                                  setRejectDialog({ type: "leave", id: req.id });
+                                  setRejectReason("");
+                                }}
+                                disabled={actionLoading}
+                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800 transition-colors disabled:opacity-50 cursor-pointer"
+                              >
+                                <XCircle className="w-3.5 h-3.5 text-rose-500" /> Reject
+                              </button>
+                            </div>
+                          ) : null}
+
+                          {/* Super Admin Override button */}
+                          {isSuperAdmin && req.status === "Pending" && (
+                            <button
+                              onClick={() => openOverride(req)}
+                              className="p-1.5 text-slate-500 hover:text-purple-600 dark:text-slate-400 dark:hover:text-purple-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                              title="Override Leave Request"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : (
+        /* ── WFH Table ── */
+        <div className="w-full bg-white/90 dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800/90 rounded-2xl shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 text-[12px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider whitespace-nowrap">
+                  <th className="py-3.5 px-5 border-r border-slate-200/80 dark:border-slate-800/80">Employee</th>
+                  <th className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80">Type</th>
+                  <th className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80">Duration</th>
+                  <th className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80">TL Status</th>
+                  <th className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80">Reason</th>
+                  <th className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80">Status</th>
+                  <th className="py-3.5 px-5 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 text-sm">
+                {wfhRequests.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="py-16 text-center text-slate-400 dark:text-slate-500 text-sm italic">
+                      No pending WFH requests found.
+                    </td>
+                  </tr>
+                ) : (
+                  wfhRequests.map((req) => (
+                    <tr key={req.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors">
+                      {/* Employee */}
+                      <td className="py-3.5 px-5 align-top border-r border-slate-100 dark:border-slate-800/60">
+                        <div className="flex items-center gap-3">
+                          <RoyalAvatar
+                            src={req.user?.profile_photo_path}
+                            name={`${req.user?.first_name} ${req.user?.last_name || ""}`.trim()}
+                            userId={req.user_id || req.user?.id}
+                            employeeCode={req.user?.employee_code}
+                            className="w-9 h-9 rounded-full text-xs font-bold bg-indigo-600 text-white shrink-0"
+                          />
+                          <div className="min-w-0">
+                            <h3 className="font-bold text-sm text-slate-900 dark:text-white leading-tight truncate">
+                              <RoyalName
+                                name={`${req.user?.first_name} ${req.user?.last_name || ""}`.trim()}
+                                userId={req.user_id || req.user?.id}
+                                employeeCode={req.user?.employee_code}
+                              />
+                            </h3>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                              {req.user?.designation || req.user?.role || "Employee"}
+                              {req.user?.employee_code && ` • ${req.user.employee_code}`}
                             </p>
                           </div>
                         </div>
                       </td>
 
                       {/* Type */}
-                      <td className="py-4 px-6 align-top">
+                      <td className="py-3.5 px-4 align-top border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-semibold text-slate-200">WFH</span>
+                          <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">WFH</span>
                           {req.duration_type && <DurationBadge type={req.duration_type} />}
                         </div>
                       </td>
 
                       {/* Duration */}
-                      <td className="py-4 px-6 align-top">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0">
-                            <Calendar className="w-4 h-4" />
+                      <td className="py-3.5 px-4 align-top border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap">
+                        <div className="flex items-center gap-2">
+                          <div className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-950/50 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
+                            <Calendar className="w-3.5 h-3.5" />
                           </div>
-                          <div className="text-xs text-slate-200">
-                            <p className="font-medium whitespace-nowrap">{fmtDate(req.start_date)}</p>
+                          <div className="text-xs text-slate-800 dark:text-slate-200 font-medium">
+                            <p className="whitespace-nowrap">{fmtDate(req.start_date)}</p>
                             {req.end_date && req.end_date !== req.start_date && (
-                              <>
-                                <p className="text-slate-500 text-[10px] leading-tight">—</p>
-                                <p className="font-medium whitespace-nowrap">{fmtDate(req.end_date)}</p>
-                              </>
+                              <p className="text-slate-500 text-[11px] whitespace-nowrap">to {fmtDate(req.end_date)}</p>
                             )}
                           </div>
                         </div>
                       </td>
 
                       {/* TL Status */}
-                      <td className="py-4 px-6 align-top">
-                        <span className={`text-xs font-bold ${req.tl_status === "Approved" ? "text-emerald-400" : req.tl_status === "Rejected" ? "text-red-400" : "text-amber-400"}`}>
+                      <td className="py-3.5 px-4 align-top border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap">
+                        <span className={`text-xs font-bold ${req.tl_status === "Approved" ? "text-emerald-600 dark:text-emerald-400" : req.tl_status === "Rejected" ? "text-rose-600 dark:text-rose-400" : "text-amber-600 dark:text-amber-400"}`}>
                           {req.tl_status ?? "Pending"}
                         </span>
                       </td>
 
                       {/* Reason */}
-                      <td className="py-4 px-6 align-top">
-                        <p className="text-xs text-slate-300 max-w-[200px] leading-relaxed break-words">{req.reason || "—"}</p>
+                      <td className="py-3.5 px-4 align-top border-r border-slate-100 dark:border-slate-800/60 max-w-[220px]">
+                        <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed break-words">{req.reason || "—"}</p>
                       </td>
 
                       {/* Status */}
-                      <td className="py-4 px-6 align-top">
-                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
-                          <Clock className="w-3 h-3" /> Pending
+                      <td className="py-3.5 px-4 align-top border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap">
+                        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                          <Clock className="w-3 h-3 text-amber-500" /> Pending
                         </div>
                       </td>
 
                       {/* Actions */}
-                      <td className="py-4 px-6 align-top text-right">
+                      <td className="py-3.5 px-5 align-top text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-1.5">
                           {canApprove(req) && (
                             <button
                               onClick={() => approve("wfh", req.id)}
                               disabled={actionLoading}
-                              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold border border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10 transition-colors disabled:opacity-50"
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
                             >
                               <Check className="w-3.5 h-3.5" /> Approve
                             </button>
@@ -807,9 +759,9 @@ export default function ApprovalsPage() {
                               setRejectReason("");
                             }}
                             disabled={actionLoading}
-                            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold border border-rose-500/40 text-rose-400 hover:bg-rose-500/10 transition-colors disabled:opacity-50"
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800 transition-colors disabled:opacity-50 cursor-pointer"
                           >
-                            <XCircle className="w-3.5 h-3.5" /> Reject
+                            <XCircle className="w-3.5 h-3.5 text-rose-500" /> Reject
                           </button>
                         </div>
                       </td>
@@ -826,10 +778,10 @@ export default function ApprovalsPage() {
       {rejectDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setRejectDialog(null)} />
-          <div className="relative w-full max-w-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl z-10">
-            <div className="px-6 py-5 border-b border-slate-200 dark:border-white/10">
+          <div className="relative w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-10 overflow-hidden">
+            <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800">
               <h2 className="text-lg font-bold text-slate-900 dark:text-white">Reject Request</h2>
-              <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Provide a reason — this will be sent to the employee.</p>
+              <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">Provide a reason — this will be sent to the employee.</p>
             </div>
             <div className="px-6 py-5">
               <textarea
@@ -837,20 +789,23 @@ export default function ApprovalsPage() {
                 value={rejectReason}
                 onChange={(e) => setRejectReason(e.target.value)}
                 placeholder="Enter reason for rejection..."
-                className="w-full bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-red-500 placeholder:text-slate-500 resize-none transition-colors"
+                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs sm:text-sm rounded-xl px-3.5 py-2.5 outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 placeholder:text-slate-400 resize-none transition-colors"
                 autoFocus
               />
             </div>
-            <div className="px-6 py-4 border-t border-slate-200 dark:border-white/10 flex gap-3 justify-end">
-              <button onClick={() => setRejectDialog(null)} className="px-4 py-2 text-sm text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/10 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
+            <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 flex gap-3 justify-end bg-slate-50/50 dark:bg-slate-800/30">
+              <button
+                onClick={() => setRejectDialog(null)}
+                className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              >
                 Cancel
               </button>
               <button
                 onClick={submitReject}
                 disabled={actionLoading || !rejectReason.trim()}
-                className="flex items-center gap-2 px-5 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-xl transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
               >
-                {actionLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+                {actionLoading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                 Confirm Rejection
               </button>
             </div>
@@ -862,10 +817,10 @@ export default function ApprovalsPage() {
       {overrideDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setOverrideDialog(null)} />
-          <div className="relative w-full max-w-3xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl z-10 overflow-hidden">
-            <div className="px-6 py-5 border-b border-slate-200 dark:border-white/10">
+          <div className="relative w-full max-w-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-10 overflow-hidden">
+            <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800">
               <h2 className="text-lg font-bold text-slate-900 dark:text-white">Override Leave Request</h2>
-              <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5 font-sans">Customize dates and manually split paid leaves and LOP.</p>
+              <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">Customize dates and manually split paid leaves and LOP.</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 max-h-[65vh] overflow-y-auto">
@@ -873,153 +828,153 @@ export default function ApprovalsPage() {
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">Start Date</label>
+                    <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1.5">Start Date</label>
                     <input
                       type="date"
                       value={overrideFields.start_date}
                       onChange={(e) => handleDateChange("start_date", e.target.value)}
-                      className="w-full bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2 outline-none focus:border-amber-500 transition-colors font-mono"
+                      className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs sm:text-sm rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-colors"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 font-mono">End Date</label>
+                    <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1.5">End Date</label>
                     <input
                       type="date"
                       value={overrideFields.end_date}
                       onChange={(e) => handleDateChange("end_date", e.target.value)}
-                      className="w-full bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2 outline-none focus:border-amber-500 transition-colors font-mono"
+                      className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs sm:text-sm rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-colors"
                     />
                   </div>
                 </div>
 
-                <div className="border-t border-slate-200 dark:border-white/5 pt-4">
-                  <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Custom Allocation Split</h3>
-                  <p className="text-xs text-slate-500 mb-4">Original auto-calculated total: <span className="font-bold text-slate-900 dark:text-white font-mono">{autoTotalDays} day(s)</span></p>
-                  
+                <div className="border-t border-slate-200 dark:border-slate-800 pt-4">
+                  <h3 className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">Custom Allocation Split</h3>
+                  <p className="text-xs text-slate-500 mb-4">Original auto-calculated total: <span className="font-bold text-slate-900 dark:text-white">{autoTotalDays} day(s)</span></p>
+
                   <div className="space-y-3">
                     <div className="flex items-center justify-between gap-4">
-                      <span className="text-sm text-slate-600 dark:text-slate-300">Paid Casual Leave</span>
+                      <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-300">Paid Casual Leave</span>
                       <input
                         type="number"
                         step="0.5"
                         min="0"
                         value={overrideFields.paid_casual_leave}
                         onChange={(e) => setOverrideFields((f) => ({ ...f, paid_casual_leave: parseFloat(e.target.value) || 0 }))}
-                        className="w-24 bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm text-center rounded-xl px-2 py-1.5 outline-none focus:border-amber-500 font-mono"
+                        className="w-24 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs sm:text-sm text-center rounded-xl px-2 py-1.5 outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                       />
                     </div>
                     <div className="flex items-center justify-between gap-4">
-                      <span className="text-sm text-slate-600 dark:text-slate-300">Paid Sick Leave</span>
+                      <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-300">Paid Sick Leave</span>
                       <input
                         type="number"
                         step="0.5"
                         min="0"
                         value={overrideFields.paid_sick_leave}
                         onChange={(e) => setOverrideFields((f) => ({ ...f, paid_sick_leave: parseFloat(e.target.value) || 0 }))}
-                        className="w-24 bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm text-center rounded-xl px-2 py-1.5 outline-none focus:border-amber-500 font-mono"
+                        className="w-24 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs sm:text-sm text-center rounded-xl px-2 py-1.5 outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                       />
                     </div>
                     <div className="flex items-center justify-between gap-4">
-                      <span className="text-sm text-slate-600 dark:text-slate-300">Loss of Pay (LOP)</span>
+                      <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-300">Loss of Pay (LOP)</span>
                       <input
                         type="number"
                         step="0.5"
                         min="0"
                         value={overrideFields.lop_days}
                         onChange={(e) => setOverrideFields((f) => ({ ...f, lop_days: parseFloat(e.target.value) || 0 }))}
-                        className="w-24 bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm text-center rounded-xl px-2 py-1.5 outline-none focus:border-amber-500 font-mono"
+                        className="w-24 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs sm:text-sm text-center rounded-xl px-2 py-1.5 outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                       />
                     </div>
                   </div>
                 </div>
 
-                <div className="border-t border-slate-200 dark:border-white/5 pt-4">
-                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Reason for Override *</label>
+                <div className="border-t border-slate-200 dark:border-slate-800 pt-4">
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1.5">Reason for Override *</label>
                   <textarea
                     rows={2}
                     value={overrideFields.remarks}
                     onChange={(e) => setOverrideFields((f) => ({ ...f, remarks: e.target.value }))}
                     placeholder="Provide a reason for overriding this allocation..."
-                    className="w-full bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2 outline-none focus:border-amber-500 placeholder:text-slate-500 resize-none transition-colors"
+                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs sm:text-sm rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 placeholder:text-slate-400 resize-none transition-colors"
                   />
                 </div>
               </div>
 
               {/* Right Column: Before-and-After Summary Panel */}
-              <div className="bg-slate-100/40 dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 rounded-2xl p-5 space-y-5">
-                <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Before-and-After Summary</h3>
+              <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 space-y-4">
+                <h3 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Before-and-After Summary</h3>
 
                 {recalcLoading ? (
                   <div className="flex flex-col items-center justify-center py-16 gap-3">
-                    <Loader2 className="w-6 h-6 text-amber-500 animate-spin" />
+                    <Loader2 className="w-6 h-6 text-purple-600 animate-spin" />
                     <span className="text-xs text-slate-500 dark:text-slate-400">Recalculating...</span>
                   </div>
                 ) : (
                   <div className="space-y-4 text-xs">
                     {/* Original Calculation */}
-                    <div className="space-y-2 bg-white/5 border border-slate-200 dark:border-white/5 rounded-xl p-3.5">
-                      <p className="font-bold text-amber-400 uppercase tracking-wider mb-1 text-[10px]">Original Calculation</p>
+                    <div className="space-y-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5">
+                      <p className="font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider mb-1 text-[10px]">Original Calculation</p>
                       <div className="flex justify-between">
                         <span className="text-slate-500 dark:text-slate-400">Dates:</span>
-                        <span className="text-slate-200 font-mono">{fmtDate(overrideDialog.original_start_date)} – {fmtDate(overrideDialog.original_end_date)}</span>
+                        <span className="text-slate-800 dark:text-slate-200 font-medium">{fmtDate(overrideDialog.original_start_date)} – {fmtDate(overrideDialog.original_end_date)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-500 dark:text-slate-400">Total Leave:</span>
-                        <span className="text-slate-200 font-bold font-mono">{overrideDialog.original_days} day(s)</span>
+                        <span className="text-slate-900 dark:text-white font-bold">{overrideDialog.original_days} day(s)</span>
                       </div>
-                      <div className="flex justify-between pl-3 text-slate-500 dark:text-slate-400 border-l border-slate-200 dark:border-white/10">
+                      <div className="flex justify-between pl-3 text-slate-600 dark:text-slate-400 border-l border-slate-200 dark:border-slate-700">
                         <span>Paid Casual Leave:</span>
-                        <span className="font-mono">{overrideDialog.original_paid_cl}</span>
+                        <span>{overrideDialog.original_paid_cl}</span>
                       </div>
-                      <div className="flex justify-between pl-3 text-slate-500 dark:text-slate-400 border-l border-slate-200 dark:border-white/10">
+                      <div className="flex justify-between pl-3 text-slate-600 dark:text-slate-400 border-l border-slate-200 dark:border-slate-700">
                         <span>Paid Sick Leave:</span>
-                        <span className="font-mono">{overrideDialog.original_paid_sl}</span>
+                        <span>{overrideDialog.original_paid_sl}</span>
                       </div>
-                      <div className="flex justify-between pl-3 text-slate-500 dark:text-slate-400 border-l border-slate-200 dark:border-white/10">
+                      <div className="flex justify-between pl-3 text-slate-600 dark:text-slate-400 border-l border-slate-200 dark:border-slate-700">
                         <span>Loss of Pay (LOP):</span>
-                        <span className="font-mono">{overrideDialog.original_lop}</span>
+                        <span>{overrideDialog.original_lop}</span>
                       </div>
                     </div>
 
                     {/* Override Calculation */}
-                    <div className="space-y-2 bg-amber-500/5 border border-amber-500/10 rounded-xl p-3.5">
-                      <p className="font-bold text-amber-400 uppercase tracking-wider mb-1 text-[10px]">Override Calculation</p>
+                    <div className="space-y-2 bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 rounded-xl p-3.5">
+                      <p className="font-bold text-purple-700 dark:text-purple-300 uppercase tracking-wider mb-1 text-[10px]">Override Calculation</p>
                       <div className="flex justify-between">
-                        <span className="text-slate-500 dark:text-slate-400">Dates:</span>
-                        <span className="text-slate-200 font-mono">{fmtDate(overrideFields.start_date)} – {fmtDate(overrideFields.end_date)}</span>
+                        <span className="text-slate-600 dark:text-slate-400">Dates:</span>
+                        <span className="text-slate-900 dark:text-white font-medium">{fmtDate(overrideFields.start_date)} – {fmtDate(overrideFields.end_date)}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-slate-500 dark:text-slate-400">Total Leave:</span>
-                        <span className="text-slate-200 font-bold font-mono">{overrideTotalDays} day(s)</span>
+                        <span className="text-slate-600 dark:text-slate-400">Total Leave:</span>
+                        <span className="text-purple-700 dark:text-purple-300 font-bold">{overrideTotalDays} day(s)</span>
                       </div>
-                      <div className="flex justify-between pl-3 text-slate-500 dark:text-slate-400 border-l border-amber-500/10">
+                      <div className="flex justify-between pl-3 text-slate-600 dark:text-slate-400 border-l border-purple-200 dark:border-purple-800">
                         <span>Paid Casual Leave:</span>
-                        <span className="font-mono text-slate-900 dark:text-white">{overrideFields.paid_casual_leave}</span>
+                        <span className="font-semibold text-slate-900 dark:text-white">{overrideFields.paid_casual_leave}</span>
                       </div>
-                      <div className="flex justify-between pl-3 text-slate-500 dark:text-slate-400 border-l border-amber-500/10">
+                      <div className="flex justify-between pl-3 text-slate-600 dark:text-slate-400 border-l border-purple-200 dark:border-purple-800">
                         <span>Paid Sick Leave:</span>
-                        <span className="font-mono text-slate-900 dark:text-white">{overrideFields.paid_sick_leave}</span>
+                        <span className="font-semibold text-slate-900 dark:text-white">{overrideFields.paid_sick_leave}</span>
                       </div>
-                      <div className="flex justify-between pl-3 text-slate-500 dark:text-slate-400 border-l border-amber-500/10">
+                      <div className="flex justify-between pl-3 text-slate-600 dark:text-slate-400 border-l border-purple-200 dark:border-purple-800">
                         <span>Loss of Pay (LOP):</span>
-                        <span className="font-mono text-slate-900 dark:text-white">{overrideFields.lop_days}</span>
+                        <span className="font-semibold text-slate-900 dark:text-white">{overrideFields.lop_days}</span>
                       </div>
                     </div>
 
                     {/* Impact on Balances */}
-                    <div className="space-y-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/5 rounded-xl p-3.5">
-                      <p className="font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1 text-[10px]">Leave Balances Impact</p>
+                    <div className="space-y-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5">
+                      <p className="font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1 text-[10px]">Leave Balances Impact</p>
                       <div className="grid grid-cols-2 gap-3 pt-1">
                         <div>
                           <p className="text-[10px] text-slate-500 uppercase">Casual Leave Balance</p>
-                          <p className="text-sm font-semibold text-slate-600 dark:text-slate-300 font-mono mt-0.5">
-                            {currentBalances.cl} <span className="text-slate-500 font-normal text-xs">→</span> <span className="text-slate-900 dark:text-white font-bold">{Math.max(0, currentBalances.cl - overrideFields.paid_casual_leave)}</span>
+                          <p className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mt-0.5">
+                            {currentBalances.cl} <span className="text-slate-400 font-normal">→</span> <span className="text-slate-900 dark:text-white font-bold">{Math.max(0, currentBalances.cl - overrideFields.paid_casual_leave)}</span>
                           </p>
                         </div>
                         <div>
                           <p className="text-[10px] text-slate-500 uppercase">Sick Leave Balance</p>
-                          <p className="text-sm font-semibold text-slate-600 dark:text-slate-300 font-mono mt-0.5">
-                            {currentBalances.sl} <span className="text-slate-500 font-normal text-xs">→</span> <span className="text-slate-900 dark:text-white font-bold">{Math.max(0, currentBalances.sl - overrideFields.paid_sick_leave)}</span>
+                          <p className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mt-0.5">
+                            {currentBalances.sl} <span className="text-slate-400 font-normal">→</span> <span className="text-slate-900 dark:text-white font-bold">{Math.max(0, currentBalances.sl - overrideFields.paid_sick_leave)}</span>
                           </p>
                         </div>
                       </div>
@@ -1031,24 +986,28 @@ export default function ApprovalsPage() {
 
             {/* Validation Message */}
             {overrideTotalDays > autoTotalDays && (
-              <div className="mx-6 mb-4 p-3 bg-red-500/10 border border-red-500/20 text-red-300 text-xs rounded-xl flex items-center gap-2">
+              <div className="mx-6 mb-4 p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs rounded-xl flex items-center gap-2">
                 <span>⚠️ The sum of split days ({overrideTotalDays}) cannot exceed the total leave count for this date range ({autoTotalDays}).</span>
               </div>
             )}
 
-            <div className="px-6 py-4 border-t border-slate-200 dark:border-white/10 flex gap-3 justify-end">
-              <button onClick={() => setOverrideDialog(null)} className="px-4 py-2 text-sm text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/10 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
+            <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 flex gap-3 justify-end bg-slate-50/50 dark:bg-slate-800/30">
+              <button
+                onClick={() => setOverrideDialog(null)}
+                className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              >
                 Cancel
               </button>
               <button
                 onClick={submitOverride}
                 disabled={actionLoading || recalcLoading || !overrideFields.remarks.trim() || overrideTotalDays > autoTotalDays}
-                className="flex items-center gap-2 px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
               >
-                {actionLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+                {actionLoading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                 Apply Override & Approve
               </button>
-            </div>          </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
