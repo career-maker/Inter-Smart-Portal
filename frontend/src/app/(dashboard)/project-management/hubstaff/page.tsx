@@ -137,6 +137,13 @@ export default function HubstaffAnalyticsPage() {
           params.team_id = selectedTeamId;
         }
 
+        if (isSuperAdmin) {
+          // Surfaces raw upstream Hubstaff request/response diagnostics
+          // (status + body per fallback strategy) in the response JSON,
+          // visible in DevTools Network → this request → Response tab.
+          params.date_debug = 1;
+        }
+
         const res = await api.get("/hubstaff/analytics", { params });
         setAnalyticsData(res.data);
         setLastRefreshed(new Date());
