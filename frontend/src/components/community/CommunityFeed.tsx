@@ -542,7 +542,7 @@ export function CommunityFeed() {
       className="space-y-6"
     >
       {/* ── TOP POST PUBLISHER BOX ── */}
-      <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200/90 dark:border-slate-700/60 shadow-sm p-5">
+      <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 shadow-xs mb-6 relative">
         {/* Hidden File Input for All Tabs */}
         <input
           type="file"
@@ -554,53 +554,43 @@ export function CommunityFeed() {
         />
         
         {/* Post Type Selector Tabs */}
-        <div className="flex items-center gap-6 mb-4 pb-3 border-b border-slate-100 dark:border-slate-700/60">
+        <div className="flex items-center gap-6 px-5 pt-3 border-b border-slate-100 dark:border-slate-700/60">
           <button
             onClick={() => setActiveType("post")}
-            style={{
-              color: activeType === "post" ? "#56348f" : "rgb(94, 105, 120)",
-              borderBottomColor: activeType === "post" ? "#56348f" : "transparent",
-            }}
-            className={`flex items-center gap-1.5 text-xs font-bold pb-1 border-b-2 transition-all cursor-pointer ${
-              activeType === "post" ? "border-[#56348f]" : "border-transparent hover:text-slate-900"
+            className={`flex items-center gap-2 text-[14px] font-medium pb-3 border-b-2 transition-all cursor-pointer -mb-[1px] ${
+              activeType === "post" ? "border-[#56348f] text-slate-700 dark:text-white" : "border-transparent text-slate-500 hover:text-slate-700"
             }`}
           >
-            <Edit3 className="w-4 h-4 text-purple-500" />
+            <Edit3 className="w-[18px] h-[18px] text-[#c078c9]" />
             <span>Post</span>
           </button>
 
           <button
             onClick={() => setActiveType("poll")}
-            style={{
-              color: activeType === "poll" ? "#56348f" : "rgb(94, 105, 120)",
-              borderBottomColor: activeType === "poll" ? "#56348f" : "transparent",
-            }}
-            className={`flex items-center gap-1.5 text-xs font-bold pb-1 border-b-2 transition-all cursor-pointer ${
-              activeType === "poll" ? "border-[#56348f]" : "border-transparent hover:text-slate-900"
+            className={`flex items-center gap-2 text-[14px] font-medium pb-3 border-b-2 transition-all cursor-pointer -mb-[1px] ${
+              activeType === "poll" ? "border-[#56348f] text-slate-700 dark:text-white" : "border-transparent text-slate-500 hover:text-slate-700"
             }`}
           >
-            <BarChart2 className="w-4 h-4 text-emerald-500" />
+            <BarChart2 className="w-[18px] h-[18px] text-[#86c374]" />
             <span>Poll</span>
           </button>
 
           <button
             onClick={() => setActiveType("praise")}
-            style={{
-              color: activeType === "praise" ? "#56348f" : "rgb(94, 105, 120)",
-              borderBottomColor: activeType === "praise" ? "#56348f" : "transparent",
-            }}
-            className={`flex items-center gap-1.5 text-xs font-bold pb-1 border-b-2 transition-all cursor-pointer ${
-              activeType === "praise" ? "border-[#56348f]" : "border-transparent hover:text-slate-900"
+            className={`flex items-center gap-2 text-[14px] font-medium pb-3 border-b-2 transition-all cursor-pointer -mb-[1px] ${
+              activeType === "praise" ? "border-[#56348f] text-slate-700 dark:text-white" : "border-transparent text-slate-500 hover:text-slate-700"
             }`}
           >
-            <Medal className="w-4 h-4 text-amber-500" />
+            <Medal className="w-[18px] h-[18px] text-[#d6b783]" />
             <span>Praise</span>
           </button>
         </div>
 
+        <div className="p-5">
+
         {/* ── PRAISE CREATION FORM (Multiple Employees Supported) ── */}
         {activeType === "praise" ? (
-          <div className="space-y-4 pt-1">
+          <div className="space-y-4">
             {/* 1. Multiple Employees Selection & Search */}
             <div className="relative">
               <div className="flex flex-wrap items-center gap-2 p-2.5 border-b-2 border-[#56348f] bg-slate-50/50 dark:bg-slate-900/40 rounded-t-md">
@@ -825,7 +815,7 @@ export function CommunityFeed() {
           </div>
         ) : activeType === "poll" ? (
           /* ── POLL CREATION FORM ── */
-          <div className="space-y-4 pt-1">
+          <div className="space-y-4">
             <div>
               <input
                 type="text"
@@ -926,20 +916,14 @@ export function CommunityFeed() {
           </div>
         ) : (
           /* ── STANDARD POST FORM ── */
-          <div className="flex items-start gap-3">
-            <RoyalAvatar
-              src={currentUser?.profile_photo_path}
-              name={`${currentUser?.first_name} ${currentUser?.last_name}`}
-              userId={currentUser?.id}
-              className="w-10 h-10 rounded-full shrink-0"
-            />
+          <div className="flex flex-col gap-3">
             <div className="flex-1 min-w-0">
               <textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 rows={3}
-                placeholder="Write your message or company update here..."
-                className="w-full text-[13px] leading-relaxed p-3 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-md focus:outline-none focus:ring-1 focus:ring-[#56348f] focus:border-[#56348f] dark:text-white resize-none"
+                placeholder="Write your post here and mention your peers"
+                className="w-full text-[15px] leading-relaxed bg-transparent border-0 focus:outline-none focus:ring-0 text-slate-700 dark:text-white placeholder:text-slate-400 placeholder:font-normal resize-none p-0"
               />
 
               {imagePreviews.length > 0 && (
@@ -1016,6 +1000,7 @@ export function CommunityFeed() {
             </div>
           </div>
         )}
+        </div>
       </div>
 
       {/* ── FILTER BAR (Date, Year, Month, Type) ── */}
