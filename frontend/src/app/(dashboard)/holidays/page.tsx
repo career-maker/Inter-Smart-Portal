@@ -7,7 +7,13 @@ import { CalendarDays, Plus, Trash2, Edit, Loader2, CheckCircle } from "lucide-r
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
 import { format } from "date-fns";
-
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 const HOLIDAY_TYPES = [
   { value: "National Holiday",  label: "National Holiday",  cls: "bg-blue-500/20 text-blue-300" },
   { value: "Festival Holiday",  label: "Festival Holiday",  cls: "bg-amber-500/20 text-amber-300" },
@@ -195,74 +201,72 @@ export default function HolidaysPage() {
       </div>
 
       {/* Add/Edit Dialog */}
-      {showDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowDialog(false)} />
-          <div className="relative w-full max-w-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-md shadow-2xl z-10">
-            <div className="px-6 py-5 border-b border-slate-200 dark:border-white/10">
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">{editId ? "Edit Holiday" : "Add Holiday"}</h2>
-              <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
-                {editId ? "Update details for this holiday." : "Add a new holiday to the calendar."}
-              </p>
+      <Dialog open={showDialog} onOpenChange={setShowDialog}>
+        <DialogContent className="max-w-md w-full">
+          <DialogHeader>
+            <DialogTitle>{editId ? "Edit Holiday" : "Add Holiday"}</DialogTitle>
+            <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
+              {editId ? "Update details for this holiday." : "Add a new holiday to the calendar."}
+            </p>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
+                Holiday Name *
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g. Republic Day"
+                className="w-full bg-slate-100 dark:bg-slate-700/50 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 placeholder:text-slate-500 transition-colors"
+              />
             </div>
-            <div className="px-6 py-5 space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
-                  Holiday Name *
-                </label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Republic Day"
-                  className="w-full bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 placeholder:text-slate-500 transition-colors"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
-                  Date *
-                </label>
-                <input
-                  type="date"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  className="w-full bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 transition-colors"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
-                  Holiday Type *
-                </label>
-                <select
-                  value={type}
-                  onChange={(e) => setType(e.target.value)}
-                  className="w-full bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 transition-colors"
-                >
-                  {HOLIDAY_TYPES.map((t) => (
-                    <option key={t.value} value={t.value} className="bg-slate-700">
-                      {t.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
-                  Description <span className="text-slate-500 normal-case font-normal">(optional)</span>
-                </label>
-                <textarea
-                  rows={3}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Additional notes..."
-                  className="w-full bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 placeholder:text-slate-500 resize-none transition-colors"
-                />
-              </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
+                Date *
+              </label>
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="w-full bg-slate-100 dark:bg-slate-700/50 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 transition-colors"
+              />
             </div>
-            <div className="px-6 py-4 border-t border-slate-200 dark:border-white/10 flex gap-3 justify-end">
-              <button
-                onClick={() => setShowDialog(false)}
-                className="px-4 py-2 text-sm text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/10 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
+                Holiday Type *
+              </label>
+              <select
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+                className="w-full bg-slate-100 dark:bg-slate-700/50 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 transition-colors"
               >
+                {HOLIDAY_TYPES.map((t) => (
+                  <option key={t.value} value={t.value} className="bg-slate-700">
+                    {t.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
+                Description <span className="text-slate-500 normal-case font-normal">(optional)</span>
+              </label>
+              <textarea
+                rows={3}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Additional notes..."
+                className="w-full bg-slate-100 dark:bg-slate-700/50 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 placeholder:text-slate-500 resize-none transition-colors"
+              />
+            </div>
+          </div>
+          <DialogFooter className="border-t border-slate-200 dark:border-white/10 pt-4 flex gap-3 justify-end">
+            <button
+              onClick={() => setShowDialog(false)}
+              className="px-4 py-2 text-sm text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/10 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+            >
                 Cancel
               </button>
               <button
@@ -277,10 +281,9 @@ export default function HolidaysPage() {
                 )}
                 {editId ? "Update Holiday" : "Save Holiday"}
               </button>
-            </div>
-          </div>
-        </div>
-      )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Success Popup */}
       {showSuccess && (

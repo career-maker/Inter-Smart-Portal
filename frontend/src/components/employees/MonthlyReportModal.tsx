@@ -95,7 +95,7 @@ Please confirm the above data`;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto flex flex-col">
+      <DialogContent className="sm:max-w-[600px] flex flex-col">
         <DialogHeader>
           <DialogTitle>Generate Monthly Leave Report</DialogTitle>
           <DialogDescription>

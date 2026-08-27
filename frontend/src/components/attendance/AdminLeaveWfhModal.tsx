@@ -186,7 +186,7 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Create Leave / WFH</DialogTitle>
           <DialogDescription>Create and manage leave or work-from-home requests for employees</DialogDescription>
