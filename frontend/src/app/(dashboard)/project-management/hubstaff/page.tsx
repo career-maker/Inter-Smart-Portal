@@ -330,6 +330,7 @@ export default function HubstaffAnalyticsPage() {
             <TeamFilterSelector
               selectedTeamId={selectedTeamId}
               onSelectTeam={setSelectedTeamId}
+              availableTeams={analyticsData?.available_teams}
             />
           )}
 
@@ -337,7 +338,7 @@ export default function HubstaffAnalyticsPage() {
             onClick={() => fetchAnalytics(true)}
             disabled={refreshing || loading}
             aria-label="Refresh Hubstaff Data"
-            className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 transition-colors disabled:opacity-50"
+            className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 transition-colors disabled:opacity-50 cursor-pointer"
             title="Refresh latest Hubstaff data"
           >
             <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-purple-600" : ""}`} />
@@ -362,7 +363,10 @@ export default function HubstaffAnalyticsPage() {
             <div className="inline-flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold">
               <button
                 type="button"
-                onClick={() => setDateMode("single")}
+                onClick={() => {
+                  setLoading(true);
+                  setDateMode("single");
+                }}
                 className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                   dateMode === "single"
                     ? "bg-white dark:bg-slate-900 text-[#56348f] dark:text-purple-300 shadow-sm font-bold"
@@ -373,7 +377,10 @@ export default function HubstaffAnalyticsPage() {
               </button>
               <button
                 type="button"
-                onClick={() => setDateMode("range")}
+                onClick={() => {
+                  setLoading(true);
+                  setDateMode("range");
+                }}
                 className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                   dateMode === "range"
                     ? "bg-white dark:bg-slate-900 text-[#56348f] dark:text-purple-300 shadow-sm font-bold"
@@ -389,7 +396,10 @@ export default function HubstaffAnalyticsPage() {
               <div className="flex items-center gap-1.5 flex-wrap">
                 <button
                   type="button"
-                  onClick={handlePrevDay}
+                  onClick={() => {
+                    setLoading(true);
+                    handlePrevDay();
+                  }}
                   title="Previous Day"
                   className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition cursor-pointer"
                 >
@@ -401,14 +411,22 @@ export default function HubstaffAnalyticsPage() {
                   <input
                     type="date"
                     value={selectedDate}
-                    onChange={(e) => setSelectedDate(e.target.value)}
-                    className="bg-transparent text-slate-900 dark:text-white text-xs font-semibold outline-none focus:ring-0"
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        setLoading(true);
+                        setSelectedDate(e.target.value);
+                      }
+                    }}
+                    className="bg-transparent text-slate-900 dark:text-white text-xs font-semibold outline-none focus:ring-0 cursor-pointer"
                   />
                 </div>
 
                 <button
                   type="button"
-                  onClick={handleNextDay}
+                  onClick={() => {
+                    setLoading(true);
+                    handleNextDay();
+                  }}
                   title="Next Day"
                   className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition cursor-pointer"
                 >
@@ -419,14 +437,20 @@ export default function HubstaffAnalyticsPage() {
                 <div className="flex items-center gap-1">
                   <button
                     type="button"
-                    onClick={handlePresetToday}
+                    onClick={() => {
+                      setLoading(true);
+                      handlePresetToday();
+                    }}
                     className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-purple-100 dark:bg-slate-800 dark:hover:bg-purple-950/60 text-slate-700 hover:text-purple-700 dark:text-slate-300 dark:hover:text-purple-300 text-[11px] font-semibold transition cursor-pointer"
                   >
                     Today
                   </button>
                   <button
                     type="button"
-                    onClick={handlePresetYesterday}
+                    onClick={() => {
+                      setLoading(true);
+                      handlePresetYesterday();
+                    }}
                     className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-purple-100 dark:bg-slate-800 dark:hover:bg-purple-950/60 text-slate-700 hover:text-purple-700 dark:text-slate-300 dark:hover:text-purple-300 text-[11px] font-semibold transition cursor-pointer"
                   >
                     Yesterday
@@ -434,7 +458,7 @@ export default function HubstaffAnalyticsPage() {
                 </div>
 
                 {loading && (
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 text-[11px] font-bold text-purple-700 dark:text-purple-300 animate-pulse">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-100 dark:bg-purple-950/80 border border-purple-300 dark:border-purple-700 text-[11px] font-bold text-purple-800 dark:text-purple-200 animate-pulse shadow-xs">
                     <Loader2 className="w-3.5 h-3.5 animate-spin text-purple-600 dark:text-purple-400" />
                     <span>Loading...</span>
                   </div>
@@ -446,29 +470,45 @@ export default function HubstaffAnalyticsPage() {
                 <input
                   type="date"
                   value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs font-semibold rounded-xl px-2.5 py-1.5 outline-none focus:ring-2 focus:ring-purple-500/20"
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      setLoading(true);
+                      setStartDate(e.target.value);
+                    }
+                  }}
+                  className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs font-semibold rounded-xl px-2.5 py-1.5 outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer"
                 />
                 <span className="text-xs text-slate-500 font-semibold">To:</span>
                 <input
                   type="date"
                   value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs font-semibold rounded-xl px-2.5 py-1.5 outline-none focus:ring-2 focus:ring-purple-500/20"
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      setLoading(true);
+                      setEndDate(e.target.value);
+                    }
+                  }}
+                  className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs font-semibold rounded-xl px-2.5 py-1.5 outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer"
                 />
                 
                 {/* Range Presets */}
                 <div className="flex items-center gap-1">
                   <button
                     type="button"
-                    onClick={handlePresetLast7Days}
+                    onClick={() => {
+                      setLoading(true);
+                      handlePresetLast7Days();
+                    }}
                     className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-purple-100 dark:bg-slate-800 dark:hover:bg-purple-950/60 text-slate-700 hover:text-purple-700 dark:text-slate-300 dark:hover:text-purple-300 text-[11px] font-semibold transition cursor-pointer"
                   >
                     Last 7 Days
                   </button>
                   <button
                     type="button"
-                    onClick={handlePresetThisMonth}
+                    onClick={() => {
+                      setLoading(true);
+                      handlePresetThisMonth();
+                    }}
                     className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-purple-100 dark:bg-slate-800 dark:hover:bg-purple-950/60 text-slate-700 hover:text-purple-700 dark:text-slate-300 dark:hover:text-purple-300 text-[11px] font-semibold transition cursor-pointer"
                   >
                     This Month
@@ -476,7 +516,7 @@ export default function HubstaffAnalyticsPage() {
                 </div>
 
                 {loading && (
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 text-[11px] font-bold text-purple-700 dark:text-purple-300 animate-pulse">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-100 dark:bg-purple-950/80 border border-purple-300 dark:border-purple-700 text-[11px] font-bold text-purple-800 dark:text-purple-200 animate-pulse shadow-xs">
                     <Loader2 className="w-3.5 h-3.5 animate-spin text-purple-600 dark:text-purple-400" />
                     <span>Loading...</span>
                   </div>
@@ -525,87 +565,112 @@ export default function HubstaffAnalyticsPage() {
       </div>
 
       {/* ── Summary Metric Cards ── */}
-      <div className={`grid grid-cols-2 sm:grid-cols-2 md:grid-cols-5 gap-3.5 transition-opacity duration-200 ${loading ? "opacity-60" : "opacity-100"}`}>
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-5 gap-3.5">
         {/* Total Tracked Time */}
-        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-1">
+        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-1 relative overflow-hidden">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
             <span>Tracked Work Time</span>
-            {loading ? (
-              <Loader2 className="w-3.5 h-3.5 text-purple-600 animate-spin" />
-            ) : (
-              <Clock className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-            )}
+            <Clock className={`w-4 h-4 text-purple-600 dark:text-purple-400 ${loading ? "animate-spin" : ""}`} />
           </div>
-          <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-            {summary.total_tracked_formatted || "0h 00m"}
-          </div>
+          {loading ? (
+            <div className="h-8 w-24 bg-purple-100/70 dark:bg-purple-950/50 animate-pulse rounded-lg mt-1" />
+          ) : (
+            <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+              {summary.total_tracked_formatted || "0h 00m"}
+            </div>
+          )}
           <p className="text-[10px] text-slate-500 dark:text-slate-400">Total computer time</p>
         </div>
 
         {/* Average Activity */}
-        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-1">
+        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-1 relative overflow-hidden">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
             <span>Avg Activity</span>
             <Activity className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
           </div>
-          <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-            <span>{normalizeActivityPct(summary.avg_activity_percentage)}%</span>
-            <span
-              className={`text-[10px] px-2 py-0.5 rounded-full border font-bold ${
-                getActivityBadge(summary.avg_activity_percentage ?? 0).bg
-              }`}
-            >
-              {normalizeActivityPct(summary.avg_activity_percentage) >= 70 ? "High" : normalizeActivityPct(summary.avg_activity_percentage) >= 50 ? "Moderate" : "Low"}
-            </span>
-          </div>
+          {loading ? (
+            <div className="h-8 w-24 bg-emerald-100/70 dark:bg-emerald-950/50 animate-pulse rounded-lg mt-1" />
+          ) : (
+            <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+              <span>{normalizeActivityPct(summary.avg_activity_percentage)}%</span>
+              <span
+                className={`text-[10px] px-2 py-0.5 rounded-full border font-bold ${
+                  getActivityBadge(summary.avg_activity_percentage ?? 0).bg
+                }`}
+              >
+                {normalizeActivityPct(summary.avg_activity_percentage) >= 70 ? "High" : normalizeActivityPct(summary.avg_activity_percentage) >= 50 ? "Moderate" : "Low"}
+              </span>
+            </div>
+          )}
           <p className="text-[10px] text-slate-500 dark:text-slate-400">Keystrokes & mouse activity</p>
         </div>
 
         {/* Active Users */}
-        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-1">
+        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-1 relative overflow-hidden">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
             <span>Active Users</span>
             <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
           </div>
-          <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-            {summary.active_users_count ?? 0}
-          </div>
+          {loading ? (
+            <div className="h-8 w-16 bg-blue-100/70 dark:bg-blue-950/50 animate-pulse rounded-lg mt-1" />
+          ) : (
+            <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+              {summary.active_users_count ?? 0}
+            </div>
+          )}
           <p className="text-[10px] text-slate-500 dark:text-slate-400">Logged work in Hubstaff</p>
         </div>
 
         {/* Active Projects */}
-        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-1">
+        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-1 relative overflow-hidden">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
             <span>Active Projects</span>
             <FolderKanban className="w-4 h-4 text-amber-600 dark:text-amber-400" />
           </div>
-          <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-            {summary.active_projects_count ?? 0}
-          </div>
+          {loading ? (
+            <div className="h-8 w-16 bg-amber-100/70 dark:bg-amber-950/50 animate-pulse rounded-lg mt-1" />
+          ) : (
+            <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+              {summary.active_projects_count ?? 0}
+            </div>
+          )}
           <p className="text-[10px] text-slate-500 dark:text-slate-400">Projects with logged time</p>
         </div>
 
         {/* Average Time / User */}
-        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-1">
+        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-1 relative overflow-hidden">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
             <span>Avg Time / User</span>
             <UserCheck className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
           </div>
-          <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-            {summary.avg_time_per_user_formatted || "0h 00m"}
-          </div>
+          {loading ? (
+            <div className="h-8 w-24 bg-indigo-100/70 dark:bg-indigo-950/50 animate-pulse rounded-lg mt-1" />
+          ) : (
+            <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+              {summary.avg_time_per_user_formatted || "0h 00m"}
+            </div>
+          )}
           <p className="text-[10px] text-slate-500 dark:text-slate-400">Average per active member</p>
         </div>
       </div>
 
       {/* ── Main Tab Content ── */}
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-20 bg-white/80 dark:bg-slate-900/80 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm animate-in fade-in duration-150">
-          <Loader2 className="w-9 h-9 text-purple-600 animate-spin mb-3" />
-          <p className="text-sm font-bold text-slate-800 dark:text-slate-200">
-            Loading Hubstaff Activity for {dateMode === "single" ? selectedDate : `${startDate} → ${endDate}`}...
-          </p>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Aggregating tracked work hours and project activities</p>
+        <div className="flex flex-col items-center justify-center py-24 bg-white/90 dark:bg-slate-900/90 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm animate-in fade-in duration-200 space-y-3">
+          <div className="relative flex items-center justify-center">
+            <div className="w-14 h-14 rounded-full bg-purple-100 dark:bg-purple-950/70 animate-ping absolute opacity-40" />
+            <div className="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/80 border border-purple-200 dark:border-purple-800 flex items-center justify-center shadow-sm">
+              <Loader2 className="w-6 h-6 text-[#56348f] dark:text-purple-400 animate-spin" />
+            </div>
+          </div>
+          <div className="text-center space-y-1">
+            <p className="text-sm font-bold text-slate-800 dark:text-slate-200">
+              Loading Hubstaff Activity for {dateMode === "single" ? selectedDate : `${startDate} → ${endDate}`}...
+            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Aggregating tracked work hours, activity scores, and project time from Hubstaff
+            </p>
+          </div>
         </div>
       ) : error ? (
         <div className="p-6 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-2xl text-center space-y-3">
@@ -613,7 +678,7 @@ export default function HubstaffAnalyticsPage() {
           <p className="text-sm font-bold text-rose-800 dark:text-rose-300">{error}</p>
           <button
             onClick={() => fetchAnalytics(true)}
-            className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow transition"
+            className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow transition cursor-pointer"
           >
             Retry
           </button>
@@ -700,8 +765,21 @@ export default function HubstaffAnalyticsPage() {
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
                   {filteredUsers.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="py-16 text-center text-slate-400 dark:text-slate-500 text-xs italic">
-                        No Hubstaff activity recorded for this date and filter selection.
+                      <td colSpan={6} className="py-16 text-center">
+                        <div className="flex flex-col items-center justify-center space-y-2.5 max-w-sm mx-auto px-4">
+                          <Clock className="w-8 h-8 text-slate-300 dark:text-slate-600" />
+                          <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">
+                            No Hubstaff activity recorded for {dateMode === "single" ? selectedDate : `${startDate} to ${endDate}`}.
+                          </p>
+                          <button
+                            onClick={() => fetchAnalytics(true)}
+                            disabled={refreshing || loading}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-[#56348f] dark:text-purple-300 text-xs font-bold border border-purple-200 dark:border-purple-800 transition cursor-pointer"
+                          >
+                            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`} />
+                            <span>Refresh Hubstaff Data</span>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ) : (
@@ -858,8 +936,21 @@ export default function HubstaffAnalyticsPage() {
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
                   {filteredProjects.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="py-16 text-center text-slate-400 dark:text-slate-500 text-xs italic">
-                        No projects found with Hubstaff activity for this date.
+                      <td colSpan={5} className="py-16 text-center">
+                        <div className="flex flex-col items-center justify-center space-y-2.5 max-w-sm mx-auto px-4">
+                          <FolderKanban className="w-8 h-8 text-slate-300 dark:text-slate-600" />
+                          <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">
+                            No project activity recorded for {dateMode === "single" ? selectedDate : `${startDate} to ${endDate}`}.
+                          </p>
+                          <button
+                            onClick={() => fetchAnalytics(true)}
+                            disabled={refreshing || loading}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-[#56348f] dark:text-purple-300 text-xs font-bold border border-purple-200 dark:border-purple-800 transition cursor-pointer"
+                          >
+                            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`} />
+                            <span>Refresh Hubstaff Data</span>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ) : (

@@ -161,6 +161,7 @@ class HubstaffProjectController extends Controller
         // Resolve Team Scope & Security
         $allowedTeams = [];
         $selectedTeamId = null;
+        $ledTeamIds = [];
 
         if ($isSuperAdmin || $isAdmin) {
             $allowedTeams = \App\Models\Team::select('id', 'name', 'code')->get();
@@ -173,16 +174,22 @@ class HubstaffProjectController extends Controller
             if ($user->team_id && !in_array($user->team_id, $ledTeamIds)) {
                 $ledTeamIds[] = $user->team_id;
             }
-            $allowedTeams = \App\Models\Team::whereIn('id', array_unique($ledTeamIds))->select('id', 'name', 'code')->get();
+            $ledTeamIds = array_values(array_unique(array_filter($ledTeamIds)));
+            $allowedTeams = \App\Models\Team::whereIn('id', $ledTeamIds)->select('id', 'name', 'code')->get();
 
-            if ($request->filled('team_id')) {
+            if ($request->filled('team_id') && $request->input('team_id') !== 'all') {
                 $reqTeamId = (int) $request->input('team_id');
                 if (!in_array($reqTeamId, $ledTeamIds, true)) {
                     return response()->json(['message' => 'Unauthorized: Cannot access data for unauthorized team.'], 403);
                 }
                 $selectedTeamId = $reqTeamId;
             } else {
-                $selectedTeamId = $ledTeamIds[0] ?? $user->team_id;
+                // If Team Lead has only 1 team, set selectedTeamId to that team
+                if (count($ledTeamIds) === 1) {
+                    $selectedTeamId = $ledTeamIds[0];
+                } else {
+                    $selectedTeamId = null; // View all led teams
+                }
             }
         }
 
@@ -253,9 +260,18 @@ class HubstaffProjectController extends Controller
             $hsUid = (string) ($act['user_id'] ?? '');
             $hsPid = (string) ($act['project_id'] ?? '');
             $date = (string) ($act['date'] ?? '');
+            if (empty($date) && !empty($act['starts_at'])) {
+                $date = substr((string) $act['starts_at'], 0, 10);
+            }
+            if (empty($date) && !empty($act['time_slot'])) {
+                $date = substr((string) $act['time_slot'], 0, 10);
+            }
+            if (empty($date)) {
+                $date = $startDate;
+            }
             $tracked = (int) ($act['tracked'] ?? 0);
             
-            // Hubstaff v2 returns activity in basis points (e.g. 5929 for 59.29%) or fraction (0.5929)
+            // Hubstaff v2 returns activity in basis points (e.g. 5929 for 59.29%) or fraction (0.5929) or percentage
             $rawActivity = (float) ($act['overall'] ?? $act['activity'] ?? 0);
             if ($rawActivity > 100) {
                 $activity = $rawActivity / 100.0;
@@ -265,9 +281,13 @@ class HubstaffProjectController extends Controller
                 $activity = $rawActivity;
             }
 
-            // Filter by team scope: if team is selected and user is not in that team, skip
+            // Filter by team scope:
             if ($selectedTeamId) {
                 if (!isset($hubstaffUserMap[$hsUid]) || ($hubstaffUserMap[$hsUid]->team_id ?? null) != $selectedTeamId) {
+                    continue;
+                }
+            } elseif (!$isSuperAdmin && !$isAdmin && !empty($ledTeamIds)) {
+                if (!isset($hubstaffUserMap[$hsUid]) || !in_array(($hubstaffUserMap[$hsUid]->team_id ?? null), $ledTeamIds)) {
                     continue;
                 }
             }

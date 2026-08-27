@@ -13,6 +13,7 @@ interface Team {
 interface TeamFilterSelectorProps {
   selectedTeamId: number | "all";
   onSelectTeam: (teamId: number | "all") => void;
+  availableTeams?: Team[];
   className?: string;
 }
 
@@ -21,12 +22,19 @@ let cachedAllTeams: Team[] | null = null;
 export function TeamFilterSelector({
   selectedTeamId,
   onSelectTeam,
+  availableTeams,
   className = "",
 }: TeamFilterSelectorProps) {
-  const [teams, setTeams] = useState<Team[]>(() => cachedAllTeams || []);
-  const [loading, setLoading] = useState(!cachedAllTeams);
+  const [teams, setTeams] = useState<Team[]>(() => availableTeams || cachedAllTeams || []);
+  const [loading, setLoading] = useState(!availableTeams && !cachedAllTeams);
 
   useEffect(() => {
+    if (availableTeams && availableTeams.length > 0) {
+      setTeams(availableTeams);
+      setLoading(false);
+      return;
+    }
+
     if (cachedAllTeams) return;
 
     api.get("/teams")
@@ -37,7 +45,7 @@ export function TeamFilterSelector({
       })
       .catch((err) => console.warn("Failed to load teams list", err))
       .finally(() => setLoading(false));
-  }, []);
+  }, [availableTeams]);
 
   return (
     <div className={`relative inline-flex items-center ${className}`}>
