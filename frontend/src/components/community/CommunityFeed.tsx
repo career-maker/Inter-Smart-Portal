@@ -1742,6 +1742,8 @@ export function CommunityFeed() {
           )}
         </div>
       )}
+      </div>
+
       {/* ── WHO REACTED MODAL (Facebook / LinkedIn Style) ── */}
       {reactionModalPost && (
         <div
