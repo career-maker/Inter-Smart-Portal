@@ -519,6 +519,7 @@ class HubstaffService
                         'start' => $startStr,
                         'stop' => $stopStr,
                     ],
+                    'time_zone' => $tz,
                     'page_limit' => 500,
                 ];
                 if (!empty($nextStartId)) {
@@ -540,6 +541,10 @@ class HubstaffService
                 }
 
                 if (!$response->successful()) {
+                    Log::info('Hubstaff insights activity non-success response', [
+                        'status' => $response->status(),
+                        'body' => substr($response->body(), 0, 300),
+                    ]);
                     break;
                 }
 
@@ -570,6 +575,7 @@ class HubstaffService
                             'start' => $startUtc,
                             'stop' => $stopUtc,
                         ],
+                        'time_zone' => $tz,
                         'page_limit' => 500,
                     ];
                     if (!empty($nextPageStart)) {
@@ -589,6 +595,10 @@ class HubstaffService
                     }
 
                     if (!$rawRes->successful()) {
+                        Log::info('Hubstaff raw activities non-success response', [
+                            'status' => $rawRes->status(),
+                            'body' => substr($rawRes->body(), 0, 300),
+                        ]);
                         break;
                     }
 
