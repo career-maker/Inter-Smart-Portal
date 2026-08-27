@@ -464,6 +464,13 @@ class HubstaffService
             }
         }
 
+        return [
+            'success' => true,
+            'synced_count' => $syncedCount,
+            'message' => "Successfully synced {$syncedCount} user mappings.",
+        ];
+    }
+
     /**
      * Fetch daily activities (tracked seconds & activity percentage) from Hubstaff API v2.
      * Caches responses briefly for lightning performance and handles pagination safely.
