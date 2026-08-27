@@ -174,34 +174,6 @@ export default function HubstaffAnalyticsPage() {
     fetchAnalytics();
   }, [fetchAnalytics]);
 
-  // Belt-and-suspenders fallback for the native date pickers: on Windows,
-  // Chrome can render <input type="date"> via an OS-level calendar overlay
-  // that has been observed to not reliably dispatch change/input/blur events
-  // back to the page when a date is picked. onChange/onInput/onBlur above
-  // cover the normal cases; this short poll of the raw DOM value catches the
-  // remainder by comparing against React state directly, independent of
-  // whatever event (if any) the browser actually fires.
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const domSelected = selectedDateInputRef.current?.value;
-      if (domSelected && domSelected !== selectedDate) {
-        setLoading(true);
-        setSelectedDate(domSelected);
-      }
-      const domStart = startDateInputRef.current?.value;
-      if (domStart && domStart !== startDate) {
-        setLoading(true);
-        setStartDate(domStart);
-      }
-      const domEnd = endDateInputRef.current?.value;
-      if (domEnd && domEnd !== endDate) {
-        setLoading(true);
-        setEndDate(domEnd);
-      }
-    }, 400);
-    return () => clearInterval(interval);
-  }, [selectedDate, startDate, endDate]);
-
   // Quick Date Navigation Handlers
   const handlePrevDay = () => {
     try {
@@ -244,21 +216,37 @@ export default function HubstaffAnalyticsPage() {
   };
 
   // Explicit Search/Go trigger: reads the date input(s)' raw DOM value
-  // directly at click time and fetches with it, so it works even if the
-  // native picker never fired a change/input/blur event that would
-  // otherwise have synced React state.
+  // directly at click time (works even if the native picker never fired a
+  // change/input/blur event) and fetches with it.
+  //
+  // Exactly one of the two branches below runs per click, never both: if the
+  // DOM value differs from state, update state and let the existing
+  // useEffect (below) run the fetch — same path "Yesterday"/"Today"/prev/next
+  // already use successfully. If the value is unchanged (user wants an
+  // explicit re-search on the same date), state won't change and that
+  // effect won't re-fire, so fetch directly instead. Earlier version called
+  // setState AND fetchAnalytics() unconditionally, firing two concurrent
+  // requests that raced on the shared `loading` state — that's the bug that
+  // made Search appear to do nothing.
   const handleSearchDate = () => {
-    setLoading(true);
     if (dateMode === "single") {
       const val = selectedDateInputRef.current?.value || selectedDate;
-      setSelectedDate(val);
-      fetchAnalytics(true, { date: val });
+      if (val !== selectedDate) {
+        setLoading(true);
+        setSelectedDate(val);
+      } else {
+        fetchAnalytics(true);
+      }
     } else {
       const s = startDateInputRef.current?.value || startDate;
       const e = endDateInputRef.current?.value || endDate;
-      setStartDate(s);
-      setEndDate(e);
-      fetchAnalytics(true, { start_date: s, end_date: e });
+      if (s !== startDate || e !== endDate) {
+        setLoading(true);
+        setStartDate(s);
+        setEndDate(e);
+      } else {
+        fetchAnalytics(true);
+      }
     }
   };
 
