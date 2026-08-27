@@ -419,9 +419,20 @@ export default function HubstaffAnalyticsPage() {
                     type="date"
                     value={selectedDate}
                     onChange={(e) => {
-                      if (e.target.value) {
+                      // Native date-picker popup selections don't always fire a
+                      // React-visible "change" reliably across browsers — onInput
+                      // below is a fallback for that; both funnel into the same
+                      // dedup'd setter so a double-fire is harmless.
+                      if (e.target.value && e.target.value !== selectedDate) {
                         setLoading(true);
                         setSelectedDate(e.target.value);
+                      }
+                    }}
+                    onInput={(e) => {
+                      const val = (e.target as HTMLInputElement).value;
+                      if (val && val !== selectedDate) {
+                        setLoading(true);
+                        setSelectedDate(val);
                       }
                     }}
                     className="bg-transparent text-slate-900 dark:text-white text-xs font-semibold outline-none focus:ring-0 cursor-pointer"
@@ -478,9 +489,16 @@ export default function HubstaffAnalyticsPage() {
                   type="date"
                   value={startDate}
                   onChange={(e) => {
-                    if (e.target.value) {
+                    if (e.target.value && e.target.value !== startDate) {
                       setLoading(true);
                       setStartDate(e.target.value);
+                    }
+                  }}
+                  onInput={(e) => {
+                    const val = (e.target as HTMLInputElement).value;
+                    if (val && val !== startDate) {
+                      setLoading(true);
+                      setStartDate(val);
                     }
                   }}
                   className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs font-semibold rounded-xl px-2.5 py-1.5 outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer"
@@ -490,9 +508,16 @@ export default function HubstaffAnalyticsPage() {
                   type="date"
                   value={endDate}
                   onChange={(e) => {
-                    if (e.target.value) {
+                    if (e.target.value && e.target.value !== endDate) {
                       setLoading(true);
                       setEndDate(e.target.value);
+                    }
+                  }}
+                  onInput={(e) => {
+                    const val = (e.target as HTMLInputElement).value;
+                    if (val && val !== endDate) {
+                      setLoading(true);
+                      setEndDate(val);
                     }
                   }}
                   className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs font-semibold rounded-xl px-2.5 py-1.5 outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer"
