@@ -517,12 +517,15 @@ class HubstaffService
             $tz = config('app.timezone', 'Asia/Kolkata');
             $startStr = \Carbon\Carbon::parse($startDate, $tz)->toDateString();
             $stopStr = \Carbon\Carbon::parse($endDate, $tz)->toDateString();
-            // Query a 1-day-padded window on both ends. Some Hubstaff v2 endpoints
-            // treat date[stop] as exclusive, which silently returns zero rows for
-            // single-day queries (start === stop). We widen the request and then
-            // strictly re-filter to [$startStr, $stopStr] below, so padding can
-            // never leak out-of-range data into the response.
-            $queryStartStr = \Carbon\Carbon::parse($startDate, $tz)->subDay()->toDateString();
+            // Pad date[stop] forward by 1 day only. Hubstaff v2 treats date[stop] as
+            // exclusive, so a single-day query (start === stop) requests a zero-width
+            // window and always returns zero rows. We do NOT pad the start
+            // backward: confirmed in production that doing so pulls in the *previous*
+            // day's real, correctly-dated activity and it gets mislabeled as belonging
+            // to the requested day once accepted. The final pass below still clamps
+            // strictly to [$startStr, $stopStr], so this padding only ever rescues the
+            // exclusive-stop dead zone — it can't leak adjacent-day data either way.
+            $queryStartStr = $startStr;
             $queryStopStr = \Carbon\Carbon::parse($endDate, $tz)->addDay()->toDateString();
             $allActivities = [];
             $debug = [];
@@ -614,7 +617,7 @@ class HubstaffService
 
             // ── Strategy 2: /activities (Core 10-min activity blocks with timezone UTC window) ─
             if (empty($allActivities)) {
-                $startUtc = \Carbon\Carbon::parse($startDate, $tz)->subDay()->startOfDay()->setTimezone('UTC')->toIso8601ZuluString();
+                $startUtc = \Carbon\Carbon::parse($startDate, $tz)->startOfDay()->setTimezone('UTC')->toIso8601ZuluString();
                 $stopUtc = \Carbon\Carbon::parse($endDate, $tz)->addDay()->endOfDay()->setTimezone('UTC')->toIso8601ZuluString();
 
                 $rawActsEndpoint = "{$baseUrl}/organizations/{$orgId}/activities";
@@ -726,9 +729,11 @@ class HubstaffService
             }
 
             // ── Final pass: normalize each record's local date and strictly clamp to
-            // the requested [$startStr, $stopStr] window. The query above is padded
-            // by a day on each side to dodge exclusive-stop / off-by-one API quirks,
-            // so anything outside the actual requested range is dropped here.
+            // the requested [$startStr, $stopStr] window. date[stop] above is padded
+            // 1 day forward only (dodges Hubstaff's exclusive-stop dead zone on
+            // single-day queries) — the start is never padded backward, so this
+            // clamp only ever trims the deliberate forward padding, never legitimate
+            // prior-day data getting relabeled as today's.
             $normalized = [];
             foreach ($allActivities as $act) {
                 $dt = (string) ($act['date'] ?? '');
@@ -749,15 +754,8 @@ class HubstaffService
                 if (empty($dt)) {
                     continue; // no resolvable date — skip rather than mis-bucket
                 }
-                if ($dt < $queryStartStr || $dt > $queryStopStr) {
-                    // Genuinely outside even the padded window — real leakage, drop it.
-                    // (Deliberately NOT clamped to the exact [$startStr, $stopStr] date:
-                    // Hubstaff's own day-bucketing can legitimately land a record one
-                    // day off from our local-tz expectation near midnight boundaries —
-                    // confirmed in production, where a same-day query's only matching
-                    // record carried date=$startStr-minus-1-day. Discarding that here
-                    // reproduced the "0h/0%/0 users" bug this fix exists to prevent.)
-                    continue;
+                if ($dt < $startStr || $dt > $stopStr) {
+                    continue; // outside the exact requested date range
                 }
                 $act['date'] = $dt;
                 $normalized[] = $act;
