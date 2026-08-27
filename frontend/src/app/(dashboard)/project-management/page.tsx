@@ -266,31 +266,32 @@ export default function ProjectManagementDashboard() {
 
           <Link
             href="/project-management/tasks/my"
-            style={{ backgroundColor: "#f3e8ff", color: "#56348f" }}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-100 dark:bg-purple-950/60 hover:bg-purple-200/80 dark:hover:bg-purple-900/80 !text-[#56348f] dark:!text-purple-300 text-xs sm:text-sm font-bold border border-purple-300 dark:border-purple-800/80 shadow-2xs transition-colors"
+            style={{ backgroundColor: "#f3e8ff", color: "#56348f", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-100 dark:bg-purple-950/60 hover:bg-purple-200/80 dark:hover:bg-purple-900/80 !text-[#56348f] dark:!text-purple-300 text-[13px] leading-[20px] font-normal border border-purple-300 dark:border-purple-800/80 shadow-2xs transition-colors"
           >
             <ListTodo className="w-4 h-4 !text-[#56348f] dark:!text-purple-300" />
-            <span className="!text-[#56348f] dark:!text-purple-300 font-bold">My Tasks</span>
+            <span style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }} className="!text-[#56348f] dark:!text-purple-300">My Tasks</span>
           </Link>
 
           <button
             type="button"
             onClick={handleImportHubstaff}
             disabled={importingHubstaff || loading}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 !text-slate-900 dark:!text-slate-100 text-xs sm:text-sm font-bold border border-slate-300 dark:border-slate-700 shadow-2xs transition-all disabled:opacity-50 cursor-pointer"
+            style={{ backgroundColor: "#ffffff", color: "#0f172a", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 !text-slate-900 dark:!text-slate-100 text-[13px] leading-[20px] font-normal border border-slate-300 dark:border-slate-700 shadow-2xs transition-all disabled:opacity-50 cursor-pointer"
             title="Import all active projects from Hubstaff without duplicating"
           >
             <CloudDownload className={`w-4 h-4 text-sky-600 dark:text-sky-400 ${importingHubstaff ? "animate-spin" : ""}`} />
-            <span className="!text-slate-900 dark:!text-slate-100 font-bold">{importingHubstaff ? "Importing…" : "Import from Hubstaff"}</span>
+            <span style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }} className="!text-slate-900 dark:!text-slate-100">{importingHubstaff ? "Importing…" : "Import from Hubstaff"}</span>
           </button>
 
           <Link
             href="/project-management/projects"
-            style={{ backgroundColor: "#56348f", color: "#ffffff" }}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs sm:text-sm font-bold shadow-sm transition-colors"
+            style={{ backgroundColor: "#56348f", color: "rgb(255, 255, 255)", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-[13px] leading-[20px] font-normal shadow-sm transition-colors"
           >
             <FolderKanban className="w-4 h-4 !text-white" />
-            <span className="!text-white font-bold">View Projects</span>
+            <span style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400, color: "rgb(255, 255, 255)" }} className="!text-white">View Projects</span>
           </Link>
         </div>
       </div>

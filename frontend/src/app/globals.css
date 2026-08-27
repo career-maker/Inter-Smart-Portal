@@ -4,6 +4,13 @@
   html, body, *, :root {
     font-family: "Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
   }
+
+  button, [role="button"] {
+    font-family: "Proxima Nova", sans-serif;
+    font-style: normal;
+    font-size: 13px;
+    line-height: 20px;
+  }
 }
 
 /* ── Global Custom Select Dropdown Styles ── */

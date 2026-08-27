@@ -37,15 +37,31 @@ export function PMDepartmentSwitcher({
         <button
           type="button"
           onClick={() => onSelectTeam(null)}
-          style={selectedTeamId === null ? { backgroundColor: "#56348f", color: "#ffffff" } : undefined}
-          className={`shrink-0 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all duration-200 cursor-pointer shadow-xs ${
+          style={{
+            backgroundColor: selectedTeamId === null ? "#56348f" : undefined,
+            color: selectedTeamId === null ? "rgb(255, 255, 255)" : undefined,
+            fontFamily: '"Proxima Nova", sans-serif',
+            fontSize: "13px",
+            lineHeight: "20px",
+            fontWeight: 400,
+          }}
+          className={`shrink-0 px-4 py-2 rounded-xl text-[13px] leading-[20px] font-normal flex items-center gap-2 transition-all duration-200 cursor-pointer shadow-xs ${
             selectedTeamId === null
               ? "bg-[#56348f] !text-white shadow-md scale-[1.02]"
               : "bg-slate-100 hover:bg-purple-50 dark:bg-slate-900 dark:hover:bg-slate-700 !text-slate-800 dark:!text-slate-100 border border-slate-300/80 dark:border-slate-700 hover:border-[#56348f]/40"
           }`}
         >
           <Layers className={`w-4 h-4 ${selectedTeamId === null ? "!text-white" : "text-[#56348f] dark:text-purple-400"}`} />
-          <span className={selectedTeamId === null ? "!text-white font-bold" : "!text-slate-800 dark:!text-slate-100 font-bold"}>
+          <span
+            style={{
+              fontFamily: '"Proxima Nova", sans-serif',
+              fontSize: "13px",
+              lineHeight: "20px",
+              fontWeight: 400,
+              color: selectedTeamId === null ? "rgb(255, 255, 255)" : undefined,
+            }}
+            className={selectedTeamId === null ? "!text-white" : "!text-slate-800 dark:!text-slate-100"}
+          >
             All Departments
           </span>
         </button>
@@ -58,15 +74,31 @@ export function PMDepartmentSwitcher({
               type="button"
               key={team.id}
               onClick={() => onSelectTeam(team.id)}
-              style={isSelected ? { backgroundColor: "#56348f", color: "#ffffff" } : undefined}
-              className={`shrink-0 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all duration-200 cursor-pointer shadow-xs ${
+              style={{
+                backgroundColor: isSelected ? "#56348f" : undefined,
+                color: isSelected ? "rgb(255, 255, 255)" : undefined,
+                fontFamily: '"Proxima Nova", sans-serif',
+                fontSize: "13px",
+                lineHeight: "20px",
+                fontWeight: 400,
+              }}
+              className={`shrink-0 px-4 py-2 rounded-xl text-[13px] leading-[20px] font-normal flex items-center gap-2 transition-all duration-200 cursor-pointer shadow-xs ${
                 isSelected
                   ? "bg-[#56348f] !text-white shadow-md scale-[1.02]"
                   : "bg-slate-100 hover:bg-purple-50 dark:bg-slate-900 dark:hover:bg-slate-700 !text-slate-800 dark:!text-slate-100 border border-slate-300/80 dark:border-slate-700 hover:border-[#56348f]/40"
               }`}
             >
               <Users className={`w-4 h-4 ${isSelected ? "!text-white" : "text-[#56348f] dark:text-purple-400"}`} />
-              <span className={isSelected ? "!text-white font-bold" : "!text-slate-800 dark:!text-slate-100 font-bold"}>
+              <span
+                style={{
+                  fontFamily: '"Proxima Nova", sans-serif',
+                  fontSize: "13px",
+                  lineHeight: "20px",
+                  fontWeight: 400,
+                  color: isSelected ? "rgb(255, 255, 255)" : undefined,
+                }}
+                className={isSelected ? "!text-white" : "!text-slate-800 dark:!text-slate-100"}
+              >
                 {team.name}
               </span>
             </button>
