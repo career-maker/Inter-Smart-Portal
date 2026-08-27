@@ -261,24 +261,44 @@ class HubstaffProjectController extends Controller
             $hsPid = (string) ($act['project_id'] ?? '');
             $date = (string) ($act['date'] ?? '');
             if (empty($date) && !empty($act['starts_at'])) {
-                $date = substr((string) $act['starts_at'], 0, 10);
+                try {
+                    $date = \Carbon\Carbon::parse($act['starts_at'])->setTimezone(config('app.timezone', 'Asia/Kolkata'))->toDateString();
+                } catch (\Throwable $e) {
+                    $date = substr((string) $act['starts_at'], 0, 10);
+                }
             }
             if (empty($date) && !empty($act['time_slot'])) {
-                $date = substr((string) $act['time_slot'], 0, 10);
+                try {
+                    $date = \Carbon\Carbon::parse($act['time_slot'])->setTimezone(config('app.timezone', 'Asia/Kolkata'))->toDateString();
+                } catch (\Throwable $e) {
+                    $date = substr((string) $act['time_slot'], 0, 10);
+                }
             }
             if (empty($date)) {
                 $date = $startDate;
             }
-            $tracked = (int) ($act['tracked'] ?? 0);
+            $tracked = (int) ($act['tracked'] ?? $act['input_tracked'] ?? 0);
             
-            // Hubstaff v2 returns activity in basis points (e.g. 5929 for 59.29%) or fraction (0.5929) or percentage
-            $rawActivity = (float) ($act['overall'] ?? $act['activity'] ?? 0);
-            if ($rawActivity > 100) {
-                $activity = $rawActivity / 100.0;
-            } elseif ($rawActivity > 0 && $rawActivity <= 1.0) {
-                $activity = $rawActivity * 100.0;
+            // Hubstaff v2 returns either active seconds in 'overall', or percentage/fraction in 'activity'
+            $rawOverall = (float) ($act['overall'] ?? 0);
+            $rawActivity = (float) ($act['activity'] ?? 0);
+            
+            if ($rawActivity > 0) {
+                if ($rawActivity > 100) {
+                    $activity = $rawActivity / 100.0;
+                } elseif ($rawActivity <= 1.0) {
+                    $activity = $rawActivity * 100.0;
+                } else {
+                    $activity = $rawActivity;
+                }
+            } elseif ($tracked > 0 && $rawOverall > 0) {
+                if ($rawOverall > $tracked) {
+                    $activity = 100.0;
+                } else {
+                    $activity = ($rawOverall / $tracked) * 100.0;
+                }
             } else {
-                $activity = $rawActivity;
+                $activity = 0.0;
             }
 
             // Filter by team scope:

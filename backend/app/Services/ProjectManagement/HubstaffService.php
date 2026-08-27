@@ -473,8 +473,8 @@ class HubstaffService
 
     /**
      * Fetch daily activities (tracked seconds & activity percentage) from Hubstaff API v2.
-     * Caches responses briefly for lightning performance and handles pagination safely.
-     * Falls back seamlessly across daily activities, insights, and raw time-slot activities.
+     * Caches successful responses briefly for lightning performance and handles pagination safely.
+     * Falls back seamlessly across insights and raw time-slot activities in local timezone.
      */
     public function getDailyActivities(string $startDate, string $endDate, bool $forceRefresh = false): array
     {
@@ -483,179 +483,177 @@ class HubstaffService
             \Illuminate\Support\Facades\Cache::forget($cacheKey);
         }
 
-        return \Illuminate\Support\Facades\Cache::remember($cacheKey, 180, function () use ($startDate, $endDate) {
-            $token = $this->getValidAccessToken();
-            $baseUrl = rtrim(config('services.hubstaff.base_url', 'https://api.hubstaff.com/v2'), '/');
-            $orgId = config('services.hubstaff.org_id', 546910);
+        $cached = \Illuminate\Support\Facades\Cache::get($cacheKey);
+        if ($cached !== null && !$forceRefresh && !empty($cached['activities'])) {
+            return $cached;
+        }
 
-            if (empty($token) || empty($orgId)) {
-                return [
-                    'configured' => !empty($token),
-                    'activities' => [],
-                    'message' => 'Hubstaff integration is not configured or access token is missing.',
+        $token = $this->getValidAccessToken();
+        $baseUrl = rtrim(config('services.hubstaff.base_url', 'https://api.hubstaff.com/v2'), '/');
+        $orgId = config('services.hubstaff.org_id', 546910);
+
+        if (empty($token) || empty($orgId)) {
+            return [
+                'configured' => !empty($token),
+                'activities' => [],
+                'message' => 'Hubstaff integration is not configured or access token is missing.',
+            ];
+        }
+
+        try {
+            $tz = config('app.timezone', 'Asia/Kolkata');
+            $startStr = \Carbon\Carbon::parse($startDate, $tz)->toDateString();
+            $stopStr = \Carbon\Carbon::parse($endDate, $tz)->toDateString();
+            $allActivities = [];
+
+            // ── Strategy 1: /insights/activity (Insights endpoint with date[start]/[stop]) ─
+            $insightsEndpoint = "{$baseUrl}/organizations/{$orgId}/insights/activity";
+            $nextStartId = null;
+            $maxPages = 10;
+            $currentPage = 0;
+
+            do {
+                $currentPage++;
+                $queryParams = [
+                    'date' => [
+                        'start' => $startStr,
+                        'stop' => $stopStr,
+                    ],
+                    'page_limit' => 500,
                 ];
-            }
+                if (!empty($nextStartId)) {
+                    $queryParams['page_start_id'] = $nextStartId;
+                }
 
-            try {
-                $startStr = \Carbon\Carbon::parse($startDate)->toDateString();
-                $stopStr = \Carbon\Carbon::parse($endDate)->toDateString();
-                $allActivities = [];
+                $response = Http::withToken($token)->timeout(15)->acceptJson()->get($insightsEndpoint, $queryParams);
 
-                // ── Strategy 1: /activities/daily (Pre-aggregated daily totals) ────────
-                $endpointDaily = "{$baseUrl}/organizations/{$orgId}/activities/daily";
-                $nextStartId = null;
-                $maxPages = 10;
-                $currentPage = 0;
+                // If 401 Unauthorized, refresh token and retry once
+                if ($response->status() === 401 && $currentPage === 1) {
+                    $dbRecord = ProjectHubstaffToken::find(1);
+                    $refreshToken = $dbRecord?->refresh_token ?: config('services.hubstaff.refresh_token');
+                    if (!empty($refreshToken)) {
+                        $token = $this->refreshAccessToken($refreshToken);
+                        if (!empty($token)) {
+                            $response = Http::withToken($token)->timeout(15)->acceptJson()->get($insightsEndpoint, $queryParams);
+                        }
+                    }
+                }
+
+                if (!$response->successful()) {
+                    break;
+                }
+
+                $data = $response->json();
+                $activities = $data['activities'] ?? $data['daily_activities'] ?? $data['insights'] ?? [];
+                if (!empty($activities)) {
+                    $allActivities = array_merge($allActivities, $activities);
+                }
+
+                $pagination = $data['pagination'] ?? [];
+                $nextStartId = $pagination['next_page_start_id'] ?? null;
+            } while (!empty($nextStartId) && $currentPage < $maxPages);
+
+            // ── Strategy 2: /activities (Core 10-min activity blocks with timezone UTC window) ─
+            if (empty($allActivities)) {
+                $startUtc = \Carbon\Carbon::parse($startDate, $tz)->startOfDay()->setTimezone('UTC')->toIso8601ZuluString();
+                $stopUtc = \Carbon\Carbon::parse($endDate, $tz)->endOfDay()->setTimezone('UTC')->toIso8601ZuluString();
+
+                $rawActsEndpoint = "{$baseUrl}/organizations/{$orgId}/activities";
+                $nextPageStart = null;
+                $actPage = 0;
+                $aggregatedDaily = [];
 
                 do {
-                    $currentPage++;
-                    $queryParams = [
-                        'date' => [
-                            'start' => $startStr,
-                            'stop' => $stopStr,
+                    $actPage++;
+                    $rawParams = [
+                        'time_slot' => [
+                            'start' => $startUtc,
+                            'stop' => $stopUtc,
                         ],
                         'page_limit' => 500,
                     ];
-
-                    if (!empty($nextStartId)) {
-                        $queryParams['page_start_id'] = $nextStartId;
+                    if (!empty($nextPageStart)) {
+                        $rawParams['page_start_id'] = $nextPageStart;
                     }
 
-                    $response = Http::withToken($token)
-                        ->timeout(15)
-                        ->acceptJson()
-                        ->get($endpointDaily, $queryParams);
-
-                    // If 401 Unauthorized, refresh token and retry once
-                    if ($response->status() === 401 && $currentPage === 1) {
+                    $rawRes = Http::withToken($token)->timeout(15)->acceptJson()->get($rawActsEndpoint, $rawParams);
+                    if ($rawRes->status() === 401 && $actPage === 1) {
                         $dbRecord = ProjectHubstaffToken::find(1);
                         $refreshToken = $dbRecord?->refresh_token ?: config('services.hubstaff.refresh_token');
                         if (!empty($refreshToken)) {
                             $token = $this->refreshAccessToken($refreshToken);
                             if (!empty($token)) {
-                                $response = Http::withToken($token)
-                                    ->timeout(15)
-                                    ->acceptJson()
-                                    ->get($endpointDaily, $queryParams);
+                                $rawRes = Http::withToken($token)->timeout(15)->acceptJson()->get($rawActsEndpoint, $rawParams);
                             }
                         }
                     }
 
-                    if (!$response->successful()) {
+                    if (!$rawRes->successful()) {
                         break;
                     }
 
-                    $data = $response->json();
-                    $activities = $data['daily_activities'] ?? $data['activities'] ?? [];
-                    if (!empty($activities)) {
-                        $allActivities = array_merge($allActivities, $activities);
-                    }
+                    $rawData = $rawRes->json();
+                    $rawList = $rawData['activities'] ?? [];
 
-                    $pagination = $data['pagination'] ?? [];
-                    $nextStartId = $pagination['next_page_start_id'] ?? null;
-                } while (!empty($nextStartId) && $currentPage < $maxPages);
-
-                // ── Strategy 2: /insights/activity (Insights Add-on endpoint) ─────────
-                if (empty($allActivities)) {
-                    $insightsEndpoint = "{$baseUrl}/organizations/{$orgId}/insights/activity";
-                    $insightsRes = Http::withToken($token)->timeout(15)->acceptJson()->get($insightsEndpoint, [
-                        'date' => [
-                            'start' => $startStr,
-                            'stop' => $stopStr,
-                        ],
-                        'page_limit' => 500,
-                    ]);
-
-                    if ($insightsRes->successful()) {
-                        $insData = $insightsRes->json();
-                        $insActs = $insData['activities'] ?? $insData['daily_activities'] ?? $insData['insights'] ?? [];
-                        if (!empty($insActs)) {
-                            $allActivities = $insActs;
-                        }
-                    }
-                }
-
-                // ── Strategy 3: /activities (Core 10-minute activity blocks with time_slot) ─
-                if (empty($allActivities)) {
-                    $startUtc = \Carbon\Carbon::parse($startDate)->startOfDay()->toIso8601ZuluString();
-                    $stopUtc = \Carbon\Carbon::parse($endDate)->endOfDay()->toIso8601ZuluString();
-
-                    $rawActsEndpoint = "{$baseUrl}/organizations/{$orgId}/activities";
-                    $nextPageStart = null;
-                    $actPage = 0;
-                    $aggregatedDaily = [];
-
-                    do {
-                        $actPage++;
-                        $rawParams = [
-                            'time_slot' => [
-                                'start' => $startUtc,
-                                'stop' => $stopUtc,
-                            ],
-                            'page_limit' => 500,
-                        ];
-                        if (!empty($nextPageStart)) {
-                            $rawParams['page_start_id'] = $nextPageStart;
-                        }
-
-                        $rawRes = Http::withToken($token)->timeout(15)->acceptJson()->get($rawActsEndpoint, $rawParams);
-                        if (!$rawRes->successful()) {
-                            break;
-                        }
-
-                        $rawData = $rawRes->json();
-                        $rawList = $rawData['activities'] ?? [];
-
-                        foreach ($rawList as $actBlock) {
-                            $uId = (string) ($actBlock['user_id'] ?? '');
-                            $pId = (string) ($actBlock['project_id'] ?? '');
-                            $rawDt = (string) ($actBlock['starts_at'] ?? $actBlock['time_slot'] ?? $startStr);
+                    foreach ($rawList as $actBlock) {
+                        $uId = (string) ($actBlock['user_id'] ?? '');
+                        $pId = (string) ($actBlock['project_id'] ?? '');
+                        $rawDt = (string) ($actBlock['starts_at'] ?? $actBlock['time_slot'] ?? $startStr);
+                        try {
+                            $dt = \Carbon\Carbon::parse($rawDt)->setTimezone($tz)->toDateString();
+                        } catch (\Throwable $e) {
                             $dt = substr($rawDt, 0, 10);
-                            $sec = (int) ($actBlock['tracked'] ?? 0);
-                            $actScore = (float) ($actBlock['overall'] ?? $actBlock['activity'] ?? 0);
-
-                            $k = "{$uId}_{$pId}_{$dt}";
-                            if (!isset($aggregatedDaily[$k])) {
-                                $aggregatedDaily[$k] = [
-                                    'user_id' => $uId,
-                                    'project_id' => $pId,
-                                    'date' => $dt,
-                                    'tracked' => 0,
-                                    'activity_weighted_sum' => 0,
-                                    'overall' => 0,
-                                ];
-                            }
-                            $aggregatedDaily[$k]['tracked'] += $sec;
-                            $aggregatedDaily[$k]['activity_weighted_sum'] += ($actScore * $sec);
                         }
+                        $sec = (int) ($actBlock['tracked'] ?? $actBlock['input_tracked'] ?? 0);
+                        $actScore = (float) ($actBlock['overall'] ?? $actBlock['activity'] ?? 0);
 
-                        $pagination = $rawData['pagination'] ?? [];
-                        $nextPageStart = $pagination['next_page_start_id'] ?? null;
-                    } while (!empty($nextPageStart) && $actPage < $maxPages);
-
-                    if (!empty($aggregatedDaily)) {
-                        foreach ($aggregatedDaily as $k => $v) {
-                            $tSec = $v['tracked'];
-                            $aggregatedDaily[$k]['overall'] = $tSec > 0 ? (int) round($v['activity_weighted_sum'] / $tSec) : 0;
+                        $k = "{$uId}_{$pId}_{$dt}";
+                        if (!isset($aggregatedDaily[$k])) {
+                            $aggregatedDaily[$k] = [
+                                'user_id' => $uId,
+                                'project_id' => $pId,
+                                'date' => $dt,
+                                'tracked' => 0,
+                                'activity_weighted_sum' => 0,
+                                'overall' => 0,
+                            ];
                         }
-                        $allActivities = array_values($aggregatedDaily);
+                        $aggregatedDaily[$k]['tracked'] += $sec;
+                        $aggregatedDaily[$k]['activity_weighted_sum'] += ($actScore * $sec);
                     }
-                }
 
-                return [
-                    'configured' => true,
-                    'activities' => $allActivities,
-                    'total_records' => count($allActivities),
-                ];
-            } catch (\Throwable $e) {
-                Log::warning('Hubstaff daily activities fetch exception: ' . $e->getMessage());
-                return [
-                    'configured' => true,
-                    'activities' => [],
-                    'error' => 'Unable to connect to Hubstaff API.',
-                ];
+                    $pagination = $rawData['pagination'] ?? [];
+                    $nextPageStart = $pagination['next_page_start_id'] ?? null;
+                } while (!empty($nextPageStart) && $actPage < $maxPages);
+
+                if (!empty($aggregatedDaily)) {
+                    foreach ($aggregatedDaily as $k => $v) {
+                        $tSec = $v['tracked'];
+                        $aggregatedDaily[$k]['overall'] = $tSec > 0 ? (int) round($v['activity_weighted_sum'] / $tSec) : 0;
+                    }
+                    $allActivities = array_values($aggregatedDaily);
+                }
             }
-        });
+
+            $result = [
+                'configured' => true,
+                'activities' => $allActivities,
+                'total_records' => count($allActivities),
+            ];
+
+            // Cache for 3 minutes if records exist, otherwise short 15-second cache
+            $ttl = !empty($allActivities) ? 180 : 15;
+            \Illuminate\Support\Facades\Cache::put($cacheKey, $result, $ttl);
+
+            return $result;
+        } catch (\Throwable $e) {
+            Log::warning('Hubstaff daily activities fetch exception: ' . $e->getMessage());
+            return [
+                'configured' => true,
+                'activities' => [],
+                'error' => 'Unable to connect to Hubstaff API.',
+            ];
+        }
     }
 }
 
