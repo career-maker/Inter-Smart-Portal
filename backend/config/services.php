@@ -52,7 +52,7 @@ return [
         'refresh_token' => env('HUBSTAFF_REFRESH_TOKEN'),
         'personal_token' => env('HUBSTAFF_PERSONAL_TOKEN'),
         'access_token' => env('HUBSTAFF_ACCESS_TOKEN'),
-        'org_id' => env('HUBSTAFF_ORG_ID'),
+        'org_id' => env('HUBSTAFF_ORG_ID', 546910),
         'base_url' => env('HUBSTAFF_BASE_URL', 'https://api.hubstaff.com/v2'),
         'auth_url' => env('HUBSTAFF_AUTH_URL', 'https://account.hubstaff.com/access_tokens'),
     ],

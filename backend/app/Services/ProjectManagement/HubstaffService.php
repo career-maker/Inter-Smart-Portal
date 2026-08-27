@@ -151,7 +151,7 @@ class HubstaffService
         }
 
         $baseUrl = rtrim(config('services.hubstaff.base_url', 'https://api.hubstaff.com/v2'), '/');
-        $orgId = config('services.hubstaff.org_id');
+        $orgId = (int) (config('services.hubstaff.org_id') ?: 546910);
 
         try {
             $endpoint = !empty($orgId)
@@ -490,14 +490,27 @@ class HubstaffService
 
         $token = $this->getValidAccessToken();
         $baseUrl = rtrim(config('services.hubstaff.base_url', 'https://api.hubstaff.com/v2'), '/');
-        $orgId = config('services.hubstaff.org_id', 546910);
+        $orgId = (int) (config('services.hubstaff.org_id') ?: 546910);
 
-        if (empty($token) || empty($orgId)) {
+        if (empty($token)) {
             return [
-                'configured' => !empty($token),
+                'configured' => false,
                 'activities' => [],
                 'message' => 'Hubstaff integration is not configured or access token is missing.',
             ];
+        }
+
+        // Dynamically resolve organization ID if needed
+        try {
+            $orgRes = Http::withToken($token)->timeout(4)->acceptJson()->get("{$baseUrl}/organizations");
+            if ($orgRes->successful()) {
+                $orgs = $orgRes->json()['organizations'] ?? [];
+                if (!empty($orgs[0]['id'])) {
+                    $orgId = (int) $orgs[0]['id'];
+                }
+            }
+        } catch (\Throwable $e) {
+            // Keep default $orgId
         }
 
         try {
