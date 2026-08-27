@@ -600,56 +600,57 @@ export function CommunityFeed() {
   return (
     <div
       style={{
-        fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
       }}
-      className="space-y-6"
+      className="bg-[#F0F2F5] dark:bg-slate-900 min-h-screen py-6 px-4 sm:px-0"
     >
-      {/* ── TOP POST PUBLISHER BOX ── */}
-      <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 shadow-xs mb-6 relative">
-        {/* Hidden File Input for All Tabs */}
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleImageChange}
-          accept="image/*,.pdf,.doc,.docx,.png,.jpg,.jpeg"
-          multiple
-          className="hidden"
-        />
-        
-        {/* Post Type Selector Tabs */}
-        <div className="flex items-center gap-6 px-5 pt-3 border-b border-slate-100 dark:border-slate-700/60">
-          <button
-            onClick={() => setActiveType("post")}
-            className={`flex items-center gap-2 text-[14px] font-medium pb-3 border-b-2 transition-all cursor-pointer -mb-[1px] ${
-              activeType === "post" ? "border-[#56348f] text-slate-700 dark:text-white" : "border-transparent text-slate-500 hover:text-slate-700"
-            }`}
-          >
-            <Edit3 className="w-[18px] h-[18px] text-[#c078c9]" />
-            <span>Post</span>
-          </button>
+      <div className="max-w-[680px] mx-auto space-y-4">
+        {/* ── TOP POST PUBLISHER BOX ── */}
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-[0_1px_2px_rgba(0,0,0,0.1)] mb-4">
+          {/* Hidden File Input for All Tabs */}
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleImageChange}
+            accept="image/*,.pdf,.doc,.docx,.png,.jpg,.jpeg"
+            multiple
+            className="hidden"
+          />
+          
+          {/* Post Type Selector Tabs */}
+          <div className="flex items-center px-2 pt-2 border-b border-slate-200 dark:border-slate-700">
+            <button
+              onClick={() => setActiveType("post")}
+              className={`flex-1 flex items-center justify-center gap-2 text-[14px] font-semibold p-2.5 rounded-md transition-all cursor-pointer mb-2 ${
+                activeType === "post" ? "bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-white" : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700"
+              }`}
+            >
+              <Edit3 className="w-5 h-5 text-red-500" />
+              <span>Post</span>
+            </button>
 
-          <button
-            onClick={() => setActiveType("poll")}
-            className={`flex items-center gap-2 text-[14px] font-medium pb-3 border-b-2 transition-all cursor-pointer -mb-[1px] ${
-              activeType === "poll" ? "border-[#56348f] text-slate-700 dark:text-white" : "border-transparent text-slate-500 hover:text-slate-700"
-            }`}
-          >
-            <BarChart2 className="w-[18px] h-[18px] text-[#86c374]" />
-            <span>Poll</span>
-          </button>
+            <button
+              onClick={() => setActiveType("poll")}
+              className={`flex-1 flex items-center justify-center gap-2 text-[14px] font-semibold p-2.5 rounded-md transition-all cursor-pointer mb-2 ${
+                activeType === "poll" ? "bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-white" : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700"
+              }`}
+            >
+              <BarChart2 className="w-5 h-5 text-green-500" />
+              <span>Poll</span>
+            </button>
 
-          <button
-            onClick={() => setActiveType("praise")}
-            className={`flex items-center gap-2 text-[14px] font-medium pb-3 border-b-2 transition-all cursor-pointer -mb-[1px] ${
-              activeType === "praise" ? "border-[#56348f] text-slate-700 dark:text-white" : "border-transparent text-slate-500 hover:text-slate-700"
-            }`}
-          >
-            <Medal className="w-[18px] h-[18px] text-[#d6b783]" />
-            <span>Praise</span>
-          </button>
-        </div>
+            <button
+              onClick={() => setActiveType("praise")}
+              className={`flex-1 flex items-center justify-center gap-2 text-[14px] font-semibold p-2.5 rounded-md transition-all cursor-pointer mb-2 ${
+                activeType === "praise" ? "bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-white" : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700"
+              }`}
+            >
+              <Medal className="w-5 h-5 text-yellow-500" />
+              <span>Praise</span>
+            </button>
+          </div>
 
-        <div className="p-5">
+          <div className="p-4">
 
         {/* ── PRAISE CREATION FORM (Multiple Employees Supported) ── */}
         {activeType === "praise" ? (
@@ -1250,11 +1251,11 @@ export function CommunityFeed() {
             return (
               <div
                 key={post.id}
-                className="bg-white dark:bg-slate-800 rounded-md border border-slate-200/90 dark:border-slate-700/60 shadow-sm p-4 sm:p-6 space-y-4"
+                className="bg-white dark:bg-slate-800 rounded-lg shadow-[0_1px_2px_rgba(0,0,0,0.1)] mb-4"
               >
                 {/* Author Info Header matching screenshot exact layout */}
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3.5 min-w-0">
+                <div className="flex items-start justify-between px-4 pt-4 pb-2">
+                  <div className="flex items-center gap-2 min-w-0">
                     <RoyalAvatar
                       src={post.user?.profile_photo_path}
                       name={authorName}
@@ -1262,16 +1263,18 @@ export function CommunityFeed() {
                       className="w-10 h-10 rounded-full shrink-0"
                     />
                     <div className="min-w-0 space-y-0.5">
-                      <p className="text-[13.5px] leading-tight text-slate-800 dark:text-white truncate flex items-center gap-1.5">
-                        <span className="font-semibold text-slate-900 dark:text-white">
+                      <p className="text-[14px] leading-tight text-slate-800 dark:text-white truncate flex items-center gap-1.5">
+                        <span className="font-bold text-slate-900 dark:text-white hover:underline cursor-pointer">
                           <RoyalName name={authorName} userId={post.user_id} />
                         </span>
-                        <span className="text-slate-500 dark:text-slate-400 font-normal text-xs">
-                          {isPraise ? "shared a praise" : isPoll ? "created a poll" : "created a post"}
+                        <span className="text-slate-500 dark:text-slate-400 font-normal text-[14px]">
+                          {isPraise ? "shared a praise" : isPoll ? "created a poll" : ""}
                         </span>
                       </p>
-                      <p className="text-[11.5px] text-slate-400 dark:text-slate-500 font-normal">
+                      <p className="text-[12px] text-slate-500 dark:text-slate-400 font-normal flex items-center gap-1">
                         {formatRelativeTime(post.created_at)}
+                        <span>·</span>
+                        <Globe className="w-3 h-3" />
                       </p>
                     </div>
                   </div>
@@ -1279,7 +1282,7 @@ export function CommunityFeed() {
                   {canDelete && (
                     <button
                       onClick={() => handleDeletePost(post.id)}
-                      className="text-slate-400 hover:text-red-500 p-1 rounded-md transition-colors cursor-pointer"
+                      className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
                       title={isSuperAdmin ? "Delete Post (Super Admin)" : "Delete Post"}
                     >
                       <Trash2 className="w-4 h-4" />
@@ -1289,35 +1292,34 @@ export function CommunityFeed() {
 
                 {/* Praise Highlight Card (Multi-recipient supported) */}
                 {isPraise && (
-                  <div className="p-4 bg-gradient-to-r from-amber-50/90 via-purple-50/60 to-pink-50/60 dark:from-amber-950/20 dark:via-purple-950/20 dark:to-pink-950/20 rounded-md border border-amber-200/80 dark:border-amber-900/30 flex items-center justify-between gap-3">
+                  <div className="flex items-center justify-between gap-3 px-4 pb-2">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 flex items-center justify-center text-xl shrink-0 shadow-xs">
-                        🎖️
-                      </div>
                       <div className="min-w-0">
-                        <p className="text-xs font-bold text-slate-900 dark:text-white flex flex-wrap items-center gap-1">
-                          <span>Praise for</span>
+                        <p className="text-[14px] text-slate-900 dark:text-white flex flex-wrap items-center gap-1">
+                          <span className="font-semibold">Praise for</span>
                           {praisedList.length > 0 ? (
                             praisedList.map((pUser: any, pIdx: number) => (
-                              <span key={pUser.id || pIdx} className="text-[#56348f] dark:text-purple-300 font-bold">
+                              <span key={pUser.id || pIdx} className="text-[#56348f] dark:text-purple-400 font-semibold">
                                 {pUser.first_name} {pUser.last_name}
                                 {pIdx < praisedList.length - 1 ? "," : ""}
                               </span>
                             ))
                           ) : (
-                            <span>Colleague</span>
+                            <span className="font-semibold text-[#56348f]">Colleague</span>
                           )}
                         </p>
-                        {post.poll_data?.badge && (
-                          <span className="inline-block mt-0.5 text-[10px] font-bold px-2 py-0.5 bg-amber-200/70 dark:bg-amber-900/50 text-amber-800 dark:text-amber-200 rounded-full">
-                            Badge: {post.poll_data.badge}
-                          </span>
-                        )}
-                        {post.poll_data?.project_name && (
-                          <span className="ml-1.5 inline-block text-[10px] text-slate-500 dark:text-slate-400">
-                            • Project: {post.poll_data.project_name}
-                          </span>
-                        )}
+                        <div className="flex items-center gap-2 mt-1">
+                          {post.poll_data?.badge && (
+                            <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-full">
+                              🎖️ {post.poll_data.badge}
+                            </span>
+                          )}
+                          {post.poll_data?.project_name && (
+                            <span className="inline-block text-[11px] text-slate-500 dark:text-slate-400">
+                              • Project: {post.poll_data.project_name}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
 
@@ -1330,11 +1332,11 @@ export function CommunityFeed() {
                             src={pUser.profile_photo_path}
                             name={`${pUser.first_name} ${pUser.last_name}`}
                             userId={pUser.id}
-                            className="w-8 h-8 rounded-full ring-2 ring-amber-400"
+                            className="w-8 h-8 rounded-full ring-2 ring-white dark:ring-slate-800 shadow-sm"
                           />
                         ))}
                         {praisedList.length > 3 && (
-                          <span className="w-8 h-8 rounded-full bg-purple-200 text-[#56348f] text-[10px] font-bold flex items-center justify-center ring-2 ring-white">
+                          <span className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-bold flex items-center justify-center ring-2 ring-white dark:ring-slate-800 shadow-sm">
                             +{praisedList.length - 3}
                           </span>
                         )}
@@ -1345,10 +1347,10 @@ export function CommunityFeed() {
 
                 {/* Post Body Text with proper padding and line-height */}
                 {post.content && (
-                  <div className="text-[13.5px] leading-relaxed text-slate-800 dark:text-slate-200 whitespace-pre-wrap pt-0.5">
+                  <div className="text-[14px] leading-relaxed text-slate-900 dark:text-slate-200 whitespace-pre-wrap px-4 pb-3">
                     {post.type === "poll" && (
-                      <div className="mb-2 inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300 rounded-full">
-                        <BarChart2 className="w-3 h-3 text-emerald-500" /> Community Poll
+                      <div className="mb-2 inline-flex items-center gap-1 text-[13px] font-semibold px-2.5 py-0.5 bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200 rounded-full">
+                        <BarChart2 className="w-4 h-4 text-[#56348f]" /> Community Poll
                       </div>
                     )}
                     <p className={isPoll ? "font-semibold text-sm text-slate-900 dark:text-white" : ""}>
@@ -1359,7 +1361,7 @@ export function CommunityFeed() {
 
                 {/* Poll Options & Live Voting */}
                 {isPoll && (
-                  <div className="space-y-2.5 pt-1">
+                  <div className="space-y-2.5 px-4 pb-3 pt-1">
                     {post.poll_data.options.map((opt: any) => {
                       const totalVotes = post.poll_data.total_votes || 0;
                       const voteCount = opt.votes || 0;
@@ -1517,12 +1519,32 @@ export function CommunityFeed() {
                   );
                 })()}
 
-                {/* Like & Comment Action Bar */}
-                <div className="flex items-center justify-between pt-3.5 border-t border-slate-100 dark:border-slate-700/60 text-xs select-none">
-                  {/* Left: Like */}
-                  <div className="flex items-center gap-2 shrink-0">
+                {/* Facebook Style Action Bar */}
+                <div className="px-4">
+                  {/* Stats Row */}
+                  {((post.likes_count || 0) > 0 || (post.comments_count || 0) > 0) && (
+                    <div className="flex items-center justify-between py-2 text-[13px] text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700">
+                      <div className="flex items-center gap-1.5 cursor-pointer hover:underline" onClick={() => { setReactionModalPost(post); setReactionModalTab("all"); }}>
+                        {(post.likes_count || 0) > 0 && (
+                          <>
+                            <span className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center text-white text-[10px]">👍</span>
+                            <span>{post.likes_count}</span>
+                          </>
+                        )}
+                      </div>
+                      <div className="cursor-pointer hover:underline" onClick={() => setOpenComments((prev) => ({ ...prev, [post.id]: true }))}>
+                        {(post.comments_count || 0) > 0 && (
+                          <span>{post.comments_count} {post.comments_count === 1 ? 'Comment' : 'Comments'}</span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Buttons Row */}
+                  <div className={`flex items-center justify-between py-1 ${!post.likes_count && !post.comments_count ? "border-t border-slate-200 dark:border-slate-700 mt-2" : ""}`}>
+                    {/* Like Button */}
                     <div
-                      className="relative group/reaction-box"
+                      className="relative group/reaction-box flex-1"
                       onMouseEnter={() => handleMouseEnterLike(post.id)}
                       onMouseLeave={() => handleMouseLeaveLike(post.id)}
                       onTouchStart={() => handleTouchStartLike(post.id)}
@@ -1530,13 +1552,13 @@ export function CommunityFeed() {
                     >
                       {/* Floating Emoji Reactions Bar */}
                       <div
-                        className={`absolute bottom-full left-0 pb-2.5 z-50 transition-all duration-200 ${
+                        className={`absolute bottom-full left-1/2 -translate-x-1/2 pb-2 z-50 transition-all duration-200 ${
                           hoveredReactionPostId === post.id
                             ? "opacity-100 visible translate-y-0"
                             : "opacity-0 invisible pointer-events-none translate-y-1 group-hover/reaction-box:opacity-100 group-hover/reaction-box:visible group-hover/reaction-box:pointer-events-auto group-hover/reaction-box:translate-y-0"
                         }`}
                       >
-                        <div className="flex items-center gap-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-2 py-1.5 rounded-full shadow-2xl backdrop-blur-md">
+                        <div className="flex items-center gap-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-1.5 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.15)]">
                           {EMOJI_REACTIONS.map((re) => {
                             const isSelected = post.user_reaction === re.id;
                             return (
@@ -1547,10 +1569,8 @@ export function CommunityFeed() {
                                   e.stopPropagation();
                                   handleToggleLike(post.id, re.id);
                                 }}
-                                className={`w-8 h-8 rounded-full flex items-center justify-center text-lg transition-transform hover:scale-135 active:scale-95 cursor-pointer ${
-                                  isSelected
-                                    ? "bg-purple-100 dark:bg-purple-950 scale-110 ring-2 ring-[#56348f]"
-                                    : "hover:bg-slate-100 dark:hover:bg-slate-800"
+                                className={`w-8 h-8 rounded-full flex items-center justify-center text-lg transition-transform hover:scale-125 cursor-pointer ${
+                                  isSelected ? "scale-110 ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/30" : "hover:bg-slate-100 dark:hover:bg-slate-700"
                                 }`}
                                 title={re.label}
                               >
@@ -1561,22 +1581,21 @@ export function CommunityFeed() {
                         </div>
                       </div>
 
-                      {/* Main Trigger Button */}
                       <button
                         type="button"
                         onClick={() => handleToggleLike(post.id, post.user_reaction || "like")}
-                        className={`flex items-center gap-1.5 text-xs font-semibold transition-colors cursor-pointer py-1.5 ${
+                        className={`w-full flex items-center justify-center gap-2 text-[14px] font-semibold py-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer ${
                           post.user_has_liked
-                            ? (EMOJI_REACTIONS.find((r) => r.id === post.user_reaction)?.color || "text-[#56348f]")
-                            : "text-[#56348f] dark:text-purple-300 hover:text-purple-800"
+                            ? (post.user_reaction === "like" ? "text-blue-600 dark:text-blue-400" : (EMOJI_REACTIONS.find((r) => r.id === post.user_reaction)?.color || "text-blue-600 dark:text-blue-400"))
+                            : "text-slate-500 dark:text-slate-400"
                         }`}
                       >
                         {post.user_reaction ? (
-                          <span className="text-sm">
+                          <span className="text-lg leading-none mb-0.5">
                             {EMOJI_REACTIONS.find((r) => r.id === post.user_reaction)?.emoji || "👍"}
                           </span>
                         ) : (
-                          <ThumbsUp className="w-4 h-4 text-[#56348f]" />
+                          <ThumbsUp className="w-5 h-5" />
                         )}
                         <span>
                           {post.user_reaction
@@ -1586,106 +1605,85 @@ export function CommunityFeed() {
                       </button>
                     </div>
 
-                    {/* Like Count */}
-                    {(post.likes_count || 0) > 0 && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setReactionModalPost(post);
-                          setReactionModalTab("all");
-                        }}
-                        className="text-xs text-slate-500 dark:text-slate-400 hover:underline hover:text-[#56348f]"
-                        title="View reactions"
-                      >
-                        {post.likes_count}
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Right: Comment */}
-                  <div className="flex items-center gap-2 shrink-0">
-                    {(post.comments_count || 0) > 0 && (
-                      <span className="text-xs text-slate-500 dark:text-slate-400">
-                        {post.comments_count}
-                      </span>
-                    )}
+                    {/* Comment Button */}
                     <button
                       type="button"
-                      onClick={() =>
-                        setOpenComments((prev) => ({ ...prev, [post.id]: !prev[post.id] }))
-                      }
-                      className="flex items-center gap-1.5 text-xs font-semibold text-[#56348f] dark:text-purple-300 hover:text-purple-800 transition-colors cursor-pointer py-1.5"
+                      onClick={() => setOpenComments((prev) => ({ ...prev, [post.id]: !prev[post.id] }))}
+                      className="flex-1 flex items-center justify-center gap-2 text-[14px] font-semibold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 py-2 rounded-md transition-colors cursor-pointer"
                     >
+                      <MessageSquare className="w-5 h-5" />
                       <span>Comment</span>
-                      <MessageSquare className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
 
-
-
                 {/* Comment Section (Collapsible) */}
                 {isCommentsOpen && (
-                  <div className="pt-3 border-t border-slate-100 dark:border-slate-700/50 space-y-3">
-                    <div className="flex items-center gap-2">
+                  <div className="px-4 pb-4 space-y-3">
+                    <div className="pt-2 border-t border-slate-200 dark:border-slate-700"></div>
+                    <div className="flex items-start gap-2">
                       <RoyalAvatar
                         src={currentUser?.profile_photo_path}
                         name={`${currentUser?.first_name} ${currentUser?.last_name}`}
                         userId={currentUser?.id}
-                        className="w-7 h-7 rounded-full shrink-0"
+                        className="w-8 h-8 rounded-full shrink-0 mt-0.5"
                       />
-                      <input
-                        type="text"
-                        value={commentInputs[post.id] || ""}
-                        onChange={(e) =>
-                          setCommentInputs((prev) => ({ ...prev, [post.id]: e.target.value }))
-                        }
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") handleAddComment(post.id);
-                        }}
-                        placeholder="Write a response or comment..."
-                        className="flex-1 text-xs px-3 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md focus:outline-none focus:ring-1 focus:ring-[#56348f] dark:text-white"
-                      />
-                      <button
-                        onClick={() => handleAddComment(post.id)}
-                        disabled={!commentInputs[post.id]?.trim() || commentSubmitting[post.id]}
-                        className="px-3 py-1.5 bg-[#56348f] text-white text-xs font-semibold rounded-md hover:bg-[#452773] transition-colors disabled:opacity-50 cursor-pointer"
-                      >
-                        {commentSubmitting[post.id] ? (
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        ) : (
-                          <Send className="w-3.5 h-3.5" />
-                        )}
-                      </button>
+                      <div className="flex-1 relative flex items-center">
+                        <input
+                          type="text"
+                          value={commentInputs[post.id] || ""}
+                          onChange={(e) =>
+                            setCommentInputs((prev) => ({ ...prev, [post.id]: e.target.value }))
+                          }
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") handleAddComment(post.id);
+                          }}
+                          placeholder="Write a comment..."
+                          className="w-full text-[14px] px-4 py-2 bg-[#F0F2F5] dark:bg-slate-700 rounded-full focus:outline-none dark:text-white"
+                        />
+                        <button
+                          onClick={() => handleAddComment(post.id)}
+                          disabled={!commentInputs[post.id]?.trim() || commentSubmitting[post.id]}
+                          className="absolute right-2 p-1.5 text-blue-500 disabled:opacity-50 cursor-pointer"
+                        >
+                          {commentSubmitting[post.id] ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Send className="w-4 h-4" />
+                          )}
+                        </button>
+                      </div>
                     </div>
 
+                    {/* Comments List */}
                     {post.comments && post.comments.length > 0 && (
-                      <div className="space-y-2 pt-1">
+                      <div className="space-y-3 pt-2">
                         {post.comments.map((cmt: any) => (
-                          <div
-                            key={cmt.id}
-                            className="flex items-start gap-2.5 p-2 bg-slate-50 dark:bg-slate-900/40 rounded-md text-xs"
-                          >
+                          <div key={cmt.id} className="flex items-start gap-2">
                             <RoyalAvatar
                               src={cmt.user?.profile_photo_path}
                               name={`${cmt.user?.first_name} ${cmt.user?.last_name}`}
                               userId={cmt.user_id}
-                              className="w-6 h-6 rounded-full shrink-0"
+                              className="w-8 h-8 rounded-full shrink-0"
                             />
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between">
-                                <span className="font-semibold text-slate-900 dark:text-white">
+                            <div>
+                              <div className="bg-[#F0F2F5] dark:bg-slate-700 rounded-2xl px-3 py-2 inline-block max-w-full">
+                                <p className="font-semibold text-[13px] text-slate-900 dark:text-white hover:underline cursor-pointer">
                                   {cmt.user ? `${cmt.user.first_name} ${cmt.user.last_name}` : "Member"}
-                                </span>
-                                <span className="text-[10px] text-slate-400">
-                                  {cmt.created_at
-                                    ? format(parseISO(cmt.created_at), "MMM d, h:mm a")
-                                    : "Just now"}
+                                </p>
+                                <p className="text-[14px] text-slate-800 dark:text-slate-200 mt-0.5 whitespace-pre-wrap leading-tight">
+                                  {cmt.comment}
+                                </p>
+                              </div>
+                              <div className="text-[12px] text-slate-500 font-semibold px-3 mt-0.5">
+                                <span className="hover:underline cursor-pointer">Like</span>
+                                <span className="mx-1">·</span>
+                                <span className="hover:underline cursor-pointer">Reply</span>
+                                <span className="mx-1">·</span>
+                                <span className="font-normal text-slate-400">
+                                  {cmt.created_at ? formatRelativeTime(cmt.created_at) : "Just now"}
                                 </span>
                               </div>
-                              <p className="text-slate-700 dark:text-slate-300 mt-0.5">
-                                {cmt.comment}
-                              </p>
                             </div>
                           </div>
                         ))}
