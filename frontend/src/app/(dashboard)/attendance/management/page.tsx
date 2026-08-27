@@ -7,11 +7,17 @@ import {
   Search,
   Calendar,
   AlertCircle,
-  ChevronDown,
   Loader2,
   Users,
   Plus,
   Download,
+  Clock,
+  ChevronRight,
+  ArrowUpRight,
+  Filter,
+  Palmtree,
+  CalendarDays,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 import api from "@/services/api";
@@ -22,17 +28,27 @@ import { PageLoader } from "@/components/ui/PageLoader";
 import { useAuthStore } from "@/store/auth";
 import { BiometricPunchTimeline } from "@/components/attendance/BiometricPunchTimeline";
 import { DailySummaryCard, AdminLeaveWfhModal } from "@/components/attendance";
-import { RoyalName } from "@/components/ui/RoyalAvatar";
+import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { format } from "date-fns";
 
-type ViewMode = "selector" | "dateWise" | "dateAllEmployees";
+type ViewMode = "directory" | "dateWise" | "dateAllEmployees";
 
 interface Employee {
   id: number;
   employee_code: string;
   first_name: string;
   last_name: string;
+  email?: string;
   designation?: string;
-  team?: { name: string };
+  profile_photo_path?: string;
+  team?: { id?: number; name: string };
 }
 
 interface AttendanceDetails {
@@ -81,9 +97,15 @@ export default function AttendanceManagementPage() {
     }
   }, [user, router]);
 
-  const [viewMode, setViewMode] = useState<ViewMode>("selector");
+  const [viewMode, setViewMode] = useState<ViewMode>("directory");
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
-  const [selectedDate, setSelectedDate] = useState<string>("");
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<string>(() => {
+    return format(new Date(), "yyyy-MM-dd");
+  });
+  const [dateWiseSelectedDate, setDateWiseSelectedDate] = useState<string>(() => {
+    return format(new Date(), "yyyy-MM-dd");
+  });
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoadingEmployees, setIsLoadingEmployees] = useState(true);
@@ -95,32 +117,15 @@ export default function AttendanceManagementPage() {
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
-  // Fetch employees with pagination
+  // Fast single-request employee loading
   useEffect(() => {
     const fetchAllEmployees = async () => {
       setIsLoadingEmployees(true);
       setError(null);
       try {
-        let allEmployees: Employee[] = [];
-        let page = 1;
-        let lastPage = 1;
-
-        // Fetch all pages of employees
-        do {
-          const res = await api.get(`/employees?page=${page}`);
-          const pageData = res.data.data || [];
-
-          if (pageData.length === 0) {
-            break;
-          }
-
-          allEmployees = [...allEmployees, ...pageData];
-          lastPage = res.data.meta?.last_page || page;
-          page++;
-        } while (page <= lastPage);
-
-        console.log("Loaded employees:", allEmployees.length);
-        setEmployees(allEmployees);
+        const res = await api.get(`/employees?per_page=all`);
+        const list = res.data?.data || (Array.isArray(res.data) ? res.data : []);
+        setEmployees(list);
       } catch (err: any) {
         console.error("Failed to load employees:", err);
         setError(err.response?.data?.message || "Failed to load employees");
@@ -133,23 +138,36 @@ export default function AttendanceManagementPage() {
 
   // Filter employees based on search
   const filteredEmployees = employees.filter((emp) => {
-    const query = searchQuery.toLowerCase();
+    const query = searchQuery.toLowerCase().trim();
+    if (!query) return true;
+    const fullName = `${emp.first_name || ""} ${emp.last_name || ""}`.toLowerCase();
+    const code = (emp.employee_code || "").toLowerCase();
+    const designation = (emp.designation || "").toLowerCase();
+    const teamName = (emp.team?.name || "").toLowerCase();
     return (
-      emp.first_name.toLowerCase().includes(query) ||
-      emp.last_name.toLowerCase().includes(query) ||
-      emp.employee_code.toLowerCase().includes(query)
+      fullName.includes(query) ||
+      code.includes(query) ||
+      designation.includes(query) ||
+      teamName.includes(query)
     );
   });
 
-  // Fetch daily details
-  const handleDateSelection = async (date: string) => {
-    if (!selectedEmployee) return;
+  // Handle clicking an employee row in the directory table
+  const handleEmployeeClick = (emp: Employee) => {
+    setSelectedEmployee(emp);
+    setIsDrawerOpen(true);
+  };
+
+  // Fetch daily details for a specific employee and date
+  const handleDateSelection = async (date: string, empId?: number) => {
+    const targetId = empId ?? selectedEmployee?.id;
+    if (!targetId) return;
     setIsLoadingDetails(true);
     setError(null);
     try {
-      const res = await api.get(`/attendance/details?date=${date}&user_id=${selectedEmployee.id}`);
+      const res = await api.get(`/attendance/details?date=${date}&user_id=${targetId}`);
       setDailyDetails(res.data);
-      setSelectedDate(date);
+      setDateWiseSelectedDate(date);
     } catch (err: any) {
       setError(err.response?.data?.message || "Failed to load attendance details");
       setDailyDetails(null);
@@ -158,45 +176,59 @@ export default function AttendanceManagementPage() {
     }
   };
 
+  // Switch to Date Wise view for selected employee
+  const handleOpenDateWise = (emp: Employee) => {
+    setSelectedEmployee(emp);
+    setIsDrawerOpen(false);
+    setViewMode("dateWise");
+    const targetDate = dateWiseSelectedDate || format(new Date(), "yyyy-MM-dd");
+    handleDateSelection(targetDate, emp.id);
+  };
+
   // Fetch attendance data for all employees on a specific date
   const handleAllEmployeesDateSelection = async (date: string) => {
+    if (!date) return;
     setIsLoadingDetails(true);
     setError(null);
     setSortColumn(null);
     setSortDirection("asc");
     try {
-      // Use attendance summary report endpoint which fetches all employees' attendance in one call
-      // This is much more efficient than fetching each employee individually (N+1 problem)
       const res = await api.get(`/reports/attendance-summary`, {
         params: {
           start_date: date,
-          end_date: date, // Same date for single day report
-        }
+          end_date: date,
+        },
       });
 
       const reportData = res.data.data || [];
 
-      // Transform attendance-summary data to match expected format
       const transformedData = reportData.map((emp: any) => {
-        // Get the attendance data for the selected date
-        const dayData = emp.daily_status?.[0]; // First day (since we only query 1 day)
-
+        const dayData = emp.daily_status?.[0];
         return {
           id: emp.id,
-          first_name: emp.first_name || emp.name?.split(' ')[0] || '',
-          last_name: emp.last_name || emp.name?.split(' ')[1] || '',
-          employee_code: emp.employee_code || '',
-          designation: emp.designation || emp.employee?.designation || '',
+          first_name: emp.first_name || emp.name?.split(" ")[0] || "",
+          last_name: emp.last_name || emp.name?.split(" ")[1] || "",
+          employee_code: emp.employee_code || "",
+          designation: emp.designation || emp.employee?.designation || "",
           team: emp.team || emp.employee?.team || null,
           profile_photo_path: emp.profile_photo_path || emp.employee?.profile_photo_path,
-          attendance: dayData ? {
-            first_in: dayData.check_in,
-            last_out: dayData.check_out,
-            status_label: dayData.status === 'P' ? (dayData.is_late ? 'Late' : 'Present') :
-                         dayData.status === 'A' ? 'Absent' :
-                         dayData.status === 'W' ? 'WFH' : 'Leave',
-            total_working_minutes: dayData.total_working_minutes,
-          } : null,
+          attendance: dayData
+            ? {
+                first_in: dayData.check_in,
+                last_out: dayData.check_out,
+                status_label:
+                  dayData.status === "P"
+                    ? dayData.is_late
+                      ? "Late"
+                      : "Present"
+                    : dayData.status === "A"
+                    ? "Absent"
+                    : dayData.status === "W"
+                    ? "WFH"
+                    : "Leave",
+                total_working_minutes: dayData.total_working_minutes,
+              }
+            : null,
         };
       });
 
@@ -216,7 +248,16 @@ export default function AttendanceManagementPage() {
   const handleExportCSV = () => {
     if (allEmployeesDateData.length === 0) return;
 
-    const headers = ["Employee Name", "Employee Code", "Designation", "Team", "Check-In", "Check-Out", "Total Hours", "Status"];
+    const headers = [
+      "Employee Name",
+      "Employee Code",
+      "Designation",
+      "Team",
+      "Check-In",
+      "Check-Out",
+      "Total Hours",
+      "Status",
+    ];
     const rows = allEmployeesDateData.map((emp) => {
       const attendance = emp.attendance || {};
       return [
@@ -226,12 +267,16 @@ export default function AttendanceManagementPage() {
         emp.team?.name || "",
         attendance.first_in ? formatTime(attendance.first_in) : "--:--",
         attendance.last_out ? formatTime(attendance.last_out) : "--:--",
-        attendance.total_working_minutes ? formatMinutesToHours(attendance.total_working_minutes) : "--",
+        attendance.total_working_minutes
+          ? formatMinutesToHours(attendance.total_working_minutes)
+          : "--",
         attendance.status_label || "Absent",
       ];
     });
 
-    const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(",")).join("\n");
+    const csv = [headers, ...rows]
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -254,16 +299,6 @@ export default function AttendanceManagementPage() {
     const h = Math.floor(minutes / 60);
     const m = minutes % 60;
     return `${h}h ${m}m`;
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString([], {
-      weekday: "short",
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
   };
 
   const handleSort = (column: string) => {
@@ -320,12 +355,12 @@ export default function AttendanceManagementPage() {
   const SortHeader = ({ column, label }: { column: string; label: string }) => (
     <th
       onClick={() => handleSort(column)}
-      className="text-left py-3 px-4 font-semibold cursor-pointer hover:text-amber-400 transition-colors select-none"
+      className="text-left py-3.5 px-4 font-semibold cursor-pointer hover:text-[#56348f] dark:hover:text-purple-400 transition-colors select-none text-slate-700 dark:text-slate-200"
     >
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5">
         {label}
         {sortColumn === column && (
-          <span className="text-xs text-amber-400">
+          <span className="text-xs text-[#56348f] dark:text-purple-400">
             {sortDirection === "asc" ? "▲" : "▼"}
           </span>
         )}
@@ -339,261 +374,672 @@ export default function AttendanceManagementPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Attendance Management</h1>
-        <p className="text-slate-600 dark:text-slate-300">Super Admin: View and manage employee attendance records</p>
+      {/* Top Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+            Attendance Management
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
+            Super Admin: View daily biometric punches, timeline records, and manage employee attendance
+          </p>
+        </div>
       </div>
 
-      {error && viewMode !== "dateAllEmployees" && (
-        <Card className="border-red-500/50 bg-red-500/10">
+      {error && (
+        <Card className="border-rose-300 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/30">
           <CardContent className="pt-6 flex gap-4">
-            <AlertCircle className="h-6 w-6 text-red-400 flex-shrink-0" />
+            <AlertCircle className="h-5 w-5 text-rose-500 shrink-0 mt-0.5" />
             <div>
-              <p className="text-red-300">{error}</p>
+              <p className="text-rose-700 dark:text-rose-300 text-sm font-medium">{error}</p>
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Employee Selector */}
-      {viewMode === "selector" && (
-        <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white">
-          <CardHeader>
-            <CardTitle>Select Employee</CardTitle>
-            <CardDescription className="text-slate-500 dark:text-slate-400">
-              Choose an employee to view their attendance records
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Search Box */}
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-slate-500 dark:text-slate-400" />
-              <input
-                type="text"
-                placeholder="Search by name or employee code..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-lg text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-400"
-              />
+      {/* ────────────────────────────────────────────────────────
+          MODE 1: DIRECTORY VIEW (DEFAULT)
+          ──────────────────────────────────────────────────────── */}
+      {viewMode === "directory" && (
+        <>
+          {/* Card 1: View All Employees on a Date (TOP OPTION) */}
+          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200/90 dark:border-slate-700/60 shadow-sm p-5 sm:p-6 transition-all">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h3
+                  style={{
+                    fontSize: "16px",
+                    lineHeight: "28px",
+                    fontWeight: 600,
+                    color: "rgb(15, 24, 36)",
+                  }}
+                  className="dark:text-white flex items-center gap-2"
+                >
+                  <CalendarDays className="w-5 h-5 text-[#56348f] dark:text-purple-400" />
+                  View All Employees on a Date
+                </h3>
+                <p
+                  style={{
+                    fontSize: "13px",
+                    lineHeight: "20px",
+                    color: "rgb(94, 105, 120)",
+                  }}
+                  className="dark:text-slate-400 font-normal mt-0.5"
+                >
+                  Inspect full company attendance logs, check-in times & status for any specific date
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 rounded-lg px-3 py-1.5">
+                  <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    Date:
+                  </label>
+                  <input
+                    type="date"
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    disabled={isLoadingDetails}
+                    className="bg-transparent border-0 text-slate-900 dark:text-white text-sm font-medium focus:outline-none cursor-pointer"
+                  />
+                </div>
+
+                <Button
+                  onClick={() => handleAllEmployeesDateSelection(selectedDate)}
+                  disabled={!selectedDate || isLoadingDetails}
+                  className="bg-[#56348f] hover:bg-[#482b7b] text-white font-semibold text-sm px-4 py-2 rounded-lg shadow-sm gap-2"
+                >
+                  {isLoadingDetails ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Users className="w-4 h-4" />
+                  )}
+                  View Report
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 2: Employees Directory Table */}
+          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200/90 dark:border-slate-700/60 shadow-sm overflow-hidden">
+            <div className="p-5 sm:p-6 border-b border-slate-200/90 dark:border-slate-700/60">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                  <h3
+                    style={{
+                      fontSize: "16px",
+                      lineHeight: "28px",
+                      fontWeight: 600,
+                      color: "rgb(15, 24, 36)",
+                    }}
+                    className="dark:text-white flex items-center gap-2"
+                  >
+                    <Clock className="w-5 h-5 text-emerald-500" />
+                    Select Employee for Attendance Details
+                  </h3>
+                  <p
+                    style={{
+                      fontSize: "13px",
+                      lineHeight: "20px",
+                      color: "rgb(94, 105, 120)",
+                    }}
+                    className="dark:text-slate-400 font-normal mt-0.5"
+                  >
+                    Click any employee to view date-wise punch timeline or create Leave / WFH
+                  </p>
+                </div>
+
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
+                  {filteredEmployees.length} Employee{filteredEmployees.length === 1 ? "" : "s"}
+                </span>
+              </div>
+
+              {/* Search input */}
+              <div className="mt-4 relative">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search by name, employee code, designation, or team..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#56348f]/40 dark:focus:ring-purple-400/40 transition-all"
+                />
+              </div>
             </div>
 
-            {/* Employee List */}
+            {/* Employee Table */}
             {isLoadingEmployees ? (
-              <div className="flex justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-slate-500 dark:text-slate-400" />
+              <div className="flex flex-col items-center justify-center py-16 gap-3">
+                <Loader2 className="h-8 w-8 animate-spin text-[#56348f] dark:text-purple-400" />
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                  Loading employee directory...
+                </p>
+              </div>
+            ) : filteredEmployees.length === 0 ? (
+              <div className="text-center py-16 px-4">
+                <Users className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-2 opacity-50" />
+                <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                  No employees found
+                </p>
+                <p className="text-xs text-slate-400 mt-1">
+                  Try adjusting your search keyword
+                </p>
               </div>
             ) : (
-              <div className="space-y-2 max-h-[60vh] overflow-y-auto">
-                {filteredEmployees.length === 0 ? (
-                  <p className="text-center text-slate-500 dark:text-slate-400 py-4">No employees found</p>
-                ) : (
-                  filteredEmployees.map((emp) => (
-                    <button
-                      key={emp.id}
-                      onClick={() => {
-                        setSelectedEmployee(emp);
-                        // Scroll to mode selection section
-                        setTimeout(() => {
-                          const modeSection = document.querySelector('[data-attendance-mode-selector]');
-                          modeSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }, 100);
-                      }}
-                      className="w-full text-left p-4 bg-slate-700/30 hover:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-white/10 hover:border-white/20 transition-all"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-semibold text-slate-900 dark:text-white">
-                            {emp.first_name} {emp.last_name}
-                          </p>
-                          <p className="text-xs text-slate-500 dark:text-slate-400">
-                            {emp.employee_code}
-                            {emp.designation && ` • ${emp.designation}`}
-                            {emp.team && ` • ${emp.team.name}`}
-                          </p>
-                        </div>
-                        <ChevronDown className="h-4 w-4 text-slate-500 dark:text-slate-400" />
-                      </div>
-                    </button>
-                  ))
-                )}
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-slate-50/80 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700/60">
+                    <tr>
+                      <th className="text-left py-3.5 px-5 font-semibold text-slate-600 dark:text-slate-300">
+                        Employee
+                      </th>
+                      <th className="text-left py-3.5 px-4 font-semibold text-slate-600 dark:text-slate-300">
+                        Code
+                      </th>
+                      <th className="text-left py-3.5 px-4 font-semibold text-slate-600 dark:text-slate-300">
+                        Designation
+                      </th>
+                      <th className="text-left py-3.5 px-4 font-semibold text-slate-600 dark:text-slate-300">
+                        Team
+                      </th>
+                      <th className="text-right py-3.5 px-5 font-semibold text-slate-600 dark:text-slate-300">
+                        Action
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    {filteredEmployees.map((emp) => (
+                      <tr
+                        key={emp.id}
+                        onClick={() => handleEmployeeClick(emp)}
+                        className="hover:bg-purple-50/40 dark:hover:bg-purple-950/20 cursor-pointer transition-colors group"
+                      >
+                        <td className="py-3.5 px-5">
+                          <div className="flex items-center gap-3">
+                            <RoyalAvatar
+                              src={emp.profile_photo_path}
+                              name={`${emp.first_name} ${emp.last_name}`}
+                              userId={emp.id}
+                              employeeCode={emp.employee_code}
+                              className="w-9 h-9 rounded-full shrink-0 border border-slate-200 dark:border-slate-700"
+                            />
+                            <div className="min-w-0">
+                              <RoyalName
+                                name={`${emp.first_name} ${emp.last_name}`}
+                                userId={emp.id}
+                                employeeCode={emp.employee_code}
+                                className="font-semibold text-slate-900 dark:text-white truncate block text-sm"
+                              />
+                              <p className="text-xs text-slate-400 truncate">
+                                {emp.email || "No email"}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200">
+                            {emp.employee_code || "—"}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-4 text-slate-600 dark:text-slate-300 text-xs sm:text-sm font-medium">
+                          {emp.designation || "Team Member"}
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-blue-900/40">
+                            {emp.team?.name || "General"}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-5 text-right">
+                          <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#56348f] dark:text-purple-400 group-hover:translate-x-0.5 transition-transform">
+                            View Attendance <ChevronRight className="w-3.5 h-3.5" />
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </>
       )}
 
-      {/* All Employees on Date View */}
-      {!selectedEmployee && viewMode === "selector" && (
-        <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white relative">
-          {isLoadingDetails && (
-            <div className="absolute inset-0 bg-black/40 rounded-lg backdrop-blur-sm flex items-center justify-center z-10">
-              <div className="flex flex-col items-center gap-3">
-                <Loader2 className="h-10 w-10 animate-spin text-amber-400" />
-                <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">Loading attendance data...</p>
-              </div>
-            </div>
-          )}
-          <CardHeader>
-            <CardTitle>View All Employees on a Date</CardTitle>
-            <CardDescription className="text-slate-500 dark:text-slate-400">
-              View attendance records for all employees on a specific date
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center gap-4">
-              <label className="text-sm text-slate-600 dark:text-slate-300">Select Date:</label>
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => handleAllEmployeesDateSelection(e.target.value)}
-                disabled={isLoadingDetails}
-                className="px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-400 [color-scheme:dark] disabled:opacity-50 disabled:cursor-not-allowed"
-              />
-              {selectedDate && !isLoadingDetails && (
-                <button
-                  onClick={handleExportCSV}
-                  disabled={allEmployeesDateData.length === 0}
-                  className="ml-auto flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-700 disabled:text-slate-500 rounded-lg text-white font-semibold transition-colors"
-                >
-                  <Download className="h-4 w-4" />
-                  Export CSV
-                </button>
+      {/* ────────────────────────────────────────────────────────
+          EMPLOYEE ACTION SIDE DRAWER (POPUP MODAL ON RIGHT SIDE)
+          ──────────────────────────────────────────────────────── */}
+      <Dialog open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+        <DialogContent className="max-w-md w-full">
+          <DialogHeader>
+            <div className="flex items-center gap-3">
+              {selectedEmployee && (
+                <RoyalAvatar
+                  src={selectedEmployee.profile_photo_path}
+                  name={`${selectedEmployee.first_name} ${selectedEmployee.last_name}`}
+                  userId={selectedEmployee.id}
+                  employeeCode={selectedEmployee.employee_code}
+                  className="w-12 h-12 rounded-full shrink-0 border border-slate-200 dark:border-slate-700"
+                />
               )}
+              <div className="min-w-0">
+                <DialogTitle className="truncate">
+                  {selectedEmployee
+                    ? `${selectedEmployee.first_name} ${selectedEmployee.last_name}`
+                    : "Employee Details"}
+                </DialogTitle>
+                <DialogDescription className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Employee Code: {selectedEmployee?.employee_code || "N/A"}
+                  {selectedEmployee?.designation && ` • ${selectedEmployee.designation}`}
+                </DialogDescription>
+              </div>
             </div>
-          </CardContent>
-        </Card>
-      )}
+          </DialogHeader>
 
-      {/* All Employees on Date - Table View */}
-      {viewMode === "dateAllEmployees" && (
-        <>
-          <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white relative">
-            {isLoadingDetails && (
-              <div className="absolute inset-0 bg-black/40 rounded-lg backdrop-blur-sm flex items-center justify-center z-10">
-                <div className="flex flex-col items-center gap-3">
-                  <Loader2 className="h-10 w-10 animate-spin text-amber-400" />
-                  <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">Loading attendance data...</p>
+          <div className="space-y-4 py-3">
+            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              Select how you want to view attendance:
+            </p>
+
+            {/* Option 1: Date Wise */}
+            <button
+              onClick={() => {
+                if (selectedEmployee) {
+                  handleOpenDateWise(selectedEmployee);
+                }
+              }}
+              className="w-full p-4 bg-gradient-to-r from-purple-500/5 to-indigo-500/10 hover:from-purple-500/10 hover:to-indigo-500/20 dark:from-purple-950/30 dark:to-indigo-950/40 border border-purple-200/80 dark:border-purple-800/50 rounded-xl text-left transition-all group flex items-start gap-3.5 shadow-sm"
+            >
+              <div className="w-10 h-10 rounded-lg bg-[#56348f]/10 dark:bg-purple-500/20 flex items-center justify-center text-[#56348f] dark:text-purple-300 shrink-0 group-hover:scale-105 transition-transform">
+                <Calendar className="h-5 w-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between">
+                  <p className="font-semibold text-slate-900 dark:text-white text-sm">
+                    Date Wise
+                  </p>
+                  <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-[#56348f] dark:group-hover:text-purple-300 transition-colors" />
+                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  View detailed timeline for a specific date
+                </p>
+              </div>
+            </button>
+
+            {/* Option 2: Add Leave / WFH */}
+            <button
+              onClick={() => {
+                setIsDrawerOpen(false);
+                setIsLeaveWfhModalOpen(true);
+              }}
+              className="w-full p-4 bg-gradient-to-r from-amber-500/5 to-orange-500/10 hover:from-amber-500/10 hover:to-orange-500/20 dark:from-amber-950/30 dark:to-orange-950/40 border border-amber-200/80 dark:border-amber-800/50 rounded-xl text-left transition-all group flex items-start gap-3.5 shadow-sm"
+            >
+              <div className="w-10 h-10 rounded-lg bg-amber-500/10 dark:bg-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-300 shrink-0 group-hover:scale-105 transition-transform">
+                <Plus className="h-5 w-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between">
+                  <p className="font-semibold text-slate-900 dark:text-white text-sm">
+                    Add Leave / WFH
+                  </p>
+                  <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-amber-600 dark:group-hover:text-amber-300 transition-colors" />
+                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Create leave or work-from-home for this employee
+                </p>
+              </div>
+            </button>
+          </div>
+
+          <div className="pt-3 border-t border-slate-200 dark:border-slate-700/60 mt-2">
+            <button
+              onClick={() => setIsDrawerOpen(false)}
+              className="w-full py-2.5 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+            >
+              ← Change Employee
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ────────────────────────────────────────────────────────
+          MODE 2: DATE WISE VIEW (SINGLE EMPLOYEE TIMELINE)
+          ──────────────────────────────────────────────────────── */}
+      {viewMode === "dateWise" && selectedEmployee && (
+        <div className="space-y-6">
+          {/* Top Bar with back button and employee header */}
+          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200/90 dark:border-slate-700/60 shadow-sm p-5 sm:p-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => {
+                    setViewMode("directory");
+                    setDailyDetails(null);
+                  }}
+                  className="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                  title="Back to Directory"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                </button>
+
+                <RoyalAvatar
+                  src={selectedEmployee.profile_photo_path}
+                  name={`${selectedEmployee.first_name} ${selectedEmployee.last_name}`}
+                  userId={selectedEmployee.id}
+                  employeeCode={selectedEmployee.employee_code}
+                  className="w-10 h-10 rounded-full border border-slate-200 dark:border-slate-700"
+                />
+
+                <div>
+                  <div className="flex items-center gap-2">
+                    <RoyalName
+                      name={`${selectedEmployee.first_name} ${selectedEmployee.last_name}`}
+                      userId={selectedEmployee.id}
+                      employeeCode={selectedEmployee.employee_code}
+                      className="font-bold text-slate-900 dark:text-white text-base"
+                    />
+                    <span className="font-mono text-xs px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200">
+                      Code: {selectedEmployee.employee_code}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400">
+                    {selectedEmployee.designation || "Team Member"} • {selectedEmployee.team?.name || "General"}
+                  </p>
                 </div>
               </div>
-            )}
-            <CardHeader>
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                <div>
-                  <CardTitle>Attendance Report - {selectedDate}</CardTitle>
-                  <CardDescription className="text-slate-500 dark:text-slate-400">All employees attendance</CardDescription>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2">
-                    <label className="text-sm text-slate-600 dark:text-slate-300">Change Date:</label>
-                    <input
-                      type="date"
-                      value={selectedDate}
-                      onChange={(e) => {
-                        const newDate = e.target.value;
-                        setSelectedDate(newDate);
-                        if (newDate) {
-                          handleAllEmployeesDateSelection(newDate);
-                        }
-                      }}
-                      disabled={isLoadingDetails}
-                      className="px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-400 [color-scheme:dark] text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                    />
-                  </div>
-                  <button
-                    onClick={handleExportCSV}
-                    disabled={allEmployeesDateData.length === 0 || isLoadingDetails}
-                    className="flex items-center gap-2 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-700 disabled:text-slate-500 disabled:cursor-not-allowed rounded-lg text-white font-semibold transition-colors text-sm"
-                  >
-                    <Download className="h-4 w-4" />
-                    Export CSV
-                  </button>
-                  <button
-                    onClick={() => {
-                      setViewMode("selector");
-                      setAllEmployeesDateData([]);
-                      setSelectedDate("");
+
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 rounded-lg px-3 py-1.5">
+                  <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    Date:
+                  </label>
+                  <input
+                    type="date"
+                    value={dateWiseSelectedDate}
+                    onChange={(e) => {
+                      const newDate = e.target.value;
+                      setDateWiseSelectedDate(newDate);
+                      if (newDate) handleDateSelection(newDate, selectedEmployee.id);
                     }}
                     disabled={isLoadingDetails}
-                    className="px-3 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-700/30 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors text-sm font-semibold"
+                    className="bg-transparent border-0 text-slate-900 dark:text-white text-sm font-medium focus:outline-none cursor-pointer"
+                  />
+                </div>
+
+                <Button
+                  onClick={() => setIsLeaveWfhModalOpen(true)}
+                  variant="outline"
+                  className="border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/40 text-xs font-semibold gap-1.5"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  Add Leave / WFH
+                </Button>
+
+                <Button
+                  onClick={() => {
+                    setViewMode("directory");
+                    setDailyDetails(null);
+                  }}
+                  variant="ghost"
+                  className="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                >
+                  Change Employee
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Daily Details Content */}
+          {isLoadingDetails ? (
+            <div className="flex flex-col items-center justify-center py-16 gap-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200/90 dark:border-slate-700/60 p-8">
+              <Loader2 className="h-8 w-8 animate-spin text-[#56348f] dark:text-purple-400" />
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                Loading attendance details for {dateWiseSelectedDate}...
+              </p>
+            </div>
+          ) : dailyDetails ? (
+            <div className="space-y-6">
+              <DailySummaryCard
+                attendance={dailyDetails}
+                totalBreaks={dailyDetails.completed_breaks?.length || 0}
+                isCurrentlyWorking={dailyDetails.is_currently_working}
+              />
+
+              <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200/90 dark:border-slate-700/60 shadow-sm p-6">
+                <div className="pb-4 border-b border-slate-200 dark:border-slate-700/60 mb-5">
+                  <h3 className="font-semibold text-base text-slate-900 dark:text-white">
+                    Biometric Punch Timeline
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    Complete record of all biometric punch events in chronological order
+                  </p>
+                </div>
+                <BiometricPunchTimeline
+                  punches={dailyDetails.raw_punches || []}
+                  isCurrentlyWorking={dailyDetails.is_currently_working}
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200/90 dark:border-slate-700/60 p-12 text-center">
+              <Clock className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-2 opacity-50" />
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                No attendance data found for {dateWiseSelectedDate}
+              </p>
+              <p className="text-xs text-slate-400 mt-1">
+                The employee might not have punched in on this date or it is a holiday/weekend
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ────────────────────────────────────────────────────────
+          MODE 3: ALL EMPLOYEES ON DATE VIEW
+          ──────────────────────────────────────────────────────── */}
+      {viewMode === "dateAllEmployees" && (
+        <div className="space-y-6">
+          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200/90 dark:border-slate-700/60 shadow-sm p-5 sm:p-6">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      setViewMode("directory");
+                      setAllEmployeesDateData([]);
+                    }}
+                    className="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors mr-1"
+                    title="Back to Directory"
                   >
-                    ← Back
+                    <ArrowLeft className="w-4 h-4" />
                   </button>
+                  <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
+                    Attendance Report — {selectedDate}
+                  </h2>
+                </div>
+                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 ml-9">
+                  Showing full company attendance status for all registered employees
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 rounded-lg px-3 py-1.5">
+                  <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    Change Date:
+                  </label>
+                  <input
+                    type="date"
+                    value={selectedDate}
+                    onChange={(e) => {
+                      const newDate = e.target.value;
+                      setSelectedDate(newDate);
+                      if (newDate) {
+                        handleAllEmployeesDateSelection(newDate);
+                      }
+                    }}
+                    disabled={isLoadingDetails}
+                    className="bg-transparent border-0 text-slate-900 dark:text-white text-sm font-medium focus:outline-none cursor-pointer"
+                  />
+                </div>
+
+                <Button
+                  onClick={handleExportCSV}
+                  disabled={allEmployeesDateData.length === 0 || isLoadingDetails}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-3.5 py-2 rounded-lg shadow-sm gap-1.5"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  Export CSV
+                </Button>
+
+                <Button
+                  onClick={() => {
+                    setViewMode("directory");
+                    setAllEmployeesDateData([]);
+                  }}
+                  variant="outline"
+                  className="text-xs"
+                >
+                  ← Back
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {isLoadingDetails ? (
+            <div className="flex flex-col items-center justify-center py-16 gap-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200/90 dark:border-slate-700/60 p-8">
+              <Loader2 className="h-8 w-8 animate-spin text-[#56348f] dark:text-purple-400" />
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                Loading attendance records...
+              </p>
+            </div>
+          ) : allEmployeesDateData.length > 0 ? (
+            <>
+              {/* Summary Stats */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700/60 rounded-xl p-4 text-center shadow-sm">
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    Total Employees
+                  </p>
+                  <p className="text-2xl font-bold text-slate-900 dark:text-white mt-1">
+                    {allEmployeesDateData.length}
+                  </p>
+                </div>
+                <div className="bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200/80 dark:border-emerald-800/40 rounded-xl p-4 text-center shadow-sm">
+                  <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                    Punched In
+                  </p>
+                  <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300 mt-1">
+                    {allEmployeesDateData.filter((emp) => emp.attendance?.first_in).length}
+                  </p>
+                </div>
+                <div className="bg-rose-50/60 dark:bg-rose-950/20 border border-rose-200/80 dark:border-rose-800/40 rounded-xl p-4 text-center shadow-sm">
+                  <p className="text-xs font-semibold text-rose-600 dark:text-rose-400 uppercase tracking-wider">
+                    Absent
+                  </p>
+                  <p className="text-2xl font-bold text-rose-700 dark:text-rose-300 mt-1">
+                    {allEmployeesDateData.filter((emp) => !emp.attendance?.first_in).length}
+                  </p>
+                </div>
+                <div className="bg-blue-50/60 dark:bg-blue-950/20 border border-blue-200/80 dark:border-blue-800/40 rounded-xl p-4 text-center shadow-sm">
+                  <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+                    Punch-In Rate
+                  </p>
+                  <p className="text-2xl font-bold text-blue-700 dark:text-blue-300 mt-1">
+                    {allEmployeesDateData.length > 0
+                      ? Math.round(
+                          (allEmployeesDateData.filter((emp) => emp.attendance?.first_in).length /
+                            allEmployeesDateData.length) *
+                            100
+                        )
+                      : 0}
+                    %
+                  </p>
                 </div>
               </div>
-            </CardHeader>
-            <CardContent>
-              {allEmployeesDateData.length > 0 ? (
-                <>
-                  {/* Summary Stats */}
-                  <div className="mb-4 grid grid-cols-4 gap-3">
-                    <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg p-3 text-center">
-                      <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Employees</p>
-                      <p className="text-xl font-bold text-slate-900 dark:text-white mt-1">{allEmployeesDateData.length}</p>
-                    </div>
-                    <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3 text-center">
-                      <p className="text-xs text-emerald-400 uppercase tracking-wider">Punched In</p>
-                      <p className="text-xl font-bold text-emerald-300 mt-1">
-                        {allEmployeesDateData.filter(emp => emp.attendance?.first_in).length}
-                      </p>
-                    </div>
-                    <div className="bg-rose-500/10 border border-rose-500/30 rounded-lg p-3 text-center">
-                      <p className="text-xs text-rose-400 uppercase tracking-wider">Absent</p>
-                      <p className="text-xl font-bold text-rose-300 mt-1">
-                        {allEmployeesDateData.filter(emp => !emp.attendance?.first_in).length}
-                      </p>
-                    </div>
-                    <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 text-center">
-                      <p className="text-xs text-blue-400 uppercase tracking-wider">Punch-In Rate</p>
-                      <p className="text-xl font-bold text-blue-300 mt-1">
-                        {allEmployeesDateData.length > 0
-                          ? Math.round((allEmployeesDateData.filter(emp => emp.attendance?.first_in).length / allEmployeesDateData.length) * 100)
-                          : 0}%
-                      </p>
-                    </div>
-                  </div>
 
-                  {/* Table */}
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead className="sticky top-0 bg-slate-900/50 dark:bg-slate-900/80 border-b border-slate-200 dark:border-white/10 backdrop-blur-sm">
-                        <tr>
-                          <SortHeader column="name" label="Employee" />
-                          <SortHeader column="code" label="Code" />
-                          <SortHeader column="designation" label="Designation" />
-                          <SortHeader column="team" label="Team" />
-                          <SortHeader column="check_in" label="Check-In" />
-                          <SortHeader column="check_out" label="Check-Out" />
-                          <SortHeader column="hours" label="Hours" />
-                          <SortHeader column="status" label="Status" />
-                        </tr>
-                      </thead>
-                    <tbody>
-                      {sortedEmployeesData().map((emp, idx) => {
+              {/* Table */}
+              <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200/90 dark:border-slate-700/60 shadow-sm overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-slate-50/80 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700/60 sticky top-0 backdrop-blur-sm">
+                      <tr>
+                        <SortHeader column="name" label="Employee" />
+                        <SortHeader column="code" label="Code" />
+                        <SortHeader column="designation" label="Designation" />
+                        <SortHeader column="team" label="Team" />
+                        <SortHeader column="check_in" label="Check-In" />
+                        <SortHeader column="check_out" label="Check-Out" />
+                        <SortHeader column="hours" label="Hours" />
+                        <SortHeader column="status" label="Status" />
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                      {sortedEmployeesData().map((emp) => {
                         const attendance = emp.attendance || {};
                         return (
-                          <tr key={emp.id} className={`border-b border-slate-200 dark:border-white/5 transition-colors ${idx % 2 === 0 ? "bg-slate-50/50 dark:bg-slate-800/20" : ""} hover:bg-slate-100 dark:hover:bg-white/10`}>
-                            <td className="py-3 px-4 font-medium">
-                              <RoyalName name={`${emp.first_name} ${emp.last_name}`} userId={emp.id} employeeCode={emp.employee_code} className="text-slate-900 dark:text-white" />
+                          <tr
+                            key={emp.id}
+                            onClick={() => {
+                              setSelectedEmployee({
+                                id: emp.id,
+                                employee_code: emp.employee_code,
+                                first_name: emp.first_name,
+                                last_name: emp.last_name,
+                                designation: emp.designation,
+                                team: emp.team,
+                                profile_photo_path: emp.profile_photo_path,
+                              });
+                              setIsDrawerOpen(true);
+                            }}
+                            className="hover:bg-purple-50/40 dark:hover:bg-purple-950/20 cursor-pointer transition-colors"
+                          >
+                            <td className="py-3.5 px-4 font-medium">
+                              <div className="flex items-center gap-2.5">
+                                <RoyalAvatar
+                                  src={emp.profile_photo_path}
+                                  name={`${emp.first_name} ${emp.last_name}`}
+                                  userId={emp.id}
+                                  employeeCode={emp.employee_code}
+                                  className="w-8 h-8 rounded-full shrink-0 border border-slate-200 dark:border-slate-700"
+                                />
+                                <RoyalName
+                                  name={`${emp.first_name} ${emp.last_name}`}
+                                  userId={emp.id}
+                                  employeeCode={emp.employee_code}
+                                  className="text-slate-900 dark:text-white font-semibold text-sm"
+                                />
+                              </div>
                             </td>
-                            <td className="py-3 px-4 text-slate-600 dark:text-slate-300 font-mono text-xs">{emp.employee_code}</td>
-                            <td className="py-3 px-4 text-slate-600 dark:text-slate-300">{emp.designation || "N/A"}</td>
-                            <td className="py-3 px-4 text-slate-600 dark:text-slate-300">{emp.team?.name || "Unassigned"}</td>
-                            <td className="py-3 px-4 text-center text-emerald-400 font-semibold">
+                            <td className="py-3.5 px-4 text-slate-600 dark:text-slate-300 font-mono text-xs">
+                              {emp.employee_code}
+                            </td>
+                            <td className="py-3.5 px-4 text-slate-600 dark:text-slate-300 text-xs">
+                              {emp.designation || "N/A"}
+                            </td>
+                            <td className="py-3.5 px-4 text-slate-600 dark:text-slate-300 text-xs">
+                              {emp.team?.name || "General"}
+                            </td>
+                            <td className="py-3.5 px-4 text-center text-emerald-600 dark:text-emerald-400 font-semibold text-xs">
                               {attendance.first_in ? formatTime(attendance.first_in) : "--:--"}
                             </td>
-                            <td className="py-3 px-4 text-center text-rose-400 font-semibold">
+                            <td className="py-3.5 px-4 text-center text-rose-600 dark:text-rose-400 font-semibold text-xs">
                               {attendance.last_out ? formatTime(attendance.last_out) : "--:--"}
                             </td>
-                            <td className="py-3 px-4 text-center text-blue-400 font-semibold">
-                              {attendance.total_working_minutes ? formatMinutesToHours(attendance.total_working_minutes) : "--"}
+                            <td className="py-3.5 px-4 text-center text-blue-600 dark:text-blue-400 font-semibold text-xs">
+                              {attendance.total_working_minutes
+                                ? formatMinutesToHours(attendance.total_working_minutes)
+                                : "--"}
                             </td>
-                            <td className="py-3 px-4 text-center">
-                              <span className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold ${
-                                attendance.status_label === "Present" ? "bg-emerald-500/20 text-emerald-400" :
-                                attendance.status_label === "Absent" ? "bg-rose-500/20 text-rose-400" :
-                                "bg-slate-500/20 text-slate-400"
-                              }`}>
+                            <td className="py-3.5 px-4 text-center">
+                              <span
+                                className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                                  attendance.status_label === "Present"
+                                    ? "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300"
+                                    : attendance.status_label === "Late"
+                                    ? "bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300"
+                                    : attendance.status_label === "WFH"
+                                    ? "bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300"
+                                    : "bg-rose-100 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300"
+                                }`}
+                              >
                                 {attendance.status_label || "Absent"}
                               </span>
                             </td>
@@ -602,157 +1048,21 @@ export default function AttendanceManagementPage() {
                       })}
                     </tbody>
                   </table>
-                  </div>
-                </>
-              ) : (
-                <div className="text-center py-8 text-slate-500 dark:text-slate-400">
-                  No attendance data found for this date.
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </>
-      )}
-
-      {/* Mode Selection */}
-      {selectedEmployee && viewMode === "selector" && (
-        <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white" data-attendance-mode-selector>
-          <CardHeader>
-            <CardTitle>
-              {selectedEmployee.first_name} {selectedEmployee.last_name}
-            </CardTitle>
-            <CardDescription className="text-slate-500 dark:text-slate-400">
-              Employee Code: {selectedEmployee.employee_code}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">Select how you want to view attendance:</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <button
-                onClick={() => {
-                  setSelectedDate("");
-                  setViewMode("dateWise");
-                }}
-                className="p-6 bg-slate-700/30 hover:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-white/10 hover:border-white/20 transition-all text-left"
-              >
-                <Calendar className="h-8 w-8 text-amber-400 mb-2" />
-                <p className="font-semibold text-slate-900 dark:text-white">Date Wise</p>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                  View detailed timeline for a specific date
-                </p>
-              </button>
-            </div>
-            <button
-              onClick={() => setIsLeaveWfhModalOpen(true)}
-              className="w-full p-4 bg-amber-600/20 hover:bg-amber-600/30 rounded-lg border border-amber-500/30 hover:border-amber-500/50 transition-all text-left"
-            >
-              <Plus className="h-5 w-5 text-amber-400 mb-2" />
-              <p className="font-semibold text-slate-900 dark:text-white">Add Leave / WFH</p>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Create leave or work-from-home for this employee</p>
-            </button>
-            <button
-              onClick={() => {
-                setSelectedEmployee(null);
-                setSearchQuery("");
-              }}
-              className="w-full p-2 text-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-sm transition-colors"
-            >
-              ← Change Employee
-            </button>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Date Wise Mode */}
-      {selectedEmployee && viewMode === "dateWise" && (
-        <>
-          {/* Header with back button and date picker */}
-          <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white relative">
-            {isLoadingDetails && (
-              <div className="absolute inset-0 bg-black/40 rounded-lg backdrop-blur-sm flex items-center justify-center z-10">
-                <div className="flex flex-col items-center gap-3">
-                  <Loader2 className="h-10 w-10 animate-spin text-amber-400" />
-                  <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">Loading attendance details...</p>
                 </div>
               </div>
-            )}
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>
-                    {selectedEmployee.first_name} {selectedEmployee.last_name}
-                  </CardTitle>
-                  <CardDescription className="text-slate-500 dark:text-slate-400">Date Wise View</CardDescription>
-                </div>
-                <button
-                  onClick={() => {
-                    setViewMode("selector");
-                    setSelectedDate("");
-                  }}
-                  className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
-                >
-                  ← Change
-                </button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-4">
-                <label className="text-sm text-slate-600 dark:text-slate-300">Select Date:</label>
-                <input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => {
-                    const newDate = e.target.value;
-                    setSelectedDate(newDate);
-                    if (newDate) handleDateSelection(newDate);
-                  }}
-                  disabled={isLoadingDetails}
-                  className="px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-400 [color-scheme:dark] disabled:opacity-50 disabled:cursor-not-allowed"
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Daily Details */}
-          {selectedDate && (
-            <>
-              {isLoadingDetails ? (
-                <div className="flex justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-slate-500 dark:text-slate-400" />
-                </div>
-              ) : dailyDetails ? (
-                <>
-                  <DailySummaryCard
-                    attendance={dailyDetails}
-                    totalBreaks={dailyDetails.completed_breaks?.length || 0}
-                    isCurrentlyWorking={dailyDetails.is_currently_working}
-                  />
-
-                  <Card className="shadow-sm border-slate-200 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-slate-900 dark:text-white">
-                    <CardHeader className="pb-4 border-b border-slate-200 dark:border-white/5">
-                      <CardTitle>Biometric Punch Timeline</CardTitle>
-                      <CardDescription className="text-slate-500 dark:text-slate-400">
-                        Complete record of all punch events in chronological order
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="pt-6">
-                      <BiometricPunchTimeline
-                        punches={dailyDetails.raw_punches || []}
-                        isCurrentlyWorking={dailyDetails.is_currently_working}
-                      />
-                    </CardContent>
-                  </Card>
-                </>
-              ) : (
-                <Card className="border-slate-600 bg-slate-100/50 dark:bg-slate-900/50">
-                  <CardContent className="pt-6 text-center text-slate-600 dark:text-slate-300">
-                    No attendance data found for this date.
-                  </CardContent>
-                </Card>
-              )}
             </>
+          ) : (
+            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200/90 dark:border-slate-700/60 p-12 text-center shadow-sm">
+              <Calendar className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-2 opacity-50" />
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                No attendance data found for {selectedDate}
+              </p>
+              <p className="text-xs text-slate-400 mt-1">
+                Please pick another date to view the attendance report
+              </p>
+            </div>
           )}
-        </>
+        </div>
       )}
 
       {/* Admin Leave/WFH Modal */}
@@ -760,11 +1070,13 @@ export default function AttendanceManagementPage() {
         isOpen={isLeaveWfhModalOpen}
         onClose={() => setIsLeaveWfhModalOpen(false)}
         onSuccess={() => {
-          // Refresh data if needed
-          if (selectedDate) handleDateSelection(selectedDate);
+          if (viewMode === "dateWise" && selectedDate) {
+            handleDateSelection(dateWiseSelectedDate, selectedEmployee?.id);
+          }
         }}
         selectedEmployeeId={selectedEmployee?.id}
       />
     </div>
   );
 }
+
