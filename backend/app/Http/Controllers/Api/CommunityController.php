@@ -647,7 +647,7 @@ class CommunityController extends Controller
     public function getSummary(Request $request)
     {
         $user = $request->user();
-        $today = Carbon::today();
+        $today = Carbon::today('Asia/Kolkata');
 
         $upcomingHoliday = Holiday::where('date', '>=', $today->format('Y-m-d'))
             ->orderBy('date', 'asc')
@@ -687,6 +687,7 @@ class CommunityController extends Controller
         $sickDays = $balance ? (float)$balance->sick_leave_balance : 0;
 
         $allUsers = User::select('id', 'first_name', 'last_name', 'designation', 'profile_photo_path', 'email', 'dob', 'joining_date', 'status')
+            ->where('status', 'Active')
             ->get();
 
         $birthdaysToday = [];
@@ -697,12 +698,14 @@ class CommunityController extends Controller
 
         foreach ($allUsers as $u) {
             if ($u->dob) {
-                $dob = Carbon::parse($u->dob);
-                $thisYearBday = Carbon::create($today->year, $dob->month, $dob->day)->startOfDay();
-                if ($thisYearBday->isPast() && !$thisYearBday->isSameDay($today)) {
-                    $thisYearBday->addYear();
+                $dobThisYear = Carbon::parse($u->dob)->setYear($today->year);
+
+                if ($dobThisYear->isBefore($today)) {
+                    $dobThisYear->addYear();
                 }
-                $daysToBday = $today->diffInDays($thisYearBday, false);
+                
+                $daysToBday = clone $today;
+                $daysToBday = $daysToBday->diffInDays($dobThisYear);
 
                 $bdayData = [
                     'id' => $u->id,
@@ -710,7 +713,7 @@ class CommunityController extends Controller
                     'designation' => $u->designation ?? 'Team Member',
                     'profile_photo_path' => $u->profilePhotoUrl(),
                     'email' => $u->email,
-                    'date' => $thisYearBday->format('Y-m-d'),
+                    'date' => $dobThisYear->format('Y-m-d'),
                     'days_remaining' => (int)$daysToBday,
                 ];
 
@@ -726,11 +729,15 @@ class CommunityController extends Controller
                 $years = $today->year - $doj->year;
 
                 if ($years >= 1) {
-                    $thisYearAnni = Carbon::create($today->year, $doj->month, $doj->day)->startOfDay();
-                    if ($thisYearAnni->isPast() && !$thisYearAnni->isSameDay($today)) {
-                        $thisYearAnni->addYear();
+                    $joinThisYear = Carbon::parse($u->joining_date)->setYear($today->year);
+
+                    if ($joinThisYear->isBefore($today)) {
+                        $joinThisYear->addYear();
+                        $years++;
                     }
-                    $daysToAnni = $today->diffInDays($thisYearAnni, false);
+
+                    $daysToAnni = clone $today;
+                    $daysToAnni = $daysToAnni->diffInDays($joinThisYear);
 
                     $anniData = [
                         'id' => $u->id,
@@ -739,7 +746,7 @@ class CommunityController extends Controller
                         'profile_photo_path' => $u->profilePhotoUrl(),
                         'email' => $u->email,
                         'years' => $years,
-                        'date' => $thisYearAnni->format('Y-m-d'),
+                        'date' => $joinThisYear->format('Y-m-d'),
                         'days_remaining' => (int)$daysToAnni,
                     ];
 
