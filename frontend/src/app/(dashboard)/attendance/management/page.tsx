@@ -607,98 +607,128 @@ export default function AttendanceManagementPage() {
       {/* ────────────────────────────────────────────────────────
           EMPLOYEE ACTION SIDE DRAWER (POPUP MODAL ON RIGHT SIDE)
           ──────────────────────────────────────────────────────── */}
-      <Dialog open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-        <DialogContent className="max-w-md w-full">
-          <DialogHeader>
-            <div className="flex items-center gap-3">
-              {selectedEmployee && (
+      {isDrawerOpen && selectedEmployee && (
+        <div className="fixed inset-0 z-50 overflow-hidden font-sans">
+          {/* Backdrop */}
+          <div
+            onClick={() => setIsDrawerOpen(false)}
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+          />
+
+          {/* Drawer Panel */}
+          <div className="fixed inset-y-0 right-0 max-w-md w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-50 animate-in slide-in-from-right duration-300">
+            
+            {/* Header */}
+            <div className="relative p-6 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-b from-purple-50/80 via-purple-50/30 to-white dark:from-slate-800 dark:to-slate-900">
+              {/* Close Button */}
+              <button
+                onClick={() => setIsDrawerOpen(false)}
+                className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 dark:hover:text-white p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                title="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="flex items-center gap-4 pr-8">
                 <RoyalAvatar
                   src={selectedEmployee.profile_photo_path}
                   name={`${selectedEmployee.first_name} ${selectedEmployee.last_name}`}
                   userId={selectedEmployee.id}
                   employeeCode={selectedEmployee.employee_code}
-                  className="w-12 h-12 rounded-full shrink-0 border border-slate-200 dark:border-slate-700"
+                  className="w-14 h-14 rounded-full shrink-0 border-2 border-white dark:border-slate-700 shadow-sm text-base"
                 />
-              )}
-              <div className="min-w-0">
-                <DialogTitle className="truncate">
-                  {selectedEmployee
-                    ? `${selectedEmployee.first_name} ${selectedEmployee.last_name}`
-                    : "Employee Details"}
-                </DialogTitle>
-                <DialogDescription className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Employee Code: {selectedEmployee?.employee_code || "N/A"}
-                  {selectedEmployee?.designation && ` • ${selectedEmployee.designation}`}
-                </DialogDescription>
+                <div className="min-w-0">
+                  <h2
+                    style={{
+                      fontSize: "18px",
+                      lineHeight: "26px",
+                      fontWeight: 600,
+                      color: "rgb(15, 24, 36)",
+                    }}
+                    className="dark:text-white truncate"
+                  >
+                    <RoyalName
+                      name={`${selectedEmployee.first_name} ${selectedEmployee.last_name}`}
+                      userId={selectedEmployee.id}
+                      employeeCode={selectedEmployee.employee_code}
+                    />
+                  </h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium truncate">
+                    Employee Code: <span className="font-mono font-semibold text-slate-700 dark:text-slate-300">{selectedEmployee.employee_code || "N/A"}</span>
+                  </p>
+                  <p className="text-xs text-[#56348f] dark:text-purple-400 mt-0.5 font-medium truncate">
+                    {selectedEmployee.designation || "Team Member"} {selectedEmployee.team?.name ? `• ${selectedEmployee.team.name}` : ""}
+                  </p>
+                </div>
               </div>
             </div>
-          </DialogHeader>
 
-          <div className="space-y-4 py-3">
-            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Select how you want to view attendance:
-            </p>
+            {/* Body */}
+            <div className="p-6 space-y-4 overflow-y-auto flex-1">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-2">
+                Select how you want to view attendance:
+              </span>
 
-            {/* Option 1: Date Wise */}
-            <button
-              onClick={() => {
-                if (selectedEmployee) {
+              {/* Option 1: Date Wise */}
+              <button
+                onClick={() => {
                   handleOpenDateWise(selectedEmployee);
-                }
-              }}
-              className="w-full p-4 bg-gradient-to-r from-purple-500/5 to-indigo-500/10 hover:from-purple-500/10 hover:to-indigo-500/20 dark:from-purple-950/30 dark:to-indigo-950/40 border border-purple-200/80 dark:border-purple-800/50 rounded-xl text-left transition-all group flex items-start gap-3.5 shadow-sm"
-            >
-              <div className="w-10 h-10 rounded-lg bg-[#56348f]/10 dark:bg-purple-500/20 flex items-center justify-center text-[#56348f] dark:text-purple-300 shrink-0 group-hover:scale-105 transition-transform">
-                <Calendar className="h-5 w-5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <p className="font-semibold text-slate-900 dark:text-white text-sm">
-                    Date Wise
-                  </p>
-                  <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-[#56348f] dark:group-hover:text-purple-300 transition-colors" />
+                }}
+                className="w-full p-4.5 bg-white dark:bg-slate-800/80 hover:bg-purple-50/50 dark:hover:bg-purple-950/30 border border-slate-200/90 dark:border-slate-700/80 hover:border-purple-300 dark:hover:border-purple-700/60 rounded-xl text-left transition-all group flex items-start gap-4 shadow-xs cursor-pointer"
+              >
+                <div className="w-11 h-11 rounded-xl bg-purple-50 dark:bg-purple-950/50 border border-purple-100 dark:border-purple-800/40 flex items-center justify-center text-[#56348f] dark:text-purple-300 shrink-0 group-hover:scale-105 transition-transform">
+                  <Calendar className="h-5 w-5" />
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  View detailed timeline for a specific date
-                </p>
-              </div>
-            </button>
-
-            {/* Option 2: Add Leave / WFH */}
-            <button
-              onClick={() => {
-                setIsDrawerOpen(false);
-                setIsLeaveWfhModalOpen(true);
-              }}
-              className="w-full p-4 bg-gradient-to-r from-amber-500/5 to-orange-500/10 hover:from-amber-500/10 hover:to-orange-500/20 dark:from-amber-950/30 dark:to-orange-950/40 border border-amber-200/80 dark:border-amber-800/50 rounded-xl text-left transition-all group flex items-start gap-3.5 shadow-sm"
-            >
-              <div className="w-10 h-10 rounded-lg bg-amber-500/10 dark:bg-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-300 shrink-0 group-hover:scale-105 transition-transform">
-                <Plus className="h-5 w-5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <p className="font-semibold text-slate-900 dark:text-white text-sm">
-                    Add Leave / WFH
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <p className="font-semibold text-slate-900 dark:text-white text-[15px]">
+                      Date Wise
+                    </p>
+                    <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-[#56348f] dark:group-hover:text-purple-300 transition-colors" />
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                    View detailed timeline for a specific date
                   </p>
-                  <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-amber-600 dark:group-hover:text-amber-300 transition-colors" />
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Create leave or work-from-home for this employee
-                </p>
-              </div>
-            </button>
-          </div>
+              </button>
 
-          <div className="pt-3 border-t border-slate-200 dark:border-slate-700/60 mt-2">
-            <button
-              onClick={() => setIsDrawerOpen(false)}
-              className="w-full py-2.5 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-            >
-              ← Change Employee
-            </button>
+              {/* Option 2: Add Leave / WFH */}
+              <button
+                onClick={() => {
+                  setIsDrawerOpen(false);
+                  setIsLeaveWfhModalOpen(true);
+                }}
+                className="w-full p-4.5 bg-white dark:bg-slate-800/80 hover:bg-amber-50/50 dark:hover:bg-amber-950/30 border border-slate-200/90 dark:border-slate-700/80 hover:border-amber-300 dark:hover:border-amber-700/60 rounded-xl text-left transition-all group flex items-start gap-4 shadow-xs cursor-pointer"
+              >
+                <div className="w-11 h-11 rounded-xl bg-amber-50 dark:bg-amber-950/50 border border-amber-100 dark:border-amber-800/40 flex items-center justify-center text-amber-600 dark:text-amber-300 shrink-0 group-hover:scale-105 transition-transform">
+                  <Plus className="h-5 w-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <p className="font-semibold text-slate-900 dark:text-white text-[15px]">
+                      Add Leave / WFH
+                    </p>
+                    <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-amber-600 dark:group-hover:text-amber-300 transition-colors" />
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                    Create leave or work-from-home for this employee
+                  </p>
+                </div>
+              </button>
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+              <button
+                onClick={() => setIsDrawerOpen(false)}
+                className="w-full py-2.5 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800 rounded-lg border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-all cursor-pointer"
+              >
+                ← Change Employee
+              </button>
+            </div>
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      )}
 
       {/* ────────────────────────────────────────────────────────
           MODE 2: DATE WISE VIEW (SINGLE EMPLOYEE TIMELINE)
