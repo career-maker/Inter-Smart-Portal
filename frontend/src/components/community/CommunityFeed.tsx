@@ -1525,26 +1525,24 @@ export function CommunityFeed() {
                   {/* Stats Row */}
                   {((post.likes_count || 0) > 0 || (post.comments_count || 0) > 0) && (
                     <div className="flex items-center justify-between py-2 text-[13px] text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700">
-                      <div className="flex items-center gap-1.5 cursor-pointer hover:underline" onClick={() => { setReactionModalPost(post); setReactionModalTab("all"); }}>
+                      <div className="flex items-center gap-3 cursor-pointer hover:underline" onClick={() => { setReactionModalPost(post); setReactionModalTab("all"); }}>
                         {(post.likes_count || 0) > 0 && (
-                          <div className="flex items-center">
+                          <div className="flex items-center gap-2.5">
                             {Object.entries(post.reactions_breakdown || {})
+                              .filter(([_, count]) => Number(count) > 0)
                               .sort((a, b) => Number(b[1]) - Number(a[1]))
-                              .slice(0, 3)
-                              .map(([reaction], idx) => {
+                              .map(([reaction, count]) => {
                                 const r = EMOJI_REACTIONS.find((er) => er.id === reaction);
                                 if (!r) return null;
                                 return (
-                                  <span 
-                                    key={reaction} 
-                                    className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] ring-2 ring-white dark:ring-slate-900 bg-slate-100 dark:bg-slate-800 -ml-1 first:ml-0`}
-                                    style={{ zIndex: 10 - idx }}
-                                  >
-                                    {r.emoji}
-                                  </span>
+                                  <div key={reaction} className="flex items-center gap-1">
+                                    <span className="w-4 h-4 rounded-full flex items-center justify-center text-[11px] bg-slate-100 dark:bg-slate-800">
+                                      {r.emoji}
+                                    </span>
+                                    <span>{Number(count)}</span>
+                                  </div>
                                 );
                               })}
-                            <span className="ml-1.5">{post.likes_count}</span>
                           </div>
                         )}
                       </div>
