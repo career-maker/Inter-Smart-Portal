@@ -619,10 +619,10 @@ export function CommunityFeed() {
           />
           
           {/* Post Type Selector Tabs */}
-          <div className="flex items-center px-2 pt-2 border-b border-slate-200 dark:border-slate-700">
+          <div className="flex items-center px-4 pt-3 pb-3 border-b border-slate-200 dark:border-slate-700 gap-1.5">
             <button
               onClick={() => setActiveType("post")}
-              className={`flex-1 flex items-center justify-center gap-2 text-[14px] font-semibold p-2.5 rounded-md transition-all cursor-pointer mb-2 ${
+              className={`flex-1 flex items-center justify-center gap-2 text-[14px] font-semibold py-2.5 rounded-md transition-all cursor-pointer ${
                 activeType === "post" ? "bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-white" : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700"
               }`}
             >
@@ -632,7 +632,7 @@ export function CommunityFeed() {
 
             <button
               onClick={() => setActiveType("poll")}
-              className={`flex-1 flex items-center justify-center gap-2 text-[14px] font-semibold p-2.5 rounded-md transition-all cursor-pointer mb-2 ${
+              className={`flex-1 flex items-center justify-center gap-2 text-[14px] font-semibold py-2.5 rounded-md transition-all cursor-pointer ${
                 activeType === "poll" ? "bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-white" : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700"
               }`}
             >
@@ -642,7 +642,7 @@ export function CommunityFeed() {
 
             <button
               onClick={() => setActiveType("praise")}
-              className={`flex-1 flex items-center justify-center gap-2 text-[14px] font-semibold p-2.5 rounded-md transition-all cursor-pointer mb-2 ${
+              className={`flex-1 flex items-center justify-center gap-2 text-[14px] font-semibold py-2.5 rounded-md transition-all cursor-pointer ${
                 activeType === "praise" ? "bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-white" : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700"
               }`}
             >
