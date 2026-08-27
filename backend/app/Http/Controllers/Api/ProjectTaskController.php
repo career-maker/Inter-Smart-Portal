@@ -215,10 +215,27 @@ class ProjectTaskController extends Controller
             }
         }
 
+        if (!empty($assigneeIds) && count($assigneeIds) > 1) {
+            $createdTasks = [];
+            foreach ($assigneeIds as $assigneeId) {
+                $individualTask = $this->tasks->createTask($project, $data, $user, $request);
+                $this->tasks->assignUser($individualTask, (int) $assigneeId, $user, true, $request);
+                $createdTasks[] = $individualTask;
+            }
+
+            return response()->json([
+                'message' => 'Tasks created individually for each assigned employee.',
+                'data' => $createdTasks[0]->load(['assignees', 'catalogTask']),
+                'tasks' => $createdTasks,
+            ], 201);
+        }
+
         $task = $this->tasks->createTask($project, $data, $user, $request);
 
-        foreach ($assigneeIds as $index => $assigneeId) {
-            $this->tasks->assignUser($task, (int) $assigneeId, $user, $index === 0, $request);
+        if (!empty($assigneeIds)) {
+            foreach ($assigneeIds as $index => $assigneeId) {
+                $this->tasks->assignUser($task, (int) $assigneeId, $user, $index === 0, $request);
+            }
         }
 
         return response()->json(['message' => 'Task created successfully.', 'data' => $task->load(['assignees', 'catalogTask'])], 201);
