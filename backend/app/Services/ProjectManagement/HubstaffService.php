@@ -499,15 +499,21 @@ class HubstaffService
                 $endpoint = "{$baseUrl}/organizations/{$orgId}/activities/daily";
                 $allActivities = [];
                 $nextStartId = null;
-                $maxPages = 8;
+                $maxPages = 10;
                 $currentPage = 0;
+
+                // Format start and stop in ISO8601 UTC format as expected by Hubstaff v2
+                $carbonStart = \Carbon\Carbon::parse($startDate)->startOfDay();
+                $carbonEnd = \Carbon\Carbon::parse($endDate)->endOfDay();
+                $startIso = $carbonStart->toIso8601String();
+                $stopIso = $carbonEnd->toIso8601String();
 
                 do {
                     $currentPage++;
                     $queryParams = [
                         'date' => [
-                            'start' => $startDate,
-                            'stop' => $endDate,
+                            'start' => $startIso,
+                            'stop' => $stopIso,
                         ],
                         'page_limit' => 500,
                     ];
@@ -517,9 +523,23 @@ class HubstaffService
                     }
 
                     $response = Http::withToken($token)
-                        ->timeout(12)
+                        ->timeout(15)
                         ->acceptJson()
                         ->get($endpoint, $queryParams);
+
+                    // If ISO8601 fails, retry once with simple YYYY-MM-DD
+                    if (!$response->successful() && $currentPage === 1) {
+                        $response = Http::withToken($token)
+                            ->timeout(15)
+                            ->acceptJson()
+                            ->get($endpoint, [
+                                'date' => [
+                                    'start' => $carbonStart->toDateString(),
+                                    'stop' => $carbonEnd->toDateString(),
+                                ],
+                                'page_limit' => 500,
+                            ]);
+                    }
 
                     if (!$response->successful()) {
                         Log::warning('Hubstaff daily activities API request failed', [

@@ -186,21 +186,44 @@ class HubstaffProjectController extends Controller
             }
         }
 
-        // Fetch User Links
-        $linksQuery = \App\Models\ProjectUserHubstaffLink::with([
+        // Fetch Explicit User Links
+        $userLinks = \App\Models\ProjectUserHubstaffLink::with([
             'user:id,first_name,last_name,email,employee_code,designation,team_id,profile_photo_path',
             'user.team:id,name'
-        ]);
+        ])->get();
 
-        if ($selectedTeamId) {
-            $linksQuery->whereHas('user', fn($q) => $q->where('team_id', $selectedTeamId));
-        }
-
-        $userLinks = $linksQuery->get();
         $hubstaffUserMap = [];
         foreach ($userLinks as $link) {
             if ($link->user) {
                 $hubstaffUserMap[(string) $link->hubstaff_user_id] = $link->user;
+            }
+        }
+
+        // Auto-match any discovered members by email if not explicitly linked yet
+        $discoveredMembers = $this->hubstaffService->getMembersWithUsers()['members'] ?? [];
+        $unmappedEmails = [];
+        $emailToHsIdMap = [];
+        foreach ($discoveredMembers as $dm) {
+            $hsId = (string) ($dm['hubstaff_user_id'] ?? '');
+            $email = strtolower(trim($dm['email'] ?? ''));
+            if (!empty($hsId) && !empty($email) && !isset($hubstaffUserMap[$hsId])) {
+                $unmappedEmails[] = $email;
+                $emailToHsIdMap[$email] = $hsId;
+            }
+        }
+
+        if (!empty($unmappedEmails)) {
+            $matchedUsers = \App\Models\User::whereIn('email', array_unique($unmappedEmails))
+                ->with('team:id,name')
+                ->select('id', 'first_name', 'last_name', 'email', 'employee_code', 'designation', 'team_id', 'profile_photo_path')
+                ->get();
+
+            foreach ($matchedUsers as $mu) {
+                $email = strtolower(trim($mu->email));
+                if (isset($emailToHsIdMap[$email])) {
+                    $hsId = $emailToHsIdMap[$email];
+                    $hubstaffUserMap[$hsId] = $mu;
+                }
             }
         }
 
@@ -234,8 +257,10 @@ class HubstaffProjectController extends Controller
             $activity = (int) ($act['overall'] ?? 0);
 
             // Filter by team scope: if team is selected and user is not in that team, skip
-            if ($selectedTeamId && !isset($hubstaffUserMap[$hsUid])) {
-                continue;
+            if ($selectedTeamId) {
+                if (!isset($hubstaffUserMap[$hsUid]) || ($hubstaffUserMap[$hsUid]->team_id ?? null) != $selectedTeamId) {
+                    continue;
+                }
             }
 
             $userModel = $hubstaffUserMap[$hsUid] ?? null;
