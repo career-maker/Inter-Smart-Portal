@@ -5,12 +5,39 @@
     font-family: "Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
   }
 
-  button, [role="button"] {
+  button, [role="button"], a.btn, .btn {
     font-family: "Proxima Nova", sans-serif;
     font-style: normal;
     font-size: 13px;
     line-height: 20px;
+    font-weight: 400;
   }
+}
+
+/* Universal Button Text Visibility & Contrast */
+button[class*="bg-[#56348f]"], a[class*="bg-[#56348f]"],
+button[class*="bg-blue-600"], a[class*="bg-blue-600"],
+button[class*="bg-purple-600"], a[class*="bg-purple-600"],
+button[class*="bg-primary"], a[class*="bg-primary"],
+.btn-primary {
+  color: rgb(255, 255, 255) !important;
+}
+
+button[class*="bg-[#56348f]"] *, a[class*="bg-[#56348f]"] *,
+button[class*="bg-blue-600"] *, a[class*="bg-blue-600"] *,
+button[class*="bg-purple-600"] *, a[class*="bg-purple-600"] *,
+button[class*="bg-primary"] *, a[class*="bg-primary"] *,
+.btn-primary * {
+  color: rgb(255, 255, 255) !important;
+}
+
+html:not(.dark) button[class*="bg-slate-100"]:not([class*="text-white"]),
+html:not(.dark) button[class*="bg-slate-50"]:not([class*="text-white"]),
+html:not(.dark) button[class*="bg-white"]:not([class*="text-white"]),
+html:not(.dark) a[class*="bg-slate-100"]:not([class*="text-white"]),
+html:not(.dark) a[class*="bg-slate-50"]:not([class*="text-white"]),
+html:not(.dark) a[class*="bg-white"]:not([class*="text-white"]) {
+  color: #0f172a;
 }
 
 /* ── Global Custom Select Dropdown Styles ── */

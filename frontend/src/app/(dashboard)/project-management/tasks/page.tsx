@@ -163,7 +163,8 @@ export default function AllTasksPage() {
         <div className="flex items-center gap-2.5 self-start sm:self-auto">
           <Link
             href="/project-management/tasks/my"
-            className="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition-colors"
+            style={{ backgroundColor: "#f3e8ff", color: "#56348f", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+            className="px-3.5 py-2 rounded-xl bg-purple-100 dark:bg-purple-950/60 hover:bg-purple-200/80 !text-[#56348f] dark:!text-purple-300 text-[13px] leading-[20px] font-normal border border-purple-300 dark:border-purple-800/80 transition-colors"
           >
             My Tasks
           </Link>
@@ -172,18 +173,19 @@ export default function AllTasksPage() {
             onClick={() => fetchTasks(currentPage, true)}
             disabled={refreshing || loading}
             aria-label="Refresh Tasks"
-            className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors disabled:opacity-50"
+            className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 !text-slate-800 dark:!text-slate-200 border border-slate-300 dark:border-slate-700 transition-colors disabled:opacity-50"
             title="Refresh List"
           >
-            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-blue-500" : ""}`} />
+            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-[#56348f]" : "text-slate-700 dark:text-slate-300"}`} />
           </button>
 
           <button
             onClick={() => setIsCreateModalOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold shadow-sm shadow-blue-500/20 transition-colors cursor-pointer"
+            style={{ backgroundColor: "#56348f", color: "rgb(255, 255, 255)", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-[13px] leading-[20px] font-normal shadow-sm transition-colors cursor-pointer"
           >
-            <Plus className="w-4 h-4" />
-            <span>Create Task</span>
+            <Plus className="w-4 h-4 !text-white" />
+            <span style={{ color: "rgb(255, 255, 255)", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }} className="!text-white">Create Task</span>
           </button>
         </div>
       </div>
@@ -198,10 +200,18 @@ export default function AllTasksPage() {
               <button
                 key={status}
                 onClick={() => setStatusFilter(status)}
-                className={`px-3 py-1 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                style={{
+                  backgroundColor: isSelected ? "#56348f" : undefined,
+                  color: isSelected ? "rgb(255, 255, 255)" : undefined,
+                  fontFamily: '"Proxima Nova", sans-serif',
+                  fontSize: "13px",
+                  lineHeight: "20px",
+                  fontWeight: 400,
+                }}
+                className={`px-3 py-1 rounded-xl text-[13px] leading-[20px] font-normal whitespace-nowrap transition-all cursor-pointer ${
                   isSelected
-                    ? "bg-blue-600 text-white shadow-sm shadow-blue-500/20"
-                    : "bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700/60"
+                    ? "bg-[#56348f] !text-white shadow-sm"
+                    : "bg-slate-100 dark:bg-slate-800/60 !text-slate-800 dark:!text-slate-200 hover:bg-purple-50 dark:hover:bg-slate-700/60 border border-slate-200 dark:border-slate-700"
                 }`}
               >
                 {status}

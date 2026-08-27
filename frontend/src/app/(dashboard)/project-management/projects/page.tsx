@@ -185,10 +185,10 @@ export default function ProjectsListPage() {
             onClick={() => fetchProjects(currentPage, true)}
             disabled={refreshing || loading || importingHubstaff}
             aria-label="Refresh Projects"
-            className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors disabled:opacity-50 cursor-pointer"
+            className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 !text-slate-800 dark:!text-slate-200 border border-slate-300 dark:border-slate-700 transition-colors disabled:opacity-50 cursor-pointer"
             title="Refresh List"
           >
-            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-blue-500" : ""}`} />
+            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-[#56348f]" : "text-slate-700 dark:text-slate-300"}`} />
           </button>
 
           {/* Hubstaff Bulk Import Button (Always visible) */}
@@ -196,21 +196,23 @@ export default function ProjectsListPage() {
             type="button"
             onClick={handleImportHubstaff}
             disabled={importingHubstaff || loading}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs sm:text-sm font-semibold border border-slate-700 shadow-sm transition-all disabled:opacity-50 hover:border-slate-600 cursor-pointer"
+            style={{ backgroundColor: "#ffffff", color: "#0f172a", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 !text-slate-900 dark:!text-slate-100 text-[13px] leading-[20px] font-normal border border-slate-300 dark:border-slate-700 shadow-2xs transition-all disabled:opacity-50 cursor-pointer"
             title="Import all active projects from Hubstaff without duplicating"
           >
-            <CloudDownload className={`w-4 h-4 text-sky-400 ${importingHubstaff ? "animate-spin" : ""}`} />
-            <span>{importingHubstaff ? "Importing Hubstaff…" : "Import from Hubstaff"}</span>
+            <CloudDownload className={`w-4 h-4 text-sky-600 dark:text-sky-400 ${importingHubstaff ? "animate-spin" : ""}`} />
+            <span style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }} className="!text-slate-900 dark:!text-slate-100">{importingHubstaff ? "Importing Hubstaff…" : "Import from Hubstaff"}</span>
           </button>
 
           {/* Create Project Button */}
           <button
             type="button"
             onClick={() => setIsCreateModalOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold shadow-sm shadow-blue-500/20 transition-colors cursor-pointer"
+            style={{ backgroundColor: "#56348f", color: "rgb(255, 255, 255)", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-[13px] leading-[20px] font-normal shadow-sm transition-colors cursor-pointer"
           >
-            <Plus className="w-4 h-4" />
-            <span>Create Project</span>
+            <Plus className="w-4 h-4 !text-white" />
+            <span style={{ color: "rgb(255, 255, 255)", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }} className="!text-white">Create Project</span>
           </button>
         </div>
       </div>
@@ -261,10 +263,18 @@ export default function ProjectsListPage() {
                 onClick={() => {
                   setStatusFilter(status);
                 }}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                style={{
+                  backgroundColor: isSelected ? "#56348f" : undefined,
+                  color: isSelected ? "rgb(255, 255, 255)" : undefined,
+                  fontFamily: '"Proxima Nova", sans-serif',
+                  fontSize: "13px",
+                  lineHeight: "20px",
+                  fontWeight: 400,
+                }}
+                className={`px-3.5 py-1.5 rounded-xl text-[13px] leading-[20px] font-normal whitespace-nowrap transition-all cursor-pointer ${
                   isSelected
-                    ? "bg-blue-600 text-white shadow-sm shadow-blue-500/20"
-                    : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700/80"
+                    ? "bg-[#56348f] !text-white shadow-sm"
+                    : "bg-slate-100 dark:bg-slate-800 !text-slate-800 dark:!text-slate-200 hover:bg-purple-50 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700"
                 }`}
               >
                 {status}
