@@ -209,14 +209,15 @@ export function PMAllTasksTable({
           <button
             type="button"
             onClick={onToggleTodayOnly}
-            className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors border cursor-pointer ${
+            style={showTodayOnly ? { backgroundColor: "#56348f", color: "#ffffff" } : undefined}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all border cursor-pointer shadow-xs ${
               showTodayOnly
-                ? "bg-[#56348f] border-[#56348f] text-white shadow-xs"
-                : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50"
+                ? "bg-[#56348f] border-[#56348f] !text-white shadow-sm"
+                : "bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 !text-slate-800 dark:!text-slate-100 hover:bg-purple-50 dark:hover:bg-slate-800"
             }`}
           >
-            <Calendar className="w-3.5 h-3.5" />
-            <span>Present Day</span>
+            <Calendar className={`w-3.5 h-3.5 ${showTodayOnly ? "!text-white" : "text-[#56348f] dark:text-purple-400"}`} />
+            <span className={showTodayOnly ? "!text-white font-bold" : "!text-slate-800 dark:!text-slate-100 font-bold"}>Present Day</span>
           </button>
         </div>
       </div>
