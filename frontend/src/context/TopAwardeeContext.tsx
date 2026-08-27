@@ -26,11 +26,43 @@ const TopAwardeeContext = createContext<TopAwardeeContextType>({
 });
 
 export function TopAwardeeProvider({ children }: { children: React.ReactNode }) {
-  const [topAwardeeId, setTopAwardeeId] = useState<number | null>(null);
-  const [topAwardeeCode, setTopAwardeeCode] = useState<string | null>(null);
-  const [topAwardeeName, setTopAwardeeName] = useState<string | null>(null);
-  const [totalAwards, setTotalAwards] = useState<number>(0);
+  const [topAwardeeId, setTopAwardeeId] = useState<number | null>(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("intersmart_top_awardee_id");
+      return stored ? Number(stored) : null;
+    }
+    return null;
+  });
+  const [topAwardeeCode, setTopAwardeeCode] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("intersmart_top_awardee_code") || null;
+    }
+    return null;
+  });
+  const [topAwardeeName, setTopAwardeeName] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("intersmart_top_awardee_name") || null;
+    }
+    return null;
+  });
+  const [totalAwards, setTotalAwards] = useState<number>(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("intersmart_top_awardee_count");
+      return stored ? Number(stored) : (localStorage.getItem("intersmart_top_awardee_id") ? 1 : 0);
+    }
+    return 0;
+  });
   const [topAwardee, setTopAwardee] = useState<any | null>(null);
+
+  const persistTopAwardee = (id: number | null, code: string | null, name: string | null, count: number) => {
+    if (typeof window === "undefined") return;
+    if (id && count > 0) {
+      localStorage.setItem("intersmart_top_awardee_id", String(id));
+      if (code) localStorage.setItem("intersmart_top_awardee_code", code);
+      if (name) localStorage.setItem("intersmart_top_awardee_name", name);
+      localStorage.setItem("intersmart_top_awardee_count", String(count));
+    }
+  };
 
   const setTopAwardeeFromLeaderboard = useCallback((lbData: any) => {
     if (!lbData) return;
@@ -40,11 +72,16 @@ export function TopAwardeeProvider({ children }: { children: React.ReactNode }) 
     if (topUserId > 0) {
       const topEntry = list.find((d: any) => Number(d.user_id) === topUserId || Number(d.id) === topUserId);
       if (topEntry && Number(topEntry.total_achievements) > 0) {
-        setTopAwardeeId(Number(topEntry.user_id || topEntry.id));
-        setTopAwardeeCode(topEntry.employee_code || null);
-        setTopAwardeeName(topEntry.name || null);
-        setTotalAwards(Number(topEntry.total_achievements));
+        const tId = Number(topEntry.user_id || topEntry.id);
+        const tCode = topEntry.employee_code || null;
+        const tName = topEntry.name || null;
+        const tCount = Number(topEntry.total_achievements);
+        setTopAwardeeId(tId);
+        setTopAwardeeCode(tCode);
+        setTopAwardeeName(tName);
+        setTotalAwards(tCount);
         setTopAwardee(topEntry);
+        persistTopAwardee(tId, tCode, tName, tCount);
         return;
       }
     }
@@ -54,15 +91,20 @@ export function TopAwardeeProvider({ children }: { children: React.ReactNode }) 
       list.find((d: any) => Number(d.total_achievements) > 0);
 
     if (rank1) {
-      setTopAwardeeId(Number(rank1.user_id || rank1.id));
-      setTopAwardeeCode(rank1.employee_code || null);
-      setTopAwardeeName(rank1.name || null);
-      setTotalAwards(Number(rank1.total_achievements));
+      const tId = Number(rank1.user_id || rank1.id);
+      const tCode = rank1.employee_code || null;
+      const tName = rank1.name || null;
+      const tCount = Number(rank1.total_achievements);
+      setTopAwardeeId(tId);
+      setTopAwardeeCode(tCode);
+      setTopAwardeeName(tName);
+      setTotalAwards(tCount);
       setTopAwardee(rank1);
+      persistTopAwardee(tId, tCode, tName, tCount);
     }
   }, []);
 
-  const fetchTopAwardee = async () => {
+  const fetchTopAwardee = useCallback(async () => {
     if (typeof window === "undefined") return;
     const token = localStorage.getItem("token");
     if (!token || window.location.pathname.startsWith("/login")) return;
@@ -70,11 +112,16 @@ export function TopAwardeeProvider({ children }: { children: React.ReactNode }) 
     try {
       const res = await api.get(`/recognitions/top-awardee?_t=${Date.now()}`);
       if (res.data?.top_awardee_id && Number(res.data?.total_awards) > 0) {
-        setTopAwardeeId(Number(res.data.top_awardee_id));
-        setTopAwardeeCode(res.data.employee?.employee_code || null);
-        setTopAwardeeName(res.data.employee?.name || `${res.data.employee?.first_name || ""} ${res.data.employee?.last_name || ""}`.trim() || null);
-        setTotalAwards(Number(res.data.total_awards));
+        const tId = Number(res.data.top_awardee_id);
+        const tCode = res.data.employee?.employee_code || null;
+        const tName = res.data.employee?.name || `${res.data.employee?.first_name || ""} ${res.data.employee?.last_name || ""}`.trim() || null;
+        const tCount = Number(res.data.total_awards);
+        setTopAwardeeId(tId);
+        setTopAwardeeCode(tCode);
+        setTopAwardeeName(tName);
+        setTotalAwards(tCount);
         setTopAwardee(res.data.employee);
+        persistTopAwardee(tId, tCode, tName, tCount);
         return;
       }
     } catch {
@@ -89,7 +136,7 @@ export function TopAwardeeProvider({ children }: { children: React.ReactNode }) 
     } catch {
       // Ignore
     }
-  };
+  }, [setTopAwardeeFromLeaderboard]);
 
   useEffect(() => {
     fetchTopAwardee();

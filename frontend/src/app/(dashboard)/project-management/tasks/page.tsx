@@ -61,13 +61,61 @@ function isTaskOverdue(dueDateStr?: string | null, status?: TaskStatus): boolean
   }
 }
 
+function getStatusBadgeStyle(status: TaskStatus | string): string {
+  switch (status) {
+    case "Yet to Start":
+      return "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700";
+    case "Being Developed":
+      return "bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border-indigo-300 dark:border-indigo-700";
+    case "Ready for QA":
+      return "bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700";
+    case "Assigned to QA":
+      return "bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-700";
+    case "In Progress":
+      return "bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700";
+    case "On Hold":
+      return "bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border-rose-300 dark:border-rose-700";
+    case "Completed":
+      return "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700";
+    case "Forecast":
+      return "bg-cyan-50 dark:bg-cyan-950/50 text-cyan-700 dark:text-cyan-300 border-cyan-300 dark:border-cyan-700";
+    case "Rejected":
+      return "bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 border-red-300 dark:border-red-700";
+    default:
+      return "bg-slate-100 text-slate-700 border-slate-300";
+  }
+}
+
+function getPriorityBadgeStyle(priority: TaskPriority | string): string {
+  switch (priority) {
+    case "Low":
+      return "bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700";
+    case "Medium":
+      return "bg-amber-50 text-amber-700 border-amber-300 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-700";
+    case "High":
+      return "bg-orange-50 text-orange-700 border-orange-300 dark:bg-orange-950/50 dark:text-orange-300 dark:border-orange-700";
+    case "Critical":
+      return "bg-red-50 text-red-700 border-red-300 dark:bg-red-950/50 dark:text-red-300 dark:border-red-700";
+    default:
+      return "bg-slate-100 text-slate-700 border-slate-300";
+  }
+}
+
 export default function AllTasksPage() {
   const { user } = useAuthStore();
-  const isSuperAdmin = user?.role === "Super Admin";
-  const isTeamLead = user?.role === "Team Lead";
+  const userRoleStr = (user?.role || "").toLowerCase();
+  const canEditTasks =
+    userRoleStr === "super admin" ||
+    userRoleStr === "admin" ||
+    userRoleStr === "team lead" ||
+    userRoleStr === "manager" ||
+    (user as any)?.roles?.some((r: any) =>
+      ["super admin", "admin", "team lead", "manager"].includes((r.name || "").toLowerCase())
+    );
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [updatingTaskId, setUpdatingTaskId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const [tasksData, setTasksData] = useState<PaginatedResponse<ProjectTask> | null>(null);
@@ -133,6 +181,48 @@ export default function AllTasksPage() {
 
   const handleTaskCreated = (newTask: ProjectTask) => {
     fetchTasks(1, true);
+  };
+
+  const handleQuickStatusChange = async (taskId: number, newStatus: TaskStatus) => {
+    setUpdatingTaskId(taskId);
+    // Optimistic UI update
+    setTasksData((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        data: prev.data.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t)),
+      };
+    });
+
+    try {
+      await pmApi.updateTaskStatus(taskId, { status: newStatus });
+    } catch (err: any) {
+      console.error("Failed to update status", err);
+      fetchTasks(currentPage, true);
+    } finally {
+      setUpdatingTaskId(null);
+    }
+  };
+
+  const handleQuickPriorityChange = async (taskId: number, newPriority: TaskPriority) => {
+    setUpdatingTaskId(taskId);
+    // Optimistic UI update
+    setTasksData((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        data: prev.data.map((t) => (t.id === taskId ? { ...t, priority: newPriority } : t)),
+      };
+    });
+
+    try {
+      await pmApi.updateTask(taskId, { priority: newPriority });
+    } catch (err: any) {
+      console.error("Failed to update priority", err);
+      fetchTasks(currentPage, true);
+    } finally {
+      setUpdatingTaskId(null);
+    }
   };
 
   const tasksList = tasksData?.data || [];
@@ -323,12 +413,15 @@ export default function AllTasksPage() {
             <table className="w-full text-left border-collapse border-y border-slate-200 dark:border-slate-800">
               <thead>
                 <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 text-slate-500 dark:text-slate-400 font-semibold text-[12px] leading-[18px] uppercase tracking-wider">
-                  <th className="py-3.5 px-5 border-r border-slate-200/90 dark:border-slate-800">Task Title</th>
-                  <th className="py-3.5 px-4 border-r border-slate-200/90 dark:border-slate-800">Project</th>
-                  <th className="py-3.5 px-4 border-r border-slate-200/90 dark:border-slate-800">Assignees</th>
-                  <th className="py-3.5 px-4 border-r border-slate-200/90 dark:border-slate-800">Due Date</th>
-                  <th className="py-3.5 px-4 border-r border-slate-200/90 dark:border-slate-800">Priority</th>
-                  <th className="py-3.5 px-4">Status</th>
+                  <th className="py-3.5 px-5 border-r border-slate-200/90 dark:border-slate-800">TASK TITLE</th>
+                  <th className="py-3.5 px-4 border-r border-slate-200/90 dark:border-slate-800">PROJECT</th>
+                  <th className="py-3.5 px-4 border-r border-slate-200/90 dark:border-slate-800">ASSIGNEES</th>
+                  <th className="py-3.5 px-4 border-r border-slate-200/90 dark:border-slate-800">DUE DATE</th>
+                  <th className="py-3.5 px-4 border-r border-slate-200/90 dark:border-slate-800">PRIORITY</th>
+                  <th className="py-3.5 px-4 border-r border-slate-200/90 dark:border-slate-800">STATUS</th>
+                  {canEditTasks && (
+                    <th className="py-3.5 px-4 text-right">ACTIONS</th>
+                  )}
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
@@ -342,19 +435,34 @@ export default function AllTasksPage() {
                     >
                       {/* Task Title & Catalog indicator */}
                       <td className="py-3.5 px-5 border-r border-slate-200/80 dark:border-slate-800/80">
-                        <Link
-                          href={`/project-management/tasks/${task.id}`}
-                          style={{
-                            fontFamily: '"Proxima Nova", sans-serif',
-                            fontSize: "13px",
-                            lineHeight: "18px",
-                            fontWeight: 400,
-                            color: "rgb(15, 24, 36)",
-                          }}
-                          className="hover:text-purple-600 dark:!text-slate-100 dark:hover:!text-purple-400 transition-colors block line-clamp-1"
-                        >
-                          {task.title}
-                        </Link>
+                        {canEditTasks ? (
+                          <Link
+                            href={`/project-management/tasks/${task.id}`}
+                            style={{
+                              fontFamily: '"Proxima Nova", sans-serif',
+                              fontSize: "13px",
+                              lineHeight: "18px",
+                              fontWeight: 400,
+                              color: "rgb(15, 24, 36)",
+                            }}
+                            className="hover:text-purple-600 dark:!text-slate-100 dark:hover:!text-purple-400 transition-colors block line-clamp-1"
+                          >
+                            {task.title}
+                          </Link>
+                        ) : (
+                          <span
+                            style={{
+                              fontFamily: '"Proxima Nova", sans-serif',
+                              fontSize: "13px",
+                              lineHeight: "18px",
+                              fontWeight: 400,
+                              color: "rgb(15, 24, 36)",
+                            }}
+                            className="dark:!text-slate-100 block line-clamp-1 cursor-default select-none"
+                          >
+                            {task.title}
+                          </span>
+                        )}
                         <div className="flex items-center gap-2 mt-1">
                           {task.catalogTask && (
                             <span className="inline-flex items-center gap-1 text-[10px] font-normal text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/60 px-2 py-0.5 rounded">
@@ -373,20 +481,36 @@ export default function AllTasksPage() {
                       {/* Project */}
                       <td className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80">
                         {task.project ? (
-                          <Link
-                            href={`/project-management/projects/${task.project.id}`}
-                            style={{
-                              fontFamily: '"Proxima Nova", sans-serif',
-                              fontSize: "13px",
-                              lineHeight: "18px",
-                              fontWeight: 400,
-                              color: "rgb(15, 24, 36)",
-                            }}
-                            className="hover:text-purple-600 dark:!text-slate-200 dark:hover:!text-purple-400 transition-colors flex items-center gap-1.5"
-                          >
-                            <FolderKanban className="w-3.5 h-3.5 text-purple-500 shrink-0" />
-                            <span className="line-clamp-1">{task.project.name}</span>
-                          </Link>
+                          canEditTasks ? (
+                            <Link
+                              href={`/project-management/projects/${task.project.id}`}
+                              style={{
+                                fontFamily: '"Proxima Nova", sans-serif',
+                                fontSize: "13px",
+                                lineHeight: "18px",
+                                fontWeight: 400,
+                                color: "rgb(15, 24, 36)",
+                              }}
+                              className="hover:text-purple-600 dark:!text-slate-200 dark:hover:!text-purple-400 transition-colors flex items-center gap-1.5"
+                            >
+                              <FolderKanban className="w-3.5 h-3.5 text-purple-500 shrink-0" />
+                              <span className="line-clamp-1">{task.project.name}</span>
+                            </Link>
+                          ) : (
+                            <div
+                              style={{
+                                fontFamily: '"Proxima Nova", sans-serif',
+                                fontSize: "13px",
+                                lineHeight: "18px",
+                                fontWeight: 400,
+                                color: "rgb(15, 24, 36)",
+                              }}
+                              className="dark:!text-slate-200 flex items-center gap-1.5 cursor-default select-none"
+                            >
+                              <FolderKanban className="w-3.5 h-3.5 text-purple-500 shrink-0" />
+                              <span className="line-clamp-1">{task.project.name}</span>
+                            </div>
+                          )
                         ) : (
                           <span className="text-slate-400 italic text-[13px] leading-[18px]">Unassigned</span>
                         )}
@@ -453,13 +577,80 @@ export default function AllTasksPage() {
 
                       {/* Priority */}
                       <td className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80">
-                        <TaskPriorityBadge priority={task.priority} />
+                        {canEditTasks ? (
+                          <div className="relative inline-flex items-center">
+                            <select
+                              value={task.priority}
+                              disabled={updatingTaskId === task.id}
+                              onChange={(e) => handleQuickPriorityChange(task.id, e.target.value as TaskPriority)}
+                              style={{
+                                fontFamily: '"Proxima Nova", sans-serif',
+                                fontSize: "12px",
+                                lineHeight: "18px",
+                                fontWeight: 400,
+                              }}
+                              className={`px-2.5 py-0.5 pr-6 rounded-full border text-xs font-normal appearance-none cursor-pointer transition-all focus:outline-none focus:ring-2 focus:ring-purple-500/20 disabled:opacity-50 ${getPriorityBadgeStyle(task.priority)}`}
+                            >
+                              {TASK_PRIORITIES.map((pr) => (
+                                <option key={pr} value={pr} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
+                                  {pr}
+                                </option>
+                              ))}
+                            </select>
+                            <ChevronRight className="w-3 h-3 text-slate-400 rotate-90 absolute right-2 pointer-events-none" />
+                          </div>
+                        ) : (
+                          <TaskPriorityBadge priority={task.priority} />
+                        )}
                       </td>
 
                       {/* Status */}
-                      <td className="py-3.5 px-4">
-                        <TaskStatusBadge status={task.status} />
+                      <td className={`py-3.5 px-4 ${canEditTasks ? "border-r border-slate-200/80 dark:border-slate-800/80" : ""}`}>
+                        {canEditTasks ? (
+                          <div className="relative inline-flex items-center">
+                            <select
+                              value={task.status}
+                              disabled={updatingTaskId === task.id}
+                              onChange={(e) => handleQuickStatusChange(task.id, e.target.value as TaskStatus)}
+                              style={{
+                                fontFamily: '"Proxima Nova", sans-serif',
+                                fontSize: "12px",
+                                lineHeight: "18px",
+                                fontWeight: 400,
+                              }}
+                              className={`px-2.5 py-0.5 pr-6 rounded-full border text-xs font-normal appearance-none cursor-pointer transition-all focus:outline-none focus:ring-2 focus:ring-purple-500/20 disabled:opacity-50 ${getStatusBadgeStyle(task.status)}`}
+                            >
+                              {TASK_STATUSES.map((st) => (
+                                <option key={st} value={st} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
+                                  {st}
+                                </option>
+                              ))}
+                            </select>
+                            <ChevronRight className="w-3 h-3 text-slate-400 rotate-90 absolute right-2 pointer-events-none" />
+                          </div>
+                        ) : (
+                          <TaskStatusBadge status={task.status} />
+                        )}
                       </td>
+
+                      {/* Actions (Only for Managers / Team Leads) */}
+                      {canEditTasks && (
+                        <td className="py-3.5 px-4 text-right">
+                          <Link
+                            href={`/project-management/tasks/${task.id}`}
+                            style={{
+                              fontFamily: '"Proxima Nova", sans-serif',
+                              fontSize: "13px",
+                              lineHeight: "18px",
+                              fontWeight: 400,
+                            }}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-purple-50 dark:hover:bg-purple-950/40 text-slate-700 dark:text-slate-300 hover:text-purple-600 dark:hover:text-purple-400 text-[13px] leading-[18px] font-normal border border-slate-200 dark:border-slate-700/60 transition-colors"
+                          >
+                            <span>Edit</span>
+                            <ChevronRight className="w-3.5 h-3.5" />
+                          </Link>
+                        </td>
+                      )}
                     </tr>
                   );
                 })}
