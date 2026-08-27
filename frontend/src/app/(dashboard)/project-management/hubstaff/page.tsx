@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
-import { format, parseISO, subDays } from "date-fns";
+import { format, parseISO, subDays, addDays, startOfMonth } from "date-fns";
 import {
   Clock,
   Activity,
@@ -13,6 +13,7 @@ import {
   Download,
   Search,
   ChevronRight,
+  ChevronLeft,
   ChevronDown,
   ArrowUpDown,
   ExternalLink,
@@ -158,6 +159,47 @@ export default function HubstaffAnalyticsPage() {
   useEffect(() => {
     fetchAnalytics();
   }, [fetchAnalytics]);
+
+  // Quick Date Navigation Handlers
+  const handlePrevDay = () => {
+    try {
+      const current = parseISO(selectedDate);
+      setSelectedDate(format(subDays(current, 1), "yyyy-MM-dd"));
+    } catch {
+      setSelectedDate(format(subDays(new Date(), 1), "yyyy-MM-dd"));
+    }
+  };
+
+  const handleNextDay = () => {
+    try {
+      const current = parseISO(selectedDate);
+      setSelectedDate(format(addDays(current, 1), "yyyy-MM-dd"));
+    } catch {
+      setSelectedDate(format(new Date(), "yyyy-MM-dd"));
+    }
+  };
+
+  const handlePresetToday = () => {
+    setDateMode("single");
+    setSelectedDate(format(new Date(), "yyyy-MM-dd"));
+  };
+
+  const handlePresetYesterday = () => {
+    setDateMode("single");
+    setSelectedDate(format(subDays(new Date(), 1), "yyyy-MM-dd"));
+  };
+
+  const handlePresetLast7Days = () => {
+    setDateMode("range");
+    setStartDate(format(subDays(new Date(), 6), "yyyy-MM-dd"));
+    setEndDate(format(new Date(), "yyyy-MM-dd"));
+  };
+
+  const handlePresetThisMonth = () => {
+    setDateMode("range");
+    setStartDate(format(startOfMonth(new Date()), "yyyy-MM-dd"));
+    setEndDate(format(new Date(), "yyyy-MM-dd"));
+  };
 
   // Handle Sort Change
   const handleSort = (field: SortField) => {
@@ -315,13 +357,13 @@ export default function HubstaffAnalyticsPage() {
       {/* ── Date Controls Ribbon ── */}
       <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-4 sm:p-5 shadow-sm space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          {/* Mode Switcher */}
-          <div className="flex items-center gap-3">
+          {/* Mode Switcher & Date Pickers */}
+          <div className="flex items-center gap-3 flex-wrap">
             <div className="inline-flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold">
               <button
                 type="button"
                 onClick={() => setDateMode("single")}
-                className={`px-3.5 py-1.5 rounded-lg transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                   dateMode === "single"
                     ? "bg-white dark:bg-slate-900 text-[#56348f] dark:text-purple-300 shadow-sm font-bold"
                     : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -332,7 +374,7 @@ export default function HubstaffAnalyticsPage() {
               <button
                 type="button"
                 onClick={() => setDateMode("range")}
-                className={`px-3.5 py-1.5 rounded-lg transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                   dateMode === "range"
                     ? "bg-white dark:bg-slate-900 text-[#56348f] dark:text-purple-300 shadow-sm font-bold"
                     : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -342,21 +384,58 @@ export default function HubstaffAnalyticsPage() {
               </button>
             </div>
 
-            {/* Date Pickers */}
+            {/* Date Pickers with Prev/Next Controls */}
             {dateMode === "single" ? (
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />
-                <div className="relative flex items-center">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <button
+                  type="button"
+                  onClick={handlePrevDay}
+                  title="Previous Day"
+                  className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition cursor-pointer"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+
+                <div className="flex items-center gap-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-2.5 py-1">
+                  <Calendar className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />
                   <input
                     type="date"
                     value={selectedDate}
                     onChange={(e) => setSelectedDate(e.target.value)}
-                    className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs font-semibold rounded-xl px-3 py-1.5 outline-none focus:ring-2 focus:ring-purple-500/20"
+                    className="bg-transparent text-slate-900 dark:text-white text-xs font-semibold outline-none focus:ring-0"
                   />
                 </div>
+
+                <button
+                  type="button"
+                  onClick={handleNextDay}
+                  title="Next Day"
+                  className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition cursor-pointer"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+
+                {/* Quick Presets */}
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={handlePresetToday}
+                    className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-purple-100 dark:bg-slate-800 dark:hover:bg-purple-950/60 text-slate-700 hover:text-purple-700 dark:text-slate-300 dark:hover:text-purple-300 text-[11px] font-semibold transition cursor-pointer"
+                  >
+                    Today
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handlePresetYesterday}
+                    className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-purple-100 dark:bg-slate-800 dark:hover:bg-purple-950/60 text-slate-700 hover:text-purple-700 dark:text-slate-300 dark:hover:text-purple-300 text-[11px] font-semibold transition cursor-pointer"
+                  >
+                    Yesterday
+                  </button>
+                </div>
+
                 {loading && (
                   <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 text-[11px] font-bold text-purple-700 dark:text-purple-300 animate-pulse">
-                    <Loader2 className="w-3 h-3 animate-spin text-purple-600 dark:text-purple-400" />
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-purple-600 dark:text-purple-400" />
                     <span>Loading...</span>
                   </div>
                 )}
@@ -377,9 +456,28 @@ export default function HubstaffAnalyticsPage() {
                   onChange={(e) => setEndDate(e.target.value)}
                   className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs font-semibold rounded-xl px-2.5 py-1.5 outline-none focus:ring-2 focus:ring-purple-500/20"
                 />
+                
+                {/* Range Presets */}
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={handlePresetLast7Days}
+                    className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-purple-100 dark:bg-slate-800 dark:hover:bg-purple-950/60 text-slate-700 hover:text-purple-700 dark:text-slate-300 dark:hover:text-purple-300 text-[11px] font-semibold transition cursor-pointer"
+                  >
+                    Last 7 Days
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handlePresetThisMonth}
+                    className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-purple-100 dark:bg-slate-800 dark:hover:bg-purple-950/60 text-slate-700 hover:text-purple-700 dark:text-slate-300 dark:hover:text-purple-300 text-[11px] font-semibold transition cursor-pointer"
+                  >
+                    This Month
+                  </button>
+                </div>
+
                 {loading && (
                   <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 text-[11px] font-bold text-purple-700 dark:text-purple-300 animate-pulse">
-                    <Loader2 className="w-3 h-3 animate-spin text-purple-600 dark:text-purple-400" />
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-purple-600 dark:text-purple-400" />
                     <span>Loading...</span>
                   </div>
                 )}
