@@ -623,8 +623,9 @@ export default function DashboardPage() {
           {widgets.company_updates.length > 1 ? (
             <RotatingCard
               title="Latest Updates"
+              subtitle="Company announcements and news"
               icon={Megaphone}
-              headerClass="text-blue-500"
+              iconColorClass="text-[#56348f] dark:text-purple-400"
               items={widgets.company_updates}
               emptyMessage="No announcements yet"
               renderItem={(update) => (
@@ -633,7 +634,7 @@ export default function DashboardPage() {
                   <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-4">{update.content || 'No description'}</p>
                   <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-white/10">
                     <p className="text-xs text-slate-500">{format(parseISO(update.created_at), "MMM d, yyyy")}</p>
-                    <Link href="/announcements" className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline">View →</Link>
+                    <Link href="/announcements" className="text-xs font-semibold text-[#56348f] dark:text-purple-400 hover:underline">View →</Link>
                   </div>
                 </div>
               )}
@@ -1445,35 +1446,44 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
         {/* Announcements — Rotating Card */}
         {widgets.company_updates.length > 1 ? (
           <RotatingCard
-            title="Company Announcements"
-            icon={Megaphone}
-            headerClass="text-indigo-300"
-            items={widgets.company_updates}
-            emptyMessage="No announcements yet"
-            renderItem={(update) => (
-              <div className="space-y-3">
-                <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight break-words">{update.title}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-4">{update.content || 'No description'}</p>
-                <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-white/10">
-                  <p className="text-xs text-slate-500">{format(parseISO(update.created_at), "MMM d, yyyy")}</p>
-                  <Link href="/announcements" className="text-xs font-semibold text-indigo-400 hover:text-indigo-300">View →</Link>
+              title="Company Announcements"
+              subtitle="Latest company news and updates"
+              icon={Megaphone}
+              iconColorClass="text-[#56348f] dark:text-purple-400"
+              items={widgets.company_updates}
+              emptyMessage="No announcements yet"
+              renderItem={(update) => (
+                <div className="space-y-3">
+                  <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight break-words">{update.title}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-4">{update.content || 'No description'}</p>
+                  <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-white/10">
+                    <p className="text-xs text-slate-500">{format(parseISO(update.created_at), "MMM d, yyyy")}</p>
+                    <Link href="/announcements" className="text-xs font-semibold text-[#56348f] dark:text-purple-400 hover:underline">View →</Link>
+                  </div>
                 </div>
-              </div>
-            )}
-          />
+              )}
+            />
         ) : (
           <div className="premium-card wave-card p-6">
-            <h2 className="text-lg font-bold text-indigo-300 mb-5 flex items-center gap-2">
-              <Megaphone className="w-5 h-5" />
-              Company Announcements
-            </h2>
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h3 style={{ fontSize: "16px", lineHeight: "28px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2">
+                  <Megaphone className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
+                  Company Announcements
+                </h3>
+                <p style={{ fontSize: "12px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
+                  Latest company news and updates
+                </p>
+              </div>
+              <Link href="/announcements" className="text-xs font-medium text-[#56348f] dark:text-purple-400 hover:underline">View All</Link>
+            </div>
             <div className="space-y-3">
                 {widgets.company_updates.length === 0 ? (
                   <p className="text-sm text-slate-500 dark:text-slate-400">No recent announcements.</p>
                 ) : (
                   widgets.company_updates.slice(0, 1).map((update: any, idx: number) => (
                     <div key={idx} className="flex gap-3 items-start border-b border-slate-200 dark:border-white/10 pb-3 last:border-0 last:pb-0">
-                      <div className="w-2 h-2 mt-1.5 rounded-full bg-indigo-400 shrink-0"></div>
+                      <div className="w-2 h-2 mt-1.5 rounded-full bg-[#56348f] shrink-0"></div>
                       <div>
                         <p className="text-sm font-medium text-slate-900 dark:text-white leading-tight">{update.title}</p>
                         <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{format(new Date(update.created_at), "MMM d, yyyy")}</p>
@@ -1499,8 +1509,9 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           return (
             <RotatingCard
               title="Work Anniversaries"
+              subtitle="Team milestones in the next 2 weeks"
               icon={PartyPopper}
-              headerClass="text-pink-300"
+              iconColorClass="text-pink-500 dark:text-pink-400"
               items={filteredAnni}
               emptyMessage="No work anniversaries in the next 2 weeks."
               renderItem={(a) => (
@@ -1512,9 +1523,9 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                   <div className="flex flex-col items-end gap-1 shrink-0">
                     <span className="text-xs font-bold text-slate-600 dark:text-slate-300">{format(new Date(a.date), "MMM d")}</span>
                     {a.days_remaining === 0 ? (
-                      <span className="text-[10px] uppercase tracking-wider font-bold bg-pink-500/80 text-white px-2 py-0.5 rounded-lg">Today!</span>
+                      <span className="text-[10px] uppercase tracking-wider font-bold bg-pink-500 text-white px-2 py-0.5 rounded-lg">Today!</span>
                     ) : (
-                      <span className="text-[10px] uppercase tracking-wider font-bold bg-pink-500/30 text-pink-300 px-2 py-0.5 rounded-lg">In {Math.floor(a.days_remaining)} d</span>
+                      <span className="text-[10px] uppercase tracking-wider font-bold bg-pink-100 dark:bg-pink-500/30 text-pink-600 dark:text-pink-300 px-2 py-0.5 rounded-lg">In {Math.floor(a.days_remaining)} d</span>
                     )}
                   </div>
                 </div>
@@ -1610,10 +1621,18 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
 
           {/* Activity Feed */}
           <div className="premium-card wave-card p-6">
-            <h2 className="text-lg font-bold text-cyan-300 mb-5 flex items-center gap-2">
-              <Activity className="w-5 h-5" />
-              Recent Activity
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 style={{ fontSize: "16px", lineHeight: "28px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
+                  Recent Activity
+                </h3>
+                <p style={{ fontSize: "12px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
+                  Latest actions across the portal
+                </p>
+              </div>
+              <Link href="/activities" className="text-xs font-medium text-[#56348f] dark:text-purple-400 hover:underline">View All</Link>
+            </div>
             <div className="space-y-4">
               {paginatedActivity.map((act: any, i: number) => (
                 <div key={i} className="flex items-start gap-3">
@@ -1634,7 +1653,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                   <button
                     onClick={() => setActivityPage(p => Math.max(1, p - 1))}
                     disabled={activityPage === 1}
-                    className="text-xs font-semibold text-cyan-400 disabled:opacity-50"
+                    className="text-xs font-semibold text-[#56348f] dark:text-purple-400 disabled:opacity-50"
                   >
                     Previous
                   </button>
@@ -1642,17 +1661,12 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                   <button
                     onClick={() => setActivityPage(p => Math.min(totalActivityPages, p + 1))}
                     disabled={activityPage === totalActivityPages}
-                    className="text-xs font-semibold text-cyan-400 disabled:opacity-50"
+                    className="text-xs font-semibold text-[#56348f] dark:text-purple-400 disabled:opacity-50"
                   >
                     Next
                   </button>
                 </div>
               )}
-              
-              {/* View All Link */}
-              <Link href="/activities" className="block text-center pt-3 border-t border-slate-200 dark:border-white/10 mt-2 text-sm font-bold text-cyan-400 hover:underline">
-                View All Activities →
-              </Link>
             </div>
           </div>
 
@@ -1664,10 +1678,18 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
 
           {/* Upcoming Holidays */}
           <div className="premium-card wave-card p-6">
-            <h2 className="text-lg font-bold text-rose-300 mb-5 flex items-center gap-2">
-              <CalendarDays className="w-5 h-5" />
-              Upcoming Holidays
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 style={{ fontSize: "16px", lineHeight: "28px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2">
+                  <CalendarDays className="w-4 h-4 text-rose-500 dark:text-rose-400" />
+                  Upcoming Holidays
+                </h3>
+                <p style={{ fontSize: "12px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
+                  Public holidays this month
+                </p>
+              </div>
+              <Link href="/holidays" className="text-xs font-medium text-[#56348f] dark:text-purple-400 hover:underline">View All</Link>
+            </div>
             <div className="space-y-4">
               {widgets.upcoming_holidays.length === 0 && <p className="text-sm text-slate-500 dark:text-slate-400">No upcoming holidays.</p>}
               {widgets.upcoming_holidays.map((h: any, i: number) => (
@@ -1683,10 +1705,18 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
 
           {/* Leave Summary (Reused from regular dashboard) */}
            <div className="premium-card wave-card p-6">
-            <h2 className="text-lg font-bold text-emerald-300 mb-6 flex items-center gap-2">
-              <CalendarDays className="w-5 h-5" />
-              Company Leave Overview
-            </h2>
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <h3 style={{ fontSize: "16px", lineHeight: "28px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2">
+                  <CalendarDays className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
+                  Company Leave Overview
+                </h3>
+                <p style={{ fontSize: "12px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
+                  Leave summary for today
+                </p>
+              </div>
+              <Link href="/manage-leaves" className="text-xs font-medium text-[#56348f] dark:text-purple-400 hover:underline">Manage</Link>
+            </div>
             <div className="space-y-4">
                <div className="flex justify-between items-center bg-white/5 border border-slate-200 dark:border-white/10 p-4 rounded-md">
                  <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">Pending Requests</span>
@@ -1833,9 +1863,9 @@ function EngagementCard({ title, items, icon: Icon, colorClass = "bg-orange-50/7
 
 // Auto-rotating card: shows one item at a time, fades every 3s, pauses on hover
 function RotatingCard({
-  title, icon: Icon, headerClass, items, emptyMessage, renderItem, cardHeight = 224
+  title, subtitle, icon: Icon, iconColorClass, headerClass, items, emptyMessage, renderItem, cardHeight = 224
 }: {
-  title: string; icon: any; headerClass: string; items: any[];
+  title: string; subtitle?: string; icon: any; iconColorClass?: string; headerClass?: string; items: any[];
   emptyMessage: string; renderItem: (item: any) => React.ReactNode; cardHeight?: number;
 }) {
   const [activeIdx, setActiveIdx] = useState(0);
@@ -1872,10 +1902,22 @@ function RotatingCard({
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      <h3 className={`font-bold ${headerClass} flex items-center gap-2 mb-4 shrink-0`}>
-        <Icon className="w-5 h-5" />
-        {title}
-      </h3>
+      <div className="flex items-center justify-between mb-3 shrink-0">
+        <div>
+          <h3
+            style={{ fontSize: "16px", lineHeight: "28px", fontWeight: 500, color: "rgb(15, 24, 36)" }}
+            className="dark:text-white flex items-center gap-2"
+          >
+            <Icon className={`w-4 h-4 ${iconColorClass || (headerClass ? headerClass.replace('text-', 'text-') : 'text-[#56348f] dark:text-purple-400')}`} />
+            {title}
+          </h3>
+          {subtitle && (
+            <p style={{ fontSize: "12px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
+              {subtitle}
+            </p>
+          )}
+        </div>
+      </div>
       <div className="flex-1 min-h-0 flex flex-col justify-between">
         {count === 0 ? (
           <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">{emptyMessage}</p>
