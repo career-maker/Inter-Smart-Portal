@@ -261,41 +261,54 @@ export function BirthdayWishDrawer({
                 </p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {wishes.map((wish: any) => {
-                  const senderName = wish.sender
-                    ? `${wish.sender.first_name} ${wish.sender.last_name}`
-                    : "Colleague";
+                  const senderName = wish.sender?.name || "Colleague";
 
                   return (
                     <div
                       key={wish.id}
-                      className="p-3.5 bg-white dark:bg-slate-800/80 rounded-md border border-slate-200/80 dark:border-slate-700/60 shadow-xs space-y-2"
+                      className="p-4 bg-white dark:bg-slate-800/80 rounded-md border border-slate-200/80 dark:border-slate-700/60 shadow-xs"
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2.5">
+                      {/* Header: Avatar, Name, Time */}
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex items-center gap-3">
                           <RoyalAvatar
                             src={wish.sender?.profile_photo_path}
                             name={senderName}
-                            userId={wish.sender_id}
-                            className="w-7 h-7 rounded-full"
+                            userId={wish.sender?.id}
+                            className="w-8 h-8 rounded-full"
                           />
-                          <div>
-                            <p className="text-xs font-semibold text-slate-900 dark:text-white">
-                              {senderName}
-                            </p>
-                            <p className="text-[10px] text-slate-400">
-                              {wish.created_at
-                                ? format(parseISO(wish.created_at), "MMM d, yyyy 'at' h:mm a")
-                                : "Recently"}
-                            </p>
-                          </div>
+                          <p className="text-sm font-semibold text-slate-800 dark:text-white">
+                            {senderName}
+                          </p>
                         </div>
+                        <p className="text-[11px] text-slate-400 mt-1">
+                          {wish.created_at
+                            ? format(parseISO(wish.created_at), "MMM d 'at' h:mm a")
+                            : "Recently"}
+                        </p>
                       </div>
 
-                      <p className="text-[13px] leading-relaxed text-slate-700 dark:text-slate-200 pl-9">
+                      {/* Message Body */}
+                      <p className="text-[13px] leading-relaxed text-slate-700 dark:text-slate-200 pl-11 mb-3">
                         {wish.message}
                       </p>
+
+                      {/* Footer Actions (Like / Comment) */}
+                      <div className="flex items-center justify-between pl-11">
+                        <div className="flex items-center gap-5 text-slate-500 dark:text-slate-400">
+                          <button className="flex items-center gap-1.5 text-[12px] font-medium hover:text-[#56348f] dark:hover:text-purple-400 transition cursor-pointer">
+                            <span className="text-lg leading-none">👍</span> Like
+                          </button>
+                          <button className="flex items-center gap-1.5 text-[12px] font-medium hover:text-[#56348f] dark:hover:text-purple-400 transition cursor-pointer">
+                            <MessageSquare className="w-3.5 h-3.5" /> Comment
+                          </button>
+                        </div>
+                        <p className="text-[11px] text-slate-400">
+                          0 Comments
+                        </p>
+                      </div>
                     </div>
                   );
                 })}
