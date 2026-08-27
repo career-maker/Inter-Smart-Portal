@@ -109,10 +109,10 @@ export default function IssueDetailPage() {
           <select
             value={issue.status}
             onChange={(e) => handleStatusChange(e.target.value)}
-            className="bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2 outline-none focus:border-amber-500 [color-scheme:dark]"
+            className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2 outline-none focus:border-amber-500"
           >
             {["Open", "In Progress", "Waiting for User Response", "Resolved", "Rejected", "Closed"].map((s) => (
-              <option key={s} value={s} className="bg-slate-700">{s}</option>
+              <option key={s} value={s}>{s}</option>
             ))}
           </select>
         )}

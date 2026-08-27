@@ -102,11 +102,11 @@ export default function NewIssuePage() {
                 Category *
               </label>
               <select name="category" required value={formData.category} onChange={handleChange} className={inputCls}>
-                <option value="" disabled className="bg-slate-700 text-slate-500 dark:text-slate-400">
+                <option value="" disabled>
                   Select Category
                 </option>
                 {CATEGORIES.map((c) => (
-                  <option key={c} value={c} className="bg-slate-700 text-slate-900 dark:text-white">
+                  <option key={c} value={c}>
                     {c}
                   </option>
                 ))}
@@ -117,11 +117,11 @@ export default function NewIssuePage() {
                 Priority *
               </label>
               <select name="priority" required value={formData.priority} onChange={handleChange} className={inputCls}>
-                <option value="" disabled className="bg-slate-700 text-slate-500 dark:text-slate-400">
+                <option value="" disabled>
                   Select Priority
                 </option>
                 {PRIORITIES.map((p) => (
-                  <option key={p} value={p} className="bg-slate-700 text-slate-900 dark:text-white">
+                  <option key={p} value={p}>
                     {p}
                   </option>
                 ))}
@@ -134,11 +134,11 @@ export default function NewIssuePage() {
               Related Module (Optional)
             </label>
             <select name="related_module" value={formData.related_module} onChange={handleChange} className={inputCls}>
-              <option value="" className="bg-slate-700 text-slate-500 dark:text-slate-400">
+              <option value="">
                 Select Module
               </option>
               {MODULES.map((m) => (
-                <option key={m} value={m} className="bg-slate-700 text-slate-900 dark:text-white">
+                <option key={m} value={m}>
                   {m}
                 </option>
               ))}

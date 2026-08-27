@@ -429,18 +429,18 @@ export default function RecognitionsPage() {
                   required
                   value={formData.title_selection}
                   onChange={(e) => setFormData({ ...formData, title_selection: e.target.value })}
-                  className="w-full border border-slate-200 dark:border-white/10 bg-slate-700 text-slate-900 dark:text-white rounded-lg p-2.5 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm"
+                  className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-lg p-2.5 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm"
                 >
-                  <option value="" className="bg-slate-700">Select a Title...</option>
+                  <option value="">Select a Title...</option>
                   <optgroup label="Predefined Awards">
                     {PREDEFINED_TITLES.map((pt) => (
-                      <option key={pt.title} value={pt.title} className="bg-slate-700">
+                      <option key={pt.title} value={pt.title}>
                         {pt.icon} {pt.title}
                       </option>
                     ))}
                   </optgroup>
                   <optgroup label="Other">
-                    <option value="custom" className="bg-slate-700">
+                    <option value="custom">
                       Custom Title...
                     </option>
                   </optgroup>

@@ -376,9 +376,9 @@ export default function ApplyLeavePage() {
             <div>
               <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Leave Type *</label>
               <select value={leaveTypeId} onChange={e => handleLeaveTypeChange(e.target.value)} required className={inputCls}>
-                <option value="" disabled className="bg-slate-700 text-slate-500 dark:text-slate-400">Select leave type...</option>
+                <option value="" disabled>Select leave type...</option>
                 {leaveTypes.map(t => (
-                  <option key={t.id} value={t.id.toString()} className="bg-slate-700 text-slate-900 dark:text-white">{t.name}</option>
+                  <option key={t.id} value={t.id.toString()}>{t.name}</option>
                 ))}
               </select>
             </div>

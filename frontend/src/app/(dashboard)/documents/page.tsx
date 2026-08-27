@@ -249,11 +249,11 @@ export default function DocumentsPage() {
                 <select
                   value={docType}
                   onChange={(e) => setDocType(e.target.value)}
-                  className="w-full bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 transition-colors"
+                  className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 transition-colors"
                 >
-                  <option value="" className="bg-slate-700 text-slate-500 dark:text-slate-400">Select document type...</option>
+                  <option value="">Select document type...</option>
                   {DOCUMENT_TYPES.map((t) => (
-                    <option key={t} value={t} className="bg-slate-700">{t}</option>
+                    <option key={t} value={t}>{t}</option>
                   ))}
                 </select>
               </div>

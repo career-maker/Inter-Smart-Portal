@@ -44,57 +44,55 @@ html:not(.dark) a[class*="bg-white"]:not([class*="text-white"]) {
 @layer base {
   /* Base select element appearance */
   select {
-    /* Custom chevron arrow */
     appearance: none;
     -webkit-appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 0.65rem center;
-    background-size: 1rem;
-    padding-right: 2.25rem !important;
+    background-position: right 0.75rem center;
+    background-size: 1.1rem;
+    padding-right: 2.5rem !important;
     cursor: pointer;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
   }
 
-  /* Light mode: option text always readable */
-  select option {
+  /* Light mode: pure white background and crisp dark text for all dropdown menus */
+  html:not(.dark) select {
+    color-scheme: light !important;
     background-color: #ffffff;
-    color: #1e293b;
-    font-size: 14px;
-    padding: 6px 12px;
-  }
-
-  select option:checked,
-  select option:hover {
-    background-color: #f1f5f9;
     color: #0f172a;
   }
 
-  /* Dark mode: option text white on dark bg */
-  .dark select option {
-    background-color: #1e293b;
-    color: #f1f5f9;
+  html:not(.dark) select option,
+  html:not(.dark) select optgroup {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    font-size: 14px;
+    padding: 8px 12px;
   }
 
-  .dark select option:checked,
-  .dark select option:hover {
-    background-color: #334155;
-    color: #ffffff;
-  }
-
-  /* Dark chevron arrow for dark mode */
+  /* Dark mode: slate background and crisp white text */
   .dark select {
+    color-scheme: dark !important;
+    background-color: #1e293b;
+    color: #f8fafc;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   }
 
-  /* Focus ring improvement */
+  .dark select option,
+  .dark select optgroup {
+    background-color: #1e293b !important;
+    color: #f8fafc !important;
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+
   select:focus {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.25);
+    box-shadow: 0 0 0 2px rgba(86, 52, 143, 0.2);
   }
 
   .dark select:focus {
-    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3);
+    box-shadow: 0 0 0 2px rgba(149, 106, 250, 0.3);
   }
 }
 
