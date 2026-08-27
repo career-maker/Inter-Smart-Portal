@@ -22,6 +22,7 @@ interface CreateTaskModalProps {
   onClose: () => void;
   onSuccess: (newTask: ProjectTask) => void;
   defaultProjectId?: number;
+  defaultAssigneeId?: number;
 }
 
 // In-memory cache for ultra-fast instantaneous modal opening
@@ -35,6 +36,7 @@ export function CreateTaskModal({
   onClose,
   onSuccess,
   defaultProjectId,
+  defaultAssigneeId,
 }: CreateTaskModalProps) {
   const { user } = useAuthStore();
 
@@ -53,7 +55,7 @@ export function CreateTaskModal({
     sprint: "",
     sprint_link: "",
     current_updates: "",
-    assignee_ids: [],
+    assignee_ids: defaultAssigneeId ? [defaultAssigneeId] : [],
     coordinator_id: null,
   });
 
@@ -130,6 +132,15 @@ export function CreateTaskModal({
       setProjectId(defaultProjectId);
     }
   }, [defaultProjectId]);
+
+  useEffect(() => {
+    if (defaultAssigneeId) {
+      setFormData((prev) => ({
+        ...prev,
+        assignee_ids: [defaultAssigneeId],
+      }));
+    }
+  }, [defaultAssigneeId, isOpen]);
 
   const handleChange = (field: keyof StoreProjectTaskPayload, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
