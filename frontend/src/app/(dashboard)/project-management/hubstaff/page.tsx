@@ -120,19 +120,23 @@ export default function HubstaffAnalyticsPage() {
   const [selectedUserDetail, setSelectedUserDetail] = useState<any | null>(null);
   const [selectedProjectDetail, setSelectedProjectDetail] = useState<any | null>(null);
 
-  // Fetch Analytics Data from backend
+  // Fetch Analytics Data from backend.
+  // `overrides` lets a caller (the Search/Go button) supply date values read
+  // straight from the DOM at click time, bypassing React state entirely —
+  // guarantees the fetch uses the picker's actual current value even if
+  // whatever change/input/blur/poll mechanism hasn't synced state yet.
   const fetchAnalytics = useCallback(
-    async (isManual = false) => {
+    async (isManual = false, overrides?: { date?: string; start_date?: string; end_date?: string }) => {
       if (isManual) setRefreshing(true);
-      else setLoading(true);
+      setLoading(true);
       setError(null);
 
       try {
         const params: any = {
           date_mode: dateMode,
-          date: selectedDate,
-          start_date: startDate,
-          end_date: endDate,
+          date: overrides?.date ?? selectedDate,
+          start_date: overrides?.start_date ?? startDate,
+          end_date: overrides?.end_date ?? endDate,
           refresh: isManual ? 1 : 0,
         };
 
@@ -237,6 +241,25 @@ export default function HubstaffAnalyticsPage() {
     setDateMode("range");
     setStartDate(format(startOfMonth(new Date()), "yyyy-MM-dd"));
     setEndDate(format(new Date(), "yyyy-MM-dd"));
+  };
+
+  // Explicit Search/Go trigger: reads the date input(s)' raw DOM value
+  // directly at click time and fetches with it, so it works even if the
+  // native picker never fired a change/input/blur event that would
+  // otherwise have synced React state.
+  const handleSearchDate = () => {
+    setLoading(true);
+    if (dateMode === "single") {
+      const val = selectedDateInputRef.current?.value || selectedDate;
+      setSelectedDate(val);
+      fetchAnalytics(true, { date: val });
+    } else {
+      const s = startDateInputRef.current?.value || startDate;
+      const e = endDateInputRef.current?.value || endDate;
+      setStartDate(s);
+      setEndDate(e);
+      fetchAnalytics(true, { start_date: s, end_date: e });
+    }
   };
 
   // Handle Sort Change
@@ -495,6 +518,17 @@ export default function HubstaffAnalyticsPage() {
                   <ChevronRight className="w-4 h-4" />
                 </button>
 
+                <button
+                  type="button"
+                  onClick={handleSearchDate}
+                  disabled={loading || refreshing}
+                  title="Search this date"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#56348f] hover:bg-[#472a78] text-white text-[11px] font-bold shadow-sm transition disabled:opacity-50 cursor-pointer"
+                >
+                  <Search className="w-3.5 h-3.5" />
+                  <span>Search</span>
+                </button>
+
                 {/* Quick Presets */}
                 <div className="flex items-center gap-1">
                   <button
@@ -582,7 +616,18 @@ export default function HubstaffAnalyticsPage() {
                   }}
                   className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs font-semibold rounded-xl px-2.5 py-1.5 outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer"
                 />
-                
+
+                <button
+                  type="button"
+                  onClick={handleSearchDate}
+                  disabled={loading || refreshing}
+                  title="Search this range"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#56348f] hover:bg-[#472a78] text-white text-[11px] font-bold shadow-sm transition disabled:opacity-50 cursor-pointer"
+                >
+                  <Search className="w-3.5 h-3.5" />
+                  <span>Search</span>
+                </button>
+
                 {/* Range Presets */}
                 <div className="flex items-center gap-1">
                   <button
