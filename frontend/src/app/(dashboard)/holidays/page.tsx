@@ -203,9 +203,9 @@ export default function HolidaysPage() {
       {/* Add/Edit Dialog */}
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent className="max-w-md w-full">
-          <DialogHeader>
+          <DialogHeader className="mb-1">
             <DialogTitle>{editId ? "Edit Holiday" : "Add Holiday"}</DialogTitle>
-            <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
               {editId ? "Update details for this holiday." : "Add a new holiday to the calendar."}
             </p>
           </DialogHeader>
@@ -243,7 +243,7 @@ export default function HolidaysPage() {
                 className="w-full bg-slate-100 dark:bg-slate-700/50 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 transition-colors"
               >
                 {HOLIDAY_TYPES.map((t) => (
-                  <option key={t.value} value={t.value} className="bg-slate-700">
+                  <option key={t.value} value={t.value}>
                     {t.label}
                   </option>
                 ))}

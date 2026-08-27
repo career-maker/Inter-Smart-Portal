@@ -76,6 +76,7 @@ export default function CommunityPage() {
   }
 
   const holiday = summary?.upcoming_holiday;
+  const todayHoliday = summary?.today_is_holiday ?? null;
   const onLeave = summary?.on_leave_today || [];
   const onWfh = summary?.wfh_today || [];
   const leaveBalances = {
@@ -163,7 +164,20 @@ export default function CommunityPage() {
               <span>On Leave Today</span>
             </h3>
 
-            {onLeave.length === 0 ? (
+            {todayHoliday ? (
+              <div className="py-4 px-3 bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-amber-950/30 dark:via-orange-950/20 dark:to-yellow-950/20 rounded-md border border-amber-200/70 dark:border-amber-700/40 text-center">
+                <div className="text-2xl mb-1.5">🎉</div>
+                <p className="text-sm font-bold text-amber-700 dark:text-amber-300">
+                  Today is a Holiday!
+                </p>
+                <p className="text-xs font-semibold text-amber-600 dark:text-amber-400 mt-0.5">
+                  {todayHoliday.name}
+                </p>
+                <p className="text-[10px] text-amber-500 dark:text-amber-500 mt-0.5 capitalize">
+                  {todayHoliday.type}
+                </p>
+              </div>
+            ) : onLeave.length === 0 ? (
               <div className="py-4 text-center bg-slate-50 dark:bg-slate-900/40 rounded-md border border-dashed border-slate-200 dark:border-slate-700/60">
                 <CheckCircle2 className="w-6 h-6 text-emerald-500 mx-auto mb-1.5" />
                 <p className="text-xs font-medium text-slate-700 dark:text-slate-300">

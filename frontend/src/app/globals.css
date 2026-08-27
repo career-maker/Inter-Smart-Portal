@@ -6,6 +6,64 @@
   }
 }
 
+/* ── Global Custom Select Dropdown Styles ── */
+@layer base {
+  /* Base select element appearance */
+  select {
+    /* Custom chevron arrow */
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.65rem center;
+    background-size: 1rem;
+    padding-right: 2.25rem !important;
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  /* Light mode: option text always readable */
+  select option {
+    background-color: #ffffff;
+    color: #1e293b;
+    font-size: 14px;
+    padding: 6px 12px;
+  }
+
+  select option:checked,
+  select option:hover {
+    background-color: #f1f5f9;
+    color: #0f172a;
+  }
+
+  /* Dark mode: option text white on dark bg */
+  .dark select option {
+    background-color: #1e293b;
+    color: #f1f5f9;
+  }
+
+  .dark select option:checked,
+  .dark select option:hover {
+    background-color: #334155;
+    color: #ffffff;
+  }
+
+  /* Dark chevron arrow for dark mode */
+  .dark select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  }
+
+  /* Focus ring improvement */
+  select:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.25);
+  }
+
+  .dark select:focus {
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3);
+  }
+}
+
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";

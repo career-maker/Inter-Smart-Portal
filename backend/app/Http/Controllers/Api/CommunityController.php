@@ -653,6 +653,8 @@ class CommunityController extends Controller
             ->orderBy('date', 'asc')
             ->first();
 
+        $todayIsHoliday = Holiday::whereDate('date', $today->format('Y-m-d'))->first();
+
         $onLeaveToday = LeaveRequest::where('status', 'Approved')
             ->whereDate('start_date', '<=', $today)
             ->whereDate('end_date', '>=', $today)
@@ -788,6 +790,7 @@ class CommunityController extends Controller
 
         return response()->json([
             'upcoming_holiday' => $upcomingHoliday,
+            'today_is_holiday' => $todayIsHoliday ? ['name' => $todayIsHoliday->name, 'type' => $todayIsHoliday->type] : null,
             'on_leave_today' => $onLeaveToday,
             'wfh_today' => $wfhToday,
             'leave_balances' => [
