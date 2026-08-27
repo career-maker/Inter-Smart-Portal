@@ -1,101 +1,45 @@
 "use client";
 
-export function PageLoader() {
+export function PageLoader({ label = "Loading workspace..." }: { label?: string }) {
   return (
-    <div className="fixed inset-0 bg-black flex flex-col items-center justify-center z-[9999]">
-      <style>{`
-        .card {
-          --bg-color: #111;
-          background-color: var(--bg-color);
-          padding: 1rem 2rem;
-          border-radius: 1.25rem;
-        }
+    <div className="fixed inset-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xs flex flex-col items-center justify-center z-[9999] transition-all duration-300 font-sans">
+      <div className="flex flex-col items-center gap-4 p-8 max-w-sm text-center">
+        {/* Animated Brand Spinner */}
+        <div className="relative flex items-center justify-center">
+          {/* Outer glowing ring */}
+          <div className="w-14 h-14 rounded-full border-[3px] border-purple-100 dark:border-purple-950/60 animate-pulse" />
+          
+          {/* Rotating gradient arc */}
+          <div className="absolute w-14 h-14 rounded-full border-[3px] border-transparent border-t-[#56348f] dark:border-t-purple-400 border-r-[#56348f]/60 dark:border-r-purple-400/60 animate-spin" />
+          
+          {/* Inner pulsating dot */}
+          <div className="absolute w-4 h-4 rounded-full bg-[#56348f] dark:bg-purple-400 shadow-sm animate-ping opacity-75" />
+          <div className="absolute w-3 h-3 rounded-full bg-[#56348f] dark:bg-purple-400" />
+        </div>
 
-        .loader {
-          color: rgb(124, 124, 124);
-          font-family: "Poppins", sans-serif;
-          font-weight: 500;
-          font-size: 25px;
-          box-sizing: content-box;
-          height: 40px;
-          padding: 10px 10px;
-          display: flex;
-          border-radius: 8px;
-        }
+        {/* Text */}
+        <div className="space-y-1 mt-1">
+          <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 tracking-tight">
+            {label}
+          </p>
+          <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">
+            Please wait a moment
+          </p>
+        </div>
 
-        .words {
-          overflow: hidden;
-          position: relative;
-        }
+        {/* Subtle shimmer bar */}
+        <div className="w-36 h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mt-1">
+          <div className="w-full h-full bg-gradient-to-r from-transparent via-[#56348f] dark:via-purple-400 to-transparent -translate-x-full animate-[shimmer_1.5s_infinite]" />
+        </div>
+      </div>
 
-        .words::after {
-          content: "";
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(
-            var(--bg-color) 10%,
-            transparent 30%,
-            transparent 70%,
-            var(--bg-color) 90%
-          );
-          z-index: 20;
-        }
-
-        .word {
-          display: block;
-          height: 100%;
-          padding-left: 6px;
-          color: #956afa;
-          animation: spin_4991 4s infinite;
-        }
-
-        @keyframes spin_4991 {
-          10% {
-            transform: translateY(-102%);
-          }
-
-          25% {
-            transform: translateY(-100%);
-          }
-
-          35% {
-            transform: translateY(-202%);
-          }
-
-          50% {
-            transform: translateY(-200%);
-          }
-
-          60% {
-            transform: translateY(-302%);
-          }
-
-          75% {
-            transform: translateY(-300%);
-          }
-
-          85% {
-            transform: translateY(-402%);
-          }
-
+      <style jsx>{`
+        @keyframes shimmer {
           100% {
-            transform: translateY(-400%);
+            transform: translateX(100%);
           }
         }
       `}</style>
-
-      <div className="card">
-        <div className="loader">
-          <p>loading</p>
-          <div className="words">
-            <span className="word">buttons</span>
-            <span className="word">forms</span>
-            <span className="word">switches</span>
-            <span className="word">cards</span>
-            <span className="word">buttons</span>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
