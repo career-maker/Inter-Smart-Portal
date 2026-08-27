@@ -686,7 +686,7 @@ class CommunityController extends Controller
         $casualDays = $balance ? (float)$balance->casual_leave_balance : 0;
         $sickDays = $balance ? (float)$balance->sick_leave_balance : 0;
 
-        $allUsers = User::select('id', 'first_name', 'last_name', 'designation', 'profile_photo_path', 'email', 'date_of_birth', 'date_of_joining', 'status')
+        $allUsers = User::select('id', 'first_name', 'last_name', 'designation', 'profile_photo_path', 'email', 'dob', 'joining_date', 'status')
             ->get();
 
         $birthdaysToday = [];
@@ -696,8 +696,8 @@ class CommunityController extends Controller
         $recentlyJoined = [];
 
         foreach ($allUsers as $u) {
-            if ($u->date_of_birth) {
-                $dob = Carbon::parse($u->date_of_birth);
+            if ($u->dob) {
+                $dob = Carbon::parse($u->dob);
                 $thisYearBday = Carbon::create($today->year, $dob->month, $dob->day)->startOfDay();
                 if ($thisYearBday->isPast() && !$thisYearBday->isSameDay($today)) {
                     $thisYearBday->addYear();
@@ -721,8 +721,8 @@ class CommunityController extends Controller
                 }
             }
 
-            if ($u->date_of_joining) {
-                $doj = Carbon::parse($u->date_of_joining);
+            if ($u->joining_date) {
+                $doj = Carbon::parse($u->joining_date);
                 $years = $today->year - $doj->year;
 
                 if ($years >= 1) {
@@ -758,7 +758,7 @@ class CommunityController extends Controller
                         'designation' => $u->designation ?? 'Team Member',
                         'profile_photo_path' => $u->profilePhotoUrl(),
                         'email' => $u->email,
-                        'date_of_joining' => $u->date_of_joining,
+                        'date_of_joining' => $u->joining_date,
                         'joined_days_ago' => (int)$joinedDaysAgo,
                     ];
                 }
