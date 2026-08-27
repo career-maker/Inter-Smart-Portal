@@ -421,10 +421,10 @@ html:not(.dark) a[class*="bg-white"]:not([class*="text-white"]) {
   }
 }
 
-/* Custom Scrollbar Styles */
+/* ─── Global & Table Custom Scrollbar Styles (Slim, Subtle, Fade) ─── */
 ::-webkit-scrollbar {
-  width: 2px;
-  height: 2px;
+  width: 4px;
+  height: 4px;
 }
 
 ::-webkit-scrollbar-button {
@@ -435,6 +435,56 @@ html:not(.dark) a[class*="bg-white"]:not([class*="text-white"]) {
   background: transparent; 
 }
 
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.25); 
+  border-radius: 9999px;
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.45); 
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15); 
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3); 
+}
+
+/* Subtle table scrollbars */
+.table-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.25) transparent;
+}
+
+.table-scrollbar::-webkit-scrollbar {
+  width: 3px;
+  height: 3px;
+}
+
+.table-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 9999px;
+}
+
+.table-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.4);
+}
+
+.dark .table-scrollbar {
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
+.dark .table-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.dark .table-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+}
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -443,19 +493,36 @@ html:not(.dark) a[class*="bg-white"]:not([class*="text-white"]) {
   scrollbar-width: none;
 }
 
-::-webkit-scrollbar-thumb {
-  background: theme('colors.amber.400'); 
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: theme('colors.amber.500'); 
-}
-
 /* For Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: theme('colors.amber.400') transparent;
+  scrollbar-color: rgba(148, 163, 184, 0.25) transparent;
+}
+
+.dark * {
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
+/* ─── Task Table Column Titles (Proxima Nova 400 13px / 20px black) ─── */
+.task-table-th,
+.task-table-header th,
+table.task-tracker-table th,
+table th.task-col-title {
+  font-family: "Proxima Nova", sans-serif !important;
+  font-style: normal !important;
+  font-weight: 400 !important;
+  color: #000000 !important;
+  font-size: 13px !important;
+  line-height: 20px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.dark .task-table-th,
+.dark .task-table-header th,
+.dark table.task-tracker-table th,
+.dark table th.task-col-title {
+  color: #ffffff !important;
 }
 
 /* ─── Prevent horizontal overflow ─────────────────────── */

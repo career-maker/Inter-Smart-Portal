@@ -107,26 +107,26 @@ export function TaskTrackerTable({
   }
 
   return (
-    <div className="w-full overflow-x-auto">
-      <table className="w-full text-left border-collapse text-[12px] leading-[16px]">
+    <div className="w-full overflow-x-auto table-scrollbar">
+      <table className="w-full text-left border-collapse task-tracker-table">
         <thead>
-          <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 text-slate-600 dark:text-slate-400 font-semibold text-[11px] uppercase tracking-wider whitespace-nowrap">
-            <th className="py-2.5 px-3 border-r border-slate-200/80 dark:border-slate-800">PROJECT</th>
-            <th className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800">PRIORITY</th>
-            <th className="py-2.5 px-3 border-r border-slate-200/80 dark:border-slate-800">SUB PHASE / TASK</th>
+          <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-800/50 whitespace-nowrap task-table-header">
+            <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-3 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">PROJECT</th>
+            <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">PRIORITY</th>
+            <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-3 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">SUB PHASE / TASK</th>
             {showAssigneesCol && (
-              <th className="py-2.5 px-3 border-r border-slate-200/80 dark:border-slate-800">ASSIGNEES</th>
+              <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-3 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">ASSIGNEES</th>
             )}
-            <th className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800">PC</th>
-            <th className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800">STATUS</th>
-            <th className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800">START</th>
-            <th className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800">END</th>
-            <th className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800">ACHIEVED</th>
-            <th className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800">COMMENTS</th>
-            <th className="py-2.5 px-2 border-r border-slate-200/80 dark:border-slate-800 text-center">DEV</th>
-            <th className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800">SPRINT</th>
+            <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">PC</th>
+            <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">STATUS</th>
+            <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">START</th>
+            <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">END</th>
+            <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">ACHIEVED</th>
+            <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">COMMENTS</th>
+            <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2 border-r border-slate-200/80 dark:border-slate-800 text-center dark:!text-white task-col-title">DEV</th>
+            <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">SPRINT</th>
             {canEdit && (
-              <th className="py-2.5 px-3 text-right">ACTIONS</th>
+              <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-3 text-right dark:!text-white task-col-title">ACTIONS</th>
             )}
           </tr>
         </thead>
