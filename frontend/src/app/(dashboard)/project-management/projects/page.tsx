@@ -331,11 +331,11 @@ export default function ProjectsListPage() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider text-[12px] leading-[18px]">
-                <th className="py-3.5 px-4">PROJECT NAME</th>
-                <th className="py-3.5 px-4">DEPARTMENT</th>
-                <th className="py-3.5 px-4">COORDINATOR</th>
-                <th className="py-3.5 px-4">TIMELINE</th>
-                <th className="py-3.5 px-4">STATUS</th>
+                <th className="py-3.5 px-4 border-r border-slate-200/90 dark:border-slate-800">PROJECT NAME</th>
+                <th className="py-3.5 px-4 border-r border-slate-200/90 dark:border-slate-800">DEPARTMENT</th>
+                <th className="py-3.5 px-4 border-r border-slate-200/90 dark:border-slate-800">COORDINATOR</th>
+                <th className="py-3.5 px-4 border-r border-slate-200/90 dark:border-slate-800">TIMELINE</th>
+                <th className="py-3.5 px-4 border-r border-slate-200/90 dark:border-slate-800">STATUS</th>
                 <th className="py-3.5 px-4 text-right">ACTIONS</th>
               </tr>
             </thead>
@@ -364,7 +364,7 @@ export default function ProjectsListPage() {
                     className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors group"
                   >
                     {/* Project Name & Category */}
-                    <td className="py-3.5 px-4">
+                    <td className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80">
                       <Link
                         href={`/project-management/projects/${project.id}`}
                         className="text-[13px] leading-[20px] font-semibold text-slate-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors flex items-center gap-1.5"
@@ -391,7 +391,7 @@ export default function ProjectsListPage() {
                     </td>
 
                     {/* Department */}
-                    <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300 text-[13px] leading-[20px] font-normal">
+                    <td className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80 text-slate-700 dark:text-slate-300 text-[13px] leading-[20px] font-normal">
                       <div className="flex items-center gap-1.5">
                         <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                         <span>{project.team?.name || "Cross-Team"}</span>
@@ -399,7 +399,7 @@ export default function ProjectsListPage() {
                     </td>
 
                     {/* Coordinator */}
-                    <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300 text-[13px] leading-[20px] font-normal">
+                    <td className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80 text-slate-700 dark:text-slate-300 text-[13px] leading-[20px] font-normal">
                       {project.coordinator ? (
                         <div className="flex items-center gap-2">
                           <div className="w-6 h-6 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-bold flex items-center justify-center border border-blue-500/20">
@@ -416,7 +416,7 @@ export default function ProjectsListPage() {
                     </td>
 
                     {/* Timeline */}
-                    <td className="py-3.5 px-4 text-slate-600 dark:text-slate-400 text-[12px] leading-[18px] font-normal">
+                    <td className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80 text-slate-600 dark:text-slate-400 text-[12px] leading-[18px] font-normal">
                       <div className="flex items-center gap-1.5">
                         <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                         <span>
@@ -427,7 +427,7 @@ export default function ProjectsListPage() {
                     </td>
 
                     {/* Status */}
-                    <td className="py-3.5 px-4">
+                    <td className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80">
                       <ProjectStatusBadge status={project.status} />
                     </td>
 

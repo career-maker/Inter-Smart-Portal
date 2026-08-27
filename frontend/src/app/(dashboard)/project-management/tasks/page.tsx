@@ -320,18 +320,18 @@ export default function AllTasksPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs sm:text-sm">
+            <table className="w-full text-left border-collapse border-y border-slate-200 dark:border-slate-800">
               <thead>
-                <tr className="border-b border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-800/30 text-slate-500 dark:text-slate-400 font-semibold text-xs uppercase tracking-wider">
-                  <th className="py-3.5 px-5">Task Title</th>
-                  <th className="py-3.5 px-4">Project</th>
-                  <th className="py-3.5 px-4">Assignees</th>
-                  <th className="py-3.5 px-4">Due Date</th>
-                  <th className="py-3.5 px-4">Priority</th>
+                <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 text-slate-500 dark:text-slate-400 font-semibold text-[12px] leading-[18px] uppercase tracking-wider">
+                  <th className="py-3.5 px-5 border-r border-slate-200/90 dark:border-slate-800">Task Title</th>
+                  <th className="py-3.5 px-4 border-r border-slate-200/90 dark:border-slate-800">Project</th>
+                  <th className="py-3.5 px-4 border-r border-slate-200/90 dark:border-slate-800">Assignees</th>
+                  <th className="py-3.5 px-4 border-r border-slate-200/90 dark:border-slate-800">Due Date</th>
+                  <th className="py-3.5 px-4 border-r border-slate-200/90 dark:border-slate-800">Priority</th>
                   <th className="py-3.5 px-4">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
                 {tasksList.map((task) => {
                   const overdue = isTaskOverdue(task.due_date, task.status);
 
@@ -341,22 +341,29 @@ export default function AllTasksPage() {
                       className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors group"
                     >
                       {/* Task Title & Catalog indicator */}
-                      <td className="py-4 px-5">
+                      <td className="py-3.5 px-5 border-r border-slate-200/80 dark:border-slate-800/80">
                         <Link
                           href={`/project-management/tasks/${task.id}`}
-                          className="font-bold text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors block line-clamp-1"
+                          style={{
+                            fontFamily: '"Proxima Nova", sans-serif',
+                            fontSize: "13px",
+                            lineHeight: "18px",
+                            fontWeight: 400,
+                            color: "rgb(15, 24, 36)",
+                          }}
+                          className="hover:text-purple-600 dark:!text-slate-100 dark:hover:!text-purple-400 transition-colors block line-clamp-1"
                         >
                           {task.title}
                         </Link>
                         <div className="flex items-center gap-2 mt-1">
                           {task.catalogTask && (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/60 px-2 py-0.5 rounded">
+                            <span className="inline-flex items-center gap-1 text-[10px] font-normal text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/60 px-2 py-0.5 rounded">
                               <Sparkles className="w-2.5 h-2.5" />
                               <span>{task.catalogTask.name}</span>
                             </span>
                           )}
                           {task.sprint && (
-                            <span className="text-[11px] text-slate-400 dark:text-slate-500">
+                            <span className="text-[11px] leading-[16px] text-slate-400 dark:text-slate-500 font-normal">
                               Sprint: {task.sprint}
                             </span>
                           )}
@@ -364,22 +371,29 @@ export default function AllTasksPage() {
                       </td>
 
                       {/* Project */}
-                      <td className="py-4 px-4">
+                      <td className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80">
                         {task.project ? (
                           <Link
                             href={`/project-management/projects/${task.project.id}`}
-                            className="text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-1.5"
+                            style={{
+                              fontFamily: '"Proxima Nova", sans-serif',
+                              fontSize: "13px",
+                              lineHeight: "18px",
+                              fontWeight: 400,
+                              color: "rgb(15, 24, 36)",
+                            }}
+                            className="hover:text-purple-600 dark:!text-slate-200 dark:hover:!text-purple-400 transition-colors flex items-center gap-1.5"
                           >
-                            <FolderKanban className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                            <FolderKanban className="w-3.5 h-3.5 text-purple-500 shrink-0" />
                             <span className="line-clamp-1">{task.project.name}</span>
                           </Link>
                         ) : (
-                          <span className="text-slate-400 italic text-xs">Unassigned</span>
+                          <span className="text-slate-400 italic text-[13px] leading-[18px]">Unassigned</span>
                         )}
                       </td>
 
                       {/* Assignees */}
-                      <td className="py-4 px-4">
+                      <td className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80">
                         {task.assignees && Array.isArray(task.assignees) && task.assignees.length > 0 ? (
                           <div className="flex items-center gap-1.5 flex-wrap">
                             {task.assignees.map((a: any) => {
@@ -388,9 +402,16 @@ export default function AllTasksPage() {
                               return (
                                 <span
                                   key={a?.id || Math.random()}
-                                  className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
+                                  style={{
+                                    fontFamily: '"Proxima Nova", sans-serif',
+                                    fontSize: "13px",
+                                    lineHeight: "18px",
+                                    fontWeight: 400,
+                                    color: "rgb(15, 24, 36)",
+                                  }}
+                                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 dark:!text-slate-200"
                                 >
-                                  <span className="w-4 h-4 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-400 text-[9px] font-bold flex items-center justify-center">
+                                  <span className="w-4 h-4 rounded-full bg-purple-500/20 text-purple-600 dark:text-purple-400 text-[9px] font-bold flex items-center justify-center">
                                     {initial}
                                   </span>
                                   <span>{name}</span>
@@ -399,19 +420,25 @@ export default function AllTasksPage() {
                             })}
                           </div>
                         ) : (
-                          <span className="text-xs text-slate-400 italic">Unassigned</span>
+                          <span className="text-[13px] leading-[18px] text-slate-400 italic">Unassigned</span>
                         )}
                       </td>
 
                       {/* Due Date & Overdue Tag */}
-                      <td className="py-4 px-4">
+                      <td className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80">
                         <div className="flex items-center gap-1.5">
                           <span
-                            className={`text-xs ${
+                            style={{
+                              fontFamily: '"Proxima Nova", sans-serif',
+                              fontSize: "13px",
+                              lineHeight: "18px",
+                              fontWeight: 400,
+                            }}
+                            className={
                               overdue
-                                ? "text-rose-600 dark:text-rose-400 font-bold flex items-center gap-1"
-                                : "text-slate-600 dark:text-slate-400"
-                            }`}
+                                ? "text-rose-600 dark:text-rose-400 font-semibold flex items-center gap-1"
+                                : "text-[#0f1824] dark:text-slate-300"
+                            }
                           >
                             {overdue && <AlertTriangle className="w-3 h-3 text-rose-500 shrink-0" />}
                             <span>{formatDateDisplay(task.due_date)}</span>
@@ -425,12 +452,12 @@ export default function AllTasksPage() {
                       </td>
 
                       {/* Priority */}
-                      <td className="py-4 px-4">
+                      <td className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80">
                         <TaskPriorityBadge priority={task.priority} />
                       </td>
 
                       {/* Status */}
-                      <td className="py-4 px-4">
+                      <td className="py-3.5 px-4">
                         <TaskStatusBadge status={task.status} />
                       </td>
                     </tr>
