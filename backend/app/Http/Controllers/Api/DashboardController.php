@@ -326,27 +326,41 @@ class DashboardController extends Controller
             $totalEmployees = User::where('status', 'Active')->count();
             $yesterdayStr = Carbon::yesterday()->toDateString();
             
-            // Calculate present list first to avoid distinct/count SQL aggregate quirks
-            $presentTodayList = \App\Models\BiometricEvent::with('user:id,first_name,last_name,designation')
-                ->whereNotNull('user_id')
-                ->whereDate('local_punch_time', $todayStr)
-                ->get()
-                ->unique('user_id')
-                ->map(function ($event) {
-                    return [
-                        'name' => $event->user ? ($event->user->first_name . ' ' . $event->user->last_name) : 'Unknown',
-                        'designation' => $event->user->designation ?? 'Employee'
-                    ];
-                })
-                ->sortBy('name')
-                ->values();
+            // Calculate present list using Attendance table with BiometricEvent fallback
+            $presentUserIdsToday = \App\Models\Attendance::where('date', $todayStr)
+                ->whereNotNull('check_in_time')
+                ->pluck('user_id')
+                ->toArray();
 
-            $presentToday = $presentTodayList->count();
+            if (empty($presentUserIdsToday)) {
+                $presentUserIdsToday = \App\Models\BiometricEvent::whereNotNull('user_id')
+                    ->whereDate('local_punch_time', $todayStr)
+                    ->distinct()
+                    ->pluck('user_id')
+                    ->toArray();
+            }
+
+            $presentTodayList = User::whereIn('id', $presentUserIdsToday)
+                ->orderBy('first_name')
+                ->get(['id', 'first_name', 'last_name', 'designation'])
+                ->map(function ($u) {
+                    return [
+                        'name' => $u->first_name . ' ' . $u->last_name,
+                        'designation' => $u->designation ?? 'Employee'
+                    ];
+                });
+
+            $presentToday = count($presentUserIdsToday);
             
-            $presentYesterday = \App\Models\BiometricEvent::whereNotNull('user_id')
-                ->whereDate('local_punch_time', $yesterdayStr)
-                ->distinct('user_id')
-                ->count('user_id');
+            $presentYesterday = \App\Models\Attendance::where('date', $yesterdayStr)
+                ->whereNotNull('check_in_time')
+                ->count();
+            if ($presentYesterday === 0) {
+                $presentYesterday = \App\Models\BiometricEvent::whereNotNull('user_id')
+                    ->whereDate('local_punch_time', $yesterdayStr)
+                    ->distinct('user_id')
+                    ->count('user_id');
+            }
             
             $attendanceTrend = 0;
             if ($presentYesterday > 0) {
