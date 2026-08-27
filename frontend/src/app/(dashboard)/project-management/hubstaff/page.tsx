@@ -345,13 +345,21 @@ export default function HubstaffAnalyticsPage() {
             {/* Date Pickers */}
             {dateMode === "single" ? (
               <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                <input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs font-semibold rounded-xl px-3 py-1.5 outline-none focus:ring-2 focus:ring-purple-500/20"
-                />
+                <Calendar className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />
+                <div className="relative flex items-center">
+                  <input
+                    type="date"
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs font-semibold rounded-xl px-3 py-1.5 outline-none focus:ring-2 focus:ring-purple-500/20"
+                  />
+                </div>
+                {loading && (
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 text-[11px] font-bold text-purple-700 dark:text-purple-300 animate-pulse">
+                    <Loader2 className="w-3 h-3 animate-spin text-purple-600 dark:text-purple-400" />
+                    <span>Loading...</span>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="flex items-center gap-2 flex-wrap">
@@ -369,6 +377,12 @@ export default function HubstaffAnalyticsPage() {
                   onChange={(e) => setEndDate(e.target.value)}
                   className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs font-semibold rounded-xl px-2.5 py-1.5 outline-none focus:ring-2 focus:ring-purple-500/20"
                 />
+                {loading && (
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 text-[11px] font-bold text-purple-700 dark:text-purple-300 animate-pulse">
+                    <Loader2 className="w-3 h-3 animate-spin text-purple-600 dark:text-purple-400" />
+                    <span>Loading...</span>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -413,12 +427,16 @@ export default function HubstaffAnalyticsPage() {
       </div>
 
       {/* ── Summary Metric Cards ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-5 gap-3.5">
+      <div className={`grid grid-cols-2 sm:grid-cols-2 md:grid-cols-5 gap-3.5 transition-opacity duration-200 ${loading ? "opacity-60" : "opacity-100"}`}>
         {/* Total Tracked Time */}
         <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-1">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
             <span>Tracked Work Time</span>
-            <Clock className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+            {loading ? (
+              <Loader2 className="w-3.5 h-3.5 text-purple-600 animate-spin" />
+            ) : (
+              <Clock className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+            )}
           </div>
           <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
             {summary.total_tracked_formatted || "0h 00m"}
@@ -484,9 +502,12 @@ export default function HubstaffAnalyticsPage() {
 
       {/* ── Main Tab Content ── */}
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-20 bg-white/80 dark:bg-slate-900/80 rounded-2xl border border-slate-200 dark:border-slate-800">
-          <Loader2 className="w-8 h-8 text-purple-600 animate-spin mb-3" />
-          <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold">Loading Hubstaff Analytics...</p>
+        <div className="flex flex-col items-center justify-center py-20 bg-white/80 dark:bg-slate-900/80 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm animate-in fade-in duration-150">
+          <Loader2 className="w-9 h-9 text-purple-600 animate-spin mb-3" />
+          <p className="text-sm font-bold text-slate-800 dark:text-slate-200">
+            Loading Hubstaff Activity for {dateMode === "single" ? selectedDate : `${startDate} → ${endDate}`}...
+          </p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Aggregating tracked work hours and project activities</p>
         </div>
       ) : error ? (
         <div className="p-6 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-2xl text-center space-y-3">
