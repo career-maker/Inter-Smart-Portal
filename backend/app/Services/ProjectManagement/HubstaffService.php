@@ -525,6 +525,21 @@ class HubstaffService
                         ->acceptJson()
                         ->get($endpoint, $queryParams);
 
+                    // If 401 Unauthorized, refresh token and retry once
+                    if ($response->status() === 401 && $currentPage === 1) {
+                        $dbRecord = ProjectHubstaffToken::find(1);
+                        $refreshToken = $dbRecord?->refresh_token ?: config('services.hubstaff.refresh_token');
+                        if (!empty($refreshToken)) {
+                            $token = $this->refreshAccessToken($refreshToken);
+                            if (!empty($token)) {
+                                $response = Http::withToken($token)
+                                    ->timeout(15)
+                                    ->acceptJson()
+                                    ->get($endpoint, $queryParams);
+                            }
+                        }
+                    }
+
                     if (!$response->successful()) {
                         Log::warning('Hubstaff daily activities API request failed', [
                             'status' => $response->status(),
