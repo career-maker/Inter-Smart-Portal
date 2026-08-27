@@ -276,10 +276,10 @@ export default function ProjectManagementDashboard() {
             type="button"
             onClick={handleImportHubstaff}
             disabled={importingHubstaff || loading}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-semibold border border-slate-800 shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs sm:text-sm font-semibold border border-slate-200 dark:border-slate-700 shadow-2xs transition-all disabled:opacity-50 cursor-pointer"
             title="Import all active projects from Hubstaff without duplicating"
           >
-            <CloudDownload className={`w-4 h-4 text-sky-400 ${importingHubstaff ? "animate-spin" : ""}`} />
+            <CloudDownload className={`w-4 h-4 text-sky-500 ${importingHubstaff ? "animate-spin" : ""}`} />
             <span>{importingHubstaff ? "Importing…" : "Import from Hubstaff"}</span>
           </button>
 
