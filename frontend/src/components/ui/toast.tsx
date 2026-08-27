@@ -159,7 +159,7 @@ export function Toaster() {
   }, []);
 
   return (
-    <div className="fixed top-5 right-5 z-[99999] flex flex-col gap-3 max-w-md w-full pointer-events-none px-4 sm:px-0">
+    <div className="fixed top-4 inset-x-0 mx-auto px-4 z-[99999] flex flex-col items-center gap-3 max-w-sm sm:max-w-md w-full pointer-events-none sm:top-5 sm:right-5 sm:left-auto sm:mx-0 sm:items-end sm:px-0">
       <AnimatePresence mode="popLayout">
         {toasts.map((toast) => (
           <motion.div
@@ -170,7 +170,7 @@ export function Toaster() {
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
             className={cn(
-              "pointer-events-auto relative overflow-hidden rounded-2xl p-4 shadow-2xl backdrop-blur-xl border flex items-start gap-3 transition-all",
+              "pointer-events-auto relative overflow-hidden rounded-2xl p-4 shadow-2xl backdrop-blur-xl border flex items-start gap-3 transition-all w-full",
               toast.type === "success" &&
                 "bg-slate-900/95 dark:bg-slate-900/95 border-emerald-500/40 text-white shadow-emerald-500/10",
               toast.type === "error" &&
