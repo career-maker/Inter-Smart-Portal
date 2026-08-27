@@ -52,9 +52,11 @@ class ProjectController extends Controller
             $query->where('name', 'like', '%' . $request->string('search') . '%');
         }
 
-                $perPage = $request->input('per_page', 20);
-        if ($perPage === 'all' || (int) $perPage === -1) {
-            $items = $query->orderBy('created_at', 'desc')->get();
+        $perPage = $request->input('per_page', 20);
+        $all = $request->boolean('all') || $perPage === 'all' || (int) $perPage === -1 || (int) $perPage === 0 || (int) $perPage > 500;
+
+        if ($all) {
+            $items = $query->orderBy('name', 'asc')->get();
             return response()->json([
                 'data' => $items,
                 'total' => $items->count(),

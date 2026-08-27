@@ -321,11 +321,16 @@ export default function ProjectsListPage() {
       </div>
 
       {/* ── Projects Data Table ── */}
-      <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden">
+      <div
+        style={{
+          fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        }}
+        className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden"
+      >
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
+          <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[10px] sm:text-[11px]">
+              <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider text-[12px] leading-[18px]">
                 <th className="py-3.5 px-4">PROJECT NAME</th>
                 <th className="py-3.5 px-4">DEPARTMENT</th>
                 <th className="py-3.5 px-4">COORDINATOR</th>
@@ -339,15 +344,15 @@ export default function ProjectsListPage() {
                 <tr>
                   <td colSpan={6} className="py-12 text-center text-slate-400">
                     <RefreshCw className="w-5 h-5 animate-spin mx-auto text-blue-500 mb-2" />
-                    <span>Loading projects directory…</span>
+                    <span className="text-[13px] leading-[20px]">Loading projects directory…</span>
                   </td>
                 </tr>
               ) : projectsList.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-12 text-center text-slate-400">
                     <FolderKanban className="w-8 h-8 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
-                    <p className="font-semibold text-slate-700 dark:text-slate-300">No projects found</p>
-                    <p className="text-[11px] text-slate-500 mt-0.5">
+                    <p className="font-semibold text-slate-700 dark:text-slate-300 text-[13px] leading-[20px]">No projects found</p>
+                    <p className="text-[11px] leading-[16px] text-slate-500 mt-0.5">
                       Try adjusting your search criteria or create/import a project.
                     </p>
                   </td>
@@ -362,23 +367,23 @@ export default function ProjectsListPage() {
                     <td className="py-3.5 px-4">
                       <Link
                         href={`/project-management/projects/${project.id}`}
-                        className="font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors flex items-center gap-1.5"
+                        className="text-[13px] leading-[20px] font-semibold text-slate-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors flex items-center gap-1.5"
                       >
                         <span>{project.name}</span>
                         {project.hubstaff_project_id && (
                           <span title="Linked to Hubstaff">
-                            <Link2 className="w-3 h-3 text-sky-500 shrink-0" />
+                            <Link2 className="w-3.5 h-3.5 text-sky-500 shrink-0" />
                           </span>
                         )}
                       </Link>
                       <div className="flex items-center gap-2 mt-0.5">
                         {project.category && (
-                          <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
+                          <span className="text-[11px] leading-[16px] font-normal text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
                             {project.category}
                           </span>
                         )}
                         {project.project_type && (
-                          <span className="text-[10px] text-slate-400">
+                          <span className="text-[11px] leading-[16px] text-slate-400 font-normal">
                             • {project.project_type}
                           </span>
                         )}
@@ -386,7 +391,7 @@ export default function ProjectsListPage() {
                     </td>
 
                     {/* Department */}
-                    <td className="py-3.5 px-4 text-slate-600 dark:text-slate-300 font-medium">
+                    <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300 text-[13px] leading-[20px] font-normal">
                       <div className="flex items-center gap-1.5">
                         <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                         <span>{project.team?.name || "Cross-Team"}</span>
@@ -394,7 +399,7 @@ export default function ProjectsListPage() {
                     </td>
 
                     {/* Coordinator */}
-                    <td className="py-3.5 px-4 text-slate-600 dark:text-slate-300 font-medium">
+                    <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300 text-[13px] leading-[20px] font-normal">
                       {project.coordinator ? (
                         <div className="flex items-center gap-2">
                           <div className="w-6 h-6 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-bold flex items-center justify-center border border-blue-500/20">
@@ -411,7 +416,7 @@ export default function ProjectsListPage() {
                     </td>
 
                     {/* Timeline */}
-                    <td className="py-3.5 px-4 text-slate-500 dark:text-slate-400 font-mono text-[11px]">
+                    <td className="py-3.5 px-4 text-slate-600 dark:text-slate-400 text-[12px] leading-[18px] font-normal">
                       <div className="flex items-center gap-1.5">
                         <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                         <span>
@@ -430,7 +435,13 @@ export default function ProjectsListPage() {
                     <td className="py-3.5 px-4 text-right">
                       <Link
                         href={`/project-management/projects/${project.id}`}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950/40 text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 text-xs font-semibold border border-slate-200 dark:border-slate-700/60 transition-colors"
+                        style={{
+                          fontFamily: '"Proxima Nova", sans-serif',
+                          fontSize: "13px",
+                          lineHeight: "20px",
+                          fontWeight: 400,
+                        }}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-purple-50 dark:hover:bg-purple-950/40 text-slate-700 dark:text-slate-300 hover:text-purple-600 dark:hover:text-purple-400 text-[13px] leading-[20px] font-normal border border-slate-200 dark:border-slate-700/60 transition-colors"
                       >
                         <span>Details</span>
                         <ChevronRight className="w-3.5 h-3.5" />
@@ -445,7 +456,7 @@ export default function ProjectsListPage() {
 
         {/* ── Pagination Footer ── */}
         {lastPage > 1 && (
-          <div className="px-4 py-3 border-t border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 bg-slate-50/50 dark:bg-slate-800/20">
+          <div className="px-4 py-3 border-t border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between text-[12px] leading-[18px] text-slate-500 dark:text-slate-400 bg-slate-50/50 dark:bg-slate-800/20">
             <span>
               Showing {projectsList.length} of {totalProjects} projects
             </span>
@@ -458,7 +469,7 @@ export default function ProjectsListPage() {
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
-              <span className="px-2 font-semibold text-slate-800 dark:text-slate-200">
+              <span className="px-2 py-1 text-[12px] leading-[18px] font-medium text-slate-700 dark:text-slate-300">
                 {currentPage} / {lastPage}
               </span>
               <button

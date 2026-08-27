@@ -86,12 +86,14 @@ export function CreateTaskModal({
       // 2. Fetch projects and catalogs in parallel
       try {
         const [projRes, catRes] = await Promise.allSettled([
-          pmApi.getProjects({ per_page: -1 } as any),
+          pmApi.getProjects({ per_page: 'all', all: true } as any),
           pmApi.getTaskCatalog({ is_active: true, all: true }),
         ]);
 
         if (projRes.status === "fulfilled") {
-          setProjects(projRes.value.data || []);
+          const raw = projRes.value;
+          const pList = Array.isArray(raw) ? raw : (raw as any)?.data || [];
+          setProjects(Array.isArray(pList) ? pList : []);
         }
 
         if (catRes.status === "fulfilled") {
