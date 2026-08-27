@@ -166,6 +166,7 @@ class ProjectTaskController extends Controller
     public function store(StoreProjectTaskRequest $request, Project $project)
     {
         $user = $request->user();
+        $user->loadMissing('roles', 'team');
 
         if (!$this->auth->canCreateTask($user, $project)) {
             return response()->json(['message' => 'Unauthorized to create tasks for this project.'], 403);
@@ -175,15 +176,36 @@ class ProjectTaskController extends Controller
         $assigneeIds = $data['assignee_ids'] ?? [];
         unset($data['assignee_ids']);
 
-        // Team Leads create tasks for their own HR team by default and can only assign own-team members
-        if ($user->hasRole('Team Lead') && !$user->hasRole('Super Admin')) {
-            $data['team_id'] = $user->team_id;
+        $userRolesStr = strtolower($user->roles->pluck('name')->implode(' '));
+        $isTeamLead = $user->hasRole('Team Lead')
+            || str_contains($userRolesStr, 'lead')
+            || strtolower($user->role ?? '') === 'team lead'
+            || \App\Models\Team::where('team_lead_id', $user->id)->exists();
 
-            if (!empty($assigneeIds)) {
+        $isSuperAdmin = $user->hasRole('Super Admin')
+            || str_contains($userRolesStr, 'super admin')
+            || str_contains($userRolesStr, 'admin')
+            || strtolower($user->role ?? '') === 'super admin'
+            || strtolower($user->role ?? '') === 'admin';
+
+        // Resolve effective team ID for the task
+        $effectiveTeamId = $user->team_id;
+        if (!$effectiveTeamId && $isTeamLead) {
+            $effectiveTeamId = \App\Models\Team::where('team_lead_id', $user->id)->value('id');
+        }
+        if (!$effectiveTeamId) {
+            $effectiveTeamId = $project->team_id;
+        }
+
+        if ($isTeamLead && !$isSuperAdmin) {
+            $data['team_id'] = $effectiveTeamId;
+
+            if (!empty($assigneeIds) && $effectiveTeamId) {
                 $invalidCount = \App\Models\User::whereIn('id', $assigneeIds)
-                    ->where(function ($q) use ($user) {
+                    ->where('id', '!=', $user->id)
+                    ->where(function ($q) use ($effectiveTeamId) {
                         $q->whereNull('team_id')
-                          ->orWhere('team_id', '!=', $user->team_id);
+                          ->orWhere('team_id', '!=', $effectiveTeamId);
                     })
                     ->count();
 

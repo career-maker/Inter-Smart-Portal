@@ -143,34 +143,43 @@ class ProjectAuthorizationService
     /** Can $user edit planning fields (title, dates, effort, assignees, coordinator, ...) on this task? */
     public function canManageTask(User $user, ProjectTask $task): bool
     {
-        if ($user->hasRole('Super Admin')) {
+        if (
+            $user->hasRole('Super Admin') ||
+            $user->hasRole('Admin') ||
+            in_array(strtolower($user->role ?? ''), ['super admin', 'admin'], true)
+        ) {
             return true;
         }
 
-        if (!$user->can('manage tasks')) {
-            return false;
-        }
-
-        return $user->hasRole('Team Lead')
-            && $task->team_id !== null
-            && $task->team_id === $user->team_id;
-    }
-
-    /**
-     * Can $user create a task under $project?
-     * Per Decision 7 (Project↔Team Relationship), project ownership and task
-     * participation are separate: a Team Lead holding `manage tasks` may create
-     * tasks for their own HR team under any project, enabling cross-team
-     * contributions. Assignment of that task remains strictly restricted to the
-     * Team Lead's own HR team (see canAssignUserToTask()).
-     */
-    public function canCreateTask(User $user, Project $project): bool
-    {
-        if ($user->hasRole('Super Admin')) {
+        if (
+            $user->hasRole('Team Lead') ||
+            in_array(strtolower($user->role ?? ''), ['team lead'], true) ||
+            \App\Models\Team::where('team_lead_id', $user->id)->exists()
+        ) {
             return true;
         }
 
         return $user->can('manage tasks');
+    }
+
+    /**
+     * Can $user create a task under $project?
+     * Super Admin, Admin, and all Team Leads can create tasks under any project.
+     */
+    public function canCreateTask(User $user, Project $project): bool
+    {
+        if (
+            $user->hasRole('Super Admin') ||
+            $user->hasRole('Admin') ||
+            $user->hasRole('Team Lead') ||
+            $user->can('manage tasks') ||
+            in_array(strtolower($user->role ?? ''), ['super admin', 'admin', 'team lead'], true) ||
+            \App\Models\Team::where('team_lead_id', $user->id)->exists()
+        ) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -178,11 +187,18 @@ class ProjectAuthorizationService
      */
     public function canCreateTaskForTeam(User $user, ?int $teamId): bool
     {
-        if ($user->hasRole('Super Admin')) {
+        if (
+            $user->hasRole('Super Admin') ||
+            $user->hasRole('Admin') ||
+            $user->hasRole('Team Lead') ||
+            $user->can('manage tasks') ||
+            in_array(strtolower($user->role ?? ''), ['super admin', 'admin', 'team lead'], true) ||
+            \App\Models\Team::where('team_lead_id', $user->id)->exists()
+        ) {
             return true;
         }
 
-        return $user->can('manage tasks');
+        return false;
     }
 
     /** Can $user edit this task's own execution fields (status, current_updates, actual dates, time/days taken)? */
