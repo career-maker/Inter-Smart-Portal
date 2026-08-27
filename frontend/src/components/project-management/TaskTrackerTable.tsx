@@ -112,7 +112,7 @@ export function TaskTrackerTable({
         <thead>
           <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-800/50 whitespace-nowrap task-table-header">
             <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-3 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">PROJECT</th>
-            <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">PRIORITY</th>
+            <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-1.5 border-r border-slate-200/80 dark:border-slate-800 text-center dark:!text-white task-col-title w-10">Pty</th>
             <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-3 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">SUB PHASE / TASK</th>
             {showAssigneesCol && (
               <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-3 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">ASSIGNEES</th>
@@ -195,31 +195,32 @@ export function TaskTrackerTable({
                   )}
                 </td>
 
-                {/* 2. PRIORITY */}
-                <td className="py-2 px-2.5 border-r border-slate-200/70 dark:border-slate-800/70 whitespace-nowrap">
+                {/* 2. PRIORITY (Pty) */}
+                <td className="py-2 px-1.5 border-r border-slate-200/70 dark:border-slate-800/70 whitespace-nowrap text-center">
                   {canEdit && onPriorityChange ? (
-                    <div className="inline-flex items-center">
+                    <div className="inline-flex items-center justify-center">
                       <select
                         value={task.priority}
                         disabled={updatingTaskId === task.id}
                         onChange={(e) => onPriorityChange(task.id, e.target.value as TaskPriority)}
+                        title={`Priority: ${task.priority}`}
                         style={{
                           fontFamily: '"Proxima Nova", sans-serif',
                           fontSize: "11px",
                           lineHeight: "16px",
-                          fontWeight: 400,
+                          fontWeight: 600,
                         }}
-                        className={`px-2 py-0.5 rounded-full border text-[11px] font-normal cursor-pointer transition-all focus:outline-none focus:ring-1 focus:ring-purple-500/20 disabled:opacity-50 ${getPriorityBadgeStyle(task.priority)}`}
+                        className={`w-7 h-5 px-0 text-center [text-align-last:center] rounded border text-[11px] font-bold cursor-pointer transition-all focus:outline-none focus:ring-1 focus:ring-purple-500/20 disabled:opacity-50 appearance-none inline-flex items-center justify-center ${getPriorityBadgeStyle(task.priority)}`}
                       >
                         {TASK_PRIORITIES.map((pr) => (
-                          <option key={pr} value={pr} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
-                            {pr}
+                          <option key={pr} value={pr} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-semibold">
+                            {pr.charAt(0)}
                           </option>
                         ))}
                       </select>
                     </div>
                   ) : (
-                    <TaskPriorityBadge priority={task.priority} />
+                    <TaskPriorityBadge priority={task.priority} compact />
                   )}
                 </td>
 

@@ -5,9 +5,10 @@ import { TaskPriority } from "@/types/pm";
 interface TaskPriorityBadgeProps {
   priority: TaskPriority | string;
   className?: string;
+  compact?: boolean;
 }
 
-export function TaskPriorityBadge({ priority, className = "" }: TaskPriorityBadgeProps) {
+export function TaskPriorityBadge({ priority, className = "", compact = false }: TaskPriorityBadgeProps) {
   let badgeStyle = "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700";
 
   switch (priority) {
@@ -25,11 +26,16 @@ export function TaskPriorityBadge({ priority, className = "" }: TaskPriorityBadg
       break;
   }
 
+  const label = compact ? (priority ? priority.charAt(0) : "—") : priority;
+
   return (
     <span
-      className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold border ${badgeStyle} ${className}`}
+      title={`Priority: ${priority}`}
+      className={`inline-flex items-center justify-center ${
+        compact ? "w-6 h-5 px-0 text-center font-bold" : "px-2 py-0.5 font-semibold"
+      } rounded text-[11px] border ${badgeStyle} ${className}`}
     >
-      {priority}
+      {label}
     </span>
   );
 }
