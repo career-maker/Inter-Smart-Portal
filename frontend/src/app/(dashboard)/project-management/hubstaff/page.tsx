@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import Link from "next/link";
 import { format, parseISO, subDays, addDays, startOfMonth } from "date-fns";
 import {
@@ -93,6 +93,9 @@ export default function HubstaffAnalyticsPage() {
   const [selectedDate, setSelectedDate] = useState<string>(() => format(new Date(), "yyyy-MM-dd"));
   const [startDate, setStartDate] = useState<string>(() => format(subDays(new Date(), 6), "yyyy-MM-dd"));
   const [endDate, setEndDate] = useState<string>(() => format(new Date(), "yyyy-MM-dd"));
+  const selectedDateInputRef = useRef<HTMLInputElement>(null);
+  const startDateInputRef = useRef<HTMLInputElement>(null);
+  const endDateInputRef = useRef<HTMLInputElement>(null);
 
   // Team selection state
   const [selectedTeamId, setSelectedTeamId] = useState<number | "all">("all");
@@ -166,6 +169,34 @@ export default function HubstaffAnalyticsPage() {
   useEffect(() => {
     fetchAnalytics();
   }, [fetchAnalytics]);
+
+  // Belt-and-suspenders fallback for the native date pickers: on Windows,
+  // Chrome can render <input type="date"> via an OS-level calendar overlay
+  // that has been observed to not reliably dispatch change/input/blur events
+  // back to the page when a date is picked. onChange/onInput/onBlur above
+  // cover the normal cases; this short poll of the raw DOM value catches the
+  // remainder by comparing against React state directly, independent of
+  // whatever event (if any) the browser actually fires.
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const domSelected = selectedDateInputRef.current?.value;
+      if (domSelected && domSelected !== selectedDate) {
+        setLoading(true);
+        setSelectedDate(domSelected);
+      }
+      const domStart = startDateInputRef.current?.value;
+      if (domStart && domStart !== startDate) {
+        setLoading(true);
+        setStartDate(domStart);
+      }
+      const domEnd = endDateInputRef.current?.value;
+      if (domEnd && domEnd !== endDate) {
+        setLoading(true);
+        setEndDate(domEnd);
+      }
+    }, 400);
+    return () => clearInterval(interval);
+  }, [selectedDate, startDate, endDate]);
 
   // Quick Date Navigation Handlers
   const handlePrevDay = () => {
@@ -416,6 +447,7 @@ export default function HubstaffAnalyticsPage() {
                 <div className="flex items-center gap-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-2.5 py-1">
                   <Calendar className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />
                   <input
+                    ref={selectedDateInputRef}
                     type="date"
                     value={selectedDate}
                     onChange={(e) => {
@@ -430,6 +462,18 @@ export default function HubstaffAnalyticsPage() {
                     }}
                     onInput={(e) => {
                       const val = (e.target as HTMLInputElement).value;
+                      if (val && val !== selectedDate) {
+                        setLoading(true);
+                        setSelectedDate(val);
+                      }
+                    }}
+                    onBlur={(e) => {
+                      // Last-resort fallback: Chrome on Windows can render the
+                      // date picker via an OS-level calendar overlay that doesn't
+                      // reliably dispatch change/input events back to the page.
+                      // Focus reliably leaves the input once that overlay closes,
+                      // so re-check the value here too.
+                      const val = e.target.value;
                       if (val && val !== selectedDate) {
                         setLoading(true);
                         setSelectedDate(val);
@@ -486,6 +530,7 @@ export default function HubstaffAnalyticsPage() {
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-xs text-slate-500 font-semibold">From:</span>
                 <input
+                  ref={startDateInputRef}
                   type="date"
                   value={startDate}
                   onChange={(e) => {
@@ -501,10 +546,18 @@ export default function HubstaffAnalyticsPage() {
                       setStartDate(val);
                     }
                   }}
+                  onBlur={(e) => {
+                    const val = e.target.value;
+                    if (val && val !== startDate) {
+                      setLoading(true);
+                      setStartDate(val);
+                    }
+                  }}
                   className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs font-semibold rounded-xl px-2.5 py-1.5 outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer"
                 />
                 <span className="text-xs text-slate-500 font-semibold">To:</span>
                 <input
+                  ref={endDateInputRef}
                   type="date"
                   value={endDate}
                   onChange={(e) => {
@@ -515,6 +568,13 @@ export default function HubstaffAnalyticsPage() {
                   }}
                   onInput={(e) => {
                     const val = (e.target as HTMLInputElement).value;
+                    if (val && val !== endDate) {
+                      setLoading(true);
+                      setEndDate(val);
+                    }
+                  }}
+                  onBlur={(e) => {
+                    const val = e.target.value;
                     if (val && val !== endDate) {
                       setLoading(true);
                       setEndDate(val);
