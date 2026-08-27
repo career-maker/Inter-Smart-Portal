@@ -464,10 +464,86 @@ class HubstaffService
             }
         }
 
-        return [
-            'success' => true,
-            'synced_count' => $syncedCount,
-            'message' => "Successfully synced {$syncedCount} Hubstaff user mappings.",
-        ];
+    /**
+     * Fetch daily activities (tracked seconds & activity percentage) from Hubstaff API v2.
+     * Caches responses briefly for lightning performance and handles pagination safely.
+     */
+    public function getDailyActivities(string $startDate, string $endDate, bool $forceRefresh = false): array
+    {
+        $cacheKey = "hubstaff_daily_activities_{$startDate}_{$endDate}";
+        if ($forceRefresh) {
+            \Illuminate\Support\Facades\Cache::forget($cacheKey);
+        }
+
+        return \Illuminate\Support\Facades\Cache::remember($cacheKey, 180, function () use ($startDate, $endDate) {
+            $token = $this->getValidAccessToken();
+            $baseUrl = rtrim(config('services.hubstaff.base_url', 'https://api.hubstaff.com/v2'), '/');
+            $orgId = config('services.hubstaff.org_id', 546910);
+
+            if (empty($token) || empty($orgId)) {
+                return [
+                    'configured' => !empty($token),
+                    'activities' => [],
+                    'message' => 'Hubstaff integration is not configured or access token is missing.',
+                ];
+            }
+
+            try {
+                $endpoint = "{$baseUrl}/organizations/{$orgId}/activities/daily";
+                $allActivities = [];
+                $nextStartId = null;
+                $maxPages = 8;
+                $currentPage = 0;
+
+                do {
+                    $currentPage++;
+                    $queryParams = [
+                        'date' => [
+                            'start' => $startDate,
+                            'stop' => $endDate,
+                        ],
+                        'page_limit' => 500,
+                    ];
+
+                    if (!empty($nextStartId)) {
+                        $queryParams['page_start_id'] = $nextStartId;
+                    }
+
+                    $response = Http::withToken($token)
+                        ->timeout(12)
+                        ->acceptJson()
+                        ->get($endpoint, $queryParams);
+
+                    if (!$response->successful()) {
+                        Log::warning('Hubstaff daily activities API request failed', [
+                            'status' => $response->status(),
+                            'body' => $response->body(),
+                        ]);
+                        break;
+                    }
+
+                    $data = $response->json();
+                    $activities = $data['daily_activities'] ?? [];
+                    $allActivities = array_merge($allActivities, $activities);
+
+                    $pagination = $data['pagination'] ?? [];
+                    $nextStartId = $pagination['next_page_start_id'] ?? null;
+                } while (!empty($nextStartId) && $currentPage < $maxPages);
+
+                return [
+                    'configured' => true,
+                    'activities' => $allActivities,
+                    'total_records' => count($allActivities),
+                ];
+            } catch (\Throwable $e) {
+                Log::warning('Hubstaff daily activities fetch exception: ' . $e->getMessage());
+                return [
+                    'configured' => true,
+                    'activities' => [],
+                    'error' => 'Unable to connect to Hubstaff API.',
+                ];
+            }
+        });
     }
 }
+

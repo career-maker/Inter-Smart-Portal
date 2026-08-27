@@ -134,4 +134,318 @@ class HubstaffProjectController extends Controller
 
         return response()->json($result);
     }
+
+    /**
+     * Get Hubstaff Analytics (Team & Date based work time & activity metrics).
+     */
+    public function analytics(Request $request)
+    {
+        $user = $request->user();
+        $isSuperAdmin = $user->hasRole('Super Admin') || in_array(strtolower($user->role ?? ''), ['super admin'], true);
+        $isAdmin = $user->hasRole('Admin') || in_array(strtolower($user->role ?? ''), ['admin'], true);
+        $isTeamLead = $user->hasRole('Team Lead')
+            || in_array(strtolower($user->role ?? ''), ['team lead'], true)
+            || \App\Models\Team::where('team_lead_id', $user->id)->exists();
+
+        if (!$isSuperAdmin && !$isAdmin && !$isTeamLead) {
+            return response()->json(['message' => 'Unauthorized to view Hubstaff analytics.'], 403);
+        }
+
+        // Date selection
+        $dateMode = $request->input('date_mode', 'single');
+        $singleDate = $request->input('date', now()->toDateString());
+        $startDate = $dateMode === 'range' ? $request->input('start_date', now()->subDays(6)->toDateString()) : $singleDate;
+        $endDate = $dateMode === 'range' ? $request->input('end_date', now()->toDateString()) : $singleDate;
+        $forceRefresh = $request->boolean('refresh', false);
+
+        // Resolve Team Scope & Security
+        $allowedTeams = [];
+        $selectedTeamId = null;
+
+        if ($isSuperAdmin || $isAdmin) {
+            $allowedTeams = \App\Models\Team::select('id', 'name', 'code')->get();
+            if ($request->filled('team_id') && $request->input('team_id') !== 'all') {
+                $selectedTeamId = (int) $request->input('team_id');
+            }
+        } else {
+            // Team Lead
+            $ledTeamIds = \App\Models\Team::where('team_lead_id', $user->id)->pluck('id')->toArray();
+            if ($user->team_id && !in_array($user->team_id, $ledTeamIds)) {
+                $ledTeamIds[] = $user->team_id;
+            }
+            $allowedTeams = \App\Models\Team::whereIn('id', array_unique($ledTeamIds))->select('id', 'name', 'code')->get();
+
+            if ($request->filled('team_id')) {
+                $reqTeamId = (int) $request->input('team_id');
+                if (!in_array($reqTeamId, $ledTeamIds, true)) {
+                    return response()->json(['message' => 'Unauthorized: Cannot access data for unauthorized team.'], 403);
+                }
+                $selectedTeamId = $reqTeamId;
+            } else {
+                $selectedTeamId = $ledTeamIds[0] ?? $user->team_id;
+            }
+        }
+
+        // Fetch User Links
+        $linksQuery = \App\Models\ProjectUserHubstaffLink::with([
+            'user:id,first_name,last_name,email,employee_code,designation,team_id,profile_photo_path',
+            'user.team:id,name'
+        ]);
+
+        if ($selectedTeamId) {
+            $linksQuery->whereHas('user', fn($q) => $q->where('team_id', $selectedTeamId));
+        }
+
+        $userLinks = $linksQuery->get();
+        $hubstaffUserMap = [];
+        foreach ($userLinks as $link) {
+            if ($link->user) {
+                $hubstaffUserMap[(string) $link->hubstaff_user_id] = $link->user;
+            }
+        }
+
+        // Fetch PM Projects map
+        $pmProjects = \App\Models\Project::whereNotNull('hubstaff_project_id')->get()->keyBy('hubstaff_project_id');
+
+        // Fetch Raw Hubstaff Activities
+        $hubstaffRes = $this->hubstaffService->getDailyActivities($startDate, $endDate, $forceRefresh);
+        $rawActivities = $hubstaffRes['activities'] ?? [];
+
+        // Also fetch Hubstaff project names list
+        $hsProjectsRes = $this->hubstaffService->getProjects();
+        $hsProjectsNameMap = [];
+        foreach (($hsProjectsRes['projects'] ?? []) as $hp) {
+            $hsProjectsNameMap[(string) $hp['id']] = $hp['name'];
+        }
+
+        // Aggregate User Data
+        $userMetrics = [];
+        $projectMetrics = [];
+        $dailyTrends = [];
+        $totalTrackedSeconds = 0;
+        $totalActivitySum = 0;
+        $activityCount = 0;
+
+        foreach ($rawActivities as $act) {
+            $hsUid = (string) ($act['user_id'] ?? '');
+            $hsPid = (string) ($act['project_id'] ?? '');
+            $date = (string) ($act['date'] ?? '');
+            $tracked = (int) ($act['tracked'] ?? 0);
+            $activity = (int) ($act['overall'] ?? 0);
+
+            // Filter by team scope: if team is selected and user is not in that team, skip
+            if ($selectedTeamId && !isset($hubstaffUserMap[$hsUid])) {
+                continue;
+            }
+
+            $userModel = $hubstaffUserMap[$hsUid] ?? null;
+            $userKey = $userModel ? "user_{$userModel->id}" : "hs_{$hsUid}";
+            $userName = $userModel ? trim("{$userModel->first_name} {$userModel->last_name}") : "Hubstaff User #{$hsUid}";
+            $teamName = $userModel?->team?->name ?? "General";
+
+            $pmProj = $pmProjects->get($hsPid);
+            $projectName = $pmProj?->name ?? $hsProjectsNameMap[$hsPid] ?? "Hubstaff Project #{$hsPid}";
+
+            $totalTrackedSeconds += $tracked;
+            if ($tracked > 0) {
+                $totalActivitySum += ($activity * $tracked);
+                $activityCount += $tracked;
+            }
+
+            // User aggregation
+            if (!isset($userMetrics[$userKey])) {
+                $userMetrics[$userKey] = [
+                    'user_id' => $userModel?->id,
+                    'hubstaff_user_id' => $hsUid,
+                    'name' => $userName,
+                    'email' => $userModel?->email,
+                    'employee_code' => $userModel?->employee_code,
+                    'designation' => $userModel?->designation ?? 'Team Member',
+                    'team_name' => $teamName,
+                    'avatar' => $userModel?->profilePhotoUrl(),
+                    'tracked_seconds' => 0,
+                    'activity_weighted_sum' => 0,
+                    'projects' => [],
+                ];
+            }
+            $userMetrics[$userKey]['tracked_seconds'] += $tracked;
+            $userMetrics[$userKey]['activity_weighted_sum'] += ($activity * $tracked);
+
+            if (!isset($userMetrics[$userKey]['projects'][$hsPid])) {
+                $userMetrics[$userKey]['projects'][$hsPid] = [
+                    'project_id' => $pmProj?->id,
+                    'hubstaff_project_id' => $hsPid,
+                    'project_name' => $projectName,
+                    'tracked_seconds' => 0,
+                    'activity_weighted_sum' => 0,
+                ];
+            }
+            $userMetrics[$userKey]['projects'][$hsPid]['tracked_seconds'] += $tracked;
+            $userMetrics[$userKey]['projects'][$hsPid]['activity_weighted_sum'] += ($activity * $tracked);
+
+            // Project aggregation
+            if (!isset($projectMetrics[$hsPid])) {
+                $projectMetrics[$hsPid] = [
+                    'project_id' => $pmProj?->id,
+                    'hubstaff_project_id' => $hsPid,
+                    'name' => $projectName,
+                    'status' => $pmProj?->status ?? 'Active',
+                    'tracked_seconds' => 0,
+                    'activity_weighted_sum' => 0,
+                    'members' => [],
+                ];
+            }
+            $projectMetrics[$hsPid]['tracked_seconds'] += $tracked;
+            $projectMetrics[$hsPid]['activity_weighted_sum'] += ($activity * $tracked);
+
+            if (!isset($projectMetrics[$hsPid]['members'][$userKey])) {
+                $projectMetrics[$hsPid]['members'][$userKey] = [
+                    'user_id' => $userModel?->id,
+                    'name' => $userName,
+                    'designation' => $userModel?->designation ?? 'Member',
+                    'tracked_seconds' => 0,
+                    'activity_weighted_sum' => 0,
+                ];
+            }
+            $projectMetrics[$hsPid]['members'][$userKey]['tracked_seconds'] += $tracked;
+            $projectMetrics[$hsPid]['members'][$userKey]['activity_weighted_sum'] += ($activity * $tracked);
+
+            // Daily trend aggregation
+            if (!isset($dailyTrends[$date])) {
+                $dailyTrends[$date] = [
+                    'date' => $date,
+                    'tracked_seconds' => 0,
+                    'activity_weighted_sum' => 0,
+                ];
+            }
+            $dailyTrends[$date]['tracked_seconds'] += $tracked;
+            $dailyTrends[$date]['activity_weighted_sum'] += ($activity * $tracked);
+        }
+
+        // Helper: format seconds to "Xh Ym"
+        $fmtTime = function (int $sec) {
+            $h = floor($sec / 3600);
+            $m = floor(($sec % 3600) / 60);
+            if ($h == 0 && $m == 0 && $sec > 0) return "1m";
+            return "{$h}h " . str_pad($m, 2, '0', STR_PAD_LEFT) . "m";
+        };
+
+        // Format Users List
+        $formattedUsers = [];
+        foreach ($userMetrics as $u) {
+            $trackedSec = $u['tracked_seconds'];
+            $avgAct = $trackedSec > 0 ? (int) round($u['activity_weighted_sum'] / $trackedSec) : 0;
+            $actLevel = $avgAct >= 70 ? 'high' : ($avgAct >= 50 ? 'moderate' : 'low');
+
+            $projs = [];
+            foreach ($u['projects'] as $p) {
+                $pSec = $p['tracked_seconds'];
+                $pAct = $pSec > 0 ? (int) round($p['activity_weighted_sum'] / $pSec) : 0;
+                $projs[] = [
+                    'project_id' => $p['project_id'],
+                    'hubstaff_project_id' => $p['hubstaff_project_id'],
+                    'project_name' => $p['project_name'],
+                    'tracked_seconds' => $pSec,
+                    'tracked_formatted' => $fmtTime($pSec),
+                    'activity_percentage' => $pAct,
+                ];
+            }
+            usort($projs, fn($a, $b) => $b['tracked_seconds'] <=> $a['tracked_seconds']);
+
+            $formattedUsers[] = [
+                'user_id' => $u['user_id'],
+                'hubstaff_user_id' => $u['hubstaff_user_id'],
+                'name' => $u['name'],
+                'email' => $u['email'],
+                'employee_code' => $u['employee_code'],
+                'designation' => $u['designation'],
+                'team_name' => $u['team_name'],
+                'avatar' => $u['avatar'],
+                'tracked_seconds' => $trackedSec,
+                'tracked_formatted' => $fmtTime($trackedSec),
+                'activity_percentage' => $avgAct,
+                'activity_level' => $actLevel,
+                'projects_count' => count($projs),
+                'projects' => $projs,
+            ];
+        }
+        usort($formattedUsers, fn($a, $b) => $b['tracked_seconds'] <=> $a['tracked_seconds']);
+
+        // Format Projects List
+        $formattedProjects = [];
+        foreach ($projectMetrics as $p) {
+            $trackedSec = $p['tracked_seconds'];
+            $avgAct = $trackedSec > 0 ? (int) round($p['activity_weighted_sum'] / $trackedSec) : 0;
+
+            $membersList = [];
+            foreach ($p['members'] as $m) {
+                $mSec = $m['tracked_seconds'];
+                $mAct = $mSec > 0 ? (int) round($m['activity_weighted_sum'] / $mSec) : 0;
+                $membersList[] = [
+                    'user_id' => $m['user_id'],
+                    'name' => $m['name'],
+                    'designation' => $m['designation'],
+                    'tracked_seconds' => $mSec,
+                    'tracked_formatted' => $fmtTime($mSec),
+                    'activity_percentage' => $mAct,
+                ];
+            }
+            usort($membersList, fn($a, $b) => $b['tracked_seconds'] <=> $a['tracked_seconds']);
+
+            $formattedProjects[] = [
+                'project_id' => $p['project_id'],
+                'hubstaff_project_id' => $p['hubstaff_project_id'],
+                'name' => $p['name'],
+                'status' => $p['status'],
+                'tracked_seconds' => $trackedSec,
+                'tracked_formatted' => $fmtTime($trackedSec),
+                'activity_percentage' => $avgAct,
+                'members_count' => count($membersList),
+                'members' => $membersList,
+            ];
+        }
+        usort($formattedProjects, fn($a, $b) => $b['tracked_seconds'] <=> $a['tracked_seconds']);
+
+        // Format Daily Trends
+        ksort($dailyTrends);
+        $formattedTrends = [];
+        foreach ($dailyTrends as $d) {
+            $dSec = $d['tracked_seconds'];
+            $dAct = $dSec > 0 ? (int) round($d['activity_weighted_sum'] / $dSec) : 0;
+            $formattedTrends[] = [
+                'date' => $d['date'],
+                'date_formatted' => \Carbon\Carbon::parse($d['date'])->format('d M'),
+                'tracked_seconds' => $dSec,
+                'tracked_hours' => round($dSec / 3600, 1),
+                'tracked_formatted' => $fmtTime($dSec),
+                'activity_percentage' => $dAct,
+            ];
+        }
+
+        // Summary Calculations
+        $avgOverallActivity = $activityCount > 0 ? (int) round($totalActivitySum / $activityCount) : 0;
+        $activeUsersCount = count($formattedUsers);
+        $activeProjectsCount = count($formattedProjects);
+        $avgTimePerUserSec = $activeUsersCount > 0 ? (int) round($totalTrackedSeconds / $activeUsersCount) : 0;
+
+        return response()->json([
+            'date_mode' => $dateMode,
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+            'selected_team_id' => $selectedTeamId,
+            'available_teams' => $allowedTeams,
+            'summary' => [
+                'total_tracked_seconds' => $totalTrackedSeconds,
+                'total_tracked_formatted' => $fmtTime($totalTrackedSeconds),
+                'avg_activity_percentage' => $avgOverallActivity,
+                'active_users_count' => $activeUsersCount,
+                'active_projects_count' => $activeProjectsCount,
+                'avg_time_per_user_formatted' => $fmtTime($avgTimePerUserSec),
+            ],
+            'users' => $formattedUsers,
+            'projects' => $formattedProjects,
+            'trends' => $formattedTrends,
+            'last_refreshed_at' => now()->toIso8601String(),
+        ]);
+    }
 }

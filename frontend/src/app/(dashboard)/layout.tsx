@@ -78,6 +78,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/project-management/tasks/overdue", label: "Overdue Tasks" },
       { href: "/project-management/tasks/completed", label: "Completed Tasks" },
       { href: "/project-management/tasks/forecast", label: "Forecast Tasks" },
+      { href: "/project-management/hubstaff",       label: "Hubstaff", roles: ["Super Admin", "Team Lead"] },
       { href: "/project-management/task-catalog", label: "Task Catalog", roles: ["Super Admin", "HR"] },
     ],
   },

@@ -503,6 +503,7 @@ Route::middleware('auth:sanctum')->prefix('pm-task-catalog')->group(function () 
 });
 
 Route::middleware('auth:sanctum')->prefix('hubstaff')->group(function () {
+    Route::get('analytics', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'analytics']);
     Route::get('projects', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'index']);
     Route::get('users', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'getUsers']);
     Route::post('link-user', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'linkUser']);
@@ -511,6 +512,7 @@ Route::middleware('auth:sanctum')->prefix('hubstaff')->group(function () {
 
 // Backward compatibility alias for pm/hubstaff routes
 Route::middleware('auth:sanctum')->prefix('pm/hubstaff')->group(function () {
+    Route::get('analytics', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'analytics']);
     Route::get('projects', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'index']);
     Route::get('users', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'getUsers']);
     Route::post('link-user', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'linkUser']);
