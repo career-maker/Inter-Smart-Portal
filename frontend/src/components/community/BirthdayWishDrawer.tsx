@@ -204,7 +204,7 @@ export function BirthdayWishDrawer({
                   <button
                     onClick={handleSendWish}
                     disabled={!message.trim() || submitting}
-                    className="px-4 py-1.5 bg-[#56348f] hover:bg-[#452773] text-white text-xs font-semibold rounded-md shadow-xs transition-colors flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
+                    className="px-4 py-1.5 bg-[#56348f] hover:bg-[#452773] text-white text-xs font-semibold rounded-md shadow-xs transition-colors flex items-center gap-1.5 disabled:opacity-60 disabled:text-white cursor-pointer"
                   >
                     {submitting ? (
                       <>
