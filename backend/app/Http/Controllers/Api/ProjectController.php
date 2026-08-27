@@ -56,7 +56,16 @@ class ProjectController extends Controller
         $all = $request->boolean('all') || $perPage === 'all' || (int) $perPage === -1 || (int) $perPage === 0 || (int) $perPage > 500;
 
         if ($all) {
-            $items = $query->orderBy('name', 'asc')->get();
+            $items = $query->select([
+                'id',
+                'name',
+                'category',
+                'team_id',
+                'project_coordinator_id',
+                'hubstaff_project_id',
+                'status',
+            ])->with('team:id,name')->orderBy('name', 'asc')->get();
+
             return response()->json([
                 'data' => $items,
                 'total' => $items->count(),

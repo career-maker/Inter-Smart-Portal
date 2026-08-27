@@ -24,6 +24,12 @@ interface CreateTaskModalProps {
   defaultProjectId?: number;
 }
 
+// In-memory cache for ultra-fast instantaneous modal opening
+let cachedProjects: Project[] | null = null;
+let cachedCatalogs: ProjectTaskCatalog[] | null = null;
+let cachedTeamMembers: { id: number; first_name: string; last_name: string; employee_code?: string; designation?: string; department?: string }[] | null = null;
+let cachedTeamNameLabel: string = "My Team";
+
 export function CreateTaskModal({
   isOpen,
   onClose,
@@ -51,31 +57,37 @@ export function CreateTaskModal({
     coordinator_id: null,
   });
 
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [catalogs, setCatalogs] = useState<ProjectTaskCatalog[]>([]);
+  const [projects, setProjects] = useState<Project[]>(() => cachedProjects || []);
+  const [catalogs, setCatalogs] = useState<ProjectTaskCatalog[]>(() => cachedCatalogs || []);
   const [teamMembers, setTeamMembers] = useState<
     { id: number; first_name: string; last_name: string; employee_code?: string; designation?: string; department?: string }[]
-  >([]);
-  const [teamNameLabel, setTeamNameLabel] = useState<string>("My Team");
+  >(() => cachedTeamMembers || []);
+  const [teamNameLabel, setTeamNameLabel] = useState<string>(() => cachedTeamNameLabel);
   const [loadingTeamMembers, setLoadingTeamMembers] = useState(false);
 
   const [loadingData, setLoadingData] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Load auxiliary data when opened
+  // Load auxiliary data when opened (instant from cache + background refresh)
   useEffect(() => {
     if (!isOpen) return;
 
+    if (cachedProjects) setProjects(cachedProjects);
+    if (cachedCatalogs) setCatalogs(cachedCatalogs);
+    if (cachedTeamMembers) setTeamMembers(cachedTeamMembers);
+
     const loadFormData = async () => {
-      setLoadingData(true);
-      setLoadingTeamMembers(true);
+      if (!cachedProjects) setLoadingData(true);
+      if (!cachedTeamMembers) setLoadingTeamMembers(true);
       setError(null);
 
       // 1. Fetch team members immediately via dedicated fast endpoint
       pmApi.getTeamMembers()
         .then((res: any) => {
           if (res && res.members) {
+            cachedTeamMembers = res.members;
+            cachedTeamNameLabel = res.team_name || "My Team";
             setTeamMembers(res.members);
             setTeamNameLabel(res.team_name || "My Team");
           }
@@ -83,7 +95,7 @@ export function CreateTaskModal({
         .catch((e: any) => console.warn("Failed to fetch team members", e))
         .finally(() => setLoadingTeamMembers(false));
 
-      // 2. Fetch projects and catalogs in parallel
+      // 2. Fetch lightweight projects list and catalogs in parallel
       try {
         const [projRes, catRes] = await Promise.allSettled([
           pmApi.getProjects({ per_page: 'all', all: true } as any),
@@ -93,13 +105,15 @@ export function CreateTaskModal({
         if (projRes.status === "fulfilled") {
           const raw = projRes.value;
           const pList = Array.isArray(raw) ? raw : (raw as any)?.data || [];
-          setProjects(Array.isArray(pList) ? pList : []);
+          cachedProjects = Array.isArray(pList) ? pList : [];
+          setProjects(cachedProjects);
         }
 
         if (catRes.status === "fulfilled") {
           const raw = catRes.value;
           const catList = Array.isArray(raw) ? raw : (raw as any)?.data || [];
-          setCatalogs(Array.isArray(catList) ? catList : []);
+          cachedCatalogs = Array.isArray(catList) ? catList : [];
+          setCatalogs(cachedCatalogs);
         }
       } catch (err) {
         console.warn("Failed to load task creation form data", err);

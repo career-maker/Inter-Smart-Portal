@@ -57,12 +57,10 @@ export function SearchableProjectSelect({
 
   const filteredProjects = useMemo(() => {
     if (!searchTerm.trim()) return projects;
-    const term = searchTerm.toLowerCase();
+    const searchTerms = searchTerm.toLowerCase().trim().split(/\s+/).filter(Boolean);
     return projects.filter((p) => {
-      const nameMatch = p.name.toLowerCase().includes(term);
-      const teamMatch = p.team?.name.toLowerCase().includes(term) ?? false;
-      const catMatch = p.category?.toLowerCase().includes(term) ?? false;
-      return nameMatch || teamMatch || catMatch;
+      const combined = `${p.name} ${p.team?.name || ""} ${p.category || ""}`.toLowerCase();
+      return searchTerms.every((term) => combined.includes(term));
     });
   }, [projects, searchTerm]);
 
