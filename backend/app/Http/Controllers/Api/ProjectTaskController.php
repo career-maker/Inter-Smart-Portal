@@ -20,8 +20,30 @@ class ProjectTaskController extends Controller
         private readonly ProjectTaskService $tasks,
     ) {}
 
+    private function autoSplitMultiAssigneeTasks(): void
+    {
+        try {
+            $multiAssigneeTasks = ProjectTask::has('taskAssignees', '>', 1)->with('taskAssignees')->get();
+            foreach ($multiAssigneeTasks as $legacyTask) {
+                $assignees = $legacyTask->taskAssignees->sortBy('id')->values();
+                for ($i = 1; $i < count($assignees); $i++) {
+                    $assigneeRow = $assignees[$i];
+                    $newTask = $legacyTask->replicate();
+                    $newTask->save();
+                    $assigneeRow->task_id = $newTask->id;
+                    $assigneeRow->is_primary = true;
+                    $assigneeRow->save();
+                }
+            }
+        } catch (\Throwable $e) {
+            // Non-blocking fallback
+        }
+    }
+
     public function index(Request $request)
     {
+        $this->autoSplitMultiAssigneeTasks();
+
         $user = $request->user();
         $query = ProjectTask::query()->with([
             'project:id,name,project_type,category,project_coordinator_id',
@@ -111,6 +133,8 @@ class ProjectTaskController extends Controller
 
     public function my(Request $request)
     {
+        $this->autoSplitMultiAssigneeTasks();
+
         $user = $request->user();
 
         $query = ProjectTask::query()
