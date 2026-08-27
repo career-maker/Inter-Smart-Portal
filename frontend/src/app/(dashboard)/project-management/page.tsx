@@ -258,37 +258,39 @@ export default function ProjectManagementDashboard() {
             onClick={() => fetchDashboardData(true)}
             disabled={refreshing || loading}
             aria-label="Refresh Dashboard"
-            className="p-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shadow-2xs transition-colors disabled:opacity-50 cursor-pointer"
+            className="p-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/80 !text-slate-800 dark:!text-slate-200 border border-slate-300 dark:border-slate-700 shadow-2xs transition-colors disabled:opacity-50 cursor-pointer"
             title="Refresh Data"
           >
-            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-[#56348f]" : ""}`} />
+            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-[#56348f]" : "text-slate-700 dark:text-slate-300"}`} />
           </button>
 
           <Link
             href="/project-management/tasks/my"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 dark:hover:bg-purple-900/60 text-[#56348f] dark:text-purple-300 text-xs sm:text-sm font-semibold border border-purple-200 dark:border-purple-800/60 shadow-2xs transition-colors"
+            style={{ backgroundColor: "#f3e8ff", color: "#56348f" }}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-100 dark:bg-purple-950/60 hover:bg-purple-200/80 dark:hover:bg-purple-900/80 !text-[#56348f] dark:!text-purple-300 text-xs sm:text-sm font-bold border border-purple-300 dark:border-purple-800/80 shadow-2xs transition-colors"
           >
-            <ListTodo className="w-4 h-4 text-[#56348f]" />
-            <span>My Tasks</span>
+            <ListTodo className="w-4 h-4 !text-[#56348f] dark:!text-purple-300" />
+            <span className="!text-[#56348f] dark:!text-purple-300 font-bold">My Tasks</span>
           </Link>
 
           <button
             type="button"
             onClick={handleImportHubstaff}
             disabled={importingHubstaff || loading}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs sm:text-sm font-semibold border border-slate-200 dark:border-slate-700 shadow-2xs transition-all disabled:opacity-50 cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 !text-slate-900 dark:!text-slate-100 text-xs sm:text-sm font-bold border border-slate-300 dark:border-slate-700 shadow-2xs transition-all disabled:opacity-50 cursor-pointer"
             title="Import all active projects from Hubstaff without duplicating"
           >
-            <CloudDownload className={`w-4 h-4 text-sky-500 ${importingHubstaff ? "animate-spin" : ""}`} />
-            <span>{importingHubstaff ? "Importing…" : "Import from Hubstaff"}</span>
+            <CloudDownload className={`w-4 h-4 text-sky-600 dark:text-sky-400 ${importingHubstaff ? "animate-spin" : ""}`} />
+            <span className="!text-slate-900 dark:!text-slate-100 font-bold">{importingHubstaff ? "Importing…" : "Import from Hubstaff"}</span>
           </button>
 
           <Link
             href="/project-management/projects"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] text-white text-xs sm:text-sm font-semibold shadow-sm transition-colors"
+            style={{ backgroundColor: "#56348f", color: "#ffffff" }}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs sm:text-sm font-bold shadow-sm transition-colors"
           >
-            <FolderKanban className="w-4 h-4" />
-            <span>View Projects</span>
+            <FolderKanban className="w-4 h-4 !text-white" />
+            <span className="!text-white font-bold">View Projects</span>
           </Link>
         </div>
       </div>
