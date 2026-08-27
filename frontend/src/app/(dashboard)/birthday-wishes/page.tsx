@@ -66,7 +66,7 @@ export default function BirthdayWishesPage() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="relative min-h-screen overflow-hidden font-sans">
       {/* Lottie Animation Background */}
       <div className="absolute inset-0 z-0 opacity-40">
         <iframe
@@ -84,10 +84,10 @@ export default function BirthdayWishesPage() {
       <div className="relative z-10 space-y-6">
         {/* Header */}
         <div className="px-6 py-8 text-center">
-          <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-2 drop-shadow-lg">
+          <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-2">
             🎂 Birthday Wishes
           </h1>
-          <p className="text-slate-200 text-lg drop-shadow-md">
+          <p className="text-slate-600 dark:text-slate-300 text-lg">
             All the lovely wishes from your teammates
           </p>
         </div>
