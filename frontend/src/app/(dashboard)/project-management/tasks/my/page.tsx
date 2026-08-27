@@ -54,8 +54,17 @@ function isTaskOverdue(dueDateStr?: string | null, status?: TaskStatus): boolean
 
 export default function MyTasksPage() {
   const { user } = useAuthStore();
-  const isSuperAdmin = user?.role === "Super Admin";
-  const isTeamLead = user?.role === "Team Lead";
+  const userRoleStr = (user?.role || "").toLowerCase();
+  const isSuperAdmin = userRoleStr === "super admin";
+  const isTeamLead = userRoleStr === "team lead";
+  const canEditTasks =
+    isSuperAdmin ||
+    isTeamLead ||
+    userRoleStr === "admin" ||
+    userRoleStr === "manager" ||
+    (user as any)?.roles?.some((r: any) =>
+      ["super admin", "admin", "team lead", "manager"].includes((r.name || "").toLowerCase())
+    );
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -217,19 +226,34 @@ export default function MyTasksPage() {
                     >
                       {/* Task Title */}
                       <td className="py-3.5 px-5 border-r border-slate-200/80 dark:border-slate-800/80">
-                        <Link
-                          href={`/project-management/tasks/${task.id}`}
-                          style={{
-                            fontFamily: '"Proxima Nova", sans-serif',
-                            fontSize: "13px",
-                            lineHeight: "18px",
-                            fontWeight: 400,
-                            color: "rgb(15, 24, 36)",
-                          }}
-                          className="hover:text-purple-600 dark:!text-slate-100 dark:hover:!text-purple-400 transition-colors block line-clamp-1"
-                        >
-                          {task.title}
-                        </Link>
+                        {canEditTasks ? (
+                          <Link
+                            href={`/project-management/tasks/${task.id}`}
+                            style={{
+                              fontFamily: '"Proxima Nova", sans-serif',
+                              fontSize: "13px",
+                              lineHeight: "18px",
+                              fontWeight: 400,
+                              color: "rgb(15, 24, 36)",
+                            }}
+                            className="hover:text-purple-600 dark:!text-slate-100 dark:hover:!text-purple-400 transition-colors block line-clamp-1"
+                          >
+                            {task.title}
+                          </Link>
+                        ) : (
+                          <span
+                            style={{
+                              fontFamily: '"Proxima Nova", sans-serif',
+                              fontSize: "13px",
+                              lineHeight: "18px",
+                              fontWeight: 400,
+                              color: "rgb(15, 24, 36)",
+                            }}
+                            className="dark:!text-slate-100 block line-clamp-1 cursor-default select-none"
+                          >
+                            {task.title}
+                          </span>
+                        )}
                         <div className="flex items-center gap-2 mt-1">
                           {task.catalogTask && (
                             <span className="inline-flex items-center gap-1 text-[10px] font-normal text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/60 px-2 py-0.5 rounded">
@@ -248,20 +272,36 @@ export default function MyTasksPage() {
                       {/* Project */}
                       <td className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80">
                         {task.project ? (
-                          <Link
-                            href={`/project-management/projects/${task.project.id}`}
-                            style={{
-                              fontFamily: '"Proxima Nova", sans-serif',
-                              fontSize: "13px",
-                              lineHeight: "18px",
-                              fontWeight: 400,
-                              color: "rgb(15, 24, 36)",
-                            }}
-                            className="hover:text-purple-600 dark:!text-slate-200 dark:hover:!text-purple-400 transition-colors flex items-center gap-1.5"
-                          >
-                            <FolderKanban className="w-3.5 h-3.5 text-purple-500 shrink-0" />
-                            <span className="line-clamp-1">{task.project.name}</span>
-                          </Link>
+                          canEditTasks ? (
+                            <Link
+                              href={`/project-management/projects/${task.project.id}`}
+                              style={{
+                                fontFamily: '"Proxima Nova", sans-serif',
+                                fontSize: "13px",
+                                lineHeight: "18px",
+                                fontWeight: 400,
+                                color: "rgb(15, 24, 36)",
+                              }}
+                              className="hover:text-purple-600 dark:!text-slate-200 dark:hover:!text-purple-400 transition-colors flex items-center gap-1.5"
+                            >
+                              <FolderKanban className="w-3.5 h-3.5 text-purple-500 shrink-0" />
+                              <span className="line-clamp-1">{task.project.name}</span>
+                            </Link>
+                          ) : (
+                            <div
+                              style={{
+                                fontFamily: '"Proxima Nova", sans-serif',
+                                fontSize: "13px",
+                                lineHeight: "18px",
+                                fontWeight: 400,
+                                color: "rgb(15, 24, 36)",
+                              }}
+                              className="dark:!text-slate-200 flex items-center gap-1.5 cursor-default select-none"
+                            >
+                              <FolderKanban className="w-3.5 h-3.5 text-purple-500 shrink-0" />
+                              <span className="line-clamp-1">{task.project.name}</span>
+                            </div>
+                          )
                         ) : (
                           <span className="text-slate-400 italic text-[13px] leading-[18px]">Unassigned</span>
                         )}
