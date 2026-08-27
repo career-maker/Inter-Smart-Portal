@@ -37,10 +37,10 @@ export function BiometricPunchTimeline({
 
   const getPunchColor = (type: string) => {
     const typeUpper = type.toUpperCase();
-    if (typeUpper === "IN") return "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400";
-    if (typeUpper === "OUT") return "bg-amber-500/20 text-amber-600 dark:text-amber-400";
-    if (typeUpper === "BREAK_START" || typeUpper === "BREAK_END") return "bg-blue-500/20 text-blue-600 dark:text-blue-400";
-    return "bg-slate-500/20 text-slate-600 dark:text-slate-400";
+    if (typeUpper === "IN") return "bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-200 dark:border-emerald-800";
+    if (typeUpper === "OUT") return "bg-rose-50 text-rose-800 border border-rose-200 dark:bg-rose-950/60 dark:text-rose-200 dark:border-rose-800";
+    if (typeUpper === "BREAK_START" || typeUpper === "BREAK_END") return "bg-amber-50 text-amber-800 border border-amber-200 dark:bg-amber-950/60 dark:text-amber-200 dark:border-amber-800";
+    return "bg-slate-100 text-slate-800 border border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700";
   };
 
   const getStatusEmoji = (type: string) => {
@@ -84,8 +84,8 @@ export function BiometricPunchTimeline({
               <div className="text-slate-400 dark:text-slate-600">→</div>
             )}
             {idx === punches.length - 1 && isCurrentlyWorking && (
-              <div className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-green-500/20 text-green-600 dark:text-green-400">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <div className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-200 dark:border-emerald-700">
+                <div className="w-2 h-2 bg-emerald-600 dark:bg-emerald-400 rounded-full animate-pulse"></div>
                 <span className="text-xs font-bold">Working</span>
                 <span className="text-sm">💼</span>
               </div>
