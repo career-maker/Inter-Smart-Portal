@@ -207,7 +207,8 @@ class HubstaffProjectController extends Controller
         }
 
         // Auto-match any discovered members by email if not explicitly linked yet
-        $discoveredMembers = $this->hubstaffService->getMembersWithUsers()['members'] ?? [];
+        $discoveredMembers = $this->hubstaffService->getMembersWithUsers()['users'] ?? [];
+        $discoveredMap = collect($discoveredMembers)->keyBy('hubstaff_user_id');
         $unmappedEmails = [];
         $emailToHsIdMap = [];
         foreach ($discoveredMembers as $dm) {
@@ -314,7 +315,8 @@ class HubstaffProjectController extends Controller
 
             $userModel = $hubstaffUserMap[$hsUid] ?? null;
             $userKey = $userModel ? "user_{$userModel->id}" : "hs_{$hsUid}";
-            $userName = $userModel ? trim("{$userModel->first_name} {$userModel->last_name}") : "Hubstaff User #{$hsUid}";
+            $dmInfo = $discoveredMap->get($hsUid);
+            $userName = $userModel ? trim("{$userModel->first_name} {$userModel->last_name}") : ($dmInfo['name'] ?? "Hubstaff User #{$hsUid}");
             $teamName = $userModel?->team?->name ?? "General";
 
             $pmProj = $pmProjects->get($hsPid);
