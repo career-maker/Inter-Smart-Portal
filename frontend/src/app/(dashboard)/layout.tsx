@@ -305,7 +305,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const handleLightGroupMouseEnter = (groupId: string, e: React.MouseEvent<HTMLElement>) => {
     if (flyoutTimeoutRef.current) clearTimeout(flyoutTimeoutRef.current);
     const rect = e.currentTarget.getBoundingClientRect();
-    setFlyoutState({ groupId, top: Math.max(10, rect.top) });
+    const windowH = typeof window !== "undefined" ? window.innerHeight : 800;
+    const groupObj = NAV_GROUPS.find((g) => g.id === groupId);
+    const visibleCount = groupObj ? groupObj.items.filter((i) => isItemVisible(i, userRole)).length : 8;
+    const estHeight = 40 + (visibleCount * 36) + 16;
+    const maxTop = Math.max(10, windowH - estHeight - 20);
+    const safeTop = Math.max(10, Math.min(rect.top, maxTop));
+    setFlyoutState({ groupId, top: safeTop });
   };
 
   const handleLightGroupMouseLeave = () => {
@@ -331,19 +337,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   // Role-based Sub-Header Tabs (Keka exact style)
   const getSubTabs = () => {
-    if (userRole === "Super Admin" || userRole === "HR") {
+    const userRoleStr = (userRole || "").toLowerCase();
+    const isTeamLead = userRole === "Team Lead" || userRoleStr.includes("lead") || Boolean((user as any)?.is_lead);
+    const isSuperAdmin = userRole === "Super Admin" || userRoleStr === "admin";
+
+    if (isSuperAdmin || userRole === "HR") {
       return [
         { label: "Dashboard", href: "/dashboard" },
         { label: "Employee Management", href: "/employees" },
         { label: "Community", href: "/community", badge: "New" },
         { label: "Attendance Management", href: "/attendance/management" },
+        { label: "Hubstaff", href: "/project-management/hubstaff" },
       ];
     }
-    if (userRole === "Team Lead") {
+    if (isTeamLead) {
       return [
         { label: "Dashboard", href: "/dashboard" },
         { label: "Community", href: "/community", badge: "New" },
         { label: "Tasks", href: "/project-management/tasks" },
+        { label: "Hubstaff", href: "/project-management/hubstaff" },
       ];
     }
     // Default for Employees
@@ -520,18 +532,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 top: `${flyoutState.top}px`,
                 backgroundColor: "#0e2638",
                 borderColor: "#1a3a52",
-                fontFamily: '"Proxima Nova", sans-serif'
+                fontFamily: '"Proxima Nova", sans-serif',
+                maxHeight: "calc(100vh - 20px)",
               }}
-              className="fixed left-[84px] w-64 rounded-r-xl rounded-bl-xl shadow-2xl border border-[#1a3a52] overflow-hidden z-[999] py-1.5 animate-in fade-in zoom-in-95 duration-150"
+              className="fixed left-[84px] w-64 rounded-r-xl rounded-bl-xl shadow-2xl border border-[#1a3a52] z-[999] py-1.5 animate-in fade-in zoom-in-95 duration-150 flex flex-col overflow-hidden"
             >
               {/* Submenu Title */}
-              <div className="px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-[#8ea7bc] border-b border-[#1a3a52] flex items-center justify-between bg-[#0a1d2c]/90">
+              <div className="px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-[#8ea7bc] border-b border-[#1a3a52] flex items-center justify-between bg-[#0a1d2c]/90 shrink-0">
                 <span style={{ color: "#ffffff" }} className="font-bold">{activeFlyoutGroupObj.label}</span>
                 <span style={{ color: "#8ea7bc" }} className="text-[10px] font-normal">Menu</span>
               </div>
 
-              {/* Submenu Links */}
-              <div className="py-1 max-h-[70vh] overflow-y-auto custom-scrollbar">
+              {/* Submenu Links - Hidden scrollbar but seamlessly scrollable */}
+              <div
+                style={{
+                  scrollbarWidth: "none",
+                  msOverflowStyle: "none",
+                }}
+                className="py-1 flex-1 overflow-y-auto overscroll-contain [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+              >
                 {activeFlyoutVisibleItems.map((item) => {
                   const hasExactMatch = activeFlyoutVisibleItems.some((i) => pathname === i.href);
                   const active = hasExactMatch
