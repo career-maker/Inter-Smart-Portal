@@ -61,12 +61,13 @@ export function LeaderboardWidget() {
             <div>
               <h3
                 style={{
-                  fontSize: "16px",
-                  lineHeight: "28px",
+                  fontFamily: '"Proxima Nova", sans-serif',
+                  fontSize: "13px",
+                  lineHeight: "20px",
                   fontWeight: 500,
                   color: "rgb(15, 24, 36)"
                 }}
-                className="dark:text-white flex items-center gap-2"
+                className="dark:text-white flex items-center gap-2 box-title"
               >
                 <Trophy className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
                 Hall of Fame

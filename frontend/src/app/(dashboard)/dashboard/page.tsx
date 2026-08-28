@@ -553,7 +553,7 @@ export default function DashboardPage() {
             <div className="bg-white dark:bg-slate-800 rounded-md p-5 border border-slate-200/90 dark:border-slate-700/60 shadow-sm">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2">
                 <div>
-                  <h2 style={{ fontSize: "16px", lineHeight: "28px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2">
+                  <h2 style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
                     <Briefcase className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
                     Team Status Today
                   </h2>
@@ -643,7 +643,7 @@ export default function DashboardPage() {
             <div className="bg-white dark:bg-slate-800 rounded-md p-5 sm:p-6 border border-slate-200/90 dark:border-slate-700/60 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h3 style={{ fontSize: "16px", lineHeight: "28px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2">
+                  <h3 style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
                     <Megaphone className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
                     Latest Updates
                   </h3>
@@ -693,7 +693,7 @@ export default function DashboardPage() {
                 <div className="bg-white dark:bg-slate-800 rounded-md p-5 border border-slate-200/90 dark:border-slate-700/60 shadow-sm min-h-[240px] flex flex-col justify-between">
                   <div>
                     <div className="mb-3">
-                      <h3 style={{ fontSize: "16px", lineHeight: "28px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2">
+                      <h3 style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
                         <PartyPopper className="w-4 h-4 text-pink-500" />
                         Work Anniversaries
                       </h3>
@@ -740,7 +740,7 @@ export default function DashboardPage() {
             <div className="bg-white dark:bg-slate-800 rounded-md p-5 sm:p-6 border border-slate-200/90 dark:border-slate-700/60 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h2 style={{ fontSize: "16px", lineHeight: "28px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2">
+                  <h2 style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
                     <Clock className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
                     Pending Approvals
                   </h2>
@@ -806,7 +806,7 @@ export default function DashboardPage() {
           <div className="bg-white dark:bg-slate-800 rounded-md p-5 border border-slate-200/90 dark:border-slate-700/60 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 style={{ fontSize: "16px", lineHeight: "28px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2">
+                <h3 style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
                   <Layers className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
                   Recent Audit Logs
                 </h3>
@@ -1353,7 +1353,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
         {/* Employee Status Pie Chart */}
         <div className="bg-white dark:bg-slate-800 rounded-md p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+          <h2 style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white mb-6 flex items-center gap-2 box-title">
             <Users className="w-5 h-5 text-blue-400" />
             Employee Status Distribution
           </h2>
@@ -1397,7 +1397,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
 
         {/* Leave Requests Status Bar Chart */}
         <div className="bg-white dark:bg-slate-800 rounded-md p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+          <h2 style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white mb-6 flex items-center gap-2 box-title">
             <Palmtree className="w-5 h-5 text-orange-400" />
             Leave Requests Today
           </h2>
@@ -1467,7 +1467,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           <div className="premium-card wave-card p-6">
             <div className="flex items-center justify-between mb-3">
               <div>
-                <h3 style={{ fontSize: "16px", lineHeight: "28px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2">
+                <h3 style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
                   <Megaphone className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
                   Company Announcements
                 </h3>
@@ -1547,7 +1547,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           <div className="premium-card p-6 h-full flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300">
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h3 style={{ fontSize: "16px", lineHeight: "28px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white dark:text-white flex items-center gap-2">
+                <h3 style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
                   <Users className="w-4 h-4 text-emerald-400" />
                   Manage Employees
                 </h3>
@@ -1571,7 +1571,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           <div className="premium-card p-6 h-full flex flex-col justify-between hover:border-blue-500/40 transition-all duration-300">
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h3 style={{ fontSize: "16px", lineHeight: "28px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white dark:text-white flex items-center gap-2">
+                <h3 style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
                   <Clock className="w-4 h-4 text-blue-400" />
                   Attendance Management
                 </h3>
@@ -1623,7 +1623,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           <div className="premium-card wave-card p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 style={{ fontSize: "16px", lineHeight: "28px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2">
+                <h3 style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
                   <Activity className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
                   Recent Activity
                 </h3>
@@ -1680,7 +1680,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           <div className="premium-card wave-card p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 style={{ fontSize: "16px", lineHeight: "28px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2">
+                <h3 style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
                   <CalendarDays className="w-4 h-4 text-rose-500 dark:text-rose-400" />
                   Upcoming Holidays
                 </h3>
@@ -1707,7 +1707,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
            <div className="premium-card wave-card p-6">
             <div className="flex items-center justify-between mb-5">
               <div>
-                <h3 style={{ fontSize: "16px", lineHeight: "28px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2">
+                <h3 style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
                   <CalendarDays className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
                   Company Leave Overview
                 </h3>
@@ -1905,8 +1905,8 @@ function RotatingCard({
       <div className="flex items-center justify-between mb-3 shrink-0">
         <div>
           <h3
-            style={{ fontSize: "16px", lineHeight: "28px", fontWeight: 500, color: "rgb(15, 24, 36)" }}
-            className="dark:text-white flex items-center gap-2"
+            style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 500, color: "rgb(15, 24, 36)" }}
+            className="dark:text-white flex items-center gap-2 box-title"
           >
             <Icon className={`w-4 h-4 ${iconColorClass || (headerClass ? headerClass.replace('text-', 'text-') : 'text-[#56348f] dark:text-purple-400')}`} />
             {title}
@@ -2189,7 +2189,7 @@ function MenuCard({ href, icon: Icon, title, subtitle, color, className = "" }: 
           <div className={`w-10 h-10 rounded-md ${accent} flex items-center justify-center mb-4 shadow-sm group-hover:scale-90 transition-transform duration-300`}>
             <Icon className="w-5 h-5" />
           </div>
-          <h3 style={{ fontSize: "16px", lineHeight: "28px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white dark:text-white text-sm leading-tight mb-1">{title}</h3>
+          <h3 style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white leading-tight mb-1 box-title">{title}</h3>
           <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{subtitle}</p>
         </div>
       </div>

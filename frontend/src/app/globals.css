@@ -15,6 +15,44 @@
   }
 }
 
+/* ── Universal Box / Card / Widget Title Typography (Proxima Nova 500 13px/20px rgb(15, 24, 36)) ── */
+.box-title,
+.card-title,
+.widget-title,
+.premium-card h2,
+.premium-card h3,
+.wave-card h2,
+.wave-card h3,
+.dashboard-card-title,
+.chart-box-title,
+[class*="premium-card"] h2,
+[class*="premium-card"] h3,
+[class*="wave-card"] h2,
+[class*="wave-card"] h3 {
+  font-family: "Proxima Nova", sans-serif !important;
+  font-style: normal !important;
+  font-weight: 500 !important;
+  color: rgb(15, 24, 36) !important;
+  font-size: 13px !important;
+  line-height: 20px !important;
+}
+
+.dark .box-title,
+.dark .card-title,
+.dark .widget-title,
+.dark .premium-card h2,
+.dark .premium-card h3,
+.dark .wave-card h2,
+.dark .wave-card h3,
+.dark .dashboard-card-title,
+.dark .chart-box-title,
+.dark [class*="premium-card"] h2,
+.dark [class*="premium-card"] h3,
+.dark [class*="wave-card"] h2,
+.dark [class*="wave-card"] h3 {
+  color: rgb(241, 245, 249) !important;
+}
+
 /* Universal Button Text Visibility & Contrast */
 button[class*="bg-[#56348f]"], a[class*="bg-[#56348f]"],
 button[class*="bg-blue-600"], a[class*="bg-blue-600"],

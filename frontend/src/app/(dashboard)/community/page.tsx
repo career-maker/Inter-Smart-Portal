@@ -122,12 +122,13 @@ export default function CommunityPage() {
               <div className="bg-gradient-to-br from-purple-500/10 via-indigo-500/5 to-transparent p-4 rounded-md border border-purple-200/60 dark:border-purple-900/30">
                 <h3
                   style={{
-                    fontSize: "16px",
-                    lineHeight: "24px",
-                    fontWeight: 600,
+                    fontFamily: '"Proxima Nova", sans-serif',
+                    fontSize: "13px",
+                    lineHeight: "20px",
+                    fontWeight: 500,
                     color: "rgb(15, 24, 36)",
                   }}
-                  className="dark:text-white truncate"
+                  className="dark:text-white truncate box-title"
                 >
                   🎉 {holiday.name}
                 </h3>

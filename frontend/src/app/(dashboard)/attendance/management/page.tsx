@@ -408,12 +408,13 @@ export default function AttendanceManagementPage() {
               <div>
                 <h3
                   style={{
-                    fontSize: "16px",
-                    lineHeight: "28px",
-                    fontWeight: 600,
+                    fontFamily: '"Proxima Nova", sans-serif',
+                    fontSize: "13px",
+                    lineHeight: "20px",
+                    fontWeight: 500,
                     color: "rgb(15, 24, 36)",
                   }}
-                  className="dark:text-white flex items-center gap-2"
+                  className="dark:text-white flex items-center gap-2 box-title"
                 >
                   <CalendarDays className="w-5 h-5 text-[#56348f] dark:text-purple-400" />
                   View All Employees on a Date
@@ -467,12 +468,13 @@ export default function AttendanceManagementPage() {
                 <div>
                   <h3
                     style={{
-                      fontSize: "16px",
-                      lineHeight: "28px",
-                      fontWeight: 600,
+                      fontFamily: '"Proxima Nova", sans-serif',
+                      fontSize: "13px",
+                      lineHeight: "20px",
+                      fontWeight: 500,
                       color: "rgb(15, 24, 36)",
                     }}
-                    className="dark:text-white flex items-center gap-2"
+                    className="dark:text-white flex items-center gap-2 box-title"
                   >
                     <Clock className="w-5 h-5 text-emerald-500" />
                     Select Employee for Attendance Details
