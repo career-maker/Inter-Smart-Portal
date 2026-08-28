@@ -100,12 +100,12 @@ export default function AllTasksPage() {
 
       try {
         if (isEmployee) {
-          const params: any = { page };
+          const params: any = { page, per_page: 500 };
           if (statusFilter && statusFilter !== "All") params.status = statusFilter;
           const data = await pmApi.getMyTasks(params);
           setTasksData(data);
         } else {
-          const params: TaskFilterParams = { page };
+          const params: TaskFilterParams = { page, per_page: 500 };
           if (search.trim()) params.search = search.trim();
           if (statusFilter && statusFilter !== "All") params.status = statusFilter;
           if (priorityFilter && priorityFilter !== "All") params.priority = priorityFilter;

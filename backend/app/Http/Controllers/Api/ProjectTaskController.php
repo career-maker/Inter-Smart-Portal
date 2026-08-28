@@ -990,14 +990,39 @@ class ProjectTaskController extends Controller
         $projectByName = $allProjects->keyBy(fn ($p) => strtolower(trim(preg_replace('/[^a-zA-Z0-9]/', '', $p->name))));
         $projectById = $allProjects->keyBy('id');
 
-        $allUsers = User::where('status', 'Active')
-            ->select('id', 'first_name', 'last_name', 'email', 'employee_code', 'team_id')
-            ->get();
-        $userByCode = $allUsers->whereNotNull('employee_code')->keyBy(fn ($u) => strtolower(trim($u->employee_code)));
-        $userByEmail = $allUsers->keyBy(fn ($u) => strtolower(trim($u->email)));
-        $userByName = $allUsers->keyBy(fn ($u) => strtolower(trim("{$u->first_name} {$u->last_name}")));
+        $allUsers = User::select('id', 'first_name', 'last_name', 'email', 'employee_code', 'team_id')->get();
+        $userById = $allUsers->keyBy('id');
+        $userByCode = [];
+        $userByCleanCode = [];
+        $userByEmail = [];
+        $userByEmailPrefix = [];
+        $userByName = [];
 
-        $allSubPhases = \App\Models\ProjectSubPhase::all();
+        foreach ($allUsers as $u) {
+            if (!empty($u->employee_code)) {
+                $c = strtolower(trim($u->employee_code));
+                $userByCode[$c] = $u;
+                $clean = preg_replace('/[^0-9]/', '', $c);
+                if (!empty($clean)) {
+                    $userByCleanCode[$clean] = $u;
+                }
+            }
+            if (!empty($u->email)) {
+                $em = strtolower(trim($u->email));
+                $userByEmail[$em] = $u;
+                $prefix = explode('@', $em)[0];
+                $userByEmailPrefix[$prefix] = $u;
+            }
+            $fn = strtolower(trim("{$u->first_name} {$u->last_name}"));
+            if (!empty($fn)) {
+                $userByName[$fn] = $u;
+            }
+            if (!empty($u->first_name)) {
+                $userByName[strtolower(trim($u->first_name))] = $u;
+            }
+        }
+
+        $allSubPhases = ProjectSubPhase::all();
 
         // Team Lead authorization scope
         $isTeamLead = $user->hasRole('Team Lead') || strtolower($user->role ?? '') === 'team lead';
@@ -1149,14 +1174,27 @@ class ProjectTaskController extends Controller
             if (!empty($rawAssignees)) {
                 $tokens = array_filter(array_map('trim', explode(',', $rawAssignees)));
                 foreach ($tokens as $token) {
-                    $tokKey = strtolower($token);
+                    $tok = strtolower(trim($token));
+                    $cleanTok = preg_replace('/[^0-9]/', '', $tok);
                     $matchedUser = null;
-                    if ($userByCode->has($tokKey)) {
-                        $matchedUser = $userByCode->get($tokKey);
-                    } elseif ($userByEmail->has($tokKey)) {
-                        $matchedUser = $userByEmail->get($tokKey);
-                    } elseif ($userByName->has($tokKey)) {
-                        $matchedUser = $userByName->get($tokKey);
+
+                    if (is_numeric($tok) && $userById->has((int)$tok)) {
+                        $matchedUser = $userById->get((int)$tok);
+                    } elseif (isset($userByCode[$tok])) {
+                        $matchedUser = $userByCode[$tok];
+                    } elseif (!empty($cleanTok) && isset($userByCleanCode[$cleanTok])) {
+                        $matchedUser = $userByCleanCode[$cleanTok];
+                    } elseif (isset($userByEmail[$tok])) {
+                        $matchedUser = $userByEmail[$tok];
+                    } elseif (isset($userByEmailPrefix[$tok])) {
+                        $matchedUser = $userByEmailPrefix[$tok];
+                    } elseif (isset($userByName[$tok])) {
+                        $matchedUser = $userByName[$tok];
+                    } else {
+                        $matchedUser = $allUsers->first(function ($u) use ($tok) {
+                            $full = strtolower(trim("{$u->first_name} {$u->last_name}"));
+                            return str_contains($full, $tok) || (strlen($tok) > 2 && str_contains($tok, strtolower(trim($u->first_name))));
+                        });
                     }
 
                     if ($matchedUser && !in_array($matchedUser->id, $assigneeIds, true)) {
