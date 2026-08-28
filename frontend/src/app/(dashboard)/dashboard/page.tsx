@@ -1802,7 +1802,7 @@ function KPICard({ title, value, trend, icon: Icon, color, href, onClick }: any)
               fontWeight: 600,
               color: "rgb(15, 24, 36)",
             }}
-            className="dark:!text-white tracking-tight"
+            className="kpi-number dark:!text-white tracking-tight"
           >
             {value}
           </h3>
