@@ -126,7 +126,7 @@ export function TaskTrackerTable({
           <thead>
             <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-800/50 whitespace-nowrap task-table-header">
               <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-3 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">PROJECT</th>
-              <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-1.5 border-r border-slate-200/80 dark:border-slate-800 text-center dark:!text-white task-col-title w-10">Pty</th>
+              <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2 border-r border-slate-200/80 dark:border-slate-800 text-center dark:!text-white task-col-title min-w-[70px]">PTY</th>
               <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-3 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">SUB PHASE / TASK</th>
               {showAssigneesCol && (
                 <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-3 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">ASSIGNEES</th>
@@ -146,25 +146,50 @@ export function TaskTrackerTable({
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
             {visibleTasks.map((task) => {
-            const overdueInfo = getTaskOverdueInfo(task.due_date, task.status, task.actual_completion_date);
-            const pcName = task.coordinator
-              ? `${task.coordinator.first_name || ""} ${task.coordinator.last_name || ""}`.trim() || "PC"
-              : "—";
+              const overdueInfo = getTaskOverdueInfo(task.due_date, task.status, task.actual_completion_date);
+              const pcName = task.coordinator
+                ? `${task.coordinator.first_name || ""} ${task.coordinator.last_name || ""}`.trim() || "PC"
+                : "—";
 
-            const achievedDateStr = task.actual_completion_date || (task.status === "Completed" ? task.updated_at : null);
+              const achievedDateStr = task.actual_completion_date || (task.status === "Completed" ? task.updated_at : null);
 
-            return (
-              <tr
-                key={task.id}
-                className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors group"
-              >
-                {/* 1. PROJECT NAME */}
-                <td className="py-2 px-3 border-r border-slate-200/70 dark:border-slate-800/70 max-w-[140px]">
-                  {task.project ? (
-                    canEdit ? (
-                      <div className="flex items-center justify-between gap-1">
-                        <Link
-                          href={`/project-management/projects/${task.project.id}`}
+              return (
+                <tr
+                  key={task.id}
+                  className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors group"
+                >
+                  {/* 1. PROJECT NAME */}
+                  <td className="py-2 px-3 border-r border-slate-200/70 dark:border-slate-800/70 max-w-[140px]">
+                    {task.project ? (
+                      canEdit ? (
+                        <div className="flex items-center justify-between gap-1">
+                          <Link
+                            href={`/project-management/projects/${task.project.id}`}
+                            style={{
+                              fontFamily: '"Proxima Nova", sans-serif',
+                              fontSize: "12px",
+                              lineHeight: "16px",
+                              fontWeight: 400,
+                              color: "rgb(15, 24, 36)",
+                            }}
+                            className="hover:text-purple-600 dark:!text-slate-200 dark:hover:!text-purple-400 transition-colors flex items-center gap-1 truncate"
+                            title={task.project.name}
+                          >
+                            <FolderKanban className="w-3 h-3 text-purple-500 shrink-0" />
+                            <span className="truncate">{task.project.name}</span>
+                          </Link>
+                          {onDuplicateTask && (
+                            <button
+                              onClick={() => onDuplicateTask(task)}
+                              className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-opacity"
+                              title="Duplicate Task"
+                            >
+                              <Copy className="w-2.5 h-2.5 text-slate-400 hover:text-slate-600" />
+                            </button>
+                          )}
+                        </div>
+                      ) : (
+                        <div
                           style={{
                             fontFamily: '"Proxima Nova", sans-serif',
                             fontSize: "12px",
@@ -172,71 +197,51 @@ export function TaskTrackerTable({
                             fontWeight: 400,
                             color: "rgb(15, 24, 36)",
                           }}
-                          className="hover:text-purple-600 dark:!text-slate-200 dark:hover:!text-purple-400 transition-colors flex items-center gap-1 truncate"
+                          className="dark:!text-slate-200 flex items-center gap-1 cursor-default select-none truncate"
                           title={task.project.name}
                         >
                           <FolderKanban className="w-3 h-3 text-purple-500 shrink-0" />
                           <span className="truncate">{task.project.name}</span>
-                        </Link>
-                        {onDuplicateTask && (
-                          <button
-                            onClick={() => onDuplicateTask(task)}
-                            className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-opacity"
-                            title="Duplicate Task"
-                          >
-                            <Copy className="w-2.5 h-2.5 text-slate-400 hover:text-slate-600" />
-                          </button>
-                        )}
+                        </div>
+                      )
+                    ) : (
+                      <span className="text-slate-400 italic text-[11px]">Unassigned</span>
+                    )}
+                  </td>
+
+                  {/* 2. PRIORITY (Pty) */}
+                  <td className="py-2 px-1.5 border-r border-slate-200/70 dark:border-slate-800/70 whitespace-nowrap text-center">
+                    {canEdit && onPriorityChange ? (
+                      <div className="inline-flex items-center justify-center">
+                        <select
+                          value={task.priority}
+                          disabled={updatingTaskId === task.id}
+                          onChange={(e) => onPriorityChange(task.id, e.target.value as TaskPriority)}
+                          title={`Priority: ${task.priority}`}
+                          style={{
+                            fontFamily: '"Proxima Nova", sans-serif',
+                            fontSize: "11px",
+                            lineHeight: "14px",
+                            fontWeight: 600,
+                            backgroundImage: "none",
+                            paddingLeft: "6px",
+                            paddingRight: "6px",
+                            paddingTop: "2px",
+                            paddingBottom: "2px",
+                          }}
+                          className={`min-w-[62px] h-6 px-1.5 text-center [text-align-last:center] rounded-md border text-[11px] font-semibold cursor-pointer transition-all focus:outline-none focus:ring-1 focus:ring-purple-500/20 disabled:opacity-50 !bg-none ${getPriorityBadgeStyle(task.priority)}`}
+                        >
+                          {TASK_PRIORITIES.map((pr) => (
+                            <option key={pr} value={pr} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-medium">
+                              {pr}
+                            </option>
+                          ))}
+                        </select>
                       </div>
                     ) : (
-                      <div
-                        style={{
-                          fontFamily: '"Proxima Nova", sans-serif',
-                          fontSize: "12px",
-                          lineHeight: "16px",
-                          fontWeight: 400,
-                          color: "rgb(15, 24, 36)",
-                        }}
-                        className="dark:!text-slate-200 flex items-center gap-1 cursor-default select-none truncate"
-                        title={task.project.name}
-                      >
-                        <FolderKanban className="w-3 h-3 text-purple-500 shrink-0" />
-                        <span className="truncate">{task.project.name}</span>
-                      </div>
-                    )
-                  ) : (
-                    <span className="text-slate-400 italic text-[11px]">Unassigned</span>
-                  )}
-                </td>
-
-                {/* 2. PRIORITY (Pty) */}
-                <td className="py-2 px-1.5 border-r border-slate-200/70 dark:border-slate-800/70 whitespace-nowrap text-center">
-                  {canEdit && onPriorityChange ? (
-                    <div className="inline-flex items-center justify-center">
-                      <select
-                        value={task.priority}
-                        disabled={updatingTaskId === task.id}
-                        onChange={(e) => onPriorityChange(task.id, e.target.value as TaskPriority)}
-                        title={`Priority: ${task.priority}`}
-                        style={{
-                          fontFamily: '"Proxima Nova", sans-serif',
-                          fontSize: "11px",
-                          lineHeight: "16px",
-                          fontWeight: 600,
-                        }}
-                        className={`w-7 h-5 px-0 text-center [text-align-last:center] rounded border text-[11px] font-bold cursor-pointer transition-all focus:outline-none focus:ring-1 focus:ring-purple-500/20 disabled:opacity-50 appearance-none inline-flex items-center justify-center ${getPriorityBadgeStyle(task.priority)}`}
-                      >
-                        {TASK_PRIORITIES.map((pr) => (
-                          <option key={pr} value={pr} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-semibold">
-                            {pr.charAt(0)}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  ) : (
-                    <TaskPriorityBadge priority={task.priority} compact />
-                  )}
-                </td>
+                      <TaskPriorityBadge priority={task.priority} />
+                    )}
+                  </td>
 
                 {/* 3. SUB PHASE / TASK */}
                 <td className="py-2 px-3 border-r border-slate-200/70 dark:border-slate-800/70 max-w-[170px]">
