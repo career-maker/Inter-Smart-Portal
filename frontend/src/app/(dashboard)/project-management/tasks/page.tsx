@@ -143,16 +143,55 @@ export default function AllTasksPage() {
 
   const handleQuickStatusChange = async (taskId: number, newStatus: TaskStatus) => {
     setUpdatingTaskId(taskId);
+
+    const todayStr = new Date().toISOString().split("T")[0];
+    const isNowCompleted = newStatus === "Completed";
+    const isExitingActive =
+      (statusFilter === "Active" || !statusFilter || TASK_STATUSES.includes(statusFilter as any)) &&
+      (newStatus === "Completed" || newStatus === "Rejected" || newStatus === "Cancelled");
+    const isExitingCompleted = statusFilter === "Completed" && newStatus !== "Completed";
+    const isExitingRejected = statusFilter === "Rejected" && newStatus !== "Rejected" && newStatus !== "Cancelled";
+
+    // Optimistically update local state
     setTasksData((prev) => {
       if (!prev) return prev;
+
+      if (isExitingActive || isExitingCompleted || isExitingRejected) {
+        // Immediately remove task from current filtered table
+        return {
+          ...prev,
+          data: prev.data.filter((t) => t.id !== taskId),
+          total: Math.max(0, (prev.total || prev.data.length) - 1),
+        };
+      }
+
       return {
         ...prev,
-        data: prev.data.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t)),
+        data: prev.data.map((t) => {
+          if (t.id !== taskId) return t;
+          const updated: ProjectTask = {
+            ...t,
+            status: newStatus,
+          };
+          if (isNowCompleted && !updated.actual_completion_date) {
+            updated.actual_completion_date = todayStr;
+          }
+          return updated;
+        }),
       };
     });
 
     try {
-      await pmApi.updateTaskStatus(taskId, { status: newStatus });
+      if (isNowCompleted) {
+        const currentTask = tasksData?.data.find((t) => t.id === taskId);
+        const completionDate = currentTask?.actual_completion_date || todayStr;
+        await pmApi.updateTask(taskId, {
+          status: newStatus,
+          actual_completion_date: completionDate,
+        });
+      } else {
+        await pmApi.updateTaskStatus(taskId, { status: newStatus });
+      }
     } catch (err: any) {
       console.error("Failed to update status", err);
       fetchTasks(currentPage, true);

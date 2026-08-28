@@ -26,7 +26,8 @@ export type TaskStatus =
   | 'On Hold'
   | 'Completed'
   | 'Forecast'
-  | 'Rejected';
+  | 'Rejected'
+  | 'Cancelled';
 
 export const TASK_STATUSES: TaskStatus[] = [
   'Yet to Start',
@@ -38,6 +39,7 @@ export const TASK_STATUSES: TaskStatus[] = [
   'Completed',
   'Forecast',
   'Rejected',
+  'Cancelled',
 ];
 
 export type TaskPriority = 'Low' | 'Medium' | 'High' | 'Critical';

@@ -92,6 +92,13 @@ export default function CompletedTasksPage() {
     setUpdatingTaskId(taskId);
     setTasksData((prev) => {
       if (!prev) return prev;
+      if (newStatus !== "Completed") {
+        return {
+          ...prev,
+          data: prev.data.filter((t) => t.id !== taskId),
+          total: Math.max(0, (prev.total || prev.data.length) - 1),
+        };
+      }
       return {
         ...prev,
         data: prev.data.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t)),
