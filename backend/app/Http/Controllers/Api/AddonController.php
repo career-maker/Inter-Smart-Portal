@@ -47,15 +47,28 @@ class AddonController extends Controller
             ]);
         }
 
-        $teamId = $user->team_id;
-        if (!$teamId) {
-            $ledTeam = Team::where('team_lead_id', $user->id)->first();
-            if ($ledTeam) {
-                $teamId = $ledTeam->id;
-            }
+        // Collect all possible team IDs associated with this user
+        $userTeamIds = [];
+        if ($user->team_id) {
+            $userTeamIds[] = (int) $user->team_id;
         }
 
-        if (!$teamId) {
+        $ledTeamIds = Team::where('team_lead_id', $user->id)->pluck('id')->map(fn($id) => (int) $id)->toArray();
+        $userTeamIds = array_unique(array_merge($userTeamIds, $ledTeamIds));
+
+        // If user designation or department indicates QA / Quality / Testing, also include matching teams
+        $deptStr = strtolower(($user->department ?? '') . ' ' . ($user->designation ?? ''));
+        if (str_contains($deptStr, 'qa') || str_contains($deptStr, 'quality') || str_contains($deptStr, 'test')) {
+            $qaTeamIds = Team::where('name', 'like', '%QA%')
+                ->orWhere('name', 'like', '%Quality%')
+                ->orWhere('name', 'like', '%Test%')
+                ->pluck('id')
+                ->map(fn($id) => (int) $id)
+                ->toArray();
+            $userTeamIds = array_unique(array_merge($userTeamIds, $qaTeamIds));
+        }
+
+        if (empty($userTeamIds)) {
             return response()->json([
                 'active_addons' => [],
                 'is_super_admin' => false,
@@ -63,8 +76,8 @@ class AddonController extends Controller
         }
 
         $keys = PmAddon::where('is_active', true)
-            ->whereHas('teams', function ($q) use ($teamId) {
-                $q->where('teams.id', $teamId);
+            ->whereHas('teams', function ($q) use ($userTeamIds) {
+                $q->whereIn('teams.id', $userTeamIds);
             })
             ->pluck('key')
             ->toArray();

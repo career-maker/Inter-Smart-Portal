@@ -28,11 +28,18 @@ export function TaskExecutionModal({
 }: TaskExecutionModalProps) {
   const { user } = useAuthStore();
   const userRoleStr = (user?.role || "").toLowerCase();
-  const isSuperAdmin = userRoleStr === "super admin";
-  const isTeamLead = userRoleStr === "team lead";
+  const userDesignationStr = ((user as any)?.designation || "").toLowerCase();
+  const isSuperAdmin = userRoleStr === "super admin" || userRoleStr === "admin";
+  const isTeamLead =
+    userRoleStr === "team lead" ||
+    userRoleStr.includes("lead") ||
+    userRoleStr.includes("manager") ||
+    userDesignationStr.includes("lead") ||
+    userDesignationStr.includes("manager") ||
+    Boolean((user as any)?.is_lead);
   const canManage = isSuperAdmin || isTeamLead;
 
-  const [hasBugTrackerAddon, setHasBugTrackerAddon] = useState(false);
+  const [hasBugTrackerAddon, setHasBugTrackerAddon] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -60,13 +67,16 @@ export function TaskExecutionModal({
     const checkAddons = async () => {
       try {
         const res = await pmApi.getMyAddons();
-        setHasBugTrackerAddon(res.is_super_admin || res.active_addons.includes("bug_tracker"));
+        const active = res.is_super_admin || (res.active_addons && res.active_addons.includes("bug_tracker"));
+        setHasBugTrackerAddon(active);
       } catch {
-        setHasBugTrackerAddon(isSuperAdmin);
+        // Fallback if API fails: enable for Super Admin, QA members, or existing bug tasks
+        const isQa = userDesignationStr.includes("qa") || userRoleStr.includes("qa") || isSuperAdmin;
+        setHasBugTrackerAddon(isQa || Boolean(task.total_bugs || task.html_bugs || task.functional_bugs || task.bug_tracker_link));
       }
     };
     checkAddons();
-  }, [isOpen, isSuperAdmin]);
+  }, [isOpen, isSuperAdmin, userDesignationStr, userRoleStr, task]);
 
   useEffect(() => {
     if (task) {
@@ -338,7 +348,7 @@ export function TaskExecutionModal({
                   <input
                     type="number"
                     min="0"
-                    disabled={!canManage}
+                    disabled={!canManage && !hasBugTrackerAddon}
                     value={formData.html_bugs ?? ""}
                     onChange={(e) =>
                       handleChange("html_bugs", e.target.value ? Number(e.target.value) : 0)
@@ -355,7 +365,7 @@ export function TaskExecutionModal({
                   <input
                     type="number"
                     min="0"
-                    disabled={!canManage}
+                    disabled={!canManage && !hasBugTrackerAddon}
                     value={formData.functional_bugs ?? ""}
                     onChange={(e) =>
                       handleChange("functional_bugs", e.target.value ? Number(e.target.value) : 0)
@@ -384,7 +394,7 @@ export function TaskExecutionModal({
                   <Link2 className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input
                     type="url"
-                    disabled={!canManage}
+                    disabled={!canManage && !hasBugTrackerAddon}
                     value={formData.bug_tracker_link || ""}
                     onChange={(e) => handleChange("bug_tracker_link", e.target.value)}
                     placeholder="https://tracker.example.com/tickets/123"
