@@ -932,7 +932,16 @@ export default function HubstaffAnalyticsPage() {
                                 className="w-8 h-8 rounded-full text-xs font-bold bg-purple-600 text-white shrink-0"
                               />
                               <div className="min-w-0">
-                                <h3 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors truncate">
+                                <h3
+                                  style={{
+                                    fontFamily: '"Proxima Nova", sans-serif',
+                                    fontSize: "13px",
+                                    lineHeight: "20px",
+                                    fontWeight: 400,
+                                    color: "rgb(15, 24, 36)",
+                                  }}
+                                  className="dark:!text-slate-100 group-hover:!text-purple-600 dark:group-hover:!text-purple-400 transition-colors truncate"
+                                >
                                   <RoyalName
                                     name={u.name}
                                     userId={u.user_id}
@@ -1100,7 +1109,16 @@ export default function HubstaffAnalyticsPage() {
                           <td className="py-3 px-5 border-r border-slate-100 dark:border-slate-800/60">
                             <div className="flex items-center gap-2">
                               <FolderKanban className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />
-                              <span className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors truncate">
+                              <span
+                                style={{
+                                  fontFamily: '"Proxima Nova", sans-serif',
+                                  fontSize: "13px",
+                                  lineHeight: "20px",
+                                  fontWeight: 400,
+                                  color: "rgb(15, 24, 36)",
+                                }}
+                                className="dark:!text-slate-100 group-hover:!text-purple-600 dark:group-hover:!text-purple-400 transition-colors truncate"
+                              >
                                 {p.name}
                               </span>
                             </div>
