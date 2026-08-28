@@ -287,7 +287,6 @@ class ProjectController extends Controller
             'coordinator:id,first_name,last_name,email,employee_code,designation',
             'creator:id,first_name,last_name',
             'liveMarker:id,first_name,last_name',
-            'subPhases' => fn($q) => $q->orderBy('order', 'asc'),
             'tasks' => fn($q) => $q->with([
                 'subPhase:id,name',
                 'assignees:id,first_name,last_name,employee_code,designation,team_id',
@@ -369,25 +368,38 @@ class ProjectController extends Controller
         }
 
         // Subphase analytics
+        $subPhasesList = \App\Models\ProjectSubPhase::availableForTeam($project->team_id)
+            ->orderBy('display_order', 'asc')
+            ->get();
+
+        $taskSubPhaseIds = $project->tasks->pluck('sub_phase_id')->filter()->unique();
+        $missingIds = $taskSubPhaseIds->diff($subPhasesList->pluck('id'));
+        if ($missingIds->isNotEmpty()) {
+            $extraSubPhases = \App\Models\ProjectSubPhase::whereIn('id', $missingIds)->orderBy('display_order', 'asc')->get();
+            $subPhasesList = $subPhasesList->concat($extraSubPhases);
+        }
+
         $subPhasesAnalytics = [];
-        foreach ($project->subPhases as $sp) {
+        foreach ($subPhasesList as $sp) {
             $phaseTasks = $project->tasks->where('sub_phase_id', $sp->id);
             $total = $phaseTasks->count();
             $completed = $phaseTasks->where('status', 'Completed')->count();
             $inProgress = $phaseTasks->whereIn('status', ['In Progress', 'Being Developed', 'Ready for QA', 'Assigned to QA'])->count();
             $forecast = $phaseTasks->where('status', 'Forecast')->count();
 
-            $subPhasesAnalytics[] = [
-                'id' => $sp->id,
-                'name' => $sp->name,
-                'order' => $sp->order,
-                'status' => $sp->status,
-                'total_tasks' => $total,
-                'completed_tasks' => $completed,
-                'in_progress_tasks' => $inProgress,
-                'forecast_tasks' => $forecast,
-                'progress_percentage' => $total > 0 ? (int) round(($completed / $total) * 100) : ($sp->status === 'Completed' ? 100 : 0),
-            ];
+            if ($total > 0 || $sp->team_id === $project->team_id) {
+                $subPhasesAnalytics[] = [
+                    'id' => $sp->id,
+                    'name' => $sp->name,
+                    'order' => $sp->display_order,
+                    'status' => $total > 0 && $completed === $total ? 'Completed' : ($inProgress > 0 ? 'In Progress' : 'Pending'),
+                    'total_tasks' => $total,
+                    'completed_tasks' => $completed,
+                    'in_progress_tasks' => $inProgress,
+                    'forecast_tasks' => $forecast,
+                    'progress_percentage' => $total > 0 ? (int) round(($completed / $total) * 100) : 0,
+                ];
+            }
         }
 
         // Tasks with deviations & after-live tasks

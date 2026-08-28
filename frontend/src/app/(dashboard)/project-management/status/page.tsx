@@ -333,13 +333,13 @@ export default function ProjectStatusPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px]">
-                  <th className="py-3.5 px-4 sm:px-6">Project Name & Category</th>
-                  <th className="py-3.5 px-4">Department & Coordinator</th>
-                  <th className="py-3.5 px-4">Lifecycle Status</th>
-                  <th className="py-3.5 px-4">Deliverables Progress</th>
-                  <th className="py-3.5 px-4">Go-Live Date</th>
-                  <th className="py-3.5 px-4 text-right pr-6">Actions</th>
+                <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px] whitespace-nowrap">
+                  <th className="py-3.5 px-4 sm:px-6 whitespace-nowrap">Project Name & Category</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Department & Coordinator</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Lifecycle Status</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Deliverables Progress</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Go-Live Date</th>
+                  <th className="py-3.5 px-4 text-right pr-6 whitespace-nowrap min-w-[220px]">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200/80 dark:divide-slate-800/80">
@@ -357,7 +357,7 @@ export default function ProjectStatusPage() {
                       className="hover:bg-purple-50/40 dark:hover:bg-slate-800/60 transition-colors cursor-pointer group"
                     >
                       {/* Name & Category */}
-                      <td className="py-4 px-4 sm:px-6">
+                      <td className="py-4 px-4 sm:px-6 whitespace-nowrap">
                         <div className="font-bold text-sm text-slate-900 dark:text-white group-hover:text-[#56348f] dark:group-hover:text-purple-300 transition-colors flex items-center gap-2">
                           <span>{p.name}</span>
                           {p.is_live && (
@@ -366,23 +366,23 @@ export default function ProjectStatusPage() {
                             </span>
                           )}
                         </div>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 whitespace-nowrap">
                           {p.category || "Standard Deliverable"} • Created {p.created_at ? format(parseISO(p.created_at), "dd MMM yyyy") : "N/A"}
                         </p>
                       </td>
 
                       {/* Department & Coordinator */}
-                      <td className="py-4 px-4">
+                      <td className="py-4 px-4 whitespace-nowrap">
                         <div className="font-semibold text-slate-800 dark:text-slate-200">
                           {p.team?.name || "General"}
                         </div>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 whitespace-nowrap">
                           PC: {p.coordinator ? `${p.coordinator.first_name} ${p.coordinator.last_name}` : "Not Assigned"}
                         </p>
                       </td>
 
                       {/* Status */}
-                      <td className="py-4 px-4">
+                      <td className="py-4 px-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
                           <ProjectStatusBadge status={p.status} />
                           {p.is_live && (
@@ -394,7 +394,7 @@ export default function ProjectStatusPage() {
                       </td>
 
                       {/* Progress Bar */}
-                      <td className="py-4 px-4 min-w-[160px]">
+                      <td className="py-4 px-4 min-w-[160px] whitespace-nowrap">
                         <div className="flex items-center justify-between text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
                           <span>{tasksCompleted}/{tasksTotal} Tasks</span>
                           <span className="text-[#56348f] dark:text-purple-300 font-bold">{progressPct}%</span>
@@ -408,7 +408,7 @@ export default function ProjectStatusPage() {
                       </td>
 
                       {/* Go-Live Date */}
-                      <td className="py-4 px-4">
+                      <td className="py-4 px-4 whitespace-nowrap">
                         {p.is_live && p.live_date ? (
                           <div>
                             <span className="font-bold text-emerald-600 dark:text-emerald-400 text-xs">
@@ -426,8 +426,8 @@ export default function ProjectStatusPage() {
                       </td>
 
                       {/* Actions */}
-                      <td className="py-4 px-4 text-right pr-6" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center justify-end gap-2">
+                      <td className="py-4 px-4 text-right pr-6 whitespace-nowrap min-w-[220px]" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-end gap-2 whitespace-nowrap flex-nowrap shrink-0">
                           <button
                             type="button"
                             onClick={() => handleOpenDrawer(p)}
@@ -437,11 +437,11 @@ export default function ProjectStatusPage() {
                               lineHeight: "20px",
                               fontWeight: 400,
                             }}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-[#56348f] dark:text-purple-300 text-[13px] leading-[20px] font-normal border border-purple-200 dark:border-purple-800 transition-colors cursor-pointer"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-[#56348f] dark:text-purple-300 text-[13px] leading-[20px] font-normal border border-purple-200 dark:border-purple-800 transition-colors cursor-pointer whitespace-nowrap shrink-0"
                             title="View full 360° Project Status Drawer"
                           >
-                            <Eye className="w-3.5 h-3.5" />
-                            <span>View Status</span>
+                            <Eye className="w-3.5 h-3.5 shrink-0" />
+                            <span className="whitespace-nowrap">View Status</span>
                           </button>
 
                           {!p.is_live && (
@@ -456,11 +456,11 @@ export default function ProjectStatusPage() {
                                 lineHeight: "20px",
                                 fontWeight: 400,
                               }}
-                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-[13px] leading-[20px] shadow-sm transition-colors cursor-pointer"
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-[13px] leading-[20px] shadow-sm transition-colors cursor-pointer whitespace-nowrap shrink-0"
                               title="Mark as Made Live"
                             >
-                              <Rocket className="w-3.5 h-3.5 !text-white" />
-                              <span className="!text-white">Made Live</span>
+                              <Rocket className="w-3.5 h-3.5 !text-white shrink-0" />
+                              <span className="!text-white whitespace-nowrap">Made Live</span>
                             </button>
                           )}
                         </div>

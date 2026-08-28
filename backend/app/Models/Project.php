@@ -107,11 +107,6 @@ class Project extends Model
         return $this->hasMany(ProjectCorrection::class);
     }
 
-    public function subPhases(): HasMany
-    {
-        return $this->hasMany(ProjectSubPhase::class)->orderBy('order', 'asc');
-    }
-
     public function liveMarker(): BelongsTo
     {
         return $this->belongsTo(User::class, 'live_marked_by');
