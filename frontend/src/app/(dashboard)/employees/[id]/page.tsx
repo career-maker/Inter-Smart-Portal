@@ -195,17 +195,17 @@ export default function EditEmployeePage() {
             </div>
 
             {/* Mode toggle */}
-            <div className="flex rounded-xl border border-slate-200 dark:border-white/10 overflow-hidden bg-white/60 dark:bg-slate-800/60 p-1 gap-1">
+            <div className="flex rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-slate-100/90 dark:bg-slate-800/90 p-1 gap-1">
               <button
                 onClick={() => setPhotoMode("upload")}
-                className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${photoMode === "upload" ? "bg-amber-500 text-white shadow" : "text-slate-400 hover:text-white"}`}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-xs font-semibold transition-all cursor-pointer ${photoMode === "upload" ? "bg-[#56348f] text-white shadow-xs" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
               >
                 <Upload className="w-4 h-4" />
                 Upload File
               </button>
               <button
                 onClick={() => setPhotoMode("url")}
-                className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${photoMode === "url" ? "bg-amber-500 text-white shadow" : "text-slate-400 hover:text-white"}`}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-xs font-semibold transition-all cursor-pointer ${photoMode === "url" ? "bg-[#56348f] text-white shadow-xs" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
               >
                 <Link2 className="w-4 h-4" />
                 Paste URL

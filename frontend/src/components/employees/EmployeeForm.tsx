@@ -295,8 +295,8 @@ export default function EmployeeForm({ initialData, isEdit }: EmployeeFormProps)
         </Card>
 
         <div className="flex justify-end gap-4">
-          <Button type="button" variant="outline" size="lg" onClick={() => router.push("/employees")}>Cancel</Button>
-          <Button type="submit" size="lg" className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold" disabled={isLoading}>{isLoading ? "Saving..." : "Save Employee Profile"}</Button>
+          <Button type="button" variant="outline" size="lg" className="rounded-xl cursor-pointer" onClick={() => router.push("/employees")}>Cancel</Button>
+          <Button type="submit" size="lg" className="rounded-xl bg-[#56348f] hover:bg-[#432870] !text-white font-semibold cursor-pointer shadow-sm" disabled={isLoading}>{isLoading ? "Saving..." : "Save Employee Profile"}</Button>
         </div>
       </form>
     </Form>

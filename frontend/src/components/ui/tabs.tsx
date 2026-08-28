@@ -24,11 +24,11 @@ function Tabs({
 }
 
 const tabsListVariants = cva(
-  "group/tabs-list inline-flex w-fit items-center justify-center rounded-lg p-[3px] text-muted-foreground group-data-horizontal/tabs:h-8 group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col data-[variant=line]:rounded-none",
+  "group/tabs-list inline-flex w-fit items-center justify-center rounded-xl p-1 text-slate-600 dark:text-slate-400 group-data-horizontal/tabs:h-10 group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col data-[variant=line]:rounded-none",
   {
     variants: {
       variant: {
-        default: "bg-muted",
+        default: "bg-slate-100/90 dark:bg-slate-800/90 border border-slate-200/90 dark:border-slate-700/80 shadow-2xs",
         line: "gap-1 bg-transparent",
       },
     },
@@ -58,17 +58,20 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
     <TabsPrimitive.Tab
       data-slot="tabs-trigger"
       className={cn(
-        "relative inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-1.5 py-0.5 text-sm font-medium whitespace-nowrap transition-all disabled:pointer-events-none disabled:opacity-50 has-data-[icon=inline-end]:pr-1 has-data-[icon=inline-start]:pl-1 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "relative inline-flex h-[calc(100%-2px)] flex-1 items-center justify-center gap-1.5 rounded-lg border border-transparent px-3.5 py-1.5 text-xs font-semibold whitespace-nowrap transition-all disabled:pointer-events-none disabled:opacity-50 cursor-pointer",
         // Inactive states
-        "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/50 dark:hover:bg-slate-700/50",
-        // Active states
-        "data-active:bg-white data-active:text-slate-900 data-active:shadow-sm",
+        "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-700/60",
+        // Active states (Base UI data-selected + aria-selected + data-active)
+        "data-selected:bg-white data-selected:text-slate-900 data-selected:shadow-xs data-selected:border-slate-200/60",
+        "aria-selected:bg-white aria-selected:text-slate-900 aria-selected:shadow-xs aria-selected:border-slate-200/60",
+        "data-active:bg-white data-active:text-slate-900 data-active:shadow-xs",
+        "data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-xs",
+        "dark:data-selected:bg-slate-700 dark:data-selected:text-white dark:data-selected:border-slate-600",
+        "dark:aria-selected:bg-slate-700 dark:aria-selected:text-white dark:aria-selected:border-slate-600",
         "dark:data-active:bg-slate-700 dark:data-active:text-white",
+        "dark:data-[state=active]:bg-slate-700 dark:data-[state=active]:text-white",
         // Focus states
-        "focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none",
-        // Variant line (if used)
-        "group-data-[variant=line]/tabs-list:data-active:bg-transparent dark:group-data-[variant=line]/tabs-list:data-active:bg-transparent group-data-[variant=line]/tabs-list:data-active:shadow-none",
-        "after:absolute after:bg-primary after:opacity-0 after:transition-opacity group-data-horizontal/tabs:after:inset-x-0 group-data-horizontal/tabs:after:bottom-[-5px] group-data-horizontal/tabs:after:h-0.5 group-data-vertical/tabs:after:inset-y-0 group-data-vertical/tabs:after:-right-1 group-data-vertical/tabs:after:w-0.5 group-data-[variant=line]/tabs-list:data-active:after:opacity-100",
+        "focus-visible:ring-2 focus-visible:ring-[#56348f]/40 focus-visible:outline-none",
         className
       )}
       {...props}
