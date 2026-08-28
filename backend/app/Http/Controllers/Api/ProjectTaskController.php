@@ -95,11 +95,17 @@ class ProjectTaskController extends Controller
         if ($request->filled('status')) {
             $statusVal = $request->string('status');
             if (strtolower($statusVal) === 'active') {
-                $query->whereIn('status', ['In Progress', 'Being Developed', 'Ready for QA', 'Assigned to QA', 'Yet to Start', 'On Hold']);
+                $query->whereNotIn('status', ['Completed', 'Rejected', 'Cancelled']);
+            } elseif (strtolower($statusVal) === 'all') {
+                // No filter - show all
+            } elseif (strtolower($statusVal) === 'completed') {
+                $query->where('status', 'Completed');
+            } elseif (strtolower($statusVal) === 'rejected' || strtolower($statusVal) === 'cancelled') {
+                $query->whereIn('status', ['Rejected', 'Cancelled']);
             } elseif (strtolower($statusVal) === 'overdue') {
                 $query->whereNotNull('due_date')
                       ->where('due_date', '<', now()->toDateString())
-                      ->whereNotIn('status', ['Completed', 'Rejected']);
+                      ->whereNotIn('status', ['Completed', 'Rejected', 'Cancelled']);
             } else {
                 $query->where('status', $statusVal);
             }

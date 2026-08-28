@@ -25,7 +25,8 @@ api.interceptors.request.use((config) => {
 
     // Cache GET requests
     if (config.method?.toLowerCase() === 'get') {
-      const cacheKey = `${config.baseURL}${config.url}`;
+      const queryStr = config.params ? (typeof config.params === 'string' ? config.params : new URLSearchParams(config.params).toString()) : '';
+      const cacheKey = `${config.baseURL}${config.url}${queryStr ? `?${queryStr}` : ''}`;
       const cachedData = apiCache.get(cacheKey);
 
       if (cachedData) {
@@ -46,9 +47,10 @@ api.interceptors.response.use(
   (response) => {
     // Cache successful GET responses
     if (typeof window !== 'undefined' && response.config.method?.toLowerCase() === 'get') {
-      const cacheKey = `${response.config.baseURL}${response.config.url}`;
-      // Cache for 5 minutes by default
-      apiCache.set(cacheKey, response.data, 5 * 60 * 1000);
+      const queryStr = response.config.params ? (typeof response.config.params === 'string' ? response.config.params : new URLSearchParams(response.config.params).toString()) : '';
+      const cacheKey = `${response.config.baseURL}${response.config.url}${queryStr ? `?${queryStr}` : ''}`;
+      // Cache for 2 minutes by default
+      apiCache.set(cacheKey, response.data, 2 * 60 * 1000);
     }
     return response;
   },

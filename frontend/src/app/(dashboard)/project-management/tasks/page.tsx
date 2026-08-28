@@ -51,7 +51,7 @@ export default function AllTasksPage() {
     Array<{ id: number; first_name: string; last_name: string; name?: string; employee_code?: string; designation?: string; department?: string; team_id?: number | null }>
   >([]);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("All");
+  const [statusFilter, setStatusFilter] = useState<string>("Active");
   const [priorityFilter, setPriorityFilter] = useState<string>("All");
   const [projectFilter, setProjectFilter] = useState<string>("");
   const [selectedTeamId, setSelectedTeamId] = useState<number | "all">("all");
@@ -401,33 +401,67 @@ export default function AllTasksPage() {
 
       {/* ── Filters & Search Header ── */}
       <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-4 sm:p-5 shadow-sm space-y-4">
-        {/* Status Filter Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
-          {["All", ...TASK_STATUSES].map((status) => {
-            const isSelected = statusFilter === status;
+        {/* Status Category Tabs */}
+        <div className="flex flex-wrap items-center gap-2 pb-1 border-b border-slate-200/80 dark:border-slate-800">
+          {[
+            { label: "Active Tasks", value: "Active" },
+            { label: "Completed", value: "Completed" },
+            { label: "Rejected / Cancelled", value: "Rejected" },
+            { label: "All History", value: "All" },
+          ].map((tab) => {
+            const isSelected = statusFilter === tab.value;
             return (
               <button
-                key={status}
-                onClick={() => setStatusFilter(status)}
+                key={tab.value}
+                onClick={() => setStatusFilter(tab.value)}
                 style={{
-                  backgroundColor: isSelected ? "#56348f" : undefined,
-                  color: isSelected ? "rgb(255, 255, 255)" : undefined,
                   fontFamily: '"Proxima Nova", sans-serif',
                   fontSize: "13px",
                   lineHeight: "20px",
-                  fontWeight: 400,
+                  fontWeight: isSelected ? 600 : 400,
                 }}
-                className={`px-3 py-1 rounded-xl text-[13px] leading-[20px] font-normal whitespace-nowrap transition-all cursor-pointer ${
+                className={`px-3.5 py-1.5 rounded-xl text-[13px] leading-[20px] transition-all cursor-pointer ${
                   isSelected
-                    ? "bg-[#56348f] !text-white shadow-sm"
-                    : "bg-slate-100 dark:bg-slate-800/60 !text-slate-800 dark:!text-slate-200 hover:bg-purple-50 dark:hover:bg-slate-700/60 border border-slate-200 dark:border-slate-700"
+                    ? "bg-[#56348f] text-white shadow-xs"
+                    : "bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700"
                 }`}
               >
-                {status}
+                {tab.label}
               </button>
             );
           })}
         </div>
+
+        {/* Sub-status Pills for Active view */}
+        {statusFilter !== "Completed" && statusFilter !== "Rejected" && (
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mr-1 shrink-0">
+              Filter:
+            </span>
+            {["Active", "Yet to Start", "Being Developed", "Ready for QA", "Assigned to QA", "In Progress", "On Hold", "Forecast"].map((st) => {
+              const isSelected = statusFilter === st;
+              return (
+                <button
+                  key={st}
+                  onClick={() => setStatusFilter(st)}
+                  style={{
+                    fontFamily: '"Proxima Nova", sans-serif',
+                    fontSize: "12px",
+                    lineHeight: "16px",
+                    fontWeight: isSelected ? 600 : 400,
+                  }}
+                  className={`px-2.5 py-1 rounded-lg text-xs whitespace-nowrap transition-all cursor-pointer ${
+                    isSelected
+                      ? "bg-purple-100 dark:bg-purple-950 text-[#56348f] dark:text-purple-300 border border-purple-300 dark:border-purple-800 font-semibold"
+                      : "bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60"
+                  }`}
+                >
+                  {st === "Active" ? "All Active" : st}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         {/* Search, Project & Priority Filters */}
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
