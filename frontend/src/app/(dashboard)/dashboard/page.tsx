@@ -795,8 +795,8 @@ export default function DashboardPage() {
                   <p
                     style={{
                       fontFamily: '"Proxima Nova", sans-serif',
-                      fontSize: "28px",
-                      lineHeight: "40px",
+                      fontSize: "36px",
+                      lineHeight: "44px",
                       fontWeight: 600,
                       color: "rgb(15, 24, 36)",
                     }}
@@ -1785,15 +1785,15 @@ function KPICard({ title, value, trend, icon: Icon, color, href, onClick }: any)
   const accent = accentMap[color] || accentMap['bg-blue-500'];
 
   const CardContent = (
-    <div className={`wave-card relative overflow-hidden h-full rounded-md p-4 sm:p-4.5 bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700/60 transition-all duration-300 ${(href || onClick) ? 'cursor-pointer group hover:bg-slate-50 dark:hover:bg-slate-700 hover:shadow-md' : ''}  `} style={{ '--wave-color': `var(--tw-color-${color.replace('bg-', '').replace('-500', '')}-50)` } as any}>
+    <div className={`wave-card relative overflow-hidden h-full rounded-md p-5 bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700/60 transition-all duration-300 ${(href || onClick) ? 'cursor-pointer group hover:bg-slate-50 dark:hover:bg-slate-700 hover:shadow-md' : ''}  `} style={{ '--wave-color': `var(--tw-color-${color.replace('bg-', '').replace('-500', '')}-50)` } as any}>
       <div className="flex justify-between items-start relative z-10">
         <div>
-          <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">{title}</p>
+          <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">{title}</p>
           <h3
             style={{
               fontFamily: '"Proxima Nova", sans-serif',
-              fontSize: "28px",
-              lineHeight: "40px",
+              fontSize: "36px",
+              lineHeight: "44px",
               fontWeight: 600,
               color: "rgb(15, 24, 36)",
             }}
@@ -1802,7 +1802,7 @@ function KPICard({ title, value, trend, icon: Icon, color, href, onClick }: any)
             {value}
           </h3>
         </div>
-        <div className={`w-10 h-10 rounded-md flex items-center justify-center ${accent.icon} shadow-sm ${(href || onClick) ? 'group-hover:scale-90 transition-transform duration-300' : ''}`}>
+        <div className={`w-11 h-11 rounded-md flex items-center justify-center ${accent.icon} shadow-sm ${(href || onClick) ? 'group-hover:scale-90 transition-transform duration-300' : ''}`}>
           <Icon className="w-5 h-5" />
         </div>
       </div>
