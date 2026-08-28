@@ -235,6 +235,29 @@ class HubstaffProjectController extends Controller
             }
         }
 
+        // Also match any remaining discovered members by normalized full name
+        $allActiveUsers = \App\Models\User::where('status', 'Active')
+            ->with('team:id,name')
+            ->select('id', 'first_name', 'last_name', 'email', 'employee_code', 'designation', 'team_id', 'profile_photo_path')
+            ->get();
+        $userByNameMap = [];
+        foreach ($allActiveUsers as $au) {
+            $nName = strtolower(trim("{$au->first_name} {$au->last_name}"));
+            if (!empty($nName)) {
+                $userByNameMap[$nName] = $au;
+            }
+        }
+
+        foreach ($discoveredMembers as $dm) {
+            $hsId = (string) ($dm['hubstaff_user_id'] ?? '');
+            if (!empty($hsId) && !isset($hubstaffUserMap[$hsId])) {
+                $dmName = strtolower(trim($dm['name'] ?? ''));
+                if (!empty($dmName) && isset($userByNameMap[$dmName])) {
+                    $hubstaffUserMap[$hsId] = $userByNameMap[$dmName];
+                }
+            }
+        }
+
         // Fetch PM Projects map
         $pmProjects = \App\Models\Project::whereNotNull('hubstaff_project_id')->get()->keyBy('hubstaff_project_id');
 
@@ -309,11 +332,15 @@ class HubstaffProjectController extends Controller
 
             // Filter by team scope:
             if ($selectedTeamId) {
-                if (!isset($hubstaffUserMap[$hsUid]) || ($hubstaffUserMap[$hsUid]->team_id ?? null) != $selectedTeamId) {
+                $uTeam = $hubstaffUserMap[$hsUid]->team_id ?? null;
+                $pTeam = $pmProjects->get($hsPid)?->team_id ?? null;
+                if ($uTeam != $selectedTeamId && $pTeam != $selectedTeamId) {
                     continue;
                 }
             } elseif (!$isSuperAdmin && !$isAdmin && !empty($ledTeamIds)) {
-                if (!isset($hubstaffUserMap[$hsUid]) || !in_array(($hubstaffUserMap[$hsUid]->team_id ?? null), $ledTeamIds)) {
+                $uTeam = $hubstaffUserMap[$hsUid]->team_id ?? null;
+                $pTeam = $pmProjects->get($hsPid)?->team_id ?? null;
+                if (!in_array($uTeam, $ledTeamIds) && !in_array($pTeam, $ledTeamIds)) {
                     continue;
                 }
             }
@@ -342,6 +369,7 @@ class HubstaffProjectController extends Controller
                     'email' => $userModel?->email,
                     'employee_code' => $userModel?->employee_code,
                     'designation' => $userModel?->designation ?? 'Team Member',
+                    'team_id' => $userModel?->team_id,
                     'team_name' => $teamName,
                     'avatar' => $userModel?->profilePhotoUrl(),
                     'tracked_seconds' => 0,
@@ -371,6 +399,7 @@ class HubstaffProjectController extends Controller
                     'hubstaff_project_id' => $hsPid,
                     'name' => $projectName,
                     'status' => $pmProj?->status ?? 'Active',
+                    'team_id' => $pmProj?->team_id,
                     'tracked_seconds' => 0,
                     'activity_weighted_sum' => 0,
                     'members' => [],
@@ -440,6 +469,7 @@ class HubstaffProjectController extends Controller
                 'email' => $u['email'],
                 'employee_code' => $u['employee_code'],
                 'designation' => $u['designation'],
+                'team_id' => $u['team_id'] ?? null,
                 'team_name' => $u['team_name'],
                 'avatar' => $u['avatar'],
                 'tracked_seconds' => $trackedSec,
@@ -478,6 +508,7 @@ class HubstaffProjectController extends Controller
                 'hubstaff_project_id' => $p['hubstaff_project_id'],
                 'name' => $p['name'],
                 'status' => $p['status'],
+                'team_id' => $p['team_id'] ?? null,
                 'tracked_seconds' => $trackedSec,
                 'tracked_formatted' => $fmtTime($trackedSec),
                 'activity_percentage' => $avgAct,

@@ -256,6 +256,9 @@ export default function HubstaffAnalyticsPage() {
     const list = analyticsData?.users || [];
     return list
       .filter((u: any) => {
+        if (selectedTeamId !== "all" && u.team_id && u.team_id !== selectedTeamId) {
+          return false;
+        }
         if (searchTerm.trim()) {
           const q = searchTerm.toLowerCase();
           const nameMatch = u.name?.toLowerCase().includes(q);
@@ -282,13 +285,16 @@ export default function HubstaffAnalyticsPage() {
         }
         return sortOrder === "asc" ? valA - valB : valB - valA;
       });
-  }, [analyticsData?.users, searchTerm, activityFilter, projectFilter, sortField, sortOrder]);
+  }, [analyticsData?.users, searchTerm, activityFilter, projectFilter, selectedTeamId, sortField, sortOrder]);
 
   // Filtered and Sorted Projects
   const filteredProjects = useMemo(() => {
     const list = analyticsData?.projects || [];
     return list
       .filter((p: any) => {
+        if (selectedTeamId !== "all" && p.team_id && p.team_id !== selectedTeamId) {
+          return false;
+        }
         if (searchTerm.trim()) {
           const q = searchTerm.toLowerCase();
           return p.name?.toLowerCase().includes(q);
@@ -305,7 +311,7 @@ export default function HubstaffAnalyticsPage() {
         }
         return sortOrder === "asc" ? (valA || 0) - (valB || 0) : (valB || 0) - (valA || 0);
       });
-  }, [analyticsData?.projects, searchTerm, sortField, sortOrder]);
+  }, [analyticsData?.projects, searchTerm, selectedTeamId, sortField, sortOrder]);
 
   // Export to CSV
   const exportToCSV = () => {
