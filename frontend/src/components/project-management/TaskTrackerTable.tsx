@@ -11,6 +11,7 @@ import {
   Copy,
   Clock,
   CheckCircle2,
+  Calendar,
 } from "lucide-react";
 import {
   ProjectTask,
@@ -28,6 +29,7 @@ interface TaskTrackerTableProps {
   canEdit: boolean;
   onStatusChange?: (taskId: number, newStatus: TaskStatus) => Promise<void>;
   onPriorityChange?: (taskId: number, newPriority: TaskPriority) => Promise<void>;
+  onDateChange?: (taskId: number, field: "start_date" | "due_date" | "actual_completion_date", newDate: string | null) => Promise<void>;
   onDuplicateTask?: (task: ProjectTask) => void;
   updatingTaskId?: number | null;
   showAssigneesCol?: boolean;
@@ -44,6 +46,15 @@ function formatDateDisplay(dateStr?: string | null): string {
     return format(parsed, "dd MMM yyyy");
   } catch {
     return String(dateStr);
+  }
+}
+
+function toDateInputValue(dateStr?: string | null): string {
+  if (!dateStr || typeof dateStr !== "string") return "";
+  try {
+    return dateStr.split("T")[0];
+  } catch {
+    return "";
   }
 }
 
@@ -92,6 +103,7 @@ export function TaskTrackerTable({
   canEdit,
   onStatusChange,
   onPriorityChange,
+  onDateChange,
   onDuplicateTask,
   updatingTaskId,
   showAssigneesCol = false,
@@ -361,7 +373,24 @@ export function TaskTrackerTable({
 
                 {/* 6. START DATE */}
                 <td className="py-2 px-2.5 border-r border-slate-200/70 dark:border-slate-800/70 whitespace-nowrap text-slate-600 dark:text-slate-300 text-[11px]">
-                  {formatDateDisplay(task.start_date)}
+                  {canEdit && onDateChange ? (
+                    <div className="relative group/date inline-flex items-center gap-1 cursor-pointer hover:text-purple-600 dark:hover:text-purple-400">
+                      <input
+                        type="date"
+                        value={toDateInputValue(task.start_date)}
+                        disabled={updatingTaskId === task.id}
+                        onChange={(e) => onDateChange(task.id, "start_date", e.target.value || null)}
+                        className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
+                        title="Click to edit Start Date"
+                      />
+                      <span className="group-hover/date:underline">
+                        {formatDateDisplay(task.start_date)}
+                      </span>
+                      <Calendar className="w-2.5 h-2.5 text-slate-400 opacity-0 group-hover/date:opacity-100 transition-opacity shrink-0" />
+                    </div>
+                  ) : (
+                    <span>{formatDateDisplay(task.start_date)}</span>
+                  )}
                 </td>
 
                 {/* 7. END DATE (Highlighted red if overdue past 6:30 PM) */}
@@ -372,23 +401,68 @@ export function TaskTrackerTable({
                       : "text-slate-600 dark:text-slate-300"
                   }`}
                 >
-                  <div className="flex items-center gap-1">
-                    <span>{formatDateDisplay(task.due_date)}</span>
-                    {overdueInfo.isOverdue && (
-                      <Clock className="w-2.5 h-2.5 text-rose-500 shrink-0" />
-                    )}
-                  </div>
+                  {canEdit && onDateChange ? (
+                    <div className="relative group/date inline-flex items-center gap-1 cursor-pointer hover:text-purple-600 dark:hover:text-purple-400">
+                      <input
+                        type="date"
+                        value={toDateInputValue(task.due_date)}
+                        disabled={updatingTaskId === task.id}
+                        onChange={(e) => onDateChange(task.id, "due_date", e.target.value || null)}
+                        className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
+                        title="Click to edit End Date"
+                      />
+                      <span className="group-hover/date:underline">
+                        {formatDateDisplay(task.due_date)}
+                      </span>
+                      {overdueInfo.isOverdue ? (
+                        <Clock className="w-2.5 h-2.5 text-rose-500 shrink-0" />
+                      ) : (
+                        <Calendar className="w-2.5 h-2.5 text-slate-400 opacity-0 group-hover/date:opacity-100 transition-opacity shrink-0" />
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1">
+                      <span>{formatDateDisplay(task.due_date)}</span>
+                      {overdueInfo.isOverdue && (
+                        <Clock className="w-2.5 h-2.5 text-rose-500 shrink-0" />
+                      )}
+                    </div>
+                  )}
                 </td>
 
                 {/* 8. ACHIEVED DATE */}
                 <td className="py-2 px-2.5 border-r border-slate-200/70 dark:border-slate-800/70 whitespace-nowrap text-slate-600 dark:text-slate-300 text-[11px]">
-                  {task.status === "Completed" ? (
-                    <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
-                      <CheckCircle2 className="w-2.5 h-2.5" />
-                      <span>{formatDateDisplay(achievedDateStr)}</span>
-                    </span>
+                  {canEdit && onDateChange ? (
+                    <div className="relative group/date inline-flex items-center gap-1 cursor-pointer hover:text-purple-600 dark:hover:text-purple-400">
+                      <input
+                        type="date"
+                        value={toDateInputValue(achievedDateStr)}
+                        disabled={updatingTaskId === task.id}
+                        onChange={(e) => onDateChange(task.id, "actual_completion_date", e.target.value || null)}
+                        className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
+                        title="Click to edit Achieved Date"
+                      />
+                      {task.status === "Completed" ? (
+                        <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium group-hover/date:underline">
+                          <CheckCircle2 className="w-2.5 h-2.5" />
+                          <span>{formatDateDisplay(achievedDateStr)}</span>
+                        </span>
+                      ) : (
+                        <span className="text-slate-400 group-hover/date:underline">
+                          {formatDateDisplay(achievedDateStr)}
+                        </span>
+                      )}
+                      <Calendar className="w-2.5 h-2.5 text-slate-400 opacity-0 group-hover/date:opacity-100 transition-opacity shrink-0" />
+                    </div>
                   ) : (
-                    <span className="text-slate-400">—</span>
+                    task.status === "Completed" ? (
+                      <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
+                        <CheckCircle2 className="w-2.5 h-2.5" />
+                        <span>{formatDateDisplay(achievedDateStr)}</span>
+                      </span>
+                    ) : (
+                      <span className="text-slate-400">—</span>
+                    )
                   )}
                 </td>
 

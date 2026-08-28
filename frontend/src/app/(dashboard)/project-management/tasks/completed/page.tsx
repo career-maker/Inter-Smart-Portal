@@ -128,6 +128,30 @@ export default function CompletedTasksPage() {
     }
   };
 
+  const handleQuickDateChange = async (
+    taskId: number,
+    field: "start_date" | "due_date" | "actual_completion_date",
+    newDate: string | null
+  ) => {
+    setUpdatingTaskId(taskId);
+    setTasksData((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        data: prev.data.map((t) => (t.id === taskId ? { ...t, [field]: newDate } : t)),
+      };
+    });
+
+    try {
+      await pmApi.updateTask(taskId, { [field]: newDate });
+    } catch (err: any) {
+      console.error("Failed to update date", err);
+      fetchTasks(true);
+    } finally {
+      setUpdatingTaskId(null);
+    }
+  };
+
   const rawList = tasksData?.data || [];
   const completedTasks = useMemo(() => {
     return rawList.filter((task) => {
@@ -377,6 +401,7 @@ export default function CompletedTasksPage() {
                   canEdit={canEdit}
                   onStatusChange={handleQuickStatusChange}
                   onPriorityChange={handleQuickPriorityChange}
+                  onDateChange={handleQuickDateChange}
                   updatingTaskId={updatingTaskId}
                 />
               </div>
@@ -397,6 +422,7 @@ export default function CompletedTasksPage() {
                 canEdit={canEdit}
                 onStatusChange={handleQuickStatusChange}
                 onPriorityChange={handleQuickPriorityChange}
+                onDateChange={handleQuickDateChange}
                 updatingTaskId={updatingTaskId}
               />
             </div>
@@ -410,6 +436,7 @@ export default function CompletedTasksPage() {
             canEdit={canEdit}
             onStatusChange={handleQuickStatusChange}
             onPriorityChange={handleQuickPriorityChange}
+            onDateChange={handleQuickDateChange}
             updatingTaskId={updatingTaskId}
             showAssigneesCol={true}
           />
