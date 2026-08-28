@@ -227,26 +227,17 @@ export default function HubstaffAnalyticsPage() {
   // effect won't re-fire, so fetch directly instead. Earlier version called
   // setState AND fetchAnalytics() unconditionally, firing two concurrent
   // requests that raced on the shared `loading` state — that's the bug that
-  // made Search appear to do nothing.
   const handleSearchDate = () => {
     if (dateMode === "single") {
       const val = selectedDateInputRef.current?.value || selectedDate;
-      if (val !== selectedDate) {
-        setLoading(true);
-        setSelectedDate(val);
-      } else {
-        fetchAnalytics(true);
-      }
+      setSelectedDate(val);
+      fetchAnalytics(true, { date: val });
     } else {
       const s = startDateInputRef.current?.value || startDate;
       const e = endDateInputRef.current?.value || endDate;
-      if (s !== startDate || e !== endDate) {
-        setLoading(true);
-        setStartDate(s);
-        setEndDate(e);
-      } else {
-        fetchAnalytics(true);
-      }
+      setStartDate(s);
+      setEndDate(e);
+      fetchAnalytics(true, { start_date: s, end_date: e });
     }
   };
 
@@ -513,8 +504,12 @@ export default function HubstaffAnalyticsPage() {
                   title="Search this date"
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#56348f] hover:bg-[#472a78] text-white text-[11px] font-bold shadow-sm transition disabled:opacity-50 cursor-pointer whitespace-nowrap shrink-0"
                 >
-                  <Search className="w-3.5 h-3.5 shrink-0" />
-                  <span className="whitespace-nowrap">Search</span>
+                  {loading || refreshing ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
+                  ) : (
+                    <Search className="w-3.5 h-3.5 shrink-0" />
+                  )}
+                  <span className="whitespace-nowrap">{loading || refreshing ? "Searching..." : "Search"}</span>
                 </button>
 
                 {/* Quick Presets */}
@@ -612,8 +607,12 @@ export default function HubstaffAnalyticsPage() {
                   title="Search this range"
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#56348f] hover:bg-[#472a78] text-white text-[11px] font-bold shadow-sm transition disabled:opacity-50 cursor-pointer whitespace-nowrap shrink-0"
                 >
-                  <Search className="w-3.5 h-3.5 shrink-0" />
-                  <span className="whitespace-nowrap">Search</span>
+                  {loading || refreshing ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
+                  ) : (
+                    <Search className="w-3.5 h-3.5 shrink-0" />
+                  )}
+                  <span className="whitespace-nowrap">{loading || refreshing ? "Searching..." : "Search"}</span>
                 </button>
 
                 {/* Range Presets */}

@@ -712,9 +712,10 @@ class HubstaffService
             // ── Strategy 3: Year alignment fallback (if testing with year ahead) ──
             $realYear = (int) date('Y');
             $requestedYear = (int) \Carbon\Carbon::parse($startDate)->year;
+            $usedAltYear = false;
             if (empty($allActivities) && $requestedYear > $realYear && $realYear >= 2024) {
                 $altStart = \Carbon\Carbon::parse($startDate)->setYear($realYear)->toDateString();
-                $altStop = \Carbon\Carbon::parse($endDate)->setYear($realYear)->toDateString();
+                $altStop = \Carbon\Carbon::parse($endDate)->setYear($realYear)->addDay()->toDateString();
                 $altRes = Http::withToken($token)->timeout(10)->acceptJson()->get("{$baseUrl}/organizations/{$orgId}/insights/activity", [
                     'date' => ['start' => $altStart, 'stop' => $altStop],
                     'time_zone' => $tz,
@@ -724,16 +725,13 @@ class HubstaffService
                     $altActs = $altRes->json()['activities'] ?? $altRes->json()['daily_activities'] ?? [];
                     if (!empty($altActs)) {
                         $allActivities = $altActs;
+                        $usedAltYear = true;
                     }
                 }
             }
 
             // ── Final pass: normalize each record's local date and strictly clamp to
-            // the requested [$startStr, $stopStr] window. date[stop] above is padded
-            // 1 day forward only (dodges Hubstaff's exclusive-stop dead zone on
-            // single-day queries) — the start is never padded backward, so this
-            // clamp only ever trims the deliberate forward padding, never legitimate
-            // prior-day data getting relabeled as today's.
+            // the requested [$startStr, $stopStr] window.
             $normalized = [];
             foreach ($allActivities as $act) {
                 $dt = (string) ($act['date'] ?? '');
@@ -754,6 +752,16 @@ class HubstaffService
                 if (empty($dt)) {
                     continue; // no resolvable date — skip rather than mis-bucket
                 }
+
+                // If alt-year fallback was used, adjust date back to requested year
+                if ($usedAltYear) {
+                    try {
+                        $dt = \Carbon\Carbon::parse($dt)->setYear($requestedYear)->toDateString();
+                    } catch (\Throwable $e) {
+                        // Keep dt
+                    }
+                }
+
                 if ($dt < $startStr || $dt > $stopStr) {
                     continue; // outside the exact requested date range
                 }
