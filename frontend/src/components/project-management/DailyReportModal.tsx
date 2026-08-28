@@ -1158,61 +1158,58 @@ export function DailyReportModal({
       {imageModalOpen && generatedImageUrl && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setImageModalOpen(false)} />
-          <div className="relative w-full max-w-4xl max-h-[90vh] bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl z-10 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+          <div className="relative w-full max-w-4xl max-h-[90vh] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-10 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             {/* Header */}
-            <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/90">
+            <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-900/90">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center">
-                  <ImageIcon style={{ color: "#c084fc" }} className="w-4 h-4 text-purple-400" />
+                <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-500/20 border border-purple-200 dark:border-purple-500/30 flex items-center justify-center">
+                  <ImageIcon className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                 </div>
                 <div>
-                  <h3 style={{ color: "#ffffff" }} className="text-sm font-bold text-white">Daily Report Image Preview</h3>
-                  <p style={{ color: "#94a3b8" }} className="text-[11px] text-slate-400">Copy to clipboard or download as high-resolution PNG</p>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">Daily Report Image Preview</h3>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">Copy to clipboard or download as high-resolution PNG</p>
                 </div>
               </div>
               <div className="flex items-center gap-2.5">
                 <button
                   type="button"
                   onClick={copyImageToClipboard}
-                  style={{ color: "#ffffff" }}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 active:bg-slate-600 !text-white text-xs font-bold transition-all cursor-pointer border border-slate-600 hover:border-slate-500 shadow-sm"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 active:bg-slate-200 text-slate-800 dark:text-white text-xs font-bold transition-all cursor-pointer border border-slate-300 dark:border-slate-600 shadow-sm"
                 >
                   {imageCopied ? (
-                    <Check style={{ color: "#34d399" }} className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   ) : (
-                    <Copy style={{ color: "#ffffff" }} className="w-4 h-4 text-white shrink-0" />
+                    <Copy className="w-4 h-4 text-slate-600 dark:text-slate-300 shrink-0" />
                   )}
-                  <span style={{ color: imageCopied ? "#34d399" : "#ffffff" }} className="!text-white font-bold">
+                  <span className={imageCopied ? "text-emerald-600 dark:text-emerald-400 font-bold" : "text-slate-800 dark:text-white font-bold"}>
                     {imageCopied ? "Copied Image!" : "Copy Image"}
                   </span>
                 </button>
                 <button
                   type="button"
                   onClick={downloadImage}
-                  style={{ color: "#ffffff", backgroundColor: "#7c3aed" }}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 active:bg-purple-700 !text-white text-xs font-bold transition-all cursor-pointer shadow-md"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#56348f] hover:bg-purple-800 active:bg-purple-900 !text-white text-xs font-bold transition-all cursor-pointer shadow-md"
                 >
-                  <Download style={{ color: "#ffffff" }} className="w-4 h-4 text-white shrink-0" />
-                  <span style={{ color: "#ffffff" }} className="!text-white font-bold">Download PNG</span>
+                  <Download className="w-4 h-4 !text-white shrink-0" />
+                  <span className="!text-white font-bold">Download PNG</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setImageModalOpen(false)}
-                  style={{ color: "#ffffff" }}
-                  className="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+                  className="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                   title="Close"
                 >
-                  <X style={{ color: "#ffffff" }} className="w-5 h-5 text-white" />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
             </div>
 
             {/* Canvas / Image Container */}
-            <div className="p-6 overflow-auto flex items-center justify-center bg-slate-950/80">
+            <div className="p-6 overflow-auto flex items-center justify-center bg-slate-200/70 dark:bg-slate-950">
               <img
                 src={generatedImageUrl}
                 alt="Daily Work Report"
-                className="max-w-full h-auto rounded-xl shadow-2xl border border-slate-800"
+                className="max-w-full h-auto rounded-lg shadow-xl border border-slate-300 dark:border-slate-700 bg-white"
               />
             </div>
           </div>
