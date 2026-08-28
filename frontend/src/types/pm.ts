@@ -400,7 +400,12 @@ export interface HubstaffProjectMemberStat {
   hubstaff_user_id: string;
   user_id?: number | null;
   name: string;
+  email?: string | null;
+  employee_code?: string | null;
   designation?: string;
+  team_name?: string | null;
+  is_linked?: boolean;
+  profile_photo_path?: string | null;
   tracked_seconds: number;
   tracked_formatted: string;
   activity_percentage: number;

@@ -544,29 +544,55 @@ export function ProjectStatusDrawer({
                 {/* ──────────────── TAB: MEMBERS & HUBSTAFF ──────────────── */}
                 {activeTab === "members" && (
                   <div className="space-y-4">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                      Engaged Team Members & Hubstaff Activity
-                    </h3>
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                        Engaged Team Members & Hubstaff Activity
+                      </h3>
+                      {hubstaff && (
+                        <span className="text-[11px] font-semibold text-purple-600 dark:text-purple-400">
+                          {hubstaff.members.length} Tracked Contributors
+                        </span>
+                      )}
+                    </div>
 
                     {hubstaff && hubstaff.members.length > 0 ? (
                       <div className="space-y-2.5">
                         {hubstaff.members.map((m) => (
                           <div
                             key={m.hubstaff_user_id}
-                            className="p-3.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xs flex items-center justify-between gap-3"
+                            className="p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xs flex items-center justify-between gap-3"
                           >
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-3 min-w-0">
                               <RoyalAvatar name={m.name} size="sm" />
-                              <div>
-                                <h5 className="text-xs font-bold text-slate-900 dark:text-white">{m.name}</h5>
-                                <p className="text-[11px] text-slate-500 dark:text-slate-400">{m.designation || "Member"}</p>
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <h5 className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                                    {m.name}
+                                  </h5>
+                                  {m.is_linked && (
+                                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-md bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                                      Portal Employee
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                                  {m.employee_code ? `Code: ${m.employee_code} • ` : ""}
+                                  {m.team_name ? `${m.team_name} • ` : ""}
+                                  {m.designation || "Member"}
+                                </p>
                               </div>
                             </div>
 
-                            <div className="text-right">
-                              <p className="text-xs font-bold text-slate-900 dark:text-white">{m.tracked_formatted}</p>
-                              <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-                                {m.activity_percentage}% Activity
+                            <div className="text-right shrink-0">
+                              <p className="text-sm font-bold text-slate-900 dark:text-white">{m.tracked_formatted}</p>
+                              <span
+                                className={`text-[11px] font-semibold ${
+                                  m.activity_percentage >= 50
+                                    ? "text-emerald-600 dark:text-emerald-400"
+                                    : "text-amber-600 dark:text-amber-400"
+                                }`}
+                              >
+                                {m.activity_percentage}% Avg Activity
                               </span>
                             </div>
                           </div>
@@ -598,7 +624,7 @@ export function ProjectStatusDrawer({
                           ))
                         ) : (
                           <div className="py-12 text-center text-slate-400 text-xs">
-                            No team members assigned directly to this project roster.
+                            No Hubstaff work activity or roster members recorded for this project yet.
                           </div>
                         )}
                       </div>

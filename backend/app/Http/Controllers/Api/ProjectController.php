@@ -297,11 +297,32 @@ class ProjectController extends Controller
 
         // Hubstaff activity integration for this specific project
         $hubstaffProjectData = null;
-        if (!empty($project->hubstaff_project_id)) {
-            try {
-                $hsService = app(\App\Services\HubstaffService::class);
+        $hubstaffMembersList = [];
+
+        try {
+            /** @var \App\Services\ProjectManagement\HubstaffService $hsService */
+            $hsService = app(\App\Services\ProjectManagement\HubstaffService::class);
+
+            // If project does not have hubstaff_project_id, attempt to match with Hubstaff projects
+            if (empty($project->hubstaff_project_id)) {
+                $hsProjectsRes = $hsService->getProjects();
+                $hsProjects = $hsProjectsRes['projects'] ?? [];
+                $cleanPName = strtolower(trim(preg_replace('/[^a-zA-Z0-9]/', '', $project->name)));
+
+                foreach ($hsProjects as $hp) {
+                    $cleanHpName = strtolower(trim(preg_replace('/[^a-zA-Z0-9]/', '', $hp['name'] ?? '')));
+                    if ($cleanPName === $cleanHpName || (strlen($cleanPName) > 3 && str_contains($cleanHpName, $cleanPName)) || (strlen($cleanHpName) > 3 && str_contains($cleanPName, $cleanHpName))) {
+                        $project->hubstaff_project_id = (string) $hp['id'];
+                        $project->save();
+                        break;
+                    }
+                }
+            }
+
+            if (!empty($project->hubstaff_project_id)) {
                 $hubstaffProjectId = (string) $project->hubstaff_project_id;
-                $startDate = now()->subDays(60)->toDateString();
+                // Look back up to 90 days for project activity
+                $startDate = now()->subDays(90)->toDateString();
                 $endDate = now()->toDateString();
                 $hsAct = $hsService->getDailyActivities($startDate, $endDate, false);
                 $rawActivities = $hsAct['activities'] ?? [];
@@ -310,7 +331,23 @@ class ProjectController extends Controller
                 $projectActivitySum = 0;
                 $memberTracked = [];
 
-                $userLinks = \App\Models\ProjectUserHubstaffLink::with('user:id,first_name,last_name,employee_code,designation')->get()->keyBy('hubstaff_user_id');
+                // 1. Explicit user links in pm_user_hubstaff_links
+                $userLinks = \App\Models\ProjectUserHubstaffLink::with([
+                    'user:id,first_name,last_name,email,employee_code,designation,team_id,profile_photo_path',
+                    'user.team:id,name'
+                ])->get()->keyBy('hubstaff_user_id');
+
+                // 2. Discovered members directory from Hubstaff
+                $discoveredMembers = $hsService->getMembersWithUsers()['users'] ?? [];
+                $discoveredMap = collect($discoveredMembers)->keyBy('hubstaff_user_id');
+
+                // 3. Portal users by email and full name
+                $allActiveUsers = \App\Models\User::where('status', 'Active')
+                    ->with('team:id,name')
+                    ->select('id', 'first_name', 'last_name', 'email', 'employee_code', 'designation', 'team_id', 'profile_photo_path')
+                    ->get();
+                $userByEmailMap = $allActiveUsers->keyBy(fn($u) => strtolower(trim($u->email)));
+                $userByNameMap = $allActiveUsers->keyBy(fn($u) => strtolower(trim("{$u->first_name} {$u->last_name}")));
 
                 foreach ($rawActivities as $act) {
                     if ((string) ($act['project_id'] ?? '') === $hubstaffProjectId) {
@@ -323,12 +360,39 @@ class ProjectController extends Controller
 
                         $hsUid = (string) ($act['user_id'] ?? '');
                         if (!isset($memberTracked[$hsUid])) {
-                            $uLink = $userLinks->get($hsUid);
+                            $matchedUser = $userLinks->get($hsUid)?->user;
+                            $discInfo = $discoveredMap->get($hsUid);
+
+                            if (!$matchedUser && $discInfo) {
+                                $dEmail = strtolower(trim($discInfo['email'] ?? ''));
+                                if (!empty($dEmail) && $userByEmailMap->has($dEmail)) {
+                                    $matchedUser = $userByEmailMap->get($dEmail);
+                                } else {
+                                    $dName = strtolower(trim($discInfo['name'] ?? ''));
+                                    if (!empty($dName) && $userByNameMap->has($dName)) {
+                                        $matchedUser = $userByNameMap->get($dName);
+                                    }
+                                }
+                            }
+
+                            $displayName = $matchedUser
+                                ? "{$matchedUser->first_name} {$matchedUser->last_name}"
+                                : ($discInfo['name'] ?? "Hubstaff User #{$hsUid}");
+
+                            $designation = $matchedUser?->designation ?? ($matchedUser ? 'Team Member' : 'Hubstaff Member');
+                            $employeeCode = $matchedUser?->employee_code ?? null;
+                            $teamName = $matchedUser?->team?->name ?? null;
+
                             $memberTracked[$hsUid] = [
                                 'hubstaff_user_id' => $hsUid,
-                                'user_id' => $uLink?->user?->id,
-                                'name' => $uLink?->user ? "{$uLink->user->first_name} {$uLink->user->last_name}" : "User #{$hsUid}",
-                                'designation' => $uLink?->user?->designation ?? 'Member',
+                                'user_id' => $matchedUser?->id,
+                                'name' => $displayName,
+                                'email' => $matchedUser?->email ?? ($discInfo['email'] ?? null),
+                                'employee_code' => $employeeCode,
+                                'designation' => $designation,
+                                'team_name' => $teamName,
+                                'is_linked' => $matchedUser !== null,
+                                'profile_photo_path' => $matchedUser?->profile_photo_path ?? null,
                                 'tracked_seconds' => 0,
                                 'activity_weighted_sum' => 0,
                             ];
@@ -347,7 +411,12 @@ class ProjectController extends Controller
                         'hubstaff_user_id' => $m['hubstaff_user_id'],
                         'user_id' => $m['user_id'],
                         'name' => $m['name'],
+                        'email' => $m['email'],
+                        'employee_code' => $m['employee_code'],
                         'designation' => $m['designation'],
+                        'team_name' => $m['team_name'],
+                        'is_linked' => $m['is_linked'],
+                        'profile_photo_path' => $m['profile_photo_path'],
                         'tracked_seconds' => $mSec,
                         'tracked_formatted' => $fmt,
                         'activity_percentage' => $avgPct,
@@ -362,9 +431,10 @@ class ProjectController extends Controller
                     'avg_activity_percentage' => $projectTrackedSeconds > 0 ? (int) round($projectActivitySum / $projectTrackedSeconds) : 0,
                     'members' => $membersFormatted,
                 ];
-            } catch (\Throwable $e) {
-                // Non-blocking Hubstaff fallback
+                $hubstaffMembersList = $membersFormatted;
             }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Hubstaff status details fetch exception', ['error' => $e->getMessage()]);
         }
 
         // Subphase analytics
@@ -427,6 +497,8 @@ class ProjectController extends Controller
             }
         }
 
+        $totalMembersCount = count($hubstaffMembersList) > 0 ? count($hubstaffMembersList) : $project->members->count();
+
         return response()->json([
             'data' => [
                 'project' => $project,
@@ -440,7 +512,7 @@ class ProjectController extends Controller
                     'active_tasks' => $project->tasks->whereNotIn('status', ['Completed', 'Rejected', 'Forecast'])->count(),
                     'forecast_tasks' => $project->tasks->where('status', 'Forecast')->count(),
                     'overdue_tasks' => $project->tasks->filter(fn($t) => $t->due_date && $t->due_date < now()->toDateString() && !in_array($t->status, ['Completed', 'Rejected']))->count(),
-                    'total_members' => $project->members->count(),
+                    'total_members' => $totalMembersCount,
                 ]
             ]
         ]);
