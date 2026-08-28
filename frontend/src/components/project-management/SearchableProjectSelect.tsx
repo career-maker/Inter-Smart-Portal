@@ -203,9 +203,14 @@ export function SearchableProjectSelect({
                   onChange("");
                   setIsOpen(false);
                 }}
+                style={{
+                  backgroundColor: !value || value === "" ? "#56348f" : undefined,
+                  color: !value || value === "" ? "#ffffff" : undefined,
+                  fontFamily: '"Proxima Nova", sans-serif',
+                }}
                 className={`px-3 py-2 rounded-xl cursor-pointer flex items-center justify-between gap-3 text-xs transition-colors duration-150 ${
                   !value || value === ""
-                    ? "bg-[#56348f] text-white shadow-xs font-semibold"
+                    ? "bg-[#56348f] !text-white shadow-xs font-semibold"
                     : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200"
                 }`}
               >
@@ -217,9 +222,11 @@ export function SearchableProjectSelect({
                         : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
                     }`}
                   >
-                    <Layers className="w-3.5 h-3.5" />
+                    <Layers className="w-3.5 h-3.5 text-current" />
                   </div>
-                  <span className="font-semibold">{allOptionLabel}</span>
+                  <span className={`font-semibold ${!value || value === "" ? "!text-white text-white" : ""}`}>
+                    {allOptionLabel}
+                  </span>
                 </div>
                 {(!value || value === "") && <Check className="w-4 h-4 text-white shrink-0" />}
               </div>
@@ -240,9 +247,14 @@ export function SearchableProjectSelect({
                       onChange(p.id);
                       setIsOpen(false);
                     }}
+                    style={{
+                      backgroundColor: isSelected ? "#56348f" : undefined,
+                      color: isSelected ? "#ffffff" : undefined,
+                      fontFamily: '"Proxima Nova", sans-serif',
+                    }}
                     className={`px-3 py-2 rounded-xl cursor-pointer flex items-center justify-between gap-3 text-xs transition-colors duration-150 ${
                       isSelected
-                        ? "bg-[#56348f] text-white shadow-xs font-semibold"
+                        ? "bg-[#56348f] !text-white shadow-xs font-semibold"
                         : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200"
                     }`}
                   >
@@ -258,7 +270,7 @@ export function SearchableProjectSelect({
                       </div>
                       <div className="truncate text-left">
                         <div className="truncate font-semibold flex items-center gap-1.5">
-                          <span className={isSelected ? "text-white" : "text-slate-900 dark:text-white"}>
+                          <span className={isSelected ? "!text-white text-white" : "text-slate-900 dark:text-white"}>
                             {p.name}
                           </span>
                           {p.hubstaff_project_id && (
@@ -275,7 +287,7 @@ export function SearchableProjectSelect({
                           {p.team?.name && (
                             <span
                               className={`truncate ${
-                                isSelected ? "text-purple-100" : "text-slate-500 dark:text-slate-400"
+                                isSelected ? "!text-purple-100 text-purple-100" : "text-slate-500 dark:text-slate-400"
                               }`}
                             >
                               • {p.team.name}
@@ -284,7 +296,7 @@ export function SearchableProjectSelect({
                           {p.category && (
                             <span
                               className={`truncate ${
-                                isSelected ? "text-purple-200" : "text-slate-400 dark:text-slate-500"
+                                isSelected ? "!text-purple-200 text-purple-200" : "text-slate-400 dark:text-slate-500"
                               }`}
                             >
                               ({p.category})
