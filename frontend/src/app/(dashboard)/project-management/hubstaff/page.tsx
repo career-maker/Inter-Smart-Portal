@@ -256,7 +256,7 @@ export default function HubstaffAnalyticsPage() {
     const list = analyticsData?.users || [];
     return list
       .filter((u: any) => {
-        if (selectedTeamId !== "all" && u.team_id && u.team_id !== selectedTeamId) {
+        if (selectedTeamId !== "all" && Number(u.team_id) !== Number(selectedTeamId)) {
           return false;
         }
         if (searchTerm.trim()) {
@@ -292,7 +292,7 @@ export default function HubstaffAnalyticsPage() {
     const list = analyticsData?.projects || [];
     return list
       .filter((p: any) => {
-        if (selectedTeamId !== "all" && p.team_id && p.team_id !== selectedTeamId) {
+        if (selectedTeamId !== "all" && Number(p.team_id) !== Number(selectedTeamId)) {
           return false;
         }
         if (searchTerm.trim()) {

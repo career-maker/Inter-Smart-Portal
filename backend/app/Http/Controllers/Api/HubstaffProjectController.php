@@ -330,17 +330,15 @@ class HubstaffProjectController extends Controller
                 $activity = 0.0;
             }
 
-            // Filter by team scope:
+            // Filter by team scope (strictly by employee team assignment):
             if ($selectedTeamId) {
                 $uTeam = $hubstaffUserMap[$hsUid]->team_id ?? null;
-                $pTeam = $pmProjects->get($hsPid)?->team_id ?? null;
-                if ($uTeam != $selectedTeamId && $pTeam != $selectedTeamId) {
+                if ($uTeam != $selectedTeamId) {
                     continue;
                 }
             } elseif (!$isSuperAdmin && !$isAdmin && !empty($ledTeamIds)) {
                 $uTeam = $hubstaffUserMap[$hsUid]->team_id ?? null;
-                $pTeam = $pmProjects->get($hsPid)?->team_id ?? null;
-                if (!in_array($uTeam, $ledTeamIds) && !in_array($pTeam, $ledTeamIds)) {
+                if (!$uTeam || !in_array($uTeam, $ledTeamIds)) {
                     continue;
                 }
             }
