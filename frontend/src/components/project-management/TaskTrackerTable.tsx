@@ -32,6 +32,7 @@ interface TaskTrackerTableProps {
   updatingTaskId?: number | null;
   showAssigneesCol?: boolean;
   emptyMessage?: string;
+  pageSize?: number;
 }
 
 function formatDateDisplay(dateStr?: string | null): string {
@@ -95,8 +96,20 @@ export function TaskTrackerTable({
   updatingTaskId,
   showAssigneesCol = false,
   emptyMessage = "No tasks found in this section.",
+  pageSize = 20,
 }: TaskTrackerTableProps) {
   const [activeCommentPopover, setActiveCommentPopover] = useState<number | null>(null);
+  const [tablePage, setTablePage] = useState<number>(1);
+
+  const perPage = pageSize;
+  const totalPages = Math.ceil(tasks.length / perPage);
+  const visibleTasks = tasks.slice((tablePage - 1) * perPage, tablePage * perPage);
+
+  React.useEffect(() => {
+    if (tablePage > totalPages && totalPages > 0) {
+      setTablePage(1);
+    }
+  }, [tasks.length, totalPages, tablePage]);
 
   if (!tasks || tasks.length === 0) {
     return (
@@ -107,31 +120,32 @@ export function TaskTrackerTable({
   }
 
   return (
-    <div className="w-full overflow-x-auto table-scrollbar">
-      <table className="w-full text-left border-collapse task-tracker-table">
-        <thead>
-          <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-800/50 whitespace-nowrap task-table-header">
-            <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-3 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">PROJECT</th>
-            <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-1.5 border-r border-slate-200/80 dark:border-slate-800 text-center dark:!text-white task-col-title w-10">Pty</th>
-            <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-3 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">SUB PHASE / TASK</th>
-            {showAssigneesCol && (
-              <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-3 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">ASSIGNEES</th>
-            )}
-            <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">PC</th>
-            <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">STATUS</th>
-            <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">START</th>
-            <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">END</th>
-            <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">ACHIEVED</th>
-            <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">COMMENTS</th>
-            <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2 border-r border-slate-200/80 dark:border-slate-800 text-center dark:!text-white task-col-title">DEV</th>
-            <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">SPRINT</th>
-            {canEdit && (
-              <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-3 text-right dark:!text-white task-col-title">ACTIONS</th>
-            )}
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
-          {tasks.map((task) => {
+    <div className="w-full flex flex-col">
+      <div className="w-full overflow-x-auto table-scrollbar">
+        <table className="w-full text-left border-collapse task-tracker-table">
+          <thead>
+            <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-800/50 whitespace-nowrap task-table-header">
+              <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-3 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">PROJECT</th>
+              <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-1.5 border-r border-slate-200/80 dark:border-slate-800 text-center dark:!text-white task-col-title w-10">Pty</th>
+              <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-3 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">SUB PHASE / TASK</th>
+              {showAssigneesCol && (
+                <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-3 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">ASSIGNEES</th>
+              )}
+              <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">PC</th>
+              <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">STATUS</th>
+              <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">START</th>
+              <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">END</th>
+              <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">ACHIEVED</th>
+              <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">COMMENTS</th>
+              <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2 border-r border-slate-200/80 dark:border-slate-800 text-center dark:!text-white task-col-title">DEV</th>
+              <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">SPRINT</th>
+              {canEdit && (
+                <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-3 text-right dark:!text-white task-col-title">ACTIONS</th>
+              )}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+            {visibleTasks.map((task) => {
             const overdueInfo = getTaskOverdueInfo(task.due_date, task.status, task.actual_completion_date);
             const pcName = task.coordinator
               ? `${task.coordinator.first_name || ""} ${task.coordinator.last_name || ""}`.trim() || "PC"
@@ -444,6 +458,61 @@ export function TaskTrackerTable({
           })}
         </tbody>
       </table>
+      </div>
+
+      {/* ── Per-Table Pagination Footer (20 tasks per page) ── */}
+      {totalPages > 1 && (
+        <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 bg-slate-50/75 dark:bg-slate-800/40 border-t border-slate-200/80 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400">
+          <div>
+            Showing <strong className="text-slate-800 dark:text-slate-200">{(tablePage - 1) * perPage + 1}</strong>–<strong className="text-slate-800 dark:text-slate-200">{Math.min(tablePage * perPage, tasks.length)}</strong> of <strong className="text-slate-800 dark:text-slate-200">{tasks.length}</strong> tasks
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setTablePage((p) => Math.max(1, p - 1))}
+              disabled={tablePage <= 1}
+              className="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-xs font-medium cursor-pointer"
+            >
+              Previous
+            </button>
+
+            <div className="flex items-center gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter((p) => p === 1 || p === totalPages || Math.abs(p - tablePage) <= 2)
+                .map((p, idx, arr) => {
+                  const prev = arr[idx - 1];
+                  const showEllipsis = prev && p - prev > 1;
+                  return (
+                    <React.Fragment key={p}>
+                      {showEllipsis && <span className="px-1 text-slate-400">…</span>}
+                      <button
+                        type="button"
+                        onClick={() => setTablePage(p)}
+                        className={`min-w-[28px] h-7 px-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                          tablePage === p
+                            ? "bg-[#56348f] text-white shadow-xs"
+                            : "border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                        }`}
+                      >
+                        {p}
+                      </button>
+                    </React.Fragment>
+                  );
+                })}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setTablePage((p) => Math.min(totalPages, p + 1))}
+              disabled={tablePage >= totalPages}
+              className="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-xs font-medium cursor-pointer"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
