@@ -464,7 +464,7 @@ export default function AllTasksPage() {
       </div>
 
       {/* ── Filters & Search Header ── */}
-      <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-4 sm:p-5 shadow-sm space-y-4">
+      <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-4 sm:p-5 shadow-sm space-y-4 relative z-30">
         {/* Status Category Tabs */}
         <div className="flex flex-wrap items-center gap-2 pb-1 border-b border-slate-200/80 dark:border-slate-800">
           {[

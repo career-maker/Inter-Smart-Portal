@@ -73,7 +73,11 @@ export function SearchableProjectSelect({
   const isSmall = size === "sm";
 
   return (
-    <div ref={containerRef} className={`relative w-full ${className}`} style={{ fontFamily: '"Proxima Nova", sans-serif' }}>
+    <div
+      ref={containerRef}
+      className={`relative w-full ${isOpen ? "z-[60]" : "z-10"} ${className}`}
+      style={{ fontFamily: '"Proxima Nova", sans-serif' }}
+    >
       {/* Hidden input for form requirement */}
       {required && (
         <input
