@@ -795,8 +795,8 @@ export default function DashboardPage() {
                   <p
                     style={{
                       fontFamily: '"Proxima Nova", sans-serif',
-                      fontSize: "36px",
-                      lineHeight: "44px",
+                      fontSize: "28px",
+                      lineHeight: "40px",
                       fontWeight: 600,
                       color: "rgb(15, 24, 36)",
                     }}
@@ -1797,8 +1797,8 @@ function KPICard({ title, value, trend, icon: Icon, color, href, onClick }: any)
           <h3
             style={{
               fontFamily: '"Proxima Nova", sans-serif',
-              fontSize: "36px",
-              lineHeight: "44px",
+              fontSize: "28px",
+              lineHeight: "40px",
               fontWeight: 600,
               color: "rgb(15, 24, 36)",
             }}
