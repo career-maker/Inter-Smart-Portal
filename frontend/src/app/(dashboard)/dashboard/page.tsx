@@ -792,7 +792,18 @@ export default function DashboardPage() {
               <div key={idx} className="bg-white dark:bg-slate-800 rounded-md p-4 border border-slate-200/90 dark:border-slate-700/60 shadow-sm">
                 <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-1">{metric.label}</p>
                 <div className="flex items-end justify-between">
-                  <p className="text-2xl font-bold text-slate-900 dark:text-white">{Number.isNaN(metric.value) ? 0 : metric.value}</p>
+                  <p
+                    style={{
+                      fontFamily: '"Proxima Nova", sans-serif',
+                      fontSize: "28px",
+                      lineHeight: "40px",
+                      fontWeight: 600,
+                      color: "rgb(15, 24, 36)",
+                    }}
+                    className="dark:!text-white tracking-tight"
+                  >
+                    {Number.isNaN(metric.value) ? 0 : metric.value}
+                  </p>
                   <div className={`flex items-center gap-1 text-xs font-semibold ${metric.direction === 'up' ? 'text-emerald-500' : 'text-red-500'}`}>
                     {metric.direction === 'up' ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
                     <span>{Math.abs(metric.trend)}%</span>
@@ -1774,23 +1785,34 @@ function KPICard({ title, value, trend, icon: Icon, color, href, onClick }: any)
   const accent = accentMap[color] || accentMap['bg-blue-500'];
 
   const CardContent = (
-    <div className={`wave-card relative overflow-hidden h-full rounded-md p-6 bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700/60 transition-all duration-300 ${(href || onClick) ? 'cursor-pointer group hover:bg-slate-50 dark:hover:bg-slate-700 hover:shadow-md' : ''}  `} style={{ '--wave-color': `var(--tw-color-${color.replace('bg-', '').replace('-500', '')}-50)` } as any}>
+    <div className={`wave-card relative overflow-hidden h-full rounded-md p-4 sm:p-4.5 bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700/60 transition-all duration-300 ${(href || onClick) ? 'cursor-pointer group hover:bg-slate-50 dark:hover:bg-slate-700 hover:shadow-md' : ''}  `} style={{ '--wave-color': `var(--tw-color-${color.replace('bg-', '').replace('-500', '')}-50)` } as any}>
       <div className="flex justify-between items-start relative z-10">
         <div>
-          <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">{title}</p>
-          <h3 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">{value}</h3>
+          <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">{title}</p>
+          <h3
+            style={{
+              fontFamily: '"Proxima Nova", sans-serif',
+              fontSize: "28px",
+              lineHeight: "40px",
+              fontWeight: 600,
+              color: "rgb(15, 24, 36)",
+            }}
+            className="dark:!text-white tracking-tight"
+          >
+            {value}
+          </h3>
         </div>
-        <div className={`w-12 h-12 rounded-md flex items-center justify-center ${accent.icon} shadow-sm ${(href || onClick) ? 'group-hover:scale-90 transition-transform duration-300' : ''}`}>
+        <div className={`w-10 h-10 rounded-md flex items-center justify-center ${accent.icon} shadow-sm ${(href || onClick) ? 'group-hover:scale-90 transition-transform duration-300' : ''}`}>
           <Icon className="w-5 h-5" />
         </div>
       </div>
       {trend ? (
-        <div className={`mt-4 text-xs font-bold flex items-center gap-1 ${trend.startsWith('+') ? 'text-emerald-400' : 'text-rose-400'}`}>
+        <div className={`mt-2 text-xs font-bold flex items-center gap-1 ${trend.startsWith('+') ? 'text-emerald-500 dark:text-emerald-400' : 'text-rose-500 dark:text-rose-400'}`}>
           <span>{trend.startsWith('+') ? '▲' : '▼'}</span>
           {trend} from yesterday
         </div>
       ) : (
-        <div className="mt-4 h-4" aria-hidden="true" />
+        <div className="mt-2 h-4" aria-hidden="true" />
       )}
     </div>
   );
