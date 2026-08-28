@@ -396,10 +396,10 @@ export default function HubstaffAnalyticsPage() {
           <button
             onClick={exportToCSV}
             disabled={loading || !analyticsData}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-[#56348f] dark:text-purple-300 text-xs font-bold border border-purple-200 dark:border-purple-800 transition-all disabled:opacity-50 cursor-pointer shadow-sm"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-[#56348f] dark:text-purple-300 text-xs font-bold border border-purple-200 dark:border-purple-800 transition-all disabled:opacity-50 cursor-pointer shadow-sm whitespace-nowrap shrink-0"
           >
-            <Download className="w-4 h-4" />
-            <span>Export CSV</span>
+            <Download className="w-4 h-4 shrink-0" />
+            <span className="whitespace-nowrap">Export CSV</span>
           </button>
         </div>
       </div>
@@ -409,14 +409,14 @@ export default function HubstaffAnalyticsPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           {/* Mode Switcher & Date Pickers */}
           <div className="flex items-center gap-3 flex-wrap">
-            <div className="inline-flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold">
+            <div className="inline-flex items-center shrink-0 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold">
               <button
                 type="button"
                 onClick={() => {
                   setLoading(true);
                   setDateMode("single");
                 }}
-                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                   dateMode === "single"
                     ? "bg-white dark:bg-slate-900 text-[#56348f] dark:text-purple-300 shadow-sm font-bold"
                     : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -430,7 +430,7 @@ export default function HubstaffAnalyticsPage() {
                   setLoading(true);
                   setDateMode("range");
                 }}
-                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                   dateMode === "range"
                     ? "bg-white dark:bg-slate-900 text-[#56348f] dark:text-purple-300 shadow-sm font-bold"
                     : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -450,12 +450,12 @@ export default function HubstaffAnalyticsPage() {
                     handlePrevDay();
                   }}
                   title="Previous Day"
-                  className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition cursor-pointer"
+                  className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition cursor-pointer shrink-0"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
 
-                <div className="flex items-center gap-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-2.5 py-1">
+                <div className="flex items-center gap-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-2.5 py-1 shrink-0">
                   <Calendar className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />
                   <input
                     ref={selectedDateInputRef}
@@ -501,7 +501,7 @@ export default function HubstaffAnalyticsPage() {
                     handleNextDay();
                   }}
                   title="Next Day"
-                  className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition cursor-pointer"
+                  className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition cursor-pointer shrink-0"
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>
@@ -511,21 +511,21 @@ export default function HubstaffAnalyticsPage() {
                   onClick={handleSearchDate}
                   disabled={loading || refreshing}
                   title="Search this date"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#56348f] hover:bg-[#472a78] text-white text-[11px] font-bold shadow-sm transition disabled:opacity-50 cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#56348f] hover:bg-[#472a78] text-white text-[11px] font-bold shadow-sm transition disabled:opacity-50 cursor-pointer whitespace-nowrap shrink-0"
                 >
-                  <Search className="w-3.5 h-3.5" />
-                  <span>Search</span>
+                  <Search className="w-3.5 h-3.5 shrink-0" />
+                  <span className="whitespace-nowrap">Search</span>
                 </button>
 
                 {/* Quick Presets */}
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 shrink-0">
                   <button
                     type="button"
                     onClick={() => {
                       setLoading(true);
                       handlePresetToday();
                     }}
-                    className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-purple-100 dark:bg-slate-800 dark:hover:bg-purple-950/60 text-slate-700 hover:text-purple-700 dark:text-slate-300 dark:hover:text-purple-300 text-[11px] font-semibold transition cursor-pointer"
+                    className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-purple-100 dark:bg-slate-800 dark:hover:bg-purple-950/60 text-slate-700 hover:text-purple-700 dark:text-slate-300 dark:hover:text-purple-300 text-[11px] font-semibold transition cursor-pointer whitespace-nowrap shrink-0"
                   >
                     Today
                   </button>
@@ -535,22 +535,22 @@ export default function HubstaffAnalyticsPage() {
                       setLoading(true);
                       handlePresetYesterday();
                     }}
-                    className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-purple-100 dark:bg-slate-800 dark:hover:bg-purple-950/60 text-slate-700 hover:text-purple-700 dark:text-slate-300 dark:hover:text-purple-300 text-[11px] font-semibold transition cursor-pointer"
+                    className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-purple-100 dark:bg-slate-800 dark:hover:bg-purple-950/60 text-slate-700 hover:text-purple-700 dark:text-slate-300 dark:hover:text-purple-300 text-[11px] font-semibold transition cursor-pointer whitespace-nowrap shrink-0"
                   >
                     Yesterday
                   </button>
                 </div>
 
                 {loading && (
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-100 dark:bg-purple-950/80 border border-purple-300 dark:border-purple-700 text-[11px] font-bold text-purple-800 dark:text-purple-200 animate-pulse shadow-xs">
-                    <Loader2 className="w-3.5 h-3.5 animate-spin text-purple-600 dark:text-purple-400" />
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-100 dark:bg-purple-950/80 border border-purple-300 dark:border-purple-700 text-[11px] font-bold text-purple-800 dark:text-purple-200 animate-pulse shadow-xs shrink-0 whitespace-nowrap">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-purple-600 dark:text-purple-400 shrink-0" />
                     <span>Loading...</span>
                   </div>
                 )}
               </div>
             ) : (
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-xs text-slate-500 font-semibold">From:</span>
+                <span className="text-xs text-slate-500 font-semibold shrink-0">From:</span>
                 <input
                   ref={startDateInputRef}
                   type="date"
@@ -575,9 +575,9 @@ export default function HubstaffAnalyticsPage() {
                       setStartDate(val);
                     }
                   }}
-                  className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs font-semibold rounded-xl px-2.5 py-1.5 outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer"
+                  className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs font-semibold rounded-xl px-2.5 py-1.5 outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer shrink-0"
                 />
-                <span className="text-xs text-slate-500 font-semibold">To:</span>
+                <span className="text-xs text-slate-500 font-semibold shrink-0">To:</span>
                 <input
                   ref={endDateInputRef}
                   type="date"
@@ -602,7 +602,7 @@ export default function HubstaffAnalyticsPage() {
                       setEndDate(val);
                     }
                   }}
-                  className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs font-semibold rounded-xl px-2.5 py-1.5 outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer"
+                  className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs font-semibold rounded-xl px-2.5 py-1.5 outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer shrink-0"
                 />
 
                 <button
@@ -610,21 +610,21 @@ export default function HubstaffAnalyticsPage() {
                   onClick={handleSearchDate}
                   disabled={loading || refreshing}
                   title="Search this range"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#56348f] hover:bg-[#472a78] text-white text-[11px] font-bold shadow-sm transition disabled:opacity-50 cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#56348f] hover:bg-[#472a78] text-white text-[11px] font-bold shadow-sm transition disabled:opacity-50 cursor-pointer whitespace-nowrap shrink-0"
                 >
-                  <Search className="w-3.5 h-3.5" />
-                  <span>Search</span>
+                  <Search className="w-3.5 h-3.5 shrink-0" />
+                  <span className="whitespace-nowrap">Search</span>
                 </button>
 
                 {/* Range Presets */}
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 shrink-0">
                   <button
                     type="button"
                     onClick={() => {
                       setLoading(true);
                       handlePresetLast7Days();
                     }}
-                    className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-purple-100 dark:bg-slate-800 dark:hover:bg-purple-950/60 text-slate-700 hover:text-purple-700 dark:text-slate-300 dark:hover:text-purple-300 text-[11px] font-semibold transition cursor-pointer"
+                    className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-purple-100 dark:bg-slate-800 dark:hover:bg-purple-950/60 text-slate-700 hover:text-purple-700 dark:text-slate-300 dark:hover:text-purple-300 text-[11px] font-semibold transition cursor-pointer whitespace-nowrap shrink-0"
                   >
                     Last 7 Days
                   </button>
@@ -634,15 +634,15 @@ export default function HubstaffAnalyticsPage() {
                       setLoading(true);
                       handlePresetThisMonth();
                     }}
-                    className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-purple-100 dark:bg-slate-800 dark:hover:bg-purple-950/60 text-slate-700 hover:text-purple-700 dark:text-slate-300 dark:hover:text-purple-300 text-[11px] font-semibold transition cursor-pointer"
+                    className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-purple-100 dark:bg-slate-800 dark:hover:bg-purple-950/60 text-slate-700 hover:text-purple-700 dark:text-slate-300 dark:hover:text-purple-300 text-[11px] font-semibold transition cursor-pointer whitespace-nowrap shrink-0"
                   >
                     This Month
                   </button>
                 </div>
 
                 {loading && (
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-100 dark:bg-purple-950/80 border border-purple-300 dark:border-purple-700 text-[11px] font-bold text-purple-800 dark:text-purple-200 animate-pulse shadow-xs">
-                    <Loader2 className="w-3.5 h-3.5 animate-spin text-purple-600 dark:text-purple-400" />
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-100 dark:bg-purple-950/80 border border-purple-300 dark:border-purple-700 text-[11px] font-bold text-purple-800 dark:text-purple-200 animate-pulse shadow-xs shrink-0 whitespace-nowrap">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-purple-600 dark:text-purple-400 shrink-0" />
                     <span>Loading...</span>
                   </div>
                 )}
@@ -651,39 +651,39 @@ export default function HubstaffAnalyticsPage() {
           </div>
 
           {/* Navigation View Tabs */}
-          <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-2xl border border-slate-200 dark:border-slate-700 self-start md:self-auto">
+          <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-2xl border border-slate-200 dark:border-slate-700 shrink-0 self-start md:self-auto">
             <button
               onClick={() => setActiveTab("users")}
-              className={`flex items-center gap-2 px-4 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                 activeTab === "users"
                   ? "bg-[#56348f] text-white font-bold shadow-sm"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
-              <Users className="w-3.5 h-3.5" />
-              <span>By Employee</span>
+              <Users className="w-3.5 h-3.5 shrink-0" />
+              <span className="whitespace-nowrap">By Employee</span>
             </button>
             <button
               onClick={() => setActiveTab("projects")}
-              className={`flex items-center gap-2 px-4 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                 activeTab === "projects"
                   ? "bg-[#56348f] text-white font-bold shadow-sm"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
-              <FolderKanban className="w-3.5 h-3.5" />
-              <span>By Project</span>
+              <FolderKanban className="w-3.5 h-3.5 shrink-0" />
+              <span className="whitespace-nowrap">By Project</span>
             </button>
             <button
               onClick={() => setActiveTab("trends")}
-              className={`flex items-center gap-2 px-4 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                 activeTab === "trends"
                   ? "bg-[#56348f] text-white font-bold shadow-sm"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
-              <TrendingUp className="w-3.5 h-3.5" />
-              <span>Trends & Charts</span>
+              <TrendingUp className="w-3.5 h-3.5 shrink-0" />
+              <span className="whitespace-nowrap">Trends & Charts</span>
             </button>
           </div>
         </div>
