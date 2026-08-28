@@ -1057,12 +1057,15 @@ class ProjectTaskController extends Controller
                         'status' => 'Active',
                         'project_type' => 'Client',
                         'team_id' => $user->team_id,
+                        'start_date' => now()->toDateString(),
                         'created_by' => $user->id,
                     ]);
                     $allProjects->push($matchedProject);
                     $projectByName->put(strtolower(trim(preg_replace('/[^a-zA-Z0-9]/', '', $matchedProject->name))), $matchedProject);
                     $projectById->put($matchedProject->id, $matchedProject);
-                } catch (\Throwable $e) {}
+                } catch (\Throwable $e) {
+                    \Log::error("Failed to auto-create project '{$projectName}': " . $e->getMessage());
+                }
             }
 
             if (!$matchedProject) {
@@ -1073,8 +1076,10 @@ class ProjectTaskController extends Controller
 
             // Team Lead Scope Verification
             if ($isTeamLead && !$isSuperAdmin) {
-                $hasAccess = in_array($matchedProject->team_id, $ledTeamIds, true)
-                    || $matchedProject->project_coordinator_id === $user->id;
+                $hasAccess = $matchedProject->team_id === null
+                    || in_array($matchedProject->team_id, $ledTeamIds, true)
+                    || $matchedProject->project_coordinator_id === $user->id
+                    || $matchedProject->created_by === $user->id;
                 if (!$hasAccess) {
                     $errors[] = "Row {$rowNum}: You are not authorized to add tasks to project '{$matchedProject->name}'.";
                     $failed++;
@@ -1203,6 +1208,6 @@ class ProjectTaskController extends Controller
             'imported_count' => $imported,
             'skipped_count' => $failed,
             'errors' => $errors,
-        ], $imported > 0 ? 200 : 422);
+        ], 200);
     }
 }
