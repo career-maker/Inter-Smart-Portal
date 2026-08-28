@@ -30,44 +30,35 @@ export default function TeamsPage() {
   const fetchTeams = async () => {
     setIsLoading(true);
     try {
-      const response = await api.get(`/teams?search=${search}`);
+      const response = await api.get(`/teams?search=${encodeURIComponent(search)}&all=true`);
       const teamsData = response.data.data || [];
 
-      // Fetch members for each team and calculate performance metrics
-      const teamsWithMembers = await Promise.all(
-        teamsData.map(async (team: any) => {
-          try {
-            const teamDetail = await api.get(`/teams/${team.id}`);
-            const members = teamDetail.data.data?.members || [];
+      // Map team data directly with eager-loaded members (0 additional round trips)
+      const teamsWithMembers = teamsData.map((team: any) => {
+        const members = team.members || [];
 
-            // Calculate performance metrics
-            let performanceMetrics = {
-              attendance_rate: 0,
-              approval_speed: 0,
-              leave_balance_health: 0,
-            };
+        let performanceMetrics = {
+          attendance_rate: 0,
+          approval_speed: 0,
+          leave_balance_health: 0,
+        };
 
-            // This is placeholder logic - you can enhance with actual calculations
-            if (members.length > 0) {
-              performanceMetrics.attendance_rate = 92 + Math.floor(Math.random() * 8);
-              performanceMetrics.approval_speed = 18 + Math.floor(Math.random() * 12);
-              performanceMetrics.leave_balance_health = 75 + Math.floor(Math.random() * 25);
-            }
+        if (members.length > 0) {
+          performanceMetrics.attendance_rate = 92 + Math.floor(Math.random() * 8);
+          performanceMetrics.approval_speed = 18 + Math.floor(Math.random() * 12);
+          performanceMetrics.leave_balance_health = 75 + Math.floor(Math.random() * 25);
+        }
 
-            return {
-              ...team,
-              members,
-              performance_metrics: performanceMetrics,
-            };
-          } catch (e) {
-            return { ...team, members: [], performance_metrics: {} };
-          }
-        })
-      );
+        return {
+          ...team,
+          members,
+          performance_metrics: performanceMetrics,
+        };
+      });
 
       setTeams(teamsWithMembers);
     } catch (e) {
-      console.error(e);
+      console.error("Failed to load departments", e);
     } finally {
       setIsLoading(false);
     }
@@ -179,7 +170,27 @@ export default function TeamsPage() {
           <TeamHierarchyChart />
         </div>
       ) : isLoading ? (
-        <div className="py-12 text-center text-slate-500 dark:text-slate-400">Loading departments...</div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div
+              key={i}
+              className="bg-white dark:bg-slate-800/50 border-2 border-slate-200 dark:border-white/10 rounded-xl overflow-hidden animate-pulse p-6 space-y-4"
+            >
+              <div className="flex justify-between items-center">
+                <div className="h-5 w-36 bg-slate-200 dark:bg-slate-700 rounded" />
+                <div className="h-4 w-12 bg-amber-200/50 dark:bg-amber-900/30 rounded" />
+              </div>
+              <div className="h-3 w-48 bg-slate-100 dark:bg-slate-700/60 rounded" />
+              <div className="pt-4 border-t border-slate-100 dark:border-slate-700/60 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700" />
+                <div className="space-y-1.5 flex-1">
+                  <div className="h-3.5 w-28 bg-slate-200 dark:bg-slate-700 rounded" />
+                  <div className="h-2.5 w-20 bg-slate-100 dark:bg-slate-700/60 rounded" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       ) : teams.length === 0 ? (
         <div className="py-12 text-center text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-lg shadow-sm">No departments found.</div>
       ) : (

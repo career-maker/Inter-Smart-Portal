@@ -14,13 +14,24 @@ class TeamController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Team::with('teamLead')->withCount('members');
+        $query = Team::with(['teamLead', 'members'])->withCount('members');
 
-        if ($request->has('search')) {
-            $query->where('name', 'like', "%{$request->search}%");
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('code', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
         }
 
-        return TeamResource::collection($query->paginate(10));
+        $query->orderBy('name', 'asc');
+
+        if ($request->boolean('all', true) || $request->has('all')) {
+            return TeamResource::collection($query->get());
+        }
+
+        return TeamResource::collection($query->paginate(50));
     }
 
     public function store(StoreTeamRequest $request)
