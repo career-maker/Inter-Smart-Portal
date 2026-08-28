@@ -1046,31 +1046,49 @@ export function DailyReportModal({
           <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setImageModalOpen(false)} />
           <div className="relative w-full max-w-4xl max-h-[90vh] bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl z-10 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             {/* Header */}
-            <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <ImageIcon className="w-5 h-5 text-purple-400" />
-                <h3 className="text-sm font-bold text-white">Daily Report Image Preview</h3>
+            <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/90">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center">
+                  <ImageIcon style={{ color: "#c084fc" }} className="w-4 h-4 text-purple-400" />
+                </div>
+                <div>
+                  <h3 style={{ color: "#ffffff" }} className="text-sm font-bold text-white">Daily Report Image Preview</h3>
+                  <p style={{ color: "#94a3b8" }} className="text-[11px] text-slate-400">Copy to clipboard or download as high-resolution PNG</p>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5">
                 <button
+                  type="button"
                   onClick={copyImageToClipboard}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold transition-colors cursor-pointer border border-slate-700"
+                  style={{ color: "#ffffff" }}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 active:bg-slate-600 !text-white text-xs font-bold transition-all cursor-pointer border border-slate-600 hover:border-slate-500 shadow-sm"
                 >
-                  {imageCopied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{imageCopied ? "Copied Image!" : "Copy Image"}</span>
+                  {imageCopied ? (
+                    <Check style={{ color: "#34d399" }} className="w-4 h-4 text-emerald-400 shrink-0" />
+                  ) : (
+                    <Copy style={{ color: "#ffffff" }} className="w-4 h-4 text-white shrink-0" />
+                  )}
+                  <span style={{ color: imageCopied ? "#34d399" : "#ffffff" }} className="!text-white font-bold">
+                    {imageCopied ? "Copied Image!" : "Copy Image"}
+                  </span>
                 </button>
                 <button
+                  type="button"
                   onClick={downloadImage}
-                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition-colors cursor-pointer shadow-md"
+                  style={{ color: "#ffffff", backgroundColor: "#7c3aed" }}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 active:bg-purple-700 !text-white text-xs font-bold transition-all cursor-pointer shadow-md"
                 >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Download PNG</span>
+                  <Download style={{ color: "#ffffff" }} className="w-4 h-4 text-white shrink-0" />
+                  <span style={{ color: "#ffffff" }} className="!text-white font-bold">Download PNG</span>
                 </button>
                 <button
+                  type="button"
                   onClick={() => setImageModalOpen(false)}
-                  className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                  style={{ color: "#ffffff" }}
+                  className="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+                  title="Close"
                 >
-                  <X className="w-5 h-5" />
+                  <X style={{ color: "#ffffff" }} className="w-5 h-5 text-white" />
                 </button>
               </div>
             </div>
