@@ -105,28 +105,29 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen w-screen overflow-hidden relative">
+    <div className="flex min-h-screen w-screen overflow-hidden relative bg-[#181d24]">
+      {/* Base background layer to prevent any white flashes before video mounts or loads */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#181d24]" style={{ zIndex: 0 }}></div>
+
       {/* Video background */}
       <video
         autoPlay
         muted
         loop
         playsInline
+        preload="auto"
         className="absolute inset-0 w-full h-full object-cover"
-        style={{ zIndex: 0 }}
+        style={{ zIndex: 1 }}
       >
         <source src="/videos/login-bg.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
 
       {/* Video overlay to darken it */}
-      <div className="absolute inset-0 bg-black/40" style={{ zIndex: 1 }}></div>
-
-      {/* Fallback gradient background (if video doesn't load) */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900" style={{ zIndex: -1 }}></div>
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-[0.5px]" style={{ zIndex: 2 }}></div>
 
       {/* Animated gradient background */}
-      <div className="absolute inset-0 opacity-20 overflow-hidden pointer-events-none" style={{ zIndex: 2 }}>
+      <div className="absolute inset-0 opacity-20 overflow-hidden pointer-events-none" style={{ zIndex: 3 }}>
         <div className="absolute top-0 -left-40 w-80 h-80 bg-amber-500 rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
         <div className="absolute top-0 -right-40 w-80 h-80 bg-slate-500 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000"></div>
         <div className="absolute -bottom-8 left-20 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000"></div>
