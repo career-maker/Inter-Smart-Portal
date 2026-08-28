@@ -365,7 +365,82 @@ export default function HubstaffAnalyticsPage() {
     document.body.removeChild(link);
   };
 
-  const summary = analyticsData?.summary || {};
+  // Dynamically compute summary metrics to guarantee accurate range and filter metrics
+  const computedSummary = useMemo(() => {
+    const baseSummary = analyticsData?.summary || {};
+    const users = analyticsData?.users || [];
+    const isFiltered = (selectedTeamId !== "all") || (activityFilter !== "all") || (projectFilter !== "all") || (searchTerm.trim() !== "");
+
+    if (isFiltered && filteredUsers.length > 0) {
+      let totalTrackedSec = 0;
+      let weightedActivitySum = 0;
+      let totalActiveSeconds = 0;
+      let sumOfActivityPcts = 0;
+      const uniqueUsers = new Set<string>();
+      const uniqueProjects = new Set<string>();
+
+      filteredUsers.forEach((u: any) => {
+        const sec = Number(u.tracked_seconds) || 0;
+        const act = normalizeActivityPct(u.activity_percentage);
+        totalTrackedSec += sec;
+        if (sec > 0) {
+          weightedActivitySum += (act * sec);
+          totalActiveSeconds += sec;
+        }
+        sumOfActivityPcts += act;
+        if (u.user_id || u.hubstaff_user_id) {
+          uniqueUsers.add(String(u.user_id || u.hubstaff_user_id));
+        }
+        if (u.projects && Array.isArray(u.projects)) {
+          u.projects.forEach((p: any) => {
+            if (p.project_id || p.hubstaff_project_id) {
+              uniqueProjects.add(String(p.project_id || p.hubstaff_project_id));
+            }
+          });
+        }
+      });
+
+      const avgAct = totalActiveSeconds > 0
+        ? Math.round(weightedActivitySum / totalActiveSeconds)
+        : (filteredUsers.length > 0 ? Math.round(sumOfActivityPcts / filteredUsers.length) : 0);
+
+      const activeUsersCount = uniqueUsers.size || filteredUsers.length;
+      const avgTimePerUserSec = activeUsersCount > 0 ? Math.round(totalTrackedSec / activeUsersCount) : 0;
+
+      return {
+        total_tracked_seconds: totalTrackedSec,
+        total_tracked_formatted: formatDuration(totalTrackedSec),
+        avg_activity_percentage: avgAct,
+        active_users_count: activeUsersCount,
+        active_projects_count: uniqueProjects.size || baseSummary.active_projects_count || 0,
+        avg_time_per_user_formatted: formatDuration(avgTimePerUserSec),
+      };
+    }
+
+    // Default to base summary, ensuring avg_activity_percentage is calculated from user rows if 0 or missing
+    let avgAct = baseSummary.avg_activity_percentage;
+    if ((avgAct === undefined || avgAct === null || avgAct === 0) && users.length > 0) {
+      let totalSec = 0;
+      let weightedSum = 0;
+      let actSum = 0;
+      users.forEach((u: any) => {
+        const s = Number(u.tracked_seconds) || 0;
+        const a = normalizeActivityPct(u.activity_percentage);
+        totalSec += s;
+        if (s > 0) {
+          weightedSum += (a * s);
+        }
+        actSum += a;
+      });
+      avgAct = totalSec > 0 ? Math.round(weightedSum / totalSec) : Math.round(actSum / users.length);
+    }
+
+    return {
+      ...baseSummary,
+      avg_activity_percentage: avgAct ?? 0,
+    };
+  }, [analyticsData, filteredUsers, selectedTeamId, activityFilter, projectFilter, searchTerm]);
+
   const trends = analyticsData?.trends || [];
 
   return (
@@ -737,7 +812,7 @@ export default function HubstaffAnalyticsPage() {
               }}
               className="dark:!text-white tracking-tight"
             >
-              {summary.total_tracked_formatted || "0h 00m"}
+              {computedSummary.total_tracked_formatted || "0h 00m"}
             </div>
           )}
           <p className="text-[10px] text-slate-500 dark:text-slate-400">Total computer time</p>
@@ -762,17 +837,19 @@ export default function HubstaffAnalyticsPage() {
               }}
               className="dark:!text-white tracking-tight flex items-center gap-2"
             >
-              <span>{normalizeActivityPct(summary.avg_activity_percentage)}%</span>
+              <span>{normalizeActivityPct(computedSummary.avg_activity_percentage)}%</span>
               <span
                 className={`text-[10px] px-2 py-0.5 rounded-full border font-bold ${
-                  getActivityBadge(summary.avg_activity_percentage ?? 0).bg
+                  getActivityBadge(computedSummary.avg_activity_percentage ?? 0).bg
                 }`}
               >
-                {normalizeActivityPct(summary.avg_activity_percentage) >= 70 ? "High" : normalizeActivityPct(summary.avg_activity_percentage) >= 50 ? "Moderate" : "Low"}
+                {normalizeActivityPct(computedSummary.avg_activity_percentage) >= 70 ? "High" : normalizeActivityPct(computedSummary.avg_activity_percentage) >= 50 ? "Moderate" : "Low"}
               </span>
             </div>
           )}
-          <p className="text-[10px] text-slate-500 dark:text-slate-400">Keystrokes & mouse activity</p>
+          <p className="text-[10px] text-slate-500 dark:text-slate-400">
+            {dateMode === "range" ? "Range average activity" : "Keystrokes & mouse activity"}
+          </p>
         </div>
 
         {/* Active Users */}
@@ -794,7 +871,7 @@ export default function HubstaffAnalyticsPage() {
               }}
               className="dark:!text-white tracking-tight"
             >
-              {summary.active_users_count ?? 0}
+              {computedSummary.active_users_count ?? 0}
             </div>
           )}
           <p className="text-[10px] text-slate-500 dark:text-slate-400">Logged work in Hubstaff</p>
@@ -819,7 +896,7 @@ export default function HubstaffAnalyticsPage() {
               }}
               className="dark:!text-white tracking-tight"
             >
-              {summary.active_projects_count ?? 0}
+              {computedSummary.active_projects_count ?? 0}
             </div>
           )}
           <p className="text-[10px] text-slate-500 dark:text-slate-400">Projects with logged time</p>
@@ -844,7 +921,7 @@ export default function HubstaffAnalyticsPage() {
               }}
               className="dark:!text-white tracking-tight"
             >
-              {summary.avg_time_per_user_formatted || "0h 00m"}
+              {computedSummary.avg_time_per_user_formatted || "0h 00m"}
             </div>
           )}
           <p className="text-[10px] text-slate-500 dark:text-slate-400">Average per active member</p>
@@ -1366,7 +1443,7 @@ export default function HubstaffAnalyticsPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
               {filteredProjects.slice(0, 6).map((p: any) => {
-                const totalSec = summary.total_tracked_seconds || 1;
+                const totalSec = computedSummary.total_tracked_seconds || 1;
                 const pct = Math.min(100, Math.round((p.tracked_seconds / totalSec) * 100));
                 return (
                   <div key={p.name} className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1 text-xs">
