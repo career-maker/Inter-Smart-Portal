@@ -107,6 +107,7 @@ export default function AllTasksPage() {
           if (statusFilter && statusFilter !== "All") params.status = statusFilter;
           if (priorityFilter && priorityFilter !== "All") params.priority = priorityFilter;
           if (projectFilter) params.project_id = Number(projectFilter);
+          if (selectedTeamId && selectedTeamId !== "all") params.team_id = Number(selectedTeamId);
 
           const data = await pmApi.getTasks(params);
           setTasksData(data);
@@ -119,7 +120,7 @@ export default function AllTasksPage() {
         setRefreshing(false);
       }
     },
-    [search, statusFilter, priorityFilter, projectFilter, isEmployee]
+    [search, statusFilter, priorityFilter, projectFilter, selectedTeamId, isEmployee]
   );
 
   useEffect(() => {
@@ -183,13 +184,18 @@ export default function AllTasksPage() {
   // Filter tasks by Team if Super Admin selects one
   const tasksList = useMemo(() => {
     if (selectedTeamId === "all") return rawList;
-    return rawList.filter((t) => t.project?.team_id === selectedTeamId || t.team_id === selectedTeamId);
+    return rawList.filter((t) => {
+      const matchTaskTeam = t.team_id === selectedTeamId;
+      const matchProjTeam = t.project?.team_id === selectedTeamId;
+      const matchAssigneeTeam = (t.assignees || []).some((a: any) => a.team_id === selectedTeamId);
+      return matchTaskTeam || matchProjTeam || matchAssigneeTeam;
+    });
   }, [rawList, selectedTeamId]);
 
   // Group tasks by team member for Team Leads
   const { employeeGroups, unassignedTasks } = useMemo(() => {
     const memberMap = new Map<number, {
-      member: { id: number; first_name: string; last_name: string; name: string; employee_code?: string; designation?: string };
+      member: { id: number; first_name: string; last_name: string; name: string; employee_code?: string; designation?: string; team_id?: number | null };
       tasks: ProjectTask[];
     }>();
 
@@ -210,6 +216,7 @@ export default function AllTasksPage() {
           name: fullName,
           employee_code: m.employee_code,
           designation: m.designation,
+          team_id: m.team_id,
         },
         tasks: [],
       });
@@ -228,6 +235,10 @@ export default function AllTasksPage() {
         const aId = assignee.id || assignee.user_id;
         if (!aId) return;
 
+        if (selectedTeamId !== "all" && assignee.team_id && assignee.team_id !== selectedTeamId && task.team_id !== selectedTeamId && task.project?.team_id !== selectedTeamId) {
+          return;
+        }
+
         if (!memberMap.has(aId)) {
           const aName = assignee.first_name ? `${assignee.first_name} ${assignee.last_name || ""}`.trim() : assignee.name || `User #${aId}`;
           memberMap.set(aId, {
@@ -238,6 +249,7 @@ export default function AllTasksPage() {
               name: aName,
               employee_code: assignee.employee_code,
               designation: assignee.designation,
+              team_id: assignee.team_id,
             },
             tasks: [],
           });
@@ -250,8 +262,15 @@ export default function AllTasksPage() {
       });
     });
 
+    const filteredEmployeeGroups = Array.from(memberMap.values()).filter((g) => {
+      if (selectedTeamId === "all") return true;
+      const belongsToTeam = g.member.team_id === selectedTeamId;
+      const hasTeamTasks = g.tasks.length > 0;
+      return belongsToTeam || hasTeamTasks;
+    });
+
     return {
-      employeeGroups: Array.from(memberMap.values()),
+      employeeGroups: filteredEmployeeGroups,
       unassignedTasks: unassigned,
     };
   }, [tasksList, teamMembers, selectedTeamId]);
