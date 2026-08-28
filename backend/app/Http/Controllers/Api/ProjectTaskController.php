@@ -1187,7 +1187,29 @@ class ProjectTaskController extends Controller
                     $taskData['actual_completion_date'] = $dueDate ?: now()->toDateString();
                 }
 
-                $task = ProjectTask::create($taskData);
+                // Check for existing task in the same project with the same title to avoid duplicates
+                $existingTask = ProjectTask::where('project_id', $matchedProject->id)
+                    ->where('title', $title)
+                    ->first();
+
+                if ($existingTask) {
+                    $existingTask->update([
+                        'team_id' => $matchedProject->team_id ?? $existingTask->team_id,
+                        'sub_phase_id' => $subPhaseId ?? $existingTask->sub_phase_id,
+                        'description' => $description ?: $existingTask->description,
+                        'priority' => $priority,
+                        'status' => $status,
+                        'start_date' => $startDate ?: $existingTask->start_date,
+                        'due_date' => $dueDate ?: $existingTask->due_date,
+                        'allotted_days' => $allottedDays ?: $existingTask->allotted_days,
+                        'time_taken' => $timeTaken > 0 ? $timeTaken : $existingTask->time_taken,
+                        'current_updates' => $remarks ?: $existingTask->current_updates,
+                        'updated_by' => $user->id,
+                    ]);
+                    $task = $existingTask;
+                } else {
+                    $task = ProjectTask::create($taskData);
+                }
 
                 if (!empty($assigneeIds)) {
                     foreach ($assigneeIds as $aIdx => $aId) {
