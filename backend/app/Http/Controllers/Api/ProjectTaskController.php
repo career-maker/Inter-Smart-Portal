@@ -908,6 +908,9 @@ class ProjectTaskController extends Controller
      */
     public function importCSV(Request $request)
     {
+        @set_time_limit(300);
+        @ini_set('memory_limit', '256M');
+
         $user = $request->user();
 
         $canImport = $user->hasRole('Super Admin')
@@ -926,7 +929,7 @@ class ProjectTaskController extends Controller
 
         if ($request->hasFile('file')) {
             $request->validate([
-                'file' => 'required|file|max:10240',
+                'file' => 'required|file|max:20480',
             ]);
 
             $file = $request->file('file');
@@ -976,7 +979,7 @@ class ProjectTaskController extends Controller
 
         // Cache lookups for performance
         $allProjects = Project::select('id', 'name', 'team_id', 'project_coordinator_id')->get();
-        $projectByName = $allProjects->keyBy(fn ($p) => strtolower(trim($p->name)));
+        $projectByName = $allProjects->keyBy(fn ($p) => strtolower(trim(preg_replace('/[^a-zA-Z0-9]/', '', $p->name))));
         $projectById = $allProjects->keyBy('id');
 
         $allUsers = User::where('status', 'Active')
@@ -990,6 +993,7 @@ class ProjectTaskController extends Controller
 
         // Team Lead authorization scope
         $isTeamLead = $user->hasRole('Team Lead') || strtolower($user->role ?? '') === 'team lead';
+        $isSuperAdmin = $user->hasRole('Super Admin') || in_array(strtolower($user->role ?? ''), ['super admin', 'admin'], true);
         $ledTeamIds = [];
         if ($isTeamLead) {
             $ledTeamIds = Team::where('team_lead_id', $user->id)->pluck('id')->toArray();
@@ -1004,7 +1008,7 @@ class ProjectTaskController extends Controller
         $errors = [];
 
         foreach ($rawRows as $idx => $row) {
-            $rowNum = $idx + 2; // Accounting for 1-based index and header row
+            $rowNum = $idx + 2; // 1-based row index accounting for header
 
             // 1. Resolve Task Title
             $title = trim($row['title'] ?? $row['task_title'] ?? $row['name'] ?? '');
@@ -1022,14 +1026,14 @@ class ProjectTaskController extends Controller
             if (!empty($rowProjectId) && $projectById->has($rowProjectId)) {
                 $matchedProject = $projectById->get($rowProjectId);
             } elseif (!empty($projectName)) {
-                $pKey = strtolower($projectName);
-                if ($projectByName->has($pKey)) {
-                    $matchedProject = $projectByName->get($pKey);
+                $pClean = strtolower(trim(preg_replace('/[^a-zA-Z0-9]/', '', $projectName)));
+                if ($projectByName->has($pClean)) {
+                    $matchedProject = $projectByName->get($pClean);
                 } else {
                     // Fuzzy fallback
-                    $matchedProject = $allProjects->first(function ($p) use ($pKey) {
-                        $cName = strtolower(trim($p->name));
-                        return $cName === $pKey || str_contains($cName, $pKey) || str_contains($pKey, $cName);
+                    $matchedProject = $allProjects->first(function ($p) use ($pClean) {
+                        $cName = strtolower(trim(preg_replace('/[^a-zA-Z0-9]/', '', $p->name)));
+                        return $cName === $pClean || (strlen($pClean) > 3 && str_contains($cName, $pClean)) || (strlen($cName) > 3 && str_contains($pClean, $cName));
                     });
                 }
             }
@@ -1039,6 +1043,22 @@ class ProjectTaskController extends Controller
                 $matchedProject = $projectById->get($defaultProjectId);
             }
 
+            // If still no project found, auto-create a project with this name
+            if (!$matchedProject && !empty($projectName)) {
+                try {
+                    $matchedProject = Project::create([
+                        'name' => $projectName,
+                        'status' => 'Active',
+                        'project_type' => 'Client',
+                        'team_id' => $user->team_id,
+                        'created_by' => $user->id,
+                    ]);
+                    $allProjects->push($matchedProject);
+                    $projectByName->put(strtolower(trim(preg_replace('/[^a-zA-Z0-9]/', '', $matchedProject->name))), $matchedProject);
+                    $projectById->put($matchedProject->id, $matchedProject);
+                } catch (\Throwable $e) {}
+            }
+
             if (!$matchedProject) {
                 $errors[] = "Row {$rowNum}: Project '" . ($projectName ?: "ID: {$rowProjectId}") . "' could not be resolved.";
                 $failed++;
@@ -1046,7 +1066,7 @@ class ProjectTaskController extends Controller
             }
 
             // Team Lead Scope Verification
-            if ($isTeamLead && !$user->hasRole('Super Admin') && !$user->hasRole('Admin')) {
+            if ($isTeamLead && !$isSuperAdmin) {
                 $hasAccess = in_array($matchedProject->team_id, $ledTeamIds, true)
                     || $matchedProject->project_coordinator_id === $user->id;
                 if (!$hasAccess) {
@@ -1060,14 +1080,28 @@ class ProjectTaskController extends Controller
             $subPhaseName = trim($row['sub_phase'] ?? $row['sub_phase_name'] ?? $row['phase'] ?? '');
             $subPhaseId = null;
             if (!empty($subPhaseName)) {
-                $spKey = strtolower($subPhaseName);
+                $spKey = strtolower(trim($subPhaseName));
                 $matchedSp = $allSubPhases->first(function ($sp) use ($spKey, $matchedProject) {
                     $matchName = strtolower(trim($sp->name)) === $spKey;
                     $matchTeam = $sp->team_id === null || $sp->team_id === $matchedProject->team_id;
                     return $matchName && $matchTeam;
                 });
+
                 if ($matchedSp) {
                     $subPhaseId = $matchedSp->id;
+                } else {
+                    // Auto-create sub-phase so tasks retain their category
+                    try {
+                        $newSp = \App\Models\ProjectSubPhase::create([
+                            'name' => $subPhaseName,
+                            'team_id' => $matchedProject->team_id,
+                            'display_order' => $allSubPhases->count() + 1,
+                            'is_active' => true,
+                            'created_by' => $user->id,
+                        ]);
+                        $allSubPhases->push($newSp);
+                        $subPhaseId = $newSp->id;
+                    } catch (\Throwable $e) {}
                 }
             }
 
@@ -1118,12 +1152,14 @@ class ProjectTaskController extends Controller
                 }
             }
 
-            // 7. Create Task Record
+            // 7. Direct Fast Task Creation
             try {
-                $taskPayload = [
+                $taskData = [
+                    'project_id' => $matchedProject->id,
+                    'team_id' => $matchedProject->team_id,
+                    'sub_phase_id' => $subPhaseId,
                     'title' => $title,
                     'description' => $description ?: null,
-                    'sub_phase_id' => $subPhaseId,
                     'priority' => $priority,
                     'status' => $status,
                     'start_date' => $startDate,
@@ -1131,18 +1167,21 @@ class ProjectTaskController extends Controller
                     'allotted_days' => $allottedDays,
                     'time_taken' => $timeTaken,
                     'current_updates' => $remarks ?: null,
-                    'team_id' => $matchedProject->team_id,
+                    'created_by' => $user->id,
                 ];
 
-                if (!empty($assigneeIds) && count($assigneeIds) > 1) {
-                    foreach ($assigneeIds as $aId) {
-                        $t = $this->tasks->createTask($matchedProject, $taskPayload, $user, $request);
-                        $this->tasks->assignUser($t, $aId, $user, true, $request);
-                    }
-                } else {
-                    $t = $this->tasks->createTask($matchedProject, $taskPayload, $user, $request);
-                    if (!empty($assigneeIds)) {
-                        $this->tasks->assignUser($t, $assigneeIds[0], $user, true, $request);
+                if ($status === 'Completed') {
+                    $taskData['actual_completion_date'] = $dueDate ?: now()->toDateString();
+                }
+
+                $task = ProjectTask::create($taskData);
+
+                if (!empty($assigneeIds)) {
+                    foreach ($assigneeIds as $aIdx => $aId) {
+                        ProjectTaskAssignee::firstOrCreate(
+                            ['task_id' => $task->id, 'user_id' => $aId],
+                            ['assigned_by' => $user->id, 'is_primary' => $aIdx === 0]
+                        );
                     }
                 }
 

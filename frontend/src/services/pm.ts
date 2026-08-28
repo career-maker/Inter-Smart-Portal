@@ -425,6 +425,7 @@ export const pmApi = {
     const isFormData = typeof FormData !== 'undefined' && payload instanceof FormData;
     const res = await api.post('/project-tasks/import', payload, {
       headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : {},
+      timeout: 180000, // 3 minutes timeout for bulk batch imports
     });
     return res.data;
   },
