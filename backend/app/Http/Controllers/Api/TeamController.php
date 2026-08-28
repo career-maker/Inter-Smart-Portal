@@ -50,15 +50,19 @@ class TeamController extends Controller
         $team = Team::create($data);
 
         // Set the Team Lead's team_id to this team and assign role
-        if ($team->team_lead_id) {
+        if (!empty($team->team_lead_id)) {
             $tl = User::find($team->team_lead_id);
             if ($tl) {
                 $tl->update(['team_id' => $team->id]);
-                $tl->assignRole('Team Lead');
+                if (!$tl->hasRole('Super Admin') && !$tl->hasRole('HR')) {
+                    $tl->syncRoles(['Team Lead']);
+                } else {
+                    $tl->assignRole('Team Lead');
+                }
             }
         }
 
-        return new TeamResource($team->load('teamLead')->loadCount('members'));
+        return new TeamResource($team->load(['teamLead', 'members'])->loadCount('members'));
     }
 
     public function show(Team $team)
@@ -68,50 +72,81 @@ class TeamController extends Controller
 
     public function update(UpdateTeamRequest $request, Team $team)
     {
-        $oldTeamLeadId = $team->team_lead_id;
+        $oldTeamLeadId = $team->team_lead_id ? (int)$team->team_lead_id : null;
         $data = $request->validated();
+        $newTeamLeadId = isset($data['team_lead_id']) && $data['team_lead_id'] !== 'none' && $data['team_lead_id'] !== '' && !is_null($data['team_lead_id'])
+            ? (int)$data['team_lead_id']
+            : null;
+        
+        $data['team_lead_id'] = $newTeamLeadId;
         $team->update($data);
 
         // If Team Lead changed, update team_id and roles accordingly
-        if (isset($data['team_lead_id']) && $data['team_lead_id'] !== $oldTeamLeadId) {
-            // Remove old team lead's team_id if there was one
+        if ($newTeamLeadId !== $oldTeamLeadId) {
+            // Remove old team lead's role if they aren't leading any other teams
             if ($oldTeamLeadId) {
                 $oldTl = User::find($oldTeamLeadId);
                 if ($oldTl) {
-                    $oldTl->update(['team_id' => null]);
-                    // Only remove role if they aren't leading any other teams
                     if (Team::where('team_lead_id', $oldTeamLeadId)->count() === 0) {
-                        $oldTl->removeRole('Team Lead');
+                        if (!$oldTl->hasRole('Super Admin') && !$oldTl->hasRole('HR')) {
+                            $oldTl->syncRoles(['Employee']);
+                        } else {
+                            $oldTl->removeRole('Team Lead');
+                        }
                     }
                 }
             }
+
             // Set new team lead's team_id and assign role
-            if ($data['team_lead_id']) {
-                $newTl = User::find($data['team_lead_id']);
+            if ($newTeamLeadId) {
+                $newTl = User::find($newTeamLeadId);
                 if ($newTl) {
                     $newTl->update(['team_id' => $team->id]);
-                    $newTl->assignRole('Team Lead');
+                    if (!$newTl->hasRole('Super Admin') && !$newTl->hasRole('HR')) {
+                        $newTl->syncRoles(['Team Lead']);
+                    } else {
+                        $newTl->assignRole('Team Lead');
+                    }
+                }
+            }
+        } elseif ($newTeamLeadId) {
+            // Ensure existing team lead has the proper role and team assignment
+            $tl = User::find($newTeamLeadId);
+            if ($tl) {
+                if ($tl->team_id !== $team->id) {
+                    $tl->update(['team_id' => $team->id]);
+                }
+                if (!$tl->hasRole('Team Lead')) {
+                    if (!$tl->hasRole('Super Admin') && !$tl->hasRole('HR')) {
+                        $tl->syncRoles(['Team Lead']);
+                    } else {
+                        $tl->assignRole('Team Lead');
+                    }
                 }
             }
         }
 
-        return new TeamResource($team->load('teamLead')->loadCount('members'));
+        return new TeamResource($team->load(['teamLead', 'members'])->loadCount('members'));
     }
 
     public function destroy(Team $team)
     {
-        $oldTeamLeadId = $team->team_lead_id;
+        $oldTeamLeadId = $team->team_lead_id ? (int)$team->team_lead_id : null;
 
         // Nullify the team_id for all current members
         User::where('team_id', $team->id)->update(['team_id' => null]);
         
         $team->delete();
 
-        // If the team lead isn't leading any other teams now, remove the role
+        // If the team lead isn't leading any other teams now, revert role
         if ($oldTeamLeadId) {
             $oldTl = User::find($oldTeamLeadId);
             if ($oldTl && Team::where('team_lead_id', $oldTeamLeadId)->count() === 0) {
-                $oldTl->removeRole('Team Lead');
+                if (!$oldTl->hasRole('Super Admin') && !$oldTl->hasRole('HR')) {
+                    $oldTl->syncRoles(['Employee']);
+                } else {
+                    $oldTl->removeRole('Team Lead');
+                }
             }
         }
         

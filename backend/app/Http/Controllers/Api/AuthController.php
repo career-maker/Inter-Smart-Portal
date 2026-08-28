@@ -51,7 +51,7 @@ class AuthController extends Controller
                 'city' => $user->city,
                 'state' => $user->state,
                 'zip' => $user->zip,
-                'role' => $user->roles->pluck('name')->first(),
+                'role' => $user->primaryRoleName(),
                 'permissions' => $user->getAllPermissions()->pluck('name'),
                 'profile_photo_path' => $user->profilePhotoUrl(),
             ]
@@ -80,7 +80,7 @@ class AuthController extends Controller
                 'city' => $user->city,
                 'state' => $user->state,
                 'zip' => $user->zip,
-                'role' => $user->roles->pluck('name')->first(),
+                'role' => $user->primaryRoleName(),
                 'permissions' => $user->getAllPermissions()->pluck('name'),
                 'profile_photo_path' => $user->profilePhotoUrl(),
             ]

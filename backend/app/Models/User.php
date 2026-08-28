@@ -84,9 +84,16 @@ class User extends Authenticatable
         return rtrim(config('app.url'), '/') . '/api/photos/' . $path;
     }
 
-
-
-
+    public function primaryRoleName(): string
+    {
+        $roleNames = $this->roles ? $this->roles->pluck('name')->toArray() : [];
+        if (in_array('Super Admin', $roleNames)) return 'Super Admin';
+        if (in_array('HR', $roleNames)) return 'HR';
+        if (in_array('Team Lead', $roleNames) || \App\Models\Team::where('team_lead_id', $this->id)->exists()) return 'Team Lead';
+        if (in_array('QA Lead', $roleNames)) return 'QA Lead';
+        if (in_array('QA', $roleNames)) return 'QA';
+        return !empty($roleNames) ? $roleNames[0] : 'Employee';
+    }
 
     /**
      * The attributes that should be hidden for serialization.

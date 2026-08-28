@@ -322,7 +322,9 @@ class DashboardController extends Controller
             ],
         ];
 
-        if ($user->hasRole('Super Admin') || $user->hasRole('Team Lead')) {
+        $isTeamLead = $user->hasRole('Team Lead') || \App\Models\Team::where('team_lead_id', $user->id)->exists();
+
+        if ($user->hasRole('Super Admin') || $isTeamLead) {
             $totalEmployees = User::where('status', 'Active')->count();
             $yesterdayStr = Carbon::yesterday()->toDateString();
             
@@ -417,7 +419,7 @@ class DashboardController extends Controller
                     \Log::warning('Failed to count pending requests: ' . $e->getMessage());
                     $pendingGlobalRequests = 0;
                 }
-            } elseif ($user->hasRole('Team Lead')) {
+            } elseif ($isTeamLead) {
                 try {
                     $teamId = $user->team_id;
 

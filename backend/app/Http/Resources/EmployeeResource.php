@@ -38,7 +38,7 @@ class EmployeeResource extends JsonResource
                 ];
             }),
             'role' => $this->whenLoaded('roles', function () {
-                return $this->roles->pluck('name')->first();
+                return $this->primaryRoleName();
             }),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
