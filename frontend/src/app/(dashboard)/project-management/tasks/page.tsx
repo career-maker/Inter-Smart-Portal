@@ -31,6 +31,7 @@ import { TeamFilterSelector } from "@/components/project-management/TeamFilterSe
 import { CreateTaskModal } from "@/components/project-management/CreateTaskModal";
 import { DailyReportModal } from "@/components/project-management/DailyReportModal";
 import { ImportTasksModal } from "@/components/project-management/ImportTasksModal";
+import { SearchableProjectSelect } from "@/components/project-management/SearchableProjectSelect";
 
 export default function AllTasksPage() {
   const { user } = useAuthStore();
@@ -512,19 +513,16 @@ export default function AllTasksPage() {
             )}
           </form>
 
-          <div>
-            <select
+          <div className="min-w-[180px]">
+            <SearchableProjectSelect
+              projects={projects}
               value={projectFilter}
-              onChange={(e) => setProjectFilter(e.target.value)}
-              className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
-            >
-              <option value="">All Projects</option>
-              {projects.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
+              onChange={(val) => setProjectFilter(val ? String(val) : "")}
+              allowAllOption
+              allOptionLabel="All Projects"
+              placeholder="All Projects"
+              size="sm"
+            />
           </div>
 
           <div>
