@@ -46,7 +46,12 @@ class ProjectController extends Controller
             $query->where('status', $request->string('status'));
         }
         if ($request->filled('team_id')) {
-            $query->where('team_id', (int) $request->input('team_id'));
+            $teamId = (int) $request->input('team_id');
+            $query->where(function ($q) use ($teamId) {
+                $q->where('team_id', $teamId)
+                  ->orWhereHas('members', fn ($m) => $m->where('users.team_id', $teamId))
+                  ->orWhereHas('coordinator', fn ($c) => $c->where('users.team_id', $teamId));
+            });
         }
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->string('search') . '%');

@@ -49,12 +49,12 @@ class ProjectTaskController extends Controller
 
         $user = $request->user();
         $query = ProjectTask::query()->with([
-            'project:id,name,project_type,category,project_coordinator_id',
+            'project:id,name,project_type,category,project_coordinator_id,team_id',
             'project.coordinator:id,first_name,last_name',
             'coordinator:id,first_name,last_name',
             'subPhase:id,name',
             'catalogTask:id,name,category',
-            'assignees:id,first_name,last_name',
+            'assignees:id,first_name,last_name,team_id',
             'team:id,name',
             'comments' => fn ($q) => $q->latest()->limit(1),
         ])->withCount(['comments', 'bugs']);
@@ -76,10 +76,19 @@ class ProjectTaskController extends Controller
             });
         }
 
-        foreach (['project_id', 'sub_phase_id', 'team_id'] as $filter) {
+        foreach (['project_id', 'sub_phase_id'] as $filter) {
             if ($request->filled($filter)) {
                 $query->where($filter, (int) $request->input($filter));
             }
+        }
+
+        if ($request->filled('team_id')) {
+            $teamId = (int) $request->input('team_id');
+            $query->where(function ($q) use ($teamId) {
+                $q->where('team_id', $teamId)
+                  ->orWhereHas('project', fn ($p) => $p->where('team_id', $teamId))
+                  ->orWhereHas('assignees', fn ($a) => $a->where('users.team_id', $teamId));
+            });
         }
         if ($request->filled('status')) {
             $statusVal = $request->string('status');

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import {
   FolderKanban,
@@ -193,11 +193,29 @@ export default function ProjectManagementDashboard() {
   // Compute KPI metrics according to strict role specifications
   // For Employee: show only their tasks
   // For Team Lead: show Team total and individual tasks
-  // For Super Admin: show department total
-  const relevantTaskList = isEmployee ? myTasks : tasks;
+  // For Super Admin: show department total (dynamically filtered when department switcher is active)
+  const relevantTaskList = useMemo(() => {
+    let list = isEmployee ? myTasks : tasks;
+    if (isSuperAdmin && selectedDepartmentId) {
+      list = list.filter((t) => {
+        const taskTeam = t.team_id;
+        const projTeam = (t.project as any)?.team_id;
+        const assigneeTeam = (t.assignees || []).some((a: any) => a.team_id === selectedDepartmentId);
+        return taskTeam === selectedDepartmentId || projTeam === selectedDepartmentId || assigneeTeam;
+      });
+    }
+    return list;
+  }, [isEmployee, myTasks, tasks, isSuperAdmin, selectedDepartmentId]);
+
+  const filteredProjects = useMemo(() => {
+    if (isSuperAdmin && selectedDepartmentId) {
+      return projects.filter((p) => (p as any).team_id === selectedDepartmentId);
+    }
+    return projects;
+  }, [projects, isSuperAdmin, selectedDepartmentId]);
 
   const metrics: DashboardStatsMetrics = {
-    totalProjects: projects.length,
+    totalProjects: filteredProjects.length,
     activeTasks: relevantTaskList.filter((t) => isActiveStatus(t.status)).length,
     myActiveTasks: isTeamLead ? myTasks.filter((t) => isActiveStatus(t.status)).length : undefined,
     forecastTasks: relevantTaskList.filter((t) => t.status === "Forecast").length,
