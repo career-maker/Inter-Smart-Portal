@@ -111,6 +111,29 @@ export const pmApi = {
     return res.data;
   },
 
+  /**
+   * Mark project as Made Live.
+   */
+  markProjectLive: async (
+    projectId: number,
+    payload?: { live_date?: string; live_notes?: string }
+  ): Promise<ApiResponse<Project>> => {
+    const res = await api.post<ApiResponse<Project>>(`/projects/${projectId}/mark-live`, payload);
+    return res.data;
+  },
+
+  /**
+   * Fetch 360-degree project status details (sub-phases, tasks, deviations, hubstaff, members).
+   */
+  getProjectStatusDetails: async (
+    projectId: number
+  ): Promise<ApiResponse<import('@/types/pm').ProjectStatusDetailsData>> => {
+    const res = await api.get<ApiResponse<import('@/types/pm').ProjectStatusDetailsData>>(
+      `/projects/${projectId}/status-details`
+    );
+    return res.data;
+  },
+
   // ── Tasks ──────────────────────────────────────────────────────────────────
 
   /**

@@ -476,6 +476,8 @@ Route::middleware('auth:sanctum')->prefix('projects')->group(function () {
     Route::post('{project}/members', [\App\Http\Controllers\Api\ProjectController::class, 'addMember']);
     Route::delete('{project}/members/{userId}', [\App\Http\Controllers\Api\ProjectController::class, 'removeMember']);
     Route::post('{project}/coordinator', [\App\Http\Controllers\Api\ProjectController::class, 'setCoordinator']);
+    Route::post('{project}/mark-live', [\App\Http\Controllers\Api\ProjectController::class, 'markAsLive']);
+    Route::get('{project}/status-details', [\App\Http\Controllers\Api\ProjectController::class, 'statusDetails']);
     Route::post('{project}/tasks', [\App\Http\Controllers\Api\ProjectTaskController::class, 'store']);
 });
 

@@ -72,6 +72,7 @@ const NAV_GROUPS: NavGroup[] = [
     icon: FolderKanban,
     items: [
       { href: "/project-management",          label: "Overview" },
+      { href: "/project-management/status",    label: "Project Status", roles: ["Super Admin", "Team Lead"] },
       { href: "/project-management/projects",  label: "Projects" },
       { href: "/project-management/tasks",     label: "All Tasks", roles: ["Super Admin", "Team Lead"] },
       { href: "/project-management/tasks/my",  label: "My Tasks" },

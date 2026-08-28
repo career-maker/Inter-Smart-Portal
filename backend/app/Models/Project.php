@@ -26,6 +26,10 @@ class Project extends Model
         'name',
         'description',
         'status',
+        'is_live',
+        'live_date',
+        'live_notes',
+        'live_marked_by',
         'project_type',
         'category',
         'team_id',
@@ -39,13 +43,14 @@ class Project extends Model
         'hubstaff_project_id',
         'blockers',
         'budget',
-        'live_notes',
         'fixing_notes',
         'created_by',
         'updated_by',
     ];
 
     protected $casts = [
+        'is_live' => 'boolean',
+        'live_date' => 'date',
         'start_date' => 'date',
         'expected_end_date' => 'date',
         'allotted_effort' => 'decimal:2',
@@ -100,6 +105,16 @@ class Project extends Model
     public function corrections(): HasMany
     {
         return $this->hasMany(ProjectCorrection::class);
+    }
+
+    public function subPhases(): HasMany
+    {
+        return $this->hasMany(ProjectSubPhase::class)->orderBy('order', 'asc');
+    }
+
+    public function liveMarker(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'live_marked_by');
     }
 
     /** Checklist items assigned directly to this project (not via a specific task). */

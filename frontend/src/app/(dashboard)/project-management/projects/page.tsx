@@ -23,6 +23,7 @@ import {
   Link2,
   CloudDownload,
   Check,
+  Rocket,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import api from "@/services/api";
@@ -36,6 +37,7 @@ import {
 } from "@/types/pm";
 import { ProjectStatusBadge } from "@/components/project-management/ProjectStatusBadge";
 import { CreateProjectModal } from "@/components/project-management/CreateProjectModal";
+import { MarkLiveModal } from "@/components/project-management/MarkLiveModal";
 
 function formatDateDisplay(dateStr?: string | null): string {
   if (!dateStr) return "—";
@@ -68,6 +70,8 @@ export default function ProjectsListPage() {
 
   const [teams, setTeams] = useState<{ id: number; name: string }[]>([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [markLiveProject, setMarkLiveProject] = useState<Project | null>(null);
+  const [isMarkLiveOpen, setIsMarkLiveOpen] = useState(false);
 
   // Fetch Teams for dropdown
   useEffect(() => {
@@ -428,24 +432,56 @@ export default function ProjectsListPage() {
 
                     {/* Status */}
                     <td className="py-3.5 px-4 border-r border-slate-200/80 dark:border-slate-800/80">
-                      <ProjectStatusBadge status={project.status} />
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <ProjectStatusBadge status={project.status} />
+                        {project.is_live && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                            <Rocket className="w-2.5 h-2.5 text-emerald-600 dark:text-emerald-400" />
+                            <span>Live</span>
+                          </span>
+                        )}
+                      </div>
                     </td>
 
                     {/* Actions */}
                     <td className="py-3.5 px-4 text-right">
-                      <Link
-                        href={`/project-management/projects/${project.id}`}
-                        style={{
-                          fontFamily: '"Proxima Nova", sans-serif',
-                          fontSize: "13px",
-                          lineHeight: "20px",
-                          fontWeight: 400,
-                        }}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-purple-50 dark:hover:bg-purple-950/40 text-slate-700 dark:text-slate-300 hover:text-purple-600 dark:hover:text-purple-400 text-[13px] leading-[20px] font-normal border border-slate-200 dark:border-slate-700/60 transition-colors"
-                      >
-                        <span>Details</span>
-                        <ChevronRight className="w-3.5 h-3.5" />
-                      </Link>
+                      <div className="flex items-center justify-end gap-1.5">
+                        {!project.is_live && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setMarkLiveProject(project);
+                              setIsMarkLiveOpen(true);
+                            }}
+                            style={{
+                              backgroundColor: "#56348f",
+                              color: "rgb(255, 255, 255)",
+                              fontFamily: '"Proxima Nova", sans-serif',
+                              fontSize: "13px",
+                              lineHeight: "20px",
+                              fontWeight: 400,
+                            }}
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#56348f] hover:bg-[#462875] !text-white text-[13px] leading-[20px] shadow-sm transition-colors cursor-pointer"
+                            title="Mark project as Made Live"
+                          >
+                            <Rocket className="w-3.5 h-3.5 !text-white" />
+                            <span className="!text-white">Made Live</span>
+                          </button>
+                        )}
+                        <Link
+                          href={`/project-management/projects/${project.id}`}
+                          style={{
+                            fontFamily: '"Proxima Nova", sans-serif',
+                            fontSize: "13px",
+                            lineHeight: "20px",
+                            fontWeight: 400,
+                          }}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-purple-50 dark:hover:bg-purple-950/40 text-slate-700 dark:text-slate-300 hover:text-purple-600 dark:hover:text-purple-400 text-[13px] leading-[20px] font-normal border border-slate-200 dark:border-slate-700/60 transition-colors"
+                        >
+                          <span>Details</span>
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -490,6 +526,14 @@ export default function ProjectsListPage() {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onSuccess={handleProjectCreated}
+      />
+
+      {/* ── Mark Made Live Modal ── */}
+      <MarkLiveModal
+        isOpen={isMarkLiveOpen}
+        onClose={() => setIsMarkLiveOpen(false)}
+        project={markLiveProject}
+        onSuccess={() => fetchProjects(currentPage, true)}
       />
     </div>
   );

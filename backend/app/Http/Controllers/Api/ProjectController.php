@@ -64,12 +64,29 @@ class ProjectController extends Controller
             $items = $query->select([
                 'id',
                 'name',
+                'description',
                 'category',
+                'project_type',
                 'team_id',
                 'project_coordinator_id',
                 'hubstaff_project_id',
                 'status',
-            ])->with('team:id,name')->orderBy('name', 'asc')->get();
+                'is_live',
+                'live_date',
+                'live_notes',
+                'live_marked_by',
+                'start_date',
+                'expected_end_date',
+                'created_at',
+            ])->with([
+                'team:id,name',
+                'coordinator:id,first_name,last_name,email',
+                'liveMarker:id,first_name,last_name',
+            ])->withCount([
+                'tasks',
+                'tasks as completed_tasks_count' => fn ($q) => $q->where('status', 'Completed'),
+                'tasks as active_tasks_count' => fn ($q) => $q->whereNotIn('status', ['Completed', 'Rejected', 'Forecast']),
+            ])->orderBy('name', 'asc')->get();
 
             return response()->json([
                 'data' => $items,
@@ -79,7 +96,17 @@ class ProjectController extends Controller
             ]);
         }
 
-        return response()->json($query->orderBy('created_at', 'desc')->paginate((int) $perPage));
+        return response()->json(
+            $query->with([
+                'team:id,name',
+                'coordinator:id,first_name,last_name,email',
+                'liveMarker:id,first_name,last_name',
+            ])->withCount([
+                'tasks',
+                'tasks as completed_tasks_count' => fn ($q) => $q->where('status', 'Completed'),
+                'tasks as active_tasks_count' => fn ($q) => $q->whereNotIn('status', ['Completed', 'Rejected', 'Forecast']),
+            ])->orderBy('created_at', 'desc')->paginate((int) $perPage)
+        );
     }
 
     public function store(StoreProjectRequest $request)
@@ -210,5 +237,200 @@ class ProjectController extends Controller
         ], $user, $request);
 
         return response()->json(['message' => 'Project coordinator updated successfully.', 'data' => $project]);
+    }
+
+    /**
+     * Mark a project as Made Live.
+     * Completes project lifecycle while preserving post-launch/after-live task creation.
+     */
+    public function markAsLive(Request $request, Project $project)
+    {
+        $user = $request->user();
+
+        if (!$this->auth->canManageProject($user, $project) && !$user->hasRole('Super Admin') && !$user->hasRole('Admin')) {
+            return response()->json(['message' => 'Unauthorized to mark this project as Made Live.'], 403);
+        }
+
+        $request->validate([
+            'live_date' => ['nullable', 'date'],
+            'live_notes' => ['nullable', 'string'],
+        ]);
+
+        $project->is_live = true;
+        $project->live_date = $request->input('live_date', now()->toDateString());
+        $project->live_notes = $request->input('live_notes');
+        $project->live_marked_by = $user->id;
+        $project->status = 'Completed';
+        $project->save();
+
+        $project->load(['team:id,name', 'coordinator:id,first_name,last_name', 'liveMarker:id,first_name,last_name']);
+
+        return response()->json([
+            'message' => "Project '{$project->name}' marked as Made Live successfully.",
+            'data' => $project,
+        ]);
+    }
+
+    /**
+     * Complete 360-degree status details of a project for the Project Status Drawer.
+     */
+    public function statusDetails(Request $request, Project $project)
+    {
+        $user = $request->user();
+
+        if (!$this->auth->canViewProject($user, $project)) {
+            return response()->json(['message' => 'Unauthorized.'], 403);
+        }
+
+        $project->load([
+            'team:id,name',
+            'coordinator:id,first_name,last_name,email,employee_code,designation',
+            'creator:id,first_name,last_name',
+            'liveMarker:id,first_name,last_name',
+            'subPhases' => fn($q) => $q->orderBy('order', 'asc'),
+            'tasks' => fn($q) => $q->with([
+                'subPhase:id,name',
+                'assignees:id,first_name,last_name,employee_code,designation,team_id',
+                'coordinator:id,first_name,last_name',
+            ])->orderBy('due_date', 'asc'),
+            'members:users.id,first_name,last_name,email,employee_code,designation,team_id',
+        ]);
+
+        // Hubstaff activity integration for this specific project
+        $hubstaffProjectData = null;
+        if (!empty($project->hubstaff_project_id)) {
+            try {
+                $hsService = app(\App\Services\HubstaffService::class);
+                $hubstaffProjectId = (string) $project->hubstaff_project_id;
+                $startDate = now()->subDays(60)->toDateString();
+                $endDate = now()->toDateString();
+                $hsAct = $hsService->getDailyActivities($startDate, $endDate, false);
+                $rawActivities = $hsAct['activities'] ?? [];
+
+                $projectTrackedSeconds = 0;
+                $projectActivitySum = 0;
+                $memberTracked = [];
+
+                $userLinks = \App\Models\ProjectUserHubstaffLink::with('user:id,first_name,last_name,employee_code,designation')->get()->keyBy('hubstaff_user_id');
+
+                foreach ($rawActivities as $act) {
+                    if ((string) ($act['project_id'] ?? '') === $hubstaffProjectId) {
+                        $sec = (int) ($act['tracked'] ?? $act['input_tracked'] ?? 0);
+                        $rawAct = (float) ($act['activity'] ?? 0);
+                        $actPct = $rawAct > 100 ? ($rawAct / 100) : ($rawAct <= 1 ? $rawAct * 100 : $rawAct);
+
+                        $projectTrackedSeconds += $sec;
+                        $projectActivitySum += ($actPct * $sec);
+
+                        $hsUid = (string) ($act['user_id'] ?? '');
+                        if (!isset($memberTracked[$hsUid])) {
+                            $uLink = $userLinks->get($hsUid);
+                            $memberTracked[$hsUid] = [
+                                'hubstaff_user_id' => $hsUid,
+                                'user_id' => $uLink?->user?->id,
+                                'name' => $uLink?->user ? "{$uLink->user->first_name} {$uLink->user->last_name}" : "User #{$hsUid}",
+                                'designation' => $uLink?->user?->designation ?? 'Member',
+                                'tracked_seconds' => 0,
+                                'activity_weighted_sum' => 0,
+                            ];
+                        }
+                        $memberTracked[$hsUid]['tracked_seconds'] += $sec;
+                        $memberTracked[$hsUid]['activity_weighted_sum'] += ($actPct * $sec);
+                    }
+                }
+
+                $membersFormatted = [];
+                foreach ($memberTracked as $m) {
+                    $mSec = $m['tracked_seconds'];
+                    $avgPct = $mSec > 0 ? (int) round($m['activity_weighted_sum'] / $mSec) : 0;
+                    $fmt = floor($mSec / 3600) . 'h ' . str_pad((string) floor(($mSec % 3600) / 60), 2, '0', STR_PAD_LEFT) . 'm';
+                    $membersFormatted[] = [
+                        'hubstaff_user_id' => $m['hubstaff_user_id'],
+                        'user_id' => $m['user_id'],
+                        'name' => $m['name'],
+                        'designation' => $m['designation'],
+                        'tracked_seconds' => $mSec,
+                        'tracked_formatted' => $fmt,
+                        'activity_percentage' => $avgPct,
+                    ];
+                }
+                usort($membersFormatted, fn($a, $b) => $b['tracked_seconds'] <=> $a['tracked_seconds']);
+
+                $hubstaffProjectData = [
+                    'hubstaff_project_id' => $hubstaffProjectId,
+                    'total_tracked_seconds' => $projectTrackedSeconds,
+                    'total_tracked_formatted' => floor($projectTrackedSeconds / 3600) . 'h ' . str_pad((string) floor(($projectTrackedSeconds % 3600) / 60), 2, '0', STR_PAD_LEFT) . 'm',
+                    'avg_activity_percentage' => $projectTrackedSeconds > 0 ? (int) round($projectActivitySum / $projectTrackedSeconds) : 0,
+                    'members' => $membersFormatted,
+                ];
+            } catch (\Throwable $e) {
+                // Non-blocking Hubstaff fallback
+            }
+        }
+
+        // Subphase analytics
+        $subPhasesAnalytics = [];
+        foreach ($project->subPhases as $sp) {
+            $phaseTasks = $project->tasks->where('sub_phase_id', $sp->id);
+            $total = $phaseTasks->count();
+            $completed = $phaseTasks->where('status', 'Completed')->count();
+            $inProgress = $phaseTasks->whereIn('status', ['In Progress', 'Being Developed', 'Ready for QA', 'Assigned to QA'])->count();
+            $forecast = $phaseTasks->where('status', 'Forecast')->count();
+
+            $subPhasesAnalytics[] = [
+                'id' => $sp->id,
+                'name' => $sp->name,
+                'order' => $sp->order,
+                'status' => $sp->status,
+                'total_tasks' => $total,
+                'completed_tasks' => $completed,
+                'in_progress_tasks' => $inProgress,
+                'forecast_tasks' => $forecast,
+                'progress_percentage' => $total > 0 ? (int) round(($completed / $total) * 100) : ($sp->status === 'Completed' ? 100 : 0),
+            ];
+        }
+
+        // Tasks with deviations & after-live tasks
+        $deviations = [];
+        $afterLiveTasks = [];
+        $liveDate = $project->live_date ? \Carbon\Carbon::parse($project->live_date)->startOfDay() : null;
+
+        foreach ($project->tasks as $t) {
+            if ($t->deviation && abs((float) $t->deviation) > 0) {
+                $deviations[] = [
+                    'id' => $t->id,
+                    'title' => $t->title,
+                    'status' => $t->status,
+                    'allotted_days' => $t->allotted_days,
+                    'time_taken' => $t->time_taken,
+                    'days_taken' => $t->days_taken,
+                    'deviation' => $t->deviation,
+                    'deviation_reason' => $t->deviation_reason,
+                    'sub_phase_name' => $t->subPhase?->name ?? 'General',
+                ];
+            }
+
+            if ($liveDate && $t->created_at && \Carbon\Carbon::parse($t->created_at)->gte($liveDate)) {
+                $afterLiveTasks[] = $t;
+            }
+        }
+
+        return response()->json([
+            'data' => [
+                'project' => $project,
+                'sub_phases_analytics' => $subPhasesAnalytics,
+                'hubstaff_analytics' => $hubstaffProjectData,
+                'deviations' => $deviations,
+                'after_live_tasks' => $afterLiveTasks,
+                'stats' => [
+                    'total_tasks' => $project->tasks->count(),
+                    'completed_tasks' => $project->tasks->where('status', 'Completed')->count(),
+                    'active_tasks' => $project->tasks->whereNotIn('status', ['Completed', 'Rejected', 'Forecast'])->count(),
+                    'forecast_tasks' => $project->tasks->where('status', 'Forecast')->count(),
+                    'overdue_tasks' => $project->tasks->filter(fn($t) => $t->due_date && $t->due_date < now()->toDateString() && !in_array($t->status, ['Completed', 'Rejected']))->count(),
+                    'total_members' => $project->members->count(),
+                ]
+            ]
+        ]);
     }
 }

@@ -82,6 +82,10 @@ export interface Project {
   name_normalized?: string;
   description?: string | null;
   status: ProjectStatus;
+  is_live?: boolean;
+  live_date?: string | null;
+  live_notes?: string | null;
+  live_marked_by?: number | null;
   project_type?: string | null;
   category?: string | null;
   team_id?: number | null;
@@ -95,7 +99,6 @@ export interface Project {
   hubstaff_project_id?: string | null;
   blockers?: string | null;
   budget?: number | null;
-  live_notes?: string | null;
   fixing_notes?: string | null;
   created_by?: number;
   updated_by?: number | null;
@@ -103,10 +106,16 @@ export interface Project {
   updated_at: string;
   deleted_at?: string | null;
 
+  // Counts
+  tasks_count?: number;
+  completed_tasks_count?: number;
+  active_tasks_count?: number;
+
   // Eager-loaded relations
   team?: ProjectTeamSummary | null;
   coordinator?: ProjectCoordinatorSummary | null;
   creator?: { id: number; first_name: string; last_name: string } | null;
+  liveMarker?: { id: number; first_name: string; last_name: string } | null;
   members?: ProjectMemberUser[];
 }
 
@@ -366,4 +375,72 @@ export interface HubstaffProjectsResponse {
   projects: HubstaffProject[];
   error?: string | null;
   message?: string | null;
+}
+
+// ── Project Status 360 & Made Live Types ─────────────────────────────────────
+
+export interface MarkProjectLivePayload {
+  live_date?: string;
+  live_notes?: string;
+}
+
+export interface SubPhaseAnalyticsItem {
+  id: number;
+  name: string;
+  order: number;
+  status: string;
+  total_tasks: number;
+  completed_tasks: number;
+  in_progress_tasks: number;
+  forecast_tasks: number;
+  progress_percentage: number;
+}
+
+export interface HubstaffProjectMemberStat {
+  hubstaff_user_id: string;
+  user_id?: number | null;
+  name: string;
+  designation?: string;
+  tracked_seconds: number;
+  tracked_formatted: string;
+  activity_percentage: number;
+}
+
+export interface HubstaffProjectAnalytics {
+  hubstaff_project_id: string;
+  total_tracked_seconds: number;
+  total_tracked_formatted: string;
+  avg_activity_percentage: number;
+  members: HubstaffProjectMemberStat[];
+}
+
+export interface TaskDeviationItem {
+  id: number;
+  title: string;
+  status: TaskStatus;
+  allotted_days?: number | null;
+  time_taken?: number | null;
+  days_taken?: number | null;
+  deviation?: number | null;
+  deviation_reason?: string | null;
+  sub_phase_name?: string;
+}
+
+export interface ProjectStatusDetailsData {
+  project: Project & {
+    subPhases?: Array<{ id: number; name: string; order: number; status: string }>;
+    tasks?: ProjectTask[];
+  };
+  sub_phases_analytics: SubPhaseAnalyticsItem[];
+  hubstaff_analytics?: HubstaffProjectAnalytics | null;
+  deviations: TaskDeviationItem[];
+  after_live_tasks: ProjectTask[];
+  stats: {
+    total_tasks: number;
+    completed_tasks: number;
+    active_tasks: number;
+    forecast_tasks: number;
+    overdue_tasks: number;
+    total_members: number;
+  };
 }
