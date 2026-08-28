@@ -885,7 +885,13 @@ class ProjectTaskController extends Controller
             return null;
         }
         $dateStr = trim($dateStr);
-        $formats = ['Y-m-d', 'd-m-Y', 'd/m/Y', 'Y/m/d', 'm/d/Y'];
+        // Handle Excel numeric serial dates (e.g. 45532)
+        if (is_numeric($dateStr) && (int)$dateStr > 25000 && (int)$dateStr < 70000) {
+            try {
+                return \Carbon\Carbon::create(1899, 12, 30)->addDays((int)$dateStr)->toDateString();
+            } catch (\Throwable $e) {}
+        }
+        $formats = ['Y-m-d', 'd-m-Y', 'd/m/Y', 'Y/m/d', 'm/d/Y', 'Y-m-d H:i:s', 'd/m/Y H:i:s'];
         foreach ($formats as $fmt) {
             try {
                 $d = \Carbon\Carbon::createFromFormat($fmt, $dateStr);

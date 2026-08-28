@@ -10,7 +10,8 @@ import {
   X,
   Loader2,
   Table as TableIcon,
-  FileCheck
+  FileCheck,
+  ArrowRight
 } from "lucide-react";
 import { Project } from "@/types/pm";
 import pmApi from "@/services/pm";
@@ -28,9 +29,14 @@ interface ParsedTaskRow {
   sub_phase?: string;
   priority?: string;
   status?: string;
+  start_date?: string;
   due_date?: string;
   assignees?: string;
+  assignee_codes?: string;
   allotted_days?: string;
+  time_taken?: string;
+  description?: string;
+  remarks?: string;
 }
 
 export function ImportTasksModal({
@@ -46,6 +52,8 @@ export function ImportTasksModal({
   const [downloadingTemplate, setDownloadingTemplate] = useState(false);
   const [parsedRows, setParsedRows] = useState<ParsedTaskRow[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [progressPercent, setProgressPercent] = useState<number>(0);
+  const [progressText, setProgressText] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [importResult, setImportResult] = useState<{
     imported_count: number;
@@ -109,9 +117,14 @@ export function ImportTasksModal({
             sub_phase: rowObj.sub_phase || rowObj.sub_phase_name || rowObj.phase,
             priority: rowObj.priority || "Medium",
             status: rowObj.status || "Yet to Start",
+            start_date: rowObj.start_date || "",
             due_date: rowObj.due_date || "",
             assignees: rowObj.assignee_codes || rowObj.assignee_emails || rowObj.assignees || "",
+            assignee_codes: rowObj.assignee_codes || rowObj.assignees || "",
             allotted_days: rowObj.allotted_days || "",
+            time_taken: rowObj.time_taken || "",
+            description: rowObj.description || rowObj.details || "",
+            remarks: rowObj.remarks || rowObj.notes || rowObj.current_updates || "",
           });
         }
       }
@@ -158,6 +171,8 @@ export function ImportTasksModal({
     setError(null);
     setSelectedFile(file);
     setImportResult(null);
+    setProgressPercent(0);
+    setProgressText("");
 
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -203,7 +218,7 @@ export function ImportTasksModal({
 
   const handleImportSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedFile) {
+    if (!selectedFile && parsedRows.length === 0) {
       setError("Please select or drop a CSV file to upload.");
       return;
     }
@@ -211,18 +226,74 @@ export function ImportTasksModal({
     setUploading(true);
     setError(null);
     setImportResult(null);
+    setProgressPercent(5);
+    setProgressText(`Preparing ${parsedRows.length} tasks for batch import...`);
 
     try {
-      const formData = new FormData();
-      formData.append("file", selectedFile);
-      if (selectedProjectId) {
-        formData.append("project_id", selectedProjectId);
-      }
+      // If we have parsed rows from client, chunk into batches of 50 for guaranteed fast processing
+      if (parsedRows.length > 0) {
+        const CHUNK_SIZE = 50;
+        const totalRows = parsedRows.length;
+        let totalImported = 0;
+        let totalSkipped = 0;
+        const allErrors: string[] = [];
 
-      const res = await pmApi.importTasks(formData);
-      setImportResult(res);
-      if (res.imported_count > 0) {
-        onSuccess();
+        for (let i = 0; i < totalRows; i += CHUNK_SIZE) {
+          const chunk = parsedRows.slice(i, i + CHUNK_SIZE);
+          const currentBatchEnd = Math.min(i + CHUNK_SIZE, totalRows);
+          setProgressText(`Importing batch (${currentBatchEnd} of ${totalRows} tasks)...`);
+          setProgressPercent(Math.round(((i + 1) / totalRows) * 90));
+
+          try {
+            const payload: any = {
+              tasks: chunk,
+            };
+            if (selectedProjectId) {
+              payload.project_id = Number(selectedProjectId);
+            }
+            const res = await pmApi.importTasks(payload);
+            totalImported += res.imported_count || 0;
+            totalSkipped += res.skipped_count || 0;
+            if (res.errors && res.errors.length > 0) {
+              allErrors.push(...res.errors);
+            }
+          } catch (chunkErr: any) {
+            console.warn(`Chunk ${i} failed`, chunkErr);
+            totalSkipped += chunk.length;
+            allErrors.push(`Batch ${i + 1}-${currentBatchEnd} error: ${chunkErr?.response?.data?.message || chunkErr?.message || "Server error"}`);
+          }
+        }
+
+        setProgressPercent(100);
+        setProgressText(`Done! ${totalImported} tasks imported successfully.`);
+
+        const finalResult = {
+          imported_count: totalImported,
+          skipped_count: totalSkipped,
+          errors: allErrors,
+          message: `Import complete: ${totalImported} tasks successfully imported${totalSkipped > 0 ? ` (${totalSkipped} skipped)` : ""}.`,
+        };
+
+        setImportResult(finalResult);
+        if (totalImported > 0) {
+          onSuccess();
+        }
+      } else {
+        // Fallback to direct file upload
+        const formData = new FormData();
+        formData.append("file", selectedFile!);
+        if (selectedProjectId) {
+          formData.append("project_id", selectedProjectId);
+        }
+
+        setProgressPercent(50);
+        setProgressText("Uploading and processing spreadsheet...");
+        const res = await pmApi.importTasks(formData);
+        setProgressPercent(100);
+        setImportResult(res);
+        if (res.imported_count > 0) {
+          onSuccess();
+        }
       }
     } catch (err: any) {
       setError(
@@ -240,10 +311,17 @@ export function ImportTasksModal({
     setSelectedFile(null);
     setParsedRows([]);
     setImportResult(null);
+    setProgressPercent(0);
+    setProgressText("");
     setError(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
+  };
+
+  const handleDone = () => {
+    onSuccess();
+    onClose();
   };
 
   return (
@@ -281,48 +359,79 @@ export function ImportTasksModal({
         <form onSubmit={handleImportSubmit} className="flex flex-col flex-1 overflow-hidden">
           <div className="p-6 overflow-y-auto space-y-5 flex-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
             {/* Instructions & Template Download Banner */}
-            <div className="p-4 rounded-xl bg-purple-50/70 dark:bg-purple-950/40 border border-purple-200/80 dark:border-purple-800/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
-              <div className="space-y-1">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-[#56348f] dark:text-purple-300">
-                  <FileSpreadsheet className="w-4 h-4 shrink-0" />
-                  <span>CSV Template & Formatting Guide</span>
+            {!importResult && (
+              <div className="p-4 rounded-xl bg-purple-50/70 dark:bg-purple-950/40 border border-purple-200/80 dark:border-purple-800/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-[#56348f] dark:text-purple-300">
+                    <FileSpreadsheet className="w-4 h-4 shrink-0" />
+                    <span>CSV Template & Formatting Guide</span>
+                  </div>
+                  <p className="text-xs text-slate-600 dark:text-slate-400">
+                    Download our sample template containing column headers (title, project, sub-phase, priority, status, assignees).
+                  </p>
                 </div>
-                <p className="text-xs text-slate-600 dark:text-slate-400">
-                  Download our sample template containing column headers (title, project, sub-phase, priority, status, assignees).
-                </p>
-              </div>
 
-              <button
-                type="button"
-                onClick={handleDownloadTemplate}
-                disabled={downloadingTemplate}
-                style={{
-                  fontSize: "13px",
-                  lineHeight: "20px",
-                  fontWeight: 500,
-                }}
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-[#56348f] dark:text-purple-300 border border-purple-300 dark:border-purple-700 shadow-xs transition-colors shrink-0 disabled:opacity-50 cursor-pointer"
-              >
-                {downloadingTemplate ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Download className="w-4 h-4" />
-                )}
-                <span>Download Sample CSV</span>
-              </button>
-            </div>
+                <button
+                  type="button"
+                  onClick={handleDownloadTemplate}
+                  disabled={downloadingTemplate}
+                  style={{
+                    fontSize: "13px",
+                    lineHeight: "20px",
+                    fontWeight: 500,
+                  }}
+                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-[#56348f] dark:text-purple-300 border border-purple-300 dark:border-purple-700 shadow-xs transition-colors shrink-0 disabled:opacity-50 cursor-pointer"
+                >
+                  {downloadingTemplate ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Download className="w-4 h-4" />
+                  )}
+                  <span>Download Sample CSV</span>
+                </button>
+              </div>
+            )}
+
+            {/* Live Progress Bar during active upload */}
+            {uploading && (
+              <div className="p-4 rounded-xl bg-purple-50 dark:bg-purple-950/50 border border-purple-200 dark:border-purple-800 space-y-2.5">
+                <div className="flex items-center justify-between text-xs font-semibold text-[#56348f] dark:text-purple-300">
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>{progressText || "Processing tasks..."}</span>
+                  </div>
+                  <span>{progressPercent}%</span>
+                </div>
+                <div className="w-full h-2.5 rounded-full bg-purple-200 dark:bg-purple-900 overflow-hidden">
+                  <div
+                    className="h-full bg-[#56348f] rounded-full transition-all duration-300 ease-out"
+                    style={{ width: `${progressPercent}%` }}
+                  />
+                </div>
+              </div>
+            )}
 
             {/* Success Result Display */}
             {importResult && (
-              <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 space-y-2">
-                <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-bold text-xs">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                  <span>{importResult.message}</span>
+              <div className="p-5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 space-y-3.5 animate-in fade-in">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-xl bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300">
+                    <CheckCircle2 className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-emerald-900 dark:text-emerald-200">
+                      Import Complete!
+                    </h3>
+                    <p className="text-xs text-emerald-700 dark:text-emerald-300 font-medium">
+                      {importResult.imported_count} tasks were successfully created and added to your workspace.
+                    </p>
+                  </div>
                 </div>
+
                 {importResult.errors && importResult.errors.length > 0 && (
-                  <div className="mt-2 text-[11px] text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 p-2.5 rounded-lg border border-amber-200 dark:border-amber-800 space-y-1">
-                    <p className="font-bold">Skipped Rows / Warnings:</p>
-                    <ul className="list-disc list-inside space-y-0.5 max-h-24 overflow-y-auto">
+                  <div className="text-[11px] text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 p-3 rounded-xl border border-amber-200 dark:border-amber-800 space-y-1">
+                    <p className="font-bold">Skipped Rows / Warnings ({importResult.skipped_count}):</p>
+                    <ul className="list-disc list-inside space-y-0.5 max-h-28 overflow-y-auto">
                       {importResult.errors.map((err, i) => (
                         <li key={i}>{err}</li>
                       ))}
@@ -341,89 +450,93 @@ export function ImportTasksModal({
             )}
 
             {/* Default Project Selection (Optional) */}
-            <div className="space-y-1.5">
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                Default Project <span className="text-slate-400 font-normal">(optional fallback if CSV doesn't specify project_name)</span>
-              </label>
-              <div className="relative">
-                <select
-                  value={selectedProjectId}
-                  onChange={(e) => setSelectedProjectId(e.target.value)}
-                  style={{ fontSize: "13px", lineHeight: "20px" }}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#56348f]/20 focus:border-[#56348f] transition-all cursor-pointer"
-                >
-                  <option value="">Auto-resolve from CSV `project_name` column</option>
-                  {projects.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name} {p.team?.name ? `(${p.team.name})` : ""}
-                    </option>
-                  ))}
-                </select>
+            {!importResult && (
+              <div className="space-y-1.5">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  Default Project <span className="text-slate-400 font-normal">(optional fallback if CSV doesn't specify project_name)</span>
+                </label>
+                <div className="relative">
+                  <select
+                    value={selectedProjectId}
+                    onChange={(e) => setSelectedProjectId(e.target.value)}
+                    style={{ fontSize: "13px", lineHeight: "20px" }}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#56348f]/20 focus:border-[#56348f] transition-all cursor-pointer"
+                  >
+                    <option value="">Auto-resolve from CSV `project_name` column</option>
+                    {projects.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name} {p.team?.name ? `(${p.team.name})` : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* File Upload Dropzone with full Drag-and-Drop */}
-            <div className="space-y-1.5">
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                Select or Drop CSV File <span className="text-rose-500">*</span>
-              </label>
+            {!importResult && (
+              <div className="space-y-1.5">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  Select or Drop CSV File <span className="text-rose-500">*</span>
+                </label>
 
-              <div
-                onClick={() => fileInputRef.current?.click()}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                className={`p-7 rounded-2xl border-2 border-dashed transition-all text-center cursor-pointer flex flex-col items-center justify-center gap-2.5 ${
-                  isDragging
-                    ? "border-[#56348f] bg-purple-100/50 dark:bg-purple-900/30 scale-[0.99]"
-                    : selectedFile
-                    ? "border-purple-400 dark:border-purple-700 bg-purple-50/40 dark:bg-purple-950/20"
-                    : "border-slate-300 dark:border-slate-700 hover:border-[#56348f] bg-slate-50/70 dark:bg-slate-800/40 hover:bg-slate-100/80 dark:hover:bg-slate-800"
-                }`}
-              >
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".csv,text/csv,text/plain"
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  className={`p-7 rounded-2xl border-2 border-dashed transition-all text-center cursor-pointer flex flex-col items-center justify-center gap-2.5 ${
+                    isDragging
+                      ? "border-[#56348f] bg-purple-100/50 dark:bg-purple-900/30 scale-[0.99]"
+                      : selectedFile
+                      ? "border-purple-400 dark:border-purple-700 bg-purple-50/40 dark:bg-purple-950/20"
+                      : "border-slate-300 dark:border-slate-700 hover:border-[#56348f] bg-slate-50/70 dark:bg-slate-800/40 hover:bg-slate-100/80 dark:hover:bg-slate-800"
+                  }`}
+                >
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".csv,text/csv,text/plain"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
 
-                <div className={`p-3.5 rounded-full border shadow-xs transition-colors ${
-                  selectedFile
-                    ? "bg-purple-100 text-[#56348f] border-purple-200 dark:bg-purple-950 dark:text-purple-300 dark:border-purple-800"
-                    : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-[#56348f] dark:text-purple-300"
-                }`}>
-                  {selectedFile ? <FileCheck className="w-6 h-6" /> : <Upload className="w-6 h-6" />}
+                  <div className={`p-3.5 rounded-full border shadow-xs transition-colors ${
+                    selectedFile
+                      ? "bg-purple-100 text-[#56348f] border-purple-200 dark:bg-purple-950 dark:text-purple-300 dark:border-purple-800"
+                      : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-[#56348f] dark:text-purple-300"
+                  }`}>
+                    {selectedFile ? <FileCheck className="w-6 h-6" /> : <Upload className="w-6 h-6" />}
+                  </div>
+
+                  {selectedFile ? (
+                    <div className="space-y-1">
+                      <p className="text-sm font-bold text-slate-900 dark:text-white">
+                        {selectedFile.name}
+                      </p>
+                      <p className="text-xs text-purple-700 dark:text-purple-300 font-semibold">
+                        {(selectedFile.size / 1024).toFixed(1)} KB • {parsedRows.length} tasks ready to import
+                      </p>
+                      <p className="text-[11px] text-slate-400">
+                        Click to choose a different file
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-1">
+                      <p className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                        Click to browse or drag and drop your CSV file here
+                      </p>
+                      <p className="text-[11px] text-slate-400">
+                        Supports .csv format (saved from Excel or Google Sheets)
+                      </p>
+                    </div>
+                  )}
                 </div>
-
-                {selectedFile ? (
-                  <div className="space-y-1">
-                    <p className="text-sm font-bold text-slate-900 dark:text-white">
-                      {selectedFile.name}
-                    </p>
-                    <p className="text-xs text-purple-700 dark:text-purple-300 font-semibold">
-                      {(selectedFile.size / 1024).toFixed(1)} KB • {parsedRows.length} tasks ready to import
-                    </p>
-                    <p className="text-[11px] text-slate-400">
-                      Click to choose a different file
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-1">
-                    <p className="text-xs font-semibold text-slate-800 dark:text-slate-200">
-                      Click to browse or drag and drop your CSV file here
-                    </p>
-                    <p className="text-[11px] text-slate-400">
-                      Supports .csv format (saved from Excel or Google Sheets)
-                    </p>
-                  </div>
-                )}
               </div>
-            </div>
+            )}
 
             {/* Parsed Rows Preview */}
-            {parsedRows.length > 0 && (
+            {!importResult && parsedRows.length > 0 && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300">
@@ -482,47 +595,69 @@ export function ImportTasksModal({
 
           {/* ── Modal Footer ── */}
           <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={uploading}
-              style={{
-                fontSize: "13px",
-                lineHeight: "20px",
-                fontWeight: 400,
-              }}
-              className="px-4 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-colors disabled:opacity-50 cursor-pointer"
-            >
-              Cancel
-            </button>
+            {importResult ? (
+              <div className="w-full flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={handleReset}
+                  className="px-4 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-colors cursor-pointer text-xs font-semibold"
+                >
+                  Import Another File
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDone}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#432870] text-white font-semibold shadow-sm cursor-pointer text-xs"
+                >
+                  <span>Done & View Tasks</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  disabled={uploading}
+                  style={{
+                    fontSize: "13px",
+                    lineHeight: "20px",
+                    fontWeight: 400,
+                  }}
+                  className="px-4 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-colors disabled:opacity-50 cursor-pointer"
+                >
+                  Cancel
+                </button>
 
-            <button
-              type="submit"
-              disabled={!selectedFile || uploading}
-              style={{
-                fontFamily: '"Proxima Nova", sans-serif',
-                fontSize: "13px",
-                lineHeight: "20px",
-                fontWeight: 500,
-              }}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#432870] text-white shadow-sm hover:shadow transition-all disabled:opacity-50 cursor-pointer"
-            >
-              {uploading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Importing Tasks...</span>
-                </>
-              ) : (
-                <>
-                  <Upload className="w-4 h-4" />
-                  <span>
-                    {parsedRows.length > 0
-                      ? `Import ${parsedRows.length} Tasks`
-                      : "Upload & Import Tasks"}
-                  </span>
-                </>
-              )}
-            </button>
+                <button
+                  type="submit"
+                  disabled={(!selectedFile && parsedRows.length === 0) || uploading}
+                  style={{
+                    fontFamily: '"Proxima Nova", sans-serif',
+                    fontSize: "13px",
+                    lineHeight: "20px",
+                    fontWeight: 500,
+                  }}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#432870] text-white shadow-sm hover:shadow transition-all disabled:opacity-50 cursor-pointer"
+                >
+                  {uploading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>{progressText || "Importing..."}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-4 h-4" />
+                      <span>
+                        {parsedRows.length > 0
+                          ? `Import ${parsedRows.length} Tasks`
+                          : "Upload & Import Tasks"}
+                      </span>
+                    </>
+                  )}
+                </button>
+              </>
+            )}
           </div>
         </form>
       </div>
