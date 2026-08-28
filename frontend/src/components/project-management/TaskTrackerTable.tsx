@@ -98,6 +98,104 @@ function getPriorityBadgeStyle(priority: TaskPriority | string): string {
   }
 }
 
+function TableDateCell({
+  value,
+  field,
+  taskId,
+  disabled,
+  onDateChange,
+  isOverdue = false,
+  isCompleted = false,
+  emptyPlaceholder = "—",
+}: {
+  value: string | null | undefined;
+  field: "start_date" | "due_date" | "actual_completion_date";
+  taskId: number;
+  disabled?: boolean;
+  onDateChange?: (taskId: number, field: "start_date" | "due_date" | "actual_completion_date", newDate: string | null) => Promise<void>;
+  isOverdue?: boolean;
+  isCompleted?: boolean;
+  emptyPlaceholder?: string;
+}) {
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
+  const openPicker = () => {
+    if (disabled || !onDateChange) return;
+    if (inputRef.current) {
+      try {
+        if ("showPicker" in HTMLInputElement.prototype) {
+          inputRef.current.showPicker();
+        } else {
+          inputRef.current.focus();
+        }
+      } catch {
+        inputRef.current.focus();
+      }
+    }
+  };
+
+  if (!onDateChange) {
+    if (isCompleted) {
+      return (
+        <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
+          <CheckCircle2 className="w-2.5 h-2.5" />
+          <span>{formatDateDisplay(value)}</span>
+        </span>
+      );
+    }
+    return (
+      <div className="flex items-center gap-1">
+        <span className={isOverdue ? "text-rose-600 dark:text-rose-400 font-bold" : ""}>
+          {value ? formatDateDisplay(value) : emptyPlaceholder}
+        </span>
+        {isOverdue && <Clock className="w-2.5 h-2.5 text-rose-500 shrink-0" />}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      onClick={openPicker}
+      className="relative group/date inline-flex items-center gap-1 cursor-pointer hover:text-purple-600 dark:hover:text-purple-400 py-0.5 px-1 rounded hover:bg-purple-50 dark:hover:bg-purple-950/40 transition-all select-none"
+      title="Click to open calendar date picker"
+    >
+      <input
+        ref={inputRef}
+        type="date"
+        value={toDateInputValue(value)}
+        disabled={disabled}
+        onChange={(e) => {
+          onDateChange(taskId, field, e.target.value || null);
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          try {
+            if ("showPicker" in HTMLInputElement.prototype) {
+              e.currentTarget.showPicker();
+            }
+          } catch {}
+        }}
+        className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
+      />
+      {isCompleted ? (
+        <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium group-hover/date:underline">
+          <CheckCircle2 className="w-2.5 h-2.5" />
+          <span>{formatDateDisplay(value)}</span>
+        </span>
+      ) : (
+        <span className={isOverdue ? "text-rose-600 dark:text-rose-400 font-bold group-hover/date:underline" : "group-hover/date:underline"}>
+          {value ? formatDateDisplay(value) : <span className="text-slate-400 font-normal">{emptyPlaceholder}</span>}
+        </span>
+      )}
+      {isOverdue ? (
+        <Clock className="w-2.5 h-2.5 text-rose-500 shrink-0" />
+      ) : (
+        <Calendar className="w-2.5 h-2.5 text-slate-400 opacity-60 group-hover/date:opacity-100 group-hover/date:text-purple-600 transition-opacity shrink-0" />
+      )}
+    </div>
+  );
+}
+
 export function TaskTrackerTable({
   tasks,
   canEdit,
@@ -373,24 +471,13 @@ export function TaskTrackerTable({
 
                 {/* 6. START DATE */}
                 <td className="py-2 px-2.5 border-r border-slate-200/70 dark:border-slate-800/70 whitespace-nowrap text-slate-600 dark:text-slate-300 text-[11px]">
-                  {canEdit && onDateChange ? (
-                    <div className="relative group/date inline-flex items-center gap-1 cursor-pointer hover:text-purple-600 dark:hover:text-purple-400">
-                      <input
-                        type="date"
-                        value={toDateInputValue(task.start_date)}
-                        disabled={updatingTaskId === task.id}
-                        onChange={(e) => onDateChange(task.id, "start_date", e.target.value || null)}
-                        className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
-                        title="Click to edit Start Date"
-                      />
-                      <span className="group-hover/date:underline">
-                        {formatDateDisplay(task.start_date)}
-                      </span>
-                      <Calendar className="w-2.5 h-2.5 text-slate-400 opacity-0 group-hover/date:opacity-100 transition-opacity shrink-0" />
-                    </div>
-                  ) : (
-                    <span>{formatDateDisplay(task.start_date)}</span>
-                  )}
+                  <TableDateCell
+                    value={task.start_date}
+                    field="start_date"
+                    taskId={task.id}
+                    disabled={updatingTaskId === task.id}
+                    onDateChange={canEdit ? onDateChange : undefined}
+                  />
                 </td>
 
                 {/* 7. END DATE (Highlighted red if overdue past 6:30 PM) */}
@@ -401,69 +488,26 @@ export function TaskTrackerTable({
                       : "text-slate-600 dark:text-slate-300"
                   }`}
                 >
-                  {canEdit && onDateChange ? (
-                    <div className="relative group/date inline-flex items-center gap-1 cursor-pointer hover:text-purple-600 dark:hover:text-purple-400">
-                      <input
-                        type="date"
-                        value={toDateInputValue(task.due_date)}
-                        disabled={updatingTaskId === task.id}
-                        onChange={(e) => onDateChange(task.id, "due_date", e.target.value || null)}
-                        className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
-                        title="Click to edit End Date"
-                      />
-                      <span className="group-hover/date:underline">
-                        {formatDateDisplay(task.due_date)}
-                      </span>
-                      {overdueInfo.isOverdue ? (
-                        <Clock className="w-2.5 h-2.5 text-rose-500 shrink-0" />
-                      ) : (
-                        <Calendar className="w-2.5 h-2.5 text-slate-400 opacity-0 group-hover/date:opacity-100 transition-opacity shrink-0" />
-                      )}
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-1">
-                      <span>{formatDateDisplay(task.due_date)}</span>
-                      {overdueInfo.isOverdue && (
-                        <Clock className="w-2.5 h-2.5 text-rose-500 shrink-0" />
-                      )}
-                    </div>
-                  )}
+                  <TableDateCell
+                    value={task.due_date}
+                    field="due_date"
+                    taskId={task.id}
+                    disabled={updatingTaskId === task.id}
+                    onDateChange={canEdit ? onDateChange : undefined}
+                    isOverdue={overdueInfo.isOverdue}
+                  />
                 </td>
 
                 {/* 8. ACHIEVED DATE */}
                 <td className="py-2 px-2.5 border-r border-slate-200/70 dark:border-slate-800/70 whitespace-nowrap text-slate-600 dark:text-slate-300 text-[11px]">
-                  {canEdit && onDateChange ? (
-                    <div className="relative group/date inline-flex items-center gap-1 cursor-pointer hover:text-purple-600 dark:hover:text-purple-400">
-                      <input
-                        type="date"
-                        value={toDateInputValue(achievedDateStr)}
-                        disabled={updatingTaskId === task.id}
-                        onChange={(e) => onDateChange(task.id, "actual_completion_date", e.target.value || null)}
-                        className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
-                        title="Click to edit Achieved Date"
-                      />
-                      {task.status === "Completed" ? (
-                        <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium group-hover/date:underline">
-                          <CheckCircle2 className="w-2.5 h-2.5" />
-                          <span>{formatDateDisplay(achievedDateStr)}</span>
-                        </span>
-                      ) : (
-                        <span className="text-slate-400 group-hover/date:underline">
-                          {formatDateDisplay(achievedDateStr)}
-                        </span>
-                      )}
-                      <Calendar className="w-2.5 h-2.5 text-slate-400 opacity-0 group-hover/date:opacity-100 transition-opacity shrink-0" />
-                    </div>
-                  ) : (
-                    task.status === "Completed" ? (
-                      <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
-                        <CheckCircle2 className="w-2.5 h-2.5" />
-                        <span>{formatDateDisplay(achievedDateStr)}</span>
-                      </span>
-                    ) : (
-                      <span className="text-slate-400">—</span>
-                    )
-                  )}
+                  <TableDateCell
+                    value={achievedDateStr}
+                    field="actual_completion_date"
+                    taskId={task.id}
+                    disabled={updatingTaskId === task.id}
+                    onDateChange={canEdit ? onDateChange : undefined}
+                    isCompleted={task.status === "Completed"}
+                  />
                 </td>
 
                 {/* 9. COMMENTS / UPDATES */}
