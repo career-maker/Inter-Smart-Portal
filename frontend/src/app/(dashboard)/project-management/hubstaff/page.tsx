@@ -35,7 +35,7 @@ import { TeamFilterSelector } from "@/components/project-management/TeamFilterSe
 
 type TabType = "users" | "projects" | "trends";
 type ActivityLevelFilter = "all" | "high" | "moderate" | "low";
-type SortField = "tracked_seconds" | "activity_percentage" | "name";
+type SortField = "date" | "tracked_seconds" | "activity_percentage" | "name";
 type SortOrder = "asc" | "desc";
 
 function formatDuration(sec: number): string {
@@ -278,6 +278,11 @@ export default function HubstaffAnalyticsPage() {
       .sort((a: any, b: any) => {
         let valA = a[sortField];
         let valB = b[sortField];
+        if (sortField === "date") {
+          valA = a.date || "";
+          valB = b.date || "";
+          return sortOrder === "asc" ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        }
         if (sortField === "name") {
           valA = (a.name || "").toLowerCase();
           valB = (b.name || "").toLowerCase();
@@ -302,8 +307,13 @@ export default function HubstaffAnalyticsPage() {
         return true;
       })
       .sort((a: any, b: any) => {
-        let valA = a[sortField === "name" ? "name" : sortField];
-        let valB = b[sortField === "name" ? "name" : sortField];
+        let valA = a[sortField];
+        let valB = b[sortField];
+        if (sortField === "date") {
+          valA = a.date || "";
+          valB = b.date || "";
+          return sortOrder === "asc" ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        }
         if (sortField === "name") {
           valA = (a.name || "").toLowerCase();
           valB = (b.name || "").toLowerCase();
@@ -321,16 +331,28 @@ export default function HubstaffAnalyticsPage() {
     const dateLabel = dateMode === "single" ? selectedDate : `${startDate}_to_${endDate}`;
 
     if (activeTab === "projects") {
-      csvContent += "Project Name,Tracked Time (Hours),Tracked Time,Avg Activity %,Members Count\n";
+      csvContent += dateMode === "range"
+        ? "Date,Project Name,Tracked Time (Hours),Tracked Time,Avg Activity %,Members Count\n"
+        : "Project Name,Tracked Time (Hours),Tracked Time,Avg Activity %,Members Count\n";
       filteredProjects.forEach((p: any) => {
         const hours = (p.tracked_seconds / 3600).toFixed(2);
-        csvContent += `"${p.name.replace(/"/g, '""')}",${hours},"${p.tracked_formatted}",${p.activity_percentage}%,${p.members_count}\n`;
+        if (dateMode === "range") {
+          csvContent += `"${p.date_formatted || p.date || ""}","${p.name.replace(/"/g, '""')}",${hours},"${p.tracked_formatted}",${p.activity_percentage}%,${p.members_count}\n`;
+        } else {
+          csvContent += `"${p.name.replace(/"/g, '""')}",${hours},"${p.tracked_formatted}",${p.activity_percentage}%,${p.members_count}\n`;
+        }
       });
     } else {
-      csvContent += "Employee Name,Employee Code,Team,Tracked Time (Hours),Tracked Time,Activity %,Activity Level,Projects Count\n";
+      csvContent += dateMode === "range"
+        ? "Date,Employee Name,Employee Code,Team,Tracked Time (Hours),Tracked Time,Activity %,Activity Level,Projects Count\n"
+        : "Employee Name,Employee Code,Team,Tracked Time (Hours),Tracked Time,Activity %,Activity Level,Projects Count\n";
       filteredUsers.forEach((u: any) => {
         const hours = (u.tracked_seconds / 3600).toFixed(2);
-        csvContent += `"${u.name.replace(/"/g, '""')}","${u.employee_code || ""}","${u.team_name || ""}",${hours},"${u.tracked_formatted}",${u.activity_percentage}%,${u.activity_level},${u.projects_count}\n`;
+        if (dateMode === "range") {
+          csvContent += `"${u.date_formatted || u.date || ""}","${u.name.replace(/"/g, '""')}","${u.employee_code || ""}","${u.team_name || ""}",${hours},"${u.tracked_formatted}",${u.activity_percentage}%,${u.activity_level},${u.projects_count}\n`;
+        } else {
+          csvContent += `"${u.name.replace(/"/g, '""')}","${u.employee_code || ""}","${u.team_name || ""}",${hours},"${u.tracked_formatted}",${u.activity_percentage}%,${u.activity_level},${u.projects_count}\n`;
+        }
       });
     }
 
@@ -914,6 +936,14 @@ export default function HubstaffAnalyticsPage() {
               <table className="w-full text-left border-collapse text-[12px] leading-[16px]">
                 <thead>
                   <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
+                    {dateMode === "range" && (
+                      <th className="py-3 px-4 border-r border-slate-200/80 dark:border-slate-800 cursor-pointer" onClick={() => handleSort("date")}>
+                        <div className="flex items-center gap-1.5">
+                          <span>Date</span>
+                          <ArrowUpDown className="w-3 h-3 text-slate-400" />
+                        </div>
+                      </th>
+                    )}
                     <th className="py-3 px-4 border-r border-slate-200/80 dark:border-slate-800 cursor-pointer" onClick={() => handleSort("name")}>
                       <div className="flex items-center gap-1.5">
                         <span>Employee</span>
@@ -940,7 +970,7 @@ export default function HubstaffAnalyticsPage() {
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
                   {filteredUsers.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="py-16 text-center">
+                      <td colSpan={dateMode === "range" ? 7 : 6} className="py-16 text-center">
                         <div className="flex flex-col items-center justify-center space-y-2.5 max-w-sm mx-auto px-4">
                           <Clock className="w-8 h-8 text-slate-300 dark:text-slate-600" />
                           <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">
@@ -967,10 +997,29 @@ export default function HubstaffAnalyticsPage() {
                       const actBadge = getActivityBadge(u.activity_percentage);
                       return (
                         <tr
-                          key={u.hubstaff_user_id || u.user_id}
+                          key={`${u.date || ""}_${u.hubstaff_user_id || u.user_id}`}
                           onClick={() => setSelectedUserDetail(u)}
                           className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors cursor-pointer group"
                         >
+                          {/* Date Column in Range Mode */}
+                          {dateMode === "range" && (
+                            <td className="py-3 px-4 border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap">
+                              <div className="flex items-center gap-2">
+                                <Calendar className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
+                                <div>
+                                  <div className="font-bold text-xs text-slate-900 dark:text-white">
+                                    {u.date_formatted || u.date}
+                                  </div>
+                                  {u.day_name && (
+                                    <div className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold">
+                                      {u.day_name}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </td>
+                          )}
+
                           {/* Employee */}
                           <td className="py-3 px-4 border-r border-slate-100 dark:border-slate-800/60">
                             <div className="flex items-center gap-3">
@@ -1100,6 +1149,14 @@ export default function HubstaffAnalyticsPage() {
               <table className="w-full text-left border-collapse text-[12px] leading-[16px]">
                 <thead>
                   <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
+                    {dateMode === "range" && (
+                      <th className="py-3 px-4 border-r border-slate-200/80 dark:border-slate-800 cursor-pointer" onClick={() => handleSort("date")}>
+                        <div className="flex items-center gap-1.5">
+                          <span>Date</span>
+                          <ArrowUpDown className="w-3 h-3 text-slate-400" />
+                        </div>
+                      </th>
+                    )}
                     <th className="py-3 px-5 border-r border-slate-200/80 dark:border-slate-800 cursor-pointer" onClick={() => handleSort("name")}>
                       <div className="flex items-center gap-1.5">
                         <span>Project</span>
@@ -1108,7 +1165,7 @@ export default function HubstaffAnalyticsPage() {
                     </th>
                     <th className="py-3 px-4 border-r border-slate-200/80 dark:border-slate-800 cursor-pointer" onClick={() => handleSort("tracked_seconds")}>
                       <div className="flex items-center gap-1.5">
-                        <span>Total Tracked Time</span>
+                        <span>Tracked Time</span>
                         <ArrowUpDown className="w-3 h-3 text-slate-400" />
                       </div>
                     </th>
@@ -1125,7 +1182,7 @@ export default function HubstaffAnalyticsPage() {
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
                   {filteredProjects.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="py-16 text-center">
+                      <td colSpan={dateMode === "range" ? 6 : 5} className="py-16 text-center">
                         <div className="flex flex-col items-center justify-center space-y-2.5 max-w-sm mx-auto px-4">
                           <FolderKanban className="w-8 h-8 text-slate-300 dark:text-slate-600" />
                           <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">
@@ -1152,10 +1209,29 @@ export default function HubstaffAnalyticsPage() {
                       const actBadge = getActivityBadge(p.activity_percentage);
                       return (
                         <tr
-                          key={p.hubstaff_project_id || p.name}
+                          key={`${p.date || ""}_${p.hubstaff_project_id || p.name}`}
                           onClick={() => setSelectedProjectDetail(p)}
                           className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors cursor-pointer group"
                         >
+                          {/* Date Column in Range Mode */}
+                          {dateMode === "range" && (
+                            <td className="py-3 px-4 border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap">
+                              <div className="flex items-center gap-2">
+                                <Calendar className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
+                                <div>
+                                  <div className="font-bold text-xs text-slate-900 dark:text-white">
+                                    {p.date_formatted || p.date}
+                                  </div>
+                                  {p.day_name && (
+                                    <div className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold">
+                                      {p.day_name}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </td>
+                          )}
+
                           <td className="py-3 px-5 border-r border-slate-100 dark:border-slate-800/60">
                             <div className="flex items-center gap-2">
                               <FolderKanban className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />

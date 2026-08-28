@@ -284,6 +284,8 @@ class HubstaffProjectController extends Controller
         $totalTrackedSeconds = 0;
         $totalActivitySum = 0;
         $activityCount = 0;
+        $seenUserKeys = [];
+        $seenProjectIds = [];
 
         foreach ($rawActivities as $act) {
             $hsUid = (string) ($act['user_id'] ?? '');
@@ -344,7 +346,7 @@ class HubstaffProjectController extends Controller
             }
 
             $userModel = $hubstaffUserMap[$hsUid] ?? null;
-            $userKey = $userModel ? "user_{$userModel->id}" : "hs_{$hsUid}";
+            $userBaseKey = $userModel ? "user_{$userModel->id}" : "hs_{$hsUid}";
             $dmInfo = $discoveredMap->get($hsUid);
             $userName = $userModel ? trim("{$userModel->first_name} {$userModel->last_name}") : ($dmInfo['name'] ?? "Hubstaff User #{$hsUid}");
             $teamName = $userModel?->team?->name ?? "General";
@@ -356,11 +358,22 @@ class HubstaffProjectController extends Controller
             if ($tracked > 0) {
                 $totalActivitySum += ($activity * $tracked);
                 $activityCount += $tracked;
+                $seenUserKeys[$userBaseKey] = true;
+                if (!empty($hsPid)) {
+                    $seenProjectIds[$hsPid] = true;
+                }
             }
+
+            // In range mode, split each employee and project per date row
+            $userKey = $dateMode === 'range' ? "{$date}_{$userBaseKey}" : $userBaseKey;
+            $projectKey = $dateMode === 'range' ? "{$date}_{$hsPid}" : $hsPid;
 
             // User aggregation
             if (!isset($userMetrics[$userKey])) {
                 $userMetrics[$userKey] = [
+                    'date' => $date,
+                    'date_formatted' => \Carbon\Carbon::parse($date)->format('d M Y'),
+                    'day_name' => \Carbon\Carbon::parse($date)->format('D'),
                     'user_id' => $userModel?->id,
                     'hubstaff_user_id' => $hsUid,
                     'name' => $userName,
@@ -391,8 +404,11 @@ class HubstaffProjectController extends Controller
             $userMetrics[$userKey]['projects'][$hsPid]['activity_weighted_sum'] += ($activity * $tracked);
 
             // Project aggregation
-            if (!isset($projectMetrics[$hsPid])) {
-                $projectMetrics[$hsPid] = [
+            if (!isset($projectMetrics[$projectKey])) {
+                $projectMetrics[$projectKey] = [
+                    'date' => $date,
+                    'date_formatted' => \Carbon\Carbon::parse($date)->format('d M Y'),
+                    'day_name' => \Carbon\Carbon::parse($date)->format('D'),
                     'project_id' => $pmProj?->id,
                     'hubstaff_project_id' => $hsPid,
                     'name' => $projectName,
@@ -403,11 +419,11 @@ class HubstaffProjectController extends Controller
                     'members' => [],
                 ];
             }
-            $projectMetrics[$hsPid]['tracked_seconds'] += $tracked;
-            $projectMetrics[$hsPid]['activity_weighted_sum'] += ($activity * $tracked);
+            $projectMetrics[$projectKey]['tracked_seconds'] += $tracked;
+            $projectMetrics[$projectKey]['activity_weighted_sum'] += ($activity * $tracked);
 
-            if (!isset($projectMetrics[$hsPid]['members'][$userKey])) {
-                $projectMetrics[$hsPid]['members'][$userKey] = [
+            if (!isset($projectMetrics[$projectKey]['members'][$userBaseKey])) {
+                $projectMetrics[$projectKey]['members'][$userBaseKey] = [
                     'user_id' => $userModel?->id,
                     'name' => $userName,
                     'designation' => $userModel?->designation ?? 'Member',
@@ -415,8 +431,8 @@ class HubstaffProjectController extends Controller
                     'activity_weighted_sum' => 0,
                 ];
             }
-            $projectMetrics[$hsPid]['members'][$userKey]['tracked_seconds'] += $tracked;
-            $projectMetrics[$hsPid]['members'][$userKey]['activity_weighted_sum'] += ($activity * $tracked);
+            $projectMetrics[$projectKey]['members'][$userBaseKey]['tracked_seconds'] += $tracked;
+            $projectMetrics[$projectKey]['members'][$userBaseKey]['activity_weighted_sum'] += ($activity * $tracked);
 
             // Daily trend aggregation
             if (!isset($dailyTrends[$date])) {
@@ -461,6 +477,9 @@ class HubstaffProjectController extends Controller
             usort($projs, fn($a, $b) => $b['tracked_seconds'] <=> $a['tracked_seconds']);
 
             $formattedUsers[] = [
+                'date' => $u['date'] ?? null,
+                'date_formatted' => $u['date_formatted'] ?? null,
+                'day_name' => $u['day_name'] ?? null,
                 'user_id' => $u['user_id'],
                 'hubstaff_user_id' => $u['hubstaff_user_id'],
                 'name' => $u['name'],
@@ -478,7 +497,15 @@ class HubstaffProjectController extends Controller
                 'projects' => $projs,
             ];
         }
-        usort($formattedUsers, fn($a, $b) => $b['tracked_seconds'] <=> $a['tracked_seconds']);
+        if ($dateMode === 'range') {
+            usort($formattedUsers, function ($a, $b) {
+                $dCmp = strcmp($b['date'] ?? '', $a['date'] ?? '');
+                if ($dCmp !== 0) return $dCmp;
+                return $b['tracked_seconds'] <=> $a['tracked_seconds'];
+            });
+        } else {
+            usort($formattedUsers, fn($a, $b) => $b['tracked_seconds'] <=> $a['tracked_seconds']);
+        }
 
         // Format Projects List
         $formattedProjects = [];
@@ -502,6 +529,9 @@ class HubstaffProjectController extends Controller
             usort($membersList, fn($a, $b) => $b['tracked_seconds'] <=> $a['tracked_seconds']);
 
             $formattedProjects[] = [
+                'date' => $p['date'] ?? null,
+                'date_formatted' => $p['date_formatted'] ?? null,
+                'day_name' => $p['day_name'] ?? null,
                 'project_id' => $p['project_id'],
                 'hubstaff_project_id' => $p['hubstaff_project_id'],
                 'name' => $p['name'],
@@ -514,7 +544,15 @@ class HubstaffProjectController extends Controller
                 'members' => $membersList,
             ];
         }
-        usort($formattedProjects, fn($a, $b) => $b['tracked_seconds'] <=> $a['tracked_seconds']);
+        if ($dateMode === 'range') {
+            usort($formattedProjects, function ($a, $b) {
+                $dCmp = strcmp($b['date'] ?? '', $a['date'] ?? '');
+                if ($dCmp !== 0) return $dCmp;
+                return $b['tracked_seconds'] <=> $a['tracked_seconds'];
+            });
+        } else {
+            usort($formattedProjects, fn($a, $b) => $b['tracked_seconds'] <=> $a['tracked_seconds']);
+        }
 
         // Format Daily Trends
         ksort($dailyTrends);
@@ -532,10 +570,10 @@ class HubstaffProjectController extends Controller
             ];
         }
 
-        // Summary Calculations
+        // Summary Calculations (Overall Total & Averages for KPIs)
         $avgOverallActivity = $activityCount > 0 ? (int) round($totalActivitySum / $activityCount) : 0;
-        $activeUsersCount = count($formattedUsers);
-        $activeProjectsCount = count($formattedProjects);
+        $activeUsersCount = count($seenUserKeys);
+        $activeProjectsCount = count($seenProjectIds);
         $avgTimePerUserSec = $activeUsersCount > 0 ? (int) round($totalTrackedSeconds / $activeUsersCount) : 0;
 
         $response = [
