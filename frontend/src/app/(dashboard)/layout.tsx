@@ -367,7 +367,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             id="light-theme-sidebar"
             style={{
               backgroundColor: "#0e2638",
-              fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+              fontFamily: '"Proxima Nova", sans-serif'
             }}
             className="hidden md:flex flex-col fixed inset-y-0 left-0 z-50 w-[84px] border-r border-[#1a3a52] select-none shadow-xl overflow-hidden"
           >
@@ -517,7 +517,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 top: `${flyoutState.top}px`,
                 backgroundColor: "#0e2638",
                 borderColor: "#1a3a52",
-                fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+                fontFamily: '"Proxima Nova", sans-serif'
               }}
               className="fixed left-[84px] w-64 rounded-r-xl rounded-bl-xl shadow-2xl border border-[#1a3a52] overflow-hidden z-[999] py-1.5 animate-in fade-in zoom-in-95 duration-150"
             >

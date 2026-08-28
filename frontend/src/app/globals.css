@@ -53,6 +53,20 @@
   color: rgb(241, 245, 249) !important;
 }
 
+/* ── Universal Side Menu Items Typography (Proxima Nova 400) ── */
+#light-theme-sidebar,
+#light-theme-sidebar *,
+#light-theme-flyout-portal,
+#light-theme-flyout-portal *,
+aside[class*="bg-slate-900"],
+aside[class*="bg-slate-900"] *,
+.sidebar-nav-item,
+.sidebar-nav-item * {
+  font-family: "Proxima Nova", sans-serif !important;
+  font-style: normal !important;
+  font-weight: 400 !important;
+}
+
 /* Universal Button Text Visibility & Contrast */
 button[class*="bg-[#56348f]"], a[class*="bg-[#56348f]"],
 button[class*="bg-blue-600"], a[class*="bg-blue-600"],
