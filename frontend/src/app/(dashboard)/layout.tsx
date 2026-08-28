@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { NotificationDropdown } from "@/components/layout/NotificationDropdown";
 import { RecognitionTicker } from "@/components/layout/RecognitionTicker";
-import { FavoritesNav } from "@/components/layout/FavoritesNav";
+import { BookmarksDropdown } from "@/components/layout/BookmarksDropdown";
 import { CommandPalette } from "@/components/CommandPalette";
 import api from "@/services/api";
 import Script from "next/script";
@@ -805,8 +805,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   <Rocket className="w-5 h-5 text-white" />
                 </button>
 
-                <NotificationDropdown />
+                <BookmarksDropdown />
 
+                <NotificationDropdown />
 
                 <Link
                   href="/profile"
@@ -890,9 +891,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* Floating AI Chat Assistant */}
         <ChatbaseLottieButton />
-
-        {/* Global Favorites Bar */}
-        <FavoritesNav />
 
         {/* Page Content */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
