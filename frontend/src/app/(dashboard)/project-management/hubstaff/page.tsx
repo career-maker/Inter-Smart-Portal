@@ -697,9 +697,18 @@ export default function HubstaffAnalyticsPage() {
             <Clock className={`w-4 h-4 text-purple-600 dark:text-purple-400 ${loading ? "animate-spin" : ""}`} />
           </div>
           {loading ? (
-            <div className="h-8 w-24 bg-purple-100/70 dark:bg-purple-950/50 animate-pulse rounded-lg mt-1" />
+            <div className="h-10 w-24 bg-purple-100/70 dark:bg-purple-950/50 animate-pulse rounded-lg mt-1" />
           ) : (
-            <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+            <div
+              style={{
+                fontFamily: '"Proxima Nova", sans-serif',
+                fontSize: "28px",
+                lineHeight: "40px",
+                fontWeight: 600,
+                color: "rgb(15, 24, 36)",
+              }}
+              className="dark:!text-white tracking-tight"
+            >
               {summary.total_tracked_formatted || "0h 00m"}
             </div>
           )}
@@ -713,9 +722,18 @@ export default function HubstaffAnalyticsPage() {
             <Activity className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
           </div>
           {loading ? (
-            <div className="h-8 w-24 bg-emerald-100/70 dark:bg-emerald-950/50 animate-pulse rounded-lg mt-1" />
+            <div className="h-10 w-24 bg-emerald-100/70 dark:bg-emerald-950/50 animate-pulse rounded-lg mt-1" />
           ) : (
-            <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+            <div
+              style={{
+                fontFamily: '"Proxima Nova", sans-serif',
+                fontSize: "28px",
+                lineHeight: "40px",
+                fontWeight: 600,
+                color: "rgb(15, 24, 36)",
+              }}
+              className="dark:!text-white tracking-tight flex items-center gap-2"
+            >
               <span>{normalizeActivityPct(summary.avg_activity_percentage)}%</span>
               <span
                 className={`text-[10px] px-2 py-0.5 rounded-full border font-bold ${
@@ -736,9 +754,18 @@ export default function HubstaffAnalyticsPage() {
             <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
           </div>
           {loading ? (
-            <div className="h-8 w-16 bg-blue-100/70 dark:bg-blue-950/50 animate-pulse rounded-lg mt-1" />
+            <div className="h-10 w-16 bg-blue-100/70 dark:bg-blue-950/50 animate-pulse rounded-lg mt-1" />
           ) : (
-            <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+            <div
+              style={{
+                fontFamily: '"Proxima Nova", sans-serif',
+                fontSize: "28px",
+                lineHeight: "40px",
+                fontWeight: 600,
+                color: "rgb(15, 24, 36)",
+              }}
+              className="dark:!text-white tracking-tight"
+            >
               {summary.active_users_count ?? 0}
             </div>
           )}
@@ -752,9 +779,18 @@ export default function HubstaffAnalyticsPage() {
             <FolderKanban className="w-4 h-4 text-amber-600 dark:text-amber-400" />
           </div>
           {loading ? (
-            <div className="h-8 w-16 bg-amber-100/70 dark:bg-amber-950/50 animate-pulse rounded-lg mt-1" />
+            <div className="h-10 w-16 bg-amber-100/70 dark:bg-amber-950/50 animate-pulse rounded-lg mt-1" />
           ) : (
-            <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+            <div
+              style={{
+                fontFamily: '"Proxima Nova", sans-serif',
+                fontSize: "28px",
+                lineHeight: "40px",
+                fontWeight: 600,
+                color: "rgb(15, 24, 36)",
+              }}
+              className="dark:!text-white tracking-tight"
+            >
               {summary.active_projects_count ?? 0}
             </div>
           )}
@@ -768,9 +804,18 @@ export default function HubstaffAnalyticsPage() {
             <UserCheck className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
           </div>
           {loading ? (
-            <div className="h-8 w-24 bg-indigo-100/70 dark:bg-indigo-950/50 animate-pulse rounded-lg mt-1" />
+            <div className="h-10 w-24 bg-indigo-100/70 dark:bg-indigo-950/50 animate-pulse rounded-lg mt-1" />
           ) : (
-            <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+            <div
+              style={{
+                fontFamily: '"Proxima Nova", sans-serif',
+                fontSize: "28px",
+                lineHeight: "40px",
+                fontWeight: 600,
+                color: "rgb(15, 24, 36)",
+              }}
+              className="dark:!text-white tracking-tight"
+            >
               {summary.avg_time_per_user_formatted || "0h 00m"}
             </div>
           )}
