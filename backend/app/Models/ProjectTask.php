@@ -36,6 +36,7 @@ class ProjectTask extends Model
     public const EXECUTION_FIELDS = [
         'status', 'current_updates', 'actual_start_date', 'actual_completion_date',
         'time_taken', 'days_taken', 'deviation_reason',
+        'html_bugs', 'functional_bugs', 'total_bugs', 'bug_tracker_link',
     ];
 
     /** Fields that require `manage tasks` (or being the owning team's Team Lead / Super Admin) — Decision 2. */
@@ -43,6 +44,7 @@ class ProjectTask extends Model
         'project_id', 'sub_phase_id', 'catalog_task_id', 'coordinator_id', 'title', 'description',
         'priority', 'start_date', 'due_date', 'include_saturday', 'include_sunday',
         'sprint', 'sprint_link', 'allotted_days', 'activity_percentage', 'team_id',
+        'html_bugs', 'functional_bugs', 'total_bugs', 'bug_tracker_link',
     ];
 
     protected $fillable = [
@@ -52,6 +54,7 @@ class ProjectTask extends Model
         'current_updates', 'deviation_reason', 'sprint', 'sprint_link',
         'allotted_days', 'time_taken', 'days_taken', 'deviation',
         'activity_percentage', 'team_id', 'created_by', 'updated_by',
+        'html_bugs', 'functional_bugs', 'total_bugs', 'bug_tracker_link',
     ];
 
     protected $casts = [
@@ -66,8 +69,20 @@ class ProjectTask extends Model
         'days_taken' => 'decimal:2',
         'deviation' => 'decimal:2',
         'activity_percentage' => 'decimal:2',
+        'html_bugs' => 'integer',
+        'functional_bugs' => 'integer',
+        'total_bugs' => 'integer',
         'deleted_at' => 'datetime',
     ];
+
+    protected static function booted()
+    {
+        static::saving(function ($task) {
+            if ($task->isDirty(['html_bugs', 'functional_bugs'])) {
+                $task->total_bugs = (int) ($task->html_bugs ?? 0) + (int) ($task->functional_bugs ?? 0);
+            }
+        });
+    }
 
     public function project(): BelongsTo
     {

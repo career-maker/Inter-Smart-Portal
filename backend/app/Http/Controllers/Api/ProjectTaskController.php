@@ -401,6 +401,19 @@ class ProjectTaskController extends Controller
 
         return response()->json(['message' => 'Task coordinator updated successfully.', 'data' => $task]);
     }
+
+    public function destroy(Request $request, ProjectTask $task)
+    {
+        $user = $request->user();
+
+        if (!$this->auth->canManageTask($user, $task)) {
+            return response()->json(['message' => 'Unauthorized to delete this task.'], 403);
+        }
+
+        $this->tasks->deleteTask($task, $user, $request);
+
+        return response()->json(['message' => 'Task deleted successfully.']);
+    }
     /**
      * Dedicated lightweight endpoint to fetch assignable team members.
      * Team Lead: Returns only their team members instantly.

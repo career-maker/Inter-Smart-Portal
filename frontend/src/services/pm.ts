@@ -429,6 +429,73 @@ export const pmApi = {
     });
     return res.data;
   },
+
+  /**
+   * Delete a task (Super Admin or owning Team Lead).
+   */
+  deleteTask: async (id: number): Promise<ApiResponse<null>> => {
+    const res = await api.delete<ApiResponse<null>>(`/project-tasks/${id}`);
+    return res.data;
+  },
+
+  // ── PM Add-ons & Team Features ─────────────────────────────────────────────
+
+  /**
+   * Get all PM Addons with assigned teams (Super Admin).
+   */
+  getAddons: async (): Promise<{ addons: import('@/types/pm').PmAddon[]; teams: import('@/types/pm').PmTeamSummary[] }> => {
+    const res = await api.get('/pm/addons');
+    return res.data;
+  },
+
+  /**
+   * Get active add-ons for the current user's team.
+   */
+  getMyAddons: async (): Promise<{ active_addons: string[]; is_super_admin: boolean }> => {
+    const res = await api.get('/pm/addons/my');
+    return res.data;
+  },
+
+  /**
+   * Assign teams to an add-on (Super Admin).
+   */
+  assignAddonTeams: async (
+    addonId: number,
+    teamIds: number[]
+  ): Promise<{ message: string; addon: import('@/types/pm').PmAddon }> => {
+    const res = await api.post(`/pm/addons/${addonId}/assign-teams`, { team_ids: teamIds });
+    return res.data;
+  },
+
+  /**
+   * Toggle an add-on active/inactive state (Super Admin).
+   */
+  toggleAddonStatus: async (
+    addonId: number
+  ): Promise<{ message: string; addon: import('@/types/pm').PmAddon }> => {
+    const res = await api.post(`/pm/addons/${addonId}/toggle-status`);
+    return res.data;
+  },
+
+  // ── QA Bug Reports ─────────────────────────────────────────────────────────
+
+  /**
+   * Fetch Bug Reports across projects, tasks, sprints and employees.
+   */
+  getBugReports: async (
+    params?: {
+      project_id?: number;
+      assignee_id?: number;
+      sprint?: string;
+      has_bugs?: boolean;
+      search?: string;
+      page?: number;
+      per_page?: number | string;
+    }
+  ): Promise<import('@/types/pm').BugReportResponse> => {
+    const res = await api.get('/pm/bug-reports', { params });
+    return res.data;
+  },
 };
 
 export default pmApi;

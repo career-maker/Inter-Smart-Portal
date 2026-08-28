@@ -45,7 +45,7 @@ class UpdateProjectTaskRequest extends FormRequest
             'activity_percentage' => ['sometimes', 'nullable', 'numeric', 'min:0', 'max:999.99'],
             'team_id' => ['sometimes', 'nullable', 'integer', 'exists:teams,id'],
 
-            // Execution fields
+            // Execution & QA Bug Tracking fields
             'status' => ['sometimes', 'required', 'string', Rule::in(ProjectTask::STATUSES)],
             'current_updates' => ['sometimes', 'nullable', 'string', 'max:5000'],
             'deviation_reason' => ['sometimes', 'nullable', 'string', 'max:2000'],
@@ -53,6 +53,10 @@ class UpdateProjectTaskRequest extends FormRequest
             'actual_completion_date' => ['sometimes', 'nullable', 'date'],
             'time_taken' => ['sometimes', 'nullable', 'numeric', 'min:0', 'max:9999.99'],
             'days_taken' => ['sometimes', 'nullable', 'numeric', 'min:0', 'max:9999.99'],
+            'html_bugs' => ['sometimes', 'nullable', 'integer', 'min:0', 'max:999999'],
+            'functional_bugs' => ['sometimes', 'nullable', 'integer', 'min:0', 'max:999999'],
+            'total_bugs' => ['sometimes', 'nullable', 'integer', 'min:0', 'max:999999'],
+            'bug_tracker_link' => ['sometimes', 'nullable', 'string', 'url', 'max:2048'],
         ];
     }
 }

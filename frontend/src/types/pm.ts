@@ -185,6 +185,10 @@ export interface ProjectTask {
   deviation_reason?: string | null;
   activity_percentage?: number | null;
   current_updates?: string | null;
+  html_bugs?: number | null;
+  functional_bugs?: number | null;
+  total_bugs?: number | null;
+  bug_tracker_link?: string | null;
   created_by?: number;
   updated_by?: number | null;
   created_at: string;
@@ -318,6 +322,44 @@ export interface UpdateProjectTaskPayload extends Partial<StoreProjectTaskPayloa
   days_taken?: number | null;
   deviation_reason?: string | null;
   activity_percentage?: number | null;
+  html_bugs?: number | null;
+  functional_bugs?: number | null;
+  total_bugs?: number | null;
+  bug_tracker_link?: string | null;
+}
+
+// ── PM Add-on & Team Module Types ───────────────────────────────────────────
+
+export interface PmTeamSummary {
+  id: number;
+  name: string;
+  code?: string | null;
+}
+
+export interface PmAddon {
+  id: number;
+  key: string;
+  name: string;
+  description?: string | null;
+  icon?: string | null;
+  is_active: boolean;
+  teams?: PmTeamSummary[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BugReportSummary {
+  total_bugs: number;
+  html_bugs: number;
+  functional_bugs: number;
+  tasks_with_bugs: number;
+  total_tasks: number;
+  avg_bugs_per_task: number;
+}
+
+export interface BugReportResponse {
+  summary: BugReportSummary;
+  tasks: PaginatedResponse<ProjectTask>;
 }
 
 export interface UpdateProjectTaskStatusPayload {

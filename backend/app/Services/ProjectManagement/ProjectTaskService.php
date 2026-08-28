@@ -186,4 +186,10 @@ class ProjectTaskService
             \Log::warning('TaskChangedNotification failed: ' . $e->getMessage());
         }
     }
+
+    public function deleteTask(ProjectTask $task, User $actor, ?Request $request = null): void
+    {
+        $this->auditLogger->log($actor, 'pm.task.deleted', $task, $task->toArray(), [], $request);
+        $task->delete();
+    }
 }

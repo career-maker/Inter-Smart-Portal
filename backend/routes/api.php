@@ -490,12 +490,24 @@ Route::middleware('auth:sanctum')->prefix('project-tasks')->group(function () {
     Route::get('my', [\App\Http\Controllers\Api\ProjectTaskController::class, 'my']);
     Route::get('{task}', [\App\Http\Controllers\Api\ProjectTaskController::class, 'show']);
     Route::put('{task}', [\App\Http\Controllers\Api\ProjectTaskController::class, 'update']);
+    Route::delete('{task}', [\App\Http\Controllers\Api\ProjectTaskController::class, 'destroy']);
     Route::post('{task}/status', [\App\Http\Controllers\Api\ProjectTaskController::class, 'updateStatus']);
     Route::post('{task}/assignees', [\App\Http\Controllers\Api\ProjectTaskController::class, 'addAssignee']);
     Route::delete('{task}/assignees/{userId}', [\App\Http\Controllers\Api\ProjectTaskController::class, 'removeAssignee']);
     Route::post('{task}/coordinator', [\App\Http\Controllers\Api\ProjectTaskController::class, 'setCoordinator']);
     Route::get('{task}/comments', [\App\Http\Controllers\Api\ProjectTaskCommentController::class, 'index']);
     Route::post('{task}/comments', [\App\Http\Controllers\Api\ProjectTaskCommentController::class, 'store']);
+});
+
+Route::middleware('auth:sanctum')->prefix('pm/addons')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Api\AddonController::class, 'index']);
+    Route::get('my', [\App\Http\Controllers\Api\AddonController::class, 'getMyAddons']);
+    Route::post('{addon}/assign-teams', [\App\Http\Controllers\Api\AddonController::class, 'assignTeams']);
+    Route::post('{addon}/toggle-status', [\App\Http\Controllers\Api\AddonController::class, 'toggleStatus']);
+});
+
+Route::middleware('auth:sanctum')->prefix('pm/bug-reports')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Api\BugReportController::class, 'index']);
 });
 
 Route::middleware('auth:sanctum')->prefix('pm-task-catalog')->group(function () {

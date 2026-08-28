@@ -31,4 +31,9 @@ class Team extends Model
     public function members() {
         return $this->hasMany(User::class);
     }
+
+    public function addons() {
+        return $this->belongsToMany(PmAddon::class, 'pm_team_addons', 'team_id', 'addon_id')
+            ->withTimestamps();
+    }
 }
