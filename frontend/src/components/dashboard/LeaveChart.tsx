@@ -40,8 +40,10 @@ export default function LeaveChart({ data }: { data: any[] }) {
                   allowDecimals={false}
                 />
                 <Tooltip 
-                  cursor={{ fill: "#f8fafc" }}
-                  contentStyle={{ borderRadius: "8px", border: "1px solid #e2e8f0", boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }}
+                  cursor={{ fill: "rgba(51, 65, 85, 0.15)" }}
+                  contentStyle={{ backgroundColor: "#0f172a", borderRadius: "8px", border: "1px solid #334155", color: "#ffffff", boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.5)" }}
+                  itemStyle={{ color: "#ffffff", fontWeight: 500 }}
+                  labelStyle={{ color: "#ffffff", fontWeight: 600 }}
                 />
                 <Bar 
                   dataKey="leaves" 

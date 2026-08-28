@@ -67,6 +67,40 @@ aside[class*="bg-slate-900"] *,
   font-weight: 400 !important;
 }
 
+/* ── Universal Chart Tooltip Visibility & Contrast ── */
+.recharts-default-tooltip,
+div[class*="recharts-tooltip-wrapper"] > div {
+  background-color: #0f172a !important;
+  border: 1px solid #334155 !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5) !important;
+}
+
+.recharts-tooltip-label,
+.recharts-default-tooltip .recharts-tooltip-label {
+  color: #ffffff !important;
+  font-family: "Proxima Nova", sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  line-height: 16px !important;
+  margin-bottom: 4px !important;
+}
+
+.recharts-tooltip-item,
+.recharts-tooltip-item-list,
+.recharts-tooltip-item-name,
+.recharts-tooltip-item-separator,
+.recharts-tooltip-item-value,
+.recharts-default-tooltip .recharts-tooltip-item,
+.recharts-default-tooltip .recharts-tooltip-item * {
+  color: #f8fafc !important;
+  font-family: "Proxima Nova", sans-serif !important;
+  font-size: 12px !important;
+  line-height: 16px !important;
+  font-weight: 500 !important;
+}
+
 /* Universal Button Text Visibility & Contrast */
 button[class*="bg-[#56348f]"], a[class*="bg-[#56348f]"],
 button[class*="bg-blue-600"], a[class*="bg-blue-600"],

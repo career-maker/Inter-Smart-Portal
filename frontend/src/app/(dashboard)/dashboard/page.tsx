@@ -1396,7 +1396,12 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                     <Cell fill="#06B6D4" />
                     <Cell fill="#EF4444" />
                   </Pie>
-                  <Tooltip formatter={(value) => `${value} employees`} contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #64748b', borderRadius: '8px', color: '#f1f5f9' }} />
+                  <Tooltip
+                    formatter={(value) => `${value} employees`}
+                    contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#ffffff', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)' }}
+                    itemStyle={{ color: '#ffffff', fontWeight: 500 }}
+                    labelStyle={{ color: '#ffffff', fontWeight: 600 }}
+                  />
                   <Legend layout="horizontal" align="center" verticalAlign="bottom" formatter={(value) => <span className="text-slate-600 dark:text-slate-400 text-sm">{value}</span>} />
                 </PieChart>
               </ResponsiveContainer>

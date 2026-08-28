@@ -212,12 +212,15 @@ export function PMDashboardCharts({ tasks }: PMDashboardChartsProps) {
                   </Pie>
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: "rgba(15, 23, 42, 0.95)",
-                      borderRadius: "12px",
-                      border: "1px solid rgba(51, 65, 85, 0.8)",
-                      color: "#fff",
+                      backgroundColor: "#0f172a",
+                      borderRadius: "8px",
+                      border: "1px solid #334155",
+                      color: "#ffffff",
                       fontSize: "12px",
+                      boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.5)",
                     }}
+                    itemStyle={{ color: "#ffffff", fontWeight: 500 }}
+                    labelStyle={{ color: "#ffffff", fontWeight: 600 }}
                   />
                   <Legend
                     verticalAlign="bottom"
@@ -278,12 +281,15 @@ export function PMDashboardCharts({ tasks }: PMDashboardChartsProps) {
                   <YAxis fontSize={10} tickLine={false} axisLine={false} tick={{ fill: "#94a3b8" }} />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: "rgba(15, 23, 42, 0.95)",
-                      borderRadius: "12px",
-                      border: "1px solid rgba(51, 65, 85, 0.8)",
-                      color: "#fff",
+                      backgroundColor: "#0f172a",
+                      borderRadius: "8px",
+                      border: "1px solid #334155",
+                      color: "#ffffff",
                       fontSize: "12px",
+                      boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.5)",
                     }}
+                    itemStyle={{ color: "#ffffff", fontWeight: 500 }}
+                    labelStyle={{ color: "#ffffff", fontWeight: 600 }}
                     cursor={{ fill: "rgba(51, 65, 85, 0.2)" }}
                   />
                   <Bar dataKey="tasks" fill="#0ea5e9" radius={[6, 6, 0, 0]} barSize={34} />
@@ -327,12 +333,15 @@ export function PMDashboardCharts({ tasks }: PMDashboardChartsProps) {
               <YAxis fontSize={10} tickLine={false} axisLine={false} tick={{ fill: "#94a3b8" }} />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "rgba(15, 23, 42, 0.95)",
-                  borderRadius: "12px",
-                  border: "1px solid rgba(51, 65, 85, 0.8)",
-                  color: "#fff",
+                  backgroundColor: "#0f172a",
+                  borderRadius: "8px",
+                  border: "1px solid #334155",
+                  color: "#ffffff",
                   fontSize: "12px",
+                  boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.5)",
                 }}
+                itemStyle={{ color: "#ffffff", fontWeight: 500 }}
+                labelStyle={{ color: "#ffffff", fontWeight: 600 }}
               />
               <Legend
                 verticalAlign="top"
