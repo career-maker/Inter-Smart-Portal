@@ -125,7 +125,16 @@ export function PMDashboardStats({
             {/* Middle: Primary Value & Sub badge for Team Lead */}
             <div className="my-2">
               <div className="flex items-baseline gap-2 flex-wrap">
-                <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                <span
+                  style={{
+                    fontFamily: '"Proxima Nova", sans-serif',
+                    fontSize: "28px",
+                    lineHeight: "40px",
+                    fontWeight: 600,
+                    color: "rgb(15, 24, 36)",
+                  }}
+                  className="dark:!text-white tracking-tight"
+                >
                   {loading ? "…" : card.primaryValue}
                 </span>
                 {card.subBadge && (

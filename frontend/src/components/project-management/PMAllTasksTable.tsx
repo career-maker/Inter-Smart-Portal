@@ -98,37 +98,37 @@ export function PMAllTasksTable({
       case "In Progress":
       case "Being Developed":
         return (
-          <span className="inline-flex items-center gap-1.5 text-blue-400 font-semibold text-xs">
-            <PlayCircle className="w-3.5 h-3.5 text-blue-500" />
+          <span className="inline-flex items-center gap-1.5 text-blue-600 dark:text-blue-400 font-semibold text-xs">
+            <PlayCircle className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
             <span>In Progress</span>
           </span>
         );
       case "Completed":
         return (
-          <span className="inline-flex items-center gap-1.5 text-emerald-400 font-semibold text-xs">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+          <span className="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold text-xs">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
             <span>Completed</span>
           </span>
         );
       case "On Hold":
         return (
-          <span className="inline-flex items-center gap-1.5 text-amber-400 font-semibold text-xs">
-            <PauseCircle className="w-3.5 h-3.5 text-amber-500" />
+          <span className="inline-flex items-center gap-1.5 text-amber-600 dark:text-amber-400 font-semibold text-xs">
+            <PauseCircle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
             <span>On Hold</span>
           </span>
         );
       case "Rejected":
         return (
-          <span className="inline-flex items-center gap-1.5 text-rose-400 font-semibold text-xs">
-            <XCircle className="w-3.5 h-3.5 text-rose-500" />
+          <span className="inline-flex items-center gap-1.5 text-rose-600 dark:text-rose-400 font-semibold text-xs">
+            <XCircle className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 shrink-0" />
             <span>Rejected</span>
           </span>
         );
       case "Ready for QA":
       case "Assigned to QA":
         return (
-          <span className="inline-flex items-center gap-1.5 text-purple-400 font-semibold text-xs">
-            <PlayCircle className="w-3.5 h-3.5 text-purple-500" />
+          <span className="inline-flex items-center gap-1.5 text-purple-600 dark:text-purple-400 font-semibold text-xs">
+            <PlayCircle className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
             <span>{status}</span>
           </span>
         );
@@ -136,8 +136,8 @@ export function PMAllTasksTable({
       case "Forecast":
       default:
         return (
-          <span className="inline-flex items-center gap-1.5 text-slate-400 font-semibold text-xs">
-            <Circle className="w-3.5 h-3.5 text-slate-500" />
+          <span className="inline-flex items-center gap-1.5 text-slate-600 dark:text-slate-400 font-semibold text-xs">
+            <Circle className="w-3.5 h-3.5 text-slate-500 shrink-0" />
             <span>{status || "Yet to Start"}</span>
           </span>
         );
@@ -146,7 +146,7 @@ export function PMAllTasksTable({
 
   const formatTimeline = (startDate?: string | null, dueDate?: string | null) => {
     if (!startDate && !dueDate) {
-      return <span className="italic text-slate-500">No timeline</span>;
+      return <span className="italic text-slate-400 dark:text-slate-500">No timeline</span>;
     }
 
     try {
@@ -154,7 +154,7 @@ export function PMAllTasksTable({
       const d = dueDate ? format(parseISO(dueDate), "dd/MM") : "—";
       return <span>{s} - {d}</span>;
     } catch {
-      return <span className="italic text-slate-500">No timeline</span>;
+      return <span className="italic text-slate-400 dark:text-slate-500">No timeline</span>;
     }
   };
 
@@ -167,7 +167,18 @@ export function PMAllTasksTable({
           <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-[#56348f] dark:text-purple-300 border border-purple-200 dark:border-purple-800">
             <Layers className="w-5 h-5" />
           </div>
-          <h2 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">All Tasks</h2>
+          <h2
+            style={{
+              fontFamily: '"Proxima Nova", sans-serif',
+              fontSize: "13px",
+              lineHeight: "20px",
+              fontWeight: 500,
+              color: "rgb(15, 24, 36)",
+            }}
+            className="dark:!text-white tracking-tight box-title"
+          >
+            All Tasks
+          </h2>
         </div>
 
         {/* Filter Controls */}
@@ -226,7 +237,7 @@ export function PMAllTasksTable({
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs border-collapse">
           <thead>
-            <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-100/80 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider text-[11px]">
+            <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider text-[11px]">
               <th className="py-3.5 px-4 min-w-[220px]">PROJECT</th>
               <th className="py-3.5 px-4 min-w-[140px]">PHASE</th>
               <th className="py-3.5 px-4 min-w-[130px]">STATUS</th>
@@ -263,40 +274,49 @@ export function PMAllTasksTable({
                 return (
                   <tr
                     key={task.id}
-                    className="hover:bg-slate-900/50 transition-colors group text-slate-300"
+                    className="hover:bg-slate-50/90 dark:hover:bg-slate-800/60 transition-colors group"
                   >
                     {/* Project & Title */}
-                    <td className="py-3 px-4">
-                      <div className="font-semibold text-slate-900 dark:text-white group-hover:text-[#56348f] transition-colors">
+                    <td className="py-3.5 px-4">
+                      <div
+                        style={{
+                          fontFamily: '"Proxima Nova", sans-serif',
+                          fontSize: "13px",
+                          lineHeight: "20px",
+                          fontWeight: 400,
+                          color: "rgb(15, 24, 36)",
+                        }}
+                        className="dark:!text-white group-hover:!text-[#56348f] dark:group-hover:!text-purple-300 transition-colors"
+                      >
                         {task.project?.name ? `${task.project.name} / ${task.title}` : task.title}
                       </div>
                       {(task.project as any)?.category && (
-                        <span className="text-[10px] text-slate-500 block mt-0.5">
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5 font-normal">
                           {(task.project as any).category}
                         </span>
                       )}
                     </td>
 
                     {/* Phase */}
-                    <td className="py-3 px-4 text-slate-400">
+                    <td className="py-3.5 px-4 text-slate-600 dark:text-slate-300 text-xs">
                       {task.sub_phase?.name || (task.catalog_task as any)?.name || "-"}
                     </td>
 
                     {/* Status Badge with icon */}
-                    <td className="py-3 px-4">{renderStatusBadge(task.status)}</td>
+                    <td className="py-3.5 px-4">{renderStatusBadge(task.status)}</td>
 
                     {/* Assignees */}
-                    <td className="py-3 px-4 font-medium text-slate-200">
+                    <td className="py-3.5 px-4 font-medium text-slate-800 dark:text-slate-200 text-xs">
                       {assigneesText}
                     </td>
 
                     {/* Timeline */}
-                    <td className="py-3 px-4 text-slate-400 font-mono text-[11px]">
+                    <td className="py-3.5 px-4 text-slate-600 dark:text-slate-400 text-xs font-normal">
                       {formatTimeline(task.start_date, task.due_date)}
                     </td>
 
                     {/* Comments */}
-                    <td className="py-3 px-4 text-slate-400 max-w-[200px] truncate" title={latestComment}>
+                    <td className="py-3.5 px-4 text-slate-600 dark:text-slate-400 text-xs max-w-[200px] truncate" title={latestComment}>
                       {latestComment}
                     </td>
                   </tr>
@@ -309,7 +329,7 @@ export function PMAllTasksTable({
 
       {/* ── Table Pagination Footer ── */}
       {totalPages > 1 && (
-        <div className="px-4 py-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400 bg-slate-900/30">
+        <div className="px-4 py-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/50">
           <span>
             Page {currentPage} of {totalPages}
           </span>
@@ -318,7 +338,7 @@ export function PMAllTasksTable({
               type="button"
               disabled={currentPage <= 1}
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              className="p-1.5 rounded-lg border border-slate-800 hover:bg-slate-800 text-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -326,7 +346,7 @@ export function PMAllTasksTable({
               type="button"
               disabled={currentPage >= totalPages}
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              className="p-1.5 rounded-lg border border-slate-800 hover:bg-slate-800 text-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
