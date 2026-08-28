@@ -299,20 +299,20 @@ export function ProjectStatusDrawer({
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                       <div className="p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xs">
                         <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Total Tasks</p>
-                        <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats.total_tasks}</p>
+                        <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats?.total_tasks ?? 0}</p>
                       </div>
                       <div className="p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xs">
                         <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Completed</p>
-                        <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{stats.completed_tasks}</p>
+                        <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{stats?.completed_tasks ?? 0}</p>
                       </div>
                       <div className="p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xs">
                         <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Active / In Progress</p>
-                        <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">{stats.active_tasks}</p>
+                        <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">{stats?.active_tasks ?? 0}</p>
                       </div>
                       <div className="p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xs">
                         <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Overdue</p>
-                        <p className={`text-2xl font-bold ${stats.overdue_tasks > 0 ? "text-rose-600 dark:text-rose-400" : "text-slate-900 dark:text-white"}`}>
-                          {stats.overdue_tasks}
+                        <p className={`text-2xl font-bold ${(stats?.overdue_tasks ?? 0) > 0 ? "text-rose-600 dark:text-rose-400" : "text-slate-900 dark:text-white"}`}>
+                          {stats?.overdue_tasks ?? 0}
                         </p>
                       </div>
                     </div>
@@ -463,7 +463,7 @@ export function ProjectStatusDrawer({
                               <TaskStatusBadge status={t.status} />
                             </div>
                             <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                              Phase: {t.subPhase?.name || "General"} • Assignees: {t.assignees?.map((a: any) => `${a.first_name} ${a.last_name || ""}`).join(", ") || "Unassigned"}
+                              Phase: {t.sub_phase?.name || (t as any).subPhase?.name || "General"} • Assignees: {t.assignees?.map((a: any) => `${a.first_name} ${a.last_name || ""}`).join(", ") || "Unassigned"}
                             </p>
                           </div>
 
@@ -637,7 +637,7 @@ export function ProjectStatusDrawer({
                               <TaskStatusBadge status={t.status} />
                             </div>
                             <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                              Created: {t.created_at ? format(parseISO(t.created_at), "dd MMM yyyy") : "N/A"} • Phase: {t.subPhase?.name || "General"}
+                              Created: {t.created_at ? format(parseISO(t.created_at), "dd MMM yyyy") : "N/A"} • Phase: {t.sub_phase?.name || (t as any).subPhase?.name || "General"}
                             </p>
                           </div>
 
