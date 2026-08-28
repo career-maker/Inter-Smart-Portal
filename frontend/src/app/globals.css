@@ -4,6 +4,10 @@
 @layer base {
   html, body, *, :root {
     font-family: "Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-synthesis: none;
   }
 
   button, [role="button"], a.btn, .btn {
@@ -12,6 +16,7 @@
     font-size: 13px;
     line-height: 20px;
     font-weight: 400;
+    letter-spacing: normal;
   }
 }
 
@@ -31,6 +36,7 @@
   color: rgb(15, 24, 36) !important;
   font-size: 13px !important;
   line-height: 20px !important;
+  letter-spacing: normal !important;
 }
 
 .dark .box-title,
@@ -45,7 +51,7 @@
   color: rgb(241, 245, 249) !important;
 }
 
-/* ── Universal KPI Number Typography (Proxima Nova 600 - 28px/40px) ── */
+/* ── Universal KPI Number Typography (Proxima Nova 600 - 28px/36px) ── */
 .kpi-number,
 .kpi-value,
 [class*="kpi-number"] {
@@ -53,7 +59,8 @@
   font-style: normal !important;
   font-weight: 600 !important;
   font-size: 28px !important;
-  line-height: 40px !important;
+  line-height: 36px !important;
+  letter-spacing: normal !important;
   color: rgb(15, 24, 36) !important;
 }
 

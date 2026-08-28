@@ -161,9 +161,9 @@ export default function ProjectStatusPage() {
               Project Management
             </Link>
             <ChevronRight className="w-3.5 h-3.5" />
-            <span className="text-slate-900 dark:text-white font-bold">Project Status</span>
+            <span className="text-slate-900 dark:text-white font-semibold">Project Status</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
             <span>Project Status</span>
             <span className="text-xs uppercase font-bold tracking-wider px-2.5 py-1 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
               360° Lifecycle & Live Tracking
@@ -195,31 +195,31 @@ export default function ProjectStatusPage() {
         </div>
       </div>
 
-      {/* ── Summary KPI Ribbon ── */}
+      {/* ── Summary KPI Ribbon (Keka Style) ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700/60 shadow-sm">
-          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Total Monitored Projects</p>
-          <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">{metrics.total}</p>
+        <div className="p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700/60 border-l-[3px] border-l-indigo-600 shadow-xs space-y-1">
+          <p className="text-[13px] leading-[20px] font-medium text-slate-600 dark:text-slate-400">Total Monitored Projects</p>
+          <p className="kpi-number text-slate-900 dark:text-white">{metrics.total}</p>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700/60 shadow-sm">
-          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Made Live (In Production)</p>
+        <div className="p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700/60 border-l-[3px] border-l-emerald-500 shadow-xs space-y-1">
+          <p className="text-[13px] leading-[20px] font-medium text-slate-600 dark:text-slate-400">Made Live (In Production)</p>
           <div className="flex items-center gap-2">
-            <p className="text-2xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">{metrics.liveCount}</p>
-            <span className="text-xs px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
+            <p className="kpi-number text-emerald-600 dark:text-emerald-400">{metrics.liveCount}</p>
+            <span className="text-[11px] px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
               Live
             </span>
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700/60 shadow-sm">
-          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Active Deliverables</p>
-          <p className="text-2xl sm:text-3xl font-extrabold text-purple-600 dark:text-purple-400">{metrics.activeCount}</p>
+        <div className="p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700/60 border-l-[3px] border-l-sky-500 shadow-xs space-y-1">
+          <p className="text-[13px] leading-[20px] font-medium text-slate-600 dark:text-slate-400">Active Deliverables</p>
+          <p className="kpi-number text-sky-600 dark:text-sky-400">{metrics.activeCount}</p>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700/60 shadow-sm">
-          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Completed Lifecycle</p>
-          <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">{metrics.completedCount}</p>
+        <div className="p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700/60 border-l-[3px] border-l-purple-500 shadow-xs space-y-1">
+          <p className="text-[13px] leading-[20px] font-medium text-slate-600 dark:text-slate-400">Completed Lifecycle</p>
+          <p className="kpi-number text-slate-900 dark:text-white">{metrics.completedCount}</p>
         </div>
       </div>
 
