@@ -63,8 +63,8 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
   const router = useRouter();
 
   const { user } = useAuthStore();
-  const isSuperAdmin = user?.role === "Super Admin";
-  const isTeamLead = user?.role === "Team Lead";
+  const isSuperAdmin = (user?.role || "").toLowerCase() === "super admin";
+  const isTeamLead = (user?.role || "").toLowerCase() === "team lead";
 
   const [project, setProject] = useState<Project | null>(null);
   const [members, setMembers] = useState<ProjectMemberUser[]>([]);
@@ -264,38 +264,44 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-2.5 self-start sm:self-auto">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 self-start sm:self-auto">
           <button
+            type="button"
             onClick={() => fetchProjectDetails(true)}
             disabled={refreshing}
             aria-label="Refresh Details"
-            className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors"
+            className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors shrink-0 cursor-pointer"
             title="Refresh Details"
           >
-            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-blue-500" : ""}`} />
+            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-[#56348f]" : ""}`} />
           </button>
 
           <button
+            type="button"
             onClick={() => setIsCreateTaskModalOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold shadow-sm shadow-blue-500/20 transition-colors cursor-pointer"
+            style={{ backgroundColor: "#56348f", color: "rgb(255, 255, 255)", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+            className="whitespace-nowrap inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-[13px] leading-[20px] font-normal shadow-sm transition-colors cursor-pointer shrink-0"
           >
-            <Plus className="w-4 h-4" />
-            <span>Add Task</span>
+            <Plus className="w-4 h-4 !text-white shrink-0" />
+            <span className="whitespace-nowrap !text-white">Add Task</span>
           </button>
 
-          {(isSuperAdmin || isTeamLead) && (
+          {isSuperAdmin && (
             <>
               <button
+                type="button"
                 onClick={() => setIsEditModalOpen(true)}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs sm:text-sm font-semibold border border-slate-200 dark:border-slate-700 transition-colors"
+                style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+                className="whitespace-nowrap inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-[13px] leading-[20px] font-normal border border-slate-200 dark:border-slate-700 transition-colors shrink-0 cursor-pointer"
               >
-                <Edit3 className="w-4 h-4 text-blue-500" />
-                <span>Edit Project</span>
+                <Edit3 className="w-4 h-4 text-[#56348f] dark:text-purple-400 shrink-0" />
+                <span className="whitespace-nowrap">Edit Project</span>
               </button>
 
               <button
+                type="button"
                 onClick={() => setIsArchiveDialogOpen(true)}
-                className="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800/60 transition-colors"
+                className="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800/60 transition-colors shrink-0 cursor-pointer"
                 title="Archive Project"
               >
                 <Trash2 className="w-4 h-4" />
@@ -515,7 +521,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
               who receive milestone notifications and coordinate delivery.
             </p>
 
-            {(isSuperAdmin || isTeamLead) ? (
+            {isSuperAdmin ? (
               <div className="space-y-3 pt-2">
                 <SearchableCoordinatorSelect
                   value={selectedCoordinatorId ? Number(selectedCoordinatorId) : null}
@@ -528,11 +534,12 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                   type="button"
                   onClick={handleSaveCoordinator}
                   disabled={savingCoordinator}
-                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition-colors disabled:opacity-50"
+                  style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-[13px] leading-[20px] font-normal border border-slate-200 dark:border-slate-700 transition-colors disabled:opacity-50 cursor-pointer"
                 >
                   {savingCoordinator ? (
                     <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-500" />
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-[#56348f]" />
                       <span>Saving Coordinator…</span>
                     </>
                   ) : (
