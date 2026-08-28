@@ -9,6 +9,8 @@ use App\Http\Requests\UpdateProjectTaskRequest;
 use App\Http\Requests\UpdateProjectTaskStatusRequest;
 use App\Models\Project;
 use App\Models\ProjectTask;
+use App\Models\ProjectTaskAssignee;
+use App\Models\ProjectSubPhase;
 use App\Models\Team;
 use App\Models\User;
 use App\Models\Attendance;
