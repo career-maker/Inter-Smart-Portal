@@ -482,6 +482,8 @@ Route::middleware('auth:sanctum')->prefix('projects')->group(function () {
 });
 
 Route::middleware('auth:sanctum')->prefix('project-tasks')->group(function () {
+    Route::get('import/template', [\App\Http\Controllers\Api\ProjectTaskController::class, 'sampleCSV']);
+    Route::post('import', [\App\Http\Controllers\Api\ProjectTaskController::class, 'importCSV']);
     Route::get('daily-report', [\App\Http\Controllers\Api\ProjectTaskController::class, 'dailyReport']);
     Route::get('team-members', [\App\Http\Controllers\Api\ProjectTaskController::class, 'getTeamMembers']);
     Route::get('/', [\App\Http\Controllers\Api\ProjectTaskController::class, 'index']);

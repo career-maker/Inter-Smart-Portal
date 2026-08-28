@@ -11,7 +11,8 @@ import {
   AlertCircle,
   Users,
   AlertTriangle,
-  FileText
+  FileText,
+  Upload,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import pmApi from "@/services/pm";
@@ -29,6 +30,7 @@ import { TaskTrackerTable } from "@/components/project-management/TaskTrackerTab
 import { TeamFilterSelector } from "@/components/project-management/TeamFilterSelector";
 import { CreateTaskModal } from "@/components/project-management/CreateTaskModal";
 import { DailyReportModal } from "@/components/project-management/DailyReportModal";
+import { ImportTasksModal } from "@/components/project-management/ImportTasksModal";
 
 export default function AllTasksPage() {
   const { user } = useAuthStore();
@@ -57,6 +59,7 @@ export default function AllTasksPage() {
   const [viewMode, setViewMode] = useState<"grouped" | "flat">("grouped");
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [selectedAssigneeForModal, setSelectedAssigneeForModal] = useState<number | undefined>(undefined);
   const [isDailyReportOpen, setIsDailyReportOpen] = useState(false);
 
@@ -364,17 +367,34 @@ export default function AllTasksPage() {
           </button>
 
           {canEditTasks && (
-            <button
-              onClick={() => {
-                setSelectedAssigneeForModal(undefined);
-                setIsCreateModalOpen(true);
-              }}
-              style={{ backgroundColor: "#56348f", color: "rgb(255, 255, 255)", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-[13px] leading-[20px] font-normal shadow-sm transition-colors cursor-pointer"
-            >
-              <Plus className="w-4 h-4 !text-white" />
-              <span className="!text-white">Create Task</span>
-            </button>
+            <>
+              <button
+                onClick={() => setIsImportModalOpen(true)}
+                style={{
+                  fontFamily: '"Proxima Nova", sans-serif',
+                  fontSize: "13px",
+                  lineHeight: "20px",
+                  fontWeight: 400,
+                }}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-[#56348f] dark:text-purple-300 text-[13px] leading-[20px] font-normal border border-purple-200 dark:border-purple-800 transition-colors cursor-pointer"
+                title="Import Tasks from CSV spreadsheet"
+              >
+                <Upload className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
+                <span>Import Tasks</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setSelectedAssigneeForModal(undefined);
+                  setIsCreateModalOpen(true);
+                }}
+                style={{ backgroundColor: "#56348f", color: "rgb(255, 255, 255)", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-[13px] leading-[20px] font-normal shadow-sm transition-colors cursor-pointer"
+              >
+                <Plus className="w-4 h-4 !text-white" />
+                <span className="!text-white">Create Task</span>
+              </button>
+            </>
           )}
         </div>
       </div>
@@ -658,6 +678,16 @@ export default function AllTasksPage() {
       <DailyReportModal
         isOpen={isDailyReportOpen}
         onClose={() => setIsDailyReportOpen(false)}
+      />
+
+      {/* ── Import Tasks Modal ── */}
+      <ImportTasksModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        projects={projects}
+        onSuccess={() => {
+          fetchTasks(1, true);
+        }}
       />
     </div>
   );

@@ -787,4 +787,373 @@ class ProjectTaskController extends Controller
             'time_tracking' => $timeTrackingData,
         ]);
     }
+
+    /**
+     * Download Sample CSV template for task imports.
+     */
+    public function sampleCSV()
+    {
+        $headers = [
+            'project_name',
+            'title',
+            'description',
+            'sub_phase',
+            'priority',
+            'status',
+            'start_date',
+            'due_date',
+            'allotted_days',
+            'time_taken',
+            'assignee_codes',
+            'remarks',
+        ];
+
+        $sampleRows = [
+            [
+                'ACCOS - NW1 London',
+                'Header & Navigation Redesign',
+                'Revamp main navigation bar and responsive mobile drawer',
+                'UI/UX Design',
+                'High',
+                'Yet to Start',
+                now()->toDateString(),
+                now()->addDays(2)->toDateString(),
+                '2.0',
+                '16.0',
+                'EMP001, EMP002',
+                'Awaiting Figma approval',
+            ],
+            [
+                'ACCOS - NW1 London',
+                'Stripe & Apple Pay Integration',
+                'Implement checkout session webhook and token payment handler',
+                'Development',
+                'Critical',
+                'In Progress',
+                now()->toDateString(),
+                now()->addDays(4)->toDateString(),
+                '4.0',
+                '32.0',
+                'EMP003',
+                'Backend architecture ready',
+            ],
+            [
+                'General Project',
+                'Cross-Browser QA Smoke Tests',
+                'Verify Safari, Chrome, and Firefox layout stability',
+                'QA Testing',
+                'Medium',
+                'Yet to Start',
+                now()->addDays(1)->toDateString(),
+                now()->addDays(3)->toDateString(),
+                '1.5',
+                '12.0',
+                'EMP004',
+                'Run automated suite first',
+            ]
+        ];
+
+        $filename = 'tasks-import-template-' . date('Y-m-d') . '.csv';
+        $handle = fopen('php://memory', 'r+');
+
+        // Write UTF-8 BOM for Excel compatibility
+        fputs($handle, "\xEF\xBB\xBF");
+        fputcsv($handle, $headers);
+
+        foreach ($sampleRows as $row) {
+            fputcsv($handle, $row);
+        }
+
+        rewind($handle);
+        $csv = stream_get_contents($handle);
+        fclose($handle);
+
+        return response($csv, 200, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+            'Pragma' => 'no-cache',
+            'Expires' => '0',
+        ]);
+    }
+
+    /**
+     * Helper to parse flexible date strings (YYYY-MM-DD or DD-MM-YYYY or DD/MM/YYYY).
+     */
+    private function parseTaskDate(?string $dateStr): ?string
+    {
+        if (empty($dateStr)) {
+            return null;
+        }
+        $dateStr = trim($dateStr);
+        $formats = ['Y-m-d', 'd-m-Y', 'd/m/Y', 'Y/m/d', 'm/d/Y'];
+        foreach ($formats as $fmt) {
+            try {
+                $d = \Carbon\Carbon::createFromFormat($fmt, $dateStr);
+                if ($d !== false) {
+                    return $d->toDateString();
+                }
+            } catch (\Throwable $e) {
+                // Continue to next format
+            }
+        }
+        try {
+            return \Carbon\Carbon::parse($dateStr)->toDateString();
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Bulk import tasks from CSV file or JSON array.
+     */
+    public function importCSV(Request $request)
+    {
+        $user = $request->user();
+
+        $canImport = $user->hasRole('Super Admin')
+            || $user->hasRole('Admin')
+            || $user->hasRole('Team Lead')
+            || $user->can('manage projects')
+            || $user->can('create projects')
+            || in_array(strtolower($user->role ?? ''), ['super admin', 'admin', 'team lead'], true);
+
+        if (!$canImport) {
+            return response()->json(['message' => 'Unauthorized: Only Team Leads and Administrators can import tasks.'], 403);
+        }
+
+        $defaultProjectId = $request->input('project_id');
+        $rawRows = [];
+
+        if ($request->hasFile('file')) {
+            $request->validate([
+                'file' => 'required|file|mimes:csv,txt|max:10240',
+            ]);
+
+            $file = $request->file('file');
+            $path = $file->getRealPath();
+            $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+            if (empty($lines)) {
+                return response()->json(['message' => 'The uploaded CSV file is empty.'], 422);
+            }
+
+            // Detect and remove UTF-8 BOM
+            if (isset($lines[0])) {
+                $lines[0] = preg_replace('/^\xEF\xBB\xBF/', '', $lines[0]);
+            }
+
+            $csvData = array_map('str_getcsv', $lines);
+            $rawHeaders = array_shift($csvData);
+
+            if (empty($rawHeaders)) {
+                return response()->json(['message' => 'Invalid CSV headers.'], 422);
+            }
+
+            $normalizedHeaders = array_map(function ($h) {
+                return strtolower(trim(preg_replace('/[^a-zA-Z0-9_]/', '_', $h)));
+            }, $rawHeaders);
+
+            foreach ($csvData as $row) {
+                if (empty(array_filter($row))) continue;
+                if (count($row) < count($normalizedHeaders)) {
+                    $row = array_pad($row, count($normalizedHeaders), '');
+                }
+                $rawRows[] = array_combine($normalizedHeaders, array_slice($row, 0, count($normalizedHeaders)));
+            }
+        } elseif ($request->has('tasks') && is_array($request->input('tasks'))) {
+            $rawRows = $request->input('tasks');
+        } else {
+            return response()->json(['message' => 'Please provide a valid CSV file or task data payload.'], 422);
+        }
+
+        if (empty($rawRows)) {
+            return response()->json(['message' => 'No task data found in the CSV.'], 422);
+        }
+
+        // Cache lookups for performance
+        $allProjects = Project::select('id', 'name', 'team_id', 'project_coordinator_id')->get();
+        $projectByName = $allProjects->keyBy(fn ($p) => strtolower(trim($p->name)));
+        $projectById = $allProjects->keyBy('id');
+
+        $allUsers = User::where('status', 'Active')
+            ->select('id', 'first_name', 'last_name', 'email', 'employee_code', 'team_id')
+            ->get();
+        $userByCode = $allUsers->whereNotNull('employee_code')->keyBy(fn ($u) => strtolower(trim($u->employee_code)));
+        $userByEmail = $allUsers->keyBy(fn ($u) => strtolower(trim($u->email)));
+        $userByName = $allUsers->keyBy(fn ($u) => strtolower(trim("{$u->first_name} {$u->last_name}")));
+
+        $allSubPhases = \App\Models\ProjectSubPhase::all();
+
+        // Team Lead authorization scope
+        $isTeamLead = $user->hasRole('Team Lead') || strtolower($user->role ?? '') === 'team lead';
+        $ledTeamIds = [];
+        if ($isTeamLead) {
+            $ledTeamIds = Team::where('team_lead_id', $user->id)->pluck('id')->toArray();
+            if ($user->team_id) {
+                $ledTeamIds[] = $user->team_id;
+            }
+            $ledTeamIds = array_values(array_unique(array_filter($ledTeamIds)));
+        }
+
+        $imported = 0;
+        $failed = 0;
+        $errors = [];
+
+        foreach ($rawRows as $idx => $row) {
+            $rowNum = $idx + 2; // Accounting for 1-based index and header row
+
+            // 1. Resolve Task Title
+            $title = trim($row['title'] ?? $row['task_title'] ?? $row['name'] ?? '');
+            if (empty($title)) {
+                $errors[] = "Row {$rowNum}: Task title is missing.";
+                $failed++;
+                continue;
+            }
+
+            // 2. Resolve Project
+            $projectName = trim($row['project_name'] ?? $row['project'] ?? '');
+            $rowProjectId = $row['project_id'] ?? null;
+            $matchedProject = null;
+
+            if (!empty($rowProjectId) && $projectById->has($rowProjectId)) {
+                $matchedProject = $projectById->get($rowProjectId);
+            } elseif (!empty($projectName)) {
+                $pKey = strtolower($projectName);
+                if ($projectByName->has($pKey)) {
+                    $matchedProject = $projectByName->get($pKey);
+                } else {
+                    // Fuzzy fallback
+                    $matchedProject = $allProjects->first(function ($p) use ($pKey) {
+                        $cName = strtolower(trim($p->name));
+                        return $cName === $pKey || str_contains($cName, $pKey) || str_contains($pKey, $cName);
+                    });
+                }
+            }
+
+            // Default project fallback
+            if (!$matchedProject && !empty($defaultProjectId) && $projectById->has($defaultProjectId)) {
+                $matchedProject = $projectById->get($defaultProjectId);
+            }
+
+            if (!$matchedProject) {
+                $errors[] = "Row {$rowNum}: Project '" . ($projectName ?: "ID: {$rowProjectId}") . "' could not be resolved.";
+                $failed++;
+                continue;
+            }
+
+            // Team Lead Scope Verification
+            if ($isTeamLead && !$user->hasRole('Super Admin') && !$user->hasRole('Admin')) {
+                $hasAccess = in_array($matchedProject->team_id, $ledTeamIds, true)
+                    || $matchedProject->project_coordinator_id === $user->id;
+                if (!$hasAccess) {
+                    $errors[] = "Row {$rowNum}: You are not authorized to add tasks to project '{$matchedProject->name}'.";
+                    $failed++;
+                    continue;
+                }
+            }
+
+            // 3. Resolve Sub-Phase
+            $subPhaseName = trim($row['sub_phase'] ?? $row['sub_phase_name'] ?? $row['phase'] ?? '');
+            $subPhaseId = null;
+            if (!empty($subPhaseName)) {
+                $spKey = strtolower($subPhaseName);
+                $matchedSp = $allSubPhases->first(function ($sp) use ($spKey, $matchedProject) {
+                    $matchName = strtolower(trim($sp->name)) === $spKey;
+                    $matchTeam = $sp->team_id === null || $sp->team_id === $matchedProject->team_id;
+                    return $matchName && $matchTeam;
+                });
+                if ($matchedSp) {
+                    $subPhaseId = $matchedSp->id;
+                }
+            }
+
+            // 4. Resolve Priority & Status
+            $rawPriority = ucfirst(strtolower(trim($row['priority'] ?? 'Medium')));
+            $priority = in_array($rawPriority, ['Low', 'Medium', 'High', 'Critical'], true) ? $rawPriority : 'Medium';
+
+            $rawStatus = trim($row['status'] ?? 'Yet to Start');
+            $validStatuses = [
+                'Yet to Start', 'Being Developed', 'Ready for QA', 'Assigned to QA',
+                'In Progress', 'On Hold', 'Completed', 'Forecast', 'Rejected'
+            ];
+            $status = 'Yet to Start';
+            foreach ($validStatuses as $vs) {
+                if (strcasecmp($vs, $rawStatus) === 0) {
+                    $status = $vs;
+                    break;
+                }
+            }
+
+            // 5. Dates and Estimates
+            $startDate = $this->parseTaskDate($row['start_date'] ?? null) ?: now()->toDateString();
+            $dueDate = $this->parseTaskDate($row['due_date'] ?? null) ?: now()->addDays(2)->toDateString();
+            $allottedDays = isset($row['allotted_days']) && is_numeric($row['allotted_days']) ? (float) $row['allotted_days'] : 1.0;
+            $timeTaken = isset($row['time_taken']) && is_numeric($row['time_taken']) ? (float) $row['time_taken'] : 0.0;
+            $description = trim($row['description'] ?? $row['details'] ?? '');
+            $remarks = trim($row['remarks'] ?? $row['current_updates'] ?? $row['notes'] ?? '');
+
+            // 6. Resolve Assignees
+            $rawAssignees = trim($row['assignee_codes'] ?? $row['assignee_emails'] ?? $row['assignees'] ?? $row['assignee'] ?? '');
+            $assigneeIds = [];
+            if (!empty($rawAssignees)) {
+                $tokens = array_filter(array_map('trim', explode(',', $rawAssignees)));
+                foreach ($tokens as $token) {
+                    $tokKey = strtolower($token);
+                    $matchedUser = null;
+                    if ($userByCode->has($tokKey)) {
+                        $matchedUser = $userByCode->get($tokKey);
+                    } elseif ($userByEmail->has($tokKey)) {
+                        $matchedUser = $userByEmail->get($tokKey);
+                    } elseif ($userByName->has($tokKey)) {
+                        $matchedUser = $userByName->get($tokKey);
+                    }
+
+                    if ($matchedUser && !in_array($matchedUser->id, $assigneeIds, true)) {
+                        $assigneeIds[] = $matchedUser->id;
+                    }
+                }
+            }
+
+            // 7. Create Task Record
+            try {
+                $taskPayload = [
+                    'title' => $title,
+                    'description' => $description ?: null,
+                    'sub_phase_id' => $subPhaseId,
+                    'priority' => $priority,
+                    'status' => $status,
+                    'start_date' => $startDate,
+                    'due_date' => $dueDate,
+                    'allotted_days' => $allottedDays,
+                    'time_taken' => $timeTaken,
+                    'current_updates' => $remarks ?: null,
+                    'team_id' => $matchedProject->team_id,
+                ];
+
+                if (!empty($assigneeIds) && count($assigneeIds) > 1) {
+                    foreach ($assigneeIds as $aId) {
+                        $t = $this->tasks->createTask($matchedProject, $taskPayload, $user, $request);
+                        $this->tasks->assignUser($t, $aId, $user, true, $request);
+                    }
+                } else {
+                    $t = $this->tasks->createTask($matchedProject, $taskPayload, $user, $request);
+                    if (!empty($assigneeIds)) {
+                        $this->tasks->assignUser($t, $assigneeIds[0], $user, true, $request);
+                    }
+                }
+
+                $imported++;
+            } catch (\Throwable $e) {
+                $errors[] = "Row {$rowNum}: Failed to save task '{$title}' ({$e->getMessage()})";
+                $failed++;
+            }
+        }
+
+        return response()->json([
+            'message' => "Import complete: {$imported} tasks successfully imported" . ($failed > 0 ? " ({$failed} rows skipped)" : "."),
+            'imported_count' => $imported,
+            'skipped_count' => $failed,
+            'errors' => $errors,
+        ], $imported > 0 ? 200 : 422);
+    }
 }

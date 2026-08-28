@@ -398,6 +398,36 @@ export const pmApi = {
     const res = await api.post<ApiResponse<any>>('/hubstaff/sync-users', { mappings });
     return res.data;
   },
+
+  // ── Task Import ─────────────────────────────────────────────────────────────
+
+  /**
+   * Download Sample CSV template for task imports.
+   */
+  downloadTaskImportTemplate: async (): Promise<Blob> => {
+    const res = await api.get('/project-tasks/import/template', {
+      responseType: 'blob',
+    });
+    return res.data;
+  },
+
+  /**
+   * Bulk import tasks from CSV file or structured JSON rows.
+   */
+  importTasks: async (
+    payload: FormData | { tasks: any[]; project_id?: number }
+  ): Promise<{
+    message: string;
+    imported_count: number;
+    skipped_count: number;
+    errors: string[];
+  }> => {
+    const isFormData = typeof FormData !== 'undefined' && payload instanceof FormData;
+    const res = await api.post('/project-tasks/import', payload, {
+      headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : {},
+    });
+    return res.data;
+  },
 };
 
 export default pmApi;
