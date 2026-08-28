@@ -9,9 +9,8 @@ import {
   CheckCircle2,
   X,
   Loader2,
-  Info,
-  FolderKanban,
-  Table as TableIcon
+  Table as TableIcon,
+  FileCheck
 } from "lucide-react";
 import { Project } from "@/types/pm";
 import pmApi from "@/services/pm";
@@ -42,6 +41,7 @@ export function ImportTasksModal({
 }: ImportTasksModalProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState<string>("");
   const [downloadingTemplate, setDownloadingTemplate] = useState(false);
   const [parsedRows, setParsedRows] = useState<ParsedTaskRow[]>([]);
@@ -76,33 +76,29 @@ export function ImportTasksModal({
     }
   };
 
-  const parseCsvPreview = (text: string) => {
+  const parseCsvText = (text: string) => {
     try {
-      const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
+      // Remove BOM if present
+      const cleanText = text.replace(/^\uFEFF/, "");
+      const lines = cleanText.split(/\r?\n/).filter((l) => l.trim().length > 0);
       if (lines.length <= 1) {
         setParsedRows([]);
         return;
       }
 
-      // Parse headers
-      const rawHeaders = lines[0].split(",").map((h) =>
-        h.replace(/^["']|["']$/g, "").trim().toLowerCase().replace(/[^a-z0-9_]/g, "_")
+      // Parse header line
+      const rawHeaders = parseCsvLine(lines[0]).map((h) =>
+        h.toLowerCase().trim().replace(/[^a-z0-9_]/g, "_")
       );
 
       const rows: ParsedTaskRow[] = [];
-      for (let i = 1; i < Math.min(lines.length, 100); i++) {
-        const line = lines[i];
-        // Handle basic quoted commas
-        const matches = line.match(/(?:,|\n|^)("(?:(?:"")*[^"]*)*"|[^",\n]*|(?:\n|$))/g);
-        if (!matches) continue;
-
-        const rowValues = matches.map((v) =>
-          v.replace(/^,/, "").replace(/^["']|["']$/g, "").trim()
-        );
+      for (let i = 1; i < lines.length; i++) {
+        const rowValues = parseCsvLine(lines[i]);
+        if (rowValues.length === 0 || rowValues.every((v) => !v.trim())) continue;
 
         const rowObj: any = {};
         rawHeaders.forEach((h, idx) => {
-          rowObj[h] = rowValues[idx] || "";
+          rowObj[h] = (rowValues[idx] || "").trim();
         });
 
         const title = rowObj.title || rowObj.task_title || rowObj.name;
@@ -126,12 +122,36 @@ export function ImportTasksModal({
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  // Helper to accurately parse a CSV line taking quotes and commas into account
+  const parseCsvLine = (line: string): string[] => {
+    const values: string[] = [];
+    let current = "";
+    let inQuotes = false;
 
-    if (!file.name.endsWith(".csv") && !file.name.endsWith(".txt")) {
-      setError("Please select a valid .csv file.");
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      if (char === '"') {
+        if (inQuotes && line[i + 1] === '"') {
+          current += '"';
+          i++;
+        } else {
+          inQuotes = !inQuotes;
+        }
+      } else if (char === "," && !inQuotes) {
+        values.push(current);
+        current = "";
+      } else {
+        current += char;
+      }
+    }
+    values.push(current);
+    return values.map((v) => v.replace(/^["']|["']$/g, "").trim());
+  };
+
+  const processSelectedFile = (file: File) => {
+    const lowerName = file.name.toLowerCase();
+    if (!lowerName.endsWith(".csv") && !lowerName.endsWith(".txt")) {
+      setError("Please select a valid CSV (.csv) file. If editing in Excel, choose 'Save As' -> 'CSV (Comma delimited) (*.csv)'.");
       return;
     }
 
@@ -143,16 +163,48 @@ export function ImportTasksModal({
     reader.onload = (event) => {
       const content = event.target?.result as string;
       if (content) {
-        parseCsvPreview(content);
+        parseCsvText(content);
       }
     };
-    reader.readAsText(file);
+    reader.onerror = () => {
+      setError("Failed to read the file. Please check file permissions.");
+    };
+    reader.readAsText(file, "UTF-8");
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      processSelectedFile(file);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      processSelectedFile(file);
+    }
   };
 
   const handleImportSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedFile) {
-      setError("Please select a CSV file to upload.");
+      setError("Please select or drop a CSV file to upload.");
       return;
     }
 
@@ -177,7 +229,7 @@ export function ImportTasksModal({
         err?.response?.data?.message ||
         err?.response?.data?.errors?.[0] ||
         err?.message ||
-        "Failed to import tasks."
+        "Failed to import tasks. Please check CSV format."
       );
     } finally {
       setUploading(false);
@@ -225,241 +277,254 @@ export function ImportTasksModal({
           </button>
         </div>
 
-        {/* ── Modal Body ── */}
-        <div className="p-6 overflow-y-auto space-y-5 flex-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
-          {/* Instructions & Template Download Banner */}
-          <div className="p-4 rounded-xl bg-purple-50/70 dark:bg-purple-950/40 border border-purple-200/80 dark:border-purple-800/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
-            <div className="space-y-1">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-[#56348f] dark:text-purple-300">
-                <FileSpreadsheet className="w-4 h-4 shrink-0" />
-                <span>CSV Template & Formatting Guide</span>
+        {/* ── Modal Form ── */}
+        <form onSubmit={handleImportSubmit} className="flex flex-col flex-1 overflow-hidden">
+          <div className="p-6 overflow-y-auto space-y-5 flex-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
+            {/* Instructions & Template Download Banner */}
+            <div className="p-4 rounded-xl bg-purple-50/70 dark:bg-purple-950/40 border border-purple-200/80 dark:border-purple-800/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
+              <div className="space-y-1">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-[#56348f] dark:text-purple-300">
+                  <FileSpreadsheet className="w-4 h-4 shrink-0" />
+                  <span>CSV Template & Formatting Guide</span>
+                </div>
+                <p className="text-xs text-slate-600 dark:text-slate-400">
+                  Download our sample template containing column headers (title, project, sub-phase, priority, status, assignees).
+                </p>
               </div>
-              <p className="text-xs text-slate-600 dark:text-slate-400">
-                Download our sample template containing column headers (title, project, sub-phase, priority, status, assignees).
-              </p>
+
+              <button
+                type="button"
+                onClick={handleDownloadTemplate}
+                disabled={downloadingTemplate}
+                style={{
+                  fontSize: "13px",
+                  lineHeight: "20px",
+                  fontWeight: 500,
+                }}
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-[#56348f] dark:text-purple-300 border border-purple-300 dark:border-purple-700 shadow-xs transition-colors shrink-0 disabled:opacity-50 cursor-pointer"
+              >
+                {downloadingTemplate ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Download className="w-4 h-4" />
+                )}
+                <span>Download Sample CSV</span>
+              </button>
             </div>
 
+            {/* Success Result Display */}
+            {importResult && (
+              <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 space-y-2">
+                <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-bold text-xs">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <span>{importResult.message}</span>
+                </div>
+                {importResult.errors && importResult.errors.length > 0 && (
+                  <div className="mt-2 text-[11px] text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 p-2.5 rounded-lg border border-amber-200 dark:border-amber-800 space-y-1">
+                    <p className="font-bold">Skipped Rows / Warnings:</p>
+                    <ul className="list-disc list-inside space-y-0.5 max-h-24 overflow-y-auto">
+                      {importResult.errors.map((err, i) => (
+                        <li key={i}>{err}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Error Banner */}
+            {error && (
+              <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-xs text-rose-700 dark:text-rose-300 flex items-center gap-2.5">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            {/* Default Project Selection (Optional) */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                Default Project <span className="text-slate-400 font-normal">(optional fallback if CSV doesn't specify project_name)</span>
+              </label>
+              <div className="relative">
+                <select
+                  value={selectedProjectId}
+                  onChange={(e) => setSelectedProjectId(e.target.value)}
+                  style={{ fontSize: "13px", lineHeight: "20px" }}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#56348f]/20 focus:border-[#56348f] transition-all cursor-pointer"
+                >
+                  <option value="">Auto-resolve from CSV `project_name` column</option>
+                  {projects.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name} {p.team?.name ? `(${p.team.name})` : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* File Upload Dropzone with full Drag-and-Drop */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                Select or Drop CSV File <span className="text-rose-500">*</span>
+              </label>
+
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className={`p-7 rounded-2xl border-2 border-dashed transition-all text-center cursor-pointer flex flex-col items-center justify-center gap-2.5 ${
+                  isDragging
+                    ? "border-[#56348f] bg-purple-100/50 dark:bg-purple-900/30 scale-[0.99]"
+                    : selectedFile
+                    ? "border-purple-400 dark:border-purple-700 bg-purple-50/40 dark:bg-purple-950/20"
+                    : "border-slate-300 dark:border-slate-700 hover:border-[#56348f] bg-slate-50/70 dark:bg-slate-800/40 hover:bg-slate-100/80 dark:hover:bg-slate-800"
+                }`}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".csv,text/csv,text/plain"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+
+                <div className={`p-3.5 rounded-full border shadow-xs transition-colors ${
+                  selectedFile
+                    ? "bg-purple-100 text-[#56348f] border-purple-200 dark:bg-purple-950 dark:text-purple-300 dark:border-purple-800"
+                    : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-[#56348f] dark:text-purple-300"
+                }`}>
+                  {selectedFile ? <FileCheck className="w-6 h-6" /> : <Upload className="w-6 h-6" />}
+                </div>
+
+                {selectedFile ? (
+                  <div className="space-y-1">
+                    <p className="text-sm font-bold text-slate-900 dark:text-white">
+                      {selectedFile.name}
+                    </p>
+                    <p className="text-xs text-purple-700 dark:text-purple-300 font-semibold">
+                      {(selectedFile.size / 1024).toFixed(1)} KB • {parsedRows.length} tasks ready to import
+                    </p>
+                    <p className="text-[11px] text-slate-400">
+                      Click to choose a different file
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-1">
+                    <p className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                      Click to browse or drag and drop your CSV file here
+                    </p>
+                    <p className="text-[11px] text-slate-400">
+                      Supports .csv format (saved from Excel or Google Sheets)
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Parsed Rows Preview */}
+            {parsedRows.length > 0 && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300">
+                    <TableIcon className="w-3.5 h-3.5 text-[#56348f] dark:text-purple-400" />
+                    <span>Preview ({parsedRows.length} Tasks Detected)</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleReset}
+                    className="text-[11px] text-rose-600 dark:text-rose-400 hover:underline cursor-pointer"
+                  >
+                    Clear File
+                  </button>
+                </div>
+
+                <div className="max-h-48 overflow-y-auto border border-slate-200 dark:border-slate-800 rounded-xl scrollbar-thin">
+                  <table className="w-full text-left text-[11px]">
+                    <thead className="sticky top-0 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-slate-700">
+                      <tr>
+                        <th className="py-2 px-3">#</th>
+                        <th className="py-2 px-3">Title</th>
+                        <th className="py-2 px-3">Project</th>
+                        <th className="py-2 px-3">Sub-Phase</th>
+                        <th className="py-2 px-3">Priority</th>
+                        <th className="py-2 px-3">Status</th>
+                        <th className="py-2 px-3">Assignees</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
+                      {parsedRows.slice(0, 15).map((row, idx) => (
+                        <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                          <td className="py-2 px-3 font-mono text-slate-400">{idx + 1}</td>
+                          <td className="py-2 px-3 font-semibold text-slate-900 dark:text-white max-w-[160px] truncate">{row.title}</td>
+                          <td className="py-2 px-3 text-slate-500 max-w-[120px] truncate">{row.project_name || (selectedProjectId ? "Default Project" : "—")}</td>
+                          <td className="py-2 px-3">{row.sub_phase || "General"}</td>
+                          <td className="py-2 px-3">
+                            <span className="px-1.5 py-0.5 rounded-sm font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                              {row.priority}
+                            </span>
+                          </td>
+                          <td className="py-2 px-3">{row.status}</td>
+                          <td className="py-2 px-3 text-slate-500 max-w-[100px] truncate">{row.assignees || "—"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {parsedRows.length > 15 && (
+                  <p className="text-[10px] text-slate-400 italic text-right">
+                    Showing first 15 of {parsedRows.length} total tasks...
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* ── Modal Footer ── */}
+          <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80">
             <button
               type="button"
-              onClick={handleDownloadTemplate}
-              disabled={downloadingTemplate}
+              onClick={onClose}
+              disabled={uploading}
               style={{
+                fontSize: "13px",
+                lineHeight: "20px",
+                fontWeight: 400,
+              }}
+              className="px-4 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-colors disabled:opacity-50 cursor-pointer"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              disabled={!selectedFile || uploading}
+              style={{
+                fontFamily: '"Proxima Nova", sans-serif',
                 fontSize: "13px",
                 lineHeight: "20px",
                 fontWeight: 500,
               }}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-[#56348f] dark:text-purple-300 border border-purple-300 dark:border-purple-700 shadow-xs transition-colors shrink-0 disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#432870] text-white shadow-sm hover:shadow transition-all disabled:opacity-50 cursor-pointer"
             >
-              {downloadingTemplate ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+              {uploading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Importing Tasks...</span>
+                </>
               ) : (
-                <Download className="w-4 h-4" />
+                <>
+                  <Upload className="w-4 h-4" />
+                  <span>
+                    {parsedRows.length > 0
+                      ? `Import ${parsedRows.length} Tasks`
+                      : "Upload & Import Tasks"}
+                  </span>
+                </>
               )}
-              <span>Download Sample CSV</span>
             </button>
           </div>
-
-          {/* Success Result Display */}
-          {importResult && (
-            <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 space-y-2">
-              <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-bold text-xs">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                <span>{importResult.message}</span>
-              </div>
-              {importResult.errors && importResult.errors.length > 0 && (
-                <div className="mt-2 text-[11px] text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 p-2.5 rounded-lg border border-amber-200 dark:border-amber-800 space-y-1">
-                  <p className="font-bold">Skipped Rows / Warnings:</p>
-                  <ul className="list-disc list-inside space-y-0.5 max-h-24 overflow-y-auto">
-                    {importResult.errors.map((err, i) => (
-                      <li key={i}>{err}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Error Banner */}
-          {error && (
-            <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-xs text-rose-700 dark:text-rose-300 flex items-center gap-2.5">
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              <span>{error}</span>
-            </div>
-          )}
-
-          {/* Default Project Selection (Optional) */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-              Default Project <span className="text-slate-400 font-normal">(optional fallback if CSV doesn't specify)</span>
-            </label>
-            <div className="relative">
-              <select
-                value={selectedProjectId}
-                onChange={(e) => setSelectedProjectId(e.target.value)}
-                style={{ fontSize: "13px", lineHeight: "20px" }}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#56348f]/20 focus:border-[#56348f] transition-all cursor-pointer"
-              >
-                <option value="">Auto-resolve from CSV `project_name` column</option>
-                {projects.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name} {p.team?.name ? `(${p.team.name})` : ""}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* File Upload Dropzone */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-              Select CSV File <span className="text-rose-500">*</span>
-            </label>
-
-            <div
-              onClick={() => fileInputRef.current?.click()}
-              className={`p-6 rounded-2xl border-2 border-dashed transition-all text-center cursor-pointer flex flex-col items-center justify-center gap-2 ${
-                selectedFile
-                  ? "border-[#56348f] bg-purple-50/30 dark:bg-purple-950/20"
-                  : "border-slate-300 dark:border-slate-700 hover:border-[#56348f] bg-slate-50 dark:bg-slate-800/40 hover:bg-slate-100/60 dark:hover:bg-slate-800"
-              }`}
-            >
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".csv,text/csv,text/plain"
-                onChange={handleFileChange}
-                className="hidden"
-              />
-
-              <div className="p-3 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xs text-[#56348f] dark:text-purple-300">
-                <Upload className="w-5 h-5" />
-              </div>
-
-              {selectedFile ? (
-                <div className="space-y-1">
-                  <p className="text-xs font-bold text-slate-900 dark:text-white">
-                    {selectedFile.name}
-                  </p>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                    {(selectedFile.size / 1024).toFixed(1)} KB • {parsedRows.length} tasks ready to import
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-1">
-                  <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                    Click to browse or drag and drop your CSV file here
-                  </p>
-                  <p className="text-[11px] text-slate-400">
-                    Supports .csv files up to 10MB
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Parsed Rows Preview */}
-          {parsedRows.length > 0 && (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300">
-                  <TableIcon className="w-3.5 h-3.5 text-[#56348f] dark:text-purple-400" />
-                  <span>Preview ({parsedRows.length} Tasks Detected)</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleReset}
-                  className="text-[11px] text-rose-600 dark:text-rose-400 hover:underline cursor-pointer"
-                >
-                  Clear File
-                </button>
-              </div>
-
-              <div className="max-h-48 overflow-y-auto border border-slate-200 dark:border-slate-800 rounded-xl scrollbar-thin">
-                <table className="w-full text-left text-[11px]">
-                  <thead className="sticky top-0 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-slate-700">
-                    <tr>
-                      <th className="py-2 px-3">#</th>
-                      <th className="py-2 px-3">Title</th>
-                      <th className="py-2 px-3">Project</th>
-                      <th className="py-2 px-3">Sub-Phase</th>
-                      <th className="py-2 px-3">Priority</th>
-                      <th className="py-2 px-3">Status</th>
-                      <th className="py-2 px-3">Assignees</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
-                    {parsedRows.slice(0, 15).map((row, idx) => (
-                      <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                        <td className="py-2 px-3 font-mono text-slate-400">{idx + 1}</td>
-                        <td className="py-2 px-3 font-semibold text-slate-900 dark:text-white max-w-[160px] truncate">{row.title}</td>
-                        <td className="py-2 px-3 text-slate-500 max-w-[120px] truncate">{row.project_name || (selectedProjectId ? "Default Project" : "—")}</td>
-                        <td className="py-2 px-3">{row.sub_phase || "General"}</td>
-                        <td className="py-2 px-3">
-                          <span className="px-1.5 py-0.5 rounded-sm font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-                            {row.priority}
-                          </span>
-                        </td>
-                        <td className="py-2 px-3">{row.status}</td>
-                        <td className="py-2 px-3 text-slate-500 max-w-[100px] truncate">{row.assignees || "—"}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              {parsedRows.length > 15 && (
-                <p className="text-[10px] text-slate-400 italic text-right">
-                  Showing first 15 of {parsedRows.length} total tasks...
-                </p>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* ── Modal Footer ── */}
-        <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80">
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={uploading}
-            style={{
-              fontSize: "13px",
-              lineHeight: "20px",
-              fontWeight: 400,
-            }}
-            className="px-4 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-colors disabled:opacity-50 cursor-pointer"
-          >
-            Cancel
-          </button>
-
-          <button
-            type="button"
-            onClick={handleImportSubmit}
-            disabled={!selectedFile || uploading}
-            style={{
-              fontFamily: '"Proxima Nova", sans-serif',
-              fontSize: "13px",
-              lineHeight: "20px",
-              fontWeight: 500,
-            }}
-            className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#56348f] hover:bg-[#432870] text-white shadow-sm hover:shadow transition-all disabled:opacity-50 cursor-pointer"
-          >
-            {uploading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Importing Tasks...</span>
-              </>
-            ) : (
-              <>
-                <Upload className="w-4 h-4" />
-                <span>
-                  {parsedRows.length > 0
-                    ? `Import ${parsedRows.length} Tasks`
-                    : "Upload & Import Tasks"}
-                </span>
-              </>
-            )}
-          </button>
-        </div>
+        </form>
       </div>
     </div>
   );

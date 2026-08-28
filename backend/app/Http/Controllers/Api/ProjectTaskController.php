@@ -926,40 +926,44 @@ class ProjectTaskController extends Controller
 
         if ($request->hasFile('file')) {
             $request->validate([
-                'file' => 'required|file|mimes:csv,txt|max:10240',
+                'file' => 'required|file|max:10240',
             ]);
 
             $file = $request->file('file');
-            $path = $file->getRealPath();
-            $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-
-            if (empty($lines)) {
-                return response()->json(['message' => 'The uploaded CSV file is empty.'], 422);
+            $ext = strtolower($file->getClientOriginalExtension());
+            if (!in_array($ext, ['csv', 'txt', 'tsv'], true)) {
+                return response()->json(['message' => 'Please upload a valid CSV (.csv) file.'], 422);
             }
 
-            // Detect and remove UTF-8 BOM
-            if (isset($lines[0])) {
-                $lines[0] = preg_replace('/^\xEF\xBB\xBF/', '', $lines[0]);
+            $handle = fopen($file->getRealPath(), 'r');
+            if (!$handle) {
+                return response()->json(['message' => 'Unable to read the uploaded CSV file.'], 422);
             }
 
-            $csvData = array_map('str_getcsv', $lines);
-            $rawHeaders = array_shift($csvData);
+            // Strip UTF-8 BOM if present
+            $bom = fread($handle, 3);
+            if ($bom !== "\xEF\xBB\xBF") {
+                rewind($handle);
+            }
 
-            if (empty($rawHeaders)) {
-                return response()->json(['message' => 'Invalid CSV headers.'], 422);
+            $rawHeaders = fgetcsv($handle);
+            if (!$rawHeaders || empty(array_filter($rawHeaders))) {
+                fclose($handle);
+                return response()->json(['message' => 'The uploaded CSV file is empty or missing headers.'], 422);
             }
 
             $normalizedHeaders = array_map(function ($h) {
                 return strtolower(trim(preg_replace('/[^a-zA-Z0-9_]/', '_', $h)));
             }, $rawHeaders);
 
-            foreach ($csvData as $row) {
+            while (($row = fgetcsv($handle)) !== false) {
                 if (empty(array_filter($row))) continue;
                 if (count($row) < count($normalizedHeaders)) {
                     $row = array_pad($row, count($normalizedHeaders), '');
                 }
                 $rawRows[] = array_combine($normalizedHeaders, array_slice($row, 0, count($normalizedHeaders)));
             }
+            fclose($handle);
         } elseif ($request->has('tasks') && is_array($request->input('tasks'))) {
             $rawRows = $request->input('tasks');
         } else {
