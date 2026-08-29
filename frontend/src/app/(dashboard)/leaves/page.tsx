@@ -95,7 +95,8 @@ export default function LeavesPage() {
     available: number;
     consumed: number;
     carryForward: number;
-    annualQuota: number;
+    regularBalance: number;
+    monthlyQuota: number;
     color: string;
     description: string;
   } | null>(null);
@@ -145,28 +146,35 @@ export default function LeavesPage() {
       setRawBalances(balanceData || null);
 
       if (balanceData && !isSuperAdmin) {
-        const clBalance = (balanceData.casual_leave_balance || 0) + (balanceData.cl_carry_forward || 0);
-        const slBalance = balanceData.sick_leave_balance || 0;
+        const regCL = Number(balanceData.casual_leave_balance) || 0;
+        const cfCL = Number(balanceData.cl_carry_forward) || 0;
+        const clBalance = regCL + cfCL;
+        const slBalance = Number(balanceData.sick_leave_balance) || 0;
+        const monthlyCL = Number(balanceData.monthly_casual_leaves) || 1;
+        const monthlySL = Number(balanceData.monthly_sick_leaves) || 1;
+
         setBalances([
           {
             id: 1,
             leave_type: { name: "Casual Leave" },
             color: "#7c3aed", // Royal purple
             remaining: clBalance,
-            cl_carry_forward: balanceData.cl_carry_forward || 0,
+            regular_balance: regCL,
+            cl_carry_forward: cfCL,
             total_taken: filtered?.casual ?? 0,
-            annual_quota: 12,
-            desc: "Standard casual time-off for personal commitments, travel, or family affairs.",
+            monthly_quota: monthlyCL,
+            desc: "Standard casual time-off for personal commitments, travel, or family affairs. Refills monthly.",
           },
           {
             id: 2,
             leave_type: { name: "Sick Leaves" },
             color: "#f87171", // Coral red
             remaining: slBalance,
+            regular_balance: slBalance,
             cl_carry_forward: 0,
             total_taken: filtered?.sick ?? 0,
-            annual_quota: 12,
-            desc: "Allocated for medical reasons, illness recovery, and healthcare visits.",
+            monthly_quota: monthlySL,
+            desc: "Allocated for medical reasons, illness recovery, and healthcare visits. Refills monthly.",
           },
         ]);
       }
@@ -508,7 +516,8 @@ export default function LeavesPage() {
                         available: balance.remaining,
                         consumed: balance.total_taken,
                         carryForward: balance.cl_carry_forward,
-                        annualQuota: balance.annual_quota,
+                        regularBalance: balance.regular_balance,
+                        monthlyQuota: balance.monthly_quota,
                         color: balance.color,
                         description: balance.desc,
                       })
@@ -523,25 +532,27 @@ export default function LeavesPage() {
                 <div className="py-2 flex justify-center">
                   <SemiCircleGauge
                     value={balance.remaining}
-                    max={balance.annual_quota + (balance.cl_carry_forward || 0)}
+                    max={Math.max(balance.remaining + balance.total_taken, balance.monthly_quota * 12, 12)}
                     color={balance.color}
                     label="Available"
                   />
                 </div>
 
                 {/* Bottom Details Footer */}
-                <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-                  <span>
-                    Consumed: <strong className="text-slate-800 dark:text-slate-200 font-semibold">{balance.total_taken} Days</strong>
-                  </span>
-                  {balance.cl_carry_forward > 0 ? (
+                <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-1 text-xs text-slate-500 dark:text-slate-400">
+                  <div className="flex items-center justify-between">
                     <span>
-                      Carry Fwd: <strong className="text-slate-800 dark:text-slate-200 font-semibold">{balance.cl_carry_forward} Days</strong>
+                      Consumed: <strong className="text-slate-800 dark:text-slate-200 font-semibold">{balance.total_taken} Days</strong>
                     </span>
-                  ) : (
                     <span>
-                      Annual Quota: <strong className="text-slate-800 dark:text-slate-200 font-semibold">{balance.annual_quota} Days</strong>
+                      Monthly Refill: <strong className="text-purple-600 dark:text-purple-400 font-semibold">+{balance.monthly_quota} Day/mo</strong>
                     </span>
+                  </div>
+                  {balance.cl_carry_forward > 0 && (
+                    <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-dashed border-slate-100 dark:border-slate-800">
+                      <span>Regular: <strong className="text-slate-700 dark:text-slate-300 font-semibold">{balance.regular_balance} Days</strong></span>
+                      <span>Carry-Fwd: <strong className="text-purple-600 dark:text-purple-400 font-semibold">+{balance.cl_carry_forward} Days</strong></span>
+                    </div>
                   )}
                 </div>
               </div>
@@ -573,17 +584,21 @@ export default function LeavesPage() {
 
               <div className="bg-slate-50 dark:bg-slate-850 rounded-xl p-4 space-y-2.5 border border-slate-200 dark:border-slate-800 text-sm">
                 <div className="flex justify-between items-center text-slate-600 dark:text-slate-400">
-                  <span>Annual Allocation</span>
-                  <span className="font-bold text-slate-900 dark:text-white">{selectedBalanceDetail.annualQuota} Days</span>
+                  <span>Monthly Refill Policy</span>
+                  <span className="font-bold text-purple-600 dark:text-purple-400">+{selectedBalanceDetail.monthlyQuota} Day / Month</span>
+                </div>
+                <div className="flex justify-between items-center text-slate-600 dark:text-slate-400">
+                  <span>Current Regular Balance</span>
+                  <span className="font-bold text-slate-900 dark:text-white">{selectedBalanceDetail.regularBalance} Days</span>
                 </div>
                 {selectedBalanceDetail.carryForward > 0 && (
                   <div className="flex justify-between items-center text-slate-600 dark:text-slate-400">
-                    <span>Carry Forward</span>
-                    <span className="font-bold text-slate-900 dark:text-white">+{selectedBalanceDetail.carryForward} Days</span>
+                    <span>Carry Forward Balance</span>
+                    <span className="font-bold text-purple-600 dark:text-purple-400">+{selectedBalanceDetail.carryForward} Days</span>
                   </div>
                 )}
                 <div className="flex justify-between items-center text-slate-600 dark:text-slate-400">
-                  <span>Consumed Days</span>
+                  <span>Approved Leaves Consumed</span>
                   <span className="font-bold text-rose-500">-{selectedBalanceDetail.consumed} Days</span>
                 </div>
                 <div className="pt-2 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center text-base font-bold text-slate-900 dark:text-white">
