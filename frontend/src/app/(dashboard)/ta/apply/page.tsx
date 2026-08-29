@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, CheckCircle } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Plus, CheckCircle2, Car, Utensils, Hotel, HelpCircle, ShieldCheck, Banknote, Sparkles } from "lucide-react";
 import { TAApplyModal } from "@/components/ta/TAApplyModal";
 
 export default function TAApplyPage() {
@@ -20,101 +19,146 @@ export default function TAApplyPage() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-          Apply for Travel Allowance
-        </h1>
-        <p className="text-slate-600 dark:text-slate-300">
-          Submit your travel allowance request with detailed expense breakdown
-        </p>
-      </div>
-
-      {/* Success Message */}
-      {showSuccess && (
-        <div className="bg-emerald-500/20 border border-emerald-500/50 rounded-lg p-4 flex items-center gap-3 text-emerald-300">
-          <CheckCircle className="w-5 h-5" />
-          <p>Travel allowance request submitted successfully! Redirecting...</p>
+    <div
+      style={{
+        fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      }}
+      className="space-y-6 max-w-5xl mx-auto"
+    >
+      {/* Header Banner */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+            Apply for Travel Allowance
+          </h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            Submit expense claims for official business travel with itemized receipt breakdown.
+          </p>
         </div>
-      )}
 
-      {/* Info Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="border-slate-700 bg-slate-800/50 text-white">
-          <CardHeader>
-            <CardTitle className="text-lg">How It Works</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm text-slate-300">
-            <div className="flex gap-3">
-              <div className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-600 flex items-center justify-center text-white font-bold text-xs">
-                1
-              </div>
-              <div>
-                <p className="font-semibold text-white">Submit Request</p>
-                <p>Fill in the form with travel details and expenses</p>
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <div className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-600 flex items-center justify-center text-white font-bold text-xs">
-                2
-              </div>
-              <div>
-                <p className="font-semibold text-white">Admin Review</p>
-                <p>Super admin will review and approve your request</p>
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <div className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-600 flex items-center justify-center text-white font-bold text-xs">
-                3
-              </div>
-              <div>
-                <p className="font-semibold text-white">Get Paid</p>
-                <p>Once approved, your allowance will be processed</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-slate-700 bg-slate-800/50 text-white">
-          <CardHeader>
-            <CardTitle className="text-lg">Expense Categories</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm text-slate-300">
-            <div className="space-y-2">
-              <p className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-emerald-400 rounded-full"></span>
-                <span><strong>Travel:</strong> Transport, taxi, flights</span>
-              </p>
-              <p className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-blue-400 rounded-full"></span>
-                <span><strong>Food:</strong> Meals during travel</span>
-              </p>
-              <p className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-purple-400 rounded-full"></span>
-                <span><strong>Accommodation:</strong> Hotel, lodging</span>
-              </p>
-              <p className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-orange-400 rounded-full"></span>
-                <span><strong>Other:</strong> Miscellaneous expenses</span>
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Apply Button */}
-      <div className="flex justify-center">
         <button
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 rounded-lg font-semibold text-white text-lg shadow-lg transition-all transform hover:scale-105"
+          style={{
+            backgroundColor: "#56348f",
+            color: "rgb(255, 255, 255)",
+          }}
+          className="inline-flex items-center justify-center gap-2.5 px-6 py-3 bg-[#56348f] hover:bg-[#462875] rounded-xl font-bold !text-white text-sm shadow-md shadow-purple-900/20 transition-all hover:scale-[1.02] cursor-pointer shrink-0"
         >
-          <Plus className="w-6 h-6" />
-          New Travel Allowance Request
+          <Plus className="w-5 h-5 !text-white" />
+          <span>New TA Request</span>
         </button>
       </div>
 
-      {/* TA Apply Modal */}
+      {/* Success Notification */}
+      {showSuccess && (
+        <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700/60 rounded-xl p-4 flex items-center gap-3 text-emerald-800 dark:text-emerald-200 animate-in fade-in duration-200">
+          <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+          <p className="text-sm font-semibold">
+            Travel allowance request submitted successfully! Redirecting to tracking status...
+          </p>
+        </div>
+      )}
+
+      {/* Two Column Guides */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {/* How It Works */}
+        <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
+          <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+            <span>How the Process Works</span>
+          </h2>
+
+          <div className="space-y-4 text-sm">
+            <div className="flex gap-3.5 items-start">
+              <div className="w-7 h-7 rounded-xl bg-purple-100 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300 flex items-center justify-center font-bold text-xs shrink-0 border border-purple-200 dark:border-purple-800/60">
+                1
+              </div>
+              <div>
+                <p className="font-semibold text-slate-900 dark:text-white">Submit Travel Claim</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Enter trip purpose, travel date, and add your itemized expenses.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-3.5 items-start">
+              <div className="w-7 h-7 rounded-xl bg-purple-100 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300 flex items-center justify-center font-bold text-xs shrink-0 border border-purple-200 dark:border-purple-800/60">
+                2
+              </div>
+              <div>
+                <p className="font-semibold text-slate-900 dark:text-white">Admin & Lead Review</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Super Admin or Finance lead reviews the breakdown and attached receipts.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-3.5 items-start">
+              <div className="w-7 h-7 rounded-xl bg-purple-100 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300 flex items-center justify-center font-bold text-xs shrink-0 border border-purple-200 dark:border-purple-800/60">
+                3
+              </div>
+              <div>
+                <p className="font-semibold text-slate-900 dark:text-white">Direct Disbursement</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Upon approval, reimbursement is processed through accounts.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Expense Categories */}
+        <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
+          <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <Banknote className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <span>Eligible Expense Categories</span>
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                <Car className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="font-bold text-slate-800 dark:text-slate-200 block">Travel</span>
+                <span className="text-[11px] text-slate-500 dark:text-slate-400">Cab, train, flight, bus</span>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                <Utensils className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="font-bold text-slate-800 dark:text-slate-200 block">Food & Meals</span>
+                <span className="text-[11px] text-slate-500 dark:text-slate-400">Official trip dining</span>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
+                <Hotel className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="font-bold text-slate-800 dark:text-slate-200 block">Stay & Lodging</span>
+                <span className="text-[11px] text-slate-500 dark:text-slate-400">Hotel accommodation</span>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                <HelpCircle className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="font-bold text-slate-800 dark:text-slate-200 block">Other Expenses</span>
+                <span className="text-[11px] text-slate-500 dark:text-slate-400">Tolls, parking, incidental</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* TA Apply Drawer */}
       <TAApplyModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
