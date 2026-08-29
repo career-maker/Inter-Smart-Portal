@@ -93,6 +93,7 @@ const NAV_GROUPS: NavGroup[] = [
     roles: ["Super Admin"],
     items: [
       { href: "/project-management/addons", label: "All Add-ons" },
+      { href: "/project-management/addons/permissions", label: "Team & Role Permissions" },
       { href: "/project-management/addons/leave-policy", label: "Leave Policy Management" },
     ],
   },

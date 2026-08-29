@@ -521,6 +521,13 @@ Route::middleware('auth:sanctum')->prefix('pm/addons')->group(function () {
     Route::post('{addon}/toggle-status', [\App\Http\Controllers\Api\AddonController::class, 'toggleStatus']);
 });
 
+Route::middleware('auth:sanctum')->prefix('addons/permissions')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Api\TeamPermissionController::class, 'index']);
+    Route::post('/', [\App\Http\Controllers\Api\TeamPermissionController::class, 'update']);
+});
+
+Route::middleware('auth:sanctum')->get('user-permissions', [\App\Http\Controllers\Api\TeamPermissionController::class, 'getMyPermissions']);
+
 Route::middleware('auth:sanctum')->prefix('pm/bug-reports')->group(function () {
     Route::get('/', [\App\Http\Controllers\Api\BugReportController::class, 'index']);
 });

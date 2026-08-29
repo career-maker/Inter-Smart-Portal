@@ -32,6 +32,7 @@ import { CreateTaskModal } from "@/components/project-management/CreateTaskModal
 import { DailyReportModal } from "@/components/project-management/DailyReportModal";
 import { ImportTasksModal } from "@/components/project-management/ImportTasksModal";
 import { SearchableProjectSelect } from "@/components/project-management/SearchableProjectSelect";
+import teamPermissionsApi from "@/services/teamPermissions";
 
 export default function AllTasksPage() {
   const { user } = useAuthStore();
@@ -39,7 +40,19 @@ export default function AllTasksPage() {
   const isSuperAdmin = userRoleStr === "super admin";
   const isTeamLead = userRoleStr === "team lead";
   const isEmployee = !isSuperAdmin && !isTeamLead && userRoleStr !== "admin" && userRoleStr !== "manager";
-  const canEditTasks = !isEmployee;
+
+  const [userPermissions, setUserPermissions] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    teamPermissionsApi.getMyPermissions()
+      .then((res) => {
+        setUserPermissions(res.permissions || {});
+      })
+      .catch((err) => console.warn("Failed to fetch user permissions", err));
+  }, []);
+
+  const canViewCrossTeam = isSuperAdmin || userRoleStr === "admin" || Boolean(userPermissions.task_cross_team_view);
+  const canEditTasks = !isEmployee || Boolean(userPermissions.task_cross_team_assign) || canViewCrossTeam;
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -79,7 +92,7 @@ export default function AllTasksPage() {
 
   // Fetch Team Members for grouped view
   useEffect(() => {
-    if (canEditTasks) {
+    if (canEditTasks || canViewCrossTeam) {
       pmApi.getTeamMembers()
         .then((res: any) => {
           if (res && Array.isArray(res.members)) {
@@ -88,7 +101,7 @@ export default function AllTasksPage() {
         })
         .catch((err) => console.warn("Failed to load team members", err));
     }
-  }, [canEditTasks]);
+  }, [canEditTasks, canViewCrossTeam]);
 
   const fetchTasks = useCallback(
     async (page = 1, isManual = false) => {
@@ -364,8 +377,8 @@ export default function AllTasksPage() {
 
         {/* Action Controls */}
         <div className="flex items-center gap-2.5 self-start sm:self-auto flex-wrap">
-          {/* Team selector for Super Admin */}
-          {(isSuperAdmin || userRoleStr === "admin") && (
+          {/* Team selector for Super Admin or users with Cross-Team Permission */}
+          {canViewCrossTeam && (
             <TeamFilterSelector
               selectedTeamId={selectedTeamId}
               onSelectTeam={setSelectedTeamId}

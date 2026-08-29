@@ -65,7 +65,8 @@ class ProjectTaskController extends Controller
             || $user->hasRole('Admin')
             || $user->hasRole('Team Lead')
             || $user->can('view all projects')
-            || in_array(strtolower($user->role ?? ''), ['super admin', 'admin', 'team lead'], true);
+            || in_array(strtolower($user->role ?? ''), ['super admin', 'admin', 'team lead'], true)
+            || \App\Models\CustomTeamPermission::userHasPermission($user, 'task_cross_team_view');
 
         if (!$canViewAll) {
             $query->where(function ($q) use ($user) {
@@ -477,10 +478,12 @@ class ProjectTaskController extends Controller
             }
         }
 
-        // Super Admin check
+        // Super Admin check or Custom Cross-Team Permissions
         $isSuperAdmin = $user->hasRole('Super Admin')
             || str_contains($userRolesStr, 'super admin')
-            || str_contains($userRolesStr, 'admin');
+            || str_contains($userRolesStr, 'admin')
+            || \App\Models\CustomTeamPermission::userHasPermission($user, 'task_cross_team_view')
+            || \App\Models\CustomTeamPermission::userHasPermission($user, 'task_cross_team_assign');
 
         if ($isSuperAdmin) {
             $members = \App\Models\User::where('status', 'Active')
