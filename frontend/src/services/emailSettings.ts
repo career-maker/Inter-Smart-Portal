@@ -6,6 +6,7 @@ export interface SmtpConfig {
   encryption: string;
   username: string;
   password?: string;
+  has_password?: boolean;
   from_address: string;
   from_name: string;
 }

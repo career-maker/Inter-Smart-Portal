@@ -639,7 +639,9 @@ export default function EmailManagementPage() {
                           Google App Password / SMTP Password
                         </label>
                         <span className="text-[11px] text-slate-400">
-                          (Leave blank to keep existing password)
+                          {smtp.has_password
+                            ? "🔒 Configured (leave blank to keep current password)"
+                            : "(Leave blank to keep existing password)"}
                         </span>
                       </div>
                       <div className="relative">
@@ -647,13 +649,13 @@ export default function EmailManagementPage() {
                           type={showPassword ? "text" : "password"}
                           value={smtp.password || ""}
                           onChange={(e) => setSmtp({ ...smtp, password: e.target.value })}
-                          placeholder="•••• •••• •••• ••••"
+                          placeholder={smtp.has_password ? "••••••••••••••••" : "Enter Google App Password"}
                           className="w-full px-3.5 py-2 pr-10 rounded-xl text-xs font-mono bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                          className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
                         >
                           {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>

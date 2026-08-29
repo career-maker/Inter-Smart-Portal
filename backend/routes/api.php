@@ -13,6 +13,7 @@ Route::get('debug-employee', function () {
 });
 
 Route::get('photos/{path}', [\App\Http\Controllers\Api\EmployeeController::class, 'showPhoto'])->where('path', '.*');
+Route::get('storage/{path}', [\App\Http\Controllers\Api\EmployeeController::class, 'showPhoto'])->where('path', '.*');
 
 Route::get('wfh-requests/diagnose/schema', [\App\Http\Controllers\Api\WfhRequestController::class, 'diagnose']);
 

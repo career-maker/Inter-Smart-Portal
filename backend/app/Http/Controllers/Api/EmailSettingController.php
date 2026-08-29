@@ -55,10 +55,16 @@ class EmailSettingController extends Controller
             ]);
         })->values();
 
+        $hasPassword = !empty($smtp['password']);
+        $safeSmtp = $smtp;
+        // Never return plain-text password in API responses for security
+        $safeSmtp['password'] = '';
+        $safeSmtp['has_password'] = $hasPassword;
+
         return response()->json([
             'status' => 'success',
             'data' => [
-                'smtp' => $smtp,
+                'smtp' => $safeSmtp,
                 'routing' => $routing,
                 'employee_overrides' => $hydratedOverrides,
                 'default_routing' => EmailSetting::defaultRouting(),
@@ -95,10 +101,14 @@ class EmailSettingController extends Controller
 
         EmailSetting::setByKey('smtp_config', $validated);
 
+        $safeValidated = $validated;
+        $safeValidated['password'] = '';
+        $safeValidated['has_password'] = !empty($validated['password']);
+
         return response()->json([
             'status' => 'success',
             'message' => 'SMTP server and sender configuration saved successfully.',
-            'data' => $validated,
+            'data' => $safeValidated,
         ]);
     }
 
