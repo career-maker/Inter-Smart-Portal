@@ -116,10 +116,17 @@ class EmailSetting extends Model
                 'enabled' => true,
             ],
             'ta_claim' => [
-                'name' => 'Travel Allowance (TA) Claims',
+                'name' => 'Travel Allowance (TA) Claim Submissions',
                 'notify_admin' => true,
                 'custom_to' => ['HR@intersmart.in', 'Ameesha@intersmart.in'],
                 'custom_cc' => ['admin@intersmart.in'],
+                'enabled' => true,
+            ],
+            'ta_approved' => [
+                'name' => 'Travel Allowance (TA) Approval & Receipt',
+                'notify_recipient' => true,
+                'custom_to' => [],
+                'custom_cc' => ['HR@intersmart.in', 'admin@intersmart.in'],
                 'enabled' => true,
             ],
             'document_request' => [

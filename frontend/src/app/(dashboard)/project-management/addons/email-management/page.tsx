@@ -71,9 +71,15 @@ const ACTION_DEFINITIONS: Record<
   },
   ta_claim: {
     label: "Travel Allowance (TA) Claim Submission",
-    description: "Fired when an employee applies for Travel Allowance reimbursement.",
+    description: "Fired when an employee submits a new Travel Allowance reimbursement claim.",
     icon: DollarSign,
     color: "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 border-indigo-200 dark:border-indigo-800",
+  },
+  ta_approved: {
+    label: "Travel Allowance (TA) Approval & Receipt Voucher",
+    description: "Fired when an admin approves or settles a claim, sending the invoice receipt voucher and payment screenshot to the employee + CCs.",
+    icon: Sparkles,
+    color: "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-800",
   },
   document_request: {
     label: "HR Document & Policy Requests",

@@ -11,6 +11,7 @@ use App\Mail\LeaveRequestMail;
 use App\Mail\WfhRequestMail;
 use App\Mail\RecognitionMail;
 use App\Mail\TARequestMail;
+use App\Mail\TAApprovedMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Config;
@@ -307,6 +308,47 @@ class EmailService
             }
         } catch (\Throwable $e) {
             Log::error("💥 Critical error in sendTARequestEmail: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Send TA Approval & Receipt email notification to employee + CCs
+     */
+    public static function sendTAApprovedEmail(TARequest $taRequest, array $emailData = []): void
+    {
+        try {
+            self::applySmtpConfig();
+            $taRequest->loadMissing(['user', 'items']);
+
+            $user = $taRequest->user;
+            if (!$user || empty($user->email)) {
+                return;
+            }
+
+            $recipients = self::resolveRecipients('ta_approved', $user, ['ta_request' => $taRequest]);
+            $toEmails = !empty($recipients['to']) ? $recipients['to'] : [$user->email];
+            $ccEmails = $recipients['cc'] ?? [];
+
+            // Always ensure the applicant employee is included in TO if not present
+            if (!in_array($user->email, $toEmails)) {
+                $toEmails[] = $user->email;
+            }
+
+            foreach ($toEmails as $email) {
+                try {
+                    $ccList = array_values(array_filter($ccEmails, fn($cc) => strtolower($cc) !== strtolower($email)));
+                    $mail = Mail::to($email);
+                    if (!empty($ccList)) {
+                        $mail->cc($ccList);
+                    }
+                    $mail->send(new TAApprovedMail($taRequest, $emailData));
+                    Log::info("✅ TA Approval & Receipt Email sent to {$email}");
+                } catch (\Throwable $e) {
+                    Log::error("❌ Failed to send TA approval email to {$email}: " . $e->getMessage());
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::error("💥 Critical error in sendTAApprovedEmail: " . $e->getMessage());
         }
     }
 

@@ -345,6 +345,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::middleware('role:Super Admin')->group(function () {
             Route::post('{id}/approve', [\App\Http\Controllers\Api\TARequestController::class, 'approve']);
             Route::post('{id}/reject', [\App\Http\Controllers\Api\TARequestController::class, 'reject']);
+            Route::post('{id}/override', [\App\Http\Controllers\Api\TARequestController::class, 'override']);
             Route::post('{id}/mark-paid', [\App\Http\Controllers\Api\TARequestController::class, 'markPaid']);
         });
     });

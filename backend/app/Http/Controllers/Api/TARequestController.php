@@ -171,27 +171,50 @@ class TARequestController
             return response()->json(['message' => 'Only super admin can approve TA requests'], 403);
         }
 
-        $taRequest = TARequest::findOrFail($id);
-
-        if ($taRequest->status !== 'Applied') {
-            return response()->json(['message' => 'Only applied requests can be approved'], 400);
-        }
+        $taRequest = TARequest::with(['user', 'items'])->findOrFail($id);
 
         $validated = $request->validate([
             'approval_notes' => 'nullable|string|max:500',
+            'approved_amount' => 'nullable|numeric|min:0',
+            'is_paid' => 'nullable|boolean',
+            'payment_mode' => 'nullable|string|max:50',
+            'payment_receipt_link' => 'nullable|string|max:1000',
+            'payment_receipt_file' => 'nullable|file|mimes:jpeg,png,jpg,webp,pdf,heic|max:10240',
+            'payment_screenshot' => 'nullable|file|mimes:jpeg,png,jpg,webp,pdf,heic|max:10240',
         ]);
 
+        $approvedAmount = isset($validated['approved_amount']) && $validated['approved_amount'] !== '' 
+            ? (float)$validated['approved_amount'] 
+            : (float)$taRequest->total_amount;
+
+        $paymentReceiptLink = $validated['payment_receipt_link'] ?? $taRequest->payment_receipt_link;
+
+        $uploadedProof = $request->file('payment_receipt_file') ?: $request->file('payment_screenshot');
+        if ($uploadedProof) {
+            $storedPath = $uploadedProof->store('ta_payments', 'public');
+            $paymentReceiptLink = asset('storage/' . $storedPath);
+        }
+
+        $receiptNumber = $taRequest->receipt_number ?: ('TA-REC-' . date('Y') . '-' . str_pad($taRequest->id, 5, '0', STR_PAD_LEFT));
+        $isPaid = filter_var($validated['is_paid'] ?? false, FILTER_VALIDATE_BOOLEAN);
+
         $taRequest->update([
-            'status' => 'Approved',
+            'status' => $isPaid ? 'Paid' : 'Approved',
             'approver_id' => $user->id,
-            'approval_notes' => $validated['approval_notes'] ?? null,
+            'approval_notes' => $validated['approval_notes'] ?? $taRequest->approval_notes,
+            'approved_amount' => $approvedAmount,
+            'receipt_number' => $receiptNumber,
+            'payment_receipt_link' => $paymentReceiptLink,
+            'payment_mode' => $validated['payment_mode'] ?? $taRequest->payment_mode ?? ($isPaid ? 'Bank Transfer' : null),
+            'is_paid' => $isPaid,
+            'paid_at' => $isPaid ? ($taRequest->paid_at ?: now()) : null,
             'updated_by' => $user->id,
         ]);
 
-        // Notify applicant
+        // Notify applicant via In-App Notification
         try {
-            $claimAmount = number_format((float)$taRequest->total_amount, 2);
-            $msg = "Your Travel Allowance request for ₹{$claimAmount} has been approved";
+            $claimAmount = number_format($approvedAmount, 2);
+            $msg = "Your Travel Allowance request #{$receiptNumber} for ₹{$claimAmount} has been approved" . ($isPaid ? " and marked Paid" : "");
             $taRequest->user->notify(new TARequestNotification(
                 $taRequest,
                 $msg,
@@ -203,7 +226,138 @@ class TARequestController
             \Log::error('Failed to notify applicant on TA approval: ' . $e->getMessage());
         }
 
-        return response()->json(['message' => 'TA request approved', 'data' => $taRequest]);
+        // Send Approval & Receipt Email via EmailService
+        try {
+            $emailData = [
+                'employee_name' => "{$taRequest->user->first_name} {$taRequest->user->last_name}",
+            ];
+            \App\Services\Email\EmailService::sendTAApprovedEmail($taRequest, $emailData);
+        } catch (\Exception $e) {
+            \Log::error('Failed to send TA approval email: ' . $e->getMessage());
+        }
+
+        return response()->json([
+            'message' => 'TA request approved successfully',
+            'data' => $taRequest->fresh(['user', 'items', 'approver'])
+        ]);
+    }
+
+    /**
+     * Override TA request by Super Admin
+     */
+    public function override(Request $request, $id)
+    {
+        $user = Auth::user();
+
+        if (!$user->hasRole('Super Admin')) {
+            return response()->json(['message' => 'Only super admin can override TA requests'], 403);
+        }
+
+        $taRequest = TARequest::with(['user', 'items'])->findOrFail($id);
+
+        $rawItems = $request->input('items');
+        if (is_string($rawItems)) {
+            $decoded = json_decode($rawItems, true);
+            if (is_array($decoded)) {
+                $request->merge(['items' => $decoded]);
+            }
+        }
+
+        $validated = $request->validate([
+            'reason' => 'sometimes|required|string|max:1000',
+            'date_travelled' => 'sometimes|required|date',
+            'total_amount' => 'sometimes|numeric|min:0',
+            'approved_amount' => 'nullable|numeric|min:0',
+            'status' => 'sometimes|required|string|in:Applied,Approved,Rejected,Paid',
+            'approval_notes' => 'nullable|string|max:1000',
+            'is_paid' => 'nullable|boolean',
+            'payment_mode' => 'nullable|string|max:50',
+            'receipt_number' => 'nullable|string|max:50',
+            'bill_link' => 'nullable|string|max:1000',
+            'payment_receipt_link' => 'nullable|string|max:1000',
+            'payment_receipt_file' => 'nullable|file|mimes:jpeg,png,jpg,webp,pdf,heic|max:10240',
+            'receipt_file' => 'nullable|file|mimes:jpeg,png,jpg,webp,pdf,heic|max:10240',
+            'items' => 'nullable|array',
+            'items.*.category' => 'required_with:items|string',
+            'items.*.amount' => 'required_with:items|numeric|min:0',
+            'items.*.description' => 'nullable|string',
+        ]);
+
+        $paymentReceiptLink = $validated['payment_receipt_link'] ?? $taRequest->payment_receipt_link;
+        if ($request->hasFile('payment_receipt_file')) {
+            $storedPath = $request->file('payment_receipt_file')->store('ta_payments', 'public');
+            $paymentReceiptLink = asset('storage/' . $storedPath);
+        }
+
+        $billLink = $validated['bill_link'] ?? $taRequest->bill_link;
+        if ($request->hasFile('receipt_file')) {
+            $storedBill = $request->file('receipt_file')->store('ta_receipts', 'public');
+            $billLink = asset('storage/' . $storedBill);
+        }
+
+        // Update items breakdown if provided
+        if (isset($validated['items']) && is_array($validated['items'])) {
+            $taRequest->items()->delete();
+            $totalCalc = 0;
+            foreach ($validated['items'] as $item) {
+                TARequestItem::create([
+                    'ta_request_id' => $taRequest->id,
+                    'category' => $item['category'],
+                    'amount' => $item['amount'],
+                    'description' => $item['description'] ?? null,
+                ]);
+                $totalCalc += (float)$item['amount'];
+            }
+            $taRequest->total_amount = $totalCalc;
+        } elseif (isset($validated['total_amount'])) {
+            $taRequest->total_amount = $validated['total_amount'];
+        }
+
+        if (isset($validated['reason'])) $taRequest->reason = $validated['reason'];
+        if (isset($validated['date_travelled'])) $taRequest->date_travelled = $validated['date_travelled'];
+        if (isset($validated['status'])) $taRequest->status = $validated['status'];
+        if (isset($validated['approval_notes'])) $taRequest->approval_notes = $validated['approval_notes'];
+        if (isset($validated['payment_mode'])) $taRequest->payment_mode = $validated['payment_mode'];
+        
+        $taRequest->bill_link = $billLink;
+        $taRequest->payment_receipt_link = $paymentReceiptLink;
+        $taRequest->approver_id = $user->id;
+        $taRequest->updated_by = $user->id;
+
+        if (isset($validated['approved_amount'])) {
+            $taRequest->approved_amount = $validated['approved_amount'];
+        } elseif (in_array($taRequest->status, ['Approved', 'Paid']) && empty($taRequest->approved_amount)) {
+            $taRequest->approved_amount = $taRequest->total_amount;
+        }
+
+        if (in_array($taRequest->status, ['Approved', 'Paid']) && empty($taRequest->receipt_number)) {
+            $taRequest->receipt_number = 'TA-REC-' . date('Y') . '-' . str_pad($taRequest->id, 5, '0', STR_PAD_LEFT);
+        }
+
+        if (isset($validated['is_paid'])) {
+            $taRequest->is_paid = filter_var($validated['is_paid'], FILTER_VALIDATE_BOOLEAN);
+            if ($taRequest->is_paid && empty($taRequest->paid_at)) {
+                $taRequest->paid_at = now();
+            }
+        }
+
+        $taRequest->save();
+
+        // If status is Approved or Paid, notify and email applicant
+        if (in_array($taRequest->status, ['Approved', 'Paid'])) {
+            try {
+                \App\Services\Email\EmailService::sendTAApprovedEmail($taRequest, [
+                    'employee_name' => "{$taRequest->user->first_name} {$taRequest->user->last_name}",
+                ]);
+            } catch (\Throwable $e) {
+                \Log::error('Failed to send TA override email: ' . $e->getMessage());
+            }
+        }
+
+        return response()->json([
+            'message' => 'TA request overridden successfully',
+            'data' => $taRequest->fresh(['user', 'items', 'approver'])
+        ]);
     }
 
     public function reject(Request $request, $id)
@@ -215,10 +369,6 @@ class TARequestController
         }
 
         $taRequest = TARequest::findOrFail($id);
-
-        if ($taRequest->status !== 'Applied') {
-            return response()->json(['message' => 'Only applied requests can be rejected'], 400);
-        }
 
         $validated = $request->validate([
             'approval_notes' => 'required|string|max:500',
@@ -256,35 +406,61 @@ class TARequestController
             return response()->json(['message' => 'Only super admin can mark as paid'], 403);
         }
 
-        $taRequest = TARequest::findOrFail($id);
-
-        if ($taRequest->status !== 'Approved') {
-            return response()->json(['message' => 'Only approved requests can be marked as paid'], 400);
-        }
+        $taRequest = TARequest::with(['user', 'items'])->findOrFail($id);
 
         $validated = $request->validate([
             'is_paid' => 'required|boolean',
+            'payment_mode' => 'nullable|string|max:50',
+            'approval_notes' => 'nullable|string|max:500',
+            'payment_receipt_link' => 'nullable|string|max:1000',
+            'payment_receipt_file' => 'nullable|file|mimes:jpeg,png,jpg,webp,pdf,heic|max:10240',
         ]);
+
+        $paymentReceiptLink = $validated['payment_receipt_link'] ?? $taRequest->payment_receipt_link;
+        if ($request->hasFile('payment_receipt_file')) {
+            $storedPath = $request->file('payment_receipt_file')->store('ta_payments', 'public');
+            $paymentReceiptLink = asset('storage/' . $storedPath);
+        }
+
+        $receiptNumber = $taRequest->receipt_number ?: ('TA-REC-' . date('Y') . '-' . str_pad($taRequest->id, 5, '0', STR_PAD_LEFT));
+        $approvedAmount = $taRequest->approved_amount ?: $taRequest->total_amount;
 
         $taRequest->update([
             'is_paid' => $validated['is_paid'],
-            'status' => $validated['is_paid'] ? 'Paid' : 'Unpaid',
+            'status' => $validated['is_paid'] ? 'Paid' : 'Approved',
             'paid_at' => $validated['is_paid'] ? now() : null,
+            'payment_mode' => $validated['payment_mode'] ?? $taRequest->payment_mode ?? 'Bank Transfer',
+            'payment_receipt_link' => $paymentReceiptLink,
+            'receipt_number' => $receiptNumber,
+            'approved_amount' => $approvedAmount,
+            'approval_notes' => $validated['approval_notes'] ?? $taRequest->approval_notes,
             'updated_by' => $user->id,
         ]);
 
         // Notify applicant
-        $message = $validated['is_paid'] ? 'Your travel allowance has been paid' : 'Payment status has been updated';
-        Notification::create([
-            'user_id' => $taRequest->user_id,
-            'type' => 'ta_request_paid',
-            'title' => 'TA Payment Update',
-            'message' => $message,
-            'data' => json_encode(['ta_request_id' => $taRequest->id]),
-            'is_read' => false,
-        ]);
+        try {
+            $message = $validated['is_paid'] 
+                ? "Your travel allowance #{$receiptNumber} for ₹" . number_format($approvedAmount, 2) . " has been paid & settled"
+                : 'Payment status has been updated';
 
-        return response()->json(['message' => 'Payment status updated', 'data' => $taRequest]);
+            $taRequest->user->notify(new TARequestNotification(
+                $taRequest,
+                $message,
+                'TA Payment Update',
+                'ta_paid',
+                '/ta/status'
+            ));
+
+            if ($validated['is_paid']) {
+                \App\Services\Email\EmailService::sendTAApprovedEmail($taRequest, [
+                    'employee_name' => "{$taRequest->user->first_name} {$taRequest->user->last_name}",
+                ]);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Failed to notify applicant on TA markPaid: ' . $e->getMessage());
+        }
+
+        return response()->json(['message' => 'Payment status updated', 'data' => $taRequest->fresh(['user', 'items', 'approver'])]);
     }
 
     public function adminIndex(Request $request)

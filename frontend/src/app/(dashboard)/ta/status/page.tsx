@@ -33,6 +33,10 @@ interface TARequest {
   reason: string;
   date_travelled: string;
   total_amount: number | string;
+  approved_amount?: number | string;
+  receipt_number?: string;
+  payment_receipt_link?: string;
+  payment_mode?: string;
   bill_link?: string;
   status: string;
   is_paid: boolean;
@@ -253,9 +257,21 @@ export default function TAStatusPage() {
 
                 <div className="text-left sm:text-right shrink-0">
                   <span className="text-xs text-slate-400 block font-medium">Claim Amount</span>
-                  <span className="text-xl sm:text-2xl font-bold text-[#56348f] dark:text-purple-300">
-                    ₹{formatCurrency(request.total_amount)}
-                  </span>
+                  <div className="flex sm:flex-col items-baseline sm:items-end gap-1.5 sm:gap-0">
+                    <span className="text-xl sm:text-2xl font-bold text-[#56348f] dark:text-purple-300">
+                      ₹{formatCurrency(request.approved_amount || request.total_amount)}
+                    </span>
+                    {request.approved_amount && Number(request.approved_amount) !== Number(request.total_amount) && (
+                      <span className="text-[11px] text-slate-400 line-through">
+                        Claimed: ₹{formatCurrency(request.total_amount)}
+                      </span>
+                    )}
+                  </div>
+                  {request.receipt_number && (
+                    <span className="inline-block mt-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-purple-50 dark:bg-purple-950/70 text-[#56348f] dark:text-purple-300 border border-purple-200/70 dark:border-purple-800/60">
+                      {request.receipt_number}
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -292,10 +308,10 @@ export default function TAStatusPage() {
                 </div>
               </div>
 
-              {/* Bottom Row: Bill Receipt & Approval Notes */}
+              {/* Bottom Row: Bill Receipt, Payment Proof & Approval Notes */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-1 text-xs">
-                <div>
-                  {request.bill_link ? (
+                <div className="flex flex-wrap items-center gap-2">
+                  {request.bill_link && (
                     <a
                       href={request.bill_link}
                       target="_blank"
@@ -303,11 +319,26 @@ export default function TAStatusPage() {
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 hover:bg-purple-100 font-semibold border border-purple-200/60 dark:border-purple-800/40 transition-colors"
                     >
                       <FileText className="w-3.5 h-3.5" />
-                      <span>View Receipt / Bill</span>
+                      <span>Employee Bill Receipt</span>
                       <ExternalLink className="w-3 h-3 ml-0.5 opacity-70" />
                     </a>
-                  ) : (
-                    <span className="text-slate-400 italic">No bill receipt attached</span>
+                  )}
+
+                  {request.payment_receipt_link && (
+                    <a
+                      href={request.payment_receipt_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 font-semibold border border-emerald-200/60 dark:border-emerald-800/40 transition-colors"
+                    >
+                      <Receipt className="w-3.5 h-3.5" />
+                      <span>Payment Proof Screenshot</span>
+                      <ExternalLink className="w-3 h-3 ml-0.5 opacity-70" />
+                    </a>
+                  )}
+
+                  {!request.bill_link && !request.payment_receipt_link && (
+                    <span className="text-slate-400 italic">No attachments</span>
                   )}
                 </div>
 

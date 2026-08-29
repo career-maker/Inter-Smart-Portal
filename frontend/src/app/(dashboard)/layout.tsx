@@ -93,9 +93,11 @@ const NAV_GROUPS: NavGroup[] = [
     icon: Puzzle,
     roles: ["Super Admin"],
     items: [
-      { href: "/project-management/addons", label: "All Add-ons" },
-      { href: "/project-management/addons/permissions", label: "Team & Role Permissions" },
+      { href: "/project-management/addons", label: "All Add-ons Directory" },
+      { href: "/project-management/addons/email-management", label: "Email & SMTP Management" },
       { href: "/project-management/addons/leave-policy", label: "Leave Policy Management" },
+      { href: "/project-management/addons/permissions", label: "Team & Role Permissions" },
+      { href: "/project-management/bug-reports", label: "Bug Tracker & Reports" },
     ],
   },
   {
