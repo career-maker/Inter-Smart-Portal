@@ -20,7 +20,9 @@ import {
   Trash2,
 } from "lucide-react";
 import api from "@/services/api";
+import { useAuthStore } from "@/store/auth";
 import { TAApplyModal } from "@/components/ta/TAApplyModal";
+import { TAReceiptVoucherModal } from "@/components/ta/TAReceiptVoucherModal";
 
 interface TARequestItem {
   id: number;
@@ -59,11 +61,13 @@ const CATEGORY_ICONS: Record<string, any> = {
 };
 
 export default function TAStatusPage() {
+  const { user: currentUser } = useAuthStore();
   const [requests, setRequests] = useState<TARequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [cancellingId, setCancellingId] = useState<number | null>(null);
   const [filter, setFilter] = useState<string>("all");
   const [isApplyDrawerOpen, setIsApplyDrawerOpen] = useState(false);
+  const [viewingVoucher, setViewingVoucher] = useState<TARequest | null>(null);
 
   useEffect(() => {
     fetchRequests();
@@ -334,19 +338,35 @@ export default function TAStatusPage() {
               {/* Bottom Row: Bill Receipt, Payment Proof & Approval Notes */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-1 text-xs">
                 <div className="flex flex-wrap items-center gap-2">
+                  {/* Generated Official Bill Receipt Voucher */}
+                  {(request.receipt_number || request.status === "Approved" || request.status === "Paid") && (
+                    <button
+                      type="button"
+                      onClick={() => setViewingVoucher(request)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-50 dark:bg-purple-950/50 text-[#56348f] dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/60 font-bold border border-purple-200/80 dark:border-purple-800/60 transition-colors cursor-pointer"
+                      title="View and Download Generated Official Bill Receipt Image"
+                    >
+                      <Receipt className="w-3.5 h-3.5" />
+                      <span>Official Bill Receipt</span>
+                    </button>
+                  )}
+
+                  {/* Attached Expense Proof */}
                   {request.bill_link && (
                     <a
                       href={request.bill_link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 hover:bg-purple-100 font-semibold border border-purple-200/60 dark:border-purple-800/40 transition-colors"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 font-semibold border border-slate-200 dark:border-slate-700 transition-colors"
+                      title="Download or view attached expense document/proof"
                     >
-                      <FileText className="w-3.5 h-3.5" />
-                      <span>Employee Bill Receipt</span>
+                      <FileText className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                      <span>View Attached Proof</span>
                       <ExternalLink className="w-3 h-3 ml-0.5 opacity-70" />
                     </a>
                   )}
 
+                  {/* Payment Proof Screenshot (if disbursed) */}
                   {request.payment_receipt_link && (
                     <a
                       href={request.payment_receipt_link}
@@ -360,7 +380,7 @@ export default function TAStatusPage() {
                     </a>
                   )}
 
-                  {!request.bill_link && !request.payment_receipt_link && (
+                  {!request.bill_link && !request.payment_receipt_link && !request.receipt_number && request.status !== "Approved" && request.status !== "Paid" && (
                     <span className="text-slate-400 italic">No attachments</span>
                   )}
                 </div>
@@ -397,6 +417,14 @@ export default function TAStatusPage() {
         onSuccess={() => {
           fetchRequests();
         }}
+      />
+
+      {/* Official TA Receipt Voucher Modal */}
+      <TAReceiptVoucherModal
+        isOpen={!!viewingVoucher}
+        onClose={() => setViewingVoucher(null)}
+        request={viewingVoucher}
+        currentUser={currentUser}
       />
     </div>
   );
