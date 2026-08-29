@@ -1119,48 +1119,18 @@ body {
   }
 
   /* Light Mode Modal/Dialog Backdrop */
-  :where(html:not(.dark)) [role="dialog"],
+  html:not(.dark) [data-slot="dialog-overlay"],
   html:not(.dark) .dialog-overlay {
-    background-color: rgba(0, 0, 0, 0.08);
+    background-color: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(2px);
   }
 
   /* Light Mode Modal/Dialog Content - Premium */
-  :where(html:not(.dark)) [role="dialog"] > div,
+  html:not(.dark) [data-slot="dialog-content"],
   html:not(.dark) .dialog-content {
     background-color: #FFFFFF;
-    border: 1px solid #E5E7EB;
-    border-radius: 16px;
-    box-shadow: 0 16px 48px rgba(15, 23, 42, 0.08);
-  }
-
-  /* Light Mode Dialog Header */
-  html:not(.dark) [data-dialog-header],
-  html:not(.dark) .dialog-header {
-    padding: 24px 28px;
-    border-bottom: 1px solid #F1F5F9;
-  }
-
-  html:not(.dark) [data-dialog-header] h2,
-  html:not(.dark) .dialog-header h2 {
-    font-size: 1.25rem;
-    font-weight: 700;
     color: #0F172A;
-  }
-
-  /* Light Mode Dialog Body */
-  html:not(.dark) [data-dialog-body],
-  html:not(.dark) .dialog-body {
-    padding: 24px 28px;
-  }
-
-  /* Light Mode Dialog Footer */
-  html:not(.dark) [data-dialog-footer],
-  html:not(.dark) .dialog-footer {
-    padding: 16px 28px;
-    border-top: 1px solid #F1F5F9;
-    display: flex;
-    gap: 12px;
-    justify-content: flex-end;
+    border-color: #E2E8F0;
   }
 
   /* ── Light Mode Service Duration Pill ── */

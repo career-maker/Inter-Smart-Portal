@@ -387,11 +387,24 @@ export default function AnnouncementsPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setShowDialog(false)}>Cancel</Button>
-            <Button onClick={submitForm} disabled={actionLoading || !title || !content || !category || isAddingCategory}>
-              {actionLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {editTarget ? "Save Changes" : "Publish Announcement"}
-            </Button>
+            <Button variant="ghost" onClick={() => setShowDialog(false)} className="rounded-xl">Cancel</Button>
+            <button
+              type="button"
+              onClick={submitForm}
+              disabled={actionLoading || !title || !content || !category || isAddingCategory}
+              style={{
+                backgroundColor: "#56348f",
+                color: "rgb(255, 255, 255)",
+                fontFamily: '"Proxima Nova", sans-serif',
+                fontSize: "13px",
+                lineHeight: "20px",
+                fontWeight: 600,
+              }}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-bold shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+            >
+              {actionLoading && <Loader2 className="h-4 w-4 animate-spin !text-white" />}
+              <span className="!text-white">{editTarget ? "Save Changes" : "Publish Announcement"}</span>
+            </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
