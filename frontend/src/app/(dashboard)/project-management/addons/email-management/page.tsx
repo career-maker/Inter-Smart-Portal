@@ -31,6 +31,7 @@ import {
   EyeOff,
   UserCheck,
   X,
+  RotateCcw,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import emailSettingsApi, {
@@ -379,6 +380,15 @@ export default function EmailManagementPage() {
   const handleDeleteOverride = (index: number) => {
     if (!confirm("Are you sure you want to remove this employee email override?")) return;
     const updated = overrides.filter((_, i) => i !== index);
+    handleSaveOverrides(updated);
+  };
+
+  const handleRevertToNormal = (index: number) => {
+    const item = overrides[index];
+    const empName = item?.user_name || `Employee #${item?.user_id}`;
+    if (!confirm(`Revert ${empName} back to Normal (General Routing)?\n\nThis will remove custom overrides and route notifications to the default Team Lead & Global Matrix.`)) return;
+    const updated = overrides.filter((_, i) => i !== index);
+    setIsOverrideModalOpen(false);
     handleSaveOverrides(updated);
   };
 
@@ -1104,15 +1114,26 @@ export default function EmailManagementPage() {
                             </button>
                             <button
                               type="button"
+                              onClick={() => handleRevertToNormal(idx)}
+                              title="Revert to Normal (General Routing)"
+                              className="inline-flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-950/60 text-amber-700 dark:text-amber-400 text-[11px] font-semibold border border-amber-200/60 dark:border-amber-800/60 transition-colors cursor-pointer"
+                            >
+                              <RotateCcw className="w-3 h-3" />
+                              <span>Revert to Normal</span>
+                            </button>
+                            <button
+                              type="button"
                               onClick={() => openEditOverride(idx)}
-                              className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500"
+                              className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 cursor-pointer"
+                              title="Edit override"
                             >
                               <Edit2 className="w-3.5 h-3.5" />
                             </button>
                             <button
                               type="button"
                               onClick={() => handleDeleteOverride(idx)}
-                              className="p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950 text-rose-500"
+                              className="p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950 text-rose-500 cursor-pointer"
+                              title="Delete override"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
@@ -1355,22 +1376,52 @@ export default function EmailManagementPage() {
             </div>
 
             {/* Fixed Footer */}
-            <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-850 flex items-center justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setIsOverrideModalOpen(false)}
-                className="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleSaveModalOverride}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] text-white text-xs font-bold shadow-md shadow-purple-900/20 transition-all hover:scale-[1.02] cursor-pointer"
-              >
-                <Check className="w-4 h-4" />
-                <span>Save Override</span>
-              </button>
+            <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-850 flex items-center justify-between gap-2 flex-wrap">
+              {editingIndex !== null ? (
+                <button
+                  type="button"
+                  onClick={() => handleRevertToNormal(editingIndex)}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-amber-800 dark:text-amber-300 bg-amber-100 hover:bg-amber-200 dark:bg-amber-950/80 dark:hover:bg-amber-900 border border-amber-300 dark:border-amber-700 transition-colors cursor-pointer"
+                  title="Remove this override and restore general global routing"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>Revert to Normal (General)</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setModalForm({
+                      ...modalForm,
+                      custom_to: "",
+                      custom_cc: [],
+                      notes: "",
+                    });
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors cursor-pointer"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  <span>Reset to Default</span>
+                </button>
+              )}
+
+              <div className="flex items-center gap-2 ml-auto">
+                <button
+                  type="button"
+                  onClick={() => setIsOverrideModalOpen(false)}
+                  className="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveModalOverride}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] text-white text-xs font-bold shadow-md shadow-purple-900/20 transition-all hover:scale-[1.02] cursor-pointer"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>Save Override</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
