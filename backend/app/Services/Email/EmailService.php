@@ -61,30 +61,53 @@ class EmailService
             'bcc' => [],
         ];
 
+        $matchedOverride = null;
+
         // 1. Check for Employee-Specific Override first
         try {
             $overrides = EmailSetting::getByKey('employee_overrides', []);
-            $activeOverride = collect($overrides)->first(function ($item) use ($user, $action) {
+            
+            // Look for exact match by user_id and action
+            $matchedOverride = collect($overrides)->first(function ($item) use ($user, $action) {
                 return (int)($item['user_id'] ?? 0) === (int)$user->id
                     && ($item['action'] ?? '') === $action
                     && ($item['enabled'] ?? true);
             });
 
-            if ($activeOverride) {
-                Log::info("🎯 Active employee email override found for User ID {$user->id} on action '{$action}'");
-                if (!empty($activeOverride['custom_to'])) {
-                    $recipients['to'][] = trim($activeOverride['custom_to']);
-                }
-                if (!empty($activeOverride['custom_cc']) && is_array($activeOverride['custom_cc'])) {
-                    foreach ($activeOverride['custom_cc'] as $cc) {
-                        if (!empty($cc)) $recipients['cc'][] = trim($cc);
+            // If action is short-notice casual leave and no specific short-notice override exists,
+            // fallback to the general leave_application override for this employee
+            if (!$matchedOverride && $action === 'leave_cl_short_notice') {
+                $matchedOverride = collect($overrides)->first(function ($item) use ($user) {
+                    return (int)($item['user_id'] ?? 0) === (int)$user->id
+                        && ($item['action'] ?? '') === 'leave_application'
+                        && ($item['enabled'] ?? true);
+                });
+            }
+
+            if ($matchedOverride) {
+                Log::info("🎯 Active employee email override matched for User ID {$user->id} on action '{$action}'");
+                if (!empty($matchedOverride['custom_to'])) {
+                    $customTo = trim($matchedOverride['custom_to']);
+                    if (filter_var($customTo, FILTER_VALIDATE_EMAIL)) {
+                        $recipients['to'][] = $customTo;
+                    } else {
+                        Log::warning("⚠️ Custom TO email '{$customTo}' is invalid RFC email, skipping.");
                     }
                 }
 
-                // If custom TO was set, return resolved override (plus applicant copy if needed)
+                if (!empty($matchedOverride['custom_cc']) && is_array($matchedOverride['custom_cc'])) {
+                    foreach ($matchedOverride['custom_cc'] as $cc) {
+                        $trimmedCc = trim($cc);
+                        if (!empty($trimmedCc) && filter_var($trimmedCc, FILTER_VALIDATE_EMAIL)) {
+                            $recipients['cc'][] = $trimmedCc;
+                        }
+                    }
+                }
+
+                // If a valid custom TO was resolved, use it directly (with applicant copy)
                 if (!empty($recipients['to'])) {
-                    if (!empty($user->email)) {
-                        $recipients['cc'][] = $user->email;
+                    if (!empty($user->email) && filter_var($user->email, FILTER_VALIDATE_EMAIL)) {
+                        $recipients['cc'][] = trim($user->email);
                     }
                     $recipients['to'] = array_values(array_unique(array_filter($recipients['to'])));
                     $recipients['cc'] = array_values(array_unique(array_filter($recipients['cc'])));
@@ -104,8 +127,8 @@ class EmailService
         if ($user->team_id) {
             $team = \App\Models\Team::find($user->team_id);
             $tl = $team?->teamLead;
-            if ($tl && $tl->email && $tl->id !== $user->id) {
-                $teamLeadEmail = $tl->email;
+            if ($tl && $tl->email && $tl->id !== $user->id && filter_var($tl->email, FILTER_VALIDATE_EMAIL)) {
+                $teamLeadEmail = trim($tl->email);
             }
         }
 
@@ -116,7 +139,10 @@ class EmailService
 
         if (!empty($rule['custom_to']) && is_array($rule['custom_to'])) {
             foreach ($rule['custom_to'] as $toEmail) {
-                if (!empty($toEmail)) $recipients['to'][] = trim($toEmail);
+                $trimmed = trim($toEmail);
+                if (!empty($trimmed) && filter_var($trimmed, FILTER_VALIDATE_EMAIL)) {
+                    $recipients['to'][] = $trimmed;
+                }
             }
         }
 
@@ -128,7 +154,10 @@ class EmailService
         // Apply CC routing
         if (!empty($rule['custom_cc']) && is_array($rule['custom_cc'])) {
             foreach ($rule['custom_cc'] as $ccEmail) {
-                if (!empty($ccEmail)) $recipients['cc'][] = trim($ccEmail);
+                $trimmed = trim($ccEmail);
+                if (!empty($trimmed) && filter_var($trimmed, FILTER_VALIDATE_EMAIL)) {
+                    $recipients['cc'][] = $trimmed;
+                }
             }
         }
 
@@ -139,9 +168,19 @@ class EmailService
             $recipients['cc'][] = 'admin@intersmart.in';
         }
 
+        // Merge any custom CC from matched employee override if custom_to was empty
+        if ($matchedOverride && !empty($matchedOverride['custom_cc']) && is_array($matchedOverride['custom_cc'])) {
+            foreach ($matchedOverride['custom_cc'] as $cc) {
+                $trimmed = trim($cc);
+                if (!empty($trimmed) && filter_var($trimmed, FILTER_VALIDATE_EMAIL)) {
+                    $recipients['cc'][] = $trimmed;
+                }
+            }
+        }
+
         // Applicant copy
-        if (!empty($rule['cc_applicant']) && !empty($user->email)) {
-            $recipients['cc'][] = $user->email;
+        if (!empty($rule['cc_applicant']) && !empty($user->email) && filter_var($user->email, FILTER_VALIDATE_EMAIL)) {
+            $recipients['cc'][] = trim($user->email);
         }
 
         $recipients['to'] = array_values(array_unique(array_filter($recipients['to'])));

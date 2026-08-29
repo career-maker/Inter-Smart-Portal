@@ -352,6 +352,12 @@ export default function EmailManagementPage() {
       alert("Please select an employee.");
       return;
     }
+    const trimmedTo = modalForm.custom_to.trim();
+    if (trimmedTo && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedTo)) {
+      alert("Please enter a valid email address with domain for Custom TO (e.g. manager@intersmart.in).");
+      return;
+    }
+
     const userObj = allEmployees.find((e) => e.id === Number(modalForm.user_id));
     const overrideEntry: EmployeeOverride = {
       user_id: Number(modalForm.user_id),
@@ -359,7 +365,7 @@ export default function EmailManagementPage() {
       employee_code: userObj?.employee_code || "",
       user_email: userObj?.email || "",
       action: modalForm.action,
-      custom_to: modalForm.custom_to.trim() || undefined,
+      custom_to: trimmedTo || undefined,
       custom_cc: modalForm.custom_cc,
       enabled: modalForm.enabled,
       notes: modalForm.notes.trim() || undefined,
