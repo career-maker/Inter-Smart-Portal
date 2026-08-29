@@ -17,6 +17,7 @@ import {
   Hotel,
   HelpCircle,
   AlertCircle,
+  Trash2,
 } from "lucide-react";
 import api from "@/services/api";
 import { TAApplyModal } from "@/components/ta/TAApplyModal";
@@ -60,6 +61,7 @@ const CATEGORY_ICONS: Record<string, any> = {
 export default function TAStatusPage() {
   const [requests, setRequests] = useState<TARequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [cancellingId, setCancellingId] = useState<number | null>(null);
   const [filter, setFilter] = useState<string>("all");
   const [isApplyDrawerOpen, setIsApplyDrawerOpen] = useState(false);
 
@@ -82,6 +84,19 @@ export default function TAStatusPage() {
       setRequests([]);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleCancelRequest = async (id: number) => {
+    if (!confirm("Are you sure you want to cancel this Travel Allowance claim?")) return;
+    setCancellingId(id);
+    try {
+      await api.post(`/ta-requests/${id}/cancel`);
+      fetchRequests();
+    } catch (err: any) {
+      alert(err?.response?.data?.message || "Failed to cancel TA claim.");
+    } finally {
+      setCancellingId(null);
     }
   };
 
@@ -108,6 +123,13 @@ export default function TAStatusPage() {
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-700">
             <XCircle className="w-3.5 h-3.5" />
             Rejected
+          </span>
+        );
+      case "Cancelled":
+        return (
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+            <XCircle className="w-3.5 h-3.5" />
+            Cancelled
           </span>
         );
       case "Applied":
@@ -145,6 +167,7 @@ export default function TAStatusPage() {
     { value: "Approved", label: "Approved" },
     { value: "Paid", label: "Paid" },
     { value: "Rejected", label: "Rejected" },
+    { value: "Cancelled", label: "Cancelled" },
   ];
 
   return (
@@ -342,11 +365,25 @@ export default function TAStatusPage() {
                   )}
                 </div>
 
-                {request.approval_notes && (
-                  <div className="text-xs text-slate-600 dark:text-slate-400 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/40 px-3 py-1.5 rounded-lg">
-                    <strong className="text-amber-800 dark:text-amber-300">Note:</strong> {request.approval_notes}
-                  </div>
-                )}
+                <div className="flex items-center gap-2 flex-wrap">
+                  {request.approval_notes && (
+                    <div className="text-xs text-slate-600 dark:text-slate-400 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/40 px-3 py-1.5 rounded-lg">
+                      <strong className="text-amber-800 dark:text-amber-300">Note:</strong> {request.approval_notes}
+                    </div>
+                  )}
+
+                  {(request.status === "Applied" || request.status === "Pending") && (
+                    <button
+                      type="button"
+                      onClick={() => handleCancelRequest(request.id)}
+                      disabled={cancellingId === request.id}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-100 dark:hover:bg-rose-900/60 border border-rose-200 dark:border-rose-800 transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>{cancellingId === request.id ? "Cancelling…" : "Cancel Request"}</span>
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           ))}

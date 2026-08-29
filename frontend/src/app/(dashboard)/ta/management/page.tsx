@@ -32,6 +32,7 @@ import {
   Trash2,
   Sparkles,
   Printer,
+  X,
 } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
@@ -398,6 +399,13 @@ export default function TAManagementPage() {
             <span>Rejected</span>
           </span>
         );
+      case "Cancelled":
+        return (
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+            <X className="w-3.5 h-3.5" />
+            <span>Cancelled</span>
+          </span>
+        );
       default:
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
@@ -412,6 +420,7 @@ export default function TAManagementPage() {
     { value: "Approved", label: "Approved (Unpaid)" },
     { value: "Paid", label: "Paid & Disbursed" },
     { value: "Rejected", label: "Rejected" },
+    { value: "Cancelled", label: "Cancelled" },
     { value: "all", label: "All Requests" },
   ];
 

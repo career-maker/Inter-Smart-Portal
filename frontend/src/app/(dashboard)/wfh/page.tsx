@@ -87,6 +87,7 @@ export default function WfhPage() {
   const { user } = useAuthStore();
   const [requests, setRequests]         = useState<any[]>([]);
   const [isLoading, setIsLoading]       = useState(true);
+  const [cancellingId, setCancellingId] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [wfhWarning, setWfhWarning]     = useState<string | null>(null);
@@ -116,6 +117,19 @@ export default function WfhPage() {
       setRequests(res.data.data?.data || []);
     } catch (e) { console.error(e); }
     finally { setIsLoading(false); }
+  };
+
+  const handleCancelWfh = async (id: number) => {
+    if (!confirm("Are you sure you want to cancel this pending WFH request?")) return;
+    setCancellingId(id);
+    try {
+      await api.post(`/wfh-requests/${id}/cancel`);
+      fetchRequests();
+    } catch (err: any) {
+      alert(err?.response?.data?.message || "Failed to cancel WFH request.");
+    } finally {
+      setCancellingId(null);
+    }
   };
 
   /* ── Step navigation ── */
@@ -185,6 +199,7 @@ export default function WfhPage() {
 
   /* ── Status helpers ── */
   const getStatusInfo = (req: any) => {
+    if (req.status === "Cancelled")         return { label: "Cancelled",      cls: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700" };
     if (req.status === "Approved")          return { label: "Approved",      cls: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800" };
     if (req.status === "Rejected")          return { label: "Rejected",      cls: "bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300 border border-red-200 dark:border-red-800" };
     if (req.tl_status === "Pending")        return { label: "Awaiting TL",   cls: "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800" };
@@ -514,7 +529,20 @@ export default function WfhPage() {
                       </div>
                       {req.remarks && <p className="text-xs text-slate-500 mt-1.5 italic">Note: {req.remarks}</p>}
                     </div>
-                    <span className={`shrink-0 text-xs font-bold px-3 py-1.5 rounded-full ${si.cls}`}>{si.label}</span>
+                    <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 shrink-0">
+                      <span className={`text-xs font-bold px-3 py-1.5 rounded-full ${si.cls}`}>{si.label}</span>
+                      {req.status === "Pending" && (
+                        <button
+                          type="button"
+                          onClick={() => handleCancelWfh(req.id)}
+                          disabled={cancellingId === req.id}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/60 border border-rose-200 dark:border-rose-800 transition-colors cursor-pointer disabled:opacity-50"
+                        >
+                          <XCircle className="w-3.5 h-3.5" />
+                          <span>{cancellingId === req.id ? "Cancelling…" : "Cancel"}</span>
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               );

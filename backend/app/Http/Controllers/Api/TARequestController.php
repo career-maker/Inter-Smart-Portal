@@ -173,6 +173,16 @@ class TARequestController
 
         $taRequest = TARequest::with(['user', 'items'])->findOrFail($id);
 
+        if ($taRequest->status === 'Paid') {
+            return response()->json(['message' => 'Cannot approve a claim that has already been paid and settled.'], 422);
+        }
+        if ($taRequest->status === 'Cancelled') {
+            return response()->json(['message' => 'Cannot approve a claim that was cancelled.'], 422);
+        }
+        if ($taRequest->status === 'Rejected') {
+            return response()->json(['message' => 'Cannot directly approve a rejected request. Please use Override to adjust rejected requests.'], 422);
+        }
+
         $validated = $request->validate([
             'approval_notes' => 'nullable|string|max:500',
             'approved_amount' => 'nullable|numeric|min:0',
@@ -353,8 +363,7 @@ class TARequestController
                 \Log::error('Failed to send TA override email: ' . $e->getMessage());
             }
         }
-
-        return response()->json([
+return response()->json([
             'message' => 'TA request overridden successfully',
             'data' => $taRequest->fresh(['user', 'items', 'approver'])
         ]);
@@ -369,6 +378,16 @@ class TARequestController
         }
 
         $taRequest = TARequest::findOrFail($id);
+
+        if ($taRequest->status === 'Paid') {
+            return response()->json(['message' => 'Cannot reject a claim that has already been paid and settled.'], 422);
+        }
+        if ($taRequest->status === 'Cancelled') {
+            return response()->json(['message' => 'Cannot reject a claim that was cancelled.'], 422);
+        }
+        if ($taRequest->status === 'Rejected') {
+            return response()->json(['message' => 'This request is already rejected.'], 422);
+        }
 
         $validated = $request->validate([
             'approval_notes' => 'required|string|max:500',
@@ -407,6 +426,16 @@ class TARequestController
         }
 
         $taRequest = TARequest::with(['user', 'items'])->findOrFail($id);
+
+        if ($taRequest->status === 'Rejected') {
+            return response()->json(['message' => 'Cannot mark a rejected request as paid.'], 422);
+        }
+        if ($taRequest->status === 'Cancelled') {
+            return response()->json(['message' => 'Cannot mark a cancelled request as paid.'], 422);
+        }
+        if ($taRequest->status === 'Applied') {
+            return response()->json(['message' => 'Please approve the TA request first before marking it as paid.'], 422);
+        }
 
         $validated = $request->validate([
             'is_paid' => 'required|boolean',
@@ -460,7 +489,37 @@ class TARequestController
             \Log::error('Failed to notify applicant on TA markPaid: ' . $e->getMessage());
         }
 
-        return response()->json(['message' => 'Payment status updated', 'data' => $taRequest->fresh(['user', 'items', 'approver'])]);
+        return response()->json([
+            'message' => 'Payment status updated successfully',
+            'data' => $taRequest->fresh(['user', 'items', 'approver'])
+        ]);
+    }
+
+    /**
+     * Cancel pending TA request by employee or Super Admin
+     */
+    public function cancel(Request $request, $id)
+    {
+        $user = Auth::user();
+        $taRequest = TARequest::findOrFail($id);
+
+        if ($taRequest->user_id !== $user->id && !$user->hasRole('Super Admin')) {
+            return response()->json(['message' => 'Unauthorized to cancel this request.'], 403);
+        }
+
+        if (!in_array($taRequest->status, ['Applied', 'Pending'])) {
+            return response()->json(['message' => "Only pending requests can be cancelled. Current status is {$taRequest->status}."], 422);
+        }
+
+        $taRequest->update([
+            'status' => 'Cancelled',
+            'updated_by' => $user->id,
+        ]);
+
+        return response()->json([
+            'message' => 'Travel Allowance claim cancelled successfully.',
+            'data' => $taRequest->fresh(['user', 'items']),
+        ]);
     }
 
     public function adminIndex(Request $request)

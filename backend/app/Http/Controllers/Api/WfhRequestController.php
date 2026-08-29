@@ -434,4 +434,32 @@ class WfhRequestController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Cancel a pending WFH request by the applicant or Super Admin.
+     */
+    public function cancel(Request $request, WfhRequest $wfhRequest)
+    {
+        $user = $request->user();
+
+        if ($wfhRequest->user_id !== $user->id && !$user->hasRole('Super Admin')) {
+            return response()->json(['message' => 'Unauthorized to cancel this WFH request.'], 403);
+        }
+
+        if ($wfhRequest->status !== 'Pending') {
+            return response()->json(['message' => "Only pending requests can be cancelled. Current status is {$wfhRequest->status}."], 422);
+        }
+
+        $wfhRequest->update([
+            'status'       => 'Cancelled',
+            'tl_status'    => 'Cancelled',
+            'admin_status' => 'Cancelled',
+            'approved_by'  => $user->id,
+        ]);
+
+        return response()->json([
+            'message' => 'WFH request cancelled successfully.',
+            'data'    => $wfhRequest->fresh(['user', 'approver']),
+        ]);
+    }
 }

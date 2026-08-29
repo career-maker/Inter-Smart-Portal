@@ -81,6 +81,7 @@ export default function LeavesPage() {
   const [pagination, setPagination] = useState<{ current_page: number; last_page: number; total: number } | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [cancellingId, setCancellingId] = useState<number | null>(null);
 
   // Filters
   const [filterType, setFilterType] = useState("");
@@ -98,6 +99,19 @@ export default function LeavesPage() {
     color: string;
     description: string;
   } | null>(null);
+
+  const handleCancelLeave = async (id: number) => {
+    if (!confirm("Are you sure you want to cancel this pending leave request?")) return;
+    setCancellingId(id);
+    try {
+      await api.post(`/leave-requests/${id}/cancel`);
+      fetchData(currentPage);
+    } catch (err: any) {
+      alert(err?.response?.data?.message || "Failed to cancel leave request.");
+    } finally {
+      setCancellingId(null);
+    }
+  };
 
   useEffect(() => {
     fetchData(currentPage);
@@ -253,6 +267,12 @@ export default function LeavesPage() {
   }, [allUserRequests]);
 
   const getStatusBadge = (req: any) => {
+    if (req.status === "Cancelled")
+      return (
+        <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-slate-500/15 text-slate-600 dark:text-slate-400 border border-slate-500/20">
+          <XCircle className="w-3 h-3" /> Cancelled
+        </span>
+      );
     if (req.status === "Approved")
       return (
         <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
@@ -656,6 +676,7 @@ export default function LeavesPage() {
                   <th className="px-6 py-3 font-semibold">Days</th>
                   <th className="px-6 py-3 font-semibold">Reason</th>
                   <th className="px-6 py-3 font-semibold">Status</th>
+                  <th className="px-6 py-3 font-semibold text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200/80 dark:divide-slate-800">
@@ -680,6 +701,19 @@ export default function LeavesPage() {
                     </td>
                     <td className="px-6 py-4 text-slate-500 dark:text-slate-400 max-w-[220px] truncate">{req.reason}</td>
                     <td className="px-6 py-4">{getStatusBadge(req)}</td>
+                    <td className="px-6 py-4 text-right">
+                      {req.status === "Pending" && (
+                        <button
+                          type="button"
+                          onClick={() => handleCancelLeave(req.id)}
+                          disabled={cancellingId === req.id}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/60 border border-rose-200 dark:border-rose-800 transition-colors cursor-pointer disabled:opacity-50"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                          <span>{cancellingId === req.id ? "Cancelling…" : "Cancel"}</span>
+                        </button>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>

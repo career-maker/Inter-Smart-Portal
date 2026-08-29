@@ -301,7 +301,9 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::post('leaves/calculate', [\App\Http\Controllers\Api\LeaveRequestController::class, 'calculate']);
+    Route::post('leave-requests/{leaveRequest}/cancel', [\App\Http\Controllers\Api\LeaveRequestController::class, 'cancel']);
     Route::apiResource('leave-requests', \App\Http\Controllers\Api\LeaveRequestController::class)->only(['index', 'store']);
+    Route::post('wfh-requests/{wfhRequest}/cancel', [\App\Http\Controllers\Api\WfhRequestController::class, 'cancel']);
     Route::apiResource('wfh-requests', \App\Http\Controllers\Api\WfhRequestController::class)->only(['index', 'store']);
 
     // Attendance Routes
@@ -320,6 +322,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [\App\Http\Controllers\Api\TARequestController::class, 'index']);
         Route::get('{id}', [\App\Http\Controllers\Api\TARequestController::class, 'show']);
         Route::post('/', [\App\Http\Controllers\Api\TARequestController::class, 'store']);
+        Route::post('{id}/cancel', [\App\Http\Controllers\Api\TARequestController::class, 'cancel']);
 
         // Diagnostic endpoint (Super Admin only)
         Route::middleware('role:Super Admin')->get('diagnose/schema', function () {

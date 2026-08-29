@@ -1319,4 +1319,32 @@ class LeaveRequestController extends Controller
             'data'    => $leaveRequest
         ]);
     }
+
+    /**
+     * Cancel a pending leave request by the applicant or Super Admin.
+     */
+    public function cancel(Request $request, LeaveRequest $leaveRequest)
+    {
+        $user = $request->user();
+
+        if ($leaveRequest->user_id !== $user->id && !$user->hasRole('Super Admin')) {
+            return response()->json(['message' => 'Unauthorized to cancel this leave request.'], 403);
+        }
+
+        if ($leaveRequest->status !== 'Pending') {
+            return response()->json(['message' => "Only pending requests can be cancelled. Current status is {$leaveRequest->status}."], 422);
+        }
+
+        $leaveRequest->update([
+            'status'       => 'Cancelled',
+            'tl_status'    => 'Cancelled',
+            'admin_status' => 'Cancelled',
+            'approved_by'  => $user->id,
+        ]);
+
+        return response()->json([
+            'message' => 'Leave request cancelled successfully.',
+            'data'    => $leaveRequest->fresh(['user', 'leaveType', 'approver']),
+        ]);
+    }
 }
