@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import api from "@/services/api";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { RoyalAvatar } from "@/components/ui/RoyalAvatar";
 import { format, formatDistanceToNow, parseISO } from "date-fns";
 import { useAuthStore } from "@/store/auth";
 
@@ -393,19 +394,15 @@ export default function BirthdayWishesPage() {
                           : "border-l-transparent hover:bg-slate-50 dark:hover:bg-slate-800/50"
                       }`}
                     >
-                      {/* Avatar with Initials */}
+                      {/* Avatar with RoyalAvatar */}
                       <div className="shrink-0">
-                        {wish.sender?.profile_photo_path ? (
-                          <img
-                            src={wish.sender.profile_photo_path}
-                            alt={wish.sender.name}
-                            className="w-9 h-9 rounded-full object-cover border border-slate-200 dark:border-slate-700"
-                          />
-                        ) : (
-                          <div className="w-9 h-9 rounded-full bg-[#1890ff] text-white flex items-center justify-center font-bold text-xs shadow-xs">
-                            {getInitials(wish.sender?.name)}
-                          </div>
-                        )}
+                        <RoyalAvatar
+                          src={wish.sender?.profile_photo_path}
+                          name={wish.sender?.name || "Colleague"}
+                          userId={wish.sender?.id}
+                          className="w-9 h-9 text-xs font-bold"
+                          showCrownBadge={false}
+                        />
                       </div>
 
                       {/* Info & Snippet */}
@@ -487,19 +484,15 @@ export default function BirthdayWishesPage() {
                         : "border-l-transparent hover:bg-slate-50 dark:hover:bg-slate-800/50"
                     }`}
                   >
-                    {/* Avatar */}
+                    {/* Avatar with RoyalAvatar */}
                     <div className="shrink-0">
-                      {person.profile_photo_path ? (
-                        <img
-                          src={person.profile_photo_path}
-                          alt={person.name}
-                          className="w-9 h-9 rounded-full object-cover border border-slate-200 dark:border-slate-700"
-                        />
-                      ) : (
-                        <div className="w-9 h-9 rounded-full bg-amber-500 text-white flex items-center justify-center font-bold text-xs shadow-xs">
-                          {getInitials(person.name)}
-                        </div>
-                      )}
+                      <RoyalAvatar
+                        src={person.profile_photo_path}
+                        name={person.name}
+                        userId={person.id}
+                        className="w-9 h-9 text-xs font-bold"
+                        showCrownBadge={false}
+                      />
                     </div>
 
                     <div className="min-w-0 flex-1">
@@ -597,17 +590,13 @@ export default function BirthdayWishesPage() {
                 <div className="p-6 flex-1 space-y-6 overflow-y-auto">
                   {/* Sender Banner */}
                   <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-850 rounded-lg border border-slate-200/60 dark:border-slate-800">
-                    {selectedWish.sender?.profile_photo_path ? (
-                      <img
-                        src={selectedWish.sender.profile_photo_path}
-                        alt={selectedWish.sender.name}
-                        className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700"
-                      />
-                    ) : (
-                      <div className="w-10 h-10 rounded-full bg-[#1890ff] text-white flex items-center justify-center font-bold text-sm shadow-xs">
-                        {getInitials(selectedWish.sender?.name)}
-                      </div>
-                    )}
+                    <RoyalAvatar
+                      src={selectedWish.sender?.profile_photo_path}
+                      name={selectedWish.sender?.name || "Colleague"}
+                      userId={selectedWish.sender?.id}
+                      className="w-10 h-10 text-sm font-bold"
+                      showCrownBadge={true}
+                    />
                     <div>
                       <h4
                         style={{
@@ -799,17 +788,13 @@ export default function BirthdayWishesPage() {
               {/* Colleague Details */}
               <div className="p-6 flex-1 space-y-6 overflow-y-auto">
                 <div className="flex items-center gap-4 p-4 bg-slate-50 dark:bg-slate-850 rounded-xl border border-slate-200/60 dark:border-slate-800">
-                  {selectedPerson.profile_photo_path ? (
-                    <img
-                      src={selectedPerson.profile_photo_path}
-                      alt={selectedPerson.name}
-                      className="w-14 h-14 rounded-full object-cover border-2 border-white dark:border-slate-700 shadow-sm"
-                    />
-                  ) : (
-                    <div className="w-14 h-14 rounded-full bg-amber-500 text-white flex items-center justify-center font-bold text-lg shadow-sm">
-                      {getInitials(selectedPerson.name)}
-                    </div>
-                  )}
+                  <RoyalAvatar
+                    src={selectedPerson.profile_photo_path}
+                    name={selectedPerson.name}
+                    userId={selectedPerson.id}
+                    className="w-14 h-14 text-base font-bold"
+                    showCrownBadge={true}
+                  />
                   <div>
                     <h3
                       style={{
