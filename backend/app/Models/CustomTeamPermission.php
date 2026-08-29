@@ -85,15 +85,42 @@ class CustomTeamPermission extends Model
             return false;
         }
 
-        $userTeamId = (int) ($user->team_id ?? 0);
         $userId = (int) $user->id;
+        $userTeamIds = [];
+        if (!empty($user->team_id)) {
+            $userTeamIds[] = (int) $user->team_id;
+        }
+        if (!empty($user->department_id)) {
+            $userTeamIds[] = (int) $user->department_id;
+        }
+
+        // Teams this user leads
+        $ledTeamIds = Team::where('team_lead_id', $userId)->pluck('id')->map(fn($id) => (int) $id)->toArray();
+        $userTeamIds = array_merge($userTeamIds, $ledTeamIds);
+
+        // Department & designation string matching (e.g. "QA", "Design", "HTML", "PHP", "WordPress")
+        $deptStr = strtolower(trim(($user->department ?? '') . ' ' . ($user->designation ?? '')));
+        if ($deptStr !== '') {
+            $allTeams = Team::select('id', 'name', 'code')->get();
+            foreach ($allTeams as $t) {
+                $tName = strtolower(trim($t->name));
+                $tCode = strtolower(trim($t->code ?? ''));
+                if ($tName && (str_contains($deptStr, $tName) || str_contains($tName, $deptStr))) {
+                    $userTeamIds[] = (int) $t->id;
+                } elseif ($tCode && str_contains($deptStr, $tCode)) {
+                    $userTeamIds[] = (int) $t->id;
+                }
+            }
+        }
+
+        $userTeamIds = array_values(array_unique(array_filter($userTeamIds)));
 
         foreach ($activePermissions as $perm) {
             $permTeamId = (int) $perm->team_id;
             $teamLeadId = (int) ($perm->team->team_lead_id ?? 0);
 
-            $isLeadOfTeam = ($userId === $teamLeadId) || ($user->hasRole('Team Lead') && $userTeamId === $permTeamId);
-            $isMemberOfTeam = ($userTeamId === $permTeamId) || $isLeadOfTeam;
+            $isLeadOfTeam = ($userId === $teamLeadId) || ($user->hasRole('Team Lead') && in_array($permTeamId, $userTeamIds, true));
+            $isMemberOfTeam = in_array($permTeamId, $userTeamIds, true) || $isLeadOfTeam;
 
             if ($perm->scope === 'all_members' && $isMemberOfTeam) {
                 return true;

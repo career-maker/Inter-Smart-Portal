@@ -20,9 +20,26 @@ import {
 } from "@/types/pm";
 import { TaskTrackerTable } from "@/components/project-management/TaskTrackerTable";
 import { DailyReportModal } from "@/components/project-management/DailyReportModal";
+import teamPermissionsApi from "@/services/teamPermissions";
 
 export default function MyTasksPage() {
   const { user } = useAuthStore();
+  const [userPermissions, setUserPermissions] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    teamPermissionsApi.getMyPermissions()
+      .then((res) => {
+        setUserPermissions(res.permissions || {});
+      })
+      .catch((err) => console.warn("Failed to load user permissions in My Tasks", err));
+  }, []);
+
+  const canViewAllTasks =
+    user?.role === "Super Admin" ||
+    user?.role === "Admin" ||
+    user?.role === "Team Lead" ||
+    Boolean(userPermissions.task_cross_team_view);
+
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -105,7 +122,25 @@ export default function MyTasksPage() {
         </div>
 
         {/* Action Controls */}
-        <div className="flex items-center gap-2.5 self-start sm:self-auto">
+        <div className="flex items-center gap-2.5 self-start sm:self-auto flex-wrap">
+          {canViewAllTasks && (
+            <Link
+              href="/project-management/tasks"
+              style={{
+                backgroundColor: "#56348f",
+                color: "rgb(255, 255, 255)",
+                fontFamily: '"Proxima Nova", sans-serif',
+                fontSize: "12px",
+                fontWeight: 600,
+              }}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-bold shadow-sm transition-all cursor-pointer"
+              title="Open All Team Tasks & Switcher"
+            >
+              <Layers className="w-4 h-4 !text-white" />
+              <span className="!text-white">All Team Tasks & Switcher</span>
+            </Link>
+          )}
+
           <button
             onClick={() => setIsDailyReportOpen(true)}
             style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}

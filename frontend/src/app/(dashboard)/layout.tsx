@@ -17,6 +17,7 @@ import { RecognitionTicker } from "@/components/layout/RecognitionTicker";
 import { BookmarksDropdown } from "@/components/layout/BookmarksDropdown";
 import { CommandPalette } from "@/components/CommandPalette";
 import api from "@/services/api";
+import teamPermissionsApi from "@/services/teamPermissions";
 import Script from "next/script";
 import ChatbaseLottieButton from "@/components/ChatbaseLottieButton";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
@@ -163,14 +164,26 @@ const NAV_GROUPS: NavGroup[] = [
   },
 ];
 
-function isItemVisible(item: NavItem, role: string) {
+function isItemVisible(item: NavItem, role: string, permissions: Record<string, boolean> = {}) {
+  if (item.href === "/project-management/tasks" && permissions.task_cross_team_view) {
+    return true;
+  }
+  if (item.href === "/project-management/bug-reports" && permissions.bug_reports_cross_team) {
+    return true;
+  }
+  if (item.href === "/project-management/hubstaff" && permissions.hubstaff_team_view) {
+    return true;
+  }
+  if (item.href === "/attendance/management" && permissions.attendance_team_view) {
+    return true;
+  }
   if (item.roles && !item.roles.includes(role)) return false;
   return true;
 }
 
-function groupHasVisibleItems(group: NavGroup, role: string) {
+function groupHasVisibleItems(group: NavGroup, role: string, permissions: Record<string, boolean> = {}) {
   if (group.roles && !group.roles.includes(role)) return false;
-  return group.items.some((item) => isItemVisible(item, role));
+  return group.items.some((item) => isItemVisible(item, role, permissions));
 }
 
 function pathBelongsToGroup(group: NavGroup, pathname: string) {
@@ -193,7 +206,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [flyoutState, setFlyoutState] = useState<{ groupId: string; top: number } | null>(null);
   const [pendingApprovalsCount, setPendingApprovalsCount] = useState(0);
+  const [userPermissions, setUserPermissions] = useState<Record<string, boolean>>({});
   const flyoutTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      teamPermissionsApi.getMyPermissions()
+        .then((res) => {
+          setUserPermissions(res.permissions || {});
+        })
+        .catch((err) => console.warn("Failed to fetch user permissions in layout", err));
+    }
+  }, [isAuthenticated]);
 
   // Fetch pending approvals for Team Leads
   useEffect(() => {
@@ -319,7 +343,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const rect = e.currentTarget.getBoundingClientRect();
     const windowH = typeof window !== "undefined" ? window.innerHeight : 800;
     const groupObj = NAV_GROUPS.find((g) => g.id === groupId);
-    const visibleCount = groupObj ? groupObj.items.filter((i) => isItemVisible(i, userRole)).length : 8;
+    const visibleCount = groupObj ? groupObj.items.filter((i) => isItemVisible(i, userRole, userPermissions)).length : 8;
     const estHeight = 40 + (visibleCount * 36) + 16;
     const maxTop = Math.max(10, windowH - estHeight - 20);
     const safeTop = Math.max(10, Math.min(rect.top, maxTop));
@@ -344,7 +368,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   // Resolve currently open flyout group definition
   const activeFlyoutGroupObj = flyoutState ? NAV_GROUPS.find((g) => g.id === flyoutState.groupId) : null;
-  const activeFlyoutVisibleItems = activeFlyoutGroupObj ? activeFlyoutGroupObj.items.filter((i) => isItemVisible(i, userRole)) : [];
+  const activeFlyoutVisibleItems = activeFlyoutGroupObj ? activeFlyoutGroupObj.items.filter((i) => isItemVisible(i, userRole, userPermissions)) : [];
 
 
   // Role-based Sub-Header Tabs (Keka exact style)
@@ -352,6 +376,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const userRoleStr = (userRole || "").toLowerCase();
     const isTeamLead = userRole === "Team Lead" || userRoleStr.includes("lead") || Boolean((user as any)?.is_lead);
     const isSuperAdmin = userRole === "Super Admin" || userRoleStr === "admin";
+    const canViewAllTasks = isSuperAdmin || isTeamLead || Boolean(userPermissions.task_cross_team_view);
 
     if (isSuperAdmin || userRole === "HR") {
       return [
@@ -374,7 +399,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return [
       { label: "Dashboard", href: "/dashboard" },
       { label: "Community", href: "/community", badge: "New" },
-      { label: "Tasks", href: "/project-management/tasks/my" },
+      { label: "Tasks", href: canViewAllTasks ? "/project-management/tasks" : "/project-management/tasks/my" },
+      ...(userPermissions.hubstaff_team_view ? [{ label: "Hubstaff", href: "/project-management/hubstaff" }] : []),
     ];
   };
 
@@ -456,7 +482,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
                 {/* Nav Groups */}
                 {NAV_GROUPS.map((group) => {
-                  if (!groupHasVisibleItems(group, userRole)) return null;
+                  if (!groupHasVisibleItems(group, userRole, userPermissions)) return null;
                   const groupActive = pathBelongsToGroup(group, pathname);
                   const isFlyoutOpen = flyoutState?.groupId === group.id;
                   const isHighlighted = groupActive || isFlyoutOpen;
@@ -654,8 +680,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
               {/* Nav Groups */}
               {NAV_GROUPS.map((group) => {
-                if (!groupHasVisibleItems(group, userRole)) return null;
-                const visibleItems = group.items.filter((item) => isItemVisible(item, userRole));
+                if (!groupHasVisibleItems(group, userRole, userPermissions)) return null;
+                const visibleItems = group.items.filter((item) => isItemVisible(item, userRole, userPermissions));
                 const isOpen = openGroup === group.id;
                 const groupActive = pathBelongsToGroup(group, pathname);
                 const GroupIcon = group.icon;
