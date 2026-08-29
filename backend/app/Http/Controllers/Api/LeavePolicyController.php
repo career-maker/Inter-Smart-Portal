@@ -49,12 +49,18 @@ class LeavePolicyController extends Controller
         }
 
         $validated = $request->validate([
-            'monthly_cycle_start_day'   => 'required|integer|min:1|max:28',
-            'probation_period_months'   => 'required|integer|min:1|max:36',
-            'default_monthly_cl'        => 'required|numeric|min:0|max:10',
-            'default_monthly_sl'        => 'required|numeric|min:0|max:10',
-            'cl_carry_forward_years'    => 'required|integer|min:1|max:5',
-            'sl_carry_forward_allowed'  => 'required|boolean',
+            'monthly_cycle_start_day'      => 'required|integer|min:1|max:28',
+            'probation_period_months'      => 'required|integer|min:1|max:36',
+            'default_monthly_cl'           => 'required|numeric|min:0|max:10',
+            'default_monthly_sl'           => 'required|numeric|min:0|max:10',
+            'cl_carry_forward_years'       => 'required|integer|min:1|max:5',
+            'sl_carry_forward_allowed'     => 'required|boolean',
+            'cl_advance_notice_days'       => 'nullable|integer|min:0|max:30',
+            'wfh_morning_cutoff_time'      => 'nullable|string|max:10',
+            'wfh_afternoon_cutoff_time'    => 'nullable|string|max:10',
+            'single_day_approval_level'    => 'nullable|string|in:tl_only,tl_and_admin,admin_only',
+            'multi_day_approval_threshold' => 'nullable|integer|min:1|max:30',
+            'lop_admin_approval_required'  => 'nullable|boolean',
         ]);
 
         $settings = LeavePolicySetting::current();
@@ -62,7 +68,7 @@ class LeavePolicyController extends Controller
 
         return response()->json([
             'status'     => 'success',
-            'message'    => 'Leave policy settings updated successfully.',
+            'message'    => 'Leave policy settings and rules updated successfully.',
             'settings'   => $settings->fresh(),
             'cycle_info' => $this->engine->getCycleInfo(),
         ]);

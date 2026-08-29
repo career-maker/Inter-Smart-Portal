@@ -601,7 +601,120 @@ export default function LeavePolicyManagementPage() {
               </div>
             </div>
 
-            {/* Section C: Carry Forward & Expiration Rules */}
+            {/* Section C: Advance Notice & WFH Cutoff Rules */}
+            <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs space-y-5">
+              <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">
+                <Clock className="w-4 h-4 text-amber-600" />
+                <span>Notice Period & WFH Submission Cutoffs</span>
+              </div>
+
+              {/* Casual Leave Notice Period */}
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Casual Leave (CL) Advance Notice Requirement (Days) <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="30"
+                  value={settings.cl_advance_notice_days ?? 3}
+                  onChange={(e) => setSettings({ ...settings, cl_advance_notice_days: Number(e.target.value) })}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-purple-500/20 focus:border-purple-600 outline-none"
+                />
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  Default: <strong>3 days</strong>. If an employee applies for Casual Leave with fewer notice days than configured, the requested days cannot be drawn from their Casual Leave balance and are treated as Unpaid (Loss of Pay). Set to 0 to disable notice requirement.
+                </p>
+              </div>
+
+              {/* WFH Cutoff Times */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Same-Day Full Day / Morning WFH Cutoff Time
+                  </label>
+                  <input
+                    type="time"
+                    value={settings.wfh_morning_cutoff_time || "09:45"}
+                    onChange={(e) => setSettings({ ...settings, wfh_morning_cutoff_time: e.target.value })}
+                    className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-purple-500/20 outline-none"
+                  />
+                  <p className="text-[10px] text-slate-400">Default: 09:45 AM (15 min buffer after 9:30 AM)</p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Same-Day Afternoon Session WFH Cutoff Time
+                  </label>
+                  <input
+                    type="time"
+                    value={settings.wfh_afternoon_cutoff_time || "14:30"}
+                    onChange={(e) => setSettings({ ...settings, wfh_afternoon_cutoff_time: e.target.value })}
+                    className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-purple-500/20 outline-none"
+                  />
+                  <p className="text-[10px] text-slate-400">Default: 02:30 PM</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Section D: Approval Workflow Rules */}
+            <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs space-y-5">
+              <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">
+                <ShieldCheck className="w-4 h-4 text-[#56348f]" />
+                <span>Multi-Level Approval Workflow Rules</span>
+              </div>
+
+              {/* Single-Day Rule */}
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Single-Day Leave Approval Level
+                </label>
+                <select
+                  value={settings.single_day_approval_level || "tl_only"}
+                  onChange={(e) => setSettings({ ...settings, single_day_approval_level: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-purple-500/20 outline-none"
+                >
+                  <option value="tl_only">Team Lead Only (Single approval needed)</option>
+                  <option value="tl_and_admin">Team Lead + Super Admin (Both approvals required)</option>
+                  <option value="admin_only">Super Admin Only</option>
+                </select>
+                <p className="text-[11px] text-slate-500">
+                  Defines who must review and approve 1-day leave requests.
+                </p>
+              </div>
+
+              {/* Multi-Day Threshold */}
+              <div className="space-y-2 pt-2">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Multi-Day Admin Approval Threshold (Days)
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="30"
+                  value={settings.multi_day_approval_threshold ?? 2}
+                  onChange={(e) => setSettings({ ...settings, multi_day_approval_threshold: Number(e.target.value) })}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-purple-500/20 outline-none"
+                />
+                <p className="text-[11px] text-slate-500">
+                  Leaves equal to or exceeding this number of days automatically require both Team Lead and Admin approval.
+                </p>
+              </div>
+
+              {/* LOP Mandatory Admin */}
+              <label className="flex items-center gap-2.5 pt-2 text-xs cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={settings.lop_admin_approval_required ?? true}
+                  onChange={(e) => setSettings({ ...settings, lop_admin_approval_required: e.target.checked })}
+                  className="rounded text-[#56348f] focus:ring-[#56348f]"
+                />
+                <span className="font-bold text-slate-800 dark:text-slate-200">
+                  Require Super Admin approval for any Unpaid Leave (LOP)
+                </span>
+              </label>
+            </div>
+
+            {/* Section E: Carry Forward & Expiration Rules */}
             <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs space-y-5 lg:col-span-2">
               <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">
                 <Layers className="w-4 h-4 text-purple-600" />

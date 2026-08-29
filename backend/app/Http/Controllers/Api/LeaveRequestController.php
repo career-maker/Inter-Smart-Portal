@@ -224,10 +224,8 @@ class LeaveRequestController extends Controller
         }
         $sandwichWorkingDays = array_unique($sandwichWorkingDays);
 
-        // ── Day-by-day walk ─────────────────────────────────────────────────
-        //
-        // Phase 1 – 3-calendar-day advance-notice rule (CL only):
-        //   eligibleFrom = today + 3 days (direct date comparison, no diff math).
+        // Phase 1 – Advance-notice rule (CL only, dynamically configured):
+        //   eligibleFrom = today + configured notice days
         //   Working day before eligibleFrom → penalty LOP (late notice).
         //   Working day on/after eligibleFrom → eligible for paid CL.
         //
@@ -235,7 +233,9 @@ class LeaveRequestController extends Controller
         //   Non-working day strictly between firstWorkingDay and lastWorkingDay
         //   → sandwich LOP.
         //   Working days adjacent to non-working blocks (marked above) → sandwich LOP.
-        $eligibleFrom = $today->copy()->addDays(3)->startOfDay();
+        $policySettings = \App\Models\LeavePolicySetting::current();
+        $noticeDays = isset($policySettings->cl_advance_notice_days) ? (int)$policySettings->cl_advance_notice_days : 3;
+        $eligibleFrom = $today->copy()->addDays($noticeDays)->startOfDay();
 
         $totalWorkingDays = 0;
         $sandwichDays     = 0;
@@ -541,11 +541,27 @@ class LeaveRequestController extends Controller
         $paidSL    = $impact['paid_sick_leave']   ?? 0;
         $totalLOP  = $impact['total_lop_days']    ?? 0;
 
-        // Determine workflow statuses
+        // Determine workflow statuses dynamically from LeavePolicySetting
+        $policySettings = \App\Models\LeavePolicySetting::current();
+        $multiDayThreshold = isset($policySettings->multi_day_approval_threshold) ? (int)$policySettings->multi_day_approval_threshold : 2;
+        $singleDayLevel = $policySettings->single_day_approval_level ?? 'tl_only';
+        $lopAdminReq = isset($policySettings->lop_admin_approval_required) ? (bool)$policySettings->lop_admin_approval_required : true;
+
         $tlStatus    = 'Pending';
         $adminStatus = 'Not Required';
 
-        if ($isSingleDay || $rawDays > 1 || $isUnpaid) {
+        if ($isSingleDay) {
+            if ($singleDayLevel === 'tl_and_admin' || $singleDayLevel === 'admin_only') {
+                $adminStatus = 'Pending';
+            }
+            if ($singleDayLevel === 'admin_only') {
+                $tlStatus = 'Not Required';
+            }
+        } elseif ($rawDays >= $multiDayThreshold) {
+            $adminStatus = 'Pending';
+        }
+
+        if ($isUnpaid && $lopAdminReq) {
             $adminStatus = 'Pending';
         }
 

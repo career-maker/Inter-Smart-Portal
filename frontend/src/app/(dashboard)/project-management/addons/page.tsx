@@ -8,6 +8,7 @@ import {
   Bug,
   CalendarCheck,
   ShieldCheck,
+  Mail,
   Users,
   Check,
   CheckCircle2,
@@ -212,6 +213,8 @@ export default function PmAddonsPage() {
                         <CalendarCheck className="w-6 h-6" />
                       ) : addon.key === "permissions" ? (
                         <ShieldCheck className="w-6 h-6" />
+                      ) : addon.key === "email_management" ? (
+                        <Mail className="w-6 h-6" />
                       ) : (
                         <Puzzle className="w-6 h-6" />
                       )}
@@ -240,27 +243,27 @@ export default function PmAddonsPage() {
                     type="button"
                     onClick={() => handleToggleActive(addon)}
                     disabled={isSaving}
-                    className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
+                    className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer shrink-0"
                     title={addon.is_active ? "Disable Add-on" : "Enable Add-on"}
                   >
                     {addon.is_active ? (
                       <ToggleRight className="w-8 h-8 text-[#56348f] dark:text-purple-400" />
                     ) : (
-                      <ToggleLeft className="w-8 h-8 text-slate-400" />
+                      <ToggleLeft className="w-8 h-8 text-slate-300 dark:text-slate-600" />
                     )}
                   </button>
                 </div>
 
-                {/* Conditional Body: Leave Policy or Permissions vs Team Add-on */}
+                {/* Sub-Panel Content based on Addon Type */}
                 {addon.key === "leave_policy" ? (
                   <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
                     <div className="p-3.5 rounded-xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-200/80 dark:border-purple-800/60 text-xs text-purple-900 dark:text-purple-300 space-y-1.5">
                       <div className="font-bold flex items-center gap-1.5">
                         <Sparkles className="w-3.5 h-3.5 text-[#56348f] dark:text-purple-400" />
-                        <span>Company-Wide Policy Engine</span>
+                        <span>System Policy Engine & Employee Accrual Rules</span>
                       </div>
                       <p className="text-[11px] text-purple-800/80 dark:text-purple-300/80 leading-relaxed">
-                        Applies globally to all company employees with dynamic monthly cycle boundaries, probation logic, and individual allocation overrides.
+                        Configure monthly cycle cutoffs (26th), probation periods, automatic CL/SL accrual rates, and individual employee balances.
                       </p>
                     </div>
 
@@ -279,6 +282,36 @@ export default function PmAddonsPage() {
                       >
                         <Settings2 className="w-4 h-4 !text-white" />
                         <span className="!text-white">Configure Policy Management</span>
+                      </Link>
+                    </div>
+                  </div>
+                ) : addon.key === "email_management" ? (
+                  <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <div className="p-3.5 rounded-xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-200/80 dark:border-purple-800/60 text-xs text-purple-900 dark:text-purple-300 space-y-1.5">
+                      <div className="font-bold flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-[#56348f] dark:text-purple-400" />
+                        <span>SMTP Server & Notification Recipient Matrix</span>
+                      </div>
+                      <p className="text-[11px] text-purple-800/80 dark:text-purple-300/80 leading-relaxed">
+                        Configure sender Google App Passwords, SMTP server settings, custom TO/CC routing for leaves, WFH, awards, and employee-specific overrides.
+                      </p>
+                    </div>
+
+                    <div className="flex items-center justify-end pt-2">
+                      <Link
+                        href="/project-management/addons/email-management"
+                        style={{
+                          backgroundColor: "#56348f",
+                          color: "rgb(255, 255, 255)",
+                          fontFamily: '"Proxima Nova", sans-serif',
+                          fontSize: "13px",
+                          lineHeight: "20px",
+                          fontWeight: 600,
+                        }}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-[13px] leading-[20px] font-semibold shadow-sm transition-colors cursor-pointer"
+                      >
+                        <Settings2 className="w-4 h-4 !text-white" />
+                        <span className="!text-white">Configure Email Management</span>
                       </Link>
                     </div>
                   </div>

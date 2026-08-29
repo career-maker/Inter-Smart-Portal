@@ -62,6 +62,35 @@ class WfhRequestController extends Controller
         $user = $request->user();
         $data = $request->validated();
 
+        // Enforce same-day cutoff time from policy
+        $todayStr = \Carbon\Carbon::today('Asia/Kolkata')->toDateString();
+        if ($data['start_date'] === $todayStr && !$user->hasRole('Super Admin') && !$user->hasRole('HR')) {
+            $policy = \App\Models\LeavePolicySetting::current();
+            $morningCutoff = $policy->wfh_morning_cutoff_time ?? '09:45';
+            $afternoonCutoff = $policy->wfh_afternoon_cutoff_time ?? '14:30';
+
+            $nowIst = \Carbon\Carbon::now('Asia/Kolkata');
+            $nowMin = $nowIst->hour * 60 + $nowIst->minute;
+
+            $mParts = explode(':', $morningCutoff);
+            $morningCutoffMin = (int)($mParts[0] ?? 9) * 60 + (int)($mParts[1] ?? 45);
+
+            $aParts = explode(':', $afternoonCutoff);
+            $afternoonCutoffMin = (int)($aParts[0] ?? 14) * 60 + (int)($aParts[1] ?? 30);
+
+            if (in_array($data['duration_type'], ['Full', 'Half-Morning']) && $nowMin > $morningCutoffMin) {
+                return response()->json([
+                    'message' => "Same-day Full Day / Morning WFH must be applied before {$morningCutoff}."
+                ], 422);
+            }
+
+            if ($data['duration_type'] === 'Half-Afternoon' && $nowMin > $afternoonCutoffMin) {
+                return response()->json([
+                    'message' => "Same-day Afternoon WFH must be applied before {$afternoonCutoff}."
+                ], 422);
+            }
+        }
+
         // Determine approval status based on applicant's role
         $tlStatus    = 'Pending';
         $adminStatus = 'Pending';

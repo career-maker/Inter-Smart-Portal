@@ -150,11 +150,8 @@ class TARequestController
                 'reject_url' => $rejectUrl,
             ];
 
-            // Send to HR emails
-            $hrEmails = ['HR@intersmart.in', 'Ameesha@intersmart.in'];
-            foreach ($hrEmails as $email) {
-                Mail::to($email)->send(new TARequestMail($taRequest, $emailData));
-            }
+            // Send dynamic TA request email via EmailService
+            \App\Services\Email\EmailService::sendTARequestEmail($taRequest, $emailData);
         } catch (\Exception $e) {
             // Log the error but don't fail the request
             \Log::error('Failed to send TA request email: ' . $e->getMessage());

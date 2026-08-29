@@ -291,6 +291,15 @@ Route::middleware('auth:sanctum')->group(function () {
         });
     });
 
+    // Email Management Routes (Super Admin only)
+    Route::prefix('email-settings')->middleware(['role:Super Admin'])->group(function () {
+        Route::get('/', [\App\Http\Controllers\Api\EmailSettingController::class, 'index']);
+        Route::post('smtp', [\App\Http\Controllers\Api\EmailSettingController::class, 'updateSmtp']);
+        Route::post('routing', [\App\Http\Controllers\Api\EmailSettingController::class, 'updateRouting']);
+        Route::post('employee-overrides', [\App\Http\Controllers\Api\EmailSettingController::class, 'updateEmployeeOverrides']);
+        Route::post('test', [\App\Http\Controllers\Api\EmailSettingController::class, 'sendTestEmail']);
+    });
+
     Route::post('leaves/calculate', [\App\Http\Controllers\Api\LeaveRequestController::class, 'calculate']);
     Route::apiResource('leave-requests', \App\Http\Controllers\Api\LeaveRequestController::class)->only(['index', 'store']);
     Route::apiResource('wfh-requests', \App\Http\Controllers\Api\WfhRequestController::class)->only(['index', 'store']);
