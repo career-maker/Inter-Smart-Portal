@@ -61,19 +61,19 @@ function StepBar({ current }: { current: number }) {
           <div key={s.id} className="flex items-center flex-1 last:flex-none">
             <div className="flex flex-col items-center gap-1.5">
               <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all duration-300 ${
-                done   ? "bg-amber-500 border-amber-500 text-white" :
-                active ? "bg-amber-500/20 border-amber-500 text-amber-300" :
-                         "bg-white/5 border-white/10 text-slate-500"
+                done   ? "bg-emerald-500 border-emerald-500 text-white" :
+                active ? "bg-amber-500 border-amber-500 text-white shadow-sm" :
+                         "bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400"
               }`}>
                 {done ? <CheckCircle className="w-4 h-4" /> : s.id}
               </div>
               <div className="text-center hidden sm:block">
-                <p className={`text-[11px] font-bold leading-tight ${active ? "text-amber-300" : done ? "text-slate-300" : "text-slate-600"}`}>{s.title}</p>
-                <p className="text-[10px] text-slate-600">{s.desc}</p>
+                <p className={`text-[11px] font-bold leading-tight ${active ? "text-amber-600 dark:text-amber-400" : done ? "text-emerald-600 dark:text-emerald-400" : "text-slate-500 dark:text-slate-400"}`}>{s.title}</p>
+                <p className="text-[10px] text-slate-400 dark:text-slate-500">{s.desc}</p>
               </div>
             </div>
             {i < STEPS.length - 1 && (
-              <div className={`flex-1 h-0.5 mx-2 mb-5 rounded transition-all duration-300 ${done ? "bg-amber-500" : "bg-white/10"}`} />
+              <div className={`flex-1 h-0.5 mx-2 mb-5 rounded transition-all duration-300 ${done ? "bg-emerald-500" : "bg-slate-200 dark:bg-slate-700"}`} />
             )}
           </div>
         );
@@ -185,15 +185,15 @@ export default function WfhPage() {
 
   /* ── Status helpers ── */
   const getStatusInfo = (req: any) => {
-    if (req.status === "Approved")          return { label: "Approved",      cls: "bg-emerald-500/20 text-emerald-400" };
-    if (req.status === "Rejected")          return { label: "Rejected",      cls: "bg-red-500/20 text-red-400" };
-    if (req.tl_status === "Pending")        return { label: "Awaiting TL",   cls: "bg-amber-500/20 text-amber-400" };
-    if (req.admin_status === "Pending")     return { label: "Awaiting Admin", cls: "bg-blue-500/20 text-blue-400" };
-    return { label: "Pending", cls: "bg-amber-500/20 text-amber-400" };
+    if (req.status === "Approved")          return { label: "Approved",      cls: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800" };
+    if (req.status === "Rejected")          return { label: "Rejected",      cls: "bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300 border border-red-200 dark:border-red-800" };
+    if (req.tl_status === "Pending")        return { label: "Awaiting TL",   cls: "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800" };
+    if (req.admin_status === "Pending")     return { label: "Awaiting Admin", cls: "bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800" };
+    return { label: "Pending", cls: "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800" };
   };
-  const tlColor    = (s: string) => s === "Approved" || s === "Not Required" ? "text-emerald-400" : s === "Rejected" ? "text-red-400" : "text-amber-400";
-  const adminColor = (s: string) => s === "Approved" || s === "Not Required" ? "text-emerald-400" : s === "Rejected" ? "text-red-400" : "text-blue-400";
-  const statusIcon = (s: string) => s === "Approved" || s === "Not Required" ? <CheckCircle className="w-3 h-3" /> : s === "Rejected" ? <XCircle className="w-3 h-3" /> : <Clock className="w-3 h-3" />;
+  const tlColor    = (s: string) => s === "Approved" || s === "Not Required" ? "text-emerald-600 dark:text-emerald-400" : s === "Rejected" ? "text-red-600 dark:text-red-400" : "text-amber-600 dark:text-amber-400";
+  const adminColor = (s: string) => s === "Approved" || s === "Not Required" ? "text-emerald-600 dark:text-emerald-400" : s === "Rejected" ? "text-red-600 dark:text-red-400" : "text-blue-600 dark:text-blue-400";
+  const statusIcon = (s: string) => s === "Approved" || s === "Not Required" ? <CheckCircle className="w-3.5 h-3.5" /> : s === "Rejected" ? <XCircle className="w-3.5 h-3.5" /> : <Clock className="w-3.5 h-3.5" />;
 
   /* ════════════════════════════════════════════════════════════════ */
   return (
@@ -202,34 +202,34 @@ export default function WfhPage() {
       {/* ── Warning Modal ─────────────────────────────────────────── */}
       {wfhWarning && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-[#1e1e2e] border border-red-500/40 rounded-2xl shadow-2xl max-w-md w-full p-6">
+          <div className="bg-white dark:bg-slate-900 border border-red-500/40 rounded-2xl shadow-2xl max-w-md w-full p-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">
-                <Clock className="w-6 h-6 text-red-400" />
+              <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center flex-shrink-0">
+                <Clock className="w-6 h-6 text-red-600 dark:text-red-400" />
               </div>
               <div>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">Application Not Allowed</h3>
-                <p className="text-xs text-red-400 font-medium">Same-Day WFH Time Restriction</p>
+                <p className="text-xs text-red-600 dark:text-red-400 font-medium">Same-Day WFH Time Restriction</p>
               </div>
             </div>
-            <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-5">
+            <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl p-4 mb-5">
               {wfhWarning.split("\n\n").map((line, i) => (
-                <p key={i} className={`text-sm ${i === 0 ? "font-bold text-red-300 mb-2" : "text-slate-300"}`}>{line}</p>
+                <p key={i} className={`text-sm ${i === 0 ? "font-bold text-red-700 dark:text-red-300 mb-2" : "text-slate-700 dark:text-slate-300"}`}>{line}</p>
               ))}
             </div>
-            <div className="bg-white/5 rounded-xl p-3 mb-5 space-y-1.5">
-              <p className="text-xs font-bold text-amber-400 mb-2">📋 Same-Day WFH Cutoff Rules</p>
-              <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
-                <span className="w-2 h-2 rounded-full bg-sky-400 flex-shrink-0" />
+            <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3.5 mb-5 space-y-1.5 border border-slate-200 dark:border-slate-700">
+              <p className="text-xs font-bold text-amber-700 dark:text-amber-400 mb-2">📋 Same-Day WFH Cutoff Rules</p>
+              <div className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300">
+                <span className="w-2 h-2 rounded-full bg-sky-500 flex-shrink-0" />
                 Full Day / Morning — apply before <span className="font-bold text-slate-900 dark:text-white ml-1">9:45 AM</span>
               </div>
-              <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
-                <span className="w-2 h-2 rounded-full bg-violet-400 flex-shrink-0" />
+              <div className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300">
+                <span className="w-2 h-2 rounded-full bg-violet-500 flex-shrink-0" />
                 Afternoon Session — apply before <span className="font-bold text-slate-900 dark:text-white ml-1">2:30 PM</span>
               </div>
             </div>
-            <button onClick={() => setWfhWarning(null)} className="w-full py-2.5 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-300 font-semibold text-sm border border-red-500/30 transition-colors">
-              Got it, I'll apply in advance next time
+            <button onClick={() => setWfhWarning(null)} className="w-full py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-sm transition-colors cursor-pointer">
+              Got it, I&apos;ll apply in advance next time
             </button>
           </div>
         </div>
@@ -237,8 +237,8 @@ export default function WfhPage() {
 
       {/* ── Page Header ───────────────────────────────────────────── */}
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
-          <Home className="w-5 h-5 text-amber-400" />
+        <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-500/20 flex items-center justify-center border border-amber-200 dark:border-amber-500/30">
+          <Home className="w-5 h-5 text-amber-600 dark:text-amber-400" />
         </div>
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Work From Home</h1>
@@ -247,15 +247,15 @@ export default function WfhPage() {
       </div>
 
       {/* ── Step Form Card ────────────────────────────────────────── */}
-      <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-6 md:p-8 backdrop-blur-md">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-6 md:p-8 shadow-xs">
 
         {/* Success banner */}
         {submitSuccess && (
-          <div className="mb-6 flex items-center gap-3 p-4 bg-emerald-500/15 border border-emerald-500/30 rounded-xl text-emerald-300 text-sm">
-            <CheckCircle className="w-5 h-5 shrink-0" />
+          <div className="mb-6 flex items-center gap-3 p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-800 dark:text-emerald-300 text-sm">
+            <CheckCircle className="w-5 h-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
             <div>
               <p className="font-bold">WFH Request Submitted!</p>
-              <p className="text-xs text-emerald-400/80 mt-0.5">Awaiting approval from your Team Lead and Admin.</p>
+              <p className="text-xs text-emerald-700 dark:text-emerald-400/80 mt-0.5">Awaiting approval from your Team Lead and Admin.</p>
             </div>
           </div>
         )}
@@ -279,20 +279,20 @@ export default function WfhPage() {
                     key={opt.value}
                     type="button"
                     onClick={() => form.setValue("duration_type", opt.value as FormValues["duration_type"])}
-                    className={`w-full flex items-center gap-4 p-5 rounded-xl border-2 transition-all text-left group ${
+                    className={`w-full flex items-center gap-4 p-5 rounded-xl border-2 transition-all text-left group cursor-pointer ${
                       selected
-                        ? "border-amber-500 bg-amber-500/10 shadow-lg shadow-amber-500/10"
-                        : "border-white/10 hover:border-white/25 hover:bg-white/5"
+                        ? "border-amber-500 bg-amber-50/70 dark:bg-amber-950/20 shadow-sm"
+                        : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-850 hover:bg-slate-50 dark:hover:bg-slate-800/60"
                     }`}
                   >
                     <span className="text-3xl">{opt.icon}</span>
                     <div className="flex-1">
-                      <p className={`font-semibold ${selected ? "text-amber-300" : "text-white"}`}>{opt.label}</p>
-                      <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{opt.desc}</p>
+                      <p className={`font-bold text-base ${selected ? "text-amber-800 dark:text-amber-300" : "text-slate-900 dark:text-white"}`}>{opt.label}</p>
+                      <p className={`text-sm mt-0.5 ${selected ? "text-amber-700/90 dark:text-amber-400/90" : "text-slate-600 dark:text-slate-400"}`}>{opt.desc}</p>
                     </div>
                     {selected
-                      ? <CheckCircle className="w-5 h-5 text-amber-400 shrink-0" />
-                      : <ChevronRight className="w-5 h-5 text-slate-600 shrink-0 group-hover:text-slate-400 transition-colors" />
+                      ? <CheckCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />
+                      : <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors shrink-0" />
                     }
                   </button>
                 );
@@ -311,7 +311,7 @@ export default function WfhPage() {
               </div>
 
               {/* Chosen type reminder */}
-              <div className="flex items-center gap-3 p-3.5 bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl mb-6">
+              <div className="flex items-center gap-3 p-3.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl mb-6">
                 <span className="text-2xl">{chosenOpt.icon}</span>
                 <div>
                   <p className="text-sm font-semibold text-slate-900 dark:text-white">{chosenOpt.label}</p>
@@ -321,40 +321,40 @@ export default function WfhPage() {
 
               {isHalfDay ? (
                 <div>
-                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Date *</label>
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Date *</label>
                   <input
                     type="date"
                     {...form.register("start_date")}
-                    className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-4 py-3 outline-none focus:border-amber-500 transition-colors"
+                    className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-xl px-4 py-3 outline-none focus:border-amber-500 transition-colors"
                   />
-                  {form.formState.errors.start_date && <p className="text-xs text-red-400 mt-1.5">{form.formState.errors.start_date.message}</p>}
+                  {form.formState.errors.start_date && <p className="text-xs text-red-500 mt-1.5">{form.formState.errors.start_date.message}</p>}
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">From *</label>
+                    <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">From *</label>
                     <input
                       type="date"
                       {...form.register("start_date")}
-                      className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-4 py-3 outline-none focus:border-amber-500 transition-colors"
+                      className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-xl px-4 py-3 outline-none focus:border-amber-500 transition-colors"
                     />
-                    {form.formState.errors.start_date && <p className="text-xs text-red-400 mt-1.5">{form.formState.errors.start_date.message}</p>}
+                    {form.formState.errors.start_date && <p className="text-xs text-red-500 mt-1.5">{form.formState.errors.start_date.message}</p>}
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">To</label>
+                    <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">To</label>
                     <input
                       type="date"
                       {...form.register("end_date")}
                       min={startDate || undefined}
-                      className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-4 py-3 outline-none focus:border-amber-500 transition-colors"
+                      className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-xl px-4 py-3 outline-none focus:border-amber-500 transition-colors"
                     />
                   </div>
                 </div>
               )}
 
               {/* Cutoff reminder */}
-              <div className="mt-5 bg-amber-500/10 border border-amber-500/20 rounded-xl p-3.5 text-xs text-amber-300 space-y-1">
-                <p className="font-bold text-amber-200">⏰ Same-Day Cutoff Times</p>
+              <div className="mt-5 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl p-3.5 text-xs text-amber-800 dark:text-amber-300 space-y-1">
+                <p className="font-bold text-amber-900 dark:text-amber-200">⏰ Same-Day Cutoff Times</p>
                 <p>Full Day / Morning Session → apply before <strong>9:45 AM</strong></p>
                 <p>Afternoon Session → apply before <strong>2:30 PM</strong></p>
               </div>
@@ -366,15 +366,15 @@ export default function WfhPage() {
             <div className="animate-in fade-in slide-in-from-right-4 duration-300">
               <div className="mb-6">
                 <h2 className="text-lg font-bold text-slate-900 dark:text-white">Describe Your Tasks</h2>
-                <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Tell your manager what you'll be working on</p>
+                <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Tell your manager what you&apos;ll be working on</p>
               </div>
               <textarea
                 rows={6}
                 {...form.register("reason")}
                 placeholder="e.g. Working on the Q3 report, attending online client calls, fixing critical bugs on the production server…"
-                className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-4 py-3 outline-none focus:border-amber-500 placeholder:text-slate-600 resize-none transition-colors"
+                className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-xl px-4 py-3 outline-none focus:border-amber-500 placeholder:text-slate-400 resize-none transition-colors"
               />
-              {form.formState.errors.reason && <p className="text-xs text-red-400 mt-1.5">{form.formState.errors.reason.message}</p>}
+              {form.formState.errors.reason && <p className="text-xs text-red-500 mt-1.5">{form.formState.errors.reason.message}</p>}
               <p className="text-xs text-slate-500 mt-2">{reason?.length || 0} characters (minimum 5)</p>
             </div>
           )}
@@ -389,7 +389,7 @@ export default function WfhPage() {
 
               <div className="space-y-3 mb-6">
                 {/* Type */}
-                <div className="flex items-center justify-between p-4 bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl">
+                <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl">
                   <div className="flex items-center gap-3">
                     <span className="text-2xl">{chosenOpt.icon}</span>
                     <div>
@@ -401,8 +401,8 @@ export default function WfhPage() {
                 </div>
 
                 {/* Date */}
-                <div className="flex items-center gap-3 p-4 bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl">
-                  <Calendar className="w-5 h-5 text-amber-400 shrink-0" />
+                <div className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl">
+                  <Calendar className="w-5 h-5 text-amber-500 shrink-0" />
                   <div>
                     <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold">Date</p>
                     <p className="text-sm font-semibold text-slate-900 dark:text-white mt-0.5">
@@ -413,15 +413,15 @@ export default function WfhPage() {
                 </div>
 
                 {/* Reason */}
-                <div className="p-4 bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl">
+                <div className="p-4 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl">
                   <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold mb-2">Reason / Tasks</p>
-                  <p className="text-sm text-slate-200 leading-relaxed">{reason || "—"}</p>
+                  <p className="text-sm text-slate-800 dark:text-slate-200 leading-relaxed whitespace-pre-wrap">{reason || "—"}</p>
                 </div>
               </div>
 
               {/* Approval info */}
-              <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 mb-6 text-xs text-blue-300 space-y-1.5">
-                <p className="font-bold text-blue-200">🔐 Dual Approval Required</p>
+              <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-6 text-xs text-blue-800 dark:text-blue-300 space-y-1.5">
+                <p className="font-bold text-blue-900 dark:text-blue-200">🔐 Dual Approval Required</p>
                 <p>Your request goes to your <strong>Team Lead</strong> first. After TL approval, the <strong>Super Admin</strong> gives the final decision. WFH is granted only when <strong>both</strong> approve.</p>
               </div>
 
@@ -429,7 +429,7 @@ export default function WfhPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold rounded-xl transition-all shadow-lg shadow-amber-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center gap-2 py-3.5 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white font-bold rounded-xl transition-all shadow-md shadow-amber-500/20 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 {isSubmitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Submitting…</> : <><Send className="w-4 h-4" /> Submit WFH Request</>}
               </button>
@@ -442,7 +442,7 @@ export default function WfhPage() {
               <button
                 type="button"
                 onClick={prevStep}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 dark:border-white/15 text-slate-600 dark:text-slate-300 text-sm font-semibold hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-sm font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               >
                 <ArrowLeft className="w-4 h-4" /> Back
               </button>
@@ -451,7 +451,7 @@ export default function WfhPage() {
               <button
                 type="button"
                 onClick={nextStep}
-                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold transition-colors ml-auto"
+                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold transition-colors ml-auto cursor-pointer shadow-sm"
               >
                 Next <ArrowRight className="w-4 h-4" />
               </button>
@@ -461,53 +461,53 @@ export default function WfhPage() {
       </div>
 
       {/* ── WFH History ───────────────────────────────────────────── */}
-      <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-200 dark:border-white/10 flex items-center justify-between">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs">
+        <div className="px-6 py-4 border-b border-slate-200/90 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-850">
           <div>
             <h2 className="text-base font-bold text-slate-900 dark:text-white">WFH History</h2>
             <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">All your remote work requests and their approval status</p>
           </div>
-          <span className="text-xs font-bold px-3 py-1 rounded-full bg-white/10 text-slate-600 dark:text-slate-300">{requests.length} requests</span>
+          <span className="text-xs font-bold px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">{requests.length} requests</span>
         </div>
 
         {isLoading ? (
           <div className="py-14 flex flex-col items-center gap-2 text-slate-500 dark:text-slate-400">
-            <Loader2 className="w-6 h-6 animate-spin" /> Loading…
+            <Loader2 className="w-6 h-6 animate-spin text-amber-500" /> Loading…
           </div>
         ) : requests.length === 0 ? (
           <div className="py-16 text-center text-slate-500 dark:text-slate-400 space-y-3">
-            <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center mx-auto">
-              <Home className="w-7 h-7 text-slate-600" />
+            <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto border border-slate-200 dark:border-slate-700">
+              <Home className="w-7 h-7 text-slate-400 dark:text-slate-500" />
             </div>
-            <p className="text-sm">No WFH requests yet.</p>
-            <p className="text-xs text-slate-600">Use the form above to submit your first request!</p>
+            <p className="text-sm font-medium text-slate-700 dark:text-slate-300">No WFH requests yet.</p>
+            <p className="text-xs text-slate-500">Use the form above to submit your first request!</p>
           </div>
         ) : (
-          <div className="divide-y divide-slate-200 dark:divide-white/5">
+          <div className="divide-y divide-slate-200/80 dark:divide-slate-800">
             {requests.map((req) => {
               const si = getStatusInfo(req);
               const singleDay = !req.end_date || req.end_date === req.start_date;
               return (
-                <div key={req.id} className="px-6 py-4 hover:bg-white/[0.02] transition-colors">
+                <div key={req.id} className="px-6 py-4 hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       {(user?.role === "Super Admin" || user?.role === "Team Lead") && req.user && (
-                        <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">{req.user.first_name} {req.user.last_name}</p>
+                        <p className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{req.user.first_name} {req.user.last_name}</p>
                       )}
                       <div className="flex flex-wrap items-center gap-2 mb-2">
                         <DurationBadge type={req.duration_type || "Full"} />
-                        <span className="flex items-center gap-1.5 text-sm text-slate-900 dark:text-white font-medium">
-                          <Calendar className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
+                        <span className="flex items-center gap-1.5 text-sm text-slate-900 dark:text-white font-semibold">
+                          <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                           {req.start_date ? fmtDate(req.start_date) : "—"}
                           {!singleDay && req.end_date && <> → {fmtDate(req.end_date)}</>}
                         </span>
                       </div>
-                      <p className="text-sm text-slate-500 dark:text-slate-400 truncate pr-4">{req.reason}</p>
+                      <p className="text-sm text-slate-600 dark:text-slate-300 truncate pr-4">{req.reason}</p>
                       <div className="flex flex-wrap items-center gap-3 mt-2 text-xs font-medium">
                         <span className={`flex items-center gap-1 ${tlColor(req.tl_status)}`}>
                           {statusIcon(req.tl_status)} TL: {req.tl_status || "Pending"}
                         </span>
-                        <span className="text-white/20">·</span>
+                        <span className="text-slate-300 dark:text-slate-700">·</span>
                         <span className={`flex items-center gap-1 ${adminColor(req.admin_status)}`}>
                           {statusIcon(req.admin_status)} Admin: {req.admin_status || "Pending"}
                         </span>
