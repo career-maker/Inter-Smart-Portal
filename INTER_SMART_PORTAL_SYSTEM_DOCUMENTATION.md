@@ -322,11 +322,23 @@ Located at **Main Menu → Add-ons → Leave Policy Management** (`/project-mana
 Located at **Main Menu → Add-ons** (`/project-management/addons`):
 
 ### Add-on Types & Scoping Rules:
-1. **Team-Scoped Add-ons (e.g. Bug Tracker & QA Metrics)**:
+1. **Team & Role Permissions Management (`/project-management/addons/permissions`)**:
+   - Master capability matrix allowing Super Admin to assign fine-grained capabilities to specific delivery teams or exclusively to **Team Leads Only**.
+   - **Supported Permissions**:
+     - 👁️ **Cross-Team Task Visibility & Switcher (`task_cross_team_view`)**: Enables the **Team Switcher dropdown** on the All Tasks page, allowing assigned teams/leads to view other teams' task data tables, employee groupings, and backlogs.
+     - ➕ **Cross-Team Task Creation & Assignment (`task_cross_team_assign`)**: Allows assigned teams/leads to create and assign tasks to members of other departments.
+     - 🐞 **Global QA Bug Reports Access (`bug_reports_cross_team`)**: Allows assigned teams/leads to inspect QA bug metrics and tracker links across all teams.
+     - 📅 **Department Attendance Matrix Access (`attendance_team_view`)**: Allows assigned teams/leads to inspect the full attendance matrix and daily biometric punches for all departments.
+     - ⏱️ **Hubstaff Productivity & Telemetry View (`hubstaff_team_view`)**: Allows assigned teams/leads to view Hubstaff activity rates and tracked hours for team members.
+   - **3-State Scoping Controls per Team**:
+     - ⚪ **Off (Disabled)**: No cross-team access.
+     - 👑 **Leads Only**: Privilege granted strictly to designated Team Leads of that department.
+     - 👥 **All Members**: Privilege granted to all active members and leads of that department.
+2. **Team-Scoped Add-ons (e.g. Bug Tracker & QA Metrics)**:
    - Super Admin can enable/disable the module globally.
    - Super Admin selects which delivery teams have access (*Design, HTML, PHP, Project Coordinator, QA, WordPress*).
    - Only members and leads of selected teams will see this module and its menu items.
-2. **Company-Wide Global Add-ons (e.g. Leave Policy Management)**:
+3. **Company-Wide Global Add-ons (e.g. Leave Policy Management)**:
    - Configured as a global system engine governing all staff.
    - Displays a clean overview card with direct link to **Configure Policy Management** without team assignment selectors.
 
