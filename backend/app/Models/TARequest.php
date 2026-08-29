@@ -19,8 +19,6 @@ class TARequest extends Model
         'date_travelled',
         'total_amount',
         'bill_link',
-        'bill_path',
-        'receipt_photo_path',
         'status',
         'approver_id',
         'approval_notes',

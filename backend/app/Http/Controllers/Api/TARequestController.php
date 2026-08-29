@@ -84,10 +84,7 @@ class TARequestController
             $uploadedFile = $request->file('receipt_file') ?: $request->file('receipt_photo');
             if ($uploadedFile) {
                 $storedPath = $uploadedFile->store('ta_receipts', 'public');
-                $billPath = $storedPath;
-                if (!$billLink) {
-                    $billLink = asset('storage/' . $storedPath);
-                }
+                $billLink = asset('storage/' . $storedPath);
             }
 
             $totalAmount = collect($validated['items'])->sum('amount');
@@ -98,8 +95,6 @@ class TARequestController
                 'date_travelled' => $validated['date_travelled'],
                 'total_amount' => $totalAmount,
                 'bill_link' => $billLink,
-                'bill_path' => $billPath,
-                'receipt_photo_path' => $billPath,
                 'created_by' => $user->id,
             ]);
 
