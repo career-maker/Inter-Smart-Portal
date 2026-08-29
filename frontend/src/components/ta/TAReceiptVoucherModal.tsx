@@ -12,10 +12,6 @@ import {
   Hotel,
   HelpCircle,
   CheckCircle2,
-  Building2,
-  Calendar,
-  User,
-  CreditCard,
   FileCheck2,
   Loader2,
 } from "lucide-react";
@@ -106,26 +102,358 @@ export function TAReceiptVoucherModal({
     }
   })();
 
+  const itemsList: TAItem[] = request.items && request.items.length > 0
+    ? request.items
+    : [{ category: "Travel", amount: request.total_amount, description: request.reason }];
+
+  /**
+   * Generates high-resolution PNG receipt on an HTML5 canvas directly
+   * Guarantees 100% compatibility across all browsers and CSS engine versions
+   */
+  const exportReceiptCanvas = (): string => {
+    const width = 1600;
+    const height = 1800 + (itemsList.length * 70);
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Canvas 2D context unavailable");
+
+    // Enable high quality image rendering
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+
+    // 1. Outer Background
+    ctx.fillStyle = "#f8fafc";
+    ctx.fillRect(0, 0, width, height);
+
+    // 2. Main Card Background
+    const margin = 50;
+    const cardW = width - (margin * 2);
+    const cardH = height - (margin * 2);
+    ctx.fillStyle = "#ffffff";
+    ctx.strokeStyle = "#e2e8f0";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.roundRect(margin, margin, cardW, cardH, 24);
+    ctx.fill();
+    ctx.stroke();
+
+    const startX = margin + 50;
+    const endX = margin + cardW - 50;
+    let currY = margin + 60;
+
+    // 3. Top Header: Logo & Title
+    // IS Purple Box
+    ctx.fillStyle = "#56348f";
+    ctx.beginPath();
+    ctx.roundRect(startX, currY, 60, 60, 12);
+    ctx.fill();
+
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 26px 'Proxima Nova', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("IS", startX + 30, currY + 41);
+
+    // Company Name
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#56348f";
+    ctx.font = "bold 32px 'Proxima Nova', sans-serif";
+    ctx.fillText("INTER SMART", startX + 75, currY + 30);
+
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "bold 14px 'Proxima Nova', sans-serif";
+    ctx.fillText("PERFECTION AT ITS FINEST", startX + 75, currY + 52);
+
+    // Right Header: Receipt Badge & Issue Date
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#f3e8ff";
+    ctx.strokeStyle = "#d8b4fe";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(endX - 280, currY, 280, 42, 8);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = "#56348f";
+    ctx.font = "bold 20px monospace";
+    ctx.fillText(receiptNo, endX - 15, currY + 28);
+
+    ctx.fillStyle = "#64748b";
+    ctx.font = "14px 'Proxima Nova', sans-serif";
+    ctx.fillText(`Issued: ${formattedIssueDate}`, endX, currY + 68);
+
+    currY += 95;
+
+    // Subtitle under logo
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#64748b";
+    ctx.font = "16px 'Proxima Nova', sans-serif";
+    ctx.fillText("Inter Smart Workplace Portal • Travel Expense Reimbursement", startX, currY);
+
+    currY += 25;
+
+    // Divider
+    ctx.strokeStyle = "#f1f5f9";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(startX, currY);
+    ctx.lineTo(endX, currY);
+    ctx.stroke();
+
+    currY += 30;
+
+    // 4. Banner Title Box
+    ctx.fillStyle = "#f8fafc";
+    ctx.strokeStyle = "#e2e8f0";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(startX, currY, endX - startX, 50, 12);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#334155";
+    ctx.font = "bold 18px 'Proxima Nova', sans-serif";
+    ctx.fillText("OFFICIAL TRAVEL ALLOWANCE REIMBURSEMENT RECEIPT", startX + (endX - startX) / 2, currY + 32);
+
+    currY += 75;
+
+    // 5. Employee & Trip Metadata Box
+    ctx.fillStyle = "#f8fafc";
+    ctx.strokeStyle = "#e2e8f0";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(startX, currY, endX - startX, 110, 16);
+    ctx.fill();
+    ctx.stroke();
+
+    const col1 = startX + 30;
+    const col2 = startX + (endX - startX) * 0.42;
+    const col3 = startX + (endX - startX) * 0.72;
+
+    // Col 1: Employee
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "bold 13px 'Proxima Nova', sans-serif";
+    ctx.fillText("EMPLOYEE NAME", col1, currY + 32);
+
+    ctx.fillStyle = "#0f172a";
+    ctx.font = "bold 22px 'Proxima Nova', sans-serif";
+    ctx.fillText(empName, col1, currY + 62);
+
+    ctx.fillStyle = "#64748b";
+    ctx.font = "14px monospace";
+    ctx.fillText(`${empCode} • ${empDesignation}`, col1, currY + 86);
+
+    // Col 2: Date Travelled
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "bold 13px 'Proxima Nova', sans-serif";
+    ctx.fillText("DATE TRAVELLED", col2, currY + 32);
+
+    ctx.fillStyle = "#0f172a";
+    ctx.font = "bold 20px 'Proxima Nova', sans-serif";
+    ctx.fillText(formattedTravelDate, col2, currY + 62);
+
+    // Col 3: Purpose
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "bold 13px 'Proxima Nova', sans-serif";
+    ctx.fillText("CLAIM PURPOSE", col3, currY + 32);
+
+    ctx.fillStyle = "#0f172a";
+    ctx.font = "bold 18px 'Proxima Nova', sans-serif";
+    ctx.fillText(request.reason.length > 22 ? request.reason.slice(0, 20) + "…" : request.reason, col3, currY + 62);
+
+    currY += 140;
+
+    // 6. Itemized Expenses Breakdown Table
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "bold 14px 'Proxima Nova', sans-serif";
+    ctx.fillText("ITEMIZED EXPENSES BREAKDOWN", startX, currY);
+
+    currY += 15;
+
+    const tableW = endX - startX;
+    const rowH = 50;
+
+    // Table Header
+    ctx.fillStyle = "#f1f5f9";
+    ctx.strokeStyle = "#cbd5e1";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(startX, currY, tableW, 44, [10, 10, 0, 0]);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = "#475569";
+    ctx.font = "bold 14px 'Proxima Nova', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("#", startX + 40, currY + 28);
+
+    ctx.textAlign = "left";
+    ctx.fillText("CATEGORY", startX + 90, currY + 28);
+    ctx.fillText("DESCRIPTION / DETAILS", startX + 380, currY + 28);
+
+    ctx.textAlign = "right";
+    ctx.fillText("AMOUNT (INR)", endX - 30, currY + 28);
+
+    currY += 44;
+
+    // Table Rows
+    itemsList.forEach((item, idx) => {
+      ctx.fillStyle = idx % 2 === 0 ? "#ffffff" : "#f8fafc";
+      ctx.fillRect(startX, currY, tableW, rowH);
+
+      ctx.strokeStyle = "#e2e8f0";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(startX, currY + rowH);
+      ctx.lineTo(endX, currY + rowH);
+      ctx.stroke();
+
+      // Index
+      ctx.fillStyle = "#94a3b8";
+      ctx.font = "16px monospace";
+      ctx.textAlign = "center";
+      ctx.fillText(String(idx + 1), startX + 40, currY + 32);
+
+      // Category
+      ctx.fillStyle = "#0f172a";
+      ctx.font = "bold 17px 'Proxima Nova', sans-serif";
+      ctx.textAlign = "left";
+      ctx.fillText(item.category, startX + 90, currY + 32);
+
+      // Description
+      ctx.fillStyle = "#475569";
+      ctx.font = "15px 'Proxima Nova', sans-serif";
+      ctx.fillText(item.description || "—", startX + 380, currY + 32);
+
+      // Amount
+      ctx.fillStyle = "#0f172a";
+      ctx.font = "bold 18px monospace";
+      ctx.textAlign = "right";
+      ctx.fillText(`₹${Number(item.amount).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, endX - 30, currY + 32);
+
+      currY += rowH;
+    });
+
+    // Table Total Footer Row
+    ctx.fillStyle = "#f8fafc";
+    ctx.strokeStyle = "#cbd5e1";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(startX, currY, tableW, 50, [0, 0, 10, 10]);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = "#475569";
+    ctx.font = "bold 16px 'Proxima Nova', sans-serif";
+    ctx.textAlign = "right";
+    ctx.fillText("Total Claimed Amount:", endX - 250, currY + 32);
+
+    ctx.fillStyle = "#0f172a";
+    ctx.font = "bold 20px monospace";
+    ctx.fillText(`₹${Number(request.total_amount).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, endX - 30, currY + 32);
+
+    currY += 80;
+
+    // 7. Approved & Settlement Box
+    ctx.fillStyle = "#faf5ff";
+    ctx.strokeStyle = "#d8b4fe";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(startX, currY, tableW, 130, 16);
+    ctx.fill();
+    ctx.stroke();
+
+    // Left side: Approved Amount
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#6b21a8";
+    ctx.font = "bold 14px 'Proxima Nova', sans-serif";
+    ctx.fillText("FINAL APPROVED DISBURSEMENT", startX + 30, currY + 36);
+
+    ctx.fillStyle = "#56348f";
+    ctx.font = "bold 38px 'Proxima Nova', sans-serif";
+    ctx.fillText(`₹${approvedAmt.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, startX + 30, currY + 84);
+
+    if (request.approval_notes) {
+      ctx.fillStyle = "#475569";
+      ctx.font = "14px 'Proxima Nova', sans-serif";
+      ctx.fillText(`Approval Note: ${request.approval_notes}`, startX + 30, currY + 112);
+    }
+
+    // Right side: Badge
+    ctx.textAlign = "right";
+    const isPaid = request.is_paid || request.status === "Paid";
+    const badgeText = isPaid
+      ? `✓ Paid & Disbursed (${request.payment_mode || "Bank Transfer"})`
+      : "✓ Claim Approved";
+
+    const badgeW = 320;
+    const badgeH = 40;
+    const badgeX = endX - badgeW - 30;
+    const badgeY = currY + 32;
+
+    ctx.fillStyle = isPaid ? "#dcfce7" : "#f3e8ff";
+    ctx.strokeStyle = isPaid ? "#86efac" : "#d8b4fe";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 20);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = isPaid ? "#15803d" : "#7e22ce";
+    ctx.font = "bold 15px 'Proxima Nova', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(badgeText, badgeX + badgeW / 2, badgeY + 26);
+
+    if (request.approver) {
+      ctx.textAlign = "right";
+      ctx.fillStyle = "#64748b";
+      ctx.font = "13px 'Proxima Nova', sans-serif";
+      ctx.fillText(`Approved by: ${request.approver.first_name} ${request.approver.last_name}`, endX - 30, currY + 98);
+    }
+
+    currY += 160;
+
+    // 8. Footer Sign-off
+    ctx.strokeStyle = "#e2e8f0";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(startX, currY);
+    ctx.lineTo(endX, currY);
+    ctx.stroke();
+
+    currY += 28;
+
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#64748b";
+    ctx.font = "13px 'Proxima Nova', sans-serif";
+    ctx.fillText("✓ Computer-generated official receipt voucher. No physical signature required.", startX, currY);
+
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#475569";
+    ctx.font = "bold 13px 'Proxima Nova', sans-serif";
+    ctx.fillText("Inter Smart Workplace Portal", endX, currY);
+
+    return canvas.toDataURL("image/png");
+  };
+
   const handleDownloadImage = async () => {
-    if (!voucherRef.current) return;
     setDownloading(true);
     try {
-      const { default: html2canvas } = await import("html2canvas");
-      const canvas = await html2canvas(voucherRef.current, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-        logging: false,
-      });
-
-      const imgData = canvas.toDataURL("image/png");
+      // 1. Primary: Ultra-reliable high-resolution Canvas renderer
+      const dataUrl = exportReceiptCanvas();
       const link = document.createElement("a");
-      link.href = imgData;
+      link.href = dataUrl;
       link.download = `TA_Receipt_${receiptNo}_${empName.replace(/\s+/g, "_")}.png`;
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
     } catch (err) {
-      console.error("Failed to generate voucher image:", err);
-      alert("Failed to export receipt image. Please try again.");
+      console.error("Canvas export failed, falling back:", err);
+      // 2. Fallback: Standard print dialog
+      window.print();
     } finally {
       setDownloading(false);
     }
@@ -168,7 +496,7 @@ export function TAReceiptVoucherModal({
               ) : (
                 <Download className="w-3.5 h-3.5" />
               )}
-              <span>Download Image</span>
+              <span>Download Image (PNG)</span>
             </button>
 
             <button
@@ -190,7 +518,7 @@ export function TAReceiptVoucherModal({
           </div>
         </div>
 
-        {/* Printable & Exportable Voucher Content */}
+        {/* Printable & Preview Voucher Content */}
         <div className="p-6 sm:p-8 max-h-[80vh] overflow-y-auto">
           <div
             ref={voucherRef}
@@ -289,10 +617,7 @@ export function TAReceiptVoucherModal({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {(request.items && request.items.length > 0
-                      ? request.items
-                      : [{ category: "Travel", amount: request.total_amount, description: request.reason }]
-                    ).map((item, idx) => (
+                    {itemsList.map((item, idx) => (
                       <tr key={item.id || idx} className="hover:bg-slate-50/50">
                         <td className="py-2.5 px-4 text-center text-slate-400 font-mono">
                           {idx + 1}
