@@ -65,15 +65,15 @@ const CalendarDatePicker = ({
           if (dStr < todayStr) isDisabled = true;
           if (disabledDates.includes(dStr)) isDisabled = true;
 
-          let btnClass = "text-xs h-7 w-7 flex items-center justify-center rounded-lg transition-colors ";
+          let btnClass = "text-xs h-7 w-7 flex items-center justify-center rounded-lg transition-colors cursor-pointer ";
           if (isSelected) {
-            btnClass += "bg-amber-500 text-white font-bold";
+            btnClass += "bg-[#56348f] text-white font-bold shadow-xs";
           } else if (isDisabled) {
-            btnClass += "text-slate-600 cursor-not-allowed opacity-30";
+            btnClass += "text-slate-400 dark:text-slate-600 cursor-not-allowed opacity-40";
           } else if (isHoliday) {
-            btnClass += "bg-purple-500/20 text-purple-300 border border-purple-500/30 hover:bg-purple-500/30";
+            btnClass += "bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-500/30 hover:bg-purple-200 dark:hover:bg-purple-500/30";
           } else {
-            btnClass += "text-slate-200 hover:bg-white/10";
+            btnClass += "text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/10 font-medium";
           }
 
           return (
@@ -402,7 +402,7 @@ export default function ApplyLeavePage() {
                   onClick={() => { setShowStartCalendar(!showStartCalendar); setShowEndCalendar(false); }}
                   className={`${inputCls} flex items-center justify-between text-left cursor-pointer`}
                 >
-                  <span className={startDate ? "text-white" : "text-slate-400"}>
+                  <span className={startDate ? "text-slate-900 dark:text-white font-semibold" : "text-slate-400 dark:text-slate-500"}>
                     {startDate ? format(new Date(startDate), "dd MMM yyyy") : "Choose date..."}
                   </span>
                   <CalendarIcon className="w-4 h-4 text-slate-500 dark:text-slate-400" />
@@ -433,7 +433,7 @@ export default function ApplyLeavePage() {
                     onClick={() => { setShowEndCalendar(!showEndCalendar); setShowStartCalendar(false); }}
                     className={`${inputCls} flex items-center justify-between text-left disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer`}
                   >
-                    <span className={endDate ? "text-white" : "text-slate-400"}>
+                    <span className={endDate ? "text-slate-900 dark:text-white font-semibold" : "text-slate-400 dark:text-slate-500"}>
                       {endDate ? format(new Date(endDate), "dd MMM yyyy") : "Choose date..."}
                     </span>
                     <CalendarIcon className="w-4 h-4 text-slate-500 dark:text-slate-400" />
