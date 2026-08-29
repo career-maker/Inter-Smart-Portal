@@ -950,7 +950,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <ChatbaseLottieButton />
 
         {/* Page Content */}
-        <main className="flex-1 px-4 sm:px-6 lg:px-8 pt-3 sm:pt-4 pb-6 sm:pb-8 max-w-7xl w-full mx-auto">
+        <main className="flex-1 px-4 sm:px-6 lg:px-8 pt-1 sm:pt-1.5 pb-6 sm:pb-8 max-w-7xl w-full mx-auto">
           {children}
         </main>
       </div>
