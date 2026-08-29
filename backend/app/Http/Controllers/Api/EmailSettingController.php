@@ -143,18 +143,42 @@ class EmailSettingController extends Controller
             'overrides.*.custom_to' => 'nullable|string|max:255',
             'overrides.*.approver_user_id_2' => 'nullable|integer|exists:users,id',
             'overrides.*.custom_to_2' => 'nullable|string|max:255',
-            'overrides.*.custom_cc' => 'nullable|array',
-            'overrides.*.custom_cc.*' => 'email',
+            'overrides.*.custom_cc' => 'nullable',
             'overrides.*.enabled' => 'boolean',
             'overrides.*.notes' => 'nullable|string|max:500',
         ]);
 
-        EmailSetting::setByKey('employee_overrides', $validated['overrides']);
+        $cleanedOverrides = collect($request->input('overrides', []))->map(function ($item) {
+            $ccList = [];
+            if (!empty($item['custom_cc'])) {
+                $rawCcs = is_array($item['custom_cc']) ? $item['custom_cc'] : explode(',', (string)$item['custom_cc']);
+                foreach ($rawCcs as $c) {
+                    $trimmed = trim($c);
+                    if (!empty($trimmed) && filter_var($trimmed, FILTER_VALIDATE_EMAIL)) {
+                        $ccList[] = $trimmed;
+                    }
+                }
+            }
+
+            return [
+                'user_id' => (int)($item['user_id'] ?? 0),
+                'action' => (string)($item['action'] ?? 'leave_application'),
+                'approver_user_id' => !empty($item['approver_user_id']) ? (int)$item['approver_user_id'] : null,
+                'custom_to' => !empty($item['custom_to']) ? trim($item['custom_to']) : null,
+                'approver_user_id_2' => !empty($item['approver_user_id_2']) ? (int)$item['approver_user_id_2'] : null,
+                'custom_to_2' => !empty($item['custom_to_2']) ? trim($item['custom_to_2']) : null,
+                'custom_cc' => array_values(array_unique($ccList)),
+                'enabled' => (bool)($item['enabled'] ?? true),
+                'notes' => !empty($item['notes']) ? trim($item['notes']) : null,
+            ];
+        })->filter(fn($item) => $item['user_id'] > 0)->values()->all();
+
+        EmailSetting::setByKey('employee_overrides', $cleanedOverrides);
 
         return response()->json([
             'status' => 'success',
             'message' => 'Employee email overrides saved successfully.',
-            'data' => $validated['overrides'],
+            'data' => $cleanedOverrides,
         ]);
     }
 

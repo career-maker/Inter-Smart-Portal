@@ -379,6 +379,18 @@ export default function EmailManagementPage() {
     const appr1 = allEmployees.find((e) => e.id === Number(modalForm.approver_user_id));
     const appr2 = allEmployees.find((e) => e.id === Number(modalForm.approver_user_id_2));
 
+    // Collect all CCs (including any pending text in newCcInput)
+    const finalCcList = [...modalForm.custom_cc];
+    const pendingCc = modalForm.newCcInput.trim();
+    if (pendingCc) {
+      const parts = pendingCc.split(/[\s,;]+/).filter(Boolean);
+      for (const p of parts) {
+        if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(p) && !finalCcList.includes(p)) {
+          finalCcList.push(p);
+        }
+      }
+    }
+
     const overrideEntry: EmployeeOverride = {
       user_id: Number(modalForm.user_id),
       user_name: userObj ? `${userObj.first_name} ${userObj.last_name || ""}`.trim() : "",
@@ -393,7 +405,7 @@ export default function EmailManagementPage() {
       approver_name_2: appr2 ? `${appr2.first_name} ${appr2.last_name || ""}`.trim() : undefined,
       approver_email_2: appr2?.email || undefined,
       custom_to_2: trimmedTo2 || undefined,
-      custom_cc: modalForm.custom_cc,
+      custom_cc: finalCcList,
       enabled: modalForm.enabled,
       notes: modalForm.notes.trim() || undefined,
     };
@@ -1442,11 +1454,21 @@ export default function EmailManagementPage() {
                     type="email"
                     value={modalForm.newCcInput}
                     onChange={(e) => setModalForm({ ...modalForm, newCcInput: e.target.value })}
+                    onBlur={() => {
+                      const val = modalForm.newCcInput.trim();
+                      if (val && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) && !modalForm.custom_cc.includes(val)) {
+                        setModalForm({
+                          ...modalForm,
+                          custom_cc: [...modalForm.custom_cc, val],
+                          newCcInput: "",
+                        });
+                      }
+                    }}
                     onKeyDown={(e) => {
-                      if (e.key === "Enter") {
+                      if (e.key === "Enter" || e.key === "," || e.key === " ") {
                         e.preventDefault();
                         const val = modalForm.newCcInput.trim();
-                        if (val && val.includes("@") && !modalForm.custom_cc.includes(val)) {
+                        if (val && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) && !modalForm.custom_cc.includes(val)) {
                           setModalForm({
                             ...modalForm,
                             custom_cc: [...modalForm.custom_cc, val],
@@ -1462,12 +1484,14 @@ export default function EmailManagementPage() {
                     type="button"
                     onClick={() => {
                       const val = modalForm.newCcInput.trim();
-                      if (val && val.includes("@") && !modalForm.custom_cc.includes(val)) {
+                      if (val && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) && !modalForm.custom_cc.includes(val)) {
                         setModalForm({
                           ...modalForm,
                           custom_cc: [...modalForm.custom_cc, val],
                           newCcInput: "",
                         });
+                      } else if (val && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+                        alert("Please enter a valid email address with domain.");
                       }
                     }}
                     className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 cursor-pointer"
