@@ -35,12 +35,18 @@ export function TeamFilterSelector({
       return;
     }
 
-    if (cachedAllTeams) return;
+    if (cachedAllTeams && cachedAllTeams.length > 0) {
+      setTeams(cachedAllTeams);
+      setLoading(false);
+      return;
+    }
 
-    api.get("/teams")
+    api.get("/teams?all=true")
       .then((res) => {
         const list = Array.isArray(res.data) ? res.data : res.data?.data || [];
-        cachedAllTeams = list;
+        if (list.length > 0) {
+          cachedAllTeams = list;
+        }
         setTeams(list);
       })
       .catch((err) => console.warn("Failed to load teams list", err))

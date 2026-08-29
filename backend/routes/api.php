@@ -93,6 +93,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('me/profile', [\App\Http\Controllers\Api\ProfileController::class, 'update']);
     Route::get('me/recognitions', [\App\Http\Controllers\Api\RecognitionController::class, 'myRecognitions']);
 
+    // Team read routes for all authenticated users (team switchers, task filters, etc.)
+    Route::get('teams', [\App\Http\Controllers\Api\TeamController::class, 'index']);
+    Route::get('teams/{team}', [\App\Http\Controllers\Api\TeamController::class, 'show']);
+
     // Employee Routes
     Route::middleware(['role:Super Admin|Team Lead|HR'])->group(function () {
         Route::apiResource('employees', \App\Http\Controllers\Api\EmployeeController::class);
@@ -103,8 +107,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('employees/import/sample', [\App\Http\Controllers\Api\EmployeeController::class, 'sampleCSV']);
         Route::post('employees/import/csv', [\App\Http\Controllers\Api\EmployeeController::class, 'importCSV']);
 
-        // Team Routes
-        Route::apiResource('teams', \App\Http\Controllers\Api\TeamController::class);
+        // Team Mutating Routes
+        Route::apiResource('teams', \App\Http\Controllers\Api\TeamController::class)->except(['index', 'show']);
         Route::post('teams/{team}/members', [\App\Http\Controllers\Api\TeamController::class, 'syncMembers']);
 
         // Admin/HR Leave Configuration
