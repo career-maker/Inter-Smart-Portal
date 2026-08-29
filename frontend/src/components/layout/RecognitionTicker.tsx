@@ -29,8 +29,13 @@ export function RecognitionTicker() {
             user: { first_name: b.name.split(" ")[0], last_name: b.name.split(" ").slice(1).join(" ") || "" },
           }));
 
-        const pinnedAnnouncements = (announcementsRes.data.data?.data || [])
-          .filter((a: any) => a.is_pinned === true)
+        const rawAnnouncements =
+          announcementsRes.data?.data?.data ||
+          announcementsRes.data?.data ||
+          (Array.isArray(announcementsRes.data) ? announcementsRes.data : []);
+
+        const pinnedAnnouncements = (Array.isArray(rawAnnouncements) ? rawAnnouncements : [])
+          .filter((a: any) => Boolean(a.is_pinned) || a.is_pinned === 1 || a.is_pinned === "1" || a.is_pinned === true)
           .map((a: any) => ({
             ...a,
             type: "announcement",
