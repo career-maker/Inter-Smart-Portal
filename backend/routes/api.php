@@ -34,8 +34,6 @@ Route::prefix('ta-requests')->group(function () {
 });
 
 Route::post('login', [AuthController::class, 'login']);
-Route::post('forgot-password', [AuthController::class, 'forgotPassword']);
-Route::post('reset-password', [AuthController::class, 'resetPassword']);
 
 // Database maintenance endpoint (public, for initial setup)
 Route::post('admin/run-migrations', function (\Illuminate\Http\Request $request) {
