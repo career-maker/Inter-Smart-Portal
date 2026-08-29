@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
 import { toastManager } from "@/components/ui/toast";
-import { Eye, EyeOff, LogIn, Lock, Mail } from "lucide-react";
+import { Eye, EyeOff, LogIn, Lock, Mail, AlertCircle } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -20,12 +20,9 @@ export default function LoginPage() {
 
   const getErrorIcon = (message: string) => {
     if (message.toLowerCase().includes("inactive") || message.toLowerCase().includes("disabled")) {
-      return <Lock className="w-4 h-4 mr-2 flex-shrink-0" />;
+      return <Lock className="w-4 h-4 !text-rose-400 shrink-0 mt-0.5" />;
     }
-    if (message.toLowerCase().includes("not found") || message.toLowerCase().includes("invalid")) {
-      return <Mail className="w-4 h-4 mr-2 flex-shrink-0" />;
-    }
-    return null;
+    return <AlertCircle className="w-4 h-4 !text-rose-400 shrink-0 mt-0.5" />;
   };
 
   async function onSubmit(e: React.FormEvent) {
@@ -168,9 +165,12 @@ export default function LoginPage() {
           <div className="bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-sm shadow-2xl relative">
             {/* Contact HR link - moved to top-right */}
             <div className="absolute top-6 right-6">
-              <a href="mailto:hr@intersmart.in" className="text-xs text-amber-400 hover:text-amber-300 transition flex items-center gap-1">
-                <Mail className="w-3 h-3" />
-                <span>Need help?</span>
+              <a
+                href="mailto:hr@intersmart.in"
+                className="text-xs !text-amber-400 hover:!text-amber-300 font-semibold transition flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/30 px-2.5 py-1 rounded-lg"
+              >
+                <Mail className="w-3.5 h-3.5 !text-amber-400" />
+                <span className="!text-amber-400">Need help?</span>
               </a>
             </div>
 
@@ -180,9 +180,9 @@ export default function LoginPage() {
             </div>
 
             {error && (
-              <div className="mb-5 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-sm text-red-400 flex items-start gap-3 animate-slideDown">
+              <div className="mb-5 p-3.5 bg-rose-950/90 border border-rose-500/70 rounded-xl text-xs font-semibold !text-rose-100 flex items-start gap-2.5 shadow-lg shadow-rose-950/40 animate-slideDown">
                 {getErrorIcon(error)}
-                <span>{error}</span>
+                <span className="!text-rose-100 leading-snug font-medium">{error}</span>
               </div>
             )}
 
@@ -214,7 +214,7 @@ export default function LoginPage() {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <label className="block text-sm font-medium text-slate-300">Password</label>
-                  <a href="/forgot-password" className="text-xs text-amber-400 hover:text-amber-300 transition">
+                  <a href="/forgot-password" className="text-xs !text-amber-400 hover:!text-amber-300 font-medium transition">
                     Forgot password?
                   </a>
                 </div>
