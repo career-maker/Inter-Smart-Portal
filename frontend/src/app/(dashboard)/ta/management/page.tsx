@@ -276,7 +276,7 @@ export default function TAManagementPage() {
                     </div>
                     <div className="flex flex-wrap gap-4 text-sm text-slate-400">
                       <span>{request.reason}</span>
-                      <span>₹{request.total_amount.toFixed(2)}</span>
+                      <span>₹{Number(request.total_amount || 0).toFixed(2)}</span>
                       <span>{formatDate(request.date_travelled)}</span>
                     </div>
                   </div>
@@ -292,7 +292,7 @@ export default function TAManagementPage() {
                       Expense Breakdown
                     </p>
                     <div className="space-y-2">
-                      {request.items.map((item) => (
+                      {(request.items || []).map((item) => (
                         <div
                           key={item.id}
                           className="flex items-center justify-between text-sm"
@@ -305,13 +305,13 @@ export default function TAManagementPage() {
                               </p>
                             )}
                           </div>
-                          <p className="font-semibold">₹{item.amount.toFixed(2)}</p>
+                          <p className="font-semibold">₹{Number(item.amount || 0).toFixed(2)}</p>
                         </div>
                       ))}
                     </div>
                     <div className="border-t border-slate-600 pt-2 mt-2 flex justify-between font-bold">
                       <span>Total:</span>
-                      <span>₹{request.total_amount.toFixed(2)}</span>
+                      <span>₹{Number(request.total_amount || 0).toFixed(2)}</span>
                     </div>
                   </div>
 

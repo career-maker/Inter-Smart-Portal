@@ -1,15 +1,30 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Loader2, Calendar, FileText, CheckCircle, XCircle, Clock, DollarSign } from "lucide-react";
+import {
+  Loader2,
+  Calendar,
+  FileText,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  IndianRupee,
+  Plus,
+  Receipt,
+  ExternalLink,
+  Car,
+  Utensils,
+  Hotel,
+  HelpCircle,
+  AlertCircle,
+} from "lucide-react";
 import api from "@/services/api";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { TAApplyModal } from "@/components/ta/TAApplyModal";
 
 interface TARequestItem {
   id: number;
   category: string;
-  amount: number;
+  amount: number | string;
   description?: string;
 }
 
@@ -17,7 +32,7 @@ interface TARequest {
   id: number;
   reason: string;
   date_travelled: string;
-  total_amount: number;
+  total_amount: number | string;
   bill_link?: string;
   status: string;
   is_paid: boolean;
@@ -26,109 +41,149 @@ interface TARequest {
     first_name: string;
     last_name: string;
   };
-  items: TARequestItem[];
+  items?: TARequestItem[];
   created_at: string;
   paid_at?: string;
 }
+
+const CATEGORY_ICONS: Record<string, any> = {
+  Travel: Car,
+  Food: Utensils,
+  Accommodation: Hotel,
+  Other: HelpCircle,
+};
 
 export default function TAStatusPage() {
   const [requests, setRequests] = useState<TARequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<string>("all");
-  const [page, setPage] = useState(1);
+  const [isApplyDrawerOpen, setIsApplyDrawerOpen] = useState(false);
 
   useEffect(() => {
     fetchRequests();
-  }, [filter, page]);
+  }, [filter]);
 
   const fetchRequests = async () => {
     setIsLoading(true);
     try {
-      const params: any = { page };
+      const params: any = {};
       if (filter !== "all") {
         params.status = filter;
       }
       const res = await api.get("/ta-requests", { params });
-      setRequests(res.data.data);
+      const data = res.data?.data?.data || res.data?.data || (Array.isArray(res.data) ? res.data : []);
+      setRequests(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Failed to fetch TA requests:", error);
+      setRequests([]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusBadge = (status: string, isPaid: boolean) => {
+    if (isPaid) {
+      return (
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700">
+          <CheckCircle2 className="w-3.5 h-3.5" />
+          Paid & Settled
+        </span>
+      );
+    }
+
     switch (status) {
-      case "Applied":
-        return "bg-blue-500/20 text-blue-300 border-blue-500/30";
       case "Approved":
-        return "bg-emerald-500/20 text-emerald-300 border-emerald-500/30";
-      case "Paid":
-        return "bg-green-500/20 text-green-300 border-green-500/30";
-      case "Unpaid":
-        return "bg-amber-500/20 text-amber-300 border-amber-500/30";
+        return (
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-700">
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            Approved (Pending Payment)
+          </span>
+        );
       case "Rejected":
-        return "bg-red-500/20 text-red-300 border-red-500/30";
+        return (
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-700">
+            <XCircle className="w-3.5 h-3.5" />
+            Rejected
+          </span>
+        );
+      case "Applied":
       default:
-        return "bg-slate-500/20 text-slate-300 border-slate-500/30";
+        return (
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
+            <Clock className="w-3.5 h-3.5" />
+            Pending Approval
+          </span>
+        );
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "Approved":
-      case "Paid":
-        return <CheckCircle className="w-4 h-4" />;
-      case "Rejected":
-        return <XCircle className="w-4 h-4" />;
-      case "Applied":
-        return <Clock className="w-4 h-4" />;
-      default:
-        return <FileText className="w-4 h-4" />;
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "–";
+    try {
+      return new Date(dateString).toLocaleDateString("en-IN", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    } catch {
+      return dateString;
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString([], {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
+  const formatCurrency = (amount?: number | string) => {
+    const num = Number(amount || 0);
+    return num.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
 
   const filterOptions = [
-    { value: "all", label: "All Requests" },
+    { value: "all", label: "All Claims" },
     { value: "Applied", label: "Pending Approval" },
-    { value: "Approved", label: "Approved (Unpaid)" },
+    { value: "Approved", label: "Approved" },
     { value: "Paid", label: "Paid" },
     { value: "Rejected", label: "Rejected" },
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-          Travel Allowance Status
-        </h1>
-        <p className="text-slate-600 dark:text-slate-300">
-          View and track your travel allowance applications
-        </p>
+    <div
+      style={{
+        fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      }}
+      className="space-y-6 max-w-5xl mx-auto"
+    >
+      {/* Header Banner */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+            Travel Allowance Status
+          </h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            Track and monitor the review and disbursement status of your travel claims.
+          </p>
+        </div>
+
+        <button
+          onClick={() => setIsApplyDrawerOpen(true)}
+          style={{
+            backgroundColor: "#56348f",
+            color: "rgb(255, 255, 255)",
+          }}
+          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] font-bold !text-white text-xs sm:text-sm shadow-md shadow-purple-900/20 transition-all hover:scale-[1.02] cursor-pointer shrink-0"
+        >
+          <Plus className="w-4 h-4 !text-white" />
+          <span>New TA Request</span>
+        </button>
       </div>
 
-      {/* Filter */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
+      {/* Filter Tabs */}
+      <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
         {filterOptions.map((option) => (
           <button
             key={option.value}
-            onClick={() => {
-              setFilter(option.value);
-              setPage(1);
-            }}
-            className={`px-4 py-2 rounded-lg font-semibold whitespace-nowrap transition-colors ${
+            onClick={() => setFilter(option.value)}
+            className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
               filter === option.value
-                ? "bg-amber-600 text-white"
-                : "bg-slate-700 hover:bg-slate-600 text-slate-300"
+                ? "bg-[#56348f] text-white shadow-sm"
+                : "bg-white dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700/80"
             }`}
           >
             {option.label}
@@ -138,121 +193,143 @@ export default function TAStatusPage() {
 
       {/* Content */}
       {isLoading ? (
-        <div className="flex justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-amber-400" />
+        <div className="flex flex-col items-center justify-center py-16 text-slate-400">
+          <Loader2 className="w-8 h-8 animate-spin text-[#56348f] mb-3" />
+          <span className="text-xs sm:text-sm font-medium">Loading your travel claims…</span>
         </div>
       ) : requests.length === 0 ? (
-        <Card className="border-slate-700 bg-slate-800/50">
-          <CardContent className="pt-6 text-center text-slate-400">
-            <FileText className="w-12 h-12 mx-auto mb-3 opacity-50" />
-            <p>No travel allowance requests found</p>
-          </CardContent>
-        </Card>
+        <div className="p-12 text-center rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+          <Receipt className="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600 mb-3" />
+          <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">
+            No travel allowance claims found
+          </h3>
+          <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-sm mx-auto">
+            You haven't submitted any travel claims under this filter. Click New TA Request to submit one.
+          </p>
+          <button
+            onClick={() => setIsApplyDrawerOpen(true)}
+            className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-[#56348f] dark:text-purple-300 bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 rounded-xl transition-colors cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            Apply Now
+          </button>
+        </div>
       ) : (
         <div className="space-y-4">
           {requests.map((request) => (
-            <Card
+            <div
               key={request.id}
-              className="border-slate-700 bg-slate-800/50 text-white hover:bg-slate-800/80 transition-colors"
+              className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4 hover:border-purple-300/60 dark:hover:border-purple-700/40 transition-colors"
             >
-              <CardHeader>
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <CardTitle className="text-lg">{request.reason}</CardTitle>
-                      <Badge
-                        className={`${getStatusColor(
-                          request.status
-                        )} border flex items-center gap-1.5`}
-                      >
-                        {getStatusIcon(request.status)}
-                        {request.status}
-                      </Badge>
-                      {request.is_paid && (
-                        <Badge className="bg-green-500/20 text-green-300 border border-green-500/30">
-                          Paid
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="flex flex-wrap gap-4 text-sm text-slate-400">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4" />
-                        {formatDate(request.date_travelled)}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <DollarSign className="w-4 h-4" />
-                        <span className="font-semibold text-amber-400">
-                          ₹{request.total_amount.toFixed(2)}
+              {/* Top Row: Purpose + Status + Amount */}
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+                      {request.reason}
+                    </h2>
+                    {getStatusBadge(request.status, request.is_paid)}
+                  </div>
+
+                  <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400 flex-wrap">
+                    <span className="flex items-center gap-1">
+                      <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                      Travel Date: <strong className="text-slate-700 dark:text-slate-200">{formatDate(request.date_travelled)}</strong>
+                    </span>
+                    <span>•</span>
+                    <span>
+                      Submitted: <strong className="text-slate-700 dark:text-slate-200">{formatDate(request.created_at)}</strong>
+                    </span>
+                    {request.approver && (
+                      <>
+                        <span>•</span>
+                        <span>
+                          Reviewed by: <strong className="text-slate-700 dark:text-slate-200">{request.approver.first_name} {request.approver.last_name}</strong>
                         </span>
-                      </div>
-                      {request.approver && (
-                        <div className="text-slate-500">
-                          Approved by {request.approver.first_name}{" "}
-                          {request.approver.last_name}
-                        </div>
-                      )}
-                    </div>
+                      </>
+                    )}
                   </div>
                 </div>
-              </CardHeader>
 
-              <CardContent className="space-y-4">
-                {/* Breakdown */}
-                <div className="bg-slate-900/50 rounded-lg p-3 space-y-2">
-                  <p className="text-xs font-semibold text-slate-400 uppercase">
-                    Expense Breakdown
-                  </p>
-                  {request.items.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex items-center justify-between text-sm"
-                    >
-                      <div>
-                        <p className="font-medium">{item.category}</p>
-                        {item.description && (
-                          <p className="text-slate-400 text-xs">
-                            {item.description}
-                          </p>
-                        )}
-                      </div>
-                      <p className="font-semibold">₹{item.amount.toFixed(2)}</p>
-                    </div>
-                  ))}
+                <div className="text-left sm:text-right shrink-0">
+                  <span className="text-xs text-slate-400 block font-medium">Claim Amount</span>
+                  <span className="text-xl sm:text-2xl font-bold text-[#56348f] dark:text-purple-300">
+                    ₹{formatCurrency(request.total_amount)}
+                  </span>
                 </div>
+              </div>
 
-                {/* Bill Link & Date */}
-                <div className="flex items-center justify-between text-sm">
+              {/* Expense Breakdown List */}
+              <div className="p-3.5 bg-slate-50 dark:bg-slate-850/60 rounded-xl border border-slate-200/60 dark:border-slate-800 space-y-2">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                  Itemized Expenses
+                </span>
+                <div className="space-y-1.5">
+                  {(request.items || []).map((item, idx) => {
+                    const IconComp = CATEGORY_ICONS[item.category] || Car;
+                    return (
+                      <div
+                        key={item.id || idx}
+                        className="flex items-center justify-between text-xs sm:text-sm py-1 border-b border-slate-200/40 dark:border-slate-800 last:border-0"
+                      >
+                        <div className="flex items-center gap-2">
+                          <IconComp className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
+                          <span className="font-semibold text-slate-800 dark:text-slate-200">
+                            {item.category}
+                          </span>
+                          {item.description && (
+                            <span className="text-slate-400 text-xs italic">
+                              ({item.description})
+                            </span>
+                          )}
+                        </div>
+                        <span className="font-bold text-slate-900 dark:text-white">
+                          ₹{formatCurrency(item.amount)}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Bottom Row: Bill Receipt & Approval Notes */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-1 text-xs">
+                <div>
                   {request.bill_link ? (
                     <a
                       href={request.bill_link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-amber-400 hover:text-amber-300 flex items-center gap-2"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 hover:bg-purple-100 font-semibold border border-purple-200/60 dark:border-purple-800/40 transition-colors"
                     >
-                      <FileText className="w-4 h-4" />
-                      View Bill
+                      <FileText className="w-3.5 h-3.5" />
+                      <span>View Receipt / Bill</span>
+                      <ExternalLink className="w-3 h-3 ml-0.5 opacity-70" />
                     </a>
                   ) : (
-                    <span className="text-slate-500">No bill link provided</span>
+                    <span className="text-slate-400 italic">No bill receipt attached</span>
                   )}
-                  <p className="text-slate-500">
-                    {formatDate(request.created_at)}
-                  </p>
                 </div>
 
                 {request.approval_notes && (
-                  <div className="bg-slate-900/50 rounded-lg p-3 text-sm">
-                    <p className="text-xs font-semibold text-slate-400 mb-1">
-                      Approval Notes
-                    </p>
-                    <p className="text-slate-300">{request.approval_notes}</p>
+                  <div className="text-xs text-slate-600 dark:text-slate-400 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/40 px-3 py-1.5 rounded-lg">
+                    <strong className="text-amber-800 dark:text-amber-300">Note:</strong> {request.approval_notes}
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           ))}
         </div>
       )}
+
+      {/* TA Apply Drawer */}
+      <TAApplyModal
+        isOpen={isApplyDrawerOpen}
+        onClose={() => setIsApplyDrawerOpen(false)}
+        onSuccess={() => {
+          fetchRequests();
+        }}
+      />
     </div>
   );
 }
