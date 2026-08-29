@@ -30,6 +30,10 @@ function resolveNotificationUrl(notification: any): string {
     return stored || "/birthday-wishes";
   }
 
+  if (type === "App\\Notifications\\TARequestNotification") {
+    return stored || "/ta/management";
+  }
+
   const event = notification.data?.event;
   if (event === "submitted" || event === "tl_approved") return "/leaves/approvals";
   return stored || "/notifications";

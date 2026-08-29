@@ -4,7 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\TARequest;
 use App\Models\TARequestItem;
-use App\Models\Notification;
+use App\Models\User;
+use App\Notifications\TARequestNotification;
 use App\Mail\TARequestMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -78,7 +79,6 @@ class TARequestController
                 'receipt_photo' => 'nullable|file|mimes:jpeg,png,jpg,webp,pdf,heic|max:10240',
             ]);
 
-            $billPath = null;
             $billLink = $validated['bill_link'] ?? null;
 
             $uploadedFile = $request->file('receipt_file') ?: $request->file('receipt_photo');
@@ -119,22 +119,24 @@ class TARequestController
             ], 500);
         }
 
-        // Send notification to Super Admin/HR (non-blocking)
+        // Send in-app notification to all Super Admins
         try {
-            $admins = \App\Models\User::where('role', 'Super Admin')->get();
-            foreach ($admins as $admin) {
-                Notification::create([
-                    'user_id' => $admin->id,
-                    'type' => 'ta_request_applied',
-                    'title' => 'New TA Request',
-                    'message' => "{$user->first_name} {$user->last_name} has applied for travel allowance",
-                    'data' => json_encode(['ta_request_id' => $taRequest->id]),
-                    'is_read' => false,
-                ]);
+            $applicantName = "{$user->first_name} {$user->last_name}";
+            $claimAmount = number_format((float)$taRequest->total_amount, 2);
+            $msg = "{$applicantName} submitted a Travel Allowance request for ₹{$claimAmount}";
+
+            $superAdmins = User::role('Super Admin')->get();
+            foreach ($superAdmins as $admin) {
+                $admin->notify(new TARequestNotification(
+                    $taRequest,
+                    $msg,
+                    'New Travel Allowance Request',
+                    'ta_requested',
+                    '/ta/management'
+                ));
             }
         } catch (\Exception $e) {
-            // Log the error but don't fail the request
-            \Log::error('Failed to create TA notification: ' . $e->getMessage());
+            \Log::error('Failed to create in-app TA notification: ' . $e->getMessage());
         }
 
         // Send email to HR and admin (non-blocking - don't fail if email fails)
@@ -190,14 +192,19 @@ class TARequestController
         ]);
 
         // Notify applicant
-        Notification::create([
-            'user_id' => $taRequest->user_id,
-            'type' => 'ta_request_approved',
-            'title' => 'TA Request Approved',
-            'message' => 'Your travel allowance request has been approved',
-            'data' => json_encode(['ta_request_id' => $taRequest->id]),
-            'is_read' => false,
-        ]);
+        try {
+            $claimAmount = number_format((float)$taRequest->total_amount, 2);
+            $msg = "Your Travel Allowance request for ₹{$claimAmount} has been approved";
+            $taRequest->user->notify(new TARequestNotification(
+                $taRequest,
+                $msg,
+                'TA Request Approved',
+                'ta_approved',
+                '/ta/status'
+            ));
+        } catch (\Exception $e) {
+            \Log::error('Failed to notify applicant on TA approval: ' . $e->getMessage());
+        }
 
         return response()->json(['message' => 'TA request approved', 'data' => $taRequest]);
     }
@@ -228,14 +235,18 @@ class TARequestController
         ]);
 
         // Notify applicant
-        Notification::create([
-            'user_id' => $taRequest->user_id,
-            'type' => 'ta_request_rejected',
-            'title' => 'TA Request Rejected',
-            'message' => 'Your travel allowance request has been rejected',
-            'data' => json_encode(['ta_request_id' => $taRequest->id]),
-            'is_read' => false,
-        ]);
+        try {
+            $msg = "Your Travel Allowance request has been rejected" . ($validated['approval_notes'] ? ": " . $validated['approval_notes'] : "");
+            $taRequest->user->notify(new TARequestNotification(
+                $taRequest,
+                $msg,
+                'TA Request Rejected',
+                'ta_rejected',
+                '/ta/status'
+            ));
+        } catch (\Exception $e) {
+            \Log::error('Failed to notify applicant on TA rejection: ' . $e->getMessage());
+        }
 
         return response()->json(['message' => 'TA request rejected', 'data' => $taRequest]);
     }
