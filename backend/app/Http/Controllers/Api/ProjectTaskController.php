@@ -61,37 +61,50 @@ class ProjectTaskController extends Controller
             'comments' => fn ($q) => $q->latest()->limit(1),
         ])->withCount(['comments', 'bugs']);
 
-        $canViewAll = $user->hasRole('Super Admin')
-            || $user->hasRole('Admin')
-            || $user->hasRole('Team Lead')
-            || $user->can('view all projects')
-            || in_array(strtolower($user->role ?? ''), ['super admin', 'admin', 'team lead'], true)
+        $isSuperAdmin = $user->hasRole('Super Admin')
+            || in_array(strtolower($user->role ?? ''), ['super admin', 'admin'], true);
+
+        $hasCrossTeamView = $isSuperAdmin
             || \App\Models\CustomTeamPermission::userHasPermission($user, 'task_cross_team_view');
 
-        if (!$canViewAll) {
-            $query->where(function ($q) use ($user) {
-                $q->whereHas('project', function ($p) use ($user) {
-                    $p->where('project_coordinator_id', $user->id)
-                      ->orWhereHas('members', fn ($m) => $m->where('users.id', $user->id));
-                })
-                ->orWhere('coordinator_id', $user->id)
-                ->orWhereHas('assignees', fn ($a) => $a->where('users.id', $user->id));
+        // Apply explicit team_id filter if provided
+        if ($request->filled('team_id') && $request->input('team_id') !== 'all') {
+            $teamId = (int) $request->input('team_id');
+            $query->where(function ($q) use ($teamId) {
+                $q->where('team_id', $teamId)
+                  ->orWhereHas('assignees', fn ($a) => $a->where('users.team_id', $teamId));
             });
+        } elseif (!$hasCrossTeamView) {
+            // User does not have cross-team access -> strictly isolate to user's own team / assigned tasks
+            $userRolesStr = strtolower($user->roles->pluck('name')->implode(' '));
+            $isTeamLead = $user->hasRole('Team Lead')
+                || str_contains($userRolesStr, 'lead')
+                || strtolower($user->role ?? '') === 'team lead'
+                || \App\Models\Team::where('team_lead_id', $user->id)->exists();
+
+            $userTeamId = $user->team_id ?: \App\Models\Team::where('team_lead_id', $user->id)->value('id');
+
+            if ($userTeamId && $isTeamLead) {
+                $query->where(function ($q) use ($userTeamId, $user) {
+                    $q->where('team_id', $userTeamId)
+                      ->orWhereHas('assignees', fn ($a) => $a->where('users.team_id', $userTeamId)->orWhere('users.id', $user->id));
+                });
+            } else {
+                $query->where(function ($q) use ($user) {
+                    $q->whereHas('assignees', fn ($a) => $a->where('users.id', $user->id))
+                      ->orWhere('coordinator_id', $user->id)
+                      ->orWhereHas('project', function ($p) use ($user) {
+                          $p->where('project_coordinator_id', $user->id)
+                            ->orWhereHas('members', fn ($m) => $m->where('users.id', $user->id));
+                      });
+                });
+            }
         }
 
         foreach (['project_id', 'sub_phase_id'] as $filter) {
             if ($request->filled($filter)) {
                 $query->where($filter, (int) $request->input($filter));
             }
-        }
-
-        if ($request->filled('team_id')) {
-            $teamId = (int) $request->input('team_id');
-            $query->where(function ($q) use ($teamId) {
-                $q->where('team_id', $teamId)
-                  ->orWhereHas('project', fn ($p) => $p->where('team_id', $teamId))
-                  ->orWhereHas('assignees', fn ($a) => $a->where('users.team_id', $teamId));
-            });
         }
         if ($request->filled('status')) {
             $statusVal = $request->string('status');

@@ -320,6 +320,11 @@ export default function AllTasksPage() {
         }
 
         if (!memberMap.has(aId)) {
+          // Only add foreign member cards if in global "all" view and user has cross-team permissions
+          if (selectedTeamId !== "all" || !canViewCrossTeam) {
+            return;
+          }
+
           const aName = assignee.first_name ? `${assignee.first_name} ${assignee.last_name || ""}`.trim() : assignee.name || `User #${aId}`;
           memberMap.set(aId, {
             member: {
@@ -335,8 +340,8 @@ export default function AllTasksPage() {
           });
         }
 
-        const entry = memberMap.get(aId)!;
-        if (!entry.tasks.some((t) => t.id === task.id)) {
+        const entry = memberMap.get(aId);
+        if (entry && !entry.tasks.some((t) => t.id === task.id)) {
           entry.tasks.push(task);
         }
       });
