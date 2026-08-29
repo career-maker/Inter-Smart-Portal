@@ -68,6 +68,7 @@ The portal defines four primary role tiers:
 | **Manage Approved Leaves/WFH (Cancel / Override)** | ✅ Full Access | ❌ | ❌ | ❌ |
 | **Leave Balances Dashboard & Adjustments** | ✅ Edit & Adjust | ✅ View All | ❌ | ❌ (View self) |
 | **Leave Policy Management (Add-on Module)** | ✅ Full Control | ❌ | ❌ | ❌ |
+| **Team & Role Permissions (Add-on Module)** | ✅ Full Control | ❌ | ❌ | ❌ |
 | **Biometric Attendance Matrix & Punch Overrides** | ✅ Full Edit | ✅ View All | ✅ Team Matrix | ✅ Self Detail |
 | **Project Repository (Clients, Budget, Timeline)** | ✅ Full CRUD | ✅ View | ✅ Assigned Lead | ✅ Assigned View |
 | **All Tasks / Kanban Board / Forecast Tasks** | ✅ Full CRUD | ✅ Task Catalog | ✅ Team Tasks | ✅ Assigned Tasks |
@@ -115,7 +116,7 @@ The sidebar dynamically renders based on the logged-in user's role:
 1. **Home / Dashboard**: Direct link to the personalized executive overview.
 2. **Leave & WFH**: Apply Leave, Apply WFH, Leave Balances, Leave Approvals, Manage Approved Leaves.
 3. **Project Management**: Overview, Project Status, Projects, All Tasks, My Tasks, Overdue Tasks, Completed Tasks, Forecast Tasks, Bug Reports, Hubstaff, Task Catalog.
-4. **Add-ons** *(Dedicated Top-Level Super Admin Group)*: Add-ons Overview & Team Scoping, Leave Policy Management.
+4. **Add-ons** *(Dedicated Top-Level Super Admin Group)*: All Add-ons, Team & Role Permissions Management, Leave Policy Management.
 5. **Finances / Travel Allowance**: Apply for TA, TA Status, Manage TA Requests.
 6. **HR Services**: Updates & Announcements, Request Documents, HR Policies Handbook.
 7. **People & Org**: Employees Directory, Departments / Teams, Attendance Management, The Hall of Fame, Birthday Wishes, Recognition Leaderboard.
@@ -293,6 +294,10 @@ Located at **Main Menu → Add-ons → Leave Policy Management** (`/project-mana
   - Priority: `Low` (Slate), `Medium` (Blue), `High` (Orange), `Urgent` (Red).
   - Estimated Hours vs. Actual Hours Logged.
   - Linked QA Bug count and Hubstaff tracking status.
+- **Dynamic Team Filter Switcher (Cross-Team Permission)**:
+  - By default, general employees see their department's tasks.
+  - When a user possesses the **Cross-Team Task Visibility (`task_cross_team_view`)** permission or is a Super Admin, the **Team Filter Switcher** dropdown dynamically renders in the top navigation bar.
+  - Enables instant cross-department switching to inspect task tables, employee workload groups, and milestone delivery for any selected department.
 
 ### 8.3. Specialized Task Views
 - **My Tasks (`/project-management/tasks/my`)**: Filtered view showing only tasks assigned to the logged-in user.
@@ -509,6 +514,7 @@ erDiagram
     projects ||--o{ tasks : contains
     pm_addons ||--o{ pm_addon_team : provisions
     teams ||--o{ pm_addon_team : receives
+    teams ||--o{ custom_team_permissions : grants
 ```
 
 ### Core Table Definitions:
@@ -517,6 +523,7 @@ erDiagram
 - **`employee_leave_policies`**: Employee-specific overrides (`custom_monthly_cl`, `custom_monthly_sl`, `custom_probation_months`, `probation_cleared_manually`).
 - **`leave_allocation_ledgers`**: Immutable audit logs capturing `opening_balance`, `amount`, `closing_balance`, `cycle_key`, `transaction_type`.
 - **`leave_balances`**: Live employee balances (`casual_leave_balance`, `cl_carry_forward`, `sick_leave_balance`).
+- **`custom_team_permissions`**: Fine-grained team capabilities (`permission_key`, `team_id`, `scope` [`all_members`, `leads_only`], `is_active`).
 - **`attendance`**: Daily records with `first_in`, `last_out`, `total_seconds`, `break_seconds`, `status`.
 - **`projects` & `tasks`**: Deliverables tracking with priorities, estimations, and statuses.
 - **`pm_addons` & `pm_addon_team`**: Modular feature licenses and department mappings.
@@ -543,9 +550,11 @@ erDiagram
 | **3** | `/leave-balances` | Filter employees by *In Probation*, *Custom Quota* | Employee-wise allocation table, 2-Year CL Carry Forward tracking, and 1-click Manual Balance Adjustment modal. |
 | **4** | `/project-management/addons/leave-policy` | Open Leave Policy Settings | Configurable 26th payroll cycle start day, 6-month probation next-day eligibility, auto CL/SL accrual, and Audit Ledger. |
 | **5** | `/attendance/management` | Open Attendance Matrix | Monthly calendar view, color-coded status badges, and second-precision daily punch detail inspection. |
-| **6** | `/project-management/tasks` | Drag task across Kanban lanes | 5-stage task workflow, overdue auto-escalation, forecast planning, and Hubstaff time tracking. |
-| **7** | `/project-management/addons` | Toggle Add-ons & Team Scoping | Modular add-ons architecture showing team-specific QA Bug Tracker vs. company-wide Leave Policy. |
-| **8** | `/ta/apply` & `/ta/management` | Submit a TA claim with odometer readings | Automated distance/fare calculation, receipt attachment preview, and Super Admin payout approval. |
-| **9** | `/announcements` | Publish a Pinned Announcement | Community-style announcement card with banner image, and instant live sync to the top Flash Ticker. |
-| **10**| `/documents` | Request a Salary Certificate & fulfill as HR | Paperless self-service document issuance with signed PDF upload and instant employee download. |
-| **11**| `/community` | View social feed, vote on a poll, send peer praise | 2-Column layout, `@` user mentions, multi-photo slider, live poll voting, and recognition badges. |
+| **6** | `/project-management/tasks` | Drag task across Kanban lanes & switch team | 5-stage task workflow, overdue auto-escalation, forecast planning, Hubstaff tracking, and Cross-Team Switcher dropdown. |
+| **7** | `/project-management/addons` | Open Add-ons overview | Modular add-on provisioning showing QA Bug Tracker, Leave Policy, and Team Permissions. |
+| **8** | `/project-management/addons/permissions` | Configure Team Permissions Matrix | 3-state permission selectors (*Off*, *Leads Only*, *All Members*), granting cross-team task tables switcher and assignment powers. |
+| **9** | `/ta/apply` & `/ta/management` | Submit a TA claim with odometer readings | Automated distance/fare calculation, receipt attachment preview, and Super Admin payout approval. |
+| **10**| `/announcements` | Publish a Pinned Announcement | Community-style announcement card with banner image, and instant live sync to the top Flash Ticker. |
+| **11**| `/documents` | Request a Salary Certificate & fulfill as HR | Paperless self-service document issuance with signed PDF upload and instant employee download. |
+| **12**| `/community` | View social feed, vote on a poll, send peer praise | 2-Column layout, `@` user mentions, multi-photo slider, live poll voting, and recognition badges. |
+
