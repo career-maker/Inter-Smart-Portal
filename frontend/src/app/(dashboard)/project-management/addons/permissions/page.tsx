@@ -500,10 +500,10 @@ export default function PermissionsManagementPage() {
       </div>
 
       {/* ── Sticky Bottom Save Bar ── */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 p-4 shadow-lg flex items-center justify-between max-w-7xl mx-auto rounded-t-2xl">
-        <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
-          <span>
+      <div className="sticky bottom-4 z-30 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-3 rounded-2xl">
+        <div className="text-xs text-slate-600 dark:text-slate-300 flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-[#56348f] dark:text-purple-400 shrink-0" />
+          <span className="font-medium">
             Changes take effect immediately across all active user sessions upon saving.
           </span>
         </div>
@@ -519,7 +519,7 @@ export default function PermissionsManagementPage() {
             fontSize: "13px",
             fontWeight: 600,
           }}
-          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-bold shadow-md transition-all disabled:opacity-50 cursor-pointer"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-bold shadow-md transition-all disabled:opacity-50 cursor-pointer shrink-0"
         >
           {saving ? (
             <RefreshCw className="w-4 h-4 animate-spin !text-white" />
