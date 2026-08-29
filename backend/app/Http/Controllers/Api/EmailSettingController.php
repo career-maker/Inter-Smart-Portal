@@ -27,17 +27,31 @@ class EmailSettingController extends Controller
         $routing = EmailSetting::getByKey('global_routing', EmailSetting::defaultRouting());
         $overrides = EmailSetting::getByKey('employee_overrides', []);
 
-        // Attach employee names to overrides for display
-        $userIds = collect($overrides)->pluck('user_id')->filter()->unique();
-        $users = User::whereIn('id', $userIds)->get(['id', 'first_name', 'last_name', 'email', 'employee_code', 'team_id']);
+        // Attach employee and approver names to overrides for display
+        $allIds = collect($overrides)->flatMap(function ($item) {
+            return [
+                $item['user_id'] ?? null,
+                $item['approver_user_id'] ?? null,
+                $item['approver_user_id_2'] ?? null,
+            ];
+        })->filter()->unique();
+
+        $users = User::whereIn('id', $allIds)->get(['id', 'first_name', 'last_name', 'email', 'employee_code', 'team_id']);
         $usersMap = $users->keyBy('id');
 
         $hydratedOverrides = collect($overrides)->map(function ($item) use ($usersMap) {
             $u = $usersMap->get($item['user_id'] ?? 0);
+            $appr1 = $usersMap->get($item['approver_user_id'] ?? 0);
+            $appr2 = $usersMap->get($item['approver_user_id_2'] ?? 0);
+
             return array_merge($item, [
                 'user_name' => $u ? "{$u->first_name} {$u->last_name}" : 'Unknown Employee',
                 'employee_code' => $u->employee_code ?? '',
                 'user_email' => $u->email ?? '',
+                'approver_name' => $appr1 ? "{$appr1->first_name} {$appr1->last_name}" : null,
+                'approver_email' => $appr1->email ?? null,
+                'approver_name_2' => $appr2 ? "{$appr2->first_name} {$appr2->last_name}" : null,
+                'approver_email_2' => $appr2->email ?? null,
             ]);
         })->values();
 
@@ -125,7 +139,10 @@ class EmailSettingController extends Controller
             'overrides' => 'present|array',
             'overrides.*.user_id' => 'required|integer|exists:users,id',
             'overrides.*.action' => 'required|string|max:100',
+            'overrides.*.approver_user_id' => 'nullable|integer|exists:users,id',
             'overrides.*.custom_to' => 'nullable|string|max:255',
+            'overrides.*.approver_user_id_2' => 'nullable|integer|exists:users,id',
+            'overrides.*.custom_to_2' => 'nullable|string|max:255',
             'overrides.*.custom_cc' => 'nullable|array',
             'overrides.*.custom_cc.*' => 'email',
             'overrides.*.enabled' => 'boolean',

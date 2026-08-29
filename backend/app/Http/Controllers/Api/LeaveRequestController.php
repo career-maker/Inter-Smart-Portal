@@ -25,6 +25,32 @@ class LeaveRequestController extends Controller
         $query = LeaveRequest::with(['user', 'leaveType', 'approver'])
             ->select('leave_requests.*', 'attachment_link');
 
+        // Check for delegated employee approver overrides
+        $allOverrides = \App\Models\EmailSetting::getByKey('employee_overrides', []);
+        $delegatedEmployeeIds = collect($allOverrides)
+            ->filter(function ($item) use ($user) {
+                return ($item['enabled'] ?? true) && (
+                    (int)($item['approver_user_id'] ?? 0) === (int)$user->id ||
+                    (int)($item['approver_user_id_2'] ?? 0) === (int)$user->id
+                );
+            })
+            ->pluck('user_id')
+            ->unique()
+            ->values()
+            ->all();
+
+        $redirectedAwayEmployeeIds = collect($allOverrides)
+            ->filter(function ($item) use ($user) {
+                return ($item['enabled'] ?? true) &&
+                    (!empty($item['approver_user_id']) || !empty($item['approver_user_id_2'])) &&
+                    (int)($item['approver_user_id'] ?? 0) !== (int)$user->id &&
+                    (int)($item['approver_user_id_2'] ?? 0) !== (int)$user->id;
+            })
+            ->pluck('user_id')
+            ->unique()
+            ->values()
+            ->all();
+
         if ($user->hasRole('Super Admin') || $user->hasRole('HR')) {
             if ($request->has('status') && $request->status === 'Pending') {
                 $query->where(function ($mainQ) {
@@ -40,11 +66,26 @@ class LeaveRequestController extends Controller
             } elseif ($request->has('status')) {
                 $query->where('status', $request->status);
             }
-        } elseif ($user->hasRole('Team Lead')) {
+        } elseif ($user->hasRole('Team Lead') || !empty($delegatedEmployeeIds)) {
             $teamId = $user->team_id;
-            $query->whereHas('user', function ($q) use ($teamId) {
-                $q->where('team_id', $teamId);
+            $query->where(function ($mainQ) use ($user, $teamId, $delegatedEmployeeIds, $redirectedAwayEmployeeIds) {
+                if ($user->hasRole('Team Lead')) {
+                    $mainQ->where(function ($subQ) use ($teamId, $redirectedAwayEmployeeIds) {
+                        $subQ->whereHas('user', fn($uq) => $uq->where('team_id', $teamId));
+                        if (!empty($redirectedAwayEmployeeIds)) {
+                            $subQ->whereNotIn('user_id', $redirectedAwayEmployeeIds);
+                        }
+                    });
+                }
+                if (!empty($delegatedEmployeeIds)) {
+                    if ($user->hasRole('Team Lead')) {
+                        $mainQ->orWhereIn('user_id', $delegatedEmployeeIds);
+                    } else {
+                        $mainQ->whereIn('user_id', $delegatedEmployeeIds);
+                    }
+                }
             });
+
             if ($request->has('status') && $request->status === 'Pending') {
                 $query->where('tl_status', 'Pending')->where('status', 'Pending');
             } elseif ($request->has('status')) {
@@ -649,12 +690,33 @@ class LeaveRequestController extends Controller
                 }
             }
 
-            // Notify the user's Team Lead
-            if ($user->team_id) {
-                $team = \App\Models\Team::find($user->team_id);
-                $tl   = $team?->teamLead;
-                if ($tl && $tl->id !== $user->id) {
-                    $tl->notify(new LeaveRequestNotification('submitted', $leaveRequest, $message));
+            // Check if user has delegated custom approvers
+            $overrides = \App\Models\EmailSetting::getByKey('employee_overrides', []);
+            $matchedOverride = collect($overrides)->first(function ($item) use ($user) {
+                return (int)($item['user_id'] ?? 0) === (int)$user->id && ($item['enabled'] ?? true);
+            });
+
+            $approverIds = [];
+            if ($matchedOverride) {
+                if (!empty($matchedOverride['approver_user_id'])) $approverIds[] = (int)$matchedOverride['approver_user_id'];
+                if (!empty($matchedOverride['approver_user_id_2'])) $approverIds[] = (int)$matchedOverride['approver_user_id_2'];
+            }
+
+            if (!empty($approverIds)) {
+                $approvers = User::whereIn('id', $approverIds)->get();
+                foreach ($approvers as $appr) {
+                    if ($appr->id !== $user->id) {
+                        $appr->notify(new LeaveRequestNotification('submitted', $leaveRequest, $message));
+                    }
+                }
+            } else {
+                // Notify the user's standard Team Lead
+                if ($user->team_id) {
+                    $team = \App\Models\Team::find($user->team_id);
+                    $tl   = $team?->teamLead;
+                    if ($tl && $tl->id !== $user->id) {
+                        $tl->notify(new LeaveRequestNotification('submitted', $leaveRequest, $message));
+                    }
                 }
             }
         } catch (\Exception $e) {
@@ -678,9 +740,33 @@ class LeaveRequestController extends Controller
         $applicant   = $leaveRequest->user;
         $isSingleDay = (Carbon::parse($leaveRequest->start_date)->format('Y-m-d') === Carbon::parse($leaveRequest->end_date)->format('Y-m-d'));
 
+        // Check for delegated employee approver overrides
+        $allOverrides = \App\Models\EmailSetting::getByKey('employee_overrides', []);
+        $isCustomApprover = collect($allOverrides)->contains(function ($item) use ($applicant, $user) {
+            return ($item['enabled'] ?? true) &&
+                (int)($item['user_id'] ?? 0) === (int)$applicant->id &&
+                (
+                    (int)($item['approver_user_id'] ?? 0) === (int)$user->id ||
+                    (int)($item['approver_user_id_2'] ?? 0) === (int)$user->id
+                );
+        });
+
+        $hasAnotherApproverDelegated = collect($allOverrides)->contains(function ($item) use ($applicant, $user) {
+            return ($item['enabled'] ?? true) &&
+                (int)($item['user_id'] ?? 0) === (int)$applicant->id &&
+                (!empty($item['approver_user_id']) || !empty($item['approver_user_id_2'])) &&
+                (int)($item['approver_user_id'] ?? 0) !== (int)$user->id &&
+                (int)($item['approver_user_id_2'] ?? 0) !== (int)$user->id;
+        });
+
         if ($user->hasRole('Super Admin') || $user->hasRole('HR')) {
-            // Authorized
+            // Authorized Super Admin / HR
+        } elseif ($isCustomApprover) {
+            // Authorized delegated custom approver for this employee
         } elseif ($user->hasRole('Team Lead')) {
+            if ($hasAnotherApproverDelegated) {
+                return response()->json(['message' => 'Approval for this employee has been redirected to a dedicated custom manager.'], 403);
+            }
             if ($applicant->team_id !== $user->team_id) {
                 return response()->json(['message' => 'Unauthorized to approve this request.'], 403);
             }
@@ -691,12 +777,14 @@ class LeaveRequestController extends Controller
             return response()->json(['message' => 'Unauthorized to approve requests.'], 403);
         }
 
+        $isInitialApproverRole = $user->hasRole('Team Lead') || $isCustomApprover;
+
         try {
             DB::beginTransaction();
 
             if ($status === 'Rejected') {
                 // Single-day: close out the other approver immediately
-                $newTlStatus    = $user->hasRole('Team Lead') ? 'Rejected' : ($isSingleDay ? 'Not Required' : $leaveRequest->tl_status);
+                $newTlStatus    = $isInitialApproverRole ? 'Rejected' : ($isSingleDay ? 'Not Required' : $leaveRequest->tl_status);
                 $newAdminStatus = ($user->hasRole('Super Admin') || $user->hasRole('HR')) ? 'Rejected' : ($isSingleDay ? 'Not Required' : $leaveRequest->admin_status);
 
                 $leaveRequest->update([
@@ -714,7 +802,7 @@ class LeaveRequestController extends Controller
                 $this->notifyEmployee($leaveRequest, $user, 'rejected');
 
             } elseif ($status === 'Approved') {
-                $isTL    = $user->hasRole('Team Lead') && !$user->hasRole('Super Admin') && !$user->hasRole('HR');
+                $isTL    = ($user->hasRole('Team Lead') || $isCustomApprover) && !$user->hasRole('Super Admin') && !$user->hasRole('HR');
                 $isAdmin = $user->hasRole('Super Admin') || $user->hasRole('HR');
 
                 if ($isTL) {

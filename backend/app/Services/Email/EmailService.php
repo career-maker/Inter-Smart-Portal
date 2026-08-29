@@ -95,6 +95,15 @@ class EmailService
                     }
                 }
 
+                if (!empty($matchedOverride['custom_to_2'])) {
+                    $customTo2 = trim($matchedOverride['custom_to_2']);
+                    if (filter_var($customTo2, FILTER_VALIDATE_EMAIL)) {
+                        $recipients['to'][] = $customTo2;
+                    } else {
+                        Log::warning("⚠️ Custom TO 2 email '{$customTo2}' is invalid RFC email, skipping.");
+                    }
+                }
+
                 if (!empty($matchedOverride['custom_cc']) && is_array($matchedOverride['custom_cc'])) {
                     foreach ($matchedOverride['custom_cc'] as $cc) {
                         $trimmedCc = trim($cc);

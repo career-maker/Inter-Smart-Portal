@@ -28,7 +28,14 @@ export interface EmployeeOverride {
   employee_code?: string;
   user_email?: string;
   action: string;
+  approver_user_id?: number;
+  approver_name?: string;
+  approver_email?: string;
   custom_to?: string;
+  approver_user_id_2?: number;
+  approver_name_2?: string;
+  approver_email_2?: string;
+  custom_to_2?: string;
   custom_cc?: string[];
   enabled: boolean;
   notes?: string;

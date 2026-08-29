@@ -28,6 +28,32 @@ class WfhRequestController extends Controller
         $user  = $request->user();
         $query = WfhRequest::with(['user', 'approver']);
 
+        // Check for delegated employee approver overrides
+        $allOverrides = \App\Models\EmailSetting::getByKey('employee_overrides', []);
+        $delegatedEmployeeIds = collect($allOverrides)
+            ->filter(function ($item) use ($user) {
+                return ($item['enabled'] ?? true) && (
+                    (int)($item['approver_user_id'] ?? 0) === (int)$user->id ||
+                    (int)($item['approver_user_id_2'] ?? 0) === (int)$user->id
+                );
+            })
+            ->pluck('user_id')
+            ->unique()
+            ->values()
+            ->all();
+
+        $redirectedAwayEmployeeIds = collect($allOverrides)
+            ->filter(function ($item) use ($user) {
+                return ($item['enabled'] ?? true) &&
+                    (!empty($item['approver_user_id']) || !empty($item['approver_user_id_2'])) &&
+                    (int)($item['approver_user_id'] ?? 0) !== (int)$user->id &&
+                    (int)($item['approver_user_id_2'] ?? 0) !== (int)$user->id;
+            })
+            ->pluck('user_id')
+            ->unique()
+            ->values()
+            ->all();
+
         if ($user->hasRole('Super Admin') || $user->hasRole('HR')) {
             if ($request->has('status') && $request->status === 'Pending') {
                 // Admin sees requests where TL has acted and admin is still pending
@@ -37,9 +63,26 @@ class WfhRequestController extends Controller
             } elseif ($request->has('status')) {
                 $query->where('status', $request->status);
             }
-        } elseif ($user->hasRole('Team Lead')) {
+        } elseif ($user->hasRole('Team Lead') || !empty($delegatedEmployeeIds)) {
             $teamId = $user->team_id;
-            $query->whereHas('user', fn($q) => $q->where('team_id', $teamId));
+            $query->where(function ($mainQ) use ($user, $teamId, $delegatedEmployeeIds, $redirectedAwayEmployeeIds) {
+                if ($user->hasRole('Team Lead')) {
+                    $mainQ->where(function ($subQ) use ($teamId, $redirectedAwayEmployeeIds) {
+                        $subQ->whereHas('user', fn($uq) => $uq->where('team_id', $teamId));
+                        if (!empty($redirectedAwayEmployeeIds)) {
+                            $subQ->whereNotIn('user_id', $redirectedAwayEmployeeIds);
+                        }
+                    });
+                }
+                if (!empty($delegatedEmployeeIds)) {
+                    if ($user->hasRole('Team Lead')) {
+                        $mainQ->orWhereIn('user_id', $delegatedEmployeeIds);
+                    } else {
+                        $mainQ->whereIn('user_id', $delegatedEmployeeIds);
+                    }
+                }
+            });
+
             if ($request->has('status') && $request->status === 'Pending') {
                 $query->where('tl_status', 'Pending')->where('status', 'Pending');
             } elseif ($request->has('status')) {
@@ -133,7 +176,26 @@ class WfhRequestController extends Controller
                 $fullName = "{$user->first_name} {$user->last_name}";
                 $message  = "{$fullName} has submitted a WFH request ({$data['start_date']} to {$endDate}).";
 
-                if ($tlStatus === 'Pending') {
+                // Check for custom approver overrides
+                $overrides = \App\Models\EmailSetting::getByKey('employee_overrides', []);
+                $matchedOverride = collect($overrides)->first(function ($item) use ($user) {
+                    return (int)($item['user_id'] ?? 0) === (int)$user->id && ($item['enabled'] ?? true);
+                });
+
+                $approverIds = [];
+                if ($matchedOverride) {
+                    if (!empty($matchedOverride['approver_user_id'])) $approverIds[] = (int)$matchedOverride['approver_user_id'];
+                    if (!empty($matchedOverride['approver_user_id_2'])) $approverIds[] = (int)$matchedOverride['approver_user_id_2'];
+                }
+
+                if (!empty($approverIds)) {
+                    $approvers = User::whereIn('id', $approverIds)->get();
+                    foreach ($approvers as $appr) {
+                        if ($appr->id !== $user->id) {
+                            $appr->notify(new WfhRequestNotification('submitted', $wfhRequest, $message));
+                        }
+                    }
+                } elseif ($tlStatus === 'Pending') {
                     // Notify the employee's Team Lead
                     if ($user->team_id) {
                         $tl = \App\Models\Team::find($user->team_id)?->teamLead;
@@ -176,10 +238,37 @@ class WfhRequestController extends Controller
 
         $applicant = $wfhRequest->user;
 
+        // Check for delegated employee approver overrides
+        $allOverrides = \App\Models\EmailSetting::getByKey('employee_overrides', []);
+        $isCustomApprover = collect($allOverrides)->contains(function ($item) use ($applicant, $user) {
+            return ($item['enabled'] ?? true) &&
+                (int)($item['user_id'] ?? 0) === (int)$applicant->id &&
+                (
+                    (int)($item['approver_user_id'] ?? 0) === (int)$user->id ||
+                    (int)($item['approver_user_id_2'] ?? 0) === (int)$user->id
+                );
+        });
+
+        $hasAnotherApproverDelegated = collect($allOverrides)->contains(function ($item) use ($applicant, $user) {
+            return ($item['enabled'] ?? true) &&
+                (int)($item['user_id'] ?? 0) === (int)$applicant->id &&
+                (!empty($item['approver_user_id']) || !empty($item['approver_user_id_2'])) &&
+                (int)($item['approver_user_id'] ?? 0) !== (int)$user->id &&
+                (int)($item['approver_user_id_2'] ?? 0) !== (int)$user->id;
+        });
+
         // Authorization check
         if ($user->hasRole('Super Admin') || $user->hasRole('HR')) {
             // Always authorized
+        } elseif ($isCustomApprover) {
+            // Authorized delegated custom approver for this employee
+            if ($wfhRequest->tl_status !== 'Pending') {
+                return response()->json(['message' => 'You have already acted on this request.'], 400);
+            }
         } elseif ($user->hasRole('Team Lead')) {
+            if ($hasAnotherApproverDelegated) {
+                return response()->json(['message' => 'Approval for this employee has been redirected to a dedicated custom manager.'], 403);
+            }
             if ($applicant->team_id !== $user->team_id) {
                 return response()->json(['message' => 'Unauthorized to approve this request.'], 403);
             }
@@ -193,29 +282,31 @@ class WfhRequestController extends Controller
             return response()->json(['message' => 'Unauthorized.'], 403);
         }
 
+        $isInitialApproverRole = $user->hasRole('Team Lead') || $isCustomApprover;
+
         $newStatus = $data['status']; // 'Approved' or 'Rejected'
 
         if ($newStatus === 'Rejected') {
             // Either party rejects → immediately rejected
             $wfhRequest->update([
                 'status'       => 'Rejected',
-                'tl_status'    => $user->hasRole('Team Lead') ? 'Rejected' : $wfhRequest->tl_status,
+                'tl_status'    => $isInitialApproverRole ? 'Rejected' : $wfhRequest->tl_status,
                 'admin_status' => ($user->hasRole('Super Admin') || $user->hasRole('HR')) ? 'Rejected' : $wfhRequest->admin_status,
                 'approved_by'  => $user->id,
                 'remarks'      => $data['remarks'] ?? null,
             ]);
         } else {
             // Approval — dual approval required
-            if ($user->hasRole('Team Lead') && !$user->hasRole('Super Admin')) {
+            if ($isInitialApproverRole && !$user->hasRole('Super Admin') && !$user->hasRole('HR')) {
                 $wfhRequest->tl_status = 'Approved';
                 // Status stays Pending until Admin also approves
                 $wfhRequest->save();
 
-                // Notify Super Admins that TL has approved — their turn
+                // Notify Super Admins that initial approver has approved — their turn
                 try {
-                    $tlName  = "{$user->first_name} {$user->last_name}";
-                    $empName = "{$applicant->first_name} {$applicant->last_name}";
-                    $msg     = "TL {$tlName} has approved {$empName}'s WFH request. Awaiting your final approval.";
+                    $apprName = "{$user->first_name} {$user->last_name}";
+                    $empName  = "{$applicant->first_name} {$applicant->last_name}";
+                    $msg      = "Approver {$apprName} has approved {$empName}'s WFH request. Awaiting your final approval.";
                     foreach (User::role('Super Admin')->get() as $admin) {
                         $admin->notify(new WfhRequestNotification('tl_approved', $wfhRequest, $msg));
                     }

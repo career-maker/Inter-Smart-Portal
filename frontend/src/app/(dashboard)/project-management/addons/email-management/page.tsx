@@ -136,7 +136,10 @@ export default function EmailManagementPage() {
   const [modalForm, setModalForm] = useState<{
     user_id: number;
     action: string;
+    approver_user_id?: number;
     custom_to: string;
+    approver_user_id_2?: number;
+    custom_to_2: string;
     custom_cc: string[];
     enabled: boolean;
     notes: string;
@@ -144,7 +147,10 @@ export default function EmailManagementPage() {
   }>({
     user_id: 0,
     action: "leave_application",
+    approver_user_id: 0,
     custom_to: "",
+    approver_user_id_2: 0,
+    custom_to_2: "",
     custom_cc: [],
     enabled: true,
     notes: "",
@@ -322,7 +328,10 @@ export default function EmailManagementPage() {
     setModalForm({
       user_id: allEmployees[0]?.id || 0,
       action: "leave_application",
+      approver_user_id: 0,
       custom_to: "",
+      approver_user_id_2: 0,
+      custom_to_2: "",
       custom_cc: [],
       enabled: true,
       notes: "",
@@ -338,7 +347,10 @@ export default function EmailManagementPage() {
     setModalForm({
       user_id: item.user_id,
       action: item.action,
+      approver_user_id: item.approver_user_id || 0,
       custom_to: item.custom_to || "",
+      approver_user_id_2: item.approver_user_id_2 || 0,
+      custom_to_2: item.custom_to_2 || "",
       custom_cc: item.custom_cc || [],
       enabled: item.enabled ?? true,
       notes: item.notes || "",
@@ -354,18 +366,33 @@ export default function EmailManagementPage() {
     }
     const trimmedTo = modalForm.custom_to.trim();
     if (trimmedTo && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedTo)) {
-      alert("Please enter a valid email address with domain for Custom TO (e.g. manager@intersmart.in).");
+      alert("Please enter a valid email address with domain for Primary Custom TO (e.g. manager@intersmart.in).");
+      return;
+    }
+    const trimmedTo2 = modalForm.custom_to_2.trim();
+    if (trimmedTo2 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedTo2)) {
+      alert("Please enter a valid email address with domain for Second Custom TO (e.g. manager2@intersmart.in).");
       return;
     }
 
     const userObj = allEmployees.find((e) => e.id === Number(modalForm.user_id));
+    const appr1 = allEmployees.find((e) => e.id === Number(modalForm.approver_user_id));
+    const appr2 = allEmployees.find((e) => e.id === Number(modalForm.approver_user_id_2));
+
     const overrideEntry: EmployeeOverride = {
       user_id: Number(modalForm.user_id),
       user_name: userObj ? `${userObj.first_name} ${userObj.last_name || ""}`.trim() : "",
       employee_code: userObj?.employee_code || "",
       user_email: userObj?.email || "",
       action: modalForm.action,
+      approver_user_id: modalForm.approver_user_id ? Number(modalForm.approver_user_id) : undefined,
+      approver_name: appr1 ? `${appr1.first_name} ${appr1.last_name || ""}`.trim() : undefined,
+      approver_email: appr1?.email || undefined,
       custom_to: trimmedTo || undefined,
+      approver_user_id_2: modalForm.approver_user_id_2 ? Number(modalForm.approver_user_id_2) : undefined,
+      approver_name_2: appr2 ? `${appr2.first_name} ${appr2.last_name || ""}`.trim() : undefined,
+      approver_email_2: appr2?.email || undefined,
+      custom_to_2: trimmedTo2 || undefined,
       custom_cc: modalForm.custom_cc,
       enabled: modalForm.enabled,
       notes: modalForm.notes.trim() || undefined,
@@ -1152,20 +1179,47 @@ export default function EmailManagementPage() {
                           <span>Trigger: {actDef.label}</span>
                         </div>
 
-                        {/* Custom TO & CC Breakdown */}
+                        {/* Custom TO, Approver & CC Breakdown */}
                         <div className="space-y-2 text-xs">
-                          {item.custom_to && (
+                          {item.approver_name && (
                             <div className="flex items-start gap-2">
-                              <strong className="text-slate-400 w-16 shrink-0">Custom TO:</strong>
+                              <strong className="text-slate-400 w-24 shrink-0">Approver 1:</strong>
+                              <span className="font-semibold text-[#56348f] dark:text-purple-300">
+                                {item.approver_name} {item.custom_to ? `(${item.custom_to})` : ""}
+                              </span>
+                            </div>
+                          )}
+
+                          {item.custom_to && !item.approver_name && (
+                            <div className="flex items-start gap-2">
+                              <strong className="text-slate-400 w-24 shrink-0">Custom TO 1:</strong>
                               <span className="font-semibold text-purple-700 dark:text-purple-300 font-mono">
                                 {item.custom_to}
                               </span>
                             </div>
                           )}
 
+                          {item.approver_name_2 && (
+                            <div className="flex items-start gap-2">
+                              <strong className="text-slate-400 w-24 shrink-0">Approver 2:</strong>
+                              <span className="font-semibold text-[#56348f] dark:text-purple-300">
+                                {item.approver_name_2} {item.custom_to_2 ? `(${item.custom_to_2})` : ""}
+                              </span>
+                            </div>
+                          )}
+
+                          {item.custom_to_2 && !item.approver_name_2 && (
+                            <div className="flex items-start gap-2">
+                              <strong className="text-slate-400 w-24 shrink-0">Custom TO 2:</strong>
+                              <span className="font-semibold text-purple-700 dark:text-purple-300 font-mono">
+                                {item.custom_to_2}
+                              </span>
+                            </div>
+                          )}
+
                           {item.custom_cc && item.custom_cc.length > 0 && (
                             <div className="flex items-start gap-2">
-                              <strong className="text-slate-400 w-16 shrink-0">Custom CC:</strong>
+                              <strong className="text-slate-400 w-24 shrink-0">Custom CC:</strong>
                               <div className="flex flex-wrap gap-1">
                                 {item.custom_cc.map((cc) => (
                                   <span
@@ -1219,7 +1273,7 @@ export default function EmailManagementPage() {
                   <span>{editingIndex !== null ? "Edit Employee Override" : "New Employee Email Override"}</span>
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Route notifications for this employee to a specific manager or coordinator.
+                  Route notifications and delegate approval authority for this employee.
                 </p>
               </div>
               <button
@@ -1270,20 +1324,90 @@ export default function EmailManagementPage() {
                 </select>
               </div>
 
-              {/* Custom TO Recipient */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                    Custom TO Recipient Email (Overrides Team Lead)
+              {/* ── Primary Approver / TO Account ── */}
+              <div className="p-3.5 rounded-xl bg-purple-50/50 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-900/40 space-y-3">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-purple-900 dark:text-purple-300 flex items-center justify-between">
+                    <span>1. Primary Custom Approver / Manager Account (Optional)</span>
+                    <span className="text-[10px] font-normal text-purple-600 dark:text-purple-400">Transfers approval rights</span>
                   </label>
+                  <select
+                    value={modalForm.approver_user_id}
+                    onChange={(e) => {
+                      const apprId = Number(e.target.value);
+                      const apprObj = allEmployees.find((emp) => emp.id === apprId);
+                      setModalForm({
+                        ...modalForm,
+                        approver_user_id: apprId,
+                        custom_to: apprObj?.email || modalForm.custom_to,
+                      });
+                    }}
+                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
+                  >
+                    <option value={0}>-- None (Manual Email / Default Team Lead) --</option>
+                    {allEmployees.map((emp) => (
+                      <option key={emp.id} value={emp.id}>
+                        {emp.first_name} {emp.last_name} ({emp.employee_code || `ID ${emp.id}`}) — {emp.email}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-                <input
-                  type="email"
-                  value={modalForm.custom_to}
-                  onChange={(e) => setModalForm({ ...modalForm, custom_to: e.target.value })}
-                  placeholder="supervisor@intersmart.in"
-                  className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
-                />
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Primary Custom TO Recipient Email (Overrides Team Lead)
+                  </label>
+                  <input
+                    type="email"
+                    value={modalForm.custom_to}
+                    onChange={(e) => setModalForm({ ...modalForm, custom_to: e.target.value })}
+                    placeholder="supervisor@intersmart.in"
+                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
+                  />
+                </div>
+              </div>
+
+              {/* ── Second Approver / Multi-Approval TO Account ── */}
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-3">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center justify-between">
+                    <span>2. Second Approver / Multi-Approval Account (Optional)</span>
+                    <span className="text-[10px] font-normal text-slate-400">Multi-manager routing</span>
+                  </label>
+                  <select
+                    value={modalForm.approver_user_id_2}
+                    onChange={(e) => {
+                      const apprId2 = Number(e.target.value);
+                      const apprObj2 = allEmployees.find((emp) => emp.id === apprId2);
+                      setModalForm({
+                        ...modalForm,
+                        approver_user_id_2: apprId2,
+                        custom_to_2: apprObj2?.email || modalForm.custom_to_2,
+                      });
+                    }}
+                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
+                  >
+                    <option value={0}>-- None (Single Approver) --</option>
+                    {allEmployees.map((emp) => (
+                      <option key={emp.id} value={emp.id}>
+                        {emp.first_name} {emp.last_name} ({emp.employee_code || `ID ${emp.id}`}) — {emp.email}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Second Custom TO Recipient Email (Optional)
+                  </label>
+                  <input
+                    type="email"
+                    value={modalForm.custom_to_2}
+                    onChange={(e) => setModalForm({ ...modalForm, custom_to_2: e.target.value })}
+                    placeholder="manager2@intersmart.in"
+                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
+                  />
+                </div>
               </div>
 
               {/* Custom CC List Chips */}
