@@ -249,94 +249,109 @@ export default function PmAddonsPage() {
                   </button>
                 </div>
 
-                {/* Team Assignment Selector */}
-                <div className="space-y-2.5 pt-2 border-t border-slate-100 dark:border-slate-800">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                      <Users className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
-                      <span>Assign To Team(s)</span>
+                {/* Conditional Body: Leave Policy (Global Module) vs Team Add-on */}
+                {addon.key === "leave_policy" ? (
+                  <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <div className="p-3.5 rounded-xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-200/80 dark:border-purple-800/60 text-xs text-purple-900 dark:text-purple-300 space-y-1.5">
+                      <div className="font-bold flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-[#56348f] dark:text-purple-400" />
+                        <span>Company-Wide Policy Engine</span>
+                      </div>
+                      <p className="text-[11px] text-purple-800/80 dark:text-purple-300/80 leading-relaxed">
+                        Applies globally to all company employees with dynamic monthly cycle boundaries, probation logic, and individual allocation overrides.
+                      </p>
                     </div>
-                    <span className="text-xs text-slate-400">
-                      {assignedTeamIds.length} team{assignedTeamIds.length === 1 ? "" : "s"} selected
-                    </span>
+
+                    <div className="flex items-center justify-end pt-2">
+                      <Link
+                        href="/project-management/addons/leave-policy"
+                        style={{
+                          backgroundColor: "#56348f",
+                          color: "rgb(255, 255, 255)",
+                          fontFamily: '"Proxima Nova", sans-serif',
+                          fontSize: "13px",
+                          lineHeight: "20px",
+                          fontWeight: 600,
+                        }}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-[13px] leading-[20px] font-semibold shadow-sm transition-colors cursor-pointer"
+                      >
+                        <Settings2 className="w-4 h-4 !text-white" />
+                        <span className="!text-white">Configure Policy Management</span>
+                      </Link>
+                    </div>
                   </div>
+                ) : (
+                  <>
+                    {/* Team Assignment Selector */}
+                    <div className="space-y-2.5 pt-2 border-t border-slate-100 dark:border-slate-800">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                          <Users className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
+                          <span>Assign To Team(s)</span>
+                        </div>
+                        <span className="text-xs text-slate-400">
+                          {assignedTeamIds.length} team{assignedTeamIds.length === 1 ? "" : "s"} selected
+                        </span>
+                      </div>
 
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                    Only members and leads of the selected teams will see this module and its menu items.
-                  </p>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                        Only members and leads of the selected teams will see this module and its menu items.
+                      </p>
 
-                  <div className="flex flex-wrap gap-2 pt-1 max-h-48 overflow-y-auto">
-                    {teams.map((team) => {
-                      const isAssigned = assignedTeamIds.includes(team.id);
+                      <div className="flex flex-wrap gap-2 pt-1 max-h-48 overflow-y-auto">
+                        {teams.map((team) => {
+                          const isAssigned = assignedTeamIds.includes(team.id);
 
-                      return (
-                        <button
-                          key={team.id}
-                          type="button"
-                          onClick={() => handleToggleTeam(addon.id, team.id)}
-                          style={{
-                            backgroundColor: isAssigned ? "#56348f" : undefined,
-                            color: isAssigned ? "rgb(255, 255, 255)" : undefined,
-                            fontFamily: '"Proxima Nova", sans-serif',
-                            fontSize: "12px",
-                            fontWeight: 400,
-                          }}
-                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-normal border transition-all cursor-pointer ${
-                            isAssigned
-                              ? "bg-[#56348f] !text-white border-[#56348f] shadow-2xs"
-                              : "bg-slate-50 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-purple-300 dark:hover:border-purple-700"
-                          }`}
-                        >
-                          <span className={isAssigned ? "!text-white" : ""}>{team.name}</span>
-                          {isAssigned && <Check className="w-3.5 h-3.5 !text-white" />}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
+                          return (
+                            <button
+                              key={team.id}
+                              type="button"
+                              onClick={() => handleToggleTeam(addon.id, team.id)}
+                              style={{
+                                backgroundColor: isAssigned ? "#56348f" : undefined,
+                                color: isAssigned ? "rgb(255, 255, 255)" : undefined,
+                                fontFamily: '"Proxima Nova", sans-serif',
+                                fontSize: "12px",
+                                fontWeight: 400,
+                              }}
+                              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-normal border transition-all cursor-pointer ${
+                                isAssigned
+                                  ? "bg-[#56348f] !text-white border-[#56348f] shadow-2xs"
+                                  : "bg-slate-50 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-purple-300 dark:hover:border-purple-700"
+                              }`}
+                            >
+                              <span className={isAssigned ? "!text-white" : ""}>{team.name}</span>
+                              {isAssigned && <Check className="w-3.5 h-3.5 !text-white" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
 
-                {/* Save Changes Footer */}
-                <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
-                  {addon.key === "leave_policy" ? (
-                    <Link
-                      href="/project-management/addons/leave-policy"
-                      style={{
-                        backgroundColor: "#56348f",
-                        color: "rgb(255, 255, 255)",
-                        fontFamily: '"Proxima Nova", sans-serif',
-                        fontSize: "13px",
-                        lineHeight: "20px",
-                        fontWeight: 600,
-                      }}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-[13px] leading-[20px] font-semibold shadow-sm transition-colors cursor-pointer"
-                    >
-                      <Settings2 className="w-4 h-4 !text-white" />
-                      <span className="!text-white">Configure Policy Management</span>
-                    </Link>
-                  ) : (
-                    <div />
-                  )}
-
-                  <button
-                    type="button"
-                    onClick={() => handleSaveTeams(addon.id)}
-                    disabled={isSaving}
-                    style={{ backgroundColor: "#56348f", color: "rgb(255, 255, 255)", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-[13px] leading-[20px] font-normal shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
-                  >
-                    {isSaving ? (
-                      <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin !text-white" />
-                        <span className="!text-white">Saving Teams…</span>
-                      </>
-                    ) : (
-                      <>
-                        <Check className="w-3.5 h-3.5 !text-white" />
-                        <span className="!text-white">Save Assigned Teams</span>
-                      </>
-                    )}
-                  </button>
-                </div>
+                    {/* Save Changes Footer */}
+                    <div className="flex items-center justify-end pt-3 border-t border-slate-100 dark:border-slate-800">
+                      <button
+                        type="button"
+                        onClick={() => handleSaveTeams(addon.id)}
+                        disabled={isSaving}
+                        style={{ backgroundColor: "#56348f", color: "rgb(255, 255, 255)", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-[13px] leading-[20px] font-normal shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
+                      >
+                        {isSaving ? (
+                          <>
+                            <Loader2 className="w-3.5 h-3.5 animate-spin !text-white" />
+                            <span className="!text-white">Saving Teams…</span>
+                          </>
+                        ) : (
+                          <>
+                            <Check className="w-3.5 h-3.5 !text-white" />
+                            <span className="!text-white">Save Assigned Teams</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             );
           })}

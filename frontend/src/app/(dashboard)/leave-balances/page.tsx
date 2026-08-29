@@ -1,445 +1,719 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { PageLoader } from "@/components/ui/PageLoader";
 import { useAuthStore } from "@/store/auth";
-import api from "@/services/api";
+import leavePolicyApi, {
+  PolicyEmployee,
+  LeavePolicySettings,
+  CycleInfo,
+} from "@/services/leavePolicy";
 import {
-  Shield, Edit2, X, CheckCircle, ChevronDown, ChevronUp,
-  RefreshCw, Users, ClipboardList, Loader2
+  Shield,
+  Edit2,
+  X,
+  CheckCircle,
+  ChevronDown,
+  ChevronUp,
+  RefreshCw,
+  Users,
+  ClipboardList,
+  Loader2,
+  CalendarCheck,
+  Settings2,
+  Search,
+  Check,
+  Clock,
+  Sparkles,
+  Save,
+  Sliders,
+  FileText,
+  AlertCircle,
+  CheckCircle2,
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 
-/* ─── Types ────────────────────────────────────────────── */
-interface EmployeeBalance {
-  user_id: number;
-  name: string;
-  employee_code: string;
-  designation: string;
-  casual_leave_balance: number;
-  cl_carry_forward: number;
-  cl_carry_forward_year: number | null;
-  sick_leave_balance: number;
-  casual_leaves_taken: number;
-  sick_leaves_taken: number;
-  total_leaves_taken: number;
-}
-
-function CircularGauge({ used, total, label, colorClass, strokeClass }: { used: number, total: number, label: string, colorClass: string, strokeClass: string }) {
-  const radius = 16;
-  const circumference = 2 * Math.PI * radius;
-  // If total is 0, progress is 0, otherwise used / total. But total = used + balance.
-  const progress = total === 0 ? 0 : used / total;
-  const strokeDashoffset = circumference - progress * circumference;
-
-  return (
-    <div className="flex flex-col items-center gap-1">
-      <div className="relative w-12 h-12 flex items-center justify-center">
-        <svg className="w-12 h-12 transform -rotate-90">
-          <circle cx="24" cy="24" r="16" className="stroke-slate-200 dark:stroke-slate-700" strokeWidth="4" fill="transparent" />
-          <circle cx="24" cy="24" r="16" className={strokeClass} strokeWidth="4" fill="transparent" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} strokeLinecap="round" />
-        </svg>
-        <span className={`absolute text-[10px] font-bold ${colorClass}`}>{used}/{total}</span>
-      </div>
-      {/* Optional: Add a label underneath or keep it clean */}
-    </div>
-  );
-}
-
-interface AuditLog {
-  id: number;
-  user: { id: number; first_name: string; last_name: string; employee_code: string };
-  modifier: { id: number; first_name: string; last_name: string };
-  leave_type: string;
-  previous_balance: number;
-  new_balance: number;
-  remarks: string | null;
-  created_at: string;
-}
-
-/* ─── Edit Modal ────────────────────────────────────────── */
-function EditModal({
-  employee,
-  onClose,
-  onSaved,
-  onUpdateEmployee,
-}: {
-  employee: EmployeeBalance;
-  onClose: () => void;
-  onSaved: () => void;
-  onUpdateEmployee: (emp: EmployeeBalance) => void;
-}) {
-  const [cl, setCl] = useState(employee.casual_leave_balance.toString());
-  const [cf, setCf] = useState(employee.cl_carry_forward.toString());
-  const [sl, setSl] = useState(employee.sick_leave_balance.toString());
-  const [remarks, setRemarks] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-
-  async function handleSave() {
-    setSaving(true);
-    setError("");
-
-    const newCL = parseFloat(cl);
-    const newCF = parseFloat(cf);
-    const newSL = parseFloat(sl);
-
-    try {
-      // Optimistically update the UI
-      onUpdateEmployee({
-        ...employee,
-        casual_leave_balance: newCL,
-        cl_carry_forward: newCF,
-        sick_leave_balance: newSL,
-      });
-
-      // Make API call in background
-      await api.post(`/leave-balances/${employee.user_id}`, {
-        casual_leave_balance: newCL,
-        cl_carry_forward: newCF,
-        sick_leave_balance: newSL,
-        remarks: remarks || undefined,
-      });
-
-      onClose();
-    } catch (e: any) {
-      setError(e.response?.data?.message || "Failed to save. Please try again.");
-      // Refetch on error to restore correct state
-      onSaved();
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
-        <div className="flex items-center justify-between px-6 py-4 border-b">
-          <div>
-            <h2 className="text-lg font-bold text-slate-900">{employee.name}</h2>
-            <p className="text-xs text-slate-500">{employee.employee_code} · {employee.designation}</p>
-          </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
-            <X className="w-5 h-5 text-gray-500" />
-          </button>
-        </div>
-
-        <div className="p-6 space-y-4">
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>
-          )}
-
-          {/* CL */}
-          <div className="premium-card p-4">
-            <label className="text-xs font-bold uppercase tracking-wider text-amber-700 mb-2 block">
-              Casual Leave (Current Year)
-            </label>
-            <input
-              type="number" min="0" max="365" step="0.5"
-              value={cl}
-              onChange={(e) => setCl(e.target.value)}
-              className="w-full border border-amber-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-400"
-            />
-          </div>
-
-          {/* CL Carry Forward */}
-          <div className="premium-card p-4">
-            <label className="text-xs font-bold uppercase tracking-wider text-orange-700 mb-2 block">
-              CL Carry Forward {employee.cl_carry_forward_year ? `(from ${employee.cl_carry_forward_year})` : ""}
-            </label>
-            <input
-              type="number" min="0" max="365" step="0.5"
-              value={cf}
-              onChange={(e) => setCf(e.target.value)}
-              className="w-full border border-orange-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-400"
-            />
-          </div>
-
-          {/* SL */}
-          <div className="premium-card p-4">
-            <label className="text-xs font-bold uppercase tracking-wider text-blue-700 mb-2 block">
-              Sick Leave
-            </label>
-            <input
-              type="number" min="0" max="365" step="0.5"
-              value={sl}
-              onChange={(e) => setSl(e.target.value)}
-              className="w-full border border-blue-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
-
-          {/* Remarks */}
-          <div>
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 block">
-              Remarks (Optional)
-            </label>
-            <textarea
-              value={remarks}
-              onChange={(e) => setRemarks(e.target.value)}
-              rows={2}
-              placeholder="Reason for manual adjustment..."
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-400 resize-none"
-            />
-          </div>
-        </div>
-
-        <div className="flex gap-3 px-6 pb-6">
-          <button
-            onClick={onClose}
-            className="flex-1 border border-gray-200 text-gray-700 px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-gray-50 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="flex-1 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
-          >
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-            Save Changes
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ─── Main Page ─────────────────────────────────────────── */
 export default function LeaveBalancesPage() {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
 
-  const [employees, setEmployees] = useState<EmployeeBalance[]>([]);
-  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+  const [employees, setEmployees] = useState<PolicyEmployee[]>([]);
+  const [settings, setSettings] = useState<LeavePolicySettings | null>(null);
+  const [cycleInfo, setCycleInfo] = useState<CycleInfo | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showAudit, setShowAudit] = useState(false);
-  const [editing, setEditing] = useState<EmployeeBalance | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  // Edit / Adjust Modal State
+  const [adjustingEmployee, setAdjustingEmployee] = useState<PolicyEmployee | null>(null);
+  const [adjCL, setAdjCL] = useState<string>("");
+  const [adjCF, setAdjCF] = useState<string>("");
+  const [adjSL, setAdjSL] = useState<string>("");
+  const [adjRemarks, setAdjRemarks] = useState<string>("");
+  const [savingAdjustment, setSavingAdjustment] = useState(false);
+
+  // Configure Policy Override Modal State
+  const [configuringEmployee, setConfiguringEmployee] = useState<PolicyEmployee | null>(null);
+  const [customCL, setCustomCL] = useState<string>("");
+  const [customSL, setCustomSL] = useState<string>("");
+  const [customProbation, setCustomProbation] = useState<string>("");
+  const [customNotes, setCustomNotes] = useState<string>("");
+  const [savingConfig, setSavingConfig] = useState(false);
 
   useEffect(() => {
-    if (user?.role !== "Super Admin") {
+    if (user && user.role !== "Super Admin") {
       router.replace("/dashboard");
     }
   }, [user, router]);
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
+  const fetchData = useCallback(async (isManual = false) => {
+    if (isManual) setRefreshing(true);
+    else setLoading(true);
+    setError(null);
+
     try {
-      const balRes = await api.get("/leave-balances");
-      setEmployees(balRes.data.data || []);
-    } catch (e) {
+      const [empRes, setRes] = await Promise.all([
+        leavePolicyApi.getEmployees(),
+        leavePolicyApi.getSettings(),
+      ]);
+      setEmployees(empRes.employees || []);
+      setSettings(setRes.settings);
+      setCycleInfo(setRes.cycle_info);
+    } catch (e: any) {
       console.error("Failed to load employee balances:", e);
+      setError(e?.response?.data?.message || e?.message || "Failed to load employee balances.");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
     }
-    try {
-      const logRes = await api.get("/leave-balance-audit-logs");
-      setAuditLogs(logRes.data.data?.data || []);
-    } catch (e) {
-      // Audit log table may not exist yet (migration pending)
-      console.warn("Audit log not available yet:", e);
-    }
-    setLoading(false);
   }, []);
 
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  // Open Adjust Balance Modal
+  const handleOpenAdjust = (emp: PolicyEmployee) => {
+    setAdjustingEmployee(emp);
+    setAdjCL(String(emp.casual_leave_balance));
+    setAdjCF(String(emp.cl_carry_forward));
+    setAdjSL(String(emp.sick_leave_balance));
+    setAdjRemarks("");
+  };
 
-  const filtered = employees.filter((e) =>
-    e.name.toLowerCase().includes(search.toLowerCase()) ||
-    e.employee_code?.toLowerCase().includes(search.toLowerCase())
-  );
+  // Save Manual Adjustment
+  const handleSaveAdjustment = async () => {
+    if (!adjustingEmployee) return;
+    setSavingAdjustment(true);
+    setError(null);
+
+    try {
+      const res = await leavePolicyApi.adjustBalance(adjustingEmployee.id, {
+        casual_leave_balance: Number(adjCL),
+        cl_carry_forward: Number(adjCF),
+        sick_leave_balance: Number(adjSL),
+        remarks: adjRemarks || undefined,
+      });
+
+      setSuccessMessage(res.message);
+      setAdjustingEmployee(null);
+      // Refresh list
+      const empRes = await leavePolicyApi.getEmployees();
+      setEmployees(empRes.employees || []);
+    } catch (err: any) {
+      setError(err?.response?.data?.message || err?.message || "Failed to adjust balance.");
+    } finally {
+      setSavingAdjustment(false);
+    }
+  };
+
+  // Open Configure Override Modal
+  const handleOpenConfigure = (emp: PolicyEmployee) => {
+    setConfiguringEmployee(emp);
+    setCustomCL(emp.custom_monthly_cl !== null ? String(emp.custom_monthly_cl) : "");
+    setCustomSL(emp.custom_monthly_sl !== null ? String(emp.custom_monthly_sl) : "");
+    setCustomProbation(emp.custom_probation_months !== null ? String(emp.custom_probation_months) : "");
+    setCustomNotes("");
+  };
+
+  // Save Configure Override
+  const handleSaveConfigure = async () => {
+    if (!configuringEmployee) return;
+    setSavingConfig(true);
+    setError(null);
+
+    try {
+      const res = await leavePolicyApi.updateEmployeePolicy(configuringEmployee.id, {
+        custom_monthly_cl: customCL === "" ? null : Number(customCL),
+        custom_monthly_sl: customSL === "" ? null : Number(customSL),
+        custom_probation_months: customProbation === "" ? null : Number(customProbation),
+        notes: customNotes || undefined,
+      });
+
+      setSuccessMessage(res.message);
+      setConfiguringEmployee(null);
+      // Refresh list
+      const empRes = await leavePolicyApi.getEmployees();
+      setEmployees(empRes.employees || []);
+    } catch (err: any) {
+      setError(err?.response?.data?.message || err?.message || "Failed to update employee override.");
+    } finally {
+      setSavingConfig(false);
+    }
+  };
+
+  // Clear Probation directly
+  const handleClearProbation = async (emp: PolicyEmployee) => {
+    if (
+      !confirm(
+        `Are you sure you want to mark probation as cleared for ${emp.name}? This will immediately make them eligible for automatic monthly leave allocations.`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const res = await leavePolicyApi.clearProbation(emp.id);
+      setSuccessMessage(res.message);
+      const empRes = await leavePolicyApi.getEmployees();
+      setEmployees(empRes.employees || []);
+    } catch (err: any) {
+      setError(err?.response?.data?.message || err?.message || "Failed to clear probation.");
+    }
+  };
+
+  // Filtered employees
+  const filtered = useMemo(() => {
+    return employees.filter((emp) => {
+      const matchesSearch =
+        !search ||
+        emp.name.toLowerCase().includes(search.toLowerCase()) ||
+        emp.employee_code.toLowerCase().includes(search.toLowerCase()) ||
+        emp.email.toLowerCase().includes(search.toLowerCase());
+
+      if (!matchesSearch) return false;
+
+      if (statusFilter === "in_probation") return emp.is_in_probation;
+      if (statusFilter === "completed") return !emp.is_in_probation && !emp.probation_cleared_manually;
+      if (statusFilter === "cleared_manually") return emp.probation_cleared_manually;
+      if (statusFilter === "custom_allocation") return emp.has_custom_allocation;
+
+      return true;
+    });
+  }, [employees, search, statusFilter]);
+
+  const inProbationCount = employees.filter((e) => e.is_in_probation).length;
+  const clearedManuallyCount = employees.filter((e) => e.probation_cleared_manually).length;
+  const customAllocCount = employees.filter((e) => e.has_custom_allocation).length;
 
   if (loading) return <PageLoader />;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2 text-slate-900 dark:text-white">
-            <Shield className="w-6 h-6 text-amber-400" />
-            Leave Balance Management
+    <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+      {/* ── Header ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800/80 pb-5">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
+            <span>Leave & WFH</span>
+            <span>/</span>
+            <span className="text-slate-900 dark:text-white">Leave Balances</span>
+          </div>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2.5">
+            <Shield className="w-6 h-6 text-[#56348f]" />
+            <span>Leave Balance Management</span>
           </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">View and manually adjust leave balances for all employees.</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            View live leave balances, probation clearance status, and configure employee-wise monthly allocations.
+          </p>
         </div>
-        <button
-          onClick={fetchData}
-          className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-slate-900 dark:text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors"
-        >
-          <RefreshCw className="w-4 h-4" />
-          Refresh
-        </button>
+
+        {/* Action Buttons */}
+        <div className="flex flex-wrap items-center gap-2.5 self-start sm:self-auto">
+          {/* Link to Leave Policy Management */}
+          <Link
+            href="/project-management/addons/leave-policy"
+            style={{
+              backgroundColor: "#56348f",
+              color: "rgb(255, 255, 255)",
+              fontFamily: '"Proxima Nova", sans-serif',
+              fontSize: "12px",
+              fontWeight: 600,
+            }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-bold shadow-sm transition-all cursor-pointer"
+          >
+            <Settings2 className="w-4 h-4 !text-white" />
+            <span className="!text-white">Leave Policy Settings</span>
+          </Link>
+
+          <button
+            type="button"
+            onClick={() => fetchData(true)}
+            disabled={refreshing}
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition-colors disabled:opacity-50 cursor-pointer"
+          >
+            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-[#56348f]" : ""}`} />
+            <span>Refresh</span>
+          </button>
+        </div>
       </div>
 
-      {/* Search */}
-      <input
-        type="text"
-        placeholder="Search by name or employee code..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="w-full max-w-md bg-white/10 border border-slate-200 dark:border-white/20 text-slate-900 dark:text-white placeholder:text-slate-400 px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
-      />
-
-      {/* Employee Balance Table */}
-      <div className="bg-white/5 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden">
-        <div className="flex items-center gap-3 px-6 py-4 border-b border-slate-200 dark:border-white/10">
-          <Users className="w-5 h-5 text-amber-400" />
-          <h2 className="text-slate-900 dark:text-white font-bold text-lg">Employee Balances ({filtered.length})</h2>
+      {/* ── Status Banners ── */}
+      {successMessage && (
+        <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-300 flex items-center justify-between text-xs font-semibold">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+            <span>{successMessage}</span>
+          </div>
+          <button onClick={() => setSuccessMessage(null)} className="underline cursor-pointer">
+            Dismiss
+          </button>
         </div>
+      )}
+
+      {error && (
+        <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 text-rose-700 dark:text-rose-300 flex items-start gap-2.5 text-xs">
+          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+          <div className="flex-1">{error}</div>
+        </div>
+      )}
+
+      {/* ── Filter and Search Bar ── */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs">
+        {/* Search */}
+        <div className="relative w-full sm:w-72">
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search employee or code…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-9 pr-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-purple-500/20 outline-none"
+          />
+        </div>
+
+        {/* Status Pills */}
+        <div className="flex flex-wrap items-center gap-1.5 self-start sm:self-auto">
+          <button
+            type="button"
+            onClick={() => setStatusFilter("all")}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+              statusFilter === "all"
+                ? "bg-[#56348f] text-white border-[#56348f]"
+                : "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-purple-300"
+            }`}
+          >
+            All ({employees.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setStatusFilter("in_probation")}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+              statusFilter === "in_probation"
+                ? "bg-amber-600 text-white border-amber-600"
+                : "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-amber-300"
+            }`}
+          >
+            In Probation ({inProbationCount})
+          </button>
+          <button
+            type="button"
+            onClick={() => setStatusFilter("cleared_manually")}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+              statusFilter === "cleared_manually"
+                ? "bg-purple-600 text-white border-purple-600"
+                : "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-purple-300"
+            }`}
+          >
+            Cleared Manually ({clearedManuallyCount})
+          </button>
+          <button
+            type="button"
+            onClick={() => setStatusFilter("custom_allocation")}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+              statusFilter === "custom_allocation"
+                ? "bg-emerald-600 text-white border-emerald-600"
+                : "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-emerald-300"
+            }`}
+          >
+            Custom Quota ({customAllocCount})
+          </button>
+        </div>
+      </div>
+
+      {/* ── Employee Balances Table (Matching Leave Policy UI) ── */}
+      <div className="overflow-hidden rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[700px]">
+          <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b border-slate-200 dark:border-white/10">
-                <th className="text-left px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Employee</th>
-                <th className="text-center px-4 py-3 text-xs font-bold uppercase tracking-wider text-amber-400">Casual Leave (Used / Total)</th>
-                <th className="text-center px-4 py-3 text-xs font-bold uppercase tracking-wider text-orange-400">CL Carry Fwd</th>
-                <th className="text-center px-4 py-3 text-xs font-bold uppercase tracking-wider text-blue-400">Sick Leave (Used / Total)</th>
-                <th className="text-center px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Used</th>
-                <th className="text-center px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Action</th>
+              <tr className="border-b border-slate-200/80 dark:border-slate-800/80 bg-slate-50/80 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px]">
+                <th className="py-3.5 px-4">Employee</th>
+                <th className="py-3.5 px-4">Joining Date</th>
+                <th className="py-3.5 px-4">Probation Status</th>
+                <th className="py-3.5 px-4">Current Balances</th>
+                <th className="py-3.5 px-4">Monthly Quota</th>
+                <th className="py-3.5 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-10 text-slate-500 dark:text-slate-400 text-sm">No employees found.</td>
+                  <td colSpan={6} className="py-12 text-center text-slate-400">
+                    No employees match the selected criteria.
+                  </td>
                 </tr>
               ) : (
-                filtered.map((emp) => (
-                  <tr key={emp.user_id} className="border-b border-slate-200 dark:border-white/5 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
-                    <td className="px-6 py-4">
-                      <p className="text-slate-900 dark:text-white font-semibold text-sm">{emp.name}</p>
-                      <p className="text-slate-500 dark:text-slate-400 text-xs">{emp.employee_code} · {emp.designation || "—"}</p>
-                    </td>
-                    <td className="px-4 py-4 text-center">
-                      <div className="flex justify-center">
-                        <CircularGauge 
-                          used={emp.casual_leaves_taken ?? 0} 
-                          total={(emp.casual_leaves_taken ?? 0) + Math.max(0, emp.casual_leave_balance)} 
-                          label="CL" 
-                          colorClass="text-amber-500" 
-                          strokeClass="stroke-amber-400" 
-                        />
-                      </div>
-                    </td>
-                    <td className="px-4 py-4 text-center">
-                      <span className="inline-block bg-orange-500/20 text-orange-300 font-bold text-sm px-3 py-1 rounded-full">
-                        {Math.max(0, emp.cl_carry_forward)}
-                        {emp.cl_carry_forward_year && <span className="text-xs ml-1 opacity-70">({emp.cl_carry_forward_year})</span>}
-                      </span>
-                    </td>
-                    <td className="px-4 py-4 text-center">
-                      <div className="flex justify-center">
-                        <CircularGauge 
-                          used={emp.sick_leaves_taken ?? 0} 
-                          total={(emp.sick_leaves_taken ?? 0) + Math.max(0, emp.sick_leave_balance)} 
-                          label="SL" 
-                          colorClass="text-blue-500" 
-                          strokeClass="stroke-blue-400" 
-                        />
-                      </div>
-                    </td>
-                    <td className="px-4 py-4 text-center">
-                      <span className="text-slate-600 dark:text-slate-300 font-semibold text-sm">{Math.max(0, emp.total_leaves_taken)}</span>
-                    </td>
-                    <td className="px-4 py-4 text-center">
-                      <button
-                        onClick={() => setEditing(emp)}
-                        className="inline-flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-colors"
-                      >
-                        <Edit2 className="w-3.5 h-3.5" />
-                        Edit
-                      </button>
-                    </td>
-                  </tr>
-                ))
+                filtered.map((emp) => {
+                  return (
+                    <tr key={emp.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-colors">
+                      {/* Name & Code */}
+                      <td className="py-3 px-4">
+                        <div className="font-bold text-slate-900 dark:text-white">{emp.name}</div>
+                        <div className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                          <span>{emp.employee_code}</span>
+                          <span>•</span>
+                          <span>{emp.designation}</span>
+                        </div>
+                      </td>
+
+                      {/* Joining Date */}
+                      <td className="py-3 px-4 text-slate-600 dark:text-slate-300">
+                        {emp.joining_date ? emp.joining_date : <span className="text-slate-400 italic">Not set</span>}
+                      </td>
+
+                      {/* Probation Status */}
+                      <td className="py-3 px-4">
+                        {emp.probation_cleared_manually ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800">
+                            <Sparkles className="w-3 h-3 text-purple-500" />
+                            Cleared Manually
+                          </span>
+                        ) : emp.is_in_probation ? (
+                          <div className="space-y-0.5">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800">
+                              <Clock className="w-3 h-3 text-amber-500" />
+                              In Probation ({emp.days_remaining}d left)
+                            </span>
+                            <div className="text-[10px] text-slate-400">Ends: {emp.probation_end_date}</div>
+                          </div>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800">
+                            <Check className="w-3 h-3 text-emerald-500" />
+                            Completed
+                          </span>
+                        )}
+                      </td>
+
+                      {/* Current Balances */}
+                      <td className="py-3 px-4">
+                        <div className="text-slate-900 dark:text-white font-semibold flex items-center gap-2">
+                          <span className="text-purple-600 dark:text-purple-400" title="Casual Leave + Carry Forward">
+                            {emp.casual_leave_balance + emp.cl_carry_forward} CL
+                          </span>
+                          <span className="text-slate-300">/</span>
+                          <span className="text-rose-600 dark:text-rose-400" title="Sick Leave">
+                            {emp.sick_leave_balance} SL
+                          </span>
+                        </div>
+                        {emp.cl_carry_forward > 0 && (
+                          <div className="text-[10px] text-slate-400">
+                            (incl. {emp.cl_carry_forward} CL carried forward)
+                          </div>
+                        )}
+                      </td>
+
+                      {/* Monthly Quota */}
+                      <td className="py-3 px-4">
+                        {emp.has_custom_allocation ? (
+                          <div className="space-y-0.5">
+                            <span className="font-bold text-purple-700 dark:text-purple-300">
+                              +{emp.effective_monthly_cl} CL / +{emp.effective_monthly_sl} SL
+                            </span>
+                            <span className="block text-[10px] font-semibold text-purple-500">Custom override</span>
+                          </div>
+                        ) : (
+                          <div className="text-slate-600 dark:text-slate-400">
+                            +{emp.effective_monthly_cl} CL / +{emp.effective_monthly_sl} SL (Default)
+                          </div>
+                        )}
+                      </td>
+
+                      {/* Actions */}
+                      <td className="py-3 px-4 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          {emp.is_in_probation && !emp.probation_cleared_manually && (
+                            <button
+                              type="button"
+                              onClick={() => handleClearProbation(emp)}
+                              className="px-2.5 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-[11px] font-bold cursor-pointer"
+                              title="Clear probation now to enable auto-allocation"
+                            >
+                              Clear Probation
+                            </button>
+                          )}
+
+                          <button
+                            type="button"
+                            onClick={() => handleOpenAdjust(emp)}
+                            className="px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 text-[11px] font-semibold border border-slate-200 dark:border-slate-700 cursor-pointer"
+                            title="Adjust balance manually without breaking auto allocations"
+                          >
+                            Adjust
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleOpenConfigure(emp)}
+                            style={{
+                              backgroundColor: "#56348f",
+                              color: "rgb(255, 255, 255)",
+                              fontFamily: '"Proxima Nova", sans-serif',
+                              fontSize: "11px",
+                              fontWeight: 600,
+                            }}
+                            className="px-2.5 py-1.5 rounded-lg bg-[#56348f] hover:bg-[#462875] !text-white text-[11px] font-bold cursor-pointer"
+                          >
+                            Configure
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
         </div>
       </div>
 
-      {/* Audit Log Section */}
-      <div className="bg-white/5 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden">
-        <button
-          onClick={() => setShowAudit(!showAudit)}
-          className="w-full flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <ClipboardList className="w-5 h-5 text-blue-400" />
-            <h2 className="text-slate-900 dark:text-white font-bold text-lg">Audit Log ({auditLogs.length} recent entries)</h2>
-          </div>
-          {showAudit ? <ChevronUp className="w-5 h-5 text-slate-500 dark:text-slate-400" /> : <ChevronDown className="w-5 h-5 text-slate-500 dark:text-slate-400" />}
-        </button>
+      {/* ── MODAL: MANUAL BALANCE ADJUSTMENT ── */}
+      {adjustingEmployee && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in">
+          <div className="w-full max-w-lg rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-6 space-y-5">
+            <div className="flex items-start justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div>
+                <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                  Manual Leave Balance Adjustment: {adjustingEmployee.name}
+                </h3>
+                <p className="text-xs text-slate-400">
+                  Directly adjust balances. If in probation, this will also clear probation and start future automatic monthly allocations.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setAdjustingEmployee(null)}
+                className="text-slate-400 hover:text-slate-600 cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
 
-        {showAudit && (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[700px]">
-              <thead>
-                <tr className="border-b border-slate-200 dark:border-white/10">
-                  <th className="text-left px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Employee</th>
-                  <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Leave Type</th>
-                  <th className="text-center px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Previous</th>
-                  <th className="text-center px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Updated</th>
-                  <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Modified By</th>
-                  <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Date & Time</th>
-                  <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Remarks</th>
-                </tr>
-              </thead>
-              <tbody>
-                {auditLogs.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="text-center py-10 text-slate-500 dark:text-slate-400 text-sm">No audit entries yet.</td>
-                  </tr>
-                ) : (
-                  auditLogs.map((log) => (
-                    <tr key={log.id} className="border-b border-slate-200 dark:border-white/5 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
-                      <td className="px-6 py-3 text-slate-900 dark:text-white text-sm font-medium">
-                        {log.user?.first_name} {log.user?.last_name}
-                        <span className="text-slate-500 dark:text-slate-400 text-xs ml-1">({log.user?.employee_code})</span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                          log.leave_type.includes('Sick') ? 'bg-blue-500/20 text-blue-300' :
-                          log.leave_type.includes('Carry') ? 'bg-orange-500/20 text-orange-300' :
-                          'bg-amber-500/20 text-amber-300'
-                        }`}>{log.leave_type}</span>
-                      </td>
-                      <td className="px-4 py-3 text-center text-slate-600 dark:text-slate-300 font-mono text-sm">{log.previous_balance}</td>
-                      <td className="px-4 py-3 text-center font-bold font-mono text-sm">
-                        <span className={log.new_balance > log.previous_balance ? 'text-green-400' : 'text-red-400'}>
-                          {log.new_balance}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300 text-sm">
-                        {log.modifier?.first_name} {log.modifier?.last_name}
-                      </td>
-                      <td className="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs">
-                        {log.created_at ? format(parseISO(log.created_at), "dd MMM yyyy, hh:mm a") : "—"}
-                      </td>
-                      <td className="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs max-w-[160px] truncate">
-                        {log.remarks || <span className="italic opacity-50">—</span>}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+            <div className="space-y-4 text-xs">
+              <div className="grid grid-cols-3 gap-3">
+                <div className="space-y-1.5">
+                  <label className="block font-bold text-purple-700 dark:text-purple-300">
+                    Casual Leave (Current)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    value={adjCL}
+                    onChange={(e) => setAdjCL(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none font-bold"
+                  />
+                </div>
 
-      {/* Edit Modal */}
-      {editing && (
-        <EditModal
-          employee={editing}
-          onClose={() => setEditing(null)}
-          onSaved={fetchData}
-          onUpdateEmployee={(updatedEmp) => {
-            setEmployees(prev =>
-              prev.map(e => e.user_id === updatedEmp.user_id ? updatedEmp : e)
-            );
-          }}
-        />
+                <div className="space-y-1.5">
+                  <label className="block font-bold text-purple-700 dark:text-purple-300">
+                    CL Carry Forward
+                  </label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    value={adjCF}
+                    onChange={(e) => setAdjCF(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none font-bold"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block font-bold text-rose-700 dark:text-rose-300">
+                    Sick Leave (SL)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    value={adjSL}
+                    onChange={(e) => setAdjSL(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none font-bold"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block font-bold text-slate-700 dark:text-slate-300">
+                  Adjustment Remarks / Audit Reason <span className="text-rose-500">*</span>
+                </label>
+                <textarea
+                  rows={2}
+                  required
+                  value={adjRemarks}
+                  onChange={(e) => setAdjRemarks(e.target.value)}
+                  placeholder="e.g. Initial balance correction, or manual leaves granted"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none resize-none"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => setAdjustingEmployee(null)}
+                className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveAdjustment}
+                disabled={savingAdjustment}
+                style={{
+                  backgroundColor: "#56348f",
+                  color: "rgb(255, 255, 255)",
+                  fontFamily: '"Proxima Nova", sans-serif',
+                  fontSize: "12px",
+                  fontWeight: 600,
+                }}
+                className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-bold disabled:opacity-50 cursor-pointer"
+              >
+                {savingAdjustment ? <Loader2 className="w-3.5 h-3.5 animate-spin !text-white" /> : <Check className="w-3.5 h-3.5 !text-white" />}
+                <span className="!text-white">Save Balance Adjustment</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL: CONFIGURE EMPLOYEE OVERRIDE ── */}
+      {configuringEmployee && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in">
+          <div className="w-full max-w-lg rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-6 space-y-5">
+            <div className="flex items-start justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div>
+                <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                  Configure Leave Policy: {configuringEmployee.name}
+                </h3>
+                <p className="text-xs text-slate-400">{configuringEmployee.employee_code} • {configuringEmployee.designation}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setConfiguringEmployee(null)}
+                className="text-slate-400 hover:text-slate-600 cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-4 text-xs">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="block font-bold text-slate-700 dark:text-slate-300">
+                    Custom Monthly CL (Optional)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    max="10"
+                    placeholder={`Default (${settings?.default_monthly_cl ?? 1})`}
+                    value={customCL}
+                    onChange={(e) => setCustomCL(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block font-bold text-slate-700 dark:text-slate-300">
+                    Custom Monthly SL (Optional)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    max="10"
+                    placeholder={`Default (${settings?.default_monthly_sl ?? 1})`}
+                    value={customSL}
+                    onChange={(e) => setCustomSL(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block font-bold text-slate-700 dark:text-slate-300">
+                  Custom Probation Period in Months (Optional)
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="36"
+                  placeholder={`Default (${settings?.probation_period_months ?? 6})`}
+                  value={customProbation}
+                  onChange={(e) => setCustomProbation(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none"
+                />
+                <p className="text-[10px] text-slate-400">Leave blank to use the common company probation period.</p>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block font-bold text-slate-700 dark:text-slate-300">
+                  Internal Notes / Reason
+                </label>
+                <textarea
+                  rows={2}
+                  value={customNotes}
+                  onChange={(e) => setCustomNotes(e.target.value)}
+                  placeholder="e.g. Contractual agreement for 2 CL per month"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none resize-none"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => setConfiguringEmployee(null)}
+                className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveConfigure}
+                disabled={savingConfig}
+                style={{
+                  backgroundColor: "#56348f",
+                  color: "rgb(255, 255, 255)",
+                  fontFamily: '"Proxima Nova", sans-serif',
+                  fontSize: "12px",
+                  fontWeight: 600,
+                }}
+                className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-bold disabled:opacity-50 cursor-pointer"
+              >
+                {savingConfig ? <Loader2 className="w-3.5 h-3.5 animate-spin !text-white" /> : <Save className="w-3.5 h-3.5 !text-white" />}
+                <span className="!text-white">Save Override</span>
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

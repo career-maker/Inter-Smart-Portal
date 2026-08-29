@@ -10,7 +10,7 @@ import {
   LayoutDashboard, CalendarCheck, Briefcase, UserCircle,
   Users, ShieldCheck, PanelLeftClose, PanelLeftOpen,
   FolderKanban, CheckSquare, Clock, Building2, HeartHandshake, HelpCircle,
-  Search, Rocket, Bell, Settings
+  Search, Rocket, Bell, Settings, Puzzle
 } from "lucide-react";
 import { NotificationDropdown } from "@/components/layout/NotificationDropdown";
 import { RecognitionTicker } from "@/components/layout/RecognitionTicker";
@@ -81,9 +81,19 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/project-management/tasks/completed", label: "Completed Tasks" },
       { href: "/project-management/tasks/forecast", label: "Forecast Tasks" },
       { href: "/project-management/bug-reports", label: "Bug Reports" },
-      { href: "/project-management/addons", label: "Add-ons", roles: ["Super Admin"] },
       { href: "/project-management/hubstaff",       label: "Hubstaff", roles: ["Super Admin", "Team Lead"] },
       { href: "/project-management/task-catalog", label: "Task Catalog", roles: ["Super Admin", "HR"] },
+    ],
+  },
+  {
+    id: "addons",
+    label: "Add-ons",
+    shortLabel: "Add-ons",
+    icon: Puzzle,
+    roles: ["Super Admin"],
+    items: [
+      { href: "/project-management/addons", label: "All Add-ons" },
+      { href: "/project-management/addons/leave-policy", label: "Leave Policy Management" },
     ],
   },
   {
