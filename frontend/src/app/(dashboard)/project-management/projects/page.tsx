@@ -340,7 +340,7 @@ export default function ProjectsListPage() {
                 <th className="py-3.5 px-4 border-r border-slate-200/90 dark:border-slate-800">COORDINATOR</th>
                 <th className="py-3.5 px-4 border-r border-slate-200/90 dark:border-slate-800">TIMELINE</th>
                 <th className="py-3.5 px-4 border-r border-slate-200/90 dark:border-slate-800">STATUS</th>
-                <th className="py-3.5 px-4 text-right">ACTIONS</th>
+                <th className="py-3.5 px-4 text-right min-w-[200px] whitespace-nowrap">ACTIONS</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
@@ -353,10 +353,12 @@ export default function ProjectsListPage() {
                 </tr>
               ) : projectsList.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-slate-400">
-                    <FolderKanban className="w-8 h-8 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
-                    <p className="font-semibold text-slate-700 dark:text-slate-300 text-[13px] leading-[20px]">No projects found</p>
-                    <p className="text-[11px] leading-[16px] text-slate-500 mt-0.5">
+                  <td colSpan={6} className="py-12 text-center text-slate-500 dark:text-slate-400">
+                    <FolderKanban className="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600 mb-3" />
+                    <p className="text-[13px] leading-[20px] font-semibold text-slate-700 dark:text-slate-300">
+                      No projects found
+                    </p>
+                    <p className="text-[11px] leading-[16px] text-slate-400 mt-1">
                       Try adjusting your search criteria or create/import a project.
                     </p>
                   </td>
@@ -444,8 +446,8 @@ export default function ProjectsListPage() {
                     </td>
 
                     {/* Actions */}
-                    <td className="py-3.5 px-4 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
+                    <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                      <div className="flex items-center justify-end gap-2 flex-nowrap whitespace-nowrap">
                         {!project.is_live && (
                           <button
                             type="button"
@@ -457,29 +459,29 @@ export default function ProjectsListPage() {
                               backgroundColor: "#56348f",
                               color: "rgb(255, 255, 255)",
                               fontFamily: '"Proxima Nova", sans-serif',
-                              fontSize: "13px",
-                              lineHeight: "20px",
-                              fontWeight: 400,
+                              fontSize: "12px",
+                              lineHeight: "18px",
+                              fontWeight: 500,
                             }}
-                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#56348f] hover:bg-[#462875] !text-white text-[13px] leading-[20px] shadow-sm transition-colors cursor-pointer"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-medium shadow-sm transition-colors cursor-pointer shrink-0 whitespace-nowrap"
                             title="Mark project as Made Live"
                           >
-                            <Rocket className="w-3.5 h-3.5 !text-white" />
-                            <span className="!text-white">Made Live</span>
+                            <Rocket className="w-3.5 h-3.5 !text-white shrink-0" />
+                            <span className="!text-white whitespace-nowrap">Made Live</span>
                           </button>
                         )}
                         <Link
                           href={`/project-management/projects/${project.id}`}
                           style={{
                             fontFamily: '"Proxima Nova", sans-serif',
-                            fontSize: "13px",
-                            lineHeight: "20px",
+                            fontSize: "12px",
+                            lineHeight: "18px",
                             fontWeight: 400,
                           }}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-purple-50 dark:hover:bg-purple-950/40 text-slate-700 dark:text-slate-300 hover:text-purple-600 dark:hover:text-purple-400 text-[13px] leading-[20px] font-normal border border-slate-200 dark:border-slate-700/60 transition-colors"
+                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-purple-50 dark:hover:bg-purple-950/40 text-slate-700 dark:text-slate-300 hover:text-purple-600 dark:hover:text-purple-400 text-xs font-normal border border-slate-200 dark:border-slate-700/60 transition-colors shrink-0 whitespace-nowrap"
                         >
-                          <span>Details</span>
-                          <ChevronRight className="w-3.5 h-3.5" />
+                          <span className="whitespace-nowrap">Details</span>
+                          <ChevronRight className="w-3.5 h-3.5 shrink-0" />
                         </Link>
                       </div>
                     </td>
