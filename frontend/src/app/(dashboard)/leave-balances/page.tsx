@@ -412,7 +412,7 @@ export default function LeaveBalancesPage() {
                       {/* Current Balances */}
                       <td className="py-3 px-4">
                         <div className="text-slate-900 dark:text-white font-semibold flex items-center gap-2">
-                          <span className="text-purple-600 dark:text-purple-400" title="Casual Leave + Carry Forward">
+                          <span className="text-purple-600 dark:text-purple-400" title="Casual Leave (Total Available)">
                             {emp.casual_leave_balance + emp.cl_carry_forward} CL
                           </span>
                           <span className="text-slate-300">/</span>
@@ -420,11 +420,14 @@ export default function LeaveBalancesPage() {
                             {emp.sick_leave_balance} SL
                           </span>
                         </div>
-                        {emp.cl_carry_forward > 0 && (
-                          <div className="text-[10px] text-slate-400">
-                            (incl. {emp.cl_carry_forward} CL carried forward)
-                          </div>
-                        )}
+                        <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                          <span>{emp.casual_leave_balance} Regular</span>
+                          {emp.cl_carry_forward > 0 ? (
+                            <span className="text-purple-600 dark:text-purple-400 font-semibold"> + {emp.cl_carry_forward} Carry-Fwd</span>
+                          ) : (
+                            <span className="text-slate-400"> + 0 CF</span>
+                          )}
+                        </div>
                       </td>
 
                       {/* Monthly Quota */}

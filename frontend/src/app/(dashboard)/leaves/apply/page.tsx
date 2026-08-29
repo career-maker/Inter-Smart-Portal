@@ -646,7 +646,20 @@ function LeaveSummaryCard({ impact, compact = false }: { impact: any; compact?: 
 
       <div className="border-t border-slate-200 dark:border-white/10 pt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
         {impact.paid_casual_leave > 0 && (
-          <SummaryRow label="Paid Casual Leave" value={`${impact.paid_casual_leave} Days`} color="text-emerald-400" />
+          <div className="col-span-2">
+            <div className="flex justify-between items-center">
+              <span className="text-slate-500 dark:text-slate-400">Paid Casual Leave:</span>
+              <span className="font-semibold text-emerald-400">{impact.paid_casual_leave} Days</span>
+            </div>
+            {impact.paid_cl_carry_forward > 0 && (
+              <div className="mt-1 space-y-0.5 text-xs text-slate-500 dark:text-slate-400 pl-2 border-l-2 border-purple-500/30">
+                <p>• <span className="font-semibold text-purple-400">{impact.paid_cl_carry_forward} Day(s)</span> deducted from Carry-Forward balance</p>
+                {impact.paid_cl_current_year > 0 && (
+                  <p>• <span className="font-semibold text-slate-700 dark:text-slate-200">{impact.paid_cl_current_year} Day(s)</span> deducted from Current Year Casual balance</p>
+                )}
+              </div>
+            )}
+          </div>
         )}
         {impact.paid_sick_leave > 0 && (
           <SummaryRow label="Paid Sick Leave" value={`${impact.paid_sick_leave} Days`} color="text-emerald-400" />
@@ -700,8 +713,10 @@ function LeaveSummaryCard({ impact, compact = false }: { impact: any; compact?: 
         <div className="border-t border-slate-200 dark:border-white/10 pt-3">
           <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Balance After Approval</p>
           <div className="grid grid-cols-2 gap-2 text-xs">
-            <span className="text-slate-500 dark:text-slate-400">Remaining Casual Leave:</span>
-            <span className="text-slate-900 dark:text-white font-bold">{impact.balance.after_casual} Days</span>
+            <span className="text-slate-500 dark:text-slate-400">Remaining Carry-Forward:</span>
+            <span className="text-slate-900 dark:text-white font-bold">{impact.balance.after_carry_forward ?? 0} Days</span>
+            <span className="text-slate-500 dark:text-slate-400">Remaining Regular Casual:</span>
+            <span className="text-slate-900 dark:text-white font-bold">{impact.balance.after_current_casual ?? impact.balance.after_casual} Days</span>
             <span className="text-slate-500 dark:text-slate-400">Remaining Sick Leave:</span>
             <span className="text-slate-900 dark:text-white font-bold">{impact.balance.after_sick} Days</span>
           </div>

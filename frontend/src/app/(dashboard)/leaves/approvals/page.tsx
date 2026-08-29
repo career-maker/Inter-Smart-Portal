@@ -126,7 +126,7 @@ export default function ApprovalsPage() {
     lop_days: 0,
     remarks: "",
   });
-  const [currentBalances, setCurrentBalances] = useState({ cl: 0, sl: 0 });
+  const [currentBalances, setCurrentBalances] = useState({ cl: 0, reg_cl: 0, cf: 0, sl: 0 });
   const [autoTotalDays, setAutoTotalDays] = useState(0);
   const [recalcLoading, setRecalcLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
@@ -313,10 +313,14 @@ export default function ApprovalsPage() {
       setAutoTotalDays(calc.actual_leave_days ?? 0);
 
       const bal = calc.balance;
-      setCurrentBalances({
-        cl: (bal.casual_leave ?? 0) + (bal.cl_carry_forward ?? 0),
-        sl: bal.sick_leave ?? 0,
-      });
+      if (bal) {
+        setCurrentBalances({
+          cl: (bal.casual_leave ?? 0) + (bal.cl_carry_forward ?? 0),
+          reg_cl: bal.casual_leave ?? 0,
+          cf: bal.cl_carry_forward ?? 0,
+          sl: bal.sick_leave ?? 0,
+        });
+      }
     } catch (err) {
       console.error("Recalculation failed", err);
     } finally {
@@ -388,6 +392,8 @@ export default function ApprovalsPage() {
       const bal = res.data.balance;
       setCurrentBalances({
         cl: (bal.casual_leave ?? 0) + (bal.cl_carry_forward ?? 0),
+        reg_cl: bal.casual_leave ?? 0,
+        cf: bal.cl_carry_forward ?? 0,
         sl: bal.sick_leave ?? 0,
       });
     } catch (err) {
@@ -1042,6 +1048,11 @@ export default function ApprovalsPage() {
                           <p className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mt-0.5">
                             {currentBalances.cl} <span className="text-slate-400 font-normal">→</span> <span className="text-slate-900 dark:text-white font-bold">{Math.max(0, currentBalances.cl - overrideFields.paid_casual_leave)}</span>
                           </p>
+                          {currentBalances.cf > 0 && (
+                            <p className="text-[10px] text-slate-400 mt-0.5">
+                              ({currentBalances.reg_cl} Reg + {currentBalances.cf} Carry-Fwd)
+                            </p>
+                          )}
                         </div>
                         <div>
                           <p className="text-[10px] text-slate-500 uppercase">Sick Leave Balance</p>

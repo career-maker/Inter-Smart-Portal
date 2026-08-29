@@ -453,12 +453,22 @@ class LeaveRequestController extends Controller
                            ? 'Unpaid Leave (LOP)'
                            : ($isPartial ? 'Partially Paid + LOP' : 'Paid Leave');
 
+        $paidCLCarryForward = 0;
+        $paidCLCurrentYear  = 0;
+        if ($isCasual && $paidCL > 0) {
+            $carryForward = floatval($balance->cl_carry_forward ?? 0);
+            $paidCLCarryForward = min($paidCL, $carryForward);
+            $paidCLCurrentYear  = max(0, $paidCL - $paidCLCarryForward);
+        }
+
         return [
             'requested_working_days' => $baseWorkingDays,
             'sandwich_leave_days'    => $sandwichDays,
             'actual_leave_days'      => $actualLeaveDays,
             'penalty_lop_days'       => $penaltyLOP,
             'paid_casual_leave'      => $paidCL,
+            'paid_cl_carry_forward'  => $paidCLCarryForward,
+            'paid_cl_current_year'   => $paidCLCurrentYear,
             'paid_sick_leave'        => $paidSL,
             'balance_lop_days'       => $balanceLOP,
             'total_lop_days'         => $totalLOP,
@@ -488,15 +498,21 @@ class LeaveRequestController extends Controller
     {
         $balance = \App\Models\LeaveBalance::where('user_id', $user->id)->first();
         if (!$balance) return [];
-        $cl  = $balance->casual_leave_balance ?? 0;
-        $cf  = $balance->cl_carry_forward ?? 0;
-        $sl  = $balance->sick_leave_balance ?? 0;
+        $cl  = floatval($balance->casual_leave_balance ?? 0);
+        $cf  = floatval($balance->cl_carry_forward ?? 0);
+        $sl  = floatval($balance->sick_leave_balance ?? 0);
+
+        $fromCF = min($willDeductCL, $cf);
+        $fromCL = max(0, $willDeductCL - $fromCF);
+
         return [
-            'casual_leave'        => $cl,
-            'cl_carry_forward'    => $cf,
-            'sick_leave'          => $sl,
-            'after_casual'        => max(0, ($cl + $cf) - $willDeductCL),
-            'after_sick'          => max(0, $sl - $willDeductSL),
+            'casual_leave'         => $cl,
+            'cl_carry_forward'     => $cf,
+            'sick_leave'           => $sl,
+            'after_carry_forward'  => max(0, $cf - $fromCF),
+            'after_current_casual' => max(0, $cl - $fromCL),
+            'after_casual'         => max(0, ($cl + $cf) - $willDeductCL),
+            'after_sick'           => max(0, $sl - $willDeductSL),
         ];
     }
     public function calculate(Request $request)
@@ -638,6 +654,8 @@ class LeaveRequestController extends Controller
                 'sandwich_leave_days'    => $impact['sandwich_leave_days'],
                 'actual_leave_days'      => $days,
                 'paid_casual_leave'      => $paidCL,
+                'paid_cl_carry_forward'  => $impact['paid_cl_carry_forward'] ?? 0,
+                'paid_cl_current_year'   => $impact['paid_cl_current_year'] ?? 0,
                 'paid_sick_leave'        => $paidSL,
                 'lop_days'               => $totalLOP,
             ]);
@@ -844,13 +862,21 @@ class LeaveRequestController extends Controller
                                 \Log::info("Before CL deduction: balance={$balance->casual_leave_balance}, cf={$carryForward}");
 
                                 if ($carryForward >= $daysToDeduct) {
+                                    $fromCF = $daysToDeduct;
+                                    $fromCurrent = 0;
                                     $balance->cl_carry_forward -= $daysToDeduct;
                                 } else {
+                                    $fromCF = $carryForward;
+                                    $fromCurrent = $daysToDeduct - $carryForward;
                                     $balance->cl_carry_forward = 0;
-                                    $balance->casual_leave_balance -= ($daysToDeduct - $carryForward);
+                                    $balance->casual_leave_balance -= $fromCurrent;
                                 }
 
-                                \Log::info("After CL deduction: balance={$balance->casual_leave_balance}, cf={$balance->cl_carry_forward}");
+                                $leaveRequest->paid_cl_carry_forward = $fromCF;
+                                $leaveRequest->paid_cl_current_year  = $fromCurrent;
+                                $leaveRequest->save();
+
+                                \Log::info("After CL deduction: balance={$balance->casual_leave_balance}, cf={$balance->cl_carry_forward}, from_cf={$fromCF}, from_current={$fromCurrent}");
                             } elseif (stripos($leaveTypeName, 'Sick') !== false) {
                                 // Sick Leave
                                 \Log::info("Before SL deduction: balance={$balance->sick_leave_balance}");
@@ -964,25 +990,38 @@ class LeaveRequestController extends Controller
                 'sandwich_leave_days' => $impact['sandwich_leave_days'],
             ];
 
-            // 1. If previously Approved, refund the old deducted balances
+            // 1. If previously Approved, refund the old deducted balances without laundering
             if ($leaveRequest->status === 'Approved') {
-                $oldPaidCL = $leaveRequest->paid_casual_leave ?? 0;
-                $oldPaidSL = $leaveRequest->paid_sick_leave ?? 0;
+                $oldPaidCL      = floatval($leaveRequest->paid_casual_leave ?? 0);
+                $oldPaidSL      = floatval($leaveRequest->paid_sick_leave ?? 0);
+                $oldPaidCF      = floatval($leaveRequest->paid_cl_carry_forward ?? 0);
+                $oldPaidCurrent = floatval($leaveRequest->paid_cl_current_year ?? 0);
 
-                $balance->casual_leave_balance += $oldPaidCL;
+                // If not specifically tracked previously, fallback to full current year
+                if ($oldPaidCF == 0 && $oldPaidCurrent == 0 && $oldPaidCL > 0) {
+                    $oldPaidCurrent = $oldPaidCL;
+                }
+
+                $balance->cl_carry_forward     += $oldPaidCF;
+                $balance->casual_leave_balance += $oldPaidCurrent;
                 $balance->sick_leave_balance   += $oldPaidSL;
-                $balance->total_leaves_taken   -= $leaveRequest->actual_leave_days ?? $leaveRequest->days;
+                $balance->total_leaves_taken   -= ($leaveRequest->actual_leave_days ?? $leaveRequest->days);
             }
 
-            // 2. Deduct new balances
+            // 2. Deduct new balances (Carry-forward first, then current year)
+            $newPaidCF = 0;
+            $newPaidCurrent = 0;
             if ($newPaidCL > 0) {
-                $carryForward = $balance->cl_carry_forward ?? 0;
-                if ($carryForward > 0) {
-                    $fromCF = min($newPaidCL, $carryForward);
-                    $balance->cl_carry_forward     -= $fromCF;
-                    $balance->casual_leave_balance -= max(0, $newPaidCL - $fromCF);
+                $carryForward = floatval($balance->cl_carry_forward ?? 0);
+                if ($carryForward >= $newPaidCL) {
+                    $newPaidCF = $newPaidCL;
+                    $newPaidCurrent = 0;
+                    $balance->cl_carry_forward -= $newPaidCL;
                 } else {
-                    $balance->casual_leave_balance -= $newPaidCL;
+                    $newPaidCF = $carryForward;
+                    $newPaidCurrent = $newPaidCL - $carryForward;
+                    $balance->cl_carry_forward = 0;
+                    $balance->casual_leave_balance -= $newPaidCurrent;
                 }
             }
             if ($newPaidSL > 0) {
@@ -1003,19 +1042,21 @@ class LeaveRequestController extends Controller
             // 3. Update Leave Request (forces Status => Approved)
             $isUnpaid = ($newPaidCL == 0 && $newPaidSL == 0);
             $leaveRequest->update([
-                'start_date'          => $request->start_date,
-                'end_date'            => $request->end_date,
-                'days'                => $newActualDays,
-                'actual_leave_days'   => $newActualDays,
-                'paid_casual_leave'   => $newPaidCL,
-                'paid_sick_leave'     => $newPaidSL,
-                'lop_days'            => $newLop,
-                'is_unpaid'           => $isUnpaid,
-                'unpaid_reason'       => $newLop > 0 ? "Overridden LOP: {$newLop} day(s)" : null,
-                'sandwich_leave_days' => $impact['sandwich_leave_days'],
-                'status'              => 'Approved',
-                'admin_status'        => 'Approved',
-                'approved_by'         => $user->id,
+                'start_date'             => $request->start_date,
+                'end_date'               => $request->end_date,
+                'days'                   => $newActualDays,
+                'actual_leave_days'      => $newActualDays,
+                'paid_casual_leave'      => $newPaidCL,
+                'paid_cl_carry_forward'  => $newPaidCF,
+                'paid_cl_current_year'   => $newPaidCurrent,
+                'paid_sick_leave'        => $newPaidSL,
+                'lop_days'               => $newLop,
+                'is_unpaid'              => $isUnpaid,
+                'unpaid_reason'          => $newLop > 0 ? "Overridden LOP: {$newLop} day(s)" : null,
+                'sandwich_leave_days'    => $impact['sandwich_leave_days'],
+                'status'                 => 'Approved',
+                'admin_status'           => 'Approved',
+                'approved_by'            => $user->id,
             ]);
 
             DB::commit();
