@@ -22,6 +22,6 @@ class TARequestItem extends Model
 
     public function taRequest(): BelongsTo
     {
-        return $this->belongsTo(TARequest::class);
+        return $this->belongsTo(TARequest::class, 'ta_request_id');
     }
 }

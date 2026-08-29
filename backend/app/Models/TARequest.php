@@ -59,6 +59,6 @@ class TARequest extends Model
 
     public function items(): HasMany
     {
-        return $this->hasMany(TARequestItem::class);
+        return $this->hasMany(TARequestItem::class, 'ta_request_id');
     }
 }
