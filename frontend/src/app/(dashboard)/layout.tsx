@@ -62,6 +62,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/holidays",         label: "Holidays", roles: ["Super Admin", "HR"] },
       { href: "/leaves/approvals", label: "Leave Approvals", roles: ["Super Admin", "Team Lead"] },
       { href: "/leave-balances",   label: "Leave Balances", roles: ["Super Admin"] },
+      { href: "/project-management/addons/leave-policy", label: "Leave Policy Management", roles: ["Super Admin"] },
       { href: "/manage-leaves",    label: "Manage Approved Leaves/WFH", roles: ["Super Admin"] },
     ],
   },

@@ -272,6 +272,21 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('leave-balance-audit-logs', [\App\Http\Controllers\Api\LeaveBalanceController::class, 'auditLogs']);
     Route::get('leave-balances/debug', [\App\Http\Controllers\Api\LeaveBalanceController::class, 'debug']);
 
+    // Leave Policy Management (Add-ons module)
+    Route::prefix('leave-policy')->group(function () {
+        Route::get('settings', [\App\Http\Controllers\Api\LeavePolicyController::class, 'getSettings']);
+        Route::get('employees', [\App\Http\Controllers\Api\LeavePolicyController::class, 'getEmployees']);
+        Route::get('ledger', [\App\Http\Controllers\Api\LeavePolicyController::class, 'getLedger']);
+
+        Route::middleware(['role:Super Admin'])->group(function () {
+            Route::post('settings', [\App\Http\Controllers\Api\LeavePolicyController::class, 'updateSettings']);
+            Route::post('employees/{userId}', [\App\Http\Controllers\Api\LeavePolicyController::class, 'updateEmployeePolicy']);
+            Route::post('employees/{userId}/clear-probation', [\App\Http\Controllers\Api\LeavePolicyController::class, 'clearEmployeeProbation']);
+            Route::post('adjust-balance/{userId}', [\App\Http\Controllers\Api\LeavePolicyController::class, 'adjustEmployeeBalance']);
+            Route::post('trigger-cycle', [\App\Http\Controllers\Api\LeavePolicyController::class, 'triggerCycle']);
+        });
+    });
+
     Route::post('leaves/calculate', [\App\Http\Controllers\Api\LeaveRequestController::class, 'calculate']);
     Route::apiResource('leave-requests', \App\Http\Controllers\Api\LeaveRequestController::class)->only(['index', 'store']);
     Route::apiResource('wfh-requests', \App\Http\Controllers\Api\WfhRequestController::class)->only(['index', 'store']);

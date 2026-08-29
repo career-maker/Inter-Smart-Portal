@@ -6,6 +6,7 @@ import {
   Layers,
   Puzzle,
   Bug,
+  CalendarCheck,
   ShieldCheck,
   Users,
   Check,
@@ -207,6 +208,8 @@ export default function PmAddonsPage() {
                     <div className="p-3 rounded-2xl bg-purple-100 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300 shrink-0">
                       {addon.key === "bug_tracker" ? (
                         <Bug className="w-6 h-6" />
+                      ) : addon.key === "leave_policy" ? (
+                        <CalendarCheck className="w-6 h-6" />
                       ) : (
                         <Puzzle className="w-6 h-6" />
                       )}
@@ -293,7 +296,27 @@ export default function PmAddonsPage() {
                 </div>
 
                 {/* Save Changes Footer */}
-                <div className="flex items-center justify-end pt-3 border-t border-slate-100 dark:border-slate-800">
+                <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
+                  {addon.key === "leave_policy" ? (
+                    <Link
+                      href="/project-management/addons/leave-policy"
+                      style={{
+                        backgroundColor: "#56348f",
+                        color: "rgb(255, 255, 255)",
+                        fontFamily: '"Proxima Nova", sans-serif',
+                        fontSize: "13px",
+                        lineHeight: "20px",
+                        fontWeight: 600,
+                      }}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-[13px] leading-[20px] font-semibold shadow-sm transition-colors cursor-pointer"
+                    >
+                      <Settings2 className="w-4 h-4 !text-white" />
+                      <span className="!text-white">Configure Policy Management</span>
+                    </Link>
+                  ) : (
+                    <div />
+                  )}
+
                   <button
                     type="button"
                     onClick={() => handleSaveTeams(addon.id)}

@@ -126,75 +126,19 @@ class LeaveBalanceController extends Controller
         $request->validate([
             'casual_leave_balance'  => 'sometimes|numeric|min:0|max:365',
             'cl_carry_forward'      => 'sometimes|numeric|min:0|max:365',
+            'cl_carry_forward_year' => 'nullable|integer|min:2020|max:2050',
             'sick_leave_balance'    => 'sometimes|numeric|min:0|max:365',
             'remarks'               => 'nullable|string|max:500',
         ]);
 
         $employee = User::findOrFail($userId);
 
-        $balance = LeaveBalance::firstOrCreate(
-            ['user_id' => $userId],
-            ['casual_leave_balance' => 0, 'sick_leave_balance' => 0, 'cl_carry_forward' => 0]
-        );
-
-        DB::transaction(function () use ($request, $admin, $employee, $balance) {
-            // Casual Leave adjustment
-            if ($request->has('casual_leave_balance')) {
-                $oldCL = $balance->casual_leave_balance;
-                $newCL = (float) $request->casual_leave_balance;
-
-                LeaveBalanceAuditLog::create([
-                    'user_id'          => $employee->id,
-                    'leave_type'       => 'Casual Leave',
-                    'previous_balance' => $oldCL,
-                    'new_balance'      => $newCL,
-                    'modified_by'      => $admin->id,
-                    'remarks'          => $request->remarks,
-                ]);
-
-                $balance->casual_leave_balance = $newCL;
-            }
-
-            // CL Carry-Forward adjustment
-            if ($request->has('cl_carry_forward')) {
-                $oldCF = $balance->cl_carry_forward;
-                $newCF = (float) $request->cl_carry_forward;
-
-                LeaveBalanceAuditLog::create([
-                    'user_id'          => $employee->id,
-                    'leave_type'       => 'CL Carry Forward',
-                    'previous_balance' => $oldCF,
-                    'new_balance'      => $newCF,
-                    'modified_by'      => $admin->id,
-                    'remarks'          => $request->remarks,
-                ]);
-
-                $balance->cl_carry_forward = $newCF;
-            }
-
-            // Sick Leave adjustment
-            if ($request->has('sick_leave_balance')) {
-                $oldSL = $balance->sick_leave_balance;
-                $newSL = (float) $request->sick_leave_balance;
-
-                LeaveBalanceAuditLog::create([
-                    'user_id'          => $employee->id,
-                    'leave_type'       => 'Sick Leave',
-                    'previous_balance' => $oldSL,
-                    'new_balance'      => $newSL,
-                    'modified_by'      => $admin->id,
-                    'remarks'          => $request->remarks,
-                ]);
-
-                $balance->sick_leave_balance = $newSL;
-            }
-
-            $balance->save();
-        });
+        $engine = app(\App\Services\LeavePolicyEngine::class);
+        $balance = $engine->recordManualAdjustment($admin, $employee, $request->all(), $request->remarks);
 
         return response()->json([
             'message' => 'Leave balance updated successfully.',
-            'data'    => $balance->fresh(),
+            'data'    => $balance,
         ]);
     }
 

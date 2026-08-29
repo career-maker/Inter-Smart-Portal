@@ -44,22 +44,48 @@ class User extends Authenticatable
         return $this->hasMany(UserFavorite::class);
     }
 
+    public function employeeLeavePolicy() {
+        return $this->hasOne(EmployeeLeavePolicy::class);
+    }
+
+    public function leaveLedgers() {
+        return $this->hasMany(LeaveAllocationLedger::class);
+    }
+
     public function probationEndDate(): ?string
     {
+        // If probation was manually cleared through admin action/leave addition, employee is not in probation
+        if ($this->employeeLeavePolicy && $this->employeeLeavePolicy->probation_cleared_manually) {
+            return null;
+        }
+
         if ($this->probation_end_date) {
             return $this->probation_end_date;
         }
+
         if ($this->joining_date) {
-            return \Carbon\Carbon::parse($this->joining_date)->addMonths(6)->toDateString();
+            $months = $this->employeeLeavePolicy->custom_probation_months 
+                ?? LeavePolicySetting::current()->probation_period_months 
+                ?? 6;
+            return \Carbon\Carbon::parse($this->joining_date)->addMonths($months)->toDateString();
         }
+
         return null;
     }
 
     public function isInProbation(): bool
     {
+        if ($this->employeeLeavePolicy && $this->employeeLeavePolicy->probation_cleared_manually) {
+            return false;
+        }
+
         $end = $this->probationEndDate();
         if (!$end) return false;
-        return \Carbon\Carbon::parse($end)->isFuture();
+
+        // If today is on or before the probation end date, employee is in probation.
+        // Employee becomes eligible starting the NEXT day after probation completion.
+        $endDate = \Carbon\Carbon::parse($end)->endOfDay();
+        return \Carbon\Carbon::now('Asia/Kolkata')->lte($endDate);
     }
 
     public function profilePhotoUrl(): ?string

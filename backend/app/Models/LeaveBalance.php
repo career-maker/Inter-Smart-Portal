@@ -15,6 +15,7 @@ class LeaveBalance extends Model
         'sick_leave_balance'         => 'float',
         'total_leaves_taken'         => 'float',
         'probation_leaves_allocated' => 'boolean',
+        'probation_cleared_manually' => 'boolean',
     ];
 
     public function user()
