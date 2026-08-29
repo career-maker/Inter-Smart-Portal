@@ -58,30 +58,37 @@ class TARequestController
         try {
             $user = Auth::user();
 
-            // Only Employee and Team Lead can apply (using Spatie roles)
-            $allowedRoles = ['Employee', 'Team Lead'];
-            $hasAllowedRole = false;
-
-            foreach ($allowedRoles as $role) {
-                if ($user->hasRole($role)) {
-                    $hasAllowedRole = true;
-                    break;
+            $rawItems = $request->input('items');
+            if (is_string($rawItems)) {
+                $decoded = json_decode($rawItems, true);
+                if (is_array($decoded)) {
+                    $request->merge(['items' => $decoded]);
                 }
             }
 
-            if (!$hasAllowedRole) {
-                return response()->json(['message' => 'Only employees and team leads can apply for travel allowance'], 403);
-            }
-
             $validated = $request->validate([
-                'reason' => 'required|string|max:500',
+                'reason' => 'required|string|max:1000',
                 'date_travelled' => 'required|date',
                 'items' => 'required|array|min:1',
                 'items.*.category' => 'required|string',
                 'items.*.amount' => 'required|numeric|min:0',
                 'items.*.description' => 'nullable|string',
-                'bill_link' => 'nullable|url|max:500',
+                'bill_link' => 'nullable|string|max:1000',
+                'receipt_file' => 'nullable|file|mimes:jpeg,png,jpg,webp,pdf,heic|max:10240',
+                'receipt_photo' => 'nullable|file|mimes:jpeg,png,jpg,webp,pdf,heic|max:10240',
             ]);
+
+            $billPath = null;
+            $billLink = $validated['bill_link'] ?? null;
+
+            $uploadedFile = $request->file('receipt_file') ?: $request->file('receipt_photo');
+            if ($uploadedFile) {
+                $storedPath = $uploadedFile->store('ta_receipts', 'public');
+                $billPath = $storedPath;
+                if (!$billLink) {
+                    $billLink = asset('storage/' . $storedPath);
+                }
+            }
 
             $totalAmount = collect($validated['items'])->sum('amount');
 
@@ -90,7 +97,9 @@ class TARequestController
                 'reason' => $validated['reason'],
                 'date_travelled' => $validated['date_travelled'],
                 'total_amount' => $totalAmount,
-                'bill_link' => $validated['bill_link'] ?? null,
+                'bill_link' => $billLink,
+                'bill_path' => $billPath,
+                'receipt_photo_path' => $billPath,
                 'created_by' => $user->id,
             ]);
 
@@ -106,7 +115,7 @@ class TARequestController
         } catch (\Illuminate\Database\QueryException $e) {
             \Log::error('Database error creating TA request: ' . $e->getMessage());
             return response()->json([
-                'message' => 'Database error: ' . ($e->getCode() === '42P01' ? 'Tables not created. Please run migrations.' : $e->getMessage())
+                'message' => 'Database error: ' . $e->getMessage()
             ], 500);
         } catch (\Exception $e) {
             \Log::error('Error creating TA request: ' . $e->getMessage());

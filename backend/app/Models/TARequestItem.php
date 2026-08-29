@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TARequestItem extends Model
 {
+    protected $table = 'ta_request_items';
+
     protected $fillable = [
         'ta_request_id',
         'category',

@@ -11,12 +11,16 @@ class TARequest extends Model
 {
     use SoftDeletes;
 
+    protected $table = 'ta_requests';
+
     protected $fillable = [
         'user_id',
         'reason',
         'date_travelled',
         'total_amount',
+        'bill_link',
         'bill_path',
+        'receipt_photo_path',
         'status',
         'approver_id',
         'approval_notes',
