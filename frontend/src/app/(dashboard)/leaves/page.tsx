@@ -714,11 +714,11 @@ export default function LeavesPage() {
                 {(user?.role === "Super Admin" || user?.role === "Team Lead") && (
                   <col className="w-[18%]" />
                 )}
-                <col className="w-[15%]" />
-                <col className="w-[18%]" />
-                <col className="w-[8%]" />
-                <col className="" /> {/* Reason absorbs remaining */}
                 <col className="w-[12%]" />
+                <col className="w-[20%]" />
+                <col className="w-[6%]" />
+                <col className="" /> {/* Reason absorbs remaining */}
+                <col className="w-[11%]" />
                 <col className="w-[10%]" />
               </colgroup>
               <thead className="text-xs text-slate-500 dark:text-slate-400 uppercase bg-slate-50 dark:bg-slate-850 border-b border-slate-200 dark:border-slate-800">
