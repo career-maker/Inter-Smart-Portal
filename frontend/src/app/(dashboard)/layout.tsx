@@ -823,11 +823,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </div>
 
               {/* Center: Search Bar with In-Place Expandable Dropdown */}
-              <div className="flex-1 max-w-lg mx-auto hidden sm:block relative">
+              <div className="flex-1 max-w-lg mx-auto relative w-full sm:w-auto">
                 <button
                   type="button"
                   onClick={() => setSearchModalOpen((prev) => !prev)}
-                  className="w-full bg-white hover:bg-slate-50 transition-all rounded-full px-4 py-2 flex items-center justify-between text-xs text-slate-600 shadow-md border border-white/30 cursor-pointer group"
+                  className="w-full bg-white hover:bg-slate-50 transition-all rounded-full px-4 py-2 hidden sm:flex items-center justify-between text-xs text-slate-600 shadow-md border border-white/30 cursor-pointer group"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
                     <Search className="w-4 h-4 text-purple-600 shrink-0 group-hover:scale-110 transition-transform" />
@@ -841,7 +841,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </button>
 
                 {/* In-place Expandable Command Palette */}
-                <CommandPalette open={searchModalOpen} onOpenChange={setSearchModalOpen} />
+                <div className="absolute top-14 sm:top-auto left-0 sm:left-auto w-full z-50">
+                  <CommandPalette open={searchModalOpen} onOpenChange={setSearchModalOpen} />
+                </div>
               </div>
 
               {/* Right: Actions & User Avatar */}

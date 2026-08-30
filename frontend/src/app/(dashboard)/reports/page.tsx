@@ -182,10 +182,10 @@ export default function ReportsPage() {
       </div>
 
       {/* Report type tabs */}
-      <div className="flex gap-1 border-b border-slate-200 dark:border-white/10">
+      <div className="flex gap-1 border-b border-slate-200 dark:border-white/10 overflow-x-auto scrollbar-hide whitespace-nowrap custom-scrollbar">
         {tabs.map(t => { const Icon = t.icon; return (
           <button key={t.key} onClick={() => setReportType(t.key)}
-            className={`flex items-center gap-2 px-5 py-3 text-sm font-semibold rounded-t-xl border-b-2 transition-all ${reportType === t.key ? "border-amber-400 text-amber-300 bg-amber-500/10" : "border-transparent text-slate-400 hover:text-white"}`}>
+            className={`flex-shrink-0 flex items-center gap-2 px-5 py-3 text-sm font-semibold rounded-t-xl border-b-2 transition-all ${reportType === t.key ? "border-amber-400 text-amber-300 bg-amber-500/10" : "border-transparent text-slate-400 hover:text-white"}`}>
             <Icon className="w-4 h-4" />{t.label}
           </button>
         ); })}

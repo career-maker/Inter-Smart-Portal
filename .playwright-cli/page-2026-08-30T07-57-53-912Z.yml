@@ -1,0 +1,40 @@
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e5]: Your browser does not support the video tag.
+    - generic [ref=e8]:
+      - img "Inter Smart Logo" [ref=e10]
+      - generic [ref=e11]:
+        - link "Need help?" [ref=e13] [cursor=pointer]:
+          - /url: mailto:hr@intersmart.in
+          - img [ref=e14]
+          - generic [ref=e17]: Need help?
+        - generic [ref=e18]:
+          - heading "Sign in to your account" [level=2] [ref=e19]
+          - paragraph [ref=e20]: Enter your official email and password to continue.
+        - generic [ref=e21]:
+          - generic [ref=e22]:
+            - generic [ref=e23]: Official Email Address
+            - textbox "name@intersmart.in" [ref=e24]: admin@intersmart.in
+          - generic [ref=e25]:
+            - generic [ref=e27]: Password
+            - generic [ref=e28]:
+              - textbox "••••••••" [active] [ref=e29]: Admin@123456
+              - button [ref=e30]:
+                - img [ref=e31]
+          - generic [ref=e34]:
+            - generic [ref=e35] [cursor=pointer]: Keep me signed in for 30 days
+            - button [ref=e36]
+          - button "Sign in" [ref=e38]:
+            - img [ref=e46]
+            - text: Sign in
+      - generic [ref=e42]:
+        - paragraph [ref=e43]: © 2026 Inter Smart. All rights reserved.
+        - paragraph [ref=e44]: Developed By Team QA
+  - generic [ref=e49]:
+    - img [ref=e52]
+    - generic [ref=e55]:
+      - heading "Login Successful!" [level=4] [ref=e56]
+      - paragraph [ref=e57]: Welcome back, Super! Redirecting to dashboard…
+    - button "Dismiss toast" [ref=e58]:
+      - img [ref=e59]
+  - alert [ref=e45]

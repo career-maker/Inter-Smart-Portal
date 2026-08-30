@@ -1,0 +1,90 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - img "Animation" [ref=e5]
+      - navigation [ref=e7]:
+        - link "Home" [ref=e8] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e9]
+          - generic [ref=e12]: Home
+        - button "Leave" [ref=e14] [cursor=pointer]:
+          - img [ref=e15]
+          - generic [ref=e18]: Leave
+        - button "Projects" [ref=e20] [cursor=pointer]:
+          - img [ref=e21]
+          - generic [ref=e23]: Projects
+        - button "Add-ons" [ref=e25] [cursor=pointer]:
+          - img [ref=e26]
+          - generic [ref=e28]: Add-ons
+        - button "Finances" [ref=e30] [cursor=pointer]:
+          - img [ref=e31]
+          - generic [ref=e34]: Finances
+        - button "Services" [ref=e36] [cursor=pointer]:
+          - img [ref=e37]
+          - generic [ref=e41]: Services
+        - button "Org" [ref=e43] [cursor=pointer]:
+          - img [ref=e44]
+          - generic [ref=e49]: Org
+        - button "Account" [ref=e51] [cursor=pointer]:
+          - img [ref=e52]
+          - generic [ref=e56]: Account
+        - button "Admin" [ref=e58] [cursor=pointer]:
+          - img [ref=e59]
+          - generic [ref=e62]: Admin
+      - link "SA Super" [ref=e64] [cursor=pointer]:
+        - /url: /profile
+        - generic [ref=e67]: SA
+        - generic [ref=e68]: Super
+    - generic [ref=e69]:
+      - generic [ref=e70]:
+        - banner [ref=e71]:
+          - generic [ref=e72]:
+            - link "Inter Smart Logo" [ref=e74] [cursor=pointer]:
+              - /url: /dashboard
+              - img "Inter Smart Logo" [ref=e75]
+            - 'button "Search employees or actions (Ex: Apply Leave) Alt + K" [ref=e77] [cursor=pointer]':
+              - generic [ref=e78]:
+                - img [ref=e79]
+                - generic [ref=e82]: "Search employees or actions (Ex: Apply Leave)"
+              - generic [ref=e83]: Alt + K
+            - generic [ref=e84]:
+              - button "Quick Launch" [ref=e85] [cursor=pointer]:
+                - img [ref=e86]
+              - button "Bookmarks" [ref=e92] [cursor=pointer]:
+                - img [ref=e93]
+              - button [ref=e95]:
+                - img [ref=e96]
+              - link "SA" [ref=e99] [cursor=pointer]:
+                - /url: /profile
+                - generic [ref=e101]: SA
+        - generic [ref=e103]:
+          - link "Dashboard" [ref=e104] [cursor=pointer]:
+            - /url: /dashboard
+            - generic [ref=e105]: Dashboard
+          - link "Employee Management" [ref=e106] [cursor=pointer]:
+            - /url: /employees
+            - generic [ref=e107]: Employee Management
+          - link "Community" [ref=e108] [cursor=pointer]:
+            - /url: /community
+            - generic [ref=e109]: Community
+          - link "Attendance Management" [ref=e111] [cursor=pointer]:
+            - /url: /attendance/management
+            - generic [ref=e112]: Attendance Management
+          - link "Hubstaff" [ref=e113] [cursor=pointer]:
+            - /url: /project-management/hubstaff
+            - generic [ref=e114]: Hubstaff
+      - main [ref=e116]:
+        - generic [ref=e118]:
+          - generic [ref=e121]:
+            - generic [ref=e122]: s
+            - generic [ref=e123]: t
+            - generic [ref=e124]: a
+            - generic [ref=e125]: r
+            - generic [ref=e126]: t
+            - generic [ref=e127]: i
+            - generic [ref=e128]: "n"
+            - generic [ref=e129]: g
+            - generic [ref=e131]: u
+            - generic [ref=e132]: p
+          - progressbar "Loading" [ref=e133]
+  - alert [ref=e135]

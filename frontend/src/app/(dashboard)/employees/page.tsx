@@ -89,7 +89,7 @@ export default function EmployeesPage() {
           <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Employees</h1>
           <p className="text-slate-600 dark:text-slate-300 mt-1">Manage your organization's workforce.</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <FavoriteButton label="Employees" />
           {isSuperAdmin && (
             <>

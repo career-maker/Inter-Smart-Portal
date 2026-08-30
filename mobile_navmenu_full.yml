@@ -1,0 +1,517 @@
+- generic [ref=e1]:
+  - generic [ref=e62]:
+    - generic [ref=e63]:
+      - generic [ref=e128]:
+        - generic [ref=e129]:
+          - img [ref=e130]
+          - generic [ref=e133]: "📢 Sample: Happy Onam To All @@@"
+        - generic [ref=e134]:
+          - img [ref=e135]
+          - generic [ref=e138]: "📢 Sample: Happy Onam To All @@@"
+      - generic [ref=e64]:
+        - banner [ref=e65]:
+          - generic [ref=e66]:
+            - generic [ref=e67]:
+              - button "Toggle menu" [active] [ref=e68] [cursor=pointer]:
+                - img [ref=e527]
+              - link "Inter Smart Logo" [ref=e70] [cursor=pointer]:
+                - /url: /dashboard
+                - img "Inter Smart Logo" [ref=e71]
+            - generic [ref=e72]:
+              - button "Search" [ref=e73]:
+                - img [ref=e74]
+              - button "Bookmarks" [ref=e78] [cursor=pointer]:
+                - img [ref=e79]
+              - button [ref=e81]:
+                - img [ref=e82]
+              - link "SA" [ref=e85] [cursor=pointer]:
+                - /url: /profile
+                - generic [ref=e87]: SA
+        - generic [ref=e89]:
+          - link "Dashboard" [ref=e90] [cursor=pointer]:
+            - /url: /dashboard
+            - generic [ref=e91]: Dashboard
+          - link "Employee Management" [ref=e93] [cursor=pointer]:
+            - /url: /employees
+            - generic [ref=e94]: Employee Management
+          - link "Community" [ref=e95] [cursor=pointer]:
+            - /url: /community
+            - generic [ref=e96]: Community
+          - link "Attendance Management" [ref=e98] [cursor=pointer]:
+            - /url: /attendance/management
+            - generic [ref=e99]: Attendance Management
+          - link "Hubstaff" [ref=e100] [cursor=pointer]:
+            - /url: /project-management/hubstaff
+            - generic [ref=e101]: Hubstaff
+      - main [ref=e103]:
+        - generic [ref=e140]:
+          - generic [ref=e141]:
+            - generic [ref=e142]:
+              - generic [ref=e145]: SA
+              - generic [ref=e146]:
+                - generic [ref=e147]:
+                  - link "Super Admin" [ref=e148] [cursor=pointer]:
+                    - /url: /profile
+                    - generic [ref=e149]: Super Admin
+                    - img [ref=e150]
+                  - generic [ref=e154]:
+                    - img [ref=e155]
+                    - text: Super Admin
+                - paragraph [ref=e157]:
+                  - generic [ref=e158]: Administrator
+                  - generic [ref=e159]: •
+                  - generic [ref=e160]: Inter Smart, Kochi
+                - generic [ref=e162]: Sunday, 30 August 2026 • 1:28:54 PM
+            - link "Pending Items 7 requests Awaiting review →" [ref=e164] [cursor=pointer]:
+              - /url: /leaves/approvals
+              - paragraph [ref=e165]:
+                - img [ref=e166]
+                - text: Pending Items
+              - generic [ref=e169]:
+                - paragraph [ref=e170]: "7"
+                - paragraph [ref=e171]: requests
+              - paragraph [ref=e172]: Awaiting review →
+          - generic [ref=e173]:
+            - link "Employees 69 ▲ +2% from yesterday" [ref=e174] [cursor=pointer]:
+              - /url: /employees
+              - generic [ref=e175]:
+                - generic [ref=e176]:
+                  - generic [ref=e177]:
+                    - paragraph [ref=e178]: Employees
+                    - heading "69" [level=3] [ref=e179]
+                  - img [ref=e181]
+                - generic [ref=e185]:
+                  - generic [ref=e186]: ▲
+                  - text: +2% from yesterday
+            - generic [ref=e188] [cursor=pointer]:
+              - generic [ref=e189]:
+                - generic [ref=e190]:
+                  - paragraph [ref=e191]: Present
+                  - heading "0" [level=3] [ref=e192]
+                - img [ref=e194]
+              - generic [ref=e203]:
+                - generic [ref=e204]: ▼
+                - text: 0% from yesterday
+            - generic [ref=e207] [cursor=pointer]:
+              - generic [ref=e208]:
+                - paragraph [ref=e209]: On Leave
+                - heading "0" [level=3] [ref=e210]
+              - img [ref=e212]
+            - generic [ref=e220] [cursor=pointer]:
+              - generic [ref=e221]:
+                - paragraph [ref=e222]: WFH
+                - heading "0" [level=3] [ref=e223]
+              - img [ref=e225]
+          - generic [ref=e229]:
+            - generic [ref=e230]:
+              - heading "Employee Status Distribution" [level=2] [ref=e231]:
+                - img [ref=e232]
+                - text: Employee Status Distribution
+              - generic [ref=e239]:
+                - list [ref=e241]:
+                  - listitem [ref=e242]:
+                    - img "Absent legend icon" [ref=e243]
+                    - generic [ref=e245]: Absent
+                  - listitem [ref=e246]:
+                    - img "On Leave legend icon" [ref=e247]
+                    - generic [ref=e249]: On Leave
+                  - listitem [ref=e250]:
+                    - img "Present legend icon" [ref=e251]
+                    - generic [ref=e253]: Present
+                  - listitem [ref=e254]:
+                    - img "WFH legend icon" [ref=e255]
+                    - generic [ref=e257]: WFH
+                - application [ref=e258]
+            - generic [ref=e265]:
+              - heading "Leave Requests Today" [level=2] [ref=e266]:
+                - img [ref=e267]
+                - text: Leave Requests Today
+              - application [ref=e275]
+          - generic [ref=e282]:
+            - generic [ref=e283]:
+              - generic [ref=e284]:
+                - generic [ref=e285]:
+                  - heading "Company Announcements" [level=3] [ref=e286]:
+                    - img [ref=e287]
+                    - text: Company Announcements
+                  - paragraph [ref=e290]: Latest company news and updates
+                - link "View All" [ref=e291] [cursor=pointer]:
+                  - /url: /announcements
+              - generic [ref=e295]:
+                - paragraph [ref=e296]: Sample
+                - paragraph [ref=e297]: Aug 29, 2026
+            - generic [ref=e298]:
+              - generic [ref=e300]:
+                - heading "Work Anniversaries" [level=3] [ref=e301]:
+                  - img [ref=e302]
+                  - text: Work Anniversaries
+                - paragraph [ref=e308]: Team milestones in the next 2 weeks
+              - paragraph [ref=e310]: No work anniversaries in the next 2 weeks.
+            - generic [ref=e312]:
+              - generic [ref=e313]:
+                - heading "Upcoming Birthdays" [level=3] [ref=e314]:
+                  - img [ref=e315]
+                  - text: Upcoming Birthdays
+                - paragraph [ref=e318]: Celebrations and wishes in next 30 days
+              - paragraph [ref=e320]: No upcoming birthdays in the next 30 days.
+            - generic [ref=e321]:
+              - generic [ref=e322]:
+                - generic [ref=e323]:
+                  - generic [ref=e324]:
+                    - heading "Hall of Fame" [level=3] [ref=e325]:
+                      - img [ref=e326]
+                      - text: Hall of Fame
+                    - paragraph [ref=e332]: Top recognized employees & awardees
+                  - link "View All" [ref=e333] [cursor=pointer]:
+                    - /url: /recognitions/leaderboard
+                - generic [ref=e493]:
+                  - generic [ref=e494]:
+                    - generic [ref=e495]: 🥇
+                    - generic [ref=e496]:
+                      - generic [ref=e497]: AP
+                      - img "Abhiram P Mohan" [ref=e498]
+                    - generic [ref=e499]:
+                      - paragraph [ref=e500]: Abhiram P Mohan
+                      - paragraph [ref=e501]: Lead QA Analyst
+                  - generic [ref=e502]: 1 Award
+              - generic [ref=e337]:
+                - generic [ref=e338]:
+                  - img [ref=e339]
+                  - text: Celebrate peer milestones
+                - link "Recognize" [ref=e342] [cursor=pointer]:
+                  - /url: /recognitions
+                  - text: Recognize
+                  - img [ref=e343]
+            - link "Manage Employees Manage View directory, create & edit employee profiles, and manage team allocations. Employee Directory Go to section →" [ref=e345] [cursor=pointer]:
+              - /url: /employees
+              - generic [ref=e346]:
+                - generic [ref=e347]:
+                  - generic [ref=e348]:
+                    - heading "Manage Employees" [level=3] [ref=e349]:
+                      - img [ref=e350]
+                      - text: Manage Employees
+                    - generic [ref=e355]:
+                      - text: Manage
+                      - img [ref=e356]
+                  - paragraph [ref=e358]: View directory, create & edit employee profiles, and manage team allocations.
+                - generic [ref=e359]:
+                  - generic [ref=e360]: Employee Directory
+                  - generic [ref=e361]: Go to section →
+            - link "Attendance Management Manage Review daily attendance logs, biometric punches, check-in/out times & corrections. Live Attendance Open Console →" [ref=e362] [cursor=pointer]:
+              - /url: /attendance/management
+              - generic [ref=e363]:
+                - generic [ref=e364]:
+                  - generic [ref=e365]:
+                    - heading "Attendance Management" [level=3] [ref=e366]:
+                      - img [ref=e367]
+                      - text: Attendance Management
+                    - generic [ref=e370]:
+                      - text: Manage
+                      - img [ref=e371]
+                  - paragraph [ref=e373]: Review daily attendance logs, biometric punches, check-in/out times & corrections.
+                - generic [ref=e374]:
+                  - generic [ref=e375]: Live Attendance
+                  - generic [ref=e376]: Open Console →
+          - generic [ref=e377]:
+            - generic [ref=e378]:
+              - generic [ref=e379]:
+                - link "Leaves" [ref=e380] [cursor=pointer]:
+                  - /url: /leaves
+                  - generic [ref=e381]:
+                    - img [ref=e384]
+                    - generic [ref=e389]: Leaves
+                - link "Updates" [ref=e390] [cursor=pointer]:
+                  - /url: /announcements
+                  - generic [ref=e391]:
+                    - img [ref=e394]
+                    - generic [ref=e397]: Updates
+                - link "Downloads" [ref=e398] [cursor=pointer]:
+                  - /url: /documents
+                  - generic [ref=e399]:
+                    - img [ref=e402]
+                    - generic [ref=e405]: Downloads
+                - link "Policies" [ref=e406] [cursor=pointer]:
+                  - /url: /policies
+                  - generic [ref=e407]:
+                    - img [ref=e410]
+                    - generic [ref=e412]: Policies
+                - link "View The Hall" [ref=e413] [cursor=pointer]:
+                  - /url: /hall
+                  - generic [ref=e415]:
+                    - generic [ref=e416]: View The Hall
+                    - img [ref=e418]
+              - generic [ref=e420]:
+                - generic [ref=e421]:
+                  - generic [ref=e422]:
+                    - heading "Recent Activity" [level=3] [ref=e423]:
+                      - img [ref=e424]
+                      - text: Recent Activity
+                    - paragraph [ref=e426]: Latest actions across the portal
+                  - link "View All" [ref=e427] [cursor=pointer]:
+                    - /url: /activities
+                - generic [ref=e428]:
+                  - generic [ref=e429]:
+                    - img [ref=e431]
+                    - generic [ref=e436]:
+                      - paragraph [ref=e437]: Abhiram applied for leave
+                      - paragraph [ref=e438]: Aug 29, 11:54 PM
+                  - generic [ref=e439]:
+                    - img [ref=e441]
+                    - generic [ref=e446]:
+                      - paragraph [ref=e447]: Abhiram applied for leave
+                      - paragraph [ref=e448]: Aug 29, 11:36 PM
+                  - generic [ref=e449]:
+                    - img [ref=e451]
+                    - generic [ref=e456]:
+                      - paragraph [ref=e457]: Abhiram applied for leave
+                      - paragraph [ref=e458]: Aug 29, 11:22 PM
+            - generic [ref=e459]:
+              - generic [ref=e460]:
+                - generic [ref=e461]:
+                  - generic [ref=e462]:
+                    - heading "Upcoming Holidays" [level=3] [ref=e463]:
+                      - img [ref=e464]
+                      - text: Upcoming Holidays
+                    - paragraph [ref=e466]: Public holidays this month
+                  - link "View All" [ref=e467] [cursor=pointer]:
+                    - /url: /holidays
+                - paragraph [ref=e469]: No upcoming holidays.
+              - generic [ref=e470]:
+                - generic [ref=e471]:
+                  - generic [ref=e472]:
+                    - heading "Company Leave Overview" [level=3] [ref=e473]:
+                      - img [ref=e474]
+                      - text: Company Leave Overview
+                    - paragraph [ref=e476]: Leave summary for today
+                  - link "Manage" [ref=e477] [cursor=pointer]:
+                    - /url: /manage-leaves
+                - generic [ref=e478]:
+                  - generic [ref=e479]:
+                    - generic [ref=e480]: Pending Requests
+                    - generic [ref=e481]: "7"
+                  - generic [ref=e482]:
+                    - generic [ref=e483]: On Leave Today
+                    - generic [ref=e484]: "0"
+    - generic [ref=e540]:
+      - generic [ref=e541]:
+        - img "Inter Smart Logo" [ref=e542]
+        - button [ref=e543] [cursor=pointer]:
+          - img [ref=e544]
+      - generic [ref=e547]:
+        - link "Home" [ref=e548] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e549]
+          - generic [ref=e552]: Home
+        - generic [ref=e553]:
+          - generic [ref=e554]:
+            - img [ref=e555]
+            - generic [ref=e558]: Leave & WFH
+          - generic [ref=e559]:
+            - link "All Leaves" [ref=e560] [cursor=pointer]:
+              - /url: /leaves
+              - generic [ref=e561]: All Leaves
+              - img [ref=e562]
+            - link "WFH Requests" [ref=e564] [cursor=pointer]:
+              - /url: /wfh
+              - generic [ref=e565]: WFH Requests
+              - img [ref=e566]
+            - link "Leave Calendar" [ref=e568] [cursor=pointer]:
+              - /url: /calendar
+              - generic [ref=e569]: Leave Calendar
+              - img [ref=e570]
+            - link "Holidays" [ref=e572] [cursor=pointer]:
+              - /url: /holidays
+              - generic [ref=e573]: Holidays
+              - img [ref=e574]
+            - link "Leave Approvals" [ref=e576] [cursor=pointer]:
+              - /url: /leaves/approvals
+              - generic [ref=e577]: Leave Approvals
+              - img [ref=e578]
+            - link "Leave Balances" [ref=e580] [cursor=pointer]:
+              - /url: /leave-balances
+              - generic [ref=e581]: Leave Balances
+              - img [ref=e582]
+            - link "Leave Policy Management" [ref=e584] [cursor=pointer]:
+              - /url: /project-management/addons/leave-policy
+              - generic [ref=e585]: Leave Policy Management
+              - img [ref=e586]
+            - link "Manage Approved Leaves/WFH" [ref=e588] [cursor=pointer]:
+              - /url: /manage-leaves
+              - generic [ref=e589]: Manage Approved Leaves/WFH
+              - img [ref=e590]
+        - generic [ref=e592]:
+          - generic [ref=e593]:
+            - img [ref=e594]
+            - generic [ref=e596]: Project Management
+          - generic [ref=e597]:
+            - link "Overview" [ref=e598] [cursor=pointer]:
+              - /url: /project-management
+              - generic [ref=e599]: Overview
+              - img [ref=e600]
+            - link "Project Status" [ref=e602] [cursor=pointer]:
+              - /url: /project-management/status
+              - generic [ref=e603]: Project Status
+              - img [ref=e604]
+            - link "Projects" [ref=e606] [cursor=pointer]:
+              - /url: /project-management/projects
+              - generic [ref=e607]: Projects
+              - img [ref=e608]
+            - link "All Tasks" [ref=e610] [cursor=pointer]:
+              - /url: /project-management/tasks
+              - generic [ref=e611]: All Tasks
+              - img [ref=e612]
+            - link "My Tasks" [ref=e614] [cursor=pointer]:
+              - /url: /project-management/tasks/my
+              - generic [ref=e615]: My Tasks
+              - img [ref=e616]
+            - link "Overdue Tasks" [ref=e618] [cursor=pointer]:
+              - /url: /project-management/tasks/overdue
+              - generic [ref=e619]: Overdue Tasks
+              - img [ref=e620]
+            - link "Completed Tasks" [ref=e622] [cursor=pointer]:
+              - /url: /project-management/tasks/completed
+              - generic [ref=e623]: Completed Tasks
+              - img [ref=e624]
+            - link "Forecast Tasks" [ref=e626] [cursor=pointer]:
+              - /url: /project-management/tasks/forecast
+              - generic [ref=e627]: Forecast Tasks
+              - img [ref=e628]
+            - link "Bug Reports" [ref=e630] [cursor=pointer]:
+              - /url: /project-management/bug-reports
+              - generic [ref=e631]: Bug Reports
+              - img [ref=e632]
+            - link "Hubstaff" [ref=e634] [cursor=pointer]:
+              - /url: /project-management/hubstaff
+              - generic [ref=e635]: Hubstaff
+              - img [ref=e636]
+            - link "Task Catalog" [ref=e638] [cursor=pointer]:
+              - /url: /project-management/task-catalog
+              - generic [ref=e639]: Task Catalog
+              - img [ref=e640]
+        - generic [ref=e642]:
+          - generic [ref=e643]:
+            - img [ref=e644]
+            - generic [ref=e646]: Add-ons
+          - generic [ref=e647]:
+            - link "All Add-ons Directory" [ref=e648] [cursor=pointer]:
+              - /url: /project-management/addons
+              - generic [ref=e649]: All Add-ons Directory
+              - img [ref=e650]
+            - link "Email & SMTP Management" [ref=e652] [cursor=pointer]:
+              - /url: /project-management/addons/email-management
+              - generic [ref=e653]: Email & SMTP Management
+              - img [ref=e654]
+            - link "Leave Policy Management" [ref=e656] [cursor=pointer]:
+              - /url: /project-management/addons/leave-policy
+              - generic [ref=e657]: Leave Policy Management
+              - img [ref=e658]
+            - link "Team & Role Permissions" [ref=e660] [cursor=pointer]:
+              - /url: /project-management/addons/permissions
+              - generic [ref=e661]: Team & Role Permissions
+              - img [ref=e662]
+            - link "Bug Tracker & Reports" [ref=e664] [cursor=pointer]:
+              - /url: /project-management/bug-reports
+              - generic [ref=e665]: Bug Tracker & Reports
+              - img [ref=e666]
+        - generic [ref=e668]:
+          - generic [ref=e669]:
+            - img [ref=e670]
+            - generic [ref=e673]: Travel Allowance
+          - link "Manage TA Requests" [ref=e675] [cursor=pointer]:
+            - /url: /ta/management
+            - generic [ref=e676]: Manage TA Requests
+            - img [ref=e677]
+        - generic [ref=e679]:
+          - generic [ref=e680]:
+            - img [ref=e681]
+            - generic [ref=e685]: HR Services
+          - generic [ref=e686]:
+            - link "Updates & Announcements" [ref=e687] [cursor=pointer]:
+              - /url: /announcements
+              - generic [ref=e688]: Updates & Announcements
+              - img [ref=e689]
+            - link "Request Documents" [ref=e691] [cursor=pointer]:
+              - /url: /documents
+              - generic [ref=e692]: Request Documents
+              - img [ref=e693]
+            - link "HR Policies" [ref=e695] [cursor=pointer]:
+              - /url: /policies
+              - generic [ref=e696]: HR Policies
+              - img [ref=e697]
+        - generic [ref=e699]:
+          - generic [ref=e700]:
+            - img [ref=e701]
+            - generic [ref=e706]: People & Teams
+          - generic [ref=e707]:
+            - link "Employees" [ref=e708] [cursor=pointer]:
+              - /url: /employees
+              - generic [ref=e709]: Employees
+              - img [ref=e710]
+            - link "Departments" [ref=e712] [cursor=pointer]:
+              - /url: /teams
+              - generic [ref=e713]: Departments
+              - img [ref=e714]
+            - link "Attendance Management" [ref=e716] [cursor=pointer]:
+              - /url: /attendance/management
+              - generic [ref=e717]: Attendance Management
+              - img [ref=e718]
+            - link "The Hall" [ref=e720] [cursor=pointer]:
+              - /url: /hall
+              - generic [ref=e721]: The Hall
+              - img [ref=e722]
+            - link "Birthday Wishes" [ref=e724] [cursor=pointer]:
+              - /url: /birthday-wishes
+              - generic [ref=e725]: Birthday Wishes
+              - img [ref=e726]
+            - link "Manage Awards" [ref=e728] [cursor=pointer]:
+              - /url: /recognitions
+              - generic [ref=e729]: Manage Awards
+              - img [ref=e730]
+            - link "Recognition Leaderboard" [ref=e732] [cursor=pointer]:
+              - /url: /recognitions/leaderboard
+              - generic [ref=e733]: Recognition Leaderboard
+              - img [ref=e734]
+        - generic [ref=e736]:
+          - generic [ref=e737]:
+            - img [ref=e738]
+            - generic [ref=e742]: My Account
+          - generic [ref=e743]:
+            - link "Notifications" [ref=e744] [cursor=pointer]:
+              - /url: /notifications
+              - generic [ref=e745]: Notifications
+              - img [ref=e746]
+            - link "Raise an Issue" [ref=e748] [cursor=pointer]:
+              - /url: /issues
+              - generic [ref=e749]: Raise an Issue
+              - img [ref=e750]
+        - generic [ref=e752]:
+          - generic [ref=e753]:
+            - img [ref=e754]
+            - generic [ref=e757]: Administration
+          - generic [ref=e758]:
+            - link "Profile Approvals" [ref=e759] [cursor=pointer]:
+              - /url: /profile-requests
+              - generic [ref=e760]: Profile Approvals
+              - img [ref=e761]
+            - link "Reports" [ref=e763] [cursor=pointer]:
+              - /url: /reports
+              - generic [ref=e764]: Reports
+              - img [ref=e765]
+            - link "Audit Logs" [ref=e767] [cursor=pointer]:
+              - /url: /audit-logs
+              - generic [ref=e768]: Audit Logs
+              - img [ref=e769]
+            - link "Settings" [ref=e771] [cursor=pointer]:
+              - /url: /settings
+              - generic [ref=e772]: Settings
+              - img [ref=e773]
+      - generic [ref=e775]:
+        - generic [ref=e776]:
+          - generic [ref=e778]: SA
+          - generic [ref=e779]:
+            - generic [ref=e780]: Super Admin
+            - generic [ref=e781]: Super Admin
+        - button "Logout" [ref=e782] [cursor=pointer]:
+          - img [ref=e783]
+          - generic [ref=e786]: Logout
+  - alert [ref=e45]
