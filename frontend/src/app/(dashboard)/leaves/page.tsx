@@ -305,6 +305,10 @@ export default function LeavesPage() {
     );
   };
 
+  if (isLoading) {
+    return <PageLoader />;
+  }
+
   return (
     <div className="space-y-7 max-w-6xl mx-auto">
 
@@ -323,16 +327,21 @@ export default function LeavesPage() {
               )}
             </h2>
             <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-              {pendingRequestsCount === 0
-                ? "Request leave on the right!"
-                : "Your request is currently awaiting manager or administrative approval."}
+              {pendingRequestsCount === 0 ? (
+                <>
+                  <span className="hidden sm:inline">Request leave on the right!</span>
+                  <span className="inline sm:hidden">Request leave below!</span>
+                </>
+              ) : (
+                "Your request is currently awaiting manager or administrative approval."
+              )}
             </p>
           </div>
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
           {!isSuperAdmin && (
-            <div className="flex flex-col items-end gap-1.5">
+            <div className="flex flex-col items-stretch sm:items-end gap-1.5 w-full sm:w-auto">
               <button
                 onClick={() => router.push("/leaves/apply")}
                 className="w-full sm:w-auto px-6 py-2.5 bg-[#56348f] hover:bg-[#452875] active:bg-[#382061] text-white font-semibold text-sm rounded-xl shadow-xs transition-colors cursor-pointer text-center"
@@ -341,7 +350,7 @@ export default function LeavesPage() {
               </button>
               <button
                 onClick={() => router.push("/policies")}
-                className="text-xs text-purple-600 dark:text-purple-400 hover:underline font-medium cursor-pointer"
+                className="text-xs text-purple-600 dark:text-purple-400 hover:underline font-medium cursor-pointer text-center sm:text-right"
               >
                 Leave Policy Explanation
               </button>
@@ -674,9 +683,7 @@ export default function LeavesPage() {
           </div>
         </div>
 
-        {isLoading ? (
-          <div className="py-12 text-center text-slate-500 dark:text-slate-400 text-sm">Loading requests…</div>
-        ) : requests.length === 0 ? (
+        {requests.length === 0 ? (
           <div className="py-12 text-center text-slate-500 dark:text-slate-400 text-sm">No leave requests found.</div>
         ) : (
           <div className="overflow-x-auto">
