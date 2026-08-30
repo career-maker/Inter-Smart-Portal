@@ -221,11 +221,11 @@ export default function RecognitionsPage() {
           <table className="w-full text-sm text-left">
             <thead className="bg-slate-50 dark:bg-slate-900/50 text-slate-600 dark:text-slate-300 font-medium text-xs uppercase tracking-wider border-b border-slate-200/80 dark:border-slate-700/60">
               <tr>
-                <th className="px-6 py-4">Employee</th>
-                <th className="px-6 py-4">Achievement</th>
-                <th className="px-6 py-4">Period</th>
-                <th className="px-6 py-4 text-center">Status</th>
-                <th className="px-6 py-4 text-right">Actions</th>
+                <th className="px-3 py-3">Employee</th>
+                <th className="px-3 py-3">Achievement</th>
+                <th className="px-3 py-3">Period</th>
+                <th className="px-3 py-3 text-center">Status</th>
+                <th className="px-3 py-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-white/5">
@@ -242,11 +242,11 @@ export default function RecognitionsPage() {
 
                 return (
                   <tr key={rec.id} className="hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
-                    <td className="px-6 py-4">
+                    <td className="px-3 py-3">
                       <div className="font-semibold text-slate-900 dark:text-white">{employeeName}</div>
                       <div className="text-xs text-slate-500 dark:text-slate-400">{rec.user?.employee_code}</div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 py-3">
                       <div className="flex items-center gap-2 font-bold text-amber-300">
                         <span>{rec.icon}</span>
                         <span>{rec.title}</span>
@@ -260,7 +260,7 @@ export default function RecognitionsPage() {
                         {rec.description}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 py-3">
                       <div className="text-slate-200">
                         {format(new Date(rec.start_date), "MMM d, yyyy")}
                       </div>
@@ -268,7 +268,7 @@ export default function RecognitionsPage() {
                         to {format(new Date(rec.end_date), "MMM d, yyyy")}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-center">
+                    <td className="px-3 py-3 text-center">
                       {isActive ? (
                         <span className="inline-flex items-center gap-1 bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-full text-xs font-bold">
                           <ShieldCheck className="w-3 h-3" /> Active
@@ -279,7 +279,7 @@ export default function RecognitionsPage() {
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-right space-x-1">
+                    <td className="px-3 py-3 text-right space-x-1">
                       {/* View Certificate */}
                       <button
                         onClick={() => setCertRec({ ...rec, _employeeName: employeeName })}

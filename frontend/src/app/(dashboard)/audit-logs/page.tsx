@@ -56,23 +56,23 @@ export default function AuditLogsPage() {
           <table className="w-full text-sm text-left">
             <thead className="bg-muted/50 text-muted-foreground font-medium border-b">
               <tr>
-                <th className="px-6 py-4">Action</th>
-                <th className="px-6 py-4">User</th>
-                <th className="px-6 py-4">Target Model</th>
-                <th className="px-6 py-4">IP Address</th>
-                <th className="px-6 py-4 text-right">Timestamp</th>
+                <th className="px-3 py-3">Action</th>
+                <th className="px-3 py-3">User</th>
+                <th className="px-3 py-3">Target Model</th>
+                <th className="px-3 py-3">IP Address</th>
+                <th className="px-3 py-3 text-right">Timestamp</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {logs.map((log: any) => (
                 <tr key={log.id} className="hover:bg-muted/30 transition-colors">
-                  <td className="px-6 py-4">
+                  <td className="px-3 py-3">
                     <div className="flex items-center gap-2">
                       <Activity className="w-4 h-4 text-blue-500" />
                       <span className="font-medium text-foreground">{log.action}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-3 py-3">
                     {log.user ? (
                       <div className="flex items-center gap-2">
                         <User className="w-4 h-4 text-muted-foreground" />
@@ -82,7 +82,7 @@ export default function AuditLogsPage() {
                       <span className="text-muted-foreground">System</span>
                     )}
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-3 py-3">
                     {log.model_type ? (
                       <span className="text-xs bg-muted px-2 py-1 rounded-md text-muted-foreground">
                         {log.model_type.split("\\").pop()} #{log.model_id}
@@ -91,10 +91,10 @@ export default function AuditLogsPage() {
                       <span className="text-muted-foreground">-</span>
                     )}
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-3 py-3">
                     {log.ip_address || "N/A"}
                   </td>
-                  <td className="px-6 py-4 text-right">
+                  <td className="px-3 py-3 text-right">
                     <div className="flex items-center justify-end gap-1.5 text-muted-foreground">
                       <Clock className="w-3.5 h-3.5" />
                       {format(new Date(log.created_at), "MMM d, yyyy HH:mm")}

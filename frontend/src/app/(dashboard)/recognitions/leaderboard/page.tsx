@@ -308,12 +308,12 @@ export default function RecognitionLeaderboardPage() {
               <table className="w-full text-sm text-left border-collapse">
                 <thead>
                   <tr className="border-b border-white/10 bg-white/[0.02] text-xs uppercase font-semibold text-slate-400 tracking-wider">
-                    <th className="px-6 py-4 w-24">RANK</th>
-                    <th className="px-6 py-4">EMPLOYEE</th>
-                    <th className="px-6 py-4">DESIGNATION</th>
-                    <th className="px-6 py-4">DEPARTMENT</th>
-                    <th className="px-6 py-4 text-center">TOTAL AWARDS</th>
-                    <th className="px-6 py-4">LATEST AWARD</th>
+                    <th className="px-3 py-3 w-24">RANK</th>
+                    <th className="px-3 py-3">EMPLOYEE</th>
+                    <th className="px-3 py-3">DESIGNATION</th>
+                    <th className="px-3 py-3">DEPARTMENT</th>
+                    <th className="px-3 py-3 text-center">TOTAL AWARDS</th>
+                    <th className="px-3 py-3">LATEST AWARD</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
@@ -331,12 +331,12 @@ export default function RecognitionLeaderboardPage() {
                         }`}
                       >
                         {/* Rank */}
-                        <td className="px-6 py-4">
+                        <td className="px-3 py-3">
                           <RankMedal rank={entry.rank} />
                         </td>
 
                         {/* Employee */}
-                        <td className="px-6 py-4">
+                        <td className="px-3 py-3">
                           <div className="flex items-center gap-3">
                             <RoyalAvatar
                               src={entry.profile_photo_path}
@@ -364,17 +364,17 @@ export default function RecognitionLeaderboardPage() {
                         </td>
 
                         {/* Designation */}
-                        <td className="px-6 py-4 text-slate-300 font-medium text-sm">
+                        <td className="px-3 py-3 text-slate-300 font-medium text-sm">
                           {entry.designation || "—"}
                         </td>
 
                         {/* Department */}
-                        <td className="px-6 py-4 text-slate-400 font-medium text-sm">
+                        <td className="px-3 py-3 text-slate-400 font-medium text-sm">
                           {entry.department || "—"}
                         </td>
 
                         {/* Total Awards */}
-                        <td className="px-6 py-4 text-center">
+                        <td className="px-3 py-3 text-center">
                           <div className="inline-flex items-center gap-1.5 font-bold text-amber-300 text-sm">
                             <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
                             <span>{entry.total_achievements}</span>
@@ -382,7 +382,7 @@ export default function RecognitionLeaderboardPage() {
                         </td>
 
                         {/* Latest Award */}
-                        <td className="px-6 py-4">
+                        <td className="px-3 py-3">
                           {entry.latest_achievement_title ? (
                             <div>
                               <div className="text-amber-300 font-semibold text-sm flex items-center gap-1.5">

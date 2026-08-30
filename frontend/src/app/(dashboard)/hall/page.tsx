@@ -182,11 +182,11 @@ export default function HallPage() {
           <table className="w-full text-sm text-left">
             <thead className="bg-gray-50/50 dark:bg-slate-800/40 text-gray-500 dark:text-slate-400 font-medium border-b border-slate-200 dark:border-slate-700/60">
               <tr>
-                <th className="px-6 py-4">Employee</th>
-                <th className="px-6 py-4">ID</th>
-                <th className="px-6 py-4">Designation</th>
-                <th className="px-6 py-4">Team</th>
-                <th className="px-6 py-4 text-right">Today's Status</th>
+                <th className="px-3 py-3">Employee</th>
+                <th className="px-3 py-3">ID</th>
+                <th className="px-3 py-3">Designation</th>
+                <th className="px-3 py-3">Team</th>
+                <th className="px-3 py-3 text-right">Today's Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-slate-700/60">
@@ -199,7 +199,7 @@ export default function HallPage() {
               ) : (
                 filteredEmployees.map((emp: any) => (
                   <tr key={emp.id} className="hover:bg-gray-50/50 dark:hover:bg-slate-800/50 transition-colors">
-                    <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">
+                    <td className="px-3 py-3 font-medium text-gray-900 dark:text-white">
                       <div className="flex items-center gap-3">
                         <RoyalAvatar
                           src={emp.profile_photo_path}
@@ -216,18 +216,18 @@ export default function HallPage() {
                         />
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-gray-500 dark:text-slate-400">
+                    <td className="px-3 py-3 text-gray-500 dark:text-slate-400">
                       {emp.employee_code}
                     </td>
-                    <td className="px-6 py-4 text-gray-600 dark:text-slate-400">
+                    <td className="px-3 py-3 text-gray-600 dark:text-slate-400">
                       {emp.designation || "-"}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 py-3">
                       <span className="inline-flex items-center px-2 py-1 rounded-md bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-300 text-xs border border-transparent dark:border-slate-700/60">
                         {emp.team}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-3 py-3 text-right">
                       <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${getStatusColor(emp.status)}`}>
                         {emp.status}
                       </span>

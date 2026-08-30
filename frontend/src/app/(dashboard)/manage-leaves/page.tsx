@@ -249,14 +249,14 @@ export default function ManageLeavesPage() {
             <table className="w-full text-sm">
               <thead className="border-b border-slate-200 dark:border-white/10">
                 <tr className="hover:bg-slate-100 dark:hover:bg-white/5 transition">
-                  <th className="px-4 py-3 text-left font-semibold text-gray-300">Employee</th>
-                  <th className="px-4 py-3 text-left font-semibold text-gray-300">Start Date</th>
-                  <th className="px-4 py-3 text-left font-semibold text-gray-300">End Date</th>
+                  <th className="px-3 py-3 text-left font-semibold text-gray-300">Employee</th>
+                  <th className="px-3 py-3 text-left font-semibold text-gray-300">Start Date</th>
+                  <th className="px-3 py-3 text-left font-semibold text-gray-300">End Date</th>
                   {tab === "leaves" && (
-                    <th className="px-4 py-3 text-left font-semibold text-gray-300">Type</th>
+                    <th className="px-3 py-3 text-left font-semibold text-gray-300">Type</th>
                   )}
-                  <th className="px-4 py-3 text-left font-semibold text-gray-300">Reason</th>
-                  <th className="px-4 py-3 text-left font-semibold text-gray-300">Action</th>
+                  <th className="px-3 py-3 text-left font-semibold text-gray-300">Reason</th>
+                  <th className="px-3 py-3 text-left font-semibold text-gray-300">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -265,20 +265,20 @@ export default function ManageLeavesPage() {
                     key={item.id}
                     className="border-b border-slate-200 dark:border-white/5 hover:bg-slate-100 dark:hover:bg-white/5 transition"
                   >
-                    <td className="px-4 py-3 text-slate-900 dark:text-white">
+                    <td className="px-3 py-3 text-slate-900 dark:text-white">
                       {item.user.first_name} {item.user.last_name}
                     </td>
-                    <td className="px-4 py-3 text-gray-300">{item.start_date}</td>
-                    <td className="px-4 py-3 text-gray-300">{item.end_date}</td>
+                    <td className="px-3 py-3 text-gray-300">{item.start_date}</td>
+                    <td className="px-3 py-3 text-gray-300">{item.end_date}</td>
                     {tab === "leaves" && (
-                      <td className="px-4 py-3 text-gray-300">
+                      <td className="px-3 py-3 text-gray-300">
                         {(item as any).leave_type?.name || (item as LeaveData).leaveType?.name || (item as any).type || "-"}
                       </td>
                     )}
-                    <td className="px-4 py-3 text-gray-300 max-w-xs truncate">
+                    <td className="px-3 py-3 text-gray-300 max-w-xs truncate">
                       {item.reason}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-3 py-3">
                       <Button
                         onClick={() =>
                           handleDelete(item.id, tab === "leaves" ? "leave" : "wfh")

@@ -724,39 +724,39 @@ export default function LeavesPage() {
               <thead className="text-xs text-slate-500 dark:text-slate-400 uppercase bg-slate-50 dark:bg-slate-850 border-b border-slate-200 dark:border-slate-800">
                 <tr>
                   {(user?.role === "Super Admin" || user?.role === "Team Lead") && (
-                    <th className="px-6 py-3 font-semibold truncate">Employee</th>
+                    <th className="px-3 py-3 font-semibold truncate">Employee</th>
                   )}
-                  <th className="px-6 py-3 font-semibold truncate">Type</th>
-                  <th className="px-6 py-3 font-semibold truncate">Duration</th>
-                  <th className="px-6 py-3 font-semibold truncate">Days</th>
-                  <th className="px-6 py-3 font-semibold truncate">Reason</th>
-                  <th className="px-6 py-3 font-semibold truncate">Status</th>
-                  <th className="px-6 py-3 font-semibold text-right truncate">Action</th>
+                  <th className="px-3 py-3 font-semibold truncate">Type</th>
+                  <th className="px-3 py-3 font-semibold truncate">Duration</th>
+                  <th className="px-3 py-3 font-semibold truncate">Days</th>
+                  <th className="px-3 py-3 font-semibold truncate">Reason</th>
+                  <th className="px-3 py-3 font-semibold truncate">Status</th>
+                  <th className="px-3 py-3 font-semibold text-right truncate">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200/80 dark:divide-slate-800">
                 {requests.map((req) => (
                   <tr key={req.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
                     {(user?.role === "Super Admin" || user?.role === "Team Lead") && (
-                      <td className="px-6 py-4 text-slate-800 dark:text-slate-200 font-medium break-words whitespace-normal leading-tight">
+                      <td className="px-3 py-3 text-slate-800 dark:text-slate-200 font-medium break-words whitespace-normal leading-tight">
                         {req.user?.first_name} {req.user?.last_name}
                       </td>
                     )}
-                    <td className="px-6 py-4 font-bold text-slate-900 dark:text-white break-words whitespace-normal leading-tight">
+                    <td className="px-3 py-3 font-bold text-slate-900 dark:text-white break-words whitespace-normal leading-tight">
                       {req.leave_type?.name}
                     </td>
-                    <td className="px-6 py-4 text-slate-600 dark:text-slate-300 break-words whitespace-normal leading-tight">
+                    <td className="px-3 py-3 text-slate-600 dark:text-slate-300 break-words whitespace-normal leading-tight">
                       <div className="flex items-center gap-2">
                         <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                         {new Date(req.start_date).toLocaleDateString()} — {new Date(req.end_date).toLocaleDateString()}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-slate-700 dark:text-slate-300 font-semibold">
+                    <td className="px-3 py-3 text-slate-700 dark:text-slate-300 font-semibold">
                       {req.days_taken ?? req.actual_leave_days ?? "—"} Day(s)
                     </td>
-                    <td className="px-6 py-4 text-slate-500 dark:text-slate-400 max-w-[1px] truncate">{req.reason}</td>
-                    <td className="px-6 py-4">{getStatusBadge(req)}</td>
-                    <td className="px-6 py-4 text-right break-words whitespace-normal leading-tight">
+                    <td className="px-3 py-3 text-slate-500 dark:text-slate-400 max-w-[1px] truncate">{req.reason}</td>
+                    <td className="px-3 py-3">{getStatusBadge(req)}</td>
+                    <td className="px-3 py-3 text-right break-words whitespace-normal leading-tight">
                       {req.status === "Pending" && (
                         <button
                           type="button"

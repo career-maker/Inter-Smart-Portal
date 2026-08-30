@@ -160,23 +160,23 @@ export default function HolidaysPage() {
             <table className="w-full text-sm text-left">
               <thead className="text-xs text-slate-500 dark:text-slate-400 uppercase bg-white/5 border-b border-slate-200 dark:border-white/10">
                 <tr>
-                  <th className="px-6 py-3">Date</th>
-                  <th className="px-6 py-3">Holiday Name</th>
-                  <th className="px-6 py-3">Type</th>
-                  <th className="px-6 py-3">Description</th>
-                  <th className="px-6 py-3 text-right">Actions</th>
+                  <th className="px-3 py-3">Date</th>
+                  <th className="px-3 py-3">Holiday Name</th>
+                  <th className="px-3 py-3">Type</th>
+                  <th className="px-3 py-3">Description</th>
+                  <th className="px-3 py-3 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200 dark:divide-white/5">
                 {holidays.map((h: any) => (
                   <tr key={h.id} className="hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
-                    <td className="px-6 py-4 text-slate-600 dark:text-slate-300 break-words whitespace-normal leading-tight font-mono text-xs">
+                    <td className="px-3 py-3 text-slate-600 dark:text-slate-300 break-words whitespace-normal leading-tight font-mono text-xs">
                       {fmtDate(h.date)}
                     </td>
-                    <td className="px-6 py-4 font-semibold text-slate-900 dark:text-white">{h.name}</td>
-                    <td className="px-6 py-4"><TypeBadge type={h.type} /></td>
-                    <td className="px-6 py-4 text-slate-500 dark:text-slate-400 max-w-xs truncate">{h.description || "—"}</td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-3 py-3 font-semibold text-slate-900 dark:text-white">{h.name}</td>
+                    <td className="px-3 py-3"><TypeBadge type={h.type} /></td>
+                    <td className="px-3 py-3 text-slate-500 dark:text-slate-400 max-w-xs truncate">{h.description || "—"}</td>
+                    <td className="px-3 py-3 text-right">
                       <div className="flex justify-end gap-2">
                         <button
                           onClick={() => openEdit(h)}
