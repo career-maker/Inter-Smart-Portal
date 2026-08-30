@@ -709,7 +709,7 @@ export default function LeavesPage() {
           <div className="py-12 text-center text-slate-500 dark:text-slate-400 text-sm">No leave requests found.</div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full table-fixed text-sm text-left">
+            <table className="w-full min-w-[800px] table-fixed text-sm text-left">
               <colgroup>
                 {(user?.role === "Super Admin" || user?.role === "Team Lead") && (
                   <col className="w-[18%]" />

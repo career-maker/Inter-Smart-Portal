@@ -566,7 +566,7 @@ export default function ApprovalsPage() {
         </div>
       ) : tab === "leaves" ? (
         <div className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
-          <table className="w-full table-fixed text-left border-collapse text-[12px] leading-[16px]">
+          <table className="w-full min-w-[800px] table-fixed text-left border-collapse text-[12px] leading-[16px]">
             <colgroup>
               <col className="w-[18%]" />
               <col className="w-[12%]" />
@@ -776,7 +776,7 @@ export default function ApprovalsPage() {
       ) : (
         /* ── WFH Table with ZERO Horizontal Scroll ── */
         <div className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
-          <table className="w-full table-fixed text-left border-collapse text-[12px] leading-[16px]">
+          <table className="w-full min-w-[800px] table-fixed text-left border-collapse text-[12px] leading-[16px]">
             <colgroup>
               <col className="w-[18%]" />
               <col className="w-[12%]" />

@@ -305,7 +305,7 @@ export default function RecognitionLeaderboardPage() {
 
           return (
             <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left border-collapse">
+              <table className="w-full min-w-[800px] text-sm text-left border-collapse">
                 <thead>
                   <tr className="border-b border-white/10 bg-white/[0.02] text-xs uppercase font-semibold text-slate-400 tracking-wider">
                     <th className="px-3 py-3 w-24">RANK</th>

@@ -218,7 +218,7 @@ export default function RecognitionsPage() {
       {/* Table */}
       <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200/90 dark:border-slate-700/60 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
+          <table className="w-full min-w-[800px] text-sm text-left">
             <thead className="bg-slate-50 dark:bg-slate-900/50 text-slate-600 dark:text-slate-300 font-medium text-xs uppercase tracking-wider border-b border-slate-200/80 dark:border-slate-700/60">
               <tr>
                 <th className="px-3 py-3">Employee</th>

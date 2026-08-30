@@ -221,7 +221,7 @@ export default function AttendancePage() {
             <div className="py-8 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10 rounded bg-slate-100/50 dark:bg-slate-900/50">No attendance records found for the selected day.</div>
           ) : (
             <div className="overflow-x-auto rounded-md border border-slate-200 dark:border-white/10">
-              <table className="w-full text-sm text-left">
+              <table className="w-full min-w-[800px] text-sm text-left">
                 <thead className="sticky top-0 text-xs text-slate-600 dark:text-slate-300 uppercase bg-slate-100/80 dark:bg-slate-900/90 border-b border-slate-200 dark:border-white/10 backdrop-blur-sm">
                   <tr>
                     <th className="px-4 py-4 font-semibold">Date</th>

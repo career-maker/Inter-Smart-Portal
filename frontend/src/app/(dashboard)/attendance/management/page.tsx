@@ -529,7 +529,7 @@ export default function AttendanceManagementPage() {
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="w-full min-w-[800px] text-sm">
                   <thead className="bg-slate-50/80 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700/60">
                     <tr>
                       <th className="text-left py-3.5 px-5 font-semibold text-slate-600 dark:text-slate-300">
@@ -990,7 +990,7 @@ export default function AttendanceManagementPage() {
               {/* Table */}
               <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200/90 dark:border-slate-700/60 shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
+                  <table className="w-full min-w-[800px] text-sm">
                     <thead className="bg-slate-50/80 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700/60 sticky top-0 backdrop-blur-sm">
                       <tr>
                         <SortHeader column="name" label="Employee" />

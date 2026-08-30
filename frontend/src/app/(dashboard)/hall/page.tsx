@@ -179,7 +179,7 @@ export default function HallPage() {
       {/* Employee Grid */}
       <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-md shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
+          <table className="w-full min-w-[800px] text-sm text-left">
             <thead className="bg-gray-50/50 dark:bg-slate-800/40 text-gray-500 dark:text-slate-400 font-medium border-b border-slate-200 dark:border-slate-700/60">
               <tr>
                 <th className="px-3 py-3">Employee</th>

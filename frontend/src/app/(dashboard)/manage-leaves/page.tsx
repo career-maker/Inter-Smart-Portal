@@ -246,7 +246,7 @@ export default function ManageLeavesPage() {
           <div className="p-8 text-center text-gray-400">No approved {tab} found</div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full min-w-[800px] text-sm">
               <thead className="border-b border-slate-200 dark:border-white/10">
                 <tr className="hover:bg-slate-100 dark:hover:bg-white/5 transition">
                   <th className="px-3 py-3 text-left font-semibold text-gray-300">Employee</th>

@@ -145,7 +145,7 @@ export default function DocumentsPage() {
       ) : (
         <div className="bg-white/5 border border-slate-200 dark:border-white/10 rounded-md overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
+            <table className="w-full min-w-[800px] text-sm text-left">
               <thead className="text-xs text-slate-500 dark:text-slate-400 uppercase bg-white/5 border-b border-slate-200 dark:border-white/10">
                 <tr>
                   {isAdmin && <th className="px-5 py-3">Employee</th>}

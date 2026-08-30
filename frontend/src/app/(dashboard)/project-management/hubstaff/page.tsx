@@ -1010,7 +1010,7 @@ export default function HubstaffAnalyticsPage() {
           {/* User Table */}
           <div className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-[12px] leading-[16px]">
+              <table className="w-full min-w-[800px] text-left border-collapse text-[12px] leading-[16px]">
                 <thead>
                   <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
                     {dateMode === "range" && (
@@ -1223,7 +1223,7 @@ export default function HubstaffAnalyticsPage() {
 
           <div className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-[12px] leading-[16px]">
+              <table className="w-full min-w-[800px] text-left border-collapse text-[12px] leading-[16px]">
                 <thead>
                   <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
                     {dateMode === "range" && (

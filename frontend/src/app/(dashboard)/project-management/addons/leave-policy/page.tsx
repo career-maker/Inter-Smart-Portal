@@ -852,7 +852,7 @@ export default function LeavePolicyManagementPage() {
           {/* Employees Table */}
           <div className="overflow-hidden rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
+              <table className="w-full min-w-[800px] text-left text-xs border-collapse">
                 <thead>
                   <tr className="border-b border-slate-200/80 dark:border-slate-800/80 bg-slate-50/80 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px]">
                     <th className="py-3.5 px-4">Employee</th>
@@ -1033,7 +1033,7 @@ export default function LeavePolicyManagementPage() {
 
           <div className="overflow-hidden rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
+              <table className="w-full min-w-[800px] text-left text-xs border-collapse">
                 <thead>
                   <tr className="border-b border-slate-200/80 dark:border-slate-800/80 bg-slate-50/80 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px]">
                     <th className="py-3.5 px-4">Timestamp</th>

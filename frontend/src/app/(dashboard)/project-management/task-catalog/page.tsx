@@ -303,7 +303,7 @@ export default function TaskCatalogPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs sm:text-sm">
+            <table className="w-full min-w-[800px] text-left text-xs sm:text-sm">
               <thead>
                 <tr className="border-b border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-800/30 text-slate-500 dark:text-slate-400 font-semibold text-xs uppercase tracking-wider">
                   <th className="py-3.5 px-5">Template Name</th>
