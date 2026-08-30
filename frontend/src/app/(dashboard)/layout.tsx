@@ -876,23 +876,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </Link>
               </div>
 
-              {/* Center: Search Bar (Desktop only) */}
-              <div className="hidden sm:flex flex-1 max-w-lg mx-auto relative">
+              {/* Center: Search Bar with in-place expandable dropdown */}
+              <div className="flex-1 max-w-lg mx-auto relative hidden sm:block">
                 <button
                   type="button"
-                  onClick={() => setSearchModalOpen(true)}
+                  onClick={() => setSearchModalOpen((prev) => !prev)}
                   className="w-full bg-white hover:bg-slate-50 transition-all rounded-full px-4 py-2 flex items-center justify-between text-xs text-slate-600 shadow-md border border-white/30 cursor-pointer group"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
                     <Search className="w-4 h-4 text-purple-600 shrink-0 group-hover:scale-110 transition-transform" />
                     <span className="text-slate-400 font-normal truncate">
-                      Search employees or actions (Ex: Apply Leave)
+                      Search any command or help
                     </span>
                   </div>
                   <kbd className="text-[10px] bg-slate-100 text-slate-500 font-bold px-2.5 py-0.5 rounded-full border border-slate-200 shrink-0 ml-2 shadow-inner">
                     Alt + K
                   </kbd>
                 </button>
+
+                {/* In-place Expandable Command Palette on desktop */}
+                <CommandPalette open={searchModalOpen} onOpenChange={setSearchModalOpen} />
               </div>
 
               {/* Right: Actions & User Avatar */}
@@ -943,8 +946,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </div>
             </div>
 
-            {/* Global Command Palette */}
-            <CommandPalette open={searchModalOpen} onOpenChange={setSearchModalOpen} />
+            {/* Mobile-only Command Palette */}
+            <div className="sm:hidden">
+              <CommandPalette open={searchModalOpen} onOpenChange={setSearchModalOpen} />
+            </div>
           </header>
 
           {/* ── KEKA SUB-HEADER TAB NAVIGATION BAR (STICKY WITH HEADER - ZERO SCROLLBAR, FULL HEIGHT) ── */}

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   Users, Calendar, Briefcase, FileText,
   FolderKanban, HelpCircle, User, X, ChevronRight,
-  ChevronDown, ChevronUp, CheckSquare
+  ChevronDown, ChevronUp, CheckSquare, History
 } from "lucide-react";
 import api from "@/services/api";
 import { useQuery } from "@tanstack/react-query";
@@ -178,13 +178,18 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-xs flex items-start justify-center p-3 pt-12 sm:pt-20 animate-in fade-in duration-150">
+    <>
+      {/* Mobile-only background overlay to catch outside taps */}
+      <div 
+        className="fixed inset-0 bg-black/40 z-[90] sm:hidden" 
+        onClick={() => onOpenChange(false)} 
+      />
       <div
         ref={containerRef}
         style={{
           fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
         }}
-        className="w-full max-w-xl bg-white text-slate-800 rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[85vh]"
+        className="fixed inset-x-3 top-3 z-[100] sm:absolute sm:inset-auto sm:top-0 sm:left-0 sm:w-full bg-white text-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200/90 overflow-hidden animate-in fade-in zoom-in-98 duration-100 max-h-[85vh] flex flex-col"
       >
         {/* Top Search Input Box (Clean Borderless Input matching Keka) */}
         <div className="flex items-center px-4 sm:px-6 py-3.5 border-b border-slate-100 gap-2 shrink-0">
@@ -197,7 +202,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
               setSelectedIndex(0);
             }}
             onKeyDown={handleInputKeyDown}
-            placeholder="Search employees or actions (Ex: Apply Leave, WFH)..."
+            placeholder="Search any command or help"
             style={{ outline: "none", border: "none", boxShadow: "none" }}
             className="w-full text-[14.5px] text-[#27272a] placeholder-[#9ca3af] bg-transparent border-none outline-none focus:outline-none focus:ring-0 focus:border-none shadow-none p-0 font-normal"
           />
@@ -209,14 +214,27 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
           <button
             type="button"
             onClick={() => onOpenChange(false)}
-            className="p-1 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 cursor-pointer text-xs font-semibold px-2 py-1 bg-slate-100 shrink-0"
+            className="sm:hidden p-1 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 cursor-pointer text-xs font-semibold px-2 py-1 bg-slate-100 shrink-0"
           >
             Esc
           </button>
         </div>
 
         {/* Results Body */}
-        <div className="flex-1 overflow-y-auto py-2 px-3 custom-scrollbar space-y-3">
+        <div className="flex-1 overflow-y-auto py-2 px-3 custom-scrollbar space-y-2.5">
+          {/* Quick Recent Tag Pills (matching Screenshot 2) */}
+          {!search && (
+            <div className="flex items-center gap-2 px-3 pt-1 pb-1">
+              <button
+                onClick={() => navigateTo("/project-management/tasks")}
+                className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100/90 hover:bg-slate-200/90 text-slate-700 rounded-full text-xs font-medium border border-slate-200/80 transition-colors cursor-pointer"
+              >
+                <History className="w-3.5 h-3.5 text-slate-500" />
+                <span>Tasks</span>
+              </button>
+            </div>
+          )}
+
           {/* Matched Employees (if searching) */}
           {employees.length > 0 && (
             <div>
@@ -328,6 +346,6 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
