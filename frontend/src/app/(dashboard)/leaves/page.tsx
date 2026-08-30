@@ -731,7 +731,7 @@ export default function LeavesPage() {
                   <th className="px-3 py-3 font-semibold">Days</th>
                   <th className="px-3 py-3 font-semibold">Reason</th>
                   <th className="px-3 py-3 font-semibold">Status</th>
-                  <th className="px-3 py-3 font-semibold text-left">Action</th>
+                  <th className="px-3 py-3 font-semibold text-center">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200/80 dark:divide-slate-800">
@@ -756,16 +756,16 @@ export default function LeavesPage() {
                     </td>
                     <td className="px-3 py-3 text-slate-500 dark:text-slate-400 break-words whitespace-normal leading-tight">{req.reason}</td>
                     <td className="px-3 py-3">{getStatusBadge(req)}</td>
-                    <td className="px-3 py-3 text-left break-words whitespace-normal leading-tight">
+                    <td className="px-3 py-3 text-center break-words whitespace-normal leading-tight">
                       {req.status === "Pending" && (
                         <button
                           type="button"
                           onClick={() => handleCancelLeave(req.id)}
                           disabled={cancellingId === req.id}
-                          title={cancellingId === req.id ? "Cancelling..." : "Cancel"}
-                          className="p-1.5 rounded-lg text-rose-600 dark:text-rose-400 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/60 border border-rose-200 dark:border-rose-800 transition-colors cursor-pointer disabled:opacity-50 flex items-center justify-center"
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/60 border border-rose-200 dark:border-rose-800 transition-colors cursor-pointer disabled:opacity-50 mx-auto"
                         >
-                          <X className="w-4 h-4" />
+                          <X className="w-3.5 h-3.5" />
+                          <span>{cancellingId === req.id ? "Cancelling…" : "Cancel"}</span>
                         </button>
                       )}
                     </td>
