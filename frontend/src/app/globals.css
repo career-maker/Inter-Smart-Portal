@@ -10,6 +10,13 @@
     font-synthesis: none;
   }
 
+  /* Force light mode at CSS level to prevent any FOUC from Tailwind v4 or OS media queries */
+  html, body {
+    color-scheme: light only !important;
+    background-color: #F8FAFC !important;
+    color: rgb(15, 24, 36) !important;
+  }
+
   button, [role="button"], a.btn, .btn {
     font-family: "Proxima Nova", sans-serif;
     font-style: normal;
