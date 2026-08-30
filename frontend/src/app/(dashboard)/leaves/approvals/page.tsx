@@ -587,7 +587,7 @@ export default function ApprovalsPage() {
                 <th className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800">Reason</th>
                 <th className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800">Status</th>
                 {(statusFilter === "Pending" || statusFilter === "All") && (
-                  <th className="py-2.5 px-3 text-right">Actions</th>
+                  <th className="py-2.5 px-3 text-left">Actions</th>
                 )}
               </tr>
             </thead>
@@ -701,8 +701,8 @@ export default function ApprovalsPage() {
 
                     {/* Column 7: Actions */}
                     {(statusFilter === "Pending" || statusFilter === "All") && (
-                      <td className="py-2.5 px-3 align-middle text-right break-words whitespace-normal leading-tight">
-                        <div className="flex items-center justify-end gap-1">
+                      <td className="py-2.5 px-3 align-middle text-left break-words whitespace-normal leading-tight">
+                        <div className="flex items-center justify-start gap-1">
                         {req.pending_lop_conversion ? (
                           <>
                             <button
@@ -799,7 +799,7 @@ export default function ApprovalsPage() {
                 <th className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800">Reason</th>
                 <th className="py-2.5 px-2 border-r border-slate-200/80 dark:border-slate-800">Status</th>
                 {(statusFilter === "Pending" || statusFilter === "All") && (
-                  <th className="py-2.5 px-3 text-right">Actions</th>
+                  <th className="py-2.5 px-3 text-left">Actions</th>
                 )}
               </tr>
             </thead>
@@ -876,8 +876,8 @@ export default function ApprovalsPage() {
 
                     {/* Actions */}
                     {(statusFilter === "Pending" || statusFilter === "All") && (
-                      <td className="py-2.5 px-3 align-middle text-right break-words whitespace-normal leading-tight">
-                        <div className="flex items-center justify-end gap-1">
+                      <td className="py-2.5 px-3 align-middle text-left break-words whitespace-normal leading-tight">
+                        <div className="flex items-center justify-start gap-1">
                         {canApprove(req) && (
                           <button
                                 onClick={() => approve("wfh", req.id)}

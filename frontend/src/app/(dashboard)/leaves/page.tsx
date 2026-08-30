@@ -731,7 +731,7 @@ export default function LeavesPage() {
                   <th className="px-3 py-3 font-semibold">Days</th>
                   <th className="px-3 py-3 font-semibold">Reason</th>
                   <th className="px-3 py-3 font-semibold">Status</th>
-                  <th className="px-3 py-3 font-semibold text-right">Action</th>
+                  <th className="px-3 py-3 font-semibold text-left">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200/80 dark:divide-slate-800">
@@ -756,7 +756,7 @@ export default function LeavesPage() {
                     </td>
                     <td className="px-3 py-3 text-slate-500 dark:text-slate-400 break-words whitespace-normal leading-tight">{req.reason}</td>
                     <td className="px-3 py-3">{getStatusBadge(req)}</td>
-                    <td className="px-3 py-3 text-right break-words whitespace-normal leading-tight">
+                    <td className="px-3 py-3 text-left break-words whitespace-normal leading-tight">
                       {req.status === "Pending" && (
                         <button
                           type="button"
