@@ -574,7 +574,9 @@ export default function ApprovalsPage() {
               <col className="w-[6%]" />
               <col className="w-[10%]" />
               <col className="w-[12%]" />
-              <col className="w-[26%]" />
+              {(statusFilter === "Pending" || statusFilter === "All") && (
+                <col className="w-[26%]" />
+              )}
             </colgroup>
             <thead>
               <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
@@ -584,13 +586,15 @@ export default function ApprovalsPage() {
                 <th className="py-2.5 px-2 text-center border-r border-slate-200/80 dark:border-slate-800">Days</th>
                 <th className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800">Reason</th>
                 <th className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800">Status</th>
-                <th className="py-2.5 px-3 text-right">Actions</th>
+                {(statusFilter === "Pending" || statusFilter === "All") && (
+                  <th className="py-2.5 px-3 text-right">Actions</th>
+                )}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
               {displayLeaves.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-400 dark:text-slate-500 text-xs italic">
+                  <td colSpan={(statusFilter === "Pending" || statusFilter === "All") ? 7 : 6} className="py-12 text-center text-slate-400 dark:text-slate-500 text-xs italic">
                     No {statusFilter === "All" ? "" : statusFilter.toLowerCase()} leave requests found.
                   </td>
                 </tr>
@@ -696,8 +700,9 @@ export default function ApprovalsPage() {
                     </td>
 
                     {/* Column 7: Actions */}
-                    <td className="py-2.5 px-3 align-middle text-right break-words whitespace-normal leading-tight">
-                      <div className="flex items-center justify-end gap-1">
+                    {(statusFilter === "Pending" || statusFilter === "All") && (
+                      <td className="py-2.5 px-3 align-middle text-right break-words whitespace-normal leading-tight">
+                        <div className="flex items-center justify-end gap-1">
                         {req.pending_lop_conversion ? (
                           <>
                             <button
@@ -761,6 +766,7 @@ export default function ApprovalsPage() {
                         )}
                       </div>
                     </td>
+                    )}
                   </tr>
                 ))
               )}
@@ -778,7 +784,9 @@ export default function ApprovalsPage() {
               <col className="w-[10%]" />
               <col className="w-[10%]" />
               <col className="w-[10%]" />
-              <col className="w-[24%]" />
+              {(statusFilter === "Pending" || statusFilter === "All") && (
+                <col className="w-[24%]" />
+              )}
             </colgroup>
             <thead>
               <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
@@ -788,13 +796,15 @@ export default function ApprovalsPage() {
                 <th className="py-2.5 px-2 text-center border-r border-slate-200/80 dark:border-slate-800">TL Status</th>
                 <th className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800">Reason</th>
                 <th className="py-2.5 px-2 border-r border-slate-200/80 dark:border-slate-800">Status</th>
-                <th className="py-2.5 px-3 text-right">Actions</th>
+                {(statusFilter === "Pending" || statusFilter === "All") && (
+                  <th className="py-2.5 px-3 text-right">Actions</th>
+                )}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
               {wfhRequests.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-400 dark:text-slate-500 text-xs italic">
+                  <td colSpan={(statusFilter === "Pending" || statusFilter === "All") ? 7 : 6} className="py-12 text-center text-slate-400 dark:text-slate-500 text-xs italic">
                     No pending WFH requests found.
                   </td>
                 </tr>
@@ -863,8 +873,9 @@ export default function ApprovalsPage() {
                     </td>
 
                     {/* Actions */}
-                    <td className="py-2.5 px-3 align-middle text-right break-words whitespace-normal leading-tight">
-                      <div className="flex items-center justify-end gap-1">
+                    {(statusFilter === "Pending" || statusFilter === "All") && (
+                      <td className="py-2.5 px-3 align-middle text-right break-words whitespace-normal leading-tight">
+                        <div className="flex items-center justify-end gap-1">
                         {canApprove(req) && (
                           <button
                             onClick={() => approve("wfh", req.id)}
@@ -886,6 +897,7 @@ export default function ApprovalsPage() {
                         </button>
                       </div>
                     </td>
+                    )}
                   </tr>
                 ))
               )}
