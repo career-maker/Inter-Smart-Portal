@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import {
   Check,
   Calendar,
@@ -62,6 +62,7 @@ function LeaveTypeIcon({ leaveTypeName }: { leaveTypeName?: string }) {
 
 export default function ApprovalsPage() {
   const { user } = useAuthStore();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const isSuperAdmin = user?.role === "Super Admin";
   const isTeamLead = user?.role === "Team Lead";
@@ -82,6 +83,14 @@ export default function ApprovalsPage() {
   const [tab, setTab] = useState<"leaves" | "wfh">(() => {
     return searchParams?.get("tab") === "wfh" ? "wfh" : "leaves";
   });
+
+  const handleTabChange = (newTab: "leaves" | "wfh") => {
+    setTab(newTab);
+    const url = newTab === "wfh" ? "/leaves/approvals?tab=wfh" : "/leaves/approvals";
+    if (typeof window !== "undefined") {
+      window.history.replaceState(null, "", url);
+    }
+  };
 
   useEffect(() => {
     const tabParam = searchParams?.get("tab");
@@ -527,7 +536,7 @@ export default function ApprovalsPage() {
               return (
                 <button
                   key={t}
-                  onClick={() => setTab(t)}
+                  onClick={() => handleTabChange(t)}
                   className={`flex items-center gap-1.5 px-3.5 py-1 text-xs rounded-lg transition-all whitespace-nowrap cursor-pointer ${
                     isActive
                       ? "bg-[#56348f] text-white font-bold shadow-sm"

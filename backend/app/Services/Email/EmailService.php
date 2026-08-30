@@ -454,7 +454,7 @@ class EmailService
             'reference_number' => "WFH-{$wfhRequest->id}",
             'request_id'       => $wfhRequest->id,
             'portal_url'       => config('app.frontend_url', 'https://www.workplace.intersmart.in'),
-            'approvals_url'    => config('app.frontend_url', 'https://www.workplace.intersmart.in') . '/leaves/approvals'
+            'approvals_url'    => config('app.frontend_url', 'https://www.workplace.intersmart.in') . '/leaves/approvals?tab=wfh'
         ];
     }
 }

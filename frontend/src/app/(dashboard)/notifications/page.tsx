@@ -10,9 +10,34 @@ import api from "@/services/api";
 import { useRouter } from "next/navigation";
 
 function resolveNotificationUrl(notification: any): string {
+  const type = notification.type;
+  const stored = notification.data?.action_url;
+
+  if (type === "App\\Notifications\\ProfileUpdateRequestNotification") {
+    return stored || "/profile-requests";
+  }
+
+  if (type === "App\\Notifications\\BirthdayWishNotification") {
+    return stored || "/birthday-wishes";
+  }
+
+  if (type === "App\\Notifications\\TARequestNotification") {
+    return stored || "/ta/management";
+  }
+
+  if (
+    type === "App\\Notifications\\WfhRequestNotification" ||
+    notification.data?.wfh_request_id ||
+    notification.data?.title?.includes("WFH")
+  ) {
+    const event = notification.data?.event;
+    if (event === "submitted" || event === "tl_approved") return "/leaves/approvals?tab=wfh";
+    if (event === "approved" || event === "rejected") return "/wfh";
+    return stored || "/leaves/approvals?tab=wfh";
+  }
+
   const event = notification.data?.event;
   if (event === "submitted" || event === "tl_approved") return "/leaves/approvals";
-  const stored = notification.data?.action_url;
   return stored || "/notifications";
 }
 

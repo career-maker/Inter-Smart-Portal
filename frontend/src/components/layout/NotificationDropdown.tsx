@@ -34,6 +34,17 @@ function resolveNotificationUrl(notification: any): string {
     return stored || "/ta/management";
   }
 
+  if (
+    type === "App\\Notifications\\WfhRequestNotification" ||
+    notification.data?.wfh_request_id ||
+    notification.data?.title?.includes("WFH")
+  ) {
+    const event = notification.data?.event;
+    if (event === "submitted" || event === "tl_approved") return "/leaves/approvals?tab=wfh";
+    if (event === "approved" || event === "rejected") return "/wfh";
+    return stored || "/leaves/approvals?tab=wfh";
+  }
+
   const event = notification.data?.event;
   if (event === "submitted" || event === "tl_approved") return "/leaves/approvals";
   return stored || "/notifications";
