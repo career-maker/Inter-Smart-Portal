@@ -331,17 +331,29 @@ export default function LeavesPage() {
           <div>
             <h2 className="text-base md:text-lg font-bold text-slate-900 dark:text-white">
               {pendingRequestsCount === 0 ? (
-                "Hurray! No pending leave requests"
+                isSuperAdmin ? "No pending leave requests" : "Hurray! No pending leave requests"
+              ) : isSuperAdmin ? (
+                <>There are <span className="text-amber-600 dark:text-amber-400 font-extrabold mx-1">{pendingRequestsCount}</span> pending leave request{pendingRequestsCount !== 1 ? "s" : ""} across the company</>
+              ) : user?.role === "Team Lead" ? (
+                <>You have <span className="text-amber-600 dark:text-amber-400 font-extrabold mx-1">{pendingRequestsCount}</span> pending leave request{pendingRequestsCount !== 1 ? "s" : ""} in your team</>
               ) : (
                 <>You have <span className="text-amber-600 dark:text-amber-400 font-extrabold mx-1">{pendingRequestsCount}</span> pending leave request{pendingRequestsCount !== 1 ? "s" : ""}</>
               )}
             </h2>
             <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
               {pendingRequestsCount === 0 ? (
-                <>
-                  <span className="hidden sm:inline">Request leave on the right!</span>
-                  <span className="inline sm:hidden">Request leave below!</span>
-                </>
+                isSuperAdmin ? (
+                  "All leave requests have been resolved."
+                ) : (
+                  <>
+                    <span className="hidden sm:inline">Request leave on the right!</span>
+                    <span className="inline sm:hidden">Request leave below!</span>
+                  </>
+                )
+              ) : isSuperAdmin ? (
+                "Review and manage them in the Attendance Management tab."
+              ) : user?.role === "Team Lead" ? (
+                "Review team requests or track your own pending leaves."
               ) : (
                 "Your request is currently awaiting manager or administrative approval."
               )}
