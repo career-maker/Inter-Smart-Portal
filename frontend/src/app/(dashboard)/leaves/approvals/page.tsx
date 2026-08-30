@@ -652,7 +652,7 @@ export default function ApprovalsPage() {
                           </span>
                         )}
 
-                        {req.is_unpaid && (
+                        {!!req.is_unpaid && (
                           <span
                             className="block text-[9px] font-bold text-rose-600 dark:text-rose-400 truncate cursor-help"
                             title={req.unpaid_reason || "Marked as Unpaid (LOP) due to exhausted leave balance."}
