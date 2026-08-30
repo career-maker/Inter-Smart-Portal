@@ -95,8 +95,34 @@ class WfhRequestController extends Controller
             }
         }
 
+        if ($request->filled('duration_type')) {
+            $query->where('duration_type', $request->duration_type);
+        }
+        if ($request->filled('from_date')) {
+            $query->where('start_date', '>=', $request->from_date);
+        }
+        if ($request->filled('to_date')) {
+            $query->where(function($dq) use ($request) {
+                $dq->where('end_date', '<=', $request->to_date)
+                   ->orWhere(function($subDq) use ($request) {
+                       $subDq->whereNull('end_date')->where('start_date', '<=', $request->to_date);
+                   });
+            });
+        }
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+            $query->where(function($sq) use ($search) {
+                $sq->where('reason', 'like', "%{$search}%")
+                   ->orWhereHas('user', function($uq) use ($search) {
+                       $uq->where('first_name', 'like', "%{$search}%")
+                          ->orWhere('last_name', 'like', "%{$search}%")
+                          ->orWhere('employee_code', 'like', "%{$search}%");
+                   });
+            });
+        }
+
         return response()->json([
-            'data' => $query->orderBy('created_at', 'desc')->paginate(20)
+            'data' => $query->orderBy('created_at', 'desc')->paginate($request->input('per_page', 20))
         ]);
     }
 
