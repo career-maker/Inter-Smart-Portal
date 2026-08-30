@@ -319,11 +319,11 @@ export default function LeavesPage() {
             <Sparkles className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-base md:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <h2 className="text-base md:text-lg font-bold text-slate-900 dark:text-white">
               {pendingRequestsCount === 0 ? (
                 "Hurray! No pending leave requests"
               ) : (
-                <>You have <span className="text-amber-600 dark:text-amber-400 font-extrabold">{pendingRequestsCount}</span> pending leave request{pendingRequestsCount !== 1 ? "s" : ""}</>
+                <>You have <span className="text-amber-600 dark:text-amber-400 font-extrabold mx-1">{pendingRequestsCount}</span> pending leave request{pendingRequestsCount !== 1 ? "s" : ""}</>
               )}
             </h2>
             <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
