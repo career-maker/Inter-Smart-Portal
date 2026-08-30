@@ -110,9 +110,9 @@ class LeaveBalanceController extends Controller
 
         // Fetch monthly refill rates (default 1 or employee custom override)
         $policy = \App\Models\EmployeeLeavePolicy::where('user_id', $user->id)->first();
-        $globalSettings = \App\Models\LeavePolicySetting::getSettings();
-        $defaultCL = (float)($globalSettings->monthly_casual_leaves ?? 1.0);
-        $defaultSL = (float)($globalSettings->monthly_sick_leaves ?? 1.0);
+        $globalSettings = \App\Models\LeavePolicySetting::current();
+        $defaultCL = (float)($globalSettings->default_monthly_cl ?? 1.0);
+        $defaultSL = (float)($globalSettings->default_monthly_sl ?? 1.0);
 
         $data['monthly_casual_leaves'] = $policy && $policy->custom_monthly_cl !== null
             ? (float)$policy->custom_monthly_cl
