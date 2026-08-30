@@ -709,29 +709,29 @@ export default function LeavesPage() {
           <div className="py-12 text-center text-slate-500 dark:text-slate-400 text-sm">No leave requests found.</div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[800px] table-fixed text-sm text-left">
+            <table className="w-full min-w-[1000px] table-fixed text-sm text-left">
               <colgroup>
                 {(user?.role === "Super Admin" || user?.role === "Team Lead") && (
                   <col className="w-[18%]" />
                 )}
                 <col className="w-[12%]" />
-                <col className="w-[20%]" />
-                <col className="w-[6%]" />
+                <col className="w-[18%]" />
+                <col className="w-[8%]" />
                 <col className="" /> {/* Reason absorbs remaining */}
-                <col className="w-[11%]" />
-                <col className="w-[10%]" />
+                <col className="w-[14%]" />
+                <col className="w-[14%]" />
               </colgroup>
               <thead className="text-xs text-slate-500 dark:text-slate-400 uppercase bg-slate-50 dark:bg-slate-850 border-b border-slate-200 dark:border-slate-800">
                 <tr>
                   {(user?.role === "Super Admin" || user?.role === "Team Lead") && (
-                    <th className="px-3 py-3 font-semibold truncate">Employee</th>
+                    <th className="px-3 py-3 font-semibold">Employee</th>
                   )}
-                  <th className="px-3 py-3 font-semibold truncate">Type</th>
-                  <th className="px-3 py-3 font-semibold truncate">Duration</th>
-                  <th className="px-3 py-3 font-semibold truncate">Days</th>
-                  <th className="px-3 py-3 font-semibold truncate">Reason</th>
-                  <th className="px-3 py-3 font-semibold truncate">Status</th>
-                  <th className="px-3 py-3 font-semibold text-right truncate">Action</th>
+                  <th className="px-3 py-3 font-semibold">Type</th>
+                  <th className="px-3 py-3 font-semibold">Duration</th>
+                  <th className="px-3 py-3 font-semibold">Days</th>
+                  <th className="px-3 py-3 font-semibold">Reason</th>
+                  <th className="px-3 py-3 font-semibold">Status</th>
+                  <th className="px-3 py-3 font-semibold text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200/80 dark:divide-slate-800">
@@ -754,7 +754,7 @@ export default function LeavesPage() {
                     <td className="px-3 py-3 text-slate-700 dark:text-slate-300 font-semibold">
                       {req.days_taken ?? req.actual_leave_days ?? "—"} Day(s)
                     </td>
-                    <td className="px-3 py-3 text-slate-500 dark:text-slate-400 max-w-[1px] truncate">{req.reason}</td>
+                    <td className="px-3 py-3 text-slate-500 dark:text-slate-400 break-words whitespace-normal leading-tight">{req.reason}</td>
                     <td className="px-3 py-3">{getStatusBadge(req)}</td>
                     <td className="px-3 py-3 text-right break-words whitespace-normal leading-tight">
                       {req.status === "Pending" && (

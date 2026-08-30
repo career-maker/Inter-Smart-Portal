@@ -53,7 +53,7 @@ export default function AuditLogsPage() {
 
       <div className="bg-card rounded-xl border shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[800px] text-sm text-left">
+          <table className="w-full min-w-[1000px] text-sm text-left">
             <thead className="bg-muted/50 text-muted-foreground font-medium border-b">
               <tr>
                 <th className="px-3 py-3">Action</th>

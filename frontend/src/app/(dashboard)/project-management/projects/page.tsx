@@ -332,7 +332,7 @@ export default function ProjectsListPage() {
         className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden"
       >
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[800px] text-left border-collapse">
+          <table className="w-full min-w-[1000px] text-left border-collapse">
             <thead>
               <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider text-[12px] leading-[18px]">
                 <th className="py-3.5 px-4 border-r border-slate-200/90 dark:border-slate-800">PROJECT NAME</th>

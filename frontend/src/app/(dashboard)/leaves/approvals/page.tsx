@@ -566,16 +566,16 @@ export default function ApprovalsPage() {
         </div>
       ) : tab === "leaves" ? (
         <div className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
-          <table className="w-full min-w-[800px] table-fixed text-left border-collapse text-[12px] leading-[16px]">
+          <table className="w-full min-w-[1000px] table-fixed text-left border-collapse text-[12px] leading-[16px]">
             <colgroup>
-              <col className="w-[18%]" />
-              <col className="w-[12%]" />
               <col className="w-[16%]" />
-              <col className="w-[6%]" />
-              <col className="w-[10%]" />
               <col className="w-[12%]" />
+              <col className="w-[14%]" />
+              <col className="w-[8%]" />
+              <col className="w-[14%]" />
+              <col className="w-[14%]" />
               {(statusFilter === "Pending" || statusFilter === "All") && (
-                <col className="w-[26%]" />
+                <col className="w-[22%]" />
               )}
             </colgroup>
             <thead>
@@ -776,16 +776,16 @@ export default function ApprovalsPage() {
       ) : (
         /* ── WFH Table with ZERO Horizontal Scroll ── */
         <div className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
-          <table className="w-full min-w-[800px] table-fixed text-left border-collapse text-[12px] leading-[16px]">
+          <table className="w-full min-w-[1000px] table-fixed text-left border-collapse text-[12px] leading-[16px]">
             <colgroup>
-              <col className="w-[18%]" />
-              <col className="w-[12%]" />
               <col className="w-[16%]" />
+              <col className="w-[12%]" />
+              <col className="w-[14%]" />
               <col className="w-[10%]" />
-              <col className="w-[10%]" />
-              <col className="w-[10%]" />
+              <col className="w-[14%]" />
+              <col className="w-[12%]" />
               {(statusFilter === "Pending" || statusFilter === "All") && (
-                <col className="w-[24%]" />
+                <col className="w-[22%]" />
               )}
             </colgroup>
             <thead>

@@ -140,7 +140,7 @@ export default function EmployeesPage() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[800px] text-sm">
+              <table className="w-full min-w-[1000px] text-sm">
                 <thead className="border-b border-slate-200 dark:border-white/10">
                   <tr>
                     <th className="text-left py-3 px-4 font-semibold text-slate-900 dark:text-white">Employee</th>

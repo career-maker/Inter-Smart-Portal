@@ -157,7 +157,7 @@ export default function HolidaysPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[800px] text-sm text-left">
+            <table className="w-full min-w-[1000px] text-sm text-left">
               <thead className="text-xs text-slate-500 dark:text-slate-400 uppercase bg-white/5 border-b border-slate-200 dark:border-white/10">
                 <tr>
                   <th className="px-3 py-3">Date</th>

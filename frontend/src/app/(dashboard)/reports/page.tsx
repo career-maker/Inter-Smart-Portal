@@ -258,7 +258,7 @@ export default function ReportsPage() {
             <span className="text-xs text-slate-500 dark:text-slate-400">{filtered.length} record{filtered.length !== 1 ? "s" : ""}</span>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[800px] text-sm">
+            <table className="w-full min-w-[1000px] text-sm">
               <thead className="bg-white/5">
                 <tr>
                   {reportType === "employees" && <>
