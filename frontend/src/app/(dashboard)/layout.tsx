@@ -10,7 +10,7 @@ import {
   LayoutDashboard, CalendarCheck, Briefcase, UserCircle,
   Users, ShieldCheck, PanelLeftClose, PanelLeftOpen,
   FolderKanban, CheckSquare, Clock, Building2, HeartHandshake, HelpCircle,
-  Search, Rocket, Bell, Settings, Puzzle
+  Search, Rocket, Bell, Settings, Puzzle, Laptop
 } from "lucide-react";
 import { NotificationDropdown } from "@/components/layout/NotificationDropdown";
 import { RecognitionTicker } from "@/components/layout/RecognitionTicker";
@@ -50,21 +50,30 @@ const STANDALONE: StandaloneLink[] = [
 
 const NAV_GROUPS: NavGroup[] = [
   {
-    id: "leave-wfh",
-    label: "Leave & WFH",
-    shortLabel: "Leave",
+    id: "leaves",
+    label: "Leaves",
+    shortLabel: "Leaves",
     icon: CalendarCheck,
     items: [
       { href: "/leaves",           label: "All Leaves", roles: ["Super Admin"] },
       { href: "/leaves",           label: "My Leaves", roles: ["Employee", "Team Lead", "HR"] },
       { href: "/leaves/apply",     label: "Apply Leave", roles: ["Employee", "Team Lead"] },
-      { href: "/wfh",              label: "WFH Requests" },
       { href: "/calendar",         label: "Leave Calendar" },
       { href: "/holidays",         label: "Holidays", roles: ["Super Admin", "HR"] },
       { href: "/leaves/approvals", label: "Leave Approvals", roles: ["Super Admin", "Team Lead"] },
       { href: "/leave-balances",   label: "Leave Balances", roles: ["Super Admin"] },
       { href: "/project-management/addons/leave-policy", label: "Leave Policy Management", roles: ["Super Admin"] },
-      { href: "/manage-leaves",    label: "Manage Approved Leaves/WFH", roles: ["Super Admin"] },
+      { href: "/manage-leaves",    label: "Manage Approved Leaves", roles: ["Super Admin"] },
+    ],
+  },
+  {
+    id: "wfh",
+    label: "Work From Home",
+    shortLabel: "WFH",
+    icon: Laptop,
+    items: [
+      { href: "/wfh",                     label: "WFH Requests" },
+      { href: "/leaves/approvals?tab=wfh", label: "WFH Approvals", roles: ["Super Admin", "Team Lead"] },
     ],
   },
   {
@@ -188,10 +197,23 @@ function groupHasVisibleItems(group: NavGroup, role: string, permissions: Record
   return group.items.some((item) => isItemVisible(item, role, permissions));
 }
 
-function pathBelongsToGroup(group: NavGroup, pathname: string) {
-  return group.items.some(
-    (item) => pathname === item.href || pathname.startsWith(item.href + "/")
-  );
+function pathBelongsToGroup(group: NavGroup, pathname: string, currentTab?: string | null) {
+  if (group.id === "wfh") {
+    if (pathname === "/wfh" || pathname.startsWith("/wfh/")) return true;
+    if (pathname === "/leaves/approvals" && currentTab === "wfh") return true;
+    return false;
+  }
+  if (group.id === "leaves") {
+    if (pathname === "/leaves/approvals" && currentTab === "wfh") return false;
+    return group.items.some((item) => {
+      const clean = item.href.split("?")[0];
+      return pathname === clean || pathname.startsWith(clean + "/");
+    });
+  }
+  return group.items.some((item) => {
+    const clean = item.href.split("?")[0];
+    return pathname === clean || pathname.startsWith(clean + "/");
+  });
 }
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -199,6 +221,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const isDark = useThemeStore((state) => state.isDark);
   const router = useRouter();
   const pathname = usePathname();
+  const [currentTab, setCurrentTab] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setCurrentTab(new URLSearchParams(window.location.search).get("tab"));
+    }
+  }, [pathname]);
+
   const [isHydrated, setIsHydrated] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
@@ -207,7 +237,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   // Search Modal & Flyout State
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [flyoutState, setFlyoutState] = useState<{ groupId: string; top: number } | null>(null);
-  const [pendingApprovalsCount, setPendingApprovalsCount] = useState(0);
+  const [pendingLeavesCount, setPendingLeavesCount] = useState(0);
+  const [pendingWfhCount, setPendingWfhCount] = useState(0);
   const [userPermissions, setUserPermissions] = useState<Record<string, boolean>>({});
   const flyoutTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -221,13 +252,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [isAuthenticated]);
 
-  // Fetch pending approvals for Team Leads
+  // Fetch pending approvals for Team Leads & Super Admins
   useEffect(() => {
-    if (user?.role === "Team Lead") {
+    if (user?.role === "Team Lead" || user?.role === "Super Admin") {
       const fetchPendingCount = async () => {
         try {
-          const res = await api.get("/leave-requests?status=Pending");
-          setPendingApprovalsCount(res.data.data?.data?.length ?? 0);
+          const [leavesRes, wfhRes] = await Promise.allSettled([
+            api.get("/leave-requests?status=Pending"),
+            api.get("/wfh-requests?status=Pending"),
+          ]);
+          if (leavesRes.status === "fulfilled") {
+            setPendingLeavesCount(leavesRes.value.data?.data?.data?.length ?? 0);
+          }
+          if (wfhRes.status === "fulfilled") {
+            setPendingWfhCount(wfhRes.value.data?.data?.data?.length ?? 0);
+          }
         } catch (e) {
           console.error("Failed to fetch pending approvals", e);
         }
@@ -487,11 +526,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 {/* Nav Groups */}
                 {NAV_GROUPS.map((group) => {
                   if (!groupHasVisibleItems(group, userRole, userPermissions)) return null;
-                  const groupActive = pathBelongsToGroup(group, pathname);
+                  const groupActive = pathBelongsToGroup(group, pathname, currentTab);
                   const isFlyoutOpen = flyoutState?.groupId === group.id;
                   const isHighlighted = groupActive || isFlyoutOpen;
                   const GroupIcon = group.icon;
-                  const hasBadge = group.id === "leave-wfh" && user?.role === "Team Lead" && pendingApprovalsCount > 0;
+                  const groupBadgeCount =
+                    group.id === "leaves" && (user?.role === "Team Lead" || user?.role === "Super Admin")
+                      ? pendingLeavesCount
+                      : group.id === "wfh" && (user?.role === "Team Lead" || user?.role === "Super Admin")
+                      ? pendingWfhCount
+                      : 0;
 
                   return (
                     <div
@@ -519,9 +563,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         }`}
                       >
                         {/* Red notification badge on icon top-right */}
-                        {hasBadge && (
+                        {groupBadgeCount > 0 && (
                           <span className="absolute top-1.5 right-2 bg-[#ff5252] text-white text-[10px] font-bold rounded-full px-1.5 py-0.2 min-w-[18px] text-center shadow-md animate-pulse">
-                            {pendingApprovalsCount}
+                            {groupBadgeCount}
                           </span>
                         )}
 
@@ -605,9 +649,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       <span style={{ color: active ? "#ffffff" : "#cbd5e1" }} className="truncate font-medium group-hover:!text-white">
                         {item.label}
                       </span>
-                      {item.href === "/leaves/approvals" && user?.role === "Team Lead" && pendingApprovalsCount > 0 && (
+                      {item.href === "/leaves/approvals" && (user?.role === "Team Lead" || user?.role === "Super Admin") && pendingLeavesCount > 0 && (
                         <span className="bg-[#ff5252] text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center ml-2">
-                          {pendingApprovalsCount}
+                          {pendingLeavesCount}
+                        </span>
+                      )}
+                      {item.href === "/leaves/approvals?tab=wfh" && (user?.role === "Team Lead" || user?.role === "Super Admin") && pendingWfhCount > 0 && (
+                        <span className="bg-[#ff5252] text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center ml-2">
+                          {pendingWfhCount}
                         </span>
                       )}
                       <ChevronRight style={{ color: "#8ea7bc" }} className="w-3.5 h-3.5 opacity-70 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all shrink-0 ml-1 group-hover:!text-white" />
@@ -724,8 +773,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                   <span className="w-1.5 h-1.5 rounded-full bg-current shrink-0 opacity-60 ml-2" />
                                   <span className="flex items-center gap-2 truncate">
                                     {item.label}
-                                    {item.href === "/leaves/approvals" && user?.role === "Team Lead" && pendingApprovalsCount > 0 && (
-                                      <span className="bg-red-500 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center shrink-0">{pendingApprovalsCount}</span>
+                                    {item.href === "/leaves/approvals" && (user?.role === "Team Lead" || user?.role === "Super Admin") && pendingLeavesCount > 0 && (
+                                      <span className="bg-red-500 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center shrink-0">{pendingLeavesCount}</span>
+                                    )}
+                                    {item.href === "/leaves/approvals?tab=wfh" && (user?.role === "Team Lead" || user?.role === "Super Admin") && pendingWfhCount > 0 && (
+                                      <span className="bg-red-500 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center shrink-0">{pendingWfhCount}</span>
                                     )}
                                   </span>
                                 </>
