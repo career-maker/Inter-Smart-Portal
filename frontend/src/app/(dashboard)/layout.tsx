@@ -854,34 +854,34 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               !isDark ? "text-white" : "bg-slate-900/90 backdrop-blur-md border-b border-white/10 text-slate-200"
             } transition-colors w-full`}
           >
-            <div className="px-3 sm:px-6 h-16 flex items-center justify-between gap-3 sm:gap-6">
+            <div className="px-2.5 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-1.5 sm:gap-6">
               
-              {/* Left: Mobile Hamburger + Logo + Brand Pill */}
-              <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+              {/* Left: Mobile Hamburger + Logo */}
+              <div className="flex items-center gap-1.5 sm:gap-4 shrink-0 min-w-0">
                 <button
                   style={{ backgroundColor: "transparent", border: "none", outline: "none", boxShadow: "none" }}
-                  className="p-1 -ml-1 text-white bg-transparent hover:!bg-transparent active:!bg-transparent focus:!bg-transparent focus:outline-none shrink-0 md:hidden cursor-pointer"
+                  className="p-1.5 -ml-1 text-white bg-transparent hover:!bg-transparent active:!bg-transparent focus:!bg-transparent focus:outline-none shrink-0 md:hidden cursor-pointer"
                   onClick={() => setMenuOpen((v) => !v)}
                   aria-label="Toggle menu"
                 >
                   {menuOpen ? <X className="h-6 w-6 text-white" /> : <Menu className="h-6 w-6 text-white" />}
                 </button>
                 
-                <Link href="/dashboard" className="flex items-center shrink-0">
+                <Link href="/dashboard" className="flex items-center shrink-0 min-w-0">
                   <img
                     src="/logo.png"
                     alt="Inter Smart Logo"
-                    className="h-8 sm:h-9 w-auto object-contain brightness-0 invert"
+                    className="h-6 sm:h-9 w-auto max-w-[130px] sm:max-w-none object-contain object-left brightness-0 invert"
                   />
                 </Link>
               </div>
 
-              {/* Center: Search Bar with In-Place Expandable Dropdown */}
-              <div className="flex-1 max-w-lg mx-auto relative w-full sm:w-auto">
+              {/* Center: Search Bar (Desktop only) */}
+              <div className="hidden sm:flex flex-1 max-w-lg mx-auto relative">
                 <button
                   type="button"
-                  onClick={() => setSearchModalOpen((prev) => !prev)}
-                  className="w-full bg-white hover:bg-slate-50 transition-all rounded-full px-4 py-2 hidden sm:flex items-center justify-between text-xs text-slate-600 shadow-md border border-white/30 cursor-pointer group"
+                  onClick={() => setSearchModalOpen(true)}
+                  className="w-full bg-white hover:bg-slate-50 transition-all rounded-full px-4 py-2 flex items-center justify-between text-xs text-slate-600 shadow-md border border-white/30 cursor-pointer group"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
                     <Search className="w-4 h-4 text-purple-600 shrink-0 group-hover:scale-110 transition-transform" />
@@ -893,20 +893,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     Alt + K
                   </kbd>
                 </button>
-
-                {/* In-place Expandable Command Palette */}
-                <div className="absolute top-14 sm:top-auto left-0 sm:left-auto w-full z-50">
-                  <CommandPalette open={searchModalOpen} onOpenChange={setSearchModalOpen} />
-                </div>
               </div>
 
               {/* Right: Actions & User Avatar */}
-              <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 ml-auto">
+              <div className="flex items-center gap-1 sm:gap-3 shrink-0 ml-auto">
                 {/* Mobile search trigger */}
                 <button
                   type="button"
                   onClick={() => setSearchModalOpen(true)}
-                  className="p-2 text-white/80 hover:text-white rounded-full hover:bg-white/10 sm:hidden transition-colors"
+                  className="p-1.5 text-white/90 hover:text-white rounded-full hover:bg-white/10 sm:hidden transition-colors cursor-pointer shrink-0"
                   aria-label="Search"
                 >
                   <Search className="w-5 h-5" />
@@ -914,7 +909,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
                 <button
                   onClick={() => setSearchModalOpen(true)}
-                  className="p-2 text-white hover:text-white rounded-full hover:bg-white/15 hidden md:flex transition-colors cursor-pointer"
+                  className="p-2 text-white hover:text-white rounded-full hover:bg-white/15 hidden md:flex transition-colors cursor-pointer shrink-0"
                   title="Quick Launch"
                 >
                   <Rocket className="w-5 h-5 text-white" />
@@ -926,27 +921,30 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
                 <Link
                   href="/profile"
-                  className="flex items-center p-1 rounded-full hover:bg-white/15 transition-colors cursor-pointer"
-                  title={`${user?.first_name} ${user?.last_name} (Top Awardee)`}
+                  className="flex items-center p-0.5 sm:p-1 rounded-full hover:bg-white/15 transition-colors cursor-pointer shrink-0"
+                  title={`${user?.first_name} ${user?.last_name}`}
                 >
                   <RoyalAvatar
                     src={user?.profile_photo_path}
                     name={`${user?.first_name} ${user?.last_name}`}
                     userId={user?.id}
-                    className="w-8 h-8 rounded-full"
+                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-full"
                   />
                 </Link>
 
                 <button
                   onClick={handleLogout}
                   style={{ color: "#ffffff" }}
-                  className="hidden lg:flex items-center gap-1.5 text-xs text-white hover:text-white bg-white/10 hover:bg-white/20 transition-colors px-3 py-1.5 rounded-lg font-medium cursor-pointer"
+                  className="hidden lg:flex items-center gap-1.5 text-xs text-white hover:text-white bg-white/10 hover:bg-white/20 transition-colors px-3 py-1.5 rounded-lg font-medium cursor-pointer shrink-0"
                 >
                   <LogOut className="h-4 w-4 text-white" />
                   <span style={{ color: "#ffffff" }} className="font-semibold text-white">Logout</span>
                 </button>
               </div>
             </div>
+
+            {/* Global Command Palette */}
+            <CommandPalette open={searchModalOpen} onOpenChange={setSearchModalOpen} />
           </header>
 
           {/* ── KEKA SUB-HEADER TAB NAVIGATION BAR (STICKY WITH HEADER - ZERO SCROLLBAR, FULL HEIGHT) ── */}
