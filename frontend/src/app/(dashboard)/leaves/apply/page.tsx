@@ -730,7 +730,7 @@ function SummaryRow({ label, value, sub, color, bold }: { label: string; value: 
   return (
     <>
       <span className="text-slate-500 dark:text-slate-400">{label}{sub && <span className="text-slate-500 text-xs"> {sub}</span>}:</span>
-      <span className={`font-semibold ${color || "text-white"}  ${bold ? "font-black" : ""}`}>{value}</span>
+      <span className={`font-semibold ${color || "text-slate-900 dark:text-white"}  ${bold ? "font-black" : ""}`}>{value}</span>
     </>
   );
 }

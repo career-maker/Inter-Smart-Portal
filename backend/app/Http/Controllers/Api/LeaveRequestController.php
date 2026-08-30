@@ -476,7 +476,7 @@ class LeaveRequestController extends Controller
             'has_lop'                => $totalLOP > 0,
             'is_partial'             => $isPartial,
             'status_text'            => $statusText,
-            'unpaid_reason'          => count($reasons) > 0 ? implode(' ', $reasons) : null,
+            'unpaid_reason'          => count($reasons) > 0 ? \Illuminate\Support\Str::limit(implode(' ', $reasons), 250, '...') : null,
             'reasons'                => $reasons,
             'is_probation'           => false,
             'balance'                => $this->getBalancePreview($user, $paidCL, $paidSL),
@@ -801,9 +801,8 @@ class LeaveRequestController extends Controller
             DB::beginTransaction();
 
             if ($status === 'Rejected') {
-                // Single-day: close out the other approver immediately
-                $newTlStatus    = $isInitialApproverRole ? 'Rejected' : ($isSingleDay ? 'Not Required' : $leaveRequest->tl_status);
-                $newAdminStatus = ($user->hasRole('Super Admin') || $user->hasRole('HR')) ? 'Rejected' : ($isSingleDay ? 'Not Required' : $leaveRequest->admin_status);
+                $newTlStatus    = 'Rejected';
+                $newAdminStatus = 'Rejected';
 
                 $leaveRequest->update([
                     'status'           => 'Rejected',
@@ -1367,8 +1366,40 @@ class LeaveRequestController extends Controller
     public function cancel(Request $request, LeaveRequest $leaveRequest)
     {
         $user = $request->user();
+        $isApplicant = ($leaveRequest->user_id === $user->id);
 
-        if ($leaveRequest->user_id !== $user->id && !$user->hasRole('Super Admin')) {
+        $applicant = $leaveRequest->user;
+        $allOverrides = \App\Models\EmailSetting::getByKey('employee_overrides', []);
+        
+        $isCustomApprover = collect($allOverrides)->contains(function ($item) use ($applicant, $user) {
+            return ($item['enabled'] ?? true) &&
+                (int)($item['user_id'] ?? 0) === (int)$applicant->id &&
+                (
+                    (int)($item['approver_user_id'] ?? 0) === (int)$user->id ||
+                    (int)($item['approver_user_id_2'] ?? 0) === (int)$user->id
+                );
+        });
+
+        $hasAnotherApproverDelegated = collect($allOverrides)->contains(function ($item) use ($applicant, $user) {
+            return ($item['enabled'] ?? true) &&
+                (int)($item['user_id'] ?? 0) === (int)$applicant->id &&
+                (!empty($item['approver_user_id']) || !empty($item['approver_user_id_2'])) &&
+                (int)($item['approver_user_id'] ?? 0) !== (int)$user->id &&
+                (int)($item['approver_user_id_2'] ?? 0) !== (int)$user->id;
+        });
+
+        $isAuthorizedManager = false;
+        if ($user->hasRole('Super Admin') || $user->hasRole('HR')) {
+            $isAuthorizedManager = true;
+        } elseif ($isCustomApprover) {
+            $isAuthorizedManager = true;
+        } elseif ($user->hasRole('Team Lead')) {
+            if (!$hasAnotherApproverDelegated && $applicant->team_id === $user->team_id && !$applicant->hasRole('Team Lead')) {
+                $isAuthorizedManager = true;
+            }
+        }
+
+        if (!$isApplicant && !$isAuthorizedManager) {
             return response()->json(['message' => 'Unauthorized to cancel this leave request.'], 403);
         }
 
