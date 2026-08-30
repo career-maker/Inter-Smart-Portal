@@ -801,8 +801,24 @@ class LeaveRequestController extends Controller
             DB::beginTransaction();
 
             if ($status === 'Rejected') {
-                $newTlStatus    = 'Rejected';
-                $newAdminStatus = 'Rejected';
+                $isTL    = ($user->hasRole('Team Lead') || $isCustomApprover) && !$user->hasRole('Super Admin') && !$user->hasRole('HR');
+                $isAdmin = $user->hasRole('Super Admin') || $user->hasRole('HR');
+
+                $wasTlApproved = ($leaveRequest->tl_status === 'Approved');
+
+                $newTlStatus    = $leaveRequest->tl_status;
+                $newAdminStatus = $leaveRequest->admin_status;
+
+                if ($isAdmin) {
+                    $newAdminStatus = 'Rejected';
+                    $newTlStatus    = $wasTlApproved ? 'Cancelled' : 'Cancelled';
+                } elseif ($isTL) {
+                    $newTlStatus    = 'Rejected';
+                    $newAdminStatus = 'Cancelled';
+                } else {
+                    $newTlStatus    = 'Rejected';
+                    $newAdminStatus = 'Rejected';
+                }
 
                 $leaveRequest->update([
                     'status'           => 'Rejected',
@@ -817,6 +833,19 @@ class LeaveRequestController extends Controller
 
                 // Notify employee
                 $this->notifyEmployee($leaveRequest, $user, 'rejected');
+
+                if ($isAdmin && $wasTlApproved) {
+                    try {
+                        // Notify the TL that the Admin rejected a request they had approved
+                        if ($applicant->team_id) {
+                            $team = \App\Models\Team::find($applicant->team_id);
+                            $tl   = $team?->teamLead;
+                            if ($tl && $tl->id !== $user->id) {
+                                $tl->notify(new LeaveRequestNotification('rejected', $leaveRequest, "Admin rejected this leave request after your approval."));
+                            }
+                        }
+                    } catch (\Exception $e) {}
+                }
 
             } elseif ($status === 'Approved') {
                 $isTL    = ($user->hasRole('Team Lead') || $isCustomApprover) && !$user->hasRole('Super Admin') && !$user->hasRole('HR');

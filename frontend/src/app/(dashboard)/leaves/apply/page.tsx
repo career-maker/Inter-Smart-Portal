@@ -636,12 +636,12 @@ function LeaveSummaryCard({ impact, compact = false }: { impact: any; compact?: 
         <AlertTriangle className="w-4 h-4 text-amber-400" /> Leave Summary
       </h4>
 
-      <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
-        <SummaryRow label="Requested Leave Days" value={impact.requested_working_days} />
+      <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm items-center">
+        <SummaryRow label="Requested Leave Days" value={`${impact.requested_working_days} Days`} />
         {impact.sandwich_leave_days > 0 && (
-          <SummaryRow label="Sandwich Days" value={impact.sandwich_leave_days} sub="(weekends/holidays within leave)" />
+          <SummaryRow label="Sandwich Days" value={`${impact.sandwich_leave_days} Days`} sub="(weekends/holidays within leave)" />
         )}
-        <SummaryRow label="Total Leave Days" value={impact.actual_leave_days} bold />
+        <SummaryRow label="Total Leave Days" value={`${impact.actual_leave_days} Days`} bold />
       </div>
 
       <div className="border-t border-slate-200 dark:border-white/10 pt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
@@ -729,8 +729,13 @@ function LeaveSummaryCard({ impact, compact = false }: { impact: any; compact?: 
 function SummaryRow({ label, value, sub, color, bold }: { label: string; value: any; sub?: string; color?: string; bold?: boolean }) {
   return (
     <>
-      <span className="text-slate-500 dark:text-slate-400">{label}{sub && <span className="text-slate-500 text-xs"> {sub}</span>}:</span>
-      <span className={`font-semibold ${color || "text-slate-900 dark:text-white"}  ${bold ? "font-black" : ""}`}>{value}</span>
+      <div className="flex flex-col justify-center">
+        <span className="text-slate-600 dark:text-slate-400">{label}</span>
+        {sub && <span className="text-slate-400 dark:text-slate-500 text-[10px] leading-tight mt-0.5">{sub}</span>}
+      </div>
+      <div className={`text-right font-semibold ${color || "text-slate-900 dark:text-white"} ${bold ? "text-base font-bold" : ""}`}>
+        {value}
+      </div>
     </>
   );
 }

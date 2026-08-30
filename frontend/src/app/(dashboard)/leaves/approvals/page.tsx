@@ -15,7 +15,8 @@ import {
   Stethoscope,
   Users,
   History,
-  RefreshCw
+  RefreshCw,
+  Trash2
 } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
@@ -262,6 +263,31 @@ export default function ApprovalsPage() {
       setTimeout(() => setSuccessMessage(null), 4000);
     } catch (e: any) {
       alert(e.response?.data?.message || "Error rejecting request.");
+      fetchRequests(true);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const cancelRequest = async (type: "leave" | "wfh", id: number) => {
+    if (!confirm(`Are you sure you want to cancel this ${type} request on behalf of the employee?`)) return;
+    setActionLoading(true);
+    try {
+      const endpoint = type === "leave" ? `/leave-requests/${id}/cancel` : `/wfh-requests/${id}/cancel`;
+      await api.post(endpoint);
+      setSuccessMessage(`${type === "leave" ? "Leave" : "WFH"} request cancelled successfully!`);
+      
+      // Optimistic update
+      if (type === "leave") {
+        setLeaveRequests((prev) => prev.filter((r) => r.id !== id));
+      } else {
+        setWfhRequests((prev) => prev.filter((r) => r.id !== id));
+      }
+
+      fetchRequests(true);
+      setTimeout(() => setSuccessMessage(null), 4000);
+    } catch (e: any) {
+      alert(e.response?.data?.message || "Error cancelling request.");
       fetchRequests(true);
     } finally {
       setActionLoading(false);
@@ -529,18 +555,24 @@ export default function ApprovalsPage() {
 
       {/* ── Table View with ZERO Horizontal Scroll ── */}
       {isLoading ? (
-        <div className="flex justify-center py-16 bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-2xl animate-pulse">
-          <Loader2 className="h-7 w-7 animate-spin text-purple-600" />
+        <div className="flex-1 flex items-center justify-center min-h-[30vh]">
+          <div className="bg-transparent p-5 rounded-3xl flex flex-col items-center justify-center gap-3">
+            <img
+              src="/preloader.gif"
+              alt="Loading..."
+              className="w-12 h-12 object-contain"
+            />
+          </div>
         </div>
       ) : tab === "leaves" ? (
         <div className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
           <table className="w-full table-fixed text-left border-collapse text-[12px] leading-[16px]">
             <colgroup>
-              <col className="w-[23%]" />
-              <col className="w-[11%]" />
+              <col className="w-[20%]" />
+              <col className="w-[15%]" />
               <col className="w-[14%]" />
               <col className="w-[8%]" />
-              <col className="w-[15%]" />
+              <col className="w-[14%]" />
               <col className="w-[11%]" />
               <col className="w-[18%]" />
             </colgroup>
@@ -704,6 +736,16 @@ export default function ApprovalsPage() {
                             >
                               <XCircle className="w-3 h-3 text-rose-500" /> Reject
                             </button>
+                            {(isTeamLead || isSuperAdmin) && (
+                              <button
+                                onClick={() => cancelRequest("leave", req.id)}
+                                disabled={actionLoading}
+                                className="inline-flex items-center gap-0.5 px-2 py-1 rounded-md text-[11px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 transition-colors disabled:opacity-50 cursor-pointer"
+                                title="Cancel on behalf of employee"
+                              >
+                                <Trash2 className="w-3 h-3 text-slate-500" /> Cancel
+                              </button>
+                            )}
                           </>
                         ) : null}
 

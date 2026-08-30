@@ -306,15 +306,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   if (!isHydrated) {
     return (
-      <div className="fixed inset-0 bg-slate-900 flex flex-col overflow-hidden z-[9999]">
-        <div className="h-16 bg-slate-900 border-b border-white/10" />
+      <div className="fixed inset-0 bg-white flex flex-col overflow-hidden z-[9999]">
+        <div className="h-16 bg-white border-b border-slate-200" />
         <div className="flex-1 flex items-center justify-center">
-          <div className="flex flex-col items-center gap-3">
-            <img
-              src="/preloader.gif"
-              alt="Loading..."
-              className="w-16 h-16 object-contain"
-            />
+          <div className="flex flex-col items-center justify-center">
+            <div className="bg-white p-5 rounded-3xl flex flex-col items-center justify-center gap-3">
+              <img
+                src="/preloader.gif"
+                alt="Loading..."
+                className="w-12 h-12 object-contain"
+              />
+            </div>
           </div>
         </div>
       </div>

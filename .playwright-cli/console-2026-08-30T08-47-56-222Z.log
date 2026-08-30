@@ -1,0 +1,15 @@
+[   10913ms] [ERROR] Access to XMLHttpRequest at 'https://workplace.intersmart.in/api/api/active-recognitions' from origin 'https://www.workplace.intersmart.in' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://www.workplace.intersmart.in/employees:0
+[   10914ms] [ERROR] Failed to fetch recognitions/birthdays/announcements for ticker AxiosError: Network Error
+    at b.onerror (https://www.workplace.intersmart.in/_next/static/chunks/428uem--nfp98.js:1:26905)
+    at tg.request (https://www.workplace.intersmart.in/_next/static/chunks/428uem--nfp98.js:1:38652)
+    at async Promise.all (index 0)
+    at async e (https://www.workplace.intersmart.in/_next/static/chunks/2l_7z3znn2vf-.js:1:5737) @ https://www.workplace.intersmart.in/_next/static/chunks/2l_7z3znn2vf-.js:0
+[   10915ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://workplace.intersmart.in/api/api/active-recognitions:0
+[   12119ms] [ERROR] Access to XMLHttpRequest at 'https://workplace.intersmart.in/api/api/recognitions/top-awardee?_t=1788079676918' from origin 'https://www.workplace.intersmart.in' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://www.workplace.intersmart.in/employees:0
+[   12122ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://workplace.intersmart.in/api/api/recognitions/top-awardee?_t=1788079676918:0
+[   13552ms] [ERROR] Access to XMLHttpRequest at 'https://workplace.intersmart.in/api/api/dashboard' from origin 'https://www.workplace.intersmart.in' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://www.workplace.intersmart.in/employees:0
+[   13553ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://workplace.intersmart.in/api/api/dashboard:0
+[   13577ms] [ERROR] Access to XMLHttpRequest at 'https://workplace.intersmart.in/api/api/recognitions/leaderboard?period=overall&_t=1788079688341' from origin 'https://www.workplace.intersmart.in' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://www.workplace.intersmart.in/employees:0
+[   13578ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://workplace.intersmart.in/api/api/recognitions/leaderboard?period=overall&_t=1788079688341:0
+[   13863ms] [ERROR] Access to XMLHttpRequest at 'https://workplace.intersmart.in/api/api/announcements' from origin 'https://www.workplace.intersmart.in' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://www.workplace.intersmart.in/employees:0
+[   13863ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://workplace.intersmart.in/api/api/announcements:0
