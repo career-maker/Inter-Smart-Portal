@@ -26,7 +26,7 @@ class EmailService
     {
         try {
             $smtp = EmailSetting::getByKey('smtp_config', EmailSetting::defaultSmtp());
-            if (!empty($smtp['host']) && !empty($smtp['username']) && !empty($smtp['password'])) {
+                Config::set('mail.default', 'smtp');
                 Config::set('mail.mailers.smtp', [
                     'transport'  => 'smtp',
                     'host'       => $smtp['host'] ?? 'smtp.gmail.com',
@@ -454,7 +454,7 @@ class EmailService
             'reference_number' => "WFH-{$wfhRequest->id}",
             'request_id'       => $wfhRequest->id,
             'portal_url'       => config('app.frontend_url', 'https://www.workplace.intersmart.in'),
-            'approvals_url'    => config('app.frontend_url', 'https://www.workplace.intersmart.in') . '/wfh/approvals'
+            'approvals_url'    => config('app.frontend_url', 'https://www.workplace.intersmart.in') . '/leaves/approvals'
         ];
     }
 }

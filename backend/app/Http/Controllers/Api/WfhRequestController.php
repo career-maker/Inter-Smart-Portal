@@ -238,13 +238,13 @@ class WfhRequestController extends Controller
                     }
                 }
             } catch (\Exception $e) {}
+        }
 
-            // Send email notifications (isolated, failures don't affect WFH creation)
-            try {
-                \App\Services\Email\EmailService::sendWfhRequestEmail($wfhRequest);
-            } catch (\Exception $e) {
-                \Log::warning('Email notification failed for WFH request: ' . $e->getMessage());
-            }
+        // Send email notifications (isolated, failures don't affect WFH creation)
+        try {
+            \App\Services\Email\EmailService::sendWfhRequestEmail($wfhRequest);
+        } catch (\Exception $e) {
+            \Log::warning('Email notification failed for WFH request: ' . $e->getMessage());
         }
 
         return response()->json([
@@ -440,6 +440,12 @@ class WfhRequestController extends Controller
             ]);
 
             DB::commit();
+
+            try {
+                \App\Services\Email\EmailService::sendWfhRequestEmail($wfhRequest);
+            } catch (\Exception $e) {
+                \Log::warning('Email notification failed for admin WFH creation: ' . $e->getMessage());
+            }
 
             return response()->json([
                 'message' => 'WFH created successfully' . ($autoApprove ? ' and auto-approved.' : '.'),
