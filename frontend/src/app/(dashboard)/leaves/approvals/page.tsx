@@ -739,9 +739,10 @@ export default function ApprovalsPage() {
                                 }}
                                 disabled={actionLoading}
                                 title="Reject"
-                                className="p-1.5 rounded-md text-rose-700 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800 transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center"
+                                className="px-2 py-1.5 rounded-md text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800 transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1"
                               >
-                                <XCircle className="w-4 h-4 text-rose-500" />
+                                <XCircle className="w-3.5 h-3.5 text-rose-500" />
+                                Reject
                               </button>
                             {(isTeamLead || isSuperAdmin) && (
                               <button

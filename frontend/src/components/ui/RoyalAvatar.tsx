@@ -61,11 +61,8 @@ export function RoyalAvatar({
   if (isEligible) {
     return (
       <div className="relative inline-flex items-center justify-center shrink-0">
-        {/* Luminous Golden Aura */}
-        <div className="absolute -inset-1 rounded-full bg-gradient-to-tr from-amber-500 via-yellow-300 to-amber-600 blur-[5px] opacity-75 animate-pulse pointer-events-none" />
-
         {/* Physical Golden Halo Ring */}
-        <div className="relative p-[2.5px] rounded-full bg-gradient-to-tr from-amber-500 via-yellow-200 to-amber-600 shadow-[0_0_14px_rgba(245,158,11,0.85)] ring-1 ring-amber-300/80 z-10">
+        <div className="relative p-[2.5px] rounded-full bg-gradient-to-tr from-amber-500 via-yellow-200 to-amber-600 ring-1 ring-amber-300/80 z-10">
           <div
             className={cn(
               "relative overflow-hidden rounded-full flex items-center justify-center font-bold bg-gradient-to-tr from-[#2563eb] to-[#4f46e5] text-white shrink-0 select-none border border-slate-950/20",
