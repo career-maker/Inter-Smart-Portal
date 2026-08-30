@@ -537,12 +537,12 @@ export default function ApprovalsPage() {
           <table className="w-full table-fixed text-left border-collapse text-[12px] leading-[16px]">
             <colgroup>
               <col className="w-[23%]" />
-              <col className="w-[14%]" />
+              <col className="w-[11%]" />
               <col className="w-[14%]" />
               <col className="w-[8%]" />
               <col className="w-[15%]" />
-              <col className="w-[13%]" />
-              <col className="w-[13%]" />
+              <col className="w-[11%]" />
+              <col className="w-[18%]" />
             </colgroup>
             <thead>
               <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">

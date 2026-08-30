@@ -732,14 +732,14 @@ export default function LeavesPage() {
               <thead className="text-xs text-slate-500 dark:text-slate-400 uppercase bg-slate-50 dark:bg-slate-850 border-b border-slate-200 dark:border-slate-800">
                 <tr>
                   {(user?.role === "Super Admin" || user?.role === "Team Lead") && (
-                    <th className="px-6 py-3 font-semibold">Employee</th>
+                    <th className="px-6 py-3 font-semibold whitespace-nowrap">Employee</th>
                   )}
-                  <th className="px-6 py-3 font-semibold">Type</th>
-                  <th className="px-6 py-3 font-semibold">Duration</th>
-                  <th className="px-6 py-3 font-semibold">Days</th>
-                  <th className="px-6 py-3 font-semibold">Reason</th>
-                  <th className="px-6 py-3 font-semibold">Status</th>
-                  <th className="px-6 py-3 font-semibold text-right">Action</th>
+                  <th className="px-6 py-3 font-semibold whitespace-nowrap">Type</th>
+                  <th className="px-6 py-3 font-semibold whitespace-nowrap">Duration</th>
+                  <th className="px-6 py-3 font-semibold whitespace-nowrap">Days</th>
+                  <th className="px-6 py-3 font-semibold w-full">Reason</th>
+                  <th className="px-6 py-3 font-semibold whitespace-nowrap">Status</th>
+                  <th className="px-6 py-3 font-semibold text-right whitespace-nowrap">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200/80 dark:divide-slate-800">
@@ -762,9 +762,9 @@ export default function LeavesPage() {
                     <td className="px-6 py-4 text-slate-700 dark:text-slate-300 font-semibold">
                       {req.days_taken ?? req.actual_leave_days ?? "—"} Day(s)
                     </td>
-                    <td className="px-6 py-4 text-slate-500 dark:text-slate-400 max-w-[220px] truncate">{req.reason}</td>
+                    <td className="px-6 py-4 text-slate-500 dark:text-slate-400 max-w-[1px] truncate">{req.reason}</td>
                     <td className="px-6 py-4">{getStatusBadge(req)}</td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-6 py-4 text-right whitespace-nowrap">
                       {req.status === "Pending" && (
                         <button
                           type="button"
