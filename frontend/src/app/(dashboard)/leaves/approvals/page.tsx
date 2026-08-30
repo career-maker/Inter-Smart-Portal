@@ -726,29 +726,31 @@ export default function ApprovalsPage() {
                               <button
                                 onClick={() => approve("leave", req.id)}
                                 disabled={actionLoading}
-                                className="inline-flex items-center gap-0.5 px-2 py-1 rounded-md text-[11px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
+                                title="Approve"
+                                className="p-1.5 rounded-md text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center"
                               >
-                                <Check className="w-3 h-3" /> Approve
+                                <Check className="w-4 h-4" />
                               </button>
                             )}
                             <button
-                              onClick={() => {
-                                setRejectDialog({ type: "leave", id: req.id });
-                                setRejectReason("");
-                              }}
-                              disabled={actionLoading}
-                              className="inline-flex items-center gap-0.5 px-2 py-1 rounded-md text-[11px] font-bold bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800 transition-colors disabled:opacity-50 cursor-pointer"
-                            >
-                              <XCircle className="w-3 h-3 text-rose-500" /> Reject
-                            </button>
+                                onClick={() => {
+                                  setRejectDialog({ type: "leave", id: req.id });
+                                  setRejectReason("");
+                                }}
+                                disabled={actionLoading}
+                                title="Reject"
+                                className="p-1.5 rounded-md text-rose-700 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800 transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center"
+                              >
+                                <XCircle className="w-4 h-4 text-rose-500" />
+                              </button>
                             {(isTeamLead || isSuperAdmin) && (
                               <button
                                 onClick={() => cancelRequest("leave", req.id)}
                                 disabled={actionLoading}
-                                className="inline-flex items-center gap-0.5 px-2 py-1 rounded-md text-[11px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 transition-colors disabled:opacity-50 cursor-pointer"
-                                title="Cancel on behalf of employee"
+                                title="Cancel Request (Delete)"
+                                className="p-1.5 rounded-md text-slate-700 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center"
                               >
-                                <Trash2 className="w-3 h-3 text-slate-500" /> Cancel
+                                <Trash2 className="w-4 h-4 text-slate-500" />
                               </button>
                             )}
                           </>
@@ -878,23 +880,25 @@ export default function ApprovalsPage() {
                         <div className="flex items-center justify-end gap-1">
                         {canApprove(req) && (
                           <button
-                            onClick={() => approve("wfh", req.id)}
-                            disabled={actionLoading}
-                            className="inline-flex items-center gap-0.5 px-2 py-1 rounded-md text-[11px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
-                          >
-                            <Check className="w-3 h-3" /> Approve
-                          </button>
+                                onClick={() => approve("wfh", req.id)}
+                                disabled={actionLoading}
+                                title="Approve"
+                                className="p-1.5 rounded-md text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center"
+                              >
+                                <Check className="w-4 h-4" />
+                              </button>
                         )}
                         <button
-                          onClick={() => {
-                            setRejectDialog({ type: "wfh", id: req.id });
-                            setRejectReason("");
-                          }}
-                          disabled={actionLoading}
-                          className="inline-flex items-center gap-0.5 px-2 py-1 rounded-md text-[11px] font-bold bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800 transition-colors disabled:opacity-50 cursor-pointer"
-                        >
-                          <XCircle className="w-3 h-3 text-rose-500" /> Reject
-                        </button>
+                                onClick={() => {
+                                  setRejectDialog({ type: "wfh", id: req.id });
+                                  setRejectReason("");
+                                }}
+                                disabled={actionLoading}
+                                title="Reject"
+                                className="p-1.5 rounded-md text-rose-700 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800 transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center"
+                              >
+                                <XCircle className="w-4 h-4 text-rose-500" />
+                              </button>
                       </div>
                     </td>
                     )}

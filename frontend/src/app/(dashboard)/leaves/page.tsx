@@ -762,10 +762,10 @@ export default function LeavesPage() {
                           type="button"
                           onClick={() => handleCancelLeave(req.id)}
                           disabled={cancellingId === req.id}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/60 border border-rose-200 dark:border-rose-800 transition-colors cursor-pointer disabled:opacity-50"
+                          title={cancellingId === req.id ? "Cancelling..." : "Cancel"}
+                          className="p-1.5 rounded-lg text-rose-600 dark:text-rose-400 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/60 border border-rose-200 dark:border-rose-800 transition-colors cursor-pointer disabled:opacity-50 flex items-center justify-center"
                         >
-                          <X className="w-3.5 h-3.5" />
-                          <span>{cancellingId === req.id ? "Cancelling…" : "Cancel"}</span>
+                          <X className="w-4 h-4" />
                         </button>
                       )}
                     </td>
