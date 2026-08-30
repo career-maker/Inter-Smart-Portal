@@ -334,12 +334,12 @@ export default function ProjectStatusPage() {
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px] whitespace-nowrap">
-                  <th className="py-3.5 px-4 sm:px-6 whitespace-nowrap">Project Name & Category</th>
-                  <th className="py-3.5 px-4 whitespace-nowrap">Department & Coordinator</th>
-                  <th className="py-3.5 px-4 whitespace-nowrap">Lifecycle Status</th>
-                  <th className="py-3.5 px-4 whitespace-nowrap">Deliverables Progress</th>
-                  <th className="py-3.5 px-4 whitespace-nowrap">Go-Live Date</th>
-                  <th className="py-3.5 px-4 text-right pr-6 whitespace-nowrap min-w-[220px]">Actions</th>
+                  <th className="py-3.5 px-4 sm:px-6 break-words whitespace-normal leading-tight">Project Name & Category</th>
+                  <th className="py-3.5 px-4 break-words whitespace-normal leading-tight">Department & Coordinator</th>
+                  <th className="py-3.5 px-4 break-words whitespace-normal leading-tight">Lifecycle Status</th>
+                  <th className="py-3.5 px-4 break-words whitespace-normal leading-tight">Deliverables Progress</th>
+                  <th className="py-3.5 px-4 break-words whitespace-normal leading-tight">Go-Live Date</th>
+                  <th className="py-3.5 px-4 text-right pr-6 break-words whitespace-normal leading-tight min-w-[220px]">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200/80 dark:divide-slate-800/80">
@@ -357,7 +357,7 @@ export default function ProjectStatusPage() {
                       className="hover:bg-purple-50/40 dark:hover:bg-slate-800/60 transition-colors cursor-pointer group"
                     >
                       {/* Name & Category */}
-                      <td className="py-4 px-4 sm:px-6 whitespace-nowrap">
+                      <td className="py-4 px-4 sm:px-6 break-words whitespace-normal leading-tight">
                         <div className="font-bold text-sm text-slate-900 dark:text-white group-hover:text-[#56348f] dark:group-hover:text-purple-300 transition-colors flex items-center gap-2">
                           <span>{p.name}</span>
                           {p.is_live && (
@@ -372,7 +372,7 @@ export default function ProjectStatusPage() {
                       </td>
 
                       {/* Department & Coordinator */}
-                      <td className="py-4 px-4 whitespace-nowrap">
+                      <td className="py-4 px-4 break-words whitespace-normal leading-tight">
                         <div className="font-semibold text-slate-800 dark:text-slate-200">
                           {p.team?.name || "General"}
                         </div>
@@ -382,7 +382,7 @@ export default function ProjectStatusPage() {
                       </td>
 
                       {/* Status */}
-                      <td className="py-4 px-4 whitespace-nowrap">
+                      <td className="py-4 px-4 break-words whitespace-normal leading-tight">
                         <div className="flex items-center gap-2">
                           <ProjectStatusBadge status={p.status} />
                           {p.is_live && (
@@ -394,7 +394,7 @@ export default function ProjectStatusPage() {
                       </td>
 
                       {/* Progress Bar */}
-                      <td className="py-4 px-4 min-w-[160px] whitespace-nowrap">
+                      <td className="py-4 px-4 min-w-[160px] break-words whitespace-normal leading-tight">
                         <div className="flex items-center justify-between text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
                           <span>{tasksCompleted}/{tasksTotal} Tasks</span>
                           <span className="text-[#56348f] dark:text-purple-300 font-bold">{progressPct}%</span>
@@ -408,7 +408,7 @@ export default function ProjectStatusPage() {
                       </td>
 
                       {/* Go-Live Date */}
-                      <td className="py-4 px-4 whitespace-nowrap">
+                      <td className="py-4 px-4 break-words whitespace-normal leading-tight">
                         {p.is_live && p.live_date ? (
                           <div>
                             <span className="font-bold text-emerald-600 dark:text-emerald-400 text-xs">
@@ -426,7 +426,7 @@ export default function ProjectStatusPage() {
                       </td>
 
                       {/* Actions */}
-                      <td className="py-4 px-4 text-right pr-6 whitespace-nowrap min-w-[220px]" onClick={(e) => e.stopPropagation()}>
+                      <td className="py-4 px-4 text-right pr-6 break-words whitespace-normal leading-tight min-w-[220px]" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-2 whitespace-nowrap flex-nowrap shrink-0">
                           <button
                             type="button"

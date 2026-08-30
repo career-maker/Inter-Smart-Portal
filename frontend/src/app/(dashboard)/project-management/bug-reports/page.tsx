@@ -283,7 +283,7 @@ export default function BugReportsPage() {
                       </td>
 
                       {/* Sprint */}
-                      <td className="py-3.5 px-4 whitespace-nowrap">
+                      <td className="py-3.5 px-4 break-words whitespace-normal leading-tight">
                         {task.sprint ? (
                           <span className="font-medium text-slate-700 dark:text-slate-300">
                             {task.sprint}
@@ -294,7 +294,7 @@ export default function BugReportsPage() {
                       </td>
 
                       {/* Assignee */}
-                      <td className="py-3.5 px-4 whitespace-nowrap">
+                      <td className="py-3.5 px-4 break-words whitespace-normal leading-tight">
                         {task.assignees && task.assignees.length > 0 ? (
                           <span className="font-medium text-slate-700 dark:text-slate-300">
                             {task.assignees[0].first_name} {task.assignees[0].last_name}
@@ -345,12 +345,12 @@ export default function BugReportsPage() {
                       </td>
 
                       {/* Status */}
-                      <td className="py-3.5 px-4 text-center whitespace-nowrap">
+                      <td className="py-3.5 px-4 text-center break-words whitespace-normal leading-tight">
                         <TaskStatusBadge status={task.status} />
                       </td>
 
                       {/* Actions */}
-                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                      <td className="py-3.5 px-4 text-right break-words whitespace-normal leading-tight">
                         <button
                           type="button"
                           onClick={() => setEditingTask(task)}

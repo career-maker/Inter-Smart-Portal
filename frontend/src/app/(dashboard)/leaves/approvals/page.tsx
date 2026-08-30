@@ -634,7 +634,7 @@ export default function ApprovalsPage() {
                     </td>
 
                     {/* Column 3: Duration */}
-                    <td className="py-2.5 px-2.5 align-middle border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap text-[11px] text-slate-800 dark:text-slate-200">
+                    <td className="py-2.5 px-2.5 align-middle border-r border-slate-100 dark:border-slate-800/60 break-words whitespace-normal leading-tight text-[11px] text-slate-800 dark:text-slate-200">
                       <span className="font-medium">{fmtDate(req.start_date)}</span>
                       {req.end_date && req.end_date !== req.start_date && (
                         <span className="text-slate-500 dark:text-slate-400"> - {fmtDate(req.end_date)}</span>
@@ -642,7 +642,7 @@ export default function ApprovalsPage() {
                     </td>
 
                     {/* Column 4: Days */}
-                    <td className="py-2.5 px-2 align-middle text-center border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap font-bold text-slate-900 dark:text-white text-xs">
+                    <td className="py-2.5 px-2 align-middle text-center border-r border-slate-100 dark:border-slate-800/60 break-words whitespace-normal leading-tight font-bold text-slate-900 dark:text-white text-xs">
                       {Number(req.days_taken ?? req.days ?? 0).toFixed(1)}
                     </td>
 
@@ -696,7 +696,7 @@ export default function ApprovalsPage() {
                     </td>
 
                     {/* Column 7: Actions */}
-                    <td className="py-2.5 px-3 align-middle text-right whitespace-nowrap">
+                    <td className="py-2.5 px-3 align-middle text-right break-words whitespace-normal leading-tight">
                       <div className="flex items-center justify-end gap-1">
                         {req.pending_lop_conversion ? (
                           <>
@@ -828,7 +828,7 @@ export default function ApprovalsPage() {
                     </td>
 
                     {/* Type */}
-                    <td className="py-2.5 px-2.5 align-middle border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap">
+                    <td className="py-2.5 px-2.5 align-middle border-r border-slate-100 dark:border-slate-800/60 break-words whitespace-normal leading-tight">
                       <div className="flex items-center gap-1">
                         <span className="text-[11px] font-medium text-slate-800 dark:text-slate-200">WFH</span>
                         {req.duration_type && <DurationBadge type={req.duration_type} />}
@@ -836,7 +836,7 @@ export default function ApprovalsPage() {
                     </td>
 
                     {/* Duration */}
-                    <td className="py-2.5 px-2.5 align-middle border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap text-[11px] text-slate-800 dark:text-slate-200">
+                    <td className="py-2.5 px-2.5 align-middle border-r border-slate-100 dark:border-slate-800/60 break-words whitespace-normal leading-tight text-[11px] text-slate-800 dark:text-slate-200">
                       <span className="font-medium">{fmtDate(req.start_date)}</span>
                       {req.end_date && req.end_date !== req.start_date && (
                         <span className="text-slate-500 dark:text-slate-400"> - {fmtDate(req.end_date)}</span>
@@ -844,7 +844,7 @@ export default function ApprovalsPage() {
                     </td>
 
                     {/* TL Status */}
-                    <td className="py-2.5 px-2 align-middle text-center border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap">
+                    <td className="py-2.5 px-2 align-middle text-center border-r border-slate-100 dark:border-slate-800/60 break-words whitespace-normal leading-tight">
                       <span className={`text-[10px] font-bold ${req.tl_status === "Approved" ? "text-emerald-600 dark:text-emerald-400" : req.tl_status === "Rejected" ? "text-rose-600 dark:text-rose-400" : "text-amber-600 dark:text-amber-400"}`}>
                         {req.tl_status ?? "Pending"}
                       </span>
@@ -856,14 +856,14 @@ export default function ApprovalsPage() {
                     </td>
 
                     {/* Status */}
-                    <td className="py-2.5 px-2 align-middle border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap">
+                    <td className="py-2.5 px-2 align-middle border-r border-slate-100 dark:border-slate-800/60 break-words whitespace-normal leading-tight">
                       <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
                         <Clock className="w-2.5 h-2.5 text-amber-500" /> Pending
                       </span>
                     </td>
 
                     {/* Actions */}
-                    <td className="py-2.5 px-3 align-middle text-right whitespace-nowrap">
+                    <td className="py-2.5 px-3 align-middle text-right break-words whitespace-normal leading-tight">
                       <div className="flex items-center justify-end gap-1">
                         {canApprove(req) && (
                           <button

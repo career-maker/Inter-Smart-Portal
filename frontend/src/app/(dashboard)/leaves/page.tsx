@@ -738,14 +738,14 @@ export default function LeavesPage() {
                 {requests.map((req) => (
                   <tr key={req.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
                     {(user?.role === "Super Admin" || user?.role === "Team Lead") && (
-                      <td className="px-6 py-4 text-slate-800 dark:text-slate-200 font-medium whitespace-nowrap">
+                      <td className="px-6 py-4 text-slate-800 dark:text-slate-200 font-medium break-words whitespace-normal leading-tight">
                         {req.user?.first_name} {req.user?.last_name}
                       </td>
                     )}
-                    <td className="px-6 py-4 font-bold text-slate-900 dark:text-white whitespace-nowrap">
+                    <td className="px-6 py-4 font-bold text-slate-900 dark:text-white break-words whitespace-normal leading-tight">
                       {req.leave_type?.name}
                     </td>
-                    <td className="px-6 py-4 text-slate-600 dark:text-slate-300 whitespace-nowrap">
+                    <td className="px-6 py-4 text-slate-600 dark:text-slate-300 break-words whitespace-normal leading-tight">
                       <div className="flex items-center gap-2">
                         <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                         {new Date(req.start_date).toLocaleDateString()} — {new Date(req.end_date).toLocaleDateString()}
@@ -756,7 +756,7 @@ export default function LeavesPage() {
                     </td>
                     <td className="px-6 py-4 text-slate-500 dark:text-slate-400 max-w-[1px] truncate">{req.reason}</td>
                     <td className="px-6 py-4">{getStatusBadge(req)}</td>
-                    <td className="px-6 py-4 text-right whitespace-nowrap">
+                    <td className="px-6 py-4 text-right break-words whitespace-normal leading-tight">
                       {req.status === "Pending" && (
                         <button
                           type="button"

@@ -54,7 +54,7 @@ function exportCSV(data: any[], filename: string, reportType?: string) {
 function SortableHeader({ label, col, sort, onSort }: { label: string; col: string; sort: { col: string; dir: "asc" | "desc" }; onSort: (c: string) => void }) {
   const active = sort.col === col;
   return (
-    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider cursor-pointer select-none hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap" onClick={() => onSort(col)}>
+    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider cursor-pointer select-none hover:text-slate-900 dark:hover:text-white transition-colors break-words whitespace-normal leading-tight" onClick={() => onSort(col)}>
       <span className="flex items-center gap-1">{label} {active ? (sort.dir === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />) : <ChevronDown className="w-3 h-3 opacity-20" />}</span>
     </th>
   );
@@ -310,12 +310,12 @@ export default function ReportsPage() {
                   <tr key={i} className="hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
                     {reportType === "employees" && <>
                       <td className="px-4 py-3 font-mono text-xs text-slate-600 dark:text-slate-300">{row.employee_code}</td>
-                      <td className="px-4 py-3 text-slate-900 dark:text-white font-semibold whitespace-nowrap">{row.full_name}</td>
+                      <td className="px-4 py-3 text-slate-900 dark:text-white font-semibold break-words whitespace-normal leading-tight">{row.full_name}</td>
                       <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{row.team || "—"}</td>
                       <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{row.designation || "—"}</td>
-                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap">{row.team_lead || "—"}</td>
-                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap">{row.joining_date ? format(new Date(row.joining_date), "dd MMM yyyy") : "—"}</td>
-                      <td className="px-4 py-3 whitespace-nowrap">{row.is_in_probation ? <span className="text-xs font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">{row.probation_end_date ? format(new Date(row.probation_end_date), "dd MMM yy") : "In Probation"}</span> : <span className="text-xs text-emerald-400">Done</span>}</td>
+                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300 break-words whitespace-normal leading-tight">{row.team_lead || "—"}</td>
+                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300 break-words whitespace-normal leading-tight">{row.joining_date ? format(new Date(row.joining_date), "dd MMM yyyy") : "—"}</td>
+                      <td className="px-4 py-3 break-words whitespace-normal leading-tight">{row.is_in_probation ? <span className="text-xs font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">{row.probation_end_date ? format(new Date(row.probation_end_date), "dd MMM yy") : "In Probation"}</span> : <span className="text-xs text-emerald-400">Done</span>}</td>
                       <td className="px-4 py-3 text-center font-bold text-emerald-400">{row.casual_leave_balance}</td>
                       <td className="px-4 py-3 text-center font-bold text-rose-400">{row.sick_leave_balance}</td>
                       <td className="px-4 py-3 text-center text-slate-600 dark:text-slate-300">{row.leaves_taken_this_month}</td>
@@ -324,7 +324,7 @@ export default function ReportsPage() {
                     </>}
                     {reportType === "attendance-summary" && <>
                       <td className="px-4 py-3 font-mono text-xs text-slate-600 dark:text-slate-300">{row.employee_code}</td>
-                      <td className="px-4 py-3 text-slate-900 dark:text-white font-semibold whitespace-nowrap">{typeof row.name === 'string' ? row.name : (row.first_name + ' ' + row.last_name) || '—'}</td>
+                      <td className="px-4 py-3 text-slate-900 dark:text-white font-semibold break-words whitespace-normal leading-tight">{typeof row.name === 'string' ? row.name : (row.first_name + ' ' + row.last_name) || '—'}</td>
                       <td className="px-4 py-3 text-slate-600 dark:text-slate-300 text-sm">{typeof row.team === 'object' && row.team?.name ? row.team.name : (typeof row.team === 'string' ? row.team : '—')}</td>
                       {allDates.map((date: string) => {
                         try {
@@ -372,7 +372,7 @@ export default function ReportsPage() {
                     </>}
                     {reportType === "leave-balances" && <>
                       <td className="px-4 py-3 font-mono text-xs text-slate-600 dark:text-slate-300">{row.employee_code}</td>
-                      <td className="px-4 py-3 text-slate-900 dark:text-white font-semibold whitespace-nowrap">{row.full_name}</td>
+                      <td className="px-4 py-3 text-slate-900 dark:text-white font-semibold break-words whitespace-normal leading-tight">{row.full_name}</td>
                       <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{row.team || "—"}</td>
                       <td className="px-4 py-3 text-center font-bold text-emerald-400">{row.cl_balance}</td>
                       <td className="px-4 py-3 text-center font-bold text-rose-400">{row.sl_balance}</td>

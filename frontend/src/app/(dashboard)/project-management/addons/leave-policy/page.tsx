@@ -1065,7 +1065,7 @@ export default function LeavePolicyManagementPage() {
 
                       return (
                         <tr key={entry.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-colors">
-                          <td className="py-3 px-4 text-slate-500 whitespace-nowrap">
+                          <td className="py-3 px-4 text-slate-500 break-words whitespace-normal leading-tight">
                             {new Date(entry.created_at).toLocaleString("en-IN", {
                               day: "2-digit",
                               month: "short",

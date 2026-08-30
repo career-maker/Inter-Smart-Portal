@@ -340,7 +340,7 @@ export default function ProjectsListPage() {
                 <th className="py-3.5 px-4 border-r border-slate-200/90 dark:border-slate-800">COORDINATOR</th>
                 <th className="py-3.5 px-4 border-r border-slate-200/90 dark:border-slate-800">TIMELINE</th>
                 <th className="py-3.5 px-4 border-r border-slate-200/90 dark:border-slate-800">STATUS</th>
-                <th className="py-3.5 px-4 text-right min-w-[200px] whitespace-nowrap">ACTIONS</th>
+                <th className="py-3.5 px-4 text-right min-w-[200px] break-words whitespace-normal leading-tight">ACTIONS</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
@@ -446,7 +446,7 @@ export default function ProjectsListPage() {
                     </td>
 
                     {/* Actions */}
-                    <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                    <td className="py-3.5 px-4 text-right break-words whitespace-normal leading-tight">
                       <div className="flex items-center justify-end gap-2 flex-nowrap whitespace-nowrap">
                         {!project.is_live && (
                           <button

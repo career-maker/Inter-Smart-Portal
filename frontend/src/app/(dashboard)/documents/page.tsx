@@ -162,7 +162,7 @@ export default function DocumentsPage() {
                   return (
                     <tr key={req.id} className="hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
                       {isAdmin && (
-                        <td className="px-5 py-4 font-semibold text-slate-900 dark:text-white whitespace-nowrap">
+                        <td className="px-5 py-4 font-semibold text-slate-900 dark:text-white break-words whitespace-normal leading-tight">
                           {req.user?.first_name} {req.user?.last_name}
                         </td>
                       )}

@@ -1080,7 +1080,7 @@ export default function HubstaffAnalyticsPage() {
                         >
                           {/* Date Column in Range Mode */}
                           {dateMode === "range" && (
-                            <td className="py-3 px-4 border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap">
+                            <td className="py-3 px-4 border-r border-slate-100 dark:border-slate-800/60 break-words whitespace-normal leading-tight">
                               <div className="flex items-center gap-2">
                                 <Calendar className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
                                 <div>
@@ -1132,19 +1132,19 @@ export default function HubstaffAnalyticsPage() {
                           </td>
 
                           {/* Team */}
-                          <td className="py-3 px-3 border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap text-slate-700 dark:text-slate-300 font-semibold text-xs">
+                          <td className="py-3 px-3 border-r border-slate-100 dark:border-slate-800/60 break-words whitespace-normal leading-tight text-slate-700 dark:text-slate-300 font-semibold text-xs">
                             {u.team_name}
                           </td>
 
                           {/* Tracked Time */}
-                          <td className="py-3 px-3 border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap">
+                          <td className="py-3 px-3 border-r border-slate-100 dark:border-slate-800/60 break-words whitespace-normal leading-tight">
                             <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
                               {u.tracked_formatted}
                             </span>
                           </td>
 
                           {/* Activity % */}
-                          <td className="py-3 px-4 border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap">
+                          <td className="py-3 px-4 border-r border-slate-100 dark:border-slate-800/60 break-words whitespace-normal leading-tight">
                             <div className="space-y-1.5 min-w-[130px]">
                               <div className="flex items-center justify-between text-xs">
                                 <span className="font-bold text-slate-900 dark:text-white">{actBadge.percent}%</span>
@@ -1184,7 +1184,7 @@ export default function HubstaffAnalyticsPage() {
                           </td>
 
                           {/* Actions */}
-                          <td className="py-3 px-4 text-right whitespace-nowrap">
+                          <td className="py-3 px-4 text-right break-words whitespace-normal leading-tight">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -1292,7 +1292,7 @@ export default function HubstaffAnalyticsPage() {
                         >
                           {/* Date Column in Range Mode */}
                           {dateMode === "range" && (
-                            <td className="py-3 px-4 border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap">
+                            <td className="py-3 px-4 border-r border-slate-100 dark:border-slate-800/60 break-words whitespace-normal leading-tight">
                               <div className="flex items-center gap-2">
                                 <Calendar className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
                                 <div>
@@ -1327,13 +1327,13 @@ export default function HubstaffAnalyticsPage() {
                             </div>
                           </td>
 
-                          <td className="py-3 px-4 border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap">
+                          <td className="py-3 px-4 border-r border-slate-100 dark:border-slate-800/60 break-words whitespace-normal leading-tight">
                             <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
                               {p.tracked_formatted}
                             </span>
                           </td>
 
-                          <td className="py-3 px-4 border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap">
+                          <td className="py-3 px-4 border-r border-slate-100 dark:border-slate-800/60 break-words whitespace-normal leading-tight">
                             <div className="flex items-center gap-2">
                               <span className="font-bold text-slate-900 dark:text-white">{actBadge.percent}%</span>
                               <span className={`text-[9px] px-2 py-0.5 rounded border font-bold ${actBadge.bg}`}>
@@ -1342,13 +1342,13 @@ export default function HubstaffAnalyticsPage() {
                             </div>
                           </td>
 
-                          <td className="py-3 px-4 border-r border-slate-100 dark:border-slate-800/60 whitespace-nowrap">
+                          <td className="py-3 px-4 border-r border-slate-100 dark:border-slate-800/60 break-words whitespace-normal leading-tight">
                             <span className="px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300">
                               {p.members_count} Members
                             </span>
                           </td>
 
-                          <td className="py-3 px-5 text-right whitespace-nowrap">
+                          <td className="py-3 px-5 text-right break-words whitespace-normal leading-tight">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();

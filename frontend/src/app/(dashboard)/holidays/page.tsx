@@ -170,7 +170,7 @@ export default function HolidaysPage() {
               <tbody className="divide-y divide-slate-200 dark:divide-white/5">
                 {holidays.map((h: any) => (
                   <tr key={h.id} className="hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
-                    <td className="px-6 py-4 text-slate-600 dark:text-slate-300 whitespace-nowrap font-mono text-xs">
+                    <td className="px-6 py-4 text-slate-600 dark:text-slate-300 break-words whitespace-normal leading-tight font-mono text-xs">
                       {fmtDate(h.date)}
                     </td>
                     <td className="px-6 py-4 font-semibold text-slate-900 dark:text-white">{h.name}</td>
