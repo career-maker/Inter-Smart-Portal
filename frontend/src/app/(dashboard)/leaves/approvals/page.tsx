@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   Check,
   Calendar,
@@ -61,6 +62,7 @@ function LeaveTypeIcon({ leaveTypeName }: { leaveTypeName?: string }) {
 
 export default function ApprovalsPage() {
   const { user } = useAuthStore();
+  const searchParams = useSearchParams();
   const isSuperAdmin = user?.role === "Super Admin";
   const isTeamLead = user?.role === "Team Lead";
 
@@ -68,11 +70,26 @@ export default function ApprovalsPage() {
 
   const canApprove = (request: any): boolean => {
     if (isSuperAdmin) return true;
-    if (isTeamLead && request?.user?.team_id === currentUserTeamId) return true;
+    if (isTeamLead) {
+      if (currentUserTeamId && request?.user?.team_id) {
+        return String(request.user.team_id) === String(currentUserTeamId);
+      }
+      return true; // Filtered by backend
+    }
     return false;
   };
 
-  const [tab, setTab] = useState<"leaves" | "wfh">("leaves");
+  const [tab, setTab] = useState<"leaves" | "wfh">(() => {
+    return searchParams?.get("tab") === "wfh" ? "wfh" : "leaves";
+  });
+
+  useEffect(() => {
+    const tabParam = searchParams?.get("tab");
+    if (tabParam === "wfh" || tabParam === "leaves") {
+      setTab(tabParam);
+    }
+  }, [searchParams]);
+
   const [statusFilter, setStatusFilter] = useState<"Pending" | "Approved" | "Rejected" | "All">("Pending");
 
   // State with initial hydration from localStorage for 0ms page load
@@ -879,29 +896,28 @@ export default function ApprovalsPage() {
                     {(statusFilter === "Pending" || statusFilter === "All") && (
                       <td className="py-2.5 px-3 align-middle text-center break-words whitespace-normal leading-tight">
                         <div className="flex items-center justify-center gap-1">
-                        {canApprove(req) && (
+                          {canApprove(req) && (
+                            <button
+                              onClick={() => approve("wfh", req.id)}
+                              title="Approve WFH"
+                              className="p-1.5 rounded-md text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center"
+                            >
+                              <Check className="w-4 h-4" />
+                            </button>
+                          )}
                           <button
-                                onClick={() => approve("wfh", req.id)}
-                                disabled={actionLoading}
-                                title="Approve"
-                                className="p-1.5 rounded-md text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center"
-                              >
-                                <Check className="w-4 h-4" />
-                              </button>
-                        )}
-                        <button
-                                onClick={() => {
-                                  setRejectDialog({ type: "wfh", id: req.id });
-                                  setRejectReason("");
-                                }}
-                                disabled={actionLoading}
-                                title="Reject"
-                                className="p-1.5 rounded-md text-rose-700 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800 transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center"
-                              >
-                                <XCircle className="w-4 h-4 text-rose-500" />
-                              </button>
-                      </div>
-                    </td>
+                            onClick={() => {
+                              setRejectDialog({ type: "wfh", id: req.id });
+                              setRejectReason("");
+                            }}
+                            disabled={actionLoading}
+                            className="px-2 py-1.5 rounded-md text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800 transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1"
+                          >
+                            <XCircle className="w-3.5 h-3.5 text-rose-500" />
+                            Reject
+                          </button>
+                        </div>
+                      </td>
                     )}
                   </tr>
                 ))
