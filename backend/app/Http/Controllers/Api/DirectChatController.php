@@ -189,6 +189,7 @@ class DirectChatController extends Controller
 
         if ($existingConv) {
             $otherUser = User::with('team')->find($targetUserId);
+            $latestMsg = $existingConv->latestMessage ? $this->formatMessage($existingConv->latestMessage) : null;
             return response()->json([
                 'status' => 'success',
                 'data' => [
@@ -196,6 +197,13 @@ class DirectChatController extends Controller
                     'type' => $existingConv->type,
                     'title' => $otherUser ? "{$otherUser->first_name} {$otherUser->last_name}" : 'Conversation',
                     'other_user' => $this->formatUser($otherUser),
+                    'participants' => [
+                        $this->formatUser($user),
+                        $this->formatUser($otherUser),
+                    ],
+                    'latest_message' => $latestMsg,
+                    'unread_count' => 0,
+                    'last_message_at' => $existingConv->last_message_at ? $existingConv->last_message_at->toISOString() : $existingConv->created_at?->toISOString(),
                     'created_at' => $existingConv->created_at?->toISOString(),
                 ],
                 'is_new' => false,
@@ -234,6 +242,13 @@ class DirectChatController extends Controller
                 'type' => $conversation->type,
                 'title' => $targetUser ? "{$targetUser->first_name} {$targetUser->last_name}" : 'Conversation',
                 'other_user' => $this->formatUser($targetUser),
+                'participants' => [
+                    $this->formatUser($user),
+                    $this->formatUser($targetUser),
+                ],
+                'latest_message' => null,
+                'unread_count' => 0,
+                'last_message_at' => Carbon::now()->toISOString(),
                 'created_at' => $conversation->created_at?->toISOString(),
             ],
             'is_new' => true,

@@ -22,8 +22,7 @@ import {
   Maximize2,
   AlertCircle,
   UploadCloud,
-  RotateCw,
-  MessageSquarePlus
+  RotateCw
 } from "lucide-react";
 import { format, isToday, isYesterday, parseISO } from "date-fns";
 
@@ -79,6 +78,7 @@ interface Conversation {
   last_message_at?: string;
   is_pinned?: boolean;
   is_muted?: boolean;
+  is_optimistic?: boolean;
 }
 
 export function DirectChatModule() {
@@ -171,6 +171,7 @@ export function DirectChatModule() {
         setMessages([]);
         fetchMessages(activeConversationId, true);
       }
+      setTimeout(() => textareaRef.current?.focus(), 50);
     } else {
       setMessages([]);
     }
@@ -222,7 +223,11 @@ export function DirectChatModule() {
       const res = await api.get(`/direct-chat/conversations?t=${Date.now()}`);
       if (res.data?.status === "success") {
         const list: Conversation[] = res.data.data || [];
-        setConversations(list);
+        setConversations((prev) => {
+          // Preserve any optimistic conversation that hasn't synced
+          const optimisticList = prev.filter((p) => p.is_optimistic && !list.some((l) => l.id === p.id));
+          return [...optimisticList, ...list];
+        });
         
         if (!activeConversationId && list.length > 0) {
           setActiveConversationId(list[0].id);
@@ -269,19 +274,64 @@ export function DirectChatModule() {
     }
   };
 
-  // Start chat with user
+  // Start chat with user (Instant 0ms UI switch)
   const handleStartChatWithUser = async (targetUser: ChatUser) => {
+    // 1. Immediately close modal
+    setShowNewChatModal(false);
+    setUserSearchQuery("");
+
+    // 2. Check if conversation already exists in current list
+    const existing = conversations.find(
+      (c) => c.other_user?.id === targetUser.id || c.participants.some((p) => p.id === targetUser.id)
+    );
+
+    if (existing) {
+      setActiveConversationId(existing.id);
+      setTimeout(() => textareaRef.current?.focus(), 50);
+      return;
+    }
+
+    // 3. Immediately create optimistic conversation card so chat box opens in 0ms!
+    const tempConvId = -(targetUser.id);
+    const optimisticConv: Conversation = {
+      id: tempConvId,
+      type: "direct",
+      title: targetUser.name,
+      other_user: targetUser,
+      participants: [formattedCurrentUser, targetUser],
+      latest_message: null,
+      unread_count: 0,
+      last_message_at: new Date().toISOString(),
+      is_optimistic: true,
+    };
+
+    setConversations((prev) => [optimisticConv, ...prev]);
+    setActiveConversationId(tempConvId);
+    messagesCacheRef.current[tempConvId] = [];
+    setMessages([]);
+    setTimeout(() => textareaRef.current?.focus(), 50);
+
+    // 4. Send API request in background
     try {
       const res = await api.post("/direct-chat/conversations/direct", {
         target_user_id: targetUser.id,
       });
 
       if (res.data?.status === "success") {
-        const conv = res.data.data;
-        setShowNewChatModal(false);
-        setUserSearchQuery("");
-        await fetchConversations();
-        setActiveConversationId(conv.id);
+        const realConv: Conversation = res.data.data;
+        
+        // Swap temp ID with real DB conversation ID
+        setConversations((prev) =>
+          prev.map((c) => (c.id === tempConvId ? { ...realConv, other_user: targetUser } : c))
+        );
+
+        if (messagesCacheRef.current[tempConvId]) {
+          messagesCacheRef.current[realConv.id] = messagesCacheRef.current[tempConvId];
+          delete messagesCacheRef.current[tempConvId];
+        }
+
+        setActiveConversationId(realConv.id);
+        fetchMessages(realConv.id, false);
       }
     } catch (err) {
       console.error("Failed to start conversation", err);
@@ -400,6 +450,7 @@ export function DirectChatModule() {
     let text = "";
     let currentFiles: { file: File; previewUrl: string; isImage: boolean }[] = [];
     let tempId = "";
+    const targetConvId = activeConversationId;
 
     if (retryMessage) {
       text = retryMessage.message || "";
@@ -430,7 +481,7 @@ export function DirectChatModule() {
       // 2. Generate immediate optimistic message with visible sending status
       const optimisticMessage: ChatMessage = {
         id: tempId,
-        conversation_id: activeConversationId,
+        conversation_id: targetConvId,
         sender_id: currentUser?.id || 0,
         sender: formattedCurrentUser,
         message: text || null,
@@ -449,13 +500,17 @@ export function DirectChatModule() {
         rawFiles: currentFiles.map((sf) => sf.file),
       };
 
-      // 3. Immediately append to state in 0ms
-      setMessages((prev) => [...prev, optimisticMessage]);
+      // 3. Immediately append to state and memory cache in 0ms
+      setMessages((prev) => {
+        const next = [...prev, optimisticMessage];
+        messagesCacheRef.current[targetConvId] = next;
+        return next;
+      });
 
       // Update snippet in conversation list immediately
       setConversations((prev) =>
         prev.map((c) =>
-          c.id === activeConversationId
+          c.id === targetConvId
             ? {
                 ...c,
                 latest_message: optimisticMessage,
@@ -468,17 +523,21 @@ export function DirectChatModule() {
 
     // 4. Send network request in background
     try {
-      const formData = new FormData();
-      if (text) {
-        formData.append("message", text);
+      let res;
+      if (currentFiles.length > 0) {
+        const formData = new FormData();
+        if (text) formData.append("message", text);
+        currentFiles.forEach((sf) => {
+          formData.append("attachments[]", sf.file);
+        });
+        res = await api.post(`/direct-chat/conversations/${targetConvId}/messages`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+      } else {
+        res = await api.post(`/direct-chat/conversations/${targetConvId}/messages`, {
+          message: text,
+        });
       }
-      currentFiles.forEach((sf) => {
-        formData.append("attachments[]", sf.file);
-      });
-
-      const res = await api.post(`/direct-chat/conversations/${activeConversationId}/messages`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
 
       if (res.data?.status === "success") {
         const serverMsg = res.data.data;
@@ -488,9 +547,11 @@ export function DirectChatModule() {
         });
 
         // Swap optimistic message with confirmed server message
-        setMessages((prev) =>
-          prev.map((m) => (m.id === tempId ? { ...serverMsg, status: "sent" } : m))
-        );
+        setMessages((prev) => {
+          const next = prev.map((m) => (m.id === tempId ? { ...serverMsg, status: "sent" as const } : m));
+          messagesCacheRef.current[targetConvId] = next;
+          return next;
+        });
 
         fetchConversations(false);
       }
@@ -498,9 +559,11 @@ export function DirectChatModule() {
       console.error("Failed to send message", err);
       const errTxt = err.response?.data?.message || "Failed to send message. Click to retry.";
       setErrorMessage(errTxt);
-      setMessages((prev) =>
-        prev.map((m) => (m.id === tempId ? { ...m, status: "error" } : m))
-      );
+      setMessages((prev) => {
+        const next = prev.map((m) => (m.id === tempId ? { ...m, status: "error" as const } : m));
+        messagesCacheRef.current[targetConvId] = next;
+        return next;
+      });
     }
   };
 
@@ -864,7 +927,7 @@ export function DirectChatModule() {
                               {msg.message}
                               {isSending && !showHeader && (
                                 <span className="ml-2 text-[10px] opacity-75 font-normal italic inline-flex items-center gap-0.5">
-                                  <Clock className="w-2.5 h-2.5 animate-spin" /> Sending...
+                                <Clock className="w-2.5 h-2.5 animate-spin" /> Sending...
                                 </span>
                               )}
                             </div>
