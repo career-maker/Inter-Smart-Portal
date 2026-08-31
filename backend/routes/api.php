@@ -572,3 +572,18 @@ Route::middleware('auth:sanctum')->prefix('pm/hubstaff')->group(function () {
     Route::post('link-user', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'linkUser']);
     Route::post('sync-users', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'syncUsers']);
 });
+
+// Direct Chat / Community Private Messaging routes
+Route::middleware('auth:sanctum')->prefix('direct-chat')->group(function () {
+    Route::get('conversations', [\App\Http\Controllers\Api\DirectChatController::class, 'index']);
+    Route::post('conversations/direct', [\App\Http\Controllers\Api\DirectChatController::class, 'startOrGetDirectConversation']);
+    Route::get('users/search', [\App\Http\Controllers\Api\DirectChatController::class, 'searchUsers']);
+    Route::get('conversations/{conversation}/messages', [\App\Http\Controllers\Api\DirectChatController::class, 'getMessages']);
+    Route::post('conversations/{conversation}/messages', [\App\Http\Controllers\Api\DirectChatController::class, 'sendMessage']);
+    Route::post('conversations/{conversation}/read', [\App\Http\Controllers\Api\DirectChatController::class, 'markAsRead']);
+
+    // Super Admin Chat Audit
+    Route::get('admin/conversations', [\App\Http\Controllers\Api\DirectChatController::class, 'adminGetAllConversations']);
+    Route::get('admin/conversations/{conversation}/messages', [\App\Http\Controllers\Api\DirectChatController::class, 'adminGetConversationHistory']);
+});
+
