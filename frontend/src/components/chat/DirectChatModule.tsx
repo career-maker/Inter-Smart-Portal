@@ -22,7 +22,8 @@ import {
   Maximize2,
   AlertCircle,
   UploadCloud,
-  RotateCw
+  RotateCw,
+  ArrowLeft
 } from "lucide-react";
 import { format, isToday, isYesterday, parseISO } from "date-fns";
 
@@ -616,7 +617,7 @@ export function DirectChatModule() {
       onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
-      className="relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm overflow-hidden flex flex-col md:flex-row h-[740px] max-h-[85vh]"
+      className="relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm overflow-hidden flex flex-col md:flex-row h-[calc(100vh-190px)] min-h-[560px] max-h-[760px]"
     >
       {/* ─────────────────────────────────────────────────────────────
           DRAG & DROP OVERLAY DROPZONE
@@ -652,9 +653,13 @@ export function DirectChatModule() {
       )}
 
       {/* ─────────────────────────────────────────────────────────────
-          LEFT PANEL: CONVERSATION LIST
+          LEFT PANEL: CONVERSATION LIST (Responsive: hidden on mobile if chat is active)
       ───────────────────────────────────────────────────────────── */}
-      <div className="w-full md:w-80 lg:w-88 border-r border-slate-200/90 dark:border-slate-800 flex flex-col shrink-0 bg-[#f8fafd] dark:bg-slate-900/80">
+      <div
+        className={`w-full md:w-80 lg:w-88 border-r border-slate-200/90 dark:border-slate-800 flex flex-col shrink-0 bg-[#f8fafd] dark:bg-slate-900/80 ${
+          activeConversationId ? "hidden md:flex" : "flex"
+        }`}
+      >
         {/* Header & High-Contrast Visible New Chat Button */}
         <div className="p-3.5 px-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-2 bg-white/70 dark:bg-slate-900/60">
           <div className="flex items-center gap-2">
@@ -798,20 +803,33 @@ export function DirectChatModule() {
       </div>
 
       {/* ─────────────────────────────────────────────────────────────
-          RIGHT PANEL: GOOGLE CHAT MESSAGE STREAM & INPUT COMPOSER
+          RIGHT PANEL: GOOGLE CHAT MESSAGE STREAM & INPUT COMPOSER (Responsive: hidden on mobile if no chat active)
       ───────────────────────────────────────────────────────────── */}
-      <div className="flex-1 flex flex-col bg-white dark:bg-slate-900 min-w-0">
+      <div
+        className={`flex-1 flex flex-col bg-white dark:bg-slate-900 min-w-0 ${
+          !activeConversationId ? "hidden md:flex" : "flex"
+        }`}
+      >
         {activeConversation ? (
           <>
             {/* Top Chat Header (Google Chat Style) */}
-            <div className="p-3 px-6 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-3 bg-white dark:bg-slate-900 shrink-0">
-              <div className="flex items-center gap-3.5 min-w-0">
+            <div className="p-3 px-4 sm:px-6 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-3 bg-white dark:bg-slate-900 shrink-0">
+              <div className="flex items-center gap-3 min-w-0">
+                <button
+                  type="button"
+                  onClick={() => setActiveConversationId(null)}
+                  className="md:hidden p-1.5 -ml-1 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full cursor-pointer shrink-0"
+                  title="Back to conversations"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </button>
+
                 <div className="relative shrink-0">
                   <RoyalAvatar
                     src={activeConversation.other_user?.profile_photo_path}
                     name={activeConversation.other_user?.name || "User"}
                     userId={activeConversation.other_user?.id}
-                    className="w-10 h-10 rounded-full"
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full"
                   />
                   <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full" />
                 </div>
@@ -820,14 +838,14 @@ export function DirectChatModule() {
                   <RoyalName
                     name={activeConversation.other_user?.name || activeConversation.title}
                     userId={activeConversation.other_user?.id}
-                    className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate block"
+                    className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 truncate block"
                   />
-                  <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                  <div className="flex items-center gap-1.5 sm:gap-2 text-[10.5px] sm:text-[11px] text-slate-500 dark:text-slate-400 truncate">
                     <span>{activeConversation.other_user?.designation || "Employee"}</span>
                     {activeConversation.other_user?.department && (
                       <>
-                        <span>•</span>
-                        <span>{activeConversation.other_user?.department}</span>
+                        <span className="hidden sm:inline">•</span>
+                        <span className="hidden sm:inline">{activeConversation.other_user?.department}</span>
                       </>
                     )}
                     <span>•</span>
@@ -1087,7 +1105,7 @@ export function DirectChatModule() {
                 </button>
               </div>
 
-              <div className="flex items-center justify-between mt-1 px-3 text-[10.5px] text-slate-400">
+              <div className="hidden sm:flex items-center justify-between mt-1 px-3 text-[10.5px] text-slate-400">
                 <span>Press <b>Enter</b> to send, <b>Shift + Enter</b> for new line</span>
                 <span>💡 Paste with <b>Ctrl + V</b> or Drag & Drop (Max 5 MB)</span>
               </div>

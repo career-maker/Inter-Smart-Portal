@@ -582,8 +582,17 @@ Route::middleware('auth:sanctum')->prefix('direct-chat')->group(function () {
     Route::post('conversations/{conversation}/messages', [\App\Http\Controllers\Api\DirectChatController::class, 'sendMessage']);
     Route::post('conversations/{conversation}/read', [\App\Http\Controllers\Api\DirectChatController::class, 'markAsRead']);
 
-    // Super Admin Chat Audit
+    // Super Admin Chat Audit & Deletion
     Route::get('admin/conversations', [\App\Http\Controllers\Api\DirectChatController::class, 'adminGetAllConversations']);
     Route::get('admin/conversations/{conversation}/messages', [\App\Http\Controllers\Api\DirectChatController::class, 'adminGetConversationHistory']);
+    Route::delete('admin/conversations/{conversation}/clear', [\App\Http\Controllers\Api\DirectChatController::class, 'adminClearConversationHistory']);
+    Route::delete('admin/messages/{message}', [\App\Http\Controllers\Api\DirectChatController::class, 'adminDeleteMessage']);
+});
+
+// Super Admin Storage & Retention Settings
+Route::middleware('auth:sanctum')->prefix('storage-settings')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Api\StorageRetentionController::class, 'getSettings']);
+    Route::post('/', [\App\Http\Controllers\Api\StorageRetentionController::class, 'saveSettings']);
+    Route::post('/cleanup-now', [\App\Http\Controllers\Api\StorageRetentionController::class, 'cleanupNow']);
 });
 

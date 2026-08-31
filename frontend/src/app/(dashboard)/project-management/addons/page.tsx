@@ -20,6 +20,7 @@ import {
   Sparkles,
   ToggleLeft,
   ToggleRight,
+  HardDrive,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import pmApi from "@/services/pm";
@@ -420,6 +421,47 @@ export default function PmAddonsPage() {
               </div>
             );
           })}
+
+          {/* ── Storage & Data Retention Policy Add-on Card ── */}
+          <div className="rounded-2xl bg-white dark:bg-slate-900 border border-purple-200/80 dark:border-purple-800/60 ring-1 ring-purple-500/10 transition-all shadow-sm p-6 space-y-5">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-start gap-3">
+                <div className="p-3 rounded-2xl bg-purple-100 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300 shrink-0">
+                  <HardDrive className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h2 className="text-lg font-bold text-slate-900 dark:text-white">Storage & Data Retention</h2>
+                    <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800">
+                      Active
+                    </span>
+                  </div>
+                  <p className="mt-1 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                    Manage storage limits and auto-cleanup retention periods for direct chat history and community posts.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <div className="p-3.5 rounded-xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-200/80 dark:border-purple-800/60 text-xs text-purple-900 dark:text-purple-300 space-y-1.5">
+                <p className="font-semibold">💾 Automatic Monthly Cleanup</p>
+                <p className="text-[11px] opacity-80">
+                  Prune expired chat history and community posts while ensuring employee, attendance, and project data remains completely safe.
+                </p>
+              </div>
+
+              <div className="flex justify-end pt-1">
+                <Link
+                  href="/project-management/addons/storage"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] text-white text-[13px] leading-[20px] font-semibold shadow-sm transition-colors cursor-pointer"
+                >
+                  <Settings2 className="w-4 h-4 text-white" />
+                  <span>Configure Storage & Retention</span>
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

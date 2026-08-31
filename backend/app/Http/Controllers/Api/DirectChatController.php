@@ -526,4 +526,61 @@ class DirectChatController extends Controller
             'data' => $messages->map(fn($m) => $this->formatMessage($m))->values(),
         ]);
     }
+
+    /**
+     * Super Admin: Delete all message history in an individual conversation.
+     */
+    public function adminClearConversationHistory(Request $request, Conversation $conversation)
+    {
+        $user = $request->user();
+        if (!$this->isSuperAdmin($user)) {
+            return response()->json(['message' => 'Super Admin access required.'], 403);
+        }
+
+        $messageIds = ChatMessage::where('conversation_id', $conversation->id)->pluck('id');
+        $deletedCount = count($messageIds);
+
+        if ($deletedCount > 0) {
+            // Delete physical attachment files
+            $attachments = ChatMessageAttachment::whereIn('message_id', $messageIds)->get();
+            foreach ($attachments as $att) {
+                if ($att->file_path && Storage::disk('public')->exists($att->file_path)) {
+                    Storage::disk('public')->delete($att->file_path);
+                }
+            }
+            ChatMessageAttachment::whereIn('message_id', $messageIds)->delete();
+            ChatMessage::whereIn('id', $messageIds)->delete();
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => "Successfully cleared {$deletedCount} messages from conversation.",
+        ]);
+    }
+
+    /**
+     * Super Admin: Delete an individual message from conversation.
+     */
+    public function adminDeleteMessage(Request $request, ChatMessage $message)
+    {
+        $user = $request->user();
+        if (!$this->isSuperAdmin($user)) {
+            return response()->json(['message' => 'Super Admin access required.'], 403);
+        }
+
+        // Delete attachments if any
+        $attachments = ChatMessageAttachment::where('message_id', $message->id)->get();
+        foreach ($attachments as $att) {
+            if ($att->file_path && Storage::disk('public')->exists($att->file_path)) {
+                Storage::disk('public')->delete($att->file_path);
+            }
+        }
+        ChatMessageAttachment::where('message_id', $message->id)->delete();
+        $message->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Message deleted successfully.',
+        ]);
+    }
 }
