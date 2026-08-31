@@ -181,8 +181,8 @@ export default function CommunityPage() {
       {activeTab === "feed" && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
-          {/* ── LEFT SIDEBAR (4 Cols on desktop) ── */}
-          <div className="lg:col-span-4 space-y-6">
+          {/* ── LEFT SIDEBAR (4 Cols on desktop, Sticky pinned when scrolling posts) ── */}
+          <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-[120px] lg:self-start lg:max-h-[calc(100vh-140px)] lg:overflow-y-auto custom-scrollbar pr-1">
             
             {/* 1. Upcoming Holiday Card */}
             <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200/90 dark:border-slate-700/60 shadow-sm p-5 relative overflow-hidden">
