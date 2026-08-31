@@ -19,11 +19,14 @@ import {
   Sparkles,
   User,
   ChevronRight,
-  Smile,
   Maximize2,
-  AlertCircle
+  AlertCircle,
+  UploadCloud,
+  RotateCw
 } from "lucide-react";
 import { format, isToday, isYesterday, parseISO } from "date-fns";
+
+const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
 
 interface ChatUser {
   id: number;
@@ -61,6 +64,7 @@ interface ChatMessage {
   created_at: string;
   is_optimistic?: boolean;
   status?: "sending" | "sent" | "error";
+  rawFiles?: File[];
 }
 
 interface Conversation {
@@ -84,6 +88,9 @@ export function DirectChatModule() {
   const [loadingConversations, setLoadingConversations] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
 
+  // In-memory instant cache for zero-delay conversation switching
+  const messagesCacheRef = useRef<Record<number, ChatMessage[]>>({});
+
   // Search & New Chat
   const [searchQuery, setSearchQuery] = useState("");
   const [showNewChatModal, setShowNewChatModal] = useState(false);
@@ -95,6 +102,11 @@ export function DirectChatModule() {
   const [inputMessage, setInputMessage] = useState("");
   const [stagedFiles, setStagedFiles] = useState<{ file: File; previewUrl: string; isImage: boolean }[]>([]);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Drag and Drop state
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
+  const dragCounterRef = useRef(0);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -122,7 +134,7 @@ export function DirectChatModule() {
     fetchConversations(true);
   }, []);
 
-  // Fast Polling (every 1.5s when active) & Window Focus Listener for instant updates
+  // Fast background polling (every 1.5s) & Window Focus Listener for instant sync
   useEffect(() => {
     const pollInterval = setInterval(() => {
       fetchConversations(false);
@@ -146,19 +158,34 @@ export function DirectChatModule() {
     };
   }, [activeConversationId]);
 
-  // When active conversation changes, load messages immediately
+  // Instant conversation switching using fast in-memory cache
   useEffect(() => {
     if (activeConversationId) {
-      fetchMessages(activeConversationId, true);
+      if (messagesCacheRef.current[activeConversationId]) {
+        // Instant display from cache (0ms delay!)
+        setMessages(messagesCacheRef.current[activeConversationId]);
+        fetchMessages(activeConversationId, false);
+      } else {
+        setMessages([]);
+        fetchMessages(activeConversationId, true);
+      }
     } else {
       setMessages([]);
     }
   }, [activeConversationId]);
 
-  // Scroll to bottom when messages update
+  // Auto-scroll to bottom on messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages.length]);
+  }, [messages]);
+
+  // Dismiss error notification after 5s
+  useEffect(() => {
+    if (errorMessage) {
+      const timer = setTimeout(() => setErrorMessage(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [errorMessage]);
 
   // Fetch conversations
   const fetchConversations = async (showLoader = false) => {
@@ -180,7 +207,7 @@ export function DirectChatModule() {
     }
   };
 
-  // Fetch messages with optimistic merge guard
+  // Fetch messages with optimistic merge & memory cache
   const fetchMessages = async (convId: number, showLoader = false) => {
     if (isFetchingMessagesRef.current) return;
     try {
@@ -194,13 +221,16 @@ export function DirectChatModule() {
           // Preserve any in-flight optimistic messages
           const pendingOptimistic = current.filter((m) => m.is_optimistic && m.status === "sending");
           if (pendingOptimistic.length === 0) {
+            messagesCacheRef.current[convId] = serverMessages;
             return serverMessages;
           }
 
           // Merge server messages with pending optimistic messages that haven't landed yet
           const serverIds = new Set(serverMessages.map((m) => m.id));
           const uniquePending = pendingOptimistic.filter((m) => !serverIds.has(m.id));
-          return [...serverMessages, ...uniquePending];
+          const merged = [...serverMessages, ...uniquePending];
+          messagesCacheRef.current[convId] = merged;
+          return merged;
         });
       }
     } catch (err) {
@@ -250,25 +280,53 @@ export function DirectChatModule() {
     }
   };
 
+  // Process & validate incoming files (5MB restriction)
+  const processAndStageFiles = (files: FileList | File[]) => {
+    const validStaged: { file: File; previewUrl: string; isImage: boolean }[] = [];
+    const rejectedFiles: string[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (file.size > MAX_FILE_SIZE_BYTES) {
+        rejectedFiles.push(`${file.name} (${(file.size / (1024 * 1024)).toFixed(1)} MB)`);
+        continue;
+      }
+      const isImage = file.type.startsWith("image/");
+      const previewUrl = isImage ? URL.createObjectURL(file) : "";
+      validStaged.push({ file, previewUrl, isImage });
+    }
+
+    if (rejectedFiles.length > 0) {
+      setErrorMessage(`Upload failed: ${rejectedFiles.join(", ")} exceeds the 5 MB limit.`);
+    }
+
+    if (validStaged.length > 0) {
+      setStagedFiles((prev) => [...prev, ...validStaged]);
+    }
+  };
+
   // Handle Clipboard Paste (Screenshot support)
   const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const items = e.clipboardData?.items;
     if (!items) return;
 
+    const filesToStage: File[] = [];
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
       if (item.type.indexOf("image") !== -1) {
         const blob = item.getAsFile();
         if (blob) {
           e.preventDefault();
-          const previewUrl = URL.createObjectURL(blob);
           const customFile = new File([blob], `screenshot_${format(new Date(), "yyyyMMdd_HHmmss")}.png`, {
             type: blob.type,
           });
-
-          setStagedFiles((prev) => [...prev, { file: customFile, previewUrl, isImage: true }]);
+          filesToStage.push(customFile);
         }
       }
+    }
+
+    if (filesToStage.length > 0) {
+      processAndStageFiles(filesToStage);
     }
   };
 
@@ -276,17 +334,43 @@ export function DirectChatModule() {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
-
-    const newStaged: { file: File; previewUrl: string; isImage: boolean }[] = [];
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const isImage = file.type.startsWith("image/");
-      const previewUrl = isImage ? URL.createObjectURL(file) : "";
-      newStaged.push({ file, previewUrl, isImage });
-    }
-
-    setStagedFiles((prev) => [...prev, ...newStaged]);
+    processAndStageFiles(files);
     if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  // Handle Drag & Drop Events
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounterRef.current += 1;
+    if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+      setIsDraggingOver(true);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounterRef.current -= 1;
+    if (dragCounterRef.current === 0) {
+      setIsDraggingOver(false);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingOver(false);
+    dragCounterRef.current = 0;
+
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      processAndStageFiles(e.dataTransfer.files);
+    }
   };
 
   // Remove staged attachment
@@ -301,59 +385,78 @@ export function DirectChatModule() {
     });
   };
 
-  // Instant / Optimistic Send Message (0ms lag)
-  const handleSendMessage = async () => {
+  // Instant / Optimistic Send Message (0ms lag with visible sending indicators)
+  const handleSendMessage = async (retryMessage?: ChatMessage) => {
     if (!activeConversationId) return;
-    const text = inputMessage.trim();
-    if (!text && stagedFiles.length === 0) return;
 
-    const currentFiles = [...stagedFiles];
-    const currentConvId = activeConversationId;
-    const tempId = `optimistic_${Date.now()}`;
+    let text = "";
+    let currentFiles: { file: File; previewUrl: string; isImage: boolean }[] = [];
+    let tempId = "";
 
-    // 1. Instantly clear input & staged files for snappy 0ms feel
-    setInputMessage("");
-    setStagedFiles([]);
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
+    if (retryMessage) {
+      text = retryMessage.message || "";
+      tempId = String(retryMessage.id);
+      currentFiles = (retryMessage.rawFiles || []).map((f) => ({
+        file: f,
+        previewUrl: f.type.startsWith("image/") ? URL.createObjectURL(f) : "",
+        isImage: f.type.startsWith("image/"),
+      }));
+      // Reset status to sending
+      setMessages((prev) =>
+        prev.map((m) => (m.id === tempId ? { ...m, status: "sending" } : m))
+      );
+    } else {
+      text = inputMessage.trim();
+      if (!text && stagedFiles.length === 0) return;
+
+      currentFiles = [...stagedFiles];
+      tempId = `optimistic_${Date.now()}`;
+
+      // 1. Instantly clear input & staged files for snappy 0ms feel
+      setInputMessage("");
+      setStagedFiles([]);
+      if (textareaRef.current) {
+        textareaRef.current.style.height = "auto";
+      }
+
+      // 2. Generate immediate optimistic message with visible sending status
+      const optimisticMessage: ChatMessage = {
+        id: tempId,
+        conversation_id: activeConversationId,
+        sender_id: currentUser?.id || 0,
+        sender: formattedCurrentUser,
+        message: text || null,
+        message_type: currentFiles.length > 0 && !text ? (currentFiles[0].isImage ? "image" : "file") : "text",
+        is_edited: false,
+        is_deleted: false,
+        attachments: currentFiles.map((sf) => ({
+          file_url: sf.previewUrl,
+          original_name: sf.file.name,
+          file_type: sf.file.type,
+          file_size: sf.file.size,
+        })),
+        created_at: new Date().toISOString(),
+        is_optimistic: true,
+        status: "sending",
+        rawFiles: currentFiles.map((sf) => sf.file),
+      };
+
+      // 3. Immediately append to state in 0ms
+      setMessages((prev) => [...prev, optimisticMessage]);
+
+      // Update snippet in conversation list immediately
+      setConversations((prev) =>
+        prev.map((c) =>
+          c.id === activeConversationId
+            ? {
+                ...c,
+                latest_message: optimisticMessage,
+                last_message_at: new Date().toISOString(),
+              }
+            : c
+        )
+      );
     }
-
-    // 2. Generate immediate optimistic message
-    const optimisticMessage: ChatMessage = {
-      id: tempId,
-      conversation_id: currentConvId,
-      sender_id: currentUser?.id || 0,
-      sender: formattedCurrentUser,
-      message: text || null,
-      message_type: currentFiles.length > 0 && !text ? (currentFiles[0].isImage ? "image" : "file") : "text",
-      is_edited: false,
-      is_deleted: false,
-      attachments: currentFiles.map((sf) => ({
-        file_url: sf.previewUrl,
-        original_name: sf.file.name,
-        file_type: sf.file.type,
-        file_size: sf.file.size,
-      })),
-      created_at: new Date().toISOString(),
-      is_optimistic: true,
-      status: "sending",
-    };
-
-    // 3. Immediately append to state in 0ms
-    setMessages((prev) => [...prev, optimisticMessage]);
-
-    // Also update the conversation's latest message snippet in left panel immediately
-    setConversations((prev) =>
-      prev.map((c) =>
-        c.id === currentConvId
-          ? {
-              ...c,
-              latest_message: optimisticMessage,
-              last_message_at: new Date().toISOString(),
-            }
-          : c
-      )
-    );
 
     // 4. Send network request in background
     try {
@@ -365,7 +468,7 @@ export function DirectChatModule() {
         formData.append("attachments[]", sf.file);
       });
 
-      const res = await api.post(`/direct-chat/conversations/${currentConvId}/messages`, formData, {
+      const res = await api.post(`/direct-chat/conversations/${activeConversationId}/messages`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -383,9 +486,10 @@ export function DirectChatModule() {
 
         fetchConversations(false);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to send message", err);
-      // Mark optimistic message as failed
+      const errTxt = err.response?.data?.message || "Failed to send message. Click to retry.";
+      setErrorMessage(errTxt);
       setMessages((prev) =>
         prev.map((m) => (m.id === tempId ? { ...m, status: "error" } : m))
       );
@@ -428,8 +532,45 @@ export function DirectChatModule() {
       style={{
         fontFamily: '"Google Sans", "Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
-      className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm overflow-hidden flex flex-col md:flex-row h-[740px] max-h-[85vh]"
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+      className="relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm overflow-hidden flex flex-col md:flex-row h-[740px] max-h-[85vh]"
     >
+      {/* ─────────────────────────────────────────────────────────────
+          DRAG & DROP OVERLAY DROPZONE
+      ───────────────────────────────────────────────────────────── */}
+      {isDraggingOver && (
+        <div className="absolute inset-0 z-50 bg-[#0b57d0]/10 dark:bg-purple-900/30 backdrop-blur-xs border-3 border-dashed border-[#0b57d0] dark:border-purple-400 rounded-3xl flex flex-col items-center justify-center p-6 animate-in fade-in duration-100 pointer-events-none">
+          <div className="w-16 h-16 rounded-full bg-[#0b57d0] text-white flex items-center justify-center mb-3 shadow-lg animate-bounce">
+            <UploadCloud className="w-8 h-8" />
+          </div>
+          <h3 className="text-base font-bold text-[#0b57d0] dark:text-purple-300">
+            Drop files or screenshots here
+          </h3>
+          <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 font-medium">
+            Files will be attached to your message (Max 5 MB per file)
+          </p>
+        </div>
+      )}
+
+      {/* ─────────────────────────────────────────────────────────────
+          ERROR TOAST BANNER (e.g. 5MB limit exceeded)
+      ───────────────────────────────────────────────────────────── */}
+      {errorMessage && (
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50 bg-rose-600 text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow-xl flex items-center gap-2 animate-in slide-in-from-top duration-200">
+          <AlertCircle className="w-4 h-4 shrink-0" />
+          <span>{errorMessage}</span>
+          <button
+            onClick={() => setErrorMessage(null)}
+            className="ml-2 hover:bg-rose-700 rounded-full p-0.5"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
       {/* ─────────────────────────────────────────────────────────────
           LEFT PANEL: GOOGLE CHAT CONVERSATION LIST
       ───────────────────────────────────────────────────────────── */}
@@ -620,7 +761,7 @@ export function DirectChatModule() {
 
             {/* Google Chat Style Message Stream */}
             <div className="flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar space-y-4 bg-white dark:bg-slate-900">
-              {loadingMessages ? (
+              {loadingMessages && messages.length === 0 ? (
                 <div className="flex items-center justify-center h-full text-xs text-slate-400">
                   Loading chat history...
                 </div>
@@ -633,7 +774,7 @@ export function DirectChatModule() {
                     Direct conversation with {activeConversation.other_user?.first_name || "colleague"}
                   </h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mt-1">
-                    Send messages, attach files, or paste screenshots directly into the box below.
+                    Send messages, drag & drop files, or paste screenshots directly into the box below.
                   </p>
                 </div>
               ) : (
@@ -649,6 +790,9 @@ export function DirectChatModule() {
                   } catch (e) {
                     msgTime = format(new Date(), "h:mm a");
                   }
+
+                  const isSending = msg.status === "sending";
+                  const isError = msg.status === "error";
 
                   return (
                     <div
@@ -676,22 +820,25 @@ export function DirectChatModule() {
                       {/* Right: Message Content */}
                       <div className="flex-1 min-w-0">
                         {showHeader && (
-                          <div className="flex items-baseline gap-2 mb-1">
+                          <div className="flex items-baseline gap-2 mb-1 flex-wrap">
                             <span className="text-xs font-bold text-slate-900 dark:text-slate-100">
                               {isMe ? "You" : (msg.sender?.name || activeConversation.other_user?.name || "User")}
                             </span>
                             <span className="text-[11px] text-slate-400 font-normal">
                               {msgTime}
                             </span>
-                            {msg.status === "sending" && (
-                              <span className="text-[10px] text-slate-400 italic flex items-center gap-1">
+                            {isSending && (
+                              <span className="text-[10.5px] text-purple-600 dark:text-purple-400 font-semibold flex items-center gap-1 bg-purple-50 dark:bg-purple-950/50 px-2 py-0.5 rounded-full">
                                 <Clock className="w-3 h-3 animate-spin" /> Sending...
                               </span>
                             )}
-                            {msg.status === "error" && (
-                              <span className="text-[10px] text-rose-500 font-medium flex items-center gap-1">
-                                <AlertCircle className="w-3 h-3" /> Failed to send
-                              </span>
+                            {isError && (
+                              <button
+                                onClick={() => handleSendMessage(msg)}
+                                className="text-[10.5px] text-rose-600 hover:text-rose-700 font-semibold flex items-center gap-1 bg-rose-50 dark:bg-rose-950/50 px-2 py-0.5 rounded-full cursor-pointer hover:underline"
+                              >
+                                <AlertCircle className="w-3 h-3" /> Failed to send. Click to retry <RotateCw className="w-2.5 h-2.5 ml-0.5" />
+                              </button>
                             )}
                           </div>
                         )}
@@ -700,13 +847,18 @@ export function DirectChatModule() {
                         <div className="inline-block max-w-[95%]">
                           {msg.message && (
                             <div
-                              className={`p-2.5 px-4 rounded-2xl text-xs sm:text-[13.5px] leading-relaxed whitespace-pre-wrap break-words inline-block ${
+                              className={`p-2.5 px-4 rounded-2xl text-xs sm:text-[13.5px] leading-relaxed whitespace-pre-wrap break-words inline-block relative ${
                                 isMe
                                   ? "bg-[#e8def8] text-[#1d192b] dark:bg-purple-950/60 dark:text-purple-100 rounded-tl-sm font-medium"
                                   : "bg-[#f0f4f9] text-[#1f1f1f] dark:bg-slate-800 dark:text-slate-100 rounded-tl-sm"
                               }`}
                             >
                               {msg.message}
+                              {isSending && !showHeader && (
+                                <span className="ml-2 text-[10px] opacity-75 font-normal italic inline-flex items-center gap-0.5">
+                                  <Clock className="w-2.5 h-2.5 animate-spin" /> Sending...
+                                </span>
+                              )}
                             </div>
                           )}
 
@@ -725,13 +877,22 @@ export function DirectChatModule() {
                                         onClick={() => setPreviewImage(att.file_url)}
                                         className="max-h-64 w-auto rounded-2xl object-cover bg-slate-100 dark:bg-slate-800 cursor-pointer hover:opacity-95 transition-opacity"
                                       />
-                                      <button
-                                        onClick={() => setPreviewImage(att.file_url)}
-                                        className="absolute top-2 right-2 p-1.5 bg-black/60 text-white rounded-lg opacity-0 group-hover/img:opacity-100 transition-opacity"
-                                        title="Expand"
-                                      >
-                                        <Maximize2 className="w-3.5 h-3.5" />
-                                      </button>
+                                      {/* Sending overlay for images */}
+                                      {isSending && (
+                                        <div className="absolute inset-0 bg-black/40 backdrop-blur-2xs flex flex-col items-center justify-center text-white text-xs font-semibold gap-1.5">
+                                          <Clock className="w-5 h-5 animate-spin" />
+                                          <span>Sending photo...</span>
+                                        </div>
+                                      )}
+                                      {!isSending && (
+                                        <button
+                                          onClick={() => setPreviewImage(att.file_url)}
+                                          className="absolute top-2 right-2 p-1.5 bg-black/60 text-white rounded-lg opacity-0 group-hover/img:opacity-100 transition-opacity"
+                                          title="Expand"
+                                        >
+                                          <Maximize2 className="w-3.5 h-3.5" />
+                                        </button>
+                                      )}
                                     </div>
                                   );
                                 }
@@ -739,18 +900,26 @@ export function DirectChatModule() {
                                 return (
                                   <a
                                     key={att.id || attIdx}
-                                    href={att.file_url}
-                                    target="_blank"
+                                    href={isSending ? "#" : att.file_url}
+                                    target={isSending ? "_self" : "_blank"}
                                     rel="noopener noreferrer"
                                     download={att.original_name}
-                                    className="flex items-center gap-3 p-2.5 px-3.5 bg-[#f0f4f9] hover:bg-[#e1eaf5] dark:bg-slate-800 dark:hover:bg-slate-700 rounded-2xl text-xs transition-colors border border-slate-200/80 dark:border-slate-700 max-w-sm text-slate-800 dark:text-slate-100"
+                                    className={`flex items-center gap-3 p-2.5 px-3.5 bg-[#f0f4f9] hover:bg-[#e1eaf5] dark:bg-slate-800 dark:hover:bg-slate-700 rounded-2xl text-xs transition-colors border border-slate-200/80 dark:border-slate-700 max-w-sm text-slate-800 dark:text-slate-100 ${
+                                      isSending ? "opacity-75 cursor-default" : ""
+                                    }`}
                                   >
                                     <FileText className="w-5 h-5 text-purple-600 shrink-0" />
                                     <div className="min-w-0 flex-1">
                                       <p className="truncate font-semibold text-xs">{att.original_name}</p>
                                       <p className="text-[10px] text-slate-500">{formatFileSize(att.file_size)}</p>
                                     </div>
-                                    <Download className="w-4 h-4 shrink-0 text-slate-500" />
+                                    {isSending ? (
+                                      <span className="text-[10px] text-purple-600 font-medium flex items-center gap-1">
+                                        <Clock className="w-3 h-3 animate-spin" /> Sending...
+                                      </span>
+                                    ) : (
+                                      <Download className="w-4 h-4 shrink-0 text-slate-500" />
+                                    )}
                                   </a>
                                 );
                               })}
@@ -788,7 +957,7 @@ export function DirectChatModule() {
                   </div>
                 ))}
                 <span className="text-xs text-slate-500 font-medium">
-                  {stagedFiles.length} file(s) ready to send
+                  {stagedFiles.length} file(s) ready to send (Max 5 MB)
                 </span>
               </div>
             )}
@@ -801,7 +970,7 @@ export function DirectChatModule() {
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   className="p-1.5 text-slate-500 hover:text-purple-600 rounded-full hover:bg-white dark:hover:bg-slate-700 transition-colors shrink-0 cursor-pointer"
-                  title="Attach files or photos"
+                  title="Attach files or photos (< 5 MB)"
                 >
                   <Paperclip className="w-5 h-5" />
                 </button>
@@ -822,7 +991,7 @@ export function DirectChatModule() {
                   onKeyDown={handleKeyDown}
                   onPaste={handlePaste}
                   rows={1}
-                  placeholder={`Message ${activeConversation.other_user?.first_name || "colleague"}... (Paste screenshots with Ctrl+V)`}
+                  placeholder={`Message ${activeConversation.other_user?.first_name || "colleague"}... (Paste screenshot with Ctrl+V or Drag & Drop)`}
                   className="flex-1 bg-transparent border-none outline-none resize-none text-xs sm:text-[13.5px] text-slate-800 dark:text-slate-100 placeholder-slate-400 py-1.5 max-h-32 custom-scrollbar font-normal"
                 />
 
@@ -830,7 +999,7 @@ export function DirectChatModule() {
                 <button
                   type="button"
                   disabled={!inputMessage.trim() && stagedFiles.length === 0}
-                  onClick={handleSendMessage}
+                  onClick={() => handleSendMessage()}
                   className="p-2 bg-[#0b57d0] hover:bg-[#0842a0] disabled:opacity-30 disabled:hover:bg-[#0b57d0] text-white rounded-full shadow-xs transition-colors shrink-0 cursor-pointer"
                   title="Send message (Enter)"
                 >
@@ -840,7 +1009,7 @@ export function DirectChatModule() {
 
               <div className="flex items-center justify-between mt-1 px-3 text-[10.5px] text-slate-400">
                 <span>Press <b>Enter</b> to send, <b>Shift + Enter</b> for new line</span>
-                <span>💡 Paste screenshots directly with <b>Ctrl + V</b></span>
+                <span>💡 Paste with <b>Ctrl + V</b> or Drag & Drop (Max 5 MB)</span>
               </div>
             </div>
           </>

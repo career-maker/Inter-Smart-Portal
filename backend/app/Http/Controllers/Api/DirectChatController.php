@@ -338,7 +338,9 @@ class DirectChatController extends Controller
 
         $request->validate([
             'message' => 'nullable|string',
-            'attachments.*' => 'nullable|file|max:20480', // 20MB per file
+            'attachments.*' => 'nullable|file|max:5120', // 5MB limit
+        ], [
+            'attachments.*.max' => 'Attachment exceeds the maximum allowed size of 5 MB.',
         ]);
 
         $messageText = trim($request->input('message', ''));
