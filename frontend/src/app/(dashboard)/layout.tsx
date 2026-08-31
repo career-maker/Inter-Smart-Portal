@@ -19,7 +19,6 @@ import { CommandPalette } from "@/components/CommandPalette";
 import api from "@/services/api";
 import teamPermissionsApi from "@/services/teamPermissions";
 import Script from "next/script";
-import ChatbaseLottieButton from "@/components/ChatbaseLottieButton";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 
 type NavItem = {
@@ -1008,9 +1007,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* Precise Spacer for Fixed 104px Header (64px Purple Bar + 40px SubTabs) */}
         <div className="h-[104px] shrink-0 w-full" />
-
-        {/* Floating AI Chat Assistant */}
-        <ChatbaseLottieButton />
 
         {/* Page Content */}
         <main className="flex-1 px-4 sm:px-6 lg:px-8 pt-1 sm:pt-1.5 pb-6 sm:pb-8 max-w-7xl w-full mx-auto">
