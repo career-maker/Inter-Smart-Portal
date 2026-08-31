@@ -23,7 +23,10 @@ import {
   AlertCircle,
   UploadCloud,
   RotateCw,
-  ArrowLeft
+  ArrowLeft,
+  Bell,
+  Smile,
+  Volume2
 } from "lucide-react";
 import { format, isToday, isYesterday, parseISO } from "date-fns";
 
@@ -92,6 +95,8 @@ export function DirectChatModule() {
 
   // In-memory instant cache for zero-delay conversation switching
   const messagesCacheRef = useRef<Record<number, ChatMessage[]>>({});
+  const knownMessageIdsRef = useRef<Set<string | number>>(new Set());
+  const initialLoadDoneRef = useRef(false);
 
   // Search & New Chat with Instant Client Pre-caching
   const [searchQuery, setSearchQuery] = useState("");
@@ -131,13 +136,82 @@ export function DirectChatModule() {
     profile_photo_path: currentUser?.profile_photo_path || null,
   }), [currentUser]);
 
+  // Web Audio API notification chime (Crisp dual-tone bell chime)
+  const playMessageSound = useCallback(() => {
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+
+      if (ctx.state === "suspended") {
+        ctx.resume();
+      }
+
+      const now = ctx.currentTime;
+      
+      // Tone 1 (587 Hz)
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = "sine";
+      osc1.frequency.setValueAtTime(587.33, now);
+      gain1.gain.setValueAtTime(0.18, now);
+      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      osc1.start(now);
+      osc1.stop(now + 0.16);
+
+      // Tone 2 (880 Hz)
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = "sine";
+      osc2.frequency.setValueAtTime(880, now + 0.08);
+      gain2.gain.setValueAtTime(0.22, now + 0.08);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      osc2.start(now + 0.08);
+      osc2.stop(now + 0.38);
+    } catch (e) {
+      console.warn("Audio notification not supported or user has not interacted yet.", e);
+    }
+  }, []);
+
+  // Browser Push Notification
+  const showBrowserNotification = useCallback((senderName: string, text: string) => {
+    if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+      try {
+        const notif = new Notification(`${senderName} on InterSmart Chat`, {
+          body: text || "Sent an attachment",
+          icon: "/icon.png",
+          tag: `chat_msg_${Date.now()}`,
+        });
+        notif.onclick = () => {
+          window.focus();
+          notif.close();
+        };
+      } catch (e) {
+        console.warn("Browser notification trigger failed", e);
+      }
+    }
+  }, []);
+
+  // Request notification permission
+  useEffect(() => {
+    if (typeof window !== "undefined" && "Notification" in window) {
+      if (Notification.permission === "default") {
+        Notification.requestPermission().catch(() => {});
+      }
+    }
+  }, []);
+
   // Initial load
   useEffect(() => {
     fetchConversations(true);
     fetchAllColleagues();
   }, []);
 
-  // Fast background polling (every 1.5s) & Window Focus Listener for instant sync
+  // Fast background polling & Window Focus Listener for instant sync
   useEffect(() => {
     let tick = 0;
     const pollInterval = setInterval(() => {
@@ -149,7 +223,7 @@ export function DirectChatModule() {
         fetchMessages(activeConversationId, false);
       }
 
-      // Poll conversation list every ~7.5s (every 3 ticks) to preserve server resources
+      // Poll conversation list every ~7.5s (every 3 ticks)
       if (tick % 3 === 0) {
         fetchConversations(false);
       }
@@ -238,10 +312,14 @@ export function DirectChatModule() {
           const optimisticList = prev.filter((p) => p.is_optimistic && !list.some((l) => l.id === p.id));
           return [...optimisticList, ...list];
         });
-        
-        if (!activeConversationId && list.length > 0) {
-          setActiveConversationId(list[0].id);
+
+        // Only auto-select first conversation on Desktop screens (>= 768px). On Mobile, show the WhatsApp conversation list!
+        if (typeof window !== "undefined" && window.innerWidth >= 768) {
+          if (!activeConversationId && list.length > 0 && !initialLoadDoneRef.current) {
+            setActiveConversationId(list[0].id);
+          }
         }
+        initialLoadDoneRef.current = true;
       }
     } catch (err) {
       console.error("Failed to fetch conversations", err);
@@ -250,7 +328,7 @@ export function DirectChatModule() {
     }
   };
 
-  // Fetch messages with optimistic merge & memory cache
+  // Fetch messages with optimistic merge, audio chime & browser push
   const fetchMessages = async (convId: number, showLoader = false) => {
     if (isFetchingMessagesRef.current) return;
     try {
@@ -260,15 +338,34 @@ export function DirectChatModule() {
       if (res.data?.status === "success") {
         const serverMessages: ChatMessage[] = res.data.data || [];
 
+        // Check for new incoming messages from other people to trigger chime & push notification
+        let hasNewIncoming = false;
+        let latestIncomingSender = "";
+        let latestIncomingText = "";
+
+        serverMessages.forEach((msg) => {
+          if (!knownMessageIdsRef.current.has(msg.id)) {
+            knownMessageIdsRef.current.add(msg.id);
+            if (msg.sender_id !== currentUser?.id) {
+              hasNewIncoming = true;
+              latestIncomingSender = msg.sender?.name || "Colleague";
+              latestIncomingText = msg.message || "Sent an attachment";
+            }
+          }
+        });
+
+        if (hasNewIncoming && initialLoadDoneRef.current) {
+          playMessageSound();
+          showBrowserNotification(latestIncomingSender, latestIncomingText);
+        }
+
         setMessages((current) => {
-          // Preserve any in-flight optimistic messages
           const pendingOptimistic = current.filter((m) => m.is_optimistic && m.status === "sending");
           if (pendingOptimistic.length === 0) {
             messagesCacheRef.current[convId] = serverMessages;
             return serverMessages;
           }
 
-          // Merge server messages with pending optimistic messages that haven't landed yet
           const serverIds = new Set(serverMessages.map((m) => m.id));
           const uniquePending = pendingOptimistic.filter((m) => !serverIds.has(m.id));
           const merged = [...serverMessages, ...uniquePending];
@@ -286,11 +383,9 @@ export function DirectChatModule() {
 
   // Start chat with user (Instant 0ms UI switch)
   const handleStartChatWithUser = async (targetUser: ChatUser) => {
-    // 1. Immediately close modal
     setShowNewChatModal(false);
     setUserSearchQuery("");
 
-    // 2. Check if conversation already exists in current list
     const existing = conversations.find(
       (c) => c.other_user?.id === targetUser.id || c.participants.some((p) => p.id === targetUser.id)
     );
@@ -301,7 +396,6 @@ export function DirectChatModule() {
       return;
     }
 
-    // 3. Immediately create optimistic conversation card so chat box opens in 0ms!
     const tempConvId = -(targetUser.id);
     const optimisticConv: Conversation = {
       id: tempConvId,
@@ -321,7 +415,6 @@ export function DirectChatModule() {
     setMessages([]);
     setTimeout(() => textareaRef.current?.focus(), 50);
 
-    // 4. Send API request in background
     try {
       const res = await api.post("/direct-chat/conversations/direct", {
         target_user_id: targetUser.id,
@@ -330,7 +423,6 @@ export function DirectChatModule() {
       if (res.data?.status === "success") {
         const realConv: Conversation = res.data.data;
         
-        // Swap temp ID with real DB conversation ID
         setConversations((prev) =>
           prev.map((c) => (c.id === tempConvId ? { ...realConv, other_user: targetUser } : c))
         );
@@ -453,7 +545,7 @@ export function DirectChatModule() {
     });
   };
 
-  // Instant / Optimistic Send Message (0ms lag with visible sending indicators)
+  // Instant / Optimistic Send Message
   const handleSendMessage = async (retryMessage?: ChatMessage) => {
     if (!activeConversationId) return;
 
@@ -470,9 +562,8 @@ export function DirectChatModule() {
         previewUrl: f.type.startsWith("image/") ? URL.createObjectURL(f) : "",
         isImage: f.type.startsWith("image/"),
       }));
-      // Reset status to sending
       setMessages((prev) =>
-        prev.map((m) => (m.id === tempId ? { ...m, status: "sending" } : m))
+        prev.map((m) => (m.id === tempId ? { ...m, status: "sending" as const } : m))
       );
     } else {
       text = inputMessage.trim();
@@ -481,14 +572,12 @@ export function DirectChatModule() {
       currentFiles = [...stagedFiles];
       tempId = `optimistic_${Date.now()}`;
 
-      // 1. Instantly clear input & staged files for snappy 0ms feel
       setInputMessage("");
       setStagedFiles([]);
       if (textareaRef.current) {
         textareaRef.current.style.height = "auto";
       }
 
-      // 2. Generate immediate optimistic message with visible sending status
       const optimisticMessage: ChatMessage = {
         id: tempId,
         conversation_id: targetConvId,
@@ -510,14 +599,12 @@ export function DirectChatModule() {
         rawFiles: currentFiles.map((sf) => sf.file),
       };
 
-      // 3. Immediately append to state and memory cache in 0ms
       setMessages((prev) => {
         const next = [...prev, optimisticMessage];
         messagesCacheRef.current[targetConvId] = next;
         return next;
       });
 
-      // Update snippet in conversation list immediately
       setConversations((prev) =>
         prev.map((c) =>
           c.id === targetConvId
@@ -531,7 +618,6 @@ export function DirectChatModule() {
       );
     }
 
-    // 4. Send network request in background
     try {
       let res;
       if (currentFiles.length > 0) {
@@ -551,12 +637,12 @@ export function DirectChatModule() {
 
       if (res.data?.status === "success") {
         const serverMsg = res.data.data;
-        // Clean up object URLs
+        knownMessageIdsRef.current.add(serverMsg.id);
+
         currentFiles.forEach((sf) => {
           if (sf.previewUrl) URL.revokeObjectURL(sf.previewUrl);
         });
 
-        // Swap optimistic message with confirmed server message
         setMessages((prev) => {
           const next = prev.map((m) => (m.id === tempId ? { ...serverMsg, status: "sent" as const } : m));
           messagesCacheRef.current[targetConvId] = next;
@@ -577,7 +663,6 @@ export function DirectChatModule() {
     }
   };
 
-  // Handle enter key to send
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -585,14 +670,12 @@ export function DirectChatModule() {
     }
   };
 
-  // Auto-grow textarea
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputMessage(e.target.value);
     e.target.style.height = "auto";
-    e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
+    e.target.style.height = `${Math.min(e.target.scrollHeight, 100)}px`;
   };
 
-  // Format file size
   const formatFileSize = (bytes?: number) => {
     if (!bytes) return "0 KB";
     const k = 1024;
@@ -601,7 +684,6 @@ export function DirectChatModule() {
     return `${(bytes / (k * k)).toFixed(1)} MB`;
   };
 
-  // Filter conversations in left list
   const filteredConversations = conversations.filter((c) => {
     if (!searchQuery.trim()) return true;
     const name = c.other_user?.name || c.title || "";
@@ -611,13 +693,13 @@ export function DirectChatModule() {
   return (
     <div
       style={{
-        fontFamily: '"Google Sans", "Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        fontFamily: '"Google Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
       }}
       onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
-      className="relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm overflow-hidden flex flex-col md:flex-row h-[calc(100vh-190px)] min-h-[560px] max-h-[760px]"
+      className="relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm overflow-hidden flex flex-col md:flex-row h-[calc(100vh-185px)] min-h-[560px] max-h-[780px] w-full max-w-full overflow-x-hidden select-text"
     >
       {/* ─────────────────────────────────────────────────────────────
           DRAG & DROP OVERLAY DROPZONE
@@ -637,7 +719,7 @@ export function DirectChatModule() {
       )}
 
       {/* ─────────────────────────────────────────────────────────────
-          ERROR TOAST BANNER (e.g. 5MB limit exceeded)
+          ERROR TOAST BANNER
       ───────────────────────────────────────────────────────────── */}
       {errorMessage && (
         <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50 bg-rose-600 text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow-xl flex items-center gap-2 animate-in slide-in-from-top duration-200">
@@ -653,46 +735,49 @@ export function DirectChatModule() {
       )}
 
       {/* ─────────────────────────────────────────────────────────────
-          LEFT PANEL: CONVERSATION LIST (Responsive: hidden on mobile if chat is active)
+          WHATSAPP-STYLE CHATS LIST (Left on desktop, Full screen on mobile)
       ───────────────────────────────────────────────────────────── */}
       <div
-        className={`w-full md:w-80 lg:w-88 border-r border-slate-200/90 dark:border-slate-800 flex flex-col shrink-0 bg-[#f8fafd] dark:bg-slate-900/80 ${
+        className={`w-full md:w-80 lg:w-92 border-r border-slate-200/90 dark:border-slate-800 flex flex-col shrink-0 bg-white dark:bg-slate-900 overflow-x-hidden ${
           activeConversationId ? "hidden md:flex" : "flex"
         }`}
       >
-        {/* Header & High-Contrast Visible New Chat Button */}
-        <div className="p-3.5 px-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-2 bg-white/70 dark:bg-slate-900/60">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-[#56348f]/10 text-[#56348f] dark:bg-purple-900/40 dark:text-purple-300 flex items-center justify-center font-bold">
-              <Sparkles className="w-4 h-4" />
+        {/* WhatsApp Mobile/Desktop Top Header */}
+        <div className="p-3.5 px-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-2 bg-[#f0f2f5] dark:bg-slate-900 shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-full bg-[#56348f]/15 text-[#56348f] dark:bg-purple-900/40 dark:text-purple-300 flex items-center justify-center font-bold shadow-xs">
+              <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 leading-tight">
-                Direct Chat
+              <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 leading-tight">
+                Chats
               </h2>
-              <p className="text-[11px] text-slate-500 font-medium">1-on-1 conversations</p>
+              <p className="text-[11px] text-slate-500 font-medium">
+                {conversations.length} conversation{conversations.length === 1 ? "" : "s"}
+              </p>
             </div>
           </div>
 
           <button
             onClick={() => setShowNewChatModal(true)}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#56348f] hover:bg-[#452875] text-white dark:bg-purple-600 dark:hover:bg-purple-700 rounded-full text-xs font-bold shadow-sm transition-all cursor-pointer hover:shadow-md"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#56348f] hover:bg-[#452875] text-white rounded-full text-xs font-bold shadow-sm transition-all cursor-pointer hover:shadow-md active:scale-95"
+            title="Start New Chat"
           >
-            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+            <Plus className="w-4 h-4 stroke-[2.5]" />
             <span>New Chat</span>
           </button>
         </div>
 
-        {/* Search Bar (Pill Shape matching Google Chat) */}
-        <div className="p-3 px-4 border-b border-slate-200/60 dark:border-slate-800/80">
+        {/* Search Bar */}
+        <div className="p-2.5 px-3 border-b border-slate-200/60 dark:border-slate-800/80 bg-white dark:bg-slate-900 shrink-0">
           <div className="relative">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search people or chats..."
-              className="w-full pl-9 pr-3 py-1.5 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500/30 dark:focus:ring-purple-500 text-slate-800 dark:text-slate-100 placeholder-slate-400"
+              placeholder="Search or start new chat..."
+              className="w-full pl-9 pr-3 py-1.5 text-xs bg-[#f0f2f5] dark:bg-slate-800 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-slate-800 dark:text-slate-100 placeholder-slate-400"
             />
             {searchQuery && (
               <button
@@ -705,8 +790,8 @@ export function DirectChatModule() {
           </div>
         </div>
 
-        {/* Conversation List */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-0.5">
+        {/* WhatsApp Style Conversation Rows */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar divide-y divide-slate-100 dark:divide-slate-800/60 overflow-x-hidden">
           {loadingConversations ? (
             <div className="p-8 text-center text-xs text-slate-400">Loading chats...</div>
           ) : filteredConversations.length === 0 ? (
@@ -714,11 +799,11 @@ export function DirectChatModule() {
               <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 mx-auto flex items-center justify-center mb-3">
                 <User className="w-6 h-6" />
               </div>
-              <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">No conversations yet</p>
-              <p className="text-[11px] text-slate-400 mt-0.5">Click "New Chat" to message any colleague.</p>
+              <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">No chats found</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">Start messaging any colleague in your team.</p>
               <button
                 onClick={() => setShowNewChatModal(true)}
-                className="mt-3 px-4 py-2 bg-[#56348f] hover:bg-[#452875] text-white dark:bg-purple-600 dark:hover:bg-purple-700 rounded-full text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer shadow-sm transition-all"
+                className="mt-3 px-4 py-2 bg-[#56348f] hover:bg-[#452875] text-white rounded-full text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer shadow-sm transition-all"
               >
                 <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                 <span>Start a conversation</span>
@@ -740,7 +825,7 @@ export function DirectChatModule() {
                   } else if (isYesterday(date)) {
                     timeStr = "Yesterday";
                   } else {
-                    timeStr = format(date, "MMM d");
+                    timeStr = format(date, "d/M/yy");
                   }
                 } catch (e) {
                   timeStr = "";
@@ -751,10 +836,10 @@ export function DirectChatModule() {
                 <button
                   key={conv.id}
                   onClick={() => setActiveConversationId(conv.id)}
-                  className={`w-full text-left px-3 py-2.5 rounded-2xl flex items-center gap-3 transition-all cursor-pointer ${
+                  className={`w-full text-left px-3.5 py-3 flex items-center gap-3 transition-colors cursor-pointer border-l-4 ${
                     isActive
-                      ? "bg-[#d3e3fd]/60 dark:bg-purple-950/40 text-slate-900 dark:text-white font-medium"
-                      : "hover:bg-slate-200/50 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300"
+                      ? "bg-[#f0f2f5] dark:bg-slate-800/80 border-[#56348f]"
+                      : "hover:bg-[#f5f6f6] dark:hover:bg-slate-800/40 border-transparent"
                   }`}
                 >
                   <div className="relative shrink-0">
@@ -762,9 +847,9 @@ export function DirectChatModule() {
                       src={other?.profile_photo_path}
                       name={other?.name || "User"}
                       userId={other?.id}
-                      className="w-10 h-10 rounded-full text-xs"
+                      className="w-12 h-12 rounded-full text-xs shadow-2xs"
                     />
-                    <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full" />
+                    <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full" />
                   </div>
 
                   <div className="flex-1 min-w-0">
@@ -772,29 +857,37 @@ export function DirectChatModule() {
                       <RoyalName
                         name={other?.name || conv.title}
                         userId={other?.id}
-                        className={`text-xs font-semibold truncate ${
-                          isActive ? "text-slate-900 dark:text-white font-bold" : "text-slate-800 dark:text-slate-200"
-                        }`}
+                        className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate"
                       />
-                      {timeStr && <span className="text-[10px] text-slate-400 shrink-0 font-normal">{timeStr}</span>}
+                      {timeStr && (
+                        <span
+                          className={`text-[11px] shrink-0 font-normal ${
+                            hasUnread ? "text-emerald-600 dark:text-emerald-400 font-bold" : "text-slate-400"
+                          }`}
+                        >
+                          {timeStr}
+                        </span>
+                      )}
                     </div>
 
-                    <p className={`text-[11px] truncate mt-0.5 ${hasUnread ? "font-bold text-slate-900 dark:text-white" : "text-slate-500 dark:text-slate-400"}`}>
-                      {latest?.message ? (
-                        latest.message
-                      ) : latest?.attachments?.length ? (
-                        <span className="text-purple-600 dark:text-purple-400 font-medium">📎 Attachment</span>
-                      ) : (
-                        <span className="italic text-slate-400">No messages</span>
-                      )}
-                    </p>
-                  </div>
+                    <div className="flex items-center justify-between gap-2 mt-0.5">
+                      <p className={`text-xs truncate [overflow-wrap:anywhere] ${hasUnread ? "font-bold text-slate-900 dark:text-white" : "text-slate-500 dark:text-slate-400"}`}>
+                        {latest?.message ? (
+                          latest.message
+                        ) : latest?.attachments?.length ? (
+                          <span className="text-purple-600 dark:text-purple-400 font-medium">📎 Photo / Attachment</span>
+                        ) : (
+                          <span className="italic text-slate-400">Tap to start chatting</span>
+                        )}
+                      </p>
 
-                  {hasUnread && (
-                    <span className="shrink-0 bg-[#0b57d0] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center shadow-xs">
-                      {conv.unread_count}
-                    </span>
-                  )}
+                      {hasUnread && (
+                        <span className="shrink-0 bg-emerald-500 text-white text-[10.5px] font-bold px-1.5 py-0.5 rounded-full min-w-[19px] text-center shadow-xs">
+                          {conv.unread_count}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </button>
               );
             })
@@ -803,23 +896,24 @@ export function DirectChatModule() {
       </div>
 
       {/* ─────────────────────────────────────────────────────────────
-          RIGHT PANEL: GOOGLE CHAT MESSAGE STREAM & INPUT COMPOSER (Responsive: hidden on mobile if no chat active)
+          WHATSAPP-STYLE ACTIVE CHAT SCREEN
       ───────────────────────────────────────────────────────────── */}
       <div
-        className={`flex-1 flex flex-col bg-white dark:bg-slate-900 min-w-0 ${
+        className={`flex-1 flex flex-col bg-[#efeae2]/40 dark:bg-[#0b141a] min-w-0 overflow-x-hidden ${
           !activeConversationId ? "hidden md:flex" : "flex"
         }`}
       >
         {activeConversation ? (
           <>
-            {/* Top Chat Header (Google Chat Style) */}
-            <div className="p-3 px-4 sm:px-6 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-3 bg-white dark:bg-slate-900 shrink-0">
-              <div className="flex items-center gap-3 min-w-0">
+            {/* WhatsApp Top Header Bar */}
+            <div className="p-2.5 px-3 sm:px-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-2 bg-[#f0f2f5] dark:bg-slate-900 shrink-0 z-10 shadow-2xs">
+              <div className="flex items-center gap-2.5 min-w-0">
+                {/* Mobile Back Button (WhatsApp Style) */}
                 <button
                   type="button"
                   onClick={() => setActiveConversationId(null)}
-                  className="md:hidden p-1.5 -ml-1 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full cursor-pointer shrink-0"
-                  title="Back to conversations"
+                  className="md:hidden p-1.5 -ml-1 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-full cursor-pointer shrink-0 transition-colors"
+                  title="Back to all chats"
                 >
                   <ArrowLeft className="w-5 h-5" />
                 </button>
@@ -829,7 +923,7 @@ export function DirectChatModule() {
                     src={activeConversation.other_user?.profile_photo_path}
                     name={activeConversation.other_user?.name || "User"}
                     userId={activeConversation.other_user?.id}
-                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full"
+                    className="w-10 h-10 rounded-full shadow-2xs"
                   />
                   <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full" />
                 </div>
@@ -838,50 +932,43 @@ export function DirectChatModule() {
                   <RoyalName
                     name={activeConversation.other_user?.name || activeConversation.title}
                     userId={activeConversation.other_user?.id}
-                    className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 truncate block"
+                    className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate block leading-tight"
                   />
-                  <div className="flex items-center gap-1.5 sm:gap-2 text-[10.5px] sm:text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                    <span>{activeConversation.other_user?.designation || "Employee"}</span>
-                    {activeConversation.other_user?.department && (
+                  <div className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                    <span className="text-emerald-600 dark:text-emerald-400 font-medium">online</span>
+                    {activeConversation.other_user?.designation && (
                       <>
-                        <span className="hidden sm:inline">•</span>
-                        <span className="hidden sm:inline">{activeConversation.other_user?.department}</span>
+                        <span>•</span>
+                        <span className="truncate">{activeConversation.other_user.designation}</span>
                       </>
                     )}
-                    <span>•</span>
-                    <span className="text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" /> Active
-                    </span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Google Chat Style Message Stream */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar space-y-4 bg-white dark:bg-slate-900">
+            {/* WhatsApp Style Chat Stream (Clean bubbles, zero horizontal overflow) */}
+            <div className="flex-1 overflow-y-auto p-3 sm:p-5 custom-scrollbar space-y-2.5 overflow-x-hidden">
               {loadingMessages && messages.length === 0 ? (
                 <div className="flex items-center justify-center h-full text-xs text-slate-400">
                   Loading chat history...
                 </div>
               ) : messages.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-center p-6">
-                  <div className="w-16 h-16 rounded-full bg-[#56348f]/10 dark:bg-purple-900/30 text-[#56348f] dark:text-purple-300 flex items-center justify-center mb-3">
-                    <Sparkles className="w-8 h-8" />
+                  <div className="w-14 h-14 rounded-full bg-white dark:bg-slate-800 text-[#56348f] dark:text-purple-300 flex items-center justify-center mb-2.5 shadow-sm">
+                    <Sparkles className="w-7 h-7" />
                   </div>
                   <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
-                    Direct conversation with {activeConversation.other_user?.first_name || "colleague"}
+                    Chat with {activeConversation.other_user?.first_name || "colleague"}
                   </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mt-1">
-                    Send messages, drag & drop files, or paste screenshots directly into the box below.
+                  <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs mt-1">
+                    Messages and attachments are private between you two.
                   </p>
                 </div>
               ) : (
-                messages.map((msg, index) => {
+                messages.map((msg) => {
                   const isMe = msg.sender_id === currentUser?.id;
-                  const prevMsg = messages[index - 1];
-                  const showHeader = !prevMsg || prevMsg.sender_id !== msg.sender_id;
 
-                  // Parse message time
                   let msgTime = "";
                   try {
                     msgTime = format(parseISO(msg.created_at), "h:mm a");
@@ -895,133 +982,86 @@ export function DirectChatModule() {
                   return (
                     <div
                       key={msg.id}
-                      className={`group relative flex items-start gap-3 rounded-2xl p-2 -mx-2 hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors ${
-                        showHeader ? "mt-3" : "mt-0.5"
-                      }`}
+                      className={`flex w-full ${isMe ? "justify-end" : "justify-start"}`}
                     >
-                      {/* Left: Avatar (only shown on the first message of a sender group) */}
-                      <div className="w-9 shrink-0 flex items-start justify-center">
-                        {showHeader ? (
-                          <RoyalAvatar
-                            src={isMe ? formattedCurrentUser.profile_photo_path : msg.sender?.profile_photo_path}
-                            name={isMe ? formattedCurrentUser.name : (msg.sender?.name || "User")}
-                            userId={isMe ? formattedCurrentUser.id : msg.sender?.id}
-                            className="w-9 h-9 rounded-full text-xs"
-                          />
-                        ) : (
-                          <span className="text-[10px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                            {msgTime}
-                          </span>
+                      <div
+                        className={`relative rounded-2xl p-2.5 px-3.5 shadow-xs max-w-[85%] sm:max-w-[72%] min-w-[80px] break-words [overflow-wrap:anywhere] ${
+                          isMe
+                            ? "bg-[#d9fdd3] text-[#111b21] dark:bg-[#005c4b] dark:text-[#e9edef] rounded-tr-xs"
+                            : "bg-white text-[#111b21] dark:bg-[#202c33] dark:text-[#e9edef] rounded-tl-xs"
+                        }`}
+                      >
+                        {/* Message Text */}
+                        {msg.message && (
+                          <p className="text-xs sm:text-[13.5px] leading-relaxed whitespace-pre-wrap">
+                            {msg.message}
+                          </p>
                         )}
-                      </div>
 
-                      {/* Right: Message Content */}
-                      <div className="flex-1 min-w-0">
-                        {showHeader && (
-                          <div className="flex items-baseline gap-2 mb-1 flex-wrap">
-                            <span className="text-xs font-bold text-slate-900 dark:text-slate-100">
-                              {isMe ? "You" : (msg.sender?.name || activeConversation.other_user?.name || "User")}
-                            </span>
-                            <span className="text-[11px] text-slate-400 font-normal">
-                              {msgTime}
-                            </span>
-                            {isSending && (
-                              <span className="text-[10.5px] text-purple-600 dark:text-purple-400 font-semibold flex items-center gap-1 bg-purple-50 dark:bg-purple-950/50 px-2 py-0.5 rounded-full">
-                                <Clock className="w-3 h-3 animate-spin" /> Sending...
-                              </span>
-                            )}
-                            {isError && (
-                              <button
-                                onClick={() => handleSendMessage(msg)}
-                                className="text-[10.5px] text-rose-600 hover:text-rose-700 font-semibold flex items-center gap-1 bg-rose-50 dark:bg-rose-950/50 px-2 py-0.5 rounded-full cursor-pointer hover:underline"
-                              >
-                                <AlertCircle className="w-3 h-3" /> Failed to send. Click to retry <RotateCw className="w-2.5 h-2.5 ml-0.5" />
-                              </button>
-                            )}
+                        {/* Attachments */}
+                        {msg.attachments && msg.attachments.length > 0 && (
+                          <div className={`space-y-1.5 ${msg.message ? "mt-2" : ""}`}>
+                            {msg.attachments.map((att, attIdx) => {
+                              const isImg = att.file_type?.startsWith("image/") || att.original_name.match(/\.(png|jpe?g|gif|webp|svg)$/i);
+
+                              if (isImg) {
+                                return (
+                                  <div key={att.id || attIdx} className="relative overflow-hidden rounded-xl max-w-sm border border-black/10 dark:border-white/10">
+                                    <img
+                                      src={att.file_url}
+                                      alt={att.original_name}
+                                      onClick={() => setPreviewImage(att.file_url)}
+                                      className="max-h-60 w-auto rounded-xl object-cover bg-black/5 cursor-pointer hover:opacity-95"
+                                    />
+                                    {isSending && (
+                                      <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-white text-xs font-semibold gap-1">
+                                        <Clock className="w-4 h-4 animate-spin" />
+                                        <span>Sending...</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              }
+
+                              return (
+                                <a
+                                  key={att.id || attIdx}
+                                  href={isSending ? "#" : att.file_url}
+                                  target={isSending ? "_self" : "_blank"}
+                                  rel="noopener noreferrer"
+                                  download={att.original_name}
+                                  className="flex items-center gap-2.5 p-2 bg-black/5 dark:bg-white/5 hover:bg-black/10 rounded-xl text-xs transition-colors"
+                                >
+                                  <FileText className="w-4 h-4 text-[#56348f] shrink-0" />
+                                  <div className="min-w-0 flex-1">
+                                    <p className="truncate font-semibold text-xs">{att.original_name}</p>
+                                    <p className="text-[10px] opacity-70">{formatFileSize(att.file_size)}</p>
+                                  </div>
+                                  <Download className="w-3.5 h-3.5 opacity-60 shrink-0" />
+                                </a>
+                              );
+                            })}
                           </div>
                         )}
 
-                        {/* Message Bubble Body */}
-                        <div className="inline-block max-w-[95%]">
-                          {msg.message && (
-                            <div
-                              className={`p-2.5 px-4 rounded-2xl text-xs sm:text-[13.5px] leading-relaxed whitespace-pre-wrap break-words inline-block relative ${
-                                isMe
-                                  ? "bg-[#e8def8] text-[#1d192b] dark:bg-purple-950/60 dark:text-purple-100 rounded-tl-sm font-medium"
-                                  : "bg-[#f0f4f9] text-[#1f1f1f] dark:bg-slate-800 dark:text-slate-100 rounded-tl-sm"
-                              }`}
-                            >
-                              {msg.message}
-                              {isSending && !showHeader && (
-                                <span className="ml-2 text-[10px] opacity-75 font-normal italic inline-flex items-center gap-0.5">
-                                <Clock className="w-2.5 h-2.5 animate-spin" /> Sending...
-                                </span>
+                        {/* Timestamp & Status ticks at bottom right */}
+                        <div className="flex items-center justify-end gap-1 mt-1 -mb-0.5 text-[10px] opacity-60 select-none">
+                          <span>{msgTime}</span>
+                          {isMe && (
+                            <span>
+                              {isSending ? (
+                                <Clock className="w-3 h-3 animate-spin inline" />
+                              ) : isError ? (
+                                <button
+                                  onClick={() => handleSendMessage(msg)}
+                                  className="text-rose-600 font-bold hover:underline cursor-pointer flex items-center gap-0.5"
+                                >
+                                  Retry <RotateCw className="w-2.5 h-2.5" />
+                                </button>
+                              ) : (
+                                <CheckCheck className="w-3.5 h-3.5 text-[#53bdeb] inline" />
                               )}
-                            </div>
-                          )}
-
-                          {/* Attachments */}
-                          {msg.attachments && msg.attachments.length > 0 && (
-                            <div className={`space-y-2 ${msg.message ? "mt-2" : ""}`}>
-                              {msg.attachments.map((att, attIdx) => {
-                                const isImg = att.file_type?.startsWith("image/") || att.original_name.match(/\.(png|jpe?g|gif|webp|svg)$/i);
-
-                                if (isImg) {
-                                  return (
-                                    <div key={att.id || attIdx} className="relative group/img overflow-hidden rounded-2xl max-w-sm border border-slate-200/80 dark:border-slate-700">
-                                      <img
-                                        src={att.file_url}
-                                        alt={att.original_name}
-                                        onClick={() => setPreviewImage(att.file_url)}
-                                        className="max-h-64 w-auto rounded-2xl object-cover bg-slate-100 dark:bg-slate-800 cursor-pointer hover:opacity-95 transition-opacity"
-                                      />
-                                      {/* Sending overlay for images */}
-                                      {isSending && (
-                                        <div className="absolute inset-0 bg-black/40 backdrop-blur-2xs flex flex-col items-center justify-center text-white text-xs font-semibold gap-1.5">
-                                          <Clock className="w-5 h-5 animate-spin" />
-                                          <span>Sending photo...</span>
-                                        </div>
-                                      )}
-                                      {!isSending && (
-                                        <button
-                                          onClick={() => setPreviewImage(att.file_url)}
-                                          className="absolute top-2 right-2 p-1.5 bg-black/60 text-white rounded-lg opacity-0 group-hover/img:opacity-100 transition-opacity cursor-pointer"
-                                          title="Expand"
-                                        >
-                                          <Maximize2 className="w-3.5 h-3.5" />
-                                        </button>
-                                      )}
-                                    </div>
-                                  );
-                                }
-
-                                return (
-                                  <a
-                                    key={att.id || attIdx}
-                                    href={isSending ? "#" : att.file_url}
-                                    target={isSending ? "_self" : "_blank"}
-                                    rel="noopener noreferrer"
-                                    download={att.original_name}
-                                    className={`flex items-center gap-3 p-2.5 px-3.5 bg-[#f0f4f9] hover:bg-[#e1eaf5] dark:bg-slate-800 dark:hover:bg-slate-700 rounded-2xl text-xs transition-colors border border-slate-200/80 dark:border-slate-700 max-w-sm text-slate-800 dark:text-slate-100 ${
-                                      isSending ? "opacity-75 cursor-default" : ""
-                                    }`}
-                                  >
-                                    <FileText className="w-5 h-5 text-purple-600 shrink-0" />
-                                    <div className="min-w-0 flex-1">
-                                      <p className="truncate font-semibold text-xs">{att.original_name}</p>
-                                      <p className="text-[10px] text-slate-500">{formatFileSize(att.file_size)}</p>
-                                    </div>
-                                    {isSending ? (
-                                      <span className="text-[10px] text-purple-600 font-medium flex items-center gap-1">
-                                        <Clock className="w-3 h-3 animate-spin" /> Sending...
-                                      </span>
-                                    ) : (
-                                      <Download className="w-4 h-4 shrink-0 text-slate-500" />
-                                    )}
-                                  </a>
-                                );
-                              })}
-                            </div>
+                            </span>
                           )}
                         </div>
                       </div>
@@ -1034,54 +1074,53 @@ export function DirectChatModule() {
 
             {/* Staged Attachments / Screenshot Previews Bar */}
             {stagedFiles.length > 0 && (
-              <div className="px-5 py-2.5 bg-[#f8fafd] dark:bg-slate-800/80 border-t border-slate-200/80 dark:border-slate-800 flex items-center gap-3 overflow-x-auto custom-scrollbar shrink-0">
+              <div className="px-3.5 py-2 bg-[#f0f2f5] dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 flex items-center gap-2.5 overflow-x-auto custom-scrollbar shrink-0">
                 {stagedFiles.map((sf, idx) => (
                   <div
                     key={idx}
-                    className="relative group shrink-0 w-16 h-16 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-700 flex items-center justify-center shadow-xs"
+                    className="relative group shrink-0 w-14 h-14 rounded-xl border border-slate-300 dark:border-slate-700 overflow-hidden bg-white flex items-center justify-center shadow-xs"
                   >
                     {sf.isImage ? (
                       <img src={sf.previewUrl} alt="Staged screenshot" className="w-full h-full object-cover" />
                     ) : (
-                      <FileText className="w-6 h-6 text-slate-400" />
+                      <FileText className="w-5 h-5 text-slate-400" />
                     )}
                     <button
                       onClick={() => handleRemoveStagedFile(idx)}
-                      className="absolute top-1 right-1 p-0.5 bg-black/70 text-white rounded-full hover:bg-black transition-colors cursor-pointer"
-                      title="Remove attachment"
+                      className="absolute top-0.5 right-0.5 p-0.5 bg-black/70 text-white rounded-full hover:bg-black transition-colors cursor-pointer"
                     >
                       <X className="w-3 h-3" />
                     </button>
                   </div>
                 ))}
-                <span className="text-xs text-slate-500 font-medium">
-                  {stagedFiles.length} file(s) ready to send (Max 5 MB)
+                <span className="text-xs text-slate-500 font-medium truncate">
+                  {stagedFiles.length} file(s) attached (Max 5 MB)
                 </span>
               </div>
             )}
 
-            {/* Google Chat Floating Composer Input */}
-            <div className="p-3 sm:p-4 bg-white dark:bg-slate-900 shrink-0">
-              <div className="flex items-end gap-2 bg-[#f0f4f9] dark:bg-slate-800 rounded-3xl p-2 px-3.5 border border-slate-200/80 dark:border-slate-700 focus-within:ring-2 focus-within:ring-purple-500/30 focus-within:border-purple-500 transition-all">
-                {/* File Upload / Attachment Button */}
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="p-1.5 text-slate-500 hover:text-purple-600 rounded-full hover:bg-white dark:hover:bg-slate-700 transition-colors shrink-0 cursor-pointer"
-                  title="Attach files or photos (< 5 MB)"
-                >
-                  <Paperclip className="w-5 h-5" />
-                </button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  multiple
-                  onChange={handleFileSelect}
-                  className="hidden"
-                  accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.zip,.txt"
-                />
+            {/* WhatsApp Style Bottom Input Composer */}
+            <div className="p-2 sm:p-3 bg-[#f0f2f5] dark:bg-slate-900 border-t border-slate-200/80 dark:border-slate-800 flex items-center gap-2 shrink-0 z-10">
+              {/* Attachment Picker */}
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="p-2 text-slate-500 hover:text-[#56348f] dark:hover:text-purple-400 rounded-full hover:bg-white dark:hover:bg-slate-800 transition-colors shrink-0 cursor-pointer"
+                title="Attach photo or document (< 5 MB)"
+              >
+                <Paperclip className="w-5 h-5" />
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                onChange={handleFileSelect}
+                className="hidden"
+                accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.zip,.txt"
+              />
 
-                {/* Textarea with Instant Screenshot Paste (Ctrl + V) */}
+              {/* Message Input Pill */}
+              <div className="flex-1 bg-white dark:bg-slate-800 rounded-2xl px-3.5 py-1.5 border border-slate-200 dark:border-slate-700 focus-within:ring-2 focus-within:ring-purple-500/30 flex items-center min-w-0">
                 <textarea
                   ref={textareaRef}
                   value={inputMessage}
@@ -1089,42 +1128,37 @@ export function DirectChatModule() {
                   onKeyDown={handleKeyDown}
                   onPaste={handlePaste}
                   rows={1}
-                  placeholder={`Message ${activeConversation.other_user?.first_name || "colleague"}... (Paste screenshot with Ctrl+V or Drag & Drop)`}
-                  className="flex-1 bg-transparent border-none outline-none resize-none text-xs sm:text-[13.5px] text-slate-800 dark:text-slate-100 placeholder-slate-400 py-1.5 max-h-32 custom-scrollbar font-normal"
+                  placeholder={`Type a message... (Ctrl+V for screenshot)`}
+                  className="w-full bg-transparent border-none outline-none resize-none text-xs sm:text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 py-1 max-h-24 custom-scrollbar leading-relaxed"
                 />
-
-                {/* Send Button */}
-                <button
-                  type="button"
-                  disabled={!inputMessage.trim() && stagedFiles.length === 0}
-                  onClick={() => handleSendMessage()}
-                  className="p-2 bg-[#56348f] hover:bg-[#432770] disabled:opacity-30 disabled:hover:bg-[#56348f] text-white rounded-full shadow-xs transition-colors shrink-0 cursor-pointer"
-                  title="Send message (Enter)"
-                >
-                  <Send className="w-4 h-4" />
-                </button>
               </div>
 
-              <div className="hidden sm:flex items-center justify-between mt-1 px-3 text-[10.5px] text-slate-400">
-                <span>Press <b>Enter</b> to send, <b>Shift + Enter</b> for new line</span>
-                <span>💡 Paste with <b>Ctrl + V</b> or Drag & Drop (Max 5 MB)</span>
-              </div>
+              {/* Send Button */}
+              <button
+                type="button"
+                disabled={!inputMessage.trim() && stagedFiles.length === 0}
+                onClick={() => handleSendMessage()}
+                className="w-10 h-10 bg-[#56348f] hover:bg-[#432770] disabled:opacity-30 text-white rounded-full flex items-center justify-center shadow-sm transition-all shrink-0 cursor-pointer active:scale-95"
+                title="Send message"
+              >
+                <Send className="w-4 h-4 ml-0.5" />
+              </button>
             </div>
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-[#56348f]/10 text-[#56348f] flex items-center justify-center mb-3 shadow-xs">
+          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-[#f0f2f5]/40 dark:bg-slate-900">
+            <div className="w-16 h-16 rounded-3xl bg-[#56348f]/10 text-[#56348f] flex items-center justify-center mb-3 shadow-xs">
               <Sparkles className="w-8 h-8" />
             </div>
             <h3 className="text-base font-bold text-slate-800 dark:text-slate-100">
-              Welcome to Direct Chat
+              InterSmart Direct Chat
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mt-1">
-              Select a conversation from the left or click "New Chat" to connect with your colleagues.
+            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs mt-1">
+              Select a conversation to start chatting, or click New Chat to message a colleague.
             </p>
             <button
               onClick={() => setShowNewChatModal(true)}
-              className="mt-4 px-4 py-2 bg-[#56348f] hover:bg-[#452875] text-white rounded-full text-xs font-bold shadow-sm transition-all cursor-pointer inline-flex items-center gap-1.5 hover:shadow-md"
+              className="mt-4 px-4 py-2 bg-[#56348f] hover:bg-[#452875] text-white rounded-full text-xs font-bold shadow-sm transition-all cursor-pointer inline-flex items-center gap-1.5"
             >
               <Plus className="w-4 h-4 stroke-[2.5]" />
               <span>Start New Chat</span>
@@ -1134,12 +1168,11 @@ export function DirectChatModule() {
       </div>
 
       {/* ─────────────────────────────────────────────────────────────
-          MODAL: NEW CHAT / INSTANT SEARCH COLLEAGUE (0ms response)
+          MODAL: NEW CHAT / INSTANT SEARCH COLLEAGUE
       ───────────────────────────────────────────────────────────── */}
       {showNewChatModal && (
         <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
           <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[80vh] animate-in zoom-in-95 duration-150">
-            {/* Modal Header */}
             <div className="p-4 px-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-[#56348f]/10 text-[#56348f] dark:bg-purple-900/40 dark:text-purple-300 flex items-center justify-center font-bold">
@@ -1147,9 +1180,9 @@ export function DirectChatModule() {
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
-                    Start a New Chat
+                    New Chat
                   </h3>
-                  <p className="text-[11px] text-slate-400">Search and message any employee</p>
+                  <p className="text-[11px] text-slate-400">Select an employee to message</p>
                 </div>
               </div>
               <button
@@ -1160,7 +1193,6 @@ export function DirectChatModule() {
               </button>
             </div>
 
-            {/* Modal Search Input */}
             <div className="p-3 px-5 border-b border-slate-200/80 dark:border-slate-800">
               <div className="relative">
                 <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
@@ -1169,7 +1201,7 @@ export function DirectChatModule() {
                   autoFocus
                   value={userSearchQuery}
                   onChange={(e) => setUserSearchQuery(e.target.value)}
-                  placeholder="Search by name, email, or department..."
+                  placeholder="Search name, email, or department..."
                   className="w-full pl-10 pr-9 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500 text-slate-800 dark:text-slate-100"
                 />
                 {userSearchQuery && (
@@ -1183,7 +1215,6 @@ export function DirectChatModule() {
               </div>
             </div>
 
-            {/* Search Results List (Instant 0ms synchronous filtering) */}
             <div className="flex-1 overflow-y-auto p-3 custom-scrollbar space-y-1">
               {loadingColleagues && allColleagues.length === 0 ? (
                 <div className="p-8 text-center text-xs text-slate-400">Loading directory...</div>
