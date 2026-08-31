@@ -1008,8 +1008,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Precise Spacer for Fixed 104px Header (64px Purple Bar + 40px SubTabs) */}
         <div className="h-[104px] shrink-0 w-full" />
 
-        {/* Page Content */}
-        <main className="flex-1 px-4 sm:px-6 lg:px-8 pt-1 sm:pt-1.5 pb-6 sm:pb-8 max-w-7xl w-full mx-auto">
+        {/* Page Content (Full width across wide displays, zero awkward side gaps) */}
+        <main className="flex-1 px-4 sm:px-6 lg:px-8 xl:px-10 pt-1 sm:pt-1.5 pb-6 sm:pb-8 w-full max-w-full">
           {children}
         </main>
       </div>
