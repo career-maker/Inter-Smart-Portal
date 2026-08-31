@@ -138,12 +138,21 @@ export function DirectChatModule() {
 
   // Fast background polling (every 1.5s) & Window Focus Listener for instant sync
   useEffect(() => {
+    let tick = 0;
     const pollInterval = setInterval(() => {
-      fetchConversations(false);
+      if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
+      tick++;
+
+      // Poll messages every 2.5s
       if (activeConversationId) {
         fetchMessages(activeConversationId, false);
       }
-    }, 1500);
+
+      // Poll conversation list every ~7.5s (every 3 ticks) to preserve server resources
+      if (tick % 3 === 0) {
+        fetchConversations(false);
+      }
+    }, 2500);
 
     const handleWindowFocus = () => {
       fetchConversations(false);

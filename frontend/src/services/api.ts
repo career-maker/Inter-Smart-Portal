@@ -18,9 +18,26 @@ api.interceptors.request.use((config) => {
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    // Clear cache on any mutation (POST, PUT, DELETE, PATCH)
+    // Selectively invalidate cache for the mutated domain
     if (config.method && config.method.toLowerCase() !== 'get') {
-      apiCache.clearAll();
+      const url = config.url || '';
+      if (url.includes('/direct-chat')) {
+        apiCache.clearPattern('/direct-chat');
+      } else if (url.includes('/leaves') || url.includes('/leave-requests') || url.includes('/wfh-requests')) {
+        apiCache.clearPattern(/leave|wfh/i);
+      } else if (url.includes('/attendance')) {
+        apiCache.clearPattern('/attendance');
+      } else if (url.includes('/employees') || url.includes('/teams')) {
+        apiCache.clearPattern(/employees|teams/i);
+      } else if (url.includes('/notifications')) {
+        apiCache.clearPattern('/notifications');
+      } else {
+        // Fallback for general resource mutations
+        const rootPath = url.split('/')[1];
+        if (rootPath) {
+          apiCache.clearPattern(rootPath);
+        }
+      }
     }
 
     // Cache GET requests
