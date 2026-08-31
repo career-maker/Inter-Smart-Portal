@@ -64,7 +64,7 @@ export function RecognitionTicker({ isDark = false, isSidebarCollapsed = true }:
 
   const displayItems = items;
 
-  // Calculate animation duration (brisk, legible speed: ~0.07s per char, min 12s)
+  // Calculate animation duration across viewport
   const totalChars = displayItems.reduce((acc, item) => {
     let text = "";
     if (item.type === "birthday") {
@@ -77,7 +77,7 @@ export function RecognitionTicker({ isDark = false, isSidebarCollapsed = true }:
     return acc + text.length;
   }, 0);
 
-  const durationSeconds = Math.max(12, totalChars * 0.07);
+  const durationSeconds = Math.max(16, Math.min(38, 14 + totalChars * 0.06));
 
   const leftOffsetClass = !isDark
     ? "left-0 md:left-[84px]"
@@ -108,9 +108,9 @@ export function RecognitionTicker({ isDark = false, isSidebarCollapsed = true }:
         <div className="absolute left-0 top-0 bottom-0 w-6 bg-gradient-to-r from-[#56348f] to-transparent z-10 pointer-events-none" />
         <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#56348f] to-transparent z-10 pointer-events-none" />
 
-        {/* Marquee Track (Pure White High Contrast Text) */}
+        {/* Marquee Track (Starts from far right edge using 100vw) */}
         <div
-          className="whitespace-nowrap flex gap-12 items-center hover:[animation-play-state:paused] cursor-default pl-4"
+          className="whitespace-nowrap flex gap-12 items-center hover:[animation-play-state:paused] cursor-default"
           style={{ animation: `marquee ${durationSeconds}s linear infinite` }}
         >
           {displayItems.map((item, i) => (
@@ -182,7 +182,7 @@ export function RecognitionTicker({ isDark = false, isSidebarCollapsed = true }:
       <style dangerouslySetInnerHTML={{
         __html: `
           @keyframes marquee {
-            0% { transform: translateX(100%); }
+            0% { transform: translateX(100vw); }
             100% { transform: translateX(-100%); }
           }
         `
