@@ -64,7 +64,7 @@ export function RecognitionTicker({ isDark = false, isSidebarCollapsed = true }:
 
   const displayItems = items;
 
-  // Calculate animation duration (faster speed: ~0.08s per char, min 14s)
+  // Calculate animation duration (brisk, legible speed: ~0.07s per char, min 12s)
   const totalChars = displayItems.reduce((acc, item) => {
     let text = "";
     if (item.type === "birthday") {
@@ -77,7 +77,7 @@ export function RecognitionTicker({ isDark = false, isSidebarCollapsed = true }:
     return acc + text.length;
   }, 0);
 
-  const durationSeconds = Math.max(14, totalChars * 0.08);
+  const durationSeconds = Math.max(12, totalChars * 0.07);
 
   const leftOffsetClass = !isDark
     ? "left-0 md:left-[84px]"
@@ -93,74 +93,90 @@ export function RecognitionTicker({ isDark = false, isSidebarCollapsed = true }:
       }}
       className={`fixed bottom-0 right-0 z-30 ${leftOffsetClass} transition-all duration-300 ease-in-out text-white overflow-hidden h-9 sm:h-9.5 flex items-center border-t border-purple-700/60 shadow-2xl select-none`}
     >
-      {/* Left Fixed Badge without icon, named 'Updates' */}
-      <div className="shrink-0 z-20 flex items-center px-3.5 py-1 bg-[#432770] text-white font-bold text-[11px] sm:text-xs uppercase tracking-wider border-r border-purple-600/60 shadow-xs">
-        <span>Updates</span>
+      {/* High-Contrast Visible Updates Badge */}
+      <div
+        style={{ backgroundColor: "#3a1c68", color: "#ffffff" }}
+        className="shrink-0 z-30 flex items-center px-4 h-full text-white font-bold text-xs uppercase tracking-wider border-r border-purple-600/60 shadow-sm"
+      >
+        <span style={{ color: "#ffffff", fontWeight: 700 }} className="text-white font-bold">
+          UPDATES
+        </span>
       </div>
 
-      {/* Gradients to fade edges */}
-      <div className="absolute left-20 top-0 bottom-0 w-6 bg-gradient-to-r from-[#56348f] to-transparent z-10 pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#56348f] to-transparent z-10 pointer-events-none" />
+      {/* Marquee Container with side fade */}
+      <div className="flex-1 overflow-hidden relative h-full flex items-center">
+        <div className="absolute left-0 top-0 bottom-0 w-6 bg-gradient-to-r from-[#56348f] to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#56348f] to-transparent z-10 pointer-events-none" />
 
-      {/* Marquee Track (Pure White Text, Faster Continuous Scroll) */}
-      <div
-        className="whitespace-nowrap flex gap-12 items-center hover:[animation-play-state:paused] cursor-default"
-        style={{ animation: `marquee ${durationSeconds}s linear infinite` }}
-      >
-        {displayItems.map((item, i) => (
-          <div key={i} className="flex items-center gap-2 text-xs sm:text-[13px] font-medium tracking-wide text-white">
-            {item.type === "birthday" ? (
-              <>
-                <Cake className="w-4 h-4 text-white shrink-0" />
-                <span className="text-white">
-                  🎉 Happy Birthday <span className="text-white font-bold uppercase">{item.user?.first_name} {item.user?.last_name}</span>! Wishing you a wonderful day filled with joy! 🎂
-                </span>
-              </>
-            ) : item.type === "announcement" ? (
-              <>
-                <Megaphone className="w-4 h-4 text-white shrink-0" />
-                <span className="text-white">
-                  📢 <span className="text-white font-bold">{item.title}</span>: <span className="text-white">{item.content?.substring(0, 140)}{item.content?.length > 140 ? "..." : ""}</span>
-                </span>
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-4 h-4 text-white shrink-0" />
-                <span className="text-white">
-                  Congratulations <span className="text-white font-bold uppercase">{item.user?.first_name} {item.user?.last_name}</span> for being awarded as <span className="text-white font-bold">{item.icon} {item.title}</span>! {item.description?.length > 60 ? '' : item.description}
-                </span>
-              </>
-            )}
-          </div>
-        ))}
+        {/* Marquee Track (Pure White High Contrast Text) */}
+        <div
+          className="whitespace-nowrap flex gap-12 items-center hover:[animation-play-state:paused] cursor-default pl-4"
+          style={{ animation: `marquee ${durationSeconds}s linear infinite` }}
+        >
+          {displayItems.map((item, i) => (
+            <div
+              key={i}
+              style={{ color: "#ffffff" }}
+              className="flex items-center gap-2 text-xs sm:text-[13px] font-medium tracking-wide !text-white"
+            >
+              {item.type === "birthday" ? (
+                <>
+                  <Cake className="w-4 h-4 !text-white shrink-0" />
+                  <span style={{ color: "#ffffff" }} className="!text-white">
+                    🎉 Happy Birthday <strong style={{ color: "#ffffff" }} className="!text-white font-bold uppercase">{item.user?.first_name} {item.user?.last_name}</strong>! Wishing you a wonderful day filled with joy! 🎂
+                  </span>
+                </>
+              ) : item.type === "announcement" ? (
+                <>
+                  <Megaphone className="w-4 h-4 !text-white shrink-0" />
+                  <span style={{ color: "#ffffff" }} className="!text-white">
+                    📢 <strong style={{ color: "#ffffff" }} className="!text-white font-bold">{item.title}</strong>: <span style={{ color: "#ffffff" }} className="!text-white">{item.content?.substring(0, 140)}{item.content?.length > 140 ? "..." : ""}</span>
+                  </span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4 !text-white shrink-0" />
+                  <span style={{ color: "#ffffff" }} className="!text-white">
+                    Congratulations <strong style={{ color: "#ffffff" }} className="!text-white font-bold uppercase">{item.user?.first_name} {item.user?.last_name}</strong> for being awarded as <strong style={{ color: "#ffffff" }} className="!text-white font-bold">{item.icon} {item.title}</strong>! {item.description?.length > 60 ? '' : item.description}
+                  </span>
+                </>
+              )}
+            </div>
+          ))}
 
-        {/* Duplicate Track for Seamless Infinite Scrolling */}
-        {displayItems.map((item, i) => (
-          <div key={`dup-${i}`} className="flex items-center gap-2 text-xs sm:text-[13px] font-medium tracking-wide text-white" aria-hidden="true">
-            {item.type === "birthday" ? (
-              <>
-                <Cake className="w-4 h-4 text-white shrink-0" />
-                <span className="text-white">
-                  🎉 Happy Birthday <span className="text-white font-bold uppercase">{item.user?.first_name} {item.user?.last_name}</span>! Wishing you a wonderful day filled with joy! 🎂
-                </span>
-              </>
-            ) : item.type === "announcement" ? (
-              <>
-                <Megaphone className="w-4 h-4 text-white shrink-0" />
-                <span className="text-white">
-                  📢 <span className="text-white font-bold">{item.title}</span>: <span className="text-white">{item.content?.substring(0, 140)}{item.content?.length > 140 ? "..." : ""}</span>
-                </span>
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-4 h-4 text-white shrink-0" />
-                <span className="text-white">
-                  Congratulations <span className="text-white font-bold uppercase">{item.user?.first_name} {item.user?.last_name}</span> for being awarded as <span className="text-white font-bold">{item.icon} {item.title}</span>! {item.description?.length > 60 ? '' : item.description}
-                </span>
-              </>
-            )}
-          </div>
-        ))}
+          {/* Duplicate Track for Seamless Loop */}
+          {displayItems.map((item, i) => (
+            <div
+              key={`dup-${i}`}
+              style={{ color: "#ffffff" }}
+              className="flex items-center gap-2 text-xs sm:text-[13px] font-medium tracking-wide !text-white"
+              aria-hidden="true"
+            >
+              {item.type === "birthday" ? (
+                <>
+                  <Cake className="w-4 h-4 !text-white shrink-0" />
+                  <span style={{ color: "#ffffff" }} className="!text-white">
+                    🎉 Happy Birthday <strong style={{ color: "#ffffff" }} className="!text-white font-bold uppercase">{item.user?.first_name} {item.user?.last_name}</strong>! Wishing you a wonderful day filled with joy! 🎂
+                  </span>
+                </>
+              ) : item.type === "announcement" ? (
+                <>
+                  <Megaphone className="w-4 h-4 !text-white shrink-0" />
+                  <span style={{ color: "#ffffff" }} className="!text-white">
+                    📢 <strong style={{ color: "#ffffff" }} className="!text-white font-bold">{item.title}</strong>: <span style={{ color: "#ffffff" }} className="!text-white">{item.content?.substring(0, 140)}{item.content?.length > 140 ? "..." : ""}</span>
+                  </span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4 !text-white shrink-0" />
+                  <span style={{ color: "#ffffff" }} className="!text-white">
+                    Congratulations <strong style={{ color: "#ffffff" }} className="!text-white font-bold uppercase">{item.user?.first_name} {item.user?.last_name}</strong> for being awarded as <strong style={{ color: "#ffffff" }} className="!text-white font-bold">{item.icon} {item.title}</strong>! {item.description?.length > 60 ? '' : item.description}
+                  </span>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
 
       <style dangerouslySetInnerHTML={{
