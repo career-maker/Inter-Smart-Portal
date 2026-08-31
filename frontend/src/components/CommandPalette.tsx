@@ -4,8 +4,9 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import {
   Users, Calendar, Briefcase, FileText,
-  FolderKanban, HelpCircle, User, X, ChevronRight,
-  ChevronDown, ChevronUp, CheckSquare, History, MessageSquare
+  FolderKanban, HelpCircle, X, ChevronRight,
+  ChevronDown, ChevronUp, History, MessageSquare,
+  CheckSquare, Shield, HardDrive, Clock, Home, Award
 } from "lucide-react";
 import api from "@/services/api";
 import { useQuery } from "@tanstack/react-query";
@@ -25,10 +26,22 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
 
+  const isSuperAdmin =
+    user?.role === "Super Admin" ||
+    user?.role === "Admin" ||
+    (user as any)?.roles?.some((r: any) => (r.name || r) === "Super Admin" || (r.name || r) === "Admin") ||
+    (user as any)?.is_super_admin === true;
+
+  const isTeamLead = user?.role === "Team Lead";
+  const isEmployee = !isSuperAdmin && !isTeamLead;
+
   // Keyboard shortcut listener for Alt + K, Ctrl + K, and ⌘K
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.key.toLowerCase() === "k" && (e.metaKey || e.ctrlKey || e.altKey)) || (e.altKey && e.key.toLowerCase() === "k")) {
+      if (
+        (e.key.toLowerCase() === "k" && (e.metaKey || e.ctrlKey || e.altKey)) ||
+        (e.altKey && e.key.toLowerCase() === "k")
+      ) {
         e.preventDefault();
         onOpenChange(!open);
       }
@@ -81,65 +94,232 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
 
   const employees = employeesData || [];
 
-  // Default Quick Actions matching Keka screenshots
-  const ALL_ACTIONS = React.useMemo(() => [
-    {
-      id: "chat",
-      title: "Direct Chat",
-      subtitle: "Message colleagues, paste screenshots, and share files.",
-      icon: MessageSquare,
-      href: "/community?tab=chat",
-      keywords: "chat direct message community talk discussion messages conversation",
-    },
-    {
-      id: "employees",
-      title: "Employee Directory",
-      subtitle: "Find your colleagues.",
-      icon: Users,
-      href: "/employees",
-      keywords: "employees staff team people directory",
-    },
-    {
-      id: "ta",
-      title: "Expenses and Travel Summary",
-      subtitle: "Monitor and analyze expenses and travel-related data.",
-      icon: Briefcase,
-      href: "/ta/status",
-      keywords: "ta travel allowance expenses finance money",
-    },
-    {
-      id: "apply-leave",
-      title: "Apply Leave",
-      subtitle: "Submit leave requests and check balances.",
-      icon: Calendar,
-      href: "/leaves/apply",
-      keywords: "leave apply vacation holiday off time",
-    },
-    {
-      id: "projects",
-      title: "Projects & Tasks",
-      subtitle: "Track deliverables, milestones, and task allocations.",
-      icon: FolderKanban,
-      href: "/project-management",
-      keywords: "projects tasks taskboard tracker deliverables",
-    },
-    {
-      id: "policies",
-      title: "HR Policies & Documents",
-      subtitle: "Review company handbook and policy manuals.",
-      icon: FileText,
-      href: "/policies",
-      keywords: "policies documents handbook hr rules",
-    },
-    {
-      id: "issues",
-      title: "Raise an Issue / Helpdesk",
-      subtitle: "Submit support or workplace ticket.",
-      icon: HelpCircle,
-      href: "/issues",
-      keywords: "issue help helpdesk ticket support problem",
-    },
-  ], []);
+  // Strictly Role-Based Quick Actions
+  const ALL_ACTIONS = React.useMemo(() => {
+    // ── SUPER ADMIN / ADMIN ACTIONS ──
+    if (isSuperAdmin) {
+      return [
+        {
+          id: "chat",
+          title: "Direct Chat",
+          subtitle: "Message colleagues, paste screenshots, and share files.",
+          icon: MessageSquare,
+          href: "/community?tab=chat",
+          keywords: "chat direct message talk discussion conversation colleagues",
+        },
+        {
+          id: "employees",
+          title: "Employee Management",
+          subtitle: "Manage employee profiles, onboarding, and directory.",
+          icon: Users,
+          href: "/employees",
+          keywords: "employees staff team users directory management add employee",
+        },
+        {
+          id: "attendance-mgmt",
+          title: "Attendance Management",
+          subtitle: "Review biometric punches, shifts, and check-in logs.",
+          icon: Clock,
+          href: "/attendance/management",
+          keywords: "attendance management biometric punches check in out timing logs",
+        },
+        {
+          id: "leave-approvals",
+          title: "Leave Approvals",
+          subtitle: "Review and approve company-wide leave requests.",
+          icon: Calendar,
+          href: "/leaves/approvals",
+          keywords: "leaves approvals applications requests vacation time off",
+        },
+        {
+          id: "projects",
+          title: "Projects & Tasks",
+          subtitle: "Track deliverables, milestones, and task allocations.",
+          icon: FolderKanban,
+          href: "/project-management",
+          keywords: "projects tasks taskboard tracker deliverables forecast kanban",
+        },
+        {
+          id: "ta-mgmt",
+          title: "Expenses & Travel (TA)",
+          subtitle: "Monitor, analyze, and approve TA claims.",
+          icon: Briefcase,
+          href: "/ta/management",
+          keywords: "ta travel allowance expenses finance money reimbursement",
+        },
+        {
+          id: "storage",
+          title: "Storage & Data Retention",
+          subtitle: "Configure automated chat and community post retention.",
+          icon: HardDrive,
+          href: "/project-management/addons/storage",
+          keywords: "storage retention clean database cleanup delete chat history posts",
+        },
+        {
+          id: "audit-logs",
+          title: "Audit & Security Logs",
+          subtitle: "View system audit trails and administrative activities.",
+          icon: Shield,
+          href: "/audit-logs",
+          keywords: "audit logs security activity history tracking",
+        },
+        {
+          id: "policies",
+          title: "HR Policies & Documents",
+          subtitle: "Review company handbook and policy manuals.",
+          icon: FileText,
+          href: "/policies",
+          keywords: "policies documents handbook hr rules company",
+        },
+        {
+          id: "issues",
+          title: "Helpdesk & Issues",
+          subtitle: "Manage support and workplace tickets.",
+          icon: HelpCircle,
+          href: "/issues",
+          keywords: "issue help helpdesk ticket support bug problem",
+        },
+      ];
+    }
+
+    // ── TEAM LEAD ACTIONS (NEVER show Employee Management or System Retention) ──
+    if (isTeamLead) {
+      return [
+        {
+          id: "chat",
+          title: "Direct Chat",
+          subtitle: "Message colleagues, paste screenshots, and share files.",
+          icon: MessageSquare,
+          href: "/community?tab=chat",
+          keywords: "chat direct message talk discussion conversation team",
+        },
+        {
+          id: "projects",
+          title: "Team Projects & Tasks",
+          subtitle: "Manage team deliverables, milestones, and daily tasks.",
+          icon: FolderKanban,
+          href: "/project-management",
+          keywords: "projects tasks taskboard tracker deliverables team forecast",
+        },
+        {
+          id: "leave-approvals",
+          title: "Team Leave Approvals",
+          subtitle: "Approve or review team member leave applications.",
+          icon: CheckSquare,
+          href: "/leaves/approvals",
+          keywords: "leaves approvals team member requests vacation",
+        },
+        {
+          id: "apply-leave",
+          title: "Apply Leave",
+          subtitle: "Submit personal leave requests and check balances.",
+          icon: Calendar,
+          href: "/leaves/apply",
+          keywords: "leave apply vacation holiday off time personal",
+        },
+        {
+          id: "attendance",
+          title: "Team Attendance",
+          subtitle: "Check attendance records and daily biometric status.",
+          icon: Clock,
+          href: "/attendance",
+          keywords: "attendance team daily logs punch check in",
+        },
+        {
+          id: "ta",
+          title: "Expenses & Travel (TA)",
+          subtitle: "Track travel allowance claims and expense status.",
+          icon: Briefcase,
+          href: "/ta/status",
+          keywords: "ta travel allowance expenses finance reimbursement",
+        },
+        {
+          id: "policies",
+          title: "HR Policies & Documents",
+          subtitle: "Review company handbook and policy manuals.",
+          icon: FileText,
+          href: "/policies",
+          keywords: "policies documents handbook hr rules",
+        },
+        {
+          id: "issues",
+          title: "Raise an Issue / Helpdesk",
+          subtitle: "Submit support or workplace ticket.",
+          icon: HelpCircle,
+          href: "/issues",
+          keywords: "issue help helpdesk ticket support problem",
+        },
+      ];
+    }
+
+    // ── REGULAR EMPLOYEE ACTIONS (Purely Self-Service, ZERO Admin Tools) ──
+    return [
+      {
+        id: "chat",
+        title: "Direct Chat",
+        subtitle: "Message colleagues, paste screenshots, and share files.",
+        icon: MessageSquare,
+        href: "/community?tab=chat",
+        keywords: "chat direct message talk discussion messages conversation",
+      },
+      {
+        id: "my-tasks",
+        title: "My Tasks & Todo",
+        subtitle: "View and update your assigned tasks.",
+        icon: FolderKanban,
+        href: "/project-management/tasks/my",
+        keywords: "tasks my todo assignments deliverables",
+      },
+      {
+        id: "apply-leave",
+        title: "Apply Leave",
+        subtitle: "Submit leave requests and check balances.",
+        icon: Calendar,
+        href: "/leaves/apply",
+        keywords: "leave apply vacation holiday off time",
+      },
+      {
+        id: "my-attendance",
+        title: "My Attendance",
+        subtitle: "View your daily check-in times and biometric logs.",
+        icon: Clock,
+        href: "/attendance",
+        keywords: "attendance my punch check in check out timings",
+      },
+      {
+        id: "wfh",
+        title: "Work From Home (WFH)",
+        subtitle: "Request and track work from home applications.",
+        icon: Home,
+        href: "/wfh",
+        keywords: "wfh work from home remote request",
+      },
+      {
+        id: "ta-apply",
+        title: "Travel Allowance (TA)",
+        subtitle: "Apply for travel expenses and monitor reimbursement.",
+        icon: Briefcase,
+        href: "/ta/apply",
+        keywords: "ta travel allowance expenses reimbursement claim",
+      },
+      {
+        id: "policies",
+        title: "HR Policies & Documents",
+        subtitle: "Review company handbook and policy manuals.",
+        icon: FileText,
+        href: "/policies",
+        keywords: "policies documents handbook hr rules",
+      },
+      {
+        id: "issues",
+        title: "Raise an Issue / Helpdesk",
+        subtitle: "Submit support or workplace ticket.",
+        icon: HelpCircle,
+        href: "/issues",
+        keywords: "issue help helpdesk ticket support problem",
+      },
+    ];
+  }, [isSuperAdmin, isTeamLead]);
 
   // Filter Quick Actions based on search term
   const filteredActions = React.useMemo(() => {
@@ -157,7 +337,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
 
   const totalItems = filteredActions.length + employees.length;
 
-  const navigateTo = (href: string) => {
+  const handleSelect = (href: string) => {
     onOpenChange(false);
     router.push(href);
   };
@@ -173,11 +353,15 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
     } else if (e.key === "Enter") {
       e.preventDefault();
       if (selectedIndex < filteredActions.length) {
-        navigateTo(filteredActions[selectedIndex].href);
+        handleSelect(filteredActions[selectedIndex].href);
       } else {
         const empIndex = selectedIndex - filteredActions.length;
         if (employees[empIndex]) {
-          navigateTo(`/employees`);
+          if (isSuperAdmin) {
+            handleSelect(`/employees/${employees[empIndex].id}`);
+          } else {
+            handleSelect(`/community?tab=chat`);
+          }
         }
       }
     }
@@ -215,13 +399,23 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
             className="w-full text-[14.5px] text-[#27272a] placeholder-[#9ca3af] bg-transparent border-none outline-none focus:outline-none focus:ring-0 focus:border-none shadow-none p-0 font-normal"
           />
           {search && (
-            <button onClick={() => setSearch("")} className="p-1 text-slate-400 hover:text-slate-600 cursor-pointer">
+            <button
+              type="button"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                setSearch("");
+              }}
+              className="p-1 text-slate-400 hover:text-slate-600 cursor-pointer"
+            >
               <X className="w-4 h-4" />
             </button>
           )}
           <button
             type="button"
-            onClick={() => onOpenChange(false)}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              onOpenChange(false);
+            }}
             className="sm:hidden p-1 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 cursor-pointer text-xs font-semibold px-2 py-1 bg-slate-100 shrink-0"
           >
             Esc
@@ -230,15 +424,31 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
 
         {/* Results Body */}
         <div className="flex-1 overflow-y-auto py-2 px-3 custom-scrollbar space-y-2.5">
-          {/* Quick Recent Tag Pills (matching Screenshot 2) */}
+          {/* Quick Recent Tag Pills */}
           {!search && (
-            <div className="flex items-center gap-2 px-3 pt-1 pb-1">
+            <div className="flex items-center gap-2 px-3 pt-1 pb-1 flex-wrap">
               <button
-                onClick={() => navigateTo("/project-management/tasks")}
+                type="button"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  handleSelect(isEmployee ? "/project-management/tasks/my" : "/project-management/tasks");
+                }}
                 className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100/90 hover:bg-slate-200/90 text-slate-700 rounded-full text-xs font-medium border border-slate-200/80 transition-colors cursor-pointer"
               >
                 <History className="w-3.5 h-3.5 text-slate-500" />
                 <span>Tasks</span>
+              </button>
+
+              <button
+                type="button"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  handleSelect("/community?tab=chat");
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100/90 hover:bg-slate-200/90 text-slate-700 rounded-full text-xs font-medium border border-slate-200/80 transition-colors cursor-pointer"
+              >
+                <MessageSquare className="w-3.5 h-3.5 text-purple-600" />
+                <span>Chat</span>
               </button>
             </div>
           )}
@@ -246,16 +456,21 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
           {/* Matched Employees (if searching) */}
           {employees.length > 0 && (
             <div>
-              <div className="px-3 py-1 text-[11px] font-semibold text-slate-400">
+              <div className="px-3 py-1 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
                 Employees
               </div>
               <div className="space-y-1 mt-0.5">
                 {employees.map((emp: any, idx: number) => {
                   const isSelected = selectedIndex === filteredActions.length + idx;
+                  const targetHref = isSuperAdmin ? `/employees` : `/community?tab=chat`;
                   return (
                     <button
                       key={emp.id}
-                      onClick={() => navigateTo("/employees")}
+                      type="button"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        handleSelect(targetHref);
+                      }}
                       className={`w-full text-left px-3.5 py-2.5 rounded-xl flex items-center justify-between transition-colors cursor-pointer ${
                         isSelected
                           ? "bg-[#f4f4f5] text-slate-900 font-medium"
@@ -263,19 +478,19 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-[#3b82f6] text-white text-xs font-bold flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-full bg-[#56348f] text-white text-xs font-bold flex items-center justify-center shrink-0">
                           {emp.first_name?.[0] || "E"}
                         </div>
-                        <div>
-                          <div className="text-[13.5px] font-medium text-slate-800">
+                        <div className="min-w-0">
+                          <div className="text-[13.5px] font-medium text-slate-800 truncate">
                             {emp.first_name} {emp.last_name}
                           </div>
-                          <div className="text-[11.5px] text-slate-500">
+                          <div className="text-[11.5px] text-slate-500 truncate">
                             {emp.designation || emp.department || "Employee"} • {emp.email}
                           </div>
                         </div>
                       </div>
-                      <ChevronRight className="w-4 h-4 text-slate-400" />
+                      <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
                     </button>
                   );
                 })}
@@ -300,8 +515,12 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                   return (
                     <button
                       key={action.id}
-                      onClick={() => navigateTo(action.href)}
-                      className={`w-full text-left px-3 py-2 rounded-xl flex items-start justify-between transition-colors cursor-pointer ${
+                      type="button"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        handleSelect(action.href);
+                      }}
+                      className={`w-full text-left px-3 py-2 rounded-xl flex items-start justify-between transition-colors cursor-pointer select-none ${
                         isSelected
                           ? "bg-[#f4f4f5] text-slate-900"
                           : "hover:bg-[#f8fafc] text-slate-700"
@@ -331,8 +550,12 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
           {!search && ALL_ACTIONS.length > 4 && (
             <div className="flex justify-center pt-1 border-t border-slate-100">
               <button
-                onClick={() => setShowMore((prev) => !prev)}
-                className="text-[11.5px] text-[#71717a] hover:text-slate-900 font-medium px-3 py-1 rounded-full hover:bg-slate-100 transition-colors flex items-center gap-1 border border-slate-200"
+                type="button"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  setShowMore((prev) => !prev);
+                }}
+                className="text-[11.5px] text-[#71717a] hover:text-slate-900 font-medium px-3 py-1 rounded-full hover:bg-slate-100 transition-colors flex items-center gap-1 border border-slate-200 cursor-pointer"
               >
                 <span>{showMore ? "View Less" : `View ${ALL_ACTIONS.length - 4} More`}</span>
                 {showMore ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
