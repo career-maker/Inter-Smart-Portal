@@ -127,6 +127,7 @@ const NAV_GROUPS: NavGroup[] = [
     shortLabel: "Services",
     icon: Building2,
     items: [
+      { href: "/community",     label: "Community & Chat" },
       { href: "/announcements", label: "Updates & Announcements" },
       { href: "/documents",     label: "Request Documents" },
       { href: "/policies",      label: "HR Policies" },
@@ -138,6 +139,7 @@ const NAV_GROUPS: NavGroup[] = [
     shortLabel: "Org",
     icon: Users,
     items: [
+      { href: "/community",        label: "Community & Chat" },
       { href: "/employees",        label: "Employees",            roles: ["Super Admin", "HR"] },
       { href: "/teams",            label: "Departments",          roles: ["Super Admin", "HR"] },
       { href: "/attendance/management", label: "Attendance Management", roles: ["Super Admin"] },

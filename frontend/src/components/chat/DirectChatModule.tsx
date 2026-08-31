@@ -360,7 +360,7 @@ export function DirectChatModule() {
               <h2 className="text-base font-bold text-slate-800 dark:text-slate-100 leading-tight">
                 Direct Chat
               </h2>
-              <p className="text-[11px] text-slate-500 font-medium">Google Chat style messages</p>
+              <p className="text-[11px] text-slate-500 font-medium">1-on-1 private messaging</p>
             </div>
           </div>
 

@@ -152,9 +152,6 @@ export default function CommunityPage() {
           >
             <MessageSquare className="w-3.5 h-3.5" />
             <span>Direct Chat</span>
-            <span className="bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-              Google Chat
-            </span>
           </button>
 
           {isSuperAdmin && (

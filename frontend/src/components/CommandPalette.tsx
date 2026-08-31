@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   Users, Calendar, Briefcase, FileText,
   FolderKanban, HelpCircle, User, X, ChevronRight,
-  ChevronDown, ChevronUp, CheckSquare, History
+  ChevronDown, ChevronUp, CheckSquare, History, MessageSquare
 } from "lucide-react";
 import api from "@/services/api";
 import { useQuery } from "@tanstack/react-query";
@@ -83,6 +83,14 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
 
   // Default Quick Actions matching Keka screenshots
   const ALL_ACTIONS = React.useMemo(() => [
+    {
+      id: "chat",
+      title: "Direct Chat",
+      subtitle: "Message colleagues, paste screenshots, and share files.",
+      icon: MessageSquare,
+      href: "/community?tab=chat",
+      keywords: "chat direct message community talk discussion messages conversation",
+    },
     {
       id: "employees",
       title: "Employee Directory",
