@@ -56,6 +56,7 @@ export default function CommunityPage() {
   const handleTabChange = (tab: "feed" | "chat" | "admin-chats") => {
     setActiveTab(tab);
     if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "instant" });
       const url = new URL(window.location.href);
       if (tab === "feed") {
         url.searchParams.delete("tab");
@@ -125,7 +126,7 @@ export default function CommunityPage() {
       style={{
         fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
-      className="pb-12 space-y-6"
+      className={activeTab === "chat" ? "pb-2 space-y-2.5" : "pb-12 space-y-6"}
     >
       {/* ── TOP SUB-TABS (FEED, DIRECT CHAT, ADMIN AUDIT) ── */}
       <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 gap-3 flex-wrap">

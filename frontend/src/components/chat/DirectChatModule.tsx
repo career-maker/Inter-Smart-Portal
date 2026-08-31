@@ -116,9 +116,19 @@ export function DirectChatModule() {
   const dragCounterRef = useRef(0);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatStreamRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isFetchingMessagesRef = useRef(false);
+
+  const scrollToBottom = useCallback((smooth = false) => {
+    if (chatStreamRef.current) {
+      chatStreamRef.current.scrollTo({
+        top: chatStreamRef.current.scrollHeight,
+        behavior: smooth ? "smooth" : "auto",
+      });
+    }
+  }, []);
 
   // Active conversation object
   const activeConversation = useMemo(() => {
@@ -255,16 +265,19 @@ export function DirectChatModule() {
         setMessages([]);
         fetchMessages(activeConversationId, true);
       }
-      setTimeout(() => textareaRef.current?.focus(), 50);
+      setTimeout(() => {
+        textareaRef.current?.focus({ preventScroll: true });
+        scrollToBottom(false);
+      }, 50);
     } else {
       setMessages([]);
     }
-  }, [activeConversationId]);
+  }, [activeConversationId, scrollToBottom]);
 
-  // Auto-scroll to bottom on messages change
+  // Auto-scroll to bottom on messages change without scrolling outer window
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    scrollToBottom(false);
+  }, [messages, scrollToBottom]);
 
   // Dismiss error notification after 5s
   useEffect(() => {
@@ -392,7 +405,10 @@ export function DirectChatModule() {
 
     if (existing) {
       setActiveConversationId(existing.id);
-      setTimeout(() => textareaRef.current?.focus(), 50);
+      setTimeout(() => {
+        textareaRef.current?.focus({ preventScroll: true });
+        scrollToBottom(false);
+      }, 50);
       return;
     }
 
@@ -413,7 +429,10 @@ export function DirectChatModule() {
     setActiveConversationId(tempConvId);
     messagesCacheRef.current[tempConvId] = [];
     setMessages([]);
-    setTimeout(() => textareaRef.current?.focus(), 50);
+    setTimeout(() => {
+      textareaRef.current?.focus({ preventScroll: true });
+      scrollToBottom(false);
+    }, 50);
 
     try {
       const res = await api.post("/direct-chat/conversations/direct", {
@@ -948,7 +967,7 @@ export function DirectChatModule() {
             </div>
 
             {/* WhatsApp Style Chat Stream (Clean bubbles, zero horizontal overflow) */}
-            <div className="flex-1 overflow-y-auto p-3 sm:p-5 custom-scrollbar space-y-2.5 overflow-x-hidden">
+            <div ref={chatStreamRef} className="flex-1 overflow-y-auto p-3 sm:p-5 custom-scrollbar space-y-2.5 overflow-x-hidden">
               {loadingMessages && messages.length === 0 ? (
                 <div className="flex items-center justify-center h-full text-xs text-slate-400">
                   Loading chat history...
