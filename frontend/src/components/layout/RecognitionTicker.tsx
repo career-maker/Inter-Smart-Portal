@@ -2,9 +2,15 @@
 
 import { useEffect, useState } from "react";
 import api from "@/services/api";
-import { Sparkles, Cake, Megaphone } from "lucide-react";
+import { Sparkles, Cake, Megaphone, Zap } from "lucide-react";
+import { useThemeStore } from "@/store/theme";
 
-export function RecognitionTicker() {
+interface RecognitionTickerProps {
+  isDark?: boolean;
+  isSidebarCollapsed?: boolean;
+}
+
+export function RecognitionTicker({ isDark = false, isSidebarCollapsed = true }: RecognitionTickerProps) {
   const [items, setItems] = useState<any[]>([]);
 
   useEffect(() => {
@@ -16,12 +22,12 @@ export function RecognitionTicker() {
           api.get("/announcements"),
         ]);
 
-        const recognitions = (recognitionsRes.data.data || []).map((r: any) => ({
+        const recognitions = (recognitionsRes.data?.data || []).map((r: any) => ({
           ...r,
           type: "recognition",
         }));
 
-        const birthdays = (dashboardRes.data.upcoming_birthdays || [])
+        const birthdays = (dashboardRes.data?.upcoming_birthdays || [])
           .filter((b: any) => b.days_remaining === 0)
           .map((b: any) => ({
             type: "birthday",
@@ -54,12 +60,12 @@ export function RecognitionTicker() {
     return () => clearInterval(interval);
   }, []);
 
-  // Only show if we have real items
+  // Only show if we have items
   if (!items || items.length === 0) return null;
 
   const displayItems = items;
 
-  // Calculate animation duration based on total characters to maintain constant speed regardless of content length
+  // Calculate animation duration based on total characters to maintain constant smooth speed
   const totalChars = displayItems.reduce((acc, item) => {
     let text = "";
     if (item.type === "birthday") {
@@ -71,77 +77,102 @@ export function RecognitionTicker() {
     }
     return acc + text.length;
   }, 0);
-  
-  // Base speed (0.15 seconds per character = ~6.6 chars per second). Minimum 20 seconds.
-  const durationSeconds = Math.max(20, totalChars * 0.15);
+
+  const durationSeconds = Math.max(22, totalChars * 0.16);
+
+  const leftOffsetClass = !isDark
+    ? "left-0 md:left-[84px]"
+    : isSidebarCollapsed
+    ? "left-0 md:left-20"
+    : "left-0 md:left-64";
 
   return (
-    <div className="w-full bg-blue-600 text-white overflow-hidden py-1.5 flex items-center relative border-b border-blue-700/50 shadow-md">
-      <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-blue-600 to-transparent z-10" />
-      <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-blue-600 to-transparent z-10" />
+    <div
+      style={{
+        backgroundColor: "#56348f",
+        fontFamily: '"Google Sans", "Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      }}
+      className={`fixed bottom-0 right-0 z-30 ${leftOffsetClass} transition-all duration-300 ease-in-out text-white overflow-hidden h-9 sm:h-9.5 flex items-center border-t border-purple-700/60 shadow-2xl select-none`}
+    >
+      {/* Left Fixed Badge */}
+      <div className="shrink-0 z-20 flex items-center gap-1.5 px-3 py-1 bg-[#452875] text-amber-300 font-bold text-[11px] uppercase tracking-wider border-r border-purple-600/60 shadow-xs">
+        <Zap className="w-3.5 h-3.5 animate-pulse text-amber-300" />
+        <span>Flash</span>
+      </div>
 
-      <div className="whitespace-nowrap flex gap-12 items-center hover:[animation-play-state:paused]" style={{ animation: `marquee ${durationSeconds}s linear infinite` }}>
+      {/* Gradients to fade edges */}
+      <div className="absolute left-20 top-0 bottom-0 w-6 bg-gradient-to-r from-[#56348f] to-transparent z-10 pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#56348f] to-transparent z-10 pointer-events-none" />
+
+      {/* Marquee Track */}
+      <div
+        className="whitespace-nowrap flex gap-12 items-center hover:[animation-play-state:paused] cursor-default"
+        style={{ animation: `marquee ${durationSeconds}s linear infinite` }}
+      >
         {displayItems.map((item, i) => (
-          <div key={i} className="flex items-center gap-2 text-sm font-semibold tracking-wide">
+          <div key={i} className="flex items-center gap-2 text-xs sm:text-[13px] font-medium tracking-wide text-white">
             {item.type === "birthday" ? (
               <>
                 <Cake className="w-4 h-4 text-yellow-300 animate-bounce" />
                 <span>
-                  🎉 Happy Birthday <span className="text-yellow-200 font-bold uppercase">{item.user.first_name} {item.user.last_name}</span>! Wishing you a wonderful day filled with joy! 🎂
+                  🎉 Happy Birthday <span className="text-yellow-300 font-bold uppercase">{item.user?.first_name} {item.user?.last_name}</span>! Wishing you a wonderful day filled with joy! 🎂
                 </span>
               </>
             ) : item.type === "announcement" ? (
               <>
                 <Megaphone className="w-4 h-4 text-cyan-300 animate-pulse" />
                 <span>
-                  📢 <span className="text-cyan-200 font-bold">{item.title}</span>: {item.content?.substring(0, 100)}{item.content?.length > 100 ? "..." : ""}
+                  📢 <span className="text-cyan-200 font-bold">{item.title}</span>: {item.content?.substring(0, 120)}{item.content?.length > 120 ? "..." : ""}
                 </span>
               </>
             ) : (
               <>
                 <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
                 <span>
-                  Congratulations <span className="text-amber-200 font-bold uppercase">{item.user.first_name} {item.user.last_name}</span> for being awarded as <span className="text-amber-300 font-black tracking-widest">{item.icon} {item.title}</span>! {item.description?.length > 50 ? '' : item.description}
+                  Congratulations <span className="text-amber-200 font-bold uppercase">{item.user?.first_name} {item.user?.last_name}</span> for being awarded as <span className="text-amber-300 font-black">{item.icon} {item.title}</span>! {item.description?.length > 60 ? '' : item.description}
                 </span>
               </>
             )}
           </div>
         ))}
-        {/* Duplicate for seamless infinite scroll if fewer items */}
+
+        {/* Duplicate Track for Seamless Infinite Scrolling */}
         {displayItems.map((item, i) => (
-          <div key={`dup-${i}`} className="flex items-center gap-2 text-sm font-semibold tracking-wide" aria-hidden="true">
+          <div key={`dup-${i}`} className="flex items-center gap-2 text-xs sm:text-[13px] font-medium tracking-wide text-white" aria-hidden="true">
             {item.type === "birthday" ? (
               <>
                 <Cake className="w-4 h-4 text-yellow-300 animate-bounce" />
                 <span>
-                  🎉 Happy Birthday <span className="text-yellow-200 font-bold uppercase">{item.user.first_name} {item.user.last_name}</span>! Wishing you a wonderful day filled with joy! 🎂
+                  🎉 Happy Birthday <span className="text-yellow-300 font-bold uppercase">{item.user?.first_name} {item.user?.last_name}</span>! Wishing you a wonderful day filled with joy! 🎂
                 </span>
               </>
             ) : item.type === "announcement" ? (
               <>
                 <Megaphone className="w-4 h-4 text-cyan-300 animate-pulse" />
                 <span>
-                  📢 <span className="text-cyan-200 font-bold">{item.title}</span>: {item.content?.substring(0, 100)}{item.content?.length > 100 ? "..." : ""}
+                  📢 <span className="text-cyan-200 font-bold">{item.title}</span>: {item.content?.substring(0, 120)}{item.content?.length > 120 ? "..." : ""}
                 </span>
               </>
             ) : (
               <>
                 <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
                 <span>
-                  Congratulations <span className="text-amber-200 font-bold uppercase">{item.user.first_name} {item.user.last_name}</span> for being awarded as <span className="text-amber-300 font-black tracking-widest">{item.icon} {item.title}</span>! {item.description?.length > 50 ? '' : item.description}
+                  Congratulations <span className="text-amber-200 font-bold uppercase">{item.user?.first_name} {item.user?.last_name}</span> for being awarded as <span className="text-amber-300 font-black">{item.icon} {item.title}</span>! {item.description?.length > 60 ? '' : item.description}
                 </span>
               </>
             )}
           </div>
         ))}
       </div>
-      
-      <style dangerouslySetInnerHTML={{__html: `
-        @keyframes marquee {
-          0% { transform: translateX(10%); }
-          100% { transform: translateX(-100%); }
-        }
-      `}} />
+
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          @keyframes marquee {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-50%); }
+          }
+        `
+      }} />
     </div>
   );
 }

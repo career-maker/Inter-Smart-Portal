@@ -836,8 +836,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className={`flex-1 flex flex-col min-w-0 min-h-screen transition-all duration-300 ease-in-out ${
         !isDark ? 'md:pl-[84px]' : isSidebarCollapsed ? 'md:pl-20' : 'md:pl-64'
       }`}>
-        <RecognitionTicker />
-        
         {/* ── FIXED TOP HEADER & SUB-TABS BAR (ALWAYS PINNED AT TOP ON SCROLL) ── */}
         <div
           id="global-fixed-header-container"
@@ -1009,9 +1007,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="h-[104px] shrink-0 w-full" />
 
         {/* Page Content (Full width across wide displays, zero awkward side gaps) */}
-        <main className="flex-1 px-4 sm:px-6 lg:px-8 xl:px-10 pt-1 sm:pt-1.5 pb-6 sm:pb-8 w-full max-w-full">
+        <main className="flex-1 px-4 sm:px-6 lg:px-8 xl:px-10 pt-1 sm:pt-1.5 pb-14 sm:pb-16 w-full max-w-full">
           {children}
         </main>
+
+        {/* ── FLASH MARQUEE (PINNED AT BOTTOM IN HEADER PURPLE WITH WHITE TEXT) ── */}
+        <RecognitionTicker isDark={isDark} isSidebarCollapsed={isSidebarCollapsed} />
       </div>
 
       {/* ─────────────────────────────────────────────────────────────────────────────
