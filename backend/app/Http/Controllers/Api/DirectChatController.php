@@ -260,13 +260,17 @@ class DirectChatController extends Controller
             $usersQuery->where(function ($sq) use ($q) {
                 $sq->where('first_name', 'like', "%{$q}%")
                    ->orWhere('last_name', 'like', "%{$q}%")
+                   ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$q}%"])
                    ->orWhere('email', 'like', "%{$q}%")
                    ->orWhere('employee_code', 'like', "%{$q}%")
-                   ->orWhere('designation', 'like', "%{$q}%");
+                   ->orWhere('designation', 'like', "%{$q}%")
+                   ->orWhereHas('team', function ($tq) use ($q) {
+                       $tq->where('name', 'like', "%{$q}%");
+                   });
             });
         }
 
-        $users = $usersQuery->orderBy('first_name')->take(20)->get();
+        $users = $usersQuery->orderBy('first_name')->take(50)->get();
 
         return response()->json([
             'status' => 'success',

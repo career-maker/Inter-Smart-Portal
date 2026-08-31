@@ -22,7 +22,8 @@ import {
   Maximize2,
   AlertCircle,
   UploadCloud,
-  RotateCw
+  RotateCw,
+  MessageSquarePlus
 } from "lucide-react";
 import { format, isToday, isYesterday, parseISO } from "date-fns";
 
@@ -91,12 +92,12 @@ export function DirectChatModule() {
   // In-memory instant cache for zero-delay conversation switching
   const messagesCacheRef = useRef<Record<number, ChatMessage[]>>({});
 
-  // Search & New Chat
+  // Search & New Chat with Instant Client Pre-caching
   const [searchQuery, setSearchQuery] = useState("");
   const [showNewChatModal, setShowNewChatModal] = useState(false);
   const [userSearchQuery, setUserSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<ChatUser[]>([]);
-  const [searchingUsers, setSearchingUsers] = useState(false);
+  const [allColleagues, setAllColleagues] = useState<ChatUser[]>([]);
+  const [loadingColleagues, setLoadingColleagues] = useState(false);
 
   // Message Input & Staged Attachments
   const [inputMessage, setInputMessage] = useState("");
@@ -132,6 +133,7 @@ export function DirectChatModule() {
   // Initial load
   useEffect(() => {
     fetchConversations(true);
+    fetchAllColleagues();
   }, []);
 
   // Fast background polling (every 1.5s) & Window Focus Listener for instant sync
@@ -187,6 +189,32 @@ export function DirectChatModule() {
     }
   }, [errorMessage]);
 
+  // Fetch all colleagues for instantaneous 0ms new chat search
+  const fetchAllColleagues = async () => {
+    try {
+      setLoadingColleagues(true);
+      const res = await api.get(`/direct-chat/users/search?q=&t=${Date.now()}`);
+      if (res.data?.status === "success") {
+        setAllColleagues(res.data.data || []);
+      }
+    } catch (err) {
+      console.error("Failed to load colleagues", err);
+    } finally {
+      setLoadingColleagues(false);
+    }
+  };
+
+  // Instant 0ms synchronous filtering of colleagues for New Chat modal
+  const filteredColleagues = useMemo(() => {
+    const q = userSearchQuery.trim().toLowerCase();
+    if (!q) return allColleagues;
+
+    return allColleagues.filter((usr) => {
+      const combined = `${usr.name || ""} ${usr.first_name || ""} ${usr.last_name || ""} ${usr.email || ""} ${usr.employee_code || ""} ${usr.designation || ""} ${usr.department || ""}`.toLowerCase();
+      return combined.includes(q);
+    });
+  }, [allColleagues, userSearchQuery]);
+
   // Fetch conversations
   const fetchConversations = async (showLoader = false) => {
     try {
@@ -240,26 +268,6 @@ export function DirectChatModule() {
       if (showLoader) setLoadingMessages(false);
     }
   };
-
-  // Search users for starting new chat
-  useEffect(() => {
-    if (!showNewChatModal) return;
-    const delayDebounce = setTimeout(async () => {
-      try {
-        setSearchingUsers(true);
-        const res = await api.get(`/direct-chat/users/search?q=${encodeURIComponent(userSearchQuery)}&t=${Date.now()}`);
-        if (res.data?.status === "success") {
-          setSearchResults(res.data.data || []);
-        }
-      } catch (err) {
-        console.error("Failed to search users", err);
-      } finally {
-        setSearchingUsers(false);
-      }
-    }, 200);
-
-    return () => clearTimeout(delayDebounce);
-  }, [userSearchQuery, showNewChatModal]);
 
   // Start chat with user
   const handleStartChatWithUser = async (targetUser: ChatUser) => {
@@ -520,7 +528,7 @@ export function DirectChatModule() {
     return `${(bytes / (k * k)).toFixed(1)} MB`;
   };
 
-  // Filter conversations
+  // Filter conversations in left list
   const filteredConversations = conversations.filter((c) => {
     if (!searchQuery.trim()) return true;
     const name = c.other_user?.name || c.title || "";
@@ -564,7 +572,7 @@ export function DirectChatModule() {
           <span>{errorMessage}</span>
           <button
             onClick={() => setErrorMessage(null)}
-            className="ml-2 hover:bg-rose-700 rounded-full p-0.5"
+            className="ml-2 hover:bg-rose-700 rounded-full p-0.5 cursor-pointer"
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -572,17 +580,17 @@ export function DirectChatModule() {
       )}
 
       {/* ─────────────────────────────────────────────────────────────
-          LEFT PANEL: GOOGLE CHAT CONVERSATION LIST
+          LEFT PANEL: CONVERSATION LIST
       ───────────────────────────────────────────────────────────── */}
       <div className="w-full md:w-80 lg:w-88 border-r border-slate-200/90 dark:border-slate-800 flex flex-col shrink-0 bg-[#f8fafd] dark:bg-slate-900/80">
-        {/* Header & New Chat Button */}
+        {/* Header & High-Contrast Visible New Chat Button */}
         <div className="p-3.5 px-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-2 bg-white/70 dark:bg-slate-900/60">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-[#c2e7ff] text-[#001d35] dark:bg-purple-900/40 dark:text-purple-300 flex items-center justify-center font-bold">
+            <div className="w-8 h-8 rounded-full bg-[#56348f]/10 text-[#56348f] dark:bg-purple-900/40 dark:text-purple-300 flex items-center justify-center font-bold">
               <Sparkles className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-slate-800 dark:text-slate-100 leading-tight">
+              <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 leading-tight">
                 Direct Chat
               </h2>
               <p className="text-[11px] text-slate-500 font-medium">1-on-1 conversations</p>
@@ -591,9 +599,9 @@ export function DirectChatModule() {
 
           <button
             onClick={() => setShowNewChatModal(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#c2e7ff] hover:bg-[#b3e0ff] text-[#001d35] dark:bg-purple-600 dark:hover:bg-purple-700 dark:text-white rounded-full text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#56348f] hover:bg-[#452875] text-white dark:bg-purple-600 dark:hover:bg-purple-700 rounded-full text-xs font-bold shadow-sm transition-all cursor-pointer hover:shadow-md"
           >
-            <Plus className="w-3.5 h-3.5" />
+            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
             <span>New Chat</span>
           </button>
         </div>
@@ -607,12 +615,12 @@ export function DirectChatModule() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search people or chats..."
-              className="w-full pl-9 pr-3 py-1.5 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full focus:outline-none focus:ring-2 focus:ring-[#c2e7ff] dark:focus:ring-purple-500 text-slate-800 dark:text-slate-100 placeholder-slate-400"
+              className="w-full pl-9 pr-3 py-1.5 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500/30 dark:focus:ring-purple-500 text-slate-800 dark:text-slate-100 placeholder-slate-400"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600"
+                className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 cursor-pointer"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -633,9 +641,9 @@ export function DirectChatModule() {
               <p className="text-[11px] text-slate-400 mt-0.5">Click "New Chat" to message any colleague.</p>
               <button
                 onClick={() => setShowNewChatModal(true)}
-                className="mt-3 px-3.5 py-1.5 bg-[#c2e7ff] text-[#001d35] hover:bg-[#b3e0ff] dark:bg-purple-900/40 dark:text-purple-300 rounded-full text-xs font-semibold inline-flex items-center gap-1 cursor-pointer transition-colors"
+                className="mt-3 px-4 py-2 bg-[#56348f] hover:bg-[#452875] text-white dark:bg-purple-600 dark:hover:bg-purple-700 rounded-full text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer shadow-sm transition-all"
               >
-                <Plus className="w-3.5 h-3.5" />
+                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                 <span>Start a conversation</span>
               </button>
             </div>
@@ -767,7 +775,7 @@ export function DirectChatModule() {
                 </div>
               ) : messages.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-center p-6">
-                  <div className="w-16 h-16 rounded-full bg-[#c2e7ff] dark:bg-purple-900/30 text-[#001d35] dark:text-purple-300 flex items-center justify-center mb-3">
+                  <div className="w-16 h-16 rounded-full bg-[#56348f]/10 dark:bg-purple-900/30 text-[#56348f] dark:text-purple-300 flex items-center justify-center mb-3">
                     <Sparkles className="w-8 h-8" />
                   </div>
                   <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
@@ -887,7 +895,7 @@ export function DirectChatModule() {
                                       {!isSending && (
                                         <button
                                           onClick={() => setPreviewImage(att.file_url)}
-                                          className="absolute top-2 right-2 p-1.5 bg-black/60 text-white rounded-lg opacity-0 group-hover/img:opacity-100 transition-opacity"
+                                          className="absolute top-2 right-2 p-1.5 bg-black/60 text-white rounded-lg opacity-0 group-hover/img:opacity-100 transition-opacity cursor-pointer"
                                           title="Expand"
                                         >
                                           <Maximize2 className="w-3.5 h-3.5" />
@@ -949,7 +957,7 @@ export function DirectChatModule() {
                     )}
                     <button
                       onClick={() => handleRemoveStagedFile(idx)}
-                      className="absolute top-1 right-1 p-0.5 bg-black/70 text-white rounded-full hover:bg-black transition-colors"
+                      className="absolute top-1 right-1 p-0.5 bg-black/70 text-white rounded-full hover:bg-black transition-colors cursor-pointer"
                       title="Remove attachment"
                     >
                       <X className="w-3 h-3" />
@@ -1000,7 +1008,7 @@ export function DirectChatModule() {
                   type="button"
                   disabled={!inputMessage.trim() && stagedFiles.length === 0}
                   onClick={() => handleSendMessage()}
-                  className="p-2 bg-[#0b57d0] hover:bg-[#0842a0] disabled:opacity-30 disabled:hover:bg-[#0b57d0] text-white rounded-full shadow-xs transition-colors shrink-0 cursor-pointer"
+                  className="p-2 bg-[#56348f] hover:bg-[#432770] disabled:opacity-30 disabled:hover:bg-[#56348f] text-white rounded-full shadow-xs transition-colors shrink-0 cursor-pointer"
                   title="Send message (Enter)"
                 >
                   <Send className="w-4 h-4" />
@@ -1015,7 +1023,7 @@ export function DirectChatModule() {
           </>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-[#c2e7ff] text-[#001d35] flex items-center justify-center mb-3 shadow-xs">
+            <div className="w-16 h-16 rounded-2xl bg-[#56348f]/10 text-[#56348f] flex items-center justify-center mb-3 shadow-xs">
               <Sparkles className="w-8 h-8" />
             </div>
             <h3 className="text-base font-bold text-slate-800 dark:text-slate-100">
@@ -1026,9 +1034,9 @@ export function DirectChatModule() {
             </p>
             <button
               onClick={() => setShowNewChatModal(true)}
-              className="mt-4 px-4 py-2 bg-[#c2e7ff] hover:bg-[#b3e0ff] text-[#001d35] rounded-full text-xs font-semibold shadow-xs transition-colors cursor-pointer inline-flex items-center gap-1.5"
+              className="mt-4 px-4 py-2 bg-[#56348f] hover:bg-[#452875] text-white rounded-full text-xs font-bold shadow-sm transition-all cursor-pointer inline-flex items-center gap-1.5 hover:shadow-md"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-4 h-4 stroke-[2.5]" />
               <span>Start New Chat</span>
             </button>
           </div>
@@ -1036,7 +1044,7 @@ export function DirectChatModule() {
       </div>
 
       {/* ─────────────────────────────────────────────────────────────
-          MODAL: NEW CHAT / SEARCH COLLEAGUE
+          MODAL: NEW CHAT / INSTANT SEARCH COLLEAGUE (0ms response)
       ───────────────────────────────────────────────────────────── */}
       {showNewChatModal && (
         <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
@@ -1044,7 +1052,7 @@ export function DirectChatModule() {
             {/* Modal Header */}
             <div className="p-4 px-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-[#c2e7ff] text-[#001d35] dark:bg-purple-900/40 dark:text-purple-300 flex items-center justify-center font-bold">
+                <div className="w-8 h-8 rounded-full bg-[#56348f]/10 text-[#56348f] dark:bg-purple-900/40 dark:text-purple-300 flex items-center justify-center font-bold">
                   <User className="w-4 h-4" />
                 </div>
                 <div>
@@ -1056,7 +1064,7 @@ export function DirectChatModule() {
               </div>
               <button
                 onClick={() => setShowNewChatModal(false)}
-                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1065,32 +1073,40 @@ export function DirectChatModule() {
             {/* Modal Search Input */}
             <div className="p-3 px-5 border-b border-slate-200/80 dark:border-slate-800">
               <div className="relative">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                 <input
                   type="text"
                   autoFocus
                   value={userSearchQuery}
                   onChange={(e) => setUserSearchQuery(e.target.value)}
-                  placeholder="Type name, email, or department..."
-                  className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500 text-slate-800 dark:text-slate-100"
+                  placeholder="Search by name, email, or department..."
+                  className="w-full pl-10 pr-9 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500 text-slate-800 dark:text-slate-100"
                 />
+                {userSearchQuery && (
+                  <button
+                    onClick={() => setUserSearchQuery("")}
+                    className="absolute right-3.5 top-2.5 text-slate-400 hover:text-slate-600 cursor-pointer"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
               </div>
             </div>
 
-            {/* Search Results List */}
+            {/* Search Results List (Instant 0ms synchronous filtering) */}
             <div className="flex-1 overflow-y-auto p-3 custom-scrollbar space-y-1">
-              {searchingUsers ? (
-                <div className="p-8 text-center text-xs text-slate-400">Searching colleagues...</div>
-              ) : searchResults.length === 0 ? (
+              {loadingColleagues && allColleagues.length === 0 ? (
+                <div className="p-8 text-center text-xs text-slate-400">Loading directory...</div>
+              ) : filteredColleagues.length === 0 ? (
                 <div className="p-8 text-center text-xs text-slate-400">
-                  {userSearchQuery ? "No employees found." : "Search to find colleagues."}
+                  {userSearchQuery ? `No employees found matching "${userSearchQuery}".` : "No colleagues found."}
                 </div>
               ) : (
-                searchResults.map((usr) => (
+                filteredColleagues.map((usr) => (
                   <button
                     key={usr.id}
                     onClick={() => handleStartChatWithUser(usr)}
-                    className="w-full text-left p-2.5 rounded-2xl flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer group"
+                    className="w-full text-left p-2.5 rounded-2xl flex items-center justify-between hover:bg-purple-50 dark:hover:bg-slate-800 transition-colors cursor-pointer group"
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <RoyalAvatar
@@ -1103,14 +1119,14 @@ export function DirectChatModule() {
                         <RoyalName
                           name={usr.name}
                           userId={usr.id}
-                          className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate block"
+                          className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate block group-hover:text-[#56348f] transition-colors"
                         />
                         <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                          {usr.designation} • {usr.department || usr.email}
+                          {usr.designation || "Employee"} • {usr.department || usr.email}
                         </p>
                       </div>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-purple-600 transition-colors" />
+                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#56348f] transition-colors" />
                   </button>
                 ))
               )}
@@ -1130,7 +1146,7 @@ export function DirectChatModule() {
           <div className="relative max-w-4xl max-h-[90vh]">
             <button
               onClick={() => setPreviewImage(null)}
-              className="absolute -top-10 right-0 p-1.5 text-white bg-black/50 hover:bg-black rounded-full"
+              className="absolute -top-10 right-0 p-1.5 text-white bg-black/50 hover:bg-black rounded-full cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
