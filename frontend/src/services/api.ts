@@ -10,6 +10,31 @@ const api = axios.create({
   withCredentials: true, // For Sanctum CSRF and session cookies
 });
 
+const NO_CACHE_URLS = [
+  '/me',
+  '/dashboard',
+  '/profile',
+  '/attendance',
+  '/notifications',
+  '/direct-chat',
+  '/employees',
+  '/users',
+  '/teams',
+  '/wfh-requests',
+  '/leave-requests',
+  '/leaves'
+];
+
+function getScopedCacheKey(baseURL: string | undefined, url: string | undefined, params: any, token: string | null): string | null {
+  if (!url) return null;
+  if (NO_CACHE_URLS.some((pattern) => url.includes(pattern))) {
+    return null;
+  }
+  const queryStr = params ? (typeof params === 'string' ? params : new URLSearchParams(params).toString()) : '';
+  const scope = token ? token.slice(-16) : 'guest';
+  return `${scope}:${baseURL || ''}${url}${queryStr ? `?${queryStr}` : ''}`;
+}
+
 // Request interceptor for adding auth token and caching GET requests
 api.interceptors.request.use((config) => {
   // If you use token-based auth instead of cookies, attach it here
@@ -40,19 +65,18 @@ api.interceptors.request.use((config) => {
       }
     }
 
-    // Cache GET requests
+    // Cache GET requests only for safe, static, token-scoped endpoints
     if (config.method?.toLowerCase() === 'get') {
-      const queryStr = config.params ? (typeof config.params === 'string' ? config.params : new URLSearchParams(config.params).toString()) : '';
-      const cacheKey = `${config.baseURL}${config.url}${queryStr ? `?${queryStr}` : ''}`;
-      const cachedData = apiCache.get(cacheKey);
-
-      if (cachedData) {
-        // Return cached data without making the request
-        return Promise.reject({
-          config,
-          response: { data: cachedData, status: 200, statusText: 'OK (cached)' },
-          isFromCache: true,
-        });
+      const cacheKey = getScopedCacheKey(config.baseURL, config.url, config.params, token);
+      if (cacheKey) {
+        const cachedData = apiCache.get(cacheKey);
+        if (cachedData) {
+          return Promise.reject({
+            config,
+            response: { data: cachedData, status: 200, statusText: 'OK (cached)' },
+            isFromCache: true,
+          });
+        }
       }
     }
   }
@@ -62,12 +86,13 @@ api.interceptors.request.use((config) => {
 // Response interceptor for handling common errors and caching responses
 api.interceptors.response.use(
   (response) => {
-    // Cache successful GET responses
+    // Cache successful GET responses only if safe and scoped
     if (typeof window !== 'undefined' && response.config.method?.toLowerCase() === 'get') {
-      const queryStr = response.config.params ? (typeof response.config.params === 'string' ? response.config.params : new URLSearchParams(response.config.params).toString()) : '';
-      const cacheKey = `${response.config.baseURL}${response.config.url}${queryStr ? `?${queryStr}` : ''}`;
-      // Cache for 2 minutes by default
-      apiCache.set(cacheKey, response.data, 2 * 60 * 1000);
+      const token = localStorage.getItem('token');
+      const cacheKey = getScopedCacheKey(response.config.baseURL, response.config.url, response.config.params, token);
+      if (cacheKey) {
+        apiCache.set(cacheKey, response.data, 2 * 60 * 1000);
+      }
     }
     return response;
   },
@@ -88,7 +113,9 @@ api.interceptors.response.use(
 
         // Never force-reload if we are already on an auth page or it is a login request
         if (!isAuthPage && !isLoginRequest) {
+          apiCache.clearAll();
           localStorage.removeItem('token');
+          localStorage.removeItem('auth-storage');
           window.location.href = '/login';
         }
       }

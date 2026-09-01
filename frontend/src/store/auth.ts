@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+import { apiCache } from '@/services/cache';
+
 export interface User {
   id: number;
   first_name: string;
@@ -35,9 +37,21 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       token: null,
       isAuthenticated: false,
-      setAuth: (user, token) => set({ user, token, isAuthenticated: true }),
+      setAuth: (user, token) => {
+        apiCache.clearAll();
+        set({ user, token, isAuthenticated: true });
+      },
       updateUser: (partial) => set((state) => ({ user: state.user ? { ...state.user, ...partial } : null })),
-      logout: () => set({ user: null, token: null, isAuthenticated: false }),
+      logout: () => {
+        apiCache.clearAll();
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.removeItem('token');
+            localStorage.removeItem('auth-storage');
+          } catch {}
+        }
+        set({ user: null, token: null, isAuthenticated: false });
+      },
     }),
     {
       name: 'auth-storage', // stored in local storage

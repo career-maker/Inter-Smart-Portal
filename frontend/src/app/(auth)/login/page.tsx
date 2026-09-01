@@ -52,6 +52,10 @@ export default function LoginPage() {
       try {
         const response = await api.post("/login", { email, password });
         if (response.data.token) {
+          try {
+            localStorage.removeItem("token");
+            localStorage.removeItem("auth-storage");
+          } catch {}
           localStorage.setItem("token", response.data.token);
           if (rememberDevice) {
             localStorage.setItem("rememberDevice", "true");

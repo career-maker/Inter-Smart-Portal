@@ -334,14 +334,52 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (isHydrated && !isAuthenticated) router.push("/login");
   }, [isHydrated, isAuthenticated, router]);
 
+  // Listen for storage events (e.g. login/logout in another tab)
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "token" || e.key === "auth-storage") {
+        const currentToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+        if (!currentToken) {
+          logout();
+          router.push("/login");
+        } else {
+          // Re-sync with server /me to ensure current tab has the right user and role
+          api.get("/me").then((res) => {
+            if (res.data?.user) {
+              useAuthStore.setState({ user: res.data.user, token: currentToken, isAuthenticated: true });
+            }
+          }).catch(() => {
+            logout();
+            router.push("/login");
+          });
+        }
+      }
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, [logout, router]);
+
   // Refresh user profile once on initial authenticated load only
   const [meFetched, setMeFetched] = useState(false);
   useEffect(() => {
     if (!isHydrated || !isAuthenticated || meFetched) return;
     setMeFetched(true);
     api.get("/me").then((res) => {
-      if (res.data?.user) updateUser(res.data.user);
-    }).catch(() => {});
+      if (res.data?.user) {
+        const serverUser = res.data.user;
+        const localUser = useAuthStore.getState().user;
+        // If local user id or role doesn't match server user, replace completely
+        if (!localUser || localUser.id !== serverUser.id || localUser.role !== serverUser.role) {
+          useAuthStore.setState({ user: serverUser });
+        } else {
+          updateUser(serverUser);
+        }
+      }
+    }).catch((err) => {
+      if (err.response?.status === 401) {
+        handleLogout();
+      }
+    });
   }, [isHydrated, isAuthenticated]);
 
   if (!isHydrated) {
@@ -369,7 +407,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const handleLogout = () => {
     logout();
-    localStorage.removeItem("token");
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.removeItem("token");
+        localStorage.removeItem("auth-storage");
+        sessionStorage.clear();
+      } catch {}
+    }
     router.push("/login");
     import("@/services/api").then(({ default: api }) => {
       api.post("/logout").catch(() => {});

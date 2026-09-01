@@ -48,6 +48,9 @@ class DashboardController extends Controller
             ->get();
 
         $profile = [
+            'id' => $user->id,
+            'email' => $user->email,
+            'role' => $user->primaryRoleName(),
             'first_name' => $user->first_name,
             'last_name' => $user->last_name,
             'employee_code' => $user->employee_code,

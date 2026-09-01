@@ -99,6 +99,28 @@ export default function DashboardPage() {
           params: { _t: Date.now() }
         });
         setData(res.data);
+        // Synchronize auth store if server profile role or id differs from local store
+        if (res.data?.profile) {
+          const profileRole = res.data.profile.role;
+          const profileId = res.data.profile.id;
+          const currentUser = useAuthStore.getState().user;
+          if (
+            (profileRole && currentUser?.role !== profileRole) ||
+            (profileId && currentUser?.id !== profileId)
+          ) {
+            useAuthStore.setState({
+              user: {
+                ...(currentUser || {}),
+                id: profileId || currentUser?.id,
+                role: profileRole || currentUser?.role,
+                first_name: res.data.profile.first_name || currentUser?.first_name,
+                last_name: res.data.profile.last_name || currentUser?.last_name,
+                designation: res.data.profile.designation || currentUser?.designation,
+                profile_photo_path: res.data.profile.profile_photo_path || currentUser?.profile_photo_path,
+              } as any
+            });
+          }
+        }
       } catch (e: any) {
         console.error("Failed to fetch dashboard data", e);
         setError(e.response?.data?.message || e.message || "Failed to load dashboard");
@@ -228,7 +250,9 @@ export default function DashboardPage() {
   if (hour < 12) greeting = "Good Morning";
   else if (hour < 17) greeting = "Good Afternoon";
 
-  if (user?.role === "Super Admin" && data.admin_data) {
+  const effectiveRole = data?.profile?.role || user?.role;
+
+  if (effectiveRole === "Super Admin" && data.admin_data) {
     return (
       <SuperAdminDashboard
         data={data}
