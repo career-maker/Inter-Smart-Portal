@@ -318,11 +318,21 @@ class AttendanceController extends Controller
             ->orderBy('local_punch_time', 'asc')
             ->get();
 
+        $targetUser = User::find($targetId);
+
         if ($rawEvents->isEmpty() && !$attendance) {
             return response()->json([
-                'date'    => $dateString,
-                'message' => 'No biometric or attendance data found for this date.',
-                'data'    => null,
+                'date'     => $dateString,
+                'message'  => 'No biometric or attendance data found for this date.',
+                'employee' => $targetUser ? [
+                    'id'                 => $targetUser->id,
+                    'first_name'         => $targetUser->first_name,
+                    'last_name'          => $targetUser->last_name,
+                    'employee_code'      => $targetUser->employee_code,
+                    'designation'        => $targetUser->designation,
+                    'profile_photo_path' => $targetUser->profilePhotoUrl(),
+                ] : null,
+                'data'     => null,
             ]);
         }
 
@@ -389,10 +399,13 @@ class AttendanceController extends Controller
 
         return response()->json([
             'date'                   => $dateString,
-            'employee'               => $attendance?->user ? [
-                'id'         => $attendance->user->id,
-                'first_name' => $attendance->user->first_name,
-                'last_name'  => $attendance->user->last_name,
+            'employee'               => $targetUser ? [
+                'id'                 => $targetUser->id,
+                'first_name'         => $targetUser->first_name,
+                'last_name'          => $targetUser->last_name,
+                'employee_code'      => $targetUser->employee_code,
+                'designation'        => $targetUser->designation,
+                'profile_photo_path' => $targetUser->profilePhotoUrl(),
             ] : null,
             'attendance_id'          => $attendance?->id,
             'status_label'           => $statusLabel,

@@ -14,17 +14,39 @@ import {
   ArrowRight,
   ShieldCheck,
   CalendarCheck,
-  ChevronRight
+  CalendarDays,
+  ChevronLeft,
+  ChevronRight,
+  Users,
+  User as UserIcon,
 } from "lucide-react";
-import { format } from "date-fns";
+import { format, addDays, subDays, parseISO } from "date-fns";
 import api from "@/services/api";
+import { RoyalAvatar } from "@/components/ui/RoyalAvatar";
 
-export function AttendanceWidget({ initialData }: { initialData?: any }) {
+interface AttendanceWidgetProps {
+  initialData?: any;
+  teamMembers?: Array<any>;
+  externalOpenMember?: any | null;
+  onClearExternalOpen?: () => void;
+}
+
+export function AttendanceWidget({
+  initialData,
+  teamMembers = [],
+  externalOpenMember = null,
+  onClearExternalOpen,
+}: AttendanceWidgetProps) {
   const [data, setData] = useState<any>(initialData || null);
   const [isLoading, setIsLoading] = useState(!initialData);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
-  // Today's Punches Drawer State (Scoped strictly to today and auth employee only)
+  // Date-wise & Member selection states
+  const todayStr = format(new Date(), "yyyy-MM-dd");
+  const [selectedDate, setSelectedDate] = useState<string>(todayStr);
+  const [selectedMember, setSelectedMember] = useState<any | null>(null);
+
+  // Timeline Drawer State
   const [isTimelineDrawerOpen, setIsTimelineDrawerOpen] = useState(false);
   const [timelineData, setTimelineData] = useState<any | null>(null);
   const [isLoadingTimeline, setIsLoadingTimeline] = useState(false);
@@ -41,21 +63,65 @@ export function AttendanceWidget({ initialData }: { initialData?: any }) {
     }
   };
 
-  const fetchTimelineData = async () => {
+  const fetchTimelineData = async (targetDate?: string, targetMember?: any) => {
+    const dateToQuery = targetDate || selectedDate;
+    const memberToQuery = targetMember !== undefined ? targetMember : selectedMember;
     setIsLoadingTimeline(true);
     setTimelineError(null);
     try {
-      const todayStr = format(new Date(), "yyyy-MM-dd");
-      // Strictly query today's date and omit user_id so backend strictly returns auth user's records
-      const res = await api.get(`/attendance/details?date=${todayStr}`);
+      const userParam = memberToQuery?.id ? `&user_id=${memberToQuery.id}` : "";
+      const res = await api.get(`/attendance/details?date=${dateToQuery}${userParam}`);
       setTimelineData(res.data);
     } catch (e: any) {
-      console.error("Failed to fetch today's timeline details", e);
-      setTimelineError(e.response?.data?.message || "Failed to load today's punch records");
+      console.error("Failed to fetch timeline details", e);
+      setTimelineError(e.response?.data?.message || "Failed to load punch records");
     } finally {
       setIsLoadingTimeline(false);
     }
   };
+
+  const handleDateChange = (newDateStr: string) => {
+    setSelectedDate(newDateStr);
+    fetchTimelineData(newDateStr, selectedMember);
+  };
+
+  const handleStepDay = (step: number) => {
+    try {
+      const current = parseISO(selectedDate);
+      const nextDate = step > 0 ? addDays(current, step) : subDays(current, Math.abs(step));
+      const today = new Date();
+      if (step > 0 && format(nextDate, "yyyy-MM-dd") > format(today, "yyyy-MM-dd")) {
+        return;
+      }
+      const formatted = format(nextDate, "yyyy-MM-dd");
+      handleDateChange(formatted);
+    } catch {
+      handleDateChange(todayStr);
+    }
+  };
+
+  const handleJumpToday = () => {
+    handleDateChange(todayStr);
+  };
+
+  const handleSelectMember = (member: any | null) => {
+    setSelectedMember(member);
+    fetchTimelineData(selectedDate, member);
+  };
+
+  const handleCloseDrawer = () => {
+    setIsTimelineDrawerOpen(false);
+    if (onClearExternalOpen) onClearExternalOpen();
+  };
+
+  // Sync external member open trigger (e.g. from Team Status Today widget)
+  useEffect(() => {
+    if (externalOpenMember) {
+      setSelectedMember(externalOpenMember);
+      setIsTimelineDrawerOpen(true);
+      fetchTimelineData(selectedDate, externalOpenMember);
+    }
+  }, [externalOpenMember]);
 
   useEffect(() => {
     fetchData();
@@ -66,16 +132,16 @@ export function AttendanceWidget({ initialData }: { initialData?: any }) {
     const interval = setInterval(() => {
       fetchData();
       if (isTimelineDrawerOpen) {
-        fetchTimelineData();
+        fetchTimelineData(selectedDate, selectedMember);
       }
     }, 30000);
     return () => clearInterval(interval);
-  }, [isTimelineDrawerOpen]);
+  }, [isTimelineDrawerOpen, selectedDate, selectedMember]);
 
   // Fetch timeline data when drawer is opened
   useEffect(() => {
     if (isTimelineDrawerOpen) {
-      fetchTimelineData();
+      fetchTimelineData(selectedDate, selectedMember);
     }
   }, [isTimelineDrawerOpen]);
 
@@ -352,16 +418,16 @@ export function AttendanceWidget({ initialData }: { initialData?: any }) {
         <div className="fixed inset-0 z-50 overflow-hidden font-sans">
           {/* Backdrop */}
           <div
-            onClick={() => setIsTimelineDrawerOpen(false)}
+            onClick={handleCloseDrawer}
             className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
           />
 
           {/* Drawer Panel */}
           <div className="fixed inset-y-0 right-0 max-w-md w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-50 animate-in slide-in-from-right duration-300 text-slate-900 dark:text-white">
             {/* Header */}
-            <div className="relative p-6 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-b from-purple-50/80 via-purple-50/30 to-white dark:from-slate-800 dark:to-slate-900 shrink-0">
+            <div className="relative p-5 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-b from-purple-50/80 via-purple-50/30 to-white dark:from-slate-800 dark:to-slate-900 shrink-0">
               <button
-                onClick={() => setIsTimelineDrawerOpen(false)}
+                onClick={handleCloseDrawer}
                 className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 dark:hover:text-white p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer z-10"
                 title="Close"
               >
@@ -369,37 +435,167 @@ export function AttendanceWidget({ initialData }: { initialData?: any }) {
               </button>
 
               <div className="flex items-center gap-3 pr-8">
-                <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/50 border border-purple-200 dark:border-purple-800/60 flex items-center justify-center text-[#56348f] dark:text-purple-300 shrink-0">
-                  <CalendarCheck className="w-5 h-5" />
-                </div>
-                <div>
+                {selectedMember ? (
+                  <div className="relative shrink-0">
+                    <RoyalAvatar
+                      src={selectedMember.profile_photo_path}
+                      name={selectedMember.name || `${selectedMember.first_name || ""} ${selectedMember.last_name || ""}`.trim()}
+                      userId={selectedMember.id}
+                      className="w-10 h-10 rounded-full border border-purple-300 dark:border-purple-600 shadow-xs shrink-0"
+                      textClass="text-xs font-bold"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/50 border border-purple-200 dark:border-purple-800/60 flex items-center justify-center text-[#56348f] dark:text-purple-300 shrink-0">
+                    <CalendarCheck className="w-5 h-5" />
+                  </div>
+                )}
+                <div className="min-w-0">
                   <h2
                     style={{
-                      fontSize: "17px",
-                      lineHeight: "24px",
+                      fontSize: "16px",
+                      lineHeight: "22px",
                       fontWeight: 700,
                       color: "rgb(15, 24, 36)",
                     }}
-                    className="dark:text-white"
+                    className="dark:text-white truncate"
                   >
-                    Today's Check-ins & Check-outs
+                    {selectedMember
+                      ? `${selectedMember.name || `${selectedMember.first_name || ""} ${selectedMember.last_name || ""}`.trim()}'s Punches`
+                      : "Your Check-in & Punch Logs"}
                   </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium">
-                    {todayFormatted} • Your Activity
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium flex items-center gap-1.5 flex-wrap">
+                    <span>
+                      {selectedMember ? (selectedMember.designation || "Team Member") : "Personal Logs"}
+                    </span>
+                    <span>•</span>
+                    <span className="font-semibold text-slate-700 dark:text-slate-300">
+                      {selectedDate === todayStr ? "Today" : format(parseISO(selectedDate), "d MMM yyyy")}
+                    </span>
+                    {selectedDate === todayStr && (
+                      <span className="px-1.5 py-0.2 bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 text-[10px] font-bold rounded-full uppercase tracking-wider">
+                        Live
+                      </span>
+                    )}
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Quick Toolbar */}
-            <div className="px-6 py-2.5 bg-slate-50 dark:bg-slate-850 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs shrink-0">
-              <span className="font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                Personal records for today
-              </span>
+            {/* Team Member Switcher (for Team Leads) */}
+            {teamMembers && teamMembers.length > 0 && (
+              <div className="px-5 py-2.5 bg-purple-50/40 dark:bg-purple-950/20 border-b border-purple-100/70 dark:border-purple-900/30 shrink-0">
+                <div className="flex items-center justify-between gap-2 mb-1.5">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-purple-900/70 dark:text-purple-300/80 flex items-center gap-1">
+                    <Users className="w-3 h-3" /> Select Team Member
+                  </span>
+                  {selectedMember && (
+                    <button
+                      type="button"
+                      onClick={() => handleSelectMember(null)}
+                      className="text-[11px] text-[#56348f] dark:text-purple-300 hover:underline font-semibold cursor-pointer"
+                    >
+                      ← Back to My Punches
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-1.5 overflow-x-auto custom-scrollbar pb-1">
+                  <button
+                    type="button"
+                    onClick={() => handleSelectMember(null)}
+                    className={`px-2.5 py-1 text-xs font-semibold rounded-lg shrink-0 transition-all flex items-center gap-1 cursor-pointer ${
+                      !selectedMember
+                        ? "bg-[#56348f] text-white shadow-xs"
+                        : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50"
+                    }`}
+                  >
+                    <span>👤 Me</span>
+                  </button>
+
+                  {teamMembers.map((member: any) => {
+                    const isSelected = selectedMember?.id === member.id;
+                    const statusLower = (member.status || "").toLowerCase();
+                    return (
+                      <button
+                        key={member.id}
+                        type="button"
+                        onClick={() => handleSelectMember(member)}
+                        className={`px-2.5 py-1 text-xs font-semibold rounded-lg shrink-0 transition-all flex items-center gap-1.5 cursor-pointer ${
+                          isSelected
+                            ? "bg-[#56348f] text-white shadow-xs"
+                            : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50"
+                        }`}
+                      >
+                        <span className="truncate max-w-[130px]">
+                          {member.name || `${member.first_name || ""} ${member.last_name || ""}`.trim()}
+                        </span>
+                        {member.status && (
+                          <span
+                            className={`w-2 h-2 rounded-full shrink-0 ${
+                              statusLower === "present"
+                                ? "bg-emerald-500"
+                                : statusLower === "wfh"
+                                ? "bg-blue-500"
+                                : "bg-red-500"
+                            }`}
+                            title={member.status}
+                          />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Date-wise Navigation Toolbar */}
+            <div className="px-5 py-2.5 bg-slate-50 dark:bg-slate-850 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2 text-xs shrink-0 flex-wrap">
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => handleStepDay(-1)}
+                  className="p-1 rounded-md text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                  title="Previous Day"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+
+                <div className="relative flex items-center">
+                  <input
+                    type="date"
+                    value={selectedDate}
+                    max={todayStr}
+                    onChange={(e) => {
+                      if (e.target.value) handleDateChange(e.target.value);
+                    }}
+                    className="text-xs font-semibold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 cursor-pointer shadow-2xs"
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  disabled={selectedDate === todayStr}
+                  onClick={() => handleStepDay(1)}
+                  className="p-1 rounded-md text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-700 transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                  title="Next Day"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+
+                {selectedDate !== todayStr && (
+                  <button
+                    type="button"
+                    onClick={handleJumpToday}
+                    className="px-2 py-0.5 text-[11px] font-bold rounded-md bg-purple-100 dark:bg-purple-900/60 text-[#56348f] dark:text-purple-300 hover:bg-purple-200 transition-colors cursor-pointer"
+                  >
+                    Today
+                  </button>
+                )}
+              </div>
 
               <button
-                onClick={fetchTimelineData}
+                onClick={() => fetchTimelineData(selectedDate, selectedMember)}
                 disabled={isLoadingTimeline}
                 className="inline-flex items-center gap-1 font-semibold text-[#56348f] dark:text-purple-300 hover:text-purple-800 dark:hover:text-purple-200 disabled:opacity-50 transition-colors cursor-pointer"
               >
@@ -587,13 +783,13 @@ export function AttendanceWidget({ initialData }: { initialData?: any }) {
                         })}
                       </div>
                     ) : (
-                      <div className="text-center py-6 text-slate-400">
-                        <Clock className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-1.5 opacity-50" />
+                      <div className="text-center py-8 text-slate-400">
+                        <Clock className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-2 opacity-50" />
                         <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">
-                          No punches registered today
+                          No punches registered on this date
                         </p>
-                        <p className="text-[11px] text-slate-400 mt-0.5">
-                          When you scan your biometric device, events will appear here.
+                        <p className="text-[11px] text-slate-400 mt-1">
+                          Select another date or employee above to view logs.
                         </p>
                       </div>
                     )}
@@ -602,7 +798,7 @@ export function AttendanceWidget({ initialData }: { initialData?: any }) {
                   {/* Security Notice */}
                   <div className="p-3 bg-purple-50/50 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-900/30 rounded-xl text-center">
                     <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                      🔒 Strictly displays your check-in and check-out logs for today ({todayFormatted}).
+                      🔒 Verified biometric punch logs for {selectedDate === todayStr ? "today" : selectedDate}.
                     </p>
                   </div>
                 </div>
@@ -612,7 +808,7 @@ export function AttendanceWidget({ initialData }: { initialData?: any }) {
             {/* Footer */}
             <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex items-center justify-between shrink-0">
               <button
-                onClick={() => setIsTimelineDrawerOpen(false)}
+                onClick={handleCloseDrawer}
                 className="w-full py-2.5 text-center text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800 rounded-lg border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-all cursor-pointer"
               >
                 Close Timeline

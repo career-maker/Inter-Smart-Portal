@@ -66,6 +66,7 @@ export default function DashboardPage() {
   const [currentRecognitionIndex, setCurrentRecognitionIndex] = useState(0);
   const [showRecognitionModal, setShowRecognitionModal] = useState(false);
   const [liveServiceStats, setLiveServiceStats] = useState<any>(null);
+  const [selectedTeamMemberForPunches, setSelectedTeamMemberForPunches] = useState<any | null>(null);
 
   const leaveSummaryRef = useRef<HTMLDivElement>(null);
   const [isLeaveSummaryVisible, setIsLeaveSummaryVisible] = useState(false);
@@ -625,13 +626,16 @@ export default function DashboardPage() {
                     };
                     
                     return (
-                      <span 
+                      <button 
                         key={member.id} 
-                        className={`px-3 py-1 text-xs font-medium rounded-full border ${getPillClasses(member.status)}`}
-                        title={member.status}
+                        type="button"
+                        onClick={() => setSelectedTeamMemberForPunches(member)}
+                        className={`px-3 py-1 text-xs font-medium rounded-full border transition-all hover:scale-105 cursor-pointer flex items-center gap-1.5 ${getPillClasses(member.status)}`}
+                        title={`Click to view punches for ${member.name} (${member.status})`}
                       >
                         <RoyalName name={member.name} userId={member.id} showCrownIcon={false} />
-                      </span>
+                        <span className="text-[10px] opacity-60">🕒</span>
+                      </button>
                     );
                   })}
                 </div>
@@ -642,7 +646,12 @@ export default function DashboardPage() {
           )}
 
           {/* Today's Attendance Widget */}
-          <AttendanceWidget initialData={data.attendance_widget_data} />
+          <AttendanceWidget
+            initialData={data.attendance_widget_data}
+            teamMembers={data?.widgets?.team_members}
+            externalOpenMember={selectedTeamMemberForPunches}
+            onClearExternalOpen={() => setSelectedTeamMemberForPunches(null)}
+          />
 
           {/* Latest Updates Card */}
           {widgets.company_updates.length > 1 ? (

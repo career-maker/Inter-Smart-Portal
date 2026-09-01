@@ -541,6 +541,11 @@ class DashboardController extends Controller
                                 return [
                                     'id' => $member->id,
                                     'name' => $member->first_name . ' ' . $member->last_name,
+                                    'first_name' => $member->first_name,
+                                    'last_name' => $member->last_name,
+                                    'employee_code' => $member->employee_code,
+                                    'designation' => $member->designation,
+                                    'profile_photo_path' => $member->profilePhotoUrl(),
                                     'status' => $status
                                 ];
                             });
