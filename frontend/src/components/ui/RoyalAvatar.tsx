@@ -128,6 +128,7 @@ interface RoyalNameProps {
   employeeCode?: string | null;
   isTopAwardee?: boolean;
   className?: string;
+  style?: React.CSSProperties;
   showCrownIcon?: boolean;
 }
 
@@ -137,6 +138,7 @@ export function RoyalName({
   employeeCode,
   isTopAwardee: forcedIsTopAwardee,
   className = "",
+  style,
   showCrownIcon = true,
 }: RoyalNameProps) {
   const { isTopAwardee: checkTopAwardee } = useTopAwardee();
@@ -163,7 +165,7 @@ export function RoyalName({
           "inline-flex items-center gap-1.5 font-black text-amber-500 dark:text-amber-300 drop-shadow-[0_0_12px_rgba(251,191,36,0.5)] tracking-wide",
           safeClasses
         )}
-        style={{ color: "#d97706" }}
+        style={{ color: "#d97706", ...style }}
       >
         <span
           className="font-black text-amber-500 dark:text-amber-300 tracking-wide"
@@ -178,7 +180,16 @@ export function RoyalName({
     );
   }
 
-  return <span className={className}>{name}</span>;
+  const resolvedStyle = { ...style };
+  if ((className.includes("text-white") || className.includes("!text-white")) && !resolvedStyle.color) {
+    resolvedStyle.color = "#ffffff";
+  }
+
+  return (
+    <span className={className} style={resolvedStyle}>
+      {name}
+    </span>
+  );
 }
 
 export default RoyalAvatar;

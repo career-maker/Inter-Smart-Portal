@@ -1780,11 +1780,17 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
         open={!!leaveModalData && !selectedEmployeeForAttendance}
         onOpenChange={(open) => !open && setLeaveModalData(null)}
       >
-        <DialogContent className="sm:max-w-md bg-slate-900 border-slate-800 text-white">
+        <DialogContent
+          className="sm:max-w-md bg-slate-900 border-slate-800 !text-white"
+          style={{ color: "#ffffff" }}
+        >
           <DialogHeader className="!bg-transparent !border-none !shadow-none p-0 pb-2 border-b border-slate-800">
-            <DialogTitle className="text-white text-base font-bold flex items-center justify-between">
-              <span>{leaveModalData?.title}</span>
-              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+            <DialogTitle
+              className="!text-white text-base font-bold flex items-center justify-between"
+              style={{ color: "#ffffff" }}
+            >
+              <span style={{ color: "#ffffff" }}>{leaveModalData?.title}</span>
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-200 border border-slate-700">
                 {leaveModalData?.list.length || 0}
               </span>
             </DialogTitle>
@@ -1796,7 +1802,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
 
           <div className="max-h-[75vh] overflow-y-auto space-y-2.5 mt-2 !bg-transparent !border-none !shadow-none p-0 custom-scrollbar pr-1">
             {leaveModalData?.list.length === 0 ? (
-              <p className="text-sm text-slate-500 text-center py-8">No employees to show.</p>
+              <p className="text-sm text-slate-400 text-center py-8">No employees to show.</p>
             ) : (
               leaveModalData?.list.map((item: any, idx: number) => {
                 const empId = item.id;
@@ -1809,6 +1815,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                     key={idx}
                     type="button"
                     onClick={() => handleSelectEmployee(item)}
+                    style={{ color: "#ffffff" }}
                     className="w-full flex items-center justify-between p-3.5 bg-slate-800/90 hover:bg-slate-750 border border-slate-700/80 hover:border-purple-500/50 rounded-xl transition-all group text-left cursor-pointer shadow-2xs"
                   >
                     <div className="flex items-center gap-3 min-w-0">
@@ -1820,8 +1827,17 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                         className="w-10 h-10 rounded-full shrink-0 border border-slate-700 text-xs font-bold"
                       />
                       <div className="min-w-0">
-                        <p className="text-sm font-bold text-white group-hover:text-purple-300 transition-colors truncate">
-                          <RoyalName name={empName} userId={empId} employeeCode={empCode} />
+                        <p
+                          className="text-sm font-bold !text-white group-hover:!text-purple-300 transition-colors truncate"
+                          style={{ color: "#ffffff" }}
+                        >
+                          <RoyalName
+                            name={empName}
+                            userId={empId}
+                            employeeCode={empCode}
+                            className="!text-white font-bold"
+                            style={{ color: "#ffffff" }}
+                          />
                         </p>
                         <p className="text-xs text-slate-400 truncate mt-0.5">
                           {empSubtitle}
@@ -1829,7 +1845,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                         </p>
                       </div>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-purple-300 group-hover:translate-x-0.5 transition-all shrink-0 ml-2" />
+                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-purple-300 group-hover:translate-x-0.5 transition-all shrink-0 ml-2" />
                   </button>
                 );
               })
