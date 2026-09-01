@@ -343,12 +343,19 @@ class DashboardController extends Controller
             }
 
             $presentTodayList = User::whereIn('id', $presentUserIdsToday)
+                ->with('team:id,name')
                 ->orderBy('first_name')
-                ->get(['id', 'first_name', 'last_name', 'designation'])
+                ->get(['id', 'first_name', 'last_name', 'employee_code', 'designation', 'profile_photo_path', 'team_id'])
                 ->map(function ($u) {
                     return [
+                        'id' => $u->id,
+                        'first_name' => $u->first_name,
+                        'last_name' => $u->last_name,
                         'name' => $u->first_name . ' ' . $u->last_name,
-                        'designation' => $u->designation ?? 'Employee'
+                        'employee_code' => $u->employee_code,
+                        'designation' => $u->designation ?? 'Employee',
+                        'profile_photo_path' => $u->profile_photo_path,
+                        'team' => $u->team ? ['id' => $u->team->id, 'name' => $u->team->name] : null,
                     ];
                 });
 
@@ -371,28 +378,44 @@ class DashboardController extends Controller
 
             // $presentTodayList is already calculated above
 
-            $onLeaveTodayRequests = LeaveRequest::with('user:id,first_name,last_name', 'leaveType:id,name')
+            $onLeaveTodayRequests = LeaveRequest::with(['user:id,first_name,last_name,employee_code,designation,profile_photo_path,team_id', 'user.team:id,name', 'leaveType:id,name'])
                 ->where('status', 'Approved')
                 ->whereDate('start_date', '<=', $todayStr)
                 ->whereDate('end_date', '>=', $todayStr)
                 ->get();
             $onLeaveToday = $onLeaveTodayRequests->count();
             $onLeaveTodayList = $onLeaveTodayRequests->map(function ($req) {
+                $u = $req->user;
                 return [
-                    'name' => $req->user ? ($req->user->first_name . ' ' . $req->user->last_name) : 'Unknown',
+                    'id' => $u?->id,
+                    'first_name' => $u?->first_name,
+                    'last_name' => $u?->last_name,
+                    'name' => $u ? ($u->first_name . ' ' . $u->last_name) : 'Unknown',
+                    'employee_code' => $u?->employee_code,
+                    'designation' => $u?->designation ?? 'Employee',
+                    'profile_photo_path' => $u?->profile_photo_path,
+                    'team' => $u?->team ? ['id' => $u->team->id, 'name' => $u->team->name] : null,
                     'leave_type' => $req->leaveType ? $req->leaveType->name : 'Leave'
                 ];
             });
 
-            $wfhTodayRequests = \App\Models\WfhRequest::with('user:id,first_name,last_name')
+            $wfhTodayRequests = \App\Models\WfhRequest::with(['user:id,first_name,last_name,employee_code,designation,profile_photo_path,team_id', 'user.team:id,name'])
                 ->where('status', 'Approved')
                 ->whereDate('start_date', '<=', $todayStr)
                 ->whereDate('end_date', '>=', $todayStr)
                 ->get();
             $wfhToday = $wfhTodayRequests->count();
             $wfhTodayList = $wfhTodayRequests->map(function ($req) {
+                $u = $req->user;
                 return [
-                    'name' => $req->user ? ($req->user->first_name . ' ' . $req->user->last_name) : 'Unknown',
+                    'id' => $u?->id,
+                    'first_name' => $u?->first_name,
+                    'last_name' => $u?->last_name,
+                    'name' => $u ? ($u->first_name . ' ' . $u->last_name) : 'Unknown',
+                    'employee_code' => $u?->employee_code,
+                    'designation' => $u?->designation ?? 'Employee',
+                    'profile_photo_path' => $u?->profile_photo_path,
+                    'team' => $u?->team ? ['id' => $u->team->id, 'name' => $u->team->name] : null,
                     'leave_type' => 'WFH'
                 ];
             });

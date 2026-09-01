@@ -53,6 +53,7 @@ import { UpcomingBirthdaysWithWishes } from "@/components/dashboard/UpcomingBirt
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, AreaChart, Area } from "recharts";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 import { useTopAwardee } from "@/context/TopAwardeeContext";
+import { EmployeeAttendanceDrawer } from "@/components/attendance/EmployeeAttendanceDrawer";
 
 
 export default function DashboardPage() {
@@ -1158,6 +1159,32 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
   const { profile, admin_data, widgets } = data;
   const { kpis, activity_feed } = admin_data;
   const [leaveModalData, setLeaveModalData] = useState<{title: string, list: any[]} | null>(null);
+  const [selectedEmployeeForAttendance, setSelectedEmployeeForAttendance] = useState<any | null>(null);
+
+  const handleSelectEmployee = async (item: any) => {
+    if (item.id) {
+      setSelectedEmployeeForAttendance(item);
+      return;
+    }
+    // Fallback if ID was not in cached list: search by name
+    try {
+      const res = await api.get(`/employees?search=${encodeURIComponent(item.name)}`);
+      const list = res.data?.data || (Array.isArray(res.data) ? res.data : []);
+      const matched = list.find((e: any) =>
+        `${e.first_name || ""} ${e.last_name || ""}`.trim().toLowerCase() === (item.name || "").trim().toLowerCase()
+      ) || list[0];
+      if (matched) {
+        setSelectedEmployeeForAttendance({
+          ...matched,
+          name: `${matched.first_name} ${matched.last_name}`,
+        });
+      } else {
+        setSelectedEmployeeForAttendance(item);
+      }
+    } catch {
+      setSelectedEmployeeForAttendance(item);
+    }
+  };
   
   const [activityPage, setActivityPage] = useState(1);
   const activityPerPage = 5;
@@ -1748,33 +1775,83 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
         </div>
       </div>
 
-      {/* Leave Details Modal */}
-      <Dialog open={!!leaveModalData} onOpenChange={(open) => !open && setLeaveModalData(null)}>
+      {/* Leave / Present Details Drawer Modal */}
+      <Dialog
+        open={!!leaveModalData && !selectedEmployeeForAttendance}
+        onOpenChange={(open) => !open && setLeaveModalData(null)}
+      >
         <DialogContent className="sm:max-w-md bg-slate-900 border-slate-800 text-white">
-          <DialogHeader className="!bg-transparent !border-none !shadow-none p-0">
-            <DialogTitle className="text-white">{leaveModalData?.title}</DialogTitle>
+          <DialogHeader className="!bg-transparent !border-none !shadow-none p-0 pb-2 border-b border-slate-800">
+            <DialogTitle className="text-white text-base font-bold flex items-center justify-between">
+              <span>{leaveModalData?.title}</span>
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+                {leaveModalData?.list.length || 0}
+              </span>
+            </DialogTitle>
           </DialogHeader>
-          <div className="max-h-[60vh] overflow-y-auto space-y-3 mt-4 !bg-transparent !border-none !shadow-none p-0">
+
+          <p className="text-xs text-slate-400 mt-2 mb-1">
+            Click any employee to view their date-filtered attendance timeline:
+          </p>
+
+          <div className="max-h-[75vh] overflow-y-auto space-y-2.5 mt-2 !bg-transparent !border-none !shadow-none p-0 custom-scrollbar pr-1">
             {leaveModalData?.list.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-4">No employees to show.</p>
+              <p className="text-sm text-slate-500 text-center py-8">No employees to show.</p>
             ) : (
-              leaveModalData?.list.map((item: any, idx: number) => (
-                <div key={idx} className="flex items-center justify-between p-3 bg-slate-800 border border-slate-700 rounded-md">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-sm">
-                      {item.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2)}
+              leaveModalData?.list.map((item: any, idx: number) => {
+                const empId = item.id;
+                const empCode = item.employee_code;
+                const empName = item.name || `${item.first_name || ""} ${item.last_name || ""}`.trim();
+                const empSubtitle = item.leave_type || item.designation || "Employee";
+
+                return (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => handleSelectEmployee(item)}
+                    className="w-full flex items-center justify-between p-3.5 bg-slate-800/90 hover:bg-slate-750 border border-slate-700/80 hover:border-purple-500/50 rounded-xl transition-all group text-left cursor-pointer shadow-2xs"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <RoyalAvatar
+                        src={item.profile_photo_path}
+                        name={empName}
+                        userId={empId}
+                        employeeCode={empCode}
+                        className="w-10 h-10 rounded-full shrink-0 border border-slate-700 text-xs font-bold"
+                      />
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold text-white group-hover:text-purple-300 transition-colors truncate">
+                          <RoyalName name={empName} userId={empId} employeeCode={empCode} />
+                        </p>
+                        <p className="text-xs text-slate-400 truncate mt-0.5">
+                          {empSubtitle}
+                          {empCode ? ` • Code: ${empCode}` : ""}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-bold text-white">{item.name}</p>
-                      <p className="text-xs text-slate-400">{item.leave_type || item.designation}</p>
-                    </div>
-                  </div>
-                </div>
-              ))
+                    <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-purple-300 group-hover:translate-x-0.5 transition-all shrink-0 ml-2" />
+                  </button>
+                );
+              })
             )}
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Employee Attendance Side Popup Drawer */}
+      <EmployeeAttendanceDrawer
+        employee={selectedEmployeeForAttendance}
+        isOpen={!!selectedEmployeeForAttendance}
+        onClose={() => {
+          setSelectedEmployeeForAttendance(null);
+          setLeaveModalData(null);
+        }}
+        onBack={() => {
+          setSelectedEmployeeForAttendance(null);
+          // leaveModalData remains open so user seamlessly returns to Present Today list!
+        }}
+        backButtonLabel={leaveModalData ? `← Back to ${leaveModalData.title}` : "← Change Employee"}
+      />
     </div>
   );
 }
