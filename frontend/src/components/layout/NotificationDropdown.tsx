@@ -22,7 +22,15 @@ function resolveNotificationUrl(notification: any): string {
   const type = notification.type;
   const stored = notification.data?.action_url;
 
-  if (type === "App\\Notifications\\ProfileUpdateRequestNotification") {
+  if (
+    type === "App\\Notifications\\ProfileUpdateRequestNotification" ||
+    type?.includes("ProfileUpdateRequestNotification") ||
+    notification.data?.profile_update_request_id ||
+    notification.data?.title?.includes("Profile Update")
+  ) {
+    const event = notification.data?.event;
+    if (event === "submitted") return "/profile-requests";
+    if (event === "approved" || event === "rejected") return "/profile";
     return stored || "/profile-requests";
   }
 
@@ -66,10 +74,12 @@ export function NotificationDropdown() {
     }
   };
 
-  const handleMarkAllAsRead = async () => {
+  const handleMarkAllAsRead = async (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     try {
-      // Optimistically update UI - keep notifications visible but clear badge
+      // Optimistically update UI - clear notifications and badge
       setUnreadCount(0);
+      setNotifications([]);
 
       // Make API call in background to mark all as read
       await api.post("/notifications/mark-as-read");
@@ -80,11 +90,10 @@ export function NotificationDropdown() {
     }
   };
 
-  const handleOpenChange = async (open: boolean) => {
+  const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
-    // When dropdown is opened and there are unread notifications, mark all as read
-    if (open && unreadCount > 0) {
-      await handleMarkAllAsRead();
+    if (open) {
+      fetchUnread();
     }
   };
 
@@ -152,11 +161,22 @@ export function NotificationDropdown() {
         <DropdownMenuGroup>
           <div className="flex justify-between items-center px-4 py-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/50">
             <span className="font-bold text-xs uppercase tracking-wider text-slate-800 dark:text-white">Notifications</span>
-            {unreadCount > 0 && (
-              <span className="text-[11px] font-bold bg-purple-100 text-[#56348f] dark:bg-purple-950 dark:text-purple-300 px-2 py-0.5 rounded-full">
-                {unreadCount} new
-              </span>
-            )}
+            <div className="flex items-center gap-2">
+              {unreadCount > 0 && (
+                <button
+                  type="button"
+                  onClick={handleMarkAllAsRead}
+                  className="text-[11px] font-semibold text-[#56348f] dark:text-purple-400 hover:text-purple-800 hover:underline cursor-pointer"
+                >
+                  Mark all read
+                </button>
+              )}
+              {unreadCount > 0 && (
+                <span className="text-[11px] font-bold bg-purple-100 text-[#56348f] dark:bg-purple-950 dark:text-purple-300 px-2 py-0.5 rounded-full">
+                  {unreadCount} new
+                </span>
+              )}
+            </div>
           </div>
 
           <div className="max-h-84 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800 custom-scrollbar">

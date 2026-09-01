@@ -13,7 +13,15 @@ function resolveNotificationUrl(notification: any): string {
   const type = notification.type;
   const stored = notification.data?.action_url;
 
-  if (type === "App\\Notifications\\ProfileUpdateRequestNotification") {
+  if (
+    type === "App\\Notifications\\ProfileUpdateRequestNotification" ||
+    type?.includes("ProfileUpdateRequestNotification") ||
+    notification.data?.profile_update_request_id ||
+    notification.data?.title?.includes("Profile Update")
+  ) {
+    const event = notification.data?.event;
+    if (event === "submitted") return "/profile-requests";
+    if (event === "approved" || event === "rejected") return "/profile";
     return stored || "/profile-requests";
   }
 

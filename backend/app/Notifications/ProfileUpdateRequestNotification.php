@@ -30,12 +30,23 @@ class ProfileUpdateRequestNotification extends Notification
             ? '/profile-requests'
             : '/profile';
 
+        $user = $this->profileRequest->user;
+        $userName = $user ? trim("{$user->first_name} {$user->last_name}") : null;
+
         return [
-            'title'                    => $titles[$this->event] ?? 'Profile Update',
-            'message'                  => $this->message,
-            'event'                    => $this->event,
-            'profile_update_request_id'=> $this->profileRequest->id,
-            'action_url'               => $actionUrl,
+            'title'                     => $titles[$this->event] ?? 'Profile Update',
+            'message'                   => $this->message,
+            'event'                     => $this->event,
+            'profile_update_request_id' => $this->profileRequest->id,
+            'user_id'                   => $this->profileRequest->user_id,
+            'user_name'                 => $userName,
+            'employee_code'             => $user?->employee_code,
+            'action_url'                => $actionUrl,
         ];
+    }
+
+    public function toArray($notifiable): array
+    {
+        return $this->toDatabase($notifiable);
     }
 }

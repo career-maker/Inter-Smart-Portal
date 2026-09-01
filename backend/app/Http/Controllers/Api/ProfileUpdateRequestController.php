@@ -45,16 +45,41 @@ class ProfileUpdateRequestController extends Controller
         ]);
 
         // ── Notify all Super Admins ───────────────────────────────────
-        $employee = Auth::user();
-        $employeeName = trim("{$employee->first_name} {$employee->last_name}");
+        try {
+            $employee = Auth::user();
+            $employeeName = trim("{$employee->first_name} {$employee->last_name}");
 
-        $superAdmins = User::role('Super Admin')->get();
-        foreach ($superAdmins as $admin) {
-            $admin->notify(new ProfileUpdateRequestNotification(
-                'submitted',
-                $updateRequest,
-                "{$employeeName} has submitted a profile update request and is awaiting your approval."
-            ));
+            // Find all Super Admins via Spatie roles or role column
+            $superAdmins = User::where(function ($query) {
+                $query->whereHas('roles', function ($q) {
+                    $q->whereIn('name', ['Super Admin', 'super admin', 'Admin', 'admin']);
+                });
+                if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'role')) {
+                    $query->orWhereRaw('LOWER(role) IN (?, ?)', ['super admin', 'admin']);
+                }
+            })->get();
+
+            // Fallback if role mapping differs in environment
+            if ($superAdmins->isEmpty()) {
+                $superAdmins = User::all()->filter(function ($u) {
+                    return (method_exists($u, 'hasRole') && ($u->hasRole('Super Admin') || $u->hasRole('Admin')))
+                        || in_array(strtolower($u->role ?? ''), ['super admin', 'admin'], true)
+                        || $u->primaryRoleName() === 'Super Admin'
+                        || str_starts_with(strtolower($u->email ?? ''), 'admin@');
+                });
+            }
+
+            foreach ($superAdmins as $admin) {
+                if ($admin->id !== $employee->id) {
+                    $admin->notify(new ProfileUpdateRequestNotification(
+                        'submitted',
+                        $updateRequest,
+                        "{$employeeName} has submitted a profile update request and is awaiting your approval."
+                    ));
+                }
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to notify super admins of profile update request: ' . $e->getMessage());
         }
         // ─────────────────────────────────────────────────────────────
 
@@ -92,11 +117,15 @@ class ProfileUpdateRequestController extends Controller
         ]);
 
         // ── Notify the employee ───────────────────────────────────────
-        $user->notify(new ProfileUpdateRequestNotification(
-            'approved',
-            $profileRequest,
-            'Your profile update request has been approved. Your contact details are now updated.'
-        ));
+        try {
+            $user->notify(new ProfileUpdateRequestNotification(
+                'approved',
+                $profileRequest,
+                'Your profile update request has been approved. Your contact details are now updated.'
+            ));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to notify employee of profile update approval: ' . $e->getMessage());
+        }
         // ─────────────────────────────────────────────────────────────
 
         return response()->json(['message' => 'Request approved and profile updated.']);
@@ -116,12 +145,16 @@ class ProfileUpdateRequestController extends Controller
         ]);
 
         // ── Notify the employee ───────────────────────────────────────
-        $user = $profileRequest->user;
-        $user->notify(new ProfileUpdateRequestNotification(
-            'rejected',
-            $profileRequest,
-            'Your profile update request has been rejected by the admin. Please contact HR for more information.'
-        ));
+        try {
+            $user = $profileRequest->user;
+            $user->notify(new ProfileUpdateRequestNotification(
+                'rejected',
+                $profileRequest,
+                'Your profile update request has been rejected by the admin. Please contact HR for more information.'
+            ));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to notify employee of profile update rejection: ' . $e->getMessage());
+        }
         // ─────────────────────────────────────────────────────────────
 
         return response()->json(['message' => 'Request rejected.']);
