@@ -7,6 +7,7 @@ use App\Models\Attendance;
 use App\Models\AttendanceBreak;
 use App\Models\BiometricEvent;
 use App\Models\Team;
+use App\Models\User;
 use App\Http\Resources\AttendanceResource;
 use App\Http\Resources\AttendanceBreakResource;
 use App\Services\BiometricTimelineService;
