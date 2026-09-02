@@ -107,6 +107,13 @@ class EmailSettingController extends Controller
 
         EmailSetting::setByKey('smtp_config', $validated);
 
+        // Synchronize .env file on server automatically
+        try {
+            $this->syncSmtpToEnv($validated);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("Failed to sync SMTP config to .env: " . $e->getMessage());
+        }
+
         $safeValidated = $validated;
         $safeValidated['password'] = '';
         $safeValidated['has_password'] = !empty($validated['password']);
@@ -274,5 +281,44 @@ class EmailSettingController extends Controller
                 'message' => 'Failed to send test email: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * Safely update MAIL_* keys in server's .env file.
+     */
+    private function syncSmtpToEnv(array $smtp): void
+    {
+        $envPath = base_path('.env');
+        if (!file_exists($envPath) || !is_writable($envPath)) {
+            return;
+        }
+
+        $envContent = file_get_contents($envPath);
+
+        $updates = [
+            'MAIL_MAILER' => 'smtp',
+            'MAIL_HOST' => $smtp['host'] ?? 'smtp.gmail.com',
+            'MAIL_PORT' => (string)($smtp['port'] ?? 587),
+            'MAIL_USERNAME' => $smtp['username'] ?? '',
+            'MAIL_PASSWORD' => $smtp['password'] ?? '',
+            'MAIL_ENCRYPTION' => ($smtp['encryption'] ?? 'tls') === 'none' ? '' : ($smtp['encryption'] ?? 'tls'),
+            'MAIL_FROM_ADDRESS' => $smtp['from_address'] ?? ($smtp['username'] ?? ''),
+            'MAIL_FROM_NAME' => $smtp['from_name'] ?? 'Inter Smart Portal',
+        ];
+
+        foreach ($updates as $key => $value) {
+            $escaped = str_replace('"', '\"', (string) $value);
+            $formattedValue = (preg_match('/\s/', $escaped) || str_contains($escaped, '$') || str_contains($escaped, '#'))
+                ? "\"{$escaped}\""
+                : $escaped;
+
+            if (preg_match("/^{$key}=.*/m", $envContent)) {
+                $envContent = preg_replace("/^{$key}=.*/m", "{$key}={$formattedValue}", $envContent);
+            } else {
+                $envContent .= "\n{$key}={$formattedValue}";
+            }
+        }
+
+        file_put_contents($envPath, $envContent);
     }
 }

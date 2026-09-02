@@ -119,10 +119,18 @@ class StorageRetentionController extends Controller
             return response()->json(['message' => 'Super Admin access required.'], 403);
         }
 
-        $chatDays = (int) (SystemSetting::where('key', 'chat_retention_days')->value('value') ?? 30);
-        $postDays = (int) (SystemSetting::where('key', 'community_posts_retention_days')->value('value') ?? 30);
+        $chatDays = $request->filled('chat_retention_days')
+            ? (int) $request->input('chat_retention_days')
+            : (int) (SystemSetting::where('key', 'chat_retention_days')->value('value') ?? 30);
 
-        $result = $this->executeCleanup($chatDays, $postDays);
+        $postDays = $request->filled('community_posts_retention_days')
+            ? (int) $request->input('community_posts_retention_days')
+            : (int) (SystemSetting::where('key', 'community_posts_retention_days')->value('value') ?? 30);
+
+        $clearAllPosts = $request->boolean('clear_all_posts') || $postDays <= 0;
+        $clearAllChats = $request->boolean('clear_all_chats') || $chatDays <= 0;
+
+        $result = $this->executeCleanup($chatDays, $postDays, $clearAllPosts, $clearAllChats);
 
         SystemSetting::updateOrCreate(
             ['key' => 'storage_last_cleanup_at'],
@@ -139,13 +147,17 @@ class StorageRetentionController extends Controller
     /**
      * Execute retention cleanup logic.
      */
-    public function executeCleanup(int $chatDays, int $postDays): array
+    public function executeCleanup(int $chatDays, int $postDays, bool $clearAllPosts = false, bool $clearAllChats = false): array
     {
-        $chatCutoff = Carbon::now()->subDays($chatDays);
-        $postCutoff = Carbon::now()->subDays($postDays);
+        $chatCutoff = Carbon::now()->subDays(max(1, $chatDays));
+        $postCutoff = Carbon::now()->subDays(max(1, $postDays));
 
         // 1. Delete Expired Chat Messages & Attachments
-        $expiredMessageIds = ChatMessage::where('created_at', '<', $chatCutoff)->pluck('id');
+        if ($clearAllChats) {
+            $expiredMessageIds = ChatMessage::pluck('id');
+        } else {
+            $expiredMessageIds = ChatMessage::where('created_at', '<', $chatCutoff)->pluck('id');
+        }
         $deletedChatCount = count($expiredMessageIds);
 
         if ($deletedChatCount > 0) {
@@ -160,7 +172,11 @@ class StorageRetentionController extends Controller
         }
 
         // 2. Delete Expired Community Posts & Media
-        $expiredPosts = CommunityPost::where('created_at', '<', $postCutoff)->get();
+        if ($clearAllPosts) {
+            $expiredPosts = CommunityPost::all();
+        } else {
+            $expiredPosts = CommunityPost::where('created_at', '<', $postCutoff)->get();
+        }
         $deletedPostCount = $expiredPosts->count();
 
         if ($deletedPostCount > 0) {

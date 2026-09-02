@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import api from "@/services/api";
+import api, { apiCache } from "@/services/api";
 import { useAuthStore } from "@/store/auth";
 import {
   Database,
@@ -33,6 +33,7 @@ export default function StorageRetentionAddonPage() {
   const [chatDays, setChatDays] = useState(30);
   const [postDays, setPostDays] = useState(30);
   const [autoCleanup, setAutoCleanup] = useState(true);
+  const [clearAllPosts, setClearAllPosts] = useState(false);
   const [lastCleanupAt, setLastCleanupAt] = useState<string | null>(null);
   const [stats, setStats] = useState<any>(null);
 
@@ -95,8 +96,13 @@ export default function StorageRetentionAddonPage() {
     try {
       setCleaning(true);
       setShowCleanupModal(false);
-      const res = await api.post("/storage-settings/cleanup-now");
+      const res = await api.post("/storage-settings/cleanup-now", {
+        chat_retention_days: Number(chatDays),
+        community_posts_retention_days: Number(postDays),
+        clear_all_posts: clearAllPosts,
+      });
       if (res.data?.status === "success") {
+        apiCache.clearPattern(/community|chat|storage/i);
         setToastMessage({
           type: "success",
           text: res.data.message || "Manual cleanup completed successfully!",
@@ -433,10 +439,25 @@ export default function StorageRetentionAddonPage() {
                   <b>{stats?.eligible_chat_messages ?? 0}</b> chat messages older than {chatDays} days
                 </li>
                 <li>
-                  <b>{stats?.eligible_community_posts ?? 0}</b> community posts older than {postDays} days
+                  <b>{clearAllPosts ? (stats?.total_community_posts ?? "All") : (stats?.eligible_community_posts ?? 0)}</b> community posts {clearAllPosts ? "(ALL posts)" : `older than ${postDays} days`}
                 </li>
                 <li>All associated screenshots and photo attachments on disk</li>
               </ul>
+
+              <div className="pt-2 text-left">
+                <label className="flex items-center gap-2 cursor-pointer select-none p-2 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50">
+                  <input
+                    type="checkbox"
+                    checked={clearAllPosts}
+                    onChange={(e) => setClearAllPosts(e.target.checked)}
+                    className="w-4 h-4 text-rose-600 rounded-md"
+                  />
+                  <span className="text-xs font-semibold text-amber-900 dark:text-amber-200">
+                    Purge ALL community feed posts now (regardless of age)
+                  </span>
+                </label>
+              </div>
+
               <p className="text-[11px] text-slate-400 mt-2 italic">
                 All employee profiles, attendance, leaves, and projects remain 100% safe.
               </p>
