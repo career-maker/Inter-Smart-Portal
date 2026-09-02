@@ -20,6 +20,7 @@ import api from "@/services/api";
 import teamPermissionsApi from "@/services/teamPermissions";
 import Script from "next/script";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
+import { DashboardPageLoader, PageLoader } from "@/components/ui/PageLoader";
 
 type NavItem = {
   href: string;
@@ -383,22 +384,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [isHydrated, isAuthenticated]);
 
   if (!isHydrated) {
-    return (
-      <div className="fixed inset-0 bg-white flex flex-col overflow-hidden z-[9999]">
-        <div className="h-16 bg-white border-b border-slate-200" />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="flex flex-col items-center justify-center">
-            <div className="bg-white p-5 rounded-3xl flex flex-col items-center justify-center gap-3">
-              <img
-                src="/preloader.gif"
-                alt="Loading..."
-                className="w-12 h-12 object-contain"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    const isDashboard = !pathname || pathname === "/" || pathname === "/dashboard";
+    if (isDashboard) {
+      return <DashboardPageLoader />;
+    }
+    return <PageLoader fullScreen={true} />;
   }
 
   if (!isAuthenticated) return null;

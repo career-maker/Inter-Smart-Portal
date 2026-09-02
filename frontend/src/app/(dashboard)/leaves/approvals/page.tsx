@@ -23,6 +23,7 @@ import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
 import { format, parseISO } from "date-fns";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
+import { CommonSpinner } from "@/components/ui/PageLoader";
 
 type RejectDialogState = { type: "leave" | "wfh"; id: number } | null;
 
@@ -582,13 +583,7 @@ export default function ApprovalsPage() {
       {/* ── Table View with ZERO Horizontal Scroll ── */}
       {isLoading ? (
         <div className="flex-1 flex items-center justify-center min-h-[30vh]">
-          <div className="bg-transparent p-5 rounded-3xl flex flex-col items-center justify-center gap-3">
-            <img
-              src="/preloader.gif"
-              alt="Loading..."
-              className="w-12 h-12 object-contain"
-            />
-          </div>
+          <CommonSpinner size="lg" />
         </div>
       ) : tab === "leaves" ? (
         <div className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden overflow-x-auto">

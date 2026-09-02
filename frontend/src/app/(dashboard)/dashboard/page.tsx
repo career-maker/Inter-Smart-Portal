@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { PageLoader } from "@/components/ui/PageLoader";
+import { DashboardPageLoader } from "@/components/ui/PageLoader";
 import { useAuthStore } from "@/store/auth";
 import api from "@/services/api";
 import {
@@ -224,7 +224,7 @@ export default function DashboardPage() {
     return () => clearInterval(interval);
   }, [data?.profile?.joining_date]);
 
-  if (loading) return <PageLoader />;
+  if (loading) return <DashboardPageLoader />;
 
   if (error || !data) {
     return (

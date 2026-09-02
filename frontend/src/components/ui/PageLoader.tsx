@@ -313,7 +313,61 @@ export function ProgressiveFluxLoader({
   );
 }
 
-export function PageLoader({ className }: { className?: string }) {
+export function CommonSpinner({
+  className,
+  size = "md",
+}: {
+  className?: string;
+  size?: "sm" | "md" | "lg";
+}) {
+  const sizeClasses = {
+    sm: "w-5 h-5 border-2",
+    md: "w-8 h-8 border-[3px]",
+    lg: "w-10 h-10 border-4",
+  };
+
+  return (
+    <div
+      className={cn(
+        "rounded-full border-slate-200 dark:border-slate-800 border-t-[#56348f] dark:border-t-purple-400 animate-spin",
+        sizeClasses[size],
+        className
+      )}
+      role="status"
+      aria-label="Loading"
+    />
+  );
+}
+
+/**
+ * Standard common spinner preloader for all inner portal pages & sections.
+ */
+export function PageLoader({
+  className,
+  fullScreen = false,
+}: {
+  className?: string;
+  fullScreen?: boolean;
+}) {
+  if (fullScreen) {
+    return (
+      <div className={cn("fixed inset-0 bg-white/85 dark:bg-slate-900/85 backdrop-blur-xs flex flex-col items-center justify-center z-[9999] p-6", className)}>
+        <CommonSpinner size="lg" />
+      </div>
+    );
+  }
+
+  return (
+    <div className={cn("w-full min-h-[50vh] flex flex-col items-center justify-center p-8", className)}>
+      <CommonSpinner size="lg" />
+    </div>
+  );
+}
+
+/**
+ * Initial text-animating preloader reserved exclusively for dashboard initial load.
+ */
+export function DashboardPageLoader({ className }: { className?: string }) {
   return (
     <div className={cn("fixed inset-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xs flex flex-col items-center justify-center z-[9999] font-sans p-6", className)}>
       <ProgressiveFluxLoader duration={2.5} />

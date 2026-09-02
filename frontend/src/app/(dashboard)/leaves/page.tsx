@@ -306,17 +306,7 @@ export default function LeavesPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex-1 flex items-center justify-center min-h-[60vh]">
-        <div className="p-5 rounded-3xl shadow-2xl flex flex-col items-center justify-center gap-3 animate-pulse border border-slate-700/50">
-          <img
-            src="/preloader.gif"
-            alt="Loading..."
-            className="w-12 h-12 object-contain"
-          />
-        </div>
-      </div>
-    );
+    return <PageLoader />;
   }
 
   return (
