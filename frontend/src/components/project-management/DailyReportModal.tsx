@@ -119,6 +119,11 @@ export function DailyReportModal({
 
   const isSingleMemberScope = isEmployee || reportType === "my_daily" || reportType === "my_tomorrow" || reportType === "individual_member";
 
+  // Date context helpers — compare selected date to today (IST)
+  const todayStr = format(new Date(), "yyyy-MM-dd");
+  const isToday = selectedDate === todayStr;
+  const isFutureDate = selectedDate > todayStr;
+
   const formatShortDate = (d?: string | null): string => {
     if (!d) return "—";
     try {
@@ -143,7 +148,20 @@ export function DailyReportModal({
 
     if (isSingleMemberScope) {
       const member = reportData.member_reports?.[0] || {};
-      const title = reportType === "my_tomorrow" ? "TOMORROW'S WORK SCHEDULE" : reportType === "individual_member" ? "INDIVIDUAL MEMBER DAILY REPORT" : "DAILY WORK REPORT";
+      const title =
+        reportType === "my_tomorrow"
+          ? "TOMORROW'S WORK SCHEDULE"
+          : reportType === "individual_member"
+          ? isToday
+            ? "INDIVIDUAL MEMBER TODAY'S REPORT"
+            : isFutureDate
+            ? "INDIVIDUAL MEMBER WORK SCHEDULE"
+            : "INDIVIDUAL MEMBER DAILY REPORT"
+          : isToday
+          ? "TODAY'S WORK REPORT"
+          : isFutureDate
+          ? "WORK SCHEDULE FOR THE DAY"
+          : "DAILY WORK REPORT";
       text += `📊 ${title}\n`;
       text += `📅 ${dateFormatted}\n`;
       text += `👤 ${member.name || loggedInUserName} (${member.designation || user?.designation || "Team Member"})\n`;
@@ -192,7 +210,16 @@ export function DailyReportModal({
       }
     } else {
       // Team report
-      const title = reportType === "tomorrow_team" ? "TEAM TOMORROW'S SCHEDULE" : reportType === "full_tracker" ? "TEAM FULL TASK TRACKER" : "TEAM DAILY WORK REPORT";
+      const title =
+        reportType === "tomorrow_team"
+          ? "TEAM TOMORROW'S SCHEDULE"
+          : reportType === "full_tracker"
+          ? "TEAM FULL TASK TRACKER"
+          : isToday
+          ? "TEAM TODAY'S WORK REPORT"
+          : isFutureDate
+          ? "TEAM WORK SCHEDULE FOR THE DAY"
+          : "TEAM DAILY WORK REPORT";
       text += `📊 ${title}\n`;
       text += `📅 ${dateFormatted}\n`;
       text += `👥 ${teamName}\n`;
@@ -315,16 +342,30 @@ export function DailyReportModal({
     ctx.font = "bold 11px 'Proxima Nova', sans-serif";
     ctx.fillText("INTER SMART WORKPLACE", marginX, 30);
 
-    // Report Title
+    // Report Title — adapts to selected date: today vs future vs past
     const reportTitle =
-      isEmployee || reportType === "my_daily"
-        ? "DAILY WORK REPORT"
-        : reportType === "my_tomorrow"
+      reportType === "my_tomorrow"
         ? "TOMORROW'S WORK SCHEDULE"
-        : reportType === "individual_member"
-        ? "INDIVIDUAL MEMBER DAILY REPORT"
         : reportType === "tomorrow_team"
         ? "TEAM TOMORROW'S SCHEDULE"
+        : reportType === "full_tracker"
+        ? "TEAM FULL TASK TRACKER"
+        : reportType === "individual_member"
+        ? isToday
+          ? "INDIVIDUAL MEMBER TODAY'S REPORT"
+          : isFutureDate
+          ? "INDIVIDUAL MEMBER WORK SCHEDULE"
+          : "INDIVIDUAL MEMBER DAILY REPORT"
+        : isSingleMemberScope
+        ? isToday
+          ? "TODAY'S WORK REPORT"
+          : isFutureDate
+          ? "WORK SCHEDULE FOR THE DAY"
+          : "DAILY WORK REPORT"
+        : isToday
+        ? "TEAM TODAY'S WORK REPORT"
+        : isFutureDate
+        ? "TEAM WORK SCHEDULE FOR THE DAY"
         : "TEAM DAILY WORK REPORT";
 
     ctx.fillStyle = "#0f172a";
