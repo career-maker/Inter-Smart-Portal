@@ -259,6 +259,85 @@ Route::middleware('auth:sanctum')->group(function () {
                 $results['approver_id'] = 'already_exists';
             }
 
+            // Ensure issues table exists with all required columns
+            if (!\Illuminate\Support\Facades\Schema::hasTable('issues')) {
+                \Illuminate\Support\Facades\Schema::create('issues', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->id();
+                    $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+                    $table->string('title');
+                    $table->string('category');
+                    $table->string('priority');
+                    $table->text('description');
+                    $table->string('related_module')->nullable();
+                    $table->string('status')->default('Open');
+                    $table->unsignedBigInteger('assigned_to')->nullable();
+                    $table->foreign('assigned_to')->references('id')->on('users')->nullOnDelete();
+                    $table->timestamp('resolved_at')->nullable();
+                    $table->timestamps();
+                });
+                $results['issues_table'] = 'created';
+            } else {
+                $results['issues_table'] = 'already_exists';
+                // Ensure assigned_to column exists in existing issues table
+                if (!\Illuminate\Support\Facades\Schema::hasColumn('issues', 'assigned_to')) {
+                    \Illuminate\Support\Facades\Schema::table('issues', function (\Illuminate\Database\Schema\Blueprint $table) {
+                        $table->unsignedBigInteger('assigned_to')->nullable()->after('status');
+                        $table->foreign('assigned_to')->references('id')->on('users')->nullOnDelete();
+                    });
+                    $results['issues.assigned_to'] = 'created';
+                } else {
+                    $results['issues.assigned_to'] = 'already_exists';
+                }
+                // Ensure resolved_at column exists
+                if (!\Illuminate\Support\Facades\Schema::hasColumn('issues', 'resolved_at')) {
+                    \Illuminate\Support\Facades\Schema::table('issues', function (\Illuminate\Database\Schema\Blueprint $table) {
+                        $table->timestamp('resolved_at')->nullable()->after('assigned_to');
+                    });
+                    $results['issues.resolved_at'] = 'created';
+                } else {
+                    $results['issues.resolved_at'] = 'already_exists';
+                }
+                // Ensure attachment_link column exists
+                if (!\Illuminate\Support\Facades\Schema::hasColumn('issues', 'attachment_link')) {
+                    \Illuminate\Support\Facades\Schema::table('issues', function (\Illuminate\Database\Schema\Blueprint $table) {
+                        $table->string('attachment_link')->nullable();
+                    });
+                    $results['issues.attachment_link'] = 'created';
+                } else {
+                    $results['issues.attachment_link'] = 'already_exists';
+                }
+            }
+
+            // Ensure issue_comments table exists
+            if (!\Illuminate\Support\Facades\Schema::hasTable('issue_comments')) {
+                \Illuminate\Support\Facades\Schema::create('issue_comments', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->id();
+                    $table->foreignId('issue_id')->constrained()->cascadeOnDelete();
+                    $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+                    $table->text('comment');
+                    $table->timestamps();
+                });
+                $results['issue_comments_table'] = 'created';
+            } else {
+                $results['issue_comments_table'] = 'already_exists';
+            }
+
+            // Ensure issue_attachments table exists
+            if (!\Illuminate\Support\Facades\Schema::hasTable('issue_attachments')) {
+                \Illuminate\Support\Facades\Schema::create('issue_attachments', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->id();
+                    $table->foreignId('issue_id')->constrained()->cascadeOnDelete();
+                    $table->foreignId('issue_comment_id')->nullable()->constrained('issue_comments')->cascadeOnDelete();
+                    $table->string('file_path');
+                    $table->string('file_name');
+                    $table->string('file_type')->nullable();
+                    $table->timestamps();
+                });
+                $results['issue_attachments_table'] = 'created';
+            } else {
+                $results['issue_attachments_table'] = 'already_exists';
+            }
+
             return response()->json([
                 'message' => 'Database columns checked and ensured.',
                 'results' => $results
