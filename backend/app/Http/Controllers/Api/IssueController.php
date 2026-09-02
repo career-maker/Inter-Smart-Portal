@@ -124,7 +124,7 @@ class IssueController extends Controller
         $issue = Issue::findOrFail($id);
         $user  = Auth::user();
 
-        if (!$user->hasRole('Super Admin') && $issue->user_id !== $user->id) {
+        if (!$user->hasRole('Super Admin') && $issue->user_id !== $user->id && (int)$issue->assigned_to !== (int)$user->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
