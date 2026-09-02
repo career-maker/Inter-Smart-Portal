@@ -82,7 +82,11 @@ async function fetchEvents(syncState) {
         }
 
         if (!Object.prototype.hasOwnProperty.call(syncState, table)) {
-            throw new Error(`[FATAL] Missing explicit checkpoint key for table ${table} in sync_state.json. Automatic fallback is prohibited.`);
+            // New month detected — auto-initialize checkpoint to 0.
+            // Safe: new monthly tables always start from DeviceLogId 1.
+            // The 500-event safety ceiling prevents any flooding.
+            console.log(`[DB] New table detected: ${table}. Auto-initializing checkpoint to 0 (new month start).`);
+            syncState[table] = 0;
         }
         const checkpoint = syncState[table];
         if (typeof checkpoint !== 'number' || !Number.isInteger(checkpoint) || checkpoint < 0) {

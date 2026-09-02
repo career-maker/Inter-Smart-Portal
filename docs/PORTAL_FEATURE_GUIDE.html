@@ -1,0 +1,887 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Intersmart Portal Guide</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+  :root{
+    --bg:#F5F6F9;
+    --surface:#FFFFFF;
+    --surface-alt:#EDEFF4;
+    --border:#DCE0E8;
+    --ink:#1B2030;
+    --ink-soft:#565D70;
+    --accent:#9A6510;
+    --accent-ink:#7A4F0C;
+    --accent-soft:#FBEAC8;
+    --accent-soft-border:#EFCE8C;
+    --admin:#9A6510;
+    --admin-soft:#FBEAC8;
+    --tl:#3E5C8A;
+    --tl-soft:#DEE7F6;
+    --employee:#2F7A63;
+    --employee-soft:#DCF0E9;
+    --soon:#8A8FA3;
+    --soon-soft:#E7E8EE;
+    --shadow: 0 1px 2px rgba(27,32,48,.04), 0 8px 24px -12px rgba(27,32,48,.10);
+    --font-head:"Archivo", "Segoe UI", sans-serif;
+    --font-body:"Source Serif 4", Georgia, "Times New Roman", serif;
+    --font-mono:"IBM Plex Mono", ui-monospace, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#10131C;
+      --surface:#1A1F2D;
+      --surface-alt:#212739;
+      --border:#2C3346;
+      --ink:#E7E9F1;
+      --ink-soft:#A7ADC1;
+      --accent:#E8A93D;
+      --accent-ink:#F2C066;
+      --accent-soft:rgba(232,169,61,0.14);
+      --accent-soft-border:rgba(232,169,61,0.35);
+      --admin:#E8A93D;
+      --admin-soft:rgba(232,169,61,0.14);
+      --tl:#8FB0E6;
+      --tl-soft:rgba(143,176,230,0.14);
+      --employee:#6FCBAE;
+      --employee-soft:rgba(111,203,174,0.14);
+      --soon:#8992AA;
+      --soon-soft:rgba(137,146,170,0.14);
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#10131C;
+    --surface:#1A1F2D;
+    --surface-alt:#212739;
+    --border:#2C3346;
+    --ink:#E7E9F1;
+    --ink-soft:#A7ADC1;
+    --accent:#E8A93D;
+    --accent-ink:#F2C066;
+    --accent-soft:rgba(232,169,61,0.14);
+    --accent-soft-border:rgba(232,169,61,0.35);
+    --admin:#E8A93D;
+    --admin-soft:rgba(232,169,61,0.14);
+    --tl:#8FB0E6;
+    --tl-soft:rgba(143,176,230,0.14);
+    --employee:#6FCBAE;
+    --employee-soft:rgba(111,203,174,0.14);
+    --soon:#8992AA;
+    --soon-soft:rgba(137,146,170,0.14);
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:16.5px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4{ font-family:var(--font-head); color:var(--ink); text-wrap:balance; margin:0; }
+  p{ margin:0; }
+  a{ color:var(--accent-ink); }
+  .eyebrow{
+    font-family:var(--font-mono); font-size:.72rem; font-weight:600; letter-spacing:.09em;
+    text-transform:uppercase; color:var(--accent-ink);
+  }
+
+  /* ---------- Masthead ---------- */
+  .masthead{
+    border-bottom:1px solid var(--border);
+    background:var(--surface);
+  }
+  .masthead-inner{
+    max-width:1200px; margin:0 auto; padding:2.6rem 1.5rem 2.2rem;
+    display:flex; flex-wrap:wrap; gap:1.75rem 3rem; align-items:flex-end; justify-content:space-between;
+  }
+  .masthead h1{ font-size:2.15rem; font-weight:800; letter-spacing:-.01em; margin-top:.4rem; }
+  .masthead .tagline{ font-family:var(--font-body); color:var(--ink-soft); font-size:1.05rem; max-width:52ch; margin-top:.55rem; }
+  .masthead-meta{ display:flex; flex-direction:column; gap:.45rem; font-family:var(--font-mono); font-size:.78rem; color:var(--ink-soft); text-align:right; }
+  .masthead-meta strong{ color:var(--ink); font-weight:600; }
+
+  /* ---------- Layout ---------- */
+  .body-grid{
+    max-width:1200px; margin:0 auto; padding:2.5rem 1.5rem 5rem;
+    display:grid; grid-template-columns:230px 1fr; gap:3rem; align-items:start;
+  }
+  @media (max-width:900px){ .body-grid{ grid-template-columns:1fr; } .toc{ display:none; } }
+
+  .toc{
+    position:sticky; top:1.5rem; max-height:calc(100vh - 3rem); overflow-y:auto;
+    display:flex; flex-direction:column; gap:1.3rem; padding-right:.5rem;
+  }
+  .toc-group-label{ font-family:var(--font-mono); font-size:.68rem; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:.4rem; display:block;}
+  .toc a{ display:block; font-family:var(--font-head); font-size:.86rem; font-weight:600; color:var(--ink-soft); text-decoration:none; padding:.2rem 0; }
+  .toc a:hover{ color:var(--accent-ink); }
+
+  main.content{ display:flex; flex-direction:column; gap:3.2rem; min-width:0; }
+
+  /* ---------- Intro / matrix ---------- */
+  .intro p{ max-width:70ch; color:var(--ink-soft); font-size:1.02rem; }
+  .intro p + p{ margin-top:.85rem; }
+
+  .callout{
+    border-left:3px solid var(--accent); background:var(--accent-soft);
+    border-radius:0 10px 10px 0; padding:.9rem 1.15rem; font-size:.94rem; color:var(--ink);
+    font-family:var(--font-body);
+  }
+  .callout strong{ font-family:var(--font-head); }
+
+  .legend{ display:flex; flex-wrap:wrap; gap:1.1rem; font-family:var(--font-mono); font-size:.78rem; color:var(--ink-soft); margin-top:1rem;}
+  .legend span.mark{ font-weight:700; margin-right:.35rem; }
+
+  .matrix-wrap{ overflow-x:auto; border:1px solid var(--border); border-radius:14px; background:var(--surface); box-shadow:var(--shadow); }
+  table.matrix{ border-collapse:collapse; width:100%; min-width:640px; font-size:.86rem; }
+  table.matrix th, table.matrix td{ padding:.6rem .9rem; text-align:left; border-bottom:1px solid var(--border); }
+  table.matrix thead th{
+    font-family:var(--font-mono); font-size:.7rem; text-transform:uppercase; letter-spacing:.06em;
+    color:var(--ink-soft); background:var(--surface-alt); position:sticky; top:0;
+  }
+  table.matrix td.role-cell{ text-align:center; font-weight:700; font-family:var(--font-mono); }
+  table.matrix tbody tr:nth-child(even){ background:var(--surface-alt); }
+  table.matrix tbody tr:last-child td{ border-bottom:none; }
+  td.feat-name{ font-family:var(--font-head); font-weight:600; }
+  .col-admin{ color:var(--admin); } .col-tl{ color:var(--tl); } .col-employee{ color:var(--employee); }
+
+  /* ---------- Filter bar ---------- */
+  .filter-bar{ display:flex; flex-wrap:wrap; align-items:center; gap:.6rem; }
+  .filter-bar .fb-label{ font-family:var(--font-mono); font-size:.72rem; text-transform:uppercase; letter-spacing:.07em; color:var(--ink-soft); margin-right:.3rem;}
+  .chip{
+    font-family:var(--font-head); font-size:.82rem; font-weight:600; padding:.4rem .95rem;
+    border-radius:999px; border:1px solid var(--border); background:var(--surface); color:var(--ink-soft);
+    cursor:pointer; transition:background .12s,color .12s,border-color .12s;
+  }
+  .chip:hover{ border-color:var(--accent-soft-border); }
+  .chip.active{ background:var(--ink); color:var(--bg); border-color:var(--ink); }
+  .chip.active.role-admin{ background:var(--admin); border-color:var(--admin); color:#1B1200; }
+  .chip.active.role-tl{ background:var(--tl); border-color:var(--tl); color:#0B1522; }
+  .chip.active.role-employee{ background:var(--employee); border-color:var(--employee); color:#06231A; }
+
+  /* ---------- Category / module cards ---------- */
+  .category{ display:flex; flex-direction:column; gap:1.4rem; scroll-margin-top:1.5rem; }
+  .category-head{ display:flex; align-items:baseline; gap:.7rem; border-bottom:1px solid var(--border); padding-bottom:.6rem; }
+  .category-head h2{ font-size:1.32rem; font-weight:700; }
+  .category-num{ font-family:var(--font-mono); color:var(--accent-ink); font-size:.85rem; font-weight:700; }
+
+  .module-card{
+    background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:1.5rem 1.75rem 1.7rem; box-shadow:var(--shadow); scroll-margin-top:1.5rem;
+    display:flex; flex-direction:column; gap:1rem;
+  }
+  .module-card[hidden]{ display:none; }
+  .module-head{ display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-start; gap:.75rem; }
+  .module-head h3{ font-size:1.12rem; font-weight:700; }
+  .module-num{ font-family:var(--font-mono); font-size:.78rem; color:var(--ink-soft); font-weight:600; margin-right:.5rem;}
+  .role-chips{ display:flex; gap:.4rem; flex-wrap:wrap; }
+  .role-chip{
+    font-family:var(--font-mono); font-size:.68rem; font-weight:600; letter-spacing:.02em;
+    padding:.22rem .55rem; border-radius:999px;
+  }
+  .role-chip.admin{ background:var(--admin-soft); color:var(--admin); }
+  .role-chip.tl{ background:var(--tl-soft); color:var(--tl); }
+  .role-chip.employee{ background:var(--employee-soft); color:var(--employee); }
+
+  .module-path{ font-family:var(--font-mono); font-size:.78rem; color:var(--ink-soft); }
+  .module-path b{ color:var(--ink); font-weight:600; }
+  .module-purpose{ color:var(--ink); font-size:.98rem; }
+
+  .steps{ margin:0; padding-left:1.3rem; display:flex; flex-direction:column; gap:.4rem; font-size:.95rem; }
+  .steps li::marker{ font-family:var(--font-mono); font-weight:600; color:var(--accent-ink); }
+
+  .module-note{
+    border-left:3px solid var(--accent); background:var(--accent-soft);
+    border-radius:0 8px 8px 0; padding:.7rem 1rem; font-size:.88rem; color:var(--ink);
+  }
+  .module-note b{ font-family:var(--font-head); }
+
+  .shot{
+    border:1.5px dashed var(--border); border-radius:12px; padding:1.9rem 1rem;
+    text-align:center; color:var(--ink-soft); font-family:var(--font-mono); font-size:.74rem;
+    letter-spacing:.03em; background:var(--surface-alt);
+  }
+
+  /* ---------- Coming soon ---------- */
+  .soon-card{
+    background:var(--soon-soft); border:1px dashed var(--soon); border-radius:14px;
+    padding:1.1rem 1.4rem; display:flex; flex-direction:column; gap:.35rem;
+  }
+  .soon-pill{
+    align-self:flex-start; font-family:var(--font-mono); font-size:.66rem; font-weight:700; letter-spacing:.06em;
+    text-transform:uppercase; color:var(--soon); background:var(--surface); border:1px solid var(--soon);
+    padding:.18rem .55rem; border-radius:999px;
+  }
+  .soon-card h4{ font-size:1rem; font-weight:700; }
+  .soon-card p{ color:var(--ink-soft); font-size:.92rem; }
+  .soon-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1rem; }
+
+  footer{
+    max-width:1200px; margin:0 auto; padding:2rem 1.5rem 3rem; border-top:1px solid var(--border);
+    display:flex; flex-wrap:wrap; justify-content:space-between; gap:.75rem;
+    font-family:var(--font-mono); font-size:.76rem; color:var(--ink-soft);
+  }
+
+  @media (prefers-reduced-motion: no-preference){
+    .chip, .module-card{ transition:opacity .15s ease, transform .15s ease; }
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <div>
+      <span class="eyebrow">Feature Reference · All Roles</span>
+      <h1>Intersmart Employee Portal — Feature Guide</h1>
+      <p class="tagline">Every module, who can see it, and the exact steps to run it — built for walking a manager through the live portal end to end.</p>
+    </div>
+    <div class="masthead-meta">
+      <span>Environment: <strong>workplace.intersmart.in</strong></span>
+      <span>Prepared: <strong>2 Sep 2026</strong></span>
+      <span>Roles covered: <strong>Super Admin · Team Lead · Employee</strong></span>
+    </div>
+  </div>
+</header>
+
+<div class="body-grid">
+  <nav class="toc" aria-label="Table of contents">
+    <div>
+      <span class="toc-group-label">Reference</span>
+      <a href="#access-matrix">Role access matrix</a>
+    </div>
+    <div>
+      <span class="toc-group-label">1 · Getting started</span>
+      <a href="#m1">Login</a>
+      <a href="#m2">Dashboard</a>
+    </div>
+    <div>
+      <span class="toc-group-label">2 · People &amp; teams</span>
+      <a href="#m3">Employee management</a>
+      <a href="#m4">Team management</a>
+    </div>
+    <div>
+      <span class="toc-group-label">3 · Leave</span>
+      <a href="#m5">Apply for leave</a>
+      <a href="#m6">Approve / reject leave</a>
+      <a href="#m7">View leave balance</a>
+      <a href="#m8">Leave balance management</a>
+      <a href="#m9">Annual allocation</a>
+    </div>
+    <div>
+      <span class="toc-group-label">4 · Time &amp; attendance</span>
+      <a href="#m10">Attendance check-in/out</a>
+      <a href="#m11">Work from home</a>
+    </div>
+    <div>
+      <span class="toc-group-label">5 · Travel allowance</span>
+      <a href="#m12">Apply for TA</a>
+      <a href="#m13">TA status</a>
+      <a href="#m14">TA management</a>
+    </div>
+    <div>
+      <span class="toc-group-label">6 · Communication</span>
+      <a href="#m15">Announcements</a>
+      <a href="#m16">Notifications</a>
+      <a href="#m17">Hall of fame</a>
+      <a href="#m18">Recognitions</a>
+    </div>
+    <div>
+      <span class="toc-group-label">7 · Org info</span>
+      <a href="#m19">Holidays</a>
+      <a href="#m20">Calendar</a>
+      <a href="#m21">Reports</a>
+    </div>
+    <div>
+      <span class="toc-group-label">8 · Profile</span>
+      <a href="#m22">My profile</a>
+      <a href="#m23">Profile update requests</a>
+    </div>
+    <div>
+      <span class="toc-group-label">9 · Admin tools</span>
+      <a href="#m24">Audit logs</a>
+      <a href="#m25">Settings</a>
+    </div>
+    <div>
+      <span class="toc-group-label">10 · Support</span>
+      <a href="#m26">Issues / raise a concern</a>
+    </div>
+    <div>
+      <span class="toc-group-label">Roadmap</span>
+      <a href="#coming-soon">Coming soon</a>
+    </div>
+  </nav>
+
+  <main class="content">
+
+    <section class="intro">
+      <p>This guide walks the portal module by module, in the order you'd naturally demo it: log in, manage people, run leave and attendance, handle travel allowance, then the supporting modules. Each entry names who can use it, where to click, and the exact steps.</p>
+      <p>Three roles exist — <strong>Super Admin</strong> (full control, cannot apply leave for themself), <strong>Team Lead</strong> (own team + own requests), <strong>Employee</strong> (own records only). The matrix below is the fast reference; the sections after it are the walkthrough.</p>
+    </section>
+
+    <section id="access-matrix" class="category">
+      <div class="category-head"><h2>Role access at a glance</h2></div>
+      <div class="matrix-wrap">
+        <table class="matrix">
+          <thead>
+            <tr><th>Feature</th><th class="col-admin">Super Admin</th><th class="col-tl">Team Lead</th><th class="col-employee">Employee</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="feat-name">Login &amp; Dashboard</td><td class="role-cell col-admin">●</td><td class="role-cell col-tl">●</td><td class="role-cell col-employee">●</td></tr>
+            <tr><td class="feat-name">Employee management</td><td class="role-cell col-admin">●</td><td class="role-cell col-tl">◐</td><td class="role-cell col-employee">—</td></tr>
+            <tr><td class="feat-name">Team management</td><td class="role-cell col-admin">●</td><td class="role-cell col-tl">—</td><td class="role-cell col-employee">—</td></tr>
+            <tr><td class="feat-name">Apply for leave</td><td class="role-cell col-admin">—</td><td class="role-cell col-tl">●</td><td class="role-cell col-employee">●</td></tr>
+            <tr><td class="feat-name">Approve / reject leave</td><td class="role-cell col-admin">●</td><td class="role-cell col-tl">◐</td><td class="role-cell col-employee">—</td></tr>
+            <tr><td class="feat-name">View leave balance</td><td class="role-cell col-admin">● all</td><td class="role-cell col-tl">○ own</td><td class="role-cell col-employee">○ own</td></tr>
+            <tr><td class="feat-name">Leave balance management</td><td class="role-cell col-admin">●</td><td class="role-cell col-tl">—</td><td class="role-cell col-employee">—</td></tr>
+            <tr><td class="feat-name">Annual leave allocation</td><td class="role-cell col-admin">● trigger</td><td class="role-cell col-tl">—</td><td class="role-cell col-employee">—</td></tr>
+            <tr><td class="feat-name">Attendance check-in/out</td><td class="role-cell col-admin">● view all</td><td class="role-cell col-tl">◐</td><td class="role-cell col-employee">○ own</td></tr>
+            <tr><td class="feat-name">Work from home</td><td class="role-cell col-admin">◐ approve</td><td class="role-cell col-tl">◐</td><td class="role-cell col-employee">○ own</td></tr>
+            <tr><td class="feat-name">Apply for travel allowance</td><td class="role-cell col-admin">—</td><td class="role-cell col-tl">●</td><td class="role-cell col-employee">●</td></tr>
+            <tr><td class="feat-name">TA status</td><td class="role-cell col-admin">—</td><td class="role-cell col-tl">○ own</td><td class="role-cell col-employee">○ own</td></tr>
+            <tr><td class="feat-name">TA management</td><td class="role-cell col-admin">●</td><td class="role-cell col-tl">—</td><td class="role-cell col-employee">—</td></tr>
+            <tr><td class="feat-name">Announcements</td><td class="role-cell col-admin">● post</td><td class="role-cell col-tl">○ view</td><td class="role-cell col-employee">○ view</td></tr>
+            <tr><td class="feat-name">Notifications</td><td class="role-cell col-admin">● own</td><td class="role-cell col-tl">● own</td><td class="role-cell col-employee">● own</td></tr>
+            <tr><td class="feat-name">Hall of fame</td><td class="role-cell col-admin">●</td><td class="role-cell col-tl">●</td><td class="role-cell col-employee">●</td></tr>
+            <tr><td class="feat-name">Recognitions</td><td class="role-cell col-admin">●</td><td class="role-cell col-tl">●</td><td class="role-cell col-employee">●</td></tr>
+            <tr><td class="feat-name">Holidays</td><td class="role-cell col-admin">● manage</td><td class="role-cell col-tl">○ view</td><td class="role-cell col-employee">○ view</td></tr>
+            <tr><td class="feat-name">Calendar</td><td class="role-cell col-admin">●</td><td class="role-cell col-tl">●</td><td class="role-cell col-employee">●</td></tr>
+            <tr><td class="feat-name">Reports</td><td class="role-cell col-admin">●</td><td class="role-cell col-tl">—</td><td class="role-cell col-employee">—</td></tr>
+            <tr><td class="feat-name">My profile</td><td class="role-cell col-admin">○ own</td><td class="role-cell col-tl">○ own</td><td class="role-cell col-employee">○ own</td></tr>
+            <tr><td class="feat-name">Profile update requests</td><td class="role-cell col-admin">● approve</td><td class="role-cell col-tl">○ submit</td><td class="role-cell col-employee">○ submit</td></tr>
+            <tr><td class="feat-name">Audit logs</td><td class="role-cell col-admin">●</td><td class="role-cell col-tl">—</td><td class="role-cell col-employee">—</td></tr>
+            <tr><td class="feat-name">Settings</td><td class="role-cell col-admin">●</td><td class="role-cell col-tl">—</td><td class="role-cell col-employee">—</td></tr>
+            <tr><td class="feat-name">Issues / raise a concern</td><td class="role-cell col-admin">◐ resolve</td><td class="role-cell col-tl">○ raise</td><td class="role-cell col-employee">○ raise</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="legend">
+        <span><span class="mark">●</span>Full control</span>
+        <span><span class="mark">◐</span>Partial — own team / one approval stage</span>
+        <span><span class="mark">○</span>View or apply, own records only</span>
+        <span><span class="mark">—</span>Not visible in that role's menu</span>
+      </div>
+    </section>
+
+    <section class="filter-bar">
+      <span class="fb-label">Show steps for</span>
+      <button class="chip active" data-role="all">All roles</button>
+      <button class="chip role-admin" data-role="admin">Super Admin</button>
+      <button class="chip role-tl" data-role="tl">Team Lead</button>
+      <button class="chip role-employee" data-role="employee">Employee</button>
+    </section>
+
+    <!-- 1. GETTING STARTED -->
+    <section class="category" id="cat-1">
+      <div class="category-head"><span class="category-num">01</span><h2>Getting started</h2></div>
+
+      <article class="module-card" id="m1" data-roles="admin tl employee">
+        <div class="module-head">
+          <h3><span class="module-num">1.</span>Login</h3>
+          <div class="role-chips"><span class="role-chip admin">Super Admin</span><span class="role-chip tl">Team Lead</span><span class="role-chip employee">Employee</span></div>
+        </div>
+        <p class="module-path">Public page, before authentication · <b>/login</b></p>
+        <p class="module-purpose">Email + password sign-in via Laravel Sanctum. Landing page after login depends on role.</p>
+        <ol class="steps">
+          <li>Open the portal URL — the login screen loads.</li>
+          <li>Enter your work email and password.</li>
+          <li>Click <b>Log In</b>.</li>
+          <li>You land on your role's Dashboard, and the side menu shows only the modules your role can use.</li>
+        </ol>
+        <div class="module-note"><b>Forgot password:</b> click "Forgot Password" on the login screen, enter your email, follow the reset link sent to it, then set a new password.</div>
+        <div class="shot">Screenshot slot — Login screen</div>
+      </article>
+
+      <article class="module-card" id="m2" data-roles="admin tl employee">
+        <div class="module-head">
+          <h3><span class="module-num">2.</span>Dashboard</h3>
+          <div class="role-chips"><span class="role-chip admin">Super Admin</span><span class="role-chip tl">Team Lead</span><span class="role-chip employee">Employee</span></div>
+        </div>
+        <p class="module-path">Home page after login · <b>Dashboard</b> in the side menu</p>
+        <p class="module-purpose">Role-specific landing view — the content shown changes per role, the module itself doesn't.</p>
+        <ol class="steps">
+          <li><b>Super Admin</b> sees company-wide KPI cards: headcount, pending leave/TA approvals, today's attendance.</li>
+          <li><b>Team Lead</b> sees their own welcome card plus a snapshot of their team and pending approvals.</li>
+          <li><b>Employee</b> sees a welcome card ("You have been with Intersmart for X Years Y Months Z Days", calculated from joining date), their own attendance widget, announcements, and birthdays.</li>
+          <li>Use the quick links on the cards to jump straight into a module.</li>
+        </ol>
+        <div class="shot">Screenshot slot — Dashboard (per role)</div>
+      </article>
+    </section>
+
+    <!-- 2. PEOPLE & TEAMS -->
+    <section class="category" id="cat-2">
+      <div class="category-head"><span class="category-num">02</span><h2>People &amp; teams</h2></div>
+
+      <article class="module-card" id="m3" data-roles="admin tl">
+        <div class="module-head">
+          <h3><span class="module-num">3.</span>Employee management</h3>
+          <div class="role-chips"><span class="role-chip admin">Super Admin</span><span class="role-chip tl">Team Lead (view own team)</span></div>
+        </div>
+        <p class="module-path"><b>Employees</b> in the side menu</p>
+        <p class="module-purpose">Full employee records: personal, contact, employment info, status, and photo.</p>
+        <ol class="steps">
+          <li>Employees → <b>Add Employee</b>.</li>
+          <li>Fill in personal details (name, DOB, gender, blood group, marital status), contact &amp; address, and employment info (designation, team/department, joining date).</li>
+          <li>Assign a team from the dynamic department list (pulled live from Team management — no hardcoded options).</li>
+          <li>Save — the system assigns a unique employee code and the record appears in the list.</li>
+          <li>To edit: open the employee → update fields → Save. To change status: set it to Active / Disabled / Resigned / Terminated.</li>
+          <li>To add a photo: open the employee → Upload Photo → choose an image → Save.</li>
+        </ol>
+        <div class="shot">Screenshot slot — Employee list &amp; Add/Edit form</div>
+      </article>
+
+      <article class="module-card" id="m4" data-roles="admin">
+        <div class="module-head">
+          <h3><span class="module-num">4.</span>Team / department management</h3>
+          <div class="role-chips"><span class="role-chip admin">Super Admin</span></div>
+        </div>
+        <p class="module-path"><b>Teams</b> in the side menu</p>
+        <p class="module-purpose">Create departments and assign each one a Team Lead.</p>
+        <ol class="steps">
+          <li>Teams → <b>Add Team</b>.</li>
+          <li>Enter the team name and description, and pick a Team Lead from the employee list.</li>
+          <li>Save — a unique team code is generated automatically from the name (e.g. "Quality Assurance" → <b>QUAL-3847</b>).</li>
+          <li>The new team is immediately available in the Employee form's department dropdown.</li>
+        </ol>
+        <div class="shot">Screenshot slot — Team list &amp; Add Team form</div>
+      </article>
+    </section>
+
+    <!-- 3. LEAVE -->
+    <section class="category" id="cat-3">
+      <div class="category-head"><span class="category-num">03</span><h2>Leave management</h2></div>
+
+      <article class="module-card" id="m5" data-roles="tl employee">
+        <div class="module-head">
+          <h3><span class="module-num">5.</span>Apply for leave</h3>
+          <div class="role-chips"><span class="role-chip tl">Team Lead</span><span class="role-chip employee">Employee</span></div>
+        </div>
+        <p class="module-path"><b>Leaves → Apply Leave</b> (this item is hidden from Super Admin's menu — Super Admin cannot apply leave for themself)</p>
+        <p class="module-purpose">Submit a leave request against Casual or Sick Leave (or a half-day/WFH variant).</p>
+        <ol class="steps">
+          <li>Leaves → <b>Apply Leave</b>.</li>
+          <li>Choose the leave type.</li>
+          <li>Pick start and end date, and enter a reason.</li>
+          <li>Submit — the request enters a two-stage approval: Team Lead status, then Admin status.</li>
+        </ol>
+        <div class="module-note"><b>Rule:</b> Casual Leave must be applied at least 3 days in advance (enforced by the backend). Sick Leave has no advance-notice rule.</div>
+        <div class="shot">Screenshot slot — Apply Leave form</div>
+      </article>
+
+      <article class="module-card" id="m6" data-roles="tl admin">
+        <div class="module-head">
+          <h3><span class="module-num">6.</span>Approve / reject leave</h3>
+          <div class="role-chips"><span class="role-chip tl">Team Lead (own team, 1st stage)</span><span class="role-chip admin">Super Admin (final stage)</span></div>
+        </div>
+        <p class="module-path"><b>Leaves</b> in the side menu, pending-requests list</p>
+        <p class="module-purpose">Two-stage sign-off: Team Lead approves first, Super Admin approves final.</p>
+        <ol class="steps">
+          <li>Leaves → open a pending request.</li>
+          <li>Review the dates, reason, and the employee's remaining balance.</li>
+          <li>Team Lead: Approve or Reject (first stage).</li>
+          <li>Once Team Lead-approved, it appears for Super Admin's final Approve/Reject.</li>
+          <li>Super Admin can also <b>override</b> a prior decision if a mistake needs correcting.</li>
+        </ol>
+        <div class="shot">Screenshot slot — Leave approval screen</div>
+      </article>
+
+      <article class="module-card" id="m7" data-roles="admin tl employee">
+        <div class="module-head">
+          <h3><span class="module-num">7.</span>View leave balance</h3>
+          <div class="role-chips"><span class="role-chip admin">Super Admin (everyone)</span><span class="role-chip tl">Team Lead (own)</span><span class="role-chip employee">Employee (own)</span></div>
+        </div>
+        <p class="module-path">Own balance widget on Dashboard/Profile for Team Lead &amp; Employee · dedicated <b>Leave Balances</b> page for Super Admin</p>
+        <p class="module-purpose">Shows Casual Leave balance, CL carry-forward (with its expiry year), Sick Leave balance, and total leave taken.</p>
+        <ol class="steps">
+          <li>Team Lead / Employee: check the balance widget on the Dashboard or Profile page.</li>
+          <li>Super Admin: open <b>Leave Balances</b> to see every employee's figures in one table.</li>
+        </ol>
+        <div class="shot">Screenshot slot — Leave balance view</div>
+      </article>
+
+      <article class="module-card" id="m8" data-roles="admin">
+        <div class="module-head">
+          <h3><span class="module-num">8.</span>Leave balance management</h3>
+          <div class="role-chips"><span class="role-chip admin">Super Admin</span></div>
+        </div>
+        <p class="module-path"><b>Leave Balances</b> in the side menu (Super Admin only)</p>
+        <p class="module-purpose">Manually adjust any employee's leave figures, with every change logged.</p>
+        <ol class="steps">
+          <li>Leave Balances → search or select an employee.</li>
+          <li>Review their current Casual Leave, CL carry-forward, Sick Leave, and total taken.</li>
+          <li>Click <b>Adjust</b>, enter the new value and a remark explaining the change.</li>
+          <li>Save — the change is written to the Leave Balance Audit Log (previous value, new value, who made the change, remark).</li>
+        </ol>
+        <div class="module-note">
+          <b>Carry-forward rule:</b> 12 CL allocated every Jan 1; unused CL carries forward for exactly one year, then expires Dec 31 of that following year; carry-forward balance is always consumed before the current year's allocation.<br>
+          <b>Sick Leave rule:</b> 12 SL allocated every Jan 1, no carry-forward — unused SL simply expires Dec 31.
+        </div>
+        <div class="shot">Screenshot slot — Leave Balance Management + Audit Log</div>
+      </article>
+
+      <article class="module-card" id="m9" data-roles="admin">
+        <div class="module-head">
+          <h3><span class="module-num">9.</span>Annual leave allocation</h3>
+          <div class="role-chips"><span class="role-chip admin">Super Admin</span></div>
+        </div>
+        <p class="module-path"><b>Settings</b> → Run Annual Allocation (manual) · runs automatically every Jan 1</p>
+        <p class="module-purpose">Grants the new year's 12 CL + 12 SL to every employee and rolls unused CL into carry-forward.</p>
+        <ol class="steps">
+          <li><b>Automatic:</b> a scheduled job runs at midnight on Jan 1 and applies the allocation to every employee — no action needed.</li>
+          <li><b>Manual (if it needs re-running, e.g. after a missed cron):</b> Settings → <b>Run Annual Allocation</b> → confirm.</li>
+        </ol>
+        <div class="shot">Screenshot slot — Run Annual Allocation control</div>
+      </article>
+    </section>
+
+    <!-- 4. TIME & ATTENDANCE -->
+    <section class="category" id="cat-4">
+      <div class="category-head"><span class="category-num">04</span><h2>Time &amp; attendance</h2></div>
+
+      <article class="module-card" id="m10" data-roles="admin tl employee">
+        <div class="module-head">
+          <h3><span class="module-num">10.</span>Attendance check-in / check-out</h3>
+          <div class="role-chips"><span class="role-chip admin">Super Admin (views all)</span><span class="role-chip tl">Team Lead</span><span class="role-chip employee">Employee</span></div>
+        </div>
+        <p class="module-path"><b>Attendance</b> in the side menu</p>
+        <p class="module-purpose">Daily check-in/out with optional break tracking.</p>
+        <ol class="steps">
+          <li>Attendance → <b>Check In</b> — timestamp is recorded.</li>
+          <li>Optionally start/end a break during the day.</li>
+          <li><b>Check Out</b> at end of day.</li>
+          <li>The history list shows date, check-in/out times, breaks, and computed status per day.</li>
+        </ol>
+        <div class="shot">Screenshot slot — Attendance widget &amp; history</div>
+      </article>
+
+      <article class="module-card" id="m11" data-roles="admin tl employee">
+        <div class="module-head">
+          <h3><span class="module-num">11.</span>Work from home (WFH) requests</h3>
+          <div class="role-chips"><span class="role-chip employee">Employee (apply)</span><span class="role-chip tl">Team Lead (apply + approve)</span><span class="role-chip admin">Super Admin (approve)</span></div>
+        </div>
+        <p class="module-path"><b>WFH</b> in the side menu</p>
+        <p class="module-purpose">Request-and-approve flow for remote-work days, same pattern as leave.</p>
+        <ol class="steps">
+          <li>WFH → <b>New Request</b>.</li>
+          <li>Pick the date(s) and a reason.</li>
+          <li>Submit — it routes to the approver.</li>
+          <li>Approver opens WFH → reviews → Approve or Reject.</li>
+        </ol>
+        <div class="shot">Screenshot slot — WFH request form &amp; approval list</div>
+      </article>
+    </section>
+
+    <!-- 5. TRAVEL ALLOWANCE -->
+    <section class="category" id="cat-5">
+      <div class="category-head"><span class="category-num">05</span><h2>Travel allowance (TA)</h2></div>
+
+      <article class="module-card" id="m12" data-roles="tl employee">
+        <div class="module-head">
+          <h3><span class="module-num">12.</span>Apply for travel allowance</h3>
+          <div class="role-chips"><span class="role-chip tl">Team Lead</span><span class="role-chip employee">Employee</span></div>
+        </div>
+        <p class="module-path"><b>TA → Apply</b> (not shown to Super Admin — TA management covers that role instead)</p>
+        <p class="module-purpose">Claim travel expenses with an itemised breakdown and bill upload.</p>
+        <ol class="steps">
+          <li>TA → <b>Apply</b>.</li>
+          <li>Enter the reason for travel and the date travelled.</li>
+          <li>Add expense line items — category (Travel / Food / Accommodation / Other), amount, description — click <b>Add Item</b> for each one.</li>
+          <li>Upload the bill/receipt.</li>
+          <li>Submit — the total is calculated automatically from the line items and the request starts as <b>Applied</b>.</li>
+        </ol>
+        <div class="module-note"><b>Heads up for the demo:</b> applying is meant to email HR@intersmart.in and Ameesha@intersmart.in with one-click Approve/Reject links, but SMTP isn't configured in this environment yet — that email won't actually land. See <a href="#coming-soon">Coming soon</a>.</div>
+        <div class="shot">Screenshot slot — TA Apply form</div>
+      </article>
+
+      <article class="module-card" id="m13" data-roles="tl employee">
+        <div class="module-head">
+          <h3><span class="module-num">13.</span>TA status (my requests)</h3>
+          <div class="role-chips"><span class="role-chip tl">Team Lead (own)</span><span class="role-chip employee">Employee (own)</span></div>
+        </div>
+        <p class="module-path"><b>TA → Status</b></p>
+        <p class="module-purpose">Track your own travel-allowance requests through their lifecycle.</p>
+        <ol class="steps">
+          <li>TA → <b>Status</b>.</li>
+          <li>Filter by status: Applied / Approved / Paid / Unpaid / Rejected.</li>
+          <li>Open a request to see its expense breakdown, any approver notes, and payment status.</li>
+        </ol>
+        <div class="shot">Screenshot slot — TA Status list</div>
+      </article>
+
+      <article class="module-card" id="m14" data-roles="admin">
+        <div class="module-head">
+          <h3><span class="module-num">14.</span>TA management</h3>
+          <div class="role-chips"><span class="role-chip admin">Super Admin</span></div>
+        </div>
+        <p class="module-path"><b>TA → Management</b> (Super Admin only)</p>
+        <p class="module-purpose">Review, approve, reject, and mark travel claims as paid.</p>
+        <ol class="steps">
+          <li>TA → <b>Management</b> — lists every employee's requests, filterable by status.</li>
+          <li>Open a request → review the expense breakdown and uploaded bill.</li>
+          <li><b>Approve</b> (optionally add notes) or <b>Reject</b> (with a reason).</li>
+          <li>Once actually paid out, toggle <b>Mark as Paid</b> for payroll tracking.</li>
+        </ol>
+        <div class="module-note">HR can also approve/reject straight from the alert email's signed link (no login needed) — it drops them into this page with the request pre-expanded, once email sending is live.</div>
+        <div class="shot">Screenshot slot — TA Management list &amp; approval dialog</div>
+      </article>
+    </section>
+
+    <!-- 6. COMMUNICATION -->
+    <section class="category" id="cat-6">
+      <div class="category-head"><span class="category-num">06</span><h2>Communication</h2></div>
+
+      <article class="module-card" id="m15" data-roles="admin tl employee">
+        <div class="module-head">
+          <h3><span class="module-num">15.</span>Announcements</h3>
+          <div class="role-chips"><span class="role-chip admin">Super Admin (post)</span><span class="role-chip tl">Team Lead (view)</span><span class="role-chip employee">Employee (view)</span></div>
+        </div>
+        <p class="module-path"><b>Announcements</b> in the side menu</p>
+        <p class="module-purpose">Company-wide updates shown to everyone.</p>
+        <ol class="steps">
+          <li>Super Admin: Announcements → <b>New Announcement</b> → title + message → <b>Publish</b>.</li>
+          <li>Everyone else: Announcements → scroll the feed to read.</li>
+        </ol>
+        <div class="shot">Screenshot slot — Announcements feed</div>
+      </article>
+
+      <article class="module-card" id="m16" data-roles="admin tl employee">
+        <div class="module-head">
+          <h3><span class="module-num">16.</span>Notifications</h3>
+          <div class="role-chips"><span class="role-chip admin">Super Admin</span><span class="role-chip tl">Team Lead</span><span class="role-chip employee">Employee</span></div>
+        </div>
+        <p class="module-path">Bell icon in the top bar · full history under <b>Notifications</b></p>
+        <p class="module-purpose">In-app alerts for anything relevant to you — leave/TA decisions, announcements, approvals waiting on you.</p>
+        <ol class="steps">
+          <li>Click the bell icon for a dropdown of recent alerts.</li>
+          <li>Click a notification to jump to the related record.</li>
+          <li>Open the full <b>Notifications</b> page for complete history and to mark items read.</li>
+        </ol>
+        <div class="shot">Screenshot slot — Notification dropdown</div>
+      </article>
+
+      <article class="module-card" id="m17" data-roles="admin tl employee">
+        <div class="module-head">
+          <h3><span class="module-num">17.</span>Hall of fame</h3>
+          <div class="role-chips"><span class="role-chip admin">Super Admin</span><span class="role-chip tl">Team Lead</span><span class="role-chip employee">Employee</span></div>
+        </div>
+        <p class="module-path"><b>Hall</b> in the side menu</p>
+        <p class="module-purpose">A recognition wall highlighting standout employees company-wide.</p>
+        <ol class="steps">
+          <li>Open <b>Hall</b> to browse featured employees.</li>
+        </ol>
+        <div class="shot">Screenshot slot — Hall of fame wall</div>
+      </article>
+
+      <article class="module-card" id="m18" data-roles="admin tl employee">
+        <div class="module-head">
+          <h3><span class="module-num">18.</span>Employee recognitions</h3>
+          <div class="role-chips"><span class="role-chip admin">Super Admin</span><span class="role-chip tl">Team Lead</span><span class="role-chip employee">Employee</span></div>
+        </div>
+        <p class="module-path"><b>Recognitions</b> in the side menu</p>
+        <p class="module-purpose">Peer-to-peer shout-outs, visible on the recognised employee's profile and the Hall feed.</p>
+        <ol class="steps">
+          <li>Recognitions → <b>Give Recognition</b>.</li>
+          <li>Pick the employee and write the recognition message.</li>
+          <li>Submit — it appears on their profile and the Hall of fame feed.</li>
+        </ol>
+        <div class="shot">Screenshot slot — Give Recognition form</div>
+      </article>
+    </section>
+
+    <!-- 7. ORG INFO -->
+    <section class="category" id="cat-7">
+      <div class="category-head"><span class="category-num">07</span><h2>Organization info</h2></div>
+
+      <article class="module-card" id="m19" data-roles="admin tl employee">
+        <div class="module-head">
+          <h3><span class="module-num">19.</span>Holidays</h3>
+          <div class="role-chips"><span class="role-chip admin">Super Admin (manage)</span><span class="role-chip tl">Team Lead (view)</span><span class="role-chip employee">Employee (view)</span></div>
+        </div>
+        <p class="module-path"><b>Holidays</b> in the side menu</p>
+        <p class="module-purpose">The company holiday list, feeding straight into the Calendar.</p>
+        <ol class="steps">
+          <li>Super Admin: Holidays → <b>Add Holiday</b> → name + date → Save.</li>
+          <li>Everyone: Holidays → view the list; it also shows on the Calendar.</li>
+        </ol>
+        <div class="shot">Screenshot slot — Holidays list</div>
+      </article>
+
+      <article class="module-card" id="m20" data-roles="admin tl employee">
+        <div class="module-head">
+          <h3><span class="module-num">20.</span>Calendar</h3>
+          <div class="role-chips"><span class="role-chip admin">Super Admin</span><span class="role-chip tl">Team Lead</span><span class="role-chip employee">Employee</span></div>
+        </div>
+        <p class="module-path"><b>Calendar</b> in the side menu</p>
+        <p class="module-purpose">One view of holidays, approved leave, and approved WFH days.</p>
+        <ol class="steps">
+          <li>Open <b>Calendar</b> and browse by month.</li>
+          <li>Click a marked day to see what's on it (holiday, leave, WFH).</li>
+        </ol>
+        <div class="shot">Screenshot slot — Calendar view</div>
+      </article>
+
+      <article class="module-card" id="m21" data-roles="admin">
+        <div class="module-head">
+          <h3><span class="module-num">21.</span>Reports</h3>
+          <div class="role-chips"><span class="role-chip admin">Super Admin (+ HR)</span></div>
+        </div>
+        <p class="module-path"><b>Reports</b> in the side menu</p>
+        <p class="module-purpose">On-screen attendance, leave, and TA reporting.</p>
+        <ol class="steps">
+          <li>Reports → choose a report type.</li>
+          <li>View the figures on screen.</li>
+        </ol>
+        <div class="module-note"><b>Not yet available:</b> PDF/Excel export. The on-screen report works; exporting a file doesn't yet. Mention this if the manager asks for a downloadable report.</div>
+        <div class="shot">Screenshot slot — Reports view</div>
+      </article>
+    </section>
+
+    <!-- 8. PROFILE -->
+    <section class="category" id="cat-8">
+      <div class="category-head"><span class="category-num">08</span><h2>Profile</h2></div>
+
+      <article class="module-card" id="m22" data-roles="admin tl employee">
+        <div class="module-head">
+          <h3><span class="module-num">22.</span>My profile</h3>
+          <div class="role-chips"><span class="role-chip admin">Super Admin</span><span class="role-chip tl">Team Lead</span><span class="role-chip employee">Employee</span></div>
+        </div>
+        <p class="module-path"><b>Profile</b> (from the avatar menu or side menu)</p>
+        <p class="module-purpose">Your own personal, contact, and employment details.</p>
+        <ol class="steps">
+          <li>Open <b>Profile</b> to view your details.</li>
+          <li>Click <b>Edit</b>, change a field, and submit.</li>
+        </ol>
+        <div class="module-note">Sensitive fields don't save instantly — they go through a Profile Update Request that Super Admin approves (see next module).</div>
+        <div class="shot">Screenshot slot — Profile page</div>
+      </article>
+
+      <article class="module-card" id="m23" data-roles="admin tl employee">
+        <div class="module-head">
+          <h3><span class="module-num">23.</span>Profile update requests</h3>
+          <div class="role-chips"><span class="role-chip tl">Team Lead (submit)</span><span class="role-chip employee">Employee (submit)</span><span class="role-chip admin">Super Admin (approve)</span></div>
+        </div>
+        <p class="module-path">Submitted from Profile · reviewed under <b>Profile Requests</b> (Super Admin only)</p>
+        <p class="module-purpose">Keeps sensitive personal-data edits auditable instead of silent.</p>
+        <ol class="steps">
+          <li>Team Lead / Employee: edit a sensitive field on Profile and submit — this creates a pending request rather than saving directly.</li>
+          <li>Super Admin: Profile Requests → open a pending change → compare old vs. requested value.</li>
+          <li><b>Approve</b> (applies the change) or <b>Reject</b>.</li>
+        </ol>
+        <div class="shot">Screenshot slot — Profile Requests queue</div>
+      </article>
+    </section>
+
+    <!-- 9. ADMIN TOOLS -->
+    <section class="category" id="cat-9">
+      <div class="category-head"><span class="category-num">09</span><h2>Admin tools</h2></div>
+
+      <article class="module-card" id="m24" data-roles="admin">
+        <div class="module-head">
+          <h3><span class="module-num">24.</span>Audit logs</h3>
+          <div class="role-chips"><span class="role-chip admin">Super Admin</span></div>
+        </div>
+        <p class="module-path"><b>Audit Logs</b> in the side menu (Super Admin only)</p>
+        <p class="module-purpose">A record of who changed what and when — leave balance edits, employee edits, approvals, and more.</p>
+        <ol class="steps">
+          <li>Open <b>Audit Logs</b>.</li>
+          <li>Filter or search to find a specific change.</li>
+        </ol>
+        <div class="shot">Screenshot slot — Audit log table</div>
+      </article>
+
+      <article class="module-card" id="m25" data-roles="admin">
+        <div class="module-head">
+          <h3><span class="module-num">25.</span>Settings</h3>
+          <div class="role-chips"><span class="role-chip admin">Super Admin</span></div>
+        </div>
+        <p class="module-path"><b>Settings</b> in the side menu (Super Admin only)</p>
+        <p class="module-purpose">System-level configuration, including the manual Annual Allocation trigger.</p>
+        <ol class="steps">
+          <li>Open <b>Settings</b> to review or change system-level options.</li>
+        </ol>
+        <div class="shot">Screenshot slot — Settings page</div>
+      </article>
+    </section>
+
+    <!-- 10. SUPPORT -->
+    <section class="category" id="cat-10">
+      <div class="category-head"><span class="category-num">10</span><h2>Support</h2></div>
+
+      <article class="module-card" id="m26" data-roles="admin tl employee">
+        <div class="module-head">
+          <h3><span class="module-num">26.</span>Issues / raise a concern</h3>
+          <div class="role-chips"><span class="role-chip tl">Team Lead (raise)</span><span class="role-chip employee">Employee (raise)</span><span class="role-chip admin">Super Admin (resolve)</span></div>
+        </div>
+        <p class="module-path"><b>Issues</b> in the side menu</p>
+        <p class="module-purpose">A simple channel to flag a concern to admin.</p>
+        <ol class="steps">
+          <li>Issues → <b>New Issue</b>.</li>
+          <li>Describe the concern and pick a category.</li>
+          <li>Submit — Super Admin sees it in the queue and responds/resolves it.</li>
+        </ol>
+        <div class="shot">Screenshot slot — Issues queue</div>
+      </article>
+    </section>
+
+    <!-- COMING SOON -->
+    <section class="category" id="coming-soon">
+      <div class="category-head"><h2>Coming soon — don't demo these as finished</h2></div>
+      <div class="soon-grid">
+        <div class="soon-card">
+          <span class="soon-pill">Planned</span>
+          <h4>Documents page</h4>
+          <p>Route exists in the app's structure; the page itself isn't built yet.</p>
+        </div>
+        <div class="soon-card">
+          <span class="soon-pill">Planned</span>
+          <h4>Policies page</h4>
+          <p>Same as Documents — reserved, not built yet.</p>
+        </div>
+        <div class="soon-card">
+          <span class="soon-pill">Partial</span>
+          <h4>Report export</h4>
+          <p>On-screen Reports work today; PDF/Excel download is not implemented.</p>
+        </div>
+        <div class="soon-card">
+          <span class="soon-pill">Partial</span>
+          <h4>Email notifications</h4>
+          <p>TA-applied alerts and the one-click email approve/reject links are built, but SMTP isn't configured in this environment — no email currently sends. Confirm this is fixed before promising it live in the demo.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  <span>Intersmart Employee Portal — Feature Guide</span>
+  <span>Developed by Team QA</span>
+</footer>
+
+<script>
+  (function(){
+    var chips = document.querySelectorAll('.chip');
+    var cards = document.querySelectorAll('.module-card');
+    chips.forEach(function(chip){
+      chip.addEventListener('click', function(){
+        chips.forEach(function(c){ c.classList.remove('active'); });
+        chip.classList.add('active');
+        var role = chip.getAttribute('data-role');
+        cards.forEach(function(card){
+          if (role === 'all') { card.hidden = false; return; }
+          var roles = (card.getAttribute('data-roles') || '').split(' ');
+          card.hidden = roles.indexOf(role) === -1;
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

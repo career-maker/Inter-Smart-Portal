@@ -624,7 +624,11 @@ export function AttendanceWidget({
                     <div className="bg-slate-50 dark:bg-slate-800/80 p-3 rounded-xl border border-slate-200/80 dark:border-slate-700/60">
                       <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">First Punch In</p>
                       <p className="text-sm font-bold text-slate-900 dark:text-white mt-0.5">
-                        {formatTime(timelineData?.first_in || data?.attendance?.check_in_time)}
+                        {formatTime(
+                          selectedMember 
+                            ? timelineData?.first_in 
+                            : (timelineData?.first_in || data?.attendance?.check_in_time)
+                        )}
                       </p>
                     </div>
 
@@ -637,7 +641,11 @@ export function AttendanceWidget({
                             Working Now
                           </span>
                         ) : (
-                          formatTime(timelineData?.last_out || data?.attendance?.check_out_time)
+                          formatTime(
+                            selectedMember 
+                              ? timelineData?.last_out 
+                              : (timelineData?.last_out || data?.attendance?.check_out_time)
+                          )
                         )}
                       </p>
                     </div>

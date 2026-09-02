@@ -113,7 +113,7 @@ export default function IssueDetailPage() {
   const inputCls = "w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-[#56348f] dark:focus:border-amber-500 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-colors resize-none";
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="max-w-5xl mx-auto space-y-6 mt-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-4">
@@ -265,8 +265,9 @@ export default function IssueDetailPage() {
             )}
 
             {/* Reply box */}
-            <div className="p-5 bg-slate-50 dark:bg-white/5 border-t border-slate-200 dark:border-white/10">
-              <form onSubmit={handleCommentSubmit} className="space-y-3">
+            {(isSuperAdmin || isAssignedToMe) && (
+              <div className="p-5 bg-slate-50 dark:bg-white/5 border-t border-slate-200 dark:border-white/10">
+                <form onSubmit={handleCommentSubmit} className="space-y-3">
                 <textarea
                   placeholder="Type your reply..."
                   rows={3}
@@ -297,7 +298,8 @@ export default function IssueDetailPage() {
                   </button>
                 </div>
               </form>
-            </div>
+              </div>
+            )}
           </div>
         </div>
 

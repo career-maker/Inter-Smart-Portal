@@ -32,19 +32,18 @@ class EmailService
                     'host'       => $smtp['host'] ?? 'smtp.gmail.com',
                     'port'       => (int)($smtp['port'] ?? 587),
                     'encryption' => ($smtp['encryption'] ?? 'tls') === 'none' ? null : ($smtp['encryption'] ?? 'tls'),
-                    'username'   => $smtp['username'],
-                    'password'   => $smtp['password'],
+                    'username'   => !empty($smtp['username']) ? $smtp['username'] : env('MAIL_USERNAME'),
+                    'password'   => !empty($smtp['password']) ? $smtp['password'] : env('MAIL_PASSWORD'),
                     'timeout'    => 15,
                 ]);
 
-                $fromAddr = $smtp['from_address'] ?? $smtp['username'];
-                $fromName = $smtp['from_name'] ?? 'Inter Smart Portal';
+                $fromAddr = !empty($smtp['from_address']) ? $smtp['from_address'] : env('MAIL_FROM_ADDRESS', env('MAIL_USERNAME'));
+                $fromName = !empty($smtp['from_name']) ? $smtp['from_name'] : env('MAIL_FROM_NAME', 'Inter Smart Portal');
 
                 Config::set('mail.from', [
                     'address' => $fromAddr,
                     'name'    => $fromName,
                 ]);
-            }
         } catch (\Throwable $e) {
             Log::warning("Failed to apply dynamic SMTP config: " . $e->getMessage());
         }
