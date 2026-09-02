@@ -94,8 +94,14 @@ class EmailSettingController extends Controller
 
         $current = EmailSetting::getByKey('smtp_config', EmailSetting::defaultSmtp());
 
-        // If password is not provided, keep previous password
-        if (empty($validated['password']) && !empty($current['password'])) {
+        // If password is not provided (empty string or null), preserve the existing stored password.
+        // An existing app password must ONLY be changed when the admin explicitly provides a new non-empty value.
+        if (empty(trim((string)($validated['password'] ?? ''))) && !empty($current['password'])) {
+            $validated['password'] = $current['password'];
+        }
+
+        // Never allow saving an empty password over a previously set one
+        if (empty(trim((string)($validated['password'] ?? ''))) && !empty($current['password'])) {
             $validated['password'] = $current['password'];
         }
 

@@ -635,22 +635,42 @@ export default function EmailManagementPage() {
                     {/* Google App Password */}
                     <div className="space-y-1.5 sm:col-span-2">
                       <div className="flex items-center justify-between">
-                        <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                        <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
                           Google App Password / SMTP Password
+                          {!smtp.has_password && (
+                            <span className="text-rose-500">*</span>
+                          )}
                         </label>
-                        <span className="text-[11px] text-slate-400">
-                          {smtp.has_password
-                            ? "🔒 Configured (leave blank to keep current password)"
-                            : "(Leave blank to keep existing password)"}
+                        <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+                          smtp.has_password
+                            ? "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400"
+                            : "bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400"
+                        }`}>
+                          {smtp.has_password ? "🔒 Password is set" : "⚠️ No password configured"}
                         </span>
                       </div>
+
+                      {/* Warning banner when no password is set */}
+                      {!smtp.has_password && (
+                        <div className="flex items-start gap-2.5 px-3 py-2.5 rounded-xl bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800/50">
+                          <AlertCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+                          <div className="text-xs text-rose-700 dark:text-rose-400">
+                            <span className="font-bold">No App Password is configured.</span> Emails will not send until you enter a valid Google App Password below and save.
+                          </div>
+                        </div>
+                      )}
+
                       <div className="relative">
                         <input
                           type={showPassword ? "text" : "password"}
                           value={smtp.password || ""}
                           onChange={(e) => setSmtp({ ...smtp, password: e.target.value })}
-                          placeholder={smtp.has_password ? "••••••••••••••••" : "Enter Google App Password"}
-                          className="w-full px-3.5 py-2 pr-10 rounded-xl text-xs font-mono bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f]"
+                          placeholder={smtp.has_password ? "Leave blank to keep current password unchanged" : "Enter Google App Password (required)"}
+                          className={`w-full px-3.5 py-2 pr-10 rounded-xl text-xs font-mono bg-slate-50 dark:bg-slate-800 border text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#56348f] ${
+                            !smtp.has_password && !smtp.password
+                              ? "border-rose-400 dark:border-rose-600"
+                              : "border-slate-200 dark:border-slate-700"
+                          }`}
                         />
                         <button
                           type="button"
@@ -660,7 +680,13 @@ export default function EmailManagementPage() {
                           {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
                       </div>
+                      <p className="text-[11px] text-slate-400 dark:text-slate-500">
+                        {smtp.has_password
+                          ? "Leave blank to keep the existing password. Only enter a new value to update it."
+                          : "Generate an App Password from your Google Account → Security → 2-Step Verification → App Passwords."}
+                      </p>
                     </div>
+
 
                     {/* Host */}
                     <div className="space-y-1.5">

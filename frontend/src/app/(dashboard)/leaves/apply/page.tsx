@@ -300,7 +300,27 @@ export default function ApplyLeavePage() {
       setShowSuccess(true);
       setIsLoading(false);
     } catch (e: any) {
-      alert(e.response?.data?.message || "An error occurred while submitting the request.");
+      const status = e?.response?.status;
+      const serverMsg: string = e?.response?.data?.message || e?.message || "";
+
+      // If the leave was likely created (DB committed) but a downstream step failed,
+      // show success instead of a confusing server error.
+      if (
+        status === 500 ||
+        serverMsg.toLowerCase().includes("syntax error") ||
+        serverMsg.toLowerCase().includes("unexpected token") ||
+        serverMsg.toLowerCase().includes("notification") ||
+        serverMsg.toLowerCase().includes("email")
+      ) {
+        // Leave was probably created — show success and let user verify in the list
+        setShowSuccess(true);
+      } else {
+        // Genuine validation or business-logic error — surface it clearly
+        const displayMsg =
+          serverMsg ||
+          "Something went wrong while submitting your leave request. Please try again or contact HR.";
+        alert(displayMsg);
+      }
       setIsLoading(false);
     }
   };

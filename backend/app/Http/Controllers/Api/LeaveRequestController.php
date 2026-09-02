@@ -683,7 +683,7 @@ class LeaveRequestController extends Controller
         // Send email notifications (isolated, failures don't affect leave creation)
         try {
             \App\Services\Email\EmailService::sendLeaveRequestEmail($leaveRequest);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             \Log::warning('Email notification failed for leave request: ' . $e->getMessage());
         }
 
@@ -737,8 +737,9 @@ class LeaveRequestController extends Controller
                     }
                 }
             }
-        } catch (\Exception $e) {
-            // Notification failure should never block leave submission
+        } catch (\Throwable $e) {
+            // Notification failure (including PHP Errors from Spatie/DB) must never block leave submission
+            \Log::warning('notifyOnSubmit failed silently: ' . $e->getMessage());
         }
     }
 
