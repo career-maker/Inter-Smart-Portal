@@ -129,22 +129,22 @@ export function NotificationDropdown() {
     }
   };
 
-  const handleNotificationClick = async (notification: any) => {
-    if (!notification.read_at) {
-      try {
-        // Optimistically update UI
-        setNotifications(prev => prev.filter(n => n.id !== notification.id));
-        setUnreadCount(prev => Math.max(0, prev - 1));
+  const handleNotificationClick = (notification: any) => {
+    // 1. Immediately close dropdown so it vanishes instantly without exposing next notification or gap
+    setIsOpen(false);
 
-        // Make API call in background
-        await api.post(`/notifications/mark-as-read/${notification.id}`);
-      } catch (err) {
-        console.error(err);
-        // Refresh on error to restore correct state
-        await fetchUnread();
-      }
+    // 2. Immediately navigate to destination page
+    const targetUrl = resolveNotificationUrl(notification);
+    router.push(targetUrl);
+
+    // 3. Process mark-as-read in background without blocking navigation
+    if (!notification.read_at) {
+      setNotifications(prev => prev.filter(n => n.id !== notification.id));
+      setUnreadCount(prev => Math.max(0, prev - 1));
+      api.post(`/notifications/mark-as-read/${notification.id}`).catch((err) => {
+        console.error("Failed to mark notification as read in background", err);
+      });
     }
-    router.push(resolveNotificationUrl(notification));
   };
 
   return (
@@ -219,7 +219,7 @@ export function NotificationDropdown() {
         </DropdownMenuGroup>
 
         <div className="p-2 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900">
-          <Link href="/notifications" className="block w-full">
+          <Link href="/notifications" onClick={() => setIsOpen(false)} className="block w-full">
             <button
               type="button"
               className="w-full text-center text-xs text-[#56348f] dark:text-purple-400 font-bold p-2 hover:bg-purple-50 dark:hover:bg-slate-800 rounded-md transition-colors cursor-pointer"
