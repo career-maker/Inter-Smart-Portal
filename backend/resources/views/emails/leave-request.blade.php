@@ -102,18 +102,18 @@
             transition: all 0.3s ease;
         }
         .button-approve {
-            background-color: #10b981;
-            color: white;
+            background-color: #10b981 !important;
+            color: #ffffff !important;
         }
         .button-approve:hover {
-            background-color: #059669;
+            background-color: #059669 !important;
         }
         .button-reject {
-            background-color: #ef4444;
-            color: white;
+            background-color: #ef4444 !important;
+            color: #ffffff !important;
         }
         .button-reject:hover {
-            background-color: #dc2626;
+            background-color: #dc2626 !important;
         }
 
         /* Footer */

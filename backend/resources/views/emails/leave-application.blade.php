@@ -68,18 +68,18 @@
             display: inline-block;
         }
         .btn-approve {
-            background-color: #28a745;
-            color: white;
+            background-color: #28a745 !important;
+            color: #ffffff !important;
         }
         .btn-approve:hover {
-            background-color: #218838;
+            background-color: #218838 !important;
         }
         .btn-reject {
-            background-color: #dc3545;
-            color: white;
+            background-color: #dc3545 !important;
+            color: #ffffff !important;
         }
         .btn-reject:hover {
-            background-color: #c82333;
+            background-color: #c82333 !important;
         }
         .footer {
             margin-top: 30px;
