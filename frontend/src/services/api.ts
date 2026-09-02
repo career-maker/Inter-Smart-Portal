@@ -56,6 +56,9 @@ api.interceptors.request.use((config) => {
         apiCache.clearPattern(/employees|teams/i);
       } else if (url.includes('/notifications')) {
         apiCache.clearPattern('/notifications');
+      } else if (url.includes('/project-tasks') || url.match(/\/projects\/\d+\/tasks/)) {
+        // Clear both project-tasks list cache AND projects cache when tasks are mutated
+        apiCache.clearPattern(/project-tasks|projects/i);
       } else {
         // Fallback for general resource mutations
         const rootPath = url.split('/')[1];
