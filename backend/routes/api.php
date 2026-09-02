@@ -422,6 +422,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('{id}', [\App\Http\Controllers\Api\IssueController::class, 'show']);
         Route::post('{id}/comments', [\App\Http\Controllers\Api\IssueController::class, 'addComment']);
         Route::put('{id}/status', [\App\Http\Controllers\Api\IssueController::class, 'updateStatus']);
+        Route::put('{id}/assign', [\App\Http\Controllers\Api\IssueController::class, 'assign']);
     });
 
     // Recognitions

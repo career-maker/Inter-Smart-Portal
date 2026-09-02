@@ -181,7 +181,10 @@ export function RoyalName({
   }
 
   const resolvedStyle = { ...style };
-  if ((className.includes("text-white") || className.includes("!text-white")) && !resolvedStyle.color) {
+  // Only force white color when text-white is an explicit standalone class token,
+  // NOT when it appears as a suffix of "dark:text-white" etc.
+  const hasExplicitWhite = /(?:^|\s)!?text-white(?:\s|$)/.test(className);
+  if (hasExplicitWhite && !resolvedStyle.color) {
     resolvedStyle.color = "#ffffff";
   }
 

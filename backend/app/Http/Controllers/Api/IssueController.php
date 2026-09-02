@@ -31,7 +31,11 @@ class IssueController extends Controller
                 $query->where('category', $request->category);
             }
         } else {
-            $query->where('user_id', $user->id);
+            // Show own issues AND issues assigned to the logged-in user
+            $query->where(function ($q) use ($user) {
+                $q->where('user_id', $user->id)
+                  ->orWhere('assigned_to', $user->id);
+            });
         }
 
         return response()->json(['data' => $query->orderBy('created_at', 'desc')->get()]);
@@ -48,7 +52,7 @@ class IssueController extends Controller
             'attachments',
         ])->findOrFail($id);
 
-        if (!$user->hasRole('Super Admin') && $issue->user_id !== $user->id) {
+        if (!$user->hasRole('Super Admin') && $issue->user_id !== $user->id && $issue->assigned_to !== $user->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -103,7 +107,7 @@ class IssueController extends Controller
                     $admin->notify(new IssueNotification($issue, $message));
                 }
             }
-        } catch (\Exception $e) {}
+        } catch (\Throwable $e) {}
 
         return response()->json([
             'message' => 'Issue raised successfully.',
@@ -159,8 +163,13 @@ class IssueController extends Controller
         $user  = Auth::user();
 
         if (!$user->hasRole('Super Admin')) {
-            if ($validated['status'] === 'Open' && in_array($issue->status, ['Resolved', 'Closed'])) {
-                // Allow reopening
+            $isAssigned = (int)$issue->assigned_to === (int)$user->id;
+            $isOwner    = (int)$issue->user_id    === (int)$user->id;
+
+            if ($isAssigned && $validated['status'] === 'Resolved') {
+                // Assigned employee may mark their task as Resolved
+            } elseif ($isOwner && $validated['status'] === 'Open' && in_array($issue->status, ['Resolved', 'Closed'])) {
+                // Owner may reopen a resolved/closed issue
             } else {
                 return response()->json(['message' => 'Unauthorized'], 403);
             }
@@ -181,8 +190,42 @@ class IssueController extends Controller
             if ($issue->user && $issue->user_id !== $user->id) {
                 $issue->user->notify(new IssueNotification($issue, $msg));
             }
-        } catch (\Exception $e) {}
+        } catch (\Throwable $e) {}
 
         return response()->json(['message' => 'Status updated successfully.', 'data' => $issue]);
+    }
+
+    public function assign(Request $request, $id)
+    {
+        if (!Auth::user()->hasRole('Super Admin')) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $validated = $request->validate([
+            'assigned_to' => 'nullable|exists:users,id',
+        ]);
+
+        $issue = Issue::findOrFail($id);
+        $previousAssignee = $issue->assigned_to;
+        $issue->assigned_to = $validated['assigned_to'] ?? null;
+        $issue->save();
+
+        // Notify the newly assigned employee
+        try {
+            if ($issue->assigned_to && (int)$issue->assigned_to !== (int)$previousAssignee) {
+                $assignee  = User::find($issue->assigned_to);
+                $admin     = Auth::user();
+                $adminName = "{$admin->first_name} {$admin->last_name}";
+                $msg = "{$adminName} has assigned you to resolve issue #{$issue->id}: \"{$issue->title}\".";
+                if ($assignee) {
+                    $assignee->notify(new IssueNotification($issue, $msg));
+                }
+            }
+        } catch (\Throwable $e) {}
+
+        return response()->json([
+            'message' => 'Issue assigned successfully.',
+            'data'    => $issue->load(['assignedTo:id,first_name,last_name']),
+        ]);
     }
 }
