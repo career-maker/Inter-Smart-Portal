@@ -107,7 +107,11 @@ export default function IssueDetailPage() {
   if (loading) return <PageLoader />;
   if (!issue) return null;
 
-  const isAssignedToMe = !isSuperAdmin && issue.assigned_to === user?.id;
+  // Laravel serialises the assignedTo() relationship as `assigned_to` (object) in JSON,
+  // overwriting the raw integer column. Normalise both cases.
+  const assignedToObj: any = issue.assigned_to && typeof issue.assigned_to === "object" ? issue.assigned_to : null;
+  const assignedToId: number | null = assignedToObj ? assignedToObj.id : (typeof issue.assigned_to === "number" ? issue.assigned_to : null);
+  const isAssignedToMe = !isSuperAdmin && assignedToId === user?.id;
   const statusCls = STATUS_COLORS[issue.status] || "bg-slate-100 text-slate-700 dark:bg-slate-500/20 dark:text-slate-300 border-slate-300 dark:border-slate-500/30";
 
   const inputCls = "w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-[#56348f] dark:focus:border-amber-500 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-colors resize-none";
@@ -320,7 +324,7 @@ export default function IssueDetailPage() {
                     Assigned To {assigning && <Loader2 className="inline w-3 h-3 animate-spin ml-1" />}
                   </span>
                   <select
-                    value={issue.assigned_to ?? ""}
+                    value={assignedToId ?? ""}
                     onChange={(e) => handleAssign(e.target.value)}
                     disabled={assigning}
                     className="w-full text-xs bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg px-2.5 py-2 outline-none focus:border-[#56348f] disabled:opacity-60"
@@ -332,10 +336,10 @@ export default function IssueDetailPage() {
                       </option>
                     ))}
                   </select>
-                  {issue.assignedTo && (
+                  {assignedToObj && (
                     <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1 flex items-center gap-1">
                       <UserCheck className="w-3 h-3" />
-                      {issue.assignedTo.first_name} {issue.assignedTo.last_name}
+                      {assignedToObj.first_name} {assignedToObj.last_name}
                     </p>
                   )}
                 </div>
@@ -344,8 +348,8 @@ export default function IssueDetailPage() {
                   <div className="flex items-center gap-1.5">
                     <User className="w-3.5 h-3.5 text-slate-400" />
                     <span className={isAssignedToMe ? "text-emerald-600 dark:text-emerald-400 font-semibold" : ""}>
-                      {issue.assignedTo
-                        ? `${issue.assignedTo.first_name} ${issue.assignedTo.last_name}${isAssignedToMe ? " (You)" : ""}`
+                      {assignedToObj
+                        ? `${assignedToObj.first_name} ${assignedToObj.last_name}${isAssignedToMe ? " (You)" : ""}`
                         : "Unassigned"}
                     </span>
                   </div>
