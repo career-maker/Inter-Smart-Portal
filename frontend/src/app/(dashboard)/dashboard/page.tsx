@@ -963,15 +963,20 @@ export default function DashboardPage() {
               <div className="relative z-10 flex items-center justify-between h-full">
                 <div className="space-y-1">
                   {(user?.role === "Super Admin" || user?.role === "Team Lead") && (
-                    <div className="flex items-center gap-2 text-gray-400">
-                      <Building2 className="w-5 h-5" />
-                      <span className="text-sm font-bold uppercase tracking-wider">Management Only</span>
+                    <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 mb-0.5">
+                      <Building2 className="w-3.5 h-3.5 text-slate-400" />
+                      <span className="text-xs font-medium uppercase tracking-wider">Management Only</span>
                     </div>
                   )}
-                  <span className="text-sm font-bold text-slate-900 dark:text-white relative z-10">View The Hall</span>
+                  <h3
+                    style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 500, color: "rgb(15, 24, 36)" }}
+                    className="dark:text-white leading-tight box-title"
+                  >
+                    View The Hall
+                  </h3>
                 </div>
-                <div className="w-12 h-12 rounded-md bg-white/10 flex items-center justify-center shadow-sm group-hover:scale-95 transition-transform">
-                  <ArrowRight className="w-6 h-6" />
+                <div className="w-10 h-10 rounded-md bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300 flex items-center justify-center shadow-sm group-hover:scale-95 transition-transform">
+                  <ArrowRight className="w-5 h-5" />
                 </div>
               </div>
             </Link>
