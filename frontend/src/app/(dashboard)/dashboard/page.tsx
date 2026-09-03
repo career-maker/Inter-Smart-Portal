@@ -18,6 +18,7 @@ import {
   Building2,
   Fingerprint,
   ChevronRight,
+  MessageSquare,
   Gift,
   Plus,
   PartyPopper,
@@ -442,6 +443,35 @@ export default function DashboardPage() {
               <span style={{ color: "rgba(255, 255, 255, 0.60)" }}>•</span>
               <span style={{ color: "rgba(255, 255, 255, 0.95)" }}>Inter Smart, Kochi</span>
             </p>
+
+            {/* Team Lead Badge & Direct Contact Button for Employees */}
+            {profile?.team_lead && (
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-xs text-white max-w-full flex-wrap">
+                <span className="text-[11px] text-purple-200 font-bold uppercase tracking-wider">
+                  Lead:
+                </span>
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <RoyalAvatar
+                    src={profile.team_lead.profile_photo_path}
+                    name={profile.team_lead.name}
+                    userId={profile.team_lead.id}
+                    className="w-5 h-5 rounded-full ring-1 ring-white/60 shrink-0"
+                  />
+                  <span className="font-bold text-white text-xs truncate">
+                    {profile.team_lead.name}
+                  </span>
+                </div>
+                <Link
+                  href={`/community?tab=chat&userId=${profile.team_lead.id}`}
+                  style={{ color: "#ffffff" }}
+                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-[#56348f] hover:bg-[#6e43b6] text-white text-[11px] font-bold shadow-xs transition-all cursor-pointer border border-purple-400/50 hover:scale-105 ml-1 shrink-0"
+                  title={`Direct Message ${profile.team_lead.name}`}
+                >
+                  <MessageSquare className="w-3 h-3" />
+                  <span>Contact</span>
+                </Link>
+              </div>
+            )}
 
             {/* Attendance Status Badge & Real-time Date Time */}
             <div className="flex items-center gap-3 flex-wrap pt-1">

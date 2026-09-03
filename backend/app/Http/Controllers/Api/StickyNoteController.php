@@ -17,12 +17,24 @@ class StickyNoteController extends Controller
      */
     protected function ensureTableExists(): void
     {
-        if (!Schema::hasTable('sticky_notes')) {
-            try {
-                Artisan::call('migrate', ['--force' => true]);
-            } catch (\Throwable $e) {
-                // Ignore if migration cannot run on the fly
+        try {
+            if (!Schema::hasTable('sticky_notes')) {
+                Schema::create('sticky_notes', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->id();
+                    $table->unsignedBigInteger('user_id');
+                    $table->string('title')->nullable();
+                    $table->longText('content')->nullable();
+                    $table->string('color', 30)->default('amber');
+                    $table->boolean('is_pinned')->default(false);
+                    $table->integer('order_index')->default(0);
+                    $table->timestamps();
+
+                    $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+                    $table->index(['user_id', 'is_pinned']);
+                });
             }
+        } catch (\Throwable $e) {
+            \Log::warning('Could not auto-create sticky_notes table: ' . $e->getMessage());
         }
     }
 

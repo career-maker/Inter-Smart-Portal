@@ -10,7 +10,7 @@ import {
   LayoutDashboard, CalendarCheck, Briefcase, UserCircle,
   Users, ShieldCheck, PanelLeftClose, PanelLeftOpen,
   FolderKanban, CheckSquare, Clock, Building2, HeartHandshake, HelpCircle,
-  Search, Rocket, Bell, Settings, Puzzle, Laptop
+  Search, Rocket, Bell, Settings, Puzzle, Laptop, StickyNote
 } from "lucide-react";
 import { NotificationDropdown } from "@/components/layout/NotificationDropdown";
 import { RecognitionTicker } from "@/components/layout/RecognitionTicker";
@@ -23,6 +23,7 @@ import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 import { DashboardPageLoader, PageLoader } from "@/components/ui/PageLoader";
 import { setAuthCookie, clearAuthCookie } from "@/lib/authCookies";
 import { StickyNotesWidget } from "@/components/sticky-notes/StickyNotesWidget";
+import { useStickyNotesStore } from "@/store/stickyNotesStore";
 
 type NavItem = {
   href: string;
@@ -222,6 +223,7 @@ function pathBelongsToGroup(group: NavGroup, pathname: string, currentTab?: stri
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, user, logout, updateUser } = useAuthStore();
+  const { toggleStickyNotes, notesCount } = useStickyNotesStore();
   const isDark = useThemeStore((state) => state.isDark);
   const router = useRouter();
   const pathname = usePathname();
@@ -966,6 +968,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </button>
 
                 <BookmarksDropdown />
+
+                {/* macOS Sticky Notes Header Action */}
+                <button
+                  type="button"
+                  onClick={toggleStickyNotes}
+                  className="p-2 text-white/90 hover:text-white rounded-full hover:bg-white/15 transition-colors cursor-pointer shrink-0 relative"
+                  title="Sticky Notes (macOS Stickies)"
+                  aria-label="Toggle Sticky Notes"
+                >
+                  <StickyNote className="w-5 h-5 text-amber-300 hover:scale-105 transition-transform" />
+                  {notesCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 min-w-[17px] h-4 px-1 bg-amber-400 text-amber-950 text-[10px] font-black rounded-full flex items-center justify-center shadow-xs border border-white/50">
+                      {notesCount}
+                    </span>
+                  )}
+                </button>
 
                 <NotificationDropdown />
 

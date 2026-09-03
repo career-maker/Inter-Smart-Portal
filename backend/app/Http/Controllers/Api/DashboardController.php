@@ -47,6 +47,22 @@ class DashboardController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
+        $team = $user->team;
+        $teamLeadUser = ($team && $team->teamLead && $team->teamLead->id !== $user->id) ? $team->teamLead : null;
+        $teamLeadData = null;
+        if ($teamLeadUser) {
+            $teamLeadData = [
+                'id' => $teamLeadUser->id,
+                'first_name' => $teamLeadUser->first_name,
+                'last_name' => $teamLeadUser->last_name,
+                'name' => trim($teamLeadUser->first_name . ' ' . ($teamLeadUser->last_name ?? '')),
+                'email' => $teamLeadUser->email,
+                'contact_number' => $teamLeadUser->contact_number,
+                'profile_photo_path' => $teamLeadUser->profilePhotoUrl(),
+                'designation' => $teamLeadUser->designation ?? 'Team Lead',
+            ];
+        }
+
         $profile = [
             'id' => $user->id,
             'email' => $user->email,
@@ -56,6 +72,8 @@ class DashboardController extends Controller
             'employee_code' => $user->employee_code,
             'designation' => $user->designation,
             'team' => $user->team->name ?? 'Unassigned',
+            'team_id' => $user->team_id,
+            'team_lead' => $teamLeadData,
             'joining_date' => $user->joining_date ?? $user->created_at,
             'service_duration' => $serviceDuration,
             'service_days' => $serviceDays,
