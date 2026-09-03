@@ -27,28 +27,42 @@ class DirectChatController extends Controller
     }
 
     /**
-     * Get IDs of users who have been active recently (within last 15 minutes).
+     * Get IDs of users who have been active recently (strictly within last 2 minutes).
      */
     private function getActiveUserIds(): array
     {
         try {
-            $cutoff = Carbon::now()->subMinutes(15);
+            $cutoff = Carbon::now()->subMinutes(2);
             $tokenUserIds = DB::table('personal_access_tokens')
-                ->where('tokenable_type', User::class)
-                ->where(function ($q) use ($cutoff) {
-                    $q->where('last_used_at', '>=', $cutoff)
-                      ->orWhere(function ($q2) use ($cutoff) {
-                          $q2->whereNull('last_used_at')
-                             ->where('created_at', '>=', $cutoff);
-                      });
+                ->where(function ($q) {
+                    $q->where('tokenable_type', User::class)
+                      ->orWhere('tokenable_type', 'App\\Models\\User')
+                      ->orWhere('tokenable_type', 'User');
                 })
+                ->where('last_used_at', '>=', $cutoff)
                 ->pluck('tokenable_id')
                 ->toArray();
 
-            return array_unique($tokenUserIds);
+            return array_map('intval', array_unique($tokenUserIds));
         } catch (\Exception $e) {
             return [];
         }
+    }
+
+    /**
+     * Heartbeat endpoint for active chat users.
+     */
+    public function heartbeat(Request $request)
+    {
+        $user = $request->user();
+        if ($user) {
+            $user->currentAccessToken()?->update(['last_used_at' => Carbon::now()]);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'online_user_ids' => $this->getActiveUserIds(),
+        ]);
     }
 
     /**
@@ -67,7 +81,7 @@ class DirectChatController extends Controller
 
         $isOnline = false;
         if ($activeUserIds !== null) {
-            $isOnline = in_array($user->id, $activeUserIds);
+            $isOnline = in_array((int)$user->id, $activeUserIds, true);
         }
 
         return [

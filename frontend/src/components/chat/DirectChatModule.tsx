@@ -239,6 +239,27 @@ export function DirectChatModule() {
       if (tick % 3 === 0) {
         fetchConversations(false);
       }
+
+      // Ping presence heartbeat every ~30s (every 12 ticks) and on first tick
+      if (tick === 1 || tick % 12 === 0) {
+        api.post<{ online_user_ids: number[] }>("/direct-chat/heartbeat")
+          .then((res) => {
+            const onlineIds = res.data?.online_user_ids || [];
+            setConversations((prev) =>
+              prev.map((c) => {
+                if (!c.other_user) return c;
+                return {
+                  ...c,
+                  other_user: {
+                    ...c.other_user,
+                    is_online: onlineIds.includes(c.other_user.id),
+                  },
+                };
+              })
+            );
+          })
+          .catch(() => {});
+      }
     }, 2500);
 
     const handleWindowFocus = () => {
