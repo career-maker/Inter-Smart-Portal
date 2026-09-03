@@ -21,6 +21,7 @@ import {
   ToggleLeft,
   ToggleRight,
   HardDrive,
+  LifeBuoy,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import pmApi from "@/services/pm";
@@ -50,13 +51,31 @@ export default function PmAddonsPage() {
 
     try {
       const res = await pmApi.getAddons();
-      setAddons(res.addons || []);
+      const rawAddons = res.addons || [];
+      const hasEmergency = rawAddons.some((a: any) => a.key === "emergency_contacts");
+      const finalAddons = hasEmergency
+        ? rawAddons
+        : [
+            ...rawAddons,
+            {
+              id: 9999,
+              key: "emergency_contacts",
+              name: "Emergency Contacts",
+              description: "Manage, edit, add, and delete emergency contacts displayed on the employee dashboard.",
+              icon: "LifeBuoy",
+              is_active: true,
+              teams: [],
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            },
+          ];
+      setAddons(finalAddons);
       setTeams(res.teams || []);
 
       // Initialize team assignment state
       const map: Record<number, number[]> = {};
-      (res.addons || []).forEach((a) => {
-        map[a.id] = (a.teams || []).map((t) => t.id);
+      finalAddons.forEach((a: any) => {
+        map[a.id] = (a.teams || []).map((t: any) => t.id);
       });
       setSelectedTeamsMap(map);
     } catch (err: any) {
@@ -216,6 +235,8 @@ export default function PmAddonsPage() {
                         <ShieldCheck className="w-6 h-6" />
                       ) : addon.key === "email_management" ? (
                         <Mail className="w-6 h-6" />
+                      ) : addon.key === "emergency_contacts" ? (
+                        <LifeBuoy className="w-6 h-6" />
                       ) : (
                         <Puzzle className="w-6 h-6" />
                       )}
@@ -343,6 +364,36 @@ export default function PmAddonsPage() {
                       >
                         <Settings2 className="w-4 h-4 !text-white" />
                         <span className="!text-white">Configure Permissions</span>
+                      </Link>
+                    </div>
+                  </div>
+                ) : addon.key === "emergency_contacts" ? (
+                  <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <div className="p-3.5 rounded-xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-200/80 dark:border-purple-800/60 text-xs text-purple-900 dark:text-purple-300 space-y-1.5">
+                      <div className="font-bold flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-[#56348f] dark:text-purple-400" />
+                        <span>Dashboard Emergency Contacts & Helpdesk Roster</span>
+                      </div>
+                      <p className="text-[11px] text-purple-800/80 dark:text-purple-300/80 leading-relaxed">
+                        Manage, edit, add, and delete emergency contacts displayed on the employee dashboard. Configure custom departments, contact numbers, and priority display order.
+                      </p>
+                    </div>
+
+                    <div className="flex items-center justify-end pt-2">
+                      <Link
+                        href="/project-management/addons/emergency-contacts"
+                        style={{
+                          backgroundColor: "#56348f",
+                          color: "rgb(255, 255, 255)",
+                          fontFamily: '"Proxima Nova", sans-serif',
+                          fontSize: "13px",
+                          lineHeight: "20px",
+                          fontWeight: 600,
+                        }}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-[13px] leading-[20px] font-semibold shadow-sm transition-colors cursor-pointer"
+                      >
+                        <Settings2 className="w-4 h-4 !text-white" />
+                        <span className="!text-white">Configure Emergency Contacts</span>
                       </Link>
                     </div>
                   </div>

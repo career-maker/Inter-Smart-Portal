@@ -676,3 +676,18 @@ Route::middleware('auth:sanctum')->prefix('storage-settings')->group(function ()
     Route::post('/cleanup-now', [\App\Http\Controllers\Api\StorageRetentionController::class, 'cleanupNow']);
 });
 
+// Emergency Contacts routes (Dashboard & Super Admin Management)
+Route::middleware('auth:sanctum')->prefix('emergency-contacts')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Api\EmergencyContactController::class, 'index']);
+});
+
+Route::middleware('auth:sanctum')->prefix('admin/emergency-contacts')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Api\EmergencyContactController::class, 'adminIndex']);
+    Route::post('/', [\App\Http\Controllers\Api\EmergencyContactController::class, 'store']);
+    Route::put('{id}', [\App\Http\Controllers\Api\EmergencyContactController::class, 'update']);
+    Route::delete('{id}', [\App\Http\Controllers\Api\EmergencyContactController::class, 'destroy']);
+    Route::patch('{id}/toggle', [\App\Http\Controllers\Api\EmergencyContactController::class, 'toggle']);
+    Route::post('reorder', [\App\Http\Controllers\Api\EmergencyContactController::class, 'reorder']);
+});
+
+
