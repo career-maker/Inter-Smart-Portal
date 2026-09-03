@@ -11,8 +11,8 @@ Artisan::command('inspire', function () {
 // Annual leave allocation – runs on Jan 1st at midnight every year (for employees not on monthly accrual)
 Schedule::command('leave:annual-allocation')->yearlyOn(1, 1, '00:00');
 
-// Unified dynamic leave policy processor – runs daily at 00:01
-Schedule::command('leave:process-policy-cycle')->dailyAt('00:01');
+// Unified dynamic leave policy processor – runs every thirty minutes (fully idempotent by cycle_key)
+Schedule::command('leave:process-policy-cycle')->everyThirtyMinutes()->withoutOverlapping();
 
 // Process biometric events every five minutes sequentially
 Schedule::command('biometric:process')->everyFiveMinutes()->withoutOverlapping();

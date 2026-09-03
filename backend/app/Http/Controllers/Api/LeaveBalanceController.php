@@ -22,9 +22,26 @@ class LeaveBalanceController extends Controller
     {
         $user = $request->user();
 
-        if ($user->hasRole('Super Admin')) {
+        // Self-healing automatic leave allocation:
+        // Guarantees active cycle CL & SL are credited even if background cron was delayed
+        try {
+            $engine = app(\App\Services\LeavePolicyEngine::class);
+            if ($user->hasRole('Super Admin') || strtolower($user->role ?? '') === 'super admin') {
+                $engine->processMonthlyCycleAllocation();
+            } else {
+                $engine->ensureEmployeeAllocatedForCurrentCycle($user);
+            }
+        } catch (\Throwable $e) {
+            \Log::warning("Self-healing leave allocation check failed in LeaveBalanceController: " . $e->getMessage());
+        }
+
+        if ($user->hasRole('Super Admin') || strtolower($user->role ?? '') === 'super admin') {
             // Return all active employees with their balances (or zeros if no balance record exists)
             $employees = User::where('status', 'Active')
+                ->where(function ($q) {
+                    $q->whereNull('role')
+                      ->orWhereRaw('LOWER(role) != ?', ['super admin']);
+                })
                 ->whereDoesntHave('roles', fn($q) => $q->where('name', 'Super Admin'))
                 ->with(['leaveBalance', 'leaveRequests' => function ($q) {
                     $q->where('status', 'Approved')->with('leaveType');

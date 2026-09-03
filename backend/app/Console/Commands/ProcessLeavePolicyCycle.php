@@ -37,21 +37,19 @@ class ProcessLeavePolicyCycle extends Command
             ]
         );
 
-        // Run monthly allocation if today is the cycle start day OR if forced
-        if ($cycleInfo['is_cycle_start_day'] || $force) {
-            $this->info("Running Monthly CL & SL Allocation for cycle [{$cycleInfo['cycle_key']}]...");
-            $allocResult = $engine->processMonthlyCycleAllocation($asOfDate, $force);
+        // Run monthly allocation for the active cycle.
+        // Idempotency: any employee already allocated for cycle_key is skipped automatically.
+        // Running on every execution ensures newly eligible or unallocated employees are never missed.
+        $this->info("Evaluating Monthly CL & SL Allocation for cycle [{$cycleInfo['cycle_key']}]...");
+        $allocResult = $engine->processMonthlyCycleAllocation($asOfDate, $force);
 
-            $this->line("  ✓ Total Active Employees: {$allocResult['total_active_employees']}");
-            $this->line("  ✓ Allocated: {$allocResult['allocated_count']}");
-            $this->line("  ✓ Skipped (In Probation): {$allocResult['skipped_probation_count']}");
-            $this->line("  ✓ Skipped (Already Processed): {$allocResult['skipped_already_allocated']}");
+        $this->line("  ✓ Total Active Employees: {$allocResult['total_active_employees']}");
+        $this->line("  ✓ Allocated: {$allocResult['allocated_count']}");
+        $this->line("  ✓ Skipped (In Probation): {$allocResult['skipped_probation_count']}");
+        $this->line("  ✓ Skipped (Already Processed): {$allocResult['skipped_already_allocated']}");
 
-            foreach ($allocResult['logs'] as $log) {
-                $this->line("    • {$log}");
-            }
-        } else {
-            $this->comment("Today ({$asOfDate->toDateString()}) is not the cycle start day ({$cycleInfo['start_day']}th). Automatic monthly allocation skipped.");
+        foreach ($allocResult['logs'] as $log) {
+            $this->line("    • {$log}");
         }
 
         // Year-end expiration check (Runs if December cycle boundary or explicit flag)

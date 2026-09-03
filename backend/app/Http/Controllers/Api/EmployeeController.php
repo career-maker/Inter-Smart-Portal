@@ -123,6 +123,14 @@ class EmployeeController extends Controller
                 ]
             );
 
+            // If the employee is eligible for the current cycle (e.g. joined in the past), allocate active cycle leaves
+            try {
+                $engine = app(\App\Services\LeavePolicyEngine::class);
+                $engine->ensureEmployeeAllocatedForCurrentCycle($user);
+            } catch (\Exception $e) {
+                \Log::warning("Failed to auto-allocate initial leaves for new employee {$user->id}", ['error' => $e->getMessage()]);
+            }
+
             // Recover orphaned biometric events for this employee_code
             // (if events arrived before the employee was created in portal)
             if (!empty($user->employee_code)) {

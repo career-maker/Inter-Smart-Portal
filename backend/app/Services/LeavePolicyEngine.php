@@ -67,9 +67,9 @@ class LeavePolicyEngine
     {
         $d = $asOfDate ? $asOfDate->copy()->setTimezone('Asia/Kolkata') : Carbon::now('Asia/Kolkata');
 
-        // Check if employee has an active policy override
+        // Check if employee has an active policy override or balance flag
         $empPolicy = $user->employeeLeavePolicy ?? EmployeeLeavePolicy::where('user_id', $user->id)->first();
-        if ($empPolicy && $empPolicy->probation_cleared_manually) {
+        if ($empPolicy?->probation_cleared_manually || $user->leaveBalance?->probation_cleared_manually) {
             return [
                 'eligible' => true,
                 'reason'   => 'Probation manually cleared by administrator.',
@@ -87,9 +87,17 @@ class LeavePolicyEngine
         }
 
         $globalSettings = $this->getSettings();
-        $probationMonths = $empPolicy->custom_probation_months 
+        $probationMonths = $empPolicy?->custom_probation_months 
             ?? $globalSettings->probation_period_months 
             ?? 6;
+
+        if ($probationMonths <= 0) {
+            return [
+                'eligible' => true,
+                'reason'   => 'No probation period required.',
+                'status'   => 'Active',
+            ];
+        }
 
         $joiningDate = Carbon::parse($user->joining_date, 'Asia/Kolkata')->startOfDay();
         $probationEndDate = $user->probation_end_date 
@@ -131,6 +139,10 @@ class LeavePolicyEngine
         $settings  = $this->getSettings();
 
         $activeEmployees = User::where('status', 'Active')
+            ->where(function ($q) {
+                $q->whereNull('role')
+                  ->orWhereRaw('LOWER(role) != ?', ['super admin']);
+            })
             ->whereDoesntHave('roles', fn($q) => $q->where('name', 'Super Admin'))
             ->with(['leaveBalance', 'employeeLeavePolicy'])
             ->get();
@@ -161,8 +173,12 @@ class LeavePolicyEngine
 
             // Determine monthly amounts (Employee override or Global default)
             $empPolicy = $emp->employeeLeavePolicy;
-            $clAmount = (float) ($empPolicy?->custom_monthly_cl ?? $settings->default_monthly_cl ?? 1.0);
-            $slAmount = (float) ($empPolicy?->custom_monthly_sl ?? $settings->default_monthly_sl ?? 1.0);
+            $clAmount = ($empPolicy && $empPolicy->custom_monthly_cl !== null)
+                ? (float) $empPolicy->custom_monthly_cl
+                : (float) ($settings->default_monthly_cl ?? 1.0);
+            $slAmount = ($empPolicy && $empPolicy->custom_monthly_sl !== null)
+                ? (float) $empPolicy->custom_monthly_sl
+                : (float) ($settings->default_monthly_sl ?? 1.0);
 
             DB::transaction(function () use ($emp, $clAmount, $slAmount, $cycleKey, $cycleInfo, &$allocatedCount, &$logs) {
                 $balance = LeaveBalance::firstOrCreate(
@@ -223,6 +239,163 @@ class LeavePolicyEngine
             'skipped_already_allocated'   => $skippedAlreadyAllocatedCount,
             'logs'                        => $logs,
         ];
+    }
+
+    /**
+     * Ensure a single employee is allocated for the current active cycle.
+     * Supports delta top-ups if the admin increased an employee's custom quota mid-cycle.
+     */
+    public function ensureEmployeeAllocatedForCurrentCycle(User $user, ?Carbon $asOfDate = null): ?array
+    {
+        if ($user->status !== 'Active' || $user->hasRole('Super Admin') || strtolower($user->role ?? '') === 'super admin') {
+            return null;
+        }
+
+        $d = $asOfDate ? $asOfDate->copy()->setTimezone('Asia/Kolkata') : Carbon::now('Asia/Kolkata');
+        $cycleInfo = $this->getCycleInfo($d);
+        $cycleKey  = $cycleInfo['cycle_key'];
+
+        $eligibility = $this->isEmployeeEligibleForAutoAllocation($user, $d);
+        if (!$eligibility['eligible']) {
+            return null;
+        }
+
+        $settings  = $this->getSettings();
+        $empPolicy = $user->employeeLeavePolicy ?? EmployeeLeavePolicy::where('user_id', $user->id)->first();
+
+        $targetCL = ($empPolicy && $empPolicy->custom_monthly_cl !== null)
+            ? (float) $empPolicy->custom_monthly_cl
+            : (float) ($settings->default_monthly_cl ?? 1.0);
+
+        $targetSL = ($empPolicy && $empPolicy->custom_monthly_sl !== null)
+            ? (float) $empPolicy->custom_monthly_sl
+            : (float) ($settings->default_monthly_sl ?? 1.0);
+
+        // Check already allocated amounts for this cycle
+        $existingCL = (float) LeaveAllocationLedger::where('user_id', $user->id)
+            ->where('cycle_key', $cycleKey)
+            ->where('transaction_type', 'automatic_allocation')
+            ->where('leave_type', 'Casual Leave')
+            ->sum('amount');
+
+        $existingSL = (float) LeaveAllocationLedger::where('user_id', $user->id)
+            ->where('cycle_key', $cycleKey)
+            ->where('transaction_type', 'automatic_allocation')
+            ->where('leave_type', 'Sick Leave')
+            ->sum('amount');
+
+        $hasAllocatedThisCycle = ($existingCL > 0 || $existingSL > 0);
+
+        // If not allocated yet for this cycle, allocate full quota
+        if (!$hasAllocatedThisCycle) {
+            return DB::transaction(function () use ($user, $targetCL, $targetSL, $cycleKey, $cycleInfo) {
+                $balance = LeaveBalance::firstOrCreate(
+                    ['user_id' => $user->id],
+                    ['casual_leave_balance' => 0, 'sick_leave_balance' => 0, 'cl_carry_forward' => 0]
+                );
+
+                $oldCL = (float) $balance->casual_leave_balance;
+                $newCL = $oldCL + $targetCL;
+
+                $oldSL = (float) $balance->sick_leave_balance;
+                $newSL = $oldSL + $targetSL;
+
+                LeaveAllocationLedger::create([
+                    'user_id'          => $user->id,
+                    'leave_type'       => 'Casual Leave',
+                    'amount'           => $targetCL,
+                    'transaction_type' => 'automatic_allocation',
+                    'cycle_key'        => $cycleKey,
+                    'opening_balance'  => $oldCL,
+                    'closing_balance'  => $newCL,
+                    'modified_by'      => null,
+                    'remarks'          => "Automatic monthly allocation for cycle {$cycleInfo['cycle_month']} (+{$targetCL} CL)",
+                ]);
+
+                LeaveAllocationLedger::create([
+                    'user_id'          => $user->id,
+                    'leave_type'       => 'Sick Leave',
+                    'amount'           => $targetSL,
+                    'transaction_type' => 'automatic_allocation',
+                    'cycle_key'        => $cycleKey,
+                    'opening_balance'  => $oldSL,
+                    'closing_balance'  => $newSL,
+                    'modified_by'      => null,
+                    'remarks'          => "Automatic monthly allocation for cycle {$cycleInfo['cycle_month']} (+{$targetSL} SL)",
+                ]);
+
+                $balance->casual_leave_balance = $newCL;
+                $balance->sick_leave_balance   = $newSL;
+                $balance->last_allocated_cycle = $cycleKey;
+                $balance->save();
+
+                return [
+                    'user_id'   => $user->id,
+                    'cl_amount' => $targetCL,
+                    'sl_amount' => $targetSL,
+                    'cycle_key' => $cycleKey,
+                ];
+            });
+        }
+
+        // If already allocated, check if target quota is higher (e.g. admin increased quota mid-cycle)
+        $diffCL = $targetCL - $existingCL;
+        $diffSL = $targetSL - $existingSL;
+
+        if ($diffCL > 0 || $diffSL > 0) {
+            return DB::transaction(function () use ($user, $diffCL, $diffSL, $cycleKey, $cycleInfo) {
+                $balance = LeaveBalance::firstOrCreate(
+                    ['user_id' => $user->id],
+                    ['casual_leave_balance' => 0, 'sick_leave_balance' => 0, 'cl_carry_forward' => 0]
+                );
+
+                if ($diffCL > 0) {
+                    $oldCL = (float) $balance->casual_leave_balance;
+                    $newCL = $oldCL + $diffCL;
+                    LeaveAllocationLedger::create([
+                        'user_id'          => $user->id,
+                        'leave_type'       => 'Casual Leave',
+                        'amount'           => $diffCL,
+                        'transaction_type' => 'automatic_allocation',
+                        'cycle_key'        => $cycleKey,
+                        'opening_balance'  => $oldCL,
+                        'closing_balance'  => $newCL,
+                        'modified_by'      => null,
+                        'remarks'          => "Monthly quota adjustment top-up for cycle {$cycleInfo['cycle_month']} (+{$diffCL} CL)",
+                    ]);
+                    $balance->casual_leave_balance = $newCL;
+                }
+
+                if ($diffSL > 0) {
+                    $oldSL = (float) $balance->sick_leave_balance;
+                    $newSL = $oldSL + $diffSL;
+                    LeaveAllocationLedger::create([
+                        'user_id'          => $user->id,
+                        'leave_type'       => 'Sick Leave',
+                        'amount'           => $diffSL,
+                        'transaction_type' => 'automatic_allocation',
+                        'cycle_key'        => $cycleKey,
+                        'opening_balance'  => $oldSL,
+                        'closing_balance'  => $newSL,
+                        'modified_by'      => null,
+                        'remarks'          => "Monthly quota adjustment top-up for cycle {$cycleInfo['cycle_month']} (+{$diffSL} SL)",
+                    ]);
+                    $balance->sick_leave_balance = $newSL;
+                }
+
+                $balance->last_allocated_cycle = $cycleKey;
+                $balance->save();
+
+                return [
+                    'user_id'        => $user->id,
+                    'top_up_cl'      => max(0, $diffCL),
+                    'top_up_sl'      => max(0, $diffSL),
+                    'cycle_key'      => $cycleKey,
+                ];
+            });
+        }
+
+        return null;
     }
 
     /**

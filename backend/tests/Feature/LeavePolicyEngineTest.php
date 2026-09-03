@@ -238,4 +238,56 @@ class LeavePolicyEngineTest extends TestCase
         $this->assertEquals(0, $balance->cl_carry_forward);        // Old CF expired
         $this->assertEquals(0, $balance->sick_leave_balance);      // SL reset to 0
     }
+
+    public function test_employee_without_policy_row_does_not_crash_php()
+    {
+        // Normal employee with no employee_leave_policies row in database
+        $employee = User::factory()->create([
+            'status'       => 'Active',
+            'joining_date' => '2024-01-01',
+        ]);
+        $employee->assignRole('Employee');
+
+        // Should evaluate without throwing null property access ErrorException
+        $eligibility = $this->engine->isEmployeeEligibleForAutoAllocation($employee);
+        $this->assertTrue($eligibility['eligible']);
+        $this->assertFalse($employee->isInProbation());
+    }
+
+    public function test_single_employee_allocation_and_custom_override_topup()
+    {
+        $employee = User::factory()->create([
+            'status'       => 'Active',
+            'joining_date' => '2024-01-01',
+        ]);
+        $employee->assignRole('Employee');
+
+        // Initially allocate default 1 CL + 1 SL
+        $evalDate = Carbon::parse('2026-08-28', 'Asia/Kolkata'); // Evaluated on 28th (not 26th)
+        $res = $this->engine->ensureEmployeeAllocatedForCurrentCycle($employee, $evalDate);
+        $this->assertNotNull($res);
+        $this->assertEquals(1.0, $res['cl_amount']);
+        $this->assertEquals(1.0, $res['sl_amount']);
+
+        $balance = LeaveBalance::where('user_id', $employee->id)->first();
+        $this->assertEquals(1.0, $balance->casual_leave_balance);
+        $this->assertEquals(1.0, $balance->sick_leave_balance);
+
+        // Admin now sets custom quota: 2.5 CL, 2.0 SL for this employee
+        EmployeeLeavePolicy::create([
+            'user_id'           => $employee->id,
+            'custom_monthly_cl' => 2.5,
+            'custom_monthly_sl' => 2.0,
+        ]);
+
+        // Re-run ensure allocation for same cycle: should top up the delta (+1.5 CL, +1.0 SL)
+        $topUpRes = $this->engine->ensureEmployeeAllocatedForCurrentCycle($employee, $evalDate);
+        $this->assertNotNull($topUpRes);
+        $this->assertEquals(1.5, $topUpRes['top_up_cl']);
+        $this->assertEquals(1.0, $topUpRes['top_up_sl']);
+
+        $balance->refresh();
+        $this->assertEquals(2.5, $balance->casual_leave_balance);
+        $this->assertEquals(2.0, $balance->sick_leave_balance);
+    }
 }

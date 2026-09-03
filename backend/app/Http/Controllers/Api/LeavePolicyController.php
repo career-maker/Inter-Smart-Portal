@@ -66,6 +66,13 @@ class LeavePolicyController extends Controller
         $settings = LeavePolicySetting::current();
         $settings->update($validated);
 
+        // Immediately evaluate and process current monthly cycle allocation under new settings
+        try {
+            $this->engine->processMonthlyCycleAllocation(now('Asia/Kolkata'), false);
+        } catch (\Throwable $e) {
+            \Log::warning("Immediate monthly cycle allocation failed on updateSettings: " . $e->getMessage());
+        }
+
         return response()->json([
             'status'     => 'success',
             'message'    => 'Leave policy settings and rules updated successfully.',
@@ -79,10 +86,21 @@ class LeavePolicyController extends Controller
      */
     public function getEmployees(Request $request): JsonResponse
     {
+        // Self-healing: ensure active cycle allocation has run for all eligible employees
+        try {
+            $this->engine->processMonthlyCycleAllocation();
+        } catch (\Throwable $e) {
+            \Log::warning("Self-healing monthly allocation check failed in getEmployees: " . $e->getMessage());
+        }
+
         $search = $request->input('search');
         $statusFilter = $request->input('status'); // 'all', 'in_probation', 'completed', 'cleared_manually', 'custom_allocation'
 
         $query = User::where('status', 'Active')
+            ->where(function ($q) {
+                $q->whereNull('role')
+                  ->orWhereRaw('LOWER(role) != ?', ['super admin']);
+            })
             ->whereDoesntHave('roles', fn($q) => $q->where('name', 'Super Admin'))
             ->with(['leaveBalance', 'employeeLeavePolicy']);
 
@@ -195,6 +213,13 @@ class LeavePolicyController extends Controller
 
         $policy->save();
 
+        // Ensure employee is allocated or topped up for the active cycle immediately
+        try {
+            $this->engine->ensureEmployeeAllocatedForCurrentCycle($employee);
+        } catch (\Throwable $e) {
+            \Log::warning("Failed to allocate leaves on employee policy update for user {$employee->id}: " . $e->getMessage());
+        }
+
         return response()->json([
             'status'  => 'success',
             'message' => "Policy override updated for {$employee->first_name} {$employee->last_name}.",
@@ -239,9 +264,16 @@ class LeavePolicyController extends Controller
             'remarks'          => "Probation manually cleared by {$admin->first_name} {$admin->last_name}.",
         ]);
 
+        // Immediately allocate active cycle leaves for this employee now that probation is cleared
+        try {
+            $this->engine->ensureEmployeeAllocatedForCurrentCycle($employee);
+        } catch (\Throwable $e) {
+            \Log::warning("Failed to allocate leaves on probation clearance for user {$employee->id}: " . $e->getMessage());
+        }
+
         return response()->json([
             'status'  => 'success',
-            'message' => "Probation cleared for {$employee->first_name} {$employee->last_name}. Eligible for future automatic monthly leave allocations.",
+            'message' => "Probation cleared for {$employee->first_name} {$employee->last_name}. Active cycle leaves allocated.",
         ]);
     }
 

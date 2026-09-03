@@ -55,7 +55,7 @@ class User extends Authenticatable
     public function probationEndDate(): ?string
     {
         // If probation was manually cleared through admin action/leave addition, employee is not in probation
-        if ($this->employeeLeavePolicy && $this->employeeLeavePolicy->probation_cleared_manually) {
+        if ($this->employeeLeavePolicy?->probation_cleared_manually || $this->leaveBalance?->probation_cleared_manually) {
             return null;
         }
 
@@ -64,7 +64,7 @@ class User extends Authenticatable
         }
 
         if ($this->joining_date) {
-            $months = $this->employeeLeavePolicy->custom_probation_months 
+            $months = $this->employeeLeavePolicy?->custom_probation_months 
                 ?? LeavePolicySetting::current()->probation_period_months 
                 ?? 6;
             return \Carbon\Carbon::parse($this->joining_date)->addMonths($months)->toDateString();
@@ -75,7 +75,7 @@ class User extends Authenticatable
 
     public function isInProbation(): bool
     {
-        if ($this->employeeLeavePolicy && $this->employeeLeavePolicy->probation_cleared_manually) {
+        if ($this->employeeLeavePolicy?->probation_cleared_manually || $this->leaveBalance?->probation_cleared_manually) {
             return false;
         }
 
