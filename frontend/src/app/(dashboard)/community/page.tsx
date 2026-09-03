@@ -118,7 +118,7 @@ export default function CommunityPage() {
       style={{
         fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
-      className={activeTab === "chat" ? "pb-2 space-y-2.5" : "pb-12 space-y-6"}
+      className={activeTab === "chat" ? "pb-0 space-y-2" : "pb-12 space-y-6"}
     >
       {/* ── TOP SUB-TABS (FEED, DIRECT CHAT, ADMIN AUDIT) ── */}
       <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 gap-3 flex-wrap">

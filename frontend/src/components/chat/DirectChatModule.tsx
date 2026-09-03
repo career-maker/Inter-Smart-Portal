@@ -43,6 +43,7 @@ interface ChatUser {
   employee_code?: string;
   profile_photo_path?: string | null;
   role?: string;
+  is_online?: boolean;
 }
 
 interface ChatAttachment {
@@ -64,6 +65,7 @@ interface ChatMessage {
   message_type: string;
   is_edited?: boolean;
   is_deleted?: boolean;
+  is_read?: boolean;
   attachments: ChatAttachment[];
   created_at: string;
   is_optimistic?: boolean;
@@ -718,7 +720,7 @@ export function DirectChatModule() {
       onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
-      className="relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm overflow-hidden flex flex-col md:flex-row h-[calc(100vh-185px)] min-h-[560px] max-h-[780px] w-full max-w-full overflow-x-hidden select-text"
+      className="relative bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden flex flex-col md:flex-row h-[calc(100dvh-175px)] w-full max-w-full select-text"
     >
       {/* ─────────────────────────────────────────────────────────────
           DRAG & DROP OVERLAY DROPZONE
@@ -861,15 +863,20 @@ export function DirectChatModule() {
                       : "hover:bg-[#f5f6f6] dark:hover:bg-slate-800/40 border-transparent"
                   }`}
                 >
-                  <div className="relative shrink-0">
-                    <RoyalAvatar
-                      src={other?.profile_photo_path}
-                      name={other?.name || "User"}
-                      userId={other?.id}
-                      className="w-12 h-12 rounded-full text-xs shadow-2xs"
-                    />
-                    <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full" />
-                  </div>
+                    <div className="relative shrink-0">
+                      <RoyalAvatar
+                        src={other?.profile_photo_path}
+                        name={other?.name || "User"}
+                        userId={other?.id}
+                        className="w-12 h-12 rounded-full text-xs shadow-2xs"
+                      />
+                      <span
+                        className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white dark:border-slate-900 ${
+                          other?.is_online ? "bg-emerald-500" : "bg-rose-500"
+                        }`}
+                        title={other?.is_online ? "Online" : "Offline"}
+                      />
+                    </div>
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-1">
@@ -915,23 +922,23 @@ export function DirectChatModule() {
       </div>
 
       {/* ─────────────────────────────────────────────────────────────
-          WHATSAPP-STYLE ACTIVE CHAT SCREEN
+          GOOGLE CHAT STYLE ACTIVE CHAT SCREEN (FIXED HEADER & COMPOSER, SCROLLABLE STREAM)
       ───────────────────────────────────────────────────────────── */}
       <div
-        className={`flex-1 flex flex-col bg-[#efeae2]/40 dark:bg-[#0b141a] min-w-0 overflow-x-hidden ${
+        className={`flex-1 flex flex-col bg-[#f8fafc] dark:bg-[#0b141a] min-w-0 h-full overflow-hidden ${
           !activeConversationId ? "hidden md:flex" : "flex"
         }`}
       >
         {activeConversation ? (
           <>
-            {/* WhatsApp Top Header Bar */}
-            <div className="p-2.5 px-3 sm:px-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-2 bg-[#f0f2f5] dark:bg-slate-900 shrink-0 z-10 shadow-2xs">
+            {/* Pinned Top Header Bar */}
+            <div className="p-3 px-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-2 bg-white dark:bg-slate-900 shrink-0 z-10 shadow-2xs">
               <div className="flex items-center gap-2.5 min-w-0">
-                {/* Mobile Back Button (WhatsApp Style) */}
+                {/* Mobile Back Button */}
                 <button
                   type="button"
                   onClick={() => setActiveConversationId(null)}
-                  className="md:hidden p-1.5 -ml-1 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-full cursor-pointer shrink-0 transition-colors"
+                  className="md:hidden p-1.5 -ml-1 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full cursor-pointer shrink-0 transition-colors"
                   title="Back to all chats"
                 >
                   <ArrowLeft className="w-5 h-5" />
@@ -944,7 +951,12 @@ export function DirectChatModule() {
                     userId={activeConversation.other_user?.id}
                     className="w-10 h-10 rounded-full shadow-2xs"
                   />
-                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full" />
+                  <span
+                    className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-slate-900 ${
+                      activeConversation.other_user?.is_online ? "bg-emerald-500" : "bg-rose-500"
+                    }`}
+                    title={activeConversation.other_user?.is_online ? "Online" : "Offline"}
+                  />
                 </div>
 
                 <div className="min-w-0">
@@ -953,12 +965,24 @@ export function DirectChatModule() {
                     userId={activeConversation.other_user?.id}
                     className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate block leading-tight"
                   />
-                  <div className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                    <span className="text-emerald-600 dark:text-emerald-400 font-medium">online</span>
+                  <div className="flex items-center gap-1.5 text-[11px] truncate mt-0.5">
+                    {activeConversation.other_user?.is_online ? (
+                      <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        Online
+                      </span>
+                    ) : (
+                      <span className="text-rose-500 dark:text-rose-400 font-medium flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                        Offline
+                      </span>
+                    )}
                     {activeConversation.other_user?.designation && (
                       <>
-                        <span>•</span>
-                        <span className="truncate">{activeConversation.other_user.designation}</span>
+                        <span className="text-slate-400">•</span>
+                        <span className="text-slate-500 dark:text-slate-400 truncate">
+                          {activeConversation.other_user.designation}
+                        </span>
                       </>
                     )}
                   </div>
@@ -966,8 +990,8 @@ export function DirectChatModule() {
               </div>
             </div>
 
-            {/* WhatsApp Style Chat Stream (Clean bubbles, zero horizontal overflow) */}
-            <div ref={chatStreamRef} className="flex-1 overflow-y-auto p-3 sm:p-5 custom-scrollbar space-y-2.5 overflow-x-hidden">
+            {/* Google Chat Style Messages Stream (ONLY this section scrolls) */}
+            <div ref={chatStreamRef} className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-5 custom-scrollbar space-y-3 overflow-x-hidden">
               {loadingMessages && messages.length === 0 ? (
                 <div className="flex items-center justify-center h-full text-xs text-slate-400">
                   Loading chat history...
@@ -1069,7 +1093,7 @@ export function DirectChatModule() {
                           {isMe && (
                             <span>
                               {isSending ? (
-                                <Clock className="w-3 h-3 animate-spin inline" />
+                                <Clock className="w-3 h-3 animate-spin inline text-slate-400" />
                               ) : isError ? (
                                 <button
                                   onClick={() => handleSendMessage(msg)}
@@ -1077,8 +1101,14 @@ export function DirectChatModule() {
                                 >
                                   Retry <RotateCw className="w-2.5 h-2.5" />
                                 </button>
+                              ) : msg.is_read ? (
+                                <span title="Read" className="inline-flex items-center">
+                                  <CheckCheck className="w-3.5 h-3.5 text-[#0284c7] dark:text-[#38bdf8] inline stroke-[2.5]" />
+                                </span>
                               ) : (
-                                <CheckCheck className="w-3.5 h-3.5 text-[#53bdeb] inline" />
+                                <span title="Delivered" className="inline-flex items-center">
+                                  <CheckCheck className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 inline stroke-[2]" />
+                                </span>
                               )}
                             </span>
                           )}
@@ -1118,28 +1148,28 @@ export function DirectChatModule() {
               </div>
             )}
 
-            {/* WhatsApp Style Bottom Input Composer */}
-            <div className="p-2 sm:p-3 bg-[#f0f2f5] dark:bg-slate-900 border-t border-slate-200/80 dark:border-slate-800 flex items-center gap-2 shrink-0 z-10">
-              {/* Attachment Picker */}
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="p-2 text-slate-500 hover:text-[#56348f] dark:hover:text-purple-400 rounded-full hover:bg-white dark:hover:bg-slate-800 transition-colors shrink-0 cursor-pointer"
-                title="Attach photo or document (< 5 MB)"
-              >
-                <Paperclip className="w-5 h-5" />
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                onChange={handleFileSelect}
-                className="hidden"
-                accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.zip,.txt"
-              />
+            {/* Fixed Bottom Input Composer (Google Chat Style - Pinned at bottom) */}
+            <div className="p-3 sm:p-4 bg-white dark:bg-slate-900 border-t border-slate-200/80 dark:border-slate-800 shrink-0 z-10">
+              <div className="flex items-end gap-2 bg-slate-100/90 dark:bg-slate-800/90 rounded-2xl p-2 px-3 border border-slate-200 dark:border-slate-700 focus-within:bg-white dark:focus-within:bg-slate-800 focus-within:border-purple-300 dark:focus-within:border-purple-600 focus-within:ring-2 focus-within:ring-purple-500/20 transition-all">
+                {/* Attachment Picker */}
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="p-1.5 text-slate-500 hover:text-[#56348f] dark:hover:text-purple-400 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-700 transition cursor-pointer mb-0.5 shrink-0"
+                  title="Attach photo or document (< 5 MB)"
+                >
+                  <Paperclip className="w-5 h-5" />
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  onChange={handleFileSelect}
+                  className="hidden"
+                  accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.zip,.txt"
+                />
 
-              {/* Message Input Pill */}
-              <div className="flex-1 bg-white dark:bg-slate-800 rounded-2xl px-3.5 py-1.5 border border-slate-200 dark:border-slate-700 focus-within:ring-2 focus-within:ring-purple-500/30 flex items-center min-w-0">
+                {/* Message Input Textarea */}
                 <textarea
                   ref={textareaRef}
                   value={inputMessage}
@@ -1147,21 +1177,21 @@ export function DirectChatModule() {
                   onKeyDown={handleKeyDown}
                   onPaste={handlePaste}
                   rows={1}
-                  placeholder={`Type a message... (Ctrl+V for screenshot)`}
-                  className="w-full bg-transparent border-none outline-none resize-none text-xs sm:text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 py-1 max-h-24 custom-scrollbar leading-relaxed"
+                  placeholder="Type a message... (Ctrl+V for screenshot, Enter to send)"
+                  className="w-full bg-transparent border-none outline-none resize-none text-xs sm:text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 py-1.5 max-h-32 custom-scrollbar leading-relaxed"
                 />
-              </div>
 
-              {/* Send Button */}
-              <button
-                type="button"
-                disabled={!inputMessage.trim() && stagedFiles.length === 0}
-                onClick={() => handleSendMessage()}
-                className="w-10 h-10 bg-[#56348f] hover:bg-[#432770] disabled:opacity-30 text-white rounded-full flex items-center justify-center shadow-sm transition-all shrink-0 cursor-pointer active:scale-95"
-                title="Send message"
-              >
-                <Send className="w-4 h-4 ml-0.5" />
-              </button>
+                {/* Send Button */}
+                <button
+                  type="button"
+                  disabled={!inputMessage.trim() && stagedFiles.length === 0}
+                  onClick={() => handleSendMessage()}
+                  className="w-9 h-9 bg-[#56348f] hover:bg-[#432770] disabled:opacity-30 disabled:hover:bg-[#56348f] text-white rounded-full flex items-center justify-center shadow-xs transition-all shrink-0 cursor-pointer active:scale-95 mb-0.5"
+                  title="Send message (Enter)"
+                >
+                  <Send className="w-4 h-4 ml-0.5" />
+                </button>
+              </div>
             </div>
           </>
         ) : (

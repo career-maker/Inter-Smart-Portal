@@ -27,9 +27,34 @@ class DirectChatController extends Controller
     }
 
     /**
-     * Format a user object for chat response.
+     * Get IDs of users who have been active recently (within last 15 minutes).
      */
-    private function formatUser($user): ?array
+    private function getActiveUserIds(): array
+    {
+        try {
+            $cutoff = Carbon::now()->subMinutes(15);
+            $tokenUserIds = DB::table('personal_access_tokens')
+                ->where('tokenable_type', User::class)
+                ->where(function ($q) use ($cutoff) {
+                    $q->where('last_used_at', '>=', $cutoff)
+                      ->orWhere(function ($q2) use ($cutoff) {
+                          $q2->whereNull('last_used_at')
+                             ->where('created_at', '>=', $cutoff);
+                      });
+                })
+                ->pluck('tokenable_id')
+                ->toArray();
+
+            return array_unique($tokenUserIds);
+        } catch (\Exception $e) {
+            return [];
+        }
+    }
+
+    /**
+     * Format a user object for chat response with online status.
+     */
+    private function formatUser($user, $activeUserIds = null): ?array
     {
         if (!$user) return null;
         
@@ -38,6 +63,11 @@ class DirectChatController extends Controller
             $photoUrl = str_starts_with($user->profile_photo_path, 'http')
                 ? $user->profile_photo_path
                 : url('api/photos/' . ltrim($user->profile_photo_path, '/'));
+        }
+
+        $isOnline = false;
+        if ($activeUserIds !== null) {
+            $isOnline = in_array($user->id, $activeUserIds);
         }
 
         return [
@@ -51,6 +81,7 @@ class DirectChatController extends Controller
             'employee_code' => $user->employee_code,
             'profile_photo_path' => $photoUrl,
             'role' => $user->role,
+            'is_online' => $isOnline,
         ];
     }
 
@@ -75,10 +106,19 @@ class DirectChatController extends Controller
     }
 
     /**
-     * Format a message for response.
+     * Format a message for response with WhatsApp-style read receipt status.
      */
-    private function formatMessage($msg): array
+    private function formatMessage($msg, $otherLastReadAt = null): array
     {
+        $isRead = false;
+        if ($otherLastReadAt && $msg->created_at) {
+            $msgCreated = Carbon::parse($msg->created_at);
+            $readTime = Carbon::parse($otherLastReadAt);
+            if ($readTime->gte($msgCreated)) {
+                $isRead = true;
+            }
+        }
+
         return [
             'id' => $msg->id,
             'conversation_id' => $msg->conversation_id,
@@ -88,6 +128,7 @@ class DirectChatController extends Controller
             'message_type' => $msg->message_type,
             'is_edited' => (bool)$msg->is_edited,
             'is_deleted' => (bool)$msg->is_deleted,
+            'is_read' => $isRead,
             'attachments' => $msg->attachments ? $msg->attachments->map(fn($a) => $this->formatAttachment($a))->values() : [],
             'created_at' => $msg->created_at?->toISOString(),
             'updated_at' => $msg->updated_at?->toISOString(),
@@ -104,6 +145,8 @@ class DirectChatController extends Controller
             return response()->json(['message' => 'Unauthenticated'], 401);
         }
 
+        $activeUserIds = $this->getActiveUserIds();
+
         $participants = ConversationParticipant::where('user_id', $user->id)
             ->where('is_archived', false)
             ->with([
@@ -113,13 +156,13 @@ class DirectChatController extends Controller
             ])
             ->get();
 
-        $conversations = $participants->map(function ($p) use ($user) {
+        $conversations = $participants->map(function ($p) use ($user, $activeUserIds) {
             $conv = $p->conversation;
             if (!$conv) return null;
 
             $otherParticipants = $conv->participants
                 ->filter(fn($cp) => $cp->user_id !== $user->id)
-                ->map(fn($cp) => $this->formatUser($cp->user))
+                ->map(fn($cp) => $this->formatUser($cp->user, $activeUserIds))
                 ->values();
 
             $otherUser = $otherParticipants->first();
@@ -285,11 +328,12 @@ class DirectChatController extends Controller
             });
         }
 
+        $activeUserIds = $this->getActiveUserIds();
         $users = $usersQuery->orderBy('first_name')->take(50)->get();
 
         return response()->json([
             'status' => 'success',
-            'data' => $users->map(fn($u) => $this->formatUser($u))->values(),
+            'data' => $users->map(fn($u) => $this->formatUser($u, $activeUserIds))->values(),
         ]);
     }
 
@@ -323,20 +367,24 @@ class DirectChatController extends Controller
             ->orderBy('created_at', 'asc')
             ->get();
 
-        // Get participant info
+        $activeUserIds = $this->getActiveUserIds();
+
+        // Get participant info and other participant's last_read_at
         $otherParticipant = $conversation->participants()
             ->where('user_id', '!=', $user->id)
             ->with('user.team')
             ->first();
+
+        $otherLastReadAt = $otherParticipant ? $otherParticipant->last_read_at : null;
 
         return response()->json([
             'status' => 'success',
             'conversation' => [
                 'id' => $conversation->id,
                 'type' => $conversation->type,
-                'other_user' => $otherParticipant ? $this->formatUser($otherParticipant->user) : null,
+                'other_user' => $otherParticipant ? $this->formatUser($otherParticipant->user, $activeUserIds) : null,
             ],
-            'data' => $messages->map(fn($m) => $this->formatMessage($m))->values(),
+            'data' => $messages->map(fn($m) => $this->formatMessage($m, $otherLastReadAt))->values(),
         ]);
     }
 
