@@ -158,6 +158,29 @@ export function useChatPushNotifications() {
     }
   }, [triggerMobileNotification]);
 
+  // Explicit test notification trigger
+  const sendTestNotification = useCallback(async () => {
+    if (typeof window === "undefined" || !("Notification" in window)) {
+      alert("Push notifications are not supported in this browser. On iPhone, add to Home Screen first.");
+      return;
+    }
+
+    if (Notification.permission !== "granted") {
+      const result = await Notification.requestPermission();
+      setPermissionStatus(result);
+      if (result !== "granted") {
+        alert("Notifications permission was denied. Please allow notifications in site settings.");
+        return;
+      }
+    }
+
+    await triggerMobileNotification(
+      "Inter Smart Portal",
+      "🔔 Test notification! Chat alerts will appear right here in your phone notification shade.",
+      "/community?tab=chat"
+    );
+  }, [triggerMobileNotification]);
+
   // Poll for unread chat count & incoming messages
   useEffect(() => {
     if (!user) {
@@ -270,5 +293,6 @@ export function useChatPushNotifications() {
     latestConversationId,
     permissionStatus,
     requestNotificationPermission,
+    sendTestNotification,
   };
 }

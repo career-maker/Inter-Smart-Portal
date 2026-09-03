@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import api from "@/services/api";
+import { useChatPushNotifications } from "@/hooks/useChatPushNotifications";
 
 // Derive the correct route from the notification event, not the stored action_url.
 // Old notifications in the DB may have had the wrong URL — using event ensures
@@ -59,10 +60,11 @@ function resolveNotificationUrl(notification: any): string {
 }
 
 export function NotificationDropdown() {
+  const router = useRouter();
+  const { permissionStatus, requestNotificationPermission, sendTestNotification } = useChatPushNotifications();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
-  const router = useRouter();
 
   const fetchUnread = async () => {
     try {
@@ -177,6 +179,28 @@ export function NotificationDropdown() {
                 </span>
               )}
             </div>
+          </div>
+
+          {/* Phone Push Notifications Quick Status & Test */}
+          <div className="px-3.5 py-2 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-950/40 dark:to-slate-800 border-b border-purple-100 dark:border-purple-900/40 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-sm shrink-0">🔔</span>
+              <div className="min-w-0">
+                <p className="text-[11px] font-bold text-purple-900 dark:text-purple-200 leading-tight">
+                  Phone Push Alerts
+                </p>
+                <p className="text-[10px] text-purple-600 dark:text-purple-400 font-medium">
+                  {permissionStatus === "granted" ? "Active on this device" : "Tap to enable on phone"}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={permissionStatus === "granted" ? sendTestNotification : requestNotificationPermission}
+              className="text-[10.5px] font-bold bg-[#56348f] hover:bg-purple-800 text-white px-2.5 py-0.5 rounded-full cursor-pointer transition-all shadow-xs active:scale-95"
+            >
+              {permissionStatus === "granted" ? "Send Test Alert" : "Enable"}
+            </button>
           </div>
 
           <div className="max-h-84 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800 custom-scrollbar">
