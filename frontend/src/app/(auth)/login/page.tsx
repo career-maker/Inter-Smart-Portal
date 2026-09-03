@@ -95,11 +95,13 @@ export default function LoginPage() {
         },
         success: (data: any) => {
           setTimeout(() => {
+            toastManager.dismissAll();
             router.push("/dashboard");
-          }, 800);
+          }, 900);
           return {
-            title: "Login Successful!",
-            description: `Welcome back, ${data.user?.first_name || "Employee"}! Redirecting to dashboard…`,
+            title: "Login Successful",
+            description: `Welcome back, ${data.user?.first_name || "Employee"}! Preparing your workspace…`,
+            duration: 900,
           };
         },
         error: (err: any) => {

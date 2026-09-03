@@ -92,6 +92,11 @@ class ToastManager {
     this.notify();
   }
 
+  dismissAll() {
+    this.toasts = [];
+    this.notify();
+  }
+
   success(input: ToastInput) {
     if (typeof input === "string") {
       return this.add({ title: input, type: "success" });
@@ -165,20 +170,22 @@ export function Toaster() {
           <motion.div
             key={toast.id}
             layout
-            initial={{ opacity: 0, y: -20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            initial={{ opacity: 0, filter: "blur(10px)", y: -16, scale: 0.96 }}
+            animate={{ opacity: 1, filter: "blur(0px)", y: 0, scale: 1 }}
+            exit={{ opacity: 0, filter: "blur(8px)", y: -10, scale: 0.95 }}
+            whileHover={{ scale: 1.01, transition: { duration: 0.2, ease: "easeInOut" } }}
+            whileTap={{ scale: 0.99, transition: { duration: 0.2, ease: "easeInOut" } }}
             transition={{ duration: 0.25, ease: "easeOut" }}
             className={cn(
-              "pointer-events-auto relative overflow-hidden rounded-2xl p-4 shadow-2xl backdrop-blur-xl border flex items-start gap-3 transition-all w-full",
+              "pointer-events-auto relative overflow-hidden rounded-2xl p-4 shadow-2xl backdrop-blur-2xl border flex items-start gap-3.5 transition-all w-full",
               toast.type === "success" &&
-                "bg-slate-900/95 dark:bg-slate-900/95 border-emerald-500/40 text-white shadow-emerald-500/10",
+                "bg-slate-900/95 dark:bg-slate-900/95 border-emerald-500/50 text-white shadow-xl shadow-emerald-950/40 ring-1 ring-emerald-500/20",
               toast.type === "error" &&
-                "bg-slate-900/95 dark:bg-slate-900/95 border-rose-500/40 text-white shadow-rose-500/10",
+                "bg-slate-900/95 dark:bg-slate-900/95 border-rose-500/50 text-white shadow-xl shadow-rose-950/40 ring-1 ring-rose-500/20",
               toast.type === "loading" &&
-                "bg-slate-900/95 dark:bg-slate-900/95 border-amber-500/40 text-white shadow-amber-500/10",
+                "bg-slate-900/95 dark:bg-slate-900/95 border-amber-500/40 text-white shadow-xl shadow-amber-950/40 ring-1 ring-amber-500/20",
               (toast.type === "info" || toast.type === "default" || !toast.type) &&
-                "bg-slate-900/95 dark:bg-slate-900/95 border-white/15 text-white shadow-black/20"
+                "bg-slate-900/95 dark:bg-slate-900/95 border-white/20 text-white shadow-black/40 ring-1 ring-white/10"
             )}
           >
             {/* Particle / glowing accent behind icon */}
@@ -195,7 +202,7 @@ export function Toaster() {
             {/* Icon */}
             <div className="shrink-0 mt-0.5 relative z-10">
               {toast.type === "success" && (
-                <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shadow-inner">
+                <div className="w-8 h-8 rounded-xl bg-emerald-500/25 text-emerald-300 border border-emerald-400/40 flex items-center justify-center shadow-lg shadow-emerald-900/30">
                   <CheckCircle2 className="w-5 h-5" />
                 </div>
               )}
@@ -219,12 +226,19 @@ export function Toaster() {
             {/* Content */}
             <div className="flex-1 min-w-0 relative z-10">
               {toast.title && (
-                <h4 className="text-sm font-bold text-white tracking-wide">
-                  {toast.title}
-                </h4>
+                <div className="flex items-center gap-2">
+                  <h4 className="text-sm font-bold text-white tracking-wide">
+                    {toast.title}
+                  </h4>
+                  {toast.type === "success" && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                      Success
+                    </span>
+                  )}
+                </div>
               )}
               {toast.description && (
-                <p className="text-xs text-slate-300 mt-0.5 leading-relaxed">
+                <p className="text-xs text-slate-300 mt-1 leading-relaxed">
                   {toast.description}
                 </p>
               )}

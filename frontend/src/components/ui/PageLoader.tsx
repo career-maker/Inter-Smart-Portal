@@ -9,6 +9,7 @@ import {
 } from "framer-motion";
 
 import { cn } from "@/lib/utils";
+import { toastManager } from "@/components/ui/toast";
 
 /* ── types ───────────────────────────────────────────────────── */
 
@@ -349,6 +350,12 @@ export function PageLoader({
   className?: string;
   fullScreen?: boolean;
 }) {
+  React.useEffect(() => {
+    if (fullScreen) {
+      toastManager.dismissAll();
+    }
+  }, [fullScreen]);
+
   if (fullScreen) {
     return (
       <div className={cn("fixed inset-0 bg-white/85 dark:bg-slate-900/85 backdrop-blur-xs flex flex-col items-center justify-center z-[9999] p-6", className)}>
@@ -368,6 +375,10 @@ export function PageLoader({
  * Initial text-animating preloader reserved exclusively for dashboard initial load.
  */
 export function DashboardPageLoader({ className }: { className?: string }) {
+  React.useEffect(() => {
+    toastManager.dismissAll();
+  }, []);
+
   return (
     <div className={cn("fixed inset-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xs flex flex-col items-center justify-center z-[9999] font-sans p-6", className)}>
       <ProgressiveFluxLoader duration={2.5} />
