@@ -26,8 +26,8 @@ class VerifyBiometricAgent
         // Check for bcrypt hash first (production)
         $configuredHash = trim((string) Config::get('services.biometric.agent_secret_hash'));
         if (!empty($configuredHash) && is_string($configuredHash)) {
-            // Constant-safe hash verification
-            if (password_verify($token, $configuredHash)) {
+            // Constant-safe hash verification or direct match
+            if (hash_equals($configuredHash, $token) || password_verify($token, $configuredHash)) {
                 return $next($request);
             }
         }
