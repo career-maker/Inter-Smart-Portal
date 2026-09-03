@@ -482,13 +482,14 @@ export function AttendanceWidget({
                   <button
                     type="button"
                     onClick={() => handleSelectMember(null)}
-                    className={`px-2.5 py-1 text-xs font-semibold rounded-lg shrink-0 transition-all flex items-center gap-1 cursor-pointer ${
+                    className={`px-2.5 py-1 text-xs font-semibold rounded-lg shrink-0 transition-all flex items-center gap-1.5 cursor-pointer ${
                       !selectedMember
                         ? "bg-[#56348f] text-white shadow-xs"
                         : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50"
                     }`}
                   >
-                    <span>👤 Me</span>
+                    <UserIcon className="w-3.5 h-3.5 shrink-0" />
+                    <span>Me</span>
                   </button>
 
                   {teamMembers.map((member: any) => {
