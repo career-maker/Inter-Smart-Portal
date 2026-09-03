@@ -606,35 +606,51 @@ export default function DashboardPage() {
               </div>
   
               {data?.widgets?.team_members && data.widgets.team_members.length > 0 ? (
-                <div className="flex flex-wrap gap-2 pt-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-2">
                   {data.widgets.team_members.map((member: any) => {
-                    const getPillClasses = (status: string) => {
-                      const lower = status.toLowerCase();
-                      if (lower.includes('half day wfh')) {
-                        return 'bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400 border-purple-200 dark:border-purple-500/30';
-                      }
-                      if (lower.includes('half day leave')) {
-                        return 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400 border-amber-200 dark:border-amber-500/30';
-                      }
-                      if (lower === 'wfh') {
-                        return 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400 border-blue-200 dark:border-blue-500/30';
-                      }
-                      if (lower === 'present') {
-                        return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30';
-                      }
-                      return 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 border-red-200 dark:border-red-500/30';
-                    };
-                    
+                    const statusLower = (member.status || "").toLowerCase();
+                    const isPresent = statusLower === "present";
+                    const isWfh = statusLower === "wfh" || statusLower.includes("wfh");
+                    const isHalfDay = statusLower.includes("half day");
+
+                    const statusConfig = isPresent
+                      ? { dot: "bg-emerald-500", label: "Present", text: "text-emerald-700 dark:text-emerald-400" }
+                      : isWfh
+                      ? { dot: "bg-blue-500", label: "WFH", text: "text-blue-700 dark:text-blue-400" }
+                      : isHalfDay
+                      ? { dot: "bg-amber-500", label: member.status, text: "text-amber-700 dark:text-amber-400" }
+                      : { dot: "bg-rose-500", label: "Absent", text: "text-rose-700 dark:text-rose-400" };
+
                     return (
                       <button 
                         key={member.id} 
                         type="button"
                         onClick={() => setSelectedTeamMemberForPunches(member)}
-                        className={`px-3 py-1 text-xs font-medium rounded-full border transition-all hover:scale-105 cursor-pointer flex items-center gap-1.5 ${getPillClasses(member.status)}`}
-                        title={`Click to view punches for ${member.name} (${member.status})`}
+                        className="group flex items-center justify-between p-2.5 rounded-xl bg-slate-50/70 dark:bg-slate-900/50 hover:bg-white dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700/60 hover:border-purple-300 dark:hover:border-purple-600/50 hover:shadow-xs transition-all duration-200 text-left cursor-pointer"
+                        title={`Click to view punches for ${member.name} (${statusConfig.label})`}
                       >
-                        <RoyalName name={member.name} userId={member.id} showCrownIcon={false} />
-                        <span className="text-[10px] opacity-60">🕒</span>
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="relative shrink-0">
+                            <RoyalAvatar
+                              src={member.profile_photo_path}
+                              name={member.name}
+                              userId={member.id}
+                              className="w-8 h-8 rounded-full"
+                            />
+                            <span className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ring-2 ring-white dark:ring-slate-800 ${statusConfig.dot}`} />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-[13px] font-semibold text-slate-800 dark:text-slate-100 truncate group-hover:text-[#56348f] dark:group-hover:text-purple-300 transition-colors">
+                              <RoyalName name={member.name} userId={member.id} showCrownIcon={false} />
+                            </div>
+                            <span className={`inline-flex items-center text-[10.5px] font-bold ${statusConfig.text}`}>
+                              {statusConfig.label}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1 text-slate-300 dark:text-slate-600 group-hover:text-[#56348f] dark:group-hover:text-purple-300 transition-colors pl-2 shrink-0">
+                          <Clock className="w-3.5 h-3.5" />
+                        </div>
                       </button>
                     );
                   })}

@@ -174,6 +174,32 @@ class EmployeeController extends Controller
 
     public function publicProfile(User $employee)
     {
+        $awards = \App\Models\Recognition::where('user_id', $employee->id)
+            ->where('is_active', true)
+            ->orderBy('created_at', 'desc')
+            ->get(['id', 'title', 'description', 'icon', 'start_date', 'end_date', 'created_at']);
+
+        // Calculate tenure at Intersmart from joining_date
+        $joiningDate = $employee->joining_date ? \Carbon\Carbon::parse($employee->joining_date) : null;
+        $tenureYears = null;
+        $tenureText = null;
+
+        if ($joiningDate) {
+            $tenureYears = round($joiningDate->diffInDays(now()) / 365.25, 1);
+            $diff = $joiningDate->diff(now());
+            $parts = [];
+            if ($diff->y > 0) {
+                $parts[] = $diff->y . ' ' . ($diff->y === 1 ? 'Year' : 'Years');
+            }
+            if ($diff->m > 0) {
+                $parts[] = $diff->m . ' ' . ($diff->m === 1 ? 'Month' : 'Months');
+            }
+            if (empty($parts)) {
+                $parts[] = $diff->d . ' ' . ($diff->d === 1 ? 'Day' : 'Days');
+            }
+            $tenureText = implode(' ', $parts);
+        }
+
         return response()->json([
             'data' => [
                 'id' => $employee->id,
@@ -185,7 +211,13 @@ class EmployeeController extends Controller
                 'profile_photo_path' => $employee->profilePhotoUrl(),
                 'team' => $employee->team->name ?? 'Unassigned',
                 'joining_date' => $employee->joining_date,
-                'role' => $employee->roles->first()?->name ?? 'Employee',
+                'tenure_years' => $tenureYears,
+                'tenure_text' => $tenureText,
+                'role' => $employee->primaryRoleName(),
+                'contact_number' => $employee->contact_number,
+                'blood_group' => $employee->blood_group,
+                'status' => $employee->status,
+                'awards' => $awards,
             ]
         ]);
     }
