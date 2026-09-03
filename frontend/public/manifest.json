@@ -1,0 +1,23 @@
+{
+  "name": "Inter Smart Portal",
+  "short_name": "InterSmart",
+  "description": "Inter Smart Employee Management Portal",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#56348f",
+  "theme_color": "#56348f",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

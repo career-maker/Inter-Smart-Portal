@@ -5,7 +5,7 @@ import { Providers } from "@/components/providers";
 export const metadata: Metadata = {
   title: "Inter Smart Portal",
   description: "Inter Smart Employee Management Portal",
-  colorScheme: "light",
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({

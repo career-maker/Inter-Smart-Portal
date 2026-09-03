@@ -225,7 +225,8 @@ function pathBelongsToGroup(group: NavGroup, pathname: string, currentTab?: stri
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, user, logout, updateUser } = useAuthStore();
   const { toggleStickyNotes, notesCount } = useStickyNotesStore();
-  const { unreadChatCount, latestConversationId } = useChatPushNotifications();
+  const { unreadChatCount, latestConversationId, permissionStatus, requestNotificationPermission } = useChatPushNotifications();
+  const [dismissNotificationBanner, setDismissNotificationBanner] = useState(false);
   const isDark = useThemeStore((state) => state.isDark);
   const router = useRouter();
   const pathname = usePathname();
@@ -895,6 +896,35 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             !isDark ? 'left-0 md:left-[84px]' : isSidebarCollapsed ? 'left-0 md:left-20' : 'left-0 md:left-64'
           }`}
         >
+          {/* Mobile Push Notification Permission Prompt (Only when not yet granted) */}
+          {permissionStatus === "default" && !dismissNotificationBanner && (
+            <div className="bg-[#3b1f63] text-white px-3 py-1.5 text-xs flex items-center justify-between border-b border-white/10 shadow-xs">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="text-sm shrink-0">🔔</span>
+                <span className="truncate font-medium text-[11px] sm:text-xs">
+                  Get instant chat & portal notifications on your phone
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                <button
+                  type="button"
+                  onClick={() => requestNotificationPermission()}
+                  className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-2.5 py-0.5 rounded-full text-[10.5px] shadow-xs cursor-pointer transition-all active:scale-95"
+                >
+                  Enable Alerts
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDismissNotificationBanner(true)}
+                  className="p-1 text-white/70 hover:text-white rounded-full cursor-pointer"
+                  title="Dismiss"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* ── TOP HEADER (KEKA PURPLE #56348f FOR LIGHT THEME, SLATE-900 FOR DARK THEME) ── */}
           <header
             style={{

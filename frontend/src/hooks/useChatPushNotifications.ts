@@ -23,8 +23,34 @@ export function useChatPushNotifications() {
   const user = useAuthStore((state) => state.user);
   const [unreadChatCount, setUnreadChatCount] = useState<number>(0);
   const [latestConversationId, setLatestConversationId] = useState<number | null>(null);
+  const [permissionStatus, setPermissionStatus] = useState<"default" | "granted" | "denied" | "unsupported">("default");
+  
   const lastNotifiedMsgIdRef = useRef<number | string | null>(null);
   const isFirstCheckRef = useRef<boolean>(true);
+  const swRegRef = useRef<ServiceWorkerRegistration | null>(null);
+
+  // Check current notification permission
+  useEffect(() => {
+    if (typeof window !== "undefined" && "Notification" in window) {
+      setPermissionStatus(Notification.permission);
+    } else if (typeof window !== "undefined") {
+      setPermissionStatus("unsupported");
+    }
+  }, []);
+
+  // Register Service Worker reliably
+  useEffect(() => {
+    if (typeof window !== "undefined" && "serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/sw.js")
+        .then((reg) => {
+          swRegRef.current = reg;
+        })
+        .catch((err) => {
+          console.warn("ServiceWorker registration error:", err);
+        });
+    }
+  }, []);
 
   // Play subtle web audio notification chime
   const playChime = useCallback(() => {
@@ -52,23 +78,26 @@ export function useChatPushNotifications() {
     }
   }, []);
 
-  // Show native mobile notification in phone's notification shade
+  // Trigger native mobile notification in phone's notification shade
   const triggerMobileNotification = useCallback(
-    async (msg: LatestMessage) => {
-      const title = `${msg.sender_name} on InterSmart`;
-      const body = msg.message || "Sent you a message";
-      const targetUrl = `/community?tab=chat&conversationId=${msg.conversation_id}`;
+    async (title: string, body: string, targetUrl: string, tagId?: string) => {
+      const tag = tagId || `msg_${Date.now()}`;
 
-      // 1. Try Service Worker (Required for Android & iOS Mobile Notification Shade)
+      // 1. Try Service Worker (Mandatory for Android & iOS Mobile Notification Area)
       if (typeof window !== "undefined" && "serviceWorker" in navigator) {
         try {
-          const registration = await navigator.serviceWorker.ready;
-          if (registration && "showNotification" in registration) {
-            await registration.showNotification(title, {
+          let reg = swRegRef.current;
+          if (!reg) {
+            reg = (await navigator.serviceWorker.getRegistration()) || (await navigator.serviceWorker.ready);
+            swRegRef.current = reg;
+          }
+
+          if (reg && "showNotification" in reg) {
+            await reg.showNotification(title, {
               body,
               icon: "/logo.png",
               badge: "/logo.png",
-              tag: `chat_${msg.conversation_id}_${msg.id}`,
+              tag,
               vibrate: [200, 100, 200],
               renotify: true,
               data: { url: targetUrl },
@@ -87,7 +116,7 @@ export function useChatPushNotifications() {
           const notif = new Notification(title, {
             body,
             icon: "/logo.png",
-            tag: `chat_${msg.conversation_id}_${msg.id}`,
+            tag,
           });
           notif.onclick = () => {
             window.focus();
@@ -96,31 +125,38 @@ export function useChatPushNotifications() {
           };
           playChime();
         } catch (notifErr) {
-          console.warn("Standard notification error:", notifErr);
+          console.warn("Standard notification fallback error:", notifErr);
         }
       }
     },
     [playChime]
   );
 
-  // Initialize Service Worker & Request Notification Permission for Logged-in Users
-  useEffect(() => {
-    if (!user) return;
-
-    // Register Service Worker for mobile notification shade handling
-    if (typeof window !== "undefined" && "serviceWorker" in navigator) {
-      navigator.serviceWorker
-        .register("/sw.js")
-        .catch((err) => console.warn("SW register error:", err));
+  // Explicit user-gesture permission requester with immediate test notification
+  const requestNotificationPermission = useCallback(async () => {
+    if (typeof window === "undefined" || !("Notification" in window)) {
+      alert("Push notifications are not supported by this mobile browser.");
+      return "unsupported";
     }
 
-    // Request notification permission if not yet granted/denied
-    if (typeof window !== "undefined" && "Notification" in window) {
-      if (Notification.permission === "default") {
-        Notification.requestPermission().catch(() => {});
+    try {
+      const result = await Notification.requestPermission();
+      setPermissionStatus(result);
+
+      if (result === "granted") {
+        // Send immediate test notification to confirm it shows in phone's notification area!
+        triggerMobileNotification(
+          "Inter Smart Portal",
+          "🎉 Notifications enabled! You will now receive alerts for new chats on your phone.",
+          "/community?tab=chat"
+        );
       }
+      return result;
+    } catch (err) {
+      console.error("Error requesting notification permission:", err);
+      return "denied";
     }
-  }, [user]);
+  }, [triggerMobileNotification]);
 
   // Poll for unread chat count & incoming messages
   useEffect(() => {
@@ -132,25 +168,74 @@ export function useChatPushNotifications() {
 
     const checkUnread = async () => {
       try {
-        const res = await api.get<UnreadResponse>(`/direct-chat/unread-count?t=${Date.now()}`);
-        if (res.data?.status === "success") {
-          const count = res.data.unread_count || 0;
-          const convId = res.data.latest_conversation_id || null;
-          const latestMsg = res.data.latest_message || null;
+        // 1. Try high-speed unread-count endpoint
+        try {
+          const res = await api.get<UnreadResponse>(`/direct-chat/unread-count?t=${Date.now()}`);
+          if (res.data?.status === "success") {
+            const count = res.data.unread_count || 0;
+            const convId = res.data.latest_conversation_id || null;
+            const latestMsg = res.data.latest_message || null;
 
-          setUnreadChatCount(count);
-          setLatestConversationId(convId);
+            setUnreadChatCount(count);
+            setLatestConversationId(convId);
 
-          // If a new message arrived
-          if (latestMsg) {
+            if (latestMsg) {
+              if (isFirstCheckRef.current) {
+                lastNotifiedMsgIdRef.current = latestMsg.id;
+                isFirstCheckRef.current = false;
+              } else if (lastNotifiedMsgIdRef.current !== latestMsg.id) {
+                lastNotifiedMsgIdRef.current = latestMsg.id;
+
+                const isLookingAtChat =
+                  typeof window !== "undefined" &&
+                  window.location.pathname.includes("/community") &&
+                  window.location.search.includes("tab=chat") &&
+                  document.visibilityState === "visible";
+
+                if (!isLookingAtChat) {
+                  triggerMobileNotification(
+                    `${latestMsg.sender_name} on InterSmart`,
+                    latestMsg.message || "Sent you a message",
+                    `/community?tab=chat&conversationId=${latestMsg.conversation_id}`,
+                    `chat_${latestMsg.conversation_id}_${latestMsg.id}`
+                  );
+                }
+              }
+            }
+            return;
+          }
+        } catch {
+          // If unread-count is not yet deployed on server, fall back to /direct-chat/conversations
+        }
+
+        // 2. Reliable fallback using standard conversations list
+        const convsRes = await api.get(`/direct-chat/conversations?t=${Date.now()}`);
+        if (convsRes.data?.status === "success") {
+          const convList = convsRes.data.data || [];
+          let total = 0;
+          let firstUnreadConvId: number | null = null;
+          let newestMsg: any = null;
+
+          for (const c of convList) {
+            if (c.unread_count > 0) {
+              total += c.unread_count;
+              if (!firstUnreadConvId) firstUnreadConvId = c.id;
+              if (c.latest_message && (!newestMsg || c.latest_message.id > newestMsg.id)) {
+                newestMsg = c.latest_message;
+              }
+            }
+          }
+
+          setUnreadChatCount(total);
+          setLatestConversationId(firstUnreadConvId);
+
+          if (newestMsg) {
             if (isFirstCheckRef.current) {
-              // Initial load - don't spam old notifications
-              lastNotifiedMsgIdRef.current = latestMsg.id;
+              lastNotifiedMsgIdRef.current = newestMsg.id;
               isFirstCheckRef.current = false;
-            } else if (lastNotifiedMsgIdRef.current !== latestMsg.id) {
-              lastNotifiedMsgIdRef.current = latestMsg.id;
+            } else if (lastNotifiedMsgIdRef.current !== newestMsg.id) {
+              lastNotifiedMsgIdRef.current = newestMsg.id;
 
-              // Don't show notification if user is already looking at this exact chat tab
               const isLookingAtChat =
                 typeof window !== "undefined" &&
                 window.location.pathname.includes("/community") &&
@@ -158,7 +243,13 @@ export function useChatPushNotifications() {
                 document.visibilityState === "visible";
 
               if (!isLookingAtChat) {
-                triggerMobileNotification(latestMsg);
+                const sender = newestMsg.sender?.name || "Colleague";
+                triggerMobileNotification(
+                  `${sender} on InterSmart`,
+                  newestMsg.message || "Sent you a message",
+                  `/community?tab=chat&conversationId=${newestMsg.conversation_id}`,
+                  `chat_${newestMsg.conversation_id}_${newestMsg.id}`
+                );
               }
             }
           }
@@ -169,7 +260,7 @@ export function useChatPushNotifications() {
     };
 
     checkUnread();
-    const interval = setInterval(checkUnread, 8000); // Check every 8 seconds
+    const interval = setInterval(checkUnread, 6000); // Check every 6 seconds
 
     return () => clearInterval(interval);
   }, [user, triggerMobileNotification]);
@@ -177,5 +268,7 @@ export function useChatPushNotifications() {
   return {
     unreadChatCount,
     latestConversationId,
+    permissionStatus,
+    requestNotificationPermission,
   };
 }
