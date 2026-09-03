@@ -1,15 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
+import { setAuthCookie } from "@/lib/authCookies";
 import { toastManager } from "@/components/ui/toast";
 import { Eye, EyeOff, LogIn, Lock, Mail, AlertCircle } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -17,6 +19,16 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    if (token) {
+      setAuthCookie(token);
+      router.replace("/dashboard");
+    } else {
+      setIsCheckingAuth(false);
+    }
+  }, [router]);
 
   const getErrorIcon = (message: string) => {
     if (message.toLowerCase().includes("inactive") || message.toLowerCase().includes("disabled")) {
@@ -60,6 +72,7 @@ export default function LoginPage() {
           if (rememberDevice) {
             localStorage.setItem("rememberDevice", "true");
           }
+          setAuthCookie(response.data.token, rememberDevice ? 30 : 1);
           setAuth(response.data.user, response.data.token);
           resolve(response.data);
         } else {
@@ -103,6 +116,14 @@ export default function LoginPage() {
     } finally {
       setIsLoading(false);
     }
+  }
+
+  if (isCheckingAuth) {
+    return (
+      <div className="flex min-h-screen w-screen items-center justify-center bg-[#181d24]">
+        <span className="inline-block h-8 w-8 border-2 border-white/20 border-t-amber-400 rounded-full animate-spin" />
+      </div>
+    );
   }
 
   return (

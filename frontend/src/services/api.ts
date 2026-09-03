@@ -119,6 +119,10 @@ api.interceptors.response.use(
           apiCache.clearAll();
           localStorage.removeItem('token');
           localStorage.removeItem('auth-storage');
+          try {
+            const isSecure = window.location.protocol === 'https:';
+            document.cookie = `token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax${isSecure ? '; secure' : ''}`;
+          } catch {}
           window.location.href = '/login';
         }
       }

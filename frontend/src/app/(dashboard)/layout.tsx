@@ -21,6 +21,7 @@ import teamPermissionsApi from "@/services/teamPermissions";
 import Script from "next/script";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 import { DashboardPageLoader, PageLoader } from "@/components/ui/PageLoader";
+import { setAuthCookie, clearAuthCookie } from "@/lib/authCookies";
 
 type NavItem = {
   href: string;
@@ -332,7 +333,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [isHydrated]);
 
   useEffect(() => {
-    if (isHydrated && !isAuthenticated) router.push("/login");
+    if (isHydrated && !isAuthenticated) {
+      clearAuthCookie();
+      router.push("/login");
+    } else if (isHydrated && isAuthenticated) {
+      const currentToken = useAuthStore.getState().token || (typeof window !== "undefined" ? localStorage.getItem("token") : null);
+      if (currentToken) {
+        setAuthCookie(currentToken);
+      }
+    }
   }, [isHydrated, isAuthenticated, router]);
 
   // Listen for storage events (e.g. login/logout in another tab)
@@ -341,15 +350,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       if (e.key === "token" || e.key === "auth-storage") {
         const currentToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
         if (!currentToken) {
+          clearAuthCookie();
           logout();
           router.push("/login");
         } else {
+          setAuthCookie(currentToken);
           // Re-sync with server /me to ensure current tab has the right user and role
           api.get("/me").then((res) => {
             if (res.data?.user) {
               useAuthStore.setState({ user: res.data.user, token: currentToken, isAuthenticated: true });
             }
           }).catch(() => {
+            clearAuthCookie();
             logout();
             router.push("/login");
           });
@@ -396,6 +408,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const userRole = user?.role ?? "";
 
   const handleLogout = () => {
+    clearAuthCookie();
     logout();
     if (typeof window !== "undefined") {
       try {

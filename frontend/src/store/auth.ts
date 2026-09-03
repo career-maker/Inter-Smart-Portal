@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import { apiCache } from '@/services/cache';
+import { setAuthCookie, clearAuthCookie } from '@/lib/authCookies';
 
 export interface User {
   id: number;
@@ -39,6 +40,9 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       setAuth: (user, token) => {
         apiCache.clearAll();
+        if (typeof window !== 'undefined') {
+          setAuthCookie(token);
+        }
         set({ user, token, isAuthenticated: true });
       },
       updateUser: (partial) => set((state) => ({ user: state.user ? { ...state.user, ...partial } : null })),
@@ -48,6 +52,7 @@ export const useAuthStore = create<AuthState>()(
           try {
             localStorage.removeItem('token');
             localStorage.removeItem('auth-storage');
+            clearAuthCookie();
           } catch {}
         }
         set({ user: null, token: null, isAuthenticated: false });
