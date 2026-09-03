@@ -11,7 +11,6 @@ import {
   Coffee,
   CheckCircle2,
   AlertCircle,
-  ArrowRight,
   ShieldCheck,
   CalendarCheck,
   CalendarDays,
@@ -322,90 +321,69 @@ export function AttendanceWidget({
           </div>
         </div>
 
-        <div className="flex flex-col lg:flex-row items-center gap-4 relative z-10">
+        <div className="relative z-10">
           {/* Metrics Grid */}
-          <div className="flex-1 w-full">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {/* Punch In */}
-              <div className="bg-slate-50 dark:bg-slate-900/50 rounded-md p-3.5 text-center border border-slate-200/70 dark:border-slate-800">
-                <p
-                  style={{ fontSize: "11px", lineHeight: "16px", color: "rgb(94, 105, 120)" }}
-                  className="dark:text-slate-400 uppercase font-medium tracking-wider mb-1"
-                >
-                  First In
-                </p>
-                <p
-                  style={{ fontSize: "15px", lineHeight: "22px", color: "rgb(15, 24, 36)" }}
-                  className="font-semibold dark:text-white"
-                >
-                  {formatTime(data?.attendance?.check_in_time)}
-                </p>
-              </div>
-              {/* Punch Out */}
-              <div className="bg-slate-50 dark:bg-slate-900/50 rounded-md p-3.5 text-center border border-slate-200/70 dark:border-slate-800">
-                <p
-                  style={{ fontSize: "11px", lineHeight: "16px", color: "rgb(94, 105, 120)" }}
-                  className="dark:text-slate-400 uppercase font-medium tracking-wider mb-1"
-                >
-                  Last Out
-                </p>
-                <p
-                  style={{ fontSize: "15px", lineHeight: "22px", color: "rgb(15, 24, 36)" }}
-                  className="font-semibold dark:text-white"
-                >
-                  {formatTime(data?.attendance?.check_out_time)}
-                </p>
-              </div>
-              {/* Total Break */}
-              <div className="bg-slate-50 dark:bg-slate-900/50 rounded-md p-3.5 text-center border border-slate-200/70 dark:border-slate-800">
-                <p
-                  style={{ fontSize: "11px", lineHeight: "16px", color: "rgb(94, 105, 120)" }}
-                  className="dark:text-slate-400 uppercase font-medium tracking-wider mb-1"
-                >
-                  Total Break
-                </p>
-                <p
-                  style={{ fontSize: "15px", lineHeight: "22px", color: "rgb(15, 24, 36)" }}
-                  className="font-semibold dark:text-white"
-                >
-                  {breakDurationStr}
-                </p>
-              </div>
-              {/* Worked Time */}
-              <div className="bg-slate-50 dark:bg-slate-900/50 rounded-md p-3.5 text-center border border-slate-200/70 dark:border-slate-800">
-                <p
-                  style={{ fontSize: "11px", lineHeight: "16px", color: "rgb(94, 105, 120)" }}
-                  className="dark:text-slate-400 uppercase font-medium tracking-wider mb-1"
-                >
-                  Worked Time
-                </p>
-                <p
-                  style={{ fontSize: "15px", lineHeight: "22px" }}
-                  className="font-semibold text-cyan-600 dark:text-cyan-300 font-mono tracking-tight"
-                >
-                  {formatDuration(elapsedSeconds)}
-                </p>
-              </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {/* Punch In */}
+            <div className="bg-slate-50 dark:bg-slate-900/50 rounded-md p-3.5 text-center border border-slate-200/70 dark:border-slate-800">
+              <p
+                style={{ fontSize: "11px", lineHeight: "16px", color: "rgb(94, 105, 120)" }}
+                className="dark:text-slate-400 uppercase font-medium tracking-wider mb-1"
+              >
+                First In
+              </p>
+              <p
+                style={{ fontSize: "15px", lineHeight: "22px", color: "rgb(15, 24, 36)" }}
+                className="font-semibold dark:text-white"
+              >
+                {formatTime(data?.attendance?.check_in_time)}
+              </p>
             </div>
-          </div>
-
-          {/* Biometric Entry & View All Punches Card */}
-          <div className="flex-shrink-0 w-full lg:w-auto min-w-[200px] p-3.5 bg-purple-50/60 dark:bg-purple-900/20 border border-purple-200/60 dark:border-purple-800/40 rounded-md">
-            <p style={{ fontSize: "12px", lineHeight: "18px" }} className="text-center text-slate-600 dark:text-slate-300">
-              <span style={{ fontWeight: 600, color: "#56348f" }} className="dark:text-purple-300 block">
-                Biometric Entry
-              </span>
-              Logged automatically via scanner
-            </p>
-            <button
-              type="button"
-              onClick={() => setIsTimelineDrawerOpen(true)}
-              className="w-full mt-2.5 py-1.5 px-3 text-center text-xs font-bold rounded-md bg-white dark:bg-slate-800 text-[#56348f] dark:text-purple-300 border border-purple-200/80 dark:border-purple-800/60 hover:bg-purple-50 dark:hover:bg-purple-900/40 transition-all shadow-2xs flex items-center justify-center gap-1.5 cursor-pointer"
-            >
-              <History className="w-3.5 h-3.5" />
-              <span>All Today's Punches</span>
-              <ArrowRight className="w-3 h-3" />
-            </button>
+            {/* Punch Out */}
+            <div className="bg-slate-50 dark:bg-slate-900/50 rounded-md p-3.5 text-center border border-slate-200/70 dark:border-slate-800">
+              <p
+                style={{ fontSize: "11px", lineHeight: "16px", color: "rgb(94, 105, 120)" }}
+                className="dark:text-slate-400 uppercase font-medium tracking-wider mb-1"
+              >
+                Last Out
+              </p>
+              <p
+                style={{ fontSize: "15px", lineHeight: "22px", color: "rgb(15, 24, 36)" }}
+                className="font-semibold dark:text-white"
+              >
+                {formatTime(data?.attendance?.check_out_time)}
+              </p>
+            </div>
+            {/* Total Break */}
+            <div className="bg-slate-50 dark:bg-slate-900/50 rounded-md p-3.5 text-center border border-slate-200/70 dark:border-slate-800">
+              <p
+                style={{ fontSize: "11px", lineHeight: "16px", color: "rgb(94, 105, 120)" }}
+                className="dark:text-slate-400 uppercase font-medium tracking-wider mb-1"
+              >
+                Total Break
+              </p>
+              <p
+                style={{ fontSize: "15px", lineHeight: "22px", color: "rgb(15, 24, 36)" }}
+                className="font-semibold dark:text-white"
+              >
+                {breakDurationStr}
+              </p>
+            </div>
+            {/* Worked Time */}
+            <div className="bg-slate-50 dark:bg-slate-900/50 rounded-md p-3.5 text-center border border-slate-200/70 dark:border-slate-800">
+              <p
+                style={{ fontSize: "11px", lineHeight: "16px", color: "rgb(94, 105, 120)" }}
+                className="dark:text-slate-400 uppercase font-medium tracking-wider mb-1"
+              >
+                Worked Time
+              </p>
+              <p
+                style={{ fontSize: "15px", lineHeight: "22px" }}
+                className="font-semibold text-cyan-600 dark:text-cyan-300 font-mono tracking-tight"
+              >
+                {formatDuration(elapsedSeconds)}
+              </p>
+            </div>
           </div>
         </div>
       </div>
