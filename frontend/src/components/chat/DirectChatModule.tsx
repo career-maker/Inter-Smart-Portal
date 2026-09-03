@@ -824,8 +824,8 @@ export function DirectChatModule() {
           </button>
         </div>
 
-        {/* Mobile Push Notification Alert Status & Instant Test Button */}
-        <div className="px-3.5 py-2 bg-gradient-to-r from-purple-50 via-indigo-50 to-purple-50 dark:from-purple-950/40 dark:via-slate-800 dark:to-purple-950/40 border-b border-purple-100 dark:border-purple-900/40 flex items-center justify-between gap-2 shrink-0">
+        {/* Mobile Push Notification Alert Status (Mobile Only, Test Button Hidden) */}
+        <div className="md:hidden px-3.5 py-2 bg-gradient-to-r from-purple-50 via-indigo-50 to-purple-50 dark:from-purple-950/40 dark:via-slate-800 dark:to-purple-950/40 border-b border-purple-100 dark:border-purple-900/40 flex items-center justify-between gap-2 shrink-0">
           <div className="flex items-center gap-2 min-w-0">
             <span className="text-base shrink-0">🔔</span>
             <div className="min-w-0">
@@ -843,17 +843,15 @@ export function DirectChatModule() {
               </p>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={permissionStatus === "granted" ? sendTestNotification : requestNotificationPermission}
-            className={`px-3 py-1 rounded-full text-[11px] font-bold shrink-0 transition-all shadow-xs cursor-pointer active:scale-95 ${
-              permissionStatus === "granted"
-                ? "bg-purple-600 hover:bg-purple-700 text-white"
-                : "bg-amber-400 hover:bg-amber-300 text-slate-950"
-            }`}
-          >
-            {permissionStatus === "granted" ? "Send Test Alert" : "Turn On"}
-          </button>
+          {permissionStatus !== "granted" && (
+            <button
+              type="button"
+              onClick={requestNotificationPermission}
+              className="px-3 py-1 rounded-full text-[11px] font-bold shrink-0 transition-all shadow-xs cursor-pointer active:scale-95 bg-amber-400 hover:bg-amber-300 text-slate-950"
+            >
+              Turn On
+            </button>
+          )}
         </div>
 
         {/* Search Bar */}
