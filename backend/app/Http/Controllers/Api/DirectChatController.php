@@ -645,4 +645,55 @@ class DirectChatController extends Controller
             'message' => 'Message deleted successfully.',
         ]);
     }
+
+    /**
+     * Get total unread message count and latest unread message for quick header badge and push notifications.
+     */
+    public function unreadCount(Request $request)
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['status' => 'success', 'unread_count' => 0]);
+        }
+
+        $participants = ConversationParticipant::where('user_id', $user->id)
+            ->where('is_archived', false)
+            ->get();
+
+        $totalUnread = 0;
+        $latestUnreadConvId = null;
+        $latestUnreadMsg = null;
+
+        foreach ($participants as $p) {
+            $unreadQuery = ChatMessage::where('conversation_id', $p->conversation_id)
+                ->where('sender_id', '!=', $user->id)
+                ->where('is_deleted', false);
+
+            if ($p->last_read_at) {
+                $unreadQuery->where('created_at', '>', $p->last_read_at);
+            }
+
+            $count = $unreadQuery->count();
+            if ($count > 0) {
+                $totalUnread += $count;
+                if (!$latestUnreadConvId) {
+                    $latestUnreadConvId = $p->conversation_id;
+                    $latestUnreadMsg = $unreadQuery->with('sender')->latest()->first();
+                }
+            }
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'unread_count' => $totalUnread,
+            'latest_conversation_id' => $latestUnreadConvId,
+            'latest_message' => $latestUnreadMsg ? [
+                'id' => $latestUnreadMsg->id,
+                'sender_name' => $latestUnreadMsg->sender ? "{$latestUnreadMsg->sender->first_name} {$latestUnreadMsg->sender->last_name}" : "Colleague",
+                'message' => $latestUnreadMsg->message ?: "Sent an attachment",
+                'conversation_id' => $latestUnreadMsg->conversation_id,
+                'created_at' => $latestUnreadMsg->created_at?->toISOString(),
+            ] : null,
+        ]);
+    }
 }

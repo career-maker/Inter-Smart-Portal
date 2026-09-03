@@ -221,6 +221,18 @@ export function DirectChatModule() {
   useEffect(() => {
     fetchConversations(true);
     fetchAllColleagues();
+
+    // Read conversationId from URL if navigated from header or notification
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const convParam = params.get("conversationId");
+      if (convParam) {
+        const id = parseInt(convParam, 10);
+        if (!isNaN(id)) {
+          setActiveConversationId(id);
+        }
+      }
+    }
   }, []);
 
   // Fast background polling & Window Focus Listener for instant sync

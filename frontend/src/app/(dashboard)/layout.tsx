@@ -10,7 +10,7 @@ import {
   LayoutDashboard, CalendarCheck, Briefcase, UserCircle,
   Users, ShieldCheck, PanelLeftClose, PanelLeftOpen,
   FolderKanban, CheckSquare, Clock, Building2, HeartHandshake, HelpCircle,
-  Search, Rocket, Bell, Settings, Puzzle, Laptop, StickyNote
+  Search, Rocket, Bell, Settings, Puzzle, Laptop, StickyNote, MessageSquare
 } from "lucide-react";
 import { NotificationDropdown } from "@/components/layout/NotificationDropdown";
 import { RecognitionTicker } from "@/components/layout/RecognitionTicker";
@@ -24,6 +24,7 @@ import { DashboardPageLoader, PageLoader } from "@/components/ui/PageLoader";
 import { setAuthCookie, clearAuthCookie } from "@/lib/authCookies";
 import { StickyNotesWidget } from "@/components/sticky-notes/StickyNotesWidget";
 import { useStickyNotesStore } from "@/store/stickyNotesStore";
+import { useChatPushNotifications } from "@/hooks/useChatPushNotifications";
 
 type NavItem = {
   href: string;
@@ -224,6 +225,7 @@ function pathBelongsToGroup(group: NavGroup, pathname: string, currentTab?: stri
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, user, logout, updateUser } = useAuthStore();
   const { toggleStickyNotes, notesCount } = useStickyNotesStore();
+  const { unreadChatCount, latestConversationId } = useChatPushNotifications();
   const isDark = useThemeStore((state) => state.isDark);
   const router = useRouter();
   const pathname = usePathname();
@@ -984,6 +986,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </span>
                   )}
                 </button>
+
+                {/* Quick Chat Header Action */}
+                <Link
+                  href={latestConversationId ? `/community?tab=chat&conversationId=${latestConversationId}` : "/community?tab=chat"}
+                  className="p-2 text-white hover:text-white rounded-full hover:bg-white/15 transition-colors cursor-pointer shrink-0 relative"
+                  title={unreadChatCount > 0 ? `${unreadChatCount} new message(s) - Open Direct Chat` : "Direct Chat"}
+                  aria-label="Open Direct Chat"
+                >
+                  <MessageSquare className="w-5 h-5 text-white" />
+                  {unreadChatCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-[#ef4444] text-white text-[10px] font-black rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 leading-none shadow-xs border border-white/60 animate-pulse">
+                      {unreadChatCount > 99 ? "99+" : unreadChatCount}
+                    </span>
+                  )}
+                </Link>
 
                 <NotificationDropdown />
 

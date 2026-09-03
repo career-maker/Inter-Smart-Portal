@@ -663,6 +663,7 @@ Route::middleware('auth:sanctum')->prefix('direct-chat')->group(function () {
     Route::post('conversations/{conversation}/messages', [\App\Http\Controllers\Api\DirectChatController::class, 'sendMessage']);
     Route::post('conversations/{conversation}/read', [\App\Http\Controllers\Api\DirectChatController::class, 'markAsRead']);
     Route::post('heartbeat', [\App\Http\Controllers\Api\DirectChatController::class, 'heartbeat']);
+    Route::get('unread-count', [\App\Http\Controllers\Api\DirectChatController::class, 'unreadCount']);
 
     // Super Admin Chat Audit & Deletion
     Route::get('admin/conversations', [\App\Http\Controllers\Api\DirectChatController::class, 'adminGetAllConversations']);
