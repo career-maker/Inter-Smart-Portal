@@ -22,6 +22,7 @@ import Script from "next/script";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 import { DashboardPageLoader, PageLoader } from "@/components/ui/PageLoader";
 import { setAuthCookie, clearAuthCookie } from "@/lib/authCookies";
+import { StickyNotesWidget } from "@/components/sticky-notes/StickyNotesWidget";
 
 type NavItem = {
   href: string;
@@ -1204,6 +1205,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
         </div>
       )}
+
+      {/* Floating Sticky Notes Widget (Available across all user roles) */}
+      <StickyNotesWidget />
     </div>
   );
 }

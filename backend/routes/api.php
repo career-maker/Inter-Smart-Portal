@@ -690,4 +690,14 @@ Route::middleware('auth:sanctum')->prefix('admin/emergency-contacts')->group(fun
     Route::post('reorder', [\App\Http\Controllers\Api\EmergencyContactController::class, 'reorder']);
 });
 
+// Sticky Notes routes (Accessible to all authenticated user roles)
+Route::middleware('auth:sanctum')->prefix('sticky-notes')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Api\StickyNoteController::class, 'index']);
+    Route::post('/', [\App\Http\Controllers\Api\StickyNoteController::class, 'store']);
+    Route::put('{id}', [\App\Http\Controllers\Api\StickyNoteController::class, 'update']);
+    Route::delete('clear', [\App\Http\Controllers\Api\StickyNoteController::class, 'clear']);
+    Route::delete('{id}', [\App\Http\Controllers\Api\StickyNoteController::class, 'destroy']);
+});
+
+
 
