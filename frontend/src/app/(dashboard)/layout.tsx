@@ -922,7 +922,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   <img
                     src="/logo.png"
                     alt="Inter Smart Logo"
-                    className="h-6 sm:h-9 w-auto max-w-[130px] sm:max-w-none object-contain object-left brightness-0 invert"
+                    className="h-6 sm:h-9 w-auto max-w-[105px] sm:max-w-none object-contain object-left brightness-0 invert"
                   />
                 </Link>
               </div>
@@ -950,15 +950,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </div>
 
               {/* Right: Actions & User Avatar */}
-              <div className="flex items-center gap-1 sm:gap-3 shrink-0 ml-auto">
+              <div className="flex items-center gap-0.5 sm:gap-2 shrink-0 ml-auto">
                 {/* Mobile search trigger */}
                 <button
                   type="button"
                   onClick={() => setSearchModalOpen(true)}
-                  className="p-1.5 text-white/90 hover:text-white rounded-full hover:bg-white/10 sm:hidden transition-colors cursor-pointer shrink-0"
+                  className="p-1 text-white/90 hover:text-white rounded-full hover:bg-white/10 sm:hidden transition-colors cursor-pointer shrink-0"
                   aria-label="Search"
                 >
-                  <Search className="w-5 h-5" />
+                  <Search className="w-4.5 h-4.5" />
                 </button>
 
                 <button
@@ -969,19 +969,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   <Rocket className="w-5 h-5 text-white" />
                 </button>
 
-                <BookmarksDropdown />
+                {/* Bookmarks (Hidden on small mobile to prevent header overflow) */}
+                <div className="hidden sm:block">
+                  <BookmarksDropdown />
+                </div>
 
                 {/* macOS Sticky Notes Header Action */}
                 <button
                   type="button"
                   onClick={toggleStickyNotes}
-                  className="p-2 text-white hover:text-white rounded-full hover:bg-white/15 transition-colors cursor-pointer shrink-0 relative"
+                  className="p-1 sm:p-2 text-white hover:text-white rounded-full hover:bg-white/15 transition-colors cursor-pointer shrink-0 relative"
                   title="Sticky Notes (macOS Stickies)"
                   aria-label="Toggle Sticky Notes"
                 >
-                  <StickyNote className="w-5 h-5 text-white" />
+                  <StickyNote className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-white" />
                   {notesCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-white/20 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 leading-none border border-white/40 backdrop-blur-xs">
+                    <span className="absolute -top-1 -right-1 bg-white/20 text-white text-[9.5px] font-bold rounded-full min-w-[16px] sm:min-w-[18px] h-[16px] sm:h-[18px] flex items-center justify-center px-1 leading-none border border-white/40 backdrop-blur-xs">
                       {notesCount > 99 ? '99+' : notesCount}
                     </span>
                   )}
@@ -990,13 +993,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 {/* Quick Chat Header Action */}
                 <Link
                   href={latestConversationId ? `/community?tab=chat&conversationId=${latestConversationId}` : "/community?tab=chat"}
-                  className="p-2 text-white hover:text-white rounded-full hover:bg-white/15 transition-colors cursor-pointer shrink-0 relative"
+                  className="p-1 sm:p-2 text-white hover:text-white rounded-full hover:bg-white/15 transition-colors cursor-pointer shrink-0 relative"
                   title={unreadChatCount > 0 ? `${unreadChatCount} new message(s) - Open Direct Chat` : "Direct Chat"}
                   aria-label="Open Direct Chat"
                 >
-                  <MessageSquare className="w-5 h-5 text-white" />
+                  <MessageSquare className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-white" />
                   {unreadChatCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-[#ef4444] text-white text-[10px] font-black rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 leading-none shadow-xs border border-white/60 animate-pulse">
+                    <span className="absolute -top-1 -right-1 bg-[#ef4444] text-white text-[9.5px] font-black rounded-full min-w-[16px] sm:min-w-[18px] h-[16px] sm:h-[18px] flex items-center justify-center px-1 leading-none shadow-xs border border-white/60 animate-pulse">
                       {unreadChatCount > 99 ? "99+" : unreadChatCount}
                     </span>
                   )}
@@ -1006,7 +1009,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
                 <Link
                   href="/profile"
-                  className="flex items-center p-0.5 sm:p-1 rounded-full hover:bg-white/15 transition-colors cursor-pointer shrink-0"
+                  className="flex items-center p-0.5 sm:p-1 rounded-full hover:bg-white/15 transition-colors cursor-pointer shrink-0 ml-0.5"
                   title={`${user?.first_name} ${user?.last_name}`}
                 >
                   <RoyalAvatar
