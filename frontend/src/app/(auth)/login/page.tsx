@@ -225,7 +225,7 @@ export default function LoginPage() {
                   }}
                   placeholder="name@intersmart.in"
                   required
-                  className={`w-full px-4 py-3 bg-white/5 border rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:border-transparent transition ${
+                  className={`auth-input w-full px-4 py-3 bg-white/5 border rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:border-transparent transition ${
                     fieldErrors.email
                       ? "border-red-500 focus:ring-red-500"
                       : "border-white/10 focus:ring-amber-500"
@@ -250,7 +250,7 @@ export default function LoginPage() {
                     }}
                     placeholder="••••••••"
                     required
-                    className={`w-full px-4 py-3 bg-white/5 border rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:border-transparent transition pr-12 ${
+                    className={`auth-input w-full px-4 py-3 bg-white/5 border rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:border-transparent transition pr-12 ${
                       fieldErrors.password
                         ? "border-red-500 focus:ring-red-500"
                         : "border-white/10 focus:ring-amber-500"
@@ -259,9 +259,11 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition"
+                    tabIndex={-1}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors focus:outline-none z-10"
                   >
-                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    {showPassword ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
                   </button>
                 </div>
 

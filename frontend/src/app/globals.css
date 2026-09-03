@@ -25,6 +25,27 @@
     font-weight: 400;
     letter-spacing: normal;
   }
+
+  /* Disable Microsoft Edge / IE native password reveal & clear buttons to prevent white overlay */
+  input::-ms-reveal,
+  input::-ms-clear {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    pointer-events: none !important;
+  }
+}
+
+/* Auth dark inputs autofill styling (keeps sleek dark glassmorphism) */
+.auth-input:-webkit-autofill,
+.auth-input:-webkit-autofill:hover, 
+.auth-input:-webkit-autofill:focus, 
+.auth-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 50px #0f172a inset !important;
+  -webkit-text-fill-color: #f8fafc !important;
+  caret-color: #f8fafc !important;
+  border-radius: 0.75rem !important;
+  transition: background-color 5000s ease-in-out 0s;
 }
 
 /* ── Universal Box / Card / Widget Title Typography (Proxima Nova 500 13px/20px rgb(15, 24, 36)) ── */
