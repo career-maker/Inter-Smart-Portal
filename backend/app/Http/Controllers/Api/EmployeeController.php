@@ -535,5 +535,50 @@ class EmployeeController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Search employee directory for all authenticated users (ID Card search).
+     */
+    public function searchDirectory(Request $request)
+    {
+        $search = trim($request->input('search', ''));
+        $query = User::select([
+            'id', 'first_name', 'last_name', 'email', 'employee_code',
+            'designation', 'profile_photo_path', 'team_id', 'status', 'joining_date'
+        ])->with(['team:id,name', 'roles:id,name']);
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('employee_code', 'like', "%{$search}%")
+                  ->orWhere('designation', 'like', "%{$search}%");
+            });
+        }
+
+        $employees = $query->orderBy('first_name')->limit(20)->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'data' => $employees->map(function ($emp) {
+                    return [
+                        'id' => $emp->id,
+                        'first_name' => $emp->first_name,
+                        'last_name' => $emp->last_name,
+                        'name' => trim($emp->first_name . ' ' . ($emp->last_name ?? '')),
+                        'email' => $emp->email,
+                        'employee_code' => $emp->employee_code,
+                        'designation' => $emp->designation,
+                        'profile_photo_path' => $emp->profilePhotoUrl(),
+                        'team' => $emp->team ? $emp->team->name : null,
+                        'role' => $emp->primaryRoleName(),
+                        'joining_date' => $emp->joining_date,
+                    ];
+                })
+            ]
+        ]);
+    }
 }
 

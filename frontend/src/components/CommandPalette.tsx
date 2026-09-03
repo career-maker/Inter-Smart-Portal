@@ -87,7 +87,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
     queryKey: ["employees-search", search, isEmployeeSearchMode],
     queryFn: async () => {
       const q = search.trim();
-      const endpoint = q.length >= 1 ? `/employees?search=${encodeURIComponent(q)}&per_page=8` : `/employees?per_page=8`;
+      const endpoint = q.length >= 1 ? `/employees-search?search=${encodeURIComponent(q)}` : `/employees-search`;
       try {
         const res = await api.get(endpoint);
         return res.data?.data?.data || [];
@@ -374,8 +374,8 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
 
   const handleActionClick = (action: any) => {
     if (action.isSearchAction) {
-      setIsEmployeeSearchMode(true);
-      setTimeout(() => inputRef.current?.focus(), 50);
+      setSelectedEmployeeForCard({ id: null, searchMode: true });
+      onOpenChange(false);
       return;
     }
     if (action.href) {

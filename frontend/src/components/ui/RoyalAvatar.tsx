@@ -152,34 +152,6 @@ export function RoyalName({
           (name && checkTopAwardee(name))
         );
 
-  if (isEligible) {
-    // Strip any conflicting neutral text colors (e.g. text-white, text-slate-*, text-gray-*)
-    const safeClasses = className
-      .replace(/\btext-(white|slate|gray|zinc|neutral|stone|black)(-[^\s]+)?\b/gi, "")
-      .trim();
-
-    return (
-      <span
-        title="Most Awarded Employee (Honorary Royal Gold)"
-        className={cn(
-          "inline-flex items-center gap-1.5 font-black text-amber-500 dark:text-amber-300 drop-shadow-[0_0_12px_rgba(251,191,36,0.5)] tracking-wide",
-          safeClasses
-        )}
-        style={{ color: "#d97706", ...style }}
-      >
-        <span
-          className="font-black text-amber-500 dark:text-amber-300 tracking-wide"
-          style={{ color: "#d97706", textShadow: "0 0 12px rgba(251,191,36,0.45)" }}
-        >
-          {name}
-        </span>
-        {showCrownIcon && (
-          <Crown className="w-3.5 h-3.5 fill-amber-500 text-amber-500 dark:fill-amber-300 dark:text-amber-300 shrink-0 inline animate-bounce" />
-        )}
-      </span>
-    );
-  }
-
   const resolvedStyle = { ...style };
   // Only force white color when text-white is an explicit standalone class token,
   // NOT when it appears as a suffix of "dark:text-white" etc.
@@ -189,8 +161,8 @@ export function RoyalName({
   }
 
   return (
-    <span className={className} style={resolvedStyle}>
-      {name}
+    <span className={cn("inline-flex items-center gap-1", className)} style={resolvedStyle}>
+      <span>{name}</span>
     </span>
   );
 }

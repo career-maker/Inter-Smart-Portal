@@ -1165,19 +1165,36 @@ export function DirectChatModule() {
             </div>
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-[#f0f2f5]/40 dark:bg-slate-900">
-            <div className="w-16 h-16 rounded-3xl bg-[#56348f]/10 text-[#56348f] flex items-center justify-center mb-3 shadow-xs">
-              <Sparkles className="w-8 h-8" />
+          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center relative overflow-hidden bg-gradient-to-tr from-purple-50/50 via-white to-white dark:from-purple-950/20 dark:via-slate-900 dark:to-slate-900">
+            {/* Background Ambient Soft Circles matching design */}
+            <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-purple-200/30 dark:bg-purple-900/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-10 -left-10 w-72 h-72 bg-indigo-100/30 dark:bg-indigo-950/10 rounded-full blur-2xl pointer-events-none" />
+
+            {/* Overlapping Chat Bubbles Illustration (Matching Screenshot 5) */}
+            <div className="relative w-24 h-20 mb-5 flex items-center justify-center select-none z-10">
+              {/* Back Chat Bubble */}
+              <div className="absolute top-1 right-2 w-14 h-12 bg-purple-300/40 dark:bg-purple-700/30 rounded-2xl rounded-br-sm shadow-xs" />
+              
+              {/* Floating little sparkles */}
+              <div className="absolute -top-1 left-2 w-2 h-2 rounded-full bg-purple-400/60 animate-pulse" />
+              <div className="absolute bottom-1 -left-1 w-1.5 h-1.5 rounded-full bg-indigo-400/60" />
+              <div className="absolute -top-2 right-0 text-purple-400 text-xs">✦</div>
+
+              {/* Front Main Chat Bubble */}
+              <div className="relative z-10 w-16 h-13 bg-gradient-to-br from-purple-100 via-purple-50 to-indigo-100 dark:from-purple-900/60 dark:to-slate-800 rounded-2xl rounded-bl-sm shadow-md border border-purple-200/60 dark:border-purple-700/40 flex items-center justify-center">
+                <Sparkles className="w-6 h-6 text-[#56348f] dark:text-purple-300" />
+              </div>
             </div>
-            <h3 className="text-base font-bold text-slate-800 dark:text-slate-100">
+
+            <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100 relative z-10">
               InterSmart Direct Chat
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs mt-1">
+            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mt-1.5 leading-relaxed relative z-10">
               Select a conversation to start chatting, or click New Chat to message a colleague.
             </p>
             <button
               onClick={() => setShowNewChatModal(true)}
-              className="mt-4 px-4 py-2 bg-[#56348f] hover:bg-[#452875] text-white rounded-full text-xs font-bold shadow-sm transition-all cursor-pointer inline-flex items-center gap-1.5"
+              className="mt-5 px-6 py-2.5 bg-[#56348f] hover:bg-[#452875] text-white rounded-full text-xs font-bold shadow-md shadow-[#56348f]/20 transition-all hover:scale-105 active:scale-95 cursor-pointer inline-flex items-center gap-2 relative z-10"
             >
               <Plus className="w-4 h-4 stroke-[2.5]" />
               <span>Start New Chat</span>
