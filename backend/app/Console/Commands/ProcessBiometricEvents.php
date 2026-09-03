@@ -36,25 +36,44 @@ class ProcessBiometricEvents extends Command
                 return self::FAILURE;
             }
         } else {
-            // Automatic bounded processing mode
-            $ids = \App\Models\BiometricEvent::where('processing_status', 'pending')
-                ->orderBy('id', 'asc')
-                ->limit(100)
-                ->pluck('id')
-                ->toArray();
-                
-            if (empty($ids)) {
-                $this->info('No pending events to process.');
-                return self::SUCCESS;
-            }
-        }
+            // Automatic bounded processing mode - drain pending queue in safe chunks
+            $totalProcessed = 0;
+            $totalErrors    = 0;
+            $batches        = 0;
+            $maxBatches     = app()->environment('testing') ? 1 : 15;
 
-        $this->info(sprintf('Processing %d biometric events...', count($ids)));
-        
-        $results = $processor->processEvents($ids);
-        
-        $this->info(sprintf('Processed: %d, Errors: %d', $results['processed'], $results['errors']));
-        
-        return self::SUCCESS;
+            while ($batches < $maxBatches) {
+                $ids = \App\Models\BiometricEvent::where('processing_status', 'pending')
+                    ->orderBy('id', 'asc')
+                    ->limit(100)
+                    ->pluck('id')
+                    ->toArray();
+
+                if (empty($ids)) {
+                    if ($batches === 0) {
+                        $this->info('No pending events to process.');
+                    }
+                    break;
+                }
+
+                $this->info(sprintf('Processing %d biometric events...', count($ids)));
+                $results = $processor->processEvents($ids);
+                $totalProcessed += $results['processed'];
+                $totalErrors    += $results['errors'];
+                $batches++;
+
+                if (count($ids) < 100) {
+                    break;
+                }
+            }
+
+            if ($batches > 1) {
+                $this->info(sprintf('Finished clearing queue. Total Processed: %d, Errors: %d across %d batches', $totalProcessed, $totalErrors, $batches));
+            } elseif ($batches === 1) {
+                $this->info(sprintf('Processed: %d, Errors: %d', $totalProcessed, $totalErrors));
+            }
+
+            return self::SUCCESS;
+        }
     }
 }

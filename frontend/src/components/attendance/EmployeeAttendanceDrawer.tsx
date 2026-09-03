@@ -139,7 +139,7 @@ export function EmployeeAttendanceDrawer({
         />
 
         {/* Drawer Panel */}
-        <div className="fixed inset-y-0 right-0 max-w-lg w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-50 animate-in slide-in-from-right duration-300">
+        <div className="fixed inset-y-0 right-0 max-w-xl sm:max-w-2xl w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-50 animate-in slide-in-from-right duration-300">
           {/* ── HEADER ── */}
           <div className="relative p-6 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-b from-purple-50/80 via-purple-50/30 to-white dark:from-slate-800 dark:to-slate-900 shrink-0">
             {/* Close Button */}

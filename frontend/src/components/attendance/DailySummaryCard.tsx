@@ -117,60 +117,64 @@ export function DailySummaryCard({
         )}
 
         {/* Main Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {/* First Check-In */}
-          <div className="p-4 rounded-2xl bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200/90 dark:border-emerald-800/70 shadow-xs space-y-1">
-            <div className="flex items-center justify-between">
-              <p className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">
+          <div className="p-3 sm:p-4 rounded-2xl bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200/90 dark:border-emerald-800/70 shadow-xs flex flex-col justify-between min-w-0 overflow-hidden space-y-1">
+            <div className="flex items-center justify-between gap-1">
+              <p className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-emerald-800 dark:text-emerald-300 truncate">
                 First Check-In
               </p>
-              <LogIn className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
+              <LogIn className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400 shrink-0" />
             </div>
-            <p className="text-xl sm:text-2xl font-black text-emerald-950 dark:text-emerald-100 font-mono tracking-tight">
+            <p className="text-base sm:text-lg lg:text-xl font-black text-emerald-950 dark:text-emerald-100 font-mono tracking-tight truncate">
               {formatTime(attendance.first_in)}
             </p>
           </div>
 
-          {/* Last Check-Out */}
-          <div className="p-4 rounded-2xl bg-rose-50/80 dark:bg-rose-950/40 border border-rose-200/90 dark:border-rose-800/70 shadow-xs space-y-1">
-            <div className="flex items-center justify-between">
-              <p className="text-[11px] font-extrabold uppercase tracking-wider text-rose-800 dark:text-rose-300">
+          {/* Last Check-Out / Latest Activity */}
+          <div className="p-3 sm:p-4 rounded-2xl bg-rose-50/80 dark:bg-rose-950/40 border border-rose-200/90 dark:border-rose-800/70 shadow-xs flex flex-col justify-between min-w-0 overflow-hidden space-y-1">
+            <div className="flex items-center justify-between gap-1">
+              <p className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-rose-800 dark:text-rose-300 truncate">
                 {isCurrentlyWorking ? "Latest Activity" : "Final Check-Out"}
               </p>
-              <LogOut className="w-3.5 h-3.5 text-rose-700 dark:text-rose-400" />
+              <LogOut className="w-3.5 h-3.5 text-rose-700 dark:text-rose-400 shrink-0" />
             </div>
-            <p className="text-xl sm:text-2xl font-black text-rose-950 dark:text-rose-100 font-mono tracking-tight">
+            <p className={`font-black text-rose-950 dark:text-rose-100 tracking-tight truncate ${
+              isCurrentlyWorking ? "text-sm sm:text-base font-bold" : "text-base sm:text-lg lg:text-xl font-mono"
+            }`}>
               {isCurrentlyWorking ? "Still Working" : formatTime(attendance.last_out)}
             </p>
           </div>
 
           {/* Total Working Hours */}
-          <div className="p-4 rounded-2xl bg-purple-50/80 dark:bg-purple-950/40 border border-purple-200/90 dark:border-purple-800/70 shadow-xs space-y-1">
-            <div className="flex items-center justify-between">
-              <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#56348f] dark:text-purple-300">
+          <div className="p-3 sm:p-4 rounded-2xl bg-purple-50/80 dark:bg-purple-950/40 border border-purple-200/90 dark:border-purple-800/70 shadow-xs flex flex-col justify-between min-w-0 overflow-hidden space-y-1">
+            <div className="flex items-center justify-between gap-1">
+              <p className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-[#56348f] dark:text-purple-300 truncate">
                 Total Worked
               </p>
-              <Clock className="w-3.5 h-3.5 text-purple-700 dark:text-purple-400" />
+              <Clock className="w-3.5 h-3.5 text-purple-700 dark:text-purple-400 shrink-0" />
             </div>
-            <p className="text-xl sm:text-2xl font-black text-purple-950 dark:text-purple-100 tracking-tight">
+            <p className="text-base sm:text-lg lg:text-xl font-black text-purple-950 dark:text-purple-100 tracking-tight truncate">
               {formatMinutesToHours(attendance.total_working_minutes)}
             </p>
           </div>
 
           {/* Breaks */}
-          <div className="p-4 rounded-2xl bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200/90 dark:border-amber-800/70 shadow-xs space-y-0.5">
-            <div className="flex items-center justify-between">
-              <p className="text-[11px] font-extrabold uppercase tracking-wider text-amber-800 dark:text-amber-300">
+          <div className="p-3 sm:p-4 rounded-2xl bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200/90 dark:border-amber-800/70 shadow-xs flex flex-col justify-between min-w-0 overflow-hidden space-y-0.5">
+            <div className="flex items-center justify-between gap-1">
+              <p className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-amber-800 dark:text-amber-300 truncate">
                 Breaks
               </p>
-              <Coffee className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
+              <Coffee className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400 shrink-0" />
             </div>
-            <p className="text-xl sm:text-2xl font-black text-amber-950 dark:text-amber-100 tracking-tight">
-              {totalBreaks} {totalBreaks === 1 ? "break" : "breaks"}
-            </p>
-            <p className="text-[11px] font-bold text-amber-800/90 dark:text-amber-300">
-              ({formatMinutesToHours(attendance.total_completed_break_minutes)})
-            </p>
+            <div>
+              <p className="text-base sm:text-lg lg:text-xl font-black text-amber-950 dark:text-amber-100 tracking-tight truncate">
+                {totalBreaks} {totalBreaks === 1 ? "break" : "breaks"}
+              </p>
+              <p className="text-[10px] sm:text-[11px] font-bold text-amber-800/90 dark:text-amber-300 truncate">
+                ({formatMinutesToHours(attendance.total_completed_break_minutes)})
+              </p>
+            </div>
           </div>
         </div>
 
