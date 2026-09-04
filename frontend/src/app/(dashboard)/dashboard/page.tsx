@@ -44,7 +44,7 @@ import {
 import Link from "next/link";
 import { format, parseISO } from "date-fns";
 import { DotLottiePlayer } from "@dotlottie/react-player";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { AttendanceWidget } from "@/components/dashboard/AttendanceWidget";
 import { CertificateModal } from "@/components/recognition/CertificateModal";
 import { AchievementFlipCard } from "@/components/recognition/AchievementFlipCard";
@@ -1865,28 +1865,29 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
         onOpenChange={(open) => !open && setLeaveModalData(null)}
       >
         <DialogContent
-          className="sm:max-w-md bg-slate-900 border-slate-800 !text-white"
-          style={{ color: "#ffffff" }}
+          className="sm:max-w-md bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white p-0 overflow-hidden flex flex-col shadow-2xl"
         >
-          <DialogHeader className="!bg-transparent !border-none !shadow-none p-0 pb-2 border-b border-slate-800">
-            <DialogTitle
-              className="!text-white text-base font-bold flex items-center justify-between"
-              style={{ color: "#ffffff" }}
-            >
-              <span style={{ color: "#ffffff" }}>{leaveModalData?.title}</span>
-              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-200 border border-slate-700">
-                {leaveModalData?.list.length || 0}
-              </span>
-            </DialogTitle>
-          </DialogHeader>
+          {/* Header with Royal Purple gradient accent matching other drawers */}
+          <div className="relative px-6 py-5 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-b from-purple-50/80 via-purple-50/30 to-white dark:from-slate-850 dark:to-slate-900 shrink-0">
+            <div className="flex items-center justify-between pr-8">
+              <DialogTitle className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2.5">
+                <span>{leaveModalData?.title}</span>
+                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#56348f]/10 text-[#56348f] dark:bg-purple-900/40 dark:text-purple-300 border border-purple-200/60 dark:border-purple-800/50">
+                  {leaveModalData?.list.length || 0}
+                </span>
+              </DialogTitle>
+            </div>
+            <DialogDescription className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              Click any employee to view their date-filtered attendance timeline
+            </DialogDescription>
+          </div>
 
-          <p className="text-xs text-slate-400 mt-2 mb-1">
-            Click any employee to view their date-filtered attendance timeline:
-          </p>
-
-          <div className="max-h-[75vh] overflow-y-auto space-y-2.5 mt-2 !bg-transparent !border-none !shadow-none p-0 custom-scrollbar pr-1">
+          {/* Employee List Container */}
+          <div className="flex-1 max-h-[calc(100vh-120px)] overflow-y-auto p-5 space-y-2.5 bg-slate-50/50 dark:bg-slate-900/50 custom-scrollbar">
             {leaveModalData?.list.length === 0 ? (
-              <p className="text-sm text-slate-400 text-center py-8">No employees to show.</p>
+              <div className="text-center py-12 text-slate-400 text-sm">
+                No employees to show.
+              </div>
             ) : (
               leaveModalData?.list.map((item: any, idx: number) => {
                 const empId = item.id;
@@ -1899,8 +1900,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                     key={idx}
                     type="button"
                     onClick={() => handleSelectEmployee(item)}
-                    style={{ color: "#ffffff" }}
-                    className="w-full flex items-center justify-between p-3.5 bg-slate-800/90 hover:bg-slate-750 border border-slate-700/80 hover:border-purple-500/50 rounded-xl transition-all group text-left cursor-pointer shadow-2xs"
+                    className="w-full flex items-center justify-between p-3.5 bg-white hover:bg-purple-50/50 dark:bg-slate-800/80 dark:hover:bg-slate-750 border border-slate-200/80 hover:border-[#56348f]/40 dark:border-slate-700/80 dark:hover:border-purple-500/50 rounded-xl transition-all group text-left cursor-pointer shadow-xs hover:shadow-sm"
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <RoyalAvatar
@@ -1908,28 +1908,24 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                         name={empName}
                         userId={empId}
                         employeeCode={empCode}
-                        className="w-10 h-10 rounded-full shrink-0 border border-slate-700 text-xs font-bold"
+                        className="w-10 h-10 rounded-full shrink-0 border border-slate-200 dark:border-slate-700 text-xs font-bold"
                       />
                       <div className="min-w-0">
-                        <p
-                          className="text-sm font-bold !text-white group-hover:!text-purple-300 transition-colors truncate"
-                          style={{ color: "#ffffff" }}
-                        >
+                        <p className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#56348f] dark:group-hover:text-purple-300 transition-colors truncate">
                           <RoyalName
                             name={empName}
                             userId={empId}
                             employeeCode={empCode}
-                            className="!text-white font-bold"
-                            style={{ color: "#ffffff" }}
+                            className="font-bold"
                           />
                         </p>
-                        <p className="text-xs text-slate-400 truncate mt-0.5">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5 font-medium">
                           {empSubtitle}
                           {empCode ? ` • Code: ${empCode}` : ""}
                         </p>
                       </div>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-purple-300 group-hover:translate-x-0.5 transition-all shrink-0 ml-2" />
+                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#56348f] dark:group-hover:text-purple-300 group-hover:translate-x-0.5 transition-all shrink-0 ml-2" />
                   </button>
                 );
               })
