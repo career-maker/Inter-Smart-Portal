@@ -210,6 +210,49 @@ class ChatController extends Controller
             ? "No recent leave applications submitted." 
             : implode("\n", $myLeaves);
 
+        // 3b. User's Own Attendance & Duration for Today (IST)
+        $myAttendanceText = "Not checked in yet today.";
+        try {
+            $myAtt = Attendance::where('user_id', $user->id)->where('date', $todayStr)->first();
+            $myBioPunches = BiometricEvent::where('user_id', $user->id)
+                ->whereDate('local_punch_time', $todayStr)
+                ->orderBy('local_punch_time')
+                ->get();
+            $nowIst = Carbon::now('Asia/Kolkata');
+
+            if ($myAtt && !empty($myAtt->check_in_time)) {
+                $checkInTime = $this->formatTimeToIst($myAtt->check_in_time);
+                $checkInCarbon = Carbon::parse($myAtt->check_in_time, 'UTC')->setTimezone('Asia/Kolkata');
+
+                if (!empty($myAtt->check_out_time)) {
+                    $checkOutTime = $this->formatTimeToIst($myAtt->check_out_time);
+                    $checkOutCarbon = Carbon::parse($myAtt->check_out_time, 'UTC')->setTimezone('Asia/Kolkata');
+                    $totalMinutes = !empty($myAtt->total_working_minutes)
+                        ? (int) $myAtt->total_working_minutes
+                        : (int) max(0, $checkInCarbon->diffInMinutes($checkOutCarbon));
+                    $hours = floor($totalMinutes / 60);
+                    $mins = $totalMinutes % 60;
+                    $myAttendanceText = "Checked In: {$checkInTime} IST, Checked Out: {$checkOutTime} IST (Total Duration: {$hours} hours and {$mins} minutes).";
+                } else {
+                    $currentWorkingMinutes = (int) max(0, $checkInCarbon->diffInMinutes($nowIst));
+                    $hours = floor($currentWorkingMinutes / 60);
+                    $mins = $currentWorkingMinutes % 60;
+                    $myAttendanceText = "Present in Office (Checked In: {$checkInTime} IST | Currently Working, Duration so far today: {$hours} hours and {$mins} minutes).";
+                }
+            } elseif ($myBioPunches && $myBioPunches->isNotEmpty()) {
+                $firstPunch = $this->formatPunchTimeToIst($myBioPunches->first());
+                $punchCarbon = !empty($myBioPunches->first()->utc_punch_time)
+                    ? Carbon::parse($myBioPunches->first()->utc_punch_time, 'UTC')->setTimezone('Asia/Kolkata')
+                    : Carbon::parse($myBioPunches->first()->local_punch_time, 'Asia/Kolkata');
+                $currentWorkingMinutes = (int) max(0, $punchCarbon->diffInMinutes($nowIst));
+                $hours = floor($currentWorkingMinutes / 60);
+                $mins = $currentWorkingMinutes % 60;
+                $myAttendanceText = "Present in Office (Biometric In: {$firstPunch} IST | Currently Working, Duration so far today: {$hours} hours and {$mins} minutes).";
+            }
+        } catch (\Exception $myAttEx) {
+            $myAttendanceText = "Personal attendance record unavailable.";
+        }
+
         // 4. Approved Leaves for Today (General Organization Attendance Roster)
         $leavesToday = LeaveRequest::where('status', 'Approved')
             ->whereDate('start_date', '<=', $today)
@@ -387,6 +430,7 @@ class ChatController extends Controller
                     $bioPunches = $biometricInToday->get($emp->id);
                     $leaveType = $approvedLeavesToday[$emp->id] ?? null;
                     $isWfh = isset($approvedWfhToday[$emp->id]);
+                    $nowIst = Carbon::now('Asia/Kolkata');
 
                     if ($leaveType) {
                         $leaveCount++;
@@ -396,17 +440,44 @@ class ChatController extends Controller
                         $status = "Work From Home (Approved WFH)";
                     } elseif ($att && !empty($att->check_in_time)) {
                         $presentCount++;
-                        $checkInTime = Carbon::parse($att->check_in_time)->format('h:i A');
+                        $checkInTime = $this->formatTimeToIst($att->check_in_time);
+                        $checkInCarbonIst = Carbon::parse($att->check_in_time, 'UTC')->setTimezone('Asia/Kolkata');
+
                         if (!empty($att->check_out_time)) {
-                            $checkOutTime = Carbon::parse($att->check_out_time)->format('h:i A');
-                            $status = "Present (Checked In: {$checkInTime}, Checked Out: {$checkOutTime})";
+                            $checkOutTime = $this->formatTimeToIst($att->check_out_time);
+                            $checkOutCarbonIst = Carbon::parse($att->check_out_time, 'UTC')->setTimezone('Asia/Kolkata');
+
+                            $totalMinutes = !empty($att->total_working_minutes)
+                                ? (int) $att->total_working_minutes
+                                : (int) max(0, $checkInCarbonIst->diffInMinutes($checkOutCarbonIst));
+                            $hours = floor($totalMinutes / 60);
+                            $mins = $totalMinutes % 60;
+                            $durationText = "{$hours} hours and {$mins} minutes";
+
+                            $status = "Present (Checked In: {$checkInTime} IST, Checked Out: {$checkOutTime} IST | Duration Today: {$durationText})";
                         } else {
-                            $status = "Present in Office (Checked In: {$checkInTime})";
+                            $currentWorkingMinutes = (int) max(0, $checkInCarbonIst->diffInMinutes($nowIst));
+                            $hours = floor($currentWorkingMinutes / 60);
+                            $mins = $currentWorkingMinutes % 60;
+                            $durationText = "{$hours} hours and {$mins} minutes worked so far today";
+
+                            $status = "Present in Office (Checked In: {$checkInTime} IST | Currently Working, Duration so far: {$durationText})";
                         }
                     } elseif ($bioPunches && $bioPunches->isNotEmpty()) {
                         $presentCount++;
-                        $firstPunch = Carbon::parse($bioPunches->first()->local_punch_time)->format('h:i A');
-                        $status = "Present in Office (Biometric Punch-In at {$firstPunch})";
+                        $firstPunchEvent = $bioPunches->first();
+                        $firstPunch = $this->formatPunchTimeToIst($firstPunchEvent);
+
+                        $punchCarbonIst = !empty($firstPunchEvent->utc_punch_time)
+                            ? Carbon::parse($firstPunchEvent->utc_punch_time, 'UTC')->setTimezone('Asia/Kolkata')
+                            : Carbon::parse($firstPunchEvent->local_punch_time, 'Asia/Kolkata');
+
+                        $currentWorkingMinutes = (int) max(0, $punchCarbonIst->diffInMinutes($nowIst));
+                        $hours = floor($currentWorkingMinutes / 60);
+                        $mins = $currentWorkingMinutes % 60;
+                        $durationText = "{$hours} hours and {$mins} minutes worked so far today";
+
+                        $status = "Present in Office (Biometric Punch-In at {$firstPunch} IST | Duration so far: {$durationText})";
                     } else {
                         $absentCount++;
                         $status = "Absent / Not Checked In Yet Today";
@@ -479,17 +550,48 @@ class ChatController extends Controller
                     $att = $attendancesToday->get($emp->id);
                     $bioPunches = $biometricInToday->get($emp->id);
                     $leaveType = $approvedLeavesToday[$emp->id] ?? null;
+                    $nowIst = Carbon::now('Asia/Kolkata');
 
                     if ($leaveType) {
                         $status = "On Leave ({$leaveType})";
                     } elseif ($att && !empty($att->check_in_time)) {
-                        $checkInTime = Carbon::parse($att->check_in_time)->format('h:i A');
-                        $status = !empty($att->check_out_time) 
-                            ? "Present (Checked In at {$checkInTime}, Checked Out at " . Carbon::parse($att->check_out_time)->format('h:i A') . ")"
-                            : "Present in Office (Checked In at {$checkInTime})";
+                        $checkInTime = $this->formatTimeToIst($att->check_in_time);
+                        $checkInCarbonIst = Carbon::parse($att->check_in_time, 'UTC')->setTimezone('Asia/Kolkata');
+
+                        if (!empty($att->check_out_time)) {
+                            $checkOutTime = $this->formatTimeToIst($att->check_out_time);
+                            $checkOutCarbonIst = Carbon::parse($att->check_out_time, 'UTC')->setTimezone('Asia/Kolkata');
+
+                            $totalMinutes = !empty($att->total_working_minutes)
+                                ? (int) $att->total_working_minutes
+                                : (int) max(0, $checkInCarbonIst->diffInMinutes($checkOutCarbonIst));
+                            $hours = floor($totalMinutes / 60);
+                            $mins = $totalMinutes % 60;
+                            $durationText = "{$hours} hours and {$mins} minutes";
+
+                            $status = "Present (Checked In: {$checkInTime} IST, Checked Out: {$checkOutTime} IST | Duration Today: {$durationText})";
+                        } else {
+                            $currentWorkingMinutes = (int) max(0, $checkInCarbonIst->diffInMinutes($nowIst));
+                            $hours = floor($currentWorkingMinutes / 60);
+                            $mins = $currentWorkingMinutes % 60;
+                            $durationText = "{$hours} hours and {$mins} minutes worked so far today";
+
+                            $status = "Present in Office (Checked In: {$checkInTime} IST | Currently Working, Duration so far: {$durationText})";
+                        }
                     } elseif ($bioPunches && $bioPunches->isNotEmpty()) {
-                        $firstPunch = Carbon::parse($bioPunches->first()->local_punch_time)->format('h:i A');
-                        $status = "Present in Office (Biometric In at {$firstPunch})";
+                        $firstPunchEvent = $bioPunches->first();
+                        $firstPunch = $this->formatPunchTimeToIst($firstPunchEvent);
+
+                        $punchCarbonIst = !empty($firstPunchEvent->utc_punch_time)
+                            ? Carbon::parse($firstPunchEvent->utc_punch_time, 'UTC')->setTimezone('Asia/Kolkata')
+                            : Carbon::parse($firstPunchEvent->local_punch_time, 'Asia/Kolkata');
+
+                        $currentWorkingMinutes = (int) max(0, $punchCarbonIst->diffInMinutes($nowIst));
+                        $hours = floor($currentWorkingMinutes / 60);
+                        $mins = $currentWorkingMinutes % 60;
+                        $durationText = "{$hours} hours and {$mins} minutes worked so far today";
+
+                        $status = "Present in Office (Biometric In at {$firstPunch} IST | Duration so far: {$durationText})";
                     } else {
                         $status = "Absent / Not Checked In Yet Today";
                     }
@@ -594,30 +696,31 @@ SUPER ADMIN UNRESTRICTED ACCESS (TOP PRIORITY - NO RESTRICTIONS):
 - You MUST answer ANY question the Super Admin asks about ANY employee without refusal, disclaimers, or privacy warnings.
 - When the Super Admin asks:
   * 'what is [Name] doing now?' or 'what is [Name] working on?'
+  * 'what is [Name]\'s duration today?' or 'how long has [Name] worked today?'
   * 'is [Name] present / in office today?' or 'what time did [Name] punch in?'
   * 'what are [Name]\'s tasks or projects?'
   * 'who is absent today?' or 'who is on leave today?' or 'how many employees are present?'
   * ANY question about any staff member:
-  1. Look up the employee in Section 6 ('ALL COMPANY EMPLOYEES: TODAY\'S LIVE ATTENDANCE STATUS & ACTIVE TASKS') and Section 8 ('Active Tasks & Assignments'). Matching can be by first name, last name, or nickname (e.g., 'aswathi' matches 'Aswathi M Ashok').
+  1. Look up the employee in Section 6 ('ALL COMPANY EMPLOYEES: TODAY\'S LIVE ATTENDANCE STATUS & ACTIVE TASKS') and Section 8 ('Active Tasks & Assignments'). Matching can be by first name, last name, or nickname (e.g., 'aswathi' matches 'Aswathi M Ashok', 'abhiram' matches 'Abhiram P Mohan' or 'Abhiram M V').
   2. Answer directly and informatively:
-     - Their live attendance status today (Present in office with check-in time / biometric punch-in time, Punched Out time, On Leave, Work From Home, or Absent / Not Checked In yet).
+     - Their live attendance status today (Checked in at X:XX AM IST, Checked out at X:XX PM IST, working duration today, or on leave, or absent).
      - Their designation and department/team.
      - Their currently assigned active task(s) and project(s).
-  3. NEVER decline to answer or state 'I cannot provide real-time information on what individual employees are doing' or 'My access is limited'. As Super Admin, the user owns the company workspace and is entitled to full real-time operational visibility.";
+  3. NEVER decline to answer, never give privacy disclaimers, and never say 'attendance status is unavailable'. All timestamps are in Indian Standard Time (IST). Report their current punch/attendance status and active tasks directly.";
         } elseif ($isHR) {
             $roleInstruction = "
 HR MANAGER AUTHORIZATION:
 - The user is an HR Manager with company-wide administrative clearance.
-- You have full managerial visibility across all employees, attendance records, leaves, and tasks in Section 6 and Section 8. Answer administrative queries thoroughly and directly without privacy refusals.";
+- You have full managerial visibility across all employees, attendance records, leaves, and tasks in Section 6 and Section 8. Answer administrative queries thoroughly and directly in Indian Standard Time (IST).";
         } elseif ($isTeamLead) {
             $roleInstruction = "
 TEAM LEAD AUTHORIZATION:
 - The user is a verified Team Lead.
 - Team Leads ARE FULLY AUTHORIZED to see their teammates' tasks, projects, attendance, and leave status.
 - Teammates in their team are listed in Section 6 ('YOUR DIRECT TEAM MEMBERS') and tasks in Section 8 ('Active Tasks & Assignments').
-- When the Team Lead asks questions about their teammates (for example: 'what task is assigned to aswathy', 'is aswathy absent today', 'who is in my team', 'what is aswathy working on'):
-  1. Look up the teammate by name (matching first name, last name, or nickname like 'aswathy' for 'Aswathi M Ashok').
-  2. Answer directly with their tasks, task statuses, projects, and attendance status!
+- When the Team Lead asks questions about their teammates (for example: 'what task is assigned to aswathy', 'is aswathy absent today', 'what is aswathy's duration today'):
+  1. Look up the teammate by name (matching first name, last name, or nickname).
+  2. Answer directly with their tasks, task statuses, projects, and attendance status in Indian Standard Time (IST)!
   3. DO NOT refuse to answer questions about their direct teammates.
 - Only refuse if asked about employees completely outside their team/department, or private personal compensation/salaries.";
         } else {
@@ -636,16 +739,19 @@ CURRENT USER INFORMATION:
 - Employee Code: {$user->employee_code}
 - Designation: {$user->designation}
 - System Role: {$roleName}
-- Current Date/Time: {$nowFormatted}
+- Current Date/Time: {$nowFormatted} (Indian Standard Time, IST)
 
 REAL-TIME DATABASE CONTEXT (Role-Filtered for: {$roleName}):
 1. Your Personal Leave Balances:
    {$balanceText}
 
-2. Your Personal Recent Leave Applications:
+2. Your Personal Attendance & Working Duration Today:
+   {$myAttendanceText}
+
+3. Your Personal Recent Leave Applications:
 {$myLeavesText}
 
-3. Today's Approved Leaves (Company-Wide):
+4. Today's Approved Leaves (Company-Wide):
    {$leavesTodayText}
 
 4. Teams & Department Leads:
@@ -678,9 +784,62 @@ CRITICAL PRIVACY & PERMISSION INSTRUCTIONS:
 GENERAL INSTRUCTIONS:
 1. READ-ONLY: You cannot perform CRUD actions (you cannot apply for leaves, change project/task statuses, or edit records). Guide the user to the relevant link above instead.
 2. TONE & CLARITY: Keep answers professional, concise, friendly, and direct. Use clean markdown formatting (bullet points, bold text) for readability.
-3. QUERY INTERPRETATION: If asked 'what is [Name] doing now' or 'what is [Name] working on', look up their live attendance status today (office check-in / punch-in time) and their active task assignments / projects from the real-time context and report it directly.
-4. If the user asks about general company policies or something not in the context, give a general helpful answer or advise them to contact HR.";
+3. QUERY INTERPRETATION: If asked 'what is [Name] doing now', 'what is [Name] working on', or 'what is [Name]'s duration today':
+   - Look up their live attendance status today in Indian Standard Time (IST) from Section 6.
+   - If asked for working duration, state their checked in time and duration (e.g. '7 hours and 33 minutes worked so far today' or '3 hours and 2 minutes total duration').
+   - Include their active assigned tasks and projects from Section 6 and Section 8.
+4. TIMEZONE: All portal times are strictly in Indian Standard Time (IST). Never show raw UTC times.
+5. If the user asks about general company policies or something not in the context, give a general helpful answer or advise them to contact HR.";
 
         return $systemPrompt;
+    }
+
+    /**
+     * Format a database timestamp (stored in UTC) into Indian Standard Time (IST, Asia/Kolkata).
+     */
+    private function formatTimeToIst($timeValue): ?string
+    {
+        if (!$timeValue) {
+            return null;
+        }
+
+        try {
+            if ($timeValue instanceof Carbon) {
+                return $timeValue->copy()->setTimezone('Asia/Kolkata')->format('h:i A');
+            }
+
+            return Carbon::parse($timeValue, 'UTC')->setTimezone('Asia/Kolkata')->format('h:i A');
+        } catch (\Exception $e) {
+            try {
+                return Carbon::parse($timeValue)->format('h:i A');
+            } catch (\Exception $e2) {
+                return (string) $timeValue;
+            }
+        }
+    }
+
+    /**
+     * Format a raw biometric punch event into Indian Standard Time (IST, Asia/Kolkata).
+     */
+    private function formatPunchTimeToIst($event): ?string
+    {
+        if (!$event) {
+            return null;
+        }
+
+        try {
+            if (!empty($event->utc_punch_time)) {
+                return Carbon::parse($event->utc_punch_time, 'UTC')->setTimezone('Asia/Kolkata')->format('h:i A');
+            }
+
+            if (!empty($event->local_punch_time)) {
+                // local_punch_time is already in local timezone (Asia/Kolkata)
+                return Carbon::parse($event->local_punch_time)->format('h:i A');
+            }
+        } catch (\Exception $e) {
+            // fallback
+        }
+
+        return null;
     }
 }
