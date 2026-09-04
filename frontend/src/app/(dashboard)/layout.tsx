@@ -25,6 +25,7 @@ import { setAuthCookie, clearAuthCookie } from "@/lib/authCookies";
 import { StickyNotesWidget } from "@/components/sticky-notes/StickyNotesWidget";
 import { useStickyNotesStore } from "@/store/stickyNotesStore";
 import { useChatPushNotifications } from "@/hooks/useChatPushNotifications";
+import ChatWidget from "@/components/ChatWidget";
 
 type NavItem = {
   href: string;
@@ -1309,6 +1310,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Floating Sticky Notes Widget (Available across all user roles) */}
       <StickyNotesWidget />
+
+      {/* Floating AI Portal Assistant Chat Widget */}
+      <ChatWidget />
     </div>
   );
 }

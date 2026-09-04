@@ -57,4 +57,9 @@ return [
         'auth_url' => env('HUBSTAFF_AUTH_URL', 'https://account.hubstaff.com/access_tokens'),
     ],
 
+    'gemini' => [
+        'api_key' => env('GEMINI_API_KEY'),
+        'model'   => env('GEMINI_MODEL', 'gemini-2.5-flash'),
+    ],
+
 ];
