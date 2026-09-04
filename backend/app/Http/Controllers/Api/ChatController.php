@@ -13,6 +13,9 @@ use App\Models\Holiday;
 use App\Models\LeaveBalance;
 use App\Models\LeaveRequest;
 use App\Models\Project;
+use App\Models\ProjectTask;
+use App\Models\Attendance;
+use App\Models\BiometricEvent;
 
 class ChatController extends Controller
 {
@@ -158,11 +161,12 @@ class ChatController extends Controller
 
     /**
      * Build the role-scoped system prompt with live DB context.
-     * Enforces strict data isolation so employees cannot access peer data, Hubstaff logs, or unassigned projects.
+     * Enforces strict data isolation for employees while empowering Team Leads with teammate data.
      */
     private function buildSystemPrompt(User $user): string
     {
         $today = Carbon::today('Asia/Kolkata');
+        $todayStr = $today->toDateString();
         $nowFormatted = Carbon::now('Asia/Kolkata')->format('l, d F Y h:i A');
 
         // 1. Determine User Role
@@ -170,7 +174,8 @@ class ChatController extends Controller
         $isHR = $user->hasRole('HR') || strtolower($user->role ?? '') === 'hr';
         $isTeamLead = $user->hasRole('Team Lead')
             || Team::where('team_lead_id', $user->id)->exists()
-            || strtolower($user->role ?? '') === 'team lead';
+            || strtolower($user->role ?? '') === 'team lead'
+            || str_contains(strtolower($user->designation ?? ''), 'lead');
 
         if ($isSuperAdmin) {
             $roleName = 'Super Admin';
@@ -236,7 +241,57 @@ class ChatController extends Controller
             ->toArray();
         $holidaysText = empty($holidays) ? "No upcoming holidays registered." : implode("\n", $holidays);
 
-        // 7. Projects & Team Members (Strictly Scoped by Role)
+        // 7. Team Lead: Teammates List & Today's Attendance
+        $leadTeamIds = [];
+        $teammatesText = "";
+        $teammateIds = [];
+
+        if ($isTeamLead) {
+            $leadTeamIds = Team::where('team_lead_id', $user->id)->pluck('id')->toArray();
+            if ($user->team_id && !in_array($user->team_id, $leadTeamIds)) {
+                $leadTeamIds[] = $user->team_id;
+            }
+
+            try {
+                $teammates = User::whereIn('team_id', $leadTeamIds)
+                    ->where('id', '!=', $user->id)
+                    ->where('status', 'Active')
+                    ->get(['id', 'first_name', 'last_name', 'employee_code', 'designation', 'team_id']);
+
+                $teammateIds = $teammates->pluck('id')->toArray();
+
+                $teammatesList = $teammates->map(function ($m) use ($todayStr) {
+                    $hasCheckIn = Attendance::where('user_id', $m->id)
+                        ->where('date', $todayStr)
+                        ->whereNotNull('check_in_time')
+                        ->exists();
+
+                    if (!$hasCheckIn) {
+                        $hasCheckIn = BiometricEvent::where('user_id', $m->id)
+                            ->whereDate('local_punch_time', $todayStr)
+                            ->where('direction', 'in')
+                            ->exists();
+                    }
+
+                    $isOnLeave = LeaveRequest::where('user_id', $m->id)
+                        ->where('status', 'Approved')
+                        ->where('start_date', '<=', $todayStr)
+                        ->where('end_date', '>=', $todayStr)
+                        ->exists();
+
+                    $status = $isOnLeave ? 'On Leave' : ($hasCheckIn ? 'Present' : 'Absent / Not Checked In');
+                    return "- {$m->first_name} {$m->last_name} (Code: {$m->employee_code}, Designation: {$m->designation}, Status Today: {$status})";
+                })->toArray();
+
+                $teammatesText = empty($teammatesList)
+                    ? "No other active members assigned to your team."
+                    : implode("\n", $teammatesList);
+            } catch (\Exception $e) {
+                $teammatesText = "Could not load team members.";
+            }
+        }
+
+        // 8. Projects & Team Members (Scoped by Role)
         try {
             $projectQuery = Project::query()->with([
                 'team:id,name',
@@ -246,7 +301,6 @@ class ChatController extends Controller
 
             if (!$isSuperAdmin && !$isHR) {
                 if ($isTeamLead) {
-                    $leadTeamIds = Team::where('team_lead_id', $user->id)->pluck('id')->toArray();
                     $projectQuery->where(function ($q) use ($user, $leadTeamIds) {
                         if (!empty($leadTeamIds)) {
                             $q->whereIn('team_id', $leadTeamIds);
@@ -274,7 +328,7 @@ class ChatController extends Controller
                 })->toArray();
                 $membersList = empty($members) ? "None assigned" : implode(', ', $members);
                 $status = $proj->status ?? 'Active';
-                return "- Project: \"{$proj->name}\" [Status: {$status}, Team: {$teamName}]\n  Coordinator: {$coordinatorName}\n  Working Members: {$membersList}";
+                return "- Project: \"{$proj->name}\" [Status: {$status}, Team: {$teamName}]\n  Coordinator: {$coordinatorName}\n  Members: {$membersList}";
             })->toArray();
 
             $projectsText = empty($projects)
@@ -284,7 +338,47 @@ class ChatController extends Controller
             $projectsText = "Project roster details unavailable.";
         }
 
-        // 8. Pending Approvals (For Team Leads & Admins)
+        // 9. Tasks & Assignments (Crucial for "what task is assigned to X")
+        try {
+            $taskQuery = ProjectTask::query()
+                ->whereNotIn('status', ['Completed', 'Rejected'])
+                ->with(['project:id,name', 'assignees:id,first_name,last_name']);
+
+            if ($isSuperAdmin || $isHR) {
+                // Admin sees company-wide active tasks
+                $tasks = $taskQuery->orderBy('due_date')->take(50)->get();
+            } elseif ($isTeamLead) {
+                // Team Lead sees all tasks assigned to their teammates or tasks in their team
+                $allTeamUserIds = array_merge([$user->id], $teammateIds);
+                $tasks = $taskQuery->where(function ($q) use ($leadTeamIds, $allTeamUserIds) {
+                    if (!empty($leadTeamIds)) {
+                        $q->whereIn('team_id', $leadTeamIds);
+                    }
+                    $q->orWhereHas('assignees', fn ($a) => $a->whereIn('users.id', $allTeamUserIds));
+                })->orderBy('due_date')->take(50)->get();
+            } else {
+                // Regular Employee sees ONLY their own assigned tasks
+                $tasks = $taskQuery->whereHas('assignees', fn ($a) => $a->where('users.id', $user->id))
+                    ->orderBy('due_date')->take(20)->get();
+            }
+
+            $formattedTasks = $tasks->map(function ($t) {
+                $projName = $t->project ? $t->project->name : 'General';
+                $assigneeNames = $t->assignees->map(fn($u) => "{$u->first_name} {$u->last_name}")->toArray();
+                $assigneeText = empty($assigneeNames) ? 'Unassigned' : implode(', ', $assigneeNames);
+                $dueText = $t->due_date ? Carbon::parse($t->due_date)->format('d M Y') : 'No due date';
+                $priority = $t->priority ?? 'Medium';
+                return "- Task: \"{$t->title}\" [Project: {$projName} | Status: {$t->status} | Priority: {$priority} | Due: {$dueText}]\n  Assignees: {$assigneeText}";
+            })->toArray();
+
+            $tasksText = empty($formattedTasks)
+                ? "No active task assignments found."
+                : implode("\n\n", $formattedTasks);
+        } catch (\Exception $e) {
+            $tasksText = "Task assignment details unavailable.";
+        }
+
+        // 10. Pending Approvals (For Team Leads & Admins)
         $pendingApprovalsText = "";
         if ($isSuperAdmin || $isHR) {
             $pendingCount = LeaveRequest::where('status', 'Pending')->count();
@@ -292,22 +386,20 @@ class ChatController extends Controller
                 $pendingApprovalsText = "Administrative Info: There are {$pendingCount} pending leave request(s) awaiting approval in the portal.";
             }
         } elseif ($isTeamLead) {
-            $leadTeamIds = Team::where('team_lead_id', $user->id)->pluck('id')->toArray();
-            $teamUserIds = User::whereIn('team_id', $leadTeamIds)->where('id', '!=', $user->id)->pluck('id')->toArray();
             $pendingList = LeaveRequest::where('status', 'Pending')
-                ->whereIn('user_id', $teamUserIds)
+                ->whereIn('user_id', $teammateIds)
                 ->with('user:id,first_name,last_name')
                 ->take(10)
                 ->get()
                 ->map(fn($r) => "- " . ($r->user ? "{$r->user->first_name} {$r->user->last_name}" : "Team member") . ": {$r->leave_type} ({$r->start_date} to {$r->end_date})")
                 ->toArray();
             if (!empty($pendingList)) {
-                $pendingApprovalsText = "Pending approvals for your team:\n" . implode("\n", $pendingList);
+                $pendingApprovalsText = "Pending approvals for your team members:\n" . implode("\n", $pendingList);
             }
         }
 
-        // 9. Build Master System Prompt with Role Guidance
-        $systemPrompt = "You are the Inter Smart Employee Portal AI Assistant. Your role is to answer questions about the portal, including leave applications, who is on leave today, team leads / departments, holidays, user profiles, and assigned projects.
+        // 11. Build Master System Prompt with Role Guidance
+        $systemPrompt = "You are the Inter Smart Employee Portal AI Assistant. Your role is to answer questions about the portal, including leave applications, who is on leave today, team leads / departments, holidays, user profiles, team members, and assigned tasks and projects.
 
 CURRENT USER INFORMATION:
 - Name: {$user->first_name} {$user->last_name}
@@ -317,25 +409,28 @@ CURRENT USER INFORMATION:
 - System Role: {$roleName}
 - Current Date/Time: {$nowFormatted}
 
-REAL-TIME DATABASE CONTEXT (Strictly filtered according to user role: {$roleName}):
-1. Your Leave Balances:
+REAL-TIME DATABASE CONTEXT (Role-Filtered for: {$roleName}):
+1. Your Personal Leave Balances:
    {$balanceText}
 
-2. Your Recent Leave Applications & Status:
+2. Your Personal Recent Leave Applications:
 {$myLeavesText}
 
-3. Today's Approved Leaves:
+3. Today's Approved Leaves (Company-Wide):
    {$leavesTodayText}
 
 4. Teams & Department Leads:
 {$teamsText}
 
-5. Upcoming Holidays:
+5. Upcoming Company Holidays:
 {$holidaysText}
-
-6. Accessible Projects & Members:
+" . ($isTeamLead ? "\n6. Your Direct Team Members & Attendance Status Today:\n{$teammatesText}\n" : "") . "
+7. Accessible Projects:
 {$projectsText}
-" . ($pendingApprovalsText ? "\n7. Supervised Approvals:\n{$pendingApprovalsText}\n" : "") . "
+
+8. Active Tasks & Assignments:
+{$tasksText}
+" . ($pendingApprovalsText ? "\n9. Supervised Approvals:\n{$pendingApprovalsText}\n" : "") . "
 
 PORTAL NAVIGATION LINKS:
 - Apply for Leave: `/leaves/apply`
@@ -343,16 +438,35 @@ PORTAL NAVIGATION LINKS:
 - Leave Calendar: `/calendar`
 - Attendance & Punch: `/attendance`
 - View Projects: `/project-management/projects`
+- View Tasks: `/project-management/tasks`
 - View My Tasks: `/project-management/tasks/my`
 - Profile Details: `/profile`
 - Company Policies: `/project-management/addons/leave-policy`
 
-CRITICAL PRIVACY & ACCESS CONTROL INSTRUCTIONS:
-1. STRICT ROLE-BASED PRIVACY: The user's role is '{$roleName}'. If an Employee asks for private data belonging to other employees (such as other employees' Hubstaff tracking, individual working hours, private leave balances, salaries, or unassigned projects), you MUST decline politely: 'For privacy reasons, I can only provide your own personal records and general company information. Access to peer tracking and records is restricted to Team Leads and Administrators.'
-2. PROJECTS VISIBILITY: Only discuss projects and members that appear in the 'Accessible Projects & Members' section above. If an employee asks about a project not listed, state clearly that they are not assigned to that project or do not have access permissions.
-3. READ-ONLY: You cannot perform CRUD actions (you cannot apply for leaves, change project statuses, or edit any database records). Guide the user to the relevant link above instead.
-4. TONE & CLARITY: Keep answers professional, concise, friendly, and under 3-4 sentences when possible. Use clean markdown formatting (bullet points, bold text) for readability.
-5. If the user asks about general company policies or something not in the context, give a general helpful answer or advise them to contact HR.";
+CRITICAL PRIVACY & PERMISSION INSTRUCTIONS:
+" . ($isTeamLead ? "
+TEAM LEAD AUTHORIZATION:
+- The user is a verified 'Team Lead'.
+- Team Leads ARE FULLY AUTHORIZED to see their teammates' tasks, projects, attendance, and leave status.
+- Teammates in their team are listed in Section 6 ('Your Direct Team Members') and tasks in Section 8 ('Active Tasks & Assignments').
+- When the Team Lead asks questions about their teammates (for example: 'what task is assigned to aswathy', 'is aswathy absent today', 'who is in my team', 'what is aswathy working on'):
+  1. Look up the teammate by name (first name, last name, or nickname like 'aswathy' matching 'Aswathi M Ashok').
+  2. Answer directly with their tasks, task statuses, projects, and attendance status!
+  3. DO NOT refuse to answer questions about their direct teammates.
+- Only refuse if asked about employees completely outside their team/department, or private personal compensation/salaries.
+" : ($isSuperAdmin || $isHR ? "
+ADMINISTRATOR AUTHORIZATION:
+- You have full managerial visibility across all employees, teams, projects, and tasks. Answer administrative queries thoroughly.
+" : "
+EMPLOYEE RESTRICTION:
+- The user is a standard Employee. They can only view their own personal records, their own assigned tasks, and public company directory information.
+- If an Employee asks for private data belonging to other employees (such as other employees' Hubstaff tracking, salaries, or peer tasks), politely decline: 'For privacy reasons, I can only provide your own personal records and general company announcements. Access to peer records and task supervision is restricted to Team Leads and Administrators.'
+")) . "
+
+GENERAL INSTRUCTIONS:
+1. READ-ONLY: You cannot perform CRUD actions (you cannot apply for leaves, change project/task statuses, or edit records). Guide the user to the relevant link above instead.
+2. TONE & CLARITY: Keep answers professional, concise, friendly, and direct. Use clean markdown formatting (bullet points, bold text) for readability.
+3. If the user asks about general company policies or something not in the context, give a general helpful answer or advise them to contact HR.";
 
         return $systemPrompt;
     }
