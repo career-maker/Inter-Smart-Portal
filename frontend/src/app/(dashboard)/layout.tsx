@@ -953,7 +953,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <div className="flex items-center gap-1.5 sm:gap-4 shrink-0 min-w-0">
                 <button
                   style={{ backgroundColor: "transparent", border: "none", outline: "none", boxShadow: "none" }}
-                  className="p-1.5 -ml-1 text-white bg-transparent hover:!bg-transparent active:!bg-transparent focus:!bg-transparent focus:outline-none shrink-0 md:hidden cursor-pointer"
+                  className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center -ml-1 text-white bg-transparent hover:!bg-transparent active:!bg-transparent focus:!bg-transparent focus:outline-none shrink-0 md:hidden cursor-pointer"
                   onClick={() => setMenuOpen((v) => !v)}
                   aria-label="Toggle menu"
                 >
@@ -964,7 +964,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   <img
                     src="/logo.png"
                     alt="Inter Smart Logo"
-                    className="h-6 sm:h-9 w-auto max-w-[105px] sm:max-w-none object-contain object-left brightness-0 invert"
+                    className="h-6 sm:h-9 w-auto max-w-[90px] sm:max-w-none object-contain object-left brightness-0 invert"
                   />
                 </Link>
               </div>
@@ -992,15 +992,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </div>
 
               {/* Right: Actions & User Avatar */}
-              <div className="flex items-center gap-0.5 sm:gap-2 shrink-0 ml-auto">
+              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-auto">
                 {/* Mobile search trigger */}
                 <button
                   type="button"
                   onClick={() => setSearchModalOpen(true)}
-                  className="p-1 text-white/90 hover:text-white rounded-full hover:bg-white/10 sm:hidden transition-colors cursor-pointer shrink-0"
+                  className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-white/90 hover:text-white rounded-full hover:bg-white/15 active:bg-white/25 sm:hidden transition-colors cursor-pointer shrink-0"
                   aria-label="Search"
                 >
-                  <Search className="w-4.5 h-4.5" />
+                  <Search className="w-5 h-5 text-white" />
                 </button>
 
                 <button
@@ -1020,13 +1020,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <button
                   type="button"
                   onClick={toggleStickyNotes}
-                  className="p-1 sm:p-2 text-white hover:text-white rounded-full hover:bg-white/15 transition-colors cursor-pointer shrink-0 relative"
+                  className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-white hover:text-white rounded-full hover:bg-white/15 active:bg-white/25 transition-colors cursor-pointer shrink-0 relative"
                   title="Sticky Notes (macOS Stickies)"
                   aria-label="Toggle Sticky Notes"
                 >
-                  <StickyNote className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-white" />
+                  <StickyNote className="w-5 h-5 text-white" />
                   {notesCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-white/20 text-white text-[9.5px] font-bold rounded-full min-w-[16px] sm:min-w-[18px] h-[16px] sm:h-[18px] flex items-center justify-center px-1 leading-none border border-white/40 backdrop-blur-xs">
+                    <span className="absolute -top-0.5 -right-0.5 bg-white/20 text-white text-[9.5px] font-bold rounded-full min-w-[16px] sm:min-w-[18px] h-[16px] sm:h-[18px] flex items-center justify-center px-1 leading-none border border-white/40 backdrop-blur-xs">
                       {notesCount > 99 ? '99+' : notesCount}
                     </span>
                   )}
@@ -1035,13 +1035,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 {/* Quick Chat Header Action */}
                 <Link
                   href={latestConversationId ? `/community?tab=chat&conversationId=${latestConversationId}` : "/community?tab=chat"}
-                  className="p-1 sm:p-2 text-white hover:text-white rounded-full hover:bg-white/15 transition-colors cursor-pointer shrink-0 relative"
+                  className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-white hover:text-white rounded-full hover:bg-white/15 active:bg-white/25 transition-colors cursor-pointer shrink-0 relative"
                   title={unreadChatCount > 0 ? `${unreadChatCount} new message(s) - Open Direct Chat` : "Direct Chat"}
                   aria-label="Open Direct Chat"
                 >
-                  <MessageSquare className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-white" />
+                  <MessageSquare className="w-5 h-5 text-white" />
                   {unreadChatCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-[#ef4444] text-white text-[9.5px] font-black rounded-full min-w-[16px] sm:min-w-[18px] h-[16px] sm:h-[18px] flex items-center justify-center px-1 leading-none shadow-xs border border-white/60 animate-pulse">
+                    <span className="absolute -top-0.5 -right-0.5 bg-[#ef4444] text-white text-[9.5px] font-black rounded-full min-w-[16px] sm:min-w-[18px] h-[16px] sm:h-[18px] flex items-center justify-center px-1 leading-none shadow-xs border border-white/60 animate-pulse">
                       {unreadChatCount > 99 ? "99+" : unreadChatCount}
                     </span>
                   )}
@@ -1051,14 +1051,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
                 <Link
                   href="/profile"
-                  className="flex items-center p-0.5 sm:p-1 rounded-full hover:bg-white/15 transition-colors cursor-pointer shrink-0 ml-0.5"
+                  className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full hover:bg-white/15 active:bg-white/25 transition-colors cursor-pointer shrink-0 ml-0.5"
                   title={`${user?.first_name} ${user?.last_name}`}
                 >
                   <RoyalAvatar
                     src={user?.profile_photo_path}
                     name={`${user?.first_name} ${user?.last_name}`}
                     userId={user?.id}
-                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-full"
+                    className="w-7.5 h-7.5 sm:w-8 sm:h-8 rounded-full ring-1.5 ring-white/30"
                   />
                 </Link>
 
@@ -1214,6 +1214,27 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   <span style={{ color: "#ffffff" }} className="font-semibold text-white">{label}</span>
                 </Link>
               ))}
+
+              {/* Mobile Drawer Sticky Notes Shortcut */}
+              <button
+                type="button"
+                onClick={() => {
+                  closeMenu();
+                  toggleStickyNotes();
+                }}
+                style={{ backgroundColor: "#071724", color: "#ffffff" }}
+                className="w-full flex items-center justify-between px-3.5 py-2.5 text-sm font-semibold rounded-xl border border-white/10 shadow-sm cursor-pointer hover:bg-[#133249]"
+              >
+                <div className="flex items-center gap-3.5">
+                  <StickyNote className="h-5 w-5 text-amber-400 shrink-0" />
+                  <span style={{ color: "#ffffff" }} className="font-semibold text-white">Sticky Notes</span>
+                </div>
+                {notesCount > 0 && (
+                  <span className="bg-amber-400 text-slate-900 text-xs font-bold px-2 py-0.5 rounded-full">
+                    {notesCount}
+                  </span>
+                )}
+              </button>
 
               {NAV_GROUPS.map((group) => {
                 if (!groupHasVisibleItems(group, userRole)) return null;

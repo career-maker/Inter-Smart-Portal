@@ -151,10 +151,10 @@ export function NotificationDropdown() {
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={handleOpenChange}>
-      <DropdownMenuTrigger className="relative p-1 sm:p-2 rounded-full hover:bg-white/15 dark:hover:bg-slate-800 transition-colors focus:outline-none text-white dark:text-slate-300 cursor-pointer">
-        <Bell className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-white dark:text-slate-300" />
+      <DropdownMenuTrigger className="relative w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full hover:bg-white/15 active:bg-white/25 dark:hover:bg-slate-800 transition-colors focus:outline-none text-white dark:text-slate-300 cursor-pointer shrink-0">
+        <Bell className="h-5 w-5 text-white dark:text-slate-300" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9.5px] font-bold rounded-full min-w-[16px] sm:min-w-[18px] h-[16px] sm:h-[18px] flex items-center justify-center px-1 leading-none">
+          <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9.5px] font-bold rounded-full min-w-[16px] sm:min-w-[18px] h-[16px] sm:h-[18px] flex items-center justify-center px-1 leading-none shadow-xs border border-white/40">
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}
