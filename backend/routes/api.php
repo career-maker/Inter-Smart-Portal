@@ -459,6 +459,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Holiday & Override management — Super Admin & HR only
     Route::middleware(['role:Super Admin|HR'])->group(function () {
         Route::post('holidays', [\App\Http\Controllers\Api\HolidayController::class, 'store']);
+        Route::post('holidays/seed-kerala', [\App\Http\Controllers\Api\HolidayController::class, 'seedKeralaHolidays']);
         Route::put('holidays/{holiday}', [\App\Http\Controllers\Api\HolidayController::class, 'update']);
         Route::delete('holidays/{holiday}', [\App\Http\Controllers\Api\HolidayController::class, 'destroy']);
         Route::post('working-days-overrides', [\App\Http\Controllers\Api\HolidayController::class, 'storeOverride']);
