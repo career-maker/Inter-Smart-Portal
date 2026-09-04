@@ -360,7 +360,7 @@ class ChatController extends Controller
                     $employees = User::where('status', 'Active')
                         ->with('team:id,name')
                         ->orderBy('first_name')
-                        ->get(['id', 'first_name', 'last_name', 'employee_code', 'designation', 'team_id']);
+                        ->get(['id', 'first_name', 'last_name', 'employee_code', 'designation', 'team_id', 'gender']);
                 } catch (\Exception $empEx) {
                     $employees = User::where('status', 'Active')->orderBy('first_name')->get();
                 }
@@ -485,10 +485,11 @@ class ChatController extends Controller
 
                     $teamName = $emp->team ? $emp->team->name : 'General';
                     $designation = $emp->designation ?: 'Employee';
+                    $genderInfo = !empty($emp->gender) ? ", Gender: {$emp->gender}" : "";
                     $tasks = $userTasksMap[$emp->id] ?? [];
                     $tasksText = empty($tasks) ? "No active tasks" : "Active Tasks: " . implode('; ', array_slice($tasks, 0, 3));
 
-                    return "- {$emp->first_name} {$emp->last_name} (Code: {$emp->employee_code}, Team: {$teamName}, Role: {$designation}) | Status Today: {$status} | {$tasksText}";
+                    return "- {$emp->first_name} {$emp->last_name} (Code: {$emp->employee_code}, Team: {$teamName}, Role: {$designation}{$genderInfo}) | Status Today: {$status} | {$tasksText}";
                 })->toArray();
 
                 $totalEmp = count($employees);
@@ -503,7 +504,7 @@ class ChatController extends Controller
                         ->where('status', 'Active')
                         ->with('team:id,name')
                         ->orderBy('first_name')
-                        ->get(['id', 'first_name', 'last_name', 'employee_code', 'designation', 'team_id']);
+                        ->get(['id', 'first_name', 'last_name', 'employee_code', 'designation', 'team_id', 'gender']);
                 } catch (\Exception $teammateEx) {
                     $teammates = User::whereIn('team_id', $leadTeamIds)->where('id', '!=', $user->id)->get();
                 }
@@ -598,8 +599,9 @@ class ChatController extends Controller
 
                     $tasks = $userTasksMap[$emp->id] ?? [];
                     $tasksText = empty($tasks) ? "No active tasks" : "Active Tasks: " . implode('; ', array_slice($tasks, 0, 3));
+                    $genderInfo = !empty($emp->gender) ? ", Gender: {$emp->gender}" : "";
 
-                    return "- {$emp->first_name} {$emp->last_name} (Code: {$emp->employee_code}, Role: {$emp->designation}) | Status Today: {$status} | {$tasksText}";
+                    return "- {$emp->first_name} {$emp->last_name} (Code: {$emp->employee_code}, Role: {$emp->designation}{$genderInfo}) | Status Today: {$status} | {$tasksText}";
                 })->toArray();
 
                 $rosterSection = "\n6. YOUR DIRECT TEAM MEMBERS: TODAY'S ATTENDANCE & ACTIVE TASKS:\n" . (empty($empRows) ? "No active teammates registered." : implode("\n", $empRows)) . "\n";
@@ -608,11 +610,12 @@ class ChatController extends Controller
             Log::error('Chat context roster error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
             // Fallback: simple roster from User model so we NEVER output "roster status unavailable"
             try {
-                $fallbackUsers = User::where('status', 'Active')->orderBy('first_name')->take(60)->get(['id', 'first_name', 'last_name', 'employee_code', 'designation']);
+                $fallbackUsers = User::where('status', 'Active')->orderBy('first_name')->take(60)->get(['id', 'first_name', 'last_name', 'employee_code', 'designation', 'gender']);
                 $fallbackRows = $fallbackUsers->map(function($u) use ($userTasksMap) {
                     $tasks = $userTasksMap[$u->id] ?? [];
                     $tasksText = empty($tasks) ? "No active tasks" : "Tasks: " . implode('; ', array_slice($tasks, 0, 2));
-                    return "- {$u->first_name} {$u->last_name} (Code: {$u->employee_code}, Role: {$u->designation}) | {$tasksText}";
+                    $genderInfo = !empty($u->gender) ? ", Gender: {$u->gender}" : "";
+                    return "- {$u->first_name} {$u->last_name} (Code: {$u->employee_code}, Role: {$u->designation}{$genderInfo}) | {$tasksText}";
                 })->toArray();
                 $rosterSection = "\n6. ACTIVE EMPLOYEES & CURRENT ASSIGNED TASKS:\n" . implode("\n", $fallbackRows) . "\n";
             } catch (\Exception $fEx) {
@@ -738,6 +741,7 @@ CURRENT USER INFORMATION:
 - Email: {$user->email}
 - Employee Code: {$user->employee_code}
 - Designation: {$user->designation}
+- Gender: " . ($user->gender ?: 'Not specified') . "
 - System Role: {$roleName}
 - Current Date/Time: {$nowFormatted} (Indian Standard Time, IST)
 
@@ -789,7 +793,8 @@ GENERAL INSTRUCTIONS:
    - If asked for working duration, state their checked in time and duration (e.g. '7 hours and 33 minutes worked so far today' or '3 hours and 2 minutes total duration').
    - Include their active assigned tasks and projects from Section 6 and Section 8.
 4. TIMEZONE: All portal times are strictly in Indian Standard Time (IST). Never show raw UTC times.
-5. If the user asks about general company policies or something not in the context, give a general helpful answer or advise them to contact HR.";
+5. GENDER & PRONOUN USAGE: The employee roster includes the recorded gender (Male, Female, or Other) for employees. Always use the proper personal pronouns ('he / him / his' for Male, 'she / her / hers' for Female) when referring to an individual employee rather than generic 'they / them' (e.g., 'He checked in at 09:38 AM IST', 'He has worked for 8 hours and 11 minutes so far', 'He is currently Present in Office').
+6. If the user asks about general company policies or something not in the context, give a general helpful answer or advise them to contact HR.";
 
         return $systemPrompt;
     }
