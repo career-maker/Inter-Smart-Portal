@@ -313,27 +313,43 @@ class ChatController extends Controller
         try {
             if ($isSuperAdmin || $isHR) {
                 // Super Admin / HR: Full company active employee roster with today's live attendance & tasks
-                $employees = User::where('status', 'Active')
-                    ->with('team:id,name')
-                    ->orderBy('first_name')
-                    ->get(['id', 'first_name', 'last_name', 'employee_code', 'designation', 'team_id']);
+                try {
+                    $employees = User::where('status', 'Active')
+                        ->with('team:id,name')
+                        ->orderBy('first_name')
+                        ->get(['id', 'first_name', 'last_name', 'employee_code', 'designation', 'team_id']);
+                } catch (\Exception $empEx) {
+                    $employees = User::where('status', 'Active')->orderBy('first_name')->get();
+                }
 
-                $attendancesToday = Attendance::where('date', $todayStr)
-                    ->get(['user_id', 'check_in_time', 'check_out_time', 'status', 'total_working_minutes'])
-                    ->keyBy('user_id');
+                $attendancesToday = collect([]);
+                try {
+                    $attendancesToday = Attendance::where('date', $todayStr)->get()->keyBy('user_id');
+                } catch (\Exception $attEx) {
+                    Log::warning('Attendance query warning in chat: ' . $attEx->getMessage());
+                }
 
-                $biometricInToday = BiometricEvent::whereNotNull('user_id')
-                    ->whereDate('local_punch_time', $todayStr)
-                    ->where('direction', 'in')
-                    ->orderBy('local_punch_time')
-                    ->get(['user_id', 'local_punch_time'])
-                    ->groupBy('user_id');
+                $biometricInToday = collect([]);
+                try {
+                    $biometricInToday = BiometricEvent::whereNotNull('user_id')
+                        ->whereDate('local_punch_time', $todayStr)
+                        ->orderBy('local_punch_time')
+                        ->get()
+                        ->groupBy('user_id');
+                } catch (\Exception $bioEx) {
+                    Log::warning('Biometric query warning in chat: ' . $bioEx->getMessage());
+                }
 
-                $approvedLeavesToday = LeaveRequest::where('status', 'Approved')
-                    ->whereDate('start_date', '<=', $today)
-                    ->whereDate('end_date', '>=', $today)
-                    ->pluck('leave_type', 'user_id')
-                    ->toArray();
+                $approvedLeavesToday = [];
+                try {
+                    $approvedLeavesToday = LeaveRequest::where('status', 'Approved')
+                        ->whereDate('start_date', '<=', $todayStr)
+                        ->whereDate('end_date', '>=', $todayStr)
+                        ->pluck('leave_type', 'user_id')
+                        ->toArray();
+                } catch (\Exception $leaveEx) {
+                    $approvedLeavesToday = [];
+                }
 
                 $approvedWfhToday = [];
                 try {
@@ -378,10 +394,10 @@ class ChatController extends Controller
                     } elseif ($isWfh) {
                         $wfhCount++;
                         $status = "Work From Home (Approved WFH)";
-                    } elseif ($att && $att->check_in_time) {
+                    } elseif ($att && !empty($att->check_in_time)) {
                         $presentCount++;
                         $checkInTime = Carbon::parse($att->check_in_time)->format('h:i A');
-                        if ($att->check_out_time) {
+                        if (!empty($att->check_out_time)) {
                             $checkOutTime = Carbon::parse($att->check_out_time)->format('h:i A');
                             $status = "Present (Checked In: {$checkInTime}, Checked Out: {$checkOutTime})";
                         } else {
@@ -410,31 +426,49 @@ class ChatController extends Controller
 
             } elseif ($isTeamLead) {
                 // Team Lead: Direct teammates with today's live attendance & tasks
-                $teammates = User::whereIn('team_id', $leadTeamIds)
-                    ->where('id', '!=', $user->id)
-                    ->where('status', 'Active')
-                    ->with('team:id,name')
-                    ->orderBy('first_name')
-                    ->get(['id', 'first_name', 'last_name', 'employee_code', 'designation', 'team_id']);
+                try {
+                    $teammates = User::whereIn('team_id', $leadTeamIds)
+                        ->where('id', '!=', $user->id)
+                        ->where('status', 'Active')
+                        ->with('team:id,name')
+                        ->orderBy('first_name')
+                        ->get(['id', 'first_name', 'last_name', 'employee_code', 'designation', 'team_id']);
+                } catch (\Exception $teammateEx) {
+                    $teammates = User::whereIn('team_id', $leadTeamIds)->where('id', '!=', $user->id)->get();
+                }
 
-                $attendancesToday = Attendance::where('date', $todayStr)
-                    ->whereIn('user_id', $teammateIds)
-                    ->get(['user_id', 'check_in_time', 'check_out_time', 'status'])
-                    ->keyBy('user_id');
+                $attendancesToday = collect([]);
+                try {
+                    $attendancesToday = Attendance::where('date', $todayStr)
+                        ->whereIn('user_id', $teammateIds)
+                        ->get()
+                        ->keyBy('user_id');
+                } catch (\Exception $attEx) {
+                    Log::warning('Team Lead attendance warning: ' . $attEx->getMessage());
+                }
 
-                $biometricInToday = BiometricEvent::whereIn('user_id', $teammateIds)
-                    ->whereDate('local_punch_time', $todayStr)
-                    ->where('direction', 'in')
-                    ->orderBy('local_punch_time')
-                    ->get(['user_id', 'local_punch_time'])
-                    ->groupBy('user_id');
+                $biometricInToday = collect([]);
+                try {
+                    $biometricInToday = BiometricEvent::whereIn('user_id', $teammateIds)
+                        ->whereDate('local_punch_time', $todayStr)
+                        ->orderBy('local_punch_time')
+                        ->get()
+                        ->groupBy('user_id');
+                } catch (\Exception $bioEx) {
+                    Log::warning('Team Lead biometric warning: ' . $bioEx->getMessage());
+                }
 
-                $approvedLeavesToday = LeaveRequest::where('status', 'Approved')
-                    ->whereIn('user_id', $teammateIds)
-                    ->whereDate('start_date', '<=', $today)
-                    ->whereDate('end_date', '>=', $today)
-                    ->pluck('leave_type', 'user_id')
-                    ->toArray();
+                $approvedLeavesToday = [];
+                try {
+                    $approvedLeavesToday = LeaveRequest::where('status', 'Approved')
+                        ->whereIn('user_id', $teammateIds)
+                        ->whereDate('start_date', '<=', $todayStr)
+                        ->whereDate('end_date', '>=', $todayStr)
+                        ->pluck('leave_type', 'user_id')
+                        ->toArray();
+                } catch (\Exception $leaveEx) {
+                    $approvedLeavesToday = [];
+                }
 
                 $empRows = $teammates->map(function ($emp) use (
                     $attendancesToday,
@@ -448,9 +482,9 @@ class ChatController extends Controller
 
                     if ($leaveType) {
                         $status = "On Leave ({$leaveType})";
-                    } elseif ($att && $att->check_in_time) {
+                    } elseif ($att && !empty($att->check_in_time)) {
                         $checkInTime = Carbon::parse($att->check_in_time)->format('h:i A');
-                        $status = $att->check_out_time 
+                        $status = !empty($att->check_out_time) 
                             ? "Present (Checked In at {$checkInTime}, Checked Out at " . Carbon::parse($att->check_out_time)->format('h:i A') . ")"
                             : "Present in Office (Checked In at {$checkInTime})";
                     } elseif ($bioPunches && $bioPunches->isNotEmpty()) {
@@ -469,7 +503,19 @@ class ChatController extends Controller
                 $rosterSection = "\n6. YOUR DIRECT TEAM MEMBERS: TODAY'S ATTENDANCE & ACTIVE TASKS:\n" . (empty($empRows) ? "No active teammates registered." : implode("\n", $empRows)) . "\n";
             }
         } catch (\Exception $e) {
-            $rosterSection = "\n6. Employee roster status unavailable.\n";
+            Log::error('Chat context roster error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
+            // Fallback: simple roster from User model so we NEVER output "roster status unavailable"
+            try {
+                $fallbackUsers = User::where('status', 'Active')->orderBy('first_name')->take(60)->get(['id', 'first_name', 'last_name', 'employee_code', 'designation']);
+                $fallbackRows = $fallbackUsers->map(function($u) use ($userTasksMap) {
+                    $tasks = $userTasksMap[$u->id] ?? [];
+                    $tasksText = empty($tasks) ? "No active tasks" : "Tasks: " . implode('; ', array_slice($tasks, 0, 2));
+                    return "- {$u->first_name} {$u->last_name} (Code: {$u->employee_code}, Role: {$u->designation}) | {$tasksText}";
+                })->toArray();
+                $rosterSection = "\n6. ACTIVE EMPLOYEES & CURRENT ASSIGNED TASKS:\n" . implode("\n", $fallbackRows) . "\n";
+            } catch (\Exception $fEx) {
+                $rosterSection = "";
+            }
         }
 
         // 10. Projects & Team Members (Scoped by Role)

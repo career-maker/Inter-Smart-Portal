@@ -22,7 +22,7 @@ const PRE_QUESTIONS = [
 
 /**
  * Lightweight inline markdown parser for bot messages.
- * Formats [links](/path), **bold**, `code`, and bullet lists into high-contrast interactive UI elements.
+ * Styled in Inter Smart Light Theme matching the Birthday Wish Drawer.
  */
 function FormattedMessage({ text }: { text: string }) {
   const lines = text.split("\n");
@@ -41,8 +41,7 @@ function FormattedMessage({ text }: { text: string }) {
             <Link
               key={idx}
               href={url}
-              style={{ color: "#38bdf8" }}
-              className="font-semibold underline underline-offset-2 hover:opacity-80 transition-opacity mx-0.5"
+              className="text-[#56348f] font-semibold underline underline-offset-2 hover:text-[#432670] transition-colors mx-0.5"
             >
               {label}
             </Link>
@@ -51,7 +50,7 @@ function FormattedMessage({ text }: { text: string }) {
       }
       if (part.startsWith("**") && part.endsWith("**")) {
         return (
-          <strong key={idx} style={{ color: "#ffffff" }} className="font-bold">
+          <strong key={idx} className="font-bold text-slate-900">
             {part.slice(2, -2)}
           </strong>
         );
@@ -60,39 +59,38 @@ function FormattedMessage({ text }: { text: string }) {
         return (
           <code
             key={idx}
-            style={{ backgroundColor: "rgba(255,255,255,0.12)", color: "#fde047" }}
-            className="px-1.5 py-0.5 mx-0.5 rounded text-xs font-mono"
+            className="bg-purple-50 text-[#56348f] border border-purple-100 px-1.5 py-0.5 mx-0.5 rounded text-xs font-mono"
           >
             {part.slice(1, -1)}
           </code>
         );
       }
-      return <span key={idx} style={{ color: "#f1f5f9" }}>{part}</span>;
+      return <span key={idx} className="text-slate-800">{part}</span>;
     });
   };
 
   return (
-    <div style={{ color: "#f1f5f9" }} className="space-y-2 text-sm leading-relaxed">
+    <div className="space-y-2 text-sm leading-relaxed text-slate-800">
       {lines.map((line, lineIdx) => {
         const trimmed = line.trim();
         if (!trimmed) {
           return <div key={lineIdx} className="h-1.5" />;
         }
 
-        const isBullet = trimmed.startsWith("- ") || trimmed.startsWith("• ") || /^\d+\.\s/.test(trimmed);
+        const isBullet = trimmed.startsWith("- ") || trimmed.startsWith("• ") || trimmed.startsWith("* ") || /^\d+\.\s/.test(trimmed);
 
         if (isBullet) {
-          const cleaned = trimmed.replace(/^([-•]|\d+\.)\s*/, "");
+          const cleaned = trimmed.replace(/^([-•*]|\d+\.)\s*/, "");
           return (
             <div key={lineIdx} className="flex items-start gap-2 pl-1">
-              <span style={{ color: "#fbbf24" }} className="font-bold select-none text-base leading-tight">•</span>
-              <div style={{ color: "#f1f5f9" }} className="flex-1 font-normal">{parseInline(cleaned)}</div>
+              <span className="text-[#56348f] font-bold select-none text-base leading-tight">•</span>
+              <div className="flex-1 font-normal text-slate-800">{parseInline(cleaned)}</div>
             </div>
           );
         }
 
         return (
-          <p key={lineIdx} style={{ color: "#f1f5f9" }} className="font-normal m-0">
+          <p key={lineIdx} className="font-normal m-0 text-slate-800">
             {parseInline(line)}
           </p>
         );
@@ -107,7 +105,7 @@ export default function ChatWidget() {
     {
       id: "welcome",
       sender: "bot",
-      text: "Hello! I am your AI Portal Assistant. Ask me anything about leaves, project teams, department leads, holidays, or portal navigation!",
+      text: "Hello! I am your AI Portal Assistant. Ask me anything about leaves, project teams, department leads, holidays, attendance, or tasks!",
       timestamp: new Date(),
     },
   ]);
@@ -123,6 +121,17 @@ export default function ChatWidget() {
     }
   }, [isOpen, messages, isLoading]);
 
+  // Handle ESC key to close drawer
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen) {
+        setIsOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen]);
+
   const scrollToBottom = () => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -132,7 +141,7 @@ export default function ChatWidget() {
       {
         id: "welcome",
         sender: "bot",
-        text: "Hello! I am your AI Portal Assistant. Ask me anything about leaves, project teams, department leads, holidays, or portal navigation!",
+        text: "Hello! I am your AI Portal Assistant. Ask me anything about leaves, project teams, department leads, holidays, attendance, or tasks!",
         timestamp: new Date(),
       },
     ]);
@@ -193,226 +202,188 @@ export default function ChatWidget() {
 
   return (
     <>
-      {/* Floating Action Launcher Button */}
+      {/* Floating Action Launcher Button (Pure transparent PNG icon without dark container) */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Toggle Portal AI Assistant"
-        className={`fixed bottom-6 right-6 z-40 flex items-center justify-center transition-all duration-300 active:scale-95 cursor-pointer ${
-          isOpen
-            ? "w-12 h-12 rounded-full bg-rose-600 hover:bg-rose-500 text-white border border-rose-400 rotate-90 shadow-xl shadow-rose-600/30"
-            : "w-16 h-16 bg-transparent border-0 p-0 hover:scale-110"
-        }`}
+        className="fixed bottom-6 right-6 z-40 flex items-center justify-center w-14 h-14 bg-transparent border-0 p-0 hover:scale-110 active:scale-95 transition-all cursor-pointer select-none"
         title="Portal AI Assistant"
       >
-        {isOpen ? (
-          <X className="w-6 h-6 text-white" />
-        ) : (
-          <div className="relative flex items-center justify-center w-full h-full">
-            <img
-              src="/chatbot.png"
-              alt="AI Assistant"
-              className="w-full h-full object-contain filter drop-shadow-[0_4px_12px_rgba(0,0,0,0.25)]"
-            />
-            <span className="absolute top-1 right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white shadow-sm animate-pulse"></span>
-          </div>
-        )}
+        <div className="relative flex items-center justify-center w-full h-full">
+          <img
+            src="/chatbot.png"
+            alt="AI Assistant"
+            className="w-full h-full object-contain filter drop-shadow-[0_4px_12px_rgba(0,0,0,0.25)]"
+          />
+          <span className="absolute top-1 right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white shadow-sm animate-pulse"></span>
+        </div>
       </button>
 
-      {/* Chat Popover Window */}
+      {/* Side Popup Drawer (Matching Birthday Wish Drawer styling & light theme) */}
       {isOpen && (
-        <div
-          style={{ backgroundColor: "#0b1728", borderColor: "#1e3a5f" }}
-          className="fixed bottom-24 right-4 sm:right-6 z-50 flex flex-col w-[calc(100vw-32px)] sm:w-[420px] h-[540px] max-h-[calc(100vh-120px)] border rounded-3xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-300"
-        >
-          {/* Header */}
+        <div className="fixed inset-0 z-50 overflow-hidden font-sans">
+          {/* Backdrop */}
           <div
-            style={{ backgroundColor: "#0f223a", borderColor: "#1e3a5f" }}
-            className="flex items-center justify-between px-5 py-3.5 border-b"
-          >
-            <div className="flex items-center gap-3">
-              <div className="relative flex items-center justify-center w-9 h-9 shrink-0">
-                <img
-                  src="/chatbot.png"
-                  alt="AI Bot"
-                  className="w-full h-full object-contain"
-                />
-                <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-[#0f223a]"></span>
+            onClick={() => setIsOpen(false)}
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+          />
+
+          {/* Drawer Container */}
+          <div className="fixed inset-y-0 right-0 w-full sm:w-[460px] max-w-full bg-white shadow-2xl flex flex-col justify-between border-l border-slate-200 z-50 animate-in slide-in-from-right duration-300">
+            {/* Header with Royal Purple gradient accent */}
+            <div className="relative px-5 py-4 border-b border-slate-100 bg-gradient-to-b from-purple-50/80 to-white flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="relative flex items-center justify-center w-10 h-10 shrink-0">
+                  <img
+                    src="/chatbot.png"
+                    alt="AI Bot"
+                    className="w-full h-full object-contain drop-shadow-sm"
+                  />
+                  <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white"></span>
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold text-slate-900 flex items-center gap-1.5 m-0 leading-tight">
+                    Portal Assistant
+                    <Sparkles className="w-4 h-4 text-[#56348f] animate-pulse" />
+                  </h3>
+                  <p className="text-xs text-slate-500 font-normal m-0">
+                    Powered by Gemini AI • Live Data
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 style={{ color: "#ffffff" }} className="text-sm font-bold flex items-center gap-1.5 m-0">
-                  Portal Assistant
-                  <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
-                </h3>
-                <p style={{ color: "#94a3b8" }} className="text-[11px] font-medium m-0">
-                  Powered by Gemini AI • Live Data
-                </p>
+
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={handleResetChat}
+                  title="Clear conversation"
+                  className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setIsOpen(false)}
+                  title="Close chat"
+                  className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
             </div>
 
-            <div className="flex items-center gap-1">
-              <button
-                onClick={handleResetChat}
-                title="Clear conversation"
-                style={{ color: "#cbd5e1" }}
-                className="p-1.5 rounded-lg hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
-              >
-                <RotateCcw className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setIsOpen(false)}
-                title="Close chat"
-                style={{ color: "#cbd5e1" }}
-                className="p-1.5 rounded-lg hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
+            {/* Messages & Suggestions scrollable content */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 bg-slate-50/60">
+              {messages.map((msg) => (
+                <div
+                  key={msg.id}
+                  className={`flex gap-2.5 max-w-[92%] ${
+                    msg.sender === "user" ? "ml-auto flex-row-reverse" : ""
+                  }`}
+                >
+                  {msg.sender === "bot" && (
+                    <div className="flex items-center justify-center w-7 h-7 shrink-0 select-none self-start mt-1">
+                      <img
+                        src="/chatbot.png"
+                        alt="Bot"
+                        className="w-full h-full object-contain drop-shadow-xs"
+                      />
+                    </div>
+                  )}
 
-          {/* Messages & Suggestions scrollable content */}
-          <div
-            style={{ backgroundColor: "#0b1728" }}
-            className="flex-1 overflow-y-auto p-4 space-y-4"
-          >
-            {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex gap-2.5 max-w-[90%] ${
-                  msg.sender === "user" ? "ml-auto flex-row-reverse" : ""
-                }`}
-              >
-                {msg.sender === "bot" && (
-                  <div className="flex items-center justify-center w-7 h-7 shrink-0 select-none self-start mt-0.5">
+                  <div
+                    className={`p-3.5 rounded-2xl text-sm leading-relaxed ${
+                      msg.sender === "user"
+                        ? "bg-[#56348f] text-white rounded-tr-none shadow-sm font-normal"
+                        : "bg-white text-slate-800 border border-slate-200/90 rounded-tl-none shadow-xs font-normal"
+                    }`}
+                  >
+                    {msg.sender === "bot" ? (
+                      <FormattedMessage text={msg.text} />
+                    ) : (
+                      <p className="m-0 text-white font-normal">
+                        {msg.text}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
+
+              {/* Suggestions segment */}
+              {!isLoading && messages[messages.length - 1]?.sender === "bot" && (
+                <div className="pt-2 pl-9 space-y-2">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 m-0">
+                    Quick Questions
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {PRE_QUESTIONS.map((q, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => handleSend(q.text)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-white hover:bg-purple-50 text-slate-700 hover:text-[#56348f] border border-slate-200 hover:border-[#56348f]/40 rounded-full transition-all shadow-xs active:scale-95 cursor-pointer text-left"
+                      >
+                        <span className="text-sm">{q.icon}</span>
+                        <span>{q.text}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Loading Indicator */}
+              {isLoading && (
+                <div className="flex gap-2.5 max-w-[85%] items-center">
+                  <div className="flex items-center justify-center w-7 h-7 shrink-0">
                     <img
                       src="/chatbot.png"
                       alt="Bot"
-                      className="w-full h-full object-contain"
+                      className="w-full h-full object-contain animate-bounce drop-shadow-xs"
                     />
                   </div>
-                )}
-
-                <div
-                  style={
-                    msg.sender === "user"
-                      ? { backgroundColor: "#f59e0b", color: "#0f172a" }
-                      : { backgroundColor: "#132840", color: "#f1f5f9", borderColor: "#1e3a5f" }
-                  }
-                  className={`p-3.5 rounded-2xl text-sm leading-relaxed border shadow-md ${
-                    msg.sender === "user"
-                      ? "border-amber-400/40 font-semibold rounded-tr-none"
-                      : "rounded-tl-none font-normal"
-                  }`}
-                >
-                  {msg.sender === "bot" ? (
-                    <FormattedMessage text={msg.text} />
-                  ) : (
-                    <p style={{ color: "#0f172a" }} className="m-0 font-medium">
-                      {msg.text}
-                    </p>
-                  )}
+                  <div className="bg-white border border-slate-200/90 p-3 rounded-2xl rounded-tl-none flex items-center gap-1.5 shadow-xs">
+                    <span className="w-2 h-2 rounded-full bg-[#56348f] animate-bounce [animation-delay:-0.3s]"></span>
+                    <span className="w-2 h-2 rounded-full bg-[#56348f] animate-bounce [animation-delay:-0.15s]"></span>
+                    <span className="w-2 h-2 rounded-full bg-[#56348f] animate-bounce"></span>
+                    <span className="text-xs ml-1.5 font-medium text-slate-500">Thinking...</span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              )}
 
-            {/* Suggestions segment (shown only after bot replies and not loading) */}
-            {!isLoading && messages[messages.length - 1]?.sender === "bot" && (
-              <div className="pt-2 pl-10 space-y-2">
-                <p
-                  style={{ color: "#94a3b8" }}
-                  className="text-[11px] font-bold uppercase tracking-wider m-0"
-                >
-                  Quick Questions
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {PRE_QUESTIONS.map((q, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => handleSend(q.text)}
-                      style={{
-                        backgroundColor: "#132840",
-                        color: "#f1f5f9",
-                        borderColor: "#1e3a5f",
-                      }}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border rounded-full transition-all hover:border-amber-400/60 hover:bg-[#1a3556] active:scale-95 text-left cursor-pointer shadow-sm"
-                    >
-                      <span className="text-sm">{q.icon}</span>
-                      <span>{q.text}</span>
-                    </button>
-                  ))}
+              {/* Error Message */}
+              {errorMsg && (
+                <div className="flex gap-2 p-3 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs items-start">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-500" />
+                  <span>{errorMsg}</span>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Loading Indicator */}
-            {isLoading && (
-              <div className="flex gap-2.5 max-w-[85%] items-center">
-                <div className="flex items-center justify-center w-7 h-7 shrink-0">
-                  <img
-                    src="/chatbot.png"
-                    alt="Bot"
-                    className="w-full h-full object-contain animate-bounce"
-                  />
-                </div>
-                <div
-                  style={{ backgroundColor: "#132840", borderColor: "#1e3a5f" }}
-                  className="border p-3 rounded-2xl rounded-tl-none flex items-center gap-1.5 shadow-md"
-                >
-                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-bounce [animation-delay:-0.3s]"></span>
-                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-bounce [animation-delay:-0.15s]"></span>
-                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-bounce"></span>
-                  <span style={{ color: "#94a3b8" }} className="text-xs ml-1.5 font-medium">Thinking...</span>
-                </div>
-              </div>
-            )}
+              <div ref={chatEndRef} />
+            </div>
 
-            {/* Error Message */}
-            {errorMsg && (
-              <div
-                style={{ backgroundColor: "rgba(225, 29, 72, 0.15)", borderColor: "rgba(225, 29, 72, 0.3)", color: "#fca5a5" }}
-                className="flex gap-2 p-3 rounded-2xl border text-xs items-start"
-              >
-                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />
-                <span>{errorMsg}</span>
-              </div>
-            )}
-
-            <div ref={chatEndRef} />
-          </div>
-
-          {/* Bottom input area */}
-          <div
-            style={{ backgroundColor: "#0f223a", borderColor: "#1e3a5f" }}
-            className="p-3 border-t"
-          >
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSend(inputValue);
-              }}
-              className="flex items-center gap-2"
-            >
-              <input
-                type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                placeholder="Ask about leaves, projects, leads..."
-                disabled={isLoading}
-                style={{
-                  backgroundColor: "#0b1728",
-                  color: "#ffffff",
-                  borderColor: "#1e3a5f",
+            {/* Bottom input area */}
+            <div className="p-3.5 sm:p-4 bg-white border-t border-slate-200">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSend(inputValue);
                 }}
-                className="flex-1 border rounded-xl px-4 py-2.5 text-sm placeholder-slate-400 focus:outline-none focus:border-amber-400 transition-colors disabled:opacity-50"
-              />
-              <button
-                type="submit"
-                disabled={isLoading || !inputValue.trim()}
-                style={{ backgroundColor: "#f59e0b", color: "#0f172a" }}
-                className="flex items-center justify-center w-10 h-10 rounded-xl hover:bg-amber-400 transition-colors disabled:opacity-50 disabled:hover:bg-amber-500 select-none active:scale-95 shrink-0 cursor-pointer shadow-md font-bold"
+                className="flex items-center gap-2"
               >
-                <Send className="w-4 h-4" />
-              </button>
-            </form>
+                <input
+                  type="text"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  placeholder="Ask about leaves, projects, leads, attendance..."
+                  disabled={isLoading}
+                  className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-[#56348f] focus:ring-1 focus:ring-[#56348f] transition-all disabled:opacity-50"
+                />
+                <button
+                  type="submit"
+                  disabled={isLoading || !inputValue.trim()}
+                  className="flex items-center justify-center w-10 h-10 rounded-xl bg-[#56348f] hover:bg-[#432670] text-white transition-all disabled:opacity-40 disabled:hover:bg-[#56348f] select-none active:scale-95 shrink-0 cursor-pointer shadow-sm font-medium"
+                >
+                  <Send className="w-4 h-4" />
+                </button>
+              </form>
+            </div>
           </div>
         </div>
       )}
