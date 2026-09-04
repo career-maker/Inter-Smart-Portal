@@ -12,6 +12,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->validateCsrfTokens(except: [
+            'v1/biometric/ingest',
+            'api/v1/biometric/ingest',
+            'api/api/v1/biometric/ingest',
+            '*/v1/biometric/ingest',
+        ]);
+
         // Apply CORS middleware to all requests
         $middleware->append(\App\Http\Middleware\CorsMiddleware::class);
 
