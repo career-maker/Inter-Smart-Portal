@@ -173,51 +173,44 @@ export default function CommunityPage() {
       {activeTab === "feed" && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 relative">
           
-          {/* ── LEFT SIDEBAR (4 Cols on desktop, Sticky pinned when scrolling posts) ── */}
-          <div className="lg:col-span-4 relative">
-            <div className="space-y-6 lg:sticky lg:top-[120px] lg:max-h-[calc(100vh-140px)] lg:overflow-y-auto custom-scrollbar pr-1 pb-4">
+          {/* ── LEFT SIDEBAR (4 Cols on desktop, lists downward naturally without scrollbar) ── */}
+          <div className="lg:col-span-4 space-y-6">
               
               {/* 1. Upcoming Holiday Card */}
-              <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200/90 dark:border-slate-700/60 shadow-sm p-5 relative overflow-hidden">
+              <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/90 dark:border-slate-700/60 shadow-xs p-5 relative overflow-hidden">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#56348f] dark:text-purple-400 flex items-center gap-1.5">
-                    <CalendarDays className="w-3.5 h-3.5" /> Upcoming Holiday
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-rose-700 dark:text-rose-400 flex items-center gap-1.5">
+                    <CalendarDays className="w-3.5 h-3.5 text-rose-500" /> Upcoming Holiday
                   </span>
                   <Link
                     href="/holidays"
-                    className="text-[11px] font-medium text-[#56348f] dark:text-purple-400 hover:underline"
+                    className="text-xs font-bold text-[#56348f] dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 hover:underline"
                   >
                     View All
                   </Link>
                 </div>
 
                 {holiday ? (
-                  <div className="bg-gradient-to-br from-purple-500/10 via-indigo-500/5 to-transparent p-4 rounded-md border border-purple-200/60 dark:border-purple-900/30">
-                    <h3
-                      style={{
-                        fontFamily: '"Proxima Nova", sans-serif',
-                        fontSize: "13px",
-                        lineHeight: "20px",
-                        fontWeight: 500,
-                        color: "rgb(15, 24, 36)",
-                      }}
-                      className="dark:text-white truncate box-title"
-                    >
-                      🎉 {holiday.name}
+                  <div className="bg-gradient-to-br from-rose-500/10 via-amber-500/5 to-purple-500/5 p-4 rounded-xl border border-rose-200/80 dark:border-rose-900/30 space-y-1.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-500/20 px-2 py-0.5 rounded-md border border-amber-200 dark:border-amber-500/30">
+                        Celebration
+                      </span>
+                      <span className="text-xs font-bold text-rose-700 dark:text-rose-300">
+                        🎉
+                      </span>
+                    </div>
+                    <h3 className="font-bold text-slate-900 dark:text-white text-sm truncate">
+                      {holiday.name}
                     </h3>
-                    <p
-                      style={{
-                        fontSize: "12px",
-                        lineHeight: "18px",
-                        color: "rgb(94, 105, 120)",
-                      }}
-                      className="dark:text-slate-400 mt-1"
-                    >
+                    <p className="text-xs font-medium text-slate-600 dark:text-slate-300">
                       {holiday.date ? format(parseISO(holiday.date), "EEEE, dd MMMM yyyy") : "TBD"}
                     </p>
                   </div>
                 ) : (
-                  <p className="text-xs text-slate-500 italic">No upcoming holidays scheduled</p>
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 italic py-2">
+                    No upcoming holidays scheduled
+                  </p>
                 )}
               </div>
 
@@ -375,7 +368,6 @@ export default function CommunityPage() {
               </div>
 
             </div>
-          </div>
 
           {/* ── MAIN COMMUNITY STREAM (8 Cols on desktop) ── */}
           <div className="lg:col-span-8 space-y-6">

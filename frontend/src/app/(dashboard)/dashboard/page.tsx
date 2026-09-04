@@ -51,6 +51,7 @@ import { AchievementFlipCard } from "@/components/recognition/AchievementFlipCar
 import { LeaderboardWidget } from "@/components/dashboard/LeaderboardWidget";
 import { EmergencyContactsCard } from "@/components/dashboard/EmergencyContactsCard";
 import { UpcomingBirthdaysWithWishes } from "@/components/dashboard/UpcomingBirthdaysWithWishes";
+import { UpcomingHolidaysCard } from "@/components/dashboard/UpcomingHolidaysCard";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, AreaChart, Area } from "recharts";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 import { useTopAwardee } from "@/context/TopAwardeeContext";
@@ -563,14 +564,29 @@ export default function DashboardPage() {
 
       {/* Employee Dashboard: Upcoming Holidays Banner */}
       {user?.role === "Employee" && data?.widgets?.upcoming_holidays && data.widgets.upcoming_holidays.length > 0 && (
-        <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/30 dark:to-blue-900/30 border border-purple-200 dark:border-purple-500/30 rounded-md p-4 flex items-start gap-3 animate-slideDown mb-6">
-          <CalendarDays className="w-5 h-5 text-purple-600 dark:text-purple-400 flex-shrink-0 mt-0.5" />
-          <div>
-            <p className="text-sm font-semibold text-purple-900 dark:text-purple-300">Upcoming Holidays</p>
-            <p className="text-xs text-slate-700 dark:text-slate-400 mt-1">
-              {data.widgets.upcoming_holidays[0]?.name} on {format(parseISO(data.widgets.upcoming_holidays[0]?.date), "MMM d, yyyy")}
-            </p>
+        <div className="bg-gradient-to-r from-rose-50 via-amber-50/60 to-purple-50 dark:from-rose-950/20 dark:via-amber-950/20 dark:to-purple-950/20 border border-rose-200/90 dark:border-rose-500/30 rounded-2xl p-4 flex items-center justify-between gap-4 animate-slideDown mb-6 shadow-xs">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-500/30 flex items-center justify-center text-lg shadow-2xs flex-shrink-0">
+              🎉
+            </div>
+            <div className="min-w-0">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-rose-700 dark:text-rose-400 flex items-center gap-1.5">
+                <Sparkles className="w-3 h-3 text-amber-500" /> Upcoming Celebration
+              </p>
+              <p className="text-sm font-bold text-slate-900 dark:text-white truncate">
+                {data.widgets.upcoming_holidays[0]?.name}
+                <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 ml-2">
+                  • {format(parseISO(data.widgets.upcoming_holidays[0]?.date), "EEEE, MMM d, yyyy")}
+                </span>
+              </p>
+            </div>
           </div>
+          <Link
+            href="/holidays"
+            className="flex-shrink-0 text-xs font-bold text-[#56348f] dark:text-purple-300 hover:underline px-3.5 py-1.5 bg-white dark:bg-slate-800 border border-purple-200/80 dark:border-purple-800 rounded-xl shadow-2xs hover:bg-slate-50 transition-colors"
+          >
+            View Calendar →
+          </Link>
         </div>
       )}
 
@@ -1036,25 +1052,7 @@ export default function DashboardPage() {
         */}
         <div className="lg:col-span-4 space-y-8">
           {/* Upcoming Holidays */}
-          <div className="premium-card wave-card p-6 h-full flex flex-col justify-between">
-            <div>
-              <h2 className="text-lg font-bold text-rose-300 mb-5 flex items-center gap-2">
-                <CalendarDays className="w-5 h-5" />
-                Upcoming Holidays
-              </h2>
-              <div className="space-y-4">
-                {widgets.upcoming_holidays.length === 0 && <p className="text-sm text-slate-500 dark:text-slate-400">No upcoming holidays.</p>}
-                {widgets.upcoming_holidays.map((h: any, i: number) => (
-                  <div key={i} className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-slate-900 dark:text-white">{h.name}</span>
-                    <span className="text-xs font-semibold text-white bg-rose-500/20 px-2 py-1 rounded-md">
-                      {format(new Date(h.date), "MMM d")}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+          <UpcomingHolidaysCard holidays={widgets.upcoming_holidays || []} />
         </div>
 
       </div>
@@ -1804,31 +1802,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
 
 
           {/* Upcoming Holidays */}
-          <div className="premium-card wave-card p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
-                  <CalendarDays className="w-4 h-4 text-rose-500 dark:text-rose-400" />
-                  Upcoming Holidays
-                </h3>
-                <p style={{ fontSize: "12px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
-                  Public holidays this month
-                </p>
-              </div>
-              <Link href="/holidays" className="text-xs font-medium text-[#56348f] dark:text-purple-400 hover:underline">View All</Link>
-            </div>
-            <div className="space-y-4">
-              {widgets.upcoming_holidays.length === 0 && <p className="text-sm text-slate-500 dark:text-slate-400">No upcoming holidays.</p>}
-              {widgets.upcoming_holidays.map((h: any, i: number) => (
-                <div key={i} className="flex justify-between items-center">
-                  <span className="text-sm font-medium text-slate-900 dark:text-white">{h.name}</span>
-                  <span className="text-xs font-semibold text-rose-600 bg-rose-500/30 px-2 py-1 rounded-md text-rose-300">
-                    {format(new Date(h.date), "MMM d")}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
+          <UpcomingHolidaysCard holidays={widgets.upcoming_holidays || []} />
 
           {/* Leave Summary (Reused from regular dashboard) */}
            <div className="premium-card wave-card p-6">
