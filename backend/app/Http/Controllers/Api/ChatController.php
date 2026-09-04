@@ -111,9 +111,46 @@ class ChatController extends Controller
                     'status' => $response->status(),
                     'body' => $geminiError,
                 ]);
+
+                // Detect quota limit or rate limit errors (HTTP 429, Resource Exhausted, or Quota Exceeded)
+                $isQuotaError = $response->status() === 429
+                    || str_contains(strtolower($geminiError), 'quota')
+                    || str_contains(strtolower($geminiError), 'rate-limit')
+                    || str_contains(strtolower($geminiError), 'rate_limit')
+                    || str_contains(strtolower($geminiError), 'rate limit')
+                    || str_contains(strtolower($geminiError), 'resource_exhausted');
+
+                if ($isQuotaError) {
+                    $retrySeconds = null;
+                    if (preg_match('/retry in\s+([0-9]+(?:\.[0-9]+)?)\s*s/i', $geminiError, $matches)) {
+                        $retrySeconds = (int) ceil((float) $matches[1]);
+                    } elseif (preg_match('/retry\s+after\s+([0-9]+)\s*s/i', $geminiError, $matches)) {
+                        $retrySeconds = (int) $matches[1];
+                    }
+
+                    $nowIst = Carbon::now('Asia/Kolkata');
+                    if ($retrySeconds && $retrySeconds > 0) {
+                        $resetTimeFormatted = $nowIst->copy()->addSeconds($retrySeconds)->format('h:i:s A') . ' IST';
+                        $friendlyWait = $retrySeconds < 60 ? "{$retrySeconds} seconds" : (ceil($retrySeconds / 60) . " minute(s)");
+                        $cleanMessage = "Your chat sending limit is reached. Next reset time: {$resetTimeFormatted} (in {$friendlyWait}).";
+                    } else {
+                        $retrySeconds = 60;
+                        $resetTimeFormatted = $nowIst->copy()->addSeconds(60)->format('h:i:s A') . ' IST';
+                        $cleanMessage = "Your chat sending limit is reached. Next reset time: {$resetTimeFormatted}.";
+                    }
+
+                    return response()->json([
+                        'status' => 'error',
+                        'error_type' => 'quota_exceeded',
+                        'message' => $cleanMessage,
+                        'retry_after_seconds' => $retrySeconds,
+                        'reset_time' => $resetTimeFormatted,
+                    ], 429);
+                }
+
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Cloud AI service (Gemini) returned an error: ' . $geminiError
+                    'message' => 'Cloud AI service returned an error. Please try again in a moment.'
                 ], 502);
 
             } catch (\Exception $e) {

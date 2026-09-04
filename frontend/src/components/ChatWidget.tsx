@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { X, Send, Sparkles, AlertCircle, RotateCcw } from "lucide-react";
+import { X, Send, Sparkles, AlertCircle, RotateCcw, Clock, CheckCircle2 } from "lucide-react";
 import api from "@/services/api";
 
 interface Message {
@@ -112,6 +112,29 @@ export default function ChatWidget() {
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [quotaError, setQuotaError] = useState<{
+    message: string;
+    resetTime?: string;
+    retrySeconds?: number;
+  } | null>(null);
+  const [countdown, setCountdown] = useState<number | null>(null);
+
+  // Live countdown timer for rate limit / quota reset
+  useEffect(() => {
+    if (countdown === null || countdown <= 0) return;
+
+    const timer = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev === null || prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [countdown]);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -119,7 +142,7 @@ export default function ChatWidget() {
     if (isOpen) {
       scrollToBottom();
     }
-  }, [isOpen, messages, isLoading]);
+  }, [isOpen, messages, isLoading, quotaError]);
 
   // Handle ESC key to close drawer
   useEffect(() => {
@@ -146,6 +169,8 @@ export default function ChatWidget() {
       },
     ]);
     setErrorMsg("");
+    setQuotaError(null);
+    setCountdown(null);
   };
 
   const handleSend = async (text: string) => {
@@ -171,6 +196,10 @@ export default function ChatWidget() {
     setInputValue("");
     setIsLoading(true);
     setErrorMsg("");
+    if (countdown === 0) {
+      setQuotaError(null);
+      setCountdown(null);
+    }
 
     try {
       const res = await api.post("/chat", {
@@ -186,15 +215,64 @@ export default function ChatWidget() {
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, botMsg]);
+      setQuotaError(null);
+      setCountdown(null);
     } catch (e: any) {
       console.error("Chat error:", e?.response?.data ?? e?.message ?? e);
-      const backendMsg = e.response?.data?.message || e.response?.data?.error;
+      const data = e.response?.data;
+      const backendMsg = data?.message || data?.error || e.message;
       const httpStatus = e.response?.status;
-      setErrorMsg(
-        backendMsg
-          ? `Error (${httpStatus}): ${backendMsg}`
-          : "Could not connect to the AI assistant. Please try again in a moment."
-      );
+
+      // Detect quota limit or rate limit errors
+      const isQuota =
+        httpStatus === 429 ||
+        data?.error_type === "quota_exceeded" ||
+        /quota/i.test(backendMsg || "") ||
+        /rate-?limit/i.test(backendMsg || "") ||
+        /resource_exhausted/i.test(backendMsg || "") ||
+        /retry in/i.test(backendMsg || "");
+
+      if (isQuota) {
+        let retrySec = data?.retry_after_seconds;
+        let resetTime = data?.reset_time;
+
+        // Fallback regex parsing if raw message from older backend or direct Google API error
+        if (!retrySec) {
+          const match = (backendMsg || "").match(/retry in\s+([0-9]+(?:\.[0-9]+)?)\s*s/i);
+          if (match) {
+            retrySec = Math.ceil(parseFloat(match[1]));
+          }
+        }
+
+        if (!resetTime && retrySec) {
+          const resetDate = new Date(Date.now() + retrySec * 1000);
+          resetTime =
+            resetDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }) +
+            " IST";
+        } else if (!resetTime) {
+          const resetDate = new Date(Date.now() + 60 * 1000);
+          resetTime =
+            resetDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }) +
+            " IST";
+          retrySec = 60;
+        }
+
+        setQuotaError({
+          message: "Your chat sending limit is reached.",
+          resetTime: resetTime,
+          retrySeconds: retrySec,
+        });
+        setCountdown(retrySec);
+        setErrorMsg("");
+      } else {
+        setQuotaError(null);
+        setCountdown(null);
+        setErrorMsg(
+          backendMsg
+            ? `Error (${httpStatus || 500}): ${backendMsg}`
+            : "Could not connect to the AI assistant. Please try again in a moment."
+        );
+      }
     } finally {
       setIsLoading(false);
     }
@@ -347,13 +425,78 @@ export default function ChatWidget() {
                 </div>
               )}
 
-              {/* Error Message */}
-              {errorMsg && (
-                <div className="flex gap-2 p-3 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs items-start">
+              {/* Quota limit error message or general error */}
+              {quotaError ? (
+                <div
+                  className={`p-4 rounded-2xl border transition-all duration-300 animate-in fade-in ${
+                    countdown === 0
+                      ? "bg-emerald-50/90 border-emerald-200 text-emerald-900"
+                      : "bg-amber-50/90 border-amber-200 text-amber-900"
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <div
+                      className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${
+                        countdown === 0
+                          ? "bg-emerald-100 text-emerald-600 border border-emerald-200"
+                          : "bg-amber-100 text-amber-600 border border-amber-200"
+                      }`}
+                    >
+                      {countdown === 0 ? (
+                        <CheckCircle2 className="w-4 h-4" />
+                      ) : (
+                        <Clock className="w-4 h-4" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-xs font-bold uppercase tracking-wider m-0">
+                        {countdown === 0
+                          ? "Sending Quota Reset"
+                          : "Chat Sending Limit Reached"}
+                      </h4>
+                      <p className="text-xs mt-1 leading-relaxed m-0 opacity-90">
+                        {countdown === 0
+                          ? "Your sending limit has reset! You can send your next question now."
+                          : "You have reached the temporary AI message sending limit. Please wait for the quota to reset."}
+                      </p>
+
+                      <div className="mt-2.5 flex flex-wrap items-center gap-2 text-xs font-semibold">
+                        {quotaError.resetTime && (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/95 border border-slate-200/80 shadow-2xs">
+                            <span
+                              className={`w-2 h-2 rounded-full ${
+                                countdown === 0
+                                  ? "bg-emerald-500"
+                                  : "bg-amber-500 animate-pulse"
+                              }`}
+                            ></span>
+                            <span>Next Reset: {quotaError.resetTime}</span>
+                          </span>
+                        )}
+
+                        {countdown !== null && (
+                          <span
+                            className={`px-2.5 py-1 rounded-lg border shadow-2xs ${
+                              countdown === 0
+                                ? "bg-emerald-100/90 border-emerald-200 text-emerald-800"
+                                : "bg-white/95 border-amber-200 text-amber-700 font-medium"
+                            }`}
+                          >
+                            {countdown > 0
+                              ? `Ready in ${countdown}s`
+                              : "Ready to send"}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : errorMsg ? (
+                <div className="flex gap-2 p-3 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs items-start animate-in fade-in">
                   <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-500" />
                   <span>{errorMsg}</span>
                 </div>
-              )}
+              ) : null}
 
               <div ref={chatEndRef} />
             </div>
@@ -371,13 +514,17 @@ export default function ChatWidget() {
                   type="text"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  placeholder="Ask about leaves, projects, leads, attendance..."
+                  placeholder={
+                    countdown !== null && countdown > 0
+                      ? `Limit reached. Resets in ${countdown}s...`
+                      : "Ask about leaves, projects, leads, attendance..."
+                  }
                   disabled={isLoading}
                   className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-[#56348f] focus:ring-1 focus:ring-[#56348f] transition-all disabled:opacity-50"
                 />
                 <button
                   type="submit"
-                  disabled={isLoading || !inputValue.trim()}
+                  disabled={isLoading || !inputValue.trim() || (countdown !== null && countdown > 0)}
                   className="flex items-center justify-center w-10 h-10 rounded-xl bg-[#56348f] hover:bg-[#432670] text-white transition-all disabled:opacity-40 disabled:hover:bg-[#56348f] select-none active:scale-95 shrink-0 cursor-pointer shadow-sm font-medium"
                 >
                   <Send className="w-4 h-4" />
