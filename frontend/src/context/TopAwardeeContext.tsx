@@ -12,6 +12,7 @@ interface TopAwardeeContextType {
   isTopAwardee: (userOrId?: number | string | { id?: number; user_id?: number; employee_code?: string; name?: string; first_name?: string } | null) => boolean;
   setTopAwardeeFromLeaderboard: (leaderboardData: any) => void;
   refreshTopAwardee: () => Promise<void>;
+  clearTopAwardee: () => void;
 }
 
 const TopAwardeeContext = createContext<TopAwardeeContextType>({
@@ -23,6 +24,7 @@ const TopAwardeeContext = createContext<TopAwardeeContextType>({
   isTopAwardee: () => false,
   setTopAwardeeFromLeaderboard: () => {},
   refreshTopAwardee: async () => {},
+  clearTopAwardee: () => {},
 });
 
 export function TopAwardeeProvider({ children }: { children: React.ReactNode }) {
@@ -54,18 +56,40 @@ export function TopAwardeeProvider({ children }: { children: React.ReactNode }) 
   });
   const [topAwardee, setTopAwardee] = useState<any | null>(null);
 
-  const persistTopAwardee = (id: number | null, code: string | null, name: string | null, count: number) => {
+  const clearTopAwardee = useCallback(() => {
+    setTopAwardeeId(null);
+    setTopAwardeeCode(null);
+    setTopAwardeeName(null);
+    setTotalAwards(0);
+    setTopAwardee(null);
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("intersmart_top_awardee_id");
+      localStorage.removeItem("intersmart_top_awardee_code");
+      localStorage.removeItem("intersmart_top_awardee_name");
+      localStorage.removeItem("intersmart_top_awardee_count");
+    }
+  }, []);
+
+  const persistTopAwardee = useCallback((id: number | null, code: string | null, name: string | null, count: number) => {
     if (typeof window === "undefined") return;
     if (id && count > 0) {
       localStorage.setItem("intersmart_top_awardee_id", String(id));
       if (code) localStorage.setItem("intersmart_top_awardee_code", code);
       if (name) localStorage.setItem("intersmart_top_awardee_name", name);
       localStorage.setItem("intersmart_top_awardee_count", String(count));
+    } else {
+      localStorage.removeItem("intersmart_top_awardee_id");
+      localStorage.removeItem("intersmart_top_awardee_code");
+      localStorage.removeItem("intersmart_top_awardee_name");
+      localStorage.removeItem("intersmart_top_awardee_count");
     }
-  };
+  }, []);
 
   const setTopAwardeeFromLeaderboard = useCallback((lbData: any) => {
-    if (!lbData) return;
+    if (!lbData) {
+      clearTopAwardee();
+      return;
+    }
     const topUserId = Number(lbData?.stats?.top_performer_user_id || lbData?.top_performer_user_id || 0);
     const list: any[] = Array.isArray(lbData?.data) ? lbData.data : Array.isArray(lbData) ? lbData : [];
 
@@ -90,7 +114,7 @@ export function TopAwardeeProvider({ children }: { children: React.ReactNode }) 
       list.find((d: any) => (d.rank === 1 || Number(d.rank) === 1) && Number(d.total_achievements) > 0) ||
       list.find((d: any) => Number(d.total_achievements) > 0);
 
-    if (rank1) {
+    if (rank1 && Number(rank1.total_achievements) > 0) {
       const tId = Number(rank1.user_id || rank1.id);
       const tCode = rank1.employee_code || null;
       const tName = rank1.name || null;
@@ -101,8 +125,11 @@ export function TopAwardeeProvider({ children }: { children: React.ReactNode }) 
       setTotalAwards(tCount);
       setTopAwardee(rank1);
       persistTopAwardee(tId, tCode, tName, tCount);
+      return;
     }
-  }, []);
+
+    clearTopAwardee();
+  }, [clearTopAwardee, persistTopAwardee]);
 
   const fetchTopAwardee = useCallback(async () => {
     if (typeof window === "undefined") return;
@@ -123,6 +150,9 @@ export function TopAwardeeProvider({ children }: { children: React.ReactNode }) 
         setTopAwardee(res.data.employee);
         persistTopAwardee(tId, tCode, tName, tCount);
         return;
+      } else if (res.data && (res.data.top_awardee_id === null || Number(res.data.total_awards || 0) === 0)) {
+        clearTopAwardee();
+        return;
       }
     } catch {
       // Fallback to /recognitions/leaderboard
@@ -132,11 +162,13 @@ export function TopAwardeeProvider({ children }: { children: React.ReactNode }) 
       const lbRes = await api.get(`/recognitions/leaderboard?period=overall&_t=${Date.now()}`);
       if (lbRes.data) {
         setTopAwardeeFromLeaderboard(lbRes.data);
+      } else {
+        clearTopAwardee();
       }
     } catch {
       // Ignore
     }
-  }, [setTopAwardeeFromLeaderboard]);
+  }, [clearTopAwardee, persistTopAwardee, setTopAwardeeFromLeaderboard]);
 
   useEffect(() => {
     fetchTopAwardee();
@@ -192,6 +224,7 @@ export function TopAwardeeProvider({ children }: { children: React.ReactNode }) 
         isTopAwardee,
         setTopAwardeeFromLeaderboard,
         refreshTopAwardee: fetchTopAwardee,
+        clearTopAwardee,
       }}
     >
       {children}

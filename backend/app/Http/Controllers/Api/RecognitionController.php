@@ -221,7 +221,7 @@ class RecognitionController extends Controller
             ->distinct('user_id')
             ->count('user_id');
 
-        $topEntry = $leaderboard->first(fn($item) => $item['total_achievements'] > 0) ?? $leaderboard->first();
+        $topEntry = $leaderboard->first(fn($item) => ($item['total_achievements'] ?? 0) > 0);
 
         $mostAwardedRow = Recognition::selectRaw('title, icon, COUNT(*) as award_count')
             ->groupBy('title', 'icon')
@@ -274,7 +274,8 @@ class RecognitionController extends Controller
      */
     public function topAwardee()
     {
-        $top = Recognition::selectRaw('user_id, count(*) as award_count')
+        $top = Recognition::where('is_active', true)
+            ->selectRaw('user_id, count(*) as award_count')
             ->groupBy('user_id')
             ->orderByDesc('award_count')
             ->first();

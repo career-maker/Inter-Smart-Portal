@@ -19,6 +19,7 @@ import {
 import api from "@/services/api";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 import { useAuthStore } from "@/store/auth";
+import { useTopAwardee } from "@/context/TopAwardeeContext";
 
 const RANK_STYLES = [
   { bg: "from-amber-500/20 to-yellow-500/10", border: "border-amber-500/40", text: "text-amber-300", icon: "🥇" },
@@ -29,6 +30,7 @@ const RANK_STYLES = [
 export function LeaderboardWidget() {
   const user = useAuthStore((state) => state.user);
   const isSuperAdmin = user?.role === "Super Admin";
+  const { setTopAwardeeFromLeaderboard } = useTopAwardee();
 
   const [leaders, setLeaders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,6 +41,9 @@ export function LeaderboardWidget() {
       try {
         const res = await api.get("/recognitions/leaderboard?period=overall");
         setLeaders(res.data?.data?.slice(0, 4) || []);
+        if (res.data) {
+          setTopAwardeeFromLeaderboard(res.data);
+        }
       } catch (err) {
         console.error("Failed to load leaderboard widget", err);
       } finally {
@@ -46,7 +51,7 @@ export function LeaderboardWidget() {
       }
     };
     fetch();
-  }, []);
+  }, [setTopAwardeeFromLeaderboard]);
 
   return (
     <>

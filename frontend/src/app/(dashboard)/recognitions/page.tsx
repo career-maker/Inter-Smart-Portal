@@ -20,6 +20,7 @@ import api from "@/services/api";
 import Link from "next/link";
 import { CertificateModal } from "@/components/recognition/CertificateModal";
 import { useAuthStore } from "@/store/auth";
+import { useTopAwardee } from "@/context/TopAwardeeContext";
 
 const PREDEFINED_TITLES = [
   { title: "Hubstaff King", icon: "👑" },
@@ -34,6 +35,7 @@ const PREDEFINED_TITLES = [
 
 export default function RecognitionsPage() {
   const router = useRouter();
+  const { refreshTopAwardee } = useTopAwardee();
   const [recognitions, setRecognitions] = useState<any[]>([]);
   const [employees, setEmployees] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -149,6 +151,7 @@ export default function RecognitionsPage() {
         description: "",
       });
       fetchRecognitions();
+      refreshTopAwardee();
     } catch (error: any) {
       console.error("Error creating recognition", error);
       alert(error.response?.data?.message || "Failed to create recognition.");
@@ -162,6 +165,7 @@ export default function RecognitionsPage() {
     try {
       await api.put(`/recognitions/${id}/toggle`);
       fetchRecognitions();
+      refreshTopAwardee();
     } catch (error) {
       console.error("Error toggling status", error);
     } finally {
@@ -175,6 +179,7 @@ export default function RecognitionsPage() {
     try {
       await api.delete(`/recognitions/${id}`);
       fetchRecognitions();
+      refreshTopAwardee();
     } catch (error) {
       console.error("Error deleting", error);
     } finally {
