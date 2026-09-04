@@ -197,23 +197,23 @@ export default function ChatWidget() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Toggle Portal AI Assistant"
-        className={`fixed bottom-6 right-6 z-40 flex items-center justify-center w-14 h-14 rounded-full shadow-2xl transition-all duration-300 active:scale-95 cursor-pointer border ${
+        className={`fixed bottom-6 right-6 z-40 flex items-center justify-center transition-all duration-300 active:scale-95 cursor-pointer ${
           isOpen
-            ? "bg-rose-600 hover:bg-rose-500 text-white border-rose-400 rotate-90 shadow-rose-600/30"
-            : "bg-[#0b1727] hover:bg-[#12233b] border-amber-400/40 shadow-xl shadow-amber-500/20 hover:scale-105"
+            ? "w-12 h-12 rounded-full bg-rose-600 hover:bg-rose-500 text-white border border-rose-400 rotate-90 shadow-xl shadow-rose-600/30"
+            : "w-16 h-16 bg-transparent border-0 p-0 hover:scale-110"
         }`}
         title="Portal AI Assistant"
       >
         {isOpen ? (
           <X className="w-6 h-6 text-white" />
         ) : (
-          <div className="relative flex items-center justify-center w-full h-full p-2">
+          <div className="relative flex items-center justify-center w-full h-full">
             <img
               src="/chatbot.png"
               alt="AI Assistant"
-              className="w-9 h-9 object-contain drop-shadow-md"
+              className="w-full h-full object-contain filter drop-shadow-[0_4px_12px_rgba(0,0,0,0.25)]"
             />
-            <span className="absolute top-1.5 right-1.5 w-3 h-3 bg-emerald-400 rounded-full border-2 border-[#0b1727] animate-pulse"></span>
+            <span className="absolute top-1 right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white shadow-sm animate-pulse"></span>
           </div>
         )}
       </button>
@@ -230,13 +230,13 @@ export default function ChatWidget() {
             className="flex items-center justify-between px-5 py-3.5 border-b"
           >
             <div className="flex items-center gap-3">
-              <div className="relative flex items-center justify-center w-10 h-10 rounded-2xl bg-amber-400/10 border border-amber-400/25 p-1.5">
+              <div className="relative flex items-center justify-center w-9 h-9 shrink-0">
                 <img
                   src="/chatbot.png"
                   alt="AI Bot"
                   className="w-full h-full object-contain"
                 />
-                <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 rounded-full border-2 border-[#0f223a]"></span>
+                <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-[#0f223a]"></span>
               </div>
               <div>
                 <h3 style={{ color: "#ffffff" }} className="text-sm font-bold flex items-center gap-1.5 m-0">
@@ -282,7 +282,7 @@ export default function ChatWidget() {
                 }`}
               >
                 {msg.sender === "bot" && (
-                  <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-amber-400/10 border border-amber-400/25 shrink-0 select-none p-1 self-start mt-0.5">
+                  <div className="flex items-center justify-center w-7 h-7 shrink-0 select-none self-start mt-0.5">
                     <img
                       src="/chatbot.png"
                       alt="Bot"
@@ -346,7 +346,7 @@ export default function ChatWidget() {
             {/* Loading Indicator */}
             {isLoading && (
               <div className="flex gap-2.5 max-w-[85%] items-center">
-                <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-amber-400/10 border border-amber-400/25 shrink-0 p-1">
+                <div className="flex items-center justify-center w-7 h-7 shrink-0">
                   <img
                     src="/chatbot.png"
                     alt="Bot"
