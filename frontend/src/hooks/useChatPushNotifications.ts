@@ -19,12 +19,23 @@ interface UnreadResponse {
   latest_message?: LatestMessage | null;
 }
 
+let globalInterval: NodeJS.Timeout | null = null;
+let activeHookCount = 0;
+let sharedUnreadCount = 0;
+let sharedLatestConvId: number | null = null;
+let sharedPermission: "default" | "granted" | "denied" | "unsupported" = "default";
+const stateListeners = new Set<(count: number, convId: number | null, perm: typeof sharedPermission) => void>();
+
+function notifyListeners() {
+  stateListeners.forEach((fn) => fn(sharedUnreadCount, sharedLatestConvId, sharedPermission));
+}
+
 export function useChatPushNotifications() {
   const user = useAuthStore((state) => state.user);
-  const [unreadChatCount, setUnreadChatCount] = useState<number>(0);
-  const [latestConversationId, setLatestConversationId] = useState<number | null>(null);
-  const [permissionStatus, setPermissionStatus] = useState<"default" | "granted" | "denied" | "unsupported">("default");
-  
+  const [unreadChatCount, setUnreadChatCount] = useState<number>(sharedUnreadCount);
+  const [latestConversationId, setLatestConversationId] = useState<number | null>(sharedLatestConvId);
+  const [permissionStatus, setPermissionStatus] = useState<"default" | "granted" | "denied" | "unsupported">(sharedPermission);
+
   const lastNotifiedMsgIdRef = useRef<number | string | null>(null);
   const isFirstCheckRef = useRef<boolean>(true);
   const swRegRef = useRef<ServiceWorkerRegistration | null>(null);
@@ -32,8 +43,11 @@ export function useChatPushNotifications() {
   // Check current notification permission
   useEffect(() => {
     if (typeof window !== "undefined" && "Notification" in window) {
-      setPermissionStatus(Notification.permission);
+      const p = Notification.permission;
+      sharedPermission = p;
+      setPermissionStatus(p);
     } else if (typeof window !== "undefined") {
+      sharedPermission = "unsupported";
       setPermissionStatus("unsupported");
     }
   }, []);
@@ -52,14 +66,14 @@ export function useChatPushNotifications() {
     }
   }, []);
 
-  // Play subtle web audio notification chime
+  // Play subtle web audio notification chime with automatic resource cleanup
   const playChime = useCallback(() => {
     try {
       const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
       if (!AudioCtx) return;
       const ctx = new AudioCtx();
       if (ctx.state === "suspended") {
-        ctx.resume();
+        ctx.resume().catch(() => {});
       }
       const now = ctx.currentTime;
       const osc = ctx.createOscillator();
@@ -73,6 +87,13 @@ export function useChatPushNotifications() {
       gain.connect(ctx.destination);
       osc.start(now);
       osc.stop(now + 0.35);
+
+      // Clean up AudioContext so WebKit / iOS does not exhaust hardware audio daemon
+      setTimeout(() => {
+        try {
+          ctx.close().catch(() => {});
+        } catch {}
+      }, 500);
     } catch {
       // Audio autoplay policy fallback
     }
@@ -82,8 +103,12 @@ export function useChatPushNotifications() {
   const triggerMobileNotification = useCallback(
     async (title: string, body: string, targetUrl: string, tagId?: string) => {
       const tag = tagId || `msg_${Date.now()}`;
+      const isIOS =
+        typeof navigator !== "undefined" &&
+        (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
+          (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
 
-      // 1. Try Service Worker (Mandatory for Android & iOS Mobile Notification Area)
+      // 1. Try Service Worker (Mandatory for Android & iOS Mobile Notification Area in PWA)
       if (typeof window !== "undefined" && "serviceWorker" in navigator) {
         try {
           let reg = swRegRef.current;
@@ -110,8 +135,8 @@ export function useChatPushNotifications() {
         }
       }
 
-      // 2. Fallback to standard Notification API
-      if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+      // 2. Fallback to standard Notification API (Strictly skip on iOS because new Notification() is unsupported and causes WebKit crash)
+      if (!isIOS && typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
         try {
           const notif = new Notification(title, {
             body,
@@ -141,10 +166,11 @@ export function useChatPushNotifications() {
 
     try {
       const result = await Notification.requestPermission();
+      sharedPermission = result;
       setPermissionStatus(result);
+      notifyListeners();
 
       if (result === "granted") {
-        // Send immediate test notification to confirm it shows in phone's notification area!
         triggerMobileNotification(
           "Inter Smart Portal",
           "🎉 Notifications enabled! You will now receive alerts for new chats on your phone.",
@@ -167,7 +193,9 @@ export function useChatPushNotifications() {
 
     if (Notification.permission !== "granted") {
       const result = await Notification.requestPermission();
+      sharedPermission = result;
       setPermissionStatus(result);
+      notifyListeners();
       if (result !== "granted") {
         alert("Notifications permission was denied. Please allow notifications in site settings.");
         return;
@@ -181,17 +209,35 @@ export function useChatPushNotifications() {
     );
   }, [triggerMobileNotification]);
 
-  // Poll for unread chat count & incoming messages
+  // Shared single-instance poller for unread chat count
   useEffect(() => {
+    const listener = (count: number, convId: number | null, perm: typeof sharedPermission) => {
+      setUnreadChatCount(count);
+      setLatestConversationId(convId);
+      setPermissionStatus(perm);
+    };
+    stateListeners.add(listener);
+
+    activeHookCount++;
+
     if (!user) {
-      setUnreadChatCount(0);
-      setLatestConversationId(null);
-      return;
+      sharedUnreadCount = 0;
+      sharedLatestConvId = null;
+      notifyListeners();
+      return () => {
+        stateListeners.delete(listener);
+        activeHookCount--;
+        if (activeHookCount === 0 && globalInterval) {
+          clearInterval(globalInterval);
+          globalInterval = null;
+        }
+      };
     }
 
     const checkUnread = async () => {
+      if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
+
       try {
-        // 1. Try high-speed unread-count endpoint
         try {
           const res = await api.get<UnreadResponse>(`/direct-chat/unread-count?t=${Date.now()}`);
           if (res.data?.status === "success") {
@@ -199,8 +245,9 @@ export function useChatPushNotifications() {
             const convId = res.data.latest_conversation_id || null;
             const latestMsg = res.data.latest_message || null;
 
-            setUnreadChatCount(count);
-            setLatestConversationId(convId);
+            sharedUnreadCount = count;
+            sharedLatestConvId = convId;
+            notifyListeners();
 
             if (latestMsg) {
               if (isFirstCheckRef.current) {
@@ -228,10 +275,9 @@ export function useChatPushNotifications() {
             return;
           }
         } catch {
-          // If unread-count is not yet deployed on server, fall back to /direct-chat/conversations
+          // unread-count fallback
         }
 
-        // 2. Reliable fallback using standard conversations list
         const convsRes = await api.get(`/direct-chat/conversations?t=${Date.now()}`);
         if (convsRes.data?.status === "success") {
           const convList = convsRes.data.data || [];
@@ -249,8 +295,9 @@ export function useChatPushNotifications() {
             }
           }
 
-          setUnreadChatCount(total);
-          setLatestConversationId(firstUnreadConvId);
+          sharedUnreadCount = total;
+          sharedLatestConvId = firstUnreadConvId;
+          notifyListeners();
 
           if (newestMsg) {
             if (isFirstCheckRef.current) {
@@ -282,10 +329,19 @@ export function useChatPushNotifications() {
       }
     };
 
-    checkUnread();
-    const interval = setInterval(checkUnread, 6000); // Check every 6 seconds
+    if (!globalInterval) {
+      checkUnread();
+      globalInterval = setInterval(checkUnread, 8000); // Efficient 8s polling interval
+    }
 
-    return () => clearInterval(interval);
+    return () => {
+      stateListeners.delete(listener);
+      activeHookCount--;
+      if (activeHookCount === 0 && globalInterval) {
+        clearInterval(globalInterval);
+        globalInterval = null;
+      }
+    };
   }, [user, triggerMobileNotification]);
 
   return {

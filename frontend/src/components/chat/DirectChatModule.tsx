@@ -150,7 +150,7 @@ export function DirectChatModule() {
     profile_photo_path: currentUser?.profile_photo_path || null,
   }), [currentUser]);
 
-  // Web Audio API notification chime (Crisp dual-tone bell chime)
+  // Web Audio API notification chime (Crisp dual-tone bell chime with automatic resource cleanup)
   const playMessageSound = useCallback(() => {
     try {
       const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
@@ -158,7 +158,7 @@ export function DirectChatModule() {
       const ctx = new AudioCtx();
 
       if (ctx.state === "suspended") {
-        ctx.resume();
+        ctx.resume().catch(() => {});
       }
 
       const now = ctx.currentTime;
@@ -186,13 +186,28 @@ export function DirectChatModule() {
       gain2.connect(ctx.destination);
       osc2.start(now + 0.08);
       osc2.stop(now + 0.38);
+
+      // Clean up AudioContext so WebKit / iOS does not exhaust hardware audio daemon
+      setTimeout(() => {
+        try {
+          ctx.close().catch(() => {});
+        } catch {}
+      }, 500);
     } catch (e) {
       console.warn("Audio notification not supported or user has not interacted yet.", e);
     }
   }, []);
 
-  // Browser Push Notification
+  // Browser Push Notification (Guarded against iOS WebKit illegal constructor crash)
   const showBrowserNotification = useCallback((senderName: string, text: string) => {
+    const isIOS =
+      typeof navigator !== "undefined" &&
+      (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
+
+    // iOS Safari does not support new Notification() in web context
+    if (isIOS) return;
+
     if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
       try {
         const notif = new Notification(`${senderName} on InterSmart Chat`, {
@@ -206,15 +221,6 @@ export function DirectChatModule() {
         };
       } catch (e) {
         console.warn("Browser notification trigger failed", e);
-      }
-    }
-  }, []);
-
-  // Request notification permission
-  useEffect(() => {
-    if (typeof window !== "undefined" && "Notification" in window) {
-      if (Notification.permission === "default") {
-        Notification.requestPermission().catch(() => {});
       }
     }
   }, []);
@@ -237,44 +243,51 @@ export function DirectChatModule() {
     }
   }, []);
 
-  // Fast background polling & Window Focus Listener for instant sync
+  // Optimized background polling & Window Focus Listener for instant sync
   useEffect(() => {
     let tick = 0;
     const pollInterval = setInterval(() => {
       if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
       tick++;
 
-      // Poll messages every 2.5s
+      // Poll messages every 3s
       if (activeConversationId) {
         fetchMessages(activeConversationId, false);
       }
 
-      // Poll conversation list every ~7.5s (every 3 ticks)
+      // Poll conversation list every ~9s (every 3 ticks)
       if (tick % 3 === 0) {
         fetchConversations(false);
       }
 
-      // Ping presence heartbeat every ~30s (every 12 ticks) and on first tick
-      if (tick === 1 || tick % 12 === 0) {
+      // Ping presence heartbeat every ~30s (every 10 ticks)
+      if (tick % 10 === 0) {
         api.post<{ online_user_ids: number[] }>("/direct-chat/heartbeat")
           .then((res) => {
             const onlineIds = res.data?.online_user_ids || [];
-            setConversations((prev) =>
-              prev.map((c) => {
+            setConversations((prev) => {
+              let hasChanged = false;
+              const updated = prev.map((c) => {
                 if (!c.other_user) return c;
-                return {
-                  ...c,
-                  other_user: {
-                    ...c.other_user,
-                    is_online: onlineIds.includes(c.other_user.id),
-                  },
-                };
-              })
-            );
+                const isOnline = onlineIds.includes(c.other_user.id);
+                if (c.other_user.is_online !== isOnline) {
+                  hasChanged = true;
+                  return {
+                    ...c,
+                    other_user: {
+                      ...c.other_user,
+                      is_online: isOnline,
+                    },
+                  };
+                }
+                return c;
+              });
+              return hasChanged ? updated : prev;
+            });
           })
           .catch(() => {});
       }
-    }, 2500);
+    }, 3000);
 
     const handleWindowFocus = () => {
       fetchConversations(false);
@@ -303,7 +316,9 @@ export function DirectChatModule() {
         fetchMessages(activeConversationId, true);
       }
       setTimeout(() => {
-        textareaRef.current?.focus({ preventScroll: true });
+        if (typeof window !== "undefined" && window.innerWidth >= 768) {
+          textareaRef.current?.focus({ preventScroll: true });
+        }
         scrollToBottom(false);
       }, 50);
     } else {
@@ -360,7 +375,22 @@ export function DirectChatModule() {
         setConversations((prev) => {
           // Preserve any optimistic conversation that hasn't synced
           const optimisticList = prev.filter((p) => p.is_optimistic && !list.some((l) => l.id === p.id));
-          return [...optimisticList, ...list];
+          const newList = [...optimisticList, ...list];
+
+          // Check if conversation summary (ids, unread_count, is_online, last_message_at) changed
+          if (prev.length === newList.length && prev.length > 0) {
+            const isIdentical = prev.every((oldC, idx) => {
+              const newC = newList[idx];
+              return (
+                oldC.id === newC?.id &&
+                oldC.unread_count === newC?.unread_count &&
+                oldC.last_message_at === newC?.last_message_at &&
+                oldC.other_user?.is_online === newC?.other_user?.is_online
+              );
+            });
+            if (isIdentical) return prev;
+          }
+          return newList;
         });
 
         // Only auto-select first conversation on Desktop screens (>= 768px). On Mobile, show the WhatsApp conversation list!
@@ -388,6 +418,9 @@ export function DirectChatModule() {
       if (res.data?.status === "success") {
         const serverMessages: ChatMessage[] = res.data.data || [];
 
+        // Check if this conversation has been loaded into memory cache previously
+        const isInitialForConv = !messagesCacheRef.current[convId];
+
         // Check for new incoming messages from other people to trigger chime & push notification
         let hasNewIncoming = false;
         let latestIncomingSender = "";
@@ -396,7 +429,8 @@ export function DirectChatModule() {
         serverMessages.forEach((msg) => {
           if (!knownMessageIdsRef.current.has(msg.id)) {
             knownMessageIdsRef.current.add(msg.id);
-            if (msg.sender_id !== currentUser?.id) {
+            // Only trigger notifications for truly new messages arrived after initial conversation load
+            if (!isInitialForConv && msg.sender_id !== currentUser?.id) {
               hasNewIncoming = true;
               latestIncomingSender = msg.sender?.name || "Colleague";
               latestIncomingText = msg.message || "Sent an attachment";
@@ -412,6 +446,17 @@ export function DirectChatModule() {
         setMessages((current) => {
           const pendingOptimistic = current.filter((m) => m.is_optimistic && m.status === "sending");
           if (pendingOptimistic.length === 0) {
+            // Guard: avoid triggering unnecessary React re-renders and auto-scroll if message contents & read receipts are identical
+            if (
+              current.length === serverMessages.length &&
+              current.length > 0 &&
+              current[current.length - 1]?.id === serverMessages[serverMessages.length - 1]?.id &&
+              current[current.length - 1]?.is_read === serverMessages[serverMessages.length - 1]?.is_read
+            ) {
+              messagesCacheRef.current[convId] = current;
+              return current;
+            }
+
             messagesCacheRef.current[convId] = serverMessages;
             return serverMessages;
           }
