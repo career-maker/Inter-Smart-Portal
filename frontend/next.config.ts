@@ -13,6 +13,18 @@ const nextConfig: NextConfig = {
       "tailwind-merge",
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: "/api/v1/biometric/ingest",
+        destination: "https://workplace.intersmart.in/api/api/v1/biometric/ingest",
+      },
+      {
+        source: "/api/api/v1/biometric/ingest",
+        destination: "https://workplace.intersmart.in/api/api/v1/biometric/ingest",
+      },
+    ];
+  },
 };
 
 export default nextConfig;

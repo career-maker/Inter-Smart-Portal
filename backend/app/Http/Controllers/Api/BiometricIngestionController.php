@@ -246,6 +246,18 @@ class BiometricIngestionController extends Controller
                 });
             }
 
+            // Trigger timeline processor after HTTP response has been sent to client (FastCGI finish request)
+            // Ensures newly ingested punches immediately reflect on the dashboard without delaying or timing out the agent
+            if (!empty($insertPayload)) {
+                app()->terminating(function () {
+                    try {
+                        \Illuminate\Support\Facades\Artisan::call('biometric:process');
+                    } catch (\Throwable $t) {
+                        \Log::error('Post-response biometric processing failed: ' . $t->getMessage());
+                    }
+                });
+            }
+
             return $this->formatResponse($responses);
         } catch (\Throwable $e) {
             error_log('BIOMETRIC_TRACE_99_ENTERED_CATCH');
