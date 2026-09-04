@@ -16,6 +16,7 @@ use App\Models\Project;
 use App\Models\ProjectTask;
 use App\Models\Attendance;
 use App\Models\BiometricEvent;
+use App\Models\WfhRequest;
 
 class ChatController extends Controller
 {
@@ -241,57 +242,237 @@ class ChatController extends Controller
             ->toArray();
         $holidaysText = empty($holidays) ? "No upcoming holidays registered." : implode("\n", $holidays);
 
-        // 7. Team Lead: Teammates List & Today's Attendance
+        // 7. Determine Team IDs for Team Lead
         $leadTeamIds = [];
-        $teammatesText = "";
         $teammateIds = [];
-
         if ($isTeamLead) {
             $leadTeamIds = Team::where('team_lead_id', $user->id)->pluck('id')->toArray();
             if ($user->team_id && !in_array($user->team_id, $leadTeamIds)) {
                 $leadTeamIds[] = $user->team_id;
             }
-
             try {
-                $teammates = User::whereIn('team_id', $leadTeamIds)
+                $teammateIds = User::whereIn('team_id', $leadTeamIds)
                     ->where('id', '!=', $user->id)
                     ->where('status', 'Active')
-                    ->get(['id', 'first_name', 'last_name', 'employee_code', 'designation', 'team_id']);
-
-                $teammateIds = $teammates->pluck('id')->toArray();
-
-                $teammatesList = $teammates->map(function ($m) use ($todayStr) {
-                    $hasCheckIn = Attendance::where('user_id', $m->id)
-                        ->where('date', $todayStr)
-                        ->whereNotNull('check_in_time')
-                        ->exists();
-
-                    if (!$hasCheckIn) {
-                        $hasCheckIn = BiometricEvent::where('user_id', $m->id)
-                            ->whereDate('local_punch_time', $todayStr)
-                            ->where('direction', 'in')
-                            ->exists();
-                    }
-
-                    $isOnLeave = LeaveRequest::where('user_id', $m->id)
-                        ->where('status', 'Approved')
-                        ->where('start_date', '<=', $todayStr)
-                        ->where('end_date', '>=', $todayStr)
-                        ->exists();
-
-                    $status = $isOnLeave ? 'On Leave' : ($hasCheckIn ? 'Present' : 'Absent / Not Checked In');
-                    return "- {$m->first_name} {$m->last_name} (Code: {$m->employee_code}, Designation: {$m->designation}, Status Today: {$status})";
-                })->toArray();
-
-                $teammatesText = empty($teammatesList)
-                    ? "No other active members assigned to your team."
-                    : implode("\n", $teammatesList);
+                    ->pluck('id')
+                    ->toArray();
             } catch (\Exception $e) {
-                $teammatesText = "Could not load team members.";
+                $teammateIds = [];
             }
         }
 
-        // 8. Projects & Team Members (Scoped by Role)
+        // 8. Active Tasks & Assignments (Loaded before roster to map user active tasks)
+        $userTasksMap = [];
+        try {
+            $taskQuery = ProjectTask::query()
+                ->whereNotIn('status', ['Completed', 'Rejected'])
+                ->with(['project:id,name', 'assignees:id,first_name,last_name']);
+
+            if ($isSuperAdmin || $isHR) {
+                // Admin sees company-wide active tasks (take up to 100)
+                $tasks = $taskQuery->orderBy('due_date')->take(100)->get();
+            } elseif ($isTeamLead) {
+                $allTeamUserIds = array_merge([$user->id], $teammateIds);
+                $tasks = $taskQuery->where(function ($q) use ($leadTeamIds, $allTeamUserIds) {
+                    if (!empty($leadTeamIds)) {
+                        $q->whereIn('team_id', $leadTeamIds);
+                    }
+                    $q->orWhereHas('assignees', fn ($a) => $a->whereIn('users.id', $allTeamUserIds));
+                })->orderBy('due_date')->take(60)->get();
+            } else {
+                // Regular Employee sees ONLY their own assigned tasks
+                $tasks = $taskQuery->whereHas('assignees', fn ($a) => $a->where('users.id', $user->id))
+                    ->orderBy('due_date')->take(20)->get();
+            }
+
+            foreach ($tasks as $t) {
+                $projName = $t->project ? $t->project->name : 'General';
+                foreach ($t->assignees as $assignee) {
+                    $userTasksMap[$assignee->id][] = "{$t->title} [Project: {$projName}, Status: {$t->status}]";
+                }
+            }
+
+            $formattedTasks = $tasks->map(function ($t) {
+                $projName = $t->project ? $t->project->name : 'General';
+                $assigneeNames = $t->assignees->map(fn($u) => "{$u->first_name} {$u->last_name}")->toArray();
+                $assigneeText = empty($assigneeNames) ? 'Unassigned' : implode(', ', $assigneeNames);
+                $dueText = $t->due_date ? Carbon::parse($t->due_date)->format('d M Y') : 'No due date';
+                $priority = $t->priority ?? 'Medium';
+                return "- Task: \"{$t->title}\" [Project: {$projName} | Status: {$t->status} | Priority: {$priority} | Due: {$dueText}]\n  Assignees: {$assigneeText}";
+            })->toArray();
+
+            $tasksText = empty($formattedTasks)
+                ? "No active task assignments found."
+                : implode("\n\n", $formattedTasks);
+        } catch (\Exception $e) {
+            $tasksText = "Task assignment details unavailable.";
+        }
+
+        // 9. Employee Roster & Today's Live Attendance Status
+        $rosterSection = "";
+        try {
+            if ($isSuperAdmin || $isHR) {
+                // Super Admin / HR: Full company active employee roster with today's live attendance & tasks
+                $employees = User::where('status', 'Active')
+                    ->with('team:id,name')
+                    ->orderBy('first_name')
+                    ->get(['id', 'first_name', 'last_name', 'employee_code', 'designation', 'team_id']);
+
+                $attendancesToday = Attendance::where('date', $todayStr)
+                    ->get(['user_id', 'check_in_time', 'check_out_time', 'status', 'total_working_minutes'])
+                    ->keyBy('user_id');
+
+                $biometricInToday = BiometricEvent::whereNotNull('user_id')
+                    ->whereDate('local_punch_time', $todayStr)
+                    ->where('direction', 'in')
+                    ->orderBy('local_punch_time')
+                    ->get(['user_id', 'local_punch_time'])
+                    ->groupBy('user_id');
+
+                $approvedLeavesToday = LeaveRequest::where('status', 'Approved')
+                    ->whereDate('start_date', '<=', $today)
+                    ->whereDate('end_date', '>=', $today)
+                    ->pluck('leave_type', 'user_id')
+                    ->toArray();
+
+                $approvedWfhToday = [];
+                try {
+                    $approvedWfhToday = WfhRequest::where('status', 'Approved')
+                        ->where(function ($q) use ($todayStr) {
+                            $q->whereDate('wfh_date', $todayStr)
+                              ->orWhere(function ($q2) use ($todayStr) {
+                                  $q2->whereDate('start_date', '<=', $todayStr)
+                                     ->whereDate('end_date', '>=', $todayStr);
+                              });
+                        })
+                        ->pluck('status', 'user_id')
+                        ->toArray();
+                } catch (\Exception $wfhEx) {
+                    $approvedWfhToday = [];
+                }
+
+                $presentCount = 0;
+                $leaveCount = 0;
+                $wfhCount = 0;
+                $absentCount = 0;
+
+                $empRows = $employees->map(function ($emp) use (
+                    $attendancesToday,
+                    $biometricInToday,
+                    $approvedLeavesToday,
+                    $approvedWfhToday,
+                    $userTasksMap,
+                    &$presentCount,
+                    &$leaveCount,
+                    &$wfhCount,
+                    &$absentCount
+                ) {
+                    $att = $attendancesToday->get($emp->id);
+                    $bioPunches = $biometricInToday->get($emp->id);
+                    $leaveType = $approvedLeavesToday[$emp->id] ?? null;
+                    $isWfh = isset($approvedWfhToday[$emp->id]);
+
+                    if ($leaveType) {
+                        $leaveCount++;
+                        $status = "On Leave ({$leaveType})";
+                    } elseif ($isWfh) {
+                        $wfhCount++;
+                        $status = "Work From Home (Approved WFH)";
+                    } elseif ($att && $att->check_in_time) {
+                        $presentCount++;
+                        $checkInTime = Carbon::parse($att->check_in_time)->format('h:i A');
+                        if ($att->check_out_time) {
+                            $checkOutTime = Carbon::parse($att->check_out_time)->format('h:i A');
+                            $status = "Present (Checked In: {$checkInTime}, Checked Out: {$checkOutTime})";
+                        } else {
+                            $status = "Present in Office (Checked In: {$checkInTime})";
+                        }
+                    } elseif ($bioPunches && $bioPunches->isNotEmpty()) {
+                        $presentCount++;
+                        $firstPunch = Carbon::parse($bioPunches->first()->local_punch_time)->format('h:i A');
+                        $status = "Present in Office (Biometric Punch-In at {$firstPunch})";
+                    } else {
+                        $absentCount++;
+                        $status = "Absent / Not Checked In Yet Today";
+                    }
+
+                    $teamName = $emp->team ? $emp->team->name : 'General';
+                    $designation = $emp->designation ?: 'Employee';
+                    $tasks = $userTasksMap[$emp->id] ?? [];
+                    $tasksText = empty($tasks) ? "No active tasks" : "Active Tasks: " . implode('; ', array_slice($tasks, 0, 3));
+
+                    return "- {$emp->first_name} {$emp->last_name} (Code: {$emp->employee_code}, Team: {$teamName}, Role: {$designation}) | Status Today: {$status} | {$tasksText}";
+                })->toArray();
+
+                $totalEmp = count($employees);
+                $summaryText = "Company Attendance Summary Today ({$todayStr}): Total Active: {$totalEmp}, Present: {$presentCount}, On Leave: {$leaveCount}, WFH: {$wfhCount}, Absent/Not Checked In: {$absentCount}.";
+                $rosterSection = "\n6. ALL COMPANY EMPLOYEES: TODAY'S LIVE ATTENDANCE STATUS & ACTIVE TASKS:\n{$summaryText}\n" . implode("\n", $empRows) . "\n";
+
+            } elseif ($isTeamLead) {
+                // Team Lead: Direct teammates with today's live attendance & tasks
+                $teammates = User::whereIn('team_id', $leadTeamIds)
+                    ->where('id', '!=', $user->id)
+                    ->where('status', 'Active')
+                    ->with('team:id,name')
+                    ->orderBy('first_name')
+                    ->get(['id', 'first_name', 'last_name', 'employee_code', 'designation', 'team_id']);
+
+                $attendancesToday = Attendance::where('date', $todayStr)
+                    ->whereIn('user_id', $teammateIds)
+                    ->get(['user_id', 'check_in_time', 'check_out_time', 'status'])
+                    ->keyBy('user_id');
+
+                $biometricInToday = BiometricEvent::whereIn('user_id', $teammateIds)
+                    ->whereDate('local_punch_time', $todayStr)
+                    ->where('direction', 'in')
+                    ->orderBy('local_punch_time')
+                    ->get(['user_id', 'local_punch_time'])
+                    ->groupBy('user_id');
+
+                $approvedLeavesToday = LeaveRequest::where('status', 'Approved')
+                    ->whereIn('user_id', $teammateIds)
+                    ->whereDate('start_date', '<=', $today)
+                    ->whereDate('end_date', '>=', $today)
+                    ->pluck('leave_type', 'user_id')
+                    ->toArray();
+
+                $empRows = $teammates->map(function ($emp) use (
+                    $attendancesToday,
+                    $biometricInToday,
+                    $approvedLeavesToday,
+                    $userTasksMap
+                ) {
+                    $att = $attendancesToday->get($emp->id);
+                    $bioPunches = $biometricInToday->get($emp->id);
+                    $leaveType = $approvedLeavesToday[$emp->id] ?? null;
+
+                    if ($leaveType) {
+                        $status = "On Leave ({$leaveType})";
+                    } elseif ($att && $att->check_in_time) {
+                        $checkInTime = Carbon::parse($att->check_in_time)->format('h:i A');
+                        $status = $att->check_out_time 
+                            ? "Present (Checked In at {$checkInTime}, Checked Out at " . Carbon::parse($att->check_out_time)->format('h:i A') . ")"
+                            : "Present in Office (Checked In at {$checkInTime})";
+                    } elseif ($bioPunches && $bioPunches->isNotEmpty()) {
+                        $firstPunch = Carbon::parse($bioPunches->first()->local_punch_time)->format('h:i A');
+                        $status = "Present in Office (Biometric In at {$firstPunch})";
+                    } else {
+                        $status = "Absent / Not Checked In Yet Today";
+                    }
+
+                    $tasks = $userTasksMap[$emp->id] ?? [];
+                    $tasksText = empty($tasks) ? "No active tasks" : "Active Tasks: " . implode('; ', array_slice($tasks, 0, 3));
+
+                    return "- {$emp->first_name} {$emp->last_name} (Code: {$emp->employee_code}, Role: {$emp->designation}) | Status Today: {$status} | {$tasksText}";
+                })->toArray();
+
+                $rosterSection = "\n6. YOUR DIRECT TEAM MEMBERS: TODAY'S ATTENDANCE & ACTIVE TASKS:\n" . (empty($empRows) ? "No active teammates registered." : implode("\n", $empRows)) . "\n";
+            }
+        } catch (\Exception $e) {
+            $rosterSection = "\n6. Employee roster status unavailable.\n";
+        }
+
+        // 10. Projects & Team Members (Scoped by Role)
         try {
             $projectQuery = Project::query()->with([
                 'team:id,name',
@@ -317,7 +498,7 @@ class ChatController extends Controller
                 }
             }
 
-            $projects = $projectQuery->take(30)->get()->map(function ($proj) {
+            $projects = $projectQuery->take(50)->get()->map(function ($proj) {
                 $coordinatorName = $proj->coordinator 
                     ? "{$proj->coordinator->first_name} {$proj->coordinator->last_name}" 
                     : "Not specified";
@@ -338,47 +519,7 @@ class ChatController extends Controller
             $projectsText = "Project roster details unavailable.";
         }
 
-        // 9. Tasks & Assignments (Crucial for "what task is assigned to X")
-        try {
-            $taskQuery = ProjectTask::query()
-                ->whereNotIn('status', ['Completed', 'Rejected'])
-                ->with(['project:id,name', 'assignees:id,first_name,last_name']);
-
-            if ($isSuperAdmin || $isHR) {
-                // Admin sees company-wide active tasks
-                $tasks = $taskQuery->orderBy('due_date')->take(50)->get();
-            } elseif ($isTeamLead) {
-                // Team Lead sees all tasks assigned to their teammates or tasks in their team
-                $allTeamUserIds = array_merge([$user->id], $teammateIds);
-                $tasks = $taskQuery->where(function ($q) use ($leadTeamIds, $allTeamUserIds) {
-                    if (!empty($leadTeamIds)) {
-                        $q->whereIn('team_id', $leadTeamIds);
-                    }
-                    $q->orWhereHas('assignees', fn ($a) => $a->whereIn('users.id', $allTeamUserIds));
-                })->orderBy('due_date')->take(50)->get();
-            } else {
-                // Regular Employee sees ONLY their own assigned tasks
-                $tasks = $taskQuery->whereHas('assignees', fn ($a) => $a->where('users.id', $user->id))
-                    ->orderBy('due_date')->take(20)->get();
-            }
-
-            $formattedTasks = $tasks->map(function ($t) {
-                $projName = $t->project ? $t->project->name : 'General';
-                $assigneeNames = $t->assignees->map(fn($u) => "{$u->first_name} {$u->last_name}")->toArray();
-                $assigneeText = empty($assigneeNames) ? 'Unassigned' : implode(', ', $assigneeNames);
-                $dueText = $t->due_date ? Carbon::parse($t->due_date)->format('d M Y') : 'No due date';
-                $priority = $t->priority ?? 'Medium';
-                return "- Task: \"{$t->title}\" [Project: {$projName} | Status: {$t->status} | Priority: {$priority} | Due: {$dueText}]\n  Assignees: {$assigneeText}";
-            })->toArray();
-
-            $tasksText = empty($formattedTasks)
-                ? "No active task assignments found."
-                : implode("\n\n", $formattedTasks);
-        } catch (\Exception $e) {
-            $tasksText = "Task assignment details unavailable.";
-        }
-
-        // 10. Pending Approvals (For Team Leads & Admins)
+        // 11. Pending Approvals (For Team Leads & Admins)
         $pendingApprovalsText = "";
         if ($isSuperAdmin || $isHR) {
             $pendingCount = LeaveRequest::where('status', 'Pending')->count();
@@ -398,7 +539,49 @@ class ChatController extends Controller
             }
         }
 
-        // 11. Build Master System Prompt with Role Guidance
+        // 12. Role-Specific Authorization Instructions
+        if ($isSuperAdmin) {
+            $roleInstruction = "
+SUPER ADMIN UNRESTRICTED ACCESS (TOP PRIORITY - NO RESTRICTIONS):
+- The current user is the verified SUPER ADMIN.
+- Super Admins have absolute, 100% UNRESTRICTED CLEARANCE across all portal data, employees, attendances, tasks, and projects.
+- You MUST answer ANY question the Super Admin asks about ANY employee without refusal, disclaimers, or privacy warnings.
+- When the Super Admin asks:
+  * 'what is [Name] doing now?' or 'what is [Name] working on?'
+  * 'is [Name] present / in office today?' or 'what time did [Name] punch in?'
+  * 'what are [Name]\'s tasks or projects?'
+  * 'who is absent today?' or 'who is on leave today?' or 'how many employees are present?'
+  * ANY question about any staff member:
+  1. Look up the employee in Section 6 ('ALL COMPANY EMPLOYEES: TODAY\'S LIVE ATTENDANCE STATUS & ACTIVE TASKS') and Section 8 ('Active Tasks & Assignments'). Matching can be by first name, last name, or nickname (e.g., 'aswathi' matches 'Aswathi M Ashok').
+  2. Answer directly and informatively:
+     - Their live attendance status today (Present in office with check-in time / biometric punch-in time, Punched Out time, On Leave, Work From Home, or Absent / Not Checked In yet).
+     - Their designation and department/team.
+     - Their currently assigned active task(s) and project(s).
+  3. NEVER decline to answer or state 'I cannot provide real-time information on what individual employees are doing' or 'My access is limited'. As Super Admin, the user owns the company workspace and is entitled to full real-time operational visibility.";
+        } elseif ($isHR) {
+            $roleInstruction = "
+HR MANAGER AUTHORIZATION:
+- The user is an HR Manager with company-wide administrative clearance.
+- You have full managerial visibility across all employees, attendance records, leaves, and tasks in Section 6 and Section 8. Answer administrative queries thoroughly and directly without privacy refusals.";
+        } elseif ($isTeamLead) {
+            $roleInstruction = "
+TEAM LEAD AUTHORIZATION:
+- The user is a verified Team Lead.
+- Team Leads ARE FULLY AUTHORIZED to see their teammates' tasks, projects, attendance, and leave status.
+- Teammates in their team are listed in Section 6 ('YOUR DIRECT TEAM MEMBERS') and tasks in Section 8 ('Active Tasks & Assignments').
+- When the Team Lead asks questions about their teammates (for example: 'what task is assigned to aswathy', 'is aswathy absent today', 'who is in my team', 'what is aswathy working on'):
+  1. Look up the teammate by name (matching first name, last name, or nickname like 'aswathy' for 'Aswathi M Ashok').
+  2. Answer directly with their tasks, task statuses, projects, and attendance status!
+  3. DO NOT refuse to answer questions about their direct teammates.
+- Only refuse if asked about employees completely outside their team/department, or private personal compensation/salaries.";
+        } else {
+            $roleInstruction = "
+EMPLOYEE RESTRICTION:
+- The user is a standard Employee. They can only view their own personal records, their own assigned tasks, and public company directory information.
+- If an Employee asks for private data belonging to other employees (such as other employees' Hubstaff tracking, salaries, or peer tasks), politely decline: 'For privacy reasons, I can only provide your own personal records and general company announcements. Access to peer records and task supervision is restricted to Team Leads and Administrators.'";
+        }
+
+        // 13. Build Master System Prompt with Role Guidance
         $systemPrompt = "You are the Inter Smart Employee Portal AI Assistant. Your role is to answer questions about the portal, including leave applications, who is on leave today, team leads / departments, holidays, user profiles, team members, and assigned tasks and projects.
 
 CURRENT USER INFORMATION:
@@ -424,7 +607,7 @@ REAL-TIME DATABASE CONTEXT (Role-Filtered for: {$roleName}):
 
 5. Upcoming Company Holidays:
 {$holidaysText}
-" . ($isTeamLead ? "\n6. Your Direct Team Members & Attendance Status Today:\n{$teammatesText}\n" : "") . "
+{$rosterSection}
 7. Accessible Projects:
 {$projectsText}
 
@@ -444,29 +627,13 @@ PORTAL NAVIGATION LINKS:
 - Company Policies: `/project-management/addons/leave-policy`
 
 CRITICAL PRIVACY & PERMISSION INSTRUCTIONS:
-" . ($isTeamLead ? "
-TEAM LEAD AUTHORIZATION:
-- The user is a verified 'Team Lead'.
-- Team Leads ARE FULLY AUTHORIZED to see their teammates' tasks, projects, attendance, and leave status.
-- Teammates in their team are listed in Section 6 ('Your Direct Team Members') and tasks in Section 8 ('Active Tasks & Assignments').
-- When the Team Lead asks questions about their teammates (for example: 'what task is assigned to aswathy', 'is aswathy absent today', 'who is in my team', 'what is aswathy working on'):
-  1. Look up the teammate by name (first name, last name, or nickname like 'aswathy' matching 'Aswathi M Ashok').
-  2. Answer directly with their tasks, task statuses, projects, and attendance status!
-  3. DO NOT refuse to answer questions about their direct teammates.
-- Only refuse if asked about employees completely outside their team/department, or private personal compensation/salaries.
-" : ($isSuperAdmin || $isHR ? "
-ADMINISTRATOR AUTHORIZATION:
-- You have full managerial visibility across all employees, teams, projects, and tasks. Answer administrative queries thoroughly.
-" : "
-EMPLOYEE RESTRICTION:
-- The user is a standard Employee. They can only view their own personal records, their own assigned tasks, and public company directory information.
-- If an Employee asks for private data belonging to other employees (such as other employees' Hubstaff tracking, salaries, or peer tasks), politely decline: 'For privacy reasons, I can only provide your own personal records and general company announcements. Access to peer records and task supervision is restricted to Team Leads and Administrators.'
-")) . "
+{$roleInstruction}
 
 GENERAL INSTRUCTIONS:
 1. READ-ONLY: You cannot perform CRUD actions (you cannot apply for leaves, change project/task statuses, or edit records). Guide the user to the relevant link above instead.
 2. TONE & CLARITY: Keep answers professional, concise, friendly, and direct. Use clean markdown formatting (bullet points, bold text) for readability.
-3. If the user asks about general company policies or something not in the context, give a general helpful answer or advise them to contact HR.";
+3. QUERY INTERPRETATION: If asked 'what is [Name] doing now' or 'what is [Name] working on', look up their live attendance status today (office check-in / punch-in time) and their active task assignments / projects from the real-time context and report it directly.
+4. If the user asks about general company policies or something not in the context, give a general helpful answer or advise them to contact HR.";
 
         return $systemPrompt;
     }
