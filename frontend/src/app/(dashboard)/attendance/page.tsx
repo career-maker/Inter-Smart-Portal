@@ -153,7 +153,7 @@ export default function AttendancePage() {
               <CardContent className="pt-6">
                 <div className="space-y-2">
                   <p className="text-xs text-slate-500 dark:text-slate-400">{filterDay ? 'Check-out' : "Today's Check-out"}</p>
-                  <p className="text-2xl font-bold text-rose-400">{formatTime(getFilteredHistory()[0]?.check_out_time)}</p>
+                  <p className="text-2xl font-bold text-rose-400">{formatTime(getFilteredHistory()[0]?.last_out || getFilteredHistory()[0]?.check_out_time)}</p>
                 </div>
               </CardContent>
             </Card>
@@ -251,7 +251,7 @@ export default function AttendancePage() {
                         <td className="px-4 py-4 font-medium text-slate-900 dark:text-white">{recordDate.toLocaleDateString()}</td>
                         <td className="px-4 py-4 text-slate-600 dark:text-slate-300 text-xs font-medium">{dayName}</td>
                         <td className="px-4 py-4 text-emerald-400 font-semibold">{formatTime(record.check_in_time)}</td>
-                        <td className="px-4 py-4 text-rose-400 font-semibold">{formatTime(record.check_out_time)}</td>
+                        <td className="px-4 py-4 text-rose-400 font-semibold">{formatTime(record.last_out || record.check_out_time)}</td>
                         <td className="px-4 py-4 text-slate-600 dark:text-slate-300">{formatMinutesToHours(totalBreakMins)}</td>
                         <td className="px-4 py-4 text-right font-bold text-blue-400">
                           {record.total_working_minutes !== null ? formatMinutesToHours(record.total_working_minutes) : '--'}

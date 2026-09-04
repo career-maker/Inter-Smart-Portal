@@ -93,9 +93,19 @@ class DashboardController extends Controller
         
         if ($todayAttendance) {
             if ($todayAttendance->check_out_time) {
+                $todayAttendance->last_out = $todayAttendance->check_out_time;
                 $profile['attendance_status'] = 'Punched Out';
                 $attendanceWidgetStatus = 'Checked Out';
             } else {
+                $lastOutEvt = \App\Models\BiometricEvent::where('user_id', $user->id)
+                    ->whereDate('local_punch_time', $todayStr)
+                    ->where('direction', 'out')
+                    ->orderBy('local_punch_time', 'desc')
+                    ->first();
+                if ($lastOutEvt) {
+                    $todayAttendance->last_out = $lastOutEvt->utc_punch_time ?? $lastOutEvt->local_punch_time;
+                }
+
                 $openBreak = $todayAttendance->breaks()->whereNull('break_end')->first();
                 if ($openBreak) {
                     $profile['attendance_status'] = 'On Break';
@@ -123,9 +133,18 @@ class DashboardController extends Controller
             }
         }
 
+        $lastOutTime = $todayAttendance?->last_out ?? $todayAttendance?->check_out_time;
+        if (!$lastOutTime && isset($rawEvents) && $rawEvents->isNotEmpty()) {
+            $lastOutEvt = $rawEvents->firstWhere('direction', 'out');
+            if ($lastOutEvt) {
+                $lastOutTime = $lastOutEvt->utc_punch_time ?? $lastOutEvt->local_punch_time;
+            }
+        }
+
         $attendanceWidgetData = [
             'status' => $attendanceWidgetStatus,
-            'attendance' => $todayAttendance ? new \App\Http\Resources\AttendanceResource($todayAttendance) : null
+            'attendance' => $todayAttendance ? new \App\Http\Resources\AttendanceResource($todayAttendance) : null,
+            'last_out' => $lastOutTime ? (new \Carbon\Carbon($lastOutTime))->setTimezone('Asia/Kolkata')->toIso8601String() : null,
         ];
 
         // 2. Leave Metrics

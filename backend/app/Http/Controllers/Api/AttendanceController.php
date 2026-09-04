@@ -65,6 +65,7 @@ class AttendanceController extends Controller
                 
                 $attendance->check_in_time         = $interp['first_in'];
                 $attendance->check_out_time        = $interp['is_currently_working'] ? null : $interp['last_out'];
+                $attendance->last_out              = $interp['last_out'];
                 $attendance->total_working_minutes = $interp['total_working_minutes'];
                 $attendance->status                = 'Present';
                 
@@ -85,6 +86,21 @@ class AttendanceController extends Controller
             return response()->json(['status' => 'Not Checked In', 'attendance' => null]);
         }
 
+        if (!isset($attendance->last_out)) {
+            if ($attendance->check_out_time) {
+                $attendance->last_out = $attendance->check_out_time;
+            } else {
+                $lastOutEvt = BiometricEvent::where('user_id', $user->id)
+                    ->whereDate('local_punch_time', $today)
+                    ->where('direction', 'out')
+                    ->orderBy('local_punch_time', 'desc')
+                    ->first();
+                if ($lastOutEvt) {
+                    $attendance->last_out = $lastOutEvt->utc_punch_time ?? $lastOutEvt->local_punch_time;
+                }
+            }
+        }
+
         // Biometric punch reconciliation is handled securely and canonically 
         // by the BiometricProcessorService cron job, but building on the fly above
         // ensures instant UI updates before the cron runs.
@@ -99,9 +115,12 @@ class AttendanceController extends Controller
             }
         }
 
+        $resource = new AttendanceResource($attendance);
+
         return response()->json([
             'status'     => $status,
-            'attendance' => new AttendanceResource($attendance),
+            'attendance' => $resource,
+            'last_out'   => $resource->toArray($request)['last_out'] ?? null,
         ]);
     }
 

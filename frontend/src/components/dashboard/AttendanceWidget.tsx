@@ -124,6 +124,7 @@ export function AttendanceWidget({
 
   useEffect(() => {
     fetchData();
+    fetchTimelineData(todayStr);
   }, []);
 
   // Auto-refresh attendance status every 30 seconds
@@ -351,7 +352,12 @@ export function AttendanceWidget({
                 style={{ fontSize: "15px", lineHeight: "22px", color: "rgb(15, 24, 36)" }}
                 className="font-semibold dark:text-white"
               >
-                {formatTime(data?.attendance?.check_out_time)}
+                {formatTime(
+                  data?.attendance?.last_out ||
+                  data?.attendance?.check_out_time ||
+                  data?.last_out ||
+                  timelineData?.last_out
+                )}
               </p>
             </div>
             {/* Total Break */}
@@ -614,7 +620,9 @@ export function AttendanceWidget({
                     <div className="bg-slate-50 dark:bg-slate-800/80 p-3 rounded-xl border border-slate-200/80 dark:border-slate-700/60">
                       <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Last Punch Out</p>
                       <p className="text-sm font-bold text-slate-900 dark:text-white mt-0.5">
-                        {timelineData?.is_currently_working ? (
+                        {timelineData?.last_out ? (
+                          formatTime(timelineData.last_out)
+                        ) : timelineData?.is_currently_working ? (
                           <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1 text-xs">
                             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse inline-block" />
                             Working Now
@@ -623,7 +631,7 @@ export function AttendanceWidget({
                           formatTime(
                             selectedMember 
                               ? timelineData?.last_out 
-                              : (timelineData?.last_out || data?.attendance?.check_out_time)
+                              : (timelineData?.last_out || data?.attendance?.last_out || data?.attendance?.check_out_time)
                           )
                         )}
                       </p>

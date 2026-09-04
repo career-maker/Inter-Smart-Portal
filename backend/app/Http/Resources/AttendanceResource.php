@@ -51,6 +51,7 @@ class AttendanceResource extends JsonResource
             'date'                  => $this->date?->format('Y-m-d'),
             'check_in_time'         => $this->formatTimeAsIso($this->check_in_time),
             'check_out_time'        => $this->formatTimeAsIso($this->check_out_time),
+            'last_out'              => $this->formatTimeAsIso($this->last_out ?? $this->check_out_time),
             'total_working_minutes' => $this->total_working_minutes,
             'status'                => $this->status,
             'source'                => $this->source,
