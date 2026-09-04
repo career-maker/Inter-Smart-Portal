@@ -13,11 +13,11 @@ if %errorlevel% equ 0 (
 )
 
 echo Creating Task Scheduler entry...
-schtasks /create /tn "%TASK_NAME%" /tr "\"%WRAPPER_PATH%\"" /sc minute /mo 5 /ru "SYSTEM" /f
+schtasks /create /tn "%TASK_NAME%" /tr "\"%WRAPPER_PATH%\"" /sc minute /mo 1 /ru "SYSTEM" /f
 
 if %errorlevel% equ 0 (
     echo Successfully installed the sync agent as a background task.
-    echo The agent will run every 5 minutes and survive reboots automatically.
+    echo The agent will run every 1 minute and survive reboots automatically.
     echo Logs will be appended to %~dp0sync.log
 ) else (
     echo Failed to install the task. Please run this script as Administrator.

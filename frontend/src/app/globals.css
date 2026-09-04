@@ -500,11 +500,20 @@ html:not(.dark) a[class*="bg-white"]:not([class*="text-white"]) {
   }
 
   span {
-    color: #1E293B;
+    color: inherit;
   }
 
   .dark span {
-    color: #E2E8F0;
+    color: inherit;
+  }
+
+  .bg-slate-900 span,
+  .bg-slate-800 span,
+  .bg-slate-950 span,
+  button span,
+  [style*="color: #ffffff"] span,
+  [style*="color:#ffffff"] span {
+    color: inherit;
   }
 
   a {

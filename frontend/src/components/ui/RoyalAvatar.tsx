@@ -162,7 +162,7 @@ export function RoyalName({
 
   return (
     <span className={cn("inline-flex items-center gap-1", className)} style={resolvedStyle}>
-      <span>{name}</span>
+      <span style={{ color: resolvedStyle.color || "inherit" }}>{name}</span>
     </span>
   );
 }
