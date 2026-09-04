@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Holiday;
 use App\Models\LeaveRequest;
 use App\Models\WfhRequest;
+use App\Models\WorkingDaysOverride;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -29,14 +30,41 @@ class CalendarController extends Controller
 
         // 1. Company Holidays
         $holidays = Holiday::whereBetween('date', [$startOfMonth->toDateString(), $endOfMonth->toDateString()])->get();
+        $holidayDateMap = [];
         foreach ($holidays as $h) {
+            $hDate = $h->date ? \Carbon\Carbon::parse($h->date)->format('Y-m-d') : null;
+            if ($hDate) {
+                $holidayDateMap[$hDate] = true;
+            }
             $events[] = [
                 'id' => 'h_' . $h->id,
                 'title' => $h->name,
-                'date' => $h->date ? \Carbon\Carbon::parse($h->date)->format('Y-m-d') : null,
+                'date' => $hDate,
                 'type' => 'Holiday',
                 'status' => 'Approved', // implicitly
             ];
+        }
+
+        // Add all Saturdays and Sundays as weekend holidays (unless marked as working in WorkingDaysOverride)
+        $workingOverrides = WorkingDaysOverride::whereBetween('date', [$startOfMonth->toDateString(), $endOfMonth->toDateString()])
+            ->pluck('date')
+            ->map(fn($d) => Carbon::parse($d)->format('Y-m-d'))
+            ->flip()
+            ->toArray();
+
+        $curr = $startOfMonth->copy();
+        while ($curr->lte($endOfMonth)) {
+            $dateStr = $curr->format('Y-m-d');
+            if ($curr->isWeekend() && !isset($workingOverrides[$dateStr]) && !isset($holidayDateMap[$dateStr])) {
+                $events[] = [
+                    'id' => 'weekend_' . $dateStr,
+                    'title' => $curr->format('l'),
+                    'date' => $dateStr,
+                    'type' => 'Holiday',
+                    'status' => 'Approved',
+                ];
+            }
+            $curr->addDay();
         }
 
         // 2. Leave Requests

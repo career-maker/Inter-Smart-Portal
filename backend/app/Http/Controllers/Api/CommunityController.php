@@ -654,6 +654,15 @@ class CommunityController extends Controller
             ->first();
 
         $todayIsHoliday = Holiday::whereDate('date', $today->format('Y-m-d'))->first();
+        if (!$todayIsHoliday && $today->isWeekend()) {
+            $isOverride = \App\Models\WorkingDaysOverride::whereDate('date', $today->format('Y-m-d'))->exists();
+            if (!$isOverride) {
+                $todayIsHoliday = (object) [
+                    'name' => $today->format('l'),
+                    'type' => 'Weekend Holiday',
+                ];
+            }
+        }
 
         $onLeaveToday = LeaveRequest::where('status', 'Approved')
             ->whereDate('start_date', '<=', $today)

@@ -142,8 +142,13 @@ class LeaveRequestController extends Controller
             'total' => (float) (clone $totalQuery)->sum(\DB::raw('COALESCE(actual_leave_days, days, 0)')),
         ];
 
+        $perPage = (int) $request->input('per_page', 10);
+        if ($request->boolean('all')) {
+            $perPage = 500;
+        }
+
         return response()->json([
-            'data' => $query->orderBy('created_at', 'desc')->paginate(10),
+            'data' => $query->orderBy('created_at', 'desc')->paginate($perPage),
             'filtered_totals' => $filteredTotals
         ]);
     }

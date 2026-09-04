@@ -1436,13 +1436,13 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <KPICard title="Employees" value={kpis.total_employees} trend={kpis.trends.employees} icon={UserCircle} color="bg-blue-500" href="/employees" />
         <KPICard
-          title="Present"
+          title="Essl Entries"
           value={kpis.present_today}
           trend={kpis.trends.attendance}
           icon={Fingerprint}
           color="bg-emerald-500"
           onClick={() => setLeaveModalData({
-            title: "Present Today",
+            title: "Essl Entries Today",
             list: kpis.present_today_list || []
           })}
         />
@@ -1485,10 +1485,10 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                 <PieChart margin={{ top: 20, right: 0, bottom: 0, left: 0 }}>
                   <Pie
                     data={[
-                      { name: 'Present', value: kpis.present_today ?? 0 },
+                      { name: 'Checked In', value: kpis.present_today ?? 0 },
                       { name: 'On Leave', value: kpis.on_leave_today ?? 0 },
                       { name: 'WFH', value: kpis.wfh_today ?? 0 },
-                      { name: 'Absent', value: Math.max(0, (kpis.total_employees ?? 0) - (kpis.present_today ?? 0) - (kpis.on_leave_today ?? 0) - (kpis.wfh_today ?? 0)) }
+                      { name: 'Not Checked In', value: Math.max(0, (kpis.total_employees ?? 0) - (kpis.present_today ?? 0) - (kpis.on_leave_today ?? 0) - (kpis.wfh_today ?? 0)) }
                     ]}
                     cx="50%"
                     cy="70%"

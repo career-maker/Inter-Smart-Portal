@@ -136,7 +136,7 @@ export default function LeavesPage() {
       const [balRes, reqRes, allReqRes] = await Promise.all([
         api.get("/leave-balances"),
         api.get(`/leave-requests?${queryParams}`),
-        api.get("/leave-requests?per_page=200"),
+        api.get("/leave-requests?all=true&per_page=500"),
       ]);
 
       const filtered = reqRes.data.filtered_totals;
@@ -209,6 +209,7 @@ export default function LeavesPage() {
 
   /* ─── Compute Statistics from Approved Requests ────────────────── */
   const stats = useMemo(() => {
+    // Strictly include approved leaves only, excluding any requested, pending, or cancelled leaves
     const approved = allUserRequests.filter((r) => r.status === "Approved");
     const currentYear = new Date().getFullYear();
 

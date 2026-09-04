@@ -368,19 +368,19 @@ class DashboardController extends Controller
             $totalEmployees = User::where('status', 'Active')->count();
             $yesterdayStr = Carbon::yesterday()->toDateString();
             
-            // Calculate present list using Attendance table with BiometricEvent fallback
-            $presentUserIdsToday = \App\Models\Attendance::where('date', $todayStr)
+            // Calculate present list using Attendance table merged with BiometricEvent entries
+            $attendanceUserIdsToday = \App\Models\Attendance::where('date', $todayStr)
                 ->whereNotNull('check_in_time')
                 ->pluck('user_id')
                 ->toArray();
 
-            if (empty($presentUserIdsToday)) {
-                $presentUserIdsToday = \App\Models\BiometricEvent::whereNotNull('user_id')
-                    ->whereDate('local_punch_time', $todayStr)
-                    ->distinct()
-                    ->pluck('user_id')
-                    ->toArray();
-            }
+            $biometricUserIdsToday = \App\Models\BiometricEvent::whereNotNull('user_id')
+                ->whereDate('local_punch_time', $todayStr)
+                ->distinct()
+                ->pluck('user_id')
+                ->toArray();
+
+            $presentUserIdsToday = array_values(array_unique(array_merge($attendanceUserIdsToday, $biometricUserIdsToday)));
 
             $presentTodayList = User::whereIn('id', $presentUserIdsToday)
                 ->with('team:id,name')
@@ -401,15 +401,16 @@ class DashboardController extends Controller
 
             $presentToday = count($presentUserIdsToday);
             
-            $presentYesterday = \App\Models\Attendance::where('date', $yesterdayStr)
+            $attYesterday = \App\Models\Attendance::where('date', $yesterdayStr)
                 ->whereNotNull('check_in_time')
-                ->count();
-            if ($presentYesterday === 0) {
-                $presentYesterday = \App\Models\BiometricEvent::whereNotNull('user_id')
-                    ->whereDate('local_punch_time', $yesterdayStr)
-                    ->distinct('user_id')
-                    ->count('user_id');
-            }
+                ->pluck('user_id')
+                ->toArray();
+            $bioYesterday = \App\Models\BiometricEvent::whereNotNull('user_id')
+                ->whereDate('local_punch_time', $yesterdayStr)
+                ->distinct()
+                ->pluck('user_id')
+                ->toArray();
+            $presentYesterday = count(array_unique(array_merge($attYesterday, $bioYesterday)));
             
             $attendanceTrend = 0;
             if ($presentYesterday > 0) {
@@ -418,11 +419,18 @@ class DashboardController extends Controller
 
             // $presentTodayList is already calculated above
 
+            // Only count APPROVED leave requests for today (excluding WFH leave types to prevent double counting)
             $onLeaveTodayRequests = LeaveRequest::with(['user:id,first_name,last_name,employee_code,designation,profile_photo_path,team_id', 'user.team:id,name', 'leaveType:id,name'])
                 ->where('status', 'Approved')
                 ->whereDate('start_date', '<=', $todayStr)
                 ->whereDate('end_date', '>=', $todayStr)
-                ->get();
+                ->whereDoesntHave('leaveType', function ($q) {
+                    $q->where('name', 'like', '%WFH%')
+                      ->orWhere('name', 'like', '%Work From Home%');
+                })
+                ->get()
+                ->unique('user_id');
+
             $onLeaveToday = $onLeaveTodayRequests->count();
             $onLeaveTodayList = $onLeaveTodayRequests->map(function ($req) {
                 $u = $req->user;
@@ -437,13 +445,19 @@ class DashboardController extends Controller
                     'team' => $u?->team ? ['id' => $u->team->id, 'name' => $u->team->name] : null,
                     'leave_type' => $req->leaveType ? $req->leaveType->name : 'Leave'
                 ];
-            });
+            })->values();
 
+            // Only count APPROVED WFH requests for today
             $wfhTodayRequests = \App\Models\WfhRequest::with(['user:id,first_name,last_name,employee_code,designation,profile_photo_path,team_id', 'user.team:id,name'])
                 ->where('status', 'Approved')
-                ->whereDate('start_date', '<=', $todayStr)
-                ->whereDate('end_date', '>=', $todayStr)
-                ->get();
+                ->where(function ($q) use ($todayStr) {
+                    $q->whereDate('start_date', '<=', $todayStr)
+                      ->whereDate('end_date', '>=', $todayStr)
+                      ->orWhereDate('wfh_date', $todayStr);
+                })
+                ->get()
+                ->unique('user_id');
+
             $wfhToday = $wfhTodayRequests->count();
             $wfhTodayList = $wfhTodayRequests->map(function ($req) {
                 $u = $req->user;
@@ -458,7 +472,7 @@ class DashboardController extends Controller
                     'team' => $u?->team ? ['id' => $u->team->id, 'name' => $u->team->name] : null,
                     'leave_type' => 'WFH'
                 ];
-            });
+            })->values();
                 
             $pendingGlobalRequests = 0;
             if ($user->hasRole('Super Admin') || $user->hasRole('HR')) {

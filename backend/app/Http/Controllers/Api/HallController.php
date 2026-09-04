@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Holiday;
 use App\Models\LeaveRequest;
 use App\Models\WfhRequest;
+use App\Models\WorkingDaysOverride;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -20,8 +21,13 @@ class HallController extends Controller
         $today = Carbon::today('Asia/Kolkata');
         $todayStr = $today->toDateString();
 
-        // Check if today is a holiday
+        // Check if today is a holiday (company holiday or weekend not marked as working day)
+        $isWeekend = $today->isWeekend();
+        $isWorkingOverride = WorkingDaysOverride::whereDate('date', $todayStr)->exists();
         $holiday = Holiday::where('date', $todayStr)->first();
+
+        $isHolidayToday = ($holiday || ($isWeekend && !$isWorkingOverride));
+        $holidayName = $holiday ? $holiday->name : ($isWeekend && !$isWorkingOverride ? $today->format('l') : null);
 
         // Get all active employees
         $employees = User::where('status', 'Active')
@@ -53,11 +59,7 @@ class HallController extends Controller
         ];
 
         foreach ($employees as $emp) {
-            $status = 'Working';
-            
-            if ($holiday) {
-                $status = 'Holiday';
-            }
+            $status = $isHolidayToday ? 'Holiday' : 'Working';
 
             if ($wfhRequests->has($emp->id)) {
                 $req = $wfhRequests->get($emp->id);
@@ -103,8 +105,8 @@ class HallController extends Controller
             'summary' => $summary,
             'employees' => $hallData,
             'date' => $todayStr,
-            'is_holiday' => $holiday ? true : false,
-            'holiday_name' => $holiday->name ?? null,
+            'is_holiday' => $isHolidayToday ? true : false,
+            'holiday_name' => $holidayName,
         ]);
     }
 }

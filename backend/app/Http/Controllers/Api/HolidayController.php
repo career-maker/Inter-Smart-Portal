@@ -84,4 +84,48 @@ class HolidayController extends Controller
 
         return response()->json(['message' => 'Holiday deleted successfully']);
     }
+
+    public function getOverrides()
+    {
+        $overrides = \App\Models\WorkingDaysOverride::orderBy('date', 'desc')->get();
+        return response()->json(['data' => $overrides]);
+    }
+
+    public function storeOverride(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'date'   => 'required|date',
+            'reason' => 'nullable|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $formattedDate = \Carbon\Carbon::parse($request->date)->format('Y-m-d');
+
+        $override = \App\Models\WorkingDaysOverride::updateOrCreate(
+            ['date' => $formattedDate],
+            ['reason' => $request->reason ?? 'Admin Working Day Override']
+        );
+
+        return response()->json([
+            'message' => 'Working day override saved successfully',
+            'data' => $override,
+        ], 201);
+    }
+
+    public function destroyOverride($id)
+    {
+        $override = \App\Models\WorkingDaysOverride::find($id);
+        if (!$override) {
+            $override = \App\Models\WorkingDaysOverride::where('date', $id)->first();
+        }
+
+        if ($override) {
+            $override->delete();
+        }
+
+        return response()->json(['message' => 'Working day override removed successfully']);
+    }
 }
