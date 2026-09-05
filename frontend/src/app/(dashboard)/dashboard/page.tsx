@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { DashboardPageLoader } from "@/components/ui/PageLoader";
 import { useAuthStore } from "@/store/auth";
@@ -52,6 +52,7 @@ import { LeaderboardWidget } from "@/components/dashboard/LeaderboardWidget";
 import { EmergencyContactsCard } from "@/components/dashboard/EmergencyContactsCard";
 import { UpcomingBirthdaysWithWishes } from "@/components/dashboard/UpcomingBirthdaysWithWishes";
 import { UpcomingHolidaysCard } from "@/components/dashboard/UpcomingHolidaysCard";
+import { NetworkErrorWithGame } from "@/components/ui/NetworkErrorWithGame";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, AreaChart, Area } from "recharts";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 import { useTopAwardee } from "@/context/TopAwardeeContext";
@@ -94,43 +95,46 @@ export default function DashboardPage() {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    const fetchDashboard = async () => {
-      try {
-        // Add cache-busting timestamp to force fresh data from server
-        const res = await api.get("/dashboard", {
-          params: { _t: Date.now() }
-        });
-        setData(res.data);
-        // Synchronize auth store if server profile role or id differs from local store
-        if (res.data?.profile) {
-          const profileRole = res.data.profile.role;
-          const profileId = res.data.profile.id;
-          const currentUser = useAuthStore.getState().user;
-          if (
-            (profileRole && currentUser?.role !== profileRole) ||
-            (profileId && currentUser?.id !== profileId)
-          ) {
-            useAuthStore.setState({
-              user: {
-                ...(currentUser || {}),
-                id: profileId || currentUser?.id,
-                role: profileRole || currentUser?.role,
-                first_name: res.data.profile.first_name || currentUser?.first_name,
-                last_name: res.data.profile.last_name || currentUser?.last_name,
-                designation: res.data.profile.designation || currentUser?.designation,
-                profile_photo_path: res.data.profile.profile_photo_path || currentUser?.profile_photo_path,
-              } as any
-            });
-          }
+  const fetchDashboard = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      // Add cache-busting timestamp to force fresh data from server
+      const res = await api.get("/dashboard", {
+        params: { _t: Date.now() }
+      });
+      setData(res.data);
+      // Synchronize auth store if server profile role or id differs from local store
+      if (res.data?.profile) {
+        const profileRole = res.data.profile.role;
+        const profileId = res.data.profile.id;
+        const currentUser = useAuthStore.getState().user;
+        if (
+          (profileRole && currentUser?.role !== profileRole) ||
+          (profileId && currentUser?.id !== profileId)
+        ) {
+          useAuthStore.setState({
+            user: {
+              ...(currentUser || {}),
+              id: profileId || currentUser?.id,
+              role: profileRole || currentUser?.role,
+              first_name: res.data.profile.first_name || currentUser?.first_name,
+              last_name: res.data.profile.last_name || currentUser?.last_name,
+              designation: res.data.profile.designation || currentUser?.designation,
+              profile_photo_path: res.data.profile.profile_photo_path || currentUser?.profile_photo_path,
+            } as any
+          });
         }
-      } catch (e: any) {
-        console.error("Failed to fetch dashboard data", e);
-        setError(e.response?.data?.message || e.message || "Failed to load dashboard");
-      } finally {
-        setLoading(false);
       }
-    };
+    } catch (e: any) {
+      console.error("Failed to fetch dashboard data", e);
+      setError(e.response?.data?.message || e.message || "Failed to load dashboard");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
     fetchDashboard();
 
     // Refresh dashboard data every 5 minutes to handle day changes (especially after midnight)
@@ -139,7 +143,7 @@ export default function DashboardPage() {
     }, 5 * 60 * 1000); // 5 minutes
 
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchDashboard]);
 
   // Calculate live service stats with timer
   const calculateServiceStats = (joiningDateStr: string) => {
@@ -229,21 +233,7 @@ export default function DashboardPage() {
   if (loading) return <DashboardPageLoader />;
 
   if (error || !data) {
-    return (
-      <div className="flex justify-center items-center h-[70vh]">
-        <div className="bg-rose-500/10 text-rose-300 p-6 rounded-md border border-rose-500/30 max-w-md text-center">
-          <AlertCircle className="w-12 h-12 text-rose-400 mx-auto mb-4" />
-          <h2 className="text-lg font-bold mb-2 text-slate-900 dark:text-white">Error Loading Dashboard</h2>
-          <p className="text-sm">{error || "No data received from server."}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-4 px-4 py-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded-lg text-sm font-medium transition-colors"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
+    return <NetworkErrorWithGame onRetry={fetchDashboard} errorMessage={error || undefined} />;
   }
 
   const { profile, leave_metrics, widgets } = data;
