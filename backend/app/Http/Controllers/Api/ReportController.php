@@ -454,6 +454,7 @@ class ReportController extends Controller
             $current = clone $start;
             $dayStats = ['absent' => 0, 'wfh' => 0, 'half_day' => 0, 'late' => 0, 'present' => 0, 'present_count' => 0, 'late_count' => 0, 'holidays' => 0];
             $workingDaysCount = 0;
+            $esslDaysCount = 0;
 
             while ($current <= $end) {
                 $dateStr = $current->toDateString();
@@ -484,32 +485,34 @@ class ReportController extends Controller
 
                 $dayStatus = $this->calculateDayStatus($emp->id, $dateStr, $leave, $wfh, $attendance, $lateThresholdTimeStr, $isWorking);
 
-                // Calculate times from biometric data for accuracy (not from stored attendance)
+                // Calculate times from biometric data for accuracy
+                $hasEssl = false;
                 $checkInTime = null;
                 $checkOutTime = null;
                 $totalWorkingMinutes = null;
-                if (!$leave && !$wfh) {  // Only calculate from biometric if not on leave/WFH
-                    $biometricEvents = $allBiometricEvents->filter(function($e) use ($emp, $dateStr) {
-                        if ($e->user_id !== $emp->id) return false;
-                        $punchDate = is_string($e->local_punch_time)
-                            ? substr($e->local_punch_time, 0, 10)
-                            : $e->local_punch_time?->format('Y-m-d');
-                        return $punchDate === $dateStr;
-                    })->values();
 
-                    if ($biometricEvents->isNotEmpty()) {
-                        $build = $this->timeline->buildTimeline($biometricEvents, false);
-                        if ($build['ok']) {
-                            $interp = $this->timeline->interpretTimeline($build['timeline'], $dateStr);
-                            if ($interp['first_in']) {
-                                $checkInTime = $interp['first_in']->setTimezone('Asia/Kolkata')->toIso8601String();
-                            }
-                            if ($interp['last_out']) {
-                                $checkOutTime = $interp['last_out']->setTimezone('Asia/Kolkata')->toIso8601String();
-                            }
-                            if (isset($interp['total_working_minutes'])) {
-                                $totalWorkingMinutes = $interp['total_working_minutes'];
-                            }
+                $biometricEvents = $allBiometricEvents->filter(function($e) use ($emp, $dateStr) {
+                    if ($e->user_id !== $emp->id) return false;
+                    $punchDate = is_string($e->local_punch_time)
+                        ? substr($e->local_punch_time, 0, 10)
+                        : $e->local_punch_time?->format('Y-m-d');
+                    return $punchDate === $dateStr;
+                })->values();
+
+                if ($biometricEvents->isNotEmpty()) {
+                    $hasEssl = true;
+                    $esslDaysCount++;
+                    $build = $this->timeline->buildTimeline($biometricEvents, false);
+                    if ($build['ok']) {
+                        $interp = $this->timeline->interpretTimeline($build['timeline'], $dateStr);
+                        if ($interp['first_in']) {
+                            $checkInTime = $interp['first_in']->setTimezone('Asia/Kolkata')->toIso8601String();
+                        }
+                        if ($interp['last_out']) {
+                            $checkOutTime = $interp['last_out']->setTimezone('Asia/Kolkata')->toIso8601String();
+                        }
+                        if (isset($interp['total_working_minutes'])) {
+                            $totalWorkingMinutes = $interp['total_working_minutes'];
                         }
                     }
                 }
@@ -545,6 +548,9 @@ class ReportController extends Controller
                     'status' => $dayStatus['status'],
                     'leave_type' => $dayStatus['leave_type'] ?? null,
                     'is_late' => $dayStatus['is_late'],
+                    'has_essl' => $hasEssl,
+                    'essl_first_in' => $checkInTime,
+                    'essl_last_out' => $checkOutTime,
                     'check_in' => $effectiveCheckIn,
                     'check_out' => $effectiveCheckOut,
                     'total_working_minutes' => $totalWorkingMinutes ?? $attendance?->total_working_minutes,
@@ -569,6 +575,7 @@ class ReportController extends Controller
             }
 
             $empData['working_days'] = $workingDaysCount;
+            $empData['essl_days_count'] = $esslDaysCount;
             $empData['summary'] = $dayStats;
             $empData['p_count'] = $dayStats['present_count'];
             $empData['l_count'] = $dayStats['late_count'];

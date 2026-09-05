@@ -17,6 +17,7 @@ import {
   Filter,
   Palmtree,
   CalendarDays,
+  CalendarRange,
   X,
   FileSpreadsheet,
   FileText,
@@ -29,7 +30,12 @@ import { Badge } from "@/components/ui/badge";
 import { PageLoader } from "@/components/ui/PageLoader";
 import { useAuthStore } from "@/store/auth";
 import { BiometricPunchTimeline } from "@/components/attendance/BiometricPunchTimeline";
-import { DailySummaryCard, AdminLeaveWfhModal, AllEmployeesReportModal } from "@/components/attendance";
+import {
+  DailySummaryCard,
+  AdminLeaveWfhModal,
+  AllEmployeesReportModal,
+  EmployeeDateRangeView,
+} from "@/components/attendance";
 import { MonthlyReportModal } from "@/components/employees/MonthlyReportModal";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 import {
@@ -39,7 +45,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { format } from "date-fns";
+import { format, startOfMonth, endOfMonth } from "date-fns";
 
 type ViewMode = "directory" | "dateWise" | "dateAllEmployees";
 
@@ -118,6 +124,15 @@ export default function AttendanceManagementPage() {
   const [isLeaveWfhModalOpen, setIsLeaveWfhModalOpen] = useState(false);
   const [isMonthlyReportOpen, setIsMonthlyReportOpen] = useState(false);
   const [isAllEmployeesReportOpen, setIsAllEmployeesReportOpen] = useState(false);
+  const [employeeViewTab, setEmployeeViewTab] = useState<"single" | "range">("single");
+  const [rangeStartDate, setRangeStartDate] = useState<string>(() => {
+    return format(startOfMonth(new Date()), "yyyy-MM-dd");
+  });
+  const [rangeEndDate, setRangeEndDate] = useState<string>(() => {
+    return format(endOfMonth(new Date()), "yyyy-MM-dd");
+  });
+  const [rangeData, setRangeData] = useState<any | null>(null);
+  const [isLoadingRange, setIsLoadingRange] = useState(false);
   const [allEmployeesDateData, setAllEmployeesDateData] = useState<any[]>([]);
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
@@ -186,8 +201,42 @@ export default function AttendanceManagementPage() {
     setSelectedEmployee(emp);
     setIsDrawerOpen(false);
     setViewMode("dateWise");
+    setEmployeeViewTab("single");
     const targetDate = dateWiseSelectedDate || format(new Date(), "yyyy-MM-dd");
     handleDateSelection(targetDate, emp.id);
+  };
+
+  // Fetch date range data for selected employee
+  const fetchEmployeeDateRange = async (start: string, end: string, empId?: number) => {
+    const targetId = empId ?? selectedEmployee?.id;
+    if (!targetId) return;
+    setIsLoadingRange(true);
+    setError(null);
+    try {
+      const res = await api.get(
+        `/reports/attendance-summary?start_date=${start}&end_date=${end}&user_id=${targetId}`
+      );
+      if (res.data?.data && res.data.data.length > 0) {
+        setRangeData(res.data.data[0]);
+      } else {
+        setRangeData(null);
+      }
+    } catch (err: any) {
+      console.error("Failed to load date range data:", err);
+      setError(err.response?.data?.message || "Failed to load date range attendance data");
+      setRangeData(null);
+    } finally {
+      setIsLoadingRange(false);
+    }
+  };
+
+  // Switch to Date Range view for selected employee
+  const handleOpenDateRange = (emp: Employee) => {
+    setSelectedEmployee(emp);
+    setIsDrawerOpen(false);
+    setViewMode("dateWise");
+    setEmployeeViewTab("range");
+    fetchEmployeeDateRange(rangeStartDate, rangeEndDate, emp.id);
   };
 
   // Fetch attendance data for all employees on a specific date
@@ -708,6 +757,29 @@ export default function AttendanceManagementPage() {
                 </div>
               </button>
 
+              {/* Option 2: Date Range */}
+              <button
+                onClick={() => {
+                  handleOpenDateRange(selectedEmployee);
+                }}
+                className="w-full p-4.5 bg-white dark:bg-slate-800/80 hover:bg-purple-50/50 dark:hover:bg-purple-950/30 border border-slate-200/90 dark:border-slate-700/80 hover:border-purple-300 dark:hover:border-purple-700/60 rounded-xl text-left transition-all group flex items-start gap-4 shadow-xs cursor-pointer"
+              >
+                <div className="w-11 h-11 rounded-xl bg-purple-50 dark:bg-purple-950/50 border border-purple-100 dark:border-purple-800/40 flex items-center justify-center text-[#56348f] dark:text-purple-300 shrink-0 group-hover:scale-105 transition-transform">
+                  <CalendarRange className="h-5 w-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <p className="font-semibold text-slate-900 dark:text-white text-[15px]">
+                      Date Range
+                    </p>
+                    <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-[#56348f] dark:group-hover:text-purple-300 transition-colors" />
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                    View eSSL usage, leaves, WFH, late days &amp; floor time
+                  </p>
+                </div>
+              </button>
+
               {/* Option 2: Add Leave / WFH */}
               <button
                 onClick={() => {
@@ -817,22 +889,58 @@ export default function AttendanceManagementPage() {
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
-                <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 rounded-lg px-3 py-1.5">
-                  <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                    Date:
-                  </label>
-                  <input
-                    type="date"
-                    value={dateWiseSelectedDate}
-                    onChange={(e) => {
-                      const newDate = e.target.value;
-                      setDateWiseSelectedDate(newDate);
-                      if (newDate) handleDateSelection(newDate, selectedEmployee.id);
+                {/* View Switcher: Single Date vs Date Range */}
+                <div className="inline-flex p-1 bg-slate-100 dark:bg-slate-900/80 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold">
+                  <button
+                    onClick={() => {
+                      setEmployeeViewTab("single");
+                      if (!dailyDetails) {
+                        handleDateSelection(dateWiseSelectedDate, selectedEmployee.id);
+                      }
                     }}
-                    disabled={isLoadingDetails}
-                    className="bg-transparent border-0 text-slate-900 dark:text-white text-sm font-medium focus:outline-none cursor-pointer"
-                  />
+                    className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                      employeeViewTab === "single"
+                        ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs font-bold"
+                        : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                    }`}
+                  >
+                    Specific Date
+                  </button>
+                  <button
+                    onClick={() => {
+                      setEmployeeViewTab("range");
+                      if (!rangeData) {
+                        fetchEmployeeDateRange(rangeStartDate, rangeEndDate, selectedEmployee.id);
+                      }
+                    }}
+                    className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                      employeeViewTab === "range"
+                        ? "bg-[#56348f] text-white shadow-xs font-bold"
+                        : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                    }`}
+                  >
+                    Date Range
+                  </button>
                 </div>
+
+                {employeeViewTab === "single" && (
+                  <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 rounded-lg px-3 py-1.5">
+                    <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                      Date:
+                    </label>
+                    <input
+                      type="date"
+                      value={dateWiseSelectedDate}
+                      onChange={(e) => {
+                        const newDate = e.target.value;
+                        setDateWiseSelectedDate(newDate);
+                        if (newDate) handleDateSelection(newDate, selectedEmployee.id);
+                      }}
+                      disabled={isLoadingDetails}
+                      className="bg-transparent border-0 text-slate-900 dark:text-white text-sm font-medium focus:outline-none cursor-pointer"
+                    />
+                  </div>
+                )}
 
                 <Button
                   onClick={() => setIsLeaveWfhModalOpen(true)}
@@ -856,6 +964,7 @@ export default function AttendanceManagementPage() {
                   onClick={() => {
                     setViewMode("directory");
                     setDailyDetails(null);
+                    setRangeData(null);
                   }}
                   variant="ghost"
                   className="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -866,47 +975,65 @@ export default function AttendanceManagementPage() {
             </div>
           </div>
 
-          {/* Daily Details Content */}
-          {isLoadingDetails ? (
-            <div className="flex flex-col items-center justify-center py-16 gap-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200/90 dark:border-slate-700/60 p-8">
-              <Loader2 className="h-8 w-8 animate-spin text-[#56348f] dark:text-purple-400" />
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                Loading attendance details for {dateWiseSelectedDate}...
-              </p>
-            </div>
-          ) : dailyDetails ? (
-            <div className="space-y-6">
-              <DailySummaryCard
-                attendance={dailyDetails}
-                totalBreaks={dailyDetails.completed_breaks?.length || 0}
-                isCurrentlyWorking={dailyDetails.is_currently_working}
-              />
-
-              <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200/90 dark:border-slate-700/60 shadow-sm p-6">
-                <div className="pb-4 border-b border-slate-200 dark:border-slate-700/60 mb-5">
-                  <h3 className="font-semibold text-base text-slate-900 dark:text-white">
-                    Biometric Punch Timeline
-                  </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                    Complete record of all biometric punch events in chronological order
+          {/* Render Tab: Date Range or Specific Date */}
+          {employeeViewTab === "range" ? (
+            <EmployeeDateRangeView
+              employee={selectedEmployee}
+              startDate={rangeStartDate}
+              endDate={rangeEndDate}
+              data={rangeData}
+              isLoading={isLoadingRange}
+              onRangeChange={(start, end) => {
+                setRangeStartDate(start);
+                setRangeEndDate(end);
+                fetchEmployeeDateRange(start, end, selectedEmployee.id);
+              }}
+            />
+          ) : (
+            <>
+              {/* Daily Details Content */}
+              {isLoadingDetails ? (
+                <div className="flex flex-col items-center justify-center py-16 gap-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200/90 dark:border-slate-700/60 p-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-[#56348f] dark:text-purple-400" />
+                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                    Loading attendance details for {dateWiseSelectedDate}...
                   </p>
                 </div>
-                <BiometricPunchTimeline
-                  punches={dailyDetails.raw_punches || []}
-                  isCurrentlyWorking={dailyDetails.is_currently_working}
-                />
-              </div>
-            </div>
-          ) : (
-            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200/90 dark:border-slate-700/60 p-12 text-center">
-              <Clock className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-2 opacity-50" />
-              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                No attendance data found for {dateWiseSelectedDate}
-              </p>
-              <p className="text-xs text-slate-400 mt-1">
-                The employee might not have punched in on this date or it is a holiday/weekend
-              </p>
-            </div>
+              ) : dailyDetails ? (
+                <div className="space-y-6">
+                  <DailySummaryCard
+                    attendance={dailyDetails}
+                    totalBreaks={dailyDetails.completed_breaks?.length || 0}
+                    isCurrentlyWorking={dailyDetails.is_currently_working}
+                  />
+
+                  <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200/90 dark:border-slate-700/60 shadow-sm p-6">
+                    <div className="pb-4 border-b border-slate-200 dark:border-slate-700/60 mb-5">
+                      <h3 className="font-semibold text-base text-slate-900 dark:text-white">
+                        Biometric Punch Timeline
+                      </h3>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        Complete record of all biometric punch events in chronological order
+                      </p>
+                    </div>
+                    <BiometricPunchTimeline
+                      punches={dailyDetails.raw_punches || []}
+                      isCurrentlyWorking={dailyDetails.is_currently_working}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200/90 dark:border-slate-700/60 p-12 text-center">
+                  <Clock className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    No attendance data found for {dateWiseSelectedDate}
+                  </p>
+                  <p className="text-xs text-slate-400 mt-1">
+                    The employee might not have punched in on this date or it is a holiday/weekend
+                  </p>
+                </div>
+              )}
+            </>
           )}
         </div>
       )}
