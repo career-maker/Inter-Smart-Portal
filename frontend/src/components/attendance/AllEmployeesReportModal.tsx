@@ -153,9 +153,9 @@ export function AllEmployeesReportModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full sm:max-w-3xl md:max-w-4xl lg:max-w-5xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden font-sans">
+      <DialogContent className="w-full sm:max-w-3xl md:max-w-4xl lg:max-w-5xl h-screen max-h-screen flex flex-col p-0 gap-0 overflow-hidden font-sans">
         {/* Header */}
-        <DialogHeader className="p-6 pb-4 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-r from-purple-50/50 via-white to-transparent dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
+        <DialogHeader className="p-6 pb-4 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-r from-purple-50/50 via-white to-transparent dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-[#56348f]/10 dark:bg-purple-950/50 flex items-center justify-center text-[#56348f] dark:text-purple-300 border border-[#56348f]/20 dark:border-purple-800/40 shrink-0">
               <FileSpreadsheet className="w-5 h-5" />
@@ -172,7 +172,7 @@ export function AllEmployeesReportModal({
         </DialogHeader>
 
         {/* Date Controls & Action Bar */}
-        <div className="p-6 pb-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/40 space-y-4">
+        <div className="p-6 pb-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/40 space-y-4 shrink-0">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
@@ -233,24 +233,23 @@ export function AllEmployeesReportModal({
                 <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
                   Total: <strong className="text-slate-800 dark:text-slate-200">{employeesData.length}</strong> employees
                 </span>
-                <Button
+                <button
+                  type="button"
                   onClick={handleCopyAllReports}
-                  variant="outline"
-                  size="sm"
-                  className="text-xs font-semibold gap-1.5 border-slate-300 dark:border-slate-700"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer shadow-2xs"
                 >
                   {copiedAll ? (
                     <>
                       <Check className="w-3.5 h-3.5 text-emerald-500" />
-                      All Copied!
+                      <span>All Copied!</span>
                     </>
                   ) : (
                     <>
                       <Copy className="w-3.5 h-3.5 text-slate-500" />
-                      Copy All Reports
+                      <span>Copy All Reports</span>
                     </>
                   )}
-                </Button>
+                </button>
               </div>
             )}
           </div>
@@ -264,7 +263,7 @@ export function AllEmployeesReportModal({
         </div>
 
         {/* Content Area: Table with 2 Columns (1. Employee Name 2. Report) */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+        <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-4">
           {!hasGenerated ? (
             <div className="text-center py-16 px-4">
               <div className="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/40 border border-purple-100 dark:border-purple-900/40 flex items-center justify-center text-[#56348f] dark:text-purple-300 mx-auto mb-3">
@@ -306,9 +305,9 @@ export function AllEmployeesReportModal({
               </div>
 
               {/* 2-Column Table */}
-              <div className="border border-slate-200 dark:border-slate-700/80 rounded-xl overflow-x-auto shadow-xs">
+              <div className="border border-slate-200 dark:border-slate-700/80 rounded-xl overflow-x-auto shadow-xs bg-white dark:bg-slate-900">
                 <table className="w-full text-left text-sm border-collapse min-w-[520px]">
-                  <thead className="bg-slate-50/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-700 text-xs uppercase font-semibold text-slate-500 dark:text-slate-400">
+                  <thead className="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 text-xs uppercase font-semibold text-slate-500 dark:text-slate-400">
                     <tr>
                       <th className="py-3 px-4 sm:px-5">1. Employee Name</th>
                       <th className="py-3 px-4 sm:px-5 text-right whitespace-nowrap">2. Actions</th>
@@ -359,14 +358,13 @@ export function AllEmployeesReportModal({
                           {/* Column 2: Actions (Copy & WhatsApp buttons) */}
                           <td className="py-3.5 px-4 sm:px-5 text-right whitespace-nowrap">
                             <div className="flex items-center justify-end gap-2">
-                              <Button
-                                size="sm"
-                                variant="outline"
+                              <button
+                                type="button"
                                 onClick={() => handleCopyReport(emp)}
-                                className={`h-8 px-2.5 sm:px-3 text-xs font-semibold gap-1.5 transition-all cursor-pointer ${
+                                className={`inline-flex items-center justify-center gap-1.5 h-8 px-2.5 sm:px-3 rounded-lg text-xs font-semibold border transition-all cursor-pointer shadow-2xs shrink-0 ${
                                   copiedId === emp.id
-                                    ? "bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600"
-                                    : "text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:bg-purple-50 dark:hover:bg-purple-950/40 hover:text-[#56348f] dark:hover:text-purple-300"
+                                    ? "bg-emerald-600 border-emerald-600 text-white hover:bg-emerald-700"
+                                    : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-600"
                                 }`}
                                 title="Copy monthly attendance report as text"
                               >
@@ -381,20 +379,20 @@ export function AllEmployeesReportModal({
                                     <span>Copy</span>
                                   </>
                                 )}
-                              </Button>
-                              <Button
-                                size="sm"
+                              </button>
+                              <button
+                                type="button"
                                 onClick={() => handleWhatsAppReport(emp)}
-                                className="h-8 px-2.5 sm:px-3 text-xs font-semibold gap-1.5 bg-[#25D366] hover:bg-[#20bd5a] text-white border-none shadow-xs cursor-pointer transition-all"
+                                className="inline-flex items-center justify-center gap-1.5 h-8 px-2.5 sm:px-3 rounded-lg text-xs font-semibold bg-[#25D366] hover:bg-[#20ba5a] active:bg-[#1da851] text-white shadow-2xs transition-all cursor-pointer border-none shrink-0"
                                 title={
                                   emp.phone || emp.contact_number
                                     ? `Send via WhatsApp to ${emp.phone || emp.contact_number}`
                                     : "Send via WhatsApp (choose contact)"
                                 }
                               >
-                                <WhatsAppIcon className="w-3.5 h-3.5 fill-white" />
+                                <WhatsAppIcon className="w-3.5 h-3.5 fill-white shrink-0" />
                                 <span>WhatsApp</span>
-                              </Button>
+                              </button>
                             </div>
                           </td>
                         </tr>

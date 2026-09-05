@@ -198,20 +198,26 @@ export function MonthlyReportModal({ employee, isOpen, onClose }: MonthlyReportM
                 />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <Button onClick={handleCopy} variant="outline" className="w-full font-semibold cursor-pointer" disabled={!reportText}>
-                  {isCopied ? (
-                    <><Check className="mr-2 h-4 w-4 text-emerald-500" /> Copied!</>
-                  ) : (
-                    <><Copy className="mr-2 h-4 w-4" /> Copy Report</>
-                  )}
-                </Button>
-                <Button 
-                  onClick={handleWhatsApp} 
-                  className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold gap-2 border-none shadow-xs cursor-pointer" 
+                <button 
+                  type="button"
+                  onClick={handleCopy} 
+                  className="w-full h-10 inline-flex items-center justify-center font-semibold rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-2xs gap-2" 
                   disabled={!reportText}
                 >
-                  <WhatsAppIcon className="w-4 h-4 fill-white" /> Send via WhatsApp
-                </Button>
+                  {isCopied ? (
+                    <><Check className="h-4 w-4 text-emerald-500" /> Copied!</>
+                  ) : (
+                    <><Copy className="h-4 w-4 text-slate-500 dark:text-slate-400" /> Copy Report</>
+                  )}
+                </button>
+                <button 
+                  type="button"
+                  onClick={handleWhatsApp} 
+                  className="w-full h-10 inline-flex items-center justify-center bg-[#25D366] hover:bg-[#20ba5a] active:bg-[#1da851] text-white font-semibold rounded-xl gap-2 border-none shadow-2xs cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed" 
+                  disabled={!reportText}
+                >
+                  <WhatsAppIcon className="w-4 h-4 fill-white shrink-0" /> Send via WhatsApp
+                </button>
               </div>
             </div>
           )}
