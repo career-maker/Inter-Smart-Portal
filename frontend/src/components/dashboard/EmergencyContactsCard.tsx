@@ -63,7 +63,7 @@ export function EmergencyContactsCard({
         fontFamily:
           '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
-      className="bg-white dark:bg-slate-800 rounded-md p-5 sm:p-6 border border-slate-200/90 dark:border-slate-700/60 shadow-xs transition-all hover:shadow-md flex flex-col justify-between"
+      className="bg-white dark:bg-slate-800 rounded-md p-5 sm:p-6 border border-slate-200/90 dark:border-slate-700/60 shadow-xs transition-all hover:shadow-md flex flex-col"
     >
       {/* Card Header */}
       <div className="mb-4">
@@ -79,7 +79,14 @@ export function EmergencyContactsCard({
             className="dark:text-white flex items-center gap-2 box-title"
           >
             <LifeBuoy className="w-4 h-4 text-[#56348f] dark:text-purple-400 shrink-0" />
-            <span>{title}</span>
+            <span className="flex items-center gap-1.5">
+              <span>{title}</span>
+              {contacts.length > 0 && (
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300">
+                  {contacts.length}
+                </span>
+              )}
+            </span>
           </h2>
           {isSuperAdmin && (
             <Link
@@ -107,7 +114,7 @@ export function EmergencyContactsCard({
       {/* Loading state */}
       {loading && (
         <div className="space-y-3 py-2">
-          {[1, 2].map((i) => (
+          {[1, 2, 3].map((i) => (
             <div key={i} className="animate-pulse flex items-center gap-3">
               <div className="w-9 h-9 rounded-full bg-slate-200 dark:bg-slate-700 shrink-0" />
               <div className="space-y-1.5 flex-1">
@@ -145,9 +152,9 @@ export function EmergencyContactsCard({
         </div>
       )}
 
-      {/* Assigned Contacts List - Displays all assigned employees dynamically */}
+      {/* Assigned Contacts List - Displays all assigned employees with smooth internal scrolling */}
       {!loading && contacts.length > 0 && (
-        <div className="space-y-3 divide-y divide-slate-100 dark:divide-slate-700/50">
+        <div className="max-h-[350px] overflow-y-auto pr-2 -mr-1 space-y-3 divide-y divide-slate-100 dark:divide-slate-700/50 scrollbar-thin [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-200 dark:[&::-webkit-scrollbar-thumb]:bg-slate-700 hover:[&::-webkit-scrollbar-thumb]:bg-slate-300 dark:hover:[&::-webkit-scrollbar-thumb]:bg-slate-600">
           {contacts.map((contact, index) => {
             const avatarClass = contact.avatar_bg || "bg-[#56348f]";
 
