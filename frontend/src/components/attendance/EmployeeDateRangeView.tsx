@@ -95,9 +95,20 @@ export function EmployeeDateRangeView({
   const esslDays = data?.essl_days_count ?? 0;
   const totalLeaves = data?.total_leaves ?? 0;
   const wfhDays = data?.wfh_count ?? 0;
-  const lateDays = data?.l_count ?? 0;
-  const totalPresent = (data?.p_count ?? 0) + (data?.wfh_count ?? 0);
   const dailyStatusList = data?.daily_status || [];
+  const lateDays = data?.l_count ?? dailyStatusList.filter((day: any) => {
+    if (day.is_late) return true;
+    if (!day.check_in || day.status === "W" || day.leave_type === "WFH") return false;
+    try {
+      const d = new Date(day.check_in);
+      const dayOfWeek = new Date(day.date).getDay();
+      if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+        return (d.getHours() * 60 + d.getMinutes()) > (9 * 60 + 40);
+      }
+    } catch (e) {}
+    return false;
+  }).length;
+  const totalPresent = (data?.p_count ?? 0) + (data?.wfh_count ?? 0);
 
   return (
     <div className="space-y-6">
@@ -307,6 +318,19 @@ export function EmployeeDateRangeView({
                     const isOff = day.status === "OFF";
                     const isAbsent = day.status === "A";
 
+                    // Fallback check: if employee checked in after 09:40 AM on a weekday and wasn't marked is_late
+                    const isLate = day.is_late || (() => {
+                      if (!day.check_in || isWfh) return false;
+                      try {
+                        const d = new Date(day.check_in);
+                        const dayOfWeek = new Date(day.date).getDay();
+                        if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+                          return (d.getHours() * 60 + d.getMinutes()) > (9 * 60 + 40);
+                        }
+                      } catch (e) {}
+                      return false;
+                    })();
+
                     return (
                       <tr
                         key={day.date || idx}
@@ -375,7 +399,7 @@ export function EmployeeDateRangeView({
 
                         {/* Late Coming */}
                         <td className="py-3.5 px-4">
-                          {day.is_late ? (
+                          {isLate ? (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/40">
                               <AlertTriangle className="w-3 h-3 text-amber-600" />
                               Late ({formatTime(day.check_in)})

@@ -173,12 +173,6 @@ class HolidayController extends Controller
                 'description' => 'Sree Narayana Guru Jayanthi celebration',
             ],
             [
-                'name' => 'Milad-i-Sherif (Nabi Dinam)',
-                'date' => '2026-09-04',
-                'type' => 'Festival Holiday',
-                'description' => 'Milad-i-Sherif (Prophet\'s Birthday)',
-            ],
-            [
                 'name' => 'Sree Narayana Guru Samadhi',
                 'date' => '2026-09-21',
                 'type' => 'Festival Holiday',

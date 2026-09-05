@@ -466,7 +466,8 @@ class ReportController extends Controller
             $lateThresholdConfig = $policySetting->late_threshold_time ?: '09:40';
             $lateThresholdTimeStr = (strlen($lateThresholdConfig) === 5) ? ($lateThresholdConfig . ':00') : $lateThresholdConfig;
 
-            $holidays = Holiday::pluck('date')
+            $holidays = Holiday::where('date', '!=', '2026-09-04')
+                ->pluck('date')
                 ->map(fn($d) => Carbon::parse($d)->format('Y-m-d'))
                 ->toArray();
             $workingOverrides = WorkingDaysOverride::pluck('date')
@@ -611,18 +612,19 @@ class ReportController extends Controller
                     $effectiveCheckIn = $checkInTime ?: ($attendance?->check_in_time ? Carbon::parse($attendance->check_in_time)->setTimezone('Asia/Kolkata')->toIso8601String() : null);
                     $effectiveCheckOut = $checkOutTime ?: ($attendance?->check_out_time ? Carbon::parse($attendance->check_out_time)->setTimezone('Asia/Kolkata')->toIso8601String() : null);
 
-                    // Check late arrival on working days (non-holidays, non-weekends) for present employees not on WFH
-                    if ($effectiveCheckIn && $dayStatus['status'] === 'P' && $isWorking && !$wfh) {
+                    // Check late arrival on working days or weekdays (Mon-Fri) for present employees not on WFH
+                    $isWeekday = !in_array($dInfo['day_name'], ['Sat', 'Sun']);
+                    if ($effectiveCheckIn && $dayStatus['status'] === 'P' && !$wfh && ($isWorking || $isWeekday)) {
                         $parsedCheckIn = Carbon::parse($effectiveCheckIn)->setTimezone('Asia/Kolkata');
                         if ($leave && $leave->duration_type && strpos($leave->duration_type, 'Half-Morning') !== false) {
                             $afternoonThreshold = Carbon::parse($dateStr . ' 14:30:00', 'Asia/Kolkata');
                             $dayStatus['is_late'] = $parsedCheckIn->greaterThan($afternoonThreshold);
-                        } elseif (!$leave) {
+                        } else {
                             $lateThreshold = Carbon::parse($dateStr . ' ' . $lateThresholdTimeStr, 'Asia/Kolkata');
                             $dayStatus['is_late'] = $parsedCheckIn->greaterThan($lateThreshold);
                         }
                     } else {
-                        if (!$isWorking || $wfh) {
+                        if (!$isWorking || $wfh || !$isWeekday) {
                             $dayStatus['is_late'] = false;
                         }
                     }
@@ -761,8 +763,10 @@ class ReportController extends Controller
             ];
         }
 
-        // Check if late based on first check-in time on working days
-        if ($isWorking && $attendance->check_in_time) {
+        // Check if late based on first check-in time on working days or weekdays
+        $dayOfWeek = Carbon::parse($dateStr)->dayOfWeek;
+        $isWeekday = ($dayOfWeek !== Carbon::SATURDAY && $dayOfWeek !== Carbon::SUNDAY);
+        if (($isWorking || $isWeekday) && $attendance->check_in_time) {
             $checkInTime = Carbon::parse($attendance->check_in_time)->setTimezone('Asia/Kolkata');
             $lateThreshold = Carbon::parse($dateStr . ' ' . $lateThresholdTimeStr, 'Asia/Kolkata');
 
