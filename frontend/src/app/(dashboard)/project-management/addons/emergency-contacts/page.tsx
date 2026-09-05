@@ -587,6 +587,26 @@ export default function EmergencyContactsManagementPage() {
       }}
       className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6"
     >
+      <style>{`
+        .emergency-contacts-scroll {
+          scrollbar-width: thin !important;
+          scrollbar-color: rgba(148, 163, 184, 0.35) transparent !important;
+        }
+        .emergency-contacts-scroll::-webkit-scrollbar {
+          width: 4px !important;
+        }
+        .emergency-contacts-scroll::-webkit-scrollbar-track {
+          background: transparent !important;
+        }
+        .emergency-contacts-scroll::-webkit-scrollbar-thumb {
+          background: rgba(148, 163, 184, 0.35) !important;
+          border-radius: 9999px !important;
+        }
+        .emergency-contacts-scroll::-webkit-scrollbar-thumb:hover {
+          background: rgba(86, 52, 143, 0.6) !important;
+        }
+      `}</style>
+
       {/* ── Breadcrumb & Top Bar ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800/80 pb-5">
         <div className="space-y-1">
@@ -942,264 +962,280 @@ export default function EmergencyContactsManagementPage() {
         )}
       </div>
 
-      {/* ── Add / Edit Modal ── */}
+      {/* ── Add / Edit Side Popup Drawer (Styled like Birthday Wish Drawer) ── */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-lg w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-5">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-              <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <LifeBuoy className="w-5 h-5 text-[#56348f]" />
-                <span>{editingContact ? "Edit Emergency Contact" : "Add Emergency Contact"}</span>
-              </h2>
+        <div className="fixed inset-0 z-50 overflow-hidden font-sans">
+          {/* Backdrop */}
+          <div
+            onClick={() => setIsModalOpen(false)}
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+          />
+
+          {/* Side Popup Drawer */}
+          <div className="fixed inset-y-0 right-0 max-w-lg sm:max-w-xl w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-50 animate-in slide-in-from-right duration-300">
+            {/* Header with celebratory gradient & festive badge */}
+            <div className="relative p-5 sm:p-6 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-b from-purple-50/90 via-purple-50/40 to-white dark:from-slate-850 dark:to-slate-900 overflow-hidden shrink-0">
+              {/* Close button */}
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-white cursor-pointer"
+                className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 dark:hover:text-white p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer z-10"
               >
                 <X className="w-5 h-5" />
               </button>
+
+              {/* Ambient festive accents */}
+              <div className="absolute top-2 left-6 opacity-20 text-2xl select-none">🛟</div>
+              <div className="absolute top-7 right-14 opacity-25 text-lg select-none">✨</div>
+
+              <div className="flex items-center gap-3.5 pr-8">
+                <div
+                  className={`w-14 h-14 rounded-2xl ${formData.avatar_bg} text-white font-bold text-lg flex items-center justify-center shrink-0 shadow-md ring-4 ring-white dark:ring-slate-800 transition-colors`}
+                >
+                  {formData.initials || "EC"}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-100 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300 mb-1">
+                    <LifeBuoy className="w-3 h-3" />
+                    <span>{editingContact ? "Edit Contact" : "Add New Contact"}</span>
+                  </div>
+                  <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate">
+                    {formData.name || (editingContact ? "Edit Emergency Contact" : "New Emergency Contact")}
+                  </h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                    {formData.role || "Configure emergency contact and display channels"}
+                  </p>
+                </div>
+              </div>
             </div>
 
-            {/* Modal Form */}
-            <form onSubmit={handleSaveContact} className="space-y-4 text-xs">
-              {/* Directory Auto-fill Selector */}
-              <div className="p-3 bg-purple-50/70 dark:bg-purple-950/40 border border-purple-200/80 dark:border-purple-800/60 rounded-xl space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <label className="font-bold text-[#56348f] dark:text-purple-300 flex items-center gap-1.5">
-                    <User className="w-3.5 h-3.5" />
-                    <span>Select from Employee Directory (Auto-fill)</span>
-                  </label>
-                  {selectedEmployeeId && (
-                    <button
-                      type="button"
-                      onClick={() => setSelectedEmployeeId("")}
-                      className="text-[10px] text-purple-600 dark:text-purple-400 hover:underline font-semibold cursor-pointer"
-                    >
-                      Clear selection
-                    </button>
-                  )}
+            {/* Drawer Form Body */}
+            <form onSubmit={handleSaveContact} className="flex-1 flex flex-col justify-between overflow-hidden">
+              {/* Scrollable Form Content */}
+              <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4 text-xs emergency-contacts-scroll">
+                {/* Directory Auto-fill Selector */}
+                <div className="p-3.5 bg-purple-50/70 dark:bg-purple-950/40 border border-purple-200/80 dark:border-purple-800/60 rounded-2xl space-y-1.5 shadow-2xs">
+                  <div className="flex items-center justify-between">
+                    <label className="font-bold text-[#56348f] dark:text-purple-300 flex items-center gap-1.5">
+                      <User className="w-3.5 h-3.5" />
+                      <span>Select from Employee Directory (Auto-fill)</span>
+                    </label>
+                    {selectedEmployeeId && (
+                      <button
+                        type="button"
+                        onClick={() => setSelectedEmployeeId("")}
+                        className="text-[10px] text-purple-600 dark:text-purple-400 hover:underline font-semibold cursor-pointer"
+                      >
+                        Clear selection
+                      </button>
+                    )}
+                  </div>
+                  <select
+                    value={selectedEmployeeId}
+                    onChange={(e) => handleSelectEmployee(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-purple-200 dark:border-purple-700 text-slate-800 dark:text-white font-medium focus:outline-hidden focus:ring-2 focus:ring-[#56348f]/30 text-xs cursor-pointer shadow-2xs"
+                  >
+                    <option value="">-- Choose employee to auto-fill name, role, email & phone --</option>
+                    {employeeList.map((emp: any) => {
+                      const empName = emp.name || `${emp.first_name || ""} ${emp.last_name || ""}`.trim();
+                      const empRole = emp.designation || emp.role;
+                      const empEmail = emp.email;
+                      return (
+                        <option key={emp.id} value={emp.id}>
+                          {empName} {empRole ? `• ${empRole}` : ""} {empEmail ? `(${empEmail})` : ""}
+                        </option>
+                      );
+                    })}
+                  </select>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    Pick any registered team member to auto-fill their details, or type/customise manually below.
+                  </p>
                 </div>
-                <select
-                  value={selectedEmployeeId}
-                  onChange={(e) => handleSelectEmployee(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-purple-200 dark:border-purple-700 text-slate-800 dark:text-white font-medium focus:outline-hidden focus:ring-2 focus:ring-[#56348f]/30 text-xs cursor-pointer"
-                >
-                  <option value="">-- Choose employee to auto-fill name, role, email & phone --</option>
-                  {employeeList.map((emp: any) => {
-                    const empName = emp.name || `${emp.first_name || ""} ${emp.last_name || ""}`.trim();
-                    const empRole = emp.designation || emp.role;
-                    const empEmail = emp.email;
-                    return (
-                      <option key={emp.id} value={emp.id}>
-                        {empName} {empRole ? `• ${empRole}` : ""} {empEmail ? `(${empEmail})` : ""}
-                      </option>
-                    );
-                  })}
-                </select>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                  Pick any registered team member to auto-fill their details, or type/customise manually below.
-                </p>
-              </div>
 
-              <div>
-                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  Contact Full Name <span className="text-rose-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Sahad, Nobby or Manu K O"
-                  value={formData.name}
-                  onChange={(e) => handleNameChange(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-[#56348f]/20 font-medium"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Role / Designation <span className="text-rose-500">*</span>
+                    Contact Full Name <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Team HR or Lead Developer"
-                    value={formData.role}
-                    onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-[#56348f]/20"
+                    placeholder="e.g. Sahad, Nobby or Manu K O"
+                    value={formData.name}
+                    onChange={(e) => handleNameChange(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-[#56348f]/20 font-medium"
                   />
                 </div>
 
-                <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Department / Category
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. HR, Development, Tech"
-                    value={formData.department || ""}
-                    onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-[#56348f]/20"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    placeholder="e.g. hr@intersmart.in"
-                    value={formData.email || ""}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-[#56348f]/20"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Phone / Mobile Number
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. +91 9876543210"
-                    value={formData.phone || ""}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-[#56348f]/20"
-                  />
-                </div>
-              </div>
-
-              {/* Live Dashboard Card Preview */}
-              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-700 dark:text-slate-300">
-                    Dashboard Appearance Preview
-                  </span>
-                  <span className="text-[10px] uppercase font-bold text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-950/60 px-2 py-0.5 rounded-md">
-                    Live Preview
-                  </span>
-                </div>
-                <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 space-y-2 shadow-2xs">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`w-9 h-9 rounded-full ${formData.avatar_bg} text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs`}
-                    >
-                      {formData.initials || "EC"}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="font-semibold text-slate-900 dark:text-white truncate">
-                        {formData.name || "Contact Full Name"}
-                      </div>
-                      <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                        {formData.role || "Role / Designation"}
-                      </div>
-                    </div>
-                    {formData.department && (
-                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-                        {formData.department}
-                      </span>
-                    )}
-                  </div>
-                  <div className="pl-12 space-y-1 text-[11px]">
-                    {formData.email && (
-                      <div className="flex items-center gap-1.5 text-[#56348f] dark:text-purple-300 font-medium">
-                        <Mail className="w-3 h-3 text-slate-400 shrink-0" />
-                        <span className="truncate">{formData.email}</span>
-                      </div>
-                    )}
-                    {formData.phone && (
-                      <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
-                        <Phone className="w-3 h-3 text-slate-400 shrink-0" />
-                        <span>{formData.phone}</span>
-                      </div>
-                    )}
-                    {!formData.email && !formData.phone && (
-                      <span className="text-slate-400 italic">No contact channels added yet</span>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Avatar Color & Initials Preview */}
-              <div className="space-y-2 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-700 dark:text-slate-300">
-                    Avatar Circle Style
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px] text-slate-400">Live Preview:</span>
-                    <div
-                      className={`w-7 h-7 rounded-full ${formData.avatar_bg} text-white font-bold text-xs flex items-center justify-center shadow-xs`}
-                    >
-                      {formData.initials || "EC"}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 pt-1">
-                  <div className="flex-1">
-                    <label className="block text-[11px] font-semibold text-slate-500 mb-1">
-                      Custom Initials (2 Letters)
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      Role / Designation <span className="text-rose-500">*</span>
                     </label>
                     <input
                       type="text"
-                      maxLength={4}
-                      placeholder="e.g. HR, MK"
-                      value={formData.initials || ""}
-                      onChange={(e) =>
-                        setFormData({ ...formData, initials: e.target.value.toUpperCase() })
-                      }
-                      className="w-full px-3 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-mono uppercase font-bold"
+                      required
+                      placeholder="e.g. Team HR or Lead Developer"
+                      value={formData.role}
+                      onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-[#56348f]/20"
                     />
                   </div>
 
-                  <div className="flex-2">
-                    <label className="block text-[11px] font-semibold text-slate-500 mb-1">
-                      Color Palette
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      Department / Category
                     </label>
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      {AVATAR_COLOR_PALETTE.map((color) => (
-                        <button
-                          key={color.class}
-                          type="button"
-                          onClick={() => setFormData({ ...formData, avatar_bg: color.class })}
-                          className={`w-6 h-6 rounded-full ${color.class} transition-transform cursor-pointer ${
-                            formData.avatar_bg === color.class
-                              ? "ring-2 ring-offset-2 ring-purple-600 scale-110"
-                              : "hover:scale-105 opacity-80"
-                          }`}
-                          title={color.label}
-                        />
-                      ))}
+                    <input
+                      type="text"
+                      placeholder="e.g. HR, Development, Tech"
+                      value={formData.department || ""}
+                      onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-[#56348f]/20"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      placeholder="e.g. hr@intersmart.in"
+                      value={formData.email || ""}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-[#56348f]/20"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      Phone / Mobile Number
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. +91 9876543210"
+                      value={formData.phone || ""}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-[#56348f]/20"
+                    />
+                  </div>
+                </div>
+
+                {/* Live Dashboard Card Preview */}
+                <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/70 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-slate-700 dark:text-slate-300">
+                      Dashboard Appearance Preview
+                    </span>
+                    <span className="text-[10px] uppercase font-bold text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-950/60 px-2 py-0.5 rounded-md">
+                      Live Preview
+                    </span>
+                  </div>
+                  <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 space-y-2 shadow-2xs">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`w-9 h-9 rounded-full ${formData.avatar_bg} text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs`}
+                      >
+                        {formData.initials || "EC"}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="font-semibold text-slate-900 dark:text-white truncate">
+                          {formData.name || "Contact Full Name"}
+                        </div>
+                        <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                          {formData.role || "Role / Designation"}
+                        </div>
+                      </div>
+                      {formData.department && (
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                          {formData.department}
+                        </span>
+                      )}
+                    </div>
+                    <div className="pl-12 space-y-1 text-[11px]">
+                      {formData.email && (
+                        <div className="flex items-center gap-1.5 text-[#56348f] dark:text-purple-300 font-medium">
+                          <Mail className="w-3 h-3 text-slate-400 shrink-0" />
+                          <span className="truncate">{formData.email}</span>
+                        </div>
+                      )}
+                      {formData.phone && (
+                        <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                          <Phone className="w-3 h-3 text-slate-400 shrink-0" />
+                          <span>{formData.phone}</span>
+                        </div>
+                      )}
+                      {!formData.email && !formData.phone && (
+                        <span className="text-slate-400 italic">No contact channels added yet</span>
+                      )}
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Display Order & Active Checkbox */}
-              <div className="flex items-center justify-between pt-1">
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="contact_is_active"
-                    checked={formData.is_active}
-                    onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                    className="w-4 h-4 text-[#56348f] rounded-sm border-slate-300 focus:ring-[#56348f]"
-                  />
-                  <label
-                    htmlFor="contact_is_active"
-                    className="font-bold text-slate-700 dark:text-slate-300 cursor-pointer"
-                  >
-                    Display as Active on Dashboard
-                  </label>
+                {/* Avatar Color & Initials Preview */}
+                <div className="space-y-2 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/70">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-slate-700 dark:text-slate-300">
+                      Avatar Circle Style
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] text-slate-400">Live Preview:</span>
+                      <div
+                        className={`w-7 h-7 rounded-full ${formData.avatar_bg} text-white font-bold text-xs flex items-center justify-center shadow-xs`}
+                      >
+                        {formData.initials || "EC"}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 pt-1">
+                    <div className="flex-1">
+                      <label className="block text-[11px] font-semibold text-slate-500 mb-1">
+                        Custom Initials (2 Letters)
+                      </label>
+                      <input
+                        type="text"
+                        maxLength={4}
+                        placeholder="e.g. HR, MK"
+                        value={formData.initials || ""}
+                        onChange={(e) =>
+                          setFormData({ ...formData, initials: e.target.value.toUpperCase() })
+                        }
+                        className="w-full px-3 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-mono uppercase font-bold"
+                      />
+                    </div>
+
+                    <div className="flex-2">
+                      <label className="block text-[11px] font-semibold text-slate-500 mb-1">
+                        Color Palette
+                      </label>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {AVATAR_COLOR_PALETTE.map((color) => (
+                          <button
+                            key={color.class}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, avatar_bg: color.class })}
+                            className={`w-6 h-6 rounded-full ${color.class} transition-transform cursor-pointer ${
+                              formData.avatar_bg === color.class
+                                ? "ring-2 ring-offset-2 ring-purple-600 scale-110"
+                                : "hover:scale-105 opacity-80"
+                            }`}
+                            title={color.label}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-1.5">
-                  <label className="text-slate-500 font-medium text-[11px]">Display Order:</label>
+                {/* Display Order */}
+                <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-700/60">
+                  <div>
+                    <span className="font-bold text-slate-700 dark:text-slate-300 block">Display Order</span>
+                    <span className="text-[11px] text-slate-500">Lower numbers appear first on the card</span>
+                  </div>
                   <input
                     type="number"
                     min={1}
@@ -1207,29 +1243,57 @@ export default function EmergencyContactsManagementPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, order: parseInt(e.target.value, 10) || 1 })
                     }
-                    className="w-14 px-2 py-1 text-center rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-mono"
+                    className="w-16 px-2.5 py-1.5 text-center rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-mono font-bold"
                   />
                 </div>
               </div>
 
-              {/* Modal Buttons */}
-              <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100 dark:border-slate-800">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  disabled={savingContact}
-                  className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={savingContact}
-                  style={{ backgroundColor: "#56348f" }}
-                  className="px-5 py-2 rounded-xl text-white font-bold hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50"
-                >
-                  {savingContact ? "Saving…" : editingContact ? "Save Changes" : "Create Contact"}
-                </button>
+              {/* Drawer Footer Buttons */}
+              <div className="p-4 sm:px-6 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/80 flex items-center justify-between gap-3 shrink-0">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="drawer_contact_is_active"
+                    checked={formData.is_active}
+                    onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                    className="w-4 h-4 text-[#56348f] rounded border-slate-300 focus:ring-[#56348f] cursor-pointer"
+                  />
+                  <label
+                    htmlFor="drawer_contact_is_active"
+                    className="font-bold text-slate-700 dark:text-slate-300 cursor-pointer text-xs select-none"
+                  >
+                    Active on Dashboard
+                  </label>
+                </div>
+
+                <div className="flex items-center gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setIsModalOpen(false)}
+                    disabled={savingContact}
+                    className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold cursor-pointer text-xs transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={savingContact}
+                    style={{ backgroundColor: "#56348f" }}
+                    className="px-5 py-2 rounded-xl text-white font-bold hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50 text-xs shadow-sm flex items-center gap-1.5"
+                  >
+                    {savingContact ? (
+                      <>
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        <span>Saving…</span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>{editingContact ? "Save Changes" : "Create Contact"}</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             </form>
           </div>
