@@ -42,25 +42,14 @@ const DEFAULT_FALLBACK_CONTACTS: EmergencyContact[] = [
   },
   {
     id: 4,
-    name: "Aswathi M Ashok",
-    role: "Team Lead / Sr QA Analyst",
-    email: "aswathi@intersmart.in",
-    phone: "07012649326",
-    department: "QA",
-    avatar_bg: "bg-teal-500",
-    initials: "AM",
-    order: 4,
-  },
-  {
-    id: 5,
     name: "Abhiram P Mohan",
-    role: "Technical Support / Portal Helpdesk",
+    role: "QA Team Lead / Portal Helpdesk",
     email: "abhiram@intersmart.in",
     phone: "07012649326",
-    department: "Technical",
+    department: "QA",
     avatar_bg: "bg-[#56348f]",
     initials: "AP",
-    order: 5,
+    order: 4,
   },
 ];
 
@@ -93,8 +82,21 @@ export function EmergencyContactsCard({
       try {
         const res = await emergencyContactsApi.getContacts();
         if (isMounted && res.contacts && res.contacts.length > 0) {
+          // Filter out anyone who is not a team lead or is Aswathi, and ensure Abhiram is QA Team Lead
+          const filtered = res.contacts.filter(
+            (c) => !c.name.toLowerCase().includes("aswathi")
+          );
+
           // Merge with fallback to ensure phone numbers and key leads are never missing
-          const merged = res.contacts.map((c) => {
+          const merged = filtered.map((c) => {
+            if (c.name.toLowerCase().includes("abhiram")) {
+              return {
+                ...c,
+                role: "QA Team Lead / Portal Helpdesk",
+                department: "QA",
+                phone: c.phone || "07012649326",
+              };
+            }
             if (!c.phone || c.phone.trim() === "") {
               const fb = DEFAULT_FALLBACK_CONTACTS.find(
                 (f) =>
@@ -160,17 +162,6 @@ export function EmergencyContactsCard({
             <LifeBuoy className="w-4 h-4 text-[#56348f] dark:text-purple-400 shrink-0" />
             <span>{title}</span>
           </h2>
-
-          {isSuperAdmin && (
-            <Link
-              href="/project-management/addons/emergency-contacts"
-              title="Edit & Manage Emergency Contacts (Super Admin)"
-              className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold text-[#56348f] dark:text-purple-300 bg-purple-50 dark:bg-purple-950/60 hover:bg-purple-100 dark:hover:bg-purple-900/60 rounded-lg border border-purple-200 dark:border-purple-800/60 transition-colors shadow-2xs group"
-            >
-              <Edit2 className="w-3 h-3 group-hover:scale-110 transition-transform" />
-              <span>Edit</span>
-            </Link>
-          )}
         </div>
         <p
           style={{
@@ -270,20 +261,6 @@ export function EmergencyContactsCard({
           );
         })}
       </div>
-
-      {/* Footer link for Super Admin */}
-      {isSuperAdmin && (
-        <div className="pt-3.5 mt-2 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-xs">
-          <span className="text-slate-400 text-[11px]">Super Admin Options</span>
-          <Link
-            href="/project-management/addons/emergency-contacts"
-            className="font-semibold text-[#56348f] dark:text-purple-400 hover:underline flex items-center gap-1 group"
-          >
-            <span>Manage Contacts</span>
-            <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-          </Link>
-        </div>
-      )}
     </div>
   );
 }

@@ -209,24 +209,26 @@ export default function EmergencyContactsManagementPage() {
           initials: "VR",
         },
         {
-          name: "Aswathi M Ashok",
-          role: "Team Lead / Sr QA Analyst",
-          email: "aswathi@intersmart.in",
-          phone: "07012649326",
-          department: "QA",
-          avatar_bg: "bg-teal-500",
-          initials: "AM",
-        },
-        {
           name: "Abhiram P Mohan",
-          role: "Technical Support / Portal Helpdesk",
+          role: "QA Team Lead / Portal Helpdesk",
           email: "abhiram@intersmart.in",
           phone: "07012649326",
-          department: "Technical",
+          department: "QA",
           avatar_bg: "bg-[#56348f]",
           initials: "AP",
         },
       ];
+
+      // Remove Aswathi if present
+      for (const c of currentContacts) {
+        if (c.name.toLowerCase().includes("aswathi") || (c.email && c.email.toLowerCase().includes("aswathi"))) {
+          try {
+            await emergencyContactsApi.deleteContact(c.id);
+          } catch {
+            // Ignore
+          }
+        }
+      }
 
       // Update existing contacts that lack phone numbers
       for (const core of CORE_CONTACTS) {
@@ -237,14 +239,19 @@ export default function EmergencyContactsManagementPage() {
         );
 
         if (existing) {
+          const updatePayload: any = {};
           if (!existing.phone || existing.phone.trim() === "") {
+            updatePayload.phone = core.phone;
+          }
+          if (core.name.toLowerCase().includes("abhiram")) {
+            updatePayload.role = core.role;
+            updatePayload.department = core.department;
+          }
+          if (Object.keys(updatePayload).length > 0) {
             try {
-              await emergencyContactsApi.updateContact(existing.id, {
-                phone: core.phone,
-                department: existing.department || core.department,
-              });
+              await emergencyContactsApi.updateContact(existing.id, updatePayload);
             } catch (e) {
-              console.warn("Could not heal phone for:", existing.name, e);
+              console.warn("Could not update contact:", existing.name, e);
             }
           }
         } else {
@@ -264,6 +271,11 @@ export default function EmergencyContactsManagementPage() {
       // Also sync from employee directory if available
       if (employeeList && employeeList.length > 0) {
         const leads = employeeList.filter((emp: any) => {
+          const empName = (emp.name || `${emp.first_name || ""} ${emp.last_name || ""}`).toLowerCase();
+          const empEmail = (emp.email || "").toLowerCase();
+          if (empName.includes("aswathi") || empEmail.includes("aswathi")) {
+            return false;
+          }
           const role = (emp.role || "").toLowerCase();
           const desig = (emp.designation || "").toLowerCase();
           return (

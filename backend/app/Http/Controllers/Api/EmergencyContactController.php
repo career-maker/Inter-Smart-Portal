@@ -46,18 +46,7 @@ class EmergencyContactController extends Controller
             }
 
             if (Schema::hasTable('pm_addons')) {
-                $exists = DB::table('pm_addons')->where('key', 'emergency_contacts')->exists();
-                if (!$exists) {
-                    DB::table('pm_addons')->insert([
-                        'key'         => 'emergency_contacts',
-                        'name'        => 'Emergency Contacts',
-                        'description' => 'Manage, edit, add, and delete emergency contacts displayed on the employee dashboard.',
-                        'icon'        => 'LifeBuoy',
-                        'is_active'   => true,
-                        'created_at'  => now(),
-                        'updated_at'  => now(),
-                    ]);
-                }
+                DB::table('pm_addons')->where('key', 'emergency_contacts')->delete();
             }
 
             if (Schema::hasTable('emergency_contacts')) {
@@ -104,33 +93,26 @@ class EmergencyContactController extends Controller
                             'updated_at'  => now(),
                         ],
                         [
-                            'name'        => 'Aswathi M Ashok',
-                            'role'        => 'Team Lead / Sr QA Analyst',
-                            'email'       => 'aswathi@intersmart.in',
-                            'phone'       => '07012649326',
-                            'department'  => 'QA',
-                            'avatar_bg'   => 'bg-teal-500',
-                            'initials'    => 'AM',
-                            'order'       => 4,
-                            'is_active'   => true,
-                            'created_at'  => now(),
-                            'updated_at'  => now(),
-                        ],
-                        [
                             'name'        => 'Abhiram P Mohan',
-                            'role'        => 'Technical Support / Portal Helpdesk',
+                            'role'        => 'QA Team Lead / Portal Helpdesk',
                             'email'       => 'abhiram@intersmart.in',
                             'phone'       => '07012649326',
-                            'department'  => 'Technical',
+                            'department'  => 'QA',
                             'avatar_bg'   => 'bg-[#56348f]',
                             'initials'    => 'AP',
-                            'order'       => 5,
+                            'order'       => 4,
                             'is_active'   => true,
                             'created_at'  => now(),
                             'updated_at'  => now(),
                         ],
                     ]);
                 } else {
+                    // Remove Aswathi if previously inserted
+                    DB::table('emergency_contacts')
+                        ->where('name', 'like', '%Aswathi%')
+                        ->orWhere('email', 'like', '%aswathi%')
+                        ->delete();
+
                     // Update phone numbers if null in existing seeded records
                     DB::table('emergency_contacts')
                         ->where('name', 'like', '%Sahad%')
@@ -155,10 +137,11 @@ class EmergencyContactController extends Controller
 
                     DB::table('emergency_contacts')
                         ->where('name', 'like', '%Abhiram%')
-                        ->where(function ($q) {
-                            $q->whereNull('phone')->orWhere('phone', '');
-                        })
-                        ->update(['phone' => '07012649326']);
+                        ->update([
+                            'phone'      => '07012649326',
+                            'role'       => 'QA Team Lead / Portal Helpdesk',
+                            'department' => 'QA',
+                        ]);
 
                     // Sync any phone numbers from users table if available
                     $allExisting = DB::table('emergency_contacts')->get();
@@ -169,28 +152,6 @@ class EmergencyContactController extends Controller
                                 DB::table('emergency_contacts')->where('id', $rec->id)->update(['phone' => $userMatch->contact_number]);
                             }
                         }
-                    }
-
-                    // Ensure Aswathi M Ashok is present in the table
-                    $hasAswathi = DB::table('emergency_contacts')
-                        ->where('name', 'like', '%Aswathi%')
-                        ->exists();
-
-                    if (!$hasAswathi) {
-                        $maxOrder = DB::table('emergency_contacts')->max('order') ?? 4;
-                        DB::table('emergency_contacts')->insert([
-                            'name'        => 'Aswathi M Ashok',
-                            'role'        => 'Team Lead / Sr QA Analyst',
-                            'email'       => 'aswathi@intersmart.in',
-                            'phone'       => '07012649326',
-                            'department'  => 'QA',
-                            'avatar_bg'   => 'bg-teal-500',
-                            'initials'    => 'AM',
-                            'order'       => $maxOrder + 1,
-                            'is_active'   => true,
-                            'created_at'  => now(),
-                            'updated_at'  => now(),
-                        ]);
                     }
                 }
             }
@@ -502,9 +463,21 @@ class EmergencyContactController extends Controller
         foreach ($leads as $idx => $lead) {
             $fullName = trim("{$lead->first_name} {$lead->last_name}") ?: $lead->name;
             $email = $lead->email;
+
+            // Exclude Aswathi - not a team lead
+            if (str_contains(strtolower($fullName), 'aswathi') || str_contains(strtolower($email ?? ''), 'aswathi')) {
+                continue;
+            }
+
             $phone = $lead->contact_number ?: $lead->alternate_contact_number;
             $role = $lead->designation ?: ($lead->roles->first()?->name ?? 'Team Lead');
             $dept = $lead->team?->name ?: 'General';
+
+            if (str_contains(strtolower($fullName), 'abhiram')) {
+                $role = 'QA Team Lead / Portal Helpdesk';
+                $dept = 'QA';
+                $phone = $phone ?: '07012649326';
+            }
 
             $firstChar = mb_substr($lead->first_name ?: $fullName, 0, 1);
             $lastChar = mb_substr($lead->last_name ?: '', 0, 1);
