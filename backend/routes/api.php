@@ -8,14 +8,8 @@ Route::get('ping', function () {
     return response()->json(['status' => 'alive']);
 });
 
-Route::get('debug-employee', function () {
-    return new \App\Http\Resources\EmployeeResource(\App\Models\User::find(2));
-});
-
 Route::get('photos/{path}', [\App\Http\Controllers\Api\EmployeeController::class, 'showPhoto'])->where('path', '.*');
 Route::get('storage/{path}', [\App\Http\Controllers\Api\EmployeeController::class, 'showPhoto'])->where('path', '.*');
-
-Route::get('wfh-requests/diagnose/schema', [\App\Http\Controllers\Api\WfhRequestController::class, 'diagnose']);
 
 // Email action routes (signed URLs, no auth required)
 Route::prefix('leave-requests')->group(function () {
@@ -34,40 +28,6 @@ Route::prefix('ta-requests')->group(function () {
 });
 
 Route::post('login', [AuthController::class, 'login']);
-
-// Database maintenance endpoint (public, for initial setup)
-Route::post('admin/run-migrations', function (\Illuminate\Http\Request $request) {
-    try {
-        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-        $output = \Illuminate\Support\Facades\Artisan::output();
-
-        return response()->json([
-            'message' => 'Migrations completed successfully',
-            'output' => $output
-        ], 200);
-    } catch (\Exception $e) {
-        return response()->json([
-            'message' => 'Migration failed: ' . $e->getMessage()
-        ], 500);
-    }
-});
-
-// Cache optimization endpoint (public, for cPanel performance)
-Route::post('admin/optimize-cache', function (\Illuminate\Http\Request $request) {
-    try {
-        \Illuminate\Support\Facades\Artisan::call('optimize');
-        $output = \Illuminate\Support\Facades\Artisan::output();
-
-        return response()->json([
-            'message' => 'Cache optimization completed successfully',
-            'output' => $output
-        ], 200);
-    } catch (\Exception $e) {
-        return response()->json([
-            'message' => 'Optimization failed: ' . $e->getMessage()
-        ], 500);
-    }
-});
 
 Route::middleware('auth:sanctum')->group(function () {
     // Community Feed & Milestone Celebrations Routes
@@ -162,6 +122,40 @@ Route::middleware('auth:sanctum')->group(function () {
             \Illuminate\Support\Facades\Artisan::call('leave:annual-allocation', ['--year' => $year]);
             $output = \Illuminate\Support\Facades\Artisan::output();
             return response()->json(['message' => 'Annual allocation processed.', 'output' => $output]);
+        });
+
+        // Protected Super Admin Database migration maintenance endpoint
+        Route::post('admin/run-migrations', function (\Illuminate\Http\Request $request) {
+            try {
+                \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+                $output = \Illuminate\Support\Facades\Artisan::output();
+
+                return response()->json([
+                    'message' => 'Migrations completed successfully',
+                    'output' => $output
+                ], 200);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'message' => 'Migration failed: ' . $e->getMessage()
+                ], 500);
+            }
+        });
+
+        // Protected Super Admin Cache optimization maintenance endpoint
+        Route::post('admin/optimize-cache', function (\Illuminate\Http\Request $request) {
+            try {
+                \Illuminate\Support\Facades\Artisan::call('optimize');
+                $output = \Illuminate\Support\Facades\Artisan::output();
+
+                return response()->json([
+                    'message' => 'Cache optimization completed successfully',
+                    'output' => $output
+                ], 200);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'message' => 'Optimization failed: ' . $e->getMessage()
+                ], 500);
+            }
         });
 
         // Fix timezone-corrupted attendance records

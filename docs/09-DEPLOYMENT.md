@@ -2,19 +2,32 @@
 
 This document stores the configuration and environment variables required to host the InterSmart Employee Portal across different platforms (Render, Vercel, Supabase). This ensures smooth migrations if the project needs to be moved to different accounts in the future.
 
-## 1. Database (Supabase PostgreSQL)
-The project uses Supabase as a managed PostgreSQL database. Because the deployment environment (Render) may be on an IPv4 network, we use the **Session Pooler** connection string.
+> **IMPORTANT NOTE ON PRODUCTION INFRASTRUCTURE:**
+> The active production database is **MySQL 8.0+ hosted on cPanel** (`workplace.intersmart.in`).
+> Frontend is hosted on **Vercel**. Backend is hosted on **cPanel** (PHP 8.2+).
+> Older sections referencing Render and Supabase PostgreSQL represent legacy/superseded infrastructure from earlier prototyping.
 
-**Connection Variables:**
+## 1. Production Database (MySQL on cPanel)
+Production uses MySQL managed via cPanel.
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=[CPANEL_DB_NAME]
+DB_USERNAME=[CPANEL_DB_USER]
+DB_PASSWORD=[STORED_SECURELY]
+```
+
+## Legacy Reference: Database (Supabase PostgreSQL)
+Supabase was used during initial development.
 ```env
 DB_CONNECTION=pgsql
 DB_HOST=aws-1-ap-northeast-1.pooler.supabase.com
 DB_PORT=5432
 DB_DATABASE=postgres
-DB_USERNAME=postgres.shczwbwsrnrygmmvyeue
+DB_USERNAME=postgres.[PROJECT_REF]
 DB_PASSWORD=[STORED_SECURELY]
 ```
-*Note: If migrating to a new Supabase project, remember to update the host and username with the new Session Pooler details.*
 
 ## 2. Backend (Render via Docker)
 The backend is a Laravel (PHP 8.2) API. Since Render does not natively support PHP in their web dashboard dropdown, the repository includes a custom `Dockerfile` at `backend/Dockerfile` that containerizes the application using Apache and PHP 8.2.

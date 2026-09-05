@@ -250,9 +250,9 @@ Provider: Supabase (PostgreSQL 15+)
 Host: aws-1-ap-northeast-1.pooler.supabase.com
 Port: 5432
 Database: postgres
-Username: postgres.shczwbwsrnrygmmvyeue
-Password: Abhihere1234@
-Direct URL: postgresql://postgres.shczwbwsrnrygmmvyeue:Abhihere1234@aws-1-ap-northeast-1.pooler.supabase.com:5432/postgres
+Username: postgres.[PROJECT_REF]
+Password: [REDACTED_SECRET]
+Direct URL: postgresql://postgres.[PROJECT_REF]:[REDACTED_SECRET]@aws-1-ap-northeast-1.pooler.supabase.com:5432/postgres
 ```
 
 **⚠️ SECURITY NOTE:**
@@ -269,11 +269,11 @@ DB_CONNECTION=pgsql
 DB_HOST=aws-1-ap-northeast-1.pooler.supabase.com
 DB_PORT=5432
 DB_DATABASE=postgres
-DB_USERNAME=postgres.shczwbwsrnrygmmvyeue
-DB_PASSWORD=Abhihere1234@
+DB_USERNAME=postgres.[PROJECT_REF]
+DB_PASSWORD=[REDACTED_SECRET]
 
 # Or use DATABASE_URL:
-DATABASE_URL=postgresql://postgres.shczwbwsrnrygmmvyeue:Abhihere1234@aws-1-ap-northeast-1.pooler.supabase.com:5432/postgres
+DATABASE_URL=postgresql://postgres.[PROJECT_REF]:[REDACTED_SECRET]@aws-1-ap-northeast-1.pooler.supabase.com:5432/postgres
 ```
 
 **Key Tables:**
@@ -316,8 +316,8 @@ NEXT_PUBLIC_API_URL=https://your-render-api.onrender.com/api
 APP_ENV=production
 APP_DEBUG=false
 DB_HOST=aws-1-ap-northeast-1.pooler.supabase.com
-DB_USERNAME=postgres.shczwbwsrnrygmmvyeue
-DB_PASSWORD=Abhihere1234@
+DB_USERNAME=postgres.[PROJECT_REF]
+DB_PASSWORD=[REDACTED_SECRET]
 SANCTUM_STATEFUL_DOMAINS=intersmart-portal.vercel.app
 ```
 

@@ -32,7 +32,7 @@ class VerifyBiometricAgent
             }
         }
 
-        // Check for plaintext secret (development or explicit fallback)
+        // Check for plaintext secret (development or explicit configured fallback)
         $plainSecret = trim((string) Config::get('services.biometric.agent_secret'));
         if (!empty($plainSecret) && is_string($plainSecret)) {
             if (hash_equals($plainSecret, $token)) {
@@ -40,12 +40,7 @@ class VerifyBiometricAgent
             }
         }
 
-        // Recognized standard secret fallback
-        if (hash_equals('biometric-secret-key', $token)) {
-            return $next($request);
-        }
-
-        // No matching secret found
+        // No matching configured secret found
         return response()->json(['error' => 'Unauthorized'], 401);
     }
 }

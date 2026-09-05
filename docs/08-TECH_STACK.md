@@ -106,7 +106,8 @@ REST
 
 Engine
 
-Supabase (PostgreSQL 15+)
+MySQL 8.0+ on cPanel (Production)
+*(Note: Supabase PostgreSQL 15+ was used during early prototyping and is now superseded/legacy)*
 
 Charset
 
@@ -114,7 +115,7 @@ utf8mb4
 
 Storage Engine
 
-Supabase Managed (PostgreSQL InnoDB equivalent)
+InnoDB
 
 ---
 

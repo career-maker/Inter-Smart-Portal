@@ -29,10 +29,27 @@ class EmployeeController extends Controller
 
     public function showPhoto($path)
     {
-        $fullPath = storage_path('app/public/' . $path);
-        if (!file_exists($fullPath)) {
+        // Prevent path traversal and enforce storage boundary
+        $baseDir = realpath(storage_path('app/public'));
+        if (!$baseDir) {
             abort(404);
         }
+
+        // Clean user input
+        $normalizedPath = ltrim(str_replace(['../', '..\\'], '', $path), '/\\');
+        $fullPath = realpath($baseDir . DIRECTORY_SEPARATOR . $normalizedPath);
+
+        if (!$fullPath || !str_starts_with($fullPath, $baseDir) || !is_file($fullPath)) {
+            abort(404);
+        }
+
+        // Whitelist safe file extensions for public serving
+        $extension = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg', 'pdf', 'doc', 'docx'];
+        if (!in_array($extension, $allowedExtensions, true)) {
+            abort(403);
+        }
+
         return response()->file($fullPath);
     }
 
@@ -64,10 +81,10 @@ class EmployeeController extends Controller
 
         $perPage = $request->input('per_page', 10);
         if ($perPage === 'all' || (int)$perPage === -1) {
-            return EmployeeResource::collection($query->get());
+            return EmployeeResource::collection($query->orderBy('first_name')->get());
         }
 
-        return EmployeeResource::collection($query->paginate((int)$perPage));
+        return EmployeeResource::collection($query->orderBy('first_name')->paginate((int)$perPage));
     }
 
     public function store(StoreEmployeeRequest $request)
@@ -80,8 +97,12 @@ class EmployeeController extends Controller
                 $data['is_emergency_contact'] = filter_var($data['is_emergency_contact'], FILTER_VALIDATE_BOOLEAN);
             }
 
-            // Log the incoming data for debugging
-            \Log::info('Employee creation request', ['data' => $data]);
+            // Log non-sensitive request metadata
+            \Log::info('Employee creation request', [
+                'role' => $data['role'] ?? 'Employee',
+                'team_id' => $data['team_id'] ?? null,
+                'has_email' => !empty($data['email']),
+            ]);
 
             // Ensure required fields have values
             if (empty($data['first_name'])) {

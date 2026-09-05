@@ -379,11 +379,13 @@ class WfhRequestController extends Controller
     public function storeForEmployee(\App\Http\Requests\StoreAdminWfhRequest $request)
     {
         \Log::info('=== WFH CREATION START ===');
-        \Log::info('Request data received', ['all' => $request->all()]);
 
         try {
             $data = $request->validated();
-            \Log::info('Validation passed', ['data' => $data]);
+            \Log::info('Validation passed', [
+                'user_id' => $data['user_id'] ?? null,
+                'dates_count' => isset($data['dates']) ? count($data['dates']) : 0,
+            ]);
         } catch (\Exception $ve) {
             \Log::error('Validation failed', ['error' => $ve->getMessage()]);
             return response()->json(['message' => 'Validation error: ' . $ve->getMessage(), 'error' => $ve->getMessage()], 422);

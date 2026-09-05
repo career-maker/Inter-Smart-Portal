@@ -9,8 +9,8 @@ DB_CONNECTION=pgsql
 DB_HOST=aws-1-ap-northeast-1.pooler.supabase.com
 DB_PORT=5432
 DB_DATABASE=postgres
-DB_USERNAME=postgres.shczwbwsrnrygmmvyeue
-DB_PASSWORD="Abhihere1234@"
+DB_USERNAME=postgres.[PROJECT_REF]
+DB_PASSWORD="[REDACTED_SECRET]"
 ```
 
 ## Note

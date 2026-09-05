@@ -14,14 +14,14 @@ SET MIGRATION_DB_NAME=postgres
 SET MIGRATION_DB_USER=postgres.shczwbwsrnrygmmvyeue
 
 REM --- Load password from a local .migration_secret file to avoid it appearing in this file ---
-REM Create the file manually:  echo Abhihere1234@ > .migration_secret
+REM Create the file manually:  echo YOUR_PASSWORD > .migration_secret
 REM (The file is listed in .gitignore)
 IF EXIST "%~dp0.migration_secret" (
     SET /P MIGRATION_DB_PASS=<"%~dp0.migration_secret"
 ) ELSE (
     ECHO.
     ECHO ERROR: .migration_secret file not found.
-    ECHO Please create it:  echo Abhihere1234@ ^> "%~dp0.migration_secret"
+    ECHO Please create it:  echo [PASSWORD] ^> "%~dp0.migration_secret"
     ECHO Then re-run this script.
     GOTO :EOF
 )

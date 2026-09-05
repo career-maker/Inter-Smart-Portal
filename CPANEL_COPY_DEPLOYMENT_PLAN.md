@@ -154,7 +154,7 @@ pg_dump \
   --password \
   --dbname=postgres > supabase-backup.sql
 
-# When prompted: Enter password: Abhihere1234@
+# When prompted: Enter your Supabase database password
 # Wait for completion (2-5 minutes)
 # File size: ~20-100MB (depending on data)
 ```

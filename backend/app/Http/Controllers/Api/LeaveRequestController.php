@@ -354,25 +354,6 @@ class LeaveRequestController extends Controller
         $penaltyLOP      = $penaltyDays      * $multiplier;
         $eligibleBase    = $eligibleDays     * $multiplier;
 
-        // DEBUG: Log every calculation step to track down the 5-day bug
-        \Log::error("CRITICAL_CALCULATION_DEBUG", [
-            'user_id' => $user->id,
-            'start_date' => $startDateStr,
-            'end_date' => $endDateStr,
-            'date_diff_days' => (new \Carbon\Carbon($endDateStr))->diffInDays(new \Carbon\Carbon($startDateStr)),
-            'totalWorkingDays' => $totalWorkingDays,
-            'penaltyDays' => $penaltyDays,
-            'eligibleDays' => $eligibleDays,
-            'sandwichDays' => $sandwichDays,
-            'extPreSandwich' => $extPreSandwich,
-            'baseWorkingDays' => $baseWorkingDays,
-            'penaltyLOP' => $penaltyLOP,
-            'eligibleBase' => $eligibleBase,
-            'isCasual' => $isCasual,
-            'today' => $today->toDateString(),
-            'eligibleFrom' => $eligibleFrom->toDateString(),
-        ]);
-
         $reasons    = [];
         $paidCL     = 0;
         $paidSL     = 0;
@@ -485,17 +466,6 @@ class LeaveRequestController extends Controller
             'reasons'                => $reasons,
             'is_probation'           => false,
             'balance'                => $this->getBalancePreview($user, $paidCL, $paidSL),
-            // DEBUG FIELDS - REMOVE AFTER DEBUGGING
-            '_debug' => [
-                'totalWorkingDays' => $totalWorkingDays,
-                'penaltyDays' => $penaltyDays,
-                'eligibleDays' => $eligibleDays,
-                'sandwichWorkingCount' => $sandwichWorkingCount,
-                'sandwichWorkingDays' => $sandwichWorkingDays,
-                'eligibleBase' => $eligibleBase,
-                'balanceLOP_calc' => "max(0, {$eligibleBase} - {$paidCL})",
-                'totalLOP_calc' => "{$penaltyLOP} + {$balanceLOP} + {$sandwichDays} + {$sandwichWorkingLOP}",
-            ]
         ];
     }
 
@@ -1270,11 +1240,14 @@ class LeaveRequestController extends Controller
     public function storeForEmployee(\App\Http\Requests\StoreAdminLeaveRequest $request)
     {
         \Log::info('=== LEAVE CREATION START ===');
-        \Log::info('Request data received', ['all' => $request->all()]);
 
         try {
             $data = $request->validated();
-            \Log::info('Validation passed', ['data' => $data]);
+            \Log::info('Validation passed', [
+                'user_id' => $data['user_id'] ?? null,
+                'leave_type' => $data['leave_type'] ?? null,
+                'dates_count' => isset($data['dates']) ? count($data['dates']) : 0,
+            ]);
         } catch (\Exception $ve) {
             \Log::error('Validation failed', ['error' => $ve->getMessage()]);
             return response()->json(['message' => 'Validation error: ' . $ve->getMessage(), 'error' => $ve->getMessage()], 422);

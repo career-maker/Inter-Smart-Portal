@@ -44,5 +44,5 @@ Hello! When you resume this project:
 1. Please read this file to understand the context of the most recent fixes.
 2. The user prefers highly responsive UIs (we just resolved a major performance lag with the Leave balances, so be mindful of API endpoint sizes!).
 3. Ensure you follow the project's existing Tailwind / Shadcn UI components.
-4. Supabase DB credentials can be found in `docs/09-SUPABASE_KEYS.md`.
+4. Production database is MySQL hosted on cPanel.
 5. Run `pnpm run dev` to spin up the Next.js frontend, and the Laravel backend is accessible at `http://127.0.0.1:8765`.
