@@ -334,10 +334,12 @@ export function EmployeeIdCardDrawer({
                       />
                     </svg>
 
-                    {/* Top-Right Employee Code Pill (#146) */}
-                    <div className="absolute top-4 sm:top-5 right-4 sm:right-5 px-3 py-1 rounded-full bg-[#FEE082] text-xs font-black text-slate-900 shadow-2xs z-10 font-mono tracking-tight">
-                      {data.employee_code ? `#${data.employee_code}` : "#146"}
-                    </div>
+                    {/* Top-Right Employee Code Pill */}
+                    {data.employee_code && (
+                      <div className="absolute top-4 sm:top-5 right-4 sm:right-5 px-3 py-1 rounded-full bg-[#FEE082] text-xs font-black text-slate-900 shadow-2xs z-10 font-mono tracking-tight">
+                        #{data.employee_code}
+                      </div>
+                    )}
 
                     {/* Profile Layout: Avatar on Left, Core Info on Right */}
                     <div className="flex items-center gap-4 sm:gap-5 relative z-10">
@@ -361,38 +363,54 @@ export function EmployeeIdCardDrawer({
                             <RoyalName name={fullName} userId={data.id} showCrownIcon={false} />
                           </h2>
 
-                          {/* Designation Pill Badge */}
-                          <div className="mt-1.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#EEF2FF] text-[#4F46E5] text-xs font-bold shadow-2xs">
-                            <Briefcase className="w-3.5 h-3.5 text-[#4F46E5] shrink-0" />
-                            <span className="truncate">{data.designation || "Headhunter"}</span>
-                          </div>
+                          {/* Designation Pill Badge (Real DB designation or role) */}
+                          {(data.designation || data.role) && (
+                            <div className="mt-1.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#EEF2FF] text-[#4F46E5] text-xs font-bold shadow-2xs max-w-full">
+                              <Briefcase className="w-3.5 h-3.5 text-[#4F46E5] shrink-0" />
+                              <span className="truncate">{data.designation || data.role}</span>
+                            </div>
+                          )}
+
+                          {/* Real Email ID */}
+                          {data.email && (
+                            <div className="mt-1.5 flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 min-w-0">
+                              <Mail className="w-3.5 h-3.5 text-purple-600 shrink-0" />
+                              <span className="truncate select-all" title={data.email}>
+                                {data.email}
+                              </span>
+                            </div>
+                          )}
 
                           {/* Department & Role */}
-                          <div className="mt-2 flex items-center gap-1.5 text-xs font-medium text-slate-600">
-                            <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                            <span className="truncate">{data.team || "Unassigned"}</span>
-                            <span className="text-slate-300">•</span>
-                            <span className="truncate">{data.role || "Employee"}</span>
-                          </div>
+                          {(data.team || (data.role && data.designation)) && (
+                            <div className="mt-1 flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400 truncate">
+                              <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                              {data.team && <span className="truncate">{data.team}</span>}
+                              {data.team && data.role && data.designation && <span className="text-slate-300">•</span>}
+                              {data.role && data.designation && <span className="truncate">{data.role}</span>}
+                            </div>
+                          )}
                         </div>
 
-                        {/* Tenure section bottom right */}
-                        <div className="mt-2.5 flex flex-col items-end">
-                          <span className="text-[9px] font-extrabold uppercase tracking-widest text-[#B45309]/80 mb-0.5 pr-2">
-                            TENURE
-                          </span>
-                          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/95 border border-[#FDE68A] shadow-2xs">
-                            <Sparkles className="w-3.5 h-3.5 text-[#D97706] shrink-0" />
-                            <span className="text-xs font-black text-[#78350F]">
-                              {data.tenure_text || (data.tenure_years ? `${data.tenure_years} Years` : "5 Years 1 Month")}
+                        {/* Tenure section bottom right (Real tenure from joining date) */}
+                        {(data.tenure_text || data.tenure_years) ? (
+                          <div className="mt-2.5 flex flex-col items-end">
+                            <span className="text-[9px] font-extrabold uppercase tracking-widest text-[#B45309]/80 mb-0.5 pr-2">
+                              TENURE
                             </span>
+                            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/95 border border-[#FDE68A] shadow-2xs">
+                              <Sparkles className="w-3.5 h-3.5 text-[#D97706] shrink-0" />
+                              <span className="text-xs font-black text-[#78350F]">
+                                {data.tenure_text || `${data.tenure_years} Years`}
+                              </span>
+                            </div>
                           </div>
-                        </div>
+                        ) : null}
                       </div>
                     </div>
                   </div>
 
-                  {/* ── METRICS ROW 1 (3 Columns matching mockup) ── */}
+                  {/* ── METRICS ROW 1 (3 Columns with real data) ── */}
                   <div className="grid grid-cols-3 gap-3">
                     {/* Card 1: EMPLOYEE CODE */}
                     <div className="p-3.5 rounded-2xl bg-[#F5F3FF] border border-purple-100/80 shadow-2xs flex flex-col justify-between">
@@ -404,7 +422,7 @@ export function EmployeeIdCardDrawer({
                           EMPLOYEE CODE
                         </span>
                         <p className="text-base sm:text-lg font-black text-slate-900 font-mono mt-1 leading-none">
-                          {data.employee_code || "146"}
+                          {data.employee_code || "—"}
                         </p>
                       </div>
                     </div>
@@ -419,7 +437,7 @@ export function EmployeeIdCardDrawer({
                           JOINED DATE
                         </span>
                         <p className="text-xs sm:text-sm font-black text-slate-900 mt-1 leading-none truncate">
-                          {formatDateString(data.joining_date)}
+                          {data.joining_date ? formatDateString(data.joining_date) : "—"}
                         </p>
                       </div>
                     </div>
@@ -434,13 +452,13 @@ export function EmployeeIdCardDrawer({
                           EXPERIENCE
                         </span>
                         <p className="text-xs sm:text-sm font-black text-slate-900 mt-1 leading-none truncate">
-                          {data.tenure_text || (data.tenure_years ? `${data.tenure_years} Years` : "5 Years 1 Month")}
+                          {data.tenure_text || (data.tenure_years ? `${data.tenure_years} Years` : (data.joining_date ? "Recently Joined" : "—"))}
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  {/* ── METRICS ROW 2 (Blood Group + Motivational Watermark) ── */}
+                  {/* ── METRICS ROW 2 (Blood Group with real data + Motivational Watermark) ── */}
                   <div className="flex items-center gap-3 relative">
                     {/* Card 4: BLOOD GROUP */}
                     <div className="p-3.5 rounded-2xl bg-[#F0F9FF] border border-sky-100/80 shadow-2xs flex flex-col justify-between w-[58%] shrink-0">
@@ -452,7 +470,7 @@ export function EmployeeIdCardDrawer({
                           BLOOD GROUP
                         </span>
                         <p className="text-base sm:text-lg font-black text-slate-900 mt-1 leading-none">
-                          {data.blood_group || "A+"}
+                          {data.blood_group || "—"}
                         </p>
                       </div>
                     </div>
