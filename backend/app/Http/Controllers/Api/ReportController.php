@@ -10,6 +10,9 @@ use App\Models\LeaveRequest;
 use App\Models\LeaveBalance;
 use App\Models\WfhRequest;
 use App\Models\BiometricEvent;
+use App\Models\Holiday;
+use App\Models\WorkingDaysOverride;
+use App\Models\LeavePolicySetting;
 use App\Services\BiometricTimelineService;
 use Carbon\Carbon;
 
@@ -356,12 +359,31 @@ class ReportController extends Controller
             ->whereBetween('date', [$startDate, $endDate])
             ->get();
 
+        // Load configured late threshold time (default 09:40) and calendar rules
+        $policySetting = LeavePolicySetting::current();
+        $lateThresholdConfig = $policySetting->late_threshold_time ?: '09:40';
+        $lateThresholdTimeStr = (strlen($lateThresholdConfig) === 5) ? ($lateThresholdConfig . ':00') : $lateThresholdConfig;
+
+        $holidays = Holiday::pluck('date')
+            ->map(fn($d) => Carbon::parse($d)->format('Y-m-d'))
+            ->toArray();
+        $workingOverrides = WorkingDaysOverride::pluck('date')
+            ->map(fn($d) => Carbon::parse($d)->format('Y-m-d'))
+            ->toArray();
+
+        $isWorkingDay = function (Carbon $date) use ($holidays, $workingOverrides): bool {
+            $ds = $date->format('Y-m-d');
+            if (in_array($ds, $workingOverrides)) return true;
+            return !$date->isWeekend() && !in_array($ds, $holidays);
+        };
+
         // Log data loaded for debugging
         \Log::info('Attendance summary data loaded', [
             'employee_count' => $employees->count(),
             'attendance_records' => $allAttendance->count(),
             'leave_records' => $allLeaves->count(),
             'wfh_records' => $allWfh->count(),
+            'late_threshold' => $lateThresholdTimeStr,
             'date_range' => "$startDate to $endDate"
         ]);
 
@@ -449,7 +471,8 @@ class ReportController extends Controller
                     return $a->user_id === $emp->id && $aDate === $dateStr;
                 });
 
-                $dayStatus = $this->calculateDayStatus($emp->id, $dateStr, $leave, $wfh, $attendance);
+                $isWorking = $isWorkingDay($currentDate);
+                $dayStatus = $this->calculateDayStatus($emp->id, $dateStr, $leave, $wfh, $attendance, $lateThresholdTimeStr, $isWorking);
 
                 // Calculate times from biometric data for accuracy (not from stored attendance)
                 $checkInTime = null;
@@ -481,10 +504,25 @@ class ReportController extends Controller
                 // If biometric check-in is found but dayStatus says Absent, override to Present
                 if ($checkInTime && $dayStatus['status'] === 'A') {
                     $dayStatus['status'] = 'P';
-                    $parsedCheckIn = Carbon::parse($checkInTime)->setTimezone('Asia/Kolkata');
-                    $lateThreshold = Carbon::parse($dateStr . ' 09:45:00', 'Asia/Kolkata');
-                    if ($parsedCheckIn->greaterThan($lateThreshold)) {
-                        $dayStatus['is_late'] = true;
+                }
+
+                // Accurate check-in/check-out timestamps (biometric timeline first, fallback to stored attendance)
+                $effectiveCheckIn = $checkInTime ?: ($attendance?->check_in_time ? Carbon::parse($attendance->check_in_time)->setTimezone('Asia/Kolkata')->toIso8601String() : null);
+                $effectiveCheckOut = $checkOutTime ?: ($attendance?->check_out_time ? Carbon::parse($attendance->check_out_time)->setTimezone('Asia/Kolkata')->toIso8601String() : null);
+
+                // Check late arrival on working days (non-holidays, non-weekends) for present employees not on WFH
+                if ($effectiveCheckIn && $dayStatus['status'] === 'P' && $isWorking && !$wfh) {
+                    $parsedCheckIn = Carbon::parse($effectiveCheckIn)->setTimezone('Asia/Kolkata');
+                    if ($leave && $leave->duration_type && strpos($leave->duration_type, 'Half-Morning') !== false) {
+                        $afternoonThreshold = Carbon::parse($dateStr . ' 14:30:00', 'Asia/Kolkata');
+                        $dayStatus['is_late'] = $parsedCheckIn->greaterThan($afternoonThreshold);
+                    } elseif (!$leave) {
+                        $lateThreshold = Carbon::parse($dateStr . ' ' . $lateThresholdTimeStr, 'Asia/Kolkata');
+                        $dayStatus['is_late'] = $parsedCheckIn->greaterThan($lateThreshold);
+                    }
+                } else {
+                    if (!$isWorking || $wfh) {
+                        $dayStatus['is_late'] = false;
                     }
                 }
 
@@ -494,9 +532,9 @@ class ReportController extends Controller
                     'status' => $dayStatus['status'],
                     'leave_type' => $dayStatus['leave_type'] ?? null,
                     'is_late' => $dayStatus['is_late'],
-                    'check_in' => $checkInTime,
-                    'check_out' => $checkOutTime,
-                    'total_working_minutes' => $totalWorkingMinutes,
+                    'check_in' => $effectiveCheckIn,
+                    'check_out' => $effectiveCheckOut,
+                    'total_working_minutes' => $totalWorkingMinutes ?? $attendance?->total_working_minutes,
                 ];
 
                 // Update daily stats
@@ -555,7 +593,7 @@ class ReportController extends Controller
      * - Half-day Morning: first punch-in after 2:30 PM = Late
      * - WFH: no late marking
      */
-    private function calculateDayStatus($userId, $dateStr, $leave, $wfh, $attendance): array
+    private function calculateDayStatus($userId, $dateStr, $leave, $wfh, $attendance, $lateThresholdTimeStr = '09:40:00', $isWorking = true): array
     {
         $isLate = false;
         $leaveType = null;
@@ -585,9 +623,9 @@ class ReportController extends Controller
 
             // For half-day leave (morning), check if employee checked in after 2:30 PM
             // Otherwise (full day leave, half-day afternoon), no late marking for leave days
-            if ($isHalfDay && $isMorningHalf && $attendance && $attendance->check_in_time) {
-                $checkInTime = Carbon::parse($attendance->check_in_time);
-                $afternoonThreshold = Carbon::parse($dateStr . ' 14:30:00');
+            if ($isHalfDay && $isMorningHalf && $attendance && $attendance->check_in_time && $isWorking) {
+                $checkInTime = Carbon::parse($attendance->check_in_time)->setTimezone('Asia/Kolkata');
+                $afternoonThreshold = Carbon::parse($dateStr . ' 14:30:00', 'Asia/Kolkata');
 
                 if ($checkInTime->greaterThan($afternoonThreshold)) {
                     $isLate = true;
@@ -619,11 +657,10 @@ class ReportController extends Controller
             ];
         }
 
-        // Check if late based on first check-in time (normal day)
-        // Late threshold is 9:45 AM
-        if ($attendance->check_in_time) {
-            $checkInTime = Carbon::parse($attendance->check_in_time);
-            $lateThreshold = Carbon::parse($dateStr . ' 09:45:00');
+        // Check if late based on first check-in time on working days
+        if ($isWorking && $attendance->check_in_time) {
+            $checkInTime = Carbon::parse($attendance->check_in_time)->setTimezone('Asia/Kolkata');
+            $lateThreshold = Carbon::parse($dateStr . ' ' . $lateThresholdTimeStr, 'Asia/Kolkata');
 
             if ($checkInTime->greaterThan($lateThreshold)) {
                 $isLate = true;

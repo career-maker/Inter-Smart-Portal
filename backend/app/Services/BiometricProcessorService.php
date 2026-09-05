@@ -71,7 +71,7 @@ class BiometricProcessorService
                         // Manual attendance conflict check
                         $manualAttendance = Attendance::where('user_id', $user->id)
                             ->where('date', $dateString)
-                            ->where('source', 'manual')
+                            ->whereIn('source', ['manual', 'wfh_manual'])
                             ->first();
 
                         if ($manualAttendance) {
@@ -240,7 +240,7 @@ class BiometricProcessorService
         // Check manual attendance conflict
         $manualAttendance = Attendance::where('user_id', $user->id)
             ->where('date', $dateString)
-            ->where('source', 'manual')
+            ->whereIn('source', ['manual', 'wfh_manual'])
             ->first();
 
         if ($manualAttendance) {

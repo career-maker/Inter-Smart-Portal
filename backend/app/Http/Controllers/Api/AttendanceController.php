@@ -29,6 +29,12 @@ class AttendanceController extends Controller
     {
         $user       = $request->user();
         $today      = Carbon::today('Asia/Kolkata')->toDateString();
+
+        $hasApprovedWfhToday = \App\Models\WfhRequest::where('user_id', $user->id)
+            ->where('status', 'Approved')
+            ->whereDate('start_date', '<=', $today)
+            ->whereDate('end_date', '>=', $today)
+            ->exists();
         
         $attendance = Attendance::with('breaks')
             ->where('user_id', $user->id)
@@ -83,7 +89,11 @@ class AttendanceController extends Controller
         }
 
         if (!$attendance) {
-            return response()->json(['status' => 'Not Checked In', 'attendance' => null]);
+            return response()->json([
+                'status'                 => 'Not Checked In',
+                'attendance'             => null,
+                'has_approved_wfh_today' => $hasApprovedWfhToday,
+            ]);
         }
 
         if (!isset($attendance->last_out)) {
@@ -118,9 +128,10 @@ class AttendanceController extends Controller
         $resource = new AttendanceResource($attendance);
 
         return response()->json([
-            'status'     => $status,
-            'attendance' => $resource,
-            'last_out'   => $resource->toArray($request)['last_out'] ?? null,
+            'status'                 => $status,
+            'attendance'             => $resource,
+            'last_out'               => $resource->toArray($request)['last_out'] ?? null,
+            'has_approved_wfh_today' => $hasApprovedWfhToday,
         ]);
     }
 
@@ -133,20 +144,43 @@ class AttendanceController extends Controller
         $user  = $request->user();
         $today = Carbon::today('Asia/Kolkata')->toDateString();
 
+        $hasApprovedWfhToday = \App\Models\WfhRequest::where('user_id', $user->id)
+            ->where('status', 'Approved')
+            ->whereDate('start_date', '<=', $today)
+            ->whereDate('end_date', '>=', $today)
+            ->exists();
+
+        if (!$hasApprovedWfhToday) {
+            return response()->json([
+                'message' => 'Manual clock-in is only available for employees with an approved Work From Home (WFH) request today.'
+            ], 403);
+        }
+
         $existing = Attendance::where('user_id', $user->id)->where('date', $today)->first();
-        if ($existing) {
+        if ($existing && $existing->check_in_time) {
             return response()->json(['message' => 'Already checked in today'], 400);
         }
 
-        $attendance = Attendance::create([
-            'user_id'        => $user->id,
-            'date'           => $today,
-            'check_in_time'  => now(),
-            'status'         => 'Present',
-        ]);
+        $now = Carbon::now('Asia/Kolkata');
+        if ($existing) {
+            $existing->update([
+                'check_in_time' => $now,
+                'status'        => 'Present',
+                'source'        => 'wfh_manual',
+            ]);
+            $attendance = $existing;
+        } else {
+            $attendance = Attendance::create([
+                'user_id'        => $user->id,
+                'date'           => $today,
+                'check_in_time'  => $now,
+                'status'         => 'Present',
+                'source'         => 'wfh_manual',
+            ]);
+        }
 
         return response()->json([
-            'message' => 'Checked in successfully',
+            'message' => 'Checked in successfully (WFH)',
             'data'    => new AttendanceResource($attendance),
         ], 201);
     }
@@ -156,8 +190,20 @@ class AttendanceController extends Controller
         $user  = $request->user();
         $today = Carbon::today('Asia/Kolkata')->toDateString();
 
+        $hasApprovedWfhToday = \App\Models\WfhRequest::where('user_id', $user->id)
+            ->where('status', 'Approved')
+            ->whereDate('start_date', '<=', $today)
+            ->whereDate('end_date', '>=', $today)
+            ->exists();
+
+        if (!$hasApprovedWfhToday) {
+            return response()->json([
+                'message' => 'Manual clock-out is only available for employees with an approved Work From Home (WFH) request today.'
+            ], 403);
+        }
+
         $attendance = Attendance::where('user_id', $user->id)->where('date', $today)->first();
-        if (!$attendance) {
+        if (!$attendance || !$attendance->check_in_time) {
             return response()->json(['message' => 'Not checked in today'], 400);
         }
         if ($attendance->check_out_time) {
@@ -169,19 +215,20 @@ class AttendanceController extends Controller
             return response()->json(['message' => 'Please end your break before checking out'], 400);
         }
 
-        $now               = now();
+        $now               = Carbon::now('Asia/Kolkata');
         $checkInTime       = Carbon::parse($attendance->check_in_time);
         $elapsedMinutes    = $checkInTime->diffInMinutes($now);
-        $totalBreakMinutes = $attendance->breaks()->sum('total_break_minutes');
+        $totalBreakMinutes = $attendance->breaks()->sum('total_break_minutes') ?? 0;
         $workingMinutes    = max(0, $elapsedMinutes - $totalBreakMinutes);
 
         $attendance->update([
             'check_out_time'        => $now,
+            'last_out'              => $now,
             'total_working_minutes' => (int) round($workingMinutes),
         ]);
 
         return response()->json([
-            'message' => 'Checked out successfully',
+            'message' => 'Checked out successfully (WFH)',
             'data'    => new AttendanceResource($attendance),
         ]);
     }
@@ -415,7 +462,32 @@ class AttendanceController extends Controller
             $statusLabel = 'Complete';
         } elseif ($interp['first_in']) {
             $statusLabel = 'Open Shift';
+        } elseif ($attendance && $attendance->check_in_time) {
+            $isWorking = is_null($attendance->check_out_time);
+            $statusLabel = $isWorking ? 'Checked In (WFH)' : 'Complete (WFH)';
         }
+
+        $firstInOutput = $shiftCarbon($interp['first_in']) ?: ($attendance?->check_in_time ? Carbon::parse($attendance->check_in_time)->setTimezone('Asia/Kolkata')->toIso8601String() : null);
+        $lastOutOutput = $shiftCarbon($interp['last_out']) ?: ($attendance?->check_out_time ? Carbon::parse($attendance->check_out_time)->setTimezone('Asia/Kolkata')->toIso8601String() : null);
+
+        $sessionsOutput = $shiftedSessions;
+        if (empty($sessionsOutput) && $firstInOutput) {
+            $sessionsOutput[] = [
+                'start'   => $firstInOutput,
+                'end'     => $lastOutOutput,
+                'minutes' => $attendance?->total_working_minutes ?? 0,
+            ];
+        }
+
+        $rawPunchesOutput = $shiftedRawPunches;
+        if (empty($rawPunchesOutput) && $firstInOutput) {
+            $rawPunchesOutput[] = ['type' => 'in', 'time' => $firstInOutput, 'event_id' => 'manual_in'];
+            if ($lastOutOutput) {
+                $rawPunchesOutput[] = ['type' => 'out', 'time' => $lastOutOutput, 'event_id' => 'manual_out'];
+            }
+        }
+
+        $isCurrentlyWorking = $interp['is_currently_working'] ?: ($attendance && $attendance->check_in_time && is_null($attendance->check_out_time));
 
         return response()->json([
             'date'                   => $dateString,
@@ -429,22 +501,22 @@ class AttendanceController extends Controller
             ] : null,
             'attendance_id'          => $attendance?->id,
             'status_label'           => $statusLabel,
-            'first_in'               => $shiftCarbon($interp['first_in']),
-            'last_out'               => $shiftCarbon($interp['last_out']),
-            'current_sequence_state' => $interp['current_sequence_state'],
-            'is_currently_working'   => $interp['is_currently_working'],
+            'first_in'               => $firstInOutput,
+            'last_out'               => $lastOutOutput,
+            'current_sequence_state' => $interp['current_sequence_state'] ?: ($isCurrentlyWorking ? 'in' : 'out'),
+            'is_currently_working'   => $isCurrentlyWorking,
             'has_missing_punch_out'  => $interp['has_missing_punch_out'],
             'requires_review'        => $interp['requires_review'],
-            'total_working_minutes'  => $interp['total_working_minutes'],
+            'total_working_minutes'  => $interp['total_working_minutes'] ?? $attendance?->total_working_minutes,
             'total_completed_break_minutes' => array_sum(
                 array_column($interp['completed_breaks'], 'minutes')
             ),
             'open_break_start'       => $openBreakRow
                 ? $shiftCarbon(Carbon::parse($openBreakRow->break_start))
                 : null,
-            'working_sessions'       => $shiftedSessions,
+            'working_sessions'       => $sessionsOutput,
             'completed_breaks'       => $shiftedBreaks,
-            'raw_punches'            => $shiftedRawPunches,
+            'raw_punches'            => $rawPunchesOutput,
             'orphan_event_ids'       => $build['orphan_event_ids'],
         ]);
     }

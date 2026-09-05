@@ -11,6 +11,7 @@ export interface LeavePolicySettings {
   cl_advance_notice_days?: number;
   wfh_morning_cutoff_time?: string;
   wfh_afternoon_cutoff_time?: string;
+  late_threshold_time?: string;
   single_day_approval_level?: string;
   multi_day_approval_threshold?: number;
   lop_admin_approval_required?: boolean;

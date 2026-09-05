@@ -58,6 +58,7 @@ class LeavePolicyController extends Controller
             'cl_advance_notice_days'       => 'nullable|integer|min:0|max:30',
             'wfh_morning_cutoff_time'      => 'nullable|string|max:10',
             'wfh_afternoon_cutoff_time'    => 'nullable|string|max:10',
+            'late_threshold_time'          => 'nullable|string|max:10',
             'single_day_approval_level'    => 'nullable|string|in:tl_only,tl_and_admin,admin_only',
             'multi_day_approval_threshold' => 'nullable|integer|min:1|max:30',
             'lop_admin_approval_required'  => 'nullable|boolean',

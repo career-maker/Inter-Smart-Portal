@@ -62,6 +62,13 @@ export default function LeavePolicyManagementPage() {
     default_monthly_sl: 1.0,
     cl_carry_forward_years: 2,
     sl_carry_forward_allowed: false,
+    cl_advance_notice_days: 3,
+    wfh_morning_cutoff_time: "09:45",
+    wfh_afternoon_cutoff_time: "14:30",
+    late_threshold_time: "09:40",
+    single_day_approval_level: "tl_only",
+    multi_day_approval_threshold: 2,
+    lop_admin_approval_required: true,
   });
   const [cycleInfo, setCycleInfo] = useState<CycleInfo | null>(null);
   const [employees, setEmployees] = useState<PolicyEmployee[]>([]);
@@ -162,6 +169,13 @@ export default function LeavePolicyManagementPage() {
         default_monthly_sl: Number(settings.default_monthly_sl),
         cl_carry_forward_years: Number(settings.cl_carry_forward_years),
         sl_carry_forward_allowed: Boolean(settings.sl_carry_forward_allowed),
+        cl_advance_notice_days: Number(settings.cl_advance_notice_days ?? 3),
+        wfh_morning_cutoff_time: settings.wfh_morning_cutoff_time || "09:45",
+        wfh_afternoon_cutoff_time: settings.wfh_afternoon_cutoff_time || "14:30",
+        late_threshold_time: settings.late_threshold_time || "09:40",
+        single_day_approval_level: settings.single_day_approval_level || "tl_only",
+        multi_day_approval_threshold: Number(settings.multi_day_approval_threshold ?? 2),
+        lop_admin_approval_required: Boolean(settings.lop_admin_approval_required ?? true),
       });
 
       setSettings(res.settings);
@@ -653,6 +667,29 @@ export default function LeavePolicyManagementPage() {
                   />
                   <p className="text-[10px] text-slate-400">Default: 02:30 PM</p>
                 </div>
+              </div>
+
+              {/* Late Time Define (Late Coming Threshold) */}
+              <div className="space-y-1.5 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5 text-rose-500" />
+                    <span>Late Time Define (Late Coming Threshold)</span>
+                    <span className="text-rose-500">*</span>
+                  </span>
+                  <span className="text-[11px] font-semibold text-[#56348f] dark:text-purple-400">
+                    Default: 09:40 AM
+                  </span>
+                </label>
+                <input
+                  type="time"
+                  value={settings.late_threshold_time || "09:40"}
+                  onChange={(e) => setSettings({ ...settings, late_threshold_time: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-purple-500/20 focus:border-purple-600 outline-none"
+                />
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  On working days (non-holidays, non-weekends), if an employee checks in using biometric after this time, it is considered as late coming in attendance reports and summaries. Configurable by Super Admin.
+                </p>
               </div>
             </div>
 

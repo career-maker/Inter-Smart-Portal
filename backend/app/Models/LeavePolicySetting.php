@@ -31,6 +31,15 @@ class LeavePolicySetting extends Model
      */
     public static function current(): self
     {
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('leave_policy_settings') &&
+                !\Illuminate\Support\Facades\Schema::hasColumn('leave_policy_settings', 'late_threshold_time')) {
+                \Illuminate\Support\Facades\Schema::table('leave_policy_settings', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->string('late_threshold_time', 10)->default('09:40')->nullable();
+                });
+            }
+        } catch (\Throwable $e) {}
+
         return static::firstOrCreate(
             ['id' => 1],
             [
@@ -43,6 +52,7 @@ class LeavePolicySetting extends Model
                 'cl_advance_notice_days'       => 3,
                 'wfh_morning_cutoff_time'      => '09:45',
                 'wfh_afternoon_cutoff_time'    => '14:30',
+                'late_threshold_time'          => '09:40',
                 'single_day_approval_level'    => 'tl_only',
                 'multi_day_approval_threshold' => 2,
                 'lop_admin_approval_required'  => true,

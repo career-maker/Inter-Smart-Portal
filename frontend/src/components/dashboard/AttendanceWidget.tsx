@@ -51,6 +51,47 @@ export function AttendanceWidget({
   const [isLoadingTimeline, setIsLoadingTimeline] = useState(false);
   const [timelineError, setTimelineError] = useState<string | null>(null);
 
+  // WFH Manual Punch State
+  const [isPunching, setIsPunching] = useState(false);
+  const [punchMessage, setPunchMessage] = useState<string | null>(null);
+  const [punchError, setPunchError] = useState<string | null>(null);
+
+  const handleManualClockIn = async () => {
+    try {
+      setIsPunching(true);
+      setPunchError(null);
+      setPunchMessage(null);
+      await api.post("/attendance/check-in");
+      setPunchMessage("Clocked in successfully!");
+      await fetchData();
+      await fetchTimelineData(todayStr);
+      setTimeout(() => setPunchMessage(null), 3000);
+    } catch (err: any) {
+      console.error("Failed to clock in", err);
+      setPunchError(err.response?.data?.message || err.message || "Failed to clock in");
+    } finally {
+      setIsPunching(false);
+    }
+  };
+
+  const handleManualClockOut = async () => {
+    try {
+      setIsPunching(true);
+      setPunchError(null);
+      setPunchMessage(null);
+      await api.post("/attendance/check-out");
+      setPunchMessage("Clocked out successfully!");
+      await fetchData();
+      await fetchTimelineData(todayStr);
+      setTimeout(() => setPunchMessage(null), 3000);
+    } catch (err: any) {
+      console.error("Failed to clock out", err);
+      setPunchError(err.response?.data?.message || err.message || "Failed to clock out");
+    } finally {
+      setIsPunching(false);
+    }
+  };
+
   const fetchData = async () => {
     try {
       const res = await api.get("/attendance/status");
@@ -286,7 +327,9 @@ export function AttendanceWidget({
               }}
               className="dark:text-slate-400 font-normal"
             >
-              Real-time biometric punch logs and work duration
+              {data?.has_approved_wfh_today
+                ? "Work From Home (WFH) Approved • Manual entries enabled"
+                : "Real-time biometric punch logs and work duration"}
             </p>
           </div>
 
@@ -321,6 +364,80 @@ export function AttendanceWidget({
             </span>
           </div>
         </div>
+
+        {/* WFH Manual Action Banner - Strictly shown only for employees with approved WFH today */}
+        {data?.has_approved_wfh_today && (
+          <div className="mb-4 p-3 rounded-lg bg-gradient-to-r from-purple-50 via-indigo-50/50 to-purple-50 dark:from-purple-950/40 dark:via-slate-800 dark:to-purple-950/40 border border-purple-200/80 dark:border-purple-800/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 relative z-10 shadow-2xs">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/60 text-[#56348f] dark:text-purple-300 flex items-center justify-center shrink-0">
+                <CalendarCheck className="w-4 h-4" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-slate-900 dark:text-white">
+                    Work From Home (WFH) Approved
+                  </span>
+                  <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300">
+                    Manual Mode
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                  Since you are working from home today, use manual clock in and clock out instead of biometric device punch.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto">
+              {(!data?.attendance || data?.status === "Not Checked In") && (
+                <button
+                  type="button"
+                  onClick={handleManualClockIn}
+                  disabled={isPunching}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition-all cursor-pointer disabled:opacity-50"
+                  title="Manually clock in for today's WFH"
+                >
+                  <LogIn className={`w-4 h-4 ${isPunching ? "animate-spin" : ""}`} />
+                  <span>{isPunching ? "Clocking In..." : "Clock In (WFH)"}</span>
+                </button>
+              )}
+
+              {data?.status === "Checked In" && (
+                <button
+                  type="button"
+                  onClick={handleManualClockOut}
+                  disabled={isPunching}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg bg-rose-600 hover:bg-rose-700 text-white shadow-xs transition-all cursor-pointer disabled:opacity-50"
+                  title="Manually clock out for today's WFH"
+                >
+                  <LogOut className={`w-4 h-4 ${isPunching ? "animate-spin" : ""}`} />
+                  <span>{isPunching ? "Clocking Out..." : "Clock Out (WFH)"}</span>
+                </button>
+              )}
+
+              {data?.status === "Checked Out" && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                  <span>Shift Completed</span>
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Feedback messages for manual actions */}
+        {punchMessage && (
+          <div className="mb-3 px-3 py-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-300 text-xs font-medium flex items-center gap-2 relative z-10">
+            <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+            <span>{punchMessage}</span>
+          </div>
+        )}
+
+        {punchError && (
+          <div className="mb-3 px-3 py-2 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 text-rose-800 dark:text-rose-300 text-xs font-medium flex items-center gap-2 relative z-10">
+            <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
+            <span>{punchError}</span>
+          </div>
+        )}
 
         <div className="relative z-10">
           {/* Metrics Grid */}
