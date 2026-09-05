@@ -101,6 +101,7 @@ function FormattedMessage({ text }: { text: string }) {
 
 export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isSidePopupOpen, setIsSidePopupOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
@@ -118,6 +119,31 @@ export default function ChatWidget() {
     retrySeconds?: number;
   } | null>(null);
   const [countdown, setCountdown] = useState<number | null>(null);
+
+  // Monitor DOM for side popups / slide-over drawers / modals to hide floating launcher
+  useEffect(() => {
+    const checkPopups = () => {
+      const hasPopup = Boolean(
+        document.body.classList.contains("side-popup-open") ||
+        document.querySelector('[data-side-popup="true"]') ||
+        document.querySelector('#employee-id-drawer') ||
+        document.querySelector('.fixed.inset-y-0.right-0:not([data-chat-widget="true"])') ||
+        document.querySelector('[role="dialog"]')
+      );
+      setIsSidePopupOpen(hasPopup);
+    };
+
+    checkPopups();
+    const observer = new MutationObserver(checkPopups);
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["class", "data-side-popup", "data-state"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   // Live countdown timer for rate limit / quota reset
   useEffect(() => {
@@ -280,22 +306,25 @@ export default function ChatWidget() {
 
   return (
     <>
-      {/* Floating Action Launcher Button (Pure transparent PNG icon without dark container) */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        aria-label="Toggle Portal AI Assistant"
-        className="fixed bottom-6 right-6 z-40 flex items-center justify-center w-14 h-14 bg-transparent border-0 p-0 hover:scale-110 active:scale-95 transition-all cursor-pointer select-none"
-        title="Portal AI Assistant"
-      >
-        <div className="relative flex items-center justify-center w-full h-full">
-          <img
-            src="/chatbot.png"
-            alt="AI Assistant"
-            className="w-full h-full object-contain filter drop-shadow-[0_4px_12px_rgba(0,0,0,0.25)]"
-          />
-          <span className="absolute top-1 right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white shadow-sm animate-pulse"></span>
-        </div>
-      </button>
+      {/* Floating Action Launcher Button (Hidden when chat is open or any side popup is open) */}
+      {!isOpen && !isSidePopupOpen && (
+        <button
+          data-chat-launcher="true"
+          onClick={() => setIsOpen(true)}
+          aria-label="Toggle Portal AI Assistant"
+          className="fixed bottom-6 right-6 z-40 flex items-center justify-center w-14 h-14 bg-transparent border-0 p-0 hover:scale-110 active:scale-95 transition-all cursor-pointer select-none"
+          title="Portal AI Assistant"
+        >
+          <div className="relative flex items-center justify-center w-full h-full">
+            <img
+              src="/chatbot.png"
+              alt="AI Assistant"
+              className="w-full h-full object-contain filter drop-shadow-[0_4px_12px_rgba(0,0,0,0.25)]"
+            />
+            <span className="absolute top-1 right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white shadow-sm animate-pulse"></span>
+          </div>
+        </button>
+      )}
 
       {/* Side Popup Drawer (Matching Birthday Wish Drawer styling & light theme) */}
       {isOpen && (
@@ -307,7 +336,11 @@ export default function ChatWidget() {
           />
 
           {/* Drawer Container */}
-          <div className="fixed inset-y-0 right-0 w-full sm:w-[460px] max-w-full bg-white shadow-2xl flex flex-col justify-between border-l border-slate-200 z-50 animate-in slide-in-from-right duration-300">
+          <div
+            data-chat-widget="true"
+            id="chat-widget-drawer"
+            className="fixed inset-y-0 right-0 w-full sm:w-[460px] max-w-full bg-white shadow-2xl flex flex-col justify-between border-l border-slate-200 z-50 animate-in slide-in-from-right duration-300"
+          >
             {/* Header with Royal Purple gradient accent */}
             <div className="relative px-5 py-4 border-b border-slate-100 bg-gradient-to-b from-purple-50/80 to-white flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -534,6 +567,24 @@ export default function ChatWidget() {
           </div>
         </div>
       )}
+      {/* Hide Chatbot Launcher whenever any side popup or modal is open */}
+      <style>{`
+        body.side-popup-open [data-chat-launcher="true"],
+        body.side-popup-open [aria-label="Toggle Portal AI Assistant"],
+        body:has([data-side-popup="true"]) [data-chat-launcher="true"],
+        body:has([data-side-popup="true"]) [aria-label="Toggle Portal AI Assistant"],
+        body:has(#employee-id-drawer) [data-chat-launcher="true"],
+        body:has(#employee-id-drawer) [aria-label="Toggle Portal AI Assistant"],
+        body:has([role="dialog"]) [data-chat-launcher="true"],
+        body:has([role="dialog"]) [aria-label="Toggle Portal AI Assistant"],
+        body:has(.fixed.inset-y-0.right-0:not([data-chat-widget="true"])) [data-chat-launcher="true"],
+        body:has(.fixed.inset-y-0.right-0:not([data-chat-widget="true"])) [aria-label="Toggle Portal AI Assistant"] {
+          display: none !important;
+          opacity: 0 !important;
+          pointer-events: none !important;
+          visibility: hidden !important;
+        }
+      `}</style>
     </>
   );
 }

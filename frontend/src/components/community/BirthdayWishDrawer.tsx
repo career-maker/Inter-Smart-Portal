@@ -50,6 +50,8 @@ export function BirthdayWishDrawer({
   useEffect(() => {
     if (!person) return;
 
+    document.body.classList.add("side-popup-open");
+
     // Set initial friendly template
     if (person.type === "birthday") {
       setMessage(`Happy birthday ${person.name} 🎉`);
@@ -59,6 +61,10 @@ export function BirthdayWishDrawer({
 
     setSentSuccess(false);
     fetchWishes();
+
+    return () => {
+      document.body.classList.remove("side-popup-open");
+    };
   }, [person]);
 
   const fetchWishes = async () => {
@@ -108,7 +114,10 @@ export function BirthdayWishDrawer({
       />
 
       {/* Drawer */}
-      <div className="fixed inset-y-0 right-0 max-w-lg w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-50 animate-in slide-in-from-right duration-300">
+      <div
+        data-side-popup="true"
+        className="fixed inset-y-0 right-0 max-w-lg w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-50 animate-in slide-in-from-right duration-300"
+      >
         
         {/* Header with Confetti Background */}
         <div className="relative p-6 text-center border-b border-slate-100 dark:border-slate-800 bg-gradient-to-b from-purple-50/80 to-white dark:from-slate-850 dark:to-slate-900 overflow-hidden">

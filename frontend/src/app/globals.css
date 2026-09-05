@@ -3455,3 +3455,26 @@ body {
   animation: celebration-wiggle 0.7s ease-in-out;
 }
 
+/* ── Hide Chatbot Floating Launcher When Any Side Popup / Drawer / Modal is Open ── */
+body.side-popup-open [data-chat-launcher="true"],
+body.side-popup-open [aria-label="Toggle Portal AI Assistant"],
+body.side-popup-open [aria-label="Open AI Assistant"],
+body.side-popup-open #chatbase-bubble-button,
+body.side-popup-open #chatbase-bubble-button-container,
+body.side-popup-open #chatbase-message-bubbles,
+body.side-popup-open iframe[src*="chatbase"],
+body:has([data-side-popup="true"]) [data-chat-launcher="true"],
+body:has([data-side-popup="true"]) [aria-label="Toggle Portal AI Assistant"],
+body:has([data-side-popup="true"]) [aria-label="Open AI Assistant"],
+body:has(#employee-id-drawer) [data-chat-launcher="true"],
+body:has(#employee-id-drawer) [aria-label="Toggle Portal AI Assistant"],
+body:has(#employee-id-drawer) [aria-label="Open AI Assistant"],
+body:has(.fixed.inset-y-0.right-0:not([data-chat-widget="true"])) [data-chat-launcher="true"],
+body:has(.fixed.inset-y-0.right-0:not([data-chat-widget="true"])) [aria-label="Toggle Portal AI Assistant"],
+body:has(.fixed.inset-y-0.right-0:not([data-chat-widget="true"])) [aria-label="Open AI Assistant"] {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
+
