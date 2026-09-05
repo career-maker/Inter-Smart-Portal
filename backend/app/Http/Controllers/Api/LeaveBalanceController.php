@@ -35,12 +35,14 @@ class LeaveBalanceController extends Controller
             \Log::warning("Self-healing leave allocation check failed in LeaveBalanceController: " . $e->getMessage());
         }
 
-        if ($user->hasRole('Super Admin') || strtolower($user->role ?? '') === 'super admin') {
+        if ($user->hasRole('Super Admin') || (isset($user->role) && strtolower($user->role) === 'super admin')) {
             // Return all active employees with their balances (or zeros if no balance record exists)
             $employees = User::where('status', 'Active')
-                ->where(function ($q) {
-                    $q->whereNull('role')
-                      ->orWhereRaw('LOWER(role) != ?', ['super admin']);
+                ->when(\Illuminate\Support\Facades\Schema::hasColumn('users', 'role'), function ($q) {
+                    $q->where(function ($sub) {
+                        $sub->whereNull('role')
+                            ->orWhereRaw('LOWER(role) != ?', ['super admin']);
+                    });
                 })
                 ->whereDoesntHave('roles', fn($q) => $q->where('name', 'Super Admin'))
                 ->with(['leaveBalance', 'leaveRequests' => function ($q) {

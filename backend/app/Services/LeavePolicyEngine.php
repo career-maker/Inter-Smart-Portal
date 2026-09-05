@@ -139,9 +139,11 @@ class LeavePolicyEngine
         $settings  = $this->getSettings();
 
         $activeEmployees = User::where('status', 'Active')
-            ->where(function ($q) {
-                $q->whereNull('role')
-                  ->orWhereRaw('LOWER(role) != ?', ['super admin']);
+            ->when(\Illuminate\Support\Facades\Schema::hasColumn('users', 'role'), function ($q) {
+                $q->where(function ($sub) {
+                    $sub->whereNull('role')
+                        ->orWhereRaw('LOWER(role) != ?', ['super admin']);
+                });
             })
             ->whereDoesntHave('roles', fn($q) => $q->where('name', 'Super Admin'))
             ->with(['leaveBalance', 'employeeLeavePolicy'])
