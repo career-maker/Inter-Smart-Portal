@@ -56,7 +56,9 @@ class BiometricTimelineService
 
         foreach ($rawEvents as $evt) {
             // Use utc_punch_time (correct UTC time) instead of local_punch_time (misinterpreted as UTC by Eloquent)
-            $time = $evt->utc_punch_time ? Carbon::parse($evt->utc_punch_time, 'UTC') : Carbon::parse($evt->local_punch_time);
+            $time = $evt->utc_punch_time 
+                ? Carbon::parse($evt->utc_punch_time, 'UTC') 
+                : Carbon::parse($evt->local_punch_time, 'Asia/Kolkata')->setTimezone('UTC');
 
             if ($evt->direction === 'in') {
                 if ($currentState === 'outside') {

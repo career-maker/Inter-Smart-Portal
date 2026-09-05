@@ -593,9 +593,9 @@ class ReportController extends Controller
                         if ($bio) {
                             $hasEssl = true;
                             $esslDaysCount++;
-                            $checkInTime = Carbon::parse($bio->first_punch)->setTimezone('Asia/Kolkata')->toIso8601String();
+                            $checkInTime = Carbon::parse($bio->first_punch, 'Asia/Kolkata')->toIso8601String();
                             if ($bio->punch_count > 1 || $bio->last_punch > $bio->first_punch) {
-                                $checkOutTime = Carbon::parse($bio->last_punch)->setTimezone('Asia/Kolkata')->toIso8601String();
+                                $checkOutTime = Carbon::parse($bio->last_punch, 'Asia/Kolkata')->toIso8601String();
                             }
                         }
                         if ($attendance && isset($attendance->total_working_minutes)) {
@@ -611,8 +611,8 @@ class ReportController extends Controller
                     }
 
                     // Accurate check-in/check-out timestamps (biometric timeline first, fallback to stored attendance)
-                    $effectiveCheckIn = $checkInTime ?: ($attendance?->check_in_time ? Carbon::parse($attendance->check_in_time)->setTimezone('Asia/Kolkata')->toIso8601String() : null);
-                    $effectiveCheckOut = $checkOutTime ?: ($attendance?->check_out_time ? Carbon::parse($attendance->check_out_time)->setTimezone('Asia/Kolkata')->toIso8601String() : null);
+                    $effectiveCheckIn = $checkInTime ?: ($attendance?->check_in_time ? Carbon::parse($attendance->check_in_time, 'UTC')->setTimezone('Asia/Kolkata')->toIso8601String() : null);
+                    $effectiveCheckOut = $checkOutTime ?: ($attendance?->check_out_time ? Carbon::parse($attendance->check_out_time, 'UTC')->setTimezone('Asia/Kolkata')->toIso8601String() : null);
 
                     // Check late arrival on working days or weekdays (Mon-Fri) for present employees not on WFH
                     $isWeekday = !in_array($dInfo['day_name'], ['Sat', 'Sun']);

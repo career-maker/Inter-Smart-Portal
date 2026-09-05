@@ -344,8 +344,20 @@ export default function AttendanceManagementPage() {
 
   const formatTime = (isoString: string | null) => {
     if (!isoString) return "--:--";
-    const date = new Date(isoString);
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    try {
+      const date = new Date(isoString);
+      if (isNaN(date.getTime())) return "--:--";
+      return date
+        .toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+          timeZone: "Asia/Kolkata",
+        })
+        .toLowerCase();
+    } catch {
+      return "--:--";
+    }
   };
 
   const formatMinutesToHours = (minutes: number | null) => {
