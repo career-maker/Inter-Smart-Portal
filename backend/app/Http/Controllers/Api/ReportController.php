@@ -359,6 +359,11 @@ class ReportController extends Controller
             ->whereBetween('date', [$startDate, $endDate])
             ->get();
 
+        $allBiometricEvents = BiometricEvent::whereIn('user_id', $employeeIds)
+            ->whereBetween('local_punch_time', [$start, $end])
+            ->orderBy('local_punch_time', 'asc')
+            ->get();
+
         // Load configured late threshold time (default 09:40) and calendar rules
         $policySetting = LeavePolicySetting::current();
         $lateThresholdConfig = $policySetting->late_threshold_time ?: '09:40';
@@ -484,10 +489,13 @@ class ReportController extends Controller
                 $checkOutTime = null;
                 $totalWorkingMinutes = null;
                 if (!$leave && !$wfh) {  // Only calculate from biometric if not on leave/WFH
-                    $biometricEvents = BiometricEvent::where('user_id', $emp->id)
-                        ->whereDate('local_punch_time', $dateStr)
-                        ->orderBy('local_punch_time', 'asc')
-                        ->get();
+                    $biometricEvents = $allBiometricEvents->filter(function($e) use ($emp, $dateStr) {
+                        if ($e->user_id !== $emp->id) return false;
+                        $punchDate = is_string($e->local_punch_time)
+                            ? substr($e->local_punch_time, 0, 10)
+                            : $e->local_punch_time?->format('Y-m-d');
+                        return $punchDate === $dateStr;
+                    })->values();
 
                     if ($biometricEvents->isNotEmpty()) {
                         $build = $this->timeline->buildTimeline($biometricEvents, false);

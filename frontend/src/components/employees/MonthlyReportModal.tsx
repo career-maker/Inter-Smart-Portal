@@ -16,6 +16,42 @@ interface MonthlyReportModalProps {
   onClose: () => void;
 }
 
+export function generateEmployeeReportText(empData: any, reportMonth: string): string {
+  const workingDays = empData.working_days !== undefined
+    ? empData.working_days
+    : ((empData.p_count || 0) + (empData.total_leaves || 0) + (empData.wfh_count || 0) + (empData.summary?.absent || 0));
+
+  const monthDate = new Date(reportMonth + "-01");
+  const monthName = !isNaN(monthDate.getTime()) ? format(monthDate, "MMMM yyyy") : reportMonth;
+  const shortMonth = !isNaN(monthDate.getTime()) ? format(monthDate, "MMMM") : reportMonth;
+
+  const clCount = empData.cl_count || 0;
+  const slCount = empData.sl_count || 0;
+  const lopCount = empData.lop_count || 0;
+  const totalLeaves = empData.total_leaves || 0;
+  
+  const slBalance = empData.leave_balance?.sick_leave_balance || 0;
+  const clBalance = empData.leave_balance?.casual_leave_balance || 0;
+  const lateCount = empData.l_count || 0;
+
+  return `Attendance Summary \t${monthName}
+No of Working Days : \t${workingDays}
+------------------------------\t
+Name : \t${empData.first_name} ${empData.last_name}
+ID # : \t${empData.employee_code || "—"}
+------------------------------\t
+Total Leaves - \t${totalLeaves}
+* Sick Leave - \t${slCount}
+* Casual Leave - \t${clCount}
+* UnPaid Leave - \t${lopCount}
+SL Balance in ${shortMonth} - \t${slBalance}
+CL Balance in ${shortMonth} - \t${clBalance}
+* OT - \tNIL
+* Late coming Days - \t${lateCount}
+Comments : \tLOP not applied for ${lateCount} late comings. 
+Please confirm the above data`;
+}
+
 export function MonthlyReportModal({ employee, isOpen, onClose }: MonthlyReportModalProps) {
   const [reportMonth, setReportMonth] = useState(format(new Date(), "yyyy-MM"));
   const [startDate, setStartDate] = useState(format(startOfMonth(new Date()), "yyyy-MM-dd"));
@@ -25,6 +61,17 @@ export function MonthlyReportModal({ employee, isOpen, onClose }: MonthlyReportM
   const [reportText, setReportText] = useState("");
   const [isCopied, setIsCopied] = useState(false);
   const [error, setError] = useState("");
+
+  const handleMonthChange = (val: string) => {
+    setReportMonth(val);
+    if (val) {
+      const d = new Date(val + "-01");
+      if (!isNaN(d.getTime())) {
+        setStartDate(format(startOfMonth(d), "yyyy-MM-dd"));
+        setEndDate(format(endOfMonth(d), "yyyy-MM-dd"));
+      }
+    }
+  };
 
   const handleGenerate = async () => {
     try {
@@ -41,40 +88,7 @@ export function MonthlyReportModal({ employee, isOpen, onClose }: MonthlyReportM
       }
 
       const empData = data.data[0];
-      
-      const workingDays = empData.working_days !== undefined
-        ? empData.working_days
-        : ((empData.p_count || 0) + (empData.total_leaves || 0) + (empData.wfh_count || 0) + (empData.summary?.absent || 0));
-
-      const monthName = format(new Date(reportMonth + "-01"), "MMMM yyyy");
-      const shortMonth = format(new Date(reportMonth + "-01"), "MMMM");
-
-      const clCount = empData.cl_count || 0;
-      const slCount = empData.sl_count || 0;
-      const lopCount = empData.lop_count || 0;
-      const totalLeaves = empData.total_leaves || 0;
-      
-      const slBalance = empData.leave_balance?.sick_leave_balance || 0;
-      const clBalance = empData.leave_balance?.casual_leave_balance || 0;
-      const lateCount = empData.l_count || 0;
-
-      const template = `Attendance Summary \t${monthName}
-No of Working Days : \t${workingDays}
-------------------------------\t
-Name : \t${empData.first_name} ${empData.last_name}
-ID # : \t${empData.employee_code}
-------------------------------\t
-Total Leaves - \t${totalLeaves}
-* Sick Leave - \t${slCount}
-* Casual Leave - \t${clCount}
-* UnPaid Leave - \t${lopCount}
-SL Balance in ${shortMonth} - \t${slBalance}
-CL Balance in ${shortMonth} - \t${clBalance}
-* OT - \tNIL
-* Late coming Days - \t${lateCount}
-Comments : \tLOP not applied for ${lateCount} late comings. 
-Please confirm the above data`;
-
+      const template = generateEmployeeReportText(empData, reportMonth);
       setReportText(template);
 
     } catch (err: any) {
@@ -112,7 +126,7 @@ Please confirm the above data`;
               <Input 
                 type="month" 
                 value={reportMonth} 
-                onChange={(e) => setReportMonth(e.target.value)} 
+                onChange={(e) => handleMonthChange(e.target.value)} 
               />
             </div>
             <div className="space-y-2">

@@ -18,6 +18,8 @@ import {
   Palmtree,
   CalendarDays,
   X,
+  FileSpreadsheet,
+  FileText,
 } from "lucide-react";
 import Link from "next/link";
 import api from "@/services/api";
@@ -27,7 +29,8 @@ import { Badge } from "@/components/ui/badge";
 import { PageLoader } from "@/components/ui/PageLoader";
 import { useAuthStore } from "@/store/auth";
 import { BiometricPunchTimeline } from "@/components/attendance/BiometricPunchTimeline";
-import { DailySummaryCard, AdminLeaveWfhModal } from "@/components/attendance";
+import { DailySummaryCard, AdminLeaveWfhModal, AllEmployeesReportModal } from "@/components/attendance";
+import { MonthlyReportModal } from "@/components/employees/MonthlyReportModal";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 import {
   Dialog,
@@ -113,6 +116,8 @@ export default function AttendanceManagementPage() {
   const [dailyDetails, setDailyDetails] = useState<AttendanceDetails | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLeaveWfhModalOpen, setIsLeaveWfhModalOpen] = useState(false);
+  const [isMonthlyReportOpen, setIsMonthlyReportOpen] = useState(false);
+  const [isAllEmployeesReportOpen, setIsAllEmployeesReportOpen] = useState(false);
   const [allEmployeesDateData, setAllEmployeesDateData] = useState<any[]>([]);
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
@@ -383,6 +388,15 @@ export default function AttendanceManagementPage() {
           <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
             Super Admin: View daily biometric punches, timeline records, and manage employee attendance
           </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={() => setIsAllEmployeesReportOpen(true)}
+            className="bg-[#56348f] hover:bg-[#462a75] text-white gap-2 font-semibold shadow-sm text-xs sm:text-sm cursor-pointer"
+          >
+            <FileSpreadsheet className="w-4 h-4" />
+            All Employees Report
+          </Button>
         </div>
       </div>
 
@@ -717,6 +731,30 @@ export default function AttendanceManagementPage() {
                   </p>
                 </div>
               </button>
+
+              {/* Option 3: Monthly Report */}
+              <button
+                onClick={() => {
+                  setIsDrawerOpen(false);
+                  setIsMonthlyReportOpen(true);
+                }}
+                className="w-full p-4.5 bg-white dark:bg-slate-800/80 hover:bg-purple-50/50 dark:hover:bg-purple-950/30 border border-slate-200/90 dark:border-slate-700/80 hover:border-purple-300 dark:hover:border-purple-700/60 rounded-xl text-left transition-all group flex items-start gap-4 shadow-xs cursor-pointer"
+              >
+                <div className="w-11 h-11 rounded-xl bg-purple-50 dark:bg-purple-950/50 border border-purple-100 dark:border-purple-800/40 flex items-center justify-center text-[#56348f] dark:text-purple-300 shrink-0 group-hover:scale-105 transition-transform">
+                  <FileText className="h-5 w-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <p className="font-semibold text-slate-900 dark:text-white text-[15px]">
+                      Monthly Report
+                    </p>
+                    <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-[#56348f] dark:group-hover:text-purple-300 transition-colors" />
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                    Generate monthly attendance & leave text report
+                  </p>
+                </div>
+              </button>
             </div>
 
             {/* Footer */}
@@ -799,10 +837,19 @@ export default function AttendanceManagementPage() {
                 <Button
                   onClick={() => setIsLeaveWfhModalOpen(true)}
                   variant="outline"
-                  className="border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/40 text-xs font-semibold gap-1.5"
+                  className="border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/40 text-xs font-semibold gap-1.5 cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   Add Leave / WFH
+                </Button>
+
+                <Button
+                  onClick={() => setIsMonthlyReportOpen(true)}
+                  variant="outline"
+                  className="border-purple-300 dark:border-purple-700 text-[#56348f] dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950/40 text-xs font-semibold gap-1.5 cursor-pointer"
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  Monthly Report
                 </Button>
 
                 <Button
@@ -1107,6 +1154,21 @@ export default function AttendanceManagementPage() {
           }
         }}
         selectedEmployeeId={selectedEmployee?.id}
+      />
+
+      {/* Single Employee Monthly Report Modal */}
+      {selectedEmployee && (
+        <MonthlyReportModal
+          employee={selectedEmployee}
+          isOpen={isMonthlyReportOpen}
+          onClose={() => setIsMonthlyReportOpen(false)}
+        />
+      )}
+
+      {/* All Employees Attendance Report Modal */}
+      <AllEmployeesReportModal
+        isOpen={isAllEmployeesReportOpen}
+        onClose={() => setIsAllEmployeesReportOpen(false)}
       />
     </div>
   );
