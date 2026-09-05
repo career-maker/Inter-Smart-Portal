@@ -9,9 +9,11 @@ import emergencyContactsApi, { EmergencyContact } from "@/services/emergencyCont
 export function EmergencyContactsCard({
   title = "Emergency Contacts",
   subtitle = "We're here to assist you",
+  className = "",
 }: {
   title?: string;
   subtitle?: string;
+  className?: string;
 }) {
   const { user } = useAuthStore();
   const userRoleStr = (user?.role || "").toLowerCase();
@@ -63,7 +65,7 @@ export function EmergencyContactsCard({
         fontFamily:
           '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
-      className="bg-white dark:bg-slate-800 rounded-md p-5 sm:p-6 border border-slate-200/90 dark:border-slate-700/60 shadow-xs transition-all hover:shadow-md flex flex-col"
+      className={`bg-white dark:bg-slate-800 rounded-md p-5 sm:p-6 border border-slate-200/90 dark:border-slate-700/60 shadow-xs transition-all hover:shadow-md flex flex-col justify-between ${className}`}
     >
       {/* Card Header */}
       <div className="mb-4">
@@ -154,7 +156,7 @@ export function EmergencyContactsCard({
 
       {/* Assigned Contacts List - Displays all assigned employees with smooth internal scrolling */}
       {!loading && contacts.length > 0 && (
-        <div className="max-h-[350px] overflow-y-auto pr-2 -mr-1 space-y-3 divide-y divide-slate-100 dark:divide-slate-700/50 scrollbar-thin [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-200 dark:[&::-webkit-scrollbar-thumb]:bg-slate-700 hover:[&::-webkit-scrollbar-thumb]:bg-slate-300 dark:hover:[&::-webkit-scrollbar-thumb]:bg-slate-600">
+        <div className="flex-1 max-h-[220px] sm:max-h-[240px] overflow-y-auto pr-2 -mr-1 space-y-3 divide-y divide-slate-100 dark:divide-slate-700/50 scrollbar-thin [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-200 dark:[&::-webkit-scrollbar-thumb]:bg-slate-700 hover:[&::-webkit-scrollbar-thumb]:bg-slate-300 dark:hover:[&::-webkit-scrollbar-thumb]:bg-slate-600">
           {contacts.map((contact, index) => {
             const avatarClass = contact.avatar_bg || "bg-[#56348f]";
 

@@ -601,266 +601,278 @@ export default function DashboardPage() {
       )}
 
       {/*
+      {/*
         ===================================================================
-        UNIFIED SEAMLESS 2-COLUMN + 1-COLUMN DASHBOARD GRID (ZERO GAPS)
+        PERFECTLY ALIGNED ROW-BY-ROW DASHBOARD GRID
         ===================================================================
       */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 items-start">
+      <div className="space-y-6 mb-8">
         
-        {/* ── LEFT COLUMN (Spans 2 columns on desktop) ── */}
-        <div className="lg:col-span-2 space-y-6">
-          
-          {/* Team Lead: Team Status Today Card */}
-          {user?.role === "Team Lead" && data && (
-            <div className="bg-white dark:bg-slate-800 rounded-md p-5 border border-slate-200/90 dark:border-slate-700/60 shadow-sm">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2">
+        {/* ── ROW 1: Team Status Today + Pending Approvals (Team Lead only) ── */}
+        {user?.role === "Team Lead" && data && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+            {/* Team Status Today Card */}
+            <div className="lg:col-span-2 flex flex-col">
+              <div className="bg-white dark:bg-slate-800 rounded-md p-5 border border-slate-200/90 dark:border-slate-700/60 shadow-sm h-full flex flex-col justify-between">
                 <div>
-                  <h2 style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
-                    <Briefcase className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
-                    Team Status Today
-                  </h2>
-                  <p style={{ fontSize: "12px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
-                    Daily attendance and availability breakdown
-                  </p>
-                </div>
-                
-                {/* Legend */}
-                <div className="flex flex-wrap items-center gap-3">
-                  <span className="flex items-center gap-1 text-[11px] font-normal text-slate-500 dark:text-slate-400">
-                    <div className="w-2 h-2 rounded-full bg-emerald-500"></div> Present
-                  </span>
-                  <span className="flex items-center gap-1 text-[11px] font-normal text-slate-500 dark:text-slate-400">
-                    <div className="w-2 h-2 rounded-full bg-red-500"></div> Absent
-                  </span>
-                  <span className="flex items-center gap-1 text-[11px] font-normal text-slate-500 dark:text-slate-400">
-                    <div className="w-2 h-2 rounded-full bg-blue-500"></div> WFH
-                  </span>
-                  <span className="flex items-center gap-1 text-[11px] font-normal text-slate-500 dark:text-slate-400">
-                    <div className="w-2 h-2 rounded-full bg-amber-500"></div> Half Day
-                  </span>
-                </div>
-              </div>
-  
-              {data?.widgets?.team_members && data.widgets.team_members.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-2">
-                  {data.widgets.team_members.map((member: any) => {
-                    const statusLower = (member.status || "").toLowerCase();
-                    const isPresent = statusLower === "present";
-                    const isWfh = statusLower === "wfh" || statusLower.includes("wfh");
-                    const isHalfDay = statusLower.includes("half day");
-
-                    const statusConfig = isPresent
-                      ? { dot: "bg-emerald-500", label: "Present", text: "text-emerald-700 dark:text-emerald-400" }
-                      : isWfh
-                      ? { dot: "bg-blue-500", label: "WFH", text: "text-blue-700 dark:text-blue-400" }
-                      : isHalfDay
-                      ? { dot: "bg-amber-500", label: member.status, text: "text-amber-700 dark:text-amber-400" }
-                      : { dot: "bg-rose-500", label: "Absent", text: "text-rose-700 dark:text-rose-400" };
-
-                    return (
-                      <button 
-                        key={member.id} 
-                        type="button"
-                        onClick={() => setSelectedTeamMemberForPunches(member)}
-                        className="group flex items-center justify-between p-2.5 rounded-xl bg-slate-50/70 dark:bg-slate-900/50 hover:bg-white dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700/60 hover:border-purple-300 dark:hover:border-purple-600/50 hover:shadow-xs transition-all duration-200 text-left cursor-pointer"
-                        title={`Click to view punches for ${member.name} (${statusConfig.label})`}
-                      >
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <div className="relative shrink-0">
-                            <RoyalAvatar
-                              src={member.profile_photo_path}
-                              name={member.name}
-                              userId={member.id}
-                              className="w-8 h-8 rounded-full"
-                            />
-                            <span className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ring-2 ring-white dark:ring-slate-800 ${statusConfig.dot}`} />
-                          </div>
-                          <div className="min-w-0">
-                            <div className="text-[13px] font-semibold text-slate-800 dark:text-slate-100 truncate group-hover:text-[#56348f] dark:group-hover:text-purple-300 transition-colors">
-                              <RoyalName name={member.name} userId={member.id} showCrownIcon={false} />
-                            </div>
-                            <span className={`inline-flex items-center text-[10.5px] font-bold ${statusConfig.text}`}>
-                              {statusConfig.label}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-1 text-slate-300 dark:text-slate-600 group-hover:text-[#56348f] dark:group-hover:text-purple-300 transition-colors pl-2 shrink-0">
-                          <Clock className="w-3.5 h-3.5" />
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              ) : (
-                <p className="text-xs text-slate-500 dark:text-slate-400 py-1">No team members assigned</p>
-              )}
-            </div>
-          )}
-
-          {/* Today's Attendance Widget */}
-          <AttendanceWidget
-            initialData={data.attendance_widget_data}
-            teamMembers={data?.widgets?.team_members}
-            externalOpenMember={selectedTeamMemberForPunches}
-            onClearExternalOpen={() => setSelectedTeamMemberForPunches(null)}
-          />
-
-          {/* Latest Updates Card */}
-          {widgets.company_updates.length > 1 ? (
-            <RotatingCard
-              title="Latest Updates"
-              subtitle="Company announcements and news"
-              icon={Megaphone}
-              iconColorClass="text-[#56348f] dark:text-purple-400"
-              items={widgets.company_updates}
-              emptyMessage="No announcements yet"
-              renderItem={(update) => (
-                <div className="space-y-3">
-                  <p className="text-sm font-semibold text-slate-900 dark:text-white leading-tight break-words">{update.title}</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-4">{update.content || 'No description'}</p>
-                  <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-white/10">
-                    <p className="text-xs text-slate-500">{format(parseISO(update.created_at), "MMM d, yyyy")}</p>
-                    <Link href="/announcements" className="text-xs font-semibold text-[#56348f] dark:text-purple-400 hover:underline">View →</Link>
-                  </div>
-                </div>
-              )}
-            />
-          ) : (
-            <div className="bg-white dark:bg-slate-800 rounded-md p-5 sm:p-6 border border-slate-200/90 dark:border-slate-700/60 shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h3 style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
-                    <Megaphone className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
-                    Latest Updates
-                  </h3>
-                  <p style={{ fontSize: "12px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
-                    Important company announcements and news
-                  </p>
-                </div>
-                <Link href="/announcements" className="text-xs font-medium text-[#56348f] dark:text-purple-400 hover:underline">View All</Link>
-              </div>
-              <div className="space-y-3">
-                {widgets.company_updates.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-6 text-center">
-                    <Megaphone className="w-8 h-8 text-slate-400 mb-2 opacity-60" />
-                    <p className="text-sm text-slate-600 dark:text-slate-400">No announcements yet</p>
-                    <p className="text-xs text-slate-400 mt-1">Updates will appear here</p>
-                  </div>
-                ) : (
-                  widgets.company_updates.slice(0, 2).map((update: any, idx: number) => (
-                    <div key={idx} className="flex gap-3 items-start bg-slate-50 dark:bg-slate-900/50 p-3 rounded-md border border-slate-200/60 dark:border-slate-800 transition-colors">
-                      <div className="w-2 h-2 mt-1.5 rounded-full bg-blue-500 shrink-0"></div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-[13px] font-medium text-slate-900 dark:text-white leading-tight">{update.title}</p>
-                        <p className="text-[12px] text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">{update.content}</p>
-                        <p className="text-[11px] text-slate-400 mt-1.5">{format(parseISO(update.created_at), "MMM d, yyyy")}</p>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Side-by-Side: Work Anniversaries & Upcoming Birthdays */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {/* Work Anniversaries */}
-            {(() => {
-              const today = new Date(); today.setHours(0,0,0,0);
-              const filteredAnni = (widgets.anniversaries || []).filter((a: any) => {
-                const d = new Date(a.date); d.setHours(0,0,0,0);
-                const diff = Math.round((d.getTime() - today.getTime()) / 86400000);
-                return diff >= 0 && diff <= 14;
-              }).map((a: any) => {
-                const d = new Date(a.date); d.setHours(0,0,0,0);
-                return { ...a, days_remaining: Math.round((d.getTime() - today.getTime()) / 86400000) };
-              });
-              return (
-                <div className="bg-white dark:bg-slate-800 rounded-md p-5 border border-slate-200/90 dark:border-slate-700/60 shadow-sm min-h-[240px] flex flex-col justify-between">
-                  <div>
-                    <div className="mb-3">
-                      <h3 style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
-                        <PartyPopper className="w-4 h-4 text-pink-500" />
-                        Work Anniversaries
-                      </h3>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2">
+                    <div>
+                      <h2 style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
+                        <Briefcase className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
+                        Team Status Today
+                      </h2>
                       <p style={{ fontSize: "12px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
-                        Upcoming work milestones in 14 days
+                        Daily attendance and availability breakdown
                       </p>
                     </div>
-                    {filteredAnni.length === 0 ? (
-                      <div className="py-6 text-center">
-                        <p className="text-xs text-slate-500 dark:text-slate-400">No work anniversaries in the next 2 weeks.</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-2.5">
-                        {filteredAnni.slice(0, 3).map((a: any, idx: number) => (
-                          <div key={idx} className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900/50 rounded-md border border-slate-200/60 dark:border-slate-800">
-                            <div>
-                              <p className="text-[13px] font-medium text-slate-900 dark:text-white">🎉 {a.name}</p>
-                              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{a.years} Year{a.years !== 1 ? 's' : ''} at Inter Smart</p>
-                            </div>
-                            <span className="text-[11px] font-semibold bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300 px-2 py-0.5 rounded-full">
-                              {format(new Date(a.date), "MMM d")}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    
+                    {/* Legend */}
+                    <div className="flex flex-wrap items-center gap-3">
+                      <span className="flex items-center gap-1 text-[11px] font-normal text-slate-500 dark:text-slate-400">
+                        <div className="w-2 h-2 rounded-full bg-emerald-500"></div> Present
+                      </span>
+                      <span className="flex items-center gap-1 text-[11px] font-normal text-slate-500 dark:text-slate-400">
+                        <div className="w-2 h-2 rounded-full bg-red-500"></div> Absent
+                      </span>
+                      <span className="flex items-center gap-1 text-[11px] font-normal text-slate-500 dark:text-slate-400">
+                        <div className="w-2 h-2 rounded-full bg-blue-500"></div> WFH
+                      </span>
+                      <span className="flex items-center gap-1 text-[11px] font-normal text-slate-500 dark:text-slate-400">
+                        <div className="w-2 h-2 rounded-full bg-amber-500"></div> Half Day
+                      </span>
+                    </div>
                   </div>
-                </div>
-              );
-            })()}
+      
+                  {data?.widgets?.team_members && data.widgets.team_members.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-2">
+                      {data.widgets.team_members.map((member: any) => {
+                        const statusLower = (member.status || "").toLowerCase();
+                        const isPresent = statusLower === "present";
+                        const isWfh = statusLower === "wfh" || statusLower.includes("wfh");
+                        const isHalfDay = statusLower.includes("half day");
 
-            {/* Upcoming Birthdays with Wishes */}
-            <div className="bg-white dark:bg-slate-800 rounded-md p-5 border border-slate-200/90 dark:border-slate-700/60 shadow-sm min-h-[240px] flex flex-col justify-between">
-              <UpcomingBirthdaysWithWishes items={widgets.upcoming_birthdays} />
+                        const statusConfig = isPresent
+                          ? { dot: "bg-emerald-500", label: "Present", text: "text-emerald-700 dark:text-emerald-400" }
+                          : isWfh
+                          ? { dot: "bg-blue-500", label: "WFH", text: "text-blue-700 dark:text-blue-400" }
+                          : isHalfDay
+                          ? { dot: "bg-amber-500", label: member.status, text: "text-amber-700 dark:text-amber-400" }
+                          : { dot: "bg-rose-500", label: "Absent", text: "text-rose-700 dark:text-rose-400" };
+
+                        return (
+                          <button 
+                            key={member.id} 
+                            type="button"
+                            onClick={() => setSelectedTeamMemberForPunches(member)}
+                            className="group flex items-center justify-between p-2.5 rounded-xl bg-slate-50/70 dark:bg-slate-900/50 hover:bg-white dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700/60 hover:border-purple-300 dark:hover:border-purple-600/50 hover:shadow-xs transition-all duration-200 text-left cursor-pointer"
+                            title={`Click to view punches for ${member.name} (${statusConfig.label})`}
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <div className="relative shrink-0">
+                                <RoyalAvatar
+                                  src={member.profile_photo_path}
+                                  name={member.name}
+                                  userId={member.id}
+                                  className="w-8 h-8 rounded-full"
+                                />
+                                <span className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ring-2 ring-white dark:ring-slate-800 ${statusConfig.dot}`} />
+                              </div>
+                              <div className="min-w-0">
+                                <div className="text-[13px] font-semibold text-slate-800 dark:text-slate-100 truncate group-hover:text-[#56348f] dark:group-hover:text-purple-300 transition-colors">
+                                  <RoyalName name={member.name} userId={member.id} showCrownIcon={false} />
+                                </div>
+                                <span className={`inline-flex items-center text-[10.5px] font-bold ${statusConfig.text}`}>
+                                  {statusConfig.label}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1 text-slate-300 dark:text-slate-600 group-hover:text-[#56348f] dark:group-hover:text-purple-300 transition-colors pl-2 shrink-0">
+                              <Clock className="w-3.5 h-3.5" />
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-slate-500 dark:text-slate-400 py-1">No team members assigned</p>
+                  )}
+                </div>
+              </div>
             </div>
+
+            {/* Pending Approvals Card */}
+            <div className="lg:col-span-1 flex flex-col">
+              <div className="bg-white dark:bg-slate-800 rounded-md p-5 sm:p-6 border border-slate-200/90 dark:border-slate-700/60 shadow-sm h-full flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h2 style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
+                        <Clock className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
+                        Pending Approvals
+                      </h2>
+                      <p style={{ fontSize: "12px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
+                        Leave requests awaiting review
+                      </p>
+                    </div>
+                    <Link href="/leaves/approvals" className="text-xs font-medium text-[#56348f] dark:text-purple-400 hover:underline flex items-center gap-1">
+                      View All <ChevronRight className="w-3 h-3" />
+                    </Link>
+                  </div>
+                  {data?.widgets?.pending_approvals && Array.isArray(data.widgets.pending_approvals) && data.widgets.pending_approvals.length > 0 ? (
+                    <div className="space-y-2">
+                      {data.widgets.pending_approvals.slice(0, 3).map((approval: any) => (
+                        <div key={approval.id} className="bg-slate-50 dark:bg-white/5 rounded-md p-3 flex items-center justify-between hover:bg-slate-100 dark:hover:bg-white/10 transition-colors border border-slate-200/60 dark:border-transparent">
+                          <div className="min-w-0">
+                            <p className="text-[13px] font-medium text-slate-900 dark:text-white truncate">{approval.employee_name}</p>
+                            <p className="text-[12px] text-slate-500 dark:text-slate-400">{approval.leave_type} • {format(parseISO(approval.start_date), "MMM d")} to {format(parseISO(approval.end_date), "MMM d")}</p>
+                          </div>
+                          <span className="text-xs font-semibold bg-purple-100 dark:bg-purple-500/20 text-[#56348f] dark:text-purple-300 px-2.5 py-1 rounded-full shrink-0">{approval.days} d</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-slate-500 dark:text-slate-400 text-center py-4">No pending approvals 🎉</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── ROW 2: Today's Attendance + Emergency Contacts ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+          <div className="lg:col-span-2 flex flex-col">
+            <AttendanceWidget
+              initialData={data.attendance_widget_data}
+              teamMembers={data?.widgets?.team_members}
+              externalOpenMember={selectedTeamMemberForPunches}
+              onClearExternalOpen={() => setSelectedTeamMemberForPunches(null)}
+            />
+          </div>
+          <div className="lg:col-span-1 flex flex-col">
+            <EmergencyContactsCard className="h-full" />
           </div>
         </div>
 
-        {/* ── RIGHT SIDEBAR COLUMN (Spans 1 column on desktop) ── */}
-        <div className="lg:col-span-1 space-y-6">
-          
-          {/* Team Lead: Pending Approvals Section */}
-          {user?.role === "Team Lead" && data && (
-            <div className="bg-white dark:bg-slate-800 rounded-md p-5 sm:p-6 border border-slate-200/90 dark:border-slate-700/60 shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h2 style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
-                    <Clock className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
-                    Pending Approvals
-                  </h2>
-                  <p style={{ fontSize: "12px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
-                    Leave requests awaiting review
-                  </p>
-                </div>
-                <Link href="/leaves/approvals" className="text-xs font-medium text-[#56348f] dark:text-purple-400 hover:underline flex items-center gap-1">
-                  View All <ChevronRight className="w-3 h-3" />
-                </Link>
-              </div>
-              {data?.widgets?.pending_approvals && Array.isArray(data.widgets.pending_approvals) && data.widgets.pending_approvals.length > 0 ? (
-                <div className="space-y-2">
-                  {data.widgets.pending_approvals.slice(0, 3).map((approval: any) => (
-                    <div key={approval.id} className="bg-slate-50 dark:bg-white/5 rounded-md p-3 flex items-center justify-between hover:bg-slate-100 dark:hover:bg-white/10 transition-colors border border-slate-200/60 dark:border-transparent">
-                      <div className="min-w-0">
-                        <p className="text-[13px] font-medium text-slate-900 dark:text-white truncate">{approval.employee_name}</p>
-                        <p className="text-[12px] text-slate-500 dark:text-slate-400">{approval.leave_type} • {format(parseISO(approval.start_date), "MMM d")} to {format(parseISO(approval.end_date), "MMM d")}</p>
-                      </div>
-                      <span className="text-xs font-semibold bg-purple-100 dark:bg-purple-500/20 text-[#56348f] dark:text-purple-300 px-2.5 py-1 rounded-full shrink-0">{approval.days} d</span>
+        {/* ── ROW 3: Latest Updates + Wall of Fame / Leaderboard ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+          <div className="lg:col-span-2 flex flex-col">
+            {widgets.company_updates.length > 1 ? (
+              <RotatingCard
+                title="Latest Updates"
+                subtitle="Company announcements and news"
+                icon={Megaphone}
+                iconColorClass="text-[#56348f] dark:text-purple-400"
+                items={widgets.company_updates}
+                emptyMessage="No announcements yet"
+                renderItem={(update) => (
+                  <div className="space-y-3">
+                    <p className="text-sm font-semibold text-slate-900 dark:text-white leading-tight break-words">{update.title}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-4">{update.content || 'No description'}</p>
+                    <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-white/10">
+                      <p className="text-xs text-slate-500">{format(parseISO(update.created_at), "MMM d, yyyy")}</p>
+                      <Link href="/announcements" className="text-xs font-semibold text-[#56348f] dark:text-purple-400 hover:underline">View →</Link>
                     </div>
-                  ))}
+                  </div>
+                )}
+              />
+            ) : (
+              <div className="bg-white dark:bg-slate-800 rounded-md p-5 sm:p-6 border border-slate-200/90 dark:border-slate-700/60 shadow-sm h-full flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
+                        <Megaphone className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
+                        Latest Updates
+                      </h3>
+                      <p style={{ fontSize: "12px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
+                        Important company announcements and news
+                      </p>
+                    </div>
+                    <Link href="/announcements" className="text-xs font-medium text-[#56348f] dark:text-purple-400 hover:underline">View All</Link>
+                  </div>
+                  <div className="space-y-3">
+                    {widgets.company_updates.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-6 text-center">
+                        <Megaphone className="w-8 h-8 text-slate-400 mb-2 opacity-60" />
+                        <p className="text-sm text-slate-600 dark:text-slate-400">No announcements yet</p>
+                        <p className="text-xs text-slate-400 mt-1">Updates will appear here</p>
+                      </div>
+                    ) : (
+                      widgets.company_updates.slice(0, 2).map((update: any, idx: number) => (
+                        <div key={idx} className="flex gap-3 items-start bg-slate-50 dark:bg-slate-900/50 p-3 rounded-md border border-slate-200/60 dark:border-slate-800 transition-colors">
+                          <div className="w-2 h-2 mt-1.5 rounded-full bg-blue-500 shrink-0"></div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-[13px] font-medium text-slate-900 dark:text-white leading-tight">{update.title}</p>
+                            <p className="text-[12px] text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">{update.content}</p>
+                            <p className="text-[11px] text-slate-400 mt-1.5">{format(parseISO(update.created_at), "MMM d, yyyy")}</p>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
                 </div>
-              ) : (
-                <p className="text-xs text-slate-500 dark:text-slate-400 text-center py-4">No pending approvals 🎉</p>
-              )}
-            </div>
-          )}
+              </div>
+            )}
+          </div>
+          <div className="lg:col-span-1 flex flex-col">
+            <LeaderboardWidget />
+          </div>
+        </div>
 
-          {/* Emergency Contacts Card */}
-          <EmergencyContactsCard />
+        {/* ── ROW 4: Side-by-Side: Work Anniversaries & Upcoming Birthdays (Full Width Balanced Grid) ── */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Work Anniversaries */}
+          {(() => {
+            const today = new Date(); today.setHours(0,0,0,0);
+            const filteredAnni = (widgets.anniversaries || []).filter((a: any) => {
+              const d = new Date(a.date); d.setHours(0,0,0,0);
+              const diff = Math.round((d.getTime() - today.getTime()) / 86400000);
+              return diff >= 0 && diff <= 14;
+            }).map((a: any) => {
+              const d = new Date(a.date); d.setHours(0,0,0,0);
+              return { ...a, days_remaining: Math.round((d.getTime() - today.getTime()) / 86400000) };
+            });
+            return (
+              <div className="bg-white dark:bg-slate-800 rounded-md p-5 border border-slate-200/90 dark:border-slate-700/60 shadow-sm min-h-[240px] flex flex-col justify-between">
+                <div>
+                  <div className="mb-3">
+                    <h3 style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
+                      <PartyPopper className="w-4 h-4 text-pink-500" />
+                      Work Anniversaries
+                    </h3>
+                    <p style={{ fontSize: "12px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
+                      Upcoming work milestones in 14 days
+                    </p>
+                  </div>
+                  {filteredAnni.length === 0 ? (
+                    <div className="py-6 text-center">
+                      <p className="text-xs text-slate-500 dark:text-slate-400">No work anniversaries in the next 2 weeks.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2.5">
+                      {filteredAnni.slice(0, 3).map((a: any, idx: number) => (
+                        <div key={idx} className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900/50 rounded-md border border-slate-200/60 dark:border-slate-800">
+                          <div>
+                            <p className="text-[13px] font-medium text-slate-900 dark:text-white">🎉 {a.name}</p>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{a.years} Year{a.years !== 1 ? 's' : ''} at Inter Smart</p>
+                          </div>
+                          <span className="text-[11px] font-semibold bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300 px-2 py-0.5 rounded-full">
+                            {format(new Date(a.date), "MMM d")}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
 
-          {/* Wall of Fame / Leaderboard Widget */}
-          <LeaderboardWidget />
+          {/* Upcoming Birthdays with Wishes */}
+          <div className="bg-white dark:bg-slate-800 rounded-md p-5 border border-slate-200/90 dark:border-slate-700/60 shadow-sm min-h-[240px] flex flex-col justify-between">
+            <UpcomingBirthdaysWithWishes items={widgets.upcoming_birthdays} />
+          </div>
         </div>
       </div>
 
