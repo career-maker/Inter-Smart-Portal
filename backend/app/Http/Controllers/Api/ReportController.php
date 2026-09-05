@@ -535,6 +535,8 @@ class ReportController extends Controller
                     'employee_code' => $emp->employee_code,
                     'first_name' => $emp->first_name,
                     'last_name' => $emp->last_name,
+                    'phone' => $emp->contact_number ?: ($emp->phone ?: $emp->alternate_contact_number),
+                    'contact_number' => $emp->contact_number,
                     'designation' => $emp->designation,
                     'team' => ['name' => $emp->team?->name],
                     'profile_photo_path' => $emp->profile_photo_path,

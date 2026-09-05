@@ -24,7 +24,11 @@ import {
 } from "lucide-react";
 import api from "@/services/api";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
-import { generateEmployeeReportText } from "@/components/employees/MonthlyReportModal";
+import {
+  generateEmployeeReportText,
+  WhatsAppIcon,
+  openWhatsAppReport,
+} from "@/components/employees/MonthlyReportModal";
 
 interface AllEmployeesReportModalProps {
   isOpen: boolean;
@@ -108,6 +112,16 @@ export function AllEmployeesReportModal({
     }
   };
 
+  const handleWhatsAppReport = (emp: any) => {
+    try {
+      const text = generateEmployeeReportText(emp, reportMonth);
+      const phone = emp.phone || emp.contact_number || "";
+      openWhatsAppReport(phone, text);
+    } catch (err) {
+      console.error("Failed to open WhatsApp report", err);
+    }
+  };
+
   const handleCopyAllReports = async () => {
     try {
       if (filteredEmployees.length === 0) return;
@@ -139,7 +153,7 @@ export function AllEmployeesReportModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden font-sans">
+      <DialogContent className="w-full sm:max-w-3xl md:max-w-4xl lg:max-w-5xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden font-sans">
         {/* Header */}
         <DialogHeader className="p-6 pb-4 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-r from-purple-50/50 via-white to-transparent dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
           <div className="flex items-center gap-3">
@@ -292,12 +306,12 @@ export function AllEmployeesReportModal({
               </div>
 
               {/* 2-Column Table */}
-              <div className="border border-slate-200 dark:border-slate-700/80 rounded-xl overflow-hidden shadow-xs">
-                <table className="w-full text-left text-sm border-collapse">
+              <div className="border border-slate-200 dark:border-slate-700/80 rounded-xl overflow-x-auto shadow-xs">
+                <table className="w-full text-left text-sm border-collapse min-w-[520px]">
                   <thead className="bg-slate-50/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-700 text-xs uppercase font-semibold text-slate-500 dark:text-slate-400">
                     <tr>
-                      <th className="py-3 px-5">1. Employee Name</th>
-                      <th className="py-3 px-5 text-right">2. Report</th>
+                      <th className="py-3 px-4 sm:px-5">1. Employee Name</th>
+                      <th className="py-3 px-4 sm:px-5 text-right whitespace-nowrap">2. Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-900">
@@ -314,7 +328,7 @@ export function AllEmployeesReportModal({
                           className="hover:bg-purple-50/30 dark:hover:bg-purple-950/20 transition-colors"
                         >
                           {/* Column 1: Employee Name */}
-                          <td className="py-3.5 px-5">
+                          <td className="py-3.5 px-4 sm:px-5">
                             <div className="flex items-center gap-3">
                               <RoyalAvatar
                                 src={emp.profile_photo_path}
@@ -331,7 +345,7 @@ export function AllEmployeesReportModal({
                                     employeeCode={emp.employee_code}
                                     className="font-semibold text-slate-900 dark:text-white text-sm truncate"
                                   />
-                                  <span className="font-mono text-[11px] px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium">
+                                  <span className="font-mono text-[11px] px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium shrink-0">
                                     ID: {emp.employee_code || "—"}
                                   </span>
                                 </div>
@@ -342,30 +356,46 @@ export function AllEmployeesReportModal({
                             </div>
                           </td>
 
-                          {/* Column 2: Report (Copy button) */}
-                          <td className="py-3.5 px-5 text-right">
-                            <Button
-                              size="sm"
-                              variant={copiedId === emp.id ? "default" : "outline"}
-                              onClick={() => handleCopyReport(emp)}
-                              className={`gap-1.5 text-xs font-semibold transition-all cursor-pointer ${
-                                copiedId === emp.id
-                                  ? "bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600"
-                                  : "text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:bg-purple-50 dark:hover:bg-purple-950/40 hover:text-[#56348f] dark:hover:text-purple-300"
-                              }`}
-                            >
-                              {copiedId === emp.id ? (
-                                <>
-                                  <Check className="w-3.5 h-3.5 text-white" />
-                                  Copied!
-                                </>
-                              ) : (
-                                <>
-                                  <Copy className="w-3.5 h-3.5" />
-                                  Copy
-                                </>
-                              )}
-                            </Button>
+                          {/* Column 2: Actions (Copy & WhatsApp buttons) */}
+                          <td className="py-3.5 px-4 sm:px-5 text-right whitespace-nowrap">
+                            <div className="flex items-center justify-end gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleCopyReport(emp)}
+                                className={`h-8 px-2.5 sm:px-3 text-xs font-semibold gap-1.5 transition-all cursor-pointer ${
+                                  copiedId === emp.id
+                                    ? "bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600"
+                                    : "text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:bg-purple-50 dark:hover:bg-purple-950/40 hover:text-[#56348f] dark:hover:text-purple-300"
+                                }`}
+                                title="Copy monthly attendance report as text"
+                              >
+                                {copiedId === emp.id ? (
+                                  <>
+                                    <Check className="w-3.5 h-3.5 text-white" />
+                                    <span>Copied!</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Copy className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
+                                    <span>Copy</span>
+                                  </>
+                                )}
+                              </Button>
+                              <Button
+                                size="sm"
+                                onClick={() => handleWhatsAppReport(emp)}
+                                className="h-8 px-2.5 sm:px-3 text-xs font-semibold gap-1.5 bg-[#25D366] hover:bg-[#20bd5a] text-white border-none shadow-xs cursor-pointer transition-all"
+                                title={
+                                  emp.phone || emp.contact_number
+                                    ? `Send via WhatsApp to ${emp.phone || emp.contact_number}`
+                                    : "Send via WhatsApp (choose contact)"
+                                }
+                              >
+                                <WhatsAppIcon className="w-3.5 h-3.5 fill-white" />
+                                <span>WhatsApp</span>
+                              </Button>
+                            </div>
                           </td>
                         </tr>
                       ))
