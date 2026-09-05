@@ -57,7 +57,6 @@ import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, 
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 import { useTopAwardee } from "@/context/TopAwardeeContext";
 import { EmployeeAttendanceDrawer } from "@/components/attendance/EmployeeAttendanceDrawer";
-import { Macbook } from "@/components/ui/animated-3d-mac-book-air";
 
 
 export default function DashboardPage() {
@@ -539,13 +538,6 @@ export default function DashboardPage() {
                 {format(time, "EEEE, d MMMM yyyy")} • {format(time, "h:mm:ss a")}
               </span>
             </div>
-          </div>
-        </div>
-
-        {/* Center Blank Area: 3D Animated MacBook Air */}
-        <div className="hidden lg:flex items-center justify-center flex-1 z-10 pointer-events-none self-center px-4 min-w-0">
-          <div className="relative w-[130px] h-[85px] flex items-center justify-center scale-[0.58] xl:scale-[0.66] 2xl:scale-[0.72] transition-transform">
-            <Macbook />
           </div>
         </div>
 
@@ -1414,13 +1406,6 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                 {format(time, "EEEE, d MMMM yyyy")} • {format(time, "h:mm:ss a")}
               </span>
             </div>
-          </div>
-        </div>
-
-        {/* Center Blank Area: 3D Animated MacBook Air */}
-        <div className="hidden lg:flex items-center justify-center flex-1 z-10 pointer-events-none self-center px-4 min-w-0">
-          <div className="relative w-[130px] h-[85px] flex items-center justify-center scale-[0.58] xl:scale-[0.66] 2xl:scale-[0.72] transition-transform">
-            <Macbook />
           </div>
         </div>
 
