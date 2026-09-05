@@ -15,9 +15,9 @@ class EmergencyContactController extends Controller
     private function isSuperAdmin($user): bool
     {
         if (!$user) return false;
-        if (method_exists($user, 'hasRole') && $user->hasRole('Super Admin')) return true;
+        if (method_exists($user, 'hasRole') && ($user->hasRole('Super Admin') || $user->hasRole('Admin'))) return true;
         $roleStr = strtolower($user->role ?? '');
-        return $roleStr === 'super admin';
+        return str_contains($roleStr, 'super admin') || $roleStr === 'admin';
     }
 
     /**

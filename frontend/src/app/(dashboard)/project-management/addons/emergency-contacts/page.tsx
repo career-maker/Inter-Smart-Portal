@@ -26,6 +26,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
+import api from "@/services/api";
 import emergencyContactsApi, {
   EmergencyContact,
   EmergencyContactsStats,
@@ -46,7 +47,15 @@ const AVATAR_COLOR_PALETTE = [
 export default function EmergencyContactsManagementPage() {
   const { user } = useAuthStore();
   const userRoleStr = (user?.role || "").toLowerCase();
-  const isSuperAdmin = userRoleStr === "super admin";
+  const isSuperAdmin =
+    userRoleStr.includes("super admin") ||
+    userRoleStr === "admin" ||
+    (Array.isArray((user as any)?.roles) &&
+      (user as any).roles.some(
+        (r: any) =>
+          typeof r === "string" &&
+          (r.toLowerCase().includes("admin") || r.toLowerCase().includes("super"))
+      ));
 
   const [contacts, setContacts] = useState<EmergencyContact[]>([]);
   const [stats, setStats] = useState<EmergencyContactsStats>({
@@ -63,6 +72,10 @@ export default function EmergencyContactsManagementPage() {
 
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Employee Directory state for auto-filling
+  const [employeeList, setEmployeeList] = useState<any[]>([]);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>("");
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -85,6 +98,29 @@ export default function EmergencyContactsManagementPage() {
   // Delete Modal
   const [deletingContact, setDeletingContact] = useState<EmergencyContact | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Load Employee Directory
+  useEffect(() => {
+    const loadEmployeeDirectory = async () => {
+      try {
+        const res = await api.get("/employees", { params: { per_page: "all" } });
+        const list = Array.isArray(res.data?.data)
+          ? res.data.data
+          : Array.isArray(res.data)
+          ? res.data
+          : [];
+        setEmployeeList(list);
+      } catch {
+        try {
+          const fallbackRes = await api.get("/reports/employee-list");
+          setEmployeeList(fallbackRes.data?.data || []);
+        } catch (e) {
+          console.warn("Could not load employee directory for emergency contacts auto-fill", e);
+        }
+      }
+    };
+    loadEmployeeDirectory();
+  }, []);
 
   // Fetch Contacts
   const fetchContacts = useCallback(async (isManual = false) => {
@@ -123,6 +159,7 @@ export default function EmergencyContactsManagementPage() {
   // Open Create Modal
   const handleOpenCreate = () => {
     setEditingContact(null);
+    setSelectedEmployeeId("");
     setFormData({
       name: "",
       role: "",
@@ -140,6 +177,14 @@ export default function EmergencyContactsManagementPage() {
   // Open Edit Modal
   const handleOpenEdit = (contact: EmergencyContact) => {
     setEditingContact(contact);
+    const matched = employeeList.find(
+      (e: any) =>
+        (e.name && e.name.toLowerCase() === contact.name.toLowerCase()) ||
+        (`${e.first_name || ""} ${e.last_name || ""}`.trim().toLowerCase() ===
+          contact.name.toLowerCase()) ||
+        (contact.email && e.email && e.email.toLowerCase() === contact.email.toLowerCase())
+    );
+    setSelectedEmployeeId(matched ? String(matched.id) : "");
     setFormData({
       name: contact.name,
       role: contact.role,
@@ -170,6 +215,39 @@ export default function EmergencyContactsManagementPage() {
       ...prev,
       name: newName,
       initials: computedInitials,
+    }));
+  };
+
+  // Handle employee selector auto-fill
+  const handleSelectEmployee = (empId: string) => {
+    setSelectedEmployeeId(empId);
+    if (!empId) return;
+    const emp = employeeList.find((e: any) => String(e.id) === empId);
+    if (!emp) return;
+
+    const fullName =
+      emp.name || `${emp.first_name || ""} ${emp.last_name || ""}`.trim() || "Employee";
+    const role = emp.designation || emp.role || "";
+    const department = emp.team?.name || emp.department || "";
+    const email = emp.email || "";
+    const phone = emp.contact_number || emp.alternate_contact_number || "";
+
+    const parts = fullName.trim().split(/[\s,]+/);
+    let computedInitials = "";
+    if (parts.length >= 2) {
+      computedInitials = `${parts[0].charAt(0)}${parts[1].charAt(0)}`.toUpperCase();
+    } else if (fullName.length > 0) {
+      computedInitials = fullName.substring(0, 2).toUpperCase();
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      name: fullName,
+      role: role || prev.role || "Team Member",
+      email: email || prev.email,
+      phone: phone || prev.phone,
+      department: department || prev.department || "General",
+      initials: computedInitials || prev.initials,
     }));
   };
 
@@ -583,27 +661,31 @@ export default function EmergencyContactsManagementPage() {
                     </td>
 
                     {/* Contact Channels */}
-                    <td className="py-3.5 px-4 space-y-1">
+                    <td className="py-3.5 px-4 space-y-1.5">
                       {contact.email && (
                         <a
                           href={`mailto:${contact.email}`}
-                          className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:text-[#56348f] dark:hover:text-purple-300 group"
+                          title={`Email ${contact.name}`}
+                          className="inline-flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:text-[#56348f] dark:hover:text-purple-300 font-medium group text-xs"
                         >
-                          <Mail className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#56348f]" />
-                          <span>{contact.email}</span>
+                          <Mail className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#56348f] shrink-0" />
+                          <span className="hover:underline">{contact.email}</span>
                         </a>
                       )}
                       {contact.phone && (
-                        <a
-                          href={`tel:${contact.phone}`}
-                          className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:text-[#56348f] dark:hover:text-purple-300 group"
-                        >
-                          <Phone className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#56348f]" />
-                          <span>{contact.phone}</span>
-                        </a>
+                        <div>
+                          <a
+                            href={`tel:${contact.phone}`}
+                            title={`Call ${contact.name}`}
+                            className="inline-flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:text-[#56348f] dark:hover:text-purple-300 group text-xs"
+                          >
+                            <Phone className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#56348f] shrink-0" />
+                            <span className="hover:underline">{contact.phone}</span>
+                          </a>
+                        </div>
                       )}
                       {!contact.email && !contact.phone && (
-                        <span className="text-slate-400">No channels specified</span>
+                        <span className="text-slate-400 italic text-[11px]">No channels added</span>
                       )}
                     </td>
 
@@ -677,6 +759,45 @@ export default function EmergencyContactsManagementPage() {
 
             {/* Modal Form */}
             <form onSubmit={handleSaveContact} className="space-y-4 text-xs">
+              {/* Directory Auto-fill Selector */}
+              <div className="p-3 bg-purple-50/70 dark:bg-purple-950/40 border border-purple-200/80 dark:border-purple-800/60 rounded-xl space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="font-bold text-[#56348f] dark:text-purple-300 flex items-center gap-1.5">
+                    <User className="w-3.5 h-3.5" />
+                    <span>Select from Employee Directory (Auto-fill)</span>
+                  </label>
+                  {selectedEmployeeId && (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedEmployeeId("")}
+                      className="text-[10px] text-purple-600 dark:text-purple-400 hover:underline font-semibold cursor-pointer"
+                    >
+                      Clear selection
+                    </button>
+                  )}
+                </div>
+                <select
+                  value={selectedEmployeeId}
+                  onChange={(e) => handleSelectEmployee(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-purple-200 dark:border-purple-700 text-slate-800 dark:text-white font-medium focus:outline-hidden focus:ring-2 focus:ring-[#56348f]/30 text-xs cursor-pointer"
+                >
+                  <option value="">-- Choose employee to auto-fill name, role, email & phone --</option>
+                  {employeeList.map((emp: any) => {
+                    const empName = emp.name || `${emp.first_name || ""} ${emp.last_name || ""}`.trim();
+                    const empRole = emp.designation || emp.role;
+                    const empEmail = emp.email;
+                    return (
+                      <option key={emp.id} value={emp.id}>
+                        {empName} {empRole ? `• ${empRole}` : ""} {empEmail ? `(${empEmail})` : ""}
+                      </option>
+                    );
+                  })}
+                </select>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  Pick any registered team member to auto-fill their details, or type/customise manually below.
+                </p>
+              </div>
+
               <div>
                 <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
                   Contact Full Name <span className="text-rose-500">*</span>
@@ -745,6 +866,57 @@ export default function EmergencyContactsManagementPage() {
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-[#56348f]/20"
                   />
+                </div>
+              </div>
+
+              {/* Live Dashboard Card Preview */}
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-slate-700 dark:text-slate-300">
+                    Dashboard Appearance Preview
+                  </span>
+                  <span className="text-[10px] uppercase font-bold text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-950/60 px-2 py-0.5 rounded-md">
+                    Live Preview
+                  </span>
+                </div>
+                <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 space-y-2 shadow-2xs">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`w-9 h-9 rounded-full ${formData.avatar_bg} text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs`}
+                    >
+                      {formData.initials || "EC"}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="font-semibold text-slate-900 dark:text-white truncate">
+                        {formData.name || "Contact Full Name"}
+                      </div>
+                      <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                        {formData.role || "Role / Designation"}
+                      </div>
+                    </div>
+                    {formData.department && (
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                        {formData.department}
+                      </span>
+                    )}
+                  </div>
+                  <div className="pl-12 space-y-1 text-[11px]">
+                    {formData.email && (
+                      <div className="flex items-center gap-1.5 text-[#56348f] dark:text-purple-300 font-medium">
+                        <Mail className="w-3 h-3 text-slate-400 shrink-0" />
+                        <span className="truncate">{formData.email}</span>
+                      </div>
+                    )}
+                    {formData.phone && (
+                      <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                        <Phone className="w-3 h-3 text-slate-400 shrink-0" />
+                        <span>{formData.phone}</span>
+                      </div>
+                    )}
+                    {!formData.email && !formData.phone && (
+                      <span className="text-slate-400 italic">No contact channels added yet</span>
+                    )}
+                  </div>
                 </div>
               </div>
 
