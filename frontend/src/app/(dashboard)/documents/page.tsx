@@ -6,6 +6,7 @@ import { FileText, Plus, Upload, Download, Clock, CheckCircle, ExternalLink, Lin
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
 import { format } from "date-fns";
+import { getStorageUrl } from "@/lib/utils";
 
 const DOCUMENT_TYPES = [
   "Salary Certificate",
@@ -189,7 +190,7 @@ export default function DocumentsPage() {
                           {/* File download */}
                           {lastUpload?.file_path && (
                             <a
-                              href={`${BACKEND_URL}/storage/${lastUpload.file_path}`}
+                              href={getStorageUrl(lastUpload.file_path)}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="inline-flex items-center gap-1.5 text-xs bg-blue-500/20 text-blue-300 border border-blue-500/30 px-3 py-1.5 rounded-lg hover:bg-blue-500/30 transition"

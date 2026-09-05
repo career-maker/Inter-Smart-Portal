@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
+import { getStorageUrl } from "@/lib/utils";
 import { FavoriteButton } from "@/components/layout/FavoriteButton";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 import { Button } from "@/components/ui/button";
@@ -496,7 +497,7 @@ export default function AnnouncementsPage() {
                   <div className="px-5 pb-4 w-full flex items-center justify-center">
                     <div className="relative max-w-full rounded-xl overflow-hidden shadow-xs border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-center bg-slate-50 dark:bg-slate-800/40">
                       <img
-                        src={`${BACKEND_URL}/storage/${ann.image_path}`}
+                        src={getStorageUrl(ann.image_path)}
                         alt={ann.title}
                         className="max-w-full w-auto h-auto max-h-[380px] object-contain rounded-xl block transition-all"
                         loading="lazy"

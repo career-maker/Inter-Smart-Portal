@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from "react";
 import { BookOpen, Upload, Trash2, Loader2, FileText, Search } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
+import { getStorageUrl } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -194,7 +195,7 @@ export default function PoliciesPage() {
                       </span>
                       <div className="flex gap-2">
                         <a
-                          href={`${BACKEND_URL}/storage/${policy.file_path}`}
+                          href={getStorageUrl(policy.file_path)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1 text-xs bg-primary text-primary-foreground px-3 py-1.5 rounded-lg hover:bg-primary/90 transition"

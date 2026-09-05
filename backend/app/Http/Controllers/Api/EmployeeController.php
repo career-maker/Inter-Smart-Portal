@@ -27,9 +27,12 @@ class EmployeeController extends Controller
         }
     }
 
+    /**
+     * Public avatar / profile photo serving endpoint.
+     * Strictly restricted to profile-photos directory and image extensions only.
+     */
     public function showPhoto($path)
     {
-        // Prevent path traversal and enforce storage boundary
         $baseDir = realpath(storage_path('app/public'));
         if (!$baseDir) {
             abort(404);
@@ -37,17 +40,74 @@ class EmployeeController extends Controller
 
         // Clean user input
         $normalizedPath = ltrim(str_replace(['../', '..\\'], '', $path), '/\\');
+
+        // Strictly allow only profile-photos directory (or visual avatar assets)
+        if (!str_starts_with($normalizedPath, 'profile-photos/') && $normalizedPath !== 'profile-photos') {
+            $normalizedPath = 'profile-photos/' . $normalizedPath;
+        }
+
+        $fullPath = realpath($baseDir . DIRECTORY_SEPARATOR . $normalizedPath);
+
+        // Enforce that target file resides inside storage/app/public/profile-photos
+        $photosDir = realpath(storage_path('app/public/profile-photos')) ?: $baseDir;
+        if (!$fullPath || !str_starts_with($fullPath, $photosDir) || !is_file($fullPath)) {
+            abort(404);
+        }
+
+        // Strictly whitelist image file extensions only for photos endpoint (NO pdf, doc, etc.)
+        $extension = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'];
+        if (!in_array($extension, $allowedExtensions, true)) {
+            abort(403);
+        }
+
+        return response()->file($fullPath);
+    }
+
+    /**
+     * Storage file serving endpoint with authentication and authorization.
+     * Enforces authentication for sensitive directories (documents, receipts, chat attachments).
+     */
+    public function showStorageFile(Request $request, $path)
+    {
+        // Authenticate user via Sanctum (bearer token header, query token, or cookie)
+        $user = $request->user('sanctum');
+        if (!$user) {
+            $token = $request->bearerToken() ?: $request->query('token') ?: $request->cookie('token');
+            if ($token) {
+                $accessToken = \Laravel\Sanctum\PersonalAccessToken::findToken($token);
+                if ($accessToken && (!$accessToken->expires_at || $accessToken->expires_at->isFuture())) {
+                    $user = $accessToken->tokenable;
+                }
+            }
+        }
+
+        $baseDir = realpath(storage_path('app/public'));
+        if (!$baseDir) {
+            abort(404);
+        }
+
+        $normalizedPath = ltrim(str_replace(['../', '..\\'], '', $path), '/\\');
         $fullPath = realpath($baseDir . DIRECTORY_SEPARATOR . $normalizedPath);
 
         if (!$fullPath || !str_starts_with($fullPath, $baseDir) || !is_file($fullPath)) {
             abort(404);
         }
 
-        // Whitelist safe file extensions for public serving
         $extension = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
-        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg', 'pdf', 'doc', 'docx'];
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg', 'pdf', 'doc', 'docx', 'txt', 'xls', 'xlsx', 'csv'];
         if (!in_array($extension, $allowedExtensions, true)) {
             abort(403);
+        }
+
+        // Authentication enforcement:
+        // Any file outside public visual media directories (profile-photos, announcements, community)
+        // or any non-image file (e.g. pdf, doc, txt) strictly requires an authenticated user.
+        $isPublicMedia = preg_match('#^(profile-photos|announcements|community)/#', $normalizedPath)
+            && in_array($extension, ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'], true);
+
+        if (!$user && !$isPublicMedia) {
+            return response()->json(['message' => 'Unauthenticated.'], 401);
         }
 
         return response()->file($fullPath);

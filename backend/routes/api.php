@@ -9,7 +9,7 @@ Route::get('ping', function () {
 });
 
 Route::get('photos/{path}', [\App\Http\Controllers\Api\EmployeeController::class, 'showPhoto'])->where('path', '.*');
-Route::get('storage/{path}', [\App\Http\Controllers\Api\EmployeeController::class, 'showPhoto'])->where('path', '.*');
+Route::get('storage/{path}', [\App\Http\Controllers\Api\EmployeeController::class, 'showStorageFile'])->where('path', '.*');
 
 // Email action routes (signed URLs, no auth required)
 Route::prefix('leave-requests')->group(function () {
