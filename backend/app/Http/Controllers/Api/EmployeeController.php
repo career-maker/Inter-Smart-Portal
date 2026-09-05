@@ -14,6 +14,19 @@ use Illuminate\Support\Facades\Storage;
 
 class EmployeeController extends Controller
 {
+    private function ensureEmergencyContactColumn(): void
+    {
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('users') && !\Illuminate\Support\Facades\Schema::hasColumn('users', 'is_emergency_contact')) {
+                \Illuminate\Support\Facades\Schema::table('users', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->boolean('is_emergency_contact')->default(false)->after('status')->index();
+                });
+            }
+        } catch (\Throwable $e) {
+            \Log::warning('Could not ensure is_emergency_contact column on users: ' . $e->getMessage());
+        }
+    }
+
     public function showPhoto($path)
     {
         $fullPath = storage_path('app/public/' . $path);
@@ -59,8 +72,13 @@ class EmployeeController extends Controller
 
     public function store(StoreEmployeeRequest $request)
     {
+        $this->ensureEmergencyContactColumn();
         try {
             $data = $request->validated();
+
+            if (array_key_exists('is_emergency_contact', $data)) {
+                $data['is_emergency_contact'] = filter_var($data['is_emergency_contact'], FILTER_VALIDATE_BOOLEAN);
+            }
 
             // Log the incoming data for debugging
             \Log::info('Employee creation request', ['data' => $data]);
@@ -224,9 +242,14 @@ class EmployeeController extends Controller
 
     public function update(UpdateEmployeeRequest $request, User $employee)
     {
+        $this->ensureEmergencyContactColumn();
         $data = $request->validated();
         $role = $data['role'] ?? null;
         unset($data['role']);
+
+        if (array_key_exists('is_emergency_contact', $data)) {
+            $data['is_emergency_contact'] = filter_var($data['is_emergency_contact'], FILTER_VALIDATE_BOOLEAN);
+        }
 
         // Treat empty strings as null (blank form fields) then strip nulls
         // so we never overwrite existing DB values with empty/null

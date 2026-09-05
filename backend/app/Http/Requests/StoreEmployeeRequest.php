@@ -54,6 +54,7 @@ class StoreEmployeeRequest extends FormRequest
             'team_id'                    => ['nullable', 'exists:teams,id'],
             'role'                       => ['nullable', 'string', 'exists:roles,name'],
             'password'                   => ['nullable', 'string', 'min:6'],
+            'is_emergency_contact'       => ['sometimes', 'nullable', 'boolean'],
         ];
     }
 }

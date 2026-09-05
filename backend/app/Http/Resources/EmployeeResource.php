@@ -29,6 +29,7 @@ class EmployeeResource extends JsonResource
             'permanent_address' => $this->permanent_address,
             'current_address' => $this->current_address,
             'status' => $this->status,
+            'is_emergency_contact' => (bool) ($this->is_emergency_contact ?? false),
             'profile_photo_path' => $this->profilePhotoUrl(),
             'team_id' => $this->team_id,
             'team' => $this->whenLoaded('team', function () {

@@ -8,6 +8,9 @@ import * as z from "zod";
 import api from "@/services/api";
 
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { LifeBuoy } from "lucide-react";
+import { useAuthStore } from "@/store/auth";
 import {
   Form,
   FormControl,
@@ -48,6 +51,9 @@ const formSchema = z.object({
   personal_email: z.string().email("Invalid email").optional().or(z.literal("")),
   contact_number: z.string().optional(),
   alternate_contact_number: z.string().optional(),
+
+  // Emergency Contact Assignment
+  is_emergency_contact: z.boolean().optional(),
 });
 
 type EmployeeFormProps = {
@@ -60,6 +66,18 @@ export default function EmployeeForm({ initialData, isEdit }: EmployeeFormProps)
   const [isLoading, setIsLoading] = useState(false);
   const [teams, setTeams] = useState<any[]>([]);
   const roles = ["Super Admin", "Team Lead", "Employee"];
+
+  const user = useAuthStore((state) => state.user);
+  const userRoleStr = (user?.role || "").toLowerCase();
+  const isSuperAdmin =
+    userRoleStr.includes("super admin") ||
+    userRoleStr === "admin" ||
+    (Array.isArray((user as any)?.roles) &&
+      (user as any).roles.some(
+        (r: any) =>
+          typeof r === "string" &&
+          (r.toLowerCase().includes("admin") || r.toLowerCase().includes("super"))
+      ));
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -85,6 +103,8 @@ export default function EmployeeForm({ initialData, isEdit }: EmployeeFormProps)
       personal_email: initialData?.personal_email || "",
       contact_number: initialData?.contact_number || "",
       alternate_contact_number: initialData?.alternate_contact_number || "",
+
+      is_emergency_contact: Boolean(initialData?.is_emergency_contact),
     },
   });
 
@@ -119,6 +139,7 @@ export default function EmployeeForm({ initialData, isEdit }: EmployeeFormProps)
       const payload = {
         ...values,
         team_id: values.team_id === "none" ? null : values.team_id,
+        is_emergency_contact: Boolean(values.is_emergency_contact),
       };
 
       if (isEdit) {
@@ -293,6 +314,50 @@ export default function EmployeeForm({ initialData, isEdit }: EmployeeFormProps)
             )} />
           </CardContent>
         </Card>
+
+        {/* EMERGENCY CONTACT ASSIGNMENT (SUPER ADMIN) */}
+        {isSuperAdmin && (
+          <Card className="shadow-sm border-purple-200/80 dark:border-purple-800/40 bg-purple-50/25 dark:bg-purple-950/10">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2 text-slate-900 dark:text-white">
+                <LifeBuoy className="w-5 h-5 text-[#56348f] dark:text-purple-400 shrink-0" />
+                <span>Emergency Contact Settings</span>
+              </CardTitle>
+              <CardDescription>
+                Configure emergency contact designation for company-wide visibility.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <FormField
+                control={form.control}
+                name="is_emergency_contact"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-xl border border-purple-200/70 dark:border-purple-800/40 p-4 bg-white dark:bg-slate-800/80 shadow-xs">
+                    <div className="space-y-1 pr-4">
+                      <FormLabel className="text-sm font-semibold text-slate-900 dark:text-white cursor-pointer flex items-center gap-2">
+                        <span>Assign this employee as emergency contact</span>
+                        {field.value && (
+                          <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400">
+                            Assigned
+                          </span>
+                        )}
+                      </FormLabel>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        When assigned, this employee's name, department, email ID, and phone number will appear in the emergency contact names list on the dashboard.
+                      </p>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={Boolean(field.value)}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+        )}
 
         <div className="flex justify-end gap-4">
           <Button type="button" variant="outline" size="lg" className="rounded-xl cursor-pointer" onClick={() => router.push("/employees")}>Cancel</Button>

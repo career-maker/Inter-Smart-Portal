@@ -3,7 +3,7 @@
 import { PageLoader } from "@/components/ui/PageLoader";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Search, MoreHorizontal, FileEdit, Trash2, Ban, CheckCircle, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { Plus, Search, MoreHorizontal, FileEdit, Trash2, Ban, CheckCircle, ChevronLeft, ChevronRight, Loader2, LifeBuoy } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
 import { FavoriteButton } from "@/components/layout/FavoriteButton";
@@ -172,7 +172,15 @@ export default function EmployeesPage() {
                               employeeCode={emp.employee_code}
                               className="font-medium text-slate-900 dark:text-white"
                             />
-                            <span className="text-xs text-slate-500 dark:text-slate-400">{emp.email}</span>
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              <span className="text-xs text-slate-500 dark:text-slate-400">{emp.email}</span>
+                              {emp.is_emergency_contact && (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.2 rounded bg-purple-50 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300 border border-purple-200/60 dark:border-purple-800/40" title="Assigned as Emergency Contact on Dashboard">
+                                  <LifeBuoy className="w-2.5 h-2.5 shrink-0" />
+                                  <span>Emergency Contact</span>
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </td>

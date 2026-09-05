@@ -44,6 +44,7 @@ class UpdateEmployeeRequest extends FormRequest
             'team_id'                    => ['sometimes', 'nullable', 'exists:teams,id'],
             'role'                       => ['sometimes', 'nullable', 'string', 'exists:roles,name'],
             'status'                     => ['sometimes', 'nullable', 'string', 'in:Active,Disabled,Resigned,Terminated'],
+            'is_emergency_contact'       => ['sometimes', 'nullable', 'boolean'],
         ];
     }
 }

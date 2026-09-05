@@ -21,139 +21,30 @@ class EmergencyContactController extends Controller
     }
 
     /**
-     * Self-healing: ensure table exists and initial defaults are seeded
+     * Self-healing: ensure users column exists and clear old dummy records
      */
     private function ensureTableAndDefaults(): void
     {
         try {
-            if (!Schema::hasTable('emergency_contacts')) {
-                Schema::create('emergency_contacts', function (Blueprint $table) {
-                    $table->id();
-                    $table->string('name', 255);
-                    $table->string('role', 255);
-                    $table->string('email', 255)->nullable();
-                    $table->string('phone', 50)->nullable();
-                    $table->string('department', 100)->nullable();
-                    $table->string('avatar_bg', 50)->default('bg-indigo-500');
-                    $table->string('initials', 10)->nullable();
-                    $table->integer('order')->default(0);
-                    $table->boolean('is_active')->default(true);
-                    $table->timestamps();
-
-                    $table->index('is_active');
-                    $table->index('order');
+            if (Schema::hasTable('users') && !Schema::hasColumn('users', 'is_emergency_contact')) {
+                Schema::table('users', function (Blueprint $table) {
+                    $table->boolean('is_emergency_contact')->default(false)->after('status')->index();
                 });
+            }
+
+            if (Schema::hasTable('emergency_contacts')) {
+                // Clear old hardcoded dummy contacts so no obsolete names remain
+                DB::table('emergency_contacts')
+                    ->whereIn('email', ['hr@intersmart.in', 'manu@intersmart.in', 'vishal@intersmart.in'])
+                    ->orWhere('name', 'like', '%Sahad%')
+                    ->orWhere('name', 'like', '%Manu%')
+                    ->orWhere('name', 'like', '%Vishal%')
+                    ->orWhere('name', 'like', '%Aswathi%')
+                    ->delete();
             }
 
             if (Schema::hasTable('pm_addons')) {
                 DB::table('pm_addons')->where('key', 'emergency_contacts')->delete();
-            }
-
-            if (Schema::hasTable('emergency_contacts')) {
-                $count = DB::table('emergency_contacts')->count();
-                if ($count === 0) {
-                    DB::table('emergency_contacts')->insert([
-                        [
-                            'name'        => 'Sahad, Nobby',
-                            'role'        => 'Team HR',
-                            'email'       => 'hr@intersmart.in',
-                            'phone'       => '9876543210',
-                            'department'  => 'HR',
-                            'avatar_bg'   => 'bg-rose-500',
-                            'initials'    => 'HR',
-                            'order'       => 1,
-                            'is_active'   => true,
-                            'created_at'  => now(),
-                            'updated_at'  => now(),
-                        ],
-                        [
-                            'name'        => 'Manu K O',
-                            'role'        => 'Lead PHP Developer',
-                            'email'       => 'manu@intersmart.in',
-                            'phone'       => '9876543211',
-                            'department'  => 'Development',
-                            'avatar_bg'   => 'bg-indigo-500',
-                            'initials'    => 'MK',
-                            'order'       => 2,
-                            'is_active'   => true,
-                            'created_at'  => now(),
-                            'updated_at'  => now(),
-                        ],
-                        [
-                            'name'        => 'Vishal Ramesh',
-                            'role'        => 'Lead UI/UX Developer',
-                            'email'       => 'vishal@intersmart.in',
-                            'phone'       => '9876543212',
-                            'department'  => 'Design',
-                            'avatar_bg'   => 'bg-sky-500',
-                            'initials'    => 'VR',
-                            'order'       => 3,
-                            'is_active'   => true,
-                            'created_at'  => now(),
-                            'updated_at'  => now(),
-                        ],
-                        [
-                            'name'        => 'Abhiram P Mohan',
-                            'role'        => 'QA Team Lead / Portal Helpdesk',
-                            'email'       => 'abhiram@intersmart.in',
-                            'phone'       => '07012649326',
-                            'department'  => 'QA',
-                            'avatar_bg'   => 'bg-[#56348f]',
-                            'initials'    => 'AP',
-                            'order'       => 4,
-                            'is_active'   => true,
-                            'created_at'  => now(),
-                            'updated_at'  => now(),
-                        ],
-                    ]);
-                } else {
-                    // Remove Aswathi if previously inserted
-                    DB::table('emergency_contacts')
-                        ->where('name', 'like', '%Aswathi%')
-                        ->orWhere('email', 'like', '%aswathi%')
-                        ->delete();
-
-                    // Update phone numbers if null in existing seeded records
-                    DB::table('emergency_contacts')
-                        ->where('name', 'like', '%Sahad%')
-                        ->where(function ($q) {
-                            $q->whereNull('phone')->orWhere('phone', '');
-                        })
-                        ->update(['phone' => '9876543210']);
-
-                    DB::table('emergency_contacts')
-                        ->where('name', 'like', '%Manu%')
-                        ->where(function ($q) {
-                            $q->whereNull('phone')->orWhere('phone', '');
-                        })
-                        ->update(['phone' => '9876543211']);
-
-                    DB::table('emergency_contacts')
-                        ->where('name', 'like', '%Vishal%')
-                        ->where(function ($q) {
-                            $q->whereNull('phone')->orWhere('phone', '');
-                        })
-                        ->update(['phone' => '9876543212']);
-
-                    DB::table('emergency_contacts')
-                        ->where('name', 'like', '%Abhiram%')
-                        ->update([
-                            'phone'      => '07012649326',
-                            'role'       => 'QA Team Lead / Portal Helpdesk',
-                            'department' => 'QA',
-                        ]);
-
-                    // Sync any phone numbers from users table if available
-                    $allExisting = DB::table('emergency_contacts')->get();
-                    foreach ($allExisting as $rec) {
-                        if (empty($rec->phone) && !empty($rec->email)) {
-                            $userMatch = DB::table('users')->where('email', $rec->email)->first();
-                            if ($userMatch && !empty($userMatch->contact_number)) {
-                                DB::table('emergency_contacts')->where('id', $rec->id)->update(['phone' => $userMatch->contact_number]);
-                            }
-                        }
-                    }
-                }
             }
         } catch (\Throwable $e) {
             \Log::warning('EmergencyContact schema check error: ' . $e->getMessage());
@@ -169,21 +60,30 @@ class EmergencyContactController extends Controller
         $this->ensureTableAndDefaults();
 
         try {
-            $contacts = EmergencyContact::where('is_active', true)
-                ->orderBy('order', 'asc')
-                ->orderBy('id', 'asc')
+            $contacts = \App\Models\User::where('is_emergency_contact', true)
+                ->where('status', 'Active')
+                ->with('team')
+                ->orderBy('first_name', 'asc')
                 ->get()
-                ->map(function ($c) {
+                ->map(function ($u) {
+                    $fullName = trim("{$u->first_name} {$u->last_name}") ?: $u->name;
+                    $firstChar = mb_substr($u->first_name ?: $fullName, 0, 1);
+                    $lastChar = mb_substr($u->last_name ?: '', 0, 1);
+                    $initials = strtoupper($firstChar . ($lastChar ?: mb_substr($fullName, 1, 1)));
+
+                    $colors = ['bg-[#56348f]', 'bg-indigo-600', 'bg-sky-600', 'bg-rose-500', 'bg-emerald-600', 'bg-amber-600', 'bg-teal-600'];
+                    $avatarBg = $colors[$u->id % count($colors)];
+
                     return [
-                        'id'         => $c->id,
-                        'name'       => $c->name,
-                        'role'       => $c->role,
-                        'email'      => $c->email,
-                        'phone'      => $c->phone,
-                        'department' => $c->department,
-                        'avatar_bg'  => $c->avatar_bg ?: 'bg-indigo-500',
-                        'initials'   => $c->effective_initials,
-                        'order'      => $c->order,
+                        'id'         => $u->id,
+                        'name'       => $fullName,
+                        'role'       => $u->designation ?: 'Emergency Contact',
+                        'email'      => $u->email,
+                        'phone'      => $u->contact_number ?: $u->alternate_contact_number,
+                        'department' => $u->team?->name ?: 'General',
+                        'avatar_bg'  => $avatarBg,
+                        'initials'   => $initials,
+                        'order'      => $u->id,
                     ];
                 });
 
@@ -354,7 +254,7 @@ class EmergencyContactController extends Controller
 
     /**
      * DELETE /api/admin/emergency-contacts/{id}
-     * Super Admin endpoint: Delete an emergency contact
+     * Super Admin endpoint: Delete/Unassign an emergency contact
      */
     public function destroy(Request $request, int $id)
     {
@@ -363,13 +263,21 @@ class EmergencyContactController extends Controller
             return response()->json(['message' => 'Unauthorized: Super Admin access required.'], 403);
         }
 
-        $contact = EmergencyContact::findOrFail($id);
-        $name = $contact->name;
-        $contact->delete();
+        $userObj = \App\Models\User::find($id);
+        if ($userObj) {
+            $userObj->is_emergency_contact = false;
+            $userObj->save();
+        }
+
+        $contact = EmergencyContact::find($id);
+        $name = $contact?->name ?? $userObj?->name ?? 'Employee';
+        if ($contact) {
+            $contact->delete();
+        }
 
         return response()->json([
             'status'  => 'success',
-            'message' => "Emergency contact '{$name}' deleted successfully.",
+            'message' => "Emergency contact '{$name}' unassigned successfully.",
         ]);
     }
 
@@ -382,6 +290,18 @@ class EmergencyContactController extends Controller
         $user = $request->user();
         if (!$this->isSuperAdmin($user)) {
             return response()->json(['message' => 'Unauthorized: Super Admin access required.'], 403);
+        }
+
+        $userObj = \App\Models\User::find($id);
+        if ($userObj) {
+            $userObj->is_emergency_contact = !$userObj->is_emergency_contact;
+            $userObj->save();
+            $statusStr = $userObj->is_emergency_contact ? 'assigned as emergency contact' : 'unassigned';
+            return response()->json([
+                'status'    => 'success',
+                'message'   => "Employee '{$userObj->name}' {$statusStr}.",
+                'is_active' => (bool)$userObj->is_emergency_contact,
+            ]);
         }
 
         $contact = EmergencyContact::findOrFail($id);
