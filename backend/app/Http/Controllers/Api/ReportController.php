@@ -15,6 +15,7 @@ use App\Models\WorkingDaysOverride;
 use App\Models\LeavePolicySetting;
 use App\Services\BiometricTimelineService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
@@ -310,6 +311,11 @@ class ReportController extends Controller
      */
     public function attendanceSummary(Request $request): JsonResponse
     {
+        // Increase execution time & memory limits to handle multi-month reports smoothly
+        @ini_set('max_execution_time', '300');
+        @set_time_limit(300);
+        @ini_set('memory_limit', '512M');
+
         try {
             $startDate = $request->input('start_date');
             $endDate = $request->input('end_date');
@@ -323,272 +329,348 @@ class ReportController extends Controller
 
             \Log::info('Attendance summary requested', ['start' => $startDate, 'end' => $endDate]);
 
-        // Get active employees, optionally filtered by user_id
-        $query = User::where('status', 'Active')
-            ->with(['team', 'leaveBalance'])
-            ->orderBy('first_name');
+            // Get active employees, optionally filtered by user_id
+            $query = User::where('status', 'Active')
+                ->with(['team', 'leaveBalance'])
+                ->orderBy('first_name');
 
-        if ($request->filled('user_id')) {
-            $query->where('id', $request->input('user_id'));
-        }
+            if ($request->filled('user_id')) {
+                $query->where('id', $request->input('user_id'));
+            }
 
-        $employees = $query->get();
+            $employees = $query->get();
+            $employeeIds = $employees->pluck('id')->toArray();
+            $employeeCodes = $employees->pluck('employee_code')->filter()->values()->toArray();
+            $codeToId = $employees->pluck('id', 'employee_code')->toArray();
 
-        $employeeIds = $employees->pluck('id')->toArray();
+            // 1. Batch load Leaves (eager load leaveType to prevent N+1 queries)
+            $allLeaves = LeaveRequest::with('leaveType')
+                ->whereIn('user_id', $employeeIds)
+                ->where('status', 'Approved')
+                ->where(function($q) use ($startDate, $endDate) {
+                    $q->whereBetween('start_date', [$startDate, $endDate])
+                      ->orWhere(function($q2) use ($startDate, $endDate) {
+                          $q2->whereDate('end_date', '>=', $startDate)
+                             ->whereDate('start_date', '<=', $endDate);
+                      });
+                })
+                ->get();
 
-        // BATCH LOAD all data upfront to avoid N+1 queries
-        // This is critical for performance - loading data once for all employees and dates
-        $allLeaves = LeaveRequest::whereIn('user_id', $employeeIds)
-            ->where('status', 'Approved')
-            ->where(function($q) use ($startDate, $endDate) {
-                $q->whereBetween('start_date', [$startDate, $endDate])
-                  ->orWhere(function($q2) use ($startDate, $endDate) {
-                      $q2->whereDate('end_date', '>=', $startDate)
-                         ->whereDate('start_date', '<=', $endDate);
-                  });
-            })
-            ->get();
+            // 2. Batch load WFH
+            $allWfh = WfhRequest::whereIn('user_id', $employeeIds)
+                ->where('status', 'Approved')
+                ->whereDate('end_date', '>=', $startDate)
+                ->whereDate('start_date', '<=', $endDate)
+                ->get();
 
-        $allWfh = WfhRequest::whereIn('user_id', $employeeIds)
-            ->where('status', 'Approved')
-            ->whereDate('end_date', '>=', $startDate)
-            ->whereDate('start_date', '<=', $endDate)
-            ->get();
+            // 3. Batch load Attendance
+            $allAttendance = \App\Models\Attendance::whereIn('user_id', $employeeIds)
+                ->whereBetween('date', [$startDate, $endDate])
+                ->get();
 
-        $allAttendance = \App\Models\Attendance::whereIn('user_id', $employeeIds)
-            ->whereBetween('date', [$startDate, $endDate])
-            ->get();
+            // 4. Batch load Biometric Aggregates via fast indexed SQL GROUP BY
+            $biometricAggregates = DB::table('biometric_events')
+                ->selectRaw('COALESCE(user_id, 0) as user_id, employee_code, DATE(local_punch_time) as punch_date, MIN(local_punch_time) as first_punch, MAX(local_punch_time) as last_punch, COUNT(*) as punch_count')
+                ->where(function ($q) use ($employeeIds, $employeeCodes) {
+                    $q->whereIn('user_id', $employeeIds);
+                    if (!empty($employeeCodes)) {
+                        $q->orWhereIn('employee_code', $employeeCodes);
+                    }
+                })
+                ->whereBetween('local_punch_time', [$start, $end])
+                ->groupBy('user_id', 'employee_code', DB::raw('DATE(local_punch_time)'))
+                ->get();
 
-        $allBiometricEvents = BiometricEvent::whereIn('user_id', $employeeIds)
-            ->whereBetween('local_punch_time', [$start, $end])
-            ->orderBy('local_punch_time', 'asc')
-            ->get();
+            // Single employee detailed timeline mode if exactly 1 employee is requested
+            $singleEmpEventsByDate = [];
+            if ($employees->count() === 1) {
+                $singleEmp = $employees->first();
+                $rawEvents = BiometricEvent::where(function($q) use ($singleEmp) {
+                    $q->where('user_id', $singleEmp->id);
+                    if ($singleEmp->employee_code) {
+                        $q->orWhere('employee_code', $singleEmp->employee_code);
+                    }
+                })
+                ->whereBetween('local_punch_time', [$start, $end])
+                ->orderBy('local_punch_time', 'asc')
+                ->get();
 
-        // Load configured late threshold time (default 09:40) and calendar rules
-        $policySetting = LeavePolicySetting::current();
-        $lateThresholdConfig = $policySetting->late_threshold_time ?: '09:40';
-        $lateThresholdTimeStr = (strlen($lateThresholdConfig) === 5) ? ($lateThresholdConfig . ':00') : $lateThresholdConfig;
-
-        $holidays = Holiday::pluck('date')
-            ->map(fn($d) => Carbon::parse($d)->format('Y-m-d'))
-            ->toArray();
-        $workingOverrides = WorkingDaysOverride::pluck('date')
-            ->map(fn($d) => Carbon::parse($d)->format('Y-m-d'))
-            ->toArray();
-
-        $isWorkingDay = function (Carbon $date) use ($holidays, $workingOverrides): bool {
-            $ds = $date->format('Y-m-d');
-            if (in_array($ds, $workingOverrides)) return true;
-            return !$date->isWeekend() && !in_array($ds, $holidays);
-        };
-
-        // Log data loaded for debugging
-        \Log::info('Attendance summary data loaded', [
-            'employee_count' => $employees->count(),
-            'attendance_records' => $allAttendance->count(),
-            'leave_records' => $allLeaves->count(),
-            'wfh_records' => $allWfh->count(),
-            'late_threshold' => $lateThresholdTimeStr,
-            'date_range' => "$startDate to $endDate"
-        ]);
-
-        $report = [];
-        $summaryStats = [
-            'total_absent' => 0,
-            'total_wfh' => 0,
-            'total_half_day' => 0,
-            'total_late' => 0,
-            'total_present' => 0,
-        ];
-
-        foreach ($employees as $emp) {
-            // Count leave types for this employee in the date range (supporting half-days as 0.5)
-            $empLeaves = $allLeaves->filter(fn($l) => $l->user_id === $emp->id);
-
-            // Calculate leave counts with proper half-day support (0.5 for half days)
-            $clCount = 0;
-            $slCount = 0;
-            $lopCount = 0;
-            $wfhCount = 0;
-
-            foreach ($empLeaves as $leave) {
-                $isHalfDay = $leave->duration_type && strpos($leave->duration_type, 'Half') !== false;
-                $leaveValue = $isHalfDay ? 0.5 : 1;
-
-                if ($leave->is_unpaid) {
-                    $lopCount += $leaveValue;
-                } elseif ($leave->leaveType && str_contains($leave->leaveType->name ?? '', 'Casual')) {
-                    $clCount += $leaveValue;
-                } elseif ($leave->leaveType && str_contains($leave->leaveType->name ?? '', 'Sick')) {
-                    $slCount += $leaveValue;
+                foreach ($rawEvents as $ev) {
+                    $pDate = is_string($ev->local_punch_time)
+                        ? substr($ev->local_punch_time, 0, 10)
+                        : $ev->local_punch_time?->format('Y-m-d');
+                    if ($pDate) {
+                        $singleEmpEventsByDate[$pDate][] = $ev;
+                    }
                 }
             }
 
-            // Calculate WFH count with half-day support
-            $empWfh = $allWfh->filter(fn($w) => $w->user_id === $emp->id);
-            foreach ($empWfh as $wfh) {
-                $isHalfDay = $wfh->duration_type && strpos($wfh->duration_type, 'Half') !== false;
-                $wfhCount += $isHalfDay ? 0.5 : 1;
+            // Group leaves and WFH by user for quick user-level summary
+            $leavesByUser = $allLeaves->groupBy('user_id');
+            $wfhByUser = $allWfh->groupBy('user_id');
+
+            // Pre-index collections into O(1) hash maps by [$user_id][$dateStr]
+            $leavesMap = [];
+            foreach ($allLeaves as $l) {
+                $lStart = Carbon::parse($l->start_date)->startOfDay();
+                $lEnd = Carbon::parse($l->end_date)->startOfDay();
+                $curL = $lStart->copy();
+                while ($curL->lte($lEnd)) {
+                    $leavesMap[$l->user_id][$curL->toDateString()] = $l;
+                    $curL->addDay();
+                }
             }
 
-            $empData = [
-                'id' => $emp->id,
-                'employee_code' => $emp->employee_code,
-                'first_name' => $emp->first_name,
-                'last_name' => $emp->last_name,
-                'designation' => $emp->designation,
-                'team' => ['name' => $emp->team?->name],
-                'profile_photo_path' => $emp->profile_photo_path,
-                'cl_count' => round($clCount, 1),
-                'sl_count' => round($slCount, 1),
-                'lop_count' => round($lopCount, 1),
-                'wfh_count' => round($wfhCount, 1),
-                'leave_balance' => [
-                    'sick_leave_balance' => $emp->leaveBalance?->sick_leave_balance ?? 0,
-                    'casual_leave_balance' => ($emp->leaveBalance?->casual_leave_balance ?? 0) + ($emp->leaveBalance?->cl_carry_forward ?? 0),
-                ],
-                'daily_status' => [],
+            $wfhMap = [];
+            foreach ($allWfh as $w) {
+                $wStart = Carbon::parse($w->start_date)->startOfDay();
+                $wEnd = Carbon::parse($w->end_date)->startOfDay();
+                $curW = $wStart->copy();
+                while ($curW->lte($wEnd)) {
+                    $wfhMap[$w->user_id][$curW->toDateString()] = $w;
+                    $curW->addDay();
+                }
+            }
+
+            $attendanceMap = [];
+            foreach ($allAttendance as $a) {
+                $aDateKey = is_string($a->date) ? substr($a->date, 0, 10) : $a->date->format('Y-m-d');
+                $attendanceMap[$a->user_id][$aDateKey] = $a;
+            }
+
+            $biometricMap = [];
+            foreach ($biometricAggregates as $row) {
+                $uid = $row->user_id ? (int)$row->user_id : ($codeToId[$row->employee_code] ?? null);
+                if (!$uid) continue;
+                $dateKey = $row->punch_date;
+                if (!isset($biometricMap[$uid][$dateKey])) {
+                    $biometricMap[$uid][$dateKey] = (object)[
+                        'first_punch' => $row->first_punch,
+                        'last_punch'  => $row->last_punch,
+                        'punch_count' => (int)$row->punch_count,
+                    ];
+                } else {
+                    $existing = $biometricMap[$uid][$dateKey];
+                    if ($row->first_punch < $existing->first_punch) {
+                        $existing->first_punch = $row->first_punch;
+                    }
+                    if ($row->last_punch > $existing->last_punch) {
+                        $existing->last_punch = $row->last_punch;
+                    }
+                    $existing->punch_count += (int)$row->punch_count;
+                }
+            }
+
+            // Load configured late threshold time (default 09:40) and calendar rules
+            $policySetting = LeavePolicySetting::current();
+            $lateThresholdConfig = $policySetting->late_threshold_time ?: '09:40';
+            $lateThresholdTimeStr = (strlen($lateThresholdConfig) === 5) ? ($lateThresholdConfig . ':00') : $lateThresholdConfig;
+
+            $holidays = Holiday::pluck('date')
+                ->map(fn($d) => Carbon::parse($d)->format('Y-m-d'))
+                ->toArray();
+            $workingOverrides = WorkingDaysOverride::pluck('date')
+                ->map(fn($d) => Carbon::parse($d)->format('Y-m-d'))
+                ->toArray();
+
+            $holidaysMap = array_flip($holidays);
+            $workingOverridesMap = array_flip($workingOverrides);
+
+            // Pre-calculate all dates and calendar working day status once
+            $dateList = [];
+            $totalWorkingDaysInRange = 0;
+            $cursor = $start->copy();
+            while ($cursor->lte($end)) {
+                $ds = $cursor->format('Y-m-d');
+                $isWork = isset($workingOverridesMap[$ds]) || (!$cursor->isWeekend() && !isset($holidaysMap[$ds]));
+                if ($isWork) {
+                    $totalWorkingDaysInRange++;
+                }
+                $dateList[] = [
+                    'date' => $ds,
+                    'day_name' => $cursor->format('D'),
+                    'is_working' => $isWork,
+                ];
+                $cursor->addDay();
+            }
+
+            $report = [];
+            $summaryStats = [
+                'total_absent' => 0,
+                'total_wfh' => 0,
+                'total_half_day' => 0,
+                'total_late' => 0,
+                'total_present' => 0,
             ];
 
-            // Process each day in the date range
-            $current = clone $start;
-            $dayStats = ['absent' => 0, 'wfh' => 0, 'half_day' => 0, 'late' => 0, 'present' => 0, 'present_count' => 0, 'late_count' => 0, 'holidays' => 0];
-            $workingDaysCount = 0;
-            $esslDaysCount = 0;
+            foreach ($employees as $emp) {
+                $empLeaves = $leavesByUser->get($emp->id, collect());
+                $clCount = 0;
+                $slCount = 0;
+                $lopCount = 0;
+                $wfhCount = 0;
 
-            while ($current <= $end) {
-                $dateStr = $current->toDateString();
-                $currentDate = $current->clone();
+                foreach ($empLeaves as $leave) {
+                    $isHalfDay = $leave->duration_type && strpos($leave->duration_type, 'Half') !== false;
+                    $leaveValue = $isHalfDay ? 0.5 : 1;
 
-                $isWorking = $isWorkingDay($currentDate);
-                if ($isWorking) {
-                    $workingDaysCount++;
-                }
-
-                // Get data from pre-loaded collections (no DB queries)
-                $leave = $allLeaves->first(function($l) use ($emp, $dateStr) {
-                    $lStart = is_string($l->start_date) ? $l->start_date : $l->start_date->toDateString();
-                    $lEnd = is_string($l->end_date) ? $l->end_date : $l->end_date->toDateString();
-                    return $l->user_id === $emp->id && $lStart <= $dateStr && $lEnd >= $dateStr;
-                });
-
-                $wfh = $allWfh->first(function($w) use ($emp, $dateStr) {
-                    $wStart = is_string($w->start_date) ? $w->start_date : $w->start_date->toDateString();
-                    $wEnd = is_string($w->end_date) ? $w->end_date : $w->end_date->toDateString();
-                    return $w->user_id === $emp->id && $wStart <= $dateStr && $wEnd >= $dateStr;
-                });
-
-                $attendance = $allAttendance->first(function($a) use ($emp, $dateStr) {
-                    $aDate = is_string($a->date) ? $a->date : $a->date->toDateString();
-                    return $a->user_id === $emp->id && $aDate === $dateStr;
-                });
-
-                $dayStatus = $this->calculateDayStatus($emp->id, $dateStr, $leave, $wfh, $attendance, $lateThresholdTimeStr, $isWorking);
-
-                // Calculate times from biometric data for accuracy
-                $hasEssl = false;
-                $checkInTime = null;
-                $checkOutTime = null;
-                $totalWorkingMinutes = null;
-
-                $biometricEvents = $allBiometricEvents->filter(function($e) use ($emp, $dateStr) {
-                    if ($e->user_id !== $emp->id) return false;
-                    $punchDate = is_string($e->local_punch_time)
-                        ? substr($e->local_punch_time, 0, 10)
-                        : $e->local_punch_time?->format('Y-m-d');
-                    return $punchDate === $dateStr;
-                })->values();
-
-                if ($biometricEvents->isNotEmpty()) {
-                    $hasEssl = true;
-                    $esslDaysCount++;
-                    $build = $this->timeline->buildTimeline($biometricEvents, false);
-                    if ($build['ok']) {
-                        $interp = $this->timeline->interpretTimeline($build['timeline'], $dateStr);
-                        if ($interp['first_in']) {
-                            $checkInTime = $interp['first_in']->setTimezone('Asia/Kolkata')->toIso8601String();
-                        }
-                        if ($interp['last_out']) {
-                            $checkOutTime = $interp['last_out']->setTimezone('Asia/Kolkata')->toIso8601String();
-                        }
-                        if (isset($interp['total_working_minutes'])) {
-                            $totalWorkingMinutes = $interp['total_working_minutes'];
-                        }
+                    if ($leave->is_unpaid) {
+                        $lopCount += $leaveValue;
+                    } elseif ($leave->leaveType && str_contains($leave->leaveType->name ?? '', 'Casual')) {
+                        $clCount += $leaveValue;
+                    } elseif ($leave->leaveType && str_contains($leave->leaveType->name ?? '', 'Sick')) {
+                        $slCount += $leaveValue;
                     }
                 }
 
-                // If biometric check-in is found but dayStatus says Absent or OFF, override to Present
-                if ($checkInTime && in_array($dayStatus['status'], ['A', 'OFF'])) {
-                    $dayStatus['status'] = 'P';
+                $empWfh = $wfhByUser->get($emp->id, collect());
+                foreach ($empWfh as $wfh) {
+                    $isHalfDay = $wfh->duration_type && strpos($wfh->duration_type, 'Half') !== false;
+                    $wfhCount += $isHalfDay ? 0.5 : 1;
                 }
 
-                // Accurate check-in/check-out timestamps (biometric timeline first, fallback to stored attendance)
-                $effectiveCheckIn = $checkInTime ?: ($attendance?->check_in_time ? Carbon::parse($attendance->check_in_time)->setTimezone('Asia/Kolkata')->toIso8601String() : null);
-                $effectiveCheckOut = $checkOutTime ?: ($attendance?->check_out_time ? Carbon::parse($attendance->check_out_time)->setTimezone('Asia/Kolkata')->toIso8601String() : null);
-
-                // Check late arrival on working days (non-holidays, non-weekends) for present employees not on WFH
-                if ($effectiveCheckIn && $dayStatus['status'] === 'P' && $isWorking && !$wfh) {
-                    $parsedCheckIn = Carbon::parse($effectiveCheckIn)->setTimezone('Asia/Kolkata');
-                    if ($leave && $leave->duration_type && strpos($leave->duration_type, 'Half-Morning') !== false) {
-                        $afternoonThreshold = Carbon::parse($dateStr . ' 14:30:00', 'Asia/Kolkata');
-                        $dayStatus['is_late'] = $parsedCheckIn->greaterThan($afternoonThreshold);
-                    } elseif (!$leave) {
-                        $lateThreshold = Carbon::parse($dateStr . ' ' . $lateThresholdTimeStr, 'Asia/Kolkata');
-                        $dayStatus['is_late'] = $parsedCheckIn->greaterThan($lateThreshold);
-                    }
-                } else {
-                    if (!$isWorking || $wfh) {
-                        $dayStatus['is_late'] = false;
-                    }
-                }
-
-                $empData['daily_status'][] = [
-                    'date' => $dateStr,
-                    'day_name' => $current->format('D'),
-                    'status' => $dayStatus['status'],
-                    'leave_type' => $dayStatus['leave_type'] ?? null,
-                    'is_late' => $dayStatus['is_late'],
-                    'has_essl' => $hasEssl,
-                    'essl_first_in' => $checkInTime,
-                    'essl_last_out' => $checkOutTime,
-                    'check_in' => $effectiveCheckIn,
-                    'check_out' => $effectiveCheckOut,
-                    'total_working_minutes' => $totalWorkingMinutes ?? $attendance?->total_working_minutes,
+                $empData = [
+                    'id' => $emp->id,
+                    'employee_code' => $emp->employee_code,
+                    'first_name' => $emp->first_name,
+                    'last_name' => $emp->last_name,
+                    'designation' => $emp->designation,
+                    'team' => ['name' => $emp->team?->name],
+                    'profile_photo_path' => $emp->profile_photo_path,
+                    'cl_count' => round($clCount, 1),
+                    'sl_count' => round($slCount, 1),
+                    'lop_count' => round($lopCount, 1),
+                    'wfh_count' => round($wfhCount, 1),
+                    'leave_balance' => [
+                        'sick_leave_balance' => $emp->leaveBalance?->sick_leave_balance ?? 0,
+                        'casual_leave_balance' => ($emp->leaveBalance?->casual_leave_balance ?? 0) + ($emp->leaveBalance?->cl_carry_forward ?? 0),
+                    ],
+                    'daily_status' => [],
                 ];
 
-                // Update daily stats
-                // Late is technically present, so count it in both late_count and present_count
-                if ($dayStatus['status'] === 'A') $dayStats['absent']++;
-                elseif ($dayStatus['status'] === 'OFF') $dayStats['holidays']++;
-                elseif ($dayStatus['status'] === 'W') $dayStats['wfh']++;
-                elseif ($dayStatus['status'] === 'H') $dayStats['half_day']++;
-                elseif ($dayStatus['status'] === 'P') {
-                    $dayStats['present']++;
-                    $dayStats['present_count']++;
-                    if ($dayStatus['is_late']) {
-                        $dayStats['late']++;
-                        $dayStats['late_count']++;
+                $dayStats = ['absent' => 0, 'wfh' => 0, 'half_day' => 0, 'late' => 0, 'present' => 0, 'present_count' => 0, 'late_count' => 0, 'holidays' => 0];
+                $esslDaysCount = 0;
+
+                foreach ($dateList as $dInfo) {
+                    $dateStr = $dInfo['date'];
+                    $isWorking = $dInfo['is_working'];
+
+                    $leave = $leavesMap[$emp->id][$dateStr] ?? null;
+                    $wfh = $wfhMap[$emp->id][$dateStr] ?? null;
+                    $attendance = $attendanceMap[$emp->id][$dateStr] ?? null;
+
+                    $dayStatus = $this->calculateDayStatus($emp->id, $dateStr, $leave, $wfh, $attendance, $lateThresholdTimeStr, $isWorking);
+
+                    $hasEssl = false;
+                    $checkInTime = null;
+                    $checkOutTime = null;
+                    $totalWorkingMinutes = null;
+
+                    if ($employees->count() === 1 && !empty($singleEmpEventsByDate[$dateStr])) {
+                        // Detailed timeline processing for single employee view
+                        $hasEssl = true;
+                        $esslDaysCount++;
+                        $dayEvents = collect($singleEmpEventsByDate[$dateStr]);
+                        $build = $this->timeline->buildTimeline($dayEvents, false);
+                        if ($build['ok']) {
+                            $interp = $this->timeline->interpretTimeline($build['timeline'], $dateStr);
+                            if ($interp['first_in']) {
+                                $checkInTime = $interp['first_in']->setTimezone('Asia/Kolkata')->toIso8601String();
+                            }
+                            if ($interp['last_out']) {
+                                $checkOutTime = $interp['last_out']->setTimezone('Asia/Kolkata')->toIso8601String();
+                            }
+                            if (isset($interp['total_working_minutes'])) {
+                                $totalWorkingMinutes = $interp['total_working_minutes'];
+                            }
+                        }
+                    } else {
+                        // High-speed O(1) processing for all-employees summary
+                        $bio = $biometricMap[$emp->id][$dateStr] ?? null;
+                        if ($bio) {
+                            $hasEssl = true;
+                            $esslDaysCount++;
+                            $checkInTime = Carbon::parse($bio->first_punch)->setTimezone('Asia/Kolkata')->toIso8601String();
+                            if ($bio->punch_count > 1 || $bio->last_punch > $bio->first_punch) {
+                                $checkOutTime = Carbon::parse($bio->last_punch)->setTimezone('Asia/Kolkata')->toIso8601String();
+                            }
+                        }
+                        if ($attendance && isset($attendance->total_working_minutes)) {
+                            $totalWorkingMinutes = $attendance->total_working_minutes;
+                        } elseif ($checkInTime && $checkOutTime) {
+                            $totalWorkingMinutes = (int) max(0, Carbon::parse($checkInTime)->diffInMinutes(Carbon::parse($checkOutTime)));
+                        }
+                    }
+
+                    // If biometric check-in is found but dayStatus says Absent or OFF, override to Present
+                    if ($checkInTime && in_array($dayStatus['status'], ['A', 'OFF'])) {
+                        $dayStatus['status'] = 'P';
+                    }
+
+                    // Accurate check-in/check-out timestamps (biometric timeline first, fallback to stored attendance)
+                    $effectiveCheckIn = $checkInTime ?: ($attendance?->check_in_time ? Carbon::parse($attendance->check_in_time)->setTimezone('Asia/Kolkata')->toIso8601String() : null);
+                    $effectiveCheckOut = $checkOutTime ?: ($attendance?->check_out_time ? Carbon::parse($attendance->check_out_time)->setTimezone('Asia/Kolkata')->toIso8601String() : null);
+
+                    // Check late arrival on working days (non-holidays, non-weekends) for present employees not on WFH
+                    if ($effectiveCheckIn && $dayStatus['status'] === 'P' && $isWorking && !$wfh) {
+                        $parsedCheckIn = Carbon::parse($effectiveCheckIn)->setTimezone('Asia/Kolkata');
+                        if ($leave && $leave->duration_type && strpos($leave->duration_type, 'Half-Morning') !== false) {
+                            $afternoonThreshold = Carbon::parse($dateStr . ' 14:30:00', 'Asia/Kolkata');
+                            $dayStatus['is_late'] = $parsedCheckIn->greaterThan($afternoonThreshold);
+                        } elseif (!$leave) {
+                            $lateThreshold = Carbon::parse($dateStr . ' ' . $lateThresholdTimeStr, 'Asia/Kolkata');
+                            $dayStatus['is_late'] = $parsedCheckIn->greaterThan($lateThreshold);
+                        }
+                    } else {
+                        if (!$isWorking || $wfh) {
+                            $dayStatus['is_late'] = false;
+                        }
+                    }
+
+                    $empData['daily_status'][] = [
+                        'date' => $dateStr,
+                        'day_name' => $dInfo['day_name'],
+                        'status' => $dayStatus['status'],
+                        'leave_type' => $dayStatus['leave_type'] ?? null,
+                        'is_late' => $dayStatus['is_late'],
+                        'has_essl' => $hasEssl,
+                        'essl_first_in' => $checkInTime,
+                        'essl_last_out' => $checkOutTime,
+                        'check_in' => $effectiveCheckIn,
+                        'check_out' => $effectiveCheckOut,
+                        'total_working_minutes' => $totalWorkingMinutes ?? $attendance?->total_working_minutes,
+                    ];
+
+                    // Update daily stats
+                    if ($dayStatus['status'] === 'A') $dayStats['absent']++;
+                    elseif ($dayStatus['status'] === 'OFF') $dayStats['holidays']++;
+                    elseif ($dayStatus['status'] === 'W') $dayStats['wfh']++;
+                    elseif ($dayStatus['status'] === 'H') $dayStats['half_day']++;
+                    elseif ($dayStatus['status'] === 'P') {
+                        $dayStats['present']++;
+                        $dayStats['present_count']++;
+                        if ($dayStatus['is_late']) {
+                            $dayStats['late']++;
+                            $dayStats['late_count']++;
+                        }
                     }
                 }
 
-                $current->addDay();
+                $empData['working_days'] = $totalWorkingDaysInRange;
+                $empData['essl_days_count'] = $esslDaysCount;
+                $empData['summary'] = $dayStats;
+                $empData['p_count'] = $dayStats['present_count'];
+                $empData['l_count'] = $dayStats['late_count'];
+                $empData['total_leaves'] = round($clCount + $slCount + $lopCount, 1);
+                $report[] = $empData;
+
+                // Update summary stats
+                $summaryStats['total_absent'] += $dayStats['absent'];
+                $summaryStats['total_wfh'] += $dayStats['wfh'];
+                $summaryStats['total_half_day'] += $dayStats['half_day'];
+                $summaryStats['total_late'] += $dayStats['late'];
+                $summaryStats['total_present'] += $dayStats['present'];
             }
-
-            $empData['working_days'] = $workingDaysCount;
-            $empData['essl_days_count'] = $esslDaysCount;
-            $empData['summary'] = $dayStats;
-            $empData['p_count'] = $dayStats['present_count'];
-            $empData['l_count'] = $dayStats['late_count'];
-            $empData['total_leaves'] = round($clCount + $slCount + $lopCount, 1);
-            $report[] = $empData;
-
-            // Update summary stats
-            $summaryStats['total_absent'] += $dayStats['absent'];
-            $summaryStats['total_wfh'] += $dayStats['wfh'];
-            $summaryStats['total_half_day'] += $dayStats['half_day'];
-            $summaryStats['total_late'] += $dayStats['late'];
-            $summaryStats['total_present'] += $dayStats['present'];
-        }
 
             return response()->json([
                 'status' => 'success',

@@ -70,7 +70,8 @@ export function AllEmployeesReportModal({
       setCopiedAll(false);
 
       const res = await api.get(
-        `/reports/attendance-summary?start_date=${startDate}&end_date=${endDate}`
+        `/reports/attendance-summary?start_date=${startDate}&end_date=${endDate}`,
+        { timeout: 60000 }
       );
 
       const data = res.data;
@@ -81,9 +82,12 @@ export function AllEmployeesReportModal({
       setEmployeesData(data.data);
       setHasGenerated(true);
     } catch (err: any) {
-      console.error(err);
+      console.error("Generate all reports error:", err);
+      const errMsg = err.response?.data?.message || err.message || "Failed to generate report";
       setError(
-        err.response?.data?.message || err.message || "Failed to generate report"
+        errMsg === "Network Error"
+          ? "Network Error: Server request timed out or was interrupted. Please ensure the latest backend changes are pulled on the server."
+          : errMsg
       );
       setEmployeesData([]);
     } finally {
