@@ -601,14 +601,13 @@ export default function DashboardPage() {
       )}
 
       {/*
-      {/*
         ===================================================================
-        PERFECTLY ALIGNED ROW-BY-ROW DASHBOARD GRID
+        SEAMLESS DASHBOARD GRID (ZERO GAPS - CONTINUOUS COLUMNS)
         ===================================================================
       */}
       <div className="space-y-6 mb-8">
         
-        {/* ── ROW 1: Team Status Today + Pending Approvals (Team Lead only) ── */}
+        {/* ── ROW 1 (Team Lead only): Team Status Today + Pending Approvals ── */}
         {user?.role === "Team Lead" && data && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
             {/* Team Status Today Card */}
@@ -739,24 +738,19 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* ── ROW 2: Today's Attendance + Emergency Contacts ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
-          <div className="lg:col-span-2 flex flex-col">
+        {/* ── MAIN DASHBOARD GRID (Zero Gaps: Left Column & Right Column Flow Seamlessly) ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+          {/* ── LEFT COLUMN (Spans 2 columns on desktop) ── */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Today's Attendance */}
             <AttendanceWidget
               initialData={data.attendance_widget_data}
               teamMembers={data?.widgets?.team_members}
               externalOpenMember={selectedTeamMemberForPunches}
               onClearExternalOpen={() => setSelectedTeamMemberForPunches(null)}
             />
-          </div>
-          <div className="lg:col-span-1 flex flex-col">
-            <EmergencyContactsCard className="h-full" />
-          </div>
-        </div>
 
-        {/* ── ROW 3: Latest Updates + Wall of Fame / Leaderboard ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
-          <div className="lg:col-span-2 flex flex-col">
+            {/* Latest Updates (Moves directly below Today's Attendance - zero gap!) */}
             {widgets.company_updates.length > 1 ? (
               <RotatingCard
                 title="Latest Updates"
@@ -777,7 +771,7 @@ export default function DashboardPage() {
                 )}
               />
             ) : (
-              <div className="bg-white dark:bg-slate-800 rounded-md p-5 sm:p-6 border border-slate-200/90 dark:border-slate-700/60 shadow-sm h-full flex flex-col justify-between">
+              <div className="bg-white dark:bg-slate-800 rounded-md p-5 sm:p-6 border border-slate-200/90 dark:border-slate-700/60 shadow-sm">
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <div>
@@ -814,64 +808,70 @@ export default function DashboardPage() {
                 </div>
               </div>
             )}
-          </div>
-          <div className="lg:col-span-1 flex flex-col">
-            <LeaderboardWidget />
-          </div>
-        </div>
 
-        {/* ── ROW 4: Side-by-Side: Work Anniversaries & Upcoming Birthdays (Full Width Balanced Grid) ── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Work Anniversaries */}
-          {(() => {
-            const today = new Date(); today.setHours(0,0,0,0);
-            const filteredAnni = (widgets.anniversaries || []).filter((a: any) => {
-              const d = new Date(a.date); d.setHours(0,0,0,0);
-              const diff = Math.round((d.getTime() - today.getTime()) / 86400000);
-              return diff >= 0 && diff <= 14;
-            }).map((a: any) => {
-              const d = new Date(a.date); d.setHours(0,0,0,0);
-              return { ...a, days_remaining: Math.round((d.getTime() - today.getTime()) / 86400000) };
-            });
-            return (
-              <div className="bg-white dark:bg-slate-800 rounded-md p-5 border border-slate-200/90 dark:border-slate-700/60 shadow-sm min-h-[240px] flex flex-col justify-between">
-                <div>
-                  <div className="mb-3">
-                    <h3 style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
-                      <PartyPopper className="w-4 h-4 text-pink-500" />
-                      Work Anniversaries
-                    </h3>
-                    <p style={{ fontSize: "12px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
-                      Upcoming work milestones in 14 days
-                    </p>
-                  </div>
-                  {filteredAnni.length === 0 ? (
-                    <div className="py-6 text-center">
-                      <p className="text-xs text-slate-500 dark:text-slate-400">No work anniversaries in the next 2 weeks.</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-2.5">
-                      {filteredAnni.slice(0, 3).map((a: any, idx: number) => (
-                        <div key={idx} className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900/50 rounded-md border border-slate-200/60 dark:border-slate-800">
-                          <div>
-                            <p className="text-[13px] font-medium text-slate-900 dark:text-white">🎉 {a.name}</p>
-                            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{a.years} Year{a.years !== 1 ? 's' : ''} at Inter Smart</p>
-                          </div>
-                          <span className="text-[11px] font-semibold bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300 px-2 py-0.5 rounded-full">
-                            {format(new Date(a.date), "MMM d")}
-                          </span>
+            {/* Side-by-Side: Work Anniversaries & Upcoming Birthdays */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Work Anniversaries */}
+              {(() => {
+                const today = new Date(); today.setHours(0,0,0,0);
+                const filteredAnni = (widgets.anniversaries || []).filter((a: any) => {
+                  const d = new Date(a.date); d.setHours(0,0,0,0);
+                  const diff = Math.round((d.getTime() - today.getTime()) / 86400000);
+                  return diff >= 0 && diff <= 14;
+                }).map((a: any) => {
+                  const d = new Date(a.date); d.setHours(0,0,0,0);
+                  return { ...a, days_remaining: Math.round((d.getTime() - today.getTime()) / 86400000) };
+                });
+                return (
+                  <div className="bg-white dark:bg-slate-800 rounded-md p-5 border border-slate-200/90 dark:border-slate-700/60 shadow-sm min-h-[240px] flex flex-col justify-between">
+                    <div>
+                      <div className="mb-3">
+                        <h3 style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 500, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
+                          <PartyPopper className="w-4 h-4 text-pink-500" />
+                          Work Anniversaries
+                        </h3>
+                        <p style={{ fontSize: "12px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
+                          Upcoming work milestones in 14 days
+                        </p>
+                      </div>
+                      {filteredAnni.length === 0 ? (
+                        <div className="py-6 text-center">
+                          <p className="text-xs text-slate-500 dark:text-slate-400">No work anniversaries in the next 2 weeks.</p>
                         </div>
-                      ))}
+                      ) : (
+                        <div className="space-y-2.5">
+                          {filteredAnni.slice(0, 3).map((a: any, idx: number) => (
+                            <div key={idx} className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900/50 rounded-md border border-slate-200/60 dark:border-slate-800">
+                              <div>
+                                <p className="text-[13px] font-medium text-slate-900 dark:text-white">🎉 {a.name}</p>
+                                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{a.years} Year{a.years !== 1 ? 's' : ''} at Inter Smart</p>
+                              </div>
+                              <span className="text-[11px] font-semibold bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300 px-2 py-0.5 rounded-full">
+                                {format(new Date(a.date), "MMM d")}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              </div>
-            );
-          })()}
+                  </div>
+                );
+              })()}
 
-          {/* Upcoming Birthdays with Wishes */}
-          <div className="bg-white dark:bg-slate-800 rounded-md p-5 border border-slate-200/90 dark:border-slate-700/60 shadow-sm min-h-[240px] flex flex-col justify-between">
-            <UpcomingBirthdaysWithWishes items={widgets.upcoming_birthdays} />
+              {/* Upcoming Birthdays with Wishes */}
+              <div className="bg-white dark:bg-slate-800 rounded-md p-5 border border-slate-200/90 dark:border-slate-700/60 shadow-sm min-h-[240px] flex flex-col justify-between">
+                <UpcomingBirthdaysWithWishes items={widgets.upcoming_birthdays} />
+              </div>
+            </div>
+          </div>
+
+          {/* ── RIGHT COLUMN (Spans 1 column on desktop) ── */}
+          <div className="lg:col-span-1 space-y-6">
+            {/* Emergency Contacts Card */}
+            <EmergencyContactsCard />
+
+            {/* Wall of Fame / Leaderboard Widget */}
+            <LeaderboardWidget />
           </div>
         </div>
       </div>
