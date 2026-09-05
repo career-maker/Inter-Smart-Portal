@@ -8,8 +8,32 @@ export default function ChatbaseLottieButton() {
   const [position, setPosition] = useState({ x: 24, y: 24 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [isSidePopupOpen, setIsSidePopupOpen] = useState(false);
   const dotLottieRef = useRef<any>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const checkPopups = () => {
+      const hasPopup = Boolean(
+        document.body.classList.contains("side-popup-open") ||
+        document.querySelector('[data-side-popup="true"]') ||
+        document.querySelector('#employee-id-drawer') ||
+        document.querySelector('.fixed.inset-y-0.right-0')
+      );
+      setIsSidePopupOpen(hasPopup);
+    };
+
+    checkPopups();
+    const observer = new MutationObserver(checkPopups);
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["class", "data-side-popup"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     // Load position from localStorage on mount
@@ -160,7 +184,7 @@ export default function ChatbaseLottieButton() {
           background: "transparent",
           cursor: isDragging ? "grabbing" : "grab",
           padding: 0,
-          display: "flex",
+          display: isSidePopupOpen ? "none" : "flex",
           alignItems: "center",
           justifyContent: "center",
           filter: isOpen
@@ -182,7 +206,7 @@ export default function ChatbaseLottieButton() {
         />
       </button>
 
-      {/* Hide entirely on mobile devices */}
+      {/* Hide on mobile devices AND whenever any side popup/drawer is open */}
       <style>{`
         @media (max-width: 768px) {
           [aria-label="Open AI Assistant"],
@@ -195,6 +219,28 @@ export default function ChatbaseLottieButton() {
             pointer-events: none !important;
             visibility: hidden !important;
           }
+        }
+
+        body.side-popup-open [aria-label="Open AI Assistant"],
+        body:has([data-side-popup="true"]) [aria-label="Open AI Assistant"],
+        body:has(#employee-id-drawer) [aria-label="Open AI Assistant"],
+        body:has(.fixed.inset-y-0.right-0) [aria-label="Open AI Assistant"],
+        body.side-popup-open #chatbase-bubble-button,
+        body.side-popup-open #chatbase-bubble-button-container,
+        body.side-popup-open #chatbase-message-bubbles,
+        body.side-popup-open iframe[src*="chatbase"],
+        body:has([data-side-popup="true"]) #chatbase-bubble-button,
+        body:has([data-side-popup="true"]) #chatbase-bubble-button-container,
+        body:has([data-side-popup="true"]) #chatbase-message-bubbles,
+        body:has([data-side-popup="true"]) iframe[src*="chatbase"],
+        body:has(#employee-id-drawer) #chatbase-bubble-button,
+        body:has(#employee-id-drawer) #chatbase-bubble-button-container,
+        body:has(#employee-id-drawer) #chatbase-message-bubbles,
+        body:has(#employee-id-drawer) iframe[src*="chatbase"] {
+          display: none !important;
+          opacity: 0 !important;
+          pointer-events: none !important;
+          visibility: hidden !important;
         }
       `}</style>
     </>

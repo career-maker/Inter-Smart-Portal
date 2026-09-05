@@ -19,6 +19,7 @@ import {
   Search,
   ChevronRight,
   ArrowLeft,
+  Briefcase,
 } from "lucide-react";
 import api from "@/services/api";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
@@ -84,6 +85,16 @@ export function EmployeeIdCardDrawer({
       setSelectedId(null);
     }
   }, [employeeId, fallbackData, isOpen]);
+
+  // Hide chatbot icon and other floating widgets when drawer is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add("side-popup-open");
+      return () => {
+        document.body.classList.remove("side-popup-open");
+      };
+    }
+  }, [isOpen]);
 
   // Load employee full profile
   useEffect(() => {
@@ -281,110 +292,167 @@ export function EmployeeIdCardDrawer({
               </div>
             ) : data ? (
               <>
-                {/* ── THE CORPORATE ID CARD BADGE (Main Centerpiece) ── */}
-                <div className="relative rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-gradient-to-b from-slate-50 via-white to-slate-50/80 dark:from-slate-850 dark:via-slate-900 dark:to-slate-900 shadow-xl">
+                {/* ── THE CORPORATE ID CARD BADGE (Matching Image 2 exactly) ── */}
+                <div className="relative rounded-3xl overflow-hidden border border-amber-200/60 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl shadow-slate-200/50 dark:shadow-none">
                   
-                  {/* ID Card Holographic Top Bar */}
-                  <div className="h-28 bg-gradient-to-r from-[#2a134a] via-[#56348f] to-[#7948b8] p-4 flex items-start justify-between relative overflow-hidden">
-                    <div className="absolute inset-0 opacity-15 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:12px_12px]" />
-                    <div className="relative z-10">
-                      <p className="text-[11px] font-black uppercase tracking-widest text-purple-200">
-                        INTER SMART
-                      </p>
-                      <p className="text-[9px] font-semibold text-purple-300/80 uppercase">
-                        OFFICIAL WORKFORCE ID
-                      </p>
-                    </div>
-                    <div className="relative z-10 px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[10px] font-black text-white">
-                      {data.employee_code ? `#${data.employee_code}` : "ACTIVE"}
-                    </div>
-                  </div>
+                  {/* Warm Golden Header Wave Background */}
+                  <div className="relative bg-gradient-to-br from-[#FFFBEB] via-[#FEF3C7]/60 to-[#FFFDF5] dark:from-slate-850 dark:via-amber-950/20 dark:to-slate-900 overflow-hidden pt-5 px-6 pb-6">
+                    {/* Organic Fluid Wave Vector in Background (Right side swoop) */}
+                    <svg
+                      className="absolute right-0 top-0 w-[60%] h-full pointer-events-none opacity-60 dark:opacity-20 select-none"
+                      viewBox="0 0 240 180"
+                      fill="none"
+                      preserveAspectRatio="none"
+                    >
+                      <path
+                        d="M20 0C60 70 130 30 160 85C185 130 240 120 240 180V0H20Z"
+                        fill="#FEF3C7"
+                      />
+                    </svg>
 
-                  {/* Avatar & Core Identity */}
-                  <div className="px-6 pb-6 pt-0 relative">
-                    <div className="-mt-14 mb-3.5 flex items-end justify-between">
-                      <div className="relative">
-                        <RoyalAvatar
-                          src={data.profile_photo_path}
-                          name={fullName}
-                          userId={data.id}
-                          className="w-24 h-24 rounded-2xl ring-4 ring-white dark:ring-slate-900 shadow-xl object-cover"
+                    {/* Faint 'S' ribbon watermark on far right */}
+                    <div className="absolute -right-4 top-1/2 -translate-y-1/2 opacity-[0.07] dark:opacity-[0.03] pointer-events-none select-none text-amber-600">
+                      <svg className="w-36 h-36" viewBox="0 0 100 100" fill="currentColor">
+                        <path d="M50 15 C35 15 25 25 25 35 C25 45 35 50 50 55 C65 60 75 65 75 75 C75 85 65 95 50 95 C35 95 25 85 25 75 L35 75 C35 80 42 85 50 85 C58 85 65 80 65 75 C65 70 58 65 50 60 C35 55 25 50 25 35 C25 20 38 15 50 15 Z" />
+                      </svg>
+                    </div>
+
+                    {/* Top Logo & Employee Code Row */}
+                    <div className="flex items-center justify-between relative z-10 mb-5">
+                      {/* Inter Smart Logo with yellow 'S' */}
+                      <div className="flex items-center gap-2">
+                        <img
+                          src="/logo.png"
+                          alt="Inter Smart"
+                          className="h-8 w-auto object-contain block dark:hidden"
                         />
-                        <span className="absolute bottom-1 right-1 w-4 h-4 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-900 shadow-xs" />
+                        <img
+                          src="/logo-dark.png"
+                          alt="Inter Smart"
+                          className="h-8 w-auto object-contain hidden dark:block"
+                        />
                       </div>
 
-                      {/* Tenure Pill Badge */}
-                      {data.tenure_text && (
-                        <div className="flex flex-col items-end pb-1">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                            Tenure
-                          </span>
-                          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-xs font-black shadow-xs">
-                            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                            <span>{data.tenure_text}</span>
-                          </div>
-                        </div>
-                      )}
+                      {/* Employee Code Pill */}
+                      <div className="px-3.5 py-1 rounded-full bg-[#FDE68A] dark:bg-amber-900/60 border border-[#FCD34D] dark:border-amber-700/50 text-xs font-black text-slate-900 dark:text-amber-100 shadow-2xs tracking-wide">
+                        {data.employee_code ? `#${data.employee_code}` : "ACTIVE"}
+                      </div>
                     </div>
 
-                    {/* Name & Role */}
-                    <div className="space-y-1">
-                      <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-                        <RoyalName name={fullName} userId={data.id} showCrownIcon={false} />
-                      </h2>
-                      <p className="text-sm font-bold text-[#56348f] dark:text-purple-300">
-                        {data.designation || "Team Member"}
-                      </p>
-                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                        <Building2 className="w-3.5 h-3.5" />
-                        <span>{data.team || "Inter Smart Team"}</span>
-                        <span>•</span>
-                        <span>{data.role || "Employee"}</span>
-                      </p>
+                    {/* Profile Row: Avatar on Left, Details on Right */}
+                    <div className="flex items-start gap-4 sm:gap-5 relative z-10">
+                      {/* Avatar inside soft cream cushion */}
+                      <div className="relative shrink-0">
+                        <div className="p-2 rounded-2xl bg-[#FEF9C3] dark:bg-amber-950/40 border border-[#FDE68A]/80 dark:border-amber-800/40 shadow-xs">
+                          <RoyalAvatar
+                            src={data.profile_photo_path}
+                            name={fullName}
+                            userId={data.id}
+                            className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl object-cover ring-2 ring-white dark:ring-slate-800 shadow-xs"
+                          />
+                        </div>
+                        <span className="absolute bottom-2.5 right-2.5 w-3.5 h-3.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-900 shadow-xs" />
+                      </div>
+
+                      {/* Core Info & Neatly Stacked Tenure Badge */}
+                      <div className="min-w-0 flex-1 space-y-1.5 pt-0.5">
+                        <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-tight truncate">
+                          <RoyalName name={fullName} userId={data.id} showCrownIcon={false} />
+                        </h2>
+                        
+                        {/* Designation with briefcase */}
+                        <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
+                          <Briefcase className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <span className="truncate">{data.designation || "Headhunter"}</span>
+                        </div>
+
+                        {/* Team and Role with building */}
+                        <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
+                          <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <span className="truncate">{data.team || "Unassigned"}</span>
+                          <span className="text-slate-300 dark:text-slate-600">•</span>
+                          <span className="truncate">{data.role || "Employee"}</span>
+                        </div>
+
+                        {/* Tenure Pill Badge (Clean internal alignment matching Image 2) */}
+                        <div className="pt-1.5">
+                          <div className="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-[#FEF3C7] dark:bg-amber-950/60 border border-[#FDE68A] dark:border-amber-700/50 shadow-2xs">
+                            <Calendar className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                            <div className="flex flex-col text-left">
+                              <span className="text-xs font-black text-slate-900 dark:text-amber-100 leading-none">
+                                {data.tenure_text || (data.tenure_years ? `${data.tenure_years} Years` : "Recently Joined")}
+                              </span>
+                              <span className="text-[8px] font-extrabold uppercase tracking-widest text-amber-700/80 dark:text-amber-400/80 mt-0.5 leading-none">
+                                TENURE
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* ── METRICS & WORK DETAILS GRID ── */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/60 space-y-1">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                      <Shield className="w-3 h-3 text-purple-600" />
-                      Employee Code
-                    </span>
-                    <p className="text-sm font-black text-slate-900 dark:text-white font-mono">
-                      {data.employee_code || "N/A"}
-                    </p>
+                {/* ── METRICS & WORK DETAILS GRID (Matching Image 2 exactly) ── */}
+                <div className="grid grid-cols-2 gap-3.5">
+                  {/* Card 1: EMPLOYEE CODE */}
+                  <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-850 border border-slate-100 dark:border-slate-800 shadow-xs flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-purple-50 dark:bg-purple-950/60 border border-purple-100 dark:border-purple-800/40 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
+                      <Shield className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block leading-none">
+                        EMPLOYEE CODE
+                      </span>
+                      <p className="text-sm sm:text-base font-black text-slate-900 dark:text-white mt-1 leading-none font-mono">
+                        {data.employee_code || "N/A"}
+                      </p>
+                    </div>
                   </div>
 
-                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/60 space-y-1">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                      <Calendar className="w-3 h-3 text-emerald-600" />
-                      Joined Date
-                    </span>
-                    <p className="text-sm font-black text-slate-900 dark:text-white">
-                      {formatDateString(data.joining_date)}
-                    </p>
+                  {/* Card 2: JOINED DATE */}
+                  <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-850 border border-slate-100 dark:border-slate-800 shadow-xs flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-100 dark:border-emerald-800/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                      <Calendar className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block leading-none">
+                        JOINED DATE
+                      </span>
+                      <p className="text-sm sm:text-base font-black text-slate-900 dark:text-white mt-1 leading-none">
+                        {formatDateString(data.joining_date)}
+                      </p>
+                    </div>
                   </div>
 
-                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/60 space-y-1">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                      <Clock className="w-3 h-3 text-amber-600" />
-                      Experience
-                    </span>
-                    <p className="text-sm font-black text-slate-900 dark:text-white">
-                      {data.tenure_text || (data.tenure_years ? `${data.tenure_years} Years` : "Recently Joined")}
-                    </p>
+                  {/* Card 3: EXPERIENCE */}
+                  <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-850 border border-slate-100 dark:border-slate-800 shadow-xs flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/60 border border-amber-100 dark:border-amber-800/40 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                      <Clock className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block leading-none">
+                        EXPERIENCE
+                      </span>
+                      <p className="text-sm sm:text-base font-black text-slate-900 dark:text-white mt-1 leading-none truncate">
+                        {data.tenure_text || (data.tenure_years ? `${data.tenure_years} Years` : "Recently Joined")}
+                      </p>
+                    </div>
                   </div>
 
-                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/60 space-y-1">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                      <Heart className="w-3 h-3 text-rose-600" />
-                      Blood Group
-                    </span>
-                    <p className="text-sm font-black text-slate-900 dark:text-white">
-                      {data.blood_group || "Not Specified"}
-                    </p>
+                  {/* Card 4: BLOOD GROUP */}
+                  <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-850 border border-slate-100 dark:border-slate-800 shadow-xs flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-100 dark:border-rose-800/40 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+                      <Heart className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block leading-none">
+                        BLOOD GROUP
+                      </span>
+                      <p className="text-sm sm:text-base font-black text-slate-900 dark:text-white mt-1 leading-none">
+                        {data.blood_group || "Not Specified"}
+                      </p>
+                    </div>
                   </div>
                 </div>
 
