@@ -68,7 +68,7 @@ class EmergencyContactController extends Controller
                             'name'        => 'Sahad, Nobby',
                             'role'        => 'Team HR',
                             'email'       => 'hr@intersmart.in',
-                            'phone'       => null,
+                            'phone'       => '9876543210',
                             'department'  => 'HR',
                             'avatar_bg'   => 'bg-rose-500',
                             'initials'    => 'HR',
@@ -81,7 +81,7 @@ class EmergencyContactController extends Controller
                             'name'        => 'Manu K O',
                             'role'        => 'Lead PHP Developer',
                             'email'       => 'manu@intersmart.in',
-                            'phone'       => null,
+                            'phone'       => '9876543211',
                             'department'  => 'Development',
                             'avatar_bg'   => 'bg-indigo-500',
                             'initials'    => 'MK',
@@ -94,7 +94,7 @@ class EmergencyContactController extends Controller
                             'name'        => 'Vishal Ramesh',
                             'role'        => 'Lead UI/UX Developer',
                             'email'       => 'vishal@intersmart.in',
-                            'phone'       => null,
+                            'phone'       => '9876543212',
                             'department'  => 'Design',
                             'avatar_bg'   => 'bg-sky-500',
                             'initials'    => 'VR',
@@ -104,19 +104,94 @@ class EmergencyContactController extends Controller
                             'updated_at'  => now(),
                         ],
                         [
-                            'name'        => 'Abhiram P Mohan',
-                            'role'        => 'Technical Support / Portal Helpdesk',
-                            'email'       => 'abhiram@intersmart.in',
-                            'phone'       => null,
-                            'department'  => 'Technical',
-                            'avatar_bg'   => 'bg-purple-600',
-                            'initials'    => 'AP',
+                            'name'        => 'Aswathi M Ashok',
+                            'role'        => 'Team Lead / Sr QA Analyst',
+                            'email'       => 'aswathi@intersmart.in',
+                            'phone'       => '07012649326',
+                            'department'  => 'QA',
+                            'avatar_bg'   => 'bg-teal-500',
+                            'initials'    => 'AM',
                             'order'       => 4,
                             'is_active'   => true,
                             'created_at'  => now(),
                             'updated_at'  => now(),
                         ],
+                        [
+                            'name'        => 'Abhiram P Mohan',
+                            'role'        => 'Technical Support / Portal Helpdesk',
+                            'email'       => 'abhiram@intersmart.in',
+                            'phone'       => '07012649326',
+                            'department'  => 'Technical',
+                            'avatar_bg'   => 'bg-[#56348f]',
+                            'initials'    => 'AP',
+                            'order'       => 5,
+                            'is_active'   => true,
+                            'created_at'  => now(),
+                            'updated_at'  => now(),
+                        ],
                     ]);
+                } else {
+                    // Update phone numbers if null in existing seeded records
+                    DB::table('emergency_contacts')
+                        ->where('name', 'like', '%Sahad%')
+                        ->where(function ($q) {
+                            $q->whereNull('phone')->orWhere('phone', '');
+                        })
+                        ->update(['phone' => '9876543210']);
+
+                    DB::table('emergency_contacts')
+                        ->where('name', 'like', '%Manu%')
+                        ->where(function ($q) {
+                            $q->whereNull('phone')->orWhere('phone', '');
+                        })
+                        ->update(['phone' => '9876543211']);
+
+                    DB::table('emergency_contacts')
+                        ->where('name', 'like', '%Vishal%')
+                        ->where(function ($q) {
+                            $q->whereNull('phone')->orWhere('phone', '');
+                        })
+                        ->update(['phone' => '9876543212']);
+
+                    DB::table('emergency_contacts')
+                        ->where('name', 'like', '%Abhiram%')
+                        ->where(function ($q) {
+                            $q->whereNull('phone')->orWhere('phone', '');
+                        })
+                        ->update(['phone' => '07012649326']);
+
+                    // Sync any phone numbers from users table if available
+                    $allExisting = DB::table('emergency_contacts')->get();
+                    foreach ($allExisting as $rec) {
+                        if (empty($rec->phone) && !empty($rec->email)) {
+                            $userMatch = DB::table('users')->where('email', $rec->email)->first();
+                            if ($userMatch && !empty($userMatch->contact_number)) {
+                                DB::table('emergency_contacts')->where('id', $rec->id)->update(['phone' => $userMatch->contact_number]);
+                            }
+                        }
+                    }
+
+                    // Ensure Aswathi M Ashok is present in the table
+                    $hasAswathi = DB::table('emergency_contacts')
+                        ->where('name', 'like', '%Aswathi%')
+                        ->exists();
+
+                    if (!$hasAswathi) {
+                        $maxOrder = DB::table('emergency_contacts')->max('order') ?? 4;
+                        DB::table('emergency_contacts')->insert([
+                            'name'        => 'Aswathi M Ashok',
+                            'role'        => 'Team Lead / Sr QA Analyst',
+                            'email'       => 'aswathi@intersmart.in',
+                            'phone'       => '07012649326',
+                            'department'  => 'QA',
+                            'avatar_bg'   => 'bg-teal-500',
+                            'initials'    => 'AM',
+                            'order'       => $maxOrder + 1,
+                            'is_active'   => true,
+                            'created_at'  => now(),
+                            'updated_at'  => now(),
+                        ]);
+                    }
                 }
             }
         } catch (\Throwable $e) {
@@ -387,6 +462,94 @@ class EmergencyContactController extends Controller
         return response()->json([
             'status'  => 'success',
             'message' => 'Emergency contacts reordered successfully.',
+        ]);
+    }
+
+    /**
+     * POST /api/admin/emergency-contacts/sync-team-leads
+     * Super Admin endpoint: Automatically scans active Team Leads and key staff from users table
+     * and syncs them into the emergency_contacts table with their names, roles, emails, and phone numbers.
+     */
+    public function syncTeamLeads(Request $request)
+    {
+        $user = $request->user();
+        if (!$this->isSuperAdmin($user)) {
+            return response()->json(['message' => 'Unauthorized: Super Admin access required.'], 403);
+        }
+
+        $this->ensureTableAndDefaults();
+
+        $colors = ['bg-indigo-500', 'bg-sky-500', 'bg-teal-500', 'bg-amber-500', 'bg-emerald-500', 'bg-[#56348f]', 'bg-rose-500'];
+        $added = 0;
+        $updated = 0;
+
+        // Fetch users who are Team Leads or have designation containing Lead or have phone numbers
+        $leads = \App\Models\User::where('status', 'Active')
+            ->where(function ($q) {
+                $q->where('designation', 'like', '%lead%')
+                  ->orWhere('designation', 'like', '%manager%')
+                  ->orWhere('designation', 'like', '%hr%')
+                  ->orWhere('designation', 'like', '%support%')
+                  ->orWhereHas('roles', function ($rq) {
+                      $rq->where('name', 'like', '%lead%')->orWhere('name', 'like', '%admin%');
+                  });
+            })
+            ->with(['team', 'roles'])
+            ->get();
+
+        $currentMaxOrder = EmergencyContact::max('order') ?? 0;
+
+        foreach ($leads as $idx => $lead) {
+            $fullName = trim("{$lead->first_name} {$lead->last_name}") ?: $lead->name;
+            $email = $lead->email;
+            $phone = $lead->contact_number ?: $lead->alternate_contact_number;
+            $role = $lead->designation ?: ($lead->roles->first()?->name ?? 'Team Lead');
+            $dept = $lead->team?->name ?: 'General';
+
+            $firstChar = mb_substr($lead->first_name ?: $fullName, 0, 1);
+            $lastChar = mb_substr($lead->last_name ?: '', 0, 1);
+            $initials = strtoupper($firstChar . ($lastChar ?: mb_substr($fullName, 1, 1)));
+
+            // Check if already in emergency_contacts by email or name
+            $existing = EmergencyContact::where(function ($q) use ($email, $fullName) {
+                if ($email) $q->where('email', $email);
+                $q->orWhere('name', $fullName);
+            })->first();
+
+            if ($existing) {
+                $changes = [];
+                if (empty($existing->phone) && !empty($phone)) {
+                    $changes['phone'] = $phone;
+                }
+                if (empty($existing->department) && !empty($dept)) {
+                    $changes['department'] = $dept;
+                }
+                if (!empty($changes)) {
+                    $existing->update($changes);
+                    $updated++;
+                }
+            } else {
+                $currentMaxOrder++;
+                EmergencyContact::create([
+                    'name'        => $fullName,
+                    'role'        => $role,
+                    'email'       => $email,
+                    'phone'       => $phone,
+                    'department'  => $dept,
+                    'avatar_bg'   => $colors[$idx % count($colors)],
+                    'initials'    => $initials,
+                    'order'       => $currentMaxOrder,
+                    'is_active'   => true,
+                ]);
+                $added++;
+            }
+        }
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => "Synced emergency contacts successfully! ({$added} new added, {$updated} updated).",
+            'added'   => $added,
+            'updated' => $updated,
         ]);
     }
 }

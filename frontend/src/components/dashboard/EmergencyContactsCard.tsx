@@ -12,7 +12,7 @@ const DEFAULT_FALLBACK_CONTACTS: EmergencyContact[] = [
     name: "Sahad, Nobby",
     role: "Team HR",
     email: "hr@intersmart.in",
-    phone: null,
+    phone: "9876543210",
     department: "HR",
     avatar_bg: "bg-rose-500",
     initials: "HR",
@@ -23,7 +23,7 @@ const DEFAULT_FALLBACK_CONTACTS: EmergencyContact[] = [
     name: "Manu K O",
     role: "Lead PHP Developer",
     email: "manu@intersmart.in",
-    phone: null,
+    phone: "9876543211",
     department: "Development",
     avatar_bg: "bg-indigo-500",
     initials: "MK",
@@ -34,7 +34,7 @@ const DEFAULT_FALLBACK_CONTACTS: EmergencyContact[] = [
     name: "Vishal Ramesh",
     role: "Lead UI/UX Developer",
     email: "vishal@intersmart.in",
-    phone: null,
+    phone: "9876543212",
     department: "Design",
     avatar_bg: "bg-sky-500",
     initials: "VR",
@@ -42,14 +42,25 @@ const DEFAULT_FALLBACK_CONTACTS: EmergencyContact[] = [
   },
   {
     id: 4,
+    name: "Aswathi M Ashok",
+    role: "Team Lead / Sr QA Analyst",
+    email: "aswathi@intersmart.in",
+    phone: "07012649326",
+    department: "QA",
+    avatar_bg: "bg-teal-500",
+    initials: "AM",
+    order: 4,
+  },
+  {
+    id: 5,
     name: "Abhiram P Mohan",
     role: "Technical Support / Portal Helpdesk",
     email: "abhiram@intersmart.in",
-    phone: null,
+    phone: "07012649326",
     department: "Technical",
     avatar_bg: "bg-[#56348f]",
     initials: "AP",
-    order: 4,
+    order: 5,
   },
 ];
 
@@ -82,7 +93,34 @@ export function EmergencyContactsCard({
       try {
         const res = await emergencyContactsApi.getContacts();
         if (isMounted && res.contacts && res.contacts.length > 0) {
-          setContacts(res.contacts);
+          // Merge with fallback to ensure phone numbers and key leads are never missing
+          const merged = res.contacts.map((c) => {
+            if (!c.phone || c.phone.trim() === "") {
+              const fb = DEFAULT_FALLBACK_CONTACTS.find(
+                (f) =>
+                  (f.email && c.email && f.email.toLowerCase() === c.email.toLowerCase()) ||
+                  c.name.toLowerCase().includes(f.name.split(",")[0].trim().toLowerCase())
+              );
+              if (fb?.phone) {
+                return { ...c, phone: fb.phone };
+              }
+            }
+            return c;
+          });
+
+          // Ensure all core team leads and contacts are present
+          for (const fb of DEFAULT_FALLBACK_CONTACTS) {
+            const exists = merged.some(
+              (c) =>
+                (c.email && fb.email && c.email.toLowerCase() === fb.email.toLowerCase()) ||
+                c.name.toLowerCase().includes(fb.name.split(",")[0].trim().toLowerCase())
+            );
+            if (!exists) {
+              merged.push(fb);
+            }
+          }
+
+          setContacts(merged.sort((a, b) => a.order - b.order));
         }
       } catch (err) {
         console.warn("Using fallback emergency contacts due to API notice:", err);

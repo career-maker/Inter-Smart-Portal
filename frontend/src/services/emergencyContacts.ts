@@ -88,6 +88,16 @@ export const emergencyContactsApi = {
     const res = await api.post("/admin/emergency-contacts/reorder", { items });
     return res.data;
   },
+
+  syncTeamLeads: async (): Promise<{
+    status: string;
+    message: string;
+    added: number;
+    updated: number;
+  }> => {
+    const res = await api.post("/admin/emergency-contacts/sync-team-leads");
+    return res.data;
+  },
 };
 
 export default emergencyContactsApi;

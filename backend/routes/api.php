@@ -691,6 +691,7 @@ Route::middleware('auth:sanctum')->prefix('emergency-contacts')->group(function 
 Route::middleware('auth:sanctum')->prefix('admin/emergency-contacts')->group(function () {
     Route::get('/', [\App\Http\Controllers\Api\EmergencyContactController::class, 'adminIndex']);
     Route::post('/', [\App\Http\Controllers\Api\EmergencyContactController::class, 'store']);
+    Route::post('sync-team-leads', [\App\Http\Controllers\Api\EmergencyContactController::class, 'syncTeamLeads']);
     Route::put('{id}', [\App\Http\Controllers\Api\EmergencyContactController::class, 'update']);
     Route::delete('{id}', [\App\Http\Controllers\Api\EmergencyContactController::class, 'destroy']);
     Route::patch('{id}/toggle', [\App\Http\Controllers\Api\EmergencyContactController::class, 'toggle']);
