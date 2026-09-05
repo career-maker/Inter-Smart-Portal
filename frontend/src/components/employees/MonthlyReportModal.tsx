@@ -42,7 +42,9 @@ export function MonthlyReportModal({ employee, isOpen, onClose }: MonthlyReportM
 
       const empData = data.data[0];
       
-      const workingDays = (empData.p_count || 0) + (empData.total_leaves || 0) + (empData.wfh_count || 0) + (empData.summary?.absent || 0);
+      const workingDays = empData.working_days !== undefined
+        ? empData.working_days
+        : ((empData.p_count || 0) + (empData.total_leaves || 0) + (empData.wfh_count || 0) + (empData.summary?.absent || 0));
 
       const monthName = format(new Date(reportMonth + "-01"), "MMMM yyyy");
       const shortMonth = format(new Date(reportMonth + "-01"), "MMMM");

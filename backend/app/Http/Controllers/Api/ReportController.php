@@ -447,11 +447,17 @@ class ReportController extends Controller
 
             // Process each day in the date range
             $current = clone $start;
-            $dayStats = ['absent' => 0, 'wfh' => 0, 'half_day' => 0, 'late' => 0, 'present' => 0, 'present_count' => 0, 'late_count' => 0];
+            $dayStats = ['absent' => 0, 'wfh' => 0, 'half_day' => 0, 'late' => 0, 'present' => 0, 'present_count' => 0, 'late_count' => 0, 'holidays' => 0];
+            $workingDaysCount = 0;
 
             while ($current <= $end) {
                 $dateStr = $current->toDateString();
                 $currentDate = $current->clone();
+
+                $isWorking = $isWorkingDay($currentDate);
+                if ($isWorking) {
+                    $workingDaysCount++;
+                }
 
                 // Get data from pre-loaded collections (no DB queries)
                 $leave = $allLeaves->first(function($l) use ($emp, $dateStr) {
@@ -471,7 +477,6 @@ class ReportController extends Controller
                     return $a->user_id === $emp->id && $aDate === $dateStr;
                 });
 
-                $isWorking = $isWorkingDay($currentDate);
                 $dayStatus = $this->calculateDayStatus($emp->id, $dateStr, $leave, $wfh, $attendance, $lateThresholdTimeStr, $isWorking);
 
                 // Calculate times from biometric data for accuracy (not from stored attendance)
@@ -501,8 +506,8 @@ class ReportController extends Controller
                     }
                 }
 
-                // If biometric check-in is found but dayStatus says Absent, override to Present
-                if ($checkInTime && $dayStatus['status'] === 'A') {
+                // If biometric check-in is found but dayStatus says Absent or OFF, override to Present
+                if ($checkInTime && in_array($dayStatus['status'], ['A', 'OFF'])) {
                     $dayStatus['status'] = 'P';
                 }
 
@@ -540,6 +545,7 @@ class ReportController extends Controller
                 // Update daily stats
                 // Late is technically present, so count it in both late_count and present_count
                 if ($dayStatus['status'] === 'A') $dayStats['absent']++;
+                elseif ($dayStatus['status'] === 'OFF') $dayStats['holidays']++;
                 elseif ($dayStatus['status'] === 'W') $dayStats['wfh']++;
                 elseif ($dayStatus['status'] === 'H') $dayStats['half_day']++;
                 elseif ($dayStatus['status'] === 'P') {
@@ -554,6 +560,7 @@ class ReportController extends Controller
                 $current->addDay();
             }
 
+            $empData['working_days'] = $workingDaysCount;
             $empData['summary'] = $dayStats;
             $empData['p_count'] = $dayStats['present_count'];
             $empData['l_count'] = $dayStats['late_count'];
@@ -648,10 +655,10 @@ class ReportController extends Controller
             ];
         }
 
-        // No attendance record = Absent
+        // No attendance record = Absent on working days, or OFF on weekends/holidays
         if (!$attendance) {
             return [
-                'status' => 'A',
+                'status' => $isWorking ? 'A' : 'OFF',
                 'leave_type' => null,
                 'is_late' => false,
             ];
