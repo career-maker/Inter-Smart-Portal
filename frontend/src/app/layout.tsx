@@ -3,7 +3,10 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 
 export const metadata: Metadata = {
-  title: "Inter Smart Portal",
+  title: {
+    template: "%s",
+    default: "Inter Smart",
+  },
   description: "Inter Smart Employee Management Portal",
   manifest: "/manifest.json",
   icons: {
