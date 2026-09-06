@@ -113,6 +113,42 @@ aside[class*="bg-slate-900"] *,
   font-weight: 400 !important;
 }
 
+/* ── Dynamic Portal Header Text, Icons & Side Menu Engine ── */
+#portal-top-header {
+  background-color: var(--portal-header-bg, #56348f) !important;
+  color: var(--portal-header-text, #ffffff) !important;
+}
+
+#portal-top-header .header-action-btn,
+#portal-top-header .header-action-btn svg,
+#portal-top-header .header-action-btn span,
+#portal-top-header .portal-header-text,
+#portal-top-header .portal-header-icon,
+#portal-top-header .portal-header-label,
+#portal-top-header .header-logout-btn,
+#portal-top-header .header-logout-btn svg,
+#portal-top-header .header-logout-btn span,
+#portal-top-header button:not(.portal-search-input-btn):not([data-dropdown-item]) svg,
+#portal-top-header a:not(.brand-logo):not(.portal-search-input-btn):not([data-dropdown-item]) svg,
+#portal-top-header a:not(.brand-logo):not(.portal-search-input-btn):not([data-dropdown-item]) span.portal-header-label {
+  color: var(--portal-header-text, #ffffff) !important;
+  stroke: var(--portal-header-text, #ffffff) !important;
+}
+
+#light-theme-sidebar {
+  background-color: var(--portal-sidebar-bg, #0e2638) !important;
+}
+
+#light-theme-sidebar .sidebar-brand-top,
+#light-theme-sidebar .sidebar-profile-bottom {
+  background-color: var(--portal-sidebar-bg, #0e2638) !important;
+  filter: brightness(0.9);
+}
+
+#light-theme-flyout-portal {
+  background-color: var(--portal-sidebar-bg, #0e2638) !important;
+}
+
 /* ── Universal Chart Tooltip Visibility & Contrast ── */
 .recharts-default-tooltip,
 div[class*="recharts-tooltip-wrapper"] > div {

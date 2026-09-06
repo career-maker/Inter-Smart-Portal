@@ -18,6 +18,7 @@ return new class extends Migration
                 $table->string('font_family')->default('Proxima Nova');
                 $table->string('header_bg_color')->default('#56348f');
                 $table->string('header_text_color')->default('#ffffff');
+                $table->string('sidebar_bg_color')->default('#0e2638');
                 $table->string('header_subtitle')->default('PERFECTION AT ITS FINEST');
                 $table->string('primary_color')->default('#56348f');
                 $table->string('body_font_size')->default('13px');
@@ -34,6 +35,7 @@ return new class extends Migration
                 'font_family'           => 'Proxima Nova',
                 'header_bg_color'       => '#56348f',
                 'header_text_color'     => '#ffffff',
+                'sidebar_bg_color'      => '#0e2638',
                 'header_subtitle'       => 'PERFECTION AT ITS FINEST',
                 'primary_color'         => '#56348f',
                 'body_font_size'        => '13px',
@@ -44,6 +46,12 @@ return new class extends Migration
                 'created_at'            => now(),
                 'updated_at'            => now(),
             ]);
+        } else {
+            if (!Schema::hasColumn('customization_settings', 'sidebar_bg_color')) {
+                Schema::table('customization_settings', function (Blueprint $table) {
+                    $table->string('sidebar_bg_color')->default('#0e2638')->after('header_text_color');
+                });
+            }
         }
 
         // Seed 'customization' addon in pm_addons table

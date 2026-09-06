@@ -518,8 +518,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <aside
             id="light-theme-sidebar"
             style={{
-              backgroundColor: "#0e2638",
-              fontFamily: '"Proxima Nova", sans-serif'
+              backgroundColor: "var(--portal-sidebar-bg, #0e2638)",
+              fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)'
             }}
             className="hidden md:flex flex-col fixed inset-y-0 left-0 z-50 w-[84px] border-r border-[#1a3a52] select-none shadow-xl overflow-hidden"
           >
@@ -536,8 +536,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             `}</style>
             {/* Top header area above side menu with looping animation GIF (Clean #091A2A background) */}
             <div
-              style={{ backgroundColor: "#091A2A" }}
-              className="h-16 shrink-0 border-b border-[#1a3a52] flex items-center justify-center p-2 select-none"
+              style={{ backgroundColor: "var(--portal-sidebar-bg, #091A2A)", filter: "brightness(0.85)" }}
+              className="sidebar-brand-top h-16 shrink-0 border-b border-[#1a3a52] flex items-center justify-center p-2 select-none"
             >
               <img
                 src="/preloader.gif"
@@ -643,7 +643,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
 
             {/* User Profile Mini Badge (Bottom - With Top Awardee Golden Honor Ring & Crown) */}
-            <div className="pt-2.5 pb-2 border-t border-[#1a3a52] shrink-0 bg-[#0c2233] flex flex-col items-center justify-center">
+            <div
+              style={{ backgroundColor: "var(--portal-sidebar-bg, #0c2233)", filter: "brightness(0.9)" }}
+              className="sidebar-profile-bottom pt-2.5 pb-2 border-t border-[#1a3a52] shrink-0 flex flex-col items-center justify-center"
+            >
               <Link
                 href="/profile"
                 className="flex flex-col items-center justify-center px-1 py-0.5 rounded-none hover:bg-[#133249] transition-colors group cursor-pointer w-full"
@@ -672,9 +675,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               onMouseLeave={handleLightFlyoutMouseLeave}
               style={{
                 top: `${flyoutState.top}px`,
-                backgroundColor: "#0e2638",
+                backgroundColor: "var(--portal-sidebar-bg, #0e2638)",
                 borderColor: "#1a3a52",
-                fontFamily: '"Proxima Nova", sans-serif',
+                fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)',
                 maxHeight: "calc(100vh - 20px)",
               }}
               className="fixed left-[84px] w-64 rounded-r-xl rounded-bl-xl shadow-2xl border border-[#1a3a52] z-[999] py-1.5 animate-in fade-in zoom-in-95 duration-150 flex flex-col overflow-hidden"
@@ -941,13 +944,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
           {/* ── TOP HEADER (DYNAMIC CUSTOMIZATION COLOR FOR LIGHT THEME, SLATE-900 FOR DARK THEME) ── */}
           <header
+            id="portal-top-header"
             style={{
               backgroundColor: !isDark ? "var(--portal-header-bg, #56348f)" : undefined,
               color: !isDark ? "var(--portal-header-text, #ffffff)" : undefined,
               fontFamily: 'var(--portal-font-family, "Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif)'
             }}
             className={`${
-              !isDark ? "text-white" : "bg-slate-900/90 backdrop-blur-md border-b border-white/10 text-slate-200"
+              !isDark ? "" : "bg-slate-900/90 backdrop-blur-md border-b border-white/10 text-slate-200"
             } transition-colors w-full`}
           >
             <div className="px-2.5 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-1.5 sm:gap-6">
@@ -955,12 +959,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               {/* Left: Mobile Hamburger + Logo */}
               <div className="flex items-center gap-1.5 sm:gap-4 shrink-0 min-w-0">
                 <button
-                  style={{ backgroundColor: "transparent", border: "none", outline: "none", boxShadow: "none" }}
-                  className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center -ml-1 text-white bg-transparent hover:!bg-transparent active:!bg-transparent focus:!bg-transparent focus:outline-none shrink-0 md:hidden cursor-pointer"
+                  style={{ backgroundColor: "transparent", border: "none", outline: "none", boxShadow: "none", color: "var(--portal-header-text, #ffffff)" }}
+                  className="portal-header-icon w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center -ml-1 bg-transparent hover:!bg-transparent active:!bg-transparent focus:!bg-transparent focus:outline-none shrink-0 md:hidden cursor-pointer"
                   onClick={() => setMenuOpen((v) => !v)}
                   aria-label="Toggle menu"
                 >
-                  {menuOpen ? <X className="h-6 w-6 text-white" /> : <Menu className="h-6 w-6 text-white" />}
+                  {menuOpen ? <X className="h-6 w-6 portal-header-icon" style={{ color: "var(--portal-header-text, #ffffff)" }} /> : <Menu className="h-6 w-6 portal-header-icon" style={{ color: "var(--portal-header-text, #ffffff)" }} />}
                 </button>
                 
                 <Link href="/dashboard" className="flex items-center shrink-0 min-w-0">
@@ -977,7 +981,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <button
                   type="button"
                   onClick={() => setSearchModalOpen((prev) => !prev)}
-                  className="w-full bg-white hover:bg-slate-50 transition-all rounded-full px-4 py-2 flex items-center justify-between text-xs text-slate-600 shadow-md border border-white/30 cursor-pointer group"
+                  className="portal-search-input-btn w-full bg-white hover:bg-slate-50 transition-all rounded-full px-4 py-2 flex items-center justify-between text-xs text-slate-600 shadow-md border border-white/30 cursor-pointer group"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
                     <Search className="w-4 h-4 text-purple-600 shrink-0 group-hover:scale-110 transition-transform" />
@@ -1000,18 +1004,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <button
                   type="button"
                   onClick={() => setSearchModalOpen(true)}
-                  className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-white/90 hover:text-white rounded-full hover:bg-white/15 active:bg-white/25 sm:hidden transition-colors cursor-pointer shrink-0"
+                  style={{ color: "var(--portal-header-text, #ffffff)" }}
+                  className="header-action-btn w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full hover:bg-white/15 active:bg-white/25 sm:hidden transition-colors cursor-pointer shrink-0"
                   aria-label="Search"
                 >
-                  <Search className="w-5 h-5 text-white" />
+                  <Search className="w-5 h-5 portal-header-icon" style={{ color: "var(--portal-header-text, #ffffff)" }} />
                 </button>
 
                 <button
                   onClick={() => setSearchModalOpen(true)}
-                  className="p-2 text-white hover:text-white rounded-full hover:bg-white/15 hidden md:flex transition-colors cursor-pointer shrink-0"
+                  style={{ color: "var(--portal-header-text, #ffffff)" }}
+                  className="header-action-btn p-2 rounded-full hover:bg-white/15 hidden md:flex transition-colors cursor-pointer shrink-0"
                   title="Quick Launch"
                 >
-                  <Rocket className="w-5 h-5 text-white" />
+                  <Rocket className="w-5 h-5 portal-header-icon" style={{ color: "var(--portal-header-text, #ffffff)" }} />
                 </button>
 
                 {/* Bookmarks (Hidden on small mobile to prevent header overflow) */}
@@ -1023,11 +1029,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <button
                   type="button"
                   onClick={toggleStickyNotes}
-                  className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-white hover:text-white rounded-full hover:bg-white/15 active:bg-white/25 transition-colors cursor-pointer shrink-0 relative"
+                  style={{ color: "var(--portal-header-text, #ffffff)" }}
+                  className="header-action-btn w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full hover:bg-white/15 active:bg-white/25 transition-colors cursor-pointer shrink-0 relative"
                   title="Sticky Notes (macOS Stickies)"
                   aria-label="Toggle Sticky Notes"
                 >
-                  <StickyNote className="w-5 h-5 text-white" />
+                  <StickyNote className="w-5 h-5 portal-header-icon" style={{ color: "var(--portal-header-text, #ffffff)" }} />
                   {notesCount > 0 && (
                     <span className="absolute -top-0.5 -right-0.5 bg-white/20 text-white text-[9.5px] font-bold rounded-full min-w-[16px] sm:min-w-[18px] h-[16px] sm:h-[18px] flex items-center justify-center px-1 leading-none border border-white/40 backdrop-blur-xs">
                       {notesCount > 99 ? '99+' : notesCount}
@@ -1038,11 +1045,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 {/* Quick Chat Header Action */}
                 <Link
                   href={latestConversationId ? `/community?tab=chat&conversationId=${latestConversationId}` : "/community?tab=chat"}
-                  className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-white hover:text-white rounded-full hover:bg-white/15 active:bg-white/25 transition-colors cursor-pointer shrink-0 relative"
+                  style={{ color: "var(--portal-header-text, #ffffff)" }}
+                  className="header-action-btn w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full hover:bg-white/15 active:bg-white/25 transition-colors cursor-pointer shrink-0 relative"
                   title={unreadChatCount > 0 ? `${unreadChatCount} new message(s) - Open Direct Chat` : "Direct Chat"}
                   aria-label="Open Direct Chat"
                 >
-                  <MessageSquare className="w-5 h-5 text-white" />
+                  <MessageSquare className="w-5 h-5 portal-header-icon" style={{ color: "var(--portal-header-text, #ffffff)" }} />
                   {unreadChatCount > 0 && (
                     <span className="absolute -top-0.5 -right-0.5 bg-[#ef4444] text-white text-[9.5px] font-black rounded-full min-w-[16px] sm:min-w-[18px] h-[16px] sm:h-[18px] flex items-center justify-center px-1 leading-none shadow-xs border border-white/60 animate-pulse">
                       {unreadChatCount > 99 ? "99+" : unreadChatCount}
@@ -1067,11 +1075,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
                 <button
                   onClick={handleLogout}
-                  style={{ color: "#ffffff" }}
-                  className="hidden lg:flex items-center gap-1.5 text-xs text-white hover:text-white bg-white/10 hover:bg-white/20 transition-colors px-3 py-1.5 rounded-lg font-medium cursor-pointer shrink-0"
+                  style={{ color: "var(--portal-header-text, #ffffff)" }}
+                  className="header-logout-btn hidden lg:flex items-center gap-1.5 text-xs bg-white/10 hover:bg-white/20 transition-colors px-3 py-1.5 rounded-lg font-medium cursor-pointer shrink-0"
                 >
-                  <LogOut className="h-4 w-4 text-white" />
-                  <span style={{ color: "#ffffff" }} className="font-semibold text-white">Logout</span>
+                  <LogOut className="h-4 w-4 portal-header-icon" style={{ color: "var(--portal-header-text, #ffffff)" }} />
+                  <span style={{ color: "var(--portal-header-text, #ffffff)" }} className="portal-header-label font-semibold">Logout</span>
                 </button>
               </div>
             </div>

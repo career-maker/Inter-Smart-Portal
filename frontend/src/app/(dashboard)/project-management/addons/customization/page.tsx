@@ -21,6 +21,9 @@ import {
   ShieldCheck,
   ChevronRight,
   ExternalLink,
+  Bookmark,
+  Bell,
+  Rocket,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import { useCustomization } from "@/context/CustomizationContext";
@@ -58,6 +61,17 @@ const HEADER_TEXT_PRESETS = [
   { label: "Ice White", hex: "#f8fafc" },
   { label: "Soft Platinum", hex: "#e2e8f0" },
   { label: "Pale Gold", hex: "#fef08a" },
+];
+
+const SIDEBAR_COLOR_PRESETS = [
+  { label: "Keka Navy", hex: "#0e2638" },
+  { label: "Obsidian Dark", hex: "#0f172a" },
+  { label: "Pure Dark", hex: "#000000" },
+  { label: "Deep Slate", hex: "#1e293b" },
+  { label: "Midnight Purple", hex: "#1e1433" },
+  { label: "Forest Pine", hex: "#062c26" },
+  { label: "Royal Navy", hex: "#0b1c3d" },
+  { label: "Dark Burgundy", hex: "#260813" },
 ];
 
 const PRIMARY_COLOR_PRESETS = [
@@ -287,9 +301,9 @@ export default function CustomizationPage() {
                 <Layout className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-slate-900 dark:text-white">Header Appearance & Color</h2>
+                <h2 className="text-sm font-bold text-slate-900 dark:text-white">Header & Side Menu Appearance</h2>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                  Customize the top navigation header background color, text color, and title branding.
+                  Customize the top navigation header background color, text/icon color, and the left side menu navigation background.
                 </p>
               </div>
             </div>
@@ -367,6 +381,49 @@ export default function CustomizationPage() {
                       }`}
                     >
                       <span className="w-3.5 h-3.5 rounded-full border border-slate-300 shrink-0" style={{ backgroundColor: preset.hex }} />
+                      <span>{preset.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Side Menu Background Color */}
+            <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-between">
+                <div>
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    Side Menu Background Color (Default: #0E2638)
+                  </label>
+                  <p className="text-[10px] text-slate-400">Controls the left navigation sidebar background color across the entire portal.</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-mono text-slate-500 uppercase">{form.sidebar_bg_color || "#0e2638"}</span>
+                  <input
+                    type="color"
+                    value={form.sidebar_bg_color || "#0e2638"}
+                    onChange={(e) => handleFieldChange("sidebar_bg_color", e.target.value)}
+                    className="w-8 h-8 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
+                    title="Choose custom side menu background color"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2 pt-1">
+                {SIDEBAR_COLOR_PRESETS.map((preset) => {
+                  const isActive = (form.sidebar_bg_color || "#0e2638").toLowerCase() === preset.hex.toLowerCase();
+                  return (
+                    <button
+                      key={preset.hex}
+                      type="button"
+                      onClick={() => handleFieldChange("sidebar_bg_color", preset.hex)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs transition-all cursor-pointer ${
+                        isActive
+                          ? "border-purple-600 bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-300 font-bold ring-1 ring-purple-500/20"
+                          : "border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+                      }`}
+                    >
+                      <span className="w-3.5 h-3.5 rounded-full border border-black/10 shrink-0" style={{ backgroundColor: preset.hex }} />
                       <span>{preset.label}</span>
                     </button>
                   );
@@ -605,111 +662,157 @@ export default function CustomizationPage() {
               </div>
             </div>
 
-            {/* Mockup Header */}
-            <div
-              style={{
-                backgroundColor: form.header_bg_color,
-                color: form.header_text_color,
-                fontFamily: `"${form.font_family}", sans-serif`,
-              }}
-              className="px-4 py-3 flex items-center justify-between transition-colors shadow-inner"
-            >
-              <div className="flex items-center gap-2">
-                <img
-                  src="/logo.png"
-                  alt="Logo"
-                  className="h-6 w-auto brightness-0 invert object-contain"
-                />
-              </div>
-
-              <div className="flex items-center gap-2">
-                <div className="hidden sm:flex items-center gap-2 bg-white/15 px-2.5 py-1 rounded-lg text-xs backdrop-blur-xs">
-                  <Search className="w-3.5 h-3.5 opacity-70" />
-                  <span className="text-[11px] opacity-70">Search any command...</span>
+            {/* Mockup Frame with Side Menu & Header */}
+            <div className="flex flex-row min-h-[380px]">
+              {/* Miniature Side Menu */}
+              <div
+                style={{
+                  backgroundColor: form.sidebar_bg_color || "#0e2638",
+                  fontFamily: `"${form.font_family}", sans-serif`,
+                }}
+                className="w-13 shrink-0 border-r border-white/10 flex flex-col items-center py-3 gap-2.5 transition-colors select-none"
+              >
+                <div className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center mb-0.5">
+                  <Palette className="w-3.5 h-3.5 text-white" />
                 </div>
-                <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-[10px] font-bold">
+                <div className="w-8 h-8 rounded-lg bg-white/15 flex flex-col items-center justify-center text-[8.5px] text-white font-bold">
+                  <span>Home</span>
+                </div>
+                <div className="w-8 h-8 rounded-lg hover:bg-white/10 flex flex-col items-center justify-center text-[8.5px] text-slate-300">
+                  <span>Leaves</span>
+                </div>
+                <div className="w-8 h-8 rounded-lg hover:bg-white/10 flex flex-col items-center justify-center text-[8.5px] text-slate-300">
+                  <span>WFH</span>
+                </div>
+                <div className="w-8 h-8 rounded-lg hover:bg-white/10 flex flex-col items-center justify-center text-[8.5px] text-slate-300">
+                  <span>Projects</span>
+                </div>
+                <div className="mt-auto w-6 h-6 rounded-full bg-purple-600/60 flex items-center justify-center text-[8px] text-white font-bold">
                   SA
                 </div>
               </div>
-            </div>
 
-            {/* Mockup Portal Body Content */}
-            <div
-              style={{
-                fontFamily: `"${form.font_family}", sans-serif`,
-              }}
-              className="p-5 space-y-4 bg-slate-50 dark:bg-slate-950/60"
-            >
-              {/* Heading Sample */}
-              <div className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Heading Preview</span>
-                  <span className="text-[10px] font-mono text-purple-600 dark:text-purple-400">{form.heading_scale} scale</span>
-                </div>
-                <h3
+              {/* Main Preview Column (Header + Body) */}
+              <div className="flex-1 flex flex-col min-w-0">
+                {/* Mockup Header */}
+                <div
                   style={{
-                    fontSize: form.heading_scale === "compact"
-                      ? "16px"
-                      : form.heading_scale === "large"
-                      ? "21px"
-                      : form.heading_scale === "extra-large"
-                      ? "24px"
-                      : "18px",
+                    backgroundColor: form.header_bg_color,
+                    color: form.header_text_color,
+                    fontFamily: `"${form.font_family}", sans-serif`,
                   }}
-                  className="font-bold text-slate-900 dark:text-white leading-tight"
+                  className="px-3.5 py-2.5 flex items-center justify-between transition-colors shadow-inner border-b border-black/10"
                 >
-                  Attendance Management
-                </h3>
-              </div>
+                  <div className="flex items-center gap-2">
+                    <img
+                      src="/logo.png"
+                      alt="Logo"
+                      className="h-5 w-auto brightness-0 invert object-contain"
+                    />
+                  </div>
 
-              {/* Description Sample */}
-              <div className="space-y-1">
-                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Description / Caption</span>
-                <p
-                  style={{ fontSize: form.description_font_size }}
-                  className="text-slate-500 dark:text-slate-400 leading-relaxed"
+                  <div className="flex items-center gap-2">
+                    <div className="hidden sm:flex items-center gap-2 bg-white/15 px-2.5 py-1 rounded-lg text-xs backdrop-blur-xs">
+                      <Search className="w-3.5 h-3.5" style={{ color: form.header_text_color }} />
+                      <span className="text-[11px]" style={{ color: form.header_text_color, opacity: 0.85 }}>Search command...</span>
+                    </div>
+                    {/* Header Action Icons respecting header text color */}
+                    <div className="flex items-center gap-1.5" style={{ color: form.header_text_color }}>
+                      <Rocket className="w-3.5 h-3.5" style={{ color: form.header_text_color }} />
+                      <Bookmark className="w-3.5 h-3.5" style={{ color: form.header_text_color }} />
+                      <Bell className="w-3.5 h-3.5" style={{ color: form.header_text_color }} />
+                    </div>
+                    <div
+                      style={{
+                        backgroundColor: "rgba(255,255,255,0.2)",
+                        color: form.header_text_color,
+                        borderColor: form.header_text_color,
+                      }}
+                      className="px-2 py-0.5 rounded-md text-[10px] font-semibold border border-opacity-30"
+                    >
+                      Logout
+                    </div>
+                  </div>
+                </div>
+
+                {/* Mockup Portal Body Content */}
+                <div
+                  style={{
+                    fontFamily: `"${form.font_family}", sans-serif`,
+                  }}
+                  className="p-4 space-y-3.5 bg-slate-50 dark:bg-slate-950/60 flex-1"
                 >
-                  Super Admin: View daily biometric punches, timeline records, and manage employee attendance logs.
-                </p>
-              </div>
+                  {/* Heading Sample */}
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Heading Preview</span>
+                      <span className="text-[10px] font-mono text-purple-600 dark:text-purple-400">{form.heading_scale} scale</span>
+                    </div>
+                    <h3
+                      style={{
+                        fontSize: form.heading_scale === "compact"
+                          ? "16px"
+                          : form.heading_scale === "large"
+                          ? "21px"
+                          : form.heading_scale === "extra-large"
+                          ? "24px"
+                          : "18px",
+                      }}
+                      className="font-bold text-slate-900 dark:text-white leading-tight"
+                    >
+                      Attendance Management
+                    </h3>
+                  </div>
 
-              {/* Body Text Sample */}
-              <div className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2">
-                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Body Typography ({form.body_font_size})</span>
-                <p
-                  style={{ fontSize: form.body_font_size }}
-                  className="text-slate-700 dark:text-slate-300 leading-relaxed"
-                >
-                  This live sample demonstrates how paragraphs, cards, tables, and dialog text will appear across the Inter Smart workspace using the selected <strong className="text-slate-900 dark:text-white">{form.font_family}</strong> typeface.
-                </p>
-              </div>
+                  {/* Description Sample */}
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Description / Caption</span>
+                    <p
+                      style={{ fontSize: form.description_font_size }}
+                      className="text-slate-500 dark:text-slate-400 leading-relaxed"
+                    >
+                      Super Admin: View daily biometric punches, timeline records, and manage employee logs.
+                    </p>
+                  </div>
 
-              {/* Primary Buttons & Interactive Components Preview */}
-              <div className="space-y-2 pt-2">
-                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Action Buttons & Accents</span>
-                <div className="flex flex-wrap items-center gap-2.5">
-                  <button
-                    type="button"
-                    style={{ backgroundColor: form.primary_color }}
-                    className="px-4 py-2 rounded-xl text-white text-xs font-semibold shadow-sm hover:brightness-110 transition-all cursor-pointer"
-                  >
-                    Primary Action
-                  </button>
-                  <button
-                    type="button"
-                    className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800"
-                  >
-                    Secondary Action
-                  </button>
-                  <span
-                    style={{
-                      borderColor: form.primary_color,
-                      color: form.primary_color,
-                    }}
-                    className="px-2.5 py-1 rounded-full text-[11px] font-bold border bg-white dark:bg-slate-900"
-                  >
-                    Active Tag
-                  </span>
+                  {/* Body Text Sample */}
+                  <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1.5">
+                    <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Body Typography ({form.body_font_size})</span>
+                    <p
+                      style={{ fontSize: form.body_font_size }}
+                      className="text-slate-700 dark:text-slate-300 leading-relaxed"
+                    >
+                      This preview demonstrates how cards, tables, and dialog text will appear using the selected <strong className="text-slate-900 dark:text-white">{form.font_family}</strong> typeface.
+                    </p>
+                  </div>
+
+                  {/* Primary Buttons & Interactive Components Preview */}
+                  <div className="space-y-1.5 pt-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        style={{ backgroundColor: form.primary_color }}
+                        className="px-3.5 py-1.5 rounded-lg text-white text-xs font-semibold shadow-sm hover:brightness-110 transition-all cursor-pointer"
+                      >
+                        Primary Action
+                      </button>
+                      <button
+                        type="button"
+                        className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800"
+                      >
+                        Secondary
+                      </button>
+                      <span
+                        style={{
+                          borderColor: form.primary_color,
+                          color: form.primary_color,
+                        }}
+                        className="px-2 py-0.5 rounded-full text-[10px] font-bold border bg-white dark:bg-slate-900"
+                      >
+                        Active Tag
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

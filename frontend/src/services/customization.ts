@@ -5,6 +5,7 @@ export interface CustomizationSettings {
   font_family: string;
   header_bg_color: string;
   header_text_color: string;
+  sidebar_bg_color: string;
   header_subtitle?: string;
   primary_color: string;
   body_font_size: string;
@@ -21,6 +22,7 @@ export const DEFAULT_CUSTOMIZATION_SETTINGS: CustomizationSettings = {
   font_family: "Proxima Nova",
   header_bg_color: "#56348f",
   header_text_color: "#ffffff",
+  sidebar_bg_color: "#0e2638",
   header_subtitle: "PERFECTION AT ITS FINEST",
   primary_color: "#56348f",
   body_font_size: "13px",

@@ -75,9 +75,10 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
       }
     }
 
-    // 2. Header Colors
+    // 2. Header & Sidebar Colors
     root.style.setProperty("--portal-header-bg", conf.header_bg_color || "#56348f");
     root.style.setProperty("--portal-header-text", conf.header_text_color || "#ffffff");
+    root.style.setProperty("--portal-sidebar-bg", conf.sidebar_bg_color || "#0e2638");
 
     // 3. Primary / Accent Color
     root.style.setProperty("--portal-primary-color", conf.primary_color || "#56348f");

@@ -45,6 +45,7 @@ class CustomizationController extends Controller
             'font_family'           => 'nullable|string|max:100',
             'header_bg_color'       => 'nullable|string|max:50',
             'header_text_color'     => 'nullable|string|max:50',
+            'sidebar_bg_color'      => 'nullable|string|max:50',
             'header_subtitle'       => 'nullable|string|max:100',
             'primary_color'         => 'nullable|string|max:50',
             'body_font_size'        => 'nullable|string|max:20',
