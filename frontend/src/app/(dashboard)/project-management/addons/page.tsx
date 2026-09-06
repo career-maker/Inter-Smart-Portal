@@ -22,6 +22,7 @@ import {
   ToggleRight,
   HardDrive,
   LifeBuoy,
+  Palette,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import pmApi from "@/services/pm";
@@ -53,6 +54,20 @@ export default function PmAddonsPage() {
       const res = await pmApi.getAddons();
       const rawAddons = res.addons || [];
       const finalAddons = rawAddons.filter((a: any) => a.key !== "emergency_contacts");
+
+      // Ensure customization addon is always accessible
+      if (!finalAddons.some((a: any) => a.key === "customization")) {
+        finalAddons.unshift({
+          id: -999,
+          key: "customization",
+          name: "Customization",
+          description: "Customize portal font family, header background and text colors, typography scales, and dynamic page titles.",
+          icon: "Palette",
+          is_active: true,
+          teams: [],
+        } as any);
+      }
+
       setAddons(finalAddons);
       setTeams(res.teams || []);
 
@@ -221,6 +236,8 @@ export default function PmAddonsPage() {
                         <Mail className="w-6 h-6" />
                       ) : addon.key === "emergency_contacts" ? (
                         <LifeBuoy className="w-6 h-6" />
+                      ) : addon.key === "customization" ? (
+                        <Palette className="w-6 h-6" />
                       ) : (
                         <Puzzle className="w-6 h-6" />
                       )}
@@ -261,7 +278,37 @@ export default function PmAddonsPage() {
                 </div>
 
                 {/* Sub-Panel Content based on Addon Type */}
-                {addon.key === "leave_policy" ? (
+                {addon.key === "customization" ? (
+                  <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <div className="p-3.5 rounded-xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-200/80 dark:border-purple-800/60 text-xs text-purple-900 dark:text-purple-300 space-y-1.5">
+                      <div className="font-bold flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-[#56348f] dark:text-purple-400" />
+                        <span>Portal Branding, Typography & Theme Customization</span>
+                      </div>
+                      <p className="text-[11px] text-purple-800/80 dark:text-purple-300/80 leading-relaxed">
+                        Customize global font family, header background and text colors, heading and body font scales, and browser tab page title formatting.
+                      </p>
+                    </div>
+
+                    <div className="flex items-center justify-end pt-2">
+                      <Link
+                        href="/project-management/addons/customization"
+                        style={{
+                          backgroundColor: "#56348f",
+                          color: "rgb(255, 255, 255)",
+                          fontFamily: '"Proxima Nova", sans-serif',
+                          fontSize: "13px",
+                          lineHeight: "20px",
+                          fontWeight: 600,
+                        }}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-[13px] leading-[20px] font-semibold shadow-sm transition-colors cursor-pointer"
+                      >
+                        <Settings2 className="w-4 h-4 !text-white" />
+                        <span className="!text-white">Configure Customization</span>
+                      </Link>
+                    </div>
+                  </div>
+                ) : addon.key === "leave_policy" ? (
                   <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
                     <div className="p-3.5 rounded-xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-200/80 dark:border-purple-800/60 text-xs text-purple-900 dark:text-purple-300 space-y-1.5">
                       <div className="font-bold flex items-center gap-1.5">

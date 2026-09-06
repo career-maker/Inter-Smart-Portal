@@ -108,6 +108,7 @@ const NAV_GROUPS: NavGroup[] = [
     roles: ["Super Admin"],
     items: [
       { href: "/project-management/addons", label: "All Add-ons Directory" },
+      { href: "/project-management/addons/customization", label: "Portal Customization" },
       { href: "/project-management/addons/email-management", label: "Email & SMTP Management" },
       { href: "/project-management/addons/leave-policy", label: "Leave Policy Management" },
       { href: "/project-management/addons/permissions", label: "Team & Role Permissions" },
@@ -938,11 +939,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
           )}
 
-          {/* ── TOP HEADER (KEKA PURPLE #56348f FOR LIGHT THEME, SLATE-900 FOR DARK THEME) ── */}
+          {/* ── TOP HEADER (DYNAMIC CUSTOMIZATION COLOR FOR LIGHT THEME, SLATE-900 FOR DARK THEME) ── */}
           <header
             style={{
-              backgroundColor: !isDark ? "#56348f" : undefined,
-              fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+              backgroundColor: !isDark ? "var(--portal-header-bg, #56348f)" : undefined,
+              color: !isDark ? "var(--portal-header-text, #ffffff)" : undefined,
+              fontFamily: 'var(--portal-font-family, "Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif)'
             }}
             className={`${
               !isDark ? "text-white" : "bg-slate-900/90 backdrop-blur-md border-b border-white/10 text-slate-200"
