@@ -26,6 +26,7 @@ import { StickyNotesWidget } from "@/components/sticky-notes/StickyNotesWidget";
 import { useStickyNotesStore } from "@/store/stickyNotesStore";
 import { useChatPushNotifications } from "@/hooks/useChatPushNotifications";
 import ChatWidget from "@/components/ChatWidget";
+import { useCustomization } from "@/context/CustomizationContext";
 
 type NavItem = {
   href: string;
@@ -226,6 +227,7 @@ function pathBelongsToGroup(group: NavGroup, pathname: string, currentTab?: stri
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, user, logout, updateUser } = useAuthStore();
+  const { settings: customizationSettings } = useCustomization();
   const { toggleStickyNotes, notesCount } = useStickyNotesStore();
   const { unreadChatCount, latestConversationId, permissionStatus, requestNotificationPermission } = useChatPushNotifications();
   const [dismissNotificationBanner, setDismissNotificationBanner] = useState(false);
@@ -969,8 +971,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 
                 <Link href="/dashboard" className="flex items-center shrink-0 min-w-0">
                   <img
-                    src="/logo.png"
-                    alt="Inter Smart Logo"
+                    src={customizationSettings?.logo_url || "/logo.png"}
+                    alt="Logo"
                     className="h-6 sm:h-9 w-auto max-w-[90px] sm:max-w-none object-contain object-left brightness-0 invert"
                   />
                 </Link>
@@ -1094,9 +1096,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div
             id="sub-header-tabs-bar"
             style={{
-              fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+              backgroundColor: !isDark ? "var(--portal-sub-header-bg, #ffffff)" : undefined,
+              fontFamily: 'var(--portal-font-family, "Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif)'
             }}
-            className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 overflow-hidden w-full"
+            className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 overflow-hidden w-full transition-colors"
           >
             <style>{`
               #sub-header-tabs-bar, #sub-header-tabs-bar * {
@@ -1120,20 +1123,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     key={tab.href}
                     href={tab.href}
                     style={{
-                      fontFamily: '"Proxima Nova", sans-serif',
+                      fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)',
                       fontSize: "11px",
                       lineHeight: "16px",
                       fontWeight: active ? 600 : 500,
-                      color: active ? "#56348f" : "rgb(15, 24, 36)",
+                      color: active ? "var(--portal-sub-header-active, #56348f)" : "rgb(15, 24, 36)",
                     }}
-                    className="relative h-full flex items-center uppercase tracking-wider transition-colors shrink-0 gap-1.5 cursor-pointer hover:!text-[#56348f] focus:outline-none focus:ring-0"
+                    className="relative h-full flex items-center uppercase tracking-wider transition-colors shrink-0 gap-1.5 cursor-pointer hover:opacity-80 focus:outline-none focus:ring-0"
                   >
                     <span className="py-2">{tab.label}</span>
                     {tab.badge && (
                       <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse inline-block" />
                     )}
                     {active && (
-                      <span className="absolute bottom-0 inset-x-0 h-[2px] bg-[#56348f] dark:bg-purple-400" />
+                      <span
+                        style={{ backgroundColor: "var(--portal-sub-header-active, #56348f)" }}
+                        className="absolute bottom-0 inset-x-0 h-[2px] dark:bg-purple-400"
+                      />
                     )}
                   </Link>
                 );
@@ -1198,7 +1204,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           >
             {/* Drawer Header */}
             <div className="h-16 flex items-center justify-between px-5 border-b border-[#1a3a52] bg-[#0c2233] shrink-0">
-              <img src="/logo.png" alt="Inter Smart Logo" className="h-8 object-contain brightness-0 invert" />
+              <img
+                src={customizationSettings?.logo_url || "/logo.png"}
+                alt="Logo"
+                className="h-8 object-contain brightness-0 invert"
+              />
               <button
                 onClick={closeMenu}
                 style={{ backgroundColor: "transparent", border: "none" }}

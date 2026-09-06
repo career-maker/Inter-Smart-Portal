@@ -42,18 +42,26 @@ class CustomizationController extends Controller
     public function updateSettings(Request $request)
     {
         $validated = $request->validate([
-            'font_family'           => 'nullable|string|max:100',
-            'header_bg_color'       => 'nullable|string|max:50',
-            'header_text_color'     => 'nullable|string|max:50',
-            'sidebar_bg_color'      => 'nullable|string|max:50',
-            'header_subtitle'       => 'nullable|string|max:100',
-            'primary_color'         => 'nullable|string|max:50',
-            'body_font_size'        => 'nullable|string|max:20',
-            'heading_scale'         => 'nullable|string|in:compact,normal,large,extra-large',
-            'description_font_size' => 'nullable|string|max:20',
-            'page_title_base'       => 'nullable|string|max:100',
-            'page_title_format'     => 'nullable|string|max:100',
-            'extra_colors'          => 'nullable|array',
+            'font_family'             => 'nullable|string|max:100',
+            'header_bg_color'         => 'nullable|string|max:50',
+            'header_text_color'       => 'nullable|string|max:50',
+            'sidebar_bg_color'        => 'nullable|string|max:50',
+            'header_subtitle'         => 'nullable|string|max:100',
+            'primary_color'           => 'nullable|string|max:50',
+            'body_font_size'          => 'nullable|string|max:20',
+            'heading_scale'           => 'nullable|string|in:compact,normal,large,extra-large',
+            'description_font_size'   => 'nullable|string|max:20',
+            'page_title_base'         => 'nullable|string|max:100',
+            'page_title_format'       => 'nullable|string|max:100',
+            'favicon_url'             => 'nullable|string',
+            'logo_url'                => 'nullable|string',
+            'border_radius'           => 'nullable|string|max:20',
+            'sub_header_bg'           => 'nullable|string|max:50',
+            'sub_header_active_color' => 'nullable|string|max:50',
+            'login_heading'           => 'nullable|string|max:150',
+            'login_subheading'        => 'nullable|string|max:255',
+            'title_separator'         => 'nullable|string|max:10',
+            'extra_colors'            => 'nullable|array',
         ]);
 
         try {

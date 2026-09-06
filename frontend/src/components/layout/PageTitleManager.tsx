@@ -92,19 +92,22 @@ export function PageTitleManager() {
 
     const baseTitle = settings.page_title_base || "Inter Smart";
     const pageName = resolvePageName(pathname || "");
-    const format = settings.page_title_format || "{title} | {pagename}";
+    const separator = settings.title_separator || "|";
+    let format = settings.page_title_format || `{title} ${separator} {pagename}`;
 
     let computedTitle = format
       .replace(/\{title\}/gi, baseTitle)
-      .replace(/\{pagename\}/gi, pageName);
+      .replace(/\{pagename\}/gi, pageName)
+      .replace(/\{separator\}/gi, separator)
+      .replace(/\{sep\}/gi, separator);
 
     // Fallback if neither tag was replaced
     if (computedTitle === format) {
-      computedTitle = `${baseTitle} | ${pageName}`;
+      computedTitle = `${baseTitle} ${separator} ${pageName}`;
     }
 
     document.title = computedTitle;
-  }, [pathname, settings.page_title_base, settings.page_title_format]);
+  }, [pathname, settings.page_title_base, settings.page_title_format, settings.title_separator]);
 
   return null;
 }

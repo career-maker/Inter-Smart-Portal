@@ -26,31 +26,59 @@ return new class extends Migration
                 $table->string('description_font_size')->default('12px');
                 $table->string('page_title_base')->default('Inter Smart');
                 $table->string('page_title_format')->default('{title} | {pagename}');
+                $table->text('favicon_url')->nullable();
+                $table->text('logo_url')->nullable();
+                $table->string('border_radius')->default('12px');
+                $table->string('sub_header_bg')->default('#ffffff');
+                $table->string('sub_header_active_color')->default('#56348f');
+                $table->string('login_heading')->nullable()->default('Sign in to your workplace');
+                $table->string('login_subheading')->nullable()->default('Perfection at its finest. Workforce management portal');
+                $table->string('title_separator')->default('|');
                 $table->json('extra_colors')->nullable();
                 $table->timestamps();
             });
 
             // Seed default InterSmart customization settings
             DB::table('customization_settings')->insert([
-                'font_family'           => 'Proxima Nova',
-                'header_bg_color'       => '#56348f',
-                'header_text_color'     => '#ffffff',
-                'sidebar_bg_color'      => '#0e2638',
-                'header_subtitle'       => 'PERFECTION AT ITS FINEST',
-                'primary_color'         => '#56348f',
-                'body_font_size'        => '13px',
-                'heading_scale'         => 'normal',
-                'description_font_size' => '12px',
-                'page_title_base'       => 'Inter Smart',
-                'page_title_format'     => '{title} | {pagename}',
-                'created_at'            => now(),
-                'updated_at'            => now(),
+                'font_family'             => 'Proxima Nova',
+                'header_bg_color'         => '#56348f',
+                'header_text_color'       => '#ffffff',
+                'sidebar_bg_color'        => '#0e2638',
+                'header_subtitle'         => 'PERFECTION AT ITS FINEST',
+                'primary_color'           => '#56348f',
+                'body_font_size'          => '13px',
+                'heading_scale'           => 'normal',
+                'description_font_size'   => '12px',
+                'page_title_base'         => 'Inter Smart',
+                'page_title_format'       => '{title} | {pagename}',
+                'favicon_url'             => '/icon.png',
+                'logo_url'                => '/logo.png',
+                'border_radius'           => '12px',
+                'sub_header_bg'           => '#ffffff',
+                'sub_header_active_color' => '#56348f',
+                'login_heading'           => 'Sign in to your workplace',
+                'login_subheading'        => 'Perfection at its finest. Workforce management portal',
+                'title_separator'         => '|',
+                'created_at'              => now(),
+                'updated_at'              => now(),
             ]);
         } else {
-            if (!Schema::hasColumn('customization_settings', 'sidebar_bg_color')) {
-                Schema::table('customization_settings', function (Blueprint $table) {
-                    $table->string('sidebar_bg_color')->default('#0e2638')->after('header_text_color');
-                });
+            $colsToAdd = [
+                'sidebar_bg_color'        => fn($t) => $t->string('sidebar_bg_color')->default('#0e2638')->after('header_text_color'),
+                'favicon_url'             => fn($t) => $t->text('favicon_url')->nullable()->after('page_title_format'),
+                'logo_url'                => fn($t) => $t->text('logo_url')->nullable()->after('favicon_url'),
+                'border_radius'           => fn($t) => $t->string('border_radius')->default('12px')->after('logo_url'),
+                'sub_header_bg'           => fn($t) => $t->string('sub_header_bg')->default('#ffffff')->after('border_radius'),
+                'sub_header_active_color' => fn($t) => $t->string('sub_header_active_color')->default('#56348f')->after('sub_header_bg'),
+                'login_heading'           => fn($t) => $t->string('login_heading')->nullable()->default('Sign in to your workplace')->after('sub_header_active_color'),
+                'login_subheading'        => fn($t) => $t->string('login_subheading')->nullable()->default('Perfection at its finest. Workforce management portal')->after('login_heading'),
+                'title_separator'         => fn($t) => $t->string('title_separator')->default('|')->after('login_subheading'),
+            ];
+
+            foreach ($colsToAdd as $col => $closure) {
+                if (!Schema::hasColumn('customization_settings', $col)) {
+                    Schema::table('customization_settings', $closure);
+                }
             }
         }
 

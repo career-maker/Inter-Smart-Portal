@@ -101,7 +101,26 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
       default:
         headingMultiplier = "1";
     }
-    root.style.setProperty("--portal-heading-scale", headingMultiplier);
+    // 5. Border Radius & Component Styling
+    root.style.setProperty("--portal-radius", conf.border_radius || "12px");
+
+    // 6. Sub-header Navigation Colors
+    root.style.setProperty("--portal-sub-header-bg", conf.sub_header_bg || "#ffffff");
+    root.style.setProperty("--portal-sub-header-active", conf.sub_header_active_color || "#56348f");
+
+    // 7. Dynamic Favicon Injection
+    const faviconUrl = conf.favicon_url || "/icon.png";
+    const existingIcons = document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]');
+    if (existingIcons.length > 0) {
+      existingIcons.forEach((el) => {
+        (el as HTMLLinkElement).href = faviconUrl;
+      });
+    } else {
+      const link = document.createElement("link");
+      link.rel = "icon";
+      link.href = faviconUrl;
+      document.head.appendChild(link);
+    }
   }, []);
 
   // Fetch settings from API on mount

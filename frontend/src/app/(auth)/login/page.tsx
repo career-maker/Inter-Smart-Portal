@@ -7,10 +7,12 @@ import { useAuthStore } from "@/store/auth";
 import { setAuthCookie } from "@/lib/authCookies";
 import { toastManager } from "@/components/ui/toast";
 import { Eye, EyeOff, LogIn, Lock, Mail, AlertCircle } from "lucide-react";
+import { useCustomization } from "@/context/CustomizationContext";
 
 export default function LoginPage() {
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
+  const { settings: customizationSettings } = useCustomization();
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -159,15 +161,25 @@ export default function LoginPage() {
       {/* Left branding panel */}
       <div className="hidden lg:flex flex-col justify-between w-1/2 p-12 relative overflow-hidden" style={{ zIndex: 10 }}>
         <div className="flex items-center gap-3">
-          <img src="/logo.png" alt="Inter Smart Logo" className="h-14 w-auto object-contain" />
+          <img
+            src={customizationSettings?.logo_url || "/logo.png"}
+            alt="Logo"
+            className="h-14 w-auto object-contain"
+          />
         </div>
         <div>
           <h1 className="text-5xl font-bold text-white leading-tight mb-4">
-            Your workspace,<br />
-            <span className="text-amber-400">all in one place.</span>
+            {customizationSettings?.login_heading ? (
+              <span className="whitespace-pre-line">{customizationSettings.login_heading}</span>
+            ) : (
+              <>
+                Your workspace,<br />
+                <span className="text-amber-400">all in one place.</span>
+              </>
+            )}
           </h1>
           <p className="text-slate-400 text-lg">
-            Manage attendance, leaves, teams, and more — built for the modern workplace.
+            {customizationSettings?.login_subheading || "Manage attendance, leaves, teams, and more — built for the modern workplace."}
           </p>
           <div className="mt-10 flex gap-6">
             {["Attendance", "Leave Management", "Team Collaboration"].map(f => (
@@ -186,7 +198,11 @@ export default function LoginPage() {
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="flex items-center justify-center mb-8 lg:hidden">
-            <img src="/logo.png" alt="Inter Smart Logo" className="h-12 w-auto object-contain" />
+            <img
+              src={customizationSettings?.logo_url || "/logo.png"}
+              alt="Logo"
+              className="h-12 w-auto object-contain"
+            />
           </div>
 
           <div className="bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-sm shadow-2xl relative">

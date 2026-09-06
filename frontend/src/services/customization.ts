@@ -13,6 +13,14 @@ export interface CustomizationSettings {
   description_font_size: string;
   page_title_base: string;
   page_title_format: string;
+  favicon_url?: string;
+  logo_url?: string;
+  border_radius?: string;
+  sub_header_bg?: string;
+  sub_header_active_color?: string;
+  login_heading?: string;
+  login_subheading?: string;
+  title_separator?: string;
   extra_colors?: Record<string, string> | null;
   created_at?: string;
   updated_at?: string;
@@ -30,6 +38,14 @@ export const DEFAULT_CUSTOMIZATION_SETTINGS: CustomizationSettings = {
   description_font_size: "12px",
   page_title_base: "Inter Smart",
   page_title_format: "{title} | {pagename}",
+  favicon_url: "/icon.png",
+  logo_url: "/logo.png",
+  border_radius: "12px",
+  sub_header_bg: "#ffffff",
+  sub_header_active_color: "#56348f",
+  login_heading: "Sign in to your workplace",
+  login_subheading: "Perfection at its finest. Workforce management portal",
+  title_separator: "|",
   extra_colors: null,
 };
 

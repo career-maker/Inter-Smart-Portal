@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
   Palette,
@@ -24,6 +24,11 @@ import {
   Bookmark,
   Bell,
   Rocket,
+  Image as ImageIcon,
+  Upload,
+  Layers,
+  Square,
+  LogIn as LogInIcon,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import { useCustomization } from "@/context/CustomizationContext";
@@ -63,6 +68,24 @@ const HEADER_TEXT_PRESETS = [
   { label: "Pale Gold", hex: "#fef08a" },
 ];
 
+const SUB_HEADER_BG_PRESETS = [
+  { label: "Clean White", hex: "#ffffff" },
+  { label: "Slate Ice", hex: "#f8fafc" },
+  { label: "Cool Light", hex: "#f1f5f9" },
+  { label: "Purple Tint", hex: "#f5f3ff" },
+  { label: "Dark Slate", hex: "#0f172a" },
+  { label: "Deep Slate", hex: "#1e293b" },
+];
+
+const SUB_HEADER_ACTIVE_PRESETS = [
+  { label: "Keka Purple", hex: "#56348f" },
+  { label: "Deep Indigo", hex: "#4338ca" },
+  { label: "Royal Blue", hex: "#2563eb" },
+  { label: "Teal", hex: "#0d9488" },
+  { label: "Amber", hex: "#d97706" },
+  { label: "Rose", hex: "#e11d48" },
+];
+
 const SIDEBAR_COLOR_PRESETS = [
   { label: "Keka Navy", hex: "#0e2638" },
   { label: "Obsidian Dark", hex: "#0f172a" },
@@ -85,6 +108,21 @@ const PRIMARY_COLOR_PRESETS = [
   { label: "Violet", hex: "#7c3aed" },
 ];
 
+const RADIUS_OPTIONS = [
+  { id: "4px", label: "4px Sharp", desc: "Enterprise & structured" },
+  { id: "8px", label: "8px Subtle", desc: "Classic & refined" },
+  { id: "12px", label: "12px Balanced", desc: "Modern standard (Default)" },
+  { id: "16px", label: "16px Smooth", desc: "Soft & rounded app feel" },
+];
+
+const TITLE_SEPARATORS = [
+  { label: "| (Pipe)", value: "|" },
+  { label: "- (Dash)", value: "-" },
+  { label: "• (Bullet)", value: "•" },
+  { label: "» (Chevron)", value: "»" },
+  { label: "// (Slash)", value: "//" },
+];
+
 export default function CustomizationPage() {
   const { user } = useAuthStore();
   const isSuperAdmin = (user?.role || "").toLowerCase() === "super admin";
@@ -103,6 +141,9 @@ export default function CustomizationPage() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const faviconInputRef = useRef<HTMLInputElement | null>(null);
+  const logoInputRef = useRef<HTMLInputElement | null>(null);
+
   // Sync state if external settings change
   useEffect(() => {
     setForm(currentSettings);
@@ -117,16 +158,44 @@ export default function CustomizationPage() {
     setErrorMessage(null);
   };
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, field: "favicon_url" | "logo_url") => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      setErrorMessage("Image file must be under 2MB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        handleFieldChange(field, reader.result);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSeparatorChange = (sep: string) => {
+    const base = form.page_title_base || "Inter Smart";
+    const newFormat = `{title} ${sep} {pagename}`;
+    const updated: CustomizationSettings = {
+      ...form,
+      title_separator: sep,
+      page_title_format: newFormat,
+    };
+    setForm(updated);
+    setPreviewSettings(updated);
+  };
+
   const handleSave = async () => {
     setSaving(true);
     setSuccessMessage(null);
     setErrorMessage(null);
     try {
       await updateSettings(form);
-      setSuccessMessage("Portal customization saved and applied globally!");
+      setSuccessMessage("Portal customizations saved and applied universally across all screens.");
       setTimeout(() => setSuccessMessage(null), 5000);
     } catch (err: any) {
-      setErrorMessage(err?.response?.data?.message || err?.message || "Failed to save customization.");
+      setErrorMessage(err?.response?.data?.message || err?.message || "Failed to save customizations.");
     } finally {
       setSaving(false);
     }
@@ -164,9 +233,20 @@ export default function CustomizationPage() {
   }
 
   // Calculate live preview browser title
-  const previewTabTitle = (form.page_title_format || "{title} | {pagename}")
-    .replace(/\{title\}/gi, form.page_title_base || "Inter Smart")
-    .replace(/\{pagename\}/gi, "Attendance Management");
+  const previewTabTitle = (() => {
+    let fmt = form.page_title_format || "{title} | {pagename}";
+    const sep = form.title_separator || "|";
+    if (form.title_separator && !fmt.includes(sep)) {
+      fmt = fmt.replace(/\s*[|\-•»/]+\s*/, ` ${sep} `);
+    }
+    return fmt
+      .replace(/\{title\}/gi, form.page_title_base || "Inter Smart")
+      .replace(/\{pagename\}/gi, "Attendance Management");
+  })();
+
+  const currentFavicon = form.favicon_url || "/icon.png";
+  const currentLogo = form.logo_url || "/logo.png";
+  const currentRadius = form.border_radius || "12px";
 
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6 pb-24">
@@ -179,24 +259,26 @@ export default function CustomizationPage() {
             </Link>
             <span>/</span>
             <Link href="/project-management/addons" className="hover:text-purple-600 dark:hover:text-purple-400">
-              Add-ons
+              Add-on Modules
             </Link>
             <span>/</span>
-            <span className="text-slate-900 dark:text-white">Customization</span>
+            <span className="text-purple-600 dark:text-purple-400 font-bold">Portal Customization</span>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2.5">
-            <Palette className="w-6 h-6 text-[#56348f]" />
-            <span>Portal Customization</span>
-            <span className="text-xs font-semibold bg-purple-100 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300 px-2.5 py-0.5 rounded-full border border-purple-200/60 dark:border-purple-800/60">
-              Live Theme Engine
-            </span>
-          </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Customize typography fonts, header and theme colors, font size scales, and browser tab titles. All edits preview in real-time.
-          </p>
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-purple-600 text-white shadow-md shadow-purple-600/20">
+              <Palette className="w-5 h-5" />
+            </div>
+            <div>
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+                Universal Portal Customization
+              </h1>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Super Admin: Customize Favicon, Logos, Fonts, Header & Sub-Header Colors, Border Radius, and Titles.
+              </p>
+            </div>
+          </div>
         </div>
 
-        {/* Header Action Buttons */}
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -241,7 +323,148 @@ export default function CustomizationPage() {
         {/* ── LEFT COLUMN: Configuration Form ── */}
         <div className="lg:col-span-7 space-y-6">
 
-          {/* 1. TYPOGRAPHY & FONT FAMILY */}
+          {/* 1. FAVICON & PORTAL LOGO BRANDING */}
+          <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 space-y-5 shadow-sm">
+            <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
+              <div className="p-2.5 rounded-xl bg-purple-100 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300">
+                <ImageIcon className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-slate-900 dark:text-white">Favicon & Company Logo Branding</h2>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  Customize the browser tab icon (favicon) and the company logo displayed across headers and login screens.
+                </p>
+              </div>
+            </div>
+
+            {/* Favicon Control */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <span>Browser Tab Favicon</span>
+                  <span className="text-[10px] text-purple-600 font-normal">(Instant tab update)</span>
+                </label>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => faviconInputRef.current?.click()}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-[11px] font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                  >
+                    <Upload className="w-3 h-3" />
+                    <span>Upload Image</span>
+                  </button>
+                  <input
+                    ref={faviconInputRef}
+                    type="file"
+                    accept="image/png, image/jpeg, image/x-icon, image/svg+xml"
+                    className="hidden"
+                    onChange={(e) => handleFileUpload(e, "favicon_url")}
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 flex items-center justify-center p-1.5 shrink-0 overflow-hidden">
+                  <img
+                    src={currentFavicon}
+                    alt="Favicon preview"
+                    className="w-full h-full object-contain"
+                    onError={(e) => { (e.target as HTMLElement).style.display = "none"; }}
+                  />
+                </div>
+                <input
+                  type="text"
+                  value={form.favicon_url || ""}
+                  onChange={(e) => handleFieldChange("favicon_url", e.target.value)}
+                  placeholder="/icon.png or https://.../favicon.png"
+                  className="flex-1 px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+
+              {/* Quick Presets */}
+              <div className="flex items-center gap-2 pt-0.5">
+                <span className="text-[10px] text-slate-400 font-medium">Presets:</span>
+                {[
+                  { label: "Default Purple Mark", url: "/icon.png" },
+                  { label: "Classic Favicon", url: "/favicon.ico" },
+                ].map((preset) => (
+                  <button
+                    key={preset.url}
+                    type="button"
+                    onClick={() => handleFieldChange("favicon_url", preset.url)}
+                    className="text-[10px] px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-800 hover:border-purple-400 text-slate-600 dark:text-slate-400 cursor-pointer"
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Header & Brand Logo Control */}
+            <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <span>Portal Header Logo</span>
+                  <span className="text-[10px] text-slate-400 font-normal">(Used in header & drawer)</span>
+                </label>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => logoInputRef.current?.click()}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-[11px] font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                  >
+                    <Upload className="w-3 h-3" />
+                    <span>Upload Logo</span>
+                  </button>
+                  <input
+                    ref={logoInputRef}
+                    type="file"
+                    accept="image/png, image/jpeg, image/svg+xml, image/webp"
+                    className="hidden"
+                    onChange={(e) => handleFileUpload(e, "logo_url")}
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="h-10 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-900 flex items-center justify-center shrink-0 overflow-hidden">
+                  <img
+                    src={currentLogo}
+                    alt="Logo preview"
+                    className="h-6 w-auto object-contain brightness-0 invert"
+                    onError={(e) => { (e.target as HTMLElement).style.display = "none"; }}
+                  />
+                </div>
+                <input
+                  type="text"
+                  value={form.logo_url || ""}
+                  onChange={(e) => handleFieldChange("logo_url", e.target.value)}
+                  placeholder="/logo.png or https://.../logo.png"
+                  className="flex-1 px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+
+              {/* Quick Presets */}
+              <div className="flex items-center gap-2 pt-0.5">
+                <span className="text-[10px] text-slate-400 font-medium">Presets:</span>
+                {[
+                  { label: "Default InterSmart", url: "/logo.png" },
+                  { label: "Dark Variant", url: "/logo-dark.png" },
+                ].map((preset) => (
+                  <button
+                    key={preset.url}
+                    type="button"
+                    onClick={() => handleFieldChange("logo_url", preset.url)}
+                    className="text-[10px] px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-800 hover:border-purple-400 text-slate-600 dark:text-slate-400 cursor-pointer"
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* 2. TYPOGRAPHY & FONT FAMILY */}
           <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 space-y-5 shadow-sm">
             <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
               <div className="p-2.5 rounded-xl bg-purple-100 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300">
@@ -294,16 +517,16 @@ export default function CustomizationPage() {
             </div>
           </div>
 
-          {/* 2. HEADER APPEARANCE */}
+          {/* 3. HEADER & SUB-HEADER APPEARANCE */}
           <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 space-y-5 shadow-sm">
             <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
               <div className="p-2.5 rounded-xl bg-purple-100 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300">
                 <Layout className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-slate-900 dark:text-white">Header & Side Menu Appearance</h2>
+                <h2 className="text-sm font-bold text-slate-900 dark:text-white">Top Header & Sub-Header Tabs Styling</h2>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                  Customize the top navigation header background color, text/icon color, and the left side menu navigation background.
+                  Customize the top navigation bar, sub-header category tabs, and side menu colors.
                 </p>
               </div>
             </div>
@@ -321,12 +544,10 @@ export default function CustomizationPage() {
                     value={form.header_bg_color}
                     onChange={(e) => handleFieldChange("header_bg_color", e.target.value)}
                     className="w-8 h-8 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
-                    title="Choose custom header color"
                   />
                 </div>
               </div>
 
-              {/* Presets */}
               <div className="flex flex-wrap gap-2 pt-1">
                 {HEADER_COLOR_PRESETS.map((preset) => {
                   const isActive = form.header_bg_color.toLowerCase() === preset.hex.toLowerCase();
@@ -349,7 +570,7 @@ export default function CustomizationPage() {
               </div>
             </div>
 
-            {/* Header Text Color */}
+            {/* Header Text & Icon Color */}
             <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
@@ -380,6 +601,45 @@ export default function CustomizationPage() {
                           : "border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
                       }`}
                     >
+                      <span className="w-3.5 h-3.5 rounded-full border border-slate-400 shrink-0" style={{ backgroundColor: preset.hex }} />
+                      <span>{preset.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Sub-Header Tab Bar Background */}
+            <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  Sub-Header Tab Bar Background
+                </label>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-mono text-slate-500 uppercase">{form.sub_header_bg || "#ffffff"}</span>
+                  <input
+                    type="color"
+                    value={form.sub_header_bg || "#ffffff"}
+                    onChange={(e) => handleFieldChange("sub_header_bg", e.target.value)}
+                    className="w-8 h-8 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2 pt-1">
+                {SUB_HEADER_BG_PRESETS.map((preset) => {
+                  const isActive = (form.sub_header_bg || "#ffffff").toLowerCase() === preset.hex.toLowerCase();
+                  return (
+                    <button
+                      key={preset.hex}
+                      type="button"
+                      onClick={() => handleFieldChange("sub_header_bg", preset.hex)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs transition-all cursor-pointer ${
+                        isActive
+                          ? "border-purple-600 bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-300 font-bold ring-1 ring-purple-500/20"
+                          : "border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+                      }`}
+                    >
                       <span className="w-3.5 h-3.5 rounded-full border border-slate-300 shrink-0" style={{ backgroundColor: preset.hex }} />
                       <span>{preset.label}</span>
                     </button>
@@ -388,15 +648,51 @@ export default function CustomizationPage() {
               </div>
             </div>
 
-            {/* Side Menu Background Color */}
+            {/* Sub-Header Active Tab Indicator Color */}
             <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800">
               <div className="flex items-center justify-between">
-                <div>
-                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                    Side Menu Background Color (Default: #0E2638)
-                  </label>
-                  <p className="text-[10px] text-slate-400">Controls the left navigation sidebar background color across the entire portal.</p>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  Sub-Header Active Tab Highlight & Underline
+                </label>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-mono text-slate-500 uppercase">{form.sub_header_active_color || "#56348f"}</span>
+                  <input
+                    type="color"
+                    value={form.sub_header_active_color || "#56348f"}
+                    onChange={(e) => handleFieldChange("sub_header_active_color", e.target.value)}
+                    className="w-8 h-8 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
+                  />
                 </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2 pt-1">
+                {SUB_HEADER_ACTIVE_PRESETS.map((preset) => {
+                  const isActive = (form.sub_header_active_color || "#56348f").toLowerCase() === preset.hex.toLowerCase();
+                  return (
+                    <button
+                      key={preset.hex}
+                      type="button"
+                      onClick={() => handleFieldChange("sub_header_active_color", preset.hex)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs transition-all cursor-pointer ${
+                        isActive
+                          ? "border-purple-600 bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-300 font-bold ring-1 ring-purple-500/20"
+                          : "border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+                      }`}
+                    >
+                      <span className="w-3.5 h-3.5 rounded-full border border-black/10 shrink-0" style={{ backgroundColor: preset.hex }} />
+                      <span>{preset.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Sidebar Background Color */}
+            <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  Side Navigation Menu Background
+                </label>
                 <div className="flex items-center gap-2">
                   <span className="text-[11px] font-mono text-slate-500 uppercase">{form.sidebar_bg_color || "#0e2638"}</span>
                   <input
@@ -404,7 +700,6 @@ export default function CustomizationPage() {
                     value={form.sidebar_bg_color || "#0e2638"}
                     onChange={(e) => handleFieldChange("sidebar_bg_color", e.target.value)}
                     className="w-8 h-8 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
-                    title="Choose custom side menu background color"
                   />
                 </div>
               </div>
@@ -423,7 +718,7 @@ export default function CustomizationPage() {
                           : "border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
                       }`}
                     >
-                      <span className="w-3.5 h-3.5 rounded-full border border-black/10 shrink-0" style={{ backgroundColor: preset.hex }} />
+                      <span className="w-3.5 h-3.5 rounded-full border border-white/20 shrink-0" style={{ backgroundColor: preset.hex }} />
                       <span>{preset.label}</span>
                     </button>
                   );
@@ -432,120 +727,25 @@ export default function CustomizationPage() {
             </div>
           </div>
 
-          {/* 3. FONT SIZING & HIERARCHY */}
-          <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 space-y-6 shadow-sm">
-            <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
-              <div className="p-2.5 rounded-xl bg-purple-100 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300">
-                <Sliders className="w-5 h-5" />
-              </div>
-              <div>
-                <h2 className="text-sm font-bold text-slate-900 dark:text-white">Font Size Hierarchy & Scaling</h2>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                  Control text proportions for body content, section headings, and helper descriptions.
-                </p>
-              </div>
-            </div>
-
-            {/* Body Font Size */}
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                  Body Font Size (Default: 13px)
-                </label>
-                <span className="text-xs font-bold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/60 px-2 py-0.5 rounded-md border border-purple-200 dark:border-purple-800">
-                  {form.body_font_size}
-                </span>
-              </div>
-              <div className="flex items-center gap-4">
-                <span className="text-[11px] text-slate-400 font-mono">12px</span>
-                <input
-                  type="range"
-                  min="12"
-                  max="16"
-                  step="1"
-                  value={parseInt(form.body_font_size) || 13}
-                  onChange={(e) => handleFieldChange("body_font_size", `${e.target.value}px`)}
-                  className="flex-1 accent-[#56348f] cursor-pointer"
-                />
-                <span className="text-[11px] text-slate-400 font-mono">16px</span>
-              </div>
-            </div>
-
-            {/* Description / Caption Font Size */}
-            <div className="space-y-2.5 pt-4 border-t border-slate-100 dark:border-slate-800">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                  Description & Subtitle Font Size (Default: 12px)
-                </label>
-                <span className="text-xs font-bold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/60 px-2 py-0.5 rounded-md border border-purple-200 dark:border-purple-800">
-                  {form.description_font_size}
-                </span>
-              </div>
-              <div className="flex items-center gap-4">
-                <span className="text-[11px] text-slate-400 font-mono">11px</span>
-                <input
-                  type="range"
-                  min="11"
-                  max="14"
-                  step="1"
-                  value={parseInt(form.description_font_size) || 12}
-                  onChange={(e) => handleFieldChange("description_font_size", `${e.target.value}px`)}
-                  className="flex-1 accent-[#56348f] cursor-pointer"
-                />
-                <span className="text-[11px] text-slate-400 font-mono">14px</span>
-              </div>
-            </div>
-
-            {/* Heading Scale Selector */}
-            <div className="space-y-2.5 pt-4 border-t border-slate-100 dark:border-slate-800">
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                Heading Scale Multiplier
-              </label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {[
-                  { id: "compact", label: "Compact (0.9x)" },
-                  { id: "normal", label: "Normal (1.0x)" },
-                  { id: "large", label: "Large (1.15x)" },
-                  { id: "extra-large", label: "Extra Large (1.3x)" },
-                ].map((scale) => {
-                  const isActive = form.heading_scale === scale.id;
-                  return (
-                    <button
-                      key={scale.id}
-                      type="button"
-                      onClick={() => handleFieldChange("heading_scale", scale.id as any)}
-                      className={`p-2.5 rounded-xl border text-xs font-semibold text-center transition-all cursor-pointer ${
-                        isActive
-                          ? "border-purple-600 bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-300 ring-1 ring-purple-500/20"
-                          : "border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
-                      }`}
-                    >
-                      {scale.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* 4. THEME & PRIMARY ACCENT COLOR */}
+          {/* 4. THEME ACCENT & CORNER RADIUS */}
           <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 space-y-5 shadow-sm">
             <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
               <div className="p-2.5 rounded-xl bg-purple-100 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300">
                 <Sparkles className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-slate-900 dark:text-white">Theme Accent & Button Color</h2>
+                <h2 className="text-sm font-bold text-slate-900 dark:text-white">Theme Accent & UI Corner Radius</h2>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                  Primary color used for call-to-action buttons, active badges, and focus rings.
+                  Configure interactive button colors and global corner roundness for cards, dialogs, and inputs.
                 </p>
               </div>
             </div>
 
+            {/* Primary Accent */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                  Primary Accent Color
+                  Primary Accent & CTA Color
                 </label>
                 <div className="flex items-center gap-2">
                   <span className="text-[11px] font-mono text-slate-500 uppercase">{form.primary_color}</span>
@@ -579,9 +779,139 @@ export default function CustomizationPage() {
                 })}
               </div>
             </div>
+
+            {/* Corner Radius */}
+            <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                UI Corner Radius & Roundness
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                {RADIUS_OPTIONS.map((opt) => {
+                  const isSelected = (form.border_radius || "12px") === opt.id;
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => handleFieldChange("border_radius", opt.id)}
+                      className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${
+                        isSelected
+                          ? "border-purple-600 bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-300 ring-2 ring-purple-500/20 font-bold"
+                          : "border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+                      }`}
+                    >
+                      <div
+                        style={{ borderRadius: opt.id }}
+                        className="w-8 h-8 mx-auto mb-2 border-2 border-purple-500 bg-purple-100/50 dark:bg-purple-950/50 flex items-center justify-center"
+                      >
+                        <span className="text-[10px] font-mono">{opt.id.replace("px", "")}</span>
+                      </div>
+                      <div className="text-xs">{opt.label}</div>
+                      <div className="text-[9px] text-slate-400 font-normal mt-0.5">{opt.desc}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
 
-          {/* 5. PAGE TITLE CONFIGURATION */}
+          {/* 5. FONT SIZES & HEADING MULTIPLIERS */}
+          <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 space-y-5 shadow-sm">
+            <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
+              <div className="p-2.5 rounded-xl bg-purple-100 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300">
+                <Sliders className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-slate-900 dark:text-white">Font Sizing & Scale Multipliers</h2>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  Control baseline reading comfort across cards, tables, descriptions, and headings.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    Body Text Size
+                  </label>
+                  <span className="text-xs font-mono font-bold text-purple-600 dark:text-purple-400">
+                    {form.body_font_size}
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="11"
+                  max="17"
+                  step="0.5"
+                  value={parseFloat(form.body_font_size) || 13}
+                  onChange={(e) => handleFieldChange("body_font_size", `${e.target.value}px`)}
+                  className="w-full accent-purple-600 cursor-pointer"
+                />
+                <div className="flex justify-between text-[10px] text-slate-400">
+                  <span>11px (Compact)</span>
+                  <span>13px (Default)</span>
+                  <span>17px (Large)</span>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    Description & Caption Size
+                  </label>
+                  <span className="text-xs font-mono font-bold text-purple-600 dark:text-purple-400">
+                    {form.description_font_size}
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="10"
+                  max="15"
+                  step="0.5"
+                  value={parseFloat(form.description_font_size) || 12}
+                  onChange={(e) => handleFieldChange("description_font_size", `${e.target.value}px`)}
+                  className="w-full accent-purple-600 cursor-pointer"
+                />
+                <div className="flex justify-between text-[10px] text-slate-400">
+                  <span>10px (Subtle)</span>
+                  <span>12px (Default)</span>
+                  <span>15px (Prominent)</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2.5 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                Heading Scale Multiplier
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {[
+                  { id: "compact", label: "Compact (0.9x)" },
+                  { id: "normal", label: "Normal (1.0x)" },
+                  { id: "large", label: "Large (1.15x)" },
+                  { id: "extra-large", label: "Extra Large (1.3x)" },
+                ].map((scale) => {
+                  const isActive = form.heading_scale === scale.id;
+                  return (
+                    <button
+                      key={scale.id}
+                      type="button"
+                      onClick={() => handleFieldChange("heading_scale", scale.id as any)}
+                      className={`p-2.5 rounded-xl border text-xs font-semibold text-center transition-all cursor-pointer ${
+                        isActive
+                          ? "border-purple-600 bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-300 ring-1 ring-purple-500/20"
+                          : "border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+                      }`}
+                    >
+                      {scale.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* 6. PAGE TITLE CONFIGURATION & SEPARATORS */}
           <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 space-y-5 shadow-sm">
             <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
               <div className="p-2.5 rounded-xl bg-purple-100 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300">
@@ -610,6 +940,32 @@ export default function CustomizationPage() {
                 <p className="text-[10px] text-slate-400">Company brand name shown at the front of the browser tab.</p>
               </div>
 
+              {/* Quick Title Separators */}
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  Title Separator Symbol
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {TITLE_SEPARATORS.map((sep) => {
+                    const isSelected = (form.title_separator || "|") === sep.value;
+                    return (
+                      <button
+                        key={sep.value}
+                        type="button"
+                        onClick={() => handleSeparatorChange(sep.value)}
+                        className={`px-3 py-1.5 rounded-lg border text-xs font-mono font-bold transition-all cursor-pointer ${
+                          isSelected
+                            ? "border-purple-600 bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-300 ring-1 ring-purple-500/20"
+                            : "border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+                        }`}
+                      >
+                        {sep.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                   Title Format Template
@@ -626,6 +982,49 @@ export default function CustomizationPage() {
                   <code className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-purple-700 dark:text-purple-300 font-mono text-[10px]">{`{title}`}</code>
                   <code className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-purple-700 dark:text-purple-300 font-mono text-[10px]">{`{pagename}`}</code>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 7. LOGIN SCREEN BRANDING */}
+          <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 space-y-5 shadow-sm">
+            <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
+              <div className="p-2.5 rounded-xl bg-purple-100 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300">
+                <LogInIcon className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-slate-900 dark:text-white">Login Page Custom Messaging</h2>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  Customize the welcome headline and subtitle shown on the login screen.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  Login Headline
+                </label>
+                <input
+                  type="text"
+                  value={form.login_heading || ""}
+                  onChange={(e) => handleFieldChange("login_heading", e.target.value)}
+                  placeholder="Sign in to your workplace"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  Login Subheading / Workplace Motto
+                </label>
+                <textarea
+                  rows={2}
+                  value={form.login_subheading || ""}
+                  onChange={(e) => handleFieldChange("login_subheading", e.target.value)}
+                  placeholder="Perfection at its finest. Workforce management portal"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
               </div>
             </div>
           </div>
@@ -655,9 +1054,14 @@ export default function CustomizationPage() {
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
               </div>
 
-              {/* Tab Item */}
+              {/* Tab Item with Dynamic Favicon */}
               <div className="flex items-center gap-2 bg-white dark:bg-slate-900 px-3 py-1 rounded-t-lg border-t border-x border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-800 dark:text-slate-200 max-w-xs truncate shadow-xs">
-                <img src="/icon.png" alt="Favicon" className="w-3.5 h-3.5 rounded-sm shrink-0" onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }} />
+                <img
+                  src={currentFavicon}
+                  alt="Favicon"
+                  className="w-3.5 h-3.5 rounded-xs shrink-0 object-contain"
+                  onError={(e) => { (e.target as HTMLElement).style.display = "none"; }}
+                />
                 <span className="truncate">{previewTabTitle}</span>
               </div>
             </div>
@@ -692,9 +1096,9 @@ export default function CustomizationPage() {
                 </div>
               </div>
 
-              {/* Main Preview Column (Header + Body) */}
+              {/* Main Preview Column (Header + SubHeader + Body) */}
               <div className="flex-1 flex flex-col min-w-0">
-                {/* Mockup Header */}
+                {/* Mockup Top Header */}
                 <div
                   style={{
                     backgroundColor: form.header_bg_color,
@@ -705,9 +1109,10 @@ export default function CustomizationPage() {
                 >
                   <div className="flex items-center gap-2">
                     <img
-                      src="/logo.png"
+                      src={currentLogo}
                       alt="Logo"
                       className="h-5 w-auto brightness-0 invert object-contain"
+                      onError={(e) => { (e.target as HTMLElement).style.display = "none"; }}
                     />
                   </div>
 
@@ -716,7 +1121,7 @@ export default function CustomizationPage() {
                       <Search className="w-3.5 h-3.5" style={{ color: form.header_text_color }} />
                       <span className="text-[11px]" style={{ color: form.header_text_color, opacity: 0.85 }}>Search command...</span>
                     </div>
-                    {/* Header Action Icons respecting header text color */}
+                    {/* Header Action Icons */}
                     <div className="flex items-center gap-1.5" style={{ color: form.header_text_color }}>
                       <Rocket className="w-3.5 h-3.5" style={{ color: form.header_text_color }} />
                       <Bookmark className="w-3.5 h-3.5" style={{ color: form.header_text_color }} />
@@ -732,6 +1137,31 @@ export default function CustomizationPage() {
                     >
                       Logout
                     </div>
+                  </div>
+                </div>
+
+                {/* Mockup Sub-Header Tabs Bar */}
+                <div
+                  style={{
+                    backgroundColor: form.sub_header_bg || "#ffffff",
+                    fontFamily: `"${form.font_family}", sans-serif`,
+                  }}
+                  className="px-3.5 flex items-center gap-4 h-8 border-b border-slate-200 dark:border-slate-800 transition-colors text-[10px] font-semibold overflow-hidden"
+                >
+                  <div
+                    style={{
+                      color: form.sub_header_active_color || "#56348f",
+                      borderBottom: `2px solid ${form.sub_header_active_color || "#56348f"}`,
+                    }}
+                    className="h-full flex items-center px-1 uppercase tracking-wider"
+                  >
+                    Attendance
+                  </div>
+                  <div className="text-slate-500 h-full flex items-center px-1 uppercase tracking-wider hover:text-slate-800">
+                    Timelog
+                  </div>
+                  <div className="text-slate-500 h-full flex items-center px-1 uppercase tracking-wider hover:text-slate-800">
+                    Shifts
                   </div>
                 </div>
 
@@ -775,14 +1205,19 @@ export default function CustomizationPage() {
                     </p>
                   </div>
 
-                  {/* Body Text Sample */}
-                  <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1.5">
-                    <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Body Typography ({form.body_font_size})</span>
+                  {/* Body Text Sample with dynamic Border Radius */}
+                  <div
+                    style={{ borderRadius: currentRadius }}
+                    className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1.5 transition-all"
+                  >
+                    <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                      Card Container (Radius: {currentRadius})
+                    </span>
                     <p
                       style={{ fontSize: form.body_font_size }}
                       className="text-slate-700 dark:text-slate-300 leading-relaxed"
                     >
-                      This preview demonstrates how cards, tables, and dialog text will appear using the selected <strong className="text-slate-900 dark:text-white">{form.font_family}</strong> typeface.
+                      This preview demonstrates cards, tables, and dialogs using the <strong className="text-slate-900 dark:text-white">{form.font_family}</strong> typeface with <strong className="text-purple-600 dark:text-purple-400">{currentRadius}</strong> corner rounding.
                     </p>
                   </div>
 
@@ -791,14 +1226,18 @@ export default function CustomizationPage() {
                     <div className="flex flex-wrap items-center gap-2">
                       <button
                         type="button"
-                        style={{ backgroundColor: form.primary_color }}
-                        className="px-3.5 py-1.5 rounded-lg text-white text-xs font-semibold shadow-sm hover:brightness-110 transition-all cursor-pointer"
+                        style={{
+                          backgroundColor: form.primary_color,
+                          borderRadius: currentRadius,
+                        }}
+                        className="px-3.5 py-1.5 text-white text-xs font-semibold shadow-sm hover:brightness-110 transition-all cursor-pointer"
                       >
                         Primary Action
                       </button>
                       <button
                         type="button"
-                        className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800"
+                        style={{ borderRadius: currentRadius }}
+                        className="px-3 py-1.5 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800"
                       >
                         Secondary
                       </button>
@@ -825,7 +1264,7 @@ export default function CustomizationPage() {
               <span>Instant Universal Application</span>
             </div>
             <p className="text-[11px] text-purple-800/80 dark:text-purple-300/80 leading-relaxed">
-              When saved, the updated styling rules are broadcasted system-wide. Every employee, team lead, and admin accessing the portal will instantly experience the customized branding.
+              When saved, all favicon changes, logos, custom colors, typography, border radius, and title formats are broadcasted universally. Every employee screen and browser tab updates automatically!
             </p>
           </div>
         </div>

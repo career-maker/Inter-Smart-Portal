@@ -149,6 +149,11 @@ aside[class*="bg-slate-900"] *,
   background-color: var(--portal-sidebar-bg, #0e2638) !important;
 }
 
+/* ── Dynamic Sub-header Navigation Tab Bar ── */
+#sub-header-tabs-bar {
+  background-color: var(--portal-sub-header-bg, #ffffff) !important;
+}
+
 /* ── Universal Chart Tooltip Visibility & Contrast ── */
 .recharts-default-tooltip,
 div[class*="recharts-tooltip-wrapper"] > div {
