@@ -66,8 +66,8 @@ export function LeaderboardWidget() {
             <div>
               <h3
                 style={{
-                  fontFamily: '"Proxima Nova", sans-serif',
-                  fontSize: "14px",
+                  fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)',
+                  fontSize: "calc(14px * var(--portal-heading-multiplier, 1))",
                   lineHeight: "20px",
                   fontWeight: 600,
                   color: "rgb(15, 24, 36)"
@@ -79,11 +79,11 @@ export function LeaderboardWidget() {
               </h3>
               <p
                 style={{
-                  fontSize: "13px",
+                  fontSize: "var(--portal-desc-size, 13px)",
                   lineHeight: "20px",
                   color: "rgb(94, 105, 120)"
                 }}
-                className="dark:text-slate-400 font-normal"
+                className="dark:text-slate-400 font-normal box-subtitle card-desc"
               >
                 Top recognized employees & awardees
               </p>
@@ -104,7 +104,7 @@ export function LeaderboardWidget() {
             ) : leaders.length === 0 ? (
               <div className="py-6 text-center">
                 <Trophy className="w-7 h-7 text-slate-300 dark:text-slate-600 mx-auto mb-1.5 opacity-50" />
-                <p className="text-xs text-slate-500 dark:text-slate-400">No achievements recorded yet.</p>
+                <p style={{ fontSize: "var(--portal-body-size, 12px)", lineHeight: "18px" }} className="text-slate-500 dark:text-slate-400 empty-state-text">No achievements recorded yet.</p>
               </div>
             ) : (
               leaders.map((entry: any) => {

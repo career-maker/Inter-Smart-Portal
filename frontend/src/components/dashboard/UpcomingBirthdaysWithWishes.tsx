@@ -41,8 +41,8 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
       <div className="mb-3">
         <h3
           style={{
-            fontFamily: '"Proxima Nova", sans-serif',
-            fontSize: "14px",
+            fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)',
+            fontSize: "calc(14px * var(--portal-heading-multiplier, 1))",
             lineHeight: "20px",
             fontWeight: 600,
             color: "rgb(15, 24, 36)"
@@ -54,11 +54,11 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
         </h3>
         <p
           style={{
-            fontSize: "13px",
+            fontSize: "var(--portal-desc-size, 13px)",
             lineHeight: "20px",
             color: "rgb(94, 105, 120)"
           }}
-          className="dark:text-slate-400 font-normal"
+          className="dark:text-slate-400 font-normal box-subtitle card-desc"
         >
           Celebrations and wishes in next 30 days
         </p>
@@ -66,7 +66,7 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
 
       {upcomingItems.length === 0 ? (
         <div className="py-6 text-center">
-          <p style={{ fontSize: "12px", lineHeight: "18px" }} className="text-slate-500 dark:text-slate-400 font-normal">
+          <p style={{ fontSize: "var(--portal-body-size, 12px)", lineHeight: "18px" }} className="text-slate-500 dark:text-slate-400 font-normal empty-state-text">
             No upcoming birthdays in the next 30 days.
           </p>
         </div>

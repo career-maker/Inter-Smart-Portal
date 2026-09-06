@@ -72,8 +72,8 @@ export function EmergencyContactsCard({
         <div className="flex items-center justify-between gap-2">
           <h2
             style={{
-              fontFamily: '"Proxima Nova", sans-serif',
-              fontSize: "14px",
+              fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)',
+              fontSize: "calc(14px * var(--portal-heading-multiplier, 1))",
               lineHeight: "20px",
               fontWeight: 600,
               color: "rgb(15, 24, 36)",
@@ -103,11 +103,11 @@ export function EmergencyContactsCard({
         </div>
         <p
           style={{
-            fontSize: "12px",
+            fontSize: "var(--portal-desc-size, 13px)",
             lineHeight: "20px",
             color: "rgb(94, 105, 120)",
           }}
-          className="dark:text-slate-400 font-normal"
+          className="dark:text-slate-400 font-normal box-subtitle card-desc"
         >
           {subtitle}
         </p>

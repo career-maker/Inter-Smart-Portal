@@ -21,14 +21,14 @@
     color-scheme: light only !important;
     background-color: #F8FAFC !important;
     color: rgb(15, 24, 36) !important;
-    font-size: 12px;
+    font-size: var(--portal-body-size, 12px);
     line-height: 18px;
   }
 
   button, [role="button"], a.btn, .btn {
     font-family: var(--portal-font-family, "Proxima Nova", sans-serif);
     font-style: normal;
-    font-size: 12px;
+    font-size: var(--portal-body-size, 12px);
     line-height: 20px;
     font-weight: 400;
     letter-spacing: normal;
@@ -56,7 +56,7 @@
   transition: background-color 5000s ease-in-out 0s;
 }
 
-/* ── Universal Box / Card / Widget Title Typography (Proxima Nova 600 14px/20px rgb(15, 24, 36)) ── */
+/* ── Universal Box / Card / Widget Title Typography (Proxima Nova 600 - Dynamic with heading multiplier) ── */
 .box-title,
 .card-title,
 .widget-title,
@@ -73,7 +73,7 @@
   font-style: normal !important;
   font-weight: 600 !important;
   color: rgb(15, 24, 36) !important;
-  font-size: 14px !important;
+  font-size: calc(14px * var(--portal-heading-multiplier, 1)) !important;
   line-height: 20px !important;
   letter-spacing: normal !important;
 }
@@ -93,7 +93,7 @@
   color: rgb(241, 245, 249) !important;
 }
 
-/* ── Universal Subtitle & Description Typography (13px standard: whatever was 12px is now 13px) ── */
+/* ── Universal Subtitle & Description Typography (Dynamic with description_font_size, default 13px) ── */
 .box-subtitle,
 .card-subtitle,
 .widget-subtitle,
@@ -104,17 +104,19 @@ p.card-desc,
 p.box-desc,
 [class*="subtitle"],
 [class*="description"] {
-  font-size: 13px !important;
+  font-size: var(--portal-desc-size, 13px) !important;
   line-height: 20px !important;
 }
 
-/* ── Universal Body Text (12px standard: whatever was 11px is now 12px) ── */
+/* ── Universal Body Text & Empty State Text (Dynamic with body_font_size, default 12px) ── */
 .empty-state-text,
 p.empty-message,
 .text-\[11px\],
 .text-\[10px\],
-.text-\[10\.5px\] {
-  font-size: 12px !important;
+.text-\[10\.5px\],
+.body-text,
+p.body-text {
+  font-size: var(--portal-body-size, 12px) !important;
   line-height: 18px !important;
 }
 

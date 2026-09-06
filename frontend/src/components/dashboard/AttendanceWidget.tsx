@@ -308,8 +308,8 @@ export function AttendanceWidget({
           <div>
             <h2
               style={{
-                fontFamily: '"Proxima Nova", sans-serif',
-                fontSize: "14px",
+                fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)',
+                fontSize: "calc(14px * var(--portal-heading-multiplier, 1))",
                 lineHeight: "20px",
                 fontWeight: 600,
                 color: "rgb(15, 24, 36)",
@@ -321,11 +321,11 @@ export function AttendanceWidget({
             </h2>
             <p
               style={{
-                fontSize: "13px",
+                fontSize: "var(--portal-desc-size, 13px)",
                 lineHeight: "20px",
                 color: "rgb(94, 105, 120)",
               }}
-              className="dark:text-slate-400 font-normal"
+              className="dark:text-slate-400 font-normal box-subtitle card-desc"
             >
               {data?.has_approved_wfh_today
                 ? "Work From Home (WFH) Approved • Manual entries enabled"

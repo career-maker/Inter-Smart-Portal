@@ -85,8 +85,10 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
     root.style.setProperty("--portal-primary-color", conf.primary_color || "#56348f");
 
     // 4. Font Sizes & Scales
-    root.style.setProperty("--portal-body-size", conf.body_font_size || "12px");
-    root.style.setProperty("--portal-desc-size", conf.description_font_size || "13px");
+    const bodySize = conf.body_font_size ? (conf.body_font_size.endsWith("px") ? conf.body_font_size : `${conf.body_font_size}px`) : "12px";
+    const descSize = conf.description_font_size ? (conf.description_font_size.endsWith("px") ? conf.description_font_size : `${conf.description_font_size}px`) : "13px";
+    root.style.setProperty("--portal-body-size", bodySize);
+    root.style.setProperty("--portal-desc-size", descSize);
 
     let headingMultiplier = "1";
     switch (conf.heading_scale) {
@@ -102,6 +104,7 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
       default:
         headingMultiplier = "1";
     }
+    root.style.setProperty("--portal-heading-multiplier", headingMultiplier);
     // 5. Border Radius & Component Styling
     root.style.setProperty("--portal-radius", conf.border_radius || "12px");
 

@@ -1091,13 +1091,13 @@ export default function CustomizationPage() {
                   min="11"
                   max="17"
                   step="0.5"
-                  value={parseFloat(form.body_font_size) || 13}
+                  value={parseFloat(form.body_font_size) || 12}
                   onChange={(e) => handleFieldChange("body_font_size", `${e.target.value}px`)}
                   className="w-full accent-purple-600 cursor-pointer"
                 />
                 <div className="flex justify-between text-[10px] text-slate-400">
                   <span>11px (Compact)</span>
-                  <span>13px (Default)</span>
+                  <span>12px (Default)</span>
                   <span>17px (Large)</span>
                 </div>
               </div>
@@ -1116,13 +1116,13 @@ export default function CustomizationPage() {
                   min="10"
                   max="15"
                   step="0.5"
-                  value={parseFloat(form.description_font_size) || 12}
+                  value={parseFloat(form.description_font_size) || 13}
                   onChange={(e) => handleFieldChange("description_font_size", `${e.target.value}px`)}
                   className="w-full accent-purple-600 cursor-pointer"
                 />
                 <div className="flex justify-between text-[10px] text-slate-400">
                   <span>10px (Subtle)</span>
-                  <span>12px (Default)</span>
+                  <span>13px (Default)</span>
                   <span>15px (Prominent)</span>
                 </div>
               </div>
