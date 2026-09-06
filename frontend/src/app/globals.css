@@ -708,21 +708,18 @@ table th.task-col-title {
   color: #ffffff !important;
 }
 
-/* ─── Prevent horizontal overflow ─────────────────────── */
+/* ─── Prevent horizontal overflow without breaking position: sticky ─── */
 html,
 body {
-  overflow-x: hidden;
+  overflow-x: clip;
   max-width: 100%;
-  overflow-y: auto;
 }
 
 html {
-  width: 100vw;
   max-width: 100%;
 }
 
 body {
-  width: 100vw;
   max-width: 100%;
 }
 
