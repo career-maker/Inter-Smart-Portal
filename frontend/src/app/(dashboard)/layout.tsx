@@ -308,6 +308,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   // Close flyout on outside click
   useEffect(() => {
+    if (!flyoutState) return;
+
     const handleOutsideClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       if (!target.closest('#light-theme-sidebar') && !target.closest('#light-theme-flyout-portal')) {
@@ -316,7 +318,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     };
     document.addEventListener('mousedown', handleOutsideClick);
     return () => document.removeEventListener('mousedown', handleOutsideClick);
-  }, []);
+  }, [flyoutState]);
 
   // Determine which group should start open based on current path
   useEffect(() => {
