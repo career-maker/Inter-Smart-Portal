@@ -424,7 +424,7 @@ export default function CustomizationPage() {
       )}
 
       {/* ── Main Layout: Controls (Left 7 Cols) + Live Preview (Right 5 Cols) ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 relative">
         
         {/* ── LEFT COLUMN: Configuration Form ── */}
         <div className="lg:col-span-7 space-y-6">
@@ -1335,11 +1335,12 @@ export default function CustomizationPage() {
 
         </div>
 
-        {/* ── RIGHT COLUMN: Interactive Live Preview (Permanently Fixed & Visible) ── */}
-        <div
-          style={{ top: "116px", position: "sticky", alignSelf: "flex-start" }}
-          className="lg:col-span-5 lg:sticky lg:self-start space-y-2.5 z-20"
-        >
+        {/* ── RIGHT COLUMN: Interactive Live Preview Container (Full Column Height for Complete Sticky Travel) ── */}
+        <div className="lg:col-span-5 relative w-full">
+          <div
+            style={{ top: "116px", position: "sticky" }}
+            className="sticky top-[116px] space-y-2.5 z-20"
+          >
           <div className="flex items-center justify-between">
             <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
               <Eye className="w-4 h-4 text-purple-600 dark:text-purple-400" />
@@ -1592,6 +1593,7 @@ export default function CustomizationPage() {
             </div>
           </div>
         </div>
+      </div>
 
       </div>
     </div>
