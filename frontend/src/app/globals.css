@@ -15,13 +15,13 @@
     color-scheme: light only !important;
     background-color: #F8FAFC !important;
     color: rgb(15, 24, 36) !important;
-    font-size: var(--portal-body-size, 13px);
+    font-size: var(--portal-body-size, 12px);
   }
 
   button, [role="button"], a.btn, .btn {
     font-family: var(--portal-font-family, "Proxima Nova", sans-serif);
     font-style: normal;
-    font-size: var(--portal-body-size, 13px);
+    font-size: var(--portal-body-size, 12px);
     line-height: 20px;
     font-weight: 400;
     letter-spacing: normal;
@@ -49,7 +49,7 @@
   transition: background-color 5000s ease-in-out 0s;
 }
 
-/* ── Universal Box / Card / Widget Title Typography (Proxima Nova 500 13px/20px rgb(15, 24, 36)) ── */
+/* ── Universal Box / Card / Widget Title Typography (Proxima Nova 600 14px/20px rgb(15, 24, 36)) ── */
 .box-title,
 .card-title,
 .widget-title,
@@ -58,12 +58,15 @@
 .dashboard-card-title,
 .chart-box-title,
 [class*="premium-card"] h2,
-[class*="premium-card"] h3 {
+[class*="premium-card"] h3,
+.text-\[13px\].box-title,
+.text-\[13px\].card-title,
+.text-\[14px\].box-title {
   font-family: var(--portal-font-family, "Proxima Nova", sans-serif) !important;
   font-style: normal !important;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
   color: rgb(15, 24, 36) !important;
-  font-size: 13px !important;
+  font-size: 14px !important;
   line-height: 20px !important;
   letter-spacing: normal !important;
 }
@@ -76,8 +79,30 @@
 .dark .dashboard-card-title,
 .dark .chart-box-title,
 .dark [class*="premium-card"] h2,
-.dark [class*="premium-card"] h3 {
+.dark [class*="premium-card"] h3,
+.dark .text-\[13px\].box-title,
+.dark .text-\[13px\].card-title,
+.dark .text-\[14px\].box-title {
   color: rgb(241, 245, 249) !important;
+}
+
+/* ── Universal Body Text & Description Standardization (12px minimum across all pages) ── */
+.box-subtitle,
+.card-subtitle,
+.widget-subtitle,
+.dashboard-subtitle,
+.card-desc,
+.box-desc {
+  font-size: 12px !important;
+  line-height: 18px !important;
+}
+
+/* Eliminate accidental sub-12px text across all components */
+.text-\[11px\],
+.text-\[10px\],
+.text-\[10\.5px\] {
+  font-size: 12px !important;
+  line-height: 18px !important;
 }
 
 /* ── Universal KPI Number Typography (Proxima Nova 600 - 28px/36px) ── */

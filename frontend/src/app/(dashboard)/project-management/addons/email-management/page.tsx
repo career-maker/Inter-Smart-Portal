@@ -585,7 +585,7 @@ export default function EmailManagementPage() {
               {/* Main Settings Form */}
               <div className="lg:col-span-2 p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-6">
                 <div>
-                  <h2 className="text-[13px] font-semibold text-slate-900 dark:text-white box-title flex items-center gap-2">
+                  <h2 className="text-[14px] font-semibold text-slate-900 dark:text-white box-title flex items-center gap-2">
                     <Server className="w-4 h-4 text-[#56348f]" />
                     <span>SMTP Mailer Credentials</span>
                   </h2>
@@ -680,7 +680,7 @@ export default function EmailManagementPage() {
                           {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
                       </div>
-                      <p className="text-[11px] text-slate-400 dark:text-slate-500">
+                      <p className="text-[12px] text-slate-400 dark:text-slate-500">
                         {smtp.has_password
                           ? "Leave blank to keep the existing password. Only enter a new value to update it."
                           : "Generate an App Password from your Google Account → Security → 2-Step Verification → App Passwords."}
@@ -812,7 +812,7 @@ export default function EmailManagementPage() {
                   </div>
                 )}
 
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-800 space-y-1 text-[11px] text-slate-500 dark:text-slate-400">
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-800 space-y-1 text-[12px] text-slate-500 dark:text-slate-400">
                   <div className="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1">
                     <Info className="w-3.5 h-3.5 text-purple-600" />
                     <span>Gmail App Password Tip</span>
@@ -832,7 +832,7 @@ export default function EmailManagementPage() {
             <div className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
                 <div>
-                  <h2 className="text-[13px] font-semibold text-slate-900 dark:text-white box-title">
+                  <h2 className="text-[14px] font-semibold text-slate-900 dark:text-white box-title">
                     Global Recipient & CC Routing Matrix
                   </h2>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -880,7 +880,7 @@ export default function EmailManagementPage() {
                             <h3 className="text-sm font-bold text-slate-900 dark:text-white">
                               {def.label}
                             </h3>
-                            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+                            <p className="text-[12px] text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
                               {def.description}
                             </p>
                           </div>
@@ -1088,7 +1088,7 @@ export default function EmailManagementPage() {
               {/* Header Bar */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
                 <div>
-                  <h2 className="text-[13px] font-semibold text-slate-900 dark:text-white box-title">
+                  <h2 className="text-[14px] font-semibold text-slate-900 dark:text-white box-title">
                     Per-Employee Email Overrides
                   </h2>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -1169,7 +1169,7 @@ export default function EmailManagementPage() {
                               )}
                             </div>
                             {item.user_email && (
-                              <p className="text-[11px] text-slate-400 mt-0.5">{item.user_email}</p>
+                              <p className="text-[12px] text-slate-400 mt-0.5">{item.user_email}</p>
                             )}
                           </div>
 
@@ -1274,7 +1274,7 @@ export default function EmailManagementPage() {
                           )}
 
                           {item.notes && (
-                            <p className="text-[11px] text-slate-400 italic pt-1 border-t border-slate-100 dark:border-slate-800">
+                            <p className="text-[12px] text-slate-400 italic pt-1 border-t border-slate-100 dark:border-slate-800">
                               Note: {item.notes}
                             </p>
                           )}

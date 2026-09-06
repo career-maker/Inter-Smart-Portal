@@ -45,7 +45,7 @@ export const DEFAULT_CUSTOMIZATION_SETTINGS: CustomizationSettings = {
   density: "comfortable",
   footer_copyright: "© 2026 Inter Smart. All rights reserved.",
   primary_color: "#56348f",
-  body_font_size: "13px",
+  body_font_size: "12px",
   heading_scale: "normal",
   description_font_size: "12px",
   page_title_base: "Inter Smart",

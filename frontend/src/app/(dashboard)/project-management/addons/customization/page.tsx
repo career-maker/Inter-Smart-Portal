@@ -436,8 +436,8 @@ export default function CustomizationPage() {
                 <ImageIcon className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-[13px] font-semibold text-slate-900 dark:text-white box-title">Favicon & Company Logo Branding</h2>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                <h2 className="text-[14px] font-semibold text-slate-900 dark:text-white box-title">Favicon & Company Logo Branding</h2>
+                <p className="text-[12px] text-slate-500 dark:text-slate-400">
                   Upload an image or specify an icon URL. Automatically optimized to prevent network errors.
                 </p>
               </div>
@@ -583,8 +583,8 @@ export default function CustomizationPage() {
                 <Type className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-[13px] font-semibold text-slate-900 dark:text-white box-title">Portal Typography & Font Family</h2>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                <h2 className="text-[14px] font-semibold text-slate-900 dark:text-white box-title">Portal Typography & Font Family</h2>
+                <p className="text-[12px] text-slate-500 dark:text-slate-400">
                   Select a font family for the entire portal. Fonts are loaded instantly.
                 </p>
               </div>
@@ -636,8 +636,8 @@ export default function CustomizationPage() {
                 <Layout className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-[13px] font-semibold text-slate-900 dark:text-white box-title">Top Header & Sub-Header Tabs Styling</h2>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                <h2 className="text-[14px] font-semibold text-slate-900 dark:text-white box-title">Top Header & Sub-Header Tabs Styling</h2>
+                <p className="text-[12px] text-slate-500 dark:text-slate-400">
                   Customize the top navigation bar, company slogan, sub-header category tabs, and active underlines.
                 </p>
               </div>
@@ -835,8 +835,8 @@ export default function CustomizationPage() {
                 <Box className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-[13px] font-semibold text-slate-900 dark:text-white box-title">Sidebar Navigation Styling</h2>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                <h2 className="text-[14px] font-semibold text-slate-900 dark:text-white box-title">Sidebar Navigation Styling</h2>
+                <p className="text-[12px] text-slate-500 dark:text-slate-400">
                   Configure the left navigation bar background and active menu item highlight color.
                 </p>
               </div>
@@ -928,8 +928,8 @@ export default function CustomizationPage() {
                 <Sparkles className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-[13px] font-semibold text-slate-900 dark:text-white box-title">UI Shapes, Elevation & Corner Roundness</h2>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                <h2 className="text-[14px] font-semibold text-slate-900 dark:text-white box-title">UI Shapes, Elevation & Corner Roundness</h2>
+                <p className="text-[12px] text-slate-500 dark:text-slate-400">
                   Configure button shapes, card shadow elevations, and component corner roundness.
                 </p>
               </div>
@@ -1069,8 +1069,8 @@ export default function CustomizationPage() {
                 <Sliders className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-[13px] font-semibold text-slate-900 dark:text-white box-title">Font Sizing & Scale Multipliers</h2>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                <h2 className="text-[14px] font-semibold text-slate-900 dark:text-white box-title">Font Sizing & Scale Multipliers</h2>
+                <p className="text-[12px] text-slate-500 dark:text-slate-400">
                   Control baseline reading comfort across cards, tables, descriptions, and headings.
                 </p>
               </div>
@@ -1166,8 +1166,8 @@ export default function CustomizationPage() {
                 <Layers className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-[13px] font-semibold text-slate-900 dark:text-white box-title">Workplace Layout Density</h2>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                <h2 className="text-[14px] font-semibold text-slate-900 dark:text-white box-title">Workplace Layout Density</h2>
+                <p className="text-[12px] text-slate-500 dark:text-slate-400">
                   Control padding density across tables, forms, cards, and activity feeds.
                 </p>
               </div>
@@ -1202,8 +1202,8 @@ export default function CustomizationPage() {
                 <Globe className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-[13px] font-semibold text-slate-900 dark:text-white box-title">Page Title & Browser Tab Format</h2>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                <h2 className="text-[14px] font-semibold text-slate-900 dark:text-white box-title">Page Title & Browser Tab Format</h2>
+                <p className="text-[12px] text-slate-500 dark:text-slate-400">
                   Configure the base portal brand title and how browser tab titles are displayed across every page.
                 </p>
               </div>
@@ -1261,7 +1261,7 @@ export default function CustomizationPage() {
                   placeholder="{title} | {pagename}"
                   className="w-full px-3.5 py-2 text-xs font-mono rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
-                <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                <div className="flex items-center gap-2 text-[12px] text-slate-500">
                   <span>Supported variables:</span>
                   <code className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-purple-700 dark:text-purple-300 font-mono text-[10px]">{`{title}`}</code>
                   <code className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-purple-700 dark:text-purple-300 font-mono text-[10px]">{`{pagename}`}</code>
@@ -1277,8 +1277,8 @@ export default function CustomizationPage() {
                 <LogInIcon className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-[13px] font-semibold text-slate-900 dark:text-white box-title">Login Screen & Footer Legal Messaging</h2>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                <h2 className="text-[14px] font-semibold text-slate-900 dark:text-white box-title">Login Screen & Footer Legal Messaging</h2>
+                <p className="text-[12px] text-slate-500 dark:text-slate-400">
                   Customize the welcome headline, subtitle, and footer copyright text across the portal.
                 </p>
               </div>

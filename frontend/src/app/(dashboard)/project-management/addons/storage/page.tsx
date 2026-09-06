@@ -279,7 +279,7 @@ export default function StorageRetentionAddonPage() {
       {/* ── CONFIGURATION FORM ── */}
       <form onSubmit={handleSave} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-6">
         <div>
-          <h2 className="text-[13px] font-semibold text-slate-900 dark:text-slate-100 box-title">
+          <h2 className="text-[14px] font-semibold text-slate-900 dark:text-slate-100 box-title">
             Retention Policies
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
@@ -377,7 +377,7 @@ export default function StorageRetentionAddonPage() {
               <p className="text-xs font-bold text-slate-900 dark:text-slate-100">
                 Automated Daily Cleanup
               </p>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 max-w-xl">
+              <p className="text-[12px] text-slate-500 dark:text-slate-400 mt-0.5 max-w-xl">
                 When enabled, the portal automatically prunes only expired chat history and community posts.
                 <b> All other company data (employees, attendance logs, leave balances, projects, tasks) is 100% protected and never touched.</b>
               </p>
@@ -428,7 +428,7 @@ export default function StorageRetentionAddonPage() {
               <AlertTriangle className="w-6 h-6" />
             </div>
             <div className="text-center">
-              <h3 className="text-[13px] font-semibold text-slate-900 dark:text-slate-100 box-title">
+              <h3 className="text-[14px] font-semibold text-slate-900 dark:text-slate-100 box-title">
                 Confirm Manual Storage Cleanup
               </h3>
               <p className="text-xs text-slate-500 mt-1.5">
@@ -458,7 +458,7 @@ export default function StorageRetentionAddonPage() {
                 </label>
               </div>
 
-              <p className="text-[11px] text-slate-400 mt-2 italic">
+              <p className="text-[12px] text-slate-400 mt-2 italic">
                 All employee profiles, attendance, leaves, and projects remain 100% safe.
               </p>
             </div>

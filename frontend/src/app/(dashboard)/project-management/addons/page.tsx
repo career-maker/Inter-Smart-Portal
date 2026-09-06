@@ -244,7 +244,7 @@ export default function PmAddonsPage() {
                     </div>
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <h2 className="text-[13px] font-semibold text-slate-900 dark:text-white box-title">{addon.name}</h2>
+                        <h2 className="text-[14px] font-semibold text-slate-900 dark:text-white box-title">{addon.name}</h2>
                         <span
                           className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border ${
                             addon.is_active
@@ -412,7 +412,7 @@ export default function PmAddonsPage() {
                         </span>
                       </div>
 
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                      <p className="text-[12px] text-slate-500 dark:text-slate-400">
                         Only members and leads of the selected teams will see this module and its menu items.
                       </p>
 

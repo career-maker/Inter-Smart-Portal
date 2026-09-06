@@ -1011,7 +1011,7 @@ export default function EmergencyContactsManagementPage() {
                     <LifeBuoy className="w-3 h-3" />
                     <span>{editingContact ? "Edit Contact" : "Add New Contact"}</span>
                   </div>
-                  <h2 className="text-[13px] font-semibold text-slate-900 dark:text-white box-title truncate">
+                  <h2 className="text-[14px] font-semibold text-slate-900 dark:text-white box-title truncate">
                     {formData.name || (editingContact ? "Edit Emergency Contact" : "New Emergency Contact")}
                   </h2>
                   <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
@@ -1059,7 +1059,7 @@ export default function EmergencyContactsManagementPage() {
                       );
                     })}
                   </select>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  <p className="text-[12px] text-slate-500 dark:text-slate-400">
                     Pick any registered team member to auto-fill their details, or type/customise manually below.
                   </p>
                 </div>
@@ -1156,7 +1156,7 @@ export default function EmergencyContactsManagementPage() {
                         <div className="font-semibold text-slate-900 dark:text-white truncate">
                           {formData.name || "Contact Full Name"}
                         </div>
-                        <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                        <div className="text-[12px] text-slate-500 dark:text-slate-400 truncate">
                           {formData.role || "Role / Designation"}
                         </div>
                       </div>
@@ -1193,7 +1193,7 @@ export default function EmergencyContactsManagementPage() {
                       Avatar Circle Style
                     </span>
                     <div className="flex items-center gap-2">
-                      <span className="text-[11px] text-slate-400">Live Preview:</span>
+                      <span className="text-[12px] text-slate-400">Live Preview:</span>
                       <div
                         className={`w-7 h-7 rounded-full ${formData.avatar_bg} text-white font-bold text-xs flex items-center justify-center shadow-xs`}
                       >
@@ -1246,7 +1246,7 @@ export default function EmergencyContactsManagementPage() {
                 <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-700/60">
                   <div>
                     <span className="font-bold text-slate-700 dark:text-slate-300 block">Display Order</span>
-                    <span className="text-[11px] text-slate-500">Lower numbers appear first on the card</span>
+                    <span className="text-[12px] text-slate-500">Lower numbers appear first on the card</span>
                   </div>
                   <input
                     type="number"
@@ -1320,7 +1320,7 @@ export default function EmergencyContactsManagementPage() {
               <Trash2 className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="text-[13px] font-semibold text-slate-900 dark:text-white box-title">
+              <h3 className="text-[14px] font-semibold text-slate-900 dark:text-white box-title">
                 Delete Emergency Contact?
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">

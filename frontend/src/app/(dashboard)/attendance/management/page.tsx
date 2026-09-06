@@ -484,9 +484,9 @@ export default function AttendanceManagementPage() {
                 <h3
                   style={{
                     fontFamily: '"Proxima Nova", sans-serif',
-                    fontSize: "13px",
+                    fontSize: "14px",
                     lineHeight: "20px",
-                    fontWeight: 500,
+                    fontWeight: 600,
                     color: "rgb(15, 24, 36)",
                   }}
                   className="dark:text-white flex items-center gap-2 box-title"
@@ -544,9 +544,9 @@ export default function AttendanceManagementPage() {
                   <h3
                     style={{
                       fontFamily: '"Proxima Nova", sans-serif',
-                      fontSize: "13px",
+                      fontSize: "14px",
                       lineHeight: "20px",
-                      fontWeight: 500,
+                      fontWeight: 600,
                       color: "rgb(15, 24, 36)",
                     }}
                     className="dark:text-white flex items-center gap-2 box-title"
