@@ -31,11 +31,18 @@ class CustomizationSetting extends Model
         'login_heading',
         'login_subheading',
         'title_separator',
+        'show_header_subtitle',
+        'sidebar_active_color',
+        'card_elevation',
+        'button_style',
+        'density',
+        'footer_copyright',
         'extra_colors',
     ];
 
     protected $casts = [
-        'extra_colors' => 'array',
+        'extra_colors'          => 'array',
+        'show_header_subtitle' => 'boolean',
     ];
 
     public static function defaults(): array
@@ -46,6 +53,12 @@ class CustomizationSetting extends Model
             'header_text_color'       => '#ffffff',
             'sidebar_bg_color'        => '#0e2638',
             'header_subtitle'         => 'PERFECTION AT ITS FINEST',
+            'show_header_subtitle'    => true,
+            'sidebar_active_color'    => '#133249',
+            'card_elevation'          => 'subtle',
+            'button_style'            => 'rounded',
+            'density'                 => 'comfortable',
+            'footer_copyright'        => '© 2026 Inter Smart. All rights reserved.',
             'primary_color'           => '#56348f',
             'body_font_size'          => '13px',
             'heading_scale'           => 'normal',

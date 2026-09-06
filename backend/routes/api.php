@@ -11,8 +11,9 @@ Route::get('ping', function () {
 Route::get('photos/{path}', [\App\Http\Controllers\Api\EmployeeController::class, 'showPhoto'])->where('path', '.*');
 Route::get('storage/{path}', [\App\Http\Controllers\Api\EmployeeController::class, 'showStorageFile'])->where('path', '.*');
 
-// Portal Customization (Public read for instant styling)
+// Portal Customization (Public read for instant styling and asset loading)
 Route::get('customization/settings', [\App\Http\Controllers\Api\CustomizationController::class, 'getSettings']);
+Route::get('uploads/customization/{filename}', [\App\Http\Controllers\Api\CustomizationController::class, 'showAsset']);
 
 // Email action routes (signed URLs, no auth required)
 Route::prefix('leave-requests')->group(function () {
@@ -98,6 +99,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Customization module (Super Admin only)
         Route::post('customization/settings', [\App\Http\Controllers\Api\CustomizationController::class, 'updateSettings']);
+        Route::post('customization/upload', [\App\Http\Controllers\Api\CustomizationController::class, 'uploadAsset']);
         Route::post('customization/reset', [\App\Http\Controllers\Api\CustomizationController::class, 'resetSettings']);
 
         // Admin Leave & WFH Marking (for employees who forgot or couldn't apply)

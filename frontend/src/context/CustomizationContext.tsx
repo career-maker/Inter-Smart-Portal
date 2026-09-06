@@ -108,7 +108,22 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
     root.style.setProperty("--portal-sub-header-bg", conf.sub_header_bg || "#ffffff");
     root.style.setProperty("--portal-sub-header-active", conf.sub_header_active_color || "#56348f");
 
-    // 7. Dynamic Favicon Injection
+    // 7. Sidebar Active Highlight
+    root.style.setProperty("--portal-sidebar-active", conf.sidebar_active_color || "#133249");
+
+    // 8. Card Elevation & Button Style
+    const elevationMap = {
+      flat: "none",
+      subtle: "0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03)",
+      floating: "0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.05)",
+      glassmorphic: "0 8px 32px 0 rgba(31, 38, 135, 0.15)",
+    };
+    root.style.setProperty("--portal-card-shadow", elevationMap[conf.card_elevation || "subtle"] || elevationMap.subtle);
+
+    const btnRadius = conf.button_style === "pill" ? "9999px" : conf.button_style === "sharp" ? "2px" : (conf.border_radius || "12px");
+    root.style.setProperty("--portal-btn-radius", btnRadius);
+
+    // 9. Dynamic Favicon Injection
     const faviconUrl = conf.favicon_url || "/icon.png";
     const existingIcons = document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]');
     if (existingIcons.length > 0) {

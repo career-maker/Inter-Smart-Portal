@@ -29,10 +29,15 @@ import {
   Layers,
   Square,
   LogIn as LogInIcon,
+  Box,
+  ToggleLeft,
+  ToggleRight,
+  Shield,
+  FileText,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import { useCustomization } from "@/context/CustomizationContext";
-import { CustomizationSettings, DEFAULT_CUSTOMIZATION_SETTINGS } from "@/services/customization";
+import { CustomizationSettings, DEFAULT_CUSTOMIZATION_SETTINGS, customizationApi } from "@/services/customization";
 
 const AVAILABLE_FONTS = [
   { id: "Proxima Nova", name: "Proxima Nova (Default)", category: "Sans-serif", provider: "Built-in" },
@@ -97,6 +102,15 @@ const SIDEBAR_COLOR_PRESETS = [
   { label: "Dark Burgundy", hex: "#260813" },
 ];
 
+const SIDEBAR_ACTIVE_PRESETS = [
+  { label: "Navy Accent", hex: "#133249" },
+  { label: "Keka Purple", hex: "#56348f" },
+  { label: "Royal Blue", hex: "#1d4ed8" },
+  { label: "Teal Emerald", hex: "#0f766e" },
+  { label: "Dark Slate", hex: "#1e293b" },
+  { label: "Deep Violet", hex: "#3b1f63" },
+];
+
 const PRIMARY_COLOR_PRESETS = [
   { label: "Keka Purple", hex: "#56348f" },
   { label: "Indigo", hex: "#6366f1" },
@@ -115,6 +129,25 @@ const RADIUS_OPTIONS = [
   { id: "16px", label: "16px Smooth", desc: "Soft & rounded app feel" },
 ];
 
+const ELEVATION_OPTIONS = [
+  { id: "flat", label: "Flat Minimal", desc: "Crisp border, no shadow" },
+  { id: "subtle", label: "Subtle Soft", desc: "Modern soft elevation (Default)" },
+  { id: "floating", label: "Floating Lift", desc: "High contrast depth shadow" },
+  { id: "glassmorphic", label: "Glass Effect", desc: "Translucent backdrop blur" },
+];
+
+const BUTTON_STYLES = [
+  { id: "rounded", label: "Standard Rounded", desc: "Matches UI corner radius" },
+  { id: "pill", label: "Capsule Pill", desc: "Rounded-full soft buttons" },
+  { id: "sharp", label: "Sharp Rectangle", desc: "Crisp enterprise borders" },
+];
+
+const DENSITY_OPTIONS = [
+  { id: "compact", label: "Compact", desc: "Dense data rows, tighter padding" },
+  { id: "comfortable", label: "Comfortable", desc: "Standard balanced height" },
+  { id: "spacious", label: "Spacious", desc: "Generous whitespace for touch" },
+];
+
 const TITLE_SEPARATORS = [
   { label: "| (Pipe)", value: "|" },
   { label: "- (Dash)", value: "-" },
@@ -122,6 +155,49 @@ const TITLE_SEPARATORS = [
   { label: "» (Chevron)", value: "»" },
   { label: "// (Slash)", value: "//" },
 ];
+
+// Client-side image resizing helper to avoid huge payloads
+async function resizeImage(file: File, maxWidth: number, maxHeight: number): Promise<File> {
+  return new Promise((resolve) => {
+    if (file.type.includes("svg") || file.type.includes("ico") || file.type.includes("x-icon")) {
+      return resolve(file);
+    }
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      img.src = e.target?.result as string;
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxWidth || height > maxHeight) {
+          const ratio = Math.min(maxWidth / width, maxHeight / height);
+          width = Math.round(width * ratio);
+          height = Math.round(height * ratio);
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          canvas.toBlob((blob) => {
+            if (blob) {
+              const resized = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".png", {
+                type: "image/png",
+              });
+              resolve(resized);
+            } else {
+              resolve(file);
+            }
+          }, "image/png", 0.9);
+        } else {
+          resolve(file);
+        }
+      };
+      img.onerror = () => resolve(file);
+    };
+    reader.readAsDataURL(file);
+  });
+}
 
 export default function CustomizationPage() {
   const { user } = useAuthStore();
@@ -138,6 +214,8 @@ export default function CustomizationPage() {
   const [form, setForm] = useState<CustomizationSettings>(currentSettings);
   const [saving, setSaving] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [uploadingFavicon, setUploadingFavicon] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -158,24 +236,51 @@ export default function CustomizationPage() {
     setErrorMessage(null);
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, field: "favicon_url" | "logo_url") => {
+  // Safe file upload handler with resize & dedicated upload API
+  const handleFileUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: "favicon_url" | "logo_url",
+    maxDim: number
+  ) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) {
-      setErrorMessage("Image file must be under 2MB.");
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === "string") {
-        handleFieldChange(field, reader.result);
+
+    if (field === "favicon_url") setUploadingFavicon(true);
+    else setUploadingLogo(true);
+    setErrorMessage(null);
+
+    try {
+      // 1. Optimize image client-side to prevent massive base64 payloads
+      const optimized = await resizeImage(file, maxDim, maxDim);
+
+      // 2. Upload to server storage endpoint
+      try {
+        const type = field === "favicon_url" ? "favicon" : "logo";
+        const res = await customizationApi.uploadAsset(optimized, type);
+        if (res?.url) {
+          handleFieldChange(field, res.url);
+          setSuccessMessage(`${field === "favicon_url" ? "Favicon" : "Logo"} uploaded and ready.`);
+          return;
+        }
+      } catch (uploadErr) {
+        // Fallback to compact data URL if offline/upload endpoint unreached
+        const reader = new FileReader();
+        reader.onload = () => {
+          if (typeof reader.result === "string") {
+            handleFieldChange(field, reader.result);
+          }
+        };
+        reader.readAsDataURL(optimized);
       }
-    };
-    reader.readAsDataURL(file);
+    } catch (err: any) {
+      setErrorMessage("Failed to process image: " + (err.message || "Unknown error"));
+    } finally {
+      if (field === "favicon_url") setUploadingFavicon(false);
+      else setUploadingLogo(false);
+    }
   };
 
   const handleSeparatorChange = (sep: string) => {
-    const base = form.page_title_base || "Inter Smart";
     const newFormat = `{title} ${sep} {pagename}`;
     const updated: CustomizationSettings = {
       ...form,
@@ -247,6 +352,7 @@ export default function CustomizationPage() {
   const currentFavicon = form.favicon_url || "/icon.png";
   const currentLogo = form.logo_url || "/logo.png";
   const currentRadius = form.border_radius || "12px";
+  const currentBtnRadius = form.button_style === "pill" ? "9999px" : form.button_style === "sharp" ? "2px" : currentRadius;
 
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6 pb-24">
@@ -273,7 +379,7 @@ export default function CustomizationPage() {
                 Universal Portal Customization
               </h1>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Super Admin: Customize Favicon, Logos, Fonts, Header & Sub-Header Colors, Border Radius, and Titles.
+                Super Admin: Customize Favicon, Logos, Motto, Colors, Elevations, Border Radius, Buttons & Titles.
               </p>
             </div>
           </div>
@@ -318,7 +424,7 @@ export default function CustomizationPage() {
       )}
 
       {/* ── Main Layout: Controls (Left 7 Cols) + Live Preview (Right 5 Cols) ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative">
         
         {/* ── LEFT COLUMN: Configuration Form ── */}
         <div className="lg:col-span-7 space-y-6">
@@ -332,7 +438,7 @@ export default function CustomizationPage() {
               <div>
                 <h2 className="text-sm font-bold text-slate-900 dark:text-white">Favicon & Company Logo Branding</h2>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                  Customize the browser tab icon (favicon) and the company logo displayed across headers and login screens.
+                  Upload an image or specify an icon URL. Automatically optimized to prevent network errors.
                 </p>
               </div>
             </div>
@@ -347,18 +453,19 @@ export default function CustomizationPage() {
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
+                    disabled={uploadingFavicon}
                     onClick={() => faviconInputRef.current?.click()}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-[11px] font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-[11px] font-medium text-slate-700 dark:text-slate-300 cursor-pointer disabled:opacity-50"
                   >
-                    <Upload className="w-3 h-3" />
-                    <span>Upload Image</span>
+                    {uploadingFavicon ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
+                    <span>{uploadingFavicon ? "Optimizing..." : "Upload Image"}</span>
                   </button>
                   <input
                     ref={faviconInputRef}
                     type="file"
-                    accept="image/png, image/jpeg, image/x-icon, image/svg+xml"
+                    accept="image/png, image/jpeg, image/x-icon, image/svg+xml, image/webp"
                     className="hidden"
-                    onChange={(e) => handleFileUpload(e, "favicon_url")}
+                    onChange={(e) => handleFileUpload(e, "favicon_url", 128)}
                   />
                 </div>
               </div>
@@ -377,7 +484,7 @@ export default function CustomizationPage() {
                   value={form.favicon_url || ""}
                   onChange={(e) => handleFieldChange("favicon_url", e.target.value)}
                   placeholder="/icon.png or https://.../favicon.png"
-                  className="flex-1 px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="flex-1 px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-purple-500 truncate"
                 />
               </div>
 
@@ -410,18 +517,19 @@ export default function CustomizationPage() {
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
+                    disabled={uploadingLogo}
                     onClick={() => logoInputRef.current?.click()}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-[11px] font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-[11px] font-medium text-slate-700 dark:text-slate-300 cursor-pointer disabled:opacity-50"
                   >
-                    <Upload className="w-3 h-3" />
-                    <span>Upload Logo</span>
+                    {uploadingLogo ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
+                    <span>{uploadingLogo ? "Optimizing..." : "Upload Logo"}</span>
                   </button>
                   <input
                     ref={logoInputRef}
                     type="file"
                     accept="image/png, image/jpeg, image/svg+xml, image/webp"
                     className="hidden"
-                    onChange={(e) => handleFileUpload(e, "logo_url")}
+                    onChange={(e) => handleFileUpload(e, "logo_url", 512)}
                   />
                 </div>
               </div>
@@ -440,7 +548,7 @@ export default function CustomizationPage() {
                   value={form.logo_url || ""}
                   onChange={(e) => handleFieldChange("logo_url", e.target.value)}
                   placeholder="/logo.png or https://.../logo.png"
-                  className="flex-1 px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="flex-1 px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-purple-500 truncate"
                 />
               </div>
 
@@ -526,7 +634,7 @@ export default function CustomizationPage() {
               <div>
                 <h2 className="text-sm font-bold text-slate-900 dark:text-white">Top Header & Sub-Header Tabs Styling</h2>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                  Customize the top navigation bar, sub-header category tabs, and side menu colors.
+                  Customize the top navigation bar, company slogan, sub-header category tabs, and active underlines.
                 </p>
               </div>
             </div>
@@ -609,6 +717,34 @@ export default function CustomizationPage() {
               </div>
             </div>
 
+            {/* Company Motto / Header Subtitle */}
+            <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                  <span>Company Slogan / Header Subtitle</span>
+                </label>
+                <button
+                  type="button"
+                  onClick={() => handleFieldChange("show_header_subtitle", !form.show_header_subtitle)}
+                  className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 cursor-pointer"
+                >
+                  {form.show_header_subtitle !== false ? (
+                    <ToggleRight className="w-5 h-5 text-purple-600" />
+                  ) : (
+                    <ToggleLeft className="w-5 h-5 text-slate-400" />
+                  )}
+                  <span className="text-[11px] font-medium">{form.show_header_subtitle !== false ? "Visible" : "Hidden"}</span>
+                </button>
+              </div>
+              <input
+                type="text"
+                value={form.header_subtitle || ""}
+                onChange={(e) => handleFieldChange("header_subtitle", e.target.value)}
+                placeholder="PERFECTION AT ITS FINEST"
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white uppercase tracking-wider font-semibold focus:outline-none focus:ring-2 focus:ring-purple-500"
+              />
+            </div>
+
             {/* Sub-Header Tab Bar Background */}
             <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800">
               <div className="flex items-center justify-between">
@@ -686,9 +822,24 @@ export default function CustomizationPage() {
                 })}
               </div>
             </div>
+          </div>
+
+          {/* 4. SIDEBAR NAVIGATION MENU STYLING */}
+          <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 space-y-5 shadow-sm">
+            <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
+              <div className="p-2.5 rounded-xl bg-purple-100 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300">
+                <Box className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-slate-900 dark:text-white">Sidebar Navigation Styling</h2>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  Configure the left navigation bar background and active menu item highlight color.
+                </p>
+              </div>
+            </div>
 
             {/* Sidebar Background Color */}
-            <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+            <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                   Side Navigation Menu Background
@@ -725,18 +876,57 @@ export default function CustomizationPage() {
                 })}
               </div>
             </div>
+
+            {/* Sidebar Active Item Color */}
+            <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  Active Item Background Highlight
+                </label>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-mono text-slate-500 uppercase">{form.sidebar_active_color || "#133249"}</span>
+                  <input
+                    type="color"
+                    value={form.sidebar_active_color || "#133249"}
+                    onChange={(e) => handleFieldChange("sidebar_active_color", e.target.value)}
+                    className="w-8 h-8 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2 pt-1">
+                {SIDEBAR_ACTIVE_PRESETS.map((preset) => {
+                  const isActive = (form.sidebar_active_color || "#133249").toLowerCase() === preset.hex.toLowerCase();
+                  return (
+                    <button
+                      key={preset.hex}
+                      type="button"
+                      onClick={() => handleFieldChange("sidebar_active_color", preset.hex)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs transition-all cursor-pointer ${
+                        isActive
+                          ? "border-purple-600 bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-300 font-bold ring-1 ring-purple-500/20"
+                          : "border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+                      }`}
+                    >
+                      <span className="w-3.5 h-3.5 rounded-full border border-white/20 shrink-0" style={{ backgroundColor: preset.hex }} />
+                      <span>{preset.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
 
-          {/* 4. THEME ACCENT & CORNER RADIUS */}
+          {/* 5. UI SHAPES, ELEVATION & CORNER RADIUS */}
           <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 space-y-5 shadow-sm">
             <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
               <div className="p-2.5 rounded-xl bg-purple-100 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300">
                 <Sparkles className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-slate-900 dark:text-white">Theme Accent & UI Corner Radius</h2>
+                <h2 className="text-sm font-bold text-slate-900 dark:text-white">UI Shapes, Elevation & Corner Roundness</h2>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                  Configure interactive button colors and global corner roundness for cards, dialogs, and inputs.
+                  Configure button shapes, card shadow elevations, and component corner roundness.
                 </p>
               </div>
             </div>
@@ -812,9 +1002,63 @@ export default function CustomizationPage() {
                 })}
               </div>
             </div>
+
+            {/* Card Elevation & Shadow Style */}
+            <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                Card & Panel Shadow Elevation
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                {ELEVATION_OPTIONS.map((opt) => {
+                  const isSelected = (form.card_elevation || "subtle") === opt.id;
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => handleFieldChange("card_elevation", opt.id as any)}
+                      className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${
+                        isSelected
+                          ? "border-purple-600 bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-300 ring-2 ring-purple-500/20 font-bold"
+                          : "border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+                      }`}
+                    >
+                      <div className="text-xs font-semibold">{opt.label}</div>
+                      <div className="text-[9.5px] text-slate-400 font-normal mt-0.5">{opt.desc}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Button Shape Style */}
+            <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                Interactive Button Shape
+              </label>
+              <div className="grid grid-cols-3 gap-2.5">
+                {BUTTON_STYLES.map((opt) => {
+                  const isSelected = (form.button_style || "rounded") === opt.id;
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => handleFieldChange("button_style", opt.id as any)}
+                      className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${
+                        isSelected
+                          ? "border-purple-600 bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-300 ring-2 ring-purple-500/20 font-bold"
+                          : "border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+                      }`}
+                    >
+                      <div className="text-xs font-semibold">{opt.label}</div>
+                      <div className="text-[9.5px] text-slate-400 font-normal mt-0.5">{opt.desc}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
 
-          {/* 5. FONT SIZES & HEADING MULTIPLIERS */}
+          {/* 6. FONT SIZES & HEADING MULTIPLIERS */}
           <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 space-y-5 shadow-sm">
             <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
               <div className="p-2.5 rounded-xl bg-purple-100 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300">
@@ -911,7 +1155,43 @@ export default function CustomizationPage() {
             </div>
           </div>
 
-          {/* 6. PAGE TITLE CONFIGURATION & SEPARATORS */}
+          {/* 7. WORKPLACE DENSITY */}
+          <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 space-y-5 shadow-sm">
+            <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
+              <div className="p-2.5 rounded-xl bg-purple-100 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300">
+                <Layers className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-slate-900 dark:text-white">Workplace Layout Density</h2>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  Control padding density across tables, forms, cards, and activity feeds.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2.5">
+              {DENSITY_OPTIONS.map((opt) => {
+                const isSelected = (form.density || "comfortable") === opt.id;
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => handleFieldChange("density", opt.id as any)}
+                    className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${
+                      isSelected
+                        ? "border-purple-600 bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-300 ring-2 ring-purple-500/20 font-bold"
+                        : "border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+                    }`}
+                  >
+                    <div className="text-xs font-semibold">{opt.label}</div>
+                    <div className="text-[9.5px] text-slate-400 font-normal mt-0.5">{opt.desc}</div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 8. PAGE TITLE CONFIGURATION & SEPARATORS */}
           <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 space-y-5 shadow-sm">
             <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
               <div className="p-2.5 rounded-xl bg-purple-100 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300">
@@ -986,16 +1266,16 @@ export default function CustomizationPage() {
             </div>
           </div>
 
-          {/* 7. LOGIN SCREEN BRANDING */}
+          {/* 9. LOGIN SCREEN & FOOTER LEGAL BRANDING */}
           <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 space-y-5 shadow-sm">
             <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
               <div className="p-2.5 rounded-xl bg-purple-100 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300">
                 <LogInIcon className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-slate-900 dark:text-white">Login Page Custom Messaging</h2>
+                <h2 className="text-sm font-bold text-slate-900 dark:text-white">Login Screen & Footer Legal Messaging</h2>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                  Customize the welcome headline and subtitle shown on the login screen.
+                  Customize the welcome headline, subtitle, and footer copyright text across the portal.
                 </p>
               </div>
             </div>
@@ -1026,10 +1306,23 @@ export default function CustomizationPage() {
                   className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </div>
+
+              <div className="space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  Footer Copyright & Legal Notice
+                </label>
+                <input
+                  type="text"
+                  value={form.footer_copyright || ""}
+                  onChange={(e) => handleFieldChange("footer_copyright", e.target.value)}
+                  placeholder="© 2026 Inter Smart. All rights reserved."
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
             </div>
           </div>
 
-          {/* Quick Info Box (Placed under left-hand configuration forms) */}
+          {/* Quick Info Box */}
           <div className="p-4 rounded-xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-200/80 dark:border-purple-800/60 text-xs text-purple-900 dark:text-purple-300 space-y-1.5">
             <div className="font-bold flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
@@ -1098,7 +1391,11 @@ export default function CustomizationPage() {
                 <div className="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center mb-0.5">
                   <Palette className="w-3 h-3 text-white" />
                 </div>
-                <div className="w-7 h-7 rounded-lg bg-white/15 flex flex-col items-center justify-center text-[8px] text-white font-bold">
+                {/* Active Menu Item respecting sidebar_active_color */}
+                <div
+                  style={{ backgroundColor: form.sidebar_active_color || "#133249" }}
+                  className="w-7 h-7 rounded-lg flex flex-col items-center justify-center text-[8px] text-white font-bold transition-colors"
+                >
                   <span>Home</span>
                 </div>
                 <div className="w-7 h-7 rounded-lg hover:bg-white/10 flex flex-col items-center justify-center text-[8px] text-slate-300">
@@ -1126,13 +1423,18 @@ export default function CustomizationPage() {
                   }}
                   className="px-3 py-2 flex items-center justify-between transition-colors shadow-inner border-b border-black/10 shrink-0"
                 >
-                  <div className="flex items-center gap-1.5 min-w-0">
+                  <div className="flex flex-col min-w-0">
                     <img
                       src={currentLogo}
                       alt="Logo"
-                      className="h-4.5 w-auto brightness-0 invert object-contain max-w-[90px]"
+                      className="h-4.5 w-auto brightness-0 invert object-contain object-left max-w-[90px]"
                       onError={(e) => { (e.target as HTMLElement).style.display = "none"; }}
                     />
+                    {form.show_header_subtitle !== false && form.header_subtitle && (
+                      <span className="text-[6.5px] tracking-widest uppercase opacity-75 font-semibold leading-none mt-0.5 truncate">
+                        {form.header_subtitle}
+                      </span>
+                    )}
                   </div>
 
                   <div className="flex items-center gap-1.5">
@@ -1224,14 +1526,28 @@ export default function CustomizationPage() {
                     </p>
                   </div>
 
-                  {/* Body Text Sample with dynamic Border Radius */}
+                  {/* Body Text Sample with dynamic Border Radius & Elevation */}
                   <div
-                    style={{ borderRadius: currentRadius }}
+                    style={{
+                      borderRadius: currentRadius,
+                      boxShadow: form.card_elevation === "floating"
+                        ? "0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.05)"
+                        : form.card_elevation === "glassmorphic"
+                        ? "0 8px 32px 0 rgba(31, 38, 135, 0.15)"
+                        : form.card_elevation === "flat"
+                        ? "none"
+                        : "0 1px 3px rgba(0,0,0,0.05)",
+                    }}
                     className="p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1 transition-all"
                   >
-                    <span className="text-[9.5px] font-semibold text-slate-400 uppercase tracking-wider">
-                      Card Container (Radius: {currentRadius})
-                    </span>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[9.5px] font-semibold text-slate-400 uppercase tracking-wider">
+                        Card Container ({currentRadius})
+                      </span>
+                      <span className="text-[9px] font-mono text-purple-600 dark:text-purple-400">
+                        {form.card_elevation || "subtle"}
+                      </span>
+                    </div>
                     <p
                       style={{ fontSize: form.body_font_size }}
                       className="text-slate-700 dark:text-slate-300 leading-snug"
@@ -1247,7 +1563,7 @@ export default function CustomizationPage() {
                         type="button"
                         style={{
                           backgroundColor: form.primary_color,
-                          borderRadius: currentRadius,
+                          borderRadius: currentBtnRadius,
                         }}
                         className="px-3 py-1 text-white text-[11px] font-semibold shadow-xs hover:brightness-110 transition-all cursor-pointer"
                       >
@@ -1255,7 +1571,7 @@ export default function CustomizationPage() {
                       </button>
                       <button
                         type="button"
-                        style={{ borderRadius: currentRadius }}
+                        style={{ borderRadius: currentBtnRadius }}
                         className="px-2.5 py-1 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-semibold bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800"
                       >
                         Secondary

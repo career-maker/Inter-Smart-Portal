@@ -7,6 +7,12 @@ export interface CustomizationSettings {
   header_text_color: string;
   sidebar_bg_color: string;
   header_subtitle?: string;
+  show_header_subtitle?: boolean;
+  sidebar_active_color?: string;
+  card_elevation?: "flat" | "subtle" | "floating" | "glassmorphic";
+  button_style?: "rounded" | "pill" | "sharp";
+  density?: "compact" | "comfortable" | "spacious";
+  footer_copyright?: string;
   primary_color: string;
   body_font_size: string;
   heading_scale: "compact" | "normal" | "large" | "extra-large";
@@ -32,6 +38,12 @@ export const DEFAULT_CUSTOMIZATION_SETTINGS: CustomizationSettings = {
   header_text_color: "#ffffff",
   sidebar_bg_color: "#0e2638",
   header_subtitle: "PERFECTION AT ITS FINEST",
+  show_header_subtitle: true,
+  sidebar_active_color: "#133249",
+  card_elevation: "subtle",
+  button_style: "rounded",
+  density: "comfortable",
+  footer_copyright: "© 2026 Inter Smart. All rights reserved.",
   primary_color: "#56348f",
   body_font_size: "13px",
   heading_scale: "normal",
@@ -57,6 +69,16 @@ export const customizationApi = {
 
   updateSettings: async (payload: Partial<CustomizationSettings>): Promise<{ message: string; settings: CustomizationSettings }> => {
     const res = await api.post("/customization/settings", payload);
+    return res.data;
+  },
+
+  uploadAsset: async (file: File, type?: "favicon" | "logo"): Promise<{ success: boolean; url: string; message: string }> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    if (type) formData.append("type", type);
+    const res = await api.post("/customization/upload", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
     return res.data;
   },
 

@@ -26,14 +26,20 @@ return new class extends Migration
                 $table->string('description_font_size')->default('12px');
                 $table->string('page_title_base')->default('Inter Smart');
                 $table->string('page_title_format')->default('{title} | {pagename}');
-                $table->text('favicon_url')->nullable();
-                $table->text('logo_url')->nullable();
+                $table->longText('favicon_url')->nullable();
+                $table->longText('logo_url')->nullable();
                 $table->string('border_radius')->default('12px');
                 $table->string('sub_header_bg')->default('#ffffff');
                 $table->string('sub_header_active_color')->default('#56348f');
                 $table->string('login_heading')->nullable()->default('Sign in to your workplace');
                 $table->string('login_subheading')->nullable()->default('Perfection at its finest. Workforce management portal');
                 $table->string('title_separator')->default('|');
+                $table->boolean('show_header_subtitle')->default(true);
+                $table->string('sidebar_active_color')->default('#133249');
+                $table->string('card_elevation')->default('subtle');
+                $table->string('button_style')->default('rounded');
+                $table->string('density')->default('comfortable');
+                $table->string('footer_copyright')->default('© 2026 Inter Smart. All rights reserved.');
                 $table->json('extra_colors')->nullable();
                 $table->timestamps();
             });
@@ -45,6 +51,12 @@ return new class extends Migration
                 'header_text_color'       => '#ffffff',
                 'sidebar_bg_color'        => '#0e2638',
                 'header_subtitle'         => 'PERFECTION AT ITS FINEST',
+                'show_header_subtitle'    => true,
+                'sidebar_active_color'    => '#133249',
+                'card_elevation'          => 'subtle',
+                'button_style'            => 'rounded',
+                'density'                 => 'comfortable',
+                'footer_copyright'        => '© 2026 Inter Smart. All rights reserved.',
                 'primary_color'           => '#56348f',
                 'body_font_size'          => '13px',
                 'heading_scale'           => 'normal',
@@ -65,14 +77,20 @@ return new class extends Migration
         } else {
             $colsToAdd = [
                 'sidebar_bg_color'        => fn($t) => $t->string('sidebar_bg_color')->default('#0e2638')->after('header_text_color'),
-                'favicon_url'             => fn($t) => $t->text('favicon_url')->nullable()->after('page_title_format'),
-                'logo_url'                => fn($t) => $t->text('logo_url')->nullable()->after('favicon_url'),
+                'favicon_url'             => fn($t) => $t->longText('favicon_url')->nullable()->after('page_title_format'),
+                'logo_url'                => fn($t) => $t->longText('logo_url')->nullable()->after('favicon_url'),
                 'border_radius'           => fn($t) => $t->string('border_radius')->default('12px')->after('logo_url'),
                 'sub_header_bg'           => fn($t) => $t->string('sub_header_bg')->default('#ffffff')->after('border_radius'),
                 'sub_header_active_color' => fn($t) => $t->string('sub_header_active_color')->default('#56348f')->after('sub_header_bg'),
                 'login_heading'           => fn($t) => $t->string('login_heading')->nullable()->default('Sign in to your workplace')->after('sub_header_active_color'),
                 'login_subheading'        => fn($t) => $t->string('login_subheading')->nullable()->default('Perfection at its finest. Workforce management portal')->after('login_heading'),
                 'title_separator'         => fn($t) => $t->string('title_separator')->default('|')->after('login_subheading'),
+                'show_header_subtitle'    => fn($t) => $t->boolean('show_header_subtitle')->default(true)->after('title_separator'),
+                'sidebar_active_color'    => fn($t) => $t->string('sidebar_active_color')->default('#133249')->after('show_header_subtitle'),
+                'card_elevation'          => fn($t) => $t->string('card_elevation')->default('subtle')->after('sidebar_active_color'),
+                'button_style'            => fn($t) => $t->string('button_style')->default('rounded')->after('card_elevation'),
+                'density'                 => fn($t) => $t->string('density')->default('comfortable')->after('button_style'),
+                'footer_copyright'        => fn($t) => $t->string('footer_copyright')->default('© 2026 Inter Smart. All rights reserved.')->after('density'),
             ];
 
             foreach ($colsToAdd as $col => $closure) {
