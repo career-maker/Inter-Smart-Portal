@@ -14,7 +14,7 @@ return new class extends Migration
         if (Schema::hasTable('customization_settings')) {
             if (!Schema::hasColumn('customization_settings', 'welcome_banner_url')) {
                 Schema::table('customization_settings', function (Blueprint $table) {
-                    $table->longText('welcome_banner_url')->nullable()->default('/welcome-banner-bg.jpg');
+                    $table->longText('welcome_banner_url')->nullable();
                 });
             }
         }
