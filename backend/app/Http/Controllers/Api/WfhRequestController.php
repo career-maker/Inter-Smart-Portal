@@ -342,9 +342,12 @@ class WfhRequestController extends Controller
                 $wfhRequest->admin_status = 'Approved';
                 $wfhRequest->approved_by  = $user->id;
 
-                // Finalize only when TL has also approved (or is not required)
+                // Finalize when TL has also approved (or if Super Admin approves directly, finalize both)
                 if (in_array($wfhRequest->tl_status, ['Approved', 'Not Required'])) {
                     $wfhRequest->status = 'Approved';
+                } else {
+                    $wfhRequest->tl_status = 'Approved';
+                    $wfhRequest->status    = 'Approved';
                 }
                 $wfhRequest->save();
             }
@@ -476,11 +479,14 @@ class WfhRequestController extends Controller
     {
         $user = $request->user();
 
-        if ($wfhRequest->user_id !== $user->id && !$user->hasRole('Super Admin')) {
+        $isAdmin = $user->hasRole('Super Admin') || $user->hasRole('HR');
+
+        if ($wfhRequest->user_id !== $user->id && !$isAdmin) {
             return response()->json(['message' => 'Unauthorized to cancel this WFH request.'], 403);
         }
 
-        if ($wfhRequest->status !== 'Pending') {
+        // Regular users can only cancel pending requests; Admins can cancel pending or already approved requests
+        if (!$isAdmin && $wfhRequest->status !== 'Pending') {
             return response()->json(['message' => "Only pending requests can be cancelled. Current status is {$wfhRequest->status}."], 422);
         }
 
@@ -490,6 +496,15 @@ class WfhRequestController extends Controller
             'admin_status' => 'Cancelled',
             'approved_by'  => $user->id,
         ]);
+
+        // Notify applicant if cancelled/deleted by Admin
+        if ($wfhRequest->user_id !== $user->id) {
+            try {
+                $actorName = "{$user->first_name} {$user->last_name}";
+                $msg = "Your WFH request ({$wfhRequest->start_date}) has been cancelled by {$actorName}.";
+                $wfhRequest->user->notify(new WfhRequestNotification('rejected', $wfhRequest, $msg));
+            } catch (\Exception $e) {}
+        }
 
         return response()->json([
             'message' => 'WFH request cancelled successfully.',

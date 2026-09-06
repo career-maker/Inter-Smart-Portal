@@ -133,14 +133,41 @@ export default function ApprovalsPage() {
   const [wfhRequests, setWfhRequests] = useState<any[]>(() => {
     if (typeof window !== "undefined") {
       try {
-        const cached = localStorage.getItem(`${CACHE_KEY}_wfh`);
+        const cached = localStorage.getItem(`${CACHE_KEY}_wfh_pending`) || localStorage.getItem(`${CACHE_KEY}_wfh`);
+        if (cached) return JSON.parse(cached);
+      } catch {}
+    }
+    return [];
+  });
+  const [approvedWfh, setApprovedWfh] = useState<any[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem(`${CACHE_KEY}_wfh_approved`);
+        if (cached) return JSON.parse(cached);
+      } catch {}
+    }
+    return [];
+  });
+  const [rejectedWfh, setRejectedWfh] = useState<any[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem(`${CACHE_KEY}_wfh_rejected`);
+        if (cached) return JSON.parse(cached);
+      } catch {}
+    }
+    return [];
+  });
+  const [cancelledWfh, setCancelledWfh] = useState<any[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem(`${CACHE_KEY}_wfh_cancelled`);
         if (cached) return JSON.parse(cached);
       } catch {}
     }
     return [];
   });
 
-  const [isLoading, setIsLoading] = useState(() => leaveRequests.length === 0);
+  const [isLoading, setIsLoading] = useState(() => leaveRequests.length === 0 && wfhRequests.length === 0);
   const [refreshing, setRefreshing] = useState(false);
 
   const [rejectDialog, setRejectDialog] = useState<RejectDialogState>(null);
@@ -175,42 +202,65 @@ export default function ApprovalsPage() {
   // Fast staged fetcher: Fetches pending first immediately, then background fetches archives
   const fetchRequests = useCallback(async (isManual = false) => {
     if (isManual) setRefreshing(true);
-    else if (leaveRequests.length === 0) setIsLoading(true);
+    else if (leaveRequests.length === 0 && wfhRequests.length === 0) setIsLoading(true);
 
     try {
-      // 1. Fetch pending leaves first for sub-second UI response
-      const pendingRes = await api.get("/leave-requests?status=Pending");
-      const pendingData = pendingRes.data?.data?.data ?? [];
-      setLeaveRequests(pendingData);
-      setIsLoading(false);
+      // 1. Fetch pending leaves and pending WFH first for immediate sub-second UI response
+      const [pendingLeavesRes, pendingWfhRes] = await Promise.allSettled([
+        api.get("/leave-requests?status=Pending&per_page=50"),
+        api.get("/wfh-requests?status=Pending&per_page=50"),
+      ]);
 
-      if (typeof window !== "undefined") {
+      if (pendingLeavesRes.status === "fulfilled") {
+        const pendingData = pendingLeavesRes.value.data?.data?.data ?? [];
+        setLeaveRequests(pendingData);
+        try { localStorage.setItem(`${CACHE_KEY}_pending`, JSON.stringify(pendingData)); } catch {}
+      }
+
+      if (pendingWfhRes.status === "fulfilled") {
+        const pendingWfhData = pendingWfhRes.value.data?.data?.data ?? [];
+        setWfhRequests(pendingWfhData);
         try {
-          localStorage.setItem(`${CACHE_KEY}_pending`, JSON.stringify(pendingData));
+          localStorage.setItem(`${CACHE_KEY}_wfh_pending`, JSON.stringify(pendingWfhData));
+          localStorage.setItem(`${CACHE_KEY}_wfh`, JSON.stringify(pendingWfhData));
         } catch {}
       }
 
-      // 2. Fetch others in parallel background
-      const [approvedRes, rejectedRes, wfhRes] = await Promise.allSettled([
-        api.get("/leave-requests?status=Approved"),
-        api.get("/leave-requests?status=Rejected"),
-        api.get("/wfh-requests?status=Pending"),
+      setIsLoading(false);
+
+      // 2. Fetch approved, rejected, and cancelled records in parallel background
+      const [approvedLeavesRes, rejectedLeavesRes, approvedWfhRes, rejectedWfhRes, cancelledWfhRes] = await Promise.allSettled([
+        api.get("/leave-requests?status=Approved&per_page=50"),
+        api.get("/leave-requests?status=Rejected&per_page=50"),
+        api.get("/wfh-requests?status=Approved&per_page=50"),
+        api.get("/wfh-requests?status=Rejected&per_page=50"),
+        api.get("/wfh-requests?status=Cancelled&per_page=50"),
       ]);
 
-      if (approvedRes.status === "fulfilled") {
-        const d = approvedRes.value.data?.data?.data ?? [];
+      if (approvedLeavesRes.status === "fulfilled") {
+        const d = approvedLeavesRes.value.data?.data?.data ?? [];
         setApprovedLeaves(d);
         try { localStorage.setItem(`${CACHE_KEY}_approved`, JSON.stringify(d)); } catch {}
       }
-      if (rejectedRes.status === "fulfilled") {
-        const d = rejectedRes.value.data?.data?.data ?? [];
+      if (rejectedLeavesRes.status === "fulfilled") {
+        const d = rejectedLeavesRes.value.data?.data?.data ?? [];
         setRejectedLeaves(d);
         try { localStorage.setItem(`${CACHE_KEY}_rejected`, JSON.stringify(d)); } catch {}
       }
-      if (wfhRes.status === "fulfilled") {
-        const d = wfhRes.value.data?.data?.data ?? [];
-        setWfhRequests(d);
-        try { localStorage.setItem(`${CACHE_KEY}_wfh`, JSON.stringify(d)); } catch {}
+      if (approvedWfhRes.status === "fulfilled") {
+        const d = approvedWfhRes.value.data?.data?.data ?? [];
+        setApprovedWfh(d);
+        try { localStorage.setItem(`${CACHE_KEY}_wfh_approved`, JSON.stringify(d)); } catch {}
+      }
+      if (rejectedWfhRes.status === "fulfilled") {
+        const d = rejectedWfhRes.value.data?.data?.data ?? [];
+        setRejectedWfh(d);
+        try { localStorage.setItem(`${CACHE_KEY}_wfh_rejected`, JSON.stringify(d)); } catch {}
+      }
+      if (cancelledWfhRes.status === "fulfilled") {
+        const d = cancelledWfhRes.value.data?.data?.data ?? [];
+        setCancelledWfh(d);
+        try { localStorage.setItem(`${CACHE_KEY}_wfh_cancelled`, JSON.stringify(d)); } catch {}
       }
     } catch (e) {
       console.error("Failed to load approval requests", e);
@@ -218,7 +268,7 @@ export default function ApprovalsPage() {
       setIsLoading(false);
       setRefreshing(false);
     }
-  }, [leaveRequests.length]);
+  }, []);
 
   useEffect(() => {
     fetchRequests();
@@ -240,11 +290,22 @@ export default function ApprovalsPage() {
       if (type === "leave") {
         const approvedItem = leaveRequests.find((r) => r.id === id);
         if (approvedItem) {
+          const updated = response.data?.data || { ...approvedItem, status: "Approved" };
           setLeaveRequests((prev) => prev.filter((r) => r.id !== id));
-          setApprovedLeaves((prev) => [{ ...approvedItem, status: "Approved" }, ...prev]);
+          setApprovedLeaves((prev) => [updated, ...prev.filter((r) => r.id !== id)]);
         }
       } else {
-        setWfhRequests((prev) => prev.filter((r) => r.id !== id));
+        const approvedItem = wfhRequests.find((r) => r.id === id);
+        if (approvedItem) {
+          const updated = response.data?.data || {
+            ...approvedItem,
+            status: "Approved",
+            tl_status: "Approved",
+            admin_status: "Approved",
+          };
+          setWfhRequests((prev) => prev.filter((r) => r.id !== id));
+          setApprovedWfh((prev) => [updated, ...prev.filter((r) => r.id !== id)]);
+        }
       }
 
       fetchRequests(true);
@@ -266,7 +327,7 @@ export default function ApprovalsPage() {
         type === "leave"
           ? `/leave-requests/${id}/status`
           : `/wfh-requests/${id}/status`;
-      await api.post(endpoint, {
+      const response = await api.post(endpoint, {
         status: "Rejected",
         ...(type === "leave" ? { rejection_reason: rejectReason } : { remarks: rejectReason }),
       });
@@ -278,11 +339,23 @@ export default function ApprovalsPage() {
       if (type === "leave") {
         const rejectedItem = leaveRequests.find((r) => r.id === id);
         if (rejectedItem) {
+          const updated = response.data?.data || { ...rejectedItem, status: "Rejected", rejection_reason: rejectReason };
           setLeaveRequests((prev) => prev.filter((r) => r.id !== id));
-          setRejectedLeaves((prev) => [{ ...rejectedItem, status: "Rejected" }, ...prev]);
+          setRejectedLeaves((prev) => [updated, ...prev.filter((r) => r.id !== id)]);
         }
       } else {
-        setWfhRequests((prev) => prev.filter((r) => r.id !== id));
+        const rejectedItem = wfhRequests.find((r) => r.id === id);
+        if (rejectedItem) {
+          const updated = response.data?.data || {
+            ...rejectedItem,
+            status: "Rejected",
+            tl_status: isTeamLead ? "Rejected" : rejectedItem.tl_status,
+            admin_status: isSuperAdmin ? "Rejected" : rejectedItem.admin_status,
+            remarks: rejectReason,
+          };
+          setWfhRequests((prev) => prev.filter((r) => r.id !== id));
+          setRejectedWfh((prev) => [updated, ...prev.filter((r) => r.id !== id)]);
+        }
       }
 
       fetchRequests(true);
@@ -297,18 +370,31 @@ export default function ApprovalsPage() {
   };
 
   const cancelRequest = async (type: "leave" | "wfh", id: number) => {
-    if (!confirm(`Are you sure you want to cancel this ${type} request on behalf of the employee?`)) return;
+    const isApproved = (type === "wfh" ? approvedWfh : approvedLeaves).some(r => r.id === id);
+    const confirmMsg = isApproved
+      ? `Are you sure you want to delete this approved ${type.toUpperCase()} request? This will mark the request as Cancelled on the employee's page.`
+      : `Are you sure you want to cancel this ${type} request on behalf of the employee?`;
+    if (!confirm(confirmMsg)) return;
+
     setActionLoading(true);
     try {
       const endpoint = type === "leave" ? `/leave-requests/${id}/cancel` : `/wfh-requests/${id}/cancel`;
       await api.post(endpoint);
-      setSuccessMessage(`${type === "leave" ? "Leave" : "WFH"} request cancelled successfully!`);
+      setSuccessMessage(isApproved ? `Approved ${type.toUpperCase()} request deleted successfully!` : `${type === "leave" ? "Leave" : "WFH"} request cancelled successfully!`);
       
       // Optimistic update
       if (type === "leave") {
         setLeaveRequests((prev) => prev.filter((r) => r.id !== id));
+        setApprovedLeaves((prev) => prev.filter((r) => r.id !== id));
+        setRejectedLeaves((prev) => prev.filter((r) => r.id !== id));
       } else {
+        const item = wfhRequests.find(r => r.id === id) || approvedWfh.find(r => r.id === id);
         setWfhRequests((prev) => prev.filter((r) => r.id !== id));
+        setApprovedWfh((prev) => prev.filter((r) => r.id !== id));
+        setRejectedWfh((prev) => prev.filter((r) => r.id !== id));
+        if (item) {
+          setCancelledWfh((prev) => [{ ...item, status: "Cancelled", tl_status: "Cancelled", admin_status: "Cancelled" }, ...prev]);
+        }
       }
 
       fetchRequests(true);
@@ -464,6 +550,13 @@ export default function ApprovalsPage() {
     return [...leaveRequests, ...approvedLeaves, ...rejectedLeaves];
   }, [statusFilter, leaveRequests, approvedLeaves, rejectedLeaves]);
 
+  const displayWfh = useMemo(() => {
+    if (statusFilter === "Pending") return wfhRequests;
+    if (statusFilter === "Approved") return approvedWfh;
+    if (statusFilter === "Rejected") return rejectedWfh;
+    return [...wfhRequests, ...approvedWfh, ...rejectedWfh, ...cancelledWfh];
+  }, [statusFilter, wfhRequests, approvedWfh, rejectedWfh, cancelledWfh]);
+
   return (
     <div className="space-y-5 w-full max-w-7xl mx-auto p-3 sm:p-5 lg:p-6">
       {/* ── Header Row ── */}
@@ -488,7 +581,10 @@ export default function ApprovalsPage() {
                 else if (status === "Rejected") count = rejectedLeaves.length;
                 else count = leaveRequests.length + approvedLeaves.length + rejectedLeaves.length;
               } else {
-                count = status === "Pending" ? wfhRequests.length : 0;
+                if (status === "Pending") count = wfhRequests.length;
+                else if (status === "Approved") count = approvedWfh.length;
+                else if (status === "Rejected") count = rejectedWfh.length;
+                else count = wfhRequests.length + approvedWfh.length + rejectedWfh.length + cancelledWfh.length;
               }
 
               const isActive = statusFilter === status;
@@ -808,7 +904,7 @@ export default function ApprovalsPage() {
               <col className="w-[10%]" />
               <col className="w-[14%]" />
               <col className="w-[12%]" />
-              {(statusFilter === "Pending" || statusFilter === "All") && (
+              {(statusFilter === "Pending" || statusFilter === "All" || (isSuperAdmin && statusFilter === "Approved")) && (
                 <col className="w-[22%]" />
               )}
             </colgroup>
@@ -820,20 +916,20 @@ export default function ApprovalsPage() {
                 <th className="py-2.5 px-2 text-center border-r border-slate-200/80 dark:border-slate-800">TL Status</th>
                 <th className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800">Reason</th>
                 <th className="py-2.5 px-2 border-r border-slate-200/80 dark:border-slate-800">Status</th>
-                {(statusFilter === "Pending" || statusFilter === "All") && (
+                {(statusFilter === "Pending" || statusFilter === "All" || (isSuperAdmin && statusFilter === "Approved")) && (
                   <th className="py-2.5 px-3 text-center">Actions</th>
                 )}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
-              {wfhRequests.length === 0 ? (
+              {displayWfh.length === 0 ? (
                 <tr>
-                  <td colSpan={(statusFilter === "Pending" || statusFilter === "All") ? 7 : 6} className="py-12 text-center text-slate-400 dark:text-slate-500 text-xs italic">
-                    No pending WFH requests found.
+                  <td colSpan={(statusFilter === "Pending" || statusFilter === "All" || (isSuperAdmin && statusFilter === "Approved")) ? 7 : 6} className="py-12 text-center text-slate-400 dark:text-slate-500 text-xs italic">
+                    No {statusFilter === "All" ? "" : statusFilter.toLowerCase()} WFH requests found.
                   </td>
                 </tr>
               ) : (
-                wfhRequests.map((req) => (
+                displayWfh.map((req) => (
                   <tr key={req.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors">
                     {/* Employee */}
                     <td className="py-2.5 px-3 align-middle border-r border-slate-100 dark:border-slate-800/60">
@@ -891,35 +987,77 @@ export default function ApprovalsPage() {
 
                     {/* Status */}
                     <td className="py-2.5 px-2 align-middle border-r border-slate-100 dark:border-slate-800/60 break-words whitespace-normal leading-tight">
-                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
-                        <Clock className="w-2.5 h-2.5 text-amber-500" /> Pending
-                      </span>
+                      {req.status === "Approved" ? (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                          <CheckCircle className="w-2.5 h-2.5 text-emerald-500" /> Approved
+                        </span>
+                      ) : req.status === "Rejected" ? (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
+                          <XCircle className="w-2.5 h-2.5 text-rose-500" /> Rejected
+                        </span>
+                      ) : req.status === "Cancelled" ? (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-300 dark:border-slate-700">
+                          <XCircle className="w-2.5 h-2.5 text-slate-500" /> Cancelled
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                          <Clock className="w-2.5 h-2.5 text-amber-500" /> Pending
+                        </span>
+                      )}
                     </td>
 
                     {/* Actions */}
-                    {(statusFilter === "Pending" || statusFilter === "All") && (
+                    {(statusFilter === "Pending" || statusFilter === "All" || (isSuperAdmin && statusFilter === "Approved")) && (
                       <td className="py-2.5 px-3 align-middle text-center break-words whitespace-normal leading-tight">
                         <div className="flex items-center justify-center gap-1">
-                          {canApprove(req) && (
+                          {req.status === "Pending" ? (
+                            <>
+                              {canApprove(req) && (
+                                <button
+                                  onClick={() => approve("wfh", req.id)}
+                                  disabled={actionLoading}
+                                  title="Approve WFH"
+                                  className="p-1.5 rounded-md text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center"
+                                >
+                                  <Check className="w-4 h-4" />
+                                </button>
+                              )}
+                              <button
+                                onClick={() => {
+                                  setRejectDialog({ type: "wfh", id: req.id });
+                                  setRejectReason("");
+                                }}
+                                disabled={actionLoading}
+                                title="Reject WFH"
+                                className="px-2 py-1.5 rounded-md text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800 transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1"
+                              >
+                                <XCircle className="w-3.5 h-3.5 text-rose-500" />
+                                Reject
+                              </button>
+                              {(isTeamLead || isSuperAdmin) && (
+                                <button
+                                  onClick={() => cancelRequest("wfh", req.id)}
+                                  disabled={actionLoading}
+                                  title="Cancel Request (Delete)"
+                                  className="p-1.5 rounded-md text-slate-700 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center"
+                                >
+                                  <Trash2 className="w-4 h-4 text-slate-500" />
+                                </button>
+                              )}
+                            </>
+                          ) : isSuperAdmin && req.status === "Approved" ? (
                             <button
-                              onClick={() => approve("wfh", req.id)}
-                              title="Approve WFH"
-                              className="p-1.5 rounded-md text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center"
+                              onClick={() => cancelRequest("wfh", req.id)}
+                              disabled={actionLoading}
+                              title="Delete Approved WFH Request"
+                              className="px-2.5 py-1 rounded-md text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800 transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1 shadow-sm"
                             >
-                              <Check className="w-4 h-4" />
+                              <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+                              Delete
                             </button>
+                          ) : (
+                            <span className="text-xs text-slate-400 dark:text-slate-600">—</span>
                           )}
-                          <button
-                            onClick={() => {
-                              setRejectDialog({ type: "wfh", id: req.id });
-                              setRejectReason("");
-                            }}
-                            disabled={actionLoading}
-                            className="px-2 py-1.5 rounded-md text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800 transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1"
-                          >
-                            <XCircle className="w-3.5 h-3.5 text-rose-500" />
-                            Reject
-                          </button>
                         </div>
                       </td>
                     )}

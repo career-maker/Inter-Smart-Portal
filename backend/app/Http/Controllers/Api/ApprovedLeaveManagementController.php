@@ -155,14 +155,27 @@ class ApprovedLeaveManagementController extends Controller
 
             DB::beginTransaction();
 
-            // WFH typically doesn't affect leave balance, but log the deletion
-            $wfh->delete();
+            // Update status to Cancelled so the user sees Cancelled on their WFH page
+            $wfh->update([
+                'status'       => 'Cancelled',
+                'tl_status'    => 'Cancelled',
+                'admin_status' => 'Cancelled',
+                'approved_by'  => $request->user()->id,
+            ]);
 
             DB::commit();
 
+            // Notify the employee
+            try {
+                $user = $request->user();
+                $actorName = "{$user->first_name} {$user->last_name}";
+                $msg = "Your approved WFH request for {$wfh->start_date} has been cancelled by {$actorName}.";
+                $wfh->user->notify(new \App\Notifications\WfhRequestNotification('rejected', $wfh, $msg));
+            } catch (\Exception $e) {}
+
             return response()->json([
                 'message' => 'Approved WFH deleted successfully',
-                'data' => $wfh
+                'data' => $wfh->fresh()
             ]);
         } catch (\Exception $e) {
             DB::rollBack();

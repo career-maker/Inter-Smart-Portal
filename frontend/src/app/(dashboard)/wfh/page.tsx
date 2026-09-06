@@ -210,11 +210,15 @@ export default function WfhPage() {
   };
 
   const handleCancelWfh = async (id: number) => {
-    if (!confirm("Are you sure you want to cancel this pending WFH request?")) return;
+    const isApproved = requests.find((r) => r.id === id)?.status === "Approved";
+    const confirmMsg = isApproved
+      ? "Are you sure you want to delete this approved WFH request? This will mark the request as Cancelled for the employee."
+      : "Are you sure you want to cancel this pending WFH request?";
+    if (!confirm(confirmMsg)) return;
     setCancellingId(id);
     try {
       await api.post(`/wfh-requests/${id}/cancel`);
-      setSuccessMessage("WFH request cancelled successfully.");
+      setSuccessMessage(isApproved ? "Approved WFH request deleted successfully." : "WFH request cancelled successfully.");
       setTimeout(() => setSuccessMessage(null), 4000);
       fetchRequests(currentPage);
     } catch (err: any) {
@@ -928,6 +932,17 @@ export default function WfhPage() {
                               >
                                 <X className="w-3.5 h-3.5" />
                                 <span>{cancellingId === req.id ? "…" : "Cancel"}</span>
+                              </button>
+                            ) : isSuperAdmin && req.status === "Approved" ? (
+                              <button
+                                type="button"
+                                onClick={() => handleCancelWfh(req.id)}
+                                disabled={cancellingId === req.id}
+                                title="Delete Approved WFH Request"
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/60 border border-rose-200 dark:border-rose-800 transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
+                              >
+                                <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+                                <span>{cancellingId === req.id ? "…" : "Delete"}</span>
                               </button>
                             ) : !canApproveRow && req.status !== "Pending" ? (
                               <span className="text-xs text-slate-400 dark:text-slate-600">—</span>
