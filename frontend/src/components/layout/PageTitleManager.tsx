@@ -135,7 +135,6 @@ export function PageTitleManager() {
       .replace(/\{sep\}/gi, separator)
       .trim();
 
-    // Fallback if formatting was malformed or empty
     if (!title || title === format) {
       title = `${baseTitle} ${separator} ${pageName}`;
     }
@@ -146,74 +145,10 @@ export function PageTitleManager() {
   useEffect(() => {
     if (typeof document === "undefined" || !computedTitle) return;
 
-    const applyTitle = () => {
-      if (document.title !== computedTitle) {
-        document.title = computedTitle;
-      }
-
-      // Also ensure all existing <title> tags in <head> are synchronized
-      const titleEls = document.head.querySelectorAll("title");
-      if (titleEls.length > 0) {
-        titleEls.forEach((el) => {
-          if (el.textContent !== computedTitle) {
-            el.textContent = computedTitle;
-          }
-        });
-      } else {
-        const newTitle = document.createElement("title");
-        newTitle.textContent = computedTitle;
-        document.head.appendChild(newTitle);
-      }
-    };
-
-    // Apply immediately
-    applyTitle();
-
-    // Staged timers to overcome Next.js client hydration and App Router transitions
-    const rafId = requestAnimationFrame(applyTitle);
-    const t1 = setTimeout(applyTitle, 50);
-    const t2 = setTimeout(applyTitle, 200);
-    const t3 = setTimeout(applyTitle, 600);
-
-    // MutationObserver on document.head to catch and instantly revert any Next.js overwrite
-    const observer = new MutationObserver(() => {
-      if (document.title !== computedTitle) {
-        applyTitle();
-      }
-    });
-
-    if (document.head) {
-      observer.observe(document.head, {
-        childList: true,
-        subtree: true,
-        characterData: true,
-      });
+    if (document.title !== computedTitle) {
+      document.title = computedTitle;
     }
-
-    // Refresh title on window focus or tab visibility change
-    const handleVisibility = () => {
-      if (document.visibilityState === "visible") {
-        applyTitle();
-      }
-    };
-    document.addEventListener("visibilitychange", handleVisibility);
-    window.addEventListener("focus", handleVisibility);
-
-    // Periodic check every 1 second as a safety net
-    const intervalId = setInterval(applyTitle, 1000);
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      clearTimeout(t1);
-      clearTimeout(t2);
-      clearTimeout(t3);
-      clearInterval(intervalId);
-      observer.disconnect();
-      document.removeEventListener("visibilitychange", handleVisibility);
-      window.removeEventListener("focus", handleVisibility);
-    };
   }, [computedTitle]);
 
-  // React 19 Document Metadata Hoisting: claims <title> in React tree
-  return <title>{computedTitle}</title>;
+  return null;
 }
