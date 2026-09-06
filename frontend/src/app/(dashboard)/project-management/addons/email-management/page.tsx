@@ -481,9 +481,9 @@ export default function EmailManagementPage() {
             <span>/</span>
             <span className="text-slate-900 dark:text-white">Email Management</span>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2.5">
+          <h1 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
             <div className="p-2 rounded-xl bg-purple-100 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300">
-              <Mail className="w-6 h-6" />
+              <Mail className="w-5 h-5" />
             </div>
             <span>Email & SMTP Management</span>
           </h1>
@@ -585,8 +585,8 @@ export default function EmailManagementPage() {
               {/* Main Settings Form */}
               <div className="lg:col-span-2 p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-6">
                 <div>
-                  <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <Server className="w-5 h-5 text-[#56348f]" />
+                  <h2 className="text-[13px] font-semibold text-slate-900 dark:text-white box-title flex items-center gap-2">
+                    <Server className="w-4 h-4 text-[#56348f]" />
                     <span>SMTP Mailer Credentials</span>
                   </h2>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -832,7 +832,7 @@ export default function EmailManagementPage() {
             <div className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
                 <div>
-                  <h2 className="text-base font-bold text-slate-900 dark:text-white">
+                  <h2 className="text-[13px] font-semibold text-slate-900 dark:text-white box-title">
                     Global Recipient & CC Routing Matrix
                   </h2>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -1088,7 +1088,7 @@ export default function EmailManagementPage() {
               {/* Header Bar */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
                 <div>
-                  <h2 className="text-base font-bold text-slate-900 dark:text-white">
+                  <h2 className="text-[13px] font-semibold text-slate-900 dark:text-white box-title">
                     Per-Employee Email Overrides
                   </h2>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">

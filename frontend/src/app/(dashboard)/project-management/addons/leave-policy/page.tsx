@@ -358,8 +358,8 @@ export default function LeavePolicyManagementPage() {
             <span>/</span>
             <span className="text-slate-900 dark:text-white">Leave Policy Management</span>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2.5">
-            <CalendarCheck className="w-6 h-6 text-[#56348f]" />
+          <h1 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
+            <CalendarCheck className="w-5 h-5 text-[#56348f]" />
             <span>Leave Policy Management</span>
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -1278,7 +1278,7 @@ export default function LeavePolicyManagementPage() {
           {simulationResult && (
             <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs space-y-4">
               <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <h3 className="text-[13px] font-semibold text-slate-900 dark:text-white box-title flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                   <span>Execution Results for Cycle [{simulationResult.cycle_key}]</span>
                 </h3>
@@ -1330,7 +1330,7 @@ export default function LeavePolicyManagementPage() {
           <div className="w-full max-w-lg rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-6 space-y-5">
             <div className="flex items-start justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
               <div>
-                <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                <h3 className="text-[13px] font-semibold text-slate-900 dark:text-white box-title">
                   Configure Leave Policy: {editingEmployee.name}
                 </h3>
                 <p className="text-xs text-slate-400">{editingEmployee.employee_code} • {editingEmployee.designation}</p>
@@ -1446,7 +1446,7 @@ export default function LeavePolicyManagementPage() {
           <div className="w-full max-w-lg rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-6 space-y-5">
             <div className="flex items-start justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
               <div>
-                <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                <h3 className="text-[13px] font-semibold text-slate-900 dark:text-white box-title">
                   Manual Leave Balance Adjustment: {adjustingEmployee.name}
                 </h3>
                 <p className="text-xs text-slate-400">

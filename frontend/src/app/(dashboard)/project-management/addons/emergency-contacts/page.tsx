@@ -639,8 +639,8 @@ export default function EmergencyContactsManagementPage() {
             <span>/</span>
             <span className="text-slate-900 dark:text-white font-bold">Emergency Contacts</span>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2.5">
-            <LifeBuoy className="w-6 h-6 text-[#56348f] shrink-0" />
+          <h1 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
+            <LifeBuoy className="w-5 h-5 text-[#56348f] shrink-0" />
             <span>Emergency Contacts Management</span>
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -1011,7 +1011,7 @@ export default function EmergencyContactsManagementPage() {
                     <LifeBuoy className="w-3 h-3" />
                     <span>{editingContact ? "Edit Contact" : "Add New Contact"}</span>
                   </div>
-                  <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate">
+                  <h2 className="text-[13px] font-semibold text-slate-900 dark:text-white box-title truncate">
                     {formData.name || (editingContact ? "Edit Emergency Contact" : "New Emergency Contact")}
                   </h2>
                   <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
@@ -1320,7 +1320,7 @@ export default function EmergencyContactsManagementPage() {
               <Trash2 className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-white">
+              <h3 className="text-[13px] font-semibold text-slate-900 dark:text-white box-title">
                 Delete Emergency Contact?
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">

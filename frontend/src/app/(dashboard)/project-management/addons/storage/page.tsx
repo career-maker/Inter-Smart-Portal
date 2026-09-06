@@ -156,8 +156,8 @@ export default function StorageRetentionAddonPage() {
               <span className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-700" />
               <span className="text-xs text-slate-500 font-medium">Data Lifecycle</span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100 mt-0.5 flex items-center gap-2">
-              <HardDrive className="w-6 h-6 text-[#56348f]" />
+            <h1 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100 mt-0.5 flex items-center gap-2">
+              <HardDrive className="w-5 h-5 text-[#56348f]" />
               Storage & Data Retention Policy
             </h1>
           </div>
@@ -279,7 +279,7 @@ export default function StorageRetentionAddonPage() {
       {/* ── CONFIGURATION FORM ── */}
       <form onSubmit={handleSave} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-6">
         <div>
-          <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">
+          <h2 className="text-[13px] font-semibold text-slate-900 dark:text-slate-100 box-title">
             Retention Policies
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
@@ -428,7 +428,7 @@ export default function StorageRetentionAddonPage() {
               <AlertTriangle className="w-6 h-6" />
             </div>
             <div className="text-center">
-              <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
+              <h3 className="text-[13px] font-semibold text-slate-900 dark:text-slate-100 box-title">
                 Confirm Manual Storage Cleanup
               </h3>
               <p className="text-xs text-slate-500 mt-1.5">

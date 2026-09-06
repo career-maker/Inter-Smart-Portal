@@ -87,3 +87,23 @@ export const customizationApi = {
     return res.data;
   },
 };
+
+/**
+ * Resolve customization asset URLs (favicons, logos) whether they are data URLs,
+ * local frontend static assets, or uploaded backend files.
+ */
+export function resolveCustomizationAssetUrl(url?: string | null): string {
+  if (!url) return "";
+  if (url.startsWith("data:") || url.startsWith("blob:") || url.startsWith("http://") || url.startsWith("https://")) {
+    return url;
+  }
+  // Local static files in frontend public/ directory
+  if (url === "/icon.png" || url === "/logo.png" || url === "/favicon.ico" || url.startsWith("/icons/")) {
+    return url;
+  }
+  // Uploaded assets on the backend server
+  const rawApi = process.env.NEXT_PUBLIC_API_URL || "https://workplace.intersmart.in/api";
+  const backendBase = rawApi.replace(/\/api\/?$/, "");
+  const cleanPath = url.startsWith("/") ? url : `/${url}`;
+  return `${backendBase}${cleanPath}`;
+}

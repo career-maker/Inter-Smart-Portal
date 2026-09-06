@@ -161,8 +161,8 @@ export default function PmAddonsPage() {
             <span>/</span>
             <span className="text-slate-900 dark:text-white">Add-on Features</span>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2.5">
-            <Puzzle className="w-6 h-6 text-[#56348f]" />
+          <h1 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
+            <Puzzle className="w-5 h-5 text-[#56348f]" />
             <span>Project Management Add-ons</span>
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -244,7 +244,7 @@ export default function PmAddonsPage() {
                     </div>
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <h2 className="text-lg font-bold text-slate-900 dark:text-white">{addon.name}</h2>
+                        <h2 className="text-[13px] font-semibold text-slate-900 dark:text-white box-title">{addon.name}</h2>
                         <span
                           className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border ${
                             addon.is_active

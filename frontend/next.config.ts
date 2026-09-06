@@ -16,6 +16,10 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
+        source: "/uploads/:path*",
+        destination: "https://workplace.intersmart.in/api/uploads/:path*",
+      },
+      {
         source: "/api/v1/biometric/ingest",
         destination: "https://workplace.intersmart.in/api/api/v1/biometric/ingest",
       },

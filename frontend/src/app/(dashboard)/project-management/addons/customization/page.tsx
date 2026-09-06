@@ -37,7 +37,7 @@ import {
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import { useCustomization } from "@/context/CustomizationContext";
-import { CustomizationSettings, DEFAULT_CUSTOMIZATION_SETTINGS, customizationApi } from "@/services/customization";
+import { CustomizationSettings, DEFAULT_CUSTOMIZATION_SETTINGS, customizationApi, resolveCustomizationAssetUrl } from "@/services/customization";
 
 const AVAILABLE_FONTS = [
   { id: "Proxima Nova", name: "Proxima Nova (Default)", category: "Sans-serif", provider: "Built-in" },
@@ -156,16 +156,16 @@ const TITLE_SEPARATORS = [
   { label: "// (Slash)", value: "//" },
 ];
 
-// Client-side image resizing helper to avoid huge payloads
-async function resizeImage(file: File, maxWidth: number, maxHeight: number): Promise<File> {
+// Client-side image resizing helper with instant Data URL for immediate zero-latency preview
+async function resizeImage(file: File, maxWidth: number, maxHeight: number): Promise<{ file: File; dataUrl: string }> {
   return new Promise((resolve) => {
-    if (file.type.includes("svg") || file.type.includes("ico") || file.type.includes("x-icon")) {
-      return resolve(file);
-    }
-    const img = new Image();
     const reader = new FileReader();
     reader.onload = (e) => {
-      img.src = e.target?.result as string;
+      const rawDataUrl = e.target?.result as string;
+      if (file.type.includes("svg") || file.type.includes("ico") || file.type.includes("x-icon")) {
+        return resolve({ file, dataUrl: rawDataUrl });
+      }
+      const img = new Image();
       img.onload = () => {
         let { width, height } = img;
         if (width > maxWidth || height > maxHeight) {
@@ -179,21 +179,23 @@ async function resizeImage(file: File, maxWidth: number, maxHeight: number): Pro
         const ctx = canvas.getContext("2d");
         if (ctx) {
           ctx.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL("image/png", 0.9);
           canvas.toBlob((blob) => {
             if (blob) {
               const resized = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".png", {
                 type: "image/png",
               });
-              resolve(resized);
+              resolve({ file: resized, dataUrl });
             } else {
-              resolve(file);
+              resolve({ file, dataUrl });
             }
           }, "image/png", 0.9);
         } else {
-          resolve(file);
+          resolve({ file, dataUrl: rawDataUrl });
         }
       };
-      img.onerror = () => resolve(file);
+      img.onerror = () => resolve({ file, dataUrl: rawDataUrl });
+      img.src = rawDataUrl;
     };
     reader.readAsDataURL(file);
   });
@@ -236,7 +238,7 @@ export default function CustomizationPage() {
     setErrorMessage(null);
   };
 
-  // Safe file upload handler with resize & dedicated upload API
+  // Safe file upload handler with instant Data URL & dedicated upload API
   const handleFileUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
     field: "favicon_url" | "logo_url",
@@ -250,27 +252,25 @@ export default function CustomizationPage() {
     setErrorMessage(null);
 
     try {
-      // 1. Optimize image client-side to prevent massive base64 payloads
-      const optimized = await resizeImage(file, maxDim, maxDim);
+      // 1. Optimize image client-side to prevent massive payloads and produce immediate data URL
+      const { file: optimized, dataUrl } = await resizeImage(file, maxDim, maxDim);
 
-      // 2. Upload to server storage endpoint
+      // 2. Instantly update UI and tab favicon with 0ms latency
+      handleFieldChange(field, dataUrl);
+
+      // 3. Upload to server storage endpoint
       try {
         const type = field === "favicon_url" ? "favicon" : "logo";
         const res = await customizationApi.uploadAsset(optimized, type);
         if (res?.url) {
-          handleFieldChange(field, res.url);
+          const resolved = resolveCustomizationAssetUrl(res.url);
+          handleFieldChange(field, resolved);
           setSuccessMessage(`${field === "favicon_url" ? "Favicon" : "Logo"} uploaded and ready.`);
           return;
         }
       } catch (uploadErr) {
-        // Fallback to compact data URL if offline/upload endpoint unreached
-        const reader = new FileReader();
-        reader.onload = () => {
-          if (typeof reader.result === "string") {
-            handleFieldChange(field, reader.result);
-          }
-        };
-        reader.readAsDataURL(optimized);
+        console.warn("Server asset upload failed, kept data URL:", uploadErr);
+        setSuccessMessage(`${field === "favicon_url" ? "Favicon" : "Logo"} applied.`);
       }
     } catch (err: any) {
       setErrorMessage("Failed to process image: " + (err.message || "Unknown error"));
@@ -349,14 +349,14 @@ export default function CustomizationPage() {
       .replace(/\{pagename\}/gi, "Attendance Management");
   })();
 
-  const currentFavicon = form.favicon_url || "/icon.png";
-  const currentLogo = form.logo_url || "/logo.png";
+  const currentFavicon = resolveCustomizationAssetUrl(form.favicon_url) || "/icon.png";
+  const currentLogo = resolveCustomizationAssetUrl(form.logo_url) || "/logo.png";
   const currentRadius = form.border_radius || "12px";
   const currentBtnRadius = form.button_style === "pill" ? "9999px" : form.button_style === "sharp" ? "2px" : currentRadius;
 
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6 pb-24">
-      {/* ── Page Header ── */}
+      {/* ── Page Header (Standard Dashboard Typography) ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800/80 pb-5">
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
@@ -375,7 +375,7 @@ export default function CustomizationPage() {
               <Palette className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+              <h1 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white">
                 Universal Portal Customization
               </h1>
               <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -436,7 +436,7 @@ export default function CustomizationPage() {
                 <ImageIcon className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-slate-900 dark:text-white">Favicon & Company Logo Branding</h2>
+                <h2 className="text-[13px] font-semibold text-slate-900 dark:text-white box-title">Favicon & Company Logo Branding</h2>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">
                   Upload an image or specify an icon URL. Automatically optimized to prevent network errors.
                 </p>
@@ -446,37 +446,41 @@ export default function CustomizationPage() {
             {/* Favicon Control */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                <label className="text-[12px] font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
                   <span>Browser Tab Favicon</span>
                   <span className="text-[10px] text-purple-600 font-normal">(Instant tab update)</span>
                 </label>
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    disabled={uploadingFavicon}
                     onClick={() => faviconInputRef.current?.click()}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-[11px] font-medium text-slate-700 dark:text-slate-300 cursor-pointer disabled:opacity-50"
+                    disabled={uploadingFavicon}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50"
                   >
-                    {uploadingFavicon ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
-                    <span>{uploadingFavicon ? "Optimizing..." : "Upload Image"}</span>
+                    {uploadingFavicon ? <Loader2 className="w-3.5 h-3.5 animate-spin text-purple-600" /> : <Upload className="w-3.5 h-3.5 text-purple-600" />}
+                    <span>Upload Image</span>
                   </button>
                   <input
                     ref={faviconInputRef}
                     type="file"
-                    accept="image/png, image/jpeg, image/x-icon, image/svg+xml, image/webp"
+                    accept="image/png,image/jpeg,image/svg+xml,image/x-icon,image/vnd.microsoft.icon"
                     className="hidden"
-                    onChange={(e) => handleFileUpload(e, "favicon_url", 128)}
+                    onChange={(e) => handleFileUpload(e, "favicon_url", 64)}
                   />
                 </div>
               </div>
 
+              {/* Favicon Preview & URL Input */}
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 flex items-center justify-center p-1.5 shrink-0 overflow-hidden">
+                <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center overflow-hidden shrink-0">
                   <img
+                    key={currentFavicon}
                     src={currentFavicon}
-                    alt="Favicon preview"
-                    className="w-full h-full object-contain"
-                    onError={(e) => { (e.target as HTMLElement).style.display = "none"; }}
+                    alt="Favicon"
+                    className="w-6 h-6 object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLElement).style.display = "none";
+                    }}
                   />
                 </div>
                 <input
@@ -579,7 +583,7 @@ export default function CustomizationPage() {
                 <Type className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-slate-900 dark:text-white">Portal Typography & Font Family</h2>
+                <h2 className="text-[13px] font-semibold text-slate-900 dark:text-white box-title">Portal Typography & Font Family</h2>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">
                   Select a font family for the entire portal. Fonts are loaded instantly.
                 </p>
@@ -632,7 +636,7 @@ export default function CustomizationPage() {
                 <Layout className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-slate-900 dark:text-white">Top Header & Sub-Header Tabs Styling</h2>
+                <h2 className="text-[13px] font-semibold text-slate-900 dark:text-white box-title">Top Header & Sub-Header Tabs Styling</h2>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">
                   Customize the top navigation bar, company slogan, sub-header category tabs, and active underlines.
                 </p>
@@ -831,7 +835,7 @@ export default function CustomizationPage() {
                 <Box className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-slate-900 dark:text-white">Sidebar Navigation Styling</h2>
+                <h2 className="text-[13px] font-semibold text-slate-900 dark:text-white box-title">Sidebar Navigation Styling</h2>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">
                   Configure the left navigation bar background and active menu item highlight color.
                 </p>
@@ -924,7 +928,7 @@ export default function CustomizationPage() {
                 <Sparkles className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-slate-900 dark:text-white">UI Shapes, Elevation & Corner Roundness</h2>
+                <h2 className="text-[13px] font-semibold text-slate-900 dark:text-white box-title">UI Shapes, Elevation & Corner Roundness</h2>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">
                   Configure button shapes, card shadow elevations, and component corner roundness.
                 </p>
@@ -1065,7 +1069,7 @@ export default function CustomizationPage() {
                 <Sliders className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-slate-900 dark:text-white">Font Sizing & Scale Multipliers</h2>
+                <h2 className="text-[13px] font-semibold text-slate-900 dark:text-white box-title">Font Sizing & Scale Multipliers</h2>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">
                   Control baseline reading comfort across cards, tables, descriptions, and headings.
                 </p>
@@ -1162,7 +1166,7 @@ export default function CustomizationPage() {
                 <Layers className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-slate-900 dark:text-white">Workplace Layout Density</h2>
+                <h2 className="text-[13px] font-semibold text-slate-900 dark:text-white box-title">Workplace Layout Density</h2>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">
                   Control padding density across tables, forms, cards, and activity feeds.
                 </p>
@@ -1198,7 +1202,7 @@ export default function CustomizationPage() {
                 <Globe className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-slate-900 dark:text-white">Page Title & Browser Tab Format</h2>
+                <h2 className="text-[13px] font-semibold text-slate-900 dark:text-white box-title">Page Title & Browser Tab Format</h2>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">
                   Configure the base portal brand title and how browser tab titles are displayed across every page.
                 </p>
@@ -1273,7 +1277,7 @@ export default function CustomizationPage() {
                 <LogInIcon className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-slate-900 dark:text-white">Login Screen & Footer Legal Messaging</h2>
+                <h2 className="text-[13px] font-semibold text-slate-900 dark:text-white box-title">Login Screen & Footer Legal Messaging</h2>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">
                   Customize the welcome headline, subtitle, and footer copyright text across the portal.
                 </p>

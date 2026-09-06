@@ -208,8 +208,8 @@ export default function PermissionsManagementPage() {
               Team & Role Permissions
             </span>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2.5">
-            <Shield className="w-6 h-6 text-[#56348f] dark:text-purple-400" />
+          <h1 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
+            <Shield className="w-5 h-5 text-[#56348f] dark:text-purple-400" />
             <span>Team & Role Permissions Management</span>
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -357,7 +357,7 @@ export default function PermissionsManagementPage() {
                   </div>
                   <div className="space-y-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                      <h3 className="text-[13px] font-semibold text-slate-900 dark:text-white box-title">
                         {def.name}
                       </h3>
                       <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-purple-50 text-[#56348f] dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800">

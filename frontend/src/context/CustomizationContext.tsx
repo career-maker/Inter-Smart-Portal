@@ -5,6 +5,7 @@ import {
   CustomizationSettings,
   DEFAULT_CUSTOMIZATION_SETTINGS,
   customizationApi,
+  resolveCustomizationAssetUrl,
 } from "@/services/customization";
 
 interface CustomizationContextValue {
@@ -123,19 +124,39 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
     const btnRadius = conf.button_style === "pill" ? "9999px" : conf.button_style === "sharp" ? "2px" : (conf.border_radius || "12px");
     root.style.setProperty("--portal-btn-radius", btnRadius);
 
-    // 9. Dynamic Favicon Injection
-    const faviconUrl = conf.favicon_url || "/icon.png";
-    const existingIcons = document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]');
-    if (existingIcons.length > 0) {
-      existingIcons.forEach((el) => {
-        (el as HTMLLinkElement).href = faviconUrl;
-      });
-    } else {
-      const link = document.createElement("link");
-      link.rel = "icon";
-      link.href = faviconUrl;
-      document.head.appendChild(link);
-    }
+    // 9. Dynamic Favicon Injection (Resolves backend upload paths & forces tab refresh)
+    const rawFavicon = conf.favicon_url || "/icon.png";
+    const resolvedFavicon = resolveCustomizationAssetUrl(rawFavicon) || "/icon.png";
+    const cacheBuster = resolvedFavicon.startsWith("data:")
+      ? ""
+      : resolvedFavicon.includes("?")
+      ? `&v=${Date.now()}`
+      : `?v=${Date.now()}`;
+    const finalFaviconUrl = `${resolvedFavicon}${cacheBuster}`;
+
+    // Remove existing link elements to force browser rendering engine to re-fetch
+    const existingIcons = document.querySelectorAll('link[rel*="icon"]');
+    existingIcons.forEach((el) => el.remove());
+
+    const iconLink = document.createElement("link");
+    iconLink.id = "portal-dynamic-favicon";
+    iconLink.rel = "icon";
+    iconLink.type = "image/png";
+    iconLink.href = finalFaviconUrl;
+    document.head.appendChild(iconLink);
+
+    const shortcutLink = document.createElement("link");
+    shortcutLink.id = "portal-dynamic-shortcut-icon";
+    shortcutLink.rel = "shortcut icon";
+    shortcutLink.type = "image/png";
+    shortcutLink.href = finalFaviconUrl;
+    document.head.appendChild(shortcutLink);
+
+    const appleLink = document.createElement("link");
+    appleLink.id = "portal-dynamic-apple-icon";
+    appleLink.rel = "apple-touch-icon";
+    appleLink.href = finalFaviconUrl;
+    document.head.appendChild(appleLink);
   }, []);
 
   // Fetch settings from API on mount
