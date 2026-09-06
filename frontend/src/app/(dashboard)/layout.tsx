@@ -313,7 +313,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const handleOutsideClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       if (!target.closest('#light-theme-sidebar') && !target.closest('#light-theme-flyout-portal')) {
-        setFlyoutState(null);
+        // Defer state update so current click event loop completes without being cancelled by layout re-render
+        setTimeout(() => {
+          setFlyoutState(null);
+        }, 0);
       }
     };
     document.addEventListener('mousedown', handleOutsideClick);
@@ -560,6 +563,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <Link
                       key={href}
                       href={href}
+                      prefetch={true}
                       onClick={() => setFlyoutState(null)}
                       style={{
                         backgroundColor: active ? "#071724" : "transparent",
@@ -744,6 +748,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <Link
                       key={item.href}
                       href={item.href}
+                      prefetch={true}
                       onClick={() => setFlyoutState(null)}
                       style={{
                         backgroundColor: active ? "#071724" : "transparent",
@@ -786,7 +791,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 {STANDALONE.map(({ href, label, icon: Icon }) => {
                   const active = pathname === href;
                   return (
-                    <Link key={href} href={href} className={`flex items-center gap-3 px-3 py-2.5 text-sm font-semibold transition-colors rounded-xl ${active ? "bg-amber-500/20 text-amber-400" : "text-slate-400 hover:bg-slate-800 hover:text-white"}`} title={isSidebarCollapsed ? label : undefined}>
+                    <Link key={href} href={href} prefetch={true} className={`flex items-center gap-3 px-3 py-2.5 text-sm font-semibold transition-colors rounded-xl ${active ? "bg-amber-500/20 text-amber-400" : "text-slate-400 hover:bg-slate-800 hover:text-white"}`} title={isSidebarCollapsed ? label : undefined}>
                       <Icon className="h-5 w-5 shrink-0" />
                       {!isSidebarCollapsed && <span className="truncate">{label}</span>}
                     </Link>
@@ -855,7 +860,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                               }
 
                               return (
-                                <Link key={item.href} href={item.href} className={`flex items-center gap-3 pl-8 pr-3 py-2 text-sm transition-colors rounded-xl ${active ? "bg-amber-500/20 text-amber-400 font-semibold" : "text-slate-400 hover:bg-slate-800 hover:text-white"}`}>
+                                <Link key={item.href} href={item.href} prefetch={true} className={`flex items-center gap-3 pl-8 pr-3 py-2 text-sm transition-colors rounded-xl ${active ? "bg-amber-500/20 text-amber-400 font-semibold" : "text-slate-400 hover:bg-slate-800 hover:text-white"}`}>
                                   {itemContent}
                                 </Link>
                               );
@@ -1124,6 +1129,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   <Link
                     key={tab.href}
                     href={tab.href}
+                    prefetch={true}
                     style={{
                       fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)',
                       fontSize: "11px",
@@ -1154,7 +1160,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="h-[104px] shrink-0 w-full" />
 
         {/* Page Content (Full width across wide displays, zero awkward side gaps) */}
-        <main className="flex-1 px-4 sm:px-6 lg:px-8 xl:px-10 pt-1 sm:pt-1.5 pb-14 sm:pb-16 w-full max-w-full">
+        <main key={pathname} className="flex-1 px-4 sm:px-6 lg:px-8 xl:px-10 pt-1 sm:pt-1.5 pb-14 sm:pb-16 w-full max-w-full">
           {children}
         </main>
 
@@ -1229,6 +1235,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <Link
                   key={href}
                   href={href}
+                  prefetch={true}
                   onClick={closeMenu}
                   style={{ backgroundColor: "#071724", color: "#ffffff" }}
                   className="flex items-center gap-3.5 px-3.5 py-2.5 text-sm font-semibold rounded-xl border border-white/10 shadow-sm cursor-pointer hover:bg-[#133249]"
@@ -1281,6 +1288,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                           <Link
                             key={item.href}
                             href={item.href}
+                            prefetch={true}
                             onClick={closeMenu}
                             className={`flex items-center justify-between px-3 py-2 text-xs rounded-lg transition-colors cursor-pointer ${
                               active ? "drawer-subitem-active font-bold border-l-2 border-amber-400" : "drawer-subitem font-normal"

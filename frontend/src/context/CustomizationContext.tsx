@@ -127,7 +127,7 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
     const btnRadius = conf.button_style === "pill" ? "9999px" : conf.button_style === "sharp" ? "2px" : (conf.border_radius || "12px");
     root.style.setProperty("--portal-btn-radius", btnRadius);
 
-    // 9. Dynamic Favicon Injection (Resolves backend upload paths & forces tab refresh)
+    // 9. Dynamic Favicon Injection (Resolves backend upload paths & updates links in place without removing React 19 fiber nodes)
     const rawFavicon = conf.favicon_url || "/icon.png";
     const resolvedFavicon = resolveCustomizationAssetUrl(rawFavicon) || "/icon.png";
     const cacheBuster = resolvedFavicon.startsWith("data:")
@@ -137,29 +137,35 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
       : `?v=${Date.now()}`;
     const finalFaviconUrl = `${resolvedFavicon}${cacheBuster}`;
 
-    // Remove existing link elements to force browser rendering engine to re-fetch
-    const existingIcons = document.querySelectorAll('link[rel*="icon"]');
-    existingIcons.forEach((el) => el.remove());
-
-    const iconLink = document.createElement("link");
-    iconLink.id = "portal-dynamic-favicon";
-    iconLink.rel = "icon";
-    iconLink.type = "image/png";
+    let iconLink = document.getElementById("portal-dynamic-favicon") as HTMLLinkElement | null;
+    if (!iconLink) {
+      iconLink = document.createElement("link");
+      iconLink.id = "portal-dynamic-favicon";
+      iconLink.rel = "icon";
+      iconLink.type = "image/png";
+      document.head.appendChild(iconLink);
+    }
     iconLink.href = finalFaviconUrl;
-    document.head.appendChild(iconLink);
 
-    const shortcutLink = document.createElement("link");
-    shortcutLink.id = "portal-dynamic-shortcut-icon";
-    shortcutLink.rel = "shortcut icon";
-    shortcutLink.type = "image/png";
+    let shortcutLink = document.getElementById("portal-dynamic-shortcut-icon") as HTMLLinkElement | null;
+    if (!shortcutLink) {
+      shortcutLink = document.createElement("link");
+      shortcutLink.id = "portal-dynamic-shortcut-icon";
+      shortcutLink.rel = "shortcut icon";
+      shortcutLink.type = "image/png";
+      document.head.appendChild(shortcutLink);
+    }
     shortcutLink.href = finalFaviconUrl;
-    document.head.appendChild(shortcutLink);
 
-    const appleLink = document.createElement("link");
-    appleLink.id = "portal-dynamic-apple-icon";
-    appleLink.rel = "apple-touch-icon";
+    let appleLink = document.getElementById("portal-dynamic-apple-icon") as HTMLLinkElement | null;
+    if (!appleLink) {
+      appleLink = document.createElement("link");
+      appleLink.id = "portal-dynamic-apple-icon";
+      appleLink.rel = "apple-touch-icon";
+      appleLink.href = finalFaviconUrl;
+      document.head.appendChild(appleLink);
+    }
     appleLink.href = finalFaviconUrl;
-    document.head.appendChild(appleLink);
   }, []);
 
   // Fetch settings from API on mount
