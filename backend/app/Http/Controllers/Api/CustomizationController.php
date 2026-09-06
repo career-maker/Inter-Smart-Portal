@@ -80,7 +80,14 @@ class CustomizationController extends Controller
             }
 
             $setting = CustomizationSetting::getSettings();
-            $setting->update(array_filter($validated, fn($val) => !is_null($val)));
+            $existingColumns = Schema::getColumnListing('customization_settings');
+            $payload = array_filter(
+                $validated,
+                fn($val, $key) => !is_null($val) && in_array($key, $existingColumns, true),
+                ARRAY_FILTER_USE_BOTH
+            );
+
+            $setting->update($payload);
 
             return response()->json([
                 'success'  => true,
