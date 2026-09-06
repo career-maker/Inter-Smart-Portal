@@ -21,6 +21,7 @@ export interface CustomizationSettings {
   page_title_format: string;
   favicon_url?: string;
   logo_url?: string;
+  welcome_banner_url?: string;
   border_radius?: string;
   sub_header_bg?: string;
   sub_header_active_color?: string;
@@ -52,6 +53,7 @@ export const DEFAULT_CUSTOMIZATION_SETTINGS: CustomizationSettings = {
   page_title_format: "{title} | {pagename}",
   favicon_url: "/icon.png",
   logo_url: "/logo.png",
+  welcome_banner_url: "/welcome-banner-bg.jpg",
   border_radius: "12px",
   sub_header_bg: "#ffffff",
   sub_header_active_color: "#56348f",
@@ -72,7 +74,7 @@ export const customizationApi = {
     return res.data;
   },
 
-  uploadAsset: async (file: File, type?: "favicon" | "logo"): Promise<{ success: boolean; url: string; message: string }> => {
+  uploadAsset: async (file: File, type?: "favicon" | "logo" | "welcome_banner"): Promise<{ success: boolean; url: string; message: string }> => {
     const formData = new FormData();
     formData.append("file", file);
     if (type) formData.append("type", type);
@@ -89,7 +91,7 @@ export const customizationApi = {
 };
 
 /**
- * Resolve customization asset URLs (favicons, logos) whether they are data URLs,
+ * Resolve customization asset URLs (favicons, logos, welcome banners) whether they are data URLs,
  * local frontend static assets, or uploaded backend files.
  */
 export function resolveCustomizationAssetUrl(url?: string | null): string {
@@ -98,7 +100,14 @@ export function resolveCustomizationAssetUrl(url?: string | null): string {
     return url;
   }
   // Local static files in frontend public/ directory
-  if (url === "/icon.png" || url === "/logo.png" || url === "/favicon.ico" || url.startsWith("/icons/")) {
+  if (
+    url === "/icon.png" ||
+    url === "/logo.png" ||
+    url === "/logo-dark.png" ||
+    url === "/favicon.ico" ||
+    url === "/welcome-banner-bg.jpg" ||
+    url.startsWith("/icons/")
+  ) {
     return url;
   }
   // Uploaded assets on the backend server

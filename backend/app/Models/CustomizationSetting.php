@@ -38,6 +38,7 @@ class CustomizationSetting extends Model
         'density',
         'footer_copyright',
         'extra_colors',
+        'welcome_banner_url',
     ];
 
     protected $casts = [
@@ -67,6 +68,7 @@ class CustomizationSetting extends Model
             'page_title_format'       => '{title} | {pagename}',
             'favicon_url'             => '/icon.png',
             'logo_url'                => '/logo.png',
+            'welcome_banner_url'      => '/welcome-banner-bg.jpg',
             'border_radius'           => '12px',
             'sub_header_bg'           => '#ffffff',
             'sub_header_active_color' => '#56348f',

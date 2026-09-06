@@ -55,6 +55,7 @@ class CustomizationController extends Controller
             'page_title_format'       => 'nullable|string|max:100',
             'favicon_url'             => 'nullable|string',
             'logo_url'                => 'nullable|string',
+            'welcome_banner_url'      => 'nullable|string',
             'border_radius'           => 'nullable|string|max:20',
             'sub_header_bg'           => 'nullable|string|max:50',
             'sub_header_active_color' => 'nullable|string|max:50',
@@ -77,6 +78,9 @@ class CustomizationController extends Controller
             }
             if (!empty($validated['logo_url']) && str_starts_with($validated['logo_url'], 'data:image/')) {
                 $validated['logo_url'] = $this->saveBase64Image($validated['logo_url'], 'logo');
+            }
+            if (!empty($validated['welcome_banner_url']) && str_starts_with($validated['welcome_banner_url'], 'data:image/')) {
+                $validated['welcome_banner_url'] = $this->saveBase64Image($validated['welcome_banner_url'], 'welcome_banner');
             }
 
             $setting = CustomizationSetting::getSettings();
@@ -108,8 +112,8 @@ class CustomizationController extends Controller
     public function uploadAsset(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|max:5120',
-            'type' => 'nullable|string|in:favicon,logo',
+            'file' => 'required|file|max:10240',
+            'type' => 'nullable|string|in:favicon,logo,welcome_banner',
         ]);
 
         try {

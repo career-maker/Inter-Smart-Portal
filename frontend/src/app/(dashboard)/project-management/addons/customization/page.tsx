@@ -218,11 +218,13 @@ export default function CustomizationPage() {
   const [resetting, setResetting] = useState(false);
   const [uploadingFavicon, setUploadingFavicon] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [uploadingBanner, setUploadingBanner] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const faviconInputRef = useRef<HTMLInputElement | null>(null);
   const logoInputRef = useRef<HTMLInputElement | null>(null);
+  const bannerInputRef = useRef<HTMLInputElement | null>(null);
 
   // Sync state if external settings change
   useEffect(() => {
@@ -241,42 +243,46 @@ export default function CustomizationPage() {
   // Safe file upload handler with instant Data URL & dedicated upload API
   const handleFileUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
-    field: "favicon_url" | "logo_url",
+    field: "favicon_url" | "logo_url" | "welcome_banner_url",
     maxDim: number
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     if (field === "favicon_url") setUploadingFavicon(true);
-    else setUploadingLogo(true);
+    else if (field === "logo_url") setUploadingLogo(true);
+    else setUploadingBanner(true);
     setErrorMessage(null);
 
     try {
       // 1. Optimize image client-side to prevent massive payloads and produce immediate data URL
       const { file: optimized, dataUrl } = await resizeImage(file, maxDim, maxDim);
 
-      // 2. Instantly update UI and tab favicon with 0ms latency
+      // 2. Instantly update UI and tab with 0ms latency
       handleFieldChange(field, dataUrl);
 
       // 3. Upload to server storage endpoint
       try {
-        const type = field === "favicon_url" ? "favicon" : "logo";
+        const type = field === "favicon_url" ? "favicon" : field === "logo_url" ? "logo" : "welcome_banner";
         const res = await customizationApi.uploadAsset(optimized, type);
         if (res?.url) {
           const resolved = resolveCustomizationAssetUrl(res.url);
           handleFieldChange(field, resolved);
-          setSuccessMessage(`${field === "favicon_url" ? "Favicon" : "Logo"} uploaded and ready.`);
+          const label = field === "favicon_url" ? "Favicon" : field === "logo_url" ? "Logo" : "Welcome banner background";
+          setSuccessMessage(`${label} uploaded and ready.`);
           return;
         }
       } catch (uploadErr) {
         console.warn("Server asset upload failed, kept data URL:", uploadErr);
-        setSuccessMessage(`${field === "favicon_url" ? "Favicon" : "Logo"} applied.`);
+        const label = field === "favicon_url" ? "Favicon" : field === "logo_url" ? "Logo" : "Welcome banner background";
+        setSuccessMessage(`${label} applied.`);
       }
     } catch (err: any) {
       setErrorMessage("Failed to process image: " + (err.message || "Unknown error"));
     } finally {
       if (field === "favicon_url") setUploadingFavicon(false);
-      else setUploadingLogo(false);
+      else if (field === "logo_url") setUploadingLogo(false);
+      else setUploadingBanner(false);
     }
   };
 
@@ -351,6 +357,7 @@ export default function CustomizationPage() {
 
   const currentFavicon = resolveCustomizationAssetUrl(form.favicon_url) || "/icon.png";
   const currentLogo = resolveCustomizationAssetUrl(form.logo_url) || "/logo.png";
+  const currentWelcomeBanner = resolveCustomizationAssetUrl(form.welcome_banner_url) || "/welcome-banner-bg.jpg";
   const currentRadius = form.border_radius || "12px";
   const currentBtnRadius = form.button_style === "pill" ? "9999px" : form.button_style === "sharp" ? "2px" : currentRadius;
 
@@ -576,7 +583,159 @@ export default function CustomizationPage() {
             </div>
           </div>
 
-          {/* 2. TYPOGRAPHY & FONT FAMILY */}
+          {/* 2. DASHBOARD WELCOME CARD HERO BANNER BACKGROUND */}
+          <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 space-y-5 shadow-sm">
+            <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
+              <div className="p-2.5 rounded-xl bg-purple-100 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-[14px] font-semibold text-slate-900 dark:text-white box-title">
+                  Dashboard Welcome Card Background
+                </h2>
+                <p className="text-[13px] text-slate-500 dark:text-slate-400">
+                  Customize the background image of the top welcome hero banner on employee and admin dashboards.
+                </p>
+              </div>
+            </div>
+
+            {/* Live Interactive Preview of Hero Banner */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <span>Welcome Card Live Preview</span>
+                  <span className="text-[10px] text-purple-600 font-normal">(With dark gradient overlay)</span>
+                </label>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleFieldChange("welcome_banner_url", "/welcome-banner-bg.jpg")}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-[11px] font-medium text-slate-600 dark:text-slate-400 cursor-pointer"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    <span>Default</span>
+                  </button>
+                  <button
+                    type="button"
+                    disabled={uploadingBanner}
+                    onClick={() => bannerInputRef.current?.click()}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-purple-300 dark:border-purple-800 bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    {uploadingBanner ? <Loader2 className="w-3.5 h-3.5 animate-spin text-purple-600" /> : <Upload className="w-3.5 h-3.5 text-purple-600" />}
+                    <span>{uploadingBanner ? "Processing..." : "Upload New Image"}</span>
+                  </button>
+                  <input
+                    ref={bannerInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/jpg"
+                    className="hidden"
+                    onChange={(e) => handleFileUpload(e, "welcome_banner_url", 1920)}
+                  />
+                </div>
+              </div>
+
+              {/* Banner Mockup Box */}
+              <div
+                style={{
+                  backgroundImage: `linear-gradient(to right, rgba(12, 24, 45, 0.92) 0%, rgba(15, 23, 42, 0.72) 50%, rgba(12, 24, 45, 0.92) 100%), url('${currentWelcomeBanner}')`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  borderRadius: currentRadius,
+                }}
+                className="relative overflow-hidden p-5 sm:p-6 border border-white/20 shadow-lg min-h-[140px] flex flex-col justify-between text-white transition-all select-none"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="space-y-1">
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-amber-300 flex items-center gap-1">
+                      <Sparkles className="w-3 h-3" /> Live Welcome Card Preview
+                    </span>
+                    <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">
+                      Good Day, {user?.first_name ? `${user.first_name} ${user.last_name || ""}`.trim() : "Abhiram"}
+                    </h3>
+                    <p className="text-xs text-slate-200/90 font-medium">
+                      {form.header_subtitle || "PERFECTION AT ITS FINEST"}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="px-3 py-1 rounded-full bg-emerald-500/30 text-emerald-200 border border-emerald-400/40 text-xs font-semibold shadow-xs">
+                      ● Attendance Ready
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center justify-between text-[11px] text-slate-300/80 pt-3 border-t border-white/10 mt-3">
+                  <span>Current Image: <strong className="text-white font-mono">{currentWelcomeBanner.length > 40 ? currentWelcomeBanner.substring(0, 38) + "..." : currentWelcomeBanner}</strong></span>
+                  <span className="text-[10px] text-slate-400">Resolution: HD (1920×1080 recommended)</span>
+                </div>
+              </div>
+
+              {/* Direct URL Input */}
+              <div className="space-y-1.5 pt-1">
+                <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-400">
+                  Image Path or Direct URL
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={form.welcome_banner_url || ""}
+                    onChange={(e) => handleFieldChange("welcome_banner_url", e.target.value)}
+                    placeholder="/welcome-banner-bg.jpg or https://.../image.jpg"
+                    className="flex-1 px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-purple-500 truncate"
+                  />
+                  {form.welcome_banner_url && form.welcome_banner_url !== "/welcome-banner-bg.jpg" && (
+                    <button
+                      type="button"
+                      onClick={() => handleFieldChange("welcome_banner_url", "/welcome-banner-bg.jpg")}
+                      className="px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold cursor-pointer shrink-0"
+                    >
+                      Reset
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Curated Aesthetic Presets */}
+              <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-400">
+                  Curated Background Themes:
+                </span>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {[
+                    { label: "Navy Glow (Default)", url: "/welcome-banner-bg.jpg", desc: "Original InterSmart look" },
+                    { label: "Deep Indigo Mesh", url: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=1920&q=80", desc: "Vibrant cyber gradient" },
+                    { label: "Obsidian Slate", url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1920&q=80", desc: "Dark modern fluid art" },
+                    { label: "Midnight Blue", url: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=1920&q=80", desc: "Smooth dusk spectrum" },
+                    { label: "Tech Grid", url: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1920&q=80", desc: "Subtle digital matrix" },
+                    { label: "Aurora Night", url: "https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=1920&q=80", desc: "Cosmic starry glow" },
+                  ].map((preset) => {
+                    const isSelected = form.welcome_banner_url === preset.url || (!form.welcome_banner_url && preset.url === "/welcome-banner-bg.jpg");
+                    return (
+                      <button
+                        key={preset.url}
+                        type="button"
+                        onClick={() => handleFieldChange("welcome_banner_url", preset.url)}
+                        className={`p-2 rounded-xl border text-left flex flex-col justify-between transition-all cursor-pointer relative overflow-hidden group ${
+                          isSelected
+                            ? "border-purple-600 bg-purple-50/70 dark:bg-purple-950/40 ring-2 ring-purple-500/20"
+                            : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className={`text-[11px] font-bold truncate ${isSelected ? "text-purple-950 dark:text-purple-200" : "text-slate-800 dark:text-slate-200"}`}>
+                            {preset.label}
+                          </span>
+                          {isSelected && <Check className="w-3.5 h-3.5 text-purple-600 shrink-0 ml-1" />}
+                        </div>
+                        <span className="text-[9.5px] text-slate-400 mt-0.5 truncate">{preset.desc}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 3. TYPOGRAPHY & FONT FAMILY */}
           <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 space-y-5 shadow-sm">
             <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
               <div className="p-2.5 rounded-xl bg-purple-100 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300">
@@ -1498,6 +1657,36 @@ export default function CustomizationPage() {
                   }}
                   className="p-3 space-y-2.5 bg-slate-50 dark:bg-slate-950/60 flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                 >
+                  {/* Miniature Welcome Hero Banner Preview */}
+                  <div
+                    style={{
+                      backgroundImage: `linear-gradient(to right, rgba(12, 24, 45, 0.92) 0%, rgba(15, 23, 42, 0.72) 50%, rgba(12, 24, 45, 0.92) 100%), url('${currentWelcomeBanner}')`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      borderRadius: currentRadius,
+                    }}
+                    className="p-3 border border-white/20 text-white shadow-md relative overflow-hidden space-y-2 select-none"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-[9px] font-bold text-white shadow-inner">
+                          SA
+                        </div>
+                        <div>
+                          <div className="text-[11px] font-bold text-white leading-tight">Good Day, Administrator</div>
+                          <div className="text-[8px] text-white/80 font-medium truncate max-w-[140px]">{form.header_subtitle || "PERFECTION AT ITS FINEST"}</div>
+                        </div>
+                      </div>
+                      <span className="text-[7.5px] px-2 py-0.5 rounded-full bg-emerald-500/25 text-emerald-300 font-bold border border-emerald-400/30 shrink-0">
+                        ● In 10:02 AM
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-[7.5px] text-white/75 pt-1 border-t border-white/10">
+                      <span>Dashboard Hero Banner</span>
+                      <span className="font-mono">10:00 AM - 07:00 PM</span>
+                    </div>
+                  </div>
+
                   {/* Heading Sample */}
                   <div className="space-y-0.5">
                     <div className="flex items-center justify-between">

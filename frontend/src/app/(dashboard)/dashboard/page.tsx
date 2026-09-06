@@ -55,11 +55,14 @@ import { UpcomingHolidaysCard } from "@/components/dashboard/UpcomingHolidaysCar
 import { NetworkErrorWithGame } from "@/components/ui/NetworkErrorWithGame";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, AreaChart, Area } from "recharts";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
-import { useTopAwardee } from "@/context/TopAwardeeContext";
 import { EmployeeAttendanceDrawer } from "@/components/attendance/EmployeeAttendanceDrawer";
+import { useCustomization } from "@/context/CustomizationContext";
+import { resolveCustomizationAssetUrl } from "@/services/customization";
 
 
 export default function DashboardPage() {
+  const { settings: customizationSettings } = useCustomization();
+  const welcomeBannerBg = resolveCustomizationAssetUrl(customizationSettings?.welcome_banner_url || "/welcome-banner-bg.jpg");
   const user = useAuthStore((state) => state.user);
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -308,7 +311,7 @@ export default function DashboardPage() {
       <div
         id="keka-welcome-hero-banner"
         style={{
-          backgroundImage: `linear-gradient(to right, rgba(12, 24, 45, 0.92) 0%, rgba(15, 23, 42, 0.72) 50%, rgba(12, 24, 45, 0.92) 100%), url('/welcome-banner-bg.jpg')`,
+          backgroundImage: `linear-gradient(to right, rgba(12, 24, 45, 0.92) 0%, rgba(15, 23, 42, 0.72) 50%, rgba(12, 24, 45, 0.92) 100%), url('${welcomeBannerBg}')`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
@@ -1240,6 +1243,8 @@ function PhotoAvatar({ src, name, className = "", textClass = "" }: { src?: stri
 }
 
 function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLeaveSummaryVisible }: any) {
+  const { settings: customizationSettings } = useCustomization();
+  const welcomeBannerBg = resolveCustomizationAssetUrl(customizationSettings?.welcome_banner_url || "/welcome-banner-bg.jpg");
   const { profile, admin_data, widgets } = data;
   const { kpis, activity_feed } = admin_data;
   const [leaveModalData, setLeaveModalData] = useState<{title: string, list: any[]} | null>(null);
@@ -1283,7 +1288,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
       <div
         id="keka-welcome-hero-banner"
         style={{
-          backgroundImage: `linear-gradient(to right, rgba(12, 24, 45, 0.92) 0%, rgba(15, 23, 42, 0.72) 50%, rgba(12, 24, 45, 0.92) 100%), url('/welcome-banner-bg.jpg')`,
+          backgroundImage: `linear-gradient(to right, rgba(12, 24, 45, 0.92) 0%, rgba(15, 23, 42, 0.72) 50%, rgba(12, 24, 45, 0.92) 100%), url('${welcomeBannerBg}')`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
