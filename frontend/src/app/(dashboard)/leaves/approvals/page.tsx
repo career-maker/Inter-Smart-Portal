@@ -975,7 +975,15 @@ export default function ApprovalsPage() {
 
                     {/* TL Status */}
                     <td className="py-2.5 px-2 align-middle text-center border-r border-slate-100 dark:border-slate-800/60 break-words whitespace-normal leading-tight">
-                      <span className={`text-[10px] font-bold ${req.tl_status === "Approved" ? "text-emerald-600 dark:text-emerald-400" : req.tl_status === "Rejected" ? "text-rose-600 dark:text-rose-400" : "text-amber-600 dark:text-amber-400"}`}>
+                      <span className={`text-[10px] font-bold ${
+                        req.tl_status === "Approved"
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : req.tl_status === "Rejected"
+                          ? "text-rose-600 dark:text-rose-400"
+                          : req.tl_status === "Not Required"
+                          ? "text-slate-500 dark:text-slate-400 font-medium"
+                          : "text-amber-600 dark:text-amber-400"
+                      }`}>
                         {req.tl_status ?? "Pending"}
                       </span>
                     </td>

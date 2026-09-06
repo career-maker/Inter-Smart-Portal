@@ -56,9 +56,17 @@ class WfhRequestController extends Controller
 
         if ($user->hasRole('Super Admin') || $user->hasRole('HR')) {
             if ($request->has('status') && $request->status === 'Pending') {
-                // Admin sees requests where TL has acted and admin is still pending
+                // Admin sees requests where TL has acted, TL is not required, or employee has no team/TL
                 $query->where('admin_status', 'Pending')
-                      ->whereIn('tl_status', ['Approved', 'Not Required'])
+                      ->where(function ($q) {
+                          $q->whereIn('tl_status', ['Approved', 'Not Required'])
+                            ->orWhereDoesntHave('user.team', function ($tq) {
+                                $tq->whereNotNull('team_lead_id');
+                            })
+                            ->orWhereHas('user', function ($uq) {
+                                $uq->whereNull('team_id');
+                            });
+                      })
                       ->where('status', 'Pending');
             } elseif ($request->has('status')) {
                 $query->where('status', $request->status);
@@ -172,12 +180,12 @@ class WfhRequestController extends Controller
             $adminStatus = 'Not Required';
             $status      = 'Approved';
             $approvedBy  = $user->id;
-        } elseif ($user->hasRole('Team Lead')) {
-            // TL cannot approve their own WFH — skip TL step, send to Admin
+        } elseif ($user->hasRole('Team Lead') || !$user->hasTeamLead()) {
+            // TL or employee with no Team Lead — skip TL step, send only to Admin
             $tlStatus    = 'Not Required';
             $adminStatus = 'Pending';
         }
-        // else: Employee → both TL and Admin need to approve
+        // else: Employee with TL → both TL and Admin need to approve
 
         // For half-day WFH, end_date = start_date
         $isHalfDay = in_array($data['duration_type'], ['Half-Morning', 'Half-Afternoon']);
@@ -439,7 +447,7 @@ class WfhRequestController extends Controller
                 'attachment_link' => $data['attachment_link'] ?? null,
                 'duration_type' => $durationType,
                 'status'       => $autoApprove ? 'Approved' : 'Pending',
-                'tl_status'    => $autoApprove ? 'Not Required' : 'Pending',
+                'tl_status'    => ($autoApprove || !$targetUser->hasTeamLead()) ? 'Not Required' : 'Pending',
                 'admin_status' => $autoApprove ? 'Approved' : 'Pending',
                 'approved_by'  => $autoApprove ? $admin->id : null,
             ]);

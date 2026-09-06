@@ -59,7 +59,13 @@ class LeaveRequestController extends Controller
                              ->where('status', 'Pending')
                              ->where(function ($q) {
                                  $q->whereIn('tl_status', ['Approved', 'Not Required'])
-                                   ->orWhereColumn('start_date', 'end_date');
+                                   ->orWhereColumn('start_date', 'end_date')
+                                   ->orWhereDoesntHave('user.team', function ($tq) {
+                                       $tq->whereNotNull('team_lead_id');
+                                   })
+                                   ->orWhereHas('user', function ($uq) {
+                                       $uq->whereNull('team_id');
+                                   });
                              });
                     })->orWhere('pending_lop_conversion', true);
                 });
@@ -607,6 +613,11 @@ class LeaveRequestController extends Controller
             $adminStatus = 'Pending';
         }
 
+        if (!$user->hasTeamLead()) {
+            $tlStatus    = 'Not Required';
+            $adminStatus = 'Pending';
+        }
+
         $leaveRequest = null;
         DB::beginTransaction();
         try {
@@ -703,10 +714,9 @@ class LeaveRequestController extends Controller
                     }
                 }
             } else {
-                // Notify the user's standard Team Lead
-                if ($user->team_id) {
-                    $team = \App\Models\Team::find($user->team_id);
-                    $tl   = $team?->teamLead;
+                // Notify the user's standard Team Lead if they have one
+                if ($user->hasTeamLead()) {
+                    $tl = $user->teamLead();
                     if ($tl && $tl->id !== $user->id) {
                         $tl->notify(new LeaveRequestNotification('submitted', $leaveRequest, $message));
                     }
@@ -840,10 +850,10 @@ class LeaveRequestController extends Controller
                 } elseif ($isAdmin) {
                     $leaveRequest->admin_status = 'Approved';
                     $leaveRequest->approved_by  = $user->id;
-                    // Single-day: Admin approval alone is sufficient
-                    if ($isSingleDay || in_array($leaveRequest->tl_status, ['Approved', 'Not Required'])) {
+                    // Single-day: Admin approval alone is sufficient. Also sufficient if TL not required or applicant has no TL
+                    if ($isSingleDay || in_array($leaveRequest->tl_status, ['Approved', 'Not Required']) || !$applicant->hasTeamLead()) {
                         $leaveRequest->status = 'Approved';
-                        if ($isSingleDay) {
+                        if ($isSingleDay || in_array($leaveRequest->tl_status, ['Pending', null])) {
                             $leaveRequest->tl_status = 'Not Required';
                         }
                     }

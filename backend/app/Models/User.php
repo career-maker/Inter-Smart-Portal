@@ -22,6 +22,55 @@ class User extends Authenticatable
     public function team() {
         return $this->belongsTo(Team::class);
     }
+
+    public function teamLead(): ?User
+    {
+        // 1. Check if user has delegated custom approvers (from EmailSetting)
+        try {
+            $overrides = \App\Models\EmailSetting::getByKey('employee_overrides', []);
+            $matchedOverride = collect($overrides)->first(function ($item) {
+                return (int)($item['user_id'] ?? 0) === (int)$this->id
+                    && ($item['enabled'] ?? true)
+                    && (!empty($item['approver_user_id']) || !empty($item['approver_user_id_2']));
+            });
+
+            if ($matchedOverride) {
+                $approverId = $matchedOverride['approver_user_id'] ?: $matchedOverride['approver_user_id_2'];
+                if ($approverId && (int)$approverId !== (int)$this->id) {
+                    $apprUser = static::find($approverId);
+                    if ($apprUser) {
+                        return $apprUser;
+                    }
+                }
+            }
+        } catch (\Throwable $e) {}
+
+        // 2. Check team assigned team lead
+        if (!$this->team_id) {
+            return null;
+        }
+
+        $team = $this->team ?: \App\Models\Team::find($this->team_id);
+        if (!$team || !$team->team_lead_id) {
+            return null;
+        }
+
+        if ((int)$team->team_lead_id === (int)$this->id) {
+            return null;
+        }
+
+        return $team->teamLead ?: static::find($team->team_lead_id);
+    }
+
+    public function hasTeamLead(): bool
+    {
+        // Super Admin, HR, and Team Leads do not have a TL review step
+        if ($this->hasRole('Super Admin') || $this->hasRole('HR') || $this->hasRole('Team Lead')) {
+            return false;
+        }
+
+        return $this->teamLead() !== null;
+    }
     
     public function leaveBalances() {
         return $this->hasOne(LeaveBalance::class);
