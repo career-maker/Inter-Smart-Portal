@@ -529,17 +529,21 @@ export default function DashboardPage() {
                 </span>
               </span>
 
-              <span
+              <div
                 style={{
                   fontFamily: '"Proxima Nova", sans-serif',
                   fontSize: "12px",
                   lineHeight: "16px",
                   color: "rgba(255, 255, 255, 0.90)"
                 }}
-                className="hero-datetime font-medium"
+                className="hero-datetime font-medium inline-flex items-center gap-1.5 flex-wrap"
               >
-                {format(time, "EEEE, d MMMM yyyy")} • {format(time, "h:mm:ss a")}
-              </span>
+                <span className="whitespace-nowrap">{format(time, "EEEE, d MMMM yyyy")}</span>
+                <span className="opacity-60">•</span>
+                <span className="whitespace-nowrap tabular-nums font-mono text-[11px] sm:text-xs">
+                  {format(time, "h:mm:ss")}&nbsp;{format(time, "a")}
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -1399,17 +1403,21 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
 
             {/* Real-time Date Time (Attendance status hidden for Super Admin) */}
             <div className="flex items-center gap-3 flex-wrap pt-1">
-              <span
+              <div
                 style={{
                   fontFamily: '"Proxima Nova", sans-serif',
                   fontSize: "12px",
                   lineHeight: "16px",
                   color: "rgba(255, 255, 255, 0.90)"
                 }}
-                className="hero-datetime font-medium"
+                className="hero-datetime font-medium inline-flex items-center gap-1.5 flex-wrap"
               >
-                {format(time, "EEEE, d MMMM yyyy")} • {format(time, "h:mm:ss a")}
-              </span>
+                <span className="whitespace-nowrap">{format(time, "EEEE, d MMMM yyyy")}</span>
+                <span className="opacity-60">•</span>
+                <span className="whitespace-nowrap tabular-nums font-mono text-[11px] sm:text-xs">
+                  {format(time, "h:mm:ss")}&nbsp;{format(time, "a")}
+                </span>
+              </div>
             </div>
           </div>
         </div>
