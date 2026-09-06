@@ -61,7 +61,7 @@ function resolveNotificationUrl(notification: any): string {
 
 export function NotificationDropdown() {
   const router = useRouter();
-  const { permissionStatus, requestNotificationPermission, sendTestNotification } = useChatPushNotifications();
+  const { permissionStatus, requestNotificationPermission } = useChatPushNotifications();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
@@ -184,7 +184,7 @@ export function NotificationDropdown() {
             </div>
           </div>
 
-          {/* Phone Push Notifications Quick Status & Test */}
+          {/* Phone Push Notifications Quick Status */}
           <div className="px-3.5 py-2 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-950/40 dark:to-slate-800 border-b border-purple-100 dark:border-purple-900/40 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
               <span className="text-sm shrink-0">🔔</span>
@@ -197,13 +197,15 @@ export function NotificationDropdown() {
                 </p>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={permissionStatus === "granted" ? sendTestNotification : requestNotificationPermission}
-              className="text-[10.5px] font-bold bg-[#56348f] hover:bg-purple-800 text-white px-2.5 py-0.5 rounded-full cursor-pointer transition-all shadow-xs active:scale-95"
-            >
-              {permissionStatus === "granted" ? "Send Test Alert" : "Enable"}
-            </button>
+            {permissionStatus !== "granted" && (
+              <button
+                type="button"
+                onClick={requestNotificationPermission}
+                className="text-[10.5px] font-bold bg-[#56348f] hover:bg-purple-800 text-white px-2.5 py-0.5 rounded-full cursor-pointer transition-all shadow-xs active:scale-95"
+              >
+                Enable
+              </button>
+            )}
           </div>
 
           <div className="max-h-84 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800 custom-scrollbar">
