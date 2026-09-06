@@ -1474,15 +1474,15 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
       {/* Analytics Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
         {/* Employee Status Pie Chart */}
-        <div className="bg-white dark:bg-slate-800 rounded-md p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm">
-          <h2 style={{ fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white mb-6 flex items-center gap-2 box-title">
+        <div className="bg-white dark:bg-slate-800 rounded-md p-4 sm:p-5 border border-slate-200 dark:border-slate-700/60 shadow-sm">
+          <h2 style={{ fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white mb-2 sm:mb-3 flex items-center gap-2 box-title">
             <Users className="w-5 h-5 text-blue-400" />
             Employee Status Distribution
           </h2>
           {kpis?.total_employees ? (
-            <div className="h-80 flex flex-col">
+            <div className="h-40 flex flex-col">
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart margin={{ top: 20, right: 0, bottom: 0, left: 0 }}>
+                <PieChart margin={{ top: 5, right: 0, bottom: 0, left: 0 }}>
                   <Pie
                     data={[
                       { name: 'Checked In', value: kpis.present_today ?? 0 },
@@ -1491,11 +1491,11 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                       { name: 'Not Checked In', value: Math.max(0, (kpis.total_employees ?? 0) - (kpis.present_today ?? 0) - (kpis.on_leave_today ?? 0) - (kpis.wfh_today ?? 0)) }
                     ]}
                     cx="50%"
-                    cy="70%"
+                    cy="72%"
                     startAngle={180}
                     endAngle={0}
-                    innerRadius={90}
-                    outerRadius={120}
+                    innerRadius={52}
+                    outerRadius={75}
                     paddingAngle={2}
                     labelLine={false}
                     label={false}
@@ -1513,23 +1513,23 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                     itemStyle={{ color: '#ffffff', fontWeight: 500 }}
                     labelStyle={{ color: '#ffffff', fontWeight: 600 }}
                   />
-                  <Legend layout="horizontal" align="center" verticalAlign="bottom" formatter={(value) => <span className="text-slate-600 dark:text-slate-400 text-sm">{value}</span>} />
+                  <Legend layout="horizontal" align="center" verticalAlign="bottom" formatter={(value) => <span className="text-slate-600 dark:text-slate-400 text-xs">{value}</span>} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-80 flex items-center justify-center text-slate-500 dark:text-slate-400">No employee data available</div>
+            <div className="h-40 flex items-center justify-center text-slate-500 dark:text-slate-400">No employee data available</div>
           )}
         </div>
 
         {/* Leave Requests Status Bar Chart */}
-        <div className="bg-white dark:bg-slate-800 rounded-md p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm">
-          <h2 style={{ fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white mb-6 flex items-center gap-2 box-title">
+        <div className="bg-white dark:bg-slate-800 rounded-md p-4 sm:p-5 border border-slate-200 dark:border-slate-700/60 shadow-sm">
+          <h2 style={{ fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white mb-2 sm:mb-3 flex items-center gap-2 box-title">
             <Palmtree className="w-5 h-5 text-orange-400" />
             Leave Requests Today
           </h2>
           {kpis ? (
-            <div className="h-80">
+            <div className="h-40">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                   data={[
@@ -1541,7 +1541,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                     { name: 'Day 6', leaves: Math.max(0, (kpis.on_leave_today ?? 0) - 3) },
                     { name: 'Today', leaves: kpis.on_leave_today ?? 0 }
                   ]}
-                  margin={{ top: 10, right: 0, left: 0, bottom: 0 }}
+                  margin={{ top: 5, right: 0, left: 0, bottom: 0 }}
                 >
                   <defs>
                     <linearGradient id="colorLeaves" x1="0" y1="0" x2="0" y2="1">
@@ -1559,7 +1559,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-80 flex items-center justify-center text-slate-500 dark:text-slate-400">No data available</div>
+            <div className="h-40 flex items-center justify-center text-slate-500 dark:text-slate-400">No data available</div>
           )}
         </div>
       </div>
