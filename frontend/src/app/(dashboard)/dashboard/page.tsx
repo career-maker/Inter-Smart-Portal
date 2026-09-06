@@ -620,7 +620,7 @@ export default function DashboardPage() {
                         <Briefcase className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
                         Team Status Today
                       </h2>
-                      <p style={{ fontSize: "12px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
+                      <p style={{ fontSize: "13px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
                         Daily attendance and availability breakdown
                       </p>
                     </div>
@@ -709,7 +709,7 @@ export default function DashboardPage() {
                         <Clock className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
                         Pending Approvals
                       </h2>
-                      <p style={{ fontSize: "12px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
+                      <p style={{ fontSize: "13px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
                         Leave requests awaiting review
                       </p>
                     </div>
@@ -779,7 +779,7 @@ export default function DashboardPage() {
                         <Megaphone className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
                         Latest Updates
                       </h3>
-                      <p style={{ fontSize: "12px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
+                      <p style={{ fontSize: "13px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
                         Important company announcements and news
                       </p>
                     </div>
@@ -830,7 +830,7 @@ export default function DashboardPage() {
                           <PartyPopper className="w-4 h-4 text-pink-500" />
                           Work Anniversaries
                         </h3>
-                        <p style={{ fontSize: "12px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
+                        <p style={{ fontSize: "13px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
                           Upcoming work milestones in 14 days
                         </p>
                       </div>
@@ -919,7 +919,7 @@ export default function DashboardPage() {
                   <Layers className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
                   Recent Audit Logs
                 </h3>
-                <p style={{ fontSize: "12px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
+                <p style={{ fontSize: "13px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
                   System activities and audit trail
                 </p>
               </div>
@@ -1598,7 +1598,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                   <Megaphone className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
                   Company Announcements
                 </h3>
-                <p style={{ fontSize: "12px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
+                <p style={{ fontSize: "13px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
                   Latest company news and updates
                 </p>
               </div>
@@ -1606,7 +1606,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
             </div>
             <div className="space-y-3">
                 {widgets.company_updates.length === 0 ? (
-                  <p className="text-sm text-slate-500 dark:text-slate-400">No recent announcements.</p>
+                  <p style={{ fontSize: "12px", lineHeight: "18px" }} className="text-slate-500 dark:text-slate-400 font-normal">No recent announcements.</p>
                 ) : (
                   widgets.company_updates.slice(0, 1).map((update: any, idx: number) => (
                     <div key={idx} className="flex gap-3 items-start border-b border-slate-200 dark:border-white/10 pb-3 last:border-0 last:pb-0">
@@ -1754,7 +1754,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                   <Activity className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
                   Recent Activity
                 </h3>
-                <p style={{ fontSize: "12px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
+                <p style={{ fontSize: "13px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
                   Latest actions across the portal
                 </p>
               </div>
@@ -1814,7 +1814,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                   <CalendarDays className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
                   Company Leave Overview
                 </h3>
-                <p style={{ fontSize: "12px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
+                <p style={{ fontSize: "13px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
                   Leave summary for today
                 </p>
               </div>
@@ -2088,7 +2088,7 @@ function RotatingCard({
             {title}
           </h3>
           {subtitle && (
-            <p style={{ fontSize: "12px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
+            <p style={{ fontSize: "13px", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal">
               {subtitle}
             </p>
           )}
@@ -2096,7 +2096,7 @@ function RotatingCard({
       </div>
       <div className="flex-1 min-h-0 flex flex-col justify-between">
         {count === 0 ? (
-          <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">{emptyMessage}</p>
+          <p style={{ fontSize: "12px", lineHeight: "18px" }} className="text-slate-500 dark:text-slate-400 font-normal">{emptyMessage}</p>
         ) : (
           <>
             <div

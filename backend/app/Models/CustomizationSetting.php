@@ -62,7 +62,7 @@ class CustomizationSetting extends Model
             'primary_color'           => '#56348f',
             'body_font_size'          => '12px',
             'heading_scale'           => 'normal',
-            'description_font_size'   => '12px',
+            'description_font_size'   => '13px',
             'page_title_base'         => 'Inter Smart',
             'page_title_format'       => '{title} | {pagename}',
             'favicon_url'             => '/icon.png',

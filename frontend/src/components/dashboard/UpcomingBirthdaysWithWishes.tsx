@@ -54,7 +54,7 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
         </h3>
         <p
           style={{
-            fontSize: "12px",
+            fontSize: "13px",
             lineHeight: "20px",
             color: "rgb(94, 105, 120)"
           }}
@@ -66,7 +66,7 @@ export function UpcomingBirthdaysWithWishes({ items }: UpcomingBirthdaysProps) {
 
       {upcomingItems.length === 0 ? (
         <div className="py-6 text-center">
-          <p className="text-xs text-slate-500 dark:text-slate-400">
+          <p style={{ fontSize: "12px", lineHeight: "18px" }} className="text-slate-500 dark:text-slate-400 font-normal">
             No upcoming birthdays in the next 30 days.
           </p>
         </div>

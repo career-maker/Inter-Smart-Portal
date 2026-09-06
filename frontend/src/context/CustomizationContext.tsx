@@ -86,7 +86,7 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
 
     // 4. Font Sizes & Scales
     root.style.setProperty("--portal-body-size", conf.body_font_size || "12px");
-    root.style.setProperty("--portal-desc-size", conf.description_font_size || "12px");
+    root.style.setProperty("--portal-desc-size", conf.description_font_size || "13px");
 
     let headingMultiplier = "1";
     switch (conf.heading_scale) {

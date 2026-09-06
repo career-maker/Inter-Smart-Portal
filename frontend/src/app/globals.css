@@ -11,17 +11,24 @@
   }
 
   /* Force light mode at CSS level to prevent any FOUC from Tailwind v4 or OS media queries */
-  html, body {
+  html {
     color-scheme: light only !important;
     background-color: #F8FAFC !important;
     color: rgb(15, 24, 36) !important;
-    font-size: var(--portal-body-size, 12px);
+  }
+
+  body {
+    color-scheme: light only !important;
+    background-color: #F8FAFC !important;
+    color: rgb(15, 24, 36) !important;
+    font-size: 12px;
+    line-height: 18px;
   }
 
   button, [role="button"], a.btn, .btn {
     font-family: var(--portal-font-family, "Proxima Nova", sans-serif);
     font-style: normal;
-    font-size: var(--portal-body-size, 12px);
+    font-size: 12px;
     line-height: 20px;
     font-weight: 400;
     letter-spacing: normal;
@@ -86,18 +93,24 @@
   color: rgb(241, 245, 249) !important;
 }
 
-/* ── Universal Body Text & Description Standardization (12px minimum across all pages) ── */
+/* ── Universal Subtitle & Description Typography (13px standard: whatever was 12px is now 13px) ── */
 .box-subtitle,
 .card-subtitle,
 .widget-subtitle,
 .dashboard-subtitle,
 .card-desc,
-.box-desc {
-  font-size: 12px !important;
-  line-height: 18px !important;
+.box-desc,
+p.card-desc,
+p.box-desc,
+[class*="subtitle"],
+[class*="description"] {
+  font-size: 13px !important;
+  line-height: 20px !important;
 }
 
-/* Eliminate accidental sub-12px text across all components */
+/* ── Universal Body Text (12px standard: whatever was 11px is now 12px) ── */
+.empty-state-text,
+p.empty-message,
 .text-\[11px\],
 .text-\[10px\],
 .text-\[10\.5px\] {

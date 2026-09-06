@@ -377,7 +377,7 @@ export default function StorageRetentionAddonPage() {
               <p className="text-xs font-bold text-slate-900 dark:text-slate-100">
                 Automated Daily Cleanup
               </p>
-              <p className="text-[12px] text-slate-500 dark:text-slate-400 mt-0.5 max-w-xl">
+              <p className="text-[13px] text-slate-500 dark:text-slate-400 mt-0.5 max-w-xl">
                 When enabled, the portal automatically prunes only expired chat history and community posts.
                 <b> All other company data (employees, attendance logs, leave balances, projects, tasks) is 100% protected and never touched.</b>
               </p>
@@ -458,7 +458,7 @@ export default function StorageRetentionAddonPage() {
                 </label>
               </div>
 
-              <p className="text-[12px] text-slate-400 mt-2 italic">
+              <p className="text-[13px] text-slate-400 mt-2 italic">
                 All employee profiles, attendance, leaves, and projects remain 100% safe.
               </p>
             </div>

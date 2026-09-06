@@ -321,7 +321,7 @@ export function AttendanceWidget({
             </h2>
             <p
               style={{
-                fontSize: "12px",
+                fontSize: "13px",
                 lineHeight: "20px",
                 color: "rgb(94, 105, 120)",
               }}

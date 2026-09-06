@@ -412,7 +412,7 @@ export default function PmAddonsPage() {
                         </span>
                       </div>
 
-                      <p className="text-[12px] text-slate-500 dark:text-slate-400">
+                      <p className="text-[13px] text-slate-500 dark:text-slate-400">
                         Only members and leads of the selected teams will see this module and its menu items.
                       </p>
 

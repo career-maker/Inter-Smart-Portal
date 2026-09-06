@@ -363,7 +363,7 @@ export default function PermissionsManagementPage() {
                       <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-purple-50 text-[#56348f] dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
                         {def.category}
                       </span>
-                      <span className="text-[12px] text-slate-400 font-medium">
+                      <span className="text-[13px] text-slate-400 font-medium">
                         ({activeTeamCount} / {teams.length} teams assigned)
                       </span>
                     </div>
@@ -375,7 +375,7 @@ export default function PermissionsManagementPage() {
 
                 {/* Bulk Quick Actions */}
                 <div className="flex items-center gap-2 self-start lg:self-center shrink-0">
-                  <span className="text-[12px] text-slate-400 font-semibold mr-1">
+                  <span className="text-[13px] text-slate-400 font-semibold mr-1">
                     Bulk:
                   </span>
                   <button
@@ -426,7 +426,7 @@ export default function PermissionsManagementPage() {
                           <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate">
                             {team.name}
                           </h4>
-                          <p className="text-[12px] text-slate-400 truncate">
+                          <p className="text-[13px] text-slate-400 truncate">
                             Lead:{" "}
                             {team.team_lead
                               ? `${team.team_lead.first_name} ${team.team_lead.last_name}`

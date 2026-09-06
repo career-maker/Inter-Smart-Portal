@@ -411,7 +411,7 @@ export default function LeavePolicyManagementPage() {
             <div className="text-2xl font-bold text-slate-900 dark:text-white">
               {cycleInfo.start_day}<span className="text-xs font-normal text-slate-400">th of every month</span>
             </div>
-            <div className="text-[12px] text-slate-500">
+            <div className="text-[13px] text-slate-500">
               Current: <strong className="text-purple-600 dark:text-purple-400">{cycleInfo.cycle_month}</strong> ({cycleInfo.cycle_start_date} → {cycleInfo.cycle_end_date})
             </div>
           </div>
@@ -424,7 +424,7 @@ export default function LeavePolicyManagementPage() {
             <div className="text-2xl font-bold text-slate-900 dark:text-white">
               +{settings.default_monthly_cl} CL <span className="text-slate-400">/</span> +{settings.default_monthly_sl} SL
             </div>
-            <div className="text-[12px] text-slate-500">
+            <div className="text-[13px] text-slate-500">
               Default quota added every cycle boundary at 12:00 AM
             </div>
           </div>
@@ -437,7 +437,7 @@ export default function LeavePolicyManagementPage() {
             <div className="text-2xl font-bold text-slate-900 dark:text-white">
               {settings.probation_period_months} <span className="text-xs font-normal text-slate-400">Months</span>
             </div>
-            <div className="text-[12px] text-slate-500">
+            <div className="text-[13px] text-slate-500">
               {inProbationCount} employee{inProbationCount === 1 ? "" : "s"} currently in probation
             </div>
           </div>
@@ -450,7 +450,7 @@ export default function LeavePolicyManagementPage() {
             <div className="text-sm font-bold text-slate-900 dark:text-white truncate">
               {cycleInfo.next_allocation_at}
             </div>
-            <div className="text-[12px] text-slate-500">
+            <div className="text-[13px] text-slate-500">
               {cycleInfo.is_cycle_start_day ? (
                 <span className="text-emerald-600 font-semibold">Today is cycle start day!</span>
               ) : (
@@ -545,7 +545,7 @@ export default function LeavePolicyManagementPage() {
                     </option>
                   ))}
                 </select>
-                <p className="text-[12px] text-slate-500 leading-relaxed">
+                <p className="text-[13px] text-slate-500 leading-relaxed">
                   Configures the start of each monthly payroll and leave cycle. For example, if configured as <strong>{settings.monthly_cycle_start_day}</strong>, the cycle runs from the {settings.monthly_cycle_start_day}th to the {settings.monthly_cycle_start_day === 1 ? 31 : settings.monthly_cycle_start_day - 1}th, with automatic allocations triggering at 12:00 AM on the {settings.monthly_cycle_start_day}th.
                 </p>
               </div>
@@ -563,7 +563,7 @@ export default function LeavePolicyManagementPage() {
                   onChange={(e) => setSettings({ ...settings, probation_period_months: Number(e.target.value) })}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-purple-500/20 focus:border-purple-600 outline-none"
                 />
-                <p className="text-[12px] text-slate-500 leading-relaxed">
+                <p className="text-[13px] text-slate-500 leading-relaxed">
                   Default: <strong>6 months</strong>. Employees in probation do not receive normal monthly auto allocations until completing probation (becoming eligible the next day), unless an administrator manually adds leave during probation to clear it.
                 </p>
               </div>
@@ -590,7 +590,7 @@ export default function LeavePolicyManagementPage() {
                   onChange={(e) => setSettings({ ...settings, default_monthly_cl: Number(e.target.value) })}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-purple-500/20 focus:border-purple-600 outline-none"
                 />
-                <p className="text-[12px] text-slate-500">
+                <p className="text-[13px] text-slate-500">
                   Number of Casual Leaves automatically credited to eligible employees each monthly cycle.
                 </p>
               </div>
@@ -609,7 +609,7 @@ export default function LeavePolicyManagementPage() {
                   onChange={(e) => setSettings({ ...settings, default_monthly_sl: Number(e.target.value) })}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-purple-500/20 focus:border-purple-600 outline-none"
                 />
-                <p className="text-[12px] text-slate-500">
+                <p className="text-[13px] text-slate-500">
                   Number of Sick Leaves automatically credited to eligible employees each monthly cycle.
                 </p>
               </div>
@@ -635,7 +635,7 @@ export default function LeavePolicyManagementPage() {
                   onChange={(e) => setSettings({ ...settings, cl_advance_notice_days: Number(e.target.value) })}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-purple-500/20 focus:border-purple-600 outline-none"
                 />
-                <p className="text-[12px] text-slate-500 leading-relaxed">
+                <p className="text-[13px] text-slate-500 leading-relaxed">
                   Default: <strong>3 days</strong>. If an employee applies for Casual Leave with fewer notice days than configured, the requested days cannot be drawn from their Casual Leave balance and are treated as Unpaid (Loss of Pay). Set to 0 to disable notice requirement.
                 </p>
               </div>
@@ -687,7 +687,7 @@ export default function LeavePolicyManagementPage() {
                   onChange={(e) => setSettings({ ...settings, late_threshold_time: e.target.value })}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-purple-500/20 focus:border-purple-600 outline-none"
                 />
-                <p className="text-[12px] text-slate-500 leading-relaxed">
+                <p className="text-[13px] text-slate-500 leading-relaxed">
                   On working days (non-holidays, non-weekends), if an employee checks in using biometric after this time, it is considered as late coming in attendance reports and summaries. Configurable by Super Admin.
                 </p>
               </div>
@@ -714,7 +714,7 @@ export default function LeavePolicyManagementPage() {
                   <option value="tl_and_admin">Team Lead + Super Admin (Both approvals required)</option>
                   <option value="admin_only">Super Admin Only</option>
                 </select>
-                <p className="text-[12px] text-slate-500">
+                <p className="text-[13px] text-slate-500">
                   Defines who must review and approve 1-day leave requests.
                 </p>
               </div>
@@ -732,7 +732,7 @@ export default function LeavePolicyManagementPage() {
                   onChange={(e) => setSettings({ ...settings, multi_day_approval_threshold: Number(e.target.value) })}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-purple-500/20 outline-none"
                 />
-                <p className="text-[12px] text-slate-500">
+                <p className="text-[13px] text-slate-500">
                   Leaves equal to or exceeding this number of days automatically require both Team Lead and Admin approval.
                 </p>
               </div>
@@ -914,7 +914,7 @@ export default function LeavePolicyManagementPage() {
                           {/* Name & Code */}
                           <td className="py-3 px-4">
                             <div className="font-bold text-slate-900 dark:text-white">{emp.name}</div>
-                            <div className="text-[12px] text-slate-400 flex items-center gap-1.5">
+                            <div className="text-[13px] text-slate-400 flex items-center gap-1.5">
                               <span>{emp.employee_code}</span>
                               <span>•</span>
                               <span>{emp.designation}</span>
@@ -1116,7 +1116,7 @@ export default function LeavePolicyManagementPage() {
                             <div className="font-bold text-slate-900 dark:text-white">
                               {entry.user ? `${entry.user.first_name} ${entry.user.last_name}` : `User #${entry.user_id}`}
                             </div>
-                            <div className="text-[12px] text-slate-400">{entry.user?.employee_code}</div>
+                            <div className="text-[13px] text-slate-400">{entry.user?.employee_code}</div>
                           </td>
 
                           <td className="py-3 px-4 font-semibold text-slate-800 dark:text-slate-200">
