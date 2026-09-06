@@ -23,6 +23,9 @@ class CustomizationController extends Controller
             }
 
             $settings = CustomizationSetting::getSettings();
+            if (empty($settings->welcome_banner_url) && !empty($settings->extra_colors['welcome_banner_url'])) {
+                $settings->welcome_banner_url = $settings->extra_colors['welcome_banner_url'];
+            }
 
             return response()->json([
                 'success'  => true,
@@ -85,6 +88,17 @@ class CustomizationController extends Controller
 
             $setting = CustomizationSetting::getSettings();
             $existingColumns = Schema::getColumnListing('customization_settings');
+
+            // If welcome_banner_url column doesn't exist yet on DB, store it safely in extra_colors JSON
+            if (isset($validated['welcome_banner_url']) && !in_array('welcome_banner_url', $existingColumns, true)) {
+                $extra = $setting->extra_colors ?? [];
+                if (!is_array($extra)) {
+                    $extra = [];
+                }
+                $extra['welcome_banner_url'] = $validated['welcome_banner_url'];
+                $validated['extra_colors'] = $extra;
+            }
+
             $payload = array_filter(
                 $validated,
                 fn($val, $key) => !is_null($val) && in_array($key, $existingColumns, true),
@@ -93,10 +107,15 @@ class CustomizationController extends Controller
 
             $setting->update($payload);
 
+            $fresh = $setting->fresh();
+            if (empty($fresh->welcome_banner_url) && !empty($fresh->extra_colors['welcome_banner_url'])) {
+                $fresh->welcome_banner_url = $fresh->extra_colors['welcome_banner_url'];
+            }
+
             return response()->json([
                 'success'  => true,
                 'message'  => 'Portal customization updated successfully.',
-                'settings' => $setting->fresh(),
+                'settings' => $fresh,
             ]);
         } catch (\Throwable $e) {
             return response()->json([

@@ -46,6 +46,17 @@ class CustomizationSetting extends Model
         'show_header_subtitle' => 'boolean',
     ];
 
+    public function getWelcomeBannerUrlAttribute($value): string
+    {
+        if (!empty($value)) {
+            return $value;
+        }
+        if (!empty($this->extra_colors['welcome_banner_url'])) {
+            return $this->extra_colors['welcome_banner_url'];
+        }
+        return '/welcome-banner-bg.jpg';
+    }
+
     public static function defaults(): array
     {
         return [

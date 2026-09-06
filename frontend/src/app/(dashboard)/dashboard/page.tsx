@@ -311,7 +311,7 @@ export default function DashboardPage() {
       <div
         id="keka-welcome-hero-banner"
         style={{
-          backgroundImage: `linear-gradient(to right, rgba(12, 24, 45, 0.92) 0%, rgba(15, 23, 42, 0.72) 50%, rgba(12, 24, 45, 0.92) 100%), url('${welcomeBannerBg}')`,
+          backgroundImage: `linear-gradient(to right, rgba(12, 24, 45, 0.92) 0%, rgba(15, 23, 42, 0.72) 50%, rgba(12, 24, 45, 0.92) 100%), var(--portal-welcome-banner, url('${welcomeBannerBg}'))`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
@@ -1288,7 +1288,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
       <div
         id="keka-welcome-hero-banner"
         style={{
-          backgroundImage: `linear-gradient(to right, rgba(12, 24, 45, 0.92) 0%, rgba(15, 23, 42, 0.72) 50%, rgba(12, 24, 45, 0.92) 100%), url('${welcomeBannerBg}')`,
+          backgroundImage: `linear-gradient(to right, rgba(12, 24, 45, 0.92) 0%, rgba(15, 23, 42, 0.72) 50%, rgba(12, 24, 45, 0.92) 100%), var(--portal-welcome-banner, url('${welcomeBannerBg}'))`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'

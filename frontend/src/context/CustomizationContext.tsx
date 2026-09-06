@@ -166,6 +166,11 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
       document.head.appendChild(appleLink);
     }
     appleLink.href = finalFaviconUrl;
+
+    // 10. Dashboard Welcome Banner Background Image CSS Variable
+    const rawBanner = conf.welcome_banner_url || "/welcome-banner-bg.jpg";
+    const resolvedBanner = resolveCustomizationAssetUrl(rawBanner) || "/welcome-banner-bg.jpg";
+    root.style.setProperty("--portal-welcome-banner", `url('${resolvedBanner}')`);
   }, []);
 
   // Fetch settings from API on mount
@@ -175,7 +180,22 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
       try {
         const serverSettings = await customizationApi.getSettings();
         if (isMounted && serverSettings) {
-          const merged = { ...DEFAULT_CUSTOMIZATION_SETTINGS, ...serverSettings };
+          let cachedParsed: Partial<CustomizationSettings> = {};
+          try {
+            const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
+            if (cached) cachedParsed = JSON.parse(cached);
+          } catch (e) {}
+
+          const merged: CustomizationSettings = {
+            ...DEFAULT_CUSTOMIZATION_SETTINGS,
+            ...cachedParsed,
+            ...serverSettings,
+            // Keep user selected banner if server returned default or empty
+            welcome_banner_url:
+              (serverSettings.welcome_banner_url && serverSettings.welcome_banner_url !== "/welcome-banner-bg.jpg")
+                ? serverSettings.welcome_banner_url
+                : (cachedParsed.welcome_banner_url || serverSettings.welcome_banner_url || DEFAULT_CUSTOMIZATION_SETTINGS.welcome_banner_url),
+          };
           setSettings(merged);
           setActiveSettings(merged);
           applyStyles(merged);
@@ -204,7 +224,12 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
   // Update settings via API and persist
   const updateSettings = async (newSettings: Partial<CustomizationSettings>) => {
     const res = await customizationApi.updateSettings(newSettings);
-    const updated = { ...settings, ...(res.settings || newSettings) };
+    const updated: CustomizationSettings = {
+      ...settings,
+      ...newSettings,
+      ...(res.settings || {}),
+      welcome_banner_url: newSettings.welcome_banner_url ?? res.settings?.welcome_banner_url ?? settings.welcome_banner_url,
+    };
     setSettings(updated);
     setActiveSettings(updated);
     applyStyles(updated);
