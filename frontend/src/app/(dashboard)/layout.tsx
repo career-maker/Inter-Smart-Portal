@@ -1121,6 +1121,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 width: 0 !important;
                 height: 0 !important;
               }
+              /* Force no background on ALL sub-header tab links — underline only */
+              #sub-header-tabs-bar a {
+                background-color: transparent !important;
+                background: none !important;
+              }
+              #sub-header-tabs-bar a:hover {
+                background-color: transparent !important;
+                background: none !important;
+                opacity: 0.75;
+              }
             `}</style>
             <div className="px-4 sm:px-8 flex items-center gap-6 sm:gap-8 h-10 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {subTabs.map((tab) => {
@@ -1133,6 +1143,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     key={tab.href}
                     href={tab.href}
                     prefetch={true}
+                    data-subtab={active ? "active" : "inactive"}
                     style={{
                       fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)',
                       fontSize: "11px",
@@ -1141,8 +1152,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       color: active
                         ? "var(--portal-primary-color, #0F766E)"
                         : "rgb(71, 85, 105)",
+                      backgroundColor: "transparent",
                     }}
-                    className="relative h-full flex items-center uppercase tracking-wider transition-colors shrink-0 gap-1.5 cursor-pointer hover:opacity-80 focus:outline-none focus:ring-0"
+                    className="relative h-full flex items-center uppercase tracking-wider transition-colors shrink-0 gap-1.5 cursor-pointer focus:outline-none focus:ring-0"
                   >
                     <span className="py-2">{tab.label}</span>
                     {tab.badge && (

@@ -322,9 +322,10 @@ a[class*="bg-primary"] *,
   --tw-ring-color: var(--portal-primary-color, #0F766E) !important;
 }
 
-/* Any inline style with #56348f on buttons or interactive elements */
+
+/* Any inline style with #56348f on buttons or interactive elements (exclude sub-header nav tabs) */
 button[style*="#56348f"],
-a[style*="#56348f"],
+a[style*="#56348f"]:not([data-subtab]),
 div[role="button"][style*="#56348f"] {
   background-color: var(--portal-primary-color, #0F766E) !important;
   color: #FFFFFF !important;
