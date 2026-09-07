@@ -34,6 +34,9 @@ import {
   ToggleRight,
   Shield,
   FileText,
+  Video,
+  Film,
+  Play,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import { useCustomization } from "@/context/CustomizationContext";
@@ -219,12 +222,16 @@ export default function CustomizationPage() {
   const [uploadingFavicon, setUploadingFavicon] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploadingBanner, setUploadingBanner] = useState(false);
+  const [uploadingLoginVideo, setUploadingLoginVideo] = useState(false);
+  const [uploadingBannerVideo, setUploadingBannerVideo] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const faviconInputRef = useRef<HTMLInputElement | null>(null);
   const logoInputRef = useRef<HTMLInputElement | null>(null);
   const bannerInputRef = useRef<HTMLInputElement | null>(null);
+  const bannerVideoInputRef = useRef<HTMLInputElement | null>(null);
+  const loginVideoInputRef = useRef<HTMLInputElement | null>(null);
 
   // Sync state if external settings change
   useEffect(() => {
@@ -272,17 +279,57 @@ export default function CustomizationPage() {
           setSuccessMessage(`${label} uploaded and ready.`);
           return;
         }
-      } catch (uploadErr) {
-        console.warn("Server asset upload failed, kept data URL:", uploadErr);
-        const label = field === "favicon_url" ? "Favicon" : field === "logo_url" ? "Logo" : "Welcome banner background";
-        setSuccessMessage(`${label} applied.`);
+      } catch (err: any) {
+        console.warn("Customization asset upload exception, falling back to data URL:", err);
       }
-    } catch (err: any) {
-      setErrorMessage("Failed to process image: " + (err.message || "Unknown error"));
+    } catch (err) {
+      console.error("Failed to process image:", err);
+      setErrorMessage("Failed to process and optimize image. Please try another file.");
     } finally {
       if (field === "favicon_url") setUploadingFavicon(false);
       else if (field === "logo_url") setUploadingLogo(false);
       else setUploadingBanner(false);
+    }
+  };
+
+  // Safe video upload handler for MP4/WebM videos (up to 50MB)
+  const handleVideoUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: "login_bg_video_url" | "welcome_banner_url",
+    type: "login_bg_video" | "welcome_banner_video"
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 50 * 1024 * 1024) {
+      setErrorMessage("Video file exceeds the 50MB limit. Please select a smaller video.");
+      return;
+    }
+
+    if (field === "login_bg_video_url") setUploadingLoginVideo(true);
+    else setUploadingBannerVideo(true);
+    setErrorMessage(null);
+
+    try {
+      // 1. Create immediate local object URL for 0ms preview
+      const localUrl = URL.createObjectURL(file);
+      handleFieldChange(field, localUrl);
+      if (field === "welcome_banner_url") {
+        handleFieldChange("welcome_banner_media_type", "video");
+      }
+
+      // 2. Upload video file to server
+      const res = await customizationApi.uploadAsset(file, type);
+      if (res?.url) {
+        const resolved = resolveCustomizationAssetUrl(res.url);
+        handleFieldChange(field, resolved);
+      }
+    } catch (err: any) {
+      console.error("Failed to upload video asset:", err);
+      setErrorMessage(err?.response?.data?.message || err?.message || "Failed to upload video asset.");
+    } finally {
+      if (field === "login_bg_video_url") setUploadingLoginVideo(false);
+      else setUploadingBannerVideo(false);
     }
   };
 
@@ -358,6 +405,8 @@ export default function CustomizationPage() {
   const currentFavicon = resolveCustomizationAssetUrl(form.favicon_url) || "/icon.png";
   const currentLogo = resolveCustomizationAssetUrl(form.logo_url) || "/logo.png";
   const currentWelcomeBanner = resolveCustomizationAssetUrl(form.welcome_banner_url) || "/welcome-banner-bg.jpg";
+  const currentLoginBgVideo = resolveCustomizationAssetUrl(form.login_bg_video_url) || "/videos/login-bg.mp4";
+  const isBannerVideo = form.welcome_banner_media_type === "video" || /\.(mp4|webm|ogg|mov)($|\?)/i.test(currentWelcomeBanner);
   const currentRadius = form.border_radius || "12px";
   const currentBtnRadius = form.button_style === "pill" ? "9999px" : form.button_style === "sharp" ? "2px" : currentRadius;
 
@@ -583,71 +632,171 @@ export default function CustomizationPage() {
             </div>
           </div>
 
-          {/* 2. DASHBOARD WELCOME CARD HERO BANNER BACKGROUND */}
+          {/* 2. DASHBOARD WELCOME CARD HERO BANNER (IMAGE OR VIDEO) */}
           <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 space-y-5 shadow-sm">
-            <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
-              <div className="p-2.5 rounded-xl bg-purple-100 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300">
-                <Sparkles className="w-5 h-5" />
+            <div className="flex items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800 flex-wrap">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-purple-100 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-[14px] font-semibold text-slate-900 dark:text-white box-title">
+                    Dashboard Welcome Card Background (Image or Video)
+                  </h2>
+                  <p className="text-[13px] text-slate-500 dark:text-slate-400">
+                    Customize the top welcome hero card background with a high-definition image or ambient looping video.
+                  </p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-[14px] font-semibold text-slate-900 dark:text-white box-title">
-                  Dashboard Welcome Card Background
-                </h2>
-                <p className="text-[13px] text-slate-500 dark:text-slate-400">
-                  Customize the background image of the top welcome hero banner on employee and admin dashboards.
-                </p>
+
+              {/* Media Type Switcher (Image vs Video) */}
+              <div className="inline-flex items-center p-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold">
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleFieldChange("welcome_banner_media_type", "image");
+                    if (isBannerVideo && form.welcome_banner_url?.includes(".mp4")) {
+                      handleFieldChange("welcome_banner_url", "/welcome-banner-bg.jpg");
+                    }
+                  }}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                    !isBannerVideo
+                      ? "bg-white dark:bg-slate-900 text-purple-700 dark:text-purple-300 shadow-xs font-bold"
+                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                  }`}
+                >
+                  <ImageIcon className="w-3.5 h-3.5" />
+                  <span>Image Banner</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleFieldChange("welcome_banner_media_type", "video");
+                    if (!isBannerVideo) {
+                      handleFieldChange("welcome_banner_url", "/videos/login-bg.mp4");
+                    }
+                  }}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                    isBannerVideo
+                      ? "bg-white dark:bg-slate-900 text-purple-700 dark:text-purple-300 shadow-xs font-bold"
+                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                  }`}
+                >
+                  <Film className="w-3.5 h-3.5" />
+                  <span>Video Banner</span>
+                </button>
               </div>
             </div>
 
             {/* Live Interactive Preview of Hero Banner */}
             <div className="space-y-3">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between flex-wrap gap-2">
                 <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
                   <span>Welcome Card Live Preview</span>
-                  <span className="text-[10px] text-purple-600 font-normal">(With dark gradient overlay)</span>
+                  <span className="text-[10px] text-purple-600 font-normal">
+                    {isBannerVideo ? "(With ambient looping video background)" : "(With dark gradient overlay)"}
+                  </span>
                 </label>
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => handleFieldChange("welcome_banner_url", "/welcome-banner-bg.jpg")}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-[11px] font-medium text-slate-600 dark:text-slate-400 cursor-pointer"
+                    onClick={() => {
+                      if (isBannerVideo) {
+                        handleFieldChange("welcome_banner_url", "/videos/login-bg.mp4");
+                      } else {
+                        handleFieldChange("welcome_banner_url", "/welcome-banner-bg.jpg");
+                      }
+                    }}
+                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-[11px] font-medium text-slate-600 dark:text-slate-400 cursor-pointer"
                   >
                     <RotateCcw className="w-3 h-3" />
                     <span>Default</span>
                   </button>
-                  <button
-                    type="button"
-                    disabled={uploadingBanner}
-                    onClick={() => bannerInputRef.current?.click()}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-purple-300 dark:border-purple-800 bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50"
-                  >
-                    {uploadingBanner ? <Loader2 className="w-3.5 h-3.5 animate-spin text-purple-600" /> : <Upload className="w-3.5 h-3.5 text-purple-600" />}
-                    <span>{uploadingBanner ? "Processing..." : "Upload New Image"}</span>
-                  </button>
-                  <input
-                    ref={bannerInputRef}
-                    type="file"
-                    accept="image/png,image/jpeg,image/webp,image/jpg"
-                    className="hidden"
-                    onChange={(e) => handleFileUpload(e, "welcome_banner_url", 1920)}
-                  />
+
+                  {!isBannerVideo ? (
+                    <>
+                      <button
+                        type="button"
+                        disabled={uploadingBanner}
+                        onClick={() => bannerInputRef.current?.click()}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-purple-300 dark:border-purple-800 bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50"
+                      >
+                        {uploadingBanner ? <Loader2 className="w-3.5 h-3.5 animate-spin text-purple-600" /> : <Upload className="w-3.5 h-3.5 text-purple-600" />}
+                        <span>{uploadingBanner ? "Processing..." : "Upload Image"}</span>
+                      </button>
+                      <input
+                        ref={bannerInputRef}
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp,image/jpg"
+                        className="hidden"
+                        onChange={(e) => handleFileUpload(e, "welcome_banner_url", 1920)}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        disabled={uploadingBannerVideo}
+                        onClick={() => bannerVideoInputRef.current?.click()}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-purple-300 dark:border-purple-800 bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50"
+                      >
+                        {uploadingBannerVideo ? <Loader2 className="w-3.5 h-3.5 animate-spin text-purple-600" /> : <Video className="w-3.5 h-3.5 text-purple-600" />}
+                        <span>{uploadingBannerVideo ? "Uploading Video..." : "Upload Video (.mp4)"}</span>
+                      </button>
+                      <input
+                        ref={bannerVideoInputRef}
+                        type="file"
+                        accept="video/mp4,video/webm,video/ogg"
+                        className="hidden"
+                        onChange={(e) => handleVideoUpload(e, "welcome_banner_url", "welcome_banner_video")}
+                      />
+                    </>
+                  )}
                 </div>
               </div>
 
               {/* Banner Mockup Box */}
               <div
                 style={{
-                  backgroundImage: `linear-gradient(to right, rgba(12, 24, 45, 0.92) 0%, rgba(15, 23, 42, 0.72) 50%, rgba(12, 24, 45, 0.92) 100%), url('${currentWelcomeBanner}')`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
+                  ...(!isBannerVideo
+                    ? {
+                        backgroundImage: `linear-gradient(to right, rgba(12, 24, 45, 0.92) 0%, rgba(15, 23, 42, 0.72) 50%, rgba(12, 24, 45, 0.92) 100%), url('${currentWelcomeBanner}')`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                      }
+                    : { backgroundColor: "#0c182d" }),
                   borderRadius: currentRadius,
                 }}
-                className="relative overflow-hidden p-5 sm:p-6 border border-white/20 shadow-lg min-h-[140px] flex flex-col justify-between text-white transition-all select-none"
+                className="relative overflow-hidden p-5 sm:p-6 border border-white/20 shadow-lg min-h-[150px] flex flex-col justify-between text-white transition-all select-none"
               >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                {isBannerVideo && (
+                  <>
+                    <video
+                      key={currentWelcomeBanner}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      preload="auto"
+                      className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                      style={{ zIndex: 0 }}
+                    >
+                      <source src={currentWelcomeBanner} type={currentWelcomeBanner.endsWith(".webm") ? "video/webm" : "video/mp4"} />
+                    </video>
+                    <div
+                      className="absolute inset-0 pointer-events-none"
+                      style={{
+                        background: "linear-gradient(to right, rgba(12, 24, 45, 0.88) 0%, rgba(15, 23, 42, 0.65) 50%, rgba(12, 24, 45, 0.88) 100%)",
+                        zIndex: 1,
+                      }}
+                    />
+                  </>
+                )}
+
+                <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-3" style={{ zIndex: 10 }}>
                   <div className="space-y-1">
                     <span className="text-[10px] uppercase font-bold tracking-wider text-amber-300 flex items-center gap-1">
-                      <Sparkles className="w-3 h-3" /> Live Welcome Card Preview
+                      <Sparkles className="w-3 h-3" /> Live Welcome Card Preview {isBannerVideo && "(Video Active)"}
                     </span>
                     <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">
                       Good Day, {user?.first_name ? `${user.first_name} ${user.last_name || ""}`.trim() : "Abhiram"}
@@ -663,29 +812,36 @@ export default function CustomizationPage() {
                   </div>
                 </div>
 
-                <div className="flex flex-wrap items-center justify-between text-[11px] text-slate-300/80 pt-3 border-t border-white/10 mt-3">
-                  <span>Current Image: <strong className="text-white font-mono">{currentWelcomeBanner.length > 40 ? currentWelcomeBanner.substring(0, 38) + "..." : currentWelcomeBanner}</strong></span>
-                  <span className="text-[10px] text-slate-400">Resolution: HD (1920×1080 recommended)</span>
+                <div className="relative flex flex-wrap items-center justify-between text-[11px] text-slate-300/80 pt-3 border-t border-white/10 mt-3" style={{ zIndex: 10 }}>
+                  <span>
+                    Current {isBannerVideo ? "Video" : "Image"}:{" "}
+                    <strong className="text-white font-mono">
+                      {currentWelcomeBanner.length > 40 ? currentWelcomeBanner.substring(0, 38) + "..." : currentWelcomeBanner}
+                    </strong>
+                  </span>
+                  <span className="text-[10px] text-slate-400">
+                    {isBannerVideo ? "Video formats: MP4, WebM (up to 50MB)" : "Image formats: PNG, JPG, WebP (1920×1080)"}
+                  </span>
                 </div>
               </div>
 
-              {/* Direct URL Input */}
+              {/* Direct Path / URL Input */}
               <div className="space-y-1.5 pt-1">
                 <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-400">
-                  Image Path or Direct URL
+                  {isBannerVideo ? "Video Path or Direct MP4 URL" : "Image Path or Direct URL"}
                 </label>
                 <div className="flex items-center gap-2">
                   <input
                     type="text"
                     value={form.welcome_banner_url || ""}
                     onChange={(e) => handleFieldChange("welcome_banner_url", e.target.value)}
-                    placeholder="/welcome-banner-bg.jpg or https://.../image.jpg"
+                    placeholder={isBannerVideo ? "/videos/login-bg.mp4 or https://.../video.mp4" : "/welcome-banner-bg.jpg or https://.../image.jpg"}
                     className="flex-1 px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-purple-500 truncate"
                   />
-                  {form.welcome_banner_url && form.welcome_banner_url !== "/welcome-banner-bg.jpg" && (
+                  {form.welcome_banner_url && form.welcome_banner_url !== (isBannerVideo ? "/videos/login-bg.mp4" : "/welcome-banner-bg.jpg") && (
                     <button
                       type="button"
-                      onClick={() => handleFieldChange("welcome_banner_url", "/welcome-banner-bg.jpg")}
+                      onClick={() => handleFieldChange("welcome_banner_url", isBannerVideo ? "/videos/login-bg.mp4" : "/welcome-banner-bg.jpg")}
                       className="px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold cursor-pointer shrink-0"
                     >
                       Reset
@@ -697,40 +853,78 @@ export default function CustomizationPage() {
               {/* Curated Aesthetic Presets */}
               <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
                 <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-400">
-                  Curated Background Themes:
+                  {isBannerVideo ? "Curated Video Themes:" : "Curated Background Themes:"}
                 </span>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {[
-                    { label: "Navy Glow (Default)", url: "/welcome-banner-bg.jpg", desc: "Original InterSmart look" },
-                    { label: "Deep Indigo Mesh", url: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=1920&q=80", desc: "Vibrant cyber gradient" },
-                    { label: "Obsidian Slate", url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1920&q=80", desc: "Dark modern fluid art" },
-                    { label: "Midnight Blue", url: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=1920&q=80", desc: "Smooth dusk spectrum" },
-                    { label: "Tech Grid", url: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1920&q=80", desc: "Subtle digital matrix" },
-                    { label: "Aurora Night", url: "https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=1920&q=80", desc: "Cosmic starry glow" },
-                  ].map((preset) => {
-                    const isSelected = form.welcome_banner_url === preset.url || (!form.welcome_banner_url && preset.url === "/welcome-banner-bg.jpg");
-                    return (
-                      <button
-                        key={preset.url}
-                        type="button"
-                        onClick={() => handleFieldChange("welcome_banner_url", preset.url)}
-                        className={`p-2 rounded-xl border text-left flex flex-col justify-between transition-all cursor-pointer relative overflow-hidden group ${
-                          isSelected
-                            ? "border-purple-600 bg-purple-50/70 dark:bg-purple-950/40 ring-2 ring-purple-500/20"
-                            : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className={`text-[11px] font-bold truncate ${isSelected ? "text-purple-950 dark:text-purple-200" : "text-slate-800 dark:text-slate-200"}`}>
-                            {preset.label}
-                          </span>
-                          {isSelected && <Check className="w-3.5 h-3.5 text-purple-600 shrink-0 ml-1" />}
-                        </div>
-                        <span className="text-[9.5px] text-slate-400 mt-0.5 truncate">{preset.desc}</span>
-                      </button>
-                    );
-                  })}
-                </div>
+                {!isBannerVideo ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {[
+                      { label: "Navy Glow (Default)", url: "/welcome-banner-bg.jpg", desc: "Original InterSmart look" },
+                      { label: "Deep Indigo Mesh", url: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=1920&q=80", desc: "Vibrant cyber gradient" },
+                      { label: "Obsidian Slate", url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1920&q=80", desc: "Dark modern fluid art" },
+                      { label: "Midnight Blue", url: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=1920&q=80", desc: "Smooth dusk spectrum" },
+                      { label: "Tech Grid", url: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1920&q=80", desc: "Subtle digital matrix" },
+                      { label: "Aurora Night", url: "https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=1920&q=80", desc: "Cosmic starry glow" },
+                    ].map((preset) => {
+                      const isSelected = form.welcome_banner_url === preset.url || (!form.welcome_banner_url && preset.url === "/welcome-banner-bg.jpg");
+                      return (
+                        <button
+                          key={preset.url}
+                          type="button"
+                          onClick={() => {
+                            handleFieldChange("welcome_banner_media_type", "image");
+                            handleFieldChange("welcome_banner_url", preset.url);
+                          }}
+                          className={`p-2 rounded-xl border text-left flex flex-col justify-between transition-all cursor-pointer relative overflow-hidden group ${
+                            isSelected
+                              ? "border-purple-600 bg-purple-50/70 dark:bg-purple-950/40 ring-2 ring-purple-500/20"
+                              : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className={`text-[11px] font-bold truncate ${isSelected ? "text-purple-950 dark:text-purple-200" : "text-slate-800 dark:text-slate-200"}`}>
+                              {preset.label}
+                            </span>
+                            {isSelected && <Check className="w-3.5 h-3.5 text-purple-600 shrink-0 ml-1" />}
+                          </div>
+                          <span className="text-[9.5px] text-slate-400 mt-0.5 truncate">{preset.desc}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {[
+                      { label: "InterSmart Tech Loop (Default)", url: "/videos/login-bg.mp4", desc: "Ambient cyber network particles" },
+                      { label: "Digital Data Flow", url: "https://assets.mixkit.co/videos/preview/mixkit-digital-animation-of-screens-with-charts-and-data-31911-large.mp4", desc: "Smooth futuristic HUD telemetry" },
+                      { label: "Circuit Stream", url: "https://assets.mixkit.co/videos/preview/mixkit-circuit-board-and-lines-of-data-31915-large.mp4", desc: "Glowing cyber board traces" },
+                    ].map((preset) => {
+                      const isSelected = form.welcome_banner_url === preset.url;
+                      return (
+                        <button
+                          key={preset.url}
+                          type="button"
+                          onClick={() => {
+                            handleFieldChange("welcome_banner_media_type", "video");
+                            handleFieldChange("welcome_banner_url", preset.url);
+                          }}
+                          className={`p-2 rounded-xl border text-left flex flex-col justify-between transition-all cursor-pointer relative overflow-hidden group ${
+                            isSelected
+                              ? "border-purple-600 bg-purple-50/70 dark:bg-purple-950/40 ring-2 ring-purple-500/20"
+                              : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className={`text-[11px] font-bold truncate ${isSelected ? "text-purple-950 dark:text-purple-200" : "text-slate-800 dark:text-slate-200"}`}>
+                              {preset.label}
+                            </span>
+                            {isSelected && <Check className="w-3.5 h-3.5 text-purple-600 shrink-0 ml-1" />}
+                          </div>
+                          <span className="text-[9.5px] text-slate-400 mt-0.5 truncate">{preset.desc}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -763,7 +957,7 @@ export default function CustomizationPage() {
                       onClick={() => handleFieldChange("font_family", font.id)}
                       className={`p-3 rounded-xl border text-left flex items-center justify-between transition-all cursor-pointer ${
                         isSelected
-                          ? "border-purple-600 bg-purple-50/70 dark:bg-purple-950/40 ring-2 ring-purple-500/20"
+                          ? "border-purple-600 bg-purple-50 dark:bg-purple-950/40 ring-2 ring-purple-500/20"
                           : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900"
                       }`}
                     >
@@ -1429,62 +1623,214 @@ export default function CustomizationPage() {
             </div>
           </div>
 
-          {/* 9. LOGIN SCREEN & FOOTER LEGAL BRANDING */}
+          {/* 11. LOGIN SCREEN BACKGROUND VIDEO & LEGAL MESSAGING */}
           <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 space-y-5 shadow-sm">
             <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
               <div className="p-2.5 rounded-xl bg-purple-100 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300">
                 <LogInIcon className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-[14px] font-semibold text-slate-900 dark:text-white box-title">Login Screen & Footer Legal Messaging</h2>
+                <h2 className="text-[14px] font-semibold text-slate-900 dark:text-white box-title">
+                  Login Screen Background Video & Messaging
+                </h2>
                 <p className="text-[13px] text-slate-500 dark:text-slate-400">
-                  Customize the welcome headline, subtitle, and footer copyright text across the portal.
+                  Customize the full-screen background video, headline, subtitle, and footer copyright text on the login page.
                 </p>
               </div>
             </div>
 
+            {/* Login Video Customization & Live Interactive Preview */}
             <div className="space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                  Login Headline
-                </label>
-                <input
-                  type="text"
-                  value={form.login_heading || ""}
-                  onChange={(e) => handleFieldChange("login_heading", e.target.value)}
-                  placeholder="Sign in to your workplace"
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
+              <div className="space-y-2">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                    <Video className="w-4 h-4 text-purple-600" />
+                    <span>Login Page Background Video</span>
+                    <span className="text-[10px] text-slate-400 font-normal">(MP4, WebM formats)</span>
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleFieldChange("login_bg_video_url", "/videos/login-bg.mp4")}
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-[11px] font-medium text-slate-600 dark:text-slate-400 cursor-pointer"
+                    >
+                      <RotateCcw className="w-3 h-3" />
+                      <span>Default</span>
+                    </button>
+                    <button
+                      type="button"
+                      disabled={uploadingLoginVideo}
+                      onClick={() => loginVideoInputRef.current?.click()}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-purple-300 dark:border-purple-800 bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      {uploadingLoginVideo ? <Loader2 className="w-3.5 h-3.5 animate-spin text-purple-600" /> : <Upload className="w-3.5 h-3.5 text-purple-600" />}
+                      <span>{uploadingLoginVideo ? "Uploading..." : "Upload Video (.mp4)"}</span>
+                    </button>
+                    <input
+                      ref={loginVideoInputRef}
+                      type="file"
+                      accept="video/mp4,video/webm,video/ogg"
+                      className="hidden"
+                      onChange={(e) => handleVideoUpload(e, "login_bg_video_url", "login_bg_video")}
+                    />
+                  </div>
+                </div>
+
+                {/* Login Screen Video Live Mockup */}
+                <div
+                  style={{ borderRadius: currentRadius }}
+                  className="relative overflow-hidden p-6 border border-slate-800 bg-[#181d24] shadow-xl min-h-[170px] flex flex-col justify-between text-white select-none"
+                >
+                  <video
+                    key={currentLoginBgVideo}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="auto"
+                    className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                    style={{ zIndex: 0 }}
+                  >
+                    <source src={currentLoginBgVideo} type={currentLoginBgVideo.endsWith(".webm") ? "video/webm" : "video/mp4"} />
+                  </video>
+                  <div
+                    className="absolute inset-0 bg-black/50 backdrop-blur-[0.5px] pointer-events-none"
+                    style={{ zIndex: 1 }}
+                  />
+
+                  <div className="relative space-y-1.5 max-w-sm" style={{ zIndex: 10 }}>
+                    <div className="flex items-center gap-2">
+                      <img
+                        src={currentLogo}
+                        alt="Logo"
+                        className="h-6 w-auto max-w-[120px] object-contain drop-shadow"
+                      />
+                      <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-white/20 text-white backdrop-blur-xs">
+                        Login Live Preview
+                      </span>
+                    </div>
+                    <h3 className="text-base font-bold text-white tracking-tight">
+                      {form.login_heading || "Sign in to your workplace"}
+                    </h3>
+                    <p className="text-[11px] text-slate-300 leading-snug">
+                      {form.login_subheading || "Perfection at its finest. Workforce management portal"}
+                    </p>
+                  </div>
+
+                  <div className="relative flex items-center justify-between text-[11px] text-slate-300 pt-3 border-t border-white/15 mt-3" style={{ zIndex: 10 }}>
+                    <span>
+                      Video: <strong className="text-white font-mono">{currentLoginBgVideo.length > 40 ? currentLoginBgVideo.substring(0, 38) + "..." : currentLoginBgVideo}</strong>
+                    </span>
+                    <span className="text-[10px] text-slate-400">Looping background video</span>
+                  </div>
+                </div>
+
+                {/* Direct Video URL Input */}
+                <div className="space-y-1.5 pt-1">
+                  <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-400">
+                    Video Path or Direct MP4 URL
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={form.login_bg_video_url || ""}
+                      onChange={(e) => handleFieldChange("login_bg_video_url", e.target.value)}
+                      placeholder="/videos/login-bg.mp4 or https://.../video.mp4"
+                      className="flex-1 px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-purple-500 truncate"
+                    />
+                    {form.login_bg_video_url && form.login_bg_video_url !== "/videos/login-bg.mp4" && (
+                      <button
+                        type="button"
+                        onClick={() => handleFieldChange("login_bg_video_url", "/videos/login-bg.mp4")}
+                        className="px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold cursor-pointer shrink-0"
+                      >
+                        Reset
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Curated Video Presets */}
+                <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                  <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-400">
+                    Curated Login Video Themes:
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    {[
+                      { label: "InterSmart Cyber Network (Default)", url: "/videos/login-bg.mp4", desc: "Ambient tech particle waves" },
+                      { label: "Digital Telemetry Stream", url: "https://assets.mixkit.co/videos/preview/mixkit-digital-animation-of-screens-with-charts-and-data-31911-large.mp4", desc: "HUD and data visualizer" },
+                      { label: "Futuristic Board Matrix", url: "https://assets.mixkit.co/videos/preview/mixkit-circuit-board-and-lines-of-data-31915-large.mp4", desc: "Glowing cyber traces" },
+                    ].map((preset) => {
+                      const isSelected = form.login_bg_video_url === preset.url || (!form.login_bg_video_url && preset.url === "/videos/login-bg.mp4");
+                      return (
+                        <button
+                          key={preset.url}
+                          type="button"
+                          onClick={() => handleFieldChange("login_bg_video_url", preset.url)}
+                          className={`p-2.5 rounded-xl border text-left flex flex-col justify-between transition-all cursor-pointer relative overflow-hidden group ${
+                            isSelected
+                              ? "border-purple-600 bg-purple-50/70 dark:bg-purple-950/40 ring-2 ring-purple-500/20"
+                              : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className={`text-[11px] font-bold truncate ${isSelected ? "text-purple-950 dark:text-purple-200" : "text-slate-800 dark:text-slate-200"}`}>
+                              {preset.label}
+                            </span>
+                            {isSelected && <Check className="w-3.5 h-3.5 text-purple-600 shrink-0 ml-1" />}
+                          </div>
+                          <span className="text-[9.5px] text-slate-400 mt-0.5 truncate">{preset.desc}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                  Login Subheading / Workplace Motto
-                </label>
-                <textarea
-                  rows={2}
-                  value={form.login_subheading || ""}
-                  onChange={(e) => handleFieldChange("login_subheading", e.target.value)}
-                  placeholder="Perfection at its finest. Workforce management portal"
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-              </div>
+              {/* Login Headline & Subheading */}
+              <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    Login Headline
+                  </label>
+                  <input
+                    type="text"
+                    value={form.login_heading || ""}
+                    onChange={(e) => handleFieldChange("login_heading", e.target.value)}
+                    placeholder="Sign in to your workplace"
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
 
-              <div className="space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                  Footer Copyright & Legal Notice
-                </label>
-                <input
-                  type="text"
-                  value={form.footer_copyright || ""}
-                  onChange={(e) => handleFieldChange("footer_copyright", e.target.value)}
-                  placeholder="© 2026 Inter Smart. All rights reserved."
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    Login Subheading / Workplace Motto
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={form.login_subheading || ""}
+                    onChange={(e) => handleFieldChange("login_subheading", e.target.value)}
+                    placeholder="Perfection at its finest. Workforce management portal"
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+
+                <div className="space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    Footer Copyright & Legal Notice
+                  </label>
+                  <input
+                    type="text"
+                    value={form.footer_copyright || ""}
+                    onChange={(e) => handleFieldChange("footer_copyright", e.target.value)}
+                    placeholder="© 2026 Inter Smart. All rights reserved."
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
               </div>
             </div>
           </div>
-
+          
           {/* Quick Info Box */}
           <div className="p-4 rounded-xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-200/80 dark:border-purple-800/60 text-xs text-purple-900 dark:text-purple-300 space-y-1.5">
             <div className="font-bold flex items-center gap-1.5">

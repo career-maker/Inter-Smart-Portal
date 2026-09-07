@@ -8,11 +8,13 @@ import { setAuthCookie } from "@/lib/authCookies";
 import { toastManager } from "@/components/ui/toast";
 import { Eye, EyeOff, LogIn, Lock, Mail, AlertCircle } from "lucide-react";
 import { useCustomization } from "@/context/CustomizationContext";
+import { resolveCustomizationAssetUrl } from "@/services/customization";
 
 export default function LoginPage() {
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
   const { settings: customizationSettings } = useCustomization();
+  const bgVideoUrl = resolveCustomizationAssetUrl(customizationSettings?.login_bg_video_url) || "/videos/login-bg.mp4";
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -137,6 +139,7 @@ export default function LoginPage() {
 
       {/* Video background */}
       <video
+        key={bgVideoUrl}
         autoPlay
         muted
         loop
@@ -145,7 +148,7 @@ export default function LoginPage() {
         className="absolute inset-0 w-full h-full object-cover"
         style={{ zIndex: 1 }}
       >
-        <source src="/videos/login-bg.mp4" type="video/mp4" />
+        <source src={bgVideoUrl} type={bgVideoUrl.endsWith(".webm") ? "video/webm" : "video/mp4"} />
         Your browser does not support the video tag.
       </video>
 

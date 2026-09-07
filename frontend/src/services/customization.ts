@@ -22,6 +22,8 @@ export interface CustomizationSettings {
   favicon_url?: string;
   logo_url?: string;
   welcome_banner_url?: string;
+  welcome_banner_media_type?: "image" | "video";
+  login_bg_video_url?: string;
   border_radius?: string;
   sub_header_bg?: string;
   sub_header_active_color?: string;
@@ -54,6 +56,8 @@ export const DEFAULT_CUSTOMIZATION_SETTINGS: CustomizationSettings = {
   favicon_url: "/icon.png",
   logo_url: "/logo.png",
   welcome_banner_url: "/welcome-banner-bg.jpg",
+  welcome_banner_media_type: "image",
+  login_bg_video_url: "/videos/login-bg.mp4",
   border_radius: "12px",
   sub_header_bg: "#ffffff",
   sub_header_active_color: "#56348f",
@@ -74,7 +78,7 @@ export const customizationApi = {
     return res.data;
   },
 
-  uploadAsset: async (file: File, type?: "favicon" | "logo" | "welcome_banner"): Promise<{ success: boolean; url: string; message: string }> => {
+  uploadAsset: async (file: File, type?: "favicon" | "logo" | "welcome_banner" | "login_bg_video" | "welcome_banner_video"): Promise<{ success: boolean; url: string; message: string }> => {
     const formData = new FormData();
     formData.append("file", file);
     if (type) formData.append("type", type);
@@ -91,7 +95,7 @@ export const customizationApi = {
 };
 
 /**
- * Resolve customization asset URLs (favicons, logos, welcome banners) whether they are data URLs,
+ * Resolve customization asset URLs (favicons, logos, welcome banners, videos) whether they are data URLs,
  * local frontend static assets, or uploaded backend files.
  */
 export function resolveCustomizationAssetUrl(url?: string | null): string {
@@ -106,6 +110,7 @@ export function resolveCustomizationAssetUrl(url?: string | null): string {
     url === "/logo-dark.png" ||
     url === "/favicon.ico" ||
     url === "/welcome-banner-bg.jpg" ||
+    url.startsWith("/videos/") ||
     url.startsWith("/icons/")
   ) {
     return url;

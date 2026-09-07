@@ -58,20 +58,22 @@ class CustomizationController extends Controller
             'page_title_format'       => 'nullable|string|max:100',
             'favicon_url'             => 'nullable|string',
             'logo_url'                => 'nullable|string',
-            'welcome_banner_url'      => 'nullable|string',
-            'border_radius'           => 'nullable|string|max:20',
-            'sub_header_bg'           => 'nullable|string|max:50',
-            'sub_header_active_color' => 'nullable|string|max:50',
-            'login_heading'           => 'nullable|string|max:150',
-            'login_subheading'        => 'nullable|string|max:255',
-            'title_separator'         => 'nullable|string|max:10',
-            'show_header_subtitle'    => 'nullable|boolean',
-            'sidebar_active_color'    => 'nullable|string|max:50',
-            'card_elevation'          => 'nullable|string|in:flat,subtle,floating,glassmorphic',
-            'button_style'            => 'nullable|string|in:rounded,pill,sharp',
-            'density'                 => 'nullable|string|in:compact,comfortable,spacious',
-            'footer_copyright'        => 'nullable|string|max:255',
-            'extra_colors'            => 'nullable|array',
+            'welcome_banner_url'        => 'nullable|string',
+            'login_bg_video_url'        => 'nullable|string',
+            'welcome_banner_media_type' => 'nullable|string|in:image,video',
+            'border_radius'             => 'nullable|string|max:20',
+            'sub_header_bg'             => 'nullable|string|max:50',
+            'sub_header_active_color'   => 'nullable|string|max:50',
+            'login_heading'             => 'nullable|string|max:150',
+            'login_subheading'          => 'nullable|string|max:255',
+            'title_separator'           => 'nullable|string|max:10',
+            'show_header_subtitle'      => 'nullable|boolean',
+            'sidebar_active_color'      => 'nullable|string|max:50',
+            'card_elevation'            => 'nullable|string|in:flat,subtle,floating,glassmorphic',
+            'button_style'              => 'nullable|string|in:rounded,pill,sharp',
+            'density'                   => 'nullable|string|in:compact,comfortable,spacious',
+            'footer_copyright'          => 'nullable|string|max:255',
+            'extra_colors'              => 'nullable|array',
         ]);
 
         try {
@@ -89,13 +91,26 @@ class CustomizationController extends Controller
             $setting = CustomizationSetting::getSettings();
             $existingColumns = Schema::getColumnListing('customization_settings');
 
-            // If welcome_banner_url column doesn't exist yet on DB, store it safely in extra_colors JSON
+            // If welcome_banner_url, login_bg_video_url, or welcome_banner_media_type columns don't exist yet on DB, store them safely in extra_colors JSON
+            $extra = $setting->extra_colors ?? [];
+            if (!is_array($extra)) {
+                $extra = [];
+            }
+            $extraUpdated = false;
+
             if (isset($validated['welcome_banner_url']) && !in_array('welcome_banner_url', $existingColumns, true)) {
-                $extra = $setting->extra_colors ?? [];
-                if (!is_array($extra)) {
-                    $extra = [];
-                }
                 $extra['welcome_banner_url'] = $validated['welcome_banner_url'];
+                $extraUpdated = true;
+            }
+            if (isset($validated['login_bg_video_url']) && !in_array('login_bg_video_url', $existingColumns, true)) {
+                $extra['login_bg_video_url'] = $validated['login_bg_video_url'];
+                $extraUpdated = true;
+            }
+            if (isset($validated['welcome_banner_media_type']) && !in_array('welcome_banner_media_type', $existingColumns, true)) {
+                $extra['welcome_banner_media_type'] = $validated['welcome_banner_media_type'];
+                $extraUpdated = true;
+            }
+            if ($extraUpdated) {
                 $validated['extra_colors'] = $extra;
             }
 
@@ -110,6 +125,12 @@ class CustomizationController extends Controller
             $fresh = $setting->fresh();
             if (empty($fresh->welcome_banner_url) && !empty($fresh->extra_colors['welcome_banner_url'])) {
                 $fresh->welcome_banner_url = $fresh->extra_colors['welcome_banner_url'];
+            }
+            if (empty($fresh->login_bg_video_url) && !empty($fresh->extra_colors['login_bg_video_url'])) {
+                $fresh->login_bg_video_url = $fresh->extra_colors['login_bg_video_url'];
+            }
+            if (empty($fresh->welcome_banner_media_type) && !empty($fresh->extra_colors['welcome_banner_media_type'])) {
+                $fresh->welcome_banner_media_type = $fresh->extra_colors['welcome_banner_media_type'];
             }
 
             return response()->json([
@@ -126,13 +147,13 @@ class CustomizationController extends Controller
     }
 
     /**
-     * Upload an asset file (favicon or logo).
+     * Upload an asset file (favicon, logo, welcome banner image/video, or login background video).
      */
     public function uploadAsset(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|max:10240',
-            'type' => 'nullable|string|in:favicon,logo,welcome_banner',
+            'file' => 'required|file|max:51200', // allow up to 50MB for videos
+            'type' => 'nullable|string|in:favicon,logo,welcome_banner,login_bg_video,welcome_banner_video',
         ]);
 
         try {

@@ -605,4 +605,328 @@ class HubstaffProjectController extends Controller
 
         return response()->json($response);
     }
+
+    /**
+     * Generate Daily Hubstaff Report across all departments and employees.
+     * Includes Floor Time (eSSL Biometric / WFH / Leaves), Hubstaff Time, and HS Activity %.
+     */
+    public function dailyReport(Request $request)
+    {
+        $user = $request->user();
+        $isSuperAdmin = $user->hasRole('Super Admin') || in_array(strtolower($user->role ?? ''), ['super admin'], true);
+        $isAdmin = $user->hasRole('Admin') || in_array(strtolower($user->role ?? ''), ['admin'], true);
+
+        if (!$isSuperAdmin && !$isAdmin) {
+            return response()->json(['message' => 'Unauthorized: Only administrators can access daily Hubstaff reports.'], 403);
+        }
+
+        $date = $request->input('date', now('Asia/Kolkata')->toDateString());
+        $forceRefresh = $request->boolean('refresh', false);
+
+        // 1. Fetch active teams and members
+        $teams = \App\Models\Team::with(['members' => function ($q) {
+            $q->where('status', 'Active')->orderBy('first_name')->orderBy('last_name');
+        }])->orderBy('name')->get();
+
+        $unassignedUsers = \App\Models\User::whereNull('team_id')
+            ->where('status', 'Active')
+            ->orderBy('first_name')
+            ->orderBy('last_name')
+            ->get();
+
+        // 2. Fetch Hubstaff Activities for this date
+        $hubstaffRes = $this->hubstaffService->getDailyActivities($date, $date, $forceRefresh);
+        $rawActivities = $hubstaffRes['activities'] ?? [];
+
+        // 3. User mapping: hubstaff_user_id -> User model
+        $userLinks = \App\Models\ProjectUserHubstaffLink::with('user')->get();
+        $hubstaffUserMap = [];
+        foreach ($userLinks as $link) {
+            if ($link->user) {
+                $hubstaffUserMap[(string) $link->hubstaff_user_id] = $link->user;
+            }
+        }
+
+        // Auto-match discovered members by email or normalized name
+        $discoveredMembers = $this->hubstaffService->getMembersWithUsers()['users'] ?? [];
+        $emailToHsIdMap = [];
+        foreach ($discoveredMembers as $dm) {
+            $hsId = (string) ($dm['hubstaff_user_id'] ?? '');
+            $email = strtolower(trim($dm['email'] ?? ''));
+            if (!empty($hsId) && !empty($email) && !isset($hubstaffUserMap[$hsId])) {
+                $emailToHsIdMap[$email] = $hsId;
+            }
+        }
+        if (!empty($emailToHsIdMap)) {
+            $matchedUsers = \App\Models\User::whereIn('email', array_keys($emailToHsIdMap))->get();
+            foreach ($matchedUsers as $mu) {
+                $email = strtolower(trim($mu->email));
+                if (isset($emailToHsIdMap[$email])) {
+                    $hubstaffUserMap[$emailToHsIdMap[$email]] = $mu;
+                }
+            }
+        }
+
+        $allActiveUsers = \App\Models\User::where('status', 'Active')->get();
+        $userByNameMap = [];
+        foreach ($allActiveUsers as $au) {
+            $nName = strtolower(trim("{$au->first_name} {$au->last_name}"));
+            if (!empty($nName)) {
+                $userByNameMap[$nName] = $au;
+            }
+        }
+        foreach ($discoveredMembers as $dm) {
+            $hsId = (string) ($dm['hubstaff_user_id'] ?? '');
+            if (!empty($hsId) && !isset($hubstaffUserMap[$hsId])) {
+                $dmName = strtolower(trim($dm['name'] ?? ''));
+                if (!empty($dmName) && isset($userByNameMap[$dmName])) {
+                    $hubstaffUserMap[$hsId] = $userByNameMap[$dmName];
+                }
+            }
+        }
+
+        // Map user_id -> aggregated Hubstaff metrics
+        $userHsMap = [];
+        foreach ($rawActivities as $act) {
+            $hsUid = (string) ($act['user_id'] ?? '');
+            if (empty($hsUid)) continue;
+
+            $tracked = (int) ($act['tracked'] ?? $act['input_tracked'] ?? 0);
+            $rawOverall = (float) ($act['overall'] ?? 0);
+            $rawActivity = (float) ($act['activity'] ?? 0);
+
+            if ($rawActivity > 0) {
+                if ($rawActivity > 100) {
+                    $actPct = $rawActivity / 100.0;
+                } elseif ($rawActivity <= 1.0) {
+                    $actPct = $rawActivity * 100.0;
+                } else {
+                    $actPct = $rawActivity;
+                }
+            } elseif ($tracked > 0 && $rawOverall > 0) {
+                $actPct = ($rawOverall > $tracked) ? 100.0 : (($rawOverall / $tracked) * 100.0);
+            } else {
+                $actPct = 0.0;
+            }
+
+            $matchedPortalUser = $hubstaffUserMap[$hsUid] ?? null;
+            if (!$matchedPortalUser) continue;
+
+            $pUid = $matchedPortalUser->id;
+            if (!isset($userHsMap[$pUid])) {
+                $userHsMap[$pUid] = [
+                    'tracked_seconds' => 0,
+                    'activity_weighted_sum' => 0.0,
+                ];
+            }
+            $userHsMap[$pUid]['tracked_seconds'] += $tracked;
+            $userHsMap[$pUid]['activity_weighted_sum'] += ($actPct * $tracked);
+        }
+
+        // 4. Batch fetch attendance, WFH, and leaves for this date
+        $allUserIds = $teams->flatMap(fn($t) => $t->members->pluck('id'))->merge($unassignedUsers->pluck('id'))->unique()->values()->all();
+
+        $wfhUserIds = \App\Models\WfhRequest::whereIn('user_id', $allUserIds)
+            ->where('status', 'Approved')
+            ->whereDate('start_date', '<=', $date)
+            ->whereDate('end_date', '>=', $date)
+            ->pluck('user_id')
+            ->flip()
+            ->toArray();
+
+        $leaves = \App\Models\LeaveRequest::with('leaveType')
+            ->whereIn('user_id', $allUserIds)
+            ->where('status', 'Approved')
+            ->whereDate('start_date', '<=', $date)
+            ->whereDate('end_date', '>=', $date)
+            ->whereDoesntHave('leaveType', function ($q) {
+                $q->where('name', 'like', '%WFH%')
+                  ->orWhere('name', 'like', '%Work From Home%');
+            })
+            ->get()
+            ->keyBy('user_id');
+
+        $attendances = \App\Models\Attendance::whereIn('user_id', $allUserIds)
+            ->where('date', $date)
+            ->get()
+            ->keyBy('user_id');
+
+        // 5. Build department columns
+        $departmentsData = [];
+        $maxMembersCount = 0;
+
+        $processTeam = function ($teamName, $teamCode, $members) use (
+            $wfhUserIds, $leaves, $attendances, $userHsMap, &$maxMembersCount
+        ) {
+            $membersData = [];
+            $sumFloorSeconds = 0;
+            $countFloor = 0;
+            $sumHsSeconds = 0;
+            $sumHsActWeighted = 0;
+            $countHs = 0;
+
+            foreach ($members as $member) {
+                $uId = $member->id;
+                $isWfh = isset($wfhUserIds[$uId]);
+                $leave = $leaves->get($uId);
+                $att = $attendances->get($uId);
+                $floorMinutes = $att ? (int) ($att->total_working_minutes ?? 0) : 0;
+                $hasBiometricCheckIn = $att && ($att->check_in_time || $floorMinutes > 0);
+
+                // Floor Time resolution
+                $floorTimeStr = '-';
+                $floorStatusType = 'normal';
+                $floorSeconds = null;
+
+                if ($isWfh) {
+                    $floorTimeStr = 'W';
+                    $floorStatusType = 'wfh';
+                } elseif ($leave) {
+                    $durType = $leave->duration_type ?? 'Full';
+                    if (str_contains(strtolower($durType), 'half-morning')) {
+                        $floorTimeStr = 'H1';
+                    } elseif (str_contains(strtolower($durType), 'half-afternoon')) {
+                        $floorTimeStr = 'H2';
+                    } else {
+                        $typeName = $leave->leaveType->name ?? 'Leave';
+                        if (str_contains(strtolower($typeName), 'casual')) {
+                            $floorTimeStr = 'CL';
+                        } elseif (str_contains(strtolower($typeName), 'sick')) {
+                            $floorTimeStr = 'SL';
+                        } elseif (str_contains(strtolower($typeName), 'paid') || str_contains(strtolower($typeName), 'privilege')) {
+                            $floorTimeStr = 'PL';
+                        } elseif ($leave->is_unpaid || str_contains(strtolower($typeName), 'lop')) {
+                            $floorTimeStr = 'LOP';
+                        } else {
+                            $floorTimeStr = strtoupper(substr(preg_replace('/[^A-Za-z]/', '', $typeName), 0, 2)) ?: 'LV';
+                        }
+                    }
+                    $floorStatusType = 'leave';
+                } elseif ($hasBiometricCheckIn && $floorMinutes > 0) {
+                    $h = floor($floorMinutes / 60);
+                    $m = $floorMinutes % 60;
+                    $floorTimeStr = sprintf('%d:%02d:00', $h, $m);
+                    $floorSeconds = $floorMinutes * 60;
+                    $floorStatusType = 'present';
+                    $sumFloorSeconds += $floorSeconds;
+                    $countFloor++;
+                } elseif ($hasBiometricCheckIn && $floorMinutes === 0 && $att->check_in_time) {
+                    $floorTimeStr = '0:00:00';
+                    $floorSeconds = 0;
+                    $floorStatusType = 'present';
+                    $countFloor++;
+                } else {
+                    $floorTimeStr = 'A';
+                    $floorStatusType = 'absent';
+                }
+
+                // Hubstaff Time resolution
+                $hsData = $userHsMap[$uId] ?? null;
+                $hsSec = $hsData ? (int) $hsData['tracked_seconds'] : 0;
+                $hsActPct = ($hsData && $hsSec > 0) ? round($hsData['activity_weighted_sum'] / $hsSec, 2) : 0.0;
+
+                $hsTimeStr = '-';
+                $hsPctStr = '-';
+                $isLowActivity = false;
+
+                if ($hsSec > 0) {
+                    $h = floor($hsSec / 3600);
+                    $m = floor(($hsSec % 3600) / 60);
+                    $s = $hsSec % 60;
+                    $hsTimeStr = sprintf('%d:%02d:%02d', $h, $m, $s);
+                    $hsPctStr = number_format($hsActPct, 2, '.', '');
+                    if ($hsActPct < 60.0) {
+                        $isLowActivity = true;
+                    }
+                    $sumHsSeconds += $hsSec;
+                    $sumHsActWeighted += ($hsActPct * $hsSec);
+                    $countHs++;
+                }
+
+                $displayName = trim($member->first_name . ' ' . ($member->last_name ? substr($member->last_name, 0, 1) : ''));
+                if (empty($displayName)) {
+                    $displayName = $member->name ?? "Employee #{$uId}";
+                }
+
+                $membersData[] = [
+                    'user_id' => $uId,
+                    'name' => $displayName,
+                    'full_name' => trim("{$member->first_name} {$member->last_name}"),
+                    'employee_code' => $member->employee_code,
+                    'floor_time' => $floorTimeStr,
+                    'floor_status' => $floorStatusType,
+                    'hs_time' => $hsTimeStr,
+                    'hs_seconds' => $hsSec,
+                    'hs_percent' => $hsPctStr,
+                    'hs_raw_percent' => $hsActPct,
+                    'is_low_activity' => $isLowActivity,
+                ];
+            }
+
+            if (count($membersData) > $maxMembersCount) {
+                $maxMembersCount = count($membersData);
+            }
+
+            // Department Averages
+            $avgFloorStr = '-';
+            if ($countFloor > 0) {
+                $avgSec = (int) round($sumFloorSeconds / $countFloor);
+                $avgFloorStr = sprintf('%d:%02d:00', floor($avgSec / 3600), floor(($avgSec % 3600) / 60));
+            }
+
+            $avgHsTimeStr = '-';
+            $avgHsPctStr = '-';
+            if ($countHs > 0 && $sumHsSeconds > 0) {
+                $avgSec = (int) round($sumHsSeconds / $countHs);
+                $avgHsTimeStr = sprintf('%d:%02d:%02d', floor($avgSec / 3600), floor(($avgSec % 3600) / 60), $avgSec % 60);
+                $avgPct = round($sumHsActWeighted / $sumHsSeconds, 2);
+                $avgHsPctStr = number_format($avgPct, 2, '.', '');
+            }
+
+            return [
+                'name' => strtoupper($teamName),
+                'code' => $teamCode,
+                'members_count' => count($membersData),
+                'members' => $membersData,
+                'averages' => [
+                    'floor_time' => $avgFloorStr,
+                    'hs_time' => $avgHsTimeStr,
+                    'hs_percent' => $avgHsPctStr,
+                ],
+            ];
+        };
+
+        foreach ($teams as $team) {
+            if ($team->members->isEmpty()) continue;
+            $departmentsData[] = $processTeam($team->name, $team->code, $team->members);
+        }
+
+        if ($unassignedUsers->isNotEmpty()) {
+            $departmentsData[] = $processTeam('GENERAL', 'GEN', $unassignedUsers);
+        }
+
+        $carbonDate = \Carbon\Carbon::parse($date);
+
+        return response()->json([
+            'date' => $date,
+            'date_formatted_short' => $carbonDate->format('j/n/y'), // e.g. 4/9/26
+            'date_formatted_full' => $carbonDate->format('d M Y'),
+            'day_name' => $carbonDate->format('l'),
+            'departments' => $departmentsData,
+            'max_rows' => $maxMembersCount,
+            'legend' => [
+                'A' => 'Absent',
+                'W' => 'WFH',
+                'H1' => 'Morning Halfday',
+                'H2' => 'Afternoon Halfday',
+                'CL' => 'Casual Leave',
+                'SL' => 'Sick Leave',
+                'PL' => 'Privilege Leave',
+                'LOP' => 'Loss of Pay',
+            ],
+            'legend_text' => 'Abbreviations - Absent = A, WFH = W, Morning Halfday - H1, Afternoon Halfday - H2',
+            'generated_at' => now()->toIso8601String(),
+        ]);
+    }
 }
+

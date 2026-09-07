@@ -10,6 +10,7 @@ Route::get('ping', function () {
 
 Route::get('photos/{path}', [\App\Http\Controllers\Api\EmployeeController::class, 'showPhoto'])->where('path', '.*');
 Route::get('storage/{path}', [\App\Http\Controllers\Api\EmployeeController::class, 'showStorageFile'])->where('path', '.*');
+Route::get('hr-policies/{hrPolicy}/download', [\App\Http\Controllers\Api\HrPolicyController::class, 'download']);
 
 // Portal Customization (Public read for instant styling and asset loading)
 Route::get('customization/settings', [\App\Http\Controllers\Api\CustomizationController::class, 'getSettings']);
@@ -646,6 +647,7 @@ Route::middleware('auth:sanctum')->prefix('pm-task-catalog')->group(function () 
 
 Route::middleware('auth:sanctum')->prefix('hubstaff')->group(function () {
     Route::get('analytics', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'analytics']);
+    Route::get('daily-report', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'dailyReport']);
     Route::get('projects', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'index']);
     Route::get('users', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'getUsers']);
     Route::post('link-user', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'linkUser']);
@@ -655,6 +657,7 @@ Route::middleware('auth:sanctum')->prefix('hubstaff')->group(function () {
 // Backward compatibility alias for pm/hubstaff routes
 Route::middleware('auth:sanctum')->prefix('pm/hubstaff')->group(function () {
     Route::get('analytics', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'analytics']);
+    Route::get('daily-report', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'dailyReport']);
     Route::get('projects', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'index']);
     Route::get('users', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'getUsers']);
     Route::post('link-user', [\App\Http\Controllers\Api\HubstaffProjectController::class, 'linkUser']);

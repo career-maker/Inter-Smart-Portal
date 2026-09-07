@@ -39,6 +39,8 @@ class CustomizationSetting extends Model
         'footer_copyright',
         'extra_colors',
         'welcome_banner_url',
+        'login_bg_video_url',
+        'welcome_banner_media_type',
     ];
 
     protected $casts = [
@@ -57,36 +59,64 @@ class CustomizationSetting extends Model
         return '/welcome-banner-bg.jpg';
     }
 
+    public function getLoginBgVideoUrlAttribute($value): string
+    {
+        if (!empty($value)) {
+            return $value;
+        }
+        if (!empty($this->extra_colors['login_bg_video_url'])) {
+            return $this->extra_colors['login_bg_video_url'];
+        }
+        return '/videos/login-bg.mp4';
+    }
+
+    public function getWelcomeBannerMediaTypeAttribute($value): string
+    {
+        if (!empty($value)) {
+            return $value;
+        }
+        if (!empty($this->extra_colors['welcome_banner_media_type'])) {
+            return $this->extra_colors['welcome_banner_media_type'];
+        }
+        $banner = $this->welcome_banner_url;
+        if (preg_match('/\.(mp4|webm|ogg|mov)($|\?)/i', (string) $banner)) {
+            return 'video';
+        }
+        return 'image';
+    }
+
     public static function defaults(): array
     {
         return [
-            'font_family'             => 'Proxima Nova',
-            'header_bg_color'         => '#56348f',
-            'header_text_color'       => '#ffffff',
-            'sidebar_bg_color'        => '#0e2638',
-            'header_subtitle'         => 'PERFECTION AT ITS FINEST',
-            'show_header_subtitle'    => true,
-            'sidebar_active_color'    => '#133249',
-            'card_elevation'          => 'subtle',
-            'button_style'            => 'rounded',
-            'density'                 => 'comfortable',
-            'footer_copyright'        => '© 2026 Inter Smart. All rights reserved.',
-            'primary_color'           => '#56348f',
-            'body_font_size'          => '12px',
-            'heading_scale'           => 'normal',
-            'description_font_size'   => '13px',
-            'page_title_base'         => 'Inter Smart',
-            'page_title_format'       => '{title} | {pagename}',
-            'favicon_url'             => '/icon.png',
-            'logo_url'                => '/logo.png',
-            'welcome_banner_url'      => '/welcome-banner-bg.jpg',
-            'border_radius'           => '12px',
-            'sub_header_bg'           => '#ffffff',
-            'sub_header_active_color' => '#56348f',
-            'login_heading'           => 'Sign in to your workplace',
-            'login_subheading'        => 'Perfection at its finest. Workforce management portal',
-            'title_separator'         => '|',
-            'extra_colors'            => null,
+            'font_family'               => 'Proxima Nova',
+            'header_bg_color'           => '#56348f',
+            'header_text_color'         => '#ffffff',
+            'sidebar_bg_color'          => '#0e2638',
+            'header_subtitle'           => 'PERFECTION AT ITS FINEST',
+            'show_header_subtitle'      => true,
+            'sidebar_active_color'      => '#133249',
+            'card_elevation'            => 'subtle',
+            'button_style'              => 'rounded',
+            'density'                   => 'comfortable',
+            'footer_copyright'          => '© 2026 Inter Smart. All rights reserved.',
+            'primary_color'             => '#56348f',
+            'body_font_size'            => '12px',
+            'heading_scale'             => 'normal',
+            'description_font_size'     => '13px',
+            'page_title_base'           => 'Inter Smart',
+            'page_title_format'         => '{title} | {pagename}',
+            'favicon_url'               => '/icon.png',
+            'logo_url'                  => '/logo.png',
+            'welcome_banner_url'        => '/welcome-banner-bg.jpg',
+            'welcome_banner_media_type' => 'image',
+            'login_bg_video_url'        => '/videos/login-bg.mp4',
+            'border_radius'             => '12px',
+            'sub_header_bg'             => '#ffffff',
+            'sub_header_active_color'   => '#56348f',
+            'login_heading'             => 'Sign in to your workplace',
+            'login_subheading'          => 'Perfection at its finest. Workforce management portal',
+            'title_separator'           => '|',
+            'extra_colors'              => null,
         ];
     }
 

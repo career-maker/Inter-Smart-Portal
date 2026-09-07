@@ -26,12 +26,14 @@ import {
   UserCheck,
   CheckCircle2,
   PieChart,
-  Filter
+  Filter,
+  FileSpreadsheet
 } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 import { TeamFilterSelector } from "@/components/project-management/TeamFilterSelector";
+import { DailyHubstaffReportModal } from "@/components/project-management/DailyHubstaffReportModal";
 
 type TabType = "users" | "projects" | "trends";
 type ActivityLevelFilter = "all" | "high" | "moderate" | "low";
@@ -119,6 +121,7 @@ export default function HubstaffAnalyticsPage() {
   // Detail Drawers / Modals
   const [selectedUserDetail, setSelectedUserDetail] = useState<any | null>(null);
   const [selectedProjectDetail, setSelectedProjectDetail] = useState<any | null>(null);
+  const [showDailyReportModal, setShowDailyReportModal] = useState<boolean>(false);
 
   // Fetch Analytics Data from backend.
   // `overrides` lets a caller (the Search/Go button) supply date values read
@@ -495,6 +498,18 @@ export default function HubstaffAnalyticsPage() {
             <Download className="w-4 h-4 shrink-0" />
             <span className="whitespace-nowrap">Export CSV</span>
           </button>
+
+          {/* Daily Hubstaff Report Button for Super Admin & Admin */}
+          {(isSuperAdmin || isAdmin) && (
+            <button
+              onClick={() => setShowDailyReportModal(true)}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs hover:shadow-md cursor-pointer whitespace-nowrap shrink-0"
+              title="Generate daily Hubstaff report across all departments with Sheet and Image models"
+            >
+              <FileSpreadsheet className="w-4 h-4 shrink-0" />
+              <span className="whitespace-nowrap">Daily Hubstaff Report</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -1623,6 +1638,13 @@ export default function HubstaffAnalyticsPage() {
           </div>
         </div>
       )}
+
+      {/* Daily Hubstaff Report Modal (Day-wise, Image & Sheet Models) */}
+      <DailyHubstaffReportModal
+        isOpen={showDailyReportModal}
+        onClose={() => setShowDailyReportModal(false)}
+        initialDate={dateMode === "single" ? selectedDate : format(new Date(), "yyyy-MM-dd")}
+      />
     </div>
   );
 }

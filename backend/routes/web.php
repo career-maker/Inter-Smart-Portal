@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return response()->view('errors.404', [], 404);
 });
 
 Route::get('/ping', function () {
@@ -24,3 +24,12 @@ Route::withoutMiddleware([
     Route::post('/api/v1/biometric/ingest', [\App\Http\Controllers\Api\BiometricIngestionController::class, 'ingest'])
         ->middleware(\App\Http\Middleware\VerifyBiometricAgent::class);
 });
+
+// Fallback for all unmatched web requests
+Route::fallback(function () {
+    if (request()->expectsJson()) {
+        return response()->json(['message' => 'Not Found'], 404);
+    }
+    return response()->view('errors.404', [], 404);
+});
+

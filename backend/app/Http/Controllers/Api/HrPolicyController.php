@@ -68,4 +68,54 @@ class HrPolicyController extends Controller
 
         return response()->json(['message' => 'Policy archived successfully.']);
     }
+
+    /**
+     * Authenticated download or view of an HR policy file.
+     * Prevents exposing internal file hash or direct storage paths.
+     */
+    public function download(Request $request, HrPolicy $hrPolicy)
+    {
+        // Authenticate user via Sanctum (bearer token header, query token, or cookie)
+        $user = $request->user('sanctum');
+        if (!$user && $request->query('token')) {
+            $accessToken = \Laravel\Sanctum\PersonalAccessToken::findToken($request->query('token'));
+            if ($accessToken && (!$accessToken->expires_at || $accessToken->expires_at->isFuture())) {
+                $user = $accessToken->tokenable;
+            }
+        }
+
+        if (!$user) {
+            if ($request->acceptsHtml()) {
+                return response()->view('errors.404', [], 404);
+            }
+            return response()->json(['message' => 'Unauthenticated.'], 401);
+        }
+
+        if ($hrPolicy->is_archived && !in_array($user->role, ['Super Admin', 'Admin', 'HR'])) {
+            if ($request->acceptsHtml()) {
+                return response()->view('errors.404', [], 404);
+            }
+            return response()->json(['message' => 'Policy not found.'], 404);
+        }
+
+        $disk = \Illuminate\Support\Facades\Storage::disk('public');
+        if (!$hrPolicy->file_path || !$disk->exists($hrPolicy->file_path)) {
+            if ($request->acceptsHtml()) {
+                return response()->view('errors.404', [], 404);
+            }
+            return response()->json(['message' => 'File not found.'], 404);
+        }
+
+        $extension = pathinfo($hrPolicy->file_path, PATHINFO_EXTENSION) ?: 'pdf';
+        $safeTitle = \Illuminate\Support\Str::slug($hrPolicy->title) ?: 'hr-policy';
+        $downloadFilename = "{$safeTitle}.{$extension}";
+
+        $disposition = $request->query('disposition') === 'attachment' ? 'attachment' : 'inline';
+
+        return $disk->response($hrPolicy->file_path, $downloadFilename, [
+            'Content-Disposition' => "{$disposition}; filename=\"{$downloadFilename}\"",
+            'Cache-Control' => 'private, max-age=3600',
+        ]);
+    }
 }
+

@@ -2,7 +2,7 @@
 
 import { PageLoader } from "@/components/ui/PageLoader";
 import { useState, useEffect, useRef } from "react";
-import { BookOpen, Upload, Trash2, Loader2, FileText, Search } from "lucide-react";
+import { BookOpen, Upload, Trash2, Loader2, FileText, Search, Eye, Download } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
 import { getStorageUrl } from "@/lib/utils";
@@ -110,6 +110,42 @@ export default function PoliciesPage() {
     }
   };
 
+  const [downloadingId, setDownloadingId] = useState<number | null>(null);
+
+  const handleDownloadPolicy = async (policy: any, inline = false) => {
+    try {
+      setDownloadingId(policy.id);
+      const res = await api.get(`/hr-policies/${policy.id}/download`, {
+        params: { disposition: inline ? "inline" : "attachment" },
+        responseType: "blob",
+      });
+      const contentType = (res.headers && typeof res.headers["content-type"] === "string") ? res.headers["content-type"] : "application/pdf";
+      const blob = new Blob([res.data], { type: contentType });
+      const blobUrl = window.URL.createObjectURL(blob);
+      if (inline) {
+        window.open(blobUrl, "_blank");
+      } else {
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        const extension = policy.file_path ? policy.file_path.split(".").pop() : "pdf";
+        link.download = `${policy.title.replace(/[/\\?%*:|"<>]/g, "-")}.${extension}`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+      setTimeout(() => window.URL.revokeObjectURL(blobUrl), 20000);
+    } catch (err: any) {
+      console.error("Failed to load policy document:", err);
+      if (policy.file_path) {
+        window.open(getStorageUrl(policy.file_path), "_blank");
+      } else {
+        alert("Unable to open policy document. Please try again or contact HR.");
+      }
+    } finally {
+      setDownloadingId(null);
+    }
+  };
+
   // Group by category
   const grouped = filteredPolicies.reduce((acc: Record<string, any[]>, p) => {
     if (!acc[p.category]) acc[p.category] = [];
@@ -125,15 +161,15 @@ export default function PoliciesPage() {
           <p className="text-slate-600 dark:text-slate-300">Browse and download company policies and guidelines.</p>
         </div>
         {isAdmin && (
-          <Button onClick={() => setShowUploadDialog(true)}>
-            <Upload className="h-4 w-4 mr-2" /> Upload Policy
+          <Button onClick={() => setShowUploadDialog(true)} className="gap-2">
+            <Upload className="h-4 w-4" /> Upload Policy
           </Button>
         )}
       </div>
 
       {/* Filters */}
-      <div className="flex gap-3">
-        <div className="relative flex-1 max-w-sm">
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             className="pl-9"
@@ -142,9 +178,9 @@ export default function PoliciesPage() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <Select value={categoryFilter} onValueChange={(v) => setCategoryFilter(v as string)}>
-          <SelectTrigger className="w-48">
-            <SelectValue placeholder="All categories" />
+        <Select value={categoryFilter} onValueChange={(v) => setCategoryFilter(v || "all")}>
+          <SelectTrigger className="w-full sm:w-48">
+            <SelectValue placeholder="All Categories" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
@@ -193,19 +229,36 @@ export default function PoliciesPage() {
                       <span className="text-xs text-muted-foreground">
                         {new Date(policy.created_at).toLocaleDateString()}
                       </span>
-                      <div className="flex gap-2">
-                        <a
-                          href={getStorageUrl(policy.file_path)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-xs bg-primary text-primary-foreground px-3 py-1.5 rounded-lg hover:bg-primary/90 transition"
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          disabled={downloadingId === policy.id}
+                          onClick={() => handleDownloadPolicy(policy, true)}
+                          className="inline-flex items-center gap-1 text-xs bg-primary/10 text-primary hover:bg-primary/20 font-medium px-2.5 py-1.5 rounded-lg transition cursor-pointer disabled:opacity-50"
+                          title="Open policy in browser preview"
                         >
-                          Download
-                        </a>
+                          {downloadingId === policy.id ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Eye className="h-3.5 w-3.5" />
+                          )}
+                          <span>View</span>
+                        </button>
+                        <button
+                          type="button"
+                          disabled={downloadingId === policy.id}
+                          onClick={() => handleDownloadPolicy(policy, false)}
+                          className="inline-flex items-center gap-1 text-xs bg-primary text-primary-foreground hover:bg-primary/90 font-medium px-2.5 py-1.5 rounded-lg transition cursor-pointer disabled:opacity-50"
+                          title="Download policy document"
+                        >
+                          <Download className="h-3.5 w-3.5" />
+                          <span>Download</span>
+                        </button>
                         {isAdmin && (
                           <button
+                            type="button"
                             onClick={() => archivePolicy(policy.id)}
-                            className="text-xs text-red-500 hover:text-red-700 transition p-1.5"
+                            className="text-xs text-red-500 hover:text-red-700 transition p-1.5 ml-0.5 cursor-pointer"
                             title="Archive policy"
                           >
                             <Trash2 className="h-4 w-4" />

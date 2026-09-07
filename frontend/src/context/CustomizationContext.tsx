@@ -229,6 +229,8 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
       ...newSettings,
       ...(res.settings || {}),
       welcome_banner_url: newSettings.welcome_banner_url ?? res.settings?.welcome_banner_url ?? settings.welcome_banner_url,
+      welcome_banner_media_type: newSettings.welcome_banner_media_type ?? res.settings?.welcome_banner_media_type ?? settings.welcome_banner_media_type,
+      login_bg_video_url: newSettings.login_bg_video_url ?? res.settings?.login_bg_video_url ?? settings.login_bg_video_url,
     };
     setSettings(updated);
     setActiveSettings(updated);

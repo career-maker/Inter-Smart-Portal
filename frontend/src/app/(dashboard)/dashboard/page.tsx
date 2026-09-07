@@ -62,7 +62,8 @@ import { resolveCustomizationAssetUrl } from "@/services/customization";
 
 export default function DashboardPage() {
   const { settings: customizationSettings } = useCustomization();
-  const welcomeBannerBg = resolveCustomizationAssetUrl(customizationSettings?.welcome_banner_url || "/welcome-banner-bg.jpg");
+  const welcomeBannerMedia = resolveCustomizationAssetUrl(customizationSettings?.welcome_banner_url || "/welcome-banner-bg.jpg");
+  const isBannerVideo = customizationSettings?.welcome_banner_media_type === "video" || /\.(mp4|webm|ogg|mov)($|\?)/i.test(welcomeBannerMedia);
   const user = useAuthStore((state) => state.user);
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -311,13 +312,40 @@ export default function DashboardPage() {
       <div
         id="keka-welcome-hero-banner"
         style={{
-          backgroundImage: `linear-gradient(to right, rgba(12, 24, 45, 0.92) 0%, rgba(15, 23, 42, 0.72) 50%, rgba(12, 24, 45, 0.92) 100%), var(--portal-welcome-banner, url('${welcomeBannerBg}'))`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
+          ...(!isBannerVideo
+            ? {
+                backgroundImage: `linear-gradient(to right, rgba(12, 24, 45, 0.92) 0%, rgba(15, 23, 42, 0.72) 50%, rgba(12, 24, 45, 0.92) 100%), var(--portal-welcome-banner, url('${welcomeBannerMedia}'))`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }
+            : { backgroundColor: "#0c182d" }),
           fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
         }}
         className="relative rounded-md overflow-hidden shadow-xl p-6 sm:p-8 min-h-[160px] flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 border border-white/15 select-none"
       >
+        {isBannerVideo && (
+          <>
+            <video
+              key={welcomeBannerMedia}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+              style={{ zIndex: 0 }}
+            >
+              <source src={welcomeBannerMedia} type={welcomeBannerMedia.endsWith(".webm") ? "video/webm" : "video/mp4"} />
+            </video>
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background: "linear-gradient(to right, rgba(12, 24, 45, 0.88) 0%, rgba(15, 23, 42, 0.65) 50%, rgba(12, 24, 45, 0.88) 100%)",
+                zIndex: 1,
+              }}
+            />
+          </>
+        )}
         <style>{`
           #keka-welcome-hero-banner, #keka-welcome-hero-banner * {
             box-sizing: border-box;
@@ -1248,7 +1276,8 @@ function PhotoAvatar({ src, name, className = "", textClass = "" }: { src?: stri
 
 function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLeaveSummaryVisible }: any) {
   const { settings: customizationSettings } = useCustomization();
-  const welcomeBannerBg = resolveCustomizationAssetUrl(customizationSettings?.welcome_banner_url || "/welcome-banner-bg.jpg");
+  const welcomeBannerMedia = resolveCustomizationAssetUrl(customizationSettings?.welcome_banner_url || "/welcome-banner-bg.jpg");
+  const isBannerVideo = customizationSettings?.welcome_banner_media_type === "video" || /\.(mp4|webm|ogg|mov)($|\?)/i.test(welcomeBannerMedia);
   const { profile, admin_data, widgets } = data;
   const { kpis, activity_feed } = admin_data;
   const [leaveModalData, setLeaveModalData] = useState<{title: string, list: any[]} | null>(null);
@@ -1292,13 +1321,40 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
       <div
         id="keka-welcome-hero-banner"
         style={{
-          backgroundImage: `linear-gradient(to right, rgba(12, 24, 45, 0.92) 0%, rgba(15, 23, 42, 0.72) 50%, rgba(12, 24, 45, 0.92) 100%), var(--portal-welcome-banner, url('${welcomeBannerBg}'))`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
+          ...(!isBannerVideo
+            ? {
+                backgroundImage: `linear-gradient(to right, rgba(12, 24, 45, 0.92) 0%, rgba(15, 23, 42, 0.72) 50%, rgba(12, 24, 45, 0.92) 100%), var(--portal-welcome-banner, url('${welcomeBannerMedia}'))`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }
+            : { backgroundColor: "#0c182d" }),
           fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
         }}
         className="relative rounded-md overflow-hidden shadow-xl p-6 sm:p-8 min-h-[160px] flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 border border-white/15 select-none"
       >
+        {isBannerVideo && (
+          <>
+            <video
+              key={welcomeBannerMedia}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+              style={{ zIndex: 0 }}
+            >
+              <source src={welcomeBannerMedia} type={welcomeBannerMedia.endsWith(".webm") ? "video/webm" : "video/mp4"} />
+            </video>
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background: "linear-gradient(to right, rgba(12, 24, 45, 0.88) 0%, rgba(15, 23, 42, 0.65) 50%, rgba(12, 24, 45, 0.88) 100%)",
+                zIndex: 1,
+              }}
+            />
+          </>
+        )}
         <style>{`
           #keka-welcome-hero-banner, #keka-welcome-hero-banner * {
             box-sizing: border-box;
