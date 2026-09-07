@@ -332,16 +332,55 @@ class EmployeeController extends Controller
             $data['is_emergency_contact'] = filter_var($data['is_emergency_contact'], FILTER_VALIDATE_BOOLEAN);
         }
 
-        // Treat empty strings as null (blank form fields) then strip nulls
-        // so we never overwrite existing DB values with empty/null
+        // Treat empty strings as null (blank form fields)
         $data = array_map(fn($v) => ($v === '' ? null : $v), $data);
-        $data = array_filter($data, fn($v) => !is_null($v));
+
+        // Explicitly nullable columns where null is a valid intentional state
+        $explicitlyNullable = [
+            'team_id',
+            'personal_email',
+            'alternate_contact_number',
+            'blood_group',
+            'marital_status',
+            'permanent_address',
+            'current_address',
+        ];
+
+        // Strip nulls for non-nullable/core fields to prevent overwriting existing DB values with empty/null,
+        // but preserve null for fields that are explicitly nullable when present in the request
+        $data = array_filter($data, function ($value, $key) use ($explicitlyNullable, $request) {
+            if (!is_null($value)) {
+                return true;
+            }
+            return in_array($key, $explicitlyNullable, true) && (
+                $request->has($key) || array_key_exists($key, $request->all())
+            );
+        }, ARRAY_FILTER_USE_BOTH);
+
+        // Ensure team_id is explicitly handled if present in request payload
+        if (array_key_exists('team_id', $request->all())) {
+            $rawTeamId = $request->input('team_id');
+            if ($rawTeamId === 'none' || $rawTeamId === '' || is_null($rawTeamId) || $rawTeamId === 0 || $rawTeamId === '0') {
+                $data['team_id'] = null;
+            } else {
+                $data['team_id'] = (int) $rawTeamId;
+            }
+        }
 
         // Check if employee_code is being updated
         $employeeCodeChanged = isset($data['employee_code']) && $data['employee_code'] !== $employee->employee_code;
         $newEmployeeCode = $employeeCodeChanged ? $data['employee_code'] : null;
 
+        $oldTeamId = $employee->team_id;
         $employee->update($data);
+
+        // If employee's team changed or was removed, and they were previously leading that team,
+        // clear team_lead_id for the old team
+        if (array_key_exists('team_id', $data) && $oldTeamId && (int)$oldTeamId !== (int)($data['team_id'] ?? 0)) {
+            \App\Models\Team::where('id', $oldTeamId)
+                ->where('team_lead_id', $employee->id)
+                ->update(['team_lead_id' => null]);
+        }
 
         if ($role) {
             $employee->syncRoles([$role]);

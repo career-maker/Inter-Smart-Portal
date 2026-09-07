@@ -14,10 +14,15 @@ class UpdateEmployeeRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        $all = $this->all();
+        if (array_key_exists('team_id', $all) && ($all['team_id'] === 'none' || $all['team_id'] === '' || $all['team_id'] === 0 || $all['team_id'] === '0')) {
+            $all['team_id'] = null;
+        }
+
         // Treat every empty string as null so nullable rules work correctly
         // and date/email fields don't receive "" which PostgreSQL rejects
         $this->merge(
-            collect($this->all())->map(fn($v) => $v === '' ? null : $v)->toArray()
+            collect($all)->map(fn($v) => $v === '' ? null : $v)->toArray()
         );
     }
 
