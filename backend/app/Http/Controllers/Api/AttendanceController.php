@@ -42,21 +42,7 @@ class AttendanceController extends Controller
             ->first();
 
         // Auto-heal any WFH manual record where check_in_time was mistakenly stored as local IST instead of UTC
-        if ($attendance && in_array($attendance->source, ['manual', 'wfh_manual']) && $attendance->check_in_time) {
-            $rawCheckIn = Carbon::parse($attendance->getRawOriginal('check_in_time'), 'UTC');
-            $createdAt  = Carbon::parse($attendance->created_at, 'UTC');
-            // If check_in_time was stored in IST, it is ~330 mins (5.5h) ahead of created_at (UTC)
-            if (abs($rawCheckIn->diffInMinutes($createdAt) - 330) < 20) {
-                $attendance->check_in_time = $createdAt;
-                if ($attendance->check_out_time) {
-                    $attendance->check_out_time = Carbon::parse($attendance->getRawOriginal('check_out_time'), 'UTC')->subMinutes(330);
-                }
-                if ($attendance->last_out) {
-                    $attendance->last_out = Carbon::parse($attendance->getRawOriginal('last_out'), 'UTC')->subMinutes(330);
-                }
-                $attendance->save();
-            }
-        }
+        $this->healSkewedAttendance($attendance, $today);
 
         // 1. Fetch raw biometric events for today to ensure real-time accuracy without waiting for cron
         $rawEvents = BiometricEvent::where('user_id', $user->id)
@@ -267,9 +253,9 @@ class AttendanceController extends Controller
 
         $attendance->update([
             'check_out_time'        => $now,
-            'last_out'              => $now,
             'total_working_minutes' => (int) round($workingMinutes),
         ]);
+        $attendance->last_out = $now;
 
         return response()->json([
             'message' => 'Checked out successfully (WFH)',
@@ -423,6 +409,8 @@ class AttendanceController extends Controller
             ->where('date', $dateString)
             ->first();
 
+        $this->healSkewedAttendance($attendance, $dateString);
+
         // ── Fetch raw biometric events ──────────────────────────────────────
         $rawEvents = BiometricEvent::where('user_id', $targetId)
             ->whereDate('local_punch_time', $dateString)
@@ -514,20 +502,37 @@ class AttendanceController extends Controller
         $firstInOutput = $shiftCarbon($interp['first_in']) ?: ($attendance?->check_in_time ? Carbon::parse($attendance->check_in_time)->setTimezone('Asia/Kolkata')->toIso8601String() : null);
         $lastOutOutput = $shiftCarbon($interp['last_out']) ?: ($attendance?->check_out_time ? Carbon::parse($attendance->check_out_time)->setTimezone('Asia/Kolkata')->toIso8601String() : null);
 
+        $isManualAttendance = in_array($attendance?->source, ['manual', 'wfh_manual'], true) || (empty($shiftedRawPunches) && (bool)$firstInOutput);
+
         $sessionsOutput = $shiftedSessions;
         if (empty($sessionsOutput) && $firstInOutput) {
             $sessionsOutput[] = [
-                'start'   => $firstInOutput,
-                'end'     => $lastOutOutput,
-                'minutes' => $attendance?->total_working_minutes ?? 0,
+                'start'     => $firstInOutput,
+                'end'       => $lastOutOutput,
+                'minutes'   => $attendance?->total_working_minutes ?? 0,
+                'is_manual' => true,
             ];
         }
 
         $rawPunchesOutput = $shiftedRawPunches;
         if (empty($rawPunchesOutput) && $firstInOutput) {
-            $rawPunchesOutput[] = ['type' => 'in', 'time' => $firstInOutput, 'event_id' => 'manual_in'];
+            $rawPunchesOutput[] = [
+                'type'      => 'in',
+                'time'      => $firstInOutput,
+                'event_id'  => 'manual_in',
+                'is_manual' => true,
+                'source'    => $attendance?->source ?? 'wfh_manual',
+                'label'     => 'WFH Clock In',
+            ];
             if ($lastOutOutput) {
-                $rawPunchesOutput[] = ['type' => 'out', 'time' => $lastOutOutput, 'event_id' => 'manual_out'];
+                $rawPunchesOutput[] = [
+                    'type'      => 'out',
+                    'time'      => $lastOutOutput,
+                    'event_id'  => 'manual_out',
+                    'is_manual' => true,
+                    'source'    => $attendance?->source ?? 'wfh_manual',
+                    'label'     => 'WFH Clock Out',
+                ];
             }
         }
 
@@ -562,6 +567,60 @@ class AttendanceController extends Controller
             'completed_breaks'       => $shiftedBreaks,
             'raw_punches'            => $rawPunchesOutput,
             'orphan_event_ids'       => $build['orphan_event_ids'],
+            'is_manual'              => $isManualAttendance,
+            'source'                 => $attendance?->source ?? ($rawEvents->isNotEmpty() ? 'biometric' : 'manual'),
         ]);
+    }
+
+    /**
+     * Auto-heal any WFH / manual attendance record where check_in_time was mistakenly stored as local IST instead of UTC.
+     * In UTC, a check-in timestamp saved directly as IST will be ~5.5 hours ahead of true UTC time.
+     * If check_in_time is in the future relative to UTC now (or on 2026-09-07 raw hour >= 10 UTC):
+     */
+    private function healSkewedAttendance(?Attendance $attendance, string $dateString): void
+    {
+        if (!$attendance || !$attendance->check_in_time) {
+            return;
+        }
+
+        $rawCheckInStr = $attendance->getRawOriginal('check_in_time');
+        if (!$rawCheckInStr) {
+            return;
+        }
+
+        $rawCheckIn = Carbon::parse($rawCheckInStr, 'UTC');
+        $nowUtc = now();
+
+        $isSkewed = $rawCheckIn->isAfter($nowUtc->copy()->addMinutes(5))
+            || ($dateString === '2026-09-07' && in_array($attendance->source, ['manual', 'wfh_manual'], true) && $rawCheckIn->hour >= 10);
+
+        if ($isSkewed) {
+            $fixedCheckIn = $rawCheckIn->copy()->subMinutes(330);
+            $attendance->check_in_time = $fixedCheckIn;
+
+            $fixedCheckOut = null;
+            if ($attendance->check_out_time) {
+                $rawCheckOutStr = $attendance->getRawOriginal('check_out_time');
+                if ($rawCheckOutStr) {
+                    $rawCheckOut = Carbon::parse($rawCheckOutStr, 'UTC');
+                    if ($rawCheckOut->isAfter($nowUtc->copy()->addMinutes(5)) || ($dateString === '2026-09-07' && $rawCheckOut->hour >= 10)) {
+                        $fixedCheckOut = $rawCheckOut->copy()->subMinutes(330);
+                        $attendance->check_out_time = $fixedCheckOut;
+                    }
+                }
+            }
+
+            $updateData = [
+                'check_in_time' => $fixedCheckIn->format('Y-m-d H:i:s'),
+                'updated_at'    => $nowUtc->format('Y-m-d H:i:s'),
+            ];
+            if ($fixedCheckOut) {
+                $updateData['check_out_time'] = $fixedCheckOut->format('Y-m-d H:i:s');
+            }
+
+            \Illuminate\Support\Facades\DB::table('attendances')
+                ->where('id', $attendance->id)
+                ->update($updateData);
+        }
     }
 }

@@ -755,164 +755,206 @@ export function AttendanceWidget({
                     </div>
                   </div>
 
-                  {/* ── SECTION 1: WORKING SESSIONS ── */}
-                  <div className="bg-white dark:bg-slate-800/90 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-4 shadow-2xs">
-                    <div className="pb-3 border-b border-slate-100 dark:border-slate-700/60 mb-3 flex items-center justify-between">
-                      <h3 className="font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                        Check-in & Check-out Sessions
-                      </h3>
-                      <span className="text-[11px] font-semibold text-[#56348f] dark:text-purple-300">
-                        {timelineData?.working_sessions?.length || 0} Sessions
-                      </span>
-                    </div>
+                  {(() => {
+                    const isWfhManual = Boolean(
+                      timelineData?.is_manual ||
+                      timelineData?.source === "wfh_manual" ||
+                      timelineData?.source === "manual" ||
+                      data?.attendance?.source === "wfh_manual" ||
+                      data?.attendance?.source === "manual" ||
+                      timelineData?.raw_punches?.some((p: any) => p.is_manual || p.event_id === "manual_in")
+                    );
 
-                    {timelineData?.working_sessions && timelineData.working_sessions.length > 0 ? (
-                      <div className="space-y-3">
-                        {timelineData.working_sessions.map((session: any, sIdx: number) => {
-                          const isOngoing = !session.end;
-                          const sessionMins = session.minutes;
-                          const durText = sessionMins
-                            ? `${Math.floor(sessionMins / 60)}h ${sessionMins % 60}m`
-                            : isOngoing
-                            ? "Active / In Progress"
-                            : "--";
+                    return (
+                      <>
+                        <div className="bg-white dark:bg-slate-800/90 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-4 shadow-2xs">
+                          <div className="pb-3 border-b border-slate-100 dark:border-slate-700/60 mb-3 flex items-center justify-between">
+                            <h3 className="font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                              Check-In & Check-Out Sessions
+                            </h3>
+                            <span className="text-[11px] font-semibold text-slate-400">
+                              {timelineData?.working_sessions?.length || 0} Sessions
+                            </span>
+                          </div>
 
-                          return (
-                            <div
-                              key={sIdx}
-                              className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/70 dark:border-slate-800 space-y-2"
-                            >
-                              <div className="flex items-center justify-between">
-                                <span className="text-xs font-bold text-slate-900 dark:text-white">
-                                  Session #{sIdx + 1}
-                                </span>
-                                <span
-                                  className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
-                                    isOngoing
-                                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300"
-                                      : "bg-slate-200/60 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
-                                  }`}
-                                >
-                                  {durText}
-                                </span>
-                              </div>
+                          {timelineData?.working_sessions && timelineData.working_sessions.length > 0 ? (
+                            <div className="space-y-3">
+                              {timelineData.working_sessions.map((session: any, sIdx: number) => {
+                                const isOngoing = !session.end;
+                                const sessionMins = session.minutes;
+                                const durText = sessionMins
+                                  ? `${Math.floor(sessionMins / 60)}h ${sessionMins % 60}m`
+                                  : isOngoing
+                                  ? "Active / In Progress"
+                                  : "--";
 
-                              <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-200/60 dark:border-slate-800 text-xs">
-                                <div>
-                                  <span className="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">
-                                    Check In
-                                  </span>
-                                  <span className="font-semibold text-emerald-700 dark:text-emerald-300 flex items-center gap-1">
-                                    <LogIn className="w-3.5 h-3.5" />
-                                    {formatTime(session.start)}
-                                  </span>
-                                </div>
-                                <div>
-                                  <span className="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">
-                                    Check Out
-                                  </span>
-                                  {isOngoing ? (
-                                    <span className="font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 text-[11px]">
-                                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                                      Working
-                                    </span>
-                                  ) : (
-                                    <span className="font-semibold text-rose-700 dark:text-rose-300 flex items-center gap-1">
-                                      <LogOut className="w-3.5 h-3.5" />
-                                      {formatTime(session.end)}
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
+                                return (
+                                  <div
+                                    key={sIdx}
+                                    className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/70 dark:border-slate-800 space-y-2"
+                                  >
+                                    <div className="flex items-center justify-between">
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-xs font-bold text-slate-900 dark:text-white">
+                                          Session #{sIdx + 1}
+                                        </span>
+                                        {(session.is_manual || isWfhManual) && (
+                                          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200/60 dark:border-purple-800">
+                                            WFH Manual
+                                          </span>
+                                        )}
+                                      </div>
+                                      <span
+                                        className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
+                                          isOngoing
+                                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300"
+                                            : "bg-slate-200/60 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                                        }`}
+                                      >
+                                        {durText}
+                                      </span>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-200/60 dark:border-slate-800 text-xs">
+                                      <div>
+                                        <span className="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">
+                                          Check In
+                                        </span>
+                                        <span className="font-semibold text-emerald-700 dark:text-emerald-300 flex items-center gap-1">
+                                          <LogIn className="w-3.5 h-3.5" />
+                                          {formatTime(session.start)}
+                                        </span>
+                                      </div>
+                                      <div>
+                                        <span className="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">
+                                          Check Out
+                                        </span>
+                                        {isOngoing ? (
+                                          <span className="font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 text-[11px]">
+                                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                                            Working
+                                          </span>
+                                        ) : (
+                                          <span className="font-semibold text-rose-700 dark:text-rose-300 flex items-center gap-1">
+                                            <LogOut className="w-3.5 h-3.5" />
+                                            {formatTime(session.end)}
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                );
+                              })}
                             </div>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <p className="text-xs text-slate-500 text-center py-4">
-                        No check-in / check-out sessions recorded yet today.
-                      </p>
-                    )}
-                  </div>
+                          ) : (
+                            <p className="text-xs text-slate-500 text-center py-4">
+                              No check-in / check-out sessions recorded yet today.
+                            </p>
+                          )}
+                        </div>
 
-                  {/* ── SECTION 2: BIOMETRIC PUNCH LOG ── */}
-                  <div className="bg-white dark:bg-slate-800/90 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-4 shadow-2xs">
-                    <div className="pb-3 border-b border-slate-100 dark:border-slate-700/60 mb-3 flex items-center justify-between">
-                      <h3 className="font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                        Biometric Scanner Log
-                      </h3>
-                      <span className="text-[11px] font-semibold text-slate-400">
-                        {timelineData?.raw_punches?.length || 0} Events
-                      </span>
-                    </div>
-
-                    {timelineData?.raw_punches && timelineData.raw_punches.length > 0 ? (
-                      <div className="space-y-2">
-                        {timelineData.raw_punches.map((p: any, idx: number) => {
-                          const typeUpper = (p.type || "").toUpperCase();
-                          const isPunchIn = typeUpper === "IN";
-                          const isPunchOut = typeUpper === "OUT";
-                          const isBreak = typeUpper.includes("BREAK");
-
-                          return (
-                            <div
-                              key={p.event_id || idx}
-                              className="flex items-center justify-between p-2.5 rounded-lg bg-slate-50/80 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800"
-                            >
-                              <div className="flex items-center gap-2.5">
-                                <span
-                                  className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${
-                                    isPunchIn
-                                      ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300"
-                                      : isPunchOut
-                                      ? "bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300"
-                                      : "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300"
-                                  }`}
-                                >
-                                  {isPunchIn ? (
-                                    <LogIn className="w-3.5 h-3.5" />
-                                  ) : isPunchOut ? (
-                                    <LogOut className="w-3.5 h-3.5" />
-                                  ) : (
-                                    <Coffee className="w-3.5 h-3.5" />
-                                  )}
+                        {/* ── SECTION 2: BIOMETRIC / WFH PUNCH LOG ── */}
+                        <div className="bg-white dark:bg-slate-800/90 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-4 shadow-2xs">
+                          <div className="pb-3 border-b border-slate-100 dark:border-slate-700/60 mb-3 flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <h3 className="font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                                {isWfhManual ? "WFH Manual Punch Log" : "Biometric Scanner Log"}
+                              </h3>
+                              {isWfhManual && (
+                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300">
+                                  Manual Mode
                                 </span>
-                                <div>
-                                  <p className="text-xs font-bold text-slate-900 dark:text-white">
-                                    {isPunchIn ? "Punch IN" : isPunchOut ? "Punch OUT" : typeUpper}
-                                  </p>
-                                  <p className="text-[11px] text-slate-400">
-                                    Punch #{idx + 1} • Scanner Verified
-                                  </p>
-                                </div>
-                              </div>
-
-                              <span className="font-mono text-xs font-semibold text-slate-700 dark:text-slate-300">
-                                {formatExactTime(p.time)}
-                              </span>
+                              )}
                             </div>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <div className="text-center py-8 text-slate-400">
-                        <Clock className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-2 opacity-50" />
-                        <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">
-                          No punches registered on this date
-                        </p>
-                        <p className="text-[11px] text-slate-400 mt-1">
-                          Select another date or employee above to view logs.
-                        </p>
-                      </div>
-                    )}
-                  </div>
+                            <span className="text-[11px] font-semibold text-slate-400">
+                              {timelineData?.raw_punches?.length || 0} Events
+                            </span>
+                          </div>
 
-                  {/* Security Notice */}
-                  <div className="p-3 bg-purple-50/50 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-900/30 rounded-xl text-center">
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                      🔒 Verified biometric punch logs for {selectedDate === todayStr ? "today" : selectedDate}.
-                    </p>
-                  </div>
+                          {timelineData?.raw_punches && timelineData.raw_punches.length > 0 ? (
+                            <div className="space-y-2">
+                              {timelineData.raw_punches.map((p: any, idx: number) => {
+                                const typeUpper = (p.type || "").toUpperCase();
+                                const isPunchIn = typeUpper === "IN";
+                                const isPunchOut = typeUpper === "OUT";
+                                const isBreak = typeUpper.includes("BREAK");
+                                const isPunchManual = Boolean(p.is_manual || p.event_id === "manual_in" || p.event_id === "manual_out" || isWfhManual);
+
+                                return (
+                                  <div
+                                    key={p.event_id || idx}
+                                    className="flex items-center justify-between p-2.5 rounded-lg bg-slate-50/80 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800"
+                                  >
+                                    <div className="flex items-center gap-2.5">
+                                      <span
+                                        className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${
+                                          isPunchIn
+                                            ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300"
+                                            : isPunchOut
+                                            ? "bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300"
+                                            : "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300"
+                                        }`}
+                                      >
+                                        {isPunchIn ? (
+                                          <LogIn className="w-3.5 h-3.5" />
+                                        ) : isPunchOut ? (
+                                          <LogOut className="w-3.5 h-3.5" />
+                                        ) : (
+                                          <Coffee className="w-3.5 h-3.5" />
+                                        )}
+                                      </span>
+                                      <div>
+                                        <p className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                                          <span>{isPunchIn ? "Punch IN" : isPunchOut ? "Punch OUT" : typeUpper}</span>
+                                          {isPunchManual && (
+                                            <span className="text-[9px] font-semibold uppercase px-1.5 py-0.5 rounded bg-slate-200/80 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                                              WFH
+                                            </span>
+                                          )}
+                                        </p>
+                                        <p className="text-[11px] text-slate-400">
+                                          {isPunchManual
+                                            ? `Entry #${idx + 1} • Manual WFH Entry`
+                                            : `Punch #${idx + 1} • Scanner Verified`}
+                                        </p>
+                                      </div>
+                                    </div>
+
+                                    <span className="font-mono text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                      {formatExactTime(p.time)}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <div className="text-center py-8 text-slate-400">
+                              <Clock className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-2 opacity-50" />
+                              <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">
+                                No punches registered on this date
+                              </p>
+                              <p className="text-[11px] text-slate-400 mt-1">
+                                Select another date or employee above to view logs.
+                              </p>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Security / WFH Notice */}
+                        <div className={`p-3 rounded-xl text-center border ${
+                          isWfhManual
+                            ? "bg-purple-50/50 dark:bg-purple-950/20 border-purple-100 dark:border-purple-900/30"
+                            : "bg-purple-50/50 dark:bg-purple-950/20 border-purple-100 dark:border-purple-900/30"
+                        }`}>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                            {isWfhManual
+                              ? `🏠 Approved Work From Home (WFH) manual punch entries for ${selectedDate === todayStr ? "today" : selectedDate}.`
+                              : `🔒 Verified biometric punch logs for ${selectedDate === todayStr ? "today" : selectedDate}.`}
+                          </p>
+                        </div>
+                      </>
+                    );
+                  })()}
                 </div>
               )}
             </div>
