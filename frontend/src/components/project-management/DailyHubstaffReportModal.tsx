@@ -208,7 +208,7 @@ export function DailyHubstaffReportModal({
       const fullHeight = Math.max(element.scrollHeight, element.offsetHeight, 400);
 
       const canvas = await html2canvas(element, {
-        scale: 2, // High resolution for crystal clear text
+        scale: 2,
         useCORS: true,
         allowTaint: true,
         backgroundColor: "#ffffff",
@@ -220,6 +220,45 @@ export function DailyHubstaffReportModal({
         windowWidth: fullWidth + 60,
         windowHeight: fullHeight + 60,
         onclone: (clonedDoc, clonedElement) => {
+          // ── Strip unsupported CSS color functions (lab, oklab, lch, oklch, color-mix, etc.) ──
+          // html2canvas v1.4.1 crashes with "Attempting to parse an unsupported color function"
+          const unsupportedColorRegex = /(?:ok)?(?:lch|lab)\(|color-mix\(|hwb\(|color\(/i;
+
+          const cleanGroupOrSheet = (container: CSSStyleSheet | CSSGroupingRule) => {
+            try {
+              const rules = Array.from(container.cssRules || []);
+              for (let i = rules.length - 1; i >= 0; i--) {
+                const rule = rules[i];
+                if (rule && unsupportedColorRegex.test(rule.cssText || "")) {
+                  try {
+                    container.deleteRule(i);
+                  } catch {}
+                } else if (rule && "cssRules" in rule) {
+                  cleanGroupOrSheet(rule as CSSGroupingRule);
+                }
+              }
+            } catch {
+              // Cross-origin stylesheets — skip silently
+            }
+          };
+
+          Array.from(clonedDoc.styleSheets).forEach((sheet) => {
+            cleanGroupOrSheet(sheet);
+          });
+
+          // Also check and fix any inline style attributes with unsupported functions
+          clonedDoc.querySelectorAll<HTMLElement>("*").forEach((el) => {
+            const style = el.style;
+            if (!style) return;
+            for (let i = style.length - 1; i >= 0; i--) {
+              const prop = style.item(i);
+              const val = style.getPropertyValue(prop);
+              if (unsupportedColorRegex.test(val)) {
+                style.removeProperty(prop);
+              }
+            }
+          });
+
           clonedElement.style.width = `${fullWidth}px`;
           clonedElement.style.maxWidth = "none";
           clonedElement.style.height = "auto";

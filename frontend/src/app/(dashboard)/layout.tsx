@@ -1154,7 +1154,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         : "rgb(71, 85, 105)",
                       backgroundColor: "transparent",
                     }}
-                    className="relative h-full flex items-center uppercase tracking-wider transition-colors shrink-0 gap-1.5 cursor-pointer focus:outline-none focus:ring-0"
+                    className="relative h-full flex items-center uppercase tracking-wider transition-colors shrink-0 gap-1.5 cursor-pointer focus:outline-none focus:ring-0 !bg-transparent hover:!bg-transparent active:!bg-transparent focus:!bg-transparent"
                   >
                     <span className="py-2">{tab.label}</span>
                     {tab.badge && (

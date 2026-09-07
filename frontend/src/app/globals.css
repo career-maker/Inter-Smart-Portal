@@ -219,6 +219,18 @@ aside[class*="bg-slate-900"] *,
   background-color: var(--portal-sub-header-bg, #ffffff) !important;
 }
 
+/* ── Sub-header tab links: NEVER show a background, underline active only ── */
+#sub-header-tabs-bar a,
+#sub-header-tabs-bar a:hover,
+#sub-header-tabs-bar a:focus,
+#sub-header-tabs-bar a:active,
+#sub-header-tabs-bar a[data-subtab="active"],
+#sub-header-tabs-bar a[data-subtab="inactive"] {
+  background-color: transparent !important;
+  background-image: none !important;
+  background: none !important;
+}
+
 /* ── Universal Chart Tooltip Visibility & Contrast ── */
 .recharts-default-tooltip,
 div[class*="recharts-tooltip-wrapper"] > div {

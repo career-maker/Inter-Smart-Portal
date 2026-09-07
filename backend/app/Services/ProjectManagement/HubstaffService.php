@@ -514,7 +514,8 @@ class HubstaffService
         }
 
         try {
-            $tz = config('app.timezone', 'Asia/Kolkata');
+            $configuredTz = config('services.hubstaff.timezone', env('HUBSTAFF_TIMEZONE', 'Asia/Kolkata'));
+            $tz = (!empty($configuredTz) && $configuredTz !== 'UTC') ? $configuredTz : 'Asia/Kolkata';
             $startStr = \Carbon\Carbon::parse($startDate, $tz)->toDateString();
             $stopStr = \Carbon\Carbon::parse($endDate, $tz)->toDateString();
             // Pad date[stop] forward by 1 day only. Hubstaff v2 treats date[stop] as
@@ -530,29 +531,49 @@ class HubstaffService
             $allActivities = [];
             $debug = [];
 
-            // ── Strategy 0: /activities/daily (Pre-aggregated daily activities) ─
+            // ── Strategy 0: /activities/daily (Pre-aggregated daily activities, with pagination) ─
             $dailyEndpoint = "{$baseUrl}/organizations/{$orgId}/activities/daily";
-            $dailyRes = Http::withToken($token)->timeout(15)->acceptJson()->get($dailyEndpoint, [
-                'date' => [
-                    'start' => $queryStartStr,
-                    'stop' => $queryStopStr,
-                ],
-                'time_zone' => $tz,
-                'page_limit' => 500,
-            ]);
+            $dailyPageStart = null;
+            $dailyPage = 0;
+            $maxPages = 15;
 
-            $debug['strategy_0_activities_daily'] = [
-                'status' => $dailyRes->status(),
-                'body_snippet' => substr($dailyRes->body(), 0, 300),
-            ];
+            do {
+                $dailyPage++;
+                $dailyParams = [
+                    'date' => [
+                        'start' => $queryStartStr,
+                        'stop'  => $queryStopStr,
+                    ],
+                    'time_zone'  => $tz,
+                    'page_limit' => 500,
+                ];
+                if (!empty($dailyPageStart)) {
+                    $dailyParams['page_start_id'] = $dailyPageStart;
+                }
 
-            if ($dailyRes->successful()) {
+                $dailyRes = Http::withToken($token)->timeout(15)->acceptJson()->get($dailyEndpoint, $dailyParams);
+
+                if ($dailyPage === 1) {
+                    $debug['strategy_0_activities_daily'] = [
+                        'status'       => $dailyRes->status(),
+                        'body_snippet' => substr($dailyRes->body(), 0, 300),
+                    ];
+                }
+
+                if (!$dailyRes->successful()) {
+                    break;
+                }
+
                 $dData = $dailyRes->json();
                 $dActs = $dData['daily_activities'] ?? $dData['activities'] ?? [];
                 if (!empty($dActs)) {
-                    $allActivities = $dActs;
+                    $allActivities = array_merge($allActivities, $dActs);
                 }
-            }
+
+                $dailyPagination = $dData['pagination'] ?? [];
+                $dailyPageStart  = $dailyPagination['next_page_start_id'] ?? null;
+
+            } while (!empty($dailyPageStart) && $dailyPage < $maxPages);
 
             // ── Strategy 1: /insights/activity (Insights endpoint with date[start]/[stop]) ─
             if (empty($allActivities)) {

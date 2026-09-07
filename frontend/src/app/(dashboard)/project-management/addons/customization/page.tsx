@@ -139,7 +139,7 @@ export interface PalettePreset {
   id: string;
   name: string;
   tagline: string;
-  category: "green_teal" | "corporate" | "dark";
+  category: "green_teal" | "corporate" | "dark" | "warm" | "creative" | "slate" | string;
   previewColors: string[];
   settings: {
     sidebar_bg_color: string;
