@@ -525,10 +525,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <aside
             id="light-theme-sidebar"
             style={{
-              backgroundColor: "var(--portal-sidebar-bg, #0e2638)",
+              backgroundColor: "var(--portal-sidebar-bg, #093E3A)",
               fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)'
             }}
-            className="hidden md:flex flex-col fixed inset-y-0 left-0 z-50 w-[84px] border-r border-[#1a3a52] select-none shadow-xl overflow-hidden"
+            className="hidden md:flex flex-col fixed inset-y-0 left-0 z-50 w-[84px] border-r border-[#0C514B] select-none shadow-xl overflow-hidden"
           >
             <style>{`
               #light-theme-sidebar, #light-theme-sidebar * {
@@ -541,10 +541,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 height: 0 !important;
               }
             `}</style>
-            {/* Top header area above side menu with looping animation GIF (Clean #091A2A background) */}
+            {/* Top header area above side menu with looping animation GIF */}
             <div
-              style={{ backgroundColor: "var(--portal-sidebar-bg, #091A2A)", filter: "brightness(0.85)" }}
-              className="sidebar-brand-top h-16 shrink-0 border-b border-[#1a3a52] flex items-center justify-center p-2 select-none"
+              style={{ backgroundColor: "var(--portal-sidebar-bg, #093E3A)", filter: "brightness(0.85)" }}
+              className="sidebar-brand-top h-16 shrink-0 border-b border-[#0C514B] flex items-center justify-center p-2 select-none"
             >
               <img
                 src="/preloader.gif"
@@ -553,7 +553,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               />
             </div>
 
-            {/* Navigation Items - Full Width Rectangles (Exact Keka Match) */}
+            {/* Navigation Items - Full Width Rectangles */}
             <div className="flex-1 overflow-y-auto overflow-x-hidden py-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               <nav className="space-y-0 px-0">
                 {/* Standalone Link (Home / Dashboard) */}
@@ -575,11 +575,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       }`}
                     >
                       <Icon
-                        style={{ color: active ? "#ffffff" : "#8ea7bc" }}
+                        style={{ color: active ? "#ffffff" : "#CBEFEA" }}
                         className="w-5 h-5 mb-1 shrink-0 transition-colors group-hover:!text-white"
                       />
                       <span
-                        style={{ color: active ? "#ffffff" : "#8ea7bc" }}
+                        style={{ color: active ? "#ffffff" : "#CBEFEA" }}
                         className="text-[11.5px] leading-[14px] text-center tracking-tight truncate max-w-full px-0.5 group-hover:!text-white"
                       >
                         {label}
@@ -628,7 +628,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                           isHighlighted ? "font-semibold" : "font-normal"
                         }`}
                       >
-                        {/* Red notification badge on icon top-right */}
+                        {/* Notification badge */}
                         {groupBadgeCount > 0 && (
                           <span className="absolute top-1.5 right-2 bg-[#ff5252] text-white text-[10px] font-bold rounded-full px-1.5 py-0.2 min-w-[18px] text-center shadow-md animate-pulse">
                             {groupBadgeCount}
@@ -636,11 +636,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         )}
 
                         <GroupIcon
-                          style={{ color: isHighlighted ? "#ffffff" : "#8ea7bc" }}
+                          style={{ color: isHighlighted ? "#ffffff" : "#CBEFEA" }}
                           className="w-5 h-5 mb-1 shrink-0 transition-colors group-hover:!text-white"
                         />
                         <span
-                          style={{ color: isHighlighted ? "#ffffff" : "#8ea7bc" }}
+                          style={{ color: isHighlighted ? "#ffffff" : "#CBEFEA" }}
                           className="text-[11.5px] leading-[14px] text-center tracking-tight truncate max-w-full px-0.5 group-hover:!text-white"
                         >
                           {group.shortLabel || group.label}
@@ -652,14 +652,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </nav>
             </div>
 
-            {/* User Profile Mini Badge (Bottom - With Top Awardee Golden Honor Ring & Crown) */}
+            {/* User Profile Mini Badge */}
             <div
-              style={{ backgroundColor: "var(--portal-sidebar-bg, #0c2233)", filter: "brightness(0.9)" }}
-              className="sidebar-profile-bottom pt-2.5 pb-2 border-t border-[#1a3a52] shrink-0 flex flex-col items-center justify-center"
+              style={{ backgroundColor: "var(--portal-sidebar-bg, #093E3A)", filter: "brightness(0.9)" }}
+              className="sidebar-profile-bottom pt-2.5 pb-2 border-t border-[#0C514B] shrink-0 flex flex-col items-center justify-center"
             >
               <Link
                 href="/profile"
-                className="flex flex-col items-center justify-center px-1 py-0.5 rounded-none hover:bg-[#133249] transition-colors group cursor-pointer w-full"
+                className="flex flex-col items-center justify-center px-1 py-0.5 rounded-none hover:bg-[var(--portal-sidebar-hover,#138A80)] transition-colors group cursor-pointer w-full"
                 title={`${user?.first_name} ${user?.last_name} (${user?.role})`}
               >
                 <div className="my-1.5 flex items-center justify-center">
@@ -670,7 +670,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     className="w-8 h-8 rounded-full"
                   />
                 </div>
-                <span style={{ color: "#8ea7bc" }} className="text-[11px] font-medium truncate max-w-[74px] text-center group-hover:!text-white mt-0.5">
+                <span style={{ color: "#CBEFEA" }} className="text-[11px] font-medium truncate max-w-[74px] text-center group-hover:!text-white mt-0.5">
                   {user?.first_name}
                 </span>
               </Link>
@@ -685,17 +685,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               onMouseLeave={handleLightFlyoutMouseLeave}
               style={{
                 top: `${flyoutState.top}px`,
-                backgroundColor: "var(--portal-sidebar-bg, #0e2638)",
-                borderColor: "#1a3a52",
+                backgroundColor: "var(--portal-sidebar-bg, #093E3A)",
+                borderColor: "#0C514B",
                 fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)',
                 maxHeight: "calc(100vh - 20px)",
               }}
-              className="fixed left-[84px] w-64 rounded-r-xl rounded-bl-xl shadow-2xl border border-[#1a3a52] z-[999] py-1.5 animate-in fade-in zoom-in-95 duration-150 flex flex-col overflow-hidden"
+              className="fixed left-[84px] w-64 rounded-r-xl rounded-bl-xl shadow-2xl border border-[#0C514B] z-[999] py-1.5 animate-in fade-in zoom-in-95 duration-150 flex flex-col overflow-hidden"
             >
               {/* Submenu Title */}
-              <div className="px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-[#8ea7bc] border-b border-[#1a3a52] flex items-center justify-between bg-[#0a1d2c]/90 shrink-0">
+              <div className="px-4 py-2 text-[11px] font-bold uppercase tracking-wider border-b border-[#0C514B] flex items-center justify-between bg-[#062926]/90 shrink-0">
                 <span style={{ color: "#ffffff" }} className="font-bold">{activeFlyoutGroupObj.label}</span>
-                <span style={{ color: "#8ea7bc" }} className="text-[10px] font-normal">Menu</span>
+                <span style={{ color: "#CBEFEA" }} className="text-[10px] font-normal">Menu</span>
               </div>
 
               {/* Submenu Links - Hidden scrollbar but seamlessly scrollable */}
@@ -715,7 +715,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
                   const itemContent = (
                     <div className="flex items-center justify-between w-full">
-                      <span style={{ color: active ? "#ffffff" : "#cbd5e1" }} className="truncate font-medium group-hover:!text-white">
+                      <span style={{ color: active ? "#ffffff" : "#CBEFEA" }} className="truncate font-medium group-hover:!text-white">
                         {item.label}
                       </span>
                       {item.href === "/leaves/approvals" && (user?.role === "Team Lead" || user?.role === "Super Admin") && pendingLeavesCount > 0 && (
@@ -728,7 +728,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                           {pendingWfhCount}
                         </span>
                       )}
-                      <ChevronRight style={{ color: "#8ea7bc" }} className="w-3.5 h-3.5 opacity-70 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all shrink-0 ml-1 group-hover:!text-white" />
+                      <ChevronRight style={{ color: "#CBEFEA" }} className="w-3.5 h-3.5 opacity-70 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all shrink-0 ml-1 group-hover:!text-white" />
                     </div>
                   );
 

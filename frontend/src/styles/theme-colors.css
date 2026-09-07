@@ -346,8 +346,8 @@
   .form-select:focus,
   .form-textarea:focus {
     outline: none;
-    border-color: #3B82F6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: var(--portal-primary-color, #0F766E);
+    box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
     background-color: var(--bg-primary);
   }
 
@@ -360,15 +360,20 @@
   /* ─── BUTTON VARIANTS ─── */
   .btn-primary {
     @apply inline-flex items-center justify-center rounded-lg px-4 py-2 font-semibold transition-all duration-200;
-    background-color: #3B82F6;
-    color: white;
-    border: 1px solid #3B82F6;
+    background-color: var(--portal-primary-color, #0F766E);
+    color: var(--portal-header-text, #ffffff);
+    border: 1px solid var(--portal-primary-color, #0F766E);
   }
 
   .btn-primary:hover {
-    background-color: #2563EB;
-    border-color: #2563EB;
-    box-shadow: 0 0 20px rgba(37, 99, 235, 0.2);
+    background-color: var(--portal-hover-color, #138A80);
+    border-color: var(--portal-hover-color, #138A80);
+    box-shadow: 0 0 20px rgba(19, 138, 128, 0.25);
+  }
+
+  .btn-primary:active {
+    background-color: var(--portal-active-color, #14A092);
+    border-color: var(--portal-active-color, #14A092);
   }
 
   .btn-secondary {

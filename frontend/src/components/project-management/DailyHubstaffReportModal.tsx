@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { format, parseISO, addDays, subDays } from "date-fns";
 import {
   X,
@@ -74,6 +74,7 @@ export function DailyHubstaffReportModal({
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [reportData, setReportData] = useState<DailyReportResponse | null>(null);
+  const [selectedTeams, setSelectedTeams] = useState<string[]>([]);
   const [exportingImage, setExportingImage] = useState<boolean>(false);
   const [exportingSheet, setExportingSheet] = useState<boolean>(false);
 
@@ -121,6 +122,51 @@ export function DailyHubstaffReportModal({
     }
   }, [isOpen, initialDate, fetchDailyReport]);
 
+  // Synchronize team selection whenever reportData changes
+  useEffect(() => {
+    if (reportData?.departments) {
+      const allNames = reportData.departments.map((d) => d.name);
+      setSelectedTeams((prev) => {
+        if (prev.length === 0) return allNames;
+        // Keep valid previously selected teams, fallback to all if none exist
+        const retained = prev.filter((name) => allNames.includes(name));
+        return retained.length > 0 ? retained : allNames;
+      });
+    }
+  }, [reportData]);
+
+  // Active departments filtered by user selection
+  const activeDepartments = useMemo(() => {
+    if (!reportData?.departments) return [];
+    if (selectedTeams.length === 0) return reportData.departments;
+    return reportData.departments.filter((d) => selectedTeams.includes(d.name));
+  }, [reportData?.departments, selectedTeams]);
+
+  // Max rows recalculated for currently selected departments
+  const activeMaxRows = useMemo(() => {
+    if (activeDepartments.length === 0) return 0;
+    return Math.max(...activeDepartments.map((d) => d.members.length), 1);
+  }, [activeDepartments]);
+
+  const toggleTeam = (teamName: string) => {
+    setSelectedTeams((prev) => {
+      if (prev.includes(teamName)) {
+        return prev.filter((t) => t !== teamName);
+      } else {
+        return [...prev, teamName];
+      }
+    });
+  };
+
+  const selectAllTeams = () => {
+    if (!reportData?.departments) return;
+    setSelectedTeams(reportData.departments.map((d) => d.name));
+  };
+
+  const clearAllTeams = () => {
+    setSelectedTeams([]);
+  };
+
   if (!isOpen) return null;
 
   const handlePrevDay = () => {
@@ -156,24 +202,62 @@ export function DailyHubstaffReportModal({
     if (!tableContainerRef.current) return;
     try {
       setExportingImage(true);
-      const canvas = await html2canvas(tableContainerRef.current, {
+      const element = tableContainerRef.current;
+      
+      const fullWidth = Math.max(element.scrollWidth, element.offsetWidth, 1200);
+      const fullHeight = Math.max(element.scrollHeight, element.offsetHeight, 400);
+
+      const canvas = await html2canvas(element, {
         scale: 2, // High resolution for crystal clear text
         useCORS: true,
+        allowTaint: true,
         backgroundColor: "#ffffff",
         logging: false,
-        windowWidth: tableContainerRef.current.scrollWidth + 80,
+        scrollX: 0,
+        scrollY: 0,
+        width: fullWidth,
+        height: fullHeight,
+        windowWidth: fullWidth + 60,
+        windowHeight: fullHeight + 60,
+        onclone: (clonedDoc, clonedElement) => {
+          clonedElement.style.width = `${fullWidth}px`;
+          clonedElement.style.maxWidth = "none";
+          clonedElement.style.height = "auto";
+          clonedElement.style.maxHeight = "none";
+          clonedElement.style.overflow = "visible";
+          clonedElement.style.position = "static";
+          const table = clonedElement.querySelector("table");
+          if (table) {
+            table.style.width = "100%";
+            table.style.maxWidth = "none";
+          }
+        },
       });
 
-      const image = canvas.toDataURL("image/png");
-      const link = document.createElement("a");
-      link.href = image;
-      link.download = `Hubstaff_Daily_Report_${selectedDate}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (err) {
+      // Save via Blob to prevent URI limits
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          const image = canvas.toDataURL("image/png");
+          const link = document.createElement("a");
+          link.href = image;
+          link.download = `Hubstaff_Daily_Report_${selectedDate}.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          return;
+        }
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `Hubstaff_Daily_Report_${selectedDate}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }, "image/png");
+    } catch (err: any) {
       console.error("Failed to generate image report:", err);
-      alert("Failed to export table image. Please try again.");
+      alert(`Failed to export table image: ${err?.message || "Please try again."}`);
     } finally {
       setExportingImage(false);
     }
@@ -181,13 +265,13 @@ export function DailyHubstaffReportModal({
 
   // ── Download Formatted Spreadsheet (.xls) ──────────────────────────────
   const downloadSheetReport = () => {
-    if (!reportData) return;
+    if (!reportData || activeDepartments.length === 0) return;
     try {
       setExportingSheet(true);
-      const { departments, max_rows, date_formatted_short, legend_text } = reportData;
+      const { date_formatted_short, legend_text } = reportData;
 
       // Calculate total column span for header & footer
-      const totalColumns = 1 + departments.length * 4;
+      const totalColumns = 1 + activeDepartments.length * 4;
 
       let html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
 <head>
@@ -220,7 +304,7 @@ export function DailyHubstaffReportModal({
   <tr class="header-main">
     <th rowspan="1">#</th>`;
 
-      departments.forEach((dept) => {
+      activeDepartments.forEach((dept) => {
         html += `
     <th colspan="4">${dept.name}</th>`;
       });
@@ -232,7 +316,7 @@ export function DailyHubstaffReportModal({
   <tr class="header-sub">
     <th></th>`;
 
-      departments.forEach((dept) => {
+      activeDepartments.forEach((dept) => {
         html += `
     <th>${dept.name}</th>
     <th>Floor Time</th>
@@ -244,12 +328,12 @@ export function DailyHubstaffReportModal({
   </tr>`;
 
       // Data Rows
-      for (let r = 0; r < max_rows; r++) {
+      for (let r = 0; r < activeMaxRows; r++) {
         html += `
   <tr>
     <td class="cell-sl">${r + 1}</td>`;
 
-        departments.forEach((dept) => {
+        activeDepartments.forEach((dept) => {
           const m = dept.members[r];
           if (m) {
             const lowStyle = m.is_low_activity ? ' class="cell-low-activity"' : "";
@@ -276,7 +360,7 @@ export function DailyHubstaffReportModal({
   <tr class="row-avg">
     <td class="cell-sl">Average</td>`;
 
-      departments.forEach((dept) => {
+      activeDepartments.forEach((dept) => {
         html += `
     <td></td>
     <td>${dept.averages.floor_time}</td>
@@ -319,32 +403,32 @@ export function DailyHubstaffReportModal({
     }
   };
 
-  // ── Download Standard CSV (.csv) ─────────────────────────────────────────
+  // ── Download Standard CSV (.csv) with proper Blob & UTF-8 BOM ────────────
   const downloadCSVReport = () => {
-    if (!reportData) return;
-    const { departments, max_rows, date_formatted_short, legend_text } = reportData;
+    if (!reportData || activeDepartments.length === 0) return;
+    const { date_formatted_short, legend_text } = reportData;
 
     const rows: string[][] = [];
     rows.push([`DATE: ${date_formatted_short}`]);
 
     // Header 1
     const header1: string[] = ["#"];
-    departments.forEach((d) => {
+    activeDepartments.forEach((d) => {
       header1.push(d.name, "", "", "");
     });
     rows.push(header1);
 
     // Header 2
     const header2: string[] = ["#"];
-    departments.forEach((d) => {
+    activeDepartments.forEach((d) => {
       header2.push(d.name, "Floor Time", "HS TIME", "HS - %");
     });
     rows.push(header2);
 
     // Members Rows
-    for (let r = 0; r < max_rows; r++) {
+    for (let r = 0; r < activeMaxRows; r++) {
       const row: string[] = [String(r + 1)];
-      departments.forEach((d) => {
+      activeDepartments.forEach((d) => {
         const m = d.members[r];
         if (m) {
           row.push(m.name, m.floor_time, m.hs_time, m.hs_percent);
@@ -357,7 +441,7 @@ export function DailyHubstaffReportModal({
 
     // Average Row
     const avgRow: string[] = ["Average"];
-    departments.forEach((d) => {
+    activeDepartments.forEach((d) => {
       avgRow.push(
         "",
         d.averages.floor_time,
@@ -371,26 +455,28 @@ export function DailyHubstaffReportModal({
     rows.push([]);
     rows.push([legend_text]);
 
-    const csvContent =
-      "data:text/csv;charset=utf-8," +
-      rows
-        .map((e) =>
-          e
-            .map((field) => {
-              const str = String(field ?? "").replace(/"/g, '""');
-              return `"${str}"`;
-            })
-            .join(",")
-        )
-        .join("\n");
+    const csvContent = rows
+      .map((e) =>
+        e
+          .map((field) => {
+            const str = String(field ?? "").replace(/"/g, '""');
+            return `"${str}"`;
+          })
+          .join(",")
+      )
+      .join("\r\n");
 
-    const encodedUri = encodeURI(csvContent);
+    const blob = new Blob(["\uFEFF" + csvContent], {
+      type: "text/csv;charset=utf-8;",
+    });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
+    link.setAttribute("href", url);
     link.setAttribute("download", `Hubstaff_Daily_Report_${selectedDate}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -521,6 +607,67 @@ export function DailyHubstaffReportModal({
           </div>
         </div>
 
+        {/* ── Team / Department Selector Filter Ribbon ── */}
+        {reportData && reportData.departments.length > 0 && (
+          <div className="px-5 py-2.5 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3 flex-wrap shrink-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                Select Teams:
+              </span>
+              <button
+                type="button"
+                onClick={selectAllTeams}
+                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer border ${
+                  selectedTeams.length === reportData.departments.length
+                    ? "bg-[#0F766E] text-white border-[#0F766E] shadow-xs"
+                    : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-[#0F766E]"
+                }`}
+              >
+                All Teams ({reportData.departments.length})
+              </button>
+
+              {reportData.departments.map((dept) => {
+                const isSelected = selectedTeams.includes(dept.name);
+                return (
+                  <button
+                    key={dept.name}
+                    type="button"
+                    onClick={() => toggleTeam(dept.name)}
+                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer border ${
+                      isSelected
+                        ? "bg-teal-50 dark:bg-teal-950/60 text-[#093E3A] dark:text-teal-200 border-[#0F766E] ring-1 ring-[#0F766E]/20"
+                        : "bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-slate-300 opacity-60"
+                    }`}
+                  >
+                    <span
+                      className={`w-2 h-2 rounded-full ${
+                        isSelected ? "bg-[#0F766E]" : "bg-slate-300 dark:bg-slate-600"
+                      }`}
+                    />
+                    <span>{dept.name}</span>
+                    <span className="text-[10px] opacity-70">({dept.members.length})</span>
+                  </button>
+                );
+              })}
+
+              {selectedTeams.length < reportData.departments.length && (
+                <button
+                  type="button"
+                  onClick={clearAllTeams}
+                  className="text-[11px] font-medium text-slate-400 hover:text-rose-500 transition-colors ml-1 cursor-pointer"
+                >
+                  Clear All
+                </button>
+              )}
+            </div>
+
+            <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+              Showing <strong className="text-slate-800 dark:text-slate-200">{activeDepartments.length}</strong> of{" "}
+              <strong className="text-slate-800 dark:text-slate-200">{reportData.departments.length}</strong> teams
+            </div>
+          </div>
+        )}
+
         {/* ── Modal Content: Table Preview Container ── */}
         <div className="flex-1 overflow-auto p-4 sm:p-6 bg-slate-100/70 dark:bg-slate-950/70 flex flex-col items-center">
           {loading ? (
@@ -547,7 +694,22 @@ export function DailyHubstaffReportModal({
                 Retry
               </button>
             </div>
-          ) : reportData && reportData.departments.length > 0 ? (
+          ) : activeDepartments.length === 0 ? (
+            <div className="my-auto max-w-md p-8 text-center bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+              <FileSpreadsheet className="w-10 h-10 text-slate-400 mx-auto" />
+              <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">No Teams Selected</h4>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Please select at least one team from the filters above to generate the report preview and exports.
+              </p>
+              <button
+                type="button"
+                onClick={selectAllTeams}
+                className="px-4 py-2 bg-[#0F766E] text-white rounded-xl text-xs font-semibold hover:bg-[#138A80] transition-colors cursor-pointer"
+              >
+                Select All Teams
+              </button>
+            </div>
+          ) : reportData && activeDepartments.length > 0 ? (
             <div className="w-full flex flex-col items-center">
               {/* Report Preview Wrapper - This element is captured for image export */}
               <div
@@ -562,7 +724,7 @@ export function DailyHubstaffReportModal({
                   <thead>
                     <tr className="bg-[#1b3d18] text-white">
                       <th
-                        colSpan={1 + reportData.departments.length * 4}
+                        colSpan={1 + activeDepartments.length * 4}
                         className="py-2.5 px-4 text-center text-sm font-bold tracking-wide border border-[#1b3d18]"
                       >
                         <div className="flex items-center justify-center gap-4">
@@ -584,7 +746,7 @@ export function DailyHubstaffReportModal({
                       >
                         #
                       </th>
-                      {reportData.departments.map((dept) => (
+                      {activeDepartments.map((dept) => (
                         <th
                           key={dept.name}
                           colSpan={4}
@@ -597,7 +759,7 @@ export function DailyHubstaffReportModal({
 
                     {/* ── SUB-COLUMN HEADERS ROW 2 ── */}
                     <tr className="bg-[#cae8c5] text-slate-900 font-bold border border-[#1b3d18] text-[11px]">
-                      {reportData.departments.map((dept) => (
+                      {activeDepartments.map((dept) => (
                         <React.Fragment key={`${dept.name}-subheaders`}>
                           <th className="border border-[#1b3d18] px-2.5 py-1.5 text-left font-bold min-w-[110px]">
                             {dept.name}
@@ -618,7 +780,7 @@ export function DailyHubstaffReportModal({
 
                   {/* ── BODY DATA ROWS ── */}
                   <tbody className="divide-y divide-[#1b3d18] text-slate-900">
-                    {Array.from({ length: reportData.max_rows }).map((_, rIdx) => (
+                    {Array.from({ length: activeMaxRows }).map((_, rIdx) => (
                       <tr
                         key={`row-${rIdx}`}
                         className="hover:bg-slate-50 transition-colors"
@@ -629,7 +791,7 @@ export function DailyHubstaffReportModal({
                         </td>
 
                         {/* Each Department Columns */}
-                        {reportData.departments.map((dept) => {
+                        {activeDepartments.map((dept) => {
                           const m = dept.members[rIdx];
                           if (!m) {
                             return (
@@ -693,7 +855,7 @@ export function DailyHubstaffReportModal({
                       <td className="border border-[#1b3d18] px-2 py-2 text-center font-extrabold bg-[#a8d5a2]">
                         Average
                       </td>
-                      {reportData.departments.map((dept) => (
+                      {activeDepartments.map((dept) => (
                         <React.Fragment key={`${dept.name}-average-row`}>
                           <td className="border border-[#1b3d18] px-2 py-2 text-left font-bold">
                             Average
@@ -714,7 +876,7 @@ export function DailyHubstaffReportModal({
                     {/* ── FOOTER ABBREVIATIONS BANNER ── */}
                     <tr className="bg-[#1b3d18] text-white">
                       <td
-                        colSpan={1 + reportData.departments.length * 4}
+                        colSpan={1 + activeDepartments.length * 4}
                         className="border border-[#1b3d18] py-2.5 px-4 text-left text-xs font-bold tracking-wide"
                       >
                         <div className="flex items-center gap-2">

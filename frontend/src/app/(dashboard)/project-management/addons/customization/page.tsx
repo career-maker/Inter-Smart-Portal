@@ -261,6 +261,9 @@ export default function CustomizationPage() {
   const applyGreenTealPalette = () => {
     const updated: CustomizationSettings = {
       ...form,
+      sidebar_bg_color: "#093E3A",
+      sidebar_hover_color: "#138A80",
+      sidebar_active_color: "#14A092",
       header_bg_color: "#0F766E",
       primary_color: "#0F766E",
       hover_color: "#138A80",
@@ -270,12 +273,11 @@ export default function CustomizationPage() {
       card_bg_color: "#F2FCFB",
       border_color: "#CBEFEA",
       header_text_color: "#FFFFFF",
-      sidebar_active_color: "#14A092",
-      sidebar_hover_color: "#138A80",
+      sub_header_active_color: "#0F766E",
     };
     setForm(updated);
     setPreviewSettings(updated);
-    setSuccessMessage("Green / Teal color palette applied! Click 'Save Changes' to make it permanent.");
+    setSuccessMessage("Green / Teal unified brand color palette applied! Click 'Save Changes' to persist.");
     setErrorMessage(null);
   };
 
@@ -1079,14 +1081,74 @@ export default function CustomizationPage() {
               </button>
             </div>
 
-            {/* 8-Dimension Color Grid */}
+            {/* Portal Component Color Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* 1. Primary / Header */}
+              {/* 1. Side Menu Background */}
+              <div className="p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-full border border-black/10 shadow-xs" style={{ backgroundColor: form.sidebar_bg_color || "#093E3A" }} />
+                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">Side Menu Background</span>
+                  </div>
+                  <input
+                    type="color"
+                    value={form.sidebar_bg_color || "#093E3A"}
+                    onChange={(e) => handleFieldChange("sidebar_bg_color", e.target.value)}
+                    className="w-7 h-7 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
+                  />
+                </div>
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="text-slate-500 dark:text-slate-400">Sidebar background rail</span>
+                  <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.sidebar_bg_color || "#093E3A"}</span>
+                </div>
+              </div>
+
+              {/* 2. Side Menu Hover */}
+              <div className="p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-full border border-black/10 shadow-xs" style={{ backgroundColor: form.sidebar_hover_color || "#138A80" }} />
+                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">Side Menu Hover</span>
+                  </div>
+                  <input
+                    type="color"
+                    value={form.sidebar_hover_color || "#138A80"}
+                    onChange={(e) => handleFieldChange("sidebar_hover_color", e.target.value)}
+                    className="w-7 h-7 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
+                  />
+                </div>
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="text-slate-500 dark:text-slate-400">Sidebar mouse hover</span>
+                  <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.sidebar_hover_color || "#138A80"}</span>
+                </div>
+              </div>
+
+              {/* 3. Side Menu Active Item */}
+              <div className="p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-full border border-black/10 shadow-xs" style={{ backgroundColor: form.sidebar_active_color || "#14A092" }} />
+                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">Side Menu Active</span>
+                  </div>
+                  <input
+                    type="color"
+                    value={form.sidebar_active_color || "#14A092"}
+                    onChange={(e) => handleFieldChange("sidebar_active_color", e.target.value)}
+                    className="w-7 h-7 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
+                  />
+                </div>
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="text-slate-500 dark:text-slate-400">Active sidebar item</span>
+                  <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.sidebar_active_color || "#14A092"}</span>
+                </div>
+              </div>
+
+              {/* 4. Top Header Navigation */}
               <div className="p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="w-4 h-4 rounded-full border border-black/10 shadow-xs" style={{ backgroundColor: form.header_bg_color || "#0F766E" }} />
-                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">Primary / Header</span>
+                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">Header / Top Bar</span>
                   </div>
                   <input
                     type="color"
@@ -1099,63 +1161,80 @@ export default function CustomizationPage() {
                   />
                 </div>
                 <div className="flex items-center justify-between text-[11px]">
-                  <span className="text-slate-500 dark:text-slate-400">Header & Primary CTA</span>
+                  <span className="text-slate-500 dark:text-slate-400">Top brand header</span>
                   <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.header_bg_color || "#0F766E"}</span>
                 </div>
               </div>
 
-              {/* 2. Hover */}
+              {/* 5. Primary Buttons & CTAs */}
               <div className="p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="w-4 h-4 rounded-full border border-black/10 shadow-xs" style={{ backgroundColor: form.hover_color || "#138A80" }} />
-                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">Hover</span>
+                    <span className="w-4 h-4 rounded-full border border-black/10 shadow-xs" style={{ backgroundColor: form.primary_color || "#0F766E" }} />
+                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">Primary Buttons & CTAs</span>
                   </div>
                   <input
                     type="color"
-                    value={form.hover_color || "#138A80"}
-                    onChange={(e) => {
-                      handleFieldChange("hover_color", e.target.value);
-                      handleFieldChange("sidebar_hover_color", e.target.value);
-                    }}
+                    value={form.primary_color || "#0F766E"}
+                    onChange={(e) => handleFieldChange("primary_color", e.target.value)}
                     className="w-7 h-7 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
                   />
                 </div>
                 <div className="flex items-center justify-between text-[11px]">
-                  <span className="text-slate-500 dark:text-slate-400">Button & Nav Hover</span>
+                  <span className="text-slate-500 dark:text-slate-400">Action & submit buttons</span>
+                  <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.primary_color || "#0F766E"}</span>
+                </div>
+              </div>
+
+              {/* 6. Button & Link Hover */}
+              <div className="p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-full border border-black/10 shadow-xs" style={{ backgroundColor: form.hover_color || "#138A80" }} />
+                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">Button & Link Hover</span>
+                  </div>
+                  <input
+                    type="color"
+                    value={form.hover_color || "#138A80"}
+                    onChange={(e) => handleFieldChange("hover_color", e.target.value)}
+                    className="w-7 h-7 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
+                  />
+                </div>
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="text-slate-500 dark:text-slate-400">Button hover state</span>
                   <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.hover_color || "#138A80"}</span>
                 </div>
               </div>
 
-              {/* 3. Active */}
+              {/* 7. Active Tabs & Badges */}
               <div className="p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="w-4 h-4 rounded-full border border-black/10 shadow-xs" style={{ backgroundColor: form.active_color || "#14A092" }} />
-                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">Active</span>
+                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">Active Tabs & Pills</span>
                   </div>
                   <input
                     type="color"
                     value={form.active_color || "#14A092"}
                     onChange={(e) => {
                       handleFieldChange("active_color", e.target.value);
-                      handleFieldChange("sidebar_active_color", e.target.value);
+                      handleFieldChange("sub_header_active_color", e.target.value);
                     }}
                     className="w-7 h-7 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
                   />
                 </div>
                 <div className="flex items-center justify-between text-[11px]">
-                  <span className="text-slate-500 dark:text-slate-400">Active Items & Tabs</span>
+                  <span className="text-slate-500 dark:text-slate-400">Sub-header tabs & toggles</span>
                   <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.active_color || "#14A092"}</span>
                 </div>
               </div>
 
-              {/* 4. Dark Text */}
+              {/* 8. Dark Headings & Labels */}
               <div className="p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="w-4 h-4 rounded-full border border-black/10 shadow-xs" style={{ backgroundColor: form.dark_text_color || "#093E3A" }} />
-                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">Dark Text</span>
+                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">Dark Headings & Titles</span>
                   </div>
                   <input
                     type="color"
@@ -1165,17 +1244,17 @@ export default function CustomizationPage() {
                   />
                 </div>
                 <div className="flex items-center justify-between text-[11px]">
-                  <span className="text-slate-500 dark:text-slate-400">Headings & Labels</span>
+                  <span className="text-slate-500 dark:text-slate-400">Page titles & dark text</span>
                   <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.dark_text_color || "#093E3A"}</span>
                 </div>
               </div>
 
-              {/* 5. Light Background */}
+              {/* 9. Portal Light Background */}
               <div className="p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="w-4 h-4 rounded-full border border-slate-300 shadow-xs" style={{ backgroundColor: form.light_bg_color || "#E6F8F6" }} />
-                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">Light Background</span>
+                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">Portal Canvas Body</span>
                   </div>
                   <input
                     type="color"
@@ -1185,17 +1264,17 @@ export default function CustomizationPage() {
                   />
                 </div>
                 <div className="flex items-center justify-between text-[11px]">
-                  <span className="text-slate-500 dark:text-slate-400">Portal Canvas Body</span>
+                  <span className="text-slate-500 dark:text-slate-400">Portal page background</span>
                   <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.light_bg_color || "#E6F8F6"}</span>
                 </div>
               </div>
 
-              {/* 6. Card Background */}
+              {/* 10. Card & Panel Background */}
               <div className="p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="w-4 h-4 rounded-full border border-slate-300 shadow-xs" style={{ backgroundColor: form.card_bg_color || "#F2FCFB" }} />
-                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">Card Background</span>
+                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">Card & Panel Background</span>
                   </div>
                   <input
                     type="color"
@@ -1205,17 +1284,17 @@ export default function CustomizationPage() {
                   />
                 </div>
                 <div className="flex items-center justify-between text-[11px]">
-                  <span className="text-slate-500 dark:text-slate-400">Cards, Panels & Boxes</span>
+                  <span className="text-slate-500 dark:text-slate-400">Cards, panels & widgets</span>
                   <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.card_bg_color || "#F2FCFB"}</span>
                 </div>
               </div>
 
-              {/* 7. Border / Divider */}
+              {/* 11. Border / Divider Lines */}
               <div className="p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="w-4 h-4 rounded-full border border-slate-300 shadow-xs" style={{ backgroundColor: form.border_color || "#CBEFEA" }} />
-                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">Border / Divider</span>
+                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">Borders & Dividers</span>
                   </div>
                   <input
                     type="color"
@@ -1225,12 +1304,12 @@ export default function CustomizationPage() {
                   />
                 </div>
                 <div className="flex items-center justify-between text-[11px]">
-                  <span className="text-slate-500 dark:text-slate-400">Lines, Dividers & Outlines</span>
+                  <span className="text-slate-500 dark:text-slate-400">Card & table outlines</span>
                   <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.border_color || "#CBEFEA"}</span>
                 </div>
               </div>
 
-              {/* 8. White / Contrast Text */}
+              {/* 12. White / Contrast Text */}
               <div className="p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -1245,7 +1324,7 @@ export default function CustomizationPage() {
                   />
                 </div>
                 <div className="flex items-center justify-between text-[11px]">
-                  <span className="text-slate-500 dark:text-slate-400">Text on Dark & Header</span>
+                  <span className="text-slate-500 dark:text-slate-400">Header & dark surfaces</span>
                   <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.header_text_color || "#FFFFFF"}</span>
                 </div>
               </div>
@@ -2207,7 +2286,7 @@ export default function CustomizationPage() {
               {/* Miniature Side Menu */}
               <div
                 style={{
-                  backgroundColor: form.sidebar_bg_color || "#0e2638",
+                  backgroundColor: form.sidebar_bg_color || "#093E3A",
                   fontFamily: `"${form.font_family}", sans-serif`,
                 }}
                 className="w-12 shrink-0 border-r border-white/10 flex flex-col items-center py-2.5 gap-2 transition-colors select-none"
