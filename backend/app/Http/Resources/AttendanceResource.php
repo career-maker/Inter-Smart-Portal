@@ -32,8 +32,8 @@ class AttendanceResource extends JsonResource
 
         // Handle both Carbon objects and strings
         $carbon = $timeValue instanceof \Carbon\Carbon
-            ? $timeValue
-            : \Carbon\Carbon::parse($timeValue);
+            ? $timeValue->copy()
+            : \Carbon\Carbon::parse($timeValue, 'UTC');
 
         // Eloquent has read this as UTC (correct). Convert to Asia/Kolkata
         // for display, changing the hour/minute values to reflect local time.

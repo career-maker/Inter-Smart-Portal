@@ -41,6 +41,23 @@ class AttendanceController extends Controller
             ->where('date', $today)
             ->first();
 
+        // Auto-heal any WFH manual record where check_in_time was mistakenly stored as local IST instead of UTC
+        if ($attendance && in_array($attendance->source, ['manual', 'wfh_manual']) && $attendance->check_in_time) {
+            $rawCheckIn = Carbon::parse($attendance->getRawOriginal('check_in_time'), 'UTC');
+            $createdAt  = Carbon::parse($attendance->created_at, 'UTC');
+            // If check_in_time was stored in IST, it is ~330 mins (5.5h) ahead of created_at (UTC)
+            if (abs($rawCheckIn->diffInMinutes($createdAt) - 330) < 20) {
+                $attendance->check_in_time = $createdAt;
+                if ($attendance->check_out_time) {
+                    $attendance->check_out_time = Carbon::parse($attendance->getRawOriginal('check_out_time'), 'UTC')->subMinutes(330);
+                }
+                if ($attendance->last_out) {
+                    $attendance->last_out = Carbon::parse($attendance->getRawOriginal('last_out'), 'UTC')->subMinutes(330);
+                }
+                $attendance->save();
+            }
+        }
+
         // 1. Fetch raw biometric events for today to ensure real-time accuracy without waiting for cron
         $rawEvents = BiometricEvent::where('user_id', $user->id)
             ->whereDate('local_punch_time', $today)
@@ -161,7 +178,7 @@ class AttendanceController extends Controller
             return response()->json(['message' => 'Already checked in today'], 400);
         }
 
-        $now = Carbon::now('Asia/Kolkata');
+        $now = now();
         $source = 'wfh_manual';
 
         try {
@@ -242,7 +259,7 @@ class AttendanceController extends Controller
             return response()->json(['message' => 'Please end your break before checking out'], 400);
         }
 
-        $now               = Carbon::now('Asia/Kolkata');
+        $now               = now();
         $checkInTime       = Carbon::parse($attendance->check_in_time);
         $elapsedMinutes    = $checkInTime->diffInMinutes($now);
         $totalBreakMinutes = $attendance->breaks()->sum('total_break_minutes') ?? 0;
