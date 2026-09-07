@@ -24,6 +24,13 @@ export interface CustomizationSettings {
   welcome_banner_url?: string;
   welcome_banner_media_type?: "image" | "video";
   login_bg_video_url?: string;
+  sidebar_hover_color?: string;
+  hover_color?: string;
+  active_color?: string;
+  dark_text_color?: string;
+  light_bg_color?: string;
+  card_bg_color?: string;
+  border_color?: string;
   border_radius?: string;
   sub_header_bg?: string;
   sub_header_active_color?: string;
@@ -37,17 +44,24 @@ export interface CustomizationSettings {
 
 export const DEFAULT_CUSTOMIZATION_SETTINGS: CustomizationSettings = {
   font_family: "Proxima Nova",
-  header_bg_color: "#56348f",
-  header_text_color: "#ffffff",
-  sidebar_bg_color: "#0e2638",
+  header_bg_color: "#0F766E",
+  header_text_color: "#FFFFFF",
+  sidebar_bg_color: "#093E3A",
   header_subtitle: "PERFECTION AT ITS FINEST",
   show_header_subtitle: true,
-  sidebar_active_color: "#133249",
+  sidebar_active_color: "#14A092",
+  sidebar_hover_color: "#138A80",
+  hover_color: "#138A80",
+  active_color: "#14A092",
+  dark_text_color: "#093E3A",
+  light_bg_color: "#E6F8F6",
+  card_bg_color: "#F2FCFB",
+  border_color: "#CBEFEA",
   card_elevation: "subtle",
   button_style: "rounded",
   density: "comfortable",
   footer_copyright: "© 2026 Inter Smart. All rights reserved.",
-  primary_color: "#56348f",
+  primary_color: "#0F766E",
   body_font_size: "12px",
   heading_scale: "normal",
   description_font_size: "13px",
@@ -60,7 +74,7 @@ export const DEFAULT_CUSTOMIZATION_SETTINGS: CustomizationSettings = {
   login_bg_video_url: "/videos/login-bg.mp4",
   border_radius: "12px",
   sub_header_bg: "#ffffff",
-  sub_header_active_color: "#56348f",
+  sub_header_active_color: "#0F766E",
   login_heading: "Sign in to your workplace",
   login_subheading: "Perfection at its finest. Workforce management portal",
   title_separator: "|",

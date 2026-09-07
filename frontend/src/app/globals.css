@@ -13,14 +13,14 @@
   /* Force light mode at CSS level to prevent any FOUC from Tailwind v4 or OS media queries */
   html {
     color-scheme: light only !important;
-    background-color: #F8FAFC !important;
-    color: rgb(15, 24, 36) !important;
+    background-color: var(--portal-light-bg, #E6F8F6) !important;
+    color: var(--portal-dark-text, #093E3A) !important;
   }
 
   body {
     color-scheme: light only !important;
-    background-color: #F8FAFC !important;
-    color: rgb(15, 24, 36) !important;
+    background-color: var(--portal-light-bg, #E6F8F6) !important;
+    color: var(--portal-dark-text, #093E3A) !important;
     font-size: var(--portal-body-size, 12px);
     line-height: 18px;
   }
@@ -187,17 +187,31 @@ aside[class*="bg-slate-900"] *,
 
 
 #light-theme-sidebar {
-  background-color: var(--portal-sidebar-bg, #0e2638) !important;
+  background-color: var(--portal-sidebar-bg, #093E3A) !important;
 }
 
 #light-theme-sidebar .sidebar-brand-top,
 #light-theme-sidebar .sidebar-profile-bottom {
-  background-color: var(--portal-sidebar-bg, #0e2638) !important;
+  background-color: var(--portal-sidebar-bg, #093E3A) !important;
   filter: brightness(0.9);
 }
 
 #light-theme-flyout-portal {
-  background-color: var(--portal-sidebar-bg, #0e2638) !important;
+  background-color: var(--portal-sidebar-bg, #093E3A) !important;
+}
+
+/* ── Dynamic Sidebar Item Hover & Active Highlight ── */
+#light-theme-sidebar a:hover,
+#light-theme-sidebar button:hover,
+#light-theme-flyout-portal a:hover {
+  background-color: var(--portal-sidebar-hover, #138A80) !important;
+}
+
+#light-theme-sidebar [data-active="true"],
+#light-theme-sidebar a.active,
+#light-theme-sidebar button.active,
+#light-theme-flyout-portal [data-active="true"] {
+  background-color: var(--portal-sidebar-active, #14A092) !important;
 }
 
 /* ── Dynamic Sub-header Navigation Tab Bar ── */
@@ -433,38 +447,38 @@ html:not(.dark) a[class*="bg-white"]:not([class*="text-white"]) {
 }
 
 :root {
-  --background: #F8FAFC;
-  --foreground: #1E293B;
-  --card: #FFFFFF;
-  --card-foreground: #1E293B;
-  --popover: #FFFFFF;
-  --popover-foreground: #1E293B;
-  --primary: #0F172A;
-  --primary-foreground: #F8FAFC;
-  --secondary: #F1F5F9;
-  --secondary-foreground: #0F172A;
-  --muted: #E2E8F0;
-  --muted-foreground: #64748B;
-  --accent: #3B82F6;
+  --background: var(--portal-light-bg, #E6F8F6);
+  --foreground: var(--portal-dark-text, #093E3A);
+  --card: var(--portal-card-bg, #F2FCFB);
+  --card-foreground: var(--portal-dark-text, #093E3A);
+  --popover: var(--portal-card-bg, #F2FCFB);
+  --popover-foreground: var(--portal-dark-text, #093E3A);
+  --primary: var(--portal-primary-color, #0F766E);
+  --primary-foreground: #FFFFFF;
+  --secondary: var(--portal-light-bg, #E6F8F6);
+  --secondary-foreground: var(--portal-dark-text, #093E3A);
+  --muted: #CBEFEA;
+  --muted-foreground: #138A80;
+  --accent: var(--portal-active-color, #14A092);
   --accent-foreground: #FFFFFF;
   --destructive: #EF4444;
-  --border: #E5E7EB;
-  --input: #F1F5F9;
-  --ring: #94A3B8;
-  --chart-1: #3B82F6;
-  --chart-2: #8B5CF6;
-  --chart-3: #EC4899;
+  --border: var(--portal-border-color, #CBEFEA);
+  --input: var(--portal-card-bg, #F2FCFB);
+  --ring: var(--portal-primary-color, #0F766E);
+  --chart-1: #0F766E;
+  --chart-2: #14A092;
+  --chart-3: #138A80;
   --chart-4: #F59E0B;
   --chart-5: #10B981;
   --radius: 6px;
-  --sidebar: #FFFFFF;
-  --sidebar-foreground: #1E293B;
-  --sidebar-primary: #0F172A;
+  --sidebar: var(--portal-sidebar-bg, #093E3A);
+  --sidebar-foreground: #FFFFFF;
+  --sidebar-primary: var(--portal-sidebar-active, #14A092);
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #F1F5F9;
-  --sidebar-accent-foreground: #0F172A;
-  --sidebar-border: #E5E7EB;
-  --sidebar-ring: #94A3B8;
+  --sidebar-accent: var(--portal-sidebar-hover, #138A80);
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: var(--portal-border-color, #CBEFEA);
+  --sidebar-ring: var(--portal-primary-color, #0F766E);
 }
 
 .dark {

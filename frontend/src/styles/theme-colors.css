@@ -6,22 +6,22 @@
 :root {
   /* ─── SEMANTIC COLOR TOKENS ─── */
   /* Text Colors - Light Mode (overridable for dark mode) */
-  --text-primary: #0F172A;      /* Headings, primary text */
-  --text-secondary: #1E293B;    /* Body text */
-  --text-tertiary: #64748B;     /* Secondary text, labels */
-  --text-muted: #94A3B8;        /* Disabled, hints, placeholders */
-  --text-inverse: #F8FAFC;      /* Text on dark backgrounds */
+  --text-primary: var(--portal-dark-text, #093E3A);      /* Headings, primary text */
+  --text-secondary: var(--portal-dark-text, #093E3A);    /* Body text */
+  --text-tertiary: #4A6B68;     /* Secondary text, labels */
+  --text-muted: #7E9E9A;        /* Disabled, hints, placeholders */
+  --text-inverse: var(--portal-header-text, #FFFFFF);      /* Text on dark backgrounds */
 
   /* Background Colors - Light Mode */
-  --bg-primary: #FFFFFF;        /* Main card/section backgrounds */
-  --bg-secondary: #F8FAFC;      /* Alternative background */
-  --bg-tertiary: #F1F5F9;       /* Input, hover states */
+  --bg-primary: var(--portal-card-bg, #F2FCFB);        /* Main card/section backgrounds */
+  --bg-secondary: var(--portal-light-bg, #E6F8F6);      /* Alternative background */
+  --bg-tertiary: var(--portal-light-bg, #E6F8F6);       /* Input, hover states */
   --bg-overlay: rgba(0, 0, 0, 0.08);  /* Modal backdrop */
 
   /* Border Colors - Light Mode */
-  --border-light: #E5E7EB;      /* Primary borders */
-  --border-medium: #D1D5DB;     /* Hover/active borders */
-  --border-dark: #CBD5E1;       /* Disabled borders */
+  --border-light: var(--portal-border-color, #CBEFEA);      /* Primary borders */
+  --border-medium: var(--portal-border-color, #CBEFEA);     /* Hover/active borders */
+  --border-dark: #A7E3DB;       /* Disabled borders */
 
   /* Shadow System - Light Mode */
   --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.05);

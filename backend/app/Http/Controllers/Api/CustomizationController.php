@@ -69,6 +69,13 @@ class CustomizationController extends Controller
             'title_separator'           => 'nullable|string|max:10',
             'show_header_subtitle'      => 'nullable|boolean',
             'sidebar_active_color'      => 'nullable|string|max:50',
+            'sidebar_hover_color'       => 'nullable|string|max:50',
+            'hover_color'               => 'nullable|string|max:50',
+            'active_color'              => 'nullable|string|max:50',
+            'dark_text_color'           => 'nullable|string|max:50',
+            'light_bg_color'            => 'nullable|string|max:50',
+            'card_bg_color'             => 'nullable|string|max:50',
+            'border_color'              => 'nullable|string|max:50',
             'card_elevation'            => 'nullable|string|in:flat,subtle,floating,glassmorphic',
             'button_style'              => 'nullable|string|in:rounded,pill,sharp',
             'density'                   => 'nullable|string|in:compact,comfortable,spacious',
@@ -91,25 +98,33 @@ class CustomizationController extends Controller
             $setting = CustomizationSetting::getSettings();
             $existingColumns = Schema::getColumnListing('customization_settings');
 
-            // If welcome_banner_url, login_bg_video_url, or welcome_banner_media_type columns don't exist yet on DB, store them safely in extra_colors JSON
+            // Store any dynamic color fields safely in extra_colors JSON if columns don't exist yet on DB
             $extra = $setting->extra_colors ?? [];
             if (!is_array($extra)) {
                 $extra = [];
             }
             $extraUpdated = false;
 
-            if (isset($validated['welcome_banner_url']) && !in_array('welcome_banner_url', $existingColumns, true)) {
-                $extra['welcome_banner_url'] = $validated['welcome_banner_url'];
-                $extraUpdated = true;
+            $dynamicFields = [
+                'welcome_banner_url',
+                'login_bg_video_url',
+                'welcome_banner_media_type',
+                'sidebar_hover_color',
+                'hover_color',
+                'active_color',
+                'dark_text_color',
+                'light_bg_color',
+                'card_bg_color',
+                'border_color',
+            ];
+
+            foreach ($dynamicFields as $field) {
+                if (isset($validated[$field]) && !in_array($field, $existingColumns, true)) {
+                    $extra[$field] = $validated[$field];
+                    $extraUpdated = true;
+                }
             }
-            if (isset($validated['login_bg_video_url']) && !in_array('login_bg_video_url', $existingColumns, true)) {
-                $extra['login_bg_video_url'] = $validated['login_bg_video_url'];
-                $extraUpdated = true;
-            }
-            if (isset($validated['welcome_banner_media_type']) && !in_array('welcome_banner_media_type', $existingColumns, true)) {
-                $extra['welcome_banner_media_type'] = $validated['welcome_banner_media_type'];
-                $extraUpdated = true;
-            }
+
             if ($extraUpdated) {
                 $validated['extra_colors'] = $extra;
             }
@@ -123,14 +138,10 @@ class CustomizationController extends Controller
             $setting->update($payload);
 
             $fresh = $setting->fresh();
-            if (empty($fresh->welcome_banner_url) && !empty($fresh->extra_colors['welcome_banner_url'])) {
-                $fresh->welcome_banner_url = $fresh->extra_colors['welcome_banner_url'];
-            }
-            if (empty($fresh->login_bg_video_url) && !empty($fresh->extra_colors['login_bg_video_url'])) {
-                $fresh->login_bg_video_url = $fresh->extra_colors['login_bg_video_url'];
-            }
-            if (empty($fresh->welcome_banner_media_type) && !empty($fresh->extra_colors['welcome_banner_media_type'])) {
-                $fresh->welcome_banner_media_type = $fresh->extra_colors['welcome_banner_media_type'];
+            foreach ($dynamicFields as $field) {
+                if (empty($fresh->{$field}) && !empty($fresh->extra_colors[$field])) {
+                    $fresh->{$field} = $fresh->extra_colors[$field];
+                }
             }
 
             return response()->json([
@@ -139,9 +150,10 @@ class CustomizationController extends Controller
                 'settings' => $fresh,
             ]);
         } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Customization update failed: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update customization: ' . $e->getMessage(),
+                'message' => 'Failed to update portal customization. Please check your settings and try again.',
             ], 500);
         }
     }
@@ -178,9 +190,10 @@ class CustomizationController extends Controller
                 'message' => 'Asset uploaded successfully.',
             ]);
         } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Customization asset upload failed: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to upload asset: ' . $e->getMessage(),
+                'message' => 'Failed to upload asset file. Please ensure the file is valid and under the allowed size limit.',
             ], 500);
         }
     }

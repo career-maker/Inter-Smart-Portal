@@ -41,6 +41,13 @@ class CustomizationSetting extends Model
         'welcome_banner_url',
         'login_bg_video_url',
         'welcome_banner_media_type',
+        'sidebar_hover_color',
+        'hover_color',
+        'active_color',
+        'dark_text_color',
+        'light_bg_color',
+        'card_bg_color',
+        'border_color',
     ];
 
     protected $casts = [
@@ -85,21 +92,63 @@ class CustomizationSetting extends Model
         return 'image';
     }
 
+    public function getSidebarHoverColorAttribute($value): string
+    {
+        return $value ?: ($this->extra_colors['sidebar_hover_color'] ?? '#138A80');
+    }
+
+    public function getHoverColorAttribute($value): string
+    {
+        return $value ?: ($this->extra_colors['hover_color'] ?? '#138A80');
+    }
+
+    public function getActiveColorAttribute($value): string
+    {
+        return $value ?: ($this->extra_colors['active_color'] ?? '#14A092');
+    }
+
+    public function getDarkTextColorAttribute($value): string
+    {
+        return $value ?: ($this->extra_colors['dark_text_color'] ?? '#093E3A');
+    }
+
+    public function getLightBgColorAttribute($value): string
+    {
+        return $value ?: ($this->extra_colors['light_bg_color'] ?? '#E6F8F6');
+    }
+
+    public function getCardBgColorAttribute($value): string
+    {
+        return $value ?: ($this->extra_colors['card_bg_color'] ?? '#F2FCFB');
+    }
+
+    public function getBorderColorAttribute($value): string
+    {
+        return $value ?: ($this->extra_colors['border_color'] ?? '#CBEFEA');
+    }
+
     public static function defaults(): array
     {
         return [
             'font_family'               => 'Proxima Nova',
-            'header_bg_color'           => '#56348f',
-            'header_text_color'         => '#ffffff',
-            'sidebar_bg_color'          => '#0e2638',
+            'header_bg_color'           => '#0F766E',
+            'header_text_color'         => '#FFFFFF',
+            'sidebar_bg_color'          => '#093E3A',
             'header_subtitle'           => 'PERFECTION AT ITS FINEST',
             'show_header_subtitle'      => true,
-            'sidebar_active_color'      => '#133249',
+            'sidebar_active_color'      => '#14A092',
+            'sidebar_hover_color'       => '#138A80',
+            'hover_color'               => '#138A80',
+            'active_color'              => '#14A092',
+            'dark_text_color'           => '#093E3A',
+            'light_bg_color'            => '#E6F8F6',
+            'card_bg_color'             => '#F2FCFB',
+            'border_color'              => '#CBEFEA',
             'card_elevation'            => 'subtle',
             'button_style'              => 'rounded',
             'density'                   => 'comfortable',
             'footer_copyright'          => '© 2026 Inter Smart. All rights reserved.',
-            'primary_color'             => '#56348f',
+            'primary_color'             => '#0F766E',
             'body_font_size'            => '12px',
             'heading_scale'             => 'normal',
             'description_font_size'     => '13px',
@@ -112,7 +161,7 @@ class CustomizationSetting extends Model
             'login_bg_video_url'        => '/videos/login-bg.mp4',
             'border_radius'             => '12px',
             'sub_header_bg'             => '#ffffff',
-            'sub_header_active_color'   => '#56348f',
+            'sub_header_active_color'   => '#0F766E',
             'login_heading'             => 'Sign in to your workplace',
             'login_subheading'          => 'Perfection at its finest. Workforce management portal',
             'title_separator'           => '|',

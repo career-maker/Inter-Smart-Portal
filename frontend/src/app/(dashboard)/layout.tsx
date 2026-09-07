@@ -565,11 +565,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       href={href}
                       prefetch={true}
                       onClick={() => setFlyoutState(null)}
+                      data-active={active ? "true" : "false"}
                       style={{
-                        backgroundColor: active ? "#071724" : "transparent",
+                        backgroundColor: active ? "var(--portal-sidebar-active, #14A092)" : "transparent",
                         borderRadius: 0,
                       }}
-                      className={`group w-full flex flex-col items-center justify-center py-3 px-1 !rounded-none transition-colors relative cursor-pointer hover:bg-[#133249] ${
+                      className={`group w-full flex flex-col items-center justify-center py-3 px-1 !rounded-none transition-colors relative cursor-pointer ${
                         active ? "font-semibold" : "font-normal"
                       }`}
                     >
@@ -610,6 +611,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     >
                       <button
                         type="button"
+                        data-active={isHighlighted ? "true" : "false"}
                         onClick={(e) => {
                           if (isFlyoutOpen) {
                             setFlyoutState(null);
@@ -619,10 +621,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                           }
                         }}
                         style={{
-                          backgroundColor: isHighlighted ? "#071724" : "transparent",
+                          backgroundColor: isHighlighted ? "var(--portal-sidebar-active, #14A092)" : "transparent",
                           borderRadius: 0,
                         }}
-                        className={`group w-full flex flex-col items-center justify-center py-3 px-1 !rounded-none transition-colors relative cursor-pointer hover:bg-[#133249] ${
+                        className={`group w-full flex flex-col items-center justify-center py-3 px-1 !rounded-none transition-colors relative cursor-pointer ${
                           isHighlighted ? "font-semibold" : "font-normal"
                         }`}
                       >
@@ -737,7 +739,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         href={item.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="group flex items-center px-4 py-2.5 text-[13px] hover:bg-[#163b56] transition-colors cursor-pointer"
+                        className="group flex items-center px-4 py-2.5 text-[13px] transition-colors cursor-pointer"
                       >
                         {itemContent}
                       </a>
@@ -750,10 +752,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       href={item.href}
                       prefetch={true}
                       onClick={() => setFlyoutState(null)}
+                      data-active={active ? "true" : undefined}
                       style={{
-                        backgroundColor: active ? "#071724" : "transparent",
+                        backgroundColor: active ? "var(--portal-sidebar-active, #14A092)" : "transparent",
                       }}
-                      className="group flex items-center px-4 py-2.5 text-[13px] hover:bg-[#163b56] transition-colors cursor-pointer"
+                      className="group flex items-center px-4 py-2.5 text-[13px] transition-colors cursor-pointer"
                     >
                       {itemContent}
                     </Link>

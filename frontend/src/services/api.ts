@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { apiCache } from './cache';
+import { formatFriendlyErrorMessage } from '@/lib/errorUtils';
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8002/api',
@@ -127,6 +128,18 @@ api.interceptors.response.use(
         }
       }
     }
+
+    // Sanitize technical error message to be human-friendly
+    const friendly = formatFriendlyErrorMessage(error);
+    if (error.response) {
+      if (typeof error.response.data === 'string' || !error.response.data) {
+        error.response.data = { message: friendly };
+      } else if (typeof error.response.data === 'object') {
+        error.response.data.message = friendly;
+      }
+    }
+    error.message = friendly;
+
     return Promise.reject(error);
   }
 );

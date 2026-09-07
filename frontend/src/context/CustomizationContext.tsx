@@ -76,15 +76,43 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
       }
     }
 
-    // 2. Header & Sidebar Colors
-    root.style.setProperty("--portal-header-bg", conf.header_bg_color || "#56348f");
-    root.style.setProperty("--portal-header-text", conf.header_text_color || "#ffffff");
-    root.style.setProperty("--portal-sidebar-bg", conf.sidebar_bg_color || "#0e2638");
+    // 2. Header, Sidebar & Brand Colors (Green / Teal System)
+    const headerBg = conf.header_bg_color || "#0F766E";
+    const headerText = conf.header_text_color || "#FFFFFF";
+    const primaryColor = conf.primary_color || headerBg || "#0F766E";
+    const hoverColor = conf.hover_color || "#138A80";
+    const activeColor = conf.active_color || "#14A092";
+    const darkTextColor = conf.dark_text_color || "#093E3A";
+    const lightBg = conf.light_bg_color || "#E6F8F6";
+    const cardBg = conf.card_bg_color || "#F2FCFB";
+    const borderColor = conf.border_color || "#CBEFEA";
+    const sidebarBg = conf.sidebar_bg_color || "#093E3A";
+    const sidebarHover = conf.sidebar_hover_color || hoverColor;
+    const sidebarActive = conf.sidebar_active_color || activeColor;
 
-    // 3. Primary / Accent Color
-    root.style.setProperty("--portal-primary-color", conf.primary_color || "#56348f");
+    root.style.setProperty("--portal-header-bg", headerBg);
+    root.style.setProperty("--portal-header-text", headerText);
+    root.style.setProperty("--portal-sidebar-bg", sidebarBg);
+    root.style.setProperty("--portal-sidebar-hover", sidebarHover);
+    root.style.setProperty("--portal-sidebar-active", sidebarActive);
 
-    // 4. Font Sizes & Scales
+    // 3. Primary / Accent & Semantic Color Palette
+    root.style.setProperty("--portal-primary-color", primaryColor);
+    root.style.setProperty("--portal-hover-color", hoverColor);
+    root.style.setProperty("--portal-active-color", activeColor);
+    root.style.setProperty("--portal-dark-text", darkTextColor);
+    root.style.setProperty("--portal-light-bg", lightBg);
+    root.style.setProperty("--portal-card-bg", cardBg);
+    root.style.setProperty("--portal-border-color", borderColor);
+
+    // 4. Update core theme tokens for Tailwind & Semantic components
+    root.style.setProperty("--background", lightBg);
+    root.style.setProperty("--card", cardBg);
+    root.style.setProperty("--border", borderColor);
+    root.style.setProperty("--primary", primaryColor);
+    root.style.setProperty("--foreground", darkTextColor);
+
+    // 5. Font Sizes & Scales
     const bodySize = conf.body_font_size ? (conf.body_font_size.endsWith("px") ? conf.body_font_size : `${conf.body_font_size}px`) : "12px";
     const descSize = conf.description_font_size ? (conf.description_font_size.endsWith("px") ? conf.description_font_size : `${conf.description_font_size}px`) : "13px";
     root.style.setProperty("--portal-body-size", bodySize);
@@ -105,15 +133,12 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
         headingMultiplier = "1";
     }
     root.style.setProperty("--portal-heading-multiplier", headingMultiplier);
-    // 5. Border Radius & Component Styling
+    // 6. Border Radius & Component Styling
     root.style.setProperty("--portal-radius", conf.border_radius || "12px");
 
-    // 6. Sub-header Navigation Colors
+    // 7. Sub-header Navigation Colors
     root.style.setProperty("--portal-sub-header-bg", conf.sub_header_bg || "#ffffff");
-    root.style.setProperty("--portal-sub-header-active", conf.sub_header_active_color || "#56348f");
-
-    // 7. Sidebar Active Highlight
-    root.style.setProperty("--portal-sidebar-active", conf.sidebar_active_color || "#133249");
+    root.style.setProperty("--portal-sub-header-active", conf.sub_header_active_color || primaryColor);
 
     // 8. Card Elevation & Button Style
     const elevationMap = {
@@ -231,6 +256,13 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
       welcome_banner_url: newSettings.welcome_banner_url ?? res.settings?.welcome_banner_url ?? settings.welcome_banner_url,
       welcome_banner_media_type: newSettings.welcome_banner_media_type ?? res.settings?.welcome_banner_media_type ?? settings.welcome_banner_media_type,
       login_bg_video_url: newSettings.login_bg_video_url ?? res.settings?.login_bg_video_url ?? settings.login_bg_video_url,
+      sidebar_hover_color: newSettings.sidebar_hover_color ?? res.settings?.sidebar_hover_color ?? settings.sidebar_hover_color,
+      hover_color: newSettings.hover_color ?? res.settings?.hover_color ?? settings.hover_color,
+      active_color: newSettings.active_color ?? res.settings?.active_color ?? settings.active_color,
+      dark_text_color: newSettings.dark_text_color ?? res.settings?.dark_text_color ?? settings.dark_text_color,
+      light_bg_color: newSettings.light_bg_color ?? res.settings?.light_bg_color ?? settings.light_bg_color,
+      card_bg_color: newSettings.card_bg_color ?? res.settings?.card_bg_color ?? settings.card_bg_color,
+      border_color: newSettings.border_color ?? res.settings?.border_color ?? settings.border_color,
     };
     setSettings(updated);
     setActiveSettings(updated);

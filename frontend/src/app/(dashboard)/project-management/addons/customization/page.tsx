@@ -41,6 +41,7 @@ import {
 import { useAuthStore } from "@/store/auth";
 import { useCustomization } from "@/context/CustomizationContext";
 import { CustomizationSettings, DEFAULT_CUSTOMIZATION_SETTINGS, customizationApi, resolveCustomizationAssetUrl } from "@/services/customization";
+import { formatFriendlyErrorMessage } from "@/lib/errorUtils";
 
 const AVAILABLE_FONTS = [
   { id: "Proxima Nova", name: "Proxima Nova (Default)", category: "Sans-serif", provider: "Built-in" },
@@ -57,11 +58,11 @@ const AVAILABLE_FONTS = [
 ];
 
 const HEADER_COLOR_PRESETS = [
+  { label: "Primary Teal", hex: "#0F766E" },
   { label: "Keka Purple", hex: "#56348f" },
   { label: "Deep Indigo", hex: "#4338ca" },
   { label: "Royal Blue", hex: "#1d4ed8" },
   { label: "Ocean Blue", hex: "#0284c7" },
-  { label: "Emerald Teal", hex: "#0f766e" },
   { label: "Forest Green", hex: "#15803d" },
   { label: "Dark Slate", hex: "#1e293b" },
   { label: "Obsidian Black", hex: "#0f172a" },
@@ -86,43 +87,52 @@ const SUB_HEADER_BG_PRESETS = [
 ];
 
 const SUB_HEADER_ACTIVE_PRESETS = [
+  { label: "Teal Active", hex: "#14A092" },
   { label: "Keka Purple", hex: "#56348f" },
   { label: "Deep Indigo", hex: "#4338ca" },
   { label: "Royal Blue", hex: "#2563eb" },
-  { label: "Teal", hex: "#0d9488" },
   { label: "Amber", hex: "#d97706" },
   { label: "Rose", hex: "#e11d48" },
 ];
 
 const SIDEBAR_COLOR_PRESETS = [
   { label: "Keka Navy", hex: "#0e2638" },
+  { label: "Deep Teal Dark", hex: "#093E3A" },
   { label: "Obsidian Dark", hex: "#0f172a" },
   { label: "Pure Dark", hex: "#000000" },
   { label: "Deep Slate", hex: "#1e293b" },
   { label: "Midnight Purple", hex: "#1e1433" },
   { label: "Forest Pine", hex: "#062c26" },
   { label: "Royal Navy", hex: "#0b1c3d" },
-  { label: "Dark Burgundy", hex: "#260813" },
 ];
 
 const SIDEBAR_ACTIVE_PRESETS = [
+  { label: "Teal Active", hex: "#14A092" },
   { label: "Navy Accent", hex: "#133249" },
+  { label: "Primary Teal", hex: "#0F766E" },
   { label: "Keka Purple", hex: "#56348f" },
   { label: "Royal Blue", hex: "#1d4ed8" },
-  { label: "Teal Emerald", hex: "#0f766e" },
   { label: "Dark Slate", hex: "#1e293b" },
-  { label: "Deep Violet", hex: "#3b1f63" },
+];
+
+const SIDEBAR_HOVER_PRESETS = [
+  { label: "Teal Hover", hex: "#138A80" },
+  { label: "Navy Hover", hex: "#163b56" },
+  { label: "Teal Active", hex: "#14A092" },
+  { label: "Deep Slate", hex: "#1e293b" },
+  { label: "Keka Purple", hex: "#6b46a8" },
+  { label: "Emerald", hex: "#047857" },
 ];
 
 const PRIMARY_COLOR_PRESETS = [
+  { label: "Primary Teal", hex: "#0F766E" },
+  { label: "Teal Hover", hex: "#138A80" },
   { label: "Keka Purple", hex: "#56348f" },
   { label: "Indigo", hex: "#6366f1" },
   { label: "Sky Blue", hex: "#0284c7" },
-  { label: "Teal", hex: "#0d9488" },
   { label: "Emerald", hex: "#10b981" },
   { label: "Amber", hex: "#f59e0b" },
   { label: "Rose", hex: "#f43f5e" },
-  { label: "Violet", hex: "#7c3aed" },
 ];
 
 const RADIUS_OPTIONS = [
@@ -247,6 +257,28 @@ export default function CustomizationPage() {
     setErrorMessage(null);
   };
 
+  // One-click apply full Green / Teal unified brand color system
+  const applyGreenTealPalette = () => {
+    const updated: CustomizationSettings = {
+      ...form,
+      header_bg_color: "#0F766E",
+      primary_color: "#0F766E",
+      hover_color: "#138A80",
+      active_color: "#14A092",
+      dark_text_color: "#093E3A",
+      light_bg_color: "#E6F8F6",
+      card_bg_color: "#F2FCFB",
+      border_color: "#CBEFEA",
+      header_text_color: "#FFFFFF",
+      sidebar_active_color: "#14A092",
+      sidebar_hover_color: "#138A80",
+    };
+    setForm(updated);
+    setPreviewSettings(updated);
+    setSuccessMessage("Green / Teal color palette applied! Click 'Save Changes' to make it permanent.");
+    setErrorMessage(null);
+  };
+
   // Safe file upload handler with instant Data URL & dedicated upload API
   const handleFileUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -255,6 +287,12 @@ export default function CustomizationPage() {
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Check size limit: max 5MB for images
+    if (file.size > 5 * 1024 * 1024) {
+      setErrorMessage("The selected image is too large (maximum 5MB). Please choose a smaller image file.");
+      return;
+    }
 
     if (field === "favicon_url") setUploadingFavicon(true);
     else if (field === "logo_url") setUploadingLogo(true);
@@ -280,11 +318,12 @@ export default function CustomizationPage() {
           return;
         }
       } catch (err: any) {
-        console.warn("Customization asset upload exception, falling back to data URL:", err);
+        console.warn("Customization asset upload exception, falling back to optimized image:", err);
+        setErrorMessage(formatFriendlyErrorMessage(err, "Failed to upload image to server. Please try a smaller image file."));
       }
     } catch (err) {
       console.error("Failed to process image:", err);
-      setErrorMessage("Failed to process and optimize image. Please try another file.");
+      setErrorMessage("Failed to process the selected image. Please try another image file.");
     } finally {
       if (field === "favicon_url") setUploadingFavicon(false);
       else if (field === "logo_url") setUploadingLogo(false);
@@ -292,7 +331,7 @@ export default function CustomizationPage() {
     }
   };
 
-  // Safe video upload handler for MP4/WebM videos (up to 50MB)
+  // Safe video upload handler for MP4/WebM videos (up to 25MB)
   const handleVideoUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
     field: "login_bg_video_url" | "welcome_banner_url",
@@ -301,8 +340,8 @@ export default function CustomizationPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 50 * 1024 * 1024) {
-      setErrorMessage("Video file exceeds the 50MB limit. Please select a smaller video.");
+    if (file.size > 25 * 1024 * 1024) {
+      setErrorMessage("The selected video is too large (maximum 25MB). Please select a smaller video.");
       return;
     }
 
@@ -326,7 +365,7 @@ export default function CustomizationPage() {
       }
     } catch (err: any) {
       console.error("Failed to upload video asset:", err);
-      setErrorMessage(err?.response?.data?.message || err?.message || "Failed to upload video asset.");
+      setErrorMessage(formatFriendlyErrorMessage(err, "Failed to upload video asset. Please choose a smaller video file."));
     } finally {
       if (field === "login_bg_video_url") setUploadingLoginVideo(false);
       else setUploadingBannerVideo(false);
@@ -349,11 +388,23 @@ export default function CustomizationPage() {
     setSuccessMessage(null);
     setErrorMessage(null);
     try {
-      await updateSettings(form);
+      // Guard: prevent sending massive base64 image strings (>300KB) directly in POST payload
+      const payload = { ...form };
+      const fieldsToCheck: (keyof CustomizationSettings)[] = ["favicon_url", "logo_url", "welcome_banner_url"];
+      for (const f of fieldsToCheck) {
+        const val = payload[f];
+        if (typeof val === "string" && val.startsWith("data:") && val.length > 300000) {
+          setErrorMessage("One or more uploaded images are too large to save directly. Please choose a smaller image file (recommended under 2MB).");
+          setSaving(false);
+          return;
+        }
+      }
+
+      await updateSettings(payload);
       setSuccessMessage("Portal customizations saved and applied universally across all screens.");
       setTimeout(() => setSuccessMessage(null), 5000);
     } catch (err: any) {
-      setErrorMessage(err?.response?.data?.message || err?.message || "Failed to save customizations.");
+      setErrorMessage(formatFriendlyErrorMessage(err, "Failed to save portal customizations. Please check your settings and try again."));
     } finally {
       setSaving(false);
     }
@@ -372,7 +423,7 @@ export default function CustomizationPage() {
       setSuccessMessage("Portal customizations reset to default InterSmart branding.");
       setTimeout(() => setSuccessMessage(null), 5000);
     } catch (err: any) {
-      setErrorMessage(err?.response?.data?.message || err?.message || "Failed to reset customization.");
+      setErrorMessage(formatFriendlyErrorMessage(err, "Failed to reset portal customization. Please try again."));
     } finally {
       setResetting(false);
     }
@@ -982,7 +1033,221 @@ export default function CustomizationPage() {
             </div>
           </div>
 
-          {/* 3. HEADER & SUB-HEADER APPEARANCE */}
+          {/* 3. GLOBAL BRAND COLOR PALETTE SYSTEM */}
+          <div className="rounded-2xl bg-white dark:bg-slate-900 border border-teal-200/80 dark:border-teal-900/40 p-6 space-y-6 shadow-sm ring-1 ring-teal-500/10">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-teal-100 dark:border-teal-950">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-teal-100 dark:bg-teal-950/80 text-teal-700 dark:text-teal-300">
+                  <Palette className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-[15px] font-semibold text-slate-900 dark:text-white box-title">Global Brand Color Palette System</h2>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-100 text-teal-800 dark:bg-teal-900/60 dark:text-teal-200">
+                      Green / Teal Active
+                    </span>
+                  </div>
+                  <p className="text-[13px] text-slate-500 dark:text-slate-400">
+                    Unified brand palette applied system-wide (Header, interactive buttons, cards, backgrounds, borders, and typography).
+                  </p>
+                </div>
+              </div>
+
+              {/* One-Click Apply Button with Palette Preview Dots */}
+              <button
+                type="button"
+                onClick={applyGreenTealPalette}
+                className="flex items-center gap-2.5 px-4 py-2 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-xs font-semibold shadow-xs transition-all cursor-pointer self-start sm:self-auto shrink-0"
+                title="Reset/Apply the standard Green / Teal 8-color system"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Apply Green / Teal Palette</span>
+                <div className="flex items-center -space-x-1 ml-1">
+                  {["#0F766E", "#138A80", "#14A092", "#093E3A", "#E6F8F6", "#F2FCFB", "#CBEFEA", "#FFFFFF"].map((c, i) => (
+                    <span
+                      key={i}
+                      className="w-3 h-3 rounded-full border border-black/20 shadow-xs shrink-0"
+                      style={{ backgroundColor: c }}
+                    />
+                  ))}
+                </div>
+              </button>
+            </div>
+
+            {/* 8-Dimension Color Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* 1. Primary / Header */}
+              <div className="p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-full border border-black/10 shadow-xs" style={{ backgroundColor: form.header_bg_color || "#0F766E" }} />
+                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">Primary / Header</span>
+                  </div>
+                  <input
+                    type="color"
+                    value={form.header_bg_color || "#0F766E"}
+                    onChange={(e) => {
+                      handleFieldChange("header_bg_color", e.target.value);
+                      handleFieldChange("primary_color", e.target.value);
+                    }}
+                    className="w-7 h-7 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
+                  />
+                </div>
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="text-slate-500 dark:text-slate-400">Header & Primary CTA</span>
+                  <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.header_bg_color || "#0F766E"}</span>
+                </div>
+              </div>
+
+              {/* 2. Hover */}
+              <div className="p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-full border border-black/10 shadow-xs" style={{ backgroundColor: form.hover_color || "#138A80" }} />
+                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">Hover</span>
+                  </div>
+                  <input
+                    type="color"
+                    value={form.hover_color || "#138A80"}
+                    onChange={(e) => {
+                      handleFieldChange("hover_color", e.target.value);
+                      handleFieldChange("sidebar_hover_color", e.target.value);
+                    }}
+                    className="w-7 h-7 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
+                  />
+                </div>
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="text-slate-500 dark:text-slate-400">Button & Nav Hover</span>
+                  <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.hover_color || "#138A80"}</span>
+                </div>
+              </div>
+
+              {/* 3. Active */}
+              <div className="p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-full border border-black/10 shadow-xs" style={{ backgroundColor: form.active_color || "#14A092" }} />
+                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">Active</span>
+                  </div>
+                  <input
+                    type="color"
+                    value={form.active_color || "#14A092"}
+                    onChange={(e) => {
+                      handleFieldChange("active_color", e.target.value);
+                      handleFieldChange("sidebar_active_color", e.target.value);
+                    }}
+                    className="w-7 h-7 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
+                  />
+                </div>
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="text-slate-500 dark:text-slate-400">Active Items & Tabs</span>
+                  <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.active_color || "#14A092"}</span>
+                </div>
+              </div>
+
+              {/* 4. Dark Text */}
+              <div className="p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-full border border-black/10 shadow-xs" style={{ backgroundColor: form.dark_text_color || "#093E3A" }} />
+                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">Dark Text</span>
+                  </div>
+                  <input
+                    type="color"
+                    value={form.dark_text_color || "#093E3A"}
+                    onChange={(e) => handleFieldChange("dark_text_color", e.target.value)}
+                    className="w-7 h-7 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
+                  />
+                </div>
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="text-slate-500 dark:text-slate-400">Headings & Labels</span>
+                  <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.dark_text_color || "#093E3A"}</span>
+                </div>
+              </div>
+
+              {/* 5. Light Background */}
+              <div className="p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-full border border-slate-300 shadow-xs" style={{ backgroundColor: form.light_bg_color || "#E6F8F6" }} />
+                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">Light Background</span>
+                  </div>
+                  <input
+                    type="color"
+                    value={form.light_bg_color || "#E6F8F6"}
+                    onChange={(e) => handleFieldChange("light_bg_color", e.target.value)}
+                    className="w-7 h-7 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
+                  />
+                </div>
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="text-slate-500 dark:text-slate-400">Portal Canvas Body</span>
+                  <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.light_bg_color || "#E6F8F6"}</span>
+                </div>
+              </div>
+
+              {/* 6. Card Background */}
+              <div className="p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-full border border-slate-300 shadow-xs" style={{ backgroundColor: form.card_bg_color || "#F2FCFB" }} />
+                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">Card Background</span>
+                  </div>
+                  <input
+                    type="color"
+                    value={form.card_bg_color || "#F2FCFB"}
+                    onChange={(e) => handleFieldChange("card_bg_color", e.target.value)}
+                    className="w-7 h-7 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
+                  />
+                </div>
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="text-slate-500 dark:text-slate-400">Cards, Panels & Boxes</span>
+                  <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.card_bg_color || "#F2FCFB"}</span>
+                </div>
+              </div>
+
+              {/* 7. Border / Divider */}
+              <div className="p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-full border border-slate-300 shadow-xs" style={{ backgroundColor: form.border_color || "#CBEFEA" }} />
+                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">Border / Divider</span>
+                  </div>
+                  <input
+                    type="color"
+                    value={form.border_color || "#CBEFEA"}
+                    onChange={(e) => handleFieldChange("border_color", e.target.value)}
+                    className="w-7 h-7 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
+                  />
+                </div>
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="text-slate-500 dark:text-slate-400">Lines, Dividers & Outlines</span>
+                  <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.border_color || "#CBEFEA"}</span>
+                </div>
+              </div>
+
+              {/* 8. White / Contrast Text */}
+              <div className="p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-full border border-slate-300 shadow-xs" style={{ backgroundColor: form.header_text_color || "#FFFFFF" }} />
+                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">White / Contrast Text</span>
+                  </div>
+                  <input
+                    type="color"
+                    value={form.header_text_color || "#FFFFFF"}
+                    onChange={(e) => handleFieldChange("header_text_color", e.target.value)}
+                    className="w-7 h-7 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
+                  />
+                </div>
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="text-slate-500 dark:text-slate-400">Text on Dark & Header</span>
+                  <span className="font-mono font-medium text-slate-700 dark:text-slate-300 uppercase">{form.header_text_color || "#FFFFFF"}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 4. HEADER & SUB-HEADER APPEARANCE */}
           <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 space-y-5 shadow-sm">
             <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
               <div className="p-2.5 rounded-xl bg-purple-100 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300">
@@ -1262,6 +1527,50 @@ export default function CustomizationPage() {
                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs transition-all cursor-pointer ${
                         isActive
                           ? "border-purple-600 bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-300 font-bold ring-1 ring-purple-500/20"
+                          : "border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+                      }`}
+                    >
+                      <span className="w-3.5 h-3.5 rounded-full border border-white/20 shrink-0" style={{ backgroundColor: preset.hex }} />
+                      <span>{preset.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Sidebar Hover Item Color */}
+            <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-between">
+                <div>
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    Side Menu Item Hover Highlight
+                  </label>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    Background highlight color when hovering over sidebar menu links and flyouts
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-mono text-slate-500 uppercase">{form.sidebar_hover_color || "#138A80"}</span>
+                  <input
+                    type="color"
+                    value={form.sidebar_hover_color || "#138A80"}
+                    onChange={(e) => handleFieldChange("sidebar_hover_color", e.target.value)}
+                    className="w-8 h-8 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2 pt-1">
+                {SIDEBAR_HOVER_PRESETS.map((preset) => {
+                  const isActive = (form.sidebar_hover_color || "#138A80").toLowerCase() === preset.hex.toLowerCase();
+                  return (
+                    <button
+                      key={preset.hex}
+                      type="button"
+                      onClick={() => handleFieldChange("sidebar_hover_color", preset.hex)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs transition-all cursor-pointer ${
+                        isActive
+                          ? "border-teal-600 bg-teal-50 dark:bg-teal-950/40 text-teal-900 dark:text-teal-300 font-bold ring-1 ring-teal-500/20"
                           : "border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
                       }`}
                     >
@@ -1903,12 +2212,17 @@ export default function CustomizationPage() {
                 </div>
                 {/* Active Menu Item respecting sidebar_active_color */}
                 <div
-                  style={{ backgroundColor: form.sidebar_active_color || "#133249" }}
-                  className="w-7 h-7 rounded-lg flex flex-col items-center justify-center text-[8px] text-white font-bold transition-colors"
+                  style={{ backgroundColor: form.sidebar_active_color || "#14A092" }}
+                  className="w-7 h-7 rounded-lg flex flex-col items-center justify-center text-[8px] text-white font-bold transition-colors shadow-xs"
                 >
                   <span>Home</span>
                 </div>
-                <div className="w-7 h-7 rounded-lg hover:bg-white/10 flex flex-col items-center justify-center text-[8px] text-slate-300">
+                {/* Hover Menu Item preview respecting sidebar_hover_color */}
+                <div
+                  style={{ backgroundColor: form.sidebar_hover_color || "#138A80" }}
+                  className="w-7 h-7 rounded-lg flex flex-col items-center justify-center text-[8px] text-white font-medium transition-colors"
+                  title="Hover Preview"
+                >
                   <span>Leaves</span>
                 </div>
                 <div className="w-7 h-7 rounded-lg hover:bg-white/10 flex flex-col items-center justify-center text-[8px] text-slate-300">
