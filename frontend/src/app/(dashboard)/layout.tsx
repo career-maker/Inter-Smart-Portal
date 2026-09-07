@@ -1138,7 +1138,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       fontSize: "11px",
                       lineHeight: "16px",
                       fontWeight: active ? 600 : 500,
-                      color: active ? "var(--portal-sub-header-active, #56348f)" : "rgb(15, 24, 36)",
+                      color: active
+                        ? "var(--portal-primary-color, #0F766E)"
+                        : "rgb(71, 85, 105)",
                     }}
                     className="relative h-full flex items-center uppercase tracking-wider transition-colors shrink-0 gap-1.5 cursor-pointer hover:opacity-80 focus:outline-none focus:ring-0"
                   >
@@ -1146,10 +1148,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     {tab.badge && (
                       <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse inline-block" />
                     )}
+                    {/* Underline only — no background fill on active tab */}
                     {active && (
                       <span
-                        style={{ backgroundColor: "var(--portal-sub-header-active, #56348f)" }}
-                        className="absolute bottom-0 inset-x-0 h-[2px] dark:bg-purple-400"
+                        style={{ backgroundColor: "var(--portal-primary-color, #0F766E)" }}
+                        className="absolute bottom-0 inset-x-0 h-[2.5px] rounded-t-sm"
                       />
                     )}
                   </Link>
