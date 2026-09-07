@@ -356,11 +356,15 @@ export function AttendanceWidget({
                   : data?.status === "On Break"
                   ? "bg-amber-500/15 text-amber-600 dark:text-amber-300 border-amber-500/30"
                   : data?.status === "Checked Out"
-                  ? "bg-slate-500/15 text-slate-600 dark:text-slate-300 border-slate-500/30"
+                  ? data?.has_approved_wfh_today
+                    ? "bg-amber-500/15 text-amber-600 dark:text-amber-300 border-amber-500/30"
+                    : "bg-slate-500/15 text-slate-600 dark:text-slate-300 border-slate-500/30"
                   : "bg-rose-500/15 text-rose-600 dark:text-rose-300 border-rose-500/30"
               }`}
             >
-              {data?.status || "Not Checked In"}
+              {data?.status === "Checked Out" && data?.has_approved_wfh_today
+                ? "Stepped Out (Break)"
+                : data?.status || "Not Checked In"}
             </span>
           </div>
         </div>
@@ -382,7 +386,9 @@ export function AttendanceWidget({
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                  Since you are working from home today, use manual clock in and clock out instead of biometric device punch.
+                  {data?.status === "Checked Out"
+                    ? "You are currently stepped out. Clock back in whenever you return to resume your working shift."
+                    : "Since you are working from home today, use manual clock in and clock out instead of biometric device punch."}
                 </p>
               </div>
             </div>
@@ -415,10 +421,22 @@ export function AttendanceWidget({
               )}
 
               {data?.status === "Checked Out" && (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                  <span>Shift Completed</span>
-                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleManualClockIn}
+                    disabled={isPunching}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition-all cursor-pointer disabled:opacity-50"
+                    title="Resume work / Clock back in after break"
+                  >
+                    <LogIn className={`w-4 h-4 ${isPunching ? "animate-spin" : ""}`} />
+                    <span>{isPunching ? "Clocking In..." : "Clock In (WFH)"}</span>
+                  </button>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/70 dark:border-amber-800/60">
+                    <Coffee className="w-3.5 h-3.5 text-amber-500" />
+                    <span>Stepped Out / On Break</span>
+                  </span>
+                </div>
               )}
             </div>
           </div>

@@ -160,12 +160,50 @@ class AttendanceController extends Controller
         }
 
         $existing = Attendance::where('user_id', $user->id)->where('date', $today)->first();
-        if ($existing && $existing->check_in_time) {
-            return response()->json(['message' => 'Already checked in today'], 400);
-        }
-
         $now = now();
         $source = 'wfh_manual';
+
+        // If employee already clocked in today:
+        if ($existing && $existing->check_in_time) {
+            // If already currently working (checked in, not checked out)
+            if (is_null($existing->check_out_time)) {
+                return response()->json(['message' => 'Already checked in and currently working'], 400);
+            }
+
+            // Employee was previously clocked out and is now clocking back IN (break ends, resume work)
+            $previousOut = Carbon::parse($existing->check_out_time);
+            $breakMinutes = max(0, (int) round($previousOut->diffInMinutes($now)));
+
+            try {
+                AttendanceBreak::create([
+                    'attendance_id'       => $existing->id,
+                    'break_start'         => $previousOut,
+                    'break_end'           => $now,
+                    'total_break_minutes' => $breakMinutes,
+                    'break_type'          => 'Standard',
+                    'source'              => $source,
+                ]);
+            } catch (\Throwable $e) {
+                AttendanceBreak::create([
+                    'attendance_id'       => $existing->id,
+                    'break_start'         => $previousOut,
+                    'break_end'           => $now,
+                    'total_break_minutes' => $breakMinutes,
+                    'break_type'          => 'Standard',
+                ]);
+            }
+
+            // Re-open attendance: employee is working again, stored check_out_time must be NULL
+            $existing->update([
+                'check_out_time' => null,
+                'status'         => 'Present',
+            ]);
+
+            return response()->json([
+                'message' => 'Clocked in successfully (resumed from break)',
+                'data'    => new AttendanceResource($existing->fresh(['breaks'])),
+            ]);
+        }
 
         try {
             if ($existing) {
@@ -496,7 +534,11 @@ class AttendanceController extends Controller
             $statusLabel = 'Open Shift';
         } elseif ($attendance && $attendance->check_in_time) {
             $isWorking = is_null($attendance->check_out_time);
-            $statusLabel = $isWorking ? 'Checked In (WFH)' : 'Complete (WFH)';
+            if ($isWorking) {
+                $statusLabel = 'Checked In (WFH)';
+            } else {
+                $statusLabel = Carbon::parse($dateString)->isToday() ? 'Stepped Out / On Break' : 'Complete (WFH)';
+            }
         }
 
         $firstInOutput = $shiftCarbon($interp['first_in']) ?: ($attendance?->check_in_time ? Carbon::parse($attendance->check_in_time)->setTimezone('Asia/Kolkata')->toIso8601String() : null);
@@ -504,36 +546,17 @@ class AttendanceController extends Controller
 
         $isManualAttendance = in_array($attendance?->source, ['manual', 'wfh_manual'], true) || (empty($shiftedRawPunches) && (bool)$firstInOutput);
 
-        $sessionsOutput = $shiftedSessions;
-        if (empty($sessionsOutput) && $firstInOutput) {
-            $sessionsOutput[] = [
-                'start'     => $firstInOutput,
-                'end'       => $lastOutOutput,
-                'minutes'   => $attendance?->total_working_minutes ?? 0,
-                'is_manual' => true,
-            ];
-        }
-
+        $sessionsOutput   = $shiftedSessions;
         $rawPunchesOutput = $shiftedRawPunches;
-        if (empty($rawPunchesOutput) && $firstInOutput) {
-            $rawPunchesOutput[] = [
-                'type'      => 'in',
-                'time'      => $firstInOutput,
-                'event_id'  => 'manual_in',
-                'is_manual' => true,
-                'source'    => $attendance?->source ?? 'wfh_manual',
-                'label'     => 'WFH Clock In',
-            ];
-            if ($lastOutOutput) {
-                $rawPunchesOutput[] = [
-                    'type'      => 'out',
-                    'time'      => $lastOutOutput,
-                    'event_id'  => 'manual_out',
-                    'is_manual' => true,
-                    'source'    => $attendance?->source ?? 'wfh_manual',
-                    'label'     => 'WFH Clock Out',
-                ];
-            }
+        $breaksOutput     = $shiftedBreaks;
+        $openBreakOutput  = $openBreakRow ? $shiftCarbon(Carbon::parse($openBreakRow->break_start)) : null;
+
+        if (empty($shiftedRawPunches) && $attendance && $firstInOutput) {
+            $manualData       = $this->buildManualTimeline($attendance, Carbon::parse($dateString)->isToday());
+            $sessionsOutput   = $manualData['working_sessions'];
+            $rawPunchesOutput = $manualData['raw_punches'];
+            $breaksOutput     = $manualData['completed_breaks'];
+            $openBreakOutput  = $manualData['open_break_start'] ?? $openBreakOutput;
         }
 
         $isCurrentlyWorking = $interp['is_currently_working'] ?: ($attendance && $attendance->check_in_time && is_null($attendance->check_out_time));
@@ -558,13 +581,11 @@ class AttendanceController extends Controller
             'requires_review'        => $interp['requires_review'],
             'total_working_minutes'  => $interp['total_working_minutes'] ?? $attendance?->total_working_minutes,
             'total_completed_break_minutes' => array_sum(
-                array_column($interp['completed_breaks'], 'minutes')
+                array_column($breaksOutput, 'minutes')
             ),
-            'open_break_start'       => $openBreakRow
-                ? $shiftCarbon(Carbon::parse($openBreakRow->break_start))
-                : null,
+            'open_break_start'       => $openBreakOutput,
             'working_sessions'       => $sessionsOutput,
-            'completed_breaks'       => $shiftedBreaks,
+            'completed_breaks'       => $breaksOutput,
             'raw_punches'            => $rawPunchesOutput,
             'orphan_event_ids'       => $build['orphan_event_ids'],
             'is_manual'              => $isManualAttendance,
@@ -622,5 +643,114 @@ class AttendanceController extends Controller
                 ->where('id', $attendance->id)
                 ->update($updateData);
         }
+    }
+
+    /**
+     * Build chronological punch and session timeline for manual / WFH attendance records
+     * using First IN, breaks between subsequent punches, and Last OUT.
+     */
+    private function buildManualTimeline(Attendance $attendance, bool $isToday): array
+    {
+        $shiftCarbon = fn($c) => $c ? Carbon::parse($c)->setTimezone('Asia/Kolkata')->toIso8601String() : null;
+
+        $rawPunches      = [];
+        $workingSessions = [];
+        $completedBreaks = [];
+
+        $firstIn = Carbon::parse($attendance->check_in_time);
+        $rawPunches[] = [
+            'type'      => 'in',
+            'time'      => $shiftCarbon($firstIn),
+            'event_id'  => 'manual_in_1',
+            'is_manual' => true,
+            'source'    => $attendance->source,
+            'label'     => 'WFH Clock In',
+        ];
+
+        $currentSessionStart = $firstIn;
+
+        // Fetch completed breaks ordered by break_start
+        $breaks = $attendance->breaks()->whereNotNull('break_end')->orderBy('break_start', 'asc')->get();
+
+        $punchIndex = 2;
+        foreach ($breaks as $b) {
+            $bStart = Carbon::parse($b->break_start);
+            $bEnd   = Carbon::parse($b->break_end);
+
+            // Working session ended at break start
+            $sessionMins = max(0, (int) floor($currentSessionStart->diffInSeconds($bStart) / 60));
+            $workingSessions[] = [
+                'start'     => $shiftCarbon($currentSessionStart),
+                'end'       => $shiftCarbon($bStart),
+                'minutes'   => $sessionMins,
+                'is_manual' => true,
+            ];
+
+            // OUT punch
+            $rawPunches[] = [
+                'type'      => 'out',
+                'time'      => $shiftCarbon($bStart),
+                'event_id'  => 'manual_out_' . $punchIndex++,
+                'is_manual' => true,
+                'source'    => $attendance->source,
+                'label'     => 'WFH Clock Out',
+            ];
+
+            // Completed break
+            $completedBreaks[] = [
+                'start'   => $shiftCarbon($bStart),
+                'end'     => $shiftCarbon($bEnd),
+                'minutes' => (int) ($b->total_break_minutes ?? floor($bStart->diffInSeconds($bEnd) / 60)),
+            ];
+
+            // Resumed IN punch
+            $rawPunches[] = [
+                'type'      => 'in',
+                'time'      => $shiftCarbon($bEnd),
+                'event_id'  => 'manual_in_' . $punchIndex++,
+                'is_manual' => true,
+                'source'    => $attendance->source,
+                'label'     => 'WFH Clock In',
+            ];
+
+            $currentSessionStart = $bEnd;
+        }
+
+        // Final session / exit
+        if ($attendance->check_out_time) {
+            $finalOut = Carbon::parse($attendance->check_out_time);
+            $sessionMins = max(0, (int) floor($currentSessionStart->diffInSeconds($finalOut) / 60));
+            $workingSessions[] = [
+                'start'     => $shiftCarbon($currentSessionStart),
+                'end'       => $shiftCarbon($finalOut),
+                'minutes'   => $sessionMins,
+                'is_manual' => true,
+            ];
+            $rawPunches[] = [
+                'type'      => 'out',
+                'time'      => $shiftCarbon($finalOut),
+                'event_id'  => 'manual_out_' . $punchIndex++,
+                'is_manual' => true,
+                'source'    => $attendance->source,
+                'label'     => 'WFH Clock Out',
+            ];
+            $openBreakStart = $isToday ? $shiftCarbon($finalOut) : null;
+        } else {
+            // Currently working (open session)
+            $workingSessions[] = [
+                'start'     => $shiftCarbon($currentSessionStart),
+                'end'       => null,
+                'minutes'   => null,
+                'is_manual' => true,
+            ];
+            $openBreakStart = null;
+        }
+
+        return [
+            'raw_punches'      => $rawPunches,
+            'working_sessions' => $workingSessions,
+            'completed_breaks' => $completedBreaks,
+            'open_break_start' => $openBreakStart,
+        ];
     }
 }
