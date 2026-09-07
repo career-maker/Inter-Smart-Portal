@@ -362,6 +362,11 @@ export default function CustomizationPage() {
       if (res?.url) {
         const resolved = resolveCustomizationAssetUrl(res.url);
         handleFieldChange(field, resolved);
+        setSuccessMessage(
+          field === "login_bg_video_url"
+            ? "Login screen video uploaded successfully! Click 'Save Changes' to apply it permanently."
+            : "Welcome banner video uploaded successfully! Click 'Save Changes' to apply it permanently."
+        );
       }
     } catch (err: any) {
       console.error("Failed to upload video asset:", err);

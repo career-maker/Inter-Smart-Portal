@@ -17,7 +17,15 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/uploads/:path*",
-        destination: "https://workplace.intersmart.in/api/uploads/:path*",
+        destination: "https://workplace.intersmart.in/api/api/uploads/:path*",
+      },
+      {
+        source: "/api/uploads/:path*",
+        destination: "https://workplace.intersmart.in/api/api/uploads/:path*",
+      },
+      {
+        source: "/api/api/uploads/:path*",
+        destination: "https://workplace.intersmart.in/api/api/uploads/:path*",
       },
       {
         source: "/api/v1/biometric/ingest",

@@ -14,7 +14,15 @@ export default function LoginPage() {
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
   const { settings: customizationSettings } = useCustomization();
-  const bgVideoUrl = resolveCustomizationAssetUrl(customizationSettings?.login_bg_video_url) || "/videos/login-bg.mp4";
+  const rawBgVideo = customizationSettings?.login_bg_video_url || "/videos/login-bg.mp4";
+  const bgVideoUrl = resolveCustomizationAssetUrl(rawBgVideo) || "/videos/login-bg.mp4";
+  const [videoError, setVideoError] = useState(false);
+
+  useEffect(() => {
+    setVideoError(false);
+  }, [bgVideoUrl]);
+
+  const activeVideoUrl = videoError ? "/videos/login-bg.mp4" : bgVideoUrl;
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -139,16 +147,23 @@ export default function LoginPage() {
 
       {/* Video background */}
       <video
-        key={bgVideoUrl}
+        key={activeVideoUrl}
+        src={activeVideoUrl}
         autoPlay
         muted
         loop
         playsInline
         preload="auto"
+        onError={() => {
+          if (!videoError && activeVideoUrl !== "/videos/login-bg.mp4") {
+            console.warn("Login background video failed to load, falling back to default:", activeVideoUrl);
+            setVideoError(true);
+          }
+        }}
         className="absolute inset-0 w-full h-full object-cover"
         style={{ zIndex: 1 }}
       >
-        <source src={bgVideoUrl} type={bgVideoUrl.endsWith(".webm") ? "video/webm" : "video/mp4"} />
+        <source src={activeVideoUrl} type={activeVideoUrl.endsWith(".webm") ? "video/webm" : "video/mp4"} />
         Your browser does not support the video tag.
       </video>
 

@@ -6,6 +6,7 @@ import {
   DEFAULT_CUSTOMIZATION_SETTINGS,
   customizationApi,
   resolveCustomizationAssetUrl,
+  normalizeCustomizationSettings,
 } from "@/services/customization";
 
 interface CustomizationContextValue {
@@ -205,27 +206,12 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
       try {
         const serverSettings = await customizationApi.getSettings();
         if (isMounted && serverSettings) {
-          let cachedParsed: Partial<CustomizationSettings> = {};
+          const normalized = normalizeCustomizationSettings(serverSettings);
+          setSettings(normalized);
+          setActiveSettings(normalized);
+          applyStyles(normalized);
           try {
-            const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
-            if (cached) cachedParsed = JSON.parse(cached);
-          } catch (e) {}
-
-          const merged: CustomizationSettings = {
-            ...DEFAULT_CUSTOMIZATION_SETTINGS,
-            ...cachedParsed,
-            ...serverSettings,
-            // Keep user selected banner if server returned default or empty
-            welcome_banner_url:
-              (serverSettings.welcome_banner_url && serverSettings.welcome_banner_url !== "/welcome-banner-bg.jpg")
-                ? serverSettings.welcome_banner_url
-                : (cachedParsed.welcome_banner_url || serverSettings.welcome_banner_url || DEFAULT_CUSTOMIZATION_SETTINGS.welcome_banner_url),
-          };
-          setSettings(merged);
-          setActiveSettings(merged);
-          applyStyles(merged);
-          try {
-            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(merged));
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(normalized));
           } catch (e) {}
         }
       } catch (err) {
@@ -253,16 +239,6 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
       ...settings,
       ...newSettings,
       ...(res.settings || {}),
-      welcome_banner_url: newSettings.welcome_banner_url ?? res.settings?.welcome_banner_url ?? settings.welcome_banner_url,
-      welcome_banner_media_type: newSettings.welcome_banner_media_type ?? res.settings?.welcome_banner_media_type ?? settings.welcome_banner_media_type,
-      login_bg_video_url: newSettings.login_bg_video_url ?? res.settings?.login_bg_video_url ?? settings.login_bg_video_url,
-      sidebar_hover_color: newSettings.sidebar_hover_color ?? res.settings?.sidebar_hover_color ?? settings.sidebar_hover_color,
-      hover_color: newSettings.hover_color ?? res.settings?.hover_color ?? settings.hover_color,
-      active_color: newSettings.active_color ?? res.settings?.active_color ?? settings.active_color,
-      dark_text_color: newSettings.dark_text_color ?? res.settings?.dark_text_color ?? settings.dark_text_color,
-      light_bg_color: newSettings.light_bg_color ?? res.settings?.light_bg_color ?? settings.light_bg_color,
-      card_bg_color: newSettings.card_bg_color ?? res.settings?.card_bg_color ?? settings.card_bg_color,
-      border_color: newSettings.border_color ?? res.settings?.border_color ?? settings.border_color,
     };
     setSettings(updated);
     setActiveSettings(updated);

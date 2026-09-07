@@ -25,6 +25,11 @@ Route::withoutMiddleware([
         ->middleware(\App\Http\Middleware\VerifyBiometricAgent::class);
 });
 
+// Customization Asset delivery routes (support direct /uploads, /api/uploads, and /api/api/uploads delivery)
+Route::get('uploads/customization/{filename}', [\App\Http\Controllers\Api\CustomizationController::class, 'showAsset']);
+Route::get('api/uploads/customization/{filename}', [\App\Http\Controllers\Api\CustomizationController::class, 'showAsset']);
+Route::get('api/api/uploads/customization/{filename}', [\App\Http\Controllers\Api\CustomizationController::class, 'showAsset']);
+
 // Fallback for all unmatched web requests
 Route::fallback(function () {
     if (request()->expectsJson()) {

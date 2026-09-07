@@ -81,15 +81,72 @@ export const DEFAULT_CUSTOMIZATION_SETTINGS: CustomizationSettings = {
   extra_colors: null,
 };
 
+export function normalizeCustomizationSettings(raw?: any): CustomizationSettings {
+  if (!raw || typeof raw !== "object") {
+    return { ...DEFAULT_CUSTOMIZATION_SETTINGS };
+  }
+
+  const extra = raw.extra_colors && typeof raw.extra_colors === "object" ? raw.extra_colors : {};
+
+  return {
+    ...DEFAULT_CUSTOMIZATION_SETTINGS,
+    ...raw,
+    // Flatten any values stored inside extra_colors (used as database fallback)
+    login_bg_video_url:
+      raw.login_bg_video_url ||
+      extra.login_bg_video_url ||
+      DEFAULT_CUSTOMIZATION_SETTINGS.login_bg_video_url,
+    welcome_banner_url:
+      raw.welcome_banner_url ||
+      extra.welcome_banner_url ||
+      DEFAULT_CUSTOMIZATION_SETTINGS.welcome_banner_url,
+    welcome_banner_media_type:
+      raw.welcome_banner_media_type ||
+      extra.welcome_banner_media_type ||
+      DEFAULT_CUSTOMIZATION_SETTINGS.welcome_banner_media_type,
+    sidebar_hover_color:
+      raw.sidebar_hover_color ||
+      extra.sidebar_hover_color ||
+      DEFAULT_CUSTOMIZATION_SETTINGS.sidebar_hover_color,
+    hover_color:
+      raw.hover_color ||
+      extra.hover_color ||
+      DEFAULT_CUSTOMIZATION_SETTINGS.hover_color,
+    active_color:
+      raw.active_color ||
+      extra.active_color ||
+      DEFAULT_CUSTOMIZATION_SETTINGS.active_color,
+    dark_text_color:
+      raw.dark_text_color ||
+      extra.dark_text_color ||
+      DEFAULT_CUSTOMIZATION_SETTINGS.dark_text_color,
+    light_bg_color:
+      raw.light_bg_color ||
+      extra.light_bg_color ||
+      DEFAULT_CUSTOMIZATION_SETTINGS.light_bg_color,
+    card_bg_color:
+      raw.card_bg_color ||
+      extra.card_bg_color ||
+      DEFAULT_CUSTOMIZATION_SETTINGS.card_bg_color,
+    border_color:
+      raw.border_color ||
+      extra.border_color ||
+      DEFAULT_CUSTOMIZATION_SETTINGS.border_color,
+  };
+}
+
 export const customizationApi = {
   getSettings: async (): Promise<CustomizationSettings> => {
-    const res = await api.get("/customization/settings");
-    return res.data?.settings || DEFAULT_CUSTOMIZATION_SETTINGS;
+    const res = await api.get(`/customization/settings?_t=${Date.now()}`);
+    return normalizeCustomizationSettings(res.data?.settings);
   },
 
   updateSettings: async (payload: Partial<CustomizationSettings>): Promise<{ message: string; settings: CustomizationSettings }> => {
     const res = await api.post("/customization/settings", payload);
-    return res.data;
+    return {
+      message: res.data?.message || "Settings updated successfully",
+      settings: normalizeCustomizationSettings(res.data?.settings || payload),
+    };
   },
 
   uploadAsset: async (file: File, type?: "favicon" | "logo" | "welcome_banner" | "login_bg_video" | "welcome_banner_video"): Promise<{ success: boolean; url: string; message: string }> => {
@@ -104,7 +161,10 @@ export const customizationApi = {
 
   resetSettings: async (): Promise<{ message: string; settings: CustomizationSettings }> => {
     const res = await api.post("/customization/reset");
-    return res.data;
+    return {
+      message: res.data?.message || "Settings reset to defaults",
+      settings: normalizeCustomizationSettings(res.data?.settings),
+    };
   },
 };
 
@@ -114,10 +174,32 @@ export const customizationApi = {
  */
 export function resolveCustomizationAssetUrl(url?: string | null): string {
   if (!url) return "";
-  if (url.startsWith("data:") || url.startsWith("blob:") || url.startsWith("http://") || url.startsWith("https://")) {
+
+  // 1. Data URLs or blob URLs
+  if (url.startsWith("data:") || url.startsWith("blob:")) {
     return url;
   }
-  // Local static files in frontend public/ directory
+
+  // 2. Full HTTP(S) URLs
+  if (url.startsWith("http://") || url.startsWith("https://")) {
+    // Fix workplace.intersmart.in single /api/uploads/ to /api/api/uploads/
+    if (url.includes("workplace.intersmart.in/api/uploads/customization/")) {
+      return url.replace(
+        "workplace.intersmart.in/api/uploads/customization/",
+        "workplace.intersmart.in/api/api/uploads/customization/"
+      );
+    }
+    // Fix workplace.intersmart.in root /uploads/customization/ to /api/api/uploads/
+    if (url.includes("workplace.intersmart.in/uploads/customization/")) {
+      return url.replace(
+        "workplace.intersmart.in/uploads/customization/",
+        "workplace.intersmart.in/api/api/uploads/customization/"
+      );
+    }
+    return url;
+  }
+
+  // 3. Local static files in frontend public/ directory
   if (
     url === "/icon.png" ||
     url === "/logo.png" ||
@@ -129,9 +211,16 @@ export function resolveCustomizationAssetUrl(url?: string | null): string {
   ) {
     return url;
   }
-  // Uploaded assets on the backend server
+
+  // 4. Uploaded assets on the backend server
   const rawApi = process.env.NEXT_PUBLIC_API_URL || "https://workplace.intersmart.in/api";
-  const backendBase = rawApi.replace(/\/api\/?$/, "");
+  let backendBase = rawApi.replace(/\/+$/, "");
+
+  // On cPanel production, Laravel API is routed through https://workplace.intersmart.in/api/api/
+  if (backendBase.includes("workplace.intersmart.in")) {
+    backendBase = "https://workplace.intersmart.in/api/api";
+  }
+
   const cleanPath = url.startsWith("/") ? url : `/${url}`;
   return `${backendBase}${cleanPath}`;
 }

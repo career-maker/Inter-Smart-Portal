@@ -55,6 +55,19 @@ class CustomizationSetting extends Model
         'show_header_subtitle' => 'boolean',
     ];
 
+    protected $appends = [
+        'welcome_banner_url',
+        'login_bg_video_url',
+        'welcome_banner_media_type',
+        'sidebar_hover_color',
+        'hover_color',
+        'active_color',
+        'dark_text_color',
+        'light_bg_color',
+        'card_bg_color',
+        'border_color',
+    ];
+
     public function getWelcomeBannerUrlAttribute($value): string
     {
         if (!empty($value)) {

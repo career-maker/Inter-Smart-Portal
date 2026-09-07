@@ -15,6 +15,7 @@ Route::get('hr-policies/{hrPolicy}/download', [\App\Http\Controllers\Api\HrPolic
 // Portal Customization (Public read for instant styling and asset loading)
 Route::get('customization/settings', [\App\Http\Controllers\Api\CustomizationController::class, 'getSettings']);
 Route::get('uploads/customization/{filename}', [\App\Http\Controllers\Api\CustomizationController::class, 'showAsset']);
+Route::get('api/uploads/customization/{filename}', [\App\Http\Controllers\Api\CustomizationController::class, 'showAsset']);
 
 // Email action routes (signed URLs, no auth required)
 Route::prefix('leave-requests')->group(function () {

@@ -23,7 +23,8 @@ const NO_CACHE_URLS = [
   '/teams',
   '/wfh-requests',
   '/leave-requests',
-  '/leaves'
+  '/leaves',
+  '/customization',
 ];
 
 function getScopedCacheKey(baseURL: string | undefined, url: string | undefined, params: any, token: string | null): string | null {

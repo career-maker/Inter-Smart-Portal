@@ -23,13 +23,29 @@ class CustomizationController extends Controller
             }
 
             $settings = CustomizationSetting::getSettings();
-            if (empty($settings->welcome_banner_url) && !empty($settings->extra_colors['welcome_banner_url'])) {
-                $settings->welcome_banner_url = $settings->extra_colors['welcome_banner_url'];
+            $data = $settings->toArray();
+
+            $dynamicFields = [
+                'welcome_banner_url',
+                'login_bg_video_url',
+                'welcome_banner_media_type',
+                'sidebar_hover_color',
+                'hover_color',
+                'active_color',
+                'dark_text_color',
+                'light_bg_color',
+                'card_bg_color',
+                'border_color',
+            ];
+
+            $extra = is_array($settings->extra_colors) ? $settings->extra_colors : [];
+            foreach ($dynamicFields as $field) {
+                $data[$field] = $settings->{$field} ?: ($extra[$field] ?? null);
             }
 
             return response()->json([
                 'success'  => true,
-                'settings' => $settings,
+                'settings' => $data,
             ]);
         } catch (\Throwable $e) {
             return response()->json([
@@ -138,16 +154,16 @@ class CustomizationController extends Controller
             $setting->update($payload);
 
             $fresh = $setting->fresh();
+            $data = $fresh->toArray();
+            $extraFresh = is_array($fresh->extra_colors) ? $fresh->extra_colors : [];
             foreach ($dynamicFields as $field) {
-                if (empty($fresh->{$field}) && !empty($fresh->extra_colors[$field])) {
-                    $fresh->{$field} = $fresh->extra_colors[$field];
-                }
+                $data[$field] = $fresh->{$field} ?: ($extraFresh[$field] ?? null);
             }
 
             return response()->json([
                 'success'  => true,
                 'message'  => 'Portal customization updated successfully.',
-                'settings' => $fresh,
+                'settings' => $data,
             ]);
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error('Customization update failed: ' . $e->getMessage());
@@ -208,8 +224,28 @@ class CustomizationController extends Controller
         if (!file_exists($path)) {
             abort(404);
         }
-        $mime = mime_content_type($path) ?: 'application/octet-stream';
-        return response()->file($path, ['Content-Type' => $mime]);
+
+        $ext = strtolower(pathinfo($clean, PATHINFO_EXTENSION));
+        $mimeTypes = [
+            'mp4'  => 'video/mp4',
+            'webm' => 'video/webm',
+            'ogg'  => 'video/ogg',
+            'mov'  => 'video/quicktime',
+            'png'  => 'image/png',
+            'jpg'  => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'gif'  => 'image/gif',
+            'svg'  => 'image/svg+xml',
+            'webp' => 'image/webp',
+            'ico'  => 'image/x-icon',
+        ];
+
+        $mime = $mimeTypes[$ext] ?? (mime_content_type($path) ?: 'application/octet-stream');
+        return response()->file($path, [
+            'Content-Type'  => $mime,
+            'Accept-Ranges' => 'bytes',
+            'Cache-Control' => 'public, max-age=86400',
+        ]);
     }
 
     /**
