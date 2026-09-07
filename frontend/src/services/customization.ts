@@ -90,10 +90,37 @@ export function normalizeCustomizationSettings(raw?: any): CustomizationSettings
 
   return {
     ...DEFAULT_CUSTOMIZATION_SETTINGS,
+    ...raw,
+    // Preserve header, primary, and subheader colors explicitly
+    header_bg_color:
+      raw.header_bg_color ||
+      extra.header_bg_color ||
+      DEFAULT_CUSTOMIZATION_SETTINGS.header_bg_color,
+    primary_color:
+      raw.primary_color ||
+      extra.primary_color ||
+      raw.header_bg_color ||
+      DEFAULT_CUSTOMIZATION_SETTINGS.primary_color,
+    header_text_color:
+      raw.header_text_color ||
+      extra.header_text_color ||
+      DEFAULT_CUSTOMIZATION_SETTINGS.header_text_color,
+    sub_header_bg:
+      raw.sub_header_bg ||
+      extra.sub_header_bg ||
+      DEFAULT_CUSTOMIZATION_SETTINGS.sub_header_bg,
+    sub_header_active_color:
+      raw.sub_header_active_color ||
+      extra.sub_header_active_color ||
+      DEFAULT_CUSTOMIZATION_SETTINGS.sub_header_active_color,
+    sidebar_active_color:
+      raw.sidebar_active_color ||
+      extra.sidebar_active_color ||
+      DEFAULT_CUSTOMIZATION_SETTINGS.sidebar_active_color,
     // Map legacy dark navy sidebar colors to the unified Green / Teal palette (#093E3A)
     sidebar_bg_color:
       (!raw.sidebar_bg_color || raw.sidebar_bg_color === "#071724" || raw.sidebar_bg_color === "#0e2638" || raw.sidebar_bg_color === "#0b1a2b")
-        ? "#093E3A"
+        ? (DEFAULT_CUSTOMIZATION_SETTINGS.sidebar_bg_color || "#093E3A")
         : raw.sidebar_bg_color,
     // Flatten any values stored inside extra_colors (used as database fallback)
     login_bg_video_url:

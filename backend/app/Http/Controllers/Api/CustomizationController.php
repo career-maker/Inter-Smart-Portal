@@ -290,14 +290,53 @@ class CustomizationController extends Controller
         try {
             $defaults = CustomizationSetting::defaults();
             $setting = CustomizationSetting::getSettings();
-            $setting->update($defaults);
+            $existingColumns = Schema::getColumnListing('customization_settings');
+
+            $dynamicFields = [
+                'welcome_banner_url',
+                'login_bg_video_url',
+                'welcome_banner_media_type',
+                'sidebar_hover_color',
+                'hover_color',
+                'active_color',
+                'dark_text_color',
+                'light_bg_color',
+                'card_bg_color',
+                'border_color',
+            ];
+
+            $extra = [];
+            foreach ($dynamicFields as $field) {
+                if (!in_array($field, $existingColumns, true) && isset($defaults[$field])) {
+                    $extra[$field] = $defaults[$field];
+                }
+            }
+            if (in_array('extra_colors', $existingColumns, true)) {
+                $defaults['extra_colors'] = !empty($extra) ? $extra : null;
+            }
+
+            $payload = array_filter(
+                $defaults,
+                fn($val, $key) => in_array($key, $existingColumns, true),
+                ARRAY_FILTER_USE_BOTH
+            );
+
+            $setting->update($payload);
+
+            $fresh = $setting->fresh();
+            $data = $fresh->toArray();
+            $extraFresh = is_array($fresh->extra_colors) ? $fresh->extra_colors : [];
+            foreach ($dynamicFields as $field) {
+                $data[$field] = $fresh->{$field} ?: ($extraFresh[$field] ?? $defaults[$field] ?? null);
+            }
 
             return response()->json([
                 'success'  => true,
                 'message'  => 'Portal customization reset to defaults successfully.',
-                'settings' => $setting->fresh(),
+                'settings' => $data,
             ]);
         } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Customization reset failed: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to reset customization: ' . $e->getMessage(),

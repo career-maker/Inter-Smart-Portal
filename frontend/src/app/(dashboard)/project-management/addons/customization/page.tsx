@@ -673,46 +673,52 @@ export default function CustomizationPage() {
 
   // Real-time preview handler
   const handleFieldChange = <K extends keyof CustomizationSettings>(key: K, value: CustomizationSettings[K]) => {
-    const updated = { ...form, [key]: value };
-    setForm(updated);
-    setPreviewSettings(updated);
+    setForm((prev) => {
+      const updated = { ...prev, [key]: value };
+      setPreviewSettings(updated);
+      return updated;
+    });
     setSuccessMessage(null);
     setErrorMessage(null);
   };
 
   // One-click apply full Green / Teal unified brand color system
   const applyGreenTealPalette = () => {
-    const updated: CustomizationSettings = {
-      ...form,
-      sidebar_bg_color: "#093E3A",
-      sidebar_hover_color: "#138A80",
-      sidebar_active_color: "#14A092",
-      header_bg_color: "#0F766E",
-      primary_color: "#0F766E",
-      hover_color: "#138A80",
-      active_color: "#14A092",
-      dark_text_color: "#093E3A",
-      light_bg_color: "#E6F8F6",
-      card_bg_color: "#F2FCFB",
-      border_color: "#CBEFEA",
-      header_text_color: "#FFFFFF",
-      sub_header_active_color: "#0F766E",
-    };
-    setForm(updated);
-    setPreviewSettings(updated);
-    setSuccessMessage("Green / Teal unified brand color palette applied! Click 'Save Changes' to persist.");
+    setForm((prev) => {
+      const updated: CustomizationSettings = {
+        ...prev,
+        sidebar_bg_color: "#093E3A",
+        sidebar_hover_color: "#138A80",
+        sidebar_active_color: "#14A092",
+        header_bg_color: "#0F766E",
+        primary_color: "#0F766E",
+        hover_color: "#138A80",
+        active_color: "#14A092",
+        dark_text_color: "#093E3A",
+        light_bg_color: "#E6F8F6",
+        card_bg_color: "#F2FCFB",
+        border_color: "#CBEFEA",
+        header_text_color: "#FFFFFF",
+        sub_header_active_color: "#0F766E",
+      };
+      setPreviewSettings(updated);
+      return updated;
+    });
+    setSuccessMessage("Green / Teal unified brand color palette applied! Click 'Save Customizations' to persist.");
     setErrorMessage(null);
   };
 
   // Apply any curated multi-token color palette preset
   const applyPalettePreset = (preset: PalettePreset) => {
-    const updated: CustomizationSettings = {
-      ...form,
-      ...preset.settings,
-    };
-    setForm(updated);
-    setPreviewSettings(updated);
-    setSuccessMessage(`Applied "${preset.name}" color palette! Click 'Save Changes' below to persist.`);
+    setForm((prev) => {
+      const updated: CustomizationSettings = {
+        ...prev,
+        ...preset.settings,
+      };
+      setPreviewSettings(updated);
+      return updated;
+    });
+    setSuccessMessage(`Applied "${preset.name}" color palette! Click 'Save Customizations' to persist.`);
     setErrorMessage(null);
   };
 
@@ -862,6 +868,7 @@ export default function CustomizationPage() {
     try {
       await resetSettings();
       setForm(DEFAULT_CUSTOMIZATION_SETTINGS);
+      setPreviewSettings(DEFAULT_CUSTOMIZATION_SETTINGS);
       setSuccessMessage("Portal customizations reset to default InterSmart branding.");
       setTimeout(() => setSuccessMessage(null), 5000);
     } catch (err: any) {
@@ -960,9 +967,21 @@ export default function CustomizationPage() {
 
       {/* ── Status Alerts ── */}
       {successMessage && (
-        <div className="flex items-center gap-3 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-semibold animate-in fade-in">
-          <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
-          <span>{successMessage}</span>
+        <div className="flex items-center justify-between gap-3 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-semibold animate-in fade-in">
+          <div className="flex items-center gap-3">
+            <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+            <span>{successMessage}</span>
+          </div>
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving || resetting}
+            style={{ backgroundColor: form.primary_color || "#0F766E" }}
+            className="shrink-0 px-3 py-1.5 rounded-lg text-white text-xs font-bold transition-all shadow-xs hover:brightness-110 active:scale-95 cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+          >
+            {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+            <span>Save Now</span>
+          </button>
         </div>
       )}
       {errorMessage && (
@@ -1688,8 +1707,12 @@ export default function CustomizationPage() {
                     type="color"
                     value={form.header_bg_color || "#0F766E"}
                     onChange={(e) => {
-                      handleFieldChange("header_bg_color", e.target.value);
-                      handleFieldChange("primary_color", e.target.value);
+                      const val = e.target.value;
+                      setForm((prev) => {
+                        const updated = { ...prev, header_bg_color: val, primary_color: val };
+                        setPreviewSettings(updated);
+                        return updated;
+                      });
                     }}
                     className="w-7 h-7 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 p-0.5"
                   />

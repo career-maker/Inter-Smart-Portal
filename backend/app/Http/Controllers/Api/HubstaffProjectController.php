@@ -308,7 +308,13 @@ class HubstaffProjectController extends Controller
             if (empty($date)) {
                 $date = $startDate;
             }
-            $tracked = (int) ($act['tracked'] ?? $act['input_tracked'] ?? 0);
+            $tracked = (int) ($act['tracked'] ?? 0) + (int) ($act['manual'] ?? 0);
+            if ($tracked === 0 && !empty($act['input_tracked'])) {
+                $tracked = (int) $act['input_tracked'];
+            }
+            if ($tracked === 0 && !empty($act['billable'])) {
+                $tracked = (int) $act['billable'];
+            }
             
             // Hubstaff v2 returns either active seconds in 'overall', or percentage/fraction in 'activity'
             $rawOverall = (float) ($act['overall'] ?? 0);
@@ -691,7 +697,13 @@ class HubstaffProjectController extends Controller
             $hsUid = (string) ($act['user_id'] ?? '');
             if (empty($hsUid)) continue;
 
-            $tracked = (int) ($act['tracked'] ?? $act['input_tracked'] ?? 0);
+            $tracked = (int) ($act['tracked'] ?? 0) + (int) ($act['manual'] ?? 0);
+            if ($tracked === 0 && !empty($act['input_tracked'])) {
+                $tracked = (int) $act['input_tracked'];
+            }
+            if ($tracked === 0 && !empty($act['billable'])) {
+                $tracked = (int) $act['billable'];
+            }
             $rawOverall = (float) ($act['overall'] ?? 0);
             $rawActivity = (float) ($act['activity'] ?? 0);
 

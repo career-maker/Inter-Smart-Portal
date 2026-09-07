@@ -207,6 +207,26 @@ export function DailyHubstaffReportModal({
       const fullWidth = Math.max(element.scrollWidth, element.offsetWidth, 1200);
       const fullHeight = Math.max(element.scrollHeight, element.offsetHeight, 400);
 
+      // Helper 2D canvas to natively convert any browser color space (oklch, lab, color-mix) to rgb/hex
+      const colorConverter = document.createElement("canvas");
+      const ctxConverter = colorConverter.getContext("2d");
+
+      const toSafeColor = (val: string | null | undefined, fallback: string = "#ffffff"): string => {
+        if (!val || val === "transparent" || val === "inherit" || val === "initial") return val || fallback;
+        if (!/(?:ok)?(?:lch|lab)\(|color-mix\(|hwb\(|color\(/i.test(val)) {
+          return val;
+        }
+        if (ctxConverter) {
+          try {
+            ctxConverter.fillStyle = val;
+            return ctxConverter.fillStyle;
+          } catch {
+            return fallback;
+          }
+        }
+        return fallback;
+      };
+
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
@@ -220,51 +240,50 @@ export function DailyHubstaffReportModal({
         windowWidth: fullWidth + 60,
         windowHeight: fullHeight + 60,
         onclone: (clonedDoc, clonedElement) => {
-          // ── Strip unsupported CSS color functions (lab, oklab, lch, oklch, color-mix, etc.) ──
-          // html2canvas v1.4.1 crashes with "Attempting to parse an unsupported color function"
-          const unsupportedColorRegex = /(?:ok)?(?:lch|lab)\(|color-mix\(|hwb\(|color\(/i;
+          // 1. Wipe adopted stylesheets which often contain Tailwind v4 oklch variables
+          try {
+            (clonedDoc as any).adoptedStyleSheets = [];
+          } catch {}
 
-          const cleanGroupOrSheet = (container: CSSStyleSheet | CSSGroupingRule) => {
+          // 2. Remove any external stylesheets that may throw during parsing
+          clonedDoc.querySelectorAll("style, link[rel='stylesheet']").forEach((sheet) => {
             try {
-              const rules = Array.from(container.cssRules || []);
-              for (let i = rules.length - 1; i >= 0; i--) {
-                const rule = rules[i];
-                if (rule && unsupportedColorRegex.test(rule.cssText || "")) {
-                  try {
-                    container.deleteRule(i);
-                  } catch {}
-                } else if (rule && "cssRules" in rule) {
-                  cleanGroupOrSheet(rule as CSSGroupingRule);
-                }
-              }
-            } catch {
-              // Cross-origin stylesheets — skip silently
-            }
-          };
-
-          Array.from(clonedDoc.styleSheets).forEach((sheet) => {
-            cleanGroupOrSheet(sheet);
+              sheet.remove();
+            } catch {}
           });
 
-          // Also check and fix any inline style attributes with unsupported functions
-          clonedDoc.querySelectorAll<HTMLElement>("*").forEach((el) => {
-            const style = el.style;
-            if (!style) return;
-            for (let i = style.length - 1; i >= 0; i--) {
-              const prop = style.item(i);
-              const val = style.getPropertyValue(prop);
-              if (unsupportedColorRegex.test(val)) {
-                style.removeProperty(prop);
+          // 3. Inject standalone isolated CSS for the report table
+          const safeStyle = clonedDoc.createElement("style");
+          safeStyle.textContent = `
+            * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Segoe UI", Calibri, Arial, sans-serif !important; }
+            table { border-collapse: collapse !important; border: 1px solid #1b3d18 !important; }
+            th, td { border: 1px solid #1b3d18 !important; }
+          `;
+          clonedDoc.head.appendChild(safeStyle);
+
+          // 4. Sanitize all computed and inline styles on the cloned table tree
+          clonedElement.querySelectorAll<HTMLElement>("*").forEach((el) => {
+            try {
+              const comp = window.getComputedStyle(el);
+              el.style.color = toSafeColor(comp.color, "#0f172a");
+              if (comp.backgroundColor && comp.backgroundColor !== "rgba(0, 0, 0, 0)" && comp.backgroundColor !== "transparent") {
+                el.style.backgroundColor = toSafeColor(comp.backgroundColor, "#ffffff");
               }
-            }
+              if (comp.borderColor) {
+                el.style.borderColor = toSafeColor(comp.borderColor, "#1b3d18");
+              }
+            } catch {}
           });
 
+          // 5. Layout and sizing
           clonedElement.style.width = `${fullWidth}px`;
           clonedElement.style.maxWidth = "none";
           clonedElement.style.height = "auto";
           clonedElement.style.maxHeight = "none";
           clonedElement.style.overflow = "visible";
           clonedElement.style.position = "static";
+          clonedElement.style.backgroundColor = "#ffffff";
+          clonedElement.style.color = "#0f172a";
           const table = clonedElement.querySelector("table");
           if (table) {
             table.style.width = "100%";

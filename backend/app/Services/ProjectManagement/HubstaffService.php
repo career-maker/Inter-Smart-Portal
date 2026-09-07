@@ -639,11 +639,12 @@ class HubstaffService
             // ── Strategy 2: /activities (Core 10-min activity blocks with timezone UTC window) ─
             if (empty($allActivities)) {
                 $startUtc = \Carbon\Carbon::parse($startDate, $tz)->startOfDay()->setTimezone('UTC')->toIso8601ZuluString();
-                $stopUtc = \Carbon\Carbon::parse($endDate, $tz)->addDay()->endOfDay()->setTimezone('UTC')->toIso8601ZuluString();
+                $stopUtc = \Carbon\Carbon::parse($endDate, $tz)->endOfDay()->setTimezone('UTC')->toIso8601ZuluString();
 
                 $rawActsEndpoint = "{$baseUrl}/organizations/{$orgId}/activities";
                 $nextPageStart = null;
                 $actPage = 0;
+                $maxRawPages = 35;
                 $aggregatedDaily = [];
 
                 do {
@@ -699,7 +700,13 @@ class HubstaffService
                         } catch (\Throwable $e) {
                             $dt = substr($rawDt, 0, 10);
                         }
-                        $sec = (int) ($actBlock['tracked'] ?? $actBlock['input_tracked'] ?? 0);
+                        $sec = (int) ($actBlock['tracked'] ?? 0) + (int) ($actBlock['manual'] ?? 0);
+                        if ($sec === 0 && !empty($actBlock['input_tracked'])) {
+                            $sec = (int) $actBlock['input_tracked'];
+                        }
+                        if ($sec === 0 && !empty($actBlock['billable'])) {
+                            $sec = (int) $actBlock['billable'];
+                        }
                         $actScore = (float) ($actBlock['overall'] ?? $actBlock['activity'] ?? 0);
 
                         $k = "{$uId}_{$pId}_{$dt}";
@@ -719,7 +726,7 @@ class HubstaffService
 
                     $pagination = $rawData['pagination'] ?? [];
                     $nextPageStart = $pagination['next_page_start_id'] ?? null;
-                } while (!empty($nextPageStart) && $actPage < $maxPages);
+                } while (!empty($nextPageStart) && $actPage < $maxRawPages);
 
                 if (!empty($aggregatedDaily)) {
                     foreach ($aggregatedDaily as $k => $v) {
@@ -755,20 +762,21 @@ class HubstaffService
             // the requested [$startStr, $stopStr] window.
             $normalized = [];
             foreach ($allActivities as $act) {
-                $dt = (string) ($act['date'] ?? '');
-                if (empty($dt) && !empty($act['starts_at'])) {
+                $dt = '';
+                if (!empty($act['starts_at'])) {
                     try {
                         $dt = \Carbon\Carbon::parse($act['starts_at'])->setTimezone($tz)->toDateString();
                     } catch (\Throwable $e) {
                         $dt = substr((string) $act['starts_at'], 0, 10);
                     }
-                }
-                if (empty($dt) && !empty($act['time_slot'])) {
+                } elseif (!empty($act['time_slot'])) {
                     try {
                         $dt = \Carbon\Carbon::parse($act['time_slot'])->setTimezone($tz)->toDateString();
                     } catch (\Throwable $e) {
                         $dt = substr((string) $act['time_slot'], 0, 10);
                     }
+                } elseif (!empty($act['date'])) {
+                    $dt = (string) $act['date'];
                 }
                 if (empty($dt)) {
                     continue; // no resolvable date — skip rather than mis-bucket
@@ -787,6 +795,15 @@ class HubstaffService
                     continue; // outside the exact requested date range
                 }
                 $act['date'] = $dt;
+                // Accurately include tracked and manual time
+                $totalSec = (int) ($act['tracked'] ?? 0) + (int) ($act['manual'] ?? 0);
+                if ($totalSec === 0 && !empty($act['input_tracked'])) {
+                    $totalSec = (int) $act['input_tracked'];
+                }
+                if ($totalSec === 0 && !empty($act['billable'])) {
+                    $totalSec = (int) $act['billable'];
+                }
+                $act['tracked'] = $totalSec;
                 $normalized[] = $act;
             }
             $allActivities = $normalized;
