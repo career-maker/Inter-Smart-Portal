@@ -253,21 +253,82 @@ div[class*="recharts-tooltip-wrapper"] > div {
   font-weight: 500 !important;
 }
 
-/* Universal Button Text Visibility & Contrast */
-button[class*="bg-[#56348f]"], a[class*="bg-[#56348f]"],
-button[class*="bg-blue-600"], a[class*="bg-blue-600"],
-button[class*="bg-purple-600"], a[class*="bg-purple-600"],
-button[class*="bg-primary"], a[class*="bg-primary"],
+/* Universal Brand Palette Enforcement: Remap legacy purple, violet, blue buttons & elements to Brand Palette */
+.bg-\[\#56348f\],
+.bg-\[\#462875\],
+.bg-\[\#472a77\],
+.bg-\[\#3a1c68\],
+button[class*="bg-[#56348f]"],
+a[class*="bg-[#56348f]"],
+button[class*="bg-[#462875]"],
+a[class*="bg-[#462875]"],
+button[class*="bg-blue-600"],
+a[class*="bg-blue-600"],
+button[class*="bg-purple-600"],
+a[class*="bg-purple-600"],
+button[class*="bg-indigo-600"],
+a[class*="bg-indigo-600"],
+button[class*="bg-primary"],
+a[class*="bg-primary"],
 .btn-primary {
+  background-color: var(--portal-primary-color, #0F766E) !important;
+  color: rgb(255, 255, 255) !important;
+  border-color: var(--portal-primary-color, #0F766E) !important;
+}
+
+.hover\:bg-\[\#462875\]:hover,
+.hover\:bg-\[\#472a77\]:hover,
+.hover\:bg-\[\#3a1c68\]:hover,
+button[class*="bg-[#56348f]"]:hover,
+a[class*="bg-[#56348f]"]:hover,
+button[class*="bg-blue-600"]:hover,
+a[class*="bg-blue-600"]:hover,
+button[class*="bg-purple-600"]:hover,
+a[class*="bg-purple-600"]:hover,
+button[class*="bg-indigo-600"]:hover,
+a[class*="bg-indigo-600"]:hover,
+button[class*="bg-primary"]:hover,
+a[class*="bg-primary"]:hover,
+.btn-primary:hover {
+  background-color: var(--portal-hover-color, #138A80) !important;
+  color: rgb(255, 255, 255) !important;
+  border-color: var(--portal-hover-color, #138A80) !important;
+}
+
+button[class*="bg-[#56348f]"] *,
+a[class*="bg-[#56348f]"] *,
+button[class*="bg-blue-600"] *,
+a[class*="bg-blue-600"] *,
+button[class*="bg-purple-600"] *,
+a[class*="bg-purple-600"] *,
+button[class*="bg-indigo-600"] *,
+a[class*="bg-indigo-600"] *,
+button[class*="bg-primary"] *,
+a[class*="bg-primary"] *,
+.btn-primary * {
   color: rgb(255, 255, 255) !important;
 }
 
-button[class*="bg-[#56348f]"] *, a[class*="bg-[#56348f]"] *,
-button[class*="bg-blue-600"] *, a[class*="bg-blue-600"] *,
-button[class*="bg-purple-600"] *, a[class*="bg-purple-600"] *,
-button[class*="bg-primary"] *, a[class*="bg-primary"] *,
-.btn-primary * {
-  color: rgb(255, 255, 255) !important;
+/* Remap legacy purple and blue text/border utilities */
+.text-\[\#56348f\] {
+  color: var(--portal-primary-color, #0F766E) !important;
+}
+
+.border-\[\#56348f\] {
+  border-color: var(--portal-primary-color, #0F766E) !important;
+}
+
+.ring-\[\#56348f\] {
+  --tw-ring-color: var(--portal-primary-color, #0F766E) !important;
+}
+
+/* Any inline style with #56348f on buttons or interactive elements */
+button[style*="#56348f"],
+a[style*="#56348f"],
+div[role="button"][style*="#56348f"] {
+  background-color: var(--portal-primary-color, #0F766E) !important;
+  color: #FFFFFF !important;
+  border-color: var(--portal-primary-color, #0F766E) !important;
 }
 
 html:not(.dark) button[class*="bg-slate-100"]:not([class*="text-white"]),
@@ -488,31 +549,31 @@ html:not(.dark) a[class*="bg-white"]:not([class*="text-white"]) {
   --card-foreground: #f8fafc;
   --popover: #1e293b;
   --popover-foreground: #f8fafc;
-  --primary: #3b82f6; /* blue-500 */
+  --primary: var(--portal-primary-color, #0F766E);
   --primary-foreground: #ffffff;
   --secondary: #334155; /* slate-700 */
   --secondary-foreground: #f8fafc;
   --muted: #334155;
   --muted-foreground: #94a3b8; /* slate-400 */
-  --accent: #334155;
+  --accent: var(--portal-active-color, #14A092);
   --accent-foreground: #f8fafc;
   --destructive: #ef4444; /* red-500 */
   --border: rgba(255, 255, 255, 0.1);
   --input: rgba(255, 255, 255, 0.15);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --ring: var(--portal-primary-color, #0F766E);
+  --chart-1: #0F766E;
+  --chart-2: #14A092;
+  --chart-3: #138A80;
+  --chart-4: #F59E0B;
+  --chart-5: #10B981;
+  --sidebar: var(--portal-sidebar-bg, #093E3A);
+  --sidebar-foreground: #FFFFFF;
+  --sidebar-primary: var(--portal-sidebar-active, #14A092);
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: var(--portal-sidebar-hover, #138A80);
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: var(--portal-primary-color, #0F766E);
 }
 
 @layer base {

@@ -164,14 +164,14 @@ export function MarkLiveModal({
               type="submit"
               disabled={submitting}
               style={{
-                backgroundColor: "#56348f",
+                backgroundColor: "var(--portal-primary-color, #0F766E)",
                 color: "rgb(255, 255, 255)",
                 fontFamily: '"Proxima Nova", sans-serif',
                 fontSize: "13px",
                 lineHeight: "20px",
                 fontWeight: 400,
               }}
-              className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-[13px] leading-[20px] shadow-sm transition-colors cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[var(--portal-primary-color,#0F766E)] hover:bg-[var(--portal-hover-color,#138A80)] !text-white text-[13px] leading-[20px] shadow-sm transition-colors cursor-pointer disabled:opacity-50"
             >
               {submitting ? (
                 <>

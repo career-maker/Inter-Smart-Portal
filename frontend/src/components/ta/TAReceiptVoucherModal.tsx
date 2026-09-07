@@ -144,8 +144,8 @@ export function TAReceiptVoucherModal({
     let currY = margin + 60;
 
     // 3. Top Header: Logo & Title
-    // IS Purple Box
-    ctx.fillStyle = "#56348f";
+    // IS Teal Box
+    ctx.fillStyle = "#0F766E";
     ctx.beginPath();
     ctx.roundRect(startX, currY, 60, 60, 12);
     ctx.fill();
@@ -157,7 +157,7 @@ export function TAReceiptVoucherModal({
 
     // Company Name
     ctx.textAlign = "left";
-    ctx.fillStyle = "#56348f";
+    ctx.fillStyle = "#0F766E";
     ctx.font = "bold 32px 'Proxima Nova', sans-serif";
     ctx.fillText("INTER SMART", startX + 75, currY + 30);
 
@@ -167,15 +167,15 @@ export function TAReceiptVoucherModal({
 
     // Right Header: Receipt Badge & Issue Date
     ctx.textAlign = "right";
-    ctx.fillStyle = "#f3e8ff";
-    ctx.strokeStyle = "#d8b4fe";
+    ctx.fillStyle = "#E6F8F6";
+    ctx.strokeStyle = "#CBEFEA";
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.roundRect(endX - 280, currY, 280, 42, 8);
     ctx.fill();
     ctx.stroke();
 
-    ctx.fillStyle = "#56348f";
+    ctx.fillStyle = "#0F766E";
     ctx.font = "bold 20px monospace";
     ctx.fillText(receiptNo, endX - 15, currY + 28);
 
@@ -368,11 +368,11 @@ export function TAReceiptVoucherModal({
 
     // Left side: Approved Amount
     ctx.textAlign = "left";
-    ctx.fillStyle = "#6b21a8";
+    ctx.fillStyle = "#093E3A";
     ctx.font = "bold 14px 'Proxima Nova', sans-serif";
     ctx.fillText("FINAL APPROVED DISBURSEMENT", startX + 30, currY + 36);
 
-    ctx.fillStyle = "#56348f";
+    ctx.fillStyle = "#0F766E";
     ctx.font = "bold 38px 'Proxima Nova', sans-serif";
     ctx.fillText(`₹${approvedAmt.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, startX + 30, currY + 84);
 
@@ -474,7 +474,7 @@ export function TAReceiptVoucherModal({
         {/* Modal Top Actions Bar */}
         <div className="flex items-center justify-between px-5 py-3.5 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200/80 dark:border-slate-800">
           <div className="flex items-center gap-2">
-            <Receipt className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
+            <Receipt className="w-4 h-4 text-teal-700 dark:text-teal-400" />
             <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
               Official Travel Allowance Bill Receipt
             </span>
@@ -486,10 +486,10 @@ export function TAReceiptVoucherModal({
               onClick={handleDownloadImage}
               disabled={downloading}
               style={{
-                backgroundColor: "#56348f",
+                backgroundColor: "var(--portal-primary-color, #0F766E)",
                 color: "#ffffff",
               }}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#56348f] hover:bg-[#462875] text-white text-xs font-bold shadow-xs transition-all cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold shadow-xs transition-all cursor-pointer disabled:opacity-50"
             >
               {downloading ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -533,11 +533,11 @@ export function TAReceiptVoucherModal({
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b-2 border-slate-100">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-[#56348f] text-white flex items-center justify-center font-black text-sm">
+                  <div className="w-8 h-8 rounded-lg bg-teal-700 text-white flex items-center justify-center font-black text-sm">
                     IS
                   </div>
                   <div>
-                    <h2 className="text-lg font-black tracking-tight text-[#56348f]">
+                    <h2 className="text-lg font-black tracking-tight text-teal-800">
                       INTER SMART
                     </h2>
                     <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold">
@@ -551,7 +551,7 @@ export function TAReceiptVoucherModal({
               </div>
 
               <div className="sm:text-right space-y-1">
-                <span className="inline-block px-2.5 py-1 rounded-md bg-purple-50 text-[#56348f] font-mono font-bold text-xs border border-purple-200">
+                <span className="inline-block px-2.5 py-1 rounded-md bg-teal-50 text-teal-800 font-mono font-bold text-xs border border-teal-200">
                   {receiptNo}
                 </span>
                 <p className="text-[10px] text-slate-400 font-medium">
@@ -649,12 +649,12 @@ export function TAReceiptVoucherModal({
             </div>
 
             {/* Approved & Settlement Box */}
-            <div className="p-4 rounded-xl bg-purple-50/60 border border-purple-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="p-4 rounded-xl bg-teal-50/70 border border-teal-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-purple-700 block">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-teal-800 block">
                   Final Approved Disbursement
                 </span>
-                <div className="text-2xl font-black text-[#56348f] mt-0.5">
+                <div className="text-2xl font-black text-teal-800 mt-0.5">
                   ₹{approvedAmt.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
                 {request.approval_notes && (

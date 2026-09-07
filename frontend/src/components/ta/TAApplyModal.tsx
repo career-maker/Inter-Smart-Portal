@@ -189,7 +189,7 @@ export function TAApplyModal({ isOpen, onClose, onSuccess }: TAApplyModalProps) 
           </button>
 
           <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#56348f] to-purple-600 text-white flex items-center justify-center shadow-md shadow-purple-500/20 shrink-0">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-teal-700 to-teal-500 text-white flex items-center justify-center shadow-md shadow-teal-700/20 shrink-0">
               <Receipt className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -322,11 +322,11 @@ export function TAApplyModal({ isOpen, onClose, onSuccess }: TAApplyModalProps) 
             </div>
 
             {/* Total Calculation Banner */}
-            <div className="p-3.5 bg-gradient-to-r from-purple-50 via-indigo-50/50 to-purple-50 dark:from-purple-950/30 dark:via-slate-850 dark:to-purple-950/30 border border-purple-200/80 dark:border-purple-800/40 rounded-xl flex items-center justify-between">
+            <div className="p-3.5 bg-teal-50/60 dark:bg-teal-950/30 border border-teal-200/80 dark:border-teal-800/40 rounded-xl flex items-center justify-between">
               <span className="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300">
                 Total Claim Amount
               </span>
-              <span className="text-lg sm:text-xl font-bold text-[#56348f] dark:text-purple-300">
+              <span className="text-lg sm:text-xl font-bold text-teal-800 dark:text-teal-300">
                 ₹{totalAmount.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </div>
@@ -430,10 +430,10 @@ export function TAApplyModal({ isOpen, onClose, onSuccess }: TAApplyModalProps) 
             onClick={handleSubmit}
             disabled={isLoading || !reason.trim() || !dateTravelled || totalAmount <= 0}
             style={{
-              backgroundColor: "#56348f",
+              backgroundColor: "var(--portal-primary-color, #0F766E)",
               color: "rgb(255, 255, 255)",
             }}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] disabled:opacity-50 disabled:cursor-not-allowed !text-white text-xs sm:text-sm font-bold shadow-md shadow-purple-900/20 transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-teal-700 hover:bg-teal-800 disabled:opacity-50 disabled:cursor-not-allowed !text-white text-xs sm:text-sm font-bold shadow-md shadow-teal-900/20 transition-all cursor-pointer"
           >
             {isLoading ? (
               <>

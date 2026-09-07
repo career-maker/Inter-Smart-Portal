@@ -1,0 +1,1092 @@
+<title>Intersmart Portal SRS</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root{
+    --bg:#faf8f3;
+    --surface:#ffffff;
+    --surface-alt:#f2ede2;
+    --border:#e4dcc9;
+    --text:#221f18;
+    --text-muted:#6e6656;
+    --accent:#a15e10;
+    --accent-strong:#7c470a;
+    --accent-soft:#fbecd0;
+    --code-bg:#f2ede2;
+    --get:#3f7a4e;
+    --post:#a15e10;
+    --put:#7a5aa8;
+    --delete:#b8412f;
+    --shadow: 0 1px 2px rgba(40,30,10,0.06), 0 8px 24px -12px rgba(40,30,10,0.12);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0f172a;
+      --surface:#16213a;
+      --surface-alt:#1c2942;
+      --border:#2b3a58;
+      --text:#e7e9ee;
+      --text-muted:#98a2bb;
+      --accent:#f5b342;
+      --accent-strong:#e8ecb;
+      --accent-soft:#3a2f14;
+      --code-bg:#101a30;
+      --get:#5fbf7a;
+      --post:#f5b342;
+      --put:#b79cf0;
+      --delete:#f2836f;
+      --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 12px 32px -16px rgba(0,0,0,0.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0f172a;
+    --surface:#16213a;
+    --surface-alt:#1c2942;
+    --border:#2b3a58;
+    --text:#e7e9ee;
+    --text-muted:#98a2bb;
+    --accent:#f5b342;
+    --accent-strong:#e8ecb;
+    --accent-soft:#3a2f14;
+    --code-bg:#101a30;
+    --get:#5fbf7a;
+    --post:#f5b342;
+    --put:#b79cf0;
+    --delete:#f2836f;
+    --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 12px 32px -16px rgba(0,0,0,0.6);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',system-ui,-apple-system,sans-serif;
+    line-height:1.6;
+    font-size:15.5px;
+  }
+  ::selection{ background:var(--accent-soft); color:var(--text); }
+
+  h1,h2,h3,h4{
+    font-family:'Source Serif 4', Georgia, 'Times New Roman', serif;
+    font-weight:700;
+    text-wrap:balance;
+    color:var(--text);
+    line-height:1.25;
+  }
+  a{ color:var(--accent); }
+  code, .mono{ font-family:'JetBrains Mono', ui-monospace, Consolas, monospace; }
+
+  /* ---------- Shell layout ---------- */
+  .shell{ display:flex; min-height:100vh; max-width:1400px; margin:0 auto; }
+
+  .toc{
+    width:280px; flex:0 0 280px;
+    padding:32px 20px 60px 28px;
+    position:sticky; top:0; align-self:flex-start;
+    max-height:100vh; overflow-y:auto;
+    border-right:1px solid var(--border);
+  }
+  .toc-brand{
+    font-family:'Source Serif 4', serif; font-weight:700; font-size:1.05rem;
+    margin-bottom:2px;
+  }
+  .toc-sub{ font-size:.72rem; color:var(--text-muted); letter-spacing:.05em; text-transform:uppercase; margin-bottom:22px; }
+  .toc nav ol{ list-style:none; margin:0; padding:0; counter-reset:sec; }
+  .toc nav > ol > li{ counter-increment:sec; margin-bottom:3px; }
+  .toc nav a{
+    display:block; text-decoration:none; color:var(--text-muted);
+    font-size:.85rem; padding:4px 8px; border-radius:6px;
+    transition:background .12s, color .12s;
+  }
+  .toc nav > ol > li > a{ font-weight:600; color:var(--text); }
+  .toc nav a:hover{ background:var(--surface-alt); color:var(--accent); }
+  .toc nav ol ol{ margin-left:8px; padding-left:8px; border-left:1px solid var(--border); }
+  .toc nav ol ol a{ font-size:.78rem; }
+  .toc-foot{ margin-top:24px; padding-top:16px; border-top:1px solid var(--border); font-size:.72rem; color:var(--text-muted); }
+
+  main{ flex:1 1 auto; min-width:0; padding:48px 56px 120px; max-width:920px; }
+
+  .doc-header{ margin-bottom:8px; }
+  .doc-kicker{ font-size:.75rem; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); font-weight:600; }
+  .doc-title{ font-size:2.5rem; margin:6px 0 10px; }
+  .doc-meta{ display:flex; flex-wrap:wrap; gap:6px 22px; font-size:.82rem; color:var(--text-muted); margin-bottom:28px; }
+  .doc-meta b{ color:var(--text); font-weight:600; }
+  .doc-divider{ border:none; border-top:1px solid var(--border); margin:36px 0; }
+
+  section{ scroll-margin-top:24px; margin-bottom:8px; }
+  h2.sec{ font-size:1.55rem; padding-top:8px; margin-bottom:4px; display:flex; align-items:baseline; gap:10px;}
+  h2.sec .num{ color:var(--accent); font-family:'JetBrains Mono',monospace; font-size:1rem; }
+  h3.sub{ font-size:1.18rem; margin:28px 0 8px; display:flex; align-items:baseline; gap:8px;}
+  h3.sub .num{ color:var(--accent); font-family:'JetBrains Mono',monospace; font-size:.85rem; font-weight:600;}
+  h4.subsub{ font-size:1rem; margin:20px 0 6px; font-family:'Inter'; font-weight:700; }
+  p{ max-width:70ch; }
+  .lede{ font-size:1.05rem; color:var(--text-muted); max-width:66ch; }
+
+  ul.plain, ol.plain{ padding-left:1.3em; max-width:68ch; }
+  ul.plain li, ol.plain li{ margin-bottom:4px; }
+
+  /* ---------- Role chips ---------- */
+  .roles{ display:flex; flex-wrap:wrap; gap:5px; }
+  .role{
+    font-size:.7rem; font-weight:600; padding:2px 9px; border-radius:99px;
+    border:1px solid var(--border); color:var(--text-muted); white-space:nowrap;
+  }
+  .role.sa{ background:var(--accent-soft); color:var(--accent); border-color:transparent; }
+  .role.hr{ background:#e7f0e9; color:var(--get); border-color:transparent; }
+  :root[data-theme="dark"] .role.hr, @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .role.hr{ background:#173a25; } }
+  .role.tl{ background:#eee6fb; color:var(--put); border-color:transparent; }
+  :root[data-theme="dark"] .role.tl, @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .role.tl{ background:#2a2246; } }
+  .role.emp{ background:var(--surface-alt); color:var(--text-muted); }
+  .role.all{ background:var(--surface-alt); color:var(--text); font-weight:700; }
+  .role.pub{ background:transparent; border-style:dashed; }
+
+  /* ---------- Feature cards ---------- */
+  .feature{
+    background:var(--surface); border:1px solid var(--border); border-radius:10px;
+    padding:18px 20px; margin:14px 0; box-shadow:var(--shadow);
+  }
+  .feature-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:8px;}
+  .feature-title{ font-weight:700; font-size:.98rem; }
+  .fr-id{ font-family:'JetBrains Mono',monospace; font-size:.72rem; color:var(--accent); background:var(--accent-soft); padding:1px 7px; border-radius:5px; margin-right:8px;}
+  .feature p{ margin:6px 0; font-size:.92rem; color:var(--text); }
+  .feature .rules{ margin-top:8px; font-size:.87rem; color:var(--text-muted); }
+  .feature .rules li{ margin-bottom:3px; }
+  .feature .screens{ margin-top:10px; font-size:.8rem; color:var(--text-muted); }
+  .feature .screens code{ background:var(--code-bg); padding:1px 6px; border-radius:4px; color:var(--text); }
+
+  /* ---------- Tables ---------- */
+  .twrap{ overflow-x:auto; border:1px solid var(--border); border-radius:10px; margin:14px 0; box-shadow:var(--shadow); }
+  table{ border-collapse:collapse; width:100%; font-size:.85rem; background:var(--surface); }
+  thead th{
+    text-align:left; font-size:.7rem; text-transform:uppercase; letter-spacing:.05em;
+    color:var(--text-muted); background:var(--surface-alt); padding:9px 14px; border-bottom:1px solid var(--border);
+    white-space:nowrap;
+  }
+  tbody td{ padding:9px 14px; border-bottom:1px solid var(--border); vertical-align:top; }
+  tbody tr:last-child td{ border-bottom:none; }
+  tbody tr:hover{ background:var(--surface-alt); }
+  td code, td .mono{ background:var(--code-bg); padding:1px 5px; border-radius:4px; font-size:.82em; }
+  .num-col{ font-variant-numeric: tabular-nums; }
+
+  .method{ font-family:'JetBrains Mono',monospace; font-size:.72rem; font-weight:700; padding:1px 7px; border-radius:5px; }
+  .method.get{ color:var(--get); background:color-mix(in srgb, var(--get) 15%, transparent); }
+  .method.post{ color:var(--post); background:color-mix(in srgb, var(--post) 16%, transparent); }
+  .method.put{ color:var(--put); background:color-mix(in srgb, var(--put) 16%, transparent); }
+  .method.delete{ color:var(--delete); background:color-mix(in srgb, var(--delete) 15%, transparent); }
+  .method.patch{ color:var(--put); background:color-mix(in srgb, var(--put) 16%, transparent); }
+
+  /* ---------- Details/appendix ---------- */
+  details{ background:var(--surface); border:1px solid var(--border); border-radius:10px; margin:14px 0; box-shadow:var(--shadow); }
+  details summary{ cursor:pointer; list-style:none; padding:13px 18px; font-weight:600; font-size:.92rem; display:flex; justify-content:space-between; align-items:center; }
+  details summary::-webkit-details-marker{ display:none; }
+  details summary:after{ content:"+"; color:var(--accent); font-size:1.1rem; font-weight:400; }
+  details[open] summary:after{ content:"–"; }
+  details .twrap{ margin:0; border:none; border-top:1px solid var(--border); border-radius:0 0 10px 10px; box-shadow:none; }
+  details > p{ padding:0 18px 16px; margin:0; font-size:.88rem; color:var(--text-muted); }
+
+  /* ---------- Callouts ---------- */
+  .callout{ border-left:3px solid var(--accent); background:var(--accent-soft); border-radius:0 8px 8px 0; padding:12px 16px; font-size:.88rem; margin:16px 0; max-width:66ch; }
+  .callout.muted{ border-color:var(--border); background:var(--surface-alt); color:var(--text-muted); }
+
+  .stack-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; margin:14px 0; }
+  .stack-card{ background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 16px; box-shadow:var(--shadow); }
+  .stack-card .k{ font-size:.68rem; text-transform:uppercase; letter-spacing:.05em; color:var(--accent); font-weight:700; margin-bottom:4px; }
+  .stack-card .v{ font-size:.88rem; }
+  .stack-card .v small{ color:var(--text-muted); display:block; font-size:.76rem; margin-top:2px; }
+
+  footer.doc-foot{ margin-top:60px; padding-top:20px; border-top:1px solid var(--border); font-size:.78rem; color:var(--text-muted); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;}
+
+  @media (max-width: 900px){
+    .shell{ flex-direction:column; }
+    .toc{ position:relative; width:100%; flex:none; max-height:none; border-right:none; border-bottom:1px solid var(--border); padding:20px 20px 12px; }
+    main{ padding:32px 20px 80px; }
+    .doc-title{ font-size:1.9rem; }
+  }
+
+  @media print{
+    .toc{ display:none; }
+    main{ max-width:100%; padding:0; }
+    details{ break-inside:avoid; }
+    .feature{ break-inside:avoid; }
+  }
+</style>
+
+<div class="shell">
+  <aside class="toc">
+    <div class="toc-brand">Intersmart Employee Portal</div>
+    <div class="toc-sub">Software Requirements Specification</div>
+    <nav>
+      <ol>
+        <li><a href="#s1">Introduction</a></li>
+        <li><a href="#s2">Overall Description</a></li>
+        <li><a href="#s3">System Architecture</a></li>
+        <li><a href="#s4">Functional Requirements</a>
+          <ol>
+            <li><a href="#f-auth">Authentication</a></li>
+            <li><a href="#f-dash">Dashboard</a></li>
+            <li><a href="#f-emp">Employees</a></li>
+            <li><a href="#f-teams">Teams</a></li>
+            <li><a href="#f-leave">Leave Mgmt</a></li>
+            <li><a href="#f-policy">Leave Policy Add-on</a></li>
+            <li><a href="#f-wfh">Work From Home</a></li>
+            <li><a href="#f-att">Attendance</a></li>
+            <li><a href="#f-ta">Travel Allowance</a></li>
+            <li><a href="#f-pm">Project Management</a></li>
+            <li><a href="#f-community">Community &amp; Chat</a></li>
+            <li><a href="#f-ann">Announcements</a></li>
+            <li><a href="#f-recog">Recognitions &amp; Hall</a></li>
+            <li><a href="#f-bday">Birthday Wishes</a></li>
+            <li><a href="#f-cal">Holidays &amp; Calendar</a></li>
+            <li><a href="#f-docs">Documents &amp; Policies</a></li>
+            <li><a href="#f-issues">Issues / Helpdesk</a></li>
+            <li><a href="#f-notif">Notifications</a></li>
+            <li><a href="#f-misc">Emergency, Notes, Favorites</a></li>
+            <li><a href="#f-reports">Reports &amp; Audit</a></li>
+            <li><a href="#f-settings">Settings &amp; Customization</a></li>
+          </ol>
+        </li>
+        <li><a href="#s5">User Interface Requirements</a></li>
+        <li><a href="#s6">Data Model Overview</a></li>
+        <li><a href="#s7">External Interfaces</a></li>
+        <li><a href="#s8">Non-Functional Requirements</a></li>
+        <li><a href="#s9">Appendix — API Reference</a></li>
+      </ol>
+    </nav>
+    <div class="toc-foot">v1.0 &middot; 7 Sep 2026<br/>Reverse-engineered from the live codebase</div>
+  </aside>
+
+  <main>
+    <div class="doc-header">
+      <div class="doc-kicker">Software Requirements Specification</div>
+      <h1 class="doc-title">Intersmart Employee Portal</h1>
+      <div class="doc-meta">
+        <span><b>Document</b> SRS-ISS-2026-01</span>
+        <span><b>Version</b> 1.0</span>
+        <span><b>Date</b> 07 September 2026</span>
+        <span><b>Owner</b> Team QA</span>
+        <span><b>Status</b> Active development</span>
+      </div>
+      <p class="lede">This specification describes the functional and non-functional requirements of the Inter Smart Employee Portal as currently implemented: an internal HR, attendance, leave, travel-allowance, and project-management system used by Intersmart's employees, team leads, and super administrators.</p>
+    </div>
+
+    <hr class="doc-divider"/>
+
+    <!-- ============ 1. INTRODUCTION ============ -->
+    <section id="s1">
+      <h2 class="sec"><span class="num">1</span> Introduction</h2>
+
+      <h3 class="sub"><span class="num">1.1</span> Purpose</h3>
+      <p>This document specifies the requirements of the Inter Smart Employee Portal, a browser-based internal application that centralizes employee records, attendance, leave and work-from-home requests, travel allowance claims, project/task management, internal communication, and HR service delivery for Intersmart. It is written from the current implementation to serve as a baseline reference for maintenance, onboarding new engineers, QA test-case design, and future feature planning.</p>
+
+      <h3 class="sub"><span class="num">1.2</span> Scope</h3>
+      <p>The portal is a single web application with a Next.js frontend and a Laravel REST API backend, used exclusively by Intersmart staff (no public/customer-facing surface except the login screen and signed email action links). It covers: identity &amp; role management, leave and WFH lifecycle, attendance (manual and biometric), travel allowance, an internal project-management suite (projects, tasks, bug tracking, Hubstaff time-tracking sync), a community/social layer with direct messaging and an AI assistant, recognition and engagement features, HR document/policy workflows, an internal helpdesk, and administrative configuration (settings, branding/customization, email routing, storage retention, audit logging).</p>
+
+      <h3 class="sub"><span class="num">1.3</span> Definitions, Acronyms &amp; Abbreviations</h3>
+      <div class="twrap">
+        <table>
+          <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">TL</td><td>Team Lead — first-level approver for their team's leave/WFH requests</td></tr>
+            <tr><td class="mono">SA</td><td>Super Admin — full system access</td></tr>
+            <tr><td class="mono">CL / SL</td><td>Casual Leave / Sick Leave</td></tr>
+            <tr><td class="mono">WFH</td><td>Work From Home request</td></tr>
+            <tr><td class="mono">TA</td><td>Travel Allowance (expense claim)</td></tr>
+            <tr><td class="mono">LOP</td><td>Loss of Pay — unpaid leave conversion</td></tr>
+            <tr><td class="mono">PM module</td><td>Project Management suite (projects, tasks, bug reports, Hubstaff)</td></tr>
+            <tr><td class="mono">Coordinator</td><td>Per-project/task delegate role, not a system role or permission — resolved at runtime</td></tr>
+            <tr><td class="mono">Add-on</td><td>Optionally team-scoped PM sub-feature (Customization, Email Mgmt, Leave Policy, Permissions, Bug Tracker)</td></tr>
+            <tr><td class="mono">Sanctum</td><td>Laravel's token-based API authentication package</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="sub"><span class="num">1.4</span> Intended Audience</h3>
+      <p>Team QA (the maintaining developer team), new engineers onboarding onto the codebase, and Intersmart stakeholders evaluating portal capability. Familiarity with standard web/HR-software terminology is assumed; no prior codebase knowledge is required.</p>
+    </section>
+
+    <!-- ============ 2. OVERALL DESCRIPTION ============ -->
+    <section id="s2">
+      <h2 class="sec"><span class="num">2</span> Overall Description</h2>
+
+      <h3 class="sub"><span class="num">2.1</span> Product Perspective</h3>
+      <p>The portal is a self-contained internal system, not an extension of an existing product. It consists of a Next.js single-page-style application (App Router) that consumes a versionless Laravel JSON REST API over HTTPS, authenticated with Sanctum bearer tokens. All persistent data lives in a single PostgreSQL database. Outbound email (approval notifications, signed one-click approve/reject links) and an inbound biometric-device ingestion endpoint are the system's only external touchpoints besides the browser.</p>
+
+      <h3 class="sub"><span class="num">2.2</span> User Classes &amp; Characteristics</h3>
+      <div class="twrap">
+        <table>
+          <thead><tr><th>Role</th><th>Who</th><th>Characteristic access</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="role sa">Super Admin</span></td>
+              <td>System owner / senior management</td>
+              <td>Full access to every module: employee &amp; team CRUD, all approvals, leave balance overrides, settings, customization, audit logs, reports, chat moderation. Cannot apply for leave/WFH/TA on their own account.</td>
+            </tr>
+            <tr>
+              <td><span class="role tl">Team Lead</span></td>
+              <td>Department/team leads</td>
+              <td>Own profile and requests, first-level approval for their team's leave/WFH, team task &amp; project visibility, Hubstaff view.</td>
+            </tr>
+            <tr>
+              <td><span class="role emp">Employee</span></td>
+              <td>General staff</td>
+              <td>Own profile, attendance, leave/WFH/TA applications, assigned tasks, community participation, helpdesk tickets.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="callout">Roles are managed with Spatie Laravel-Permission. Only three roles are seeded and in active use — Super Admin, Team Lead, Employee. Most controllers gate by role name directly (<code>hasRole()</code>) rather than granular permissions, except the Project Management module, which layers its own capability checks (<code>PmAddon</code> / <code>CustomTeamPermission</code>) on top of role, so a team can be granted or denied individual PM add-ons independently of the three base roles.</p>
+      <p class="callout muted">A fourth role name, <code>HR</code>, is referenced throughout the controller layer (leave/WFH final approval, team management, announcements, holidays) as if it carried Super-Admin-adjacent authority, but it is never created by <code>RolesAndPermissionsSeeder</code> and is not assigned to any account. Functionally this is dead/reserved code today — every one of those <code>hasRole('HR')</code> checks currently resolves false, so those code paths behave as Super-Admin-only in practice. Flagged here for the dev team rather than silently omitted.</p>
+
+      <h3 class="sub"><span class="num">2.3</span> Operating Environment</h3>
+      <div class="stack-grid">
+        <div class="stack-card"><div class="k">Frontend hosting</div><div class="v">Vercel <small>auto-deploy on push to <code>main</code></small></div></div>
+        <div class="stack-card"><div class="k">Backend hosting</div><div class="v">cPanel <small>git auto-pull deploy on push to <code>main</code> — no Docker/Render in production</small></div></div>
+        <div class="stack-card"><div class="k">Database</div><div class="v">PostgreSQL (Supabase-hosted) <small>via <code>pdo_pgsql</code></small></div></div>
+        <div class="stack-card"><div class="k">Local dev backend</div><div class="v">Laravel artisan serve <small>port 8765</small></div></div>
+        <div class="stack-card"><div class="k">Local dev frontend</div><div class="v">Next.js dev server <small>port 3000</small></div></div>
+        <div class="stack-card"><div class="k">Client</div><div class="v">Evergreen desktop &amp; mobile browsers <small>no native app</small></div></div>
+      </div>
+
+      <h3 class="sub"><span class="num">2.4</span> Design &amp; Implementation Constraints</h3>
+      <ul class="plain">
+        <li>Authorization is enforced with inline role/ownership checks inside controllers — there is no Laravel Policy layer or fine-grained <code>permission:</code> route middleware outside the PM module's add-on system.</li>
+        <li>Queue driver is synchronous (no Redis/worker) — all "background" work (email sends, notification fan-out) executes inline in the request cycle.</li>
+        <li>File uploads (profile photos, bill receipts, issue attachments, chat/community attachments) are stored on local disk under <code>storage/app/public</code> and served via a symlink — there is no S3/object storage layer.</li>
+        <li>The frontend enforces route protection and role-based nav visibility client-side (<code>middleware.ts</code>, <code>layout.tsx</code>); the API independently re-enforces every rule server-side.</li>
+      </ul>
+
+      <h3 class="sub"><span class="num">2.5</span> Assumptions &amp; Dependencies</h3>
+      <ul class="plain">
+        <li>Every user has exactly one of the three roles at a time; multi-role assignment is not a designed workflow.</li>
+        <li>Outbound email depends on SMTP credentials configured per-tenant via the Email &amp; SMTP Management add-on; without them, approval notifications are silently skipped.</li>
+        <li>Biometric attendance capture depends on an external device agent pushing events to the ingestion endpoint with a shared secret — the portal does not talk to biometric hardware directly.</li>
+        <li>Hubstaff time-tracking figures depend on a valid Hubstaff API token stored per project (<code>ProjectHubstaffToken</code>).</li>
+      </ul>
+    </section>
+
+    <!-- ============ 3. ARCHITECTURE ============ -->
+    <section id="s3">
+      <h2 class="sec"><span class="num">3</span> System Architecture</h2>
+      <p>A conventional two-tier SPA-over-REST architecture: the browser talks only to the Next.js frontend, which in turn calls the Laravel API over <code>NEXT_PUBLIC_API_URL</code>. There is no server-side session — every request after login carries a Sanctum bearer token issued at login and held in the Zustand auth store.</p>
+      <div class="twrap">
+        <table>
+          <thead><tr><th>Layer</th><th>Technology</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Frontend framework</td><td class="mono">Next.js 16 (App Router, TypeScript)</td><td>Route groups: <code>(auth)</code> public, <code>(dashboard)</code> protected</td></tr>
+            <tr><td>UI components</td><td class="mono">Shadcn/UI + Tailwind CSS v4</td><td>Dark-slate theme, amber accent, glass cards</td></tr>
+            <tr><td>Client state</td><td class="mono">Zustand</td><td><code>@/store/auth</code> — token, user, role</td></tr>
+            <tr><td>Forms &amp; validation</td><td class="mono">React Hook Form + Zod</td><td></td></tr>
+            <tr><td>HTTP client</td><td class="mono">Axios</td><td>Wrapped in <code>@/services/api.ts</code></td></tr>
+            <tr><td>Backend framework</td><td class="mono">Laravel 12 (PHP 8.2+)</td><td>REST JSON, all routes under <code>/api</code></td></tr>
+            <tr><td>Auth</td><td class="mono">Laravel Sanctum</td><td>Bearer token; signed URLs for unauthenticated email actions</td></tr>
+            <tr><td>Roles &amp; permissions</td><td class="mono">Spatie laravel-permission</td><td>4 seeded roles + PM-module capability layer</td></tr>
+            <tr><td>Database</td><td class="mono">PostgreSQL 15+</td><td>60+ Eloquent models</td></tr>
+            <tr><td>Scheduling</td><td class="mono">Laravel scheduler</td><td>Triggered via <code>routes/console.php</code> and an authenticated <code>/api/system/scheduler/run</code> webhook (cPanel has no native cron-into-artisan hook)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ 4. FUNCTIONAL REQUIREMENTS ============ -->
+    <section id="s4">
+      <h2 class="sec"><span class="num">4</span> Functional Requirements</h2>
+      <p class="lede">Grouped by module. Each feature block lists its business rules and the primary screen(s) that implement it. Role chips show who can use the feature; a screen restricted further than its module is noted inline.</p>
+
+      <!-- 4.1 AUTH -->
+      <h3 class="sub" id="f-auth"><span class="num">4.1</span> Authentication &amp; Session</h3>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-AUTH-1</span><span class="feature-title">Login, logout, password reset</span></div><div class="roles"><span class="role pub">Public</span><span class="role all">All roles</span></div></div>
+        <p>Email + password login issues a Sanctum token; logout revokes it. Forgot-password sends a reset email; reset-password consumes the token and sets a new password. No self-registration — accounts are provisioned by Super Admin.</p>
+        <div class="screens">Screens: <code>/login</code>, <code>/forgot-password</code>, <code>/reset-password</code></div>
+      </div>
+
+      <!-- 4.2 DASHBOARD -->
+      <h3 class="sub" id="f-dash"><span class="num">4.2</span> Dashboard</h3>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-DASH-1</span><span class="feature-title">Role-specific landing dashboard</span></div><div class="roles"><span class="role all">All roles</span></div></div>
+        <p>Single dashboard endpoint returns a different payload shape per role: KPI tiles (headcount, pending approvals, today's attendance), welcome card with computed tenure ("You have been with Intersmart for X Years Y Months Z Days"), attendance widget, today's birthdays, company updates feed, and a recent-activity stream.</p>
+        <div class="screens">Screens: <code>/dashboard</code>, <code>/activities</code></div>
+      </div>
+
+      <!-- 4.3 EMPLOYEES -->
+      <h3 class="sub" id="f-emp"><span class="num">4.3</span> Employee Management</h3>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-EMP-1</span><span class="feature-title">Employee CRUD, directory &amp; profile</span></div><div class="roles"><span class="role sa">Super Admin</span><span class="role tl">Team Lead (own team)</span></div></div>
+        <ul class="rules">
+          <li>Create/edit/deactivate employees; set status Active / Disabled / Resigned / Terminated.</li>
+          <li>Profile photo upload (multipart) or photo-by-URL; password reset by admin.</li>
+          <li>Bulk import via CSV with a downloadable sample template.</li>
+          <li>Company-wide searchable employee directory and a public (limited-field) profile view for any authenticated user.</li>
+        </ul>
+        <div class="screens">Screens: <code>/employees</code>, <code>/employees/create</code>, <code>/employees/[id]</code></div>
+      </div>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-EMP-2</span><span class="feature-title">Self-service profile &amp; change requests</span></div><div class="roles"><span class="role all">All roles</span></div></div>
+        <p>Employees edit non-sensitive profile fields directly; sensitive fields go through a Profile Update Request that Super Admin must approve or reject before it applies.</p>
+        <div class="screens">Screens: <code>/profile</code>, <code>/profile-requests</code> (approver view)</div>
+      </div>
+
+      <!-- 4.4 TEAMS -->
+      <h3 class="sub" id="f-teams"><span class="num">4.4</span> Teams / Departments</h3>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-TEAM-1</span><span class="feature-title">Department CRUD &amp; membership</span></div><div class="roles"><span class="role sa">Super Admin</span></div></div>
+        <ul class="rules">
+          <li>Team <code>code</code> auto-generated from the name (e.g. "Quality Assurance" → <code>QUAL-3847</code>) with uniqueness retry.</li>
+          <li>Assign/replace a Team Lead per team; sync member rosters.</li>
+          <li>Team list is readable by every authenticated user (for filters/switchers) but only mutable by Super Admin.</li>
+        </ul>
+        <div class="screens">Screens: <code>/teams</code>, <code>/teams/create</code>, <code>/teams/[id]</code></div>
+      </div>
+
+      <!-- 4.5 LEAVE -->
+      <h3 class="sub" id="f-leave"><span class="num">4.5</span> Leave Management</h3>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-LV-1</span><span class="feature-title">Apply for leave</span></div><div class="roles"><span class="role emp">Employee</span><span class="role tl">Team Lead</span></div></div>
+        <ul class="rules">
+          <li>Casual Leave requires ≥3 days advance notice (backend-enforced).</li>
+          <li>Half-day CL/SL variants and standard full-day types are selectable leave types.</li>
+          <li>A day-count calculator previews consumed balance before submission.</li>
+        </ul>
+        <div class="screens">Screens: <code>/leaves/apply</code></div>
+      </div>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-LV-2</span><span class="feature-title">Two-stage approval workflow</span></div><div class="roles"><span class="role tl">Team Lead</span><span class="role sa">Super Admin</span></div></div>
+        <p>Request carries independent <code>tl_status</code> and <code>admin_status</code>. Team Lead approves/rejects first; Super Admin gives final approval. If an employee has no Team Lead assigned, the request routes directly to Super Admin, skipping the TL stage.</p>
+        <div class="screens">Screens: <code>/leaves/approvals</code></div>
+      </div>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-LV-3</span><span class="feature-title">Cancellation, override &amp; LOP conversion</span></div><div class="roles"><span class="role sa">Super Admin</span></div></div>
+        <p>Employees can cancel their own pending request. Super Admin can override a decision after the fact, or convert an approved leave to Loss-of-Pay with employee confirmation/rejection of the conversion.</p>
+        <div class="screens">Screens: <code>/leaves</code>, <code>/manage-leaves</code></div>
+      </div>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-LV-4</span><span class="feature-title">Leave balances &amp; carry-forward</span></div><div class="roles"><span class="role sa">Super Admin</span></div></div>
+        <ul class="rules">
+          <li>12 CL + 12 SL allocated automatically every 1 January (<code>leave:annual-allocation</code> artisan command, also manually triggerable).</li>
+          <li>Unused CL carries forward for exactly one year, then expires; unused SL always expires 31 December (no carry-forward).</li>
+          <li>Consumption order: carry-forward balance first, then current-year allocation.</li>
+          <li>Every manual balance adjustment is written to a Leave Balance Audit Log with before/after values and the admin who made the change.</li>
+        </ul>
+        <div class="screens">Screens: <code>/leave-balances</code></div>
+      </div>
+
+      <!-- 4.6 LEAVE POLICY ADD-ON -->
+      <h3 class="sub" id="f-policy"><span class="num">4.6</span> Leave Policy Management (Add-on)</h3>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-LP-1</span><span class="feature-title">Configurable accrual policy engine</span></div><div class="roles"><span class="role sa">Super Admin</span></div></div>
+        <p>A newer, more granular layer above the base leave-balance system: a configurable monthly accrual cycle (start-day setting), a probation period (in months) before leave accrual begins per employee, per-employee overrides and manual probation clearance, a settable CL carry-forward window in years, an SL carry-forward toggle, manual balance adjustment, and a full accrual ledger per employee. A manual "trigger cycle" action re-runs accrual outside the schedule.</p>
+        <div class="screens">Screens: <code>/project-management/addons/leave-policy</code></div>
+      </div>
+
+      <!-- 4.7 WFH -->
+      <h3 class="sub" id="f-wfh"><span class="num">4.7</span> Work From Home</h3>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-WFH-1</span><span class="feature-title">WFH request, approval &amp; cancellation</span></div><div class="roles"><span class="role all">All roles</span></div></div>
+        <p>Mirrors the leave workflow: full-day/half-day WFH types, two-stage TL → Admin approval, cancellation of own pending requests, and Super-Admin-only "mark WFH on behalf of employee" for missed submissions. Same-day WFH requests are blocked for non-admin roles.</p>
+        <div class="screens">Screens: <code>/wfh</code>, approvals inside <code>/leaves/approvals?tab=wfh</code></div>
+      </div>
+
+      <!-- 4.8 ATTENDANCE -->
+      <h3 class="sub" id="f-att"><span class="num">4.8</span> Attendance &amp; Biometric Integration</h3>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-ATT-1</span><span class="feature-title">Manual check-in / check-out / break tracking</span></div><div class="roles"><span class="role all">All roles</span></div></div>
+        <p>Employees self-track check-in, check-out, and break start/end from the dashboard widget; the day's running status and a personal history table are available.</p>
+        <div class="screens">Screens: <code>/attendance</code>, <code>/attendance/details</code></div>
+      </div>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-ATT-2</span><span class="feature-title">Biometric device ingestion</span></div><div class="roles"><span class="role pub">Device agent (shared-secret)</span></div></div>
+        <p>An external biometric-device agent pushes raw punch events to <code>POST /v1/biometric/ingest</code>, authenticated by a dedicated middleware (not Sanctum). Events are reconciled into daily attendance records, with a timezone-correction maintenance command available for historical fixes.</p>
+        <div class="screens">Admin screen: <code>/attendance/management</code></div>
+      </div>
+
+      <!-- 4.9 TA -->
+      <h3 class="sub" id="f-ta"><span class="num">4.9</span> Travel Allowance</h3>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-TA-1</span><span class="feature-title">Apply, itemize &amp; track TA claims</span></div><div class="roles"><span class="role emp">Employee</span><span class="role tl">Team Lead</span></div></div>
+        <p>A claim has one or more expense line items (category: Travel/Food/Accommodation/Other, amount, description) plus an optional bill/receipt upload. Status lifecycle: <code>Applied → Approved/Rejected → Paid/Unpaid</code>. Own claims can be cancelled while still <code>Applied</code>.</p>
+        <div class="screens">Screens: <code>/ta/apply</code>, <code>/ta/status</code></div>
+      </div>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-TA-2</span><span class="feature-title">TA approval, override &amp; payment marking</span></div><div class="roles"><span class="role sa">Super Admin</span></div></div>
+        <p>On submission, HR@intersmart.in and Ameesha@intersmart.in receive an email with the claim details and one-click, signed Approve/Reject links that deep-link into the management screen and pre-expand the request for confirmation.</p>
+        <div class="screens">Screens: <code>/ta/management</code></div>
+      </div>
+
+      <!-- 4.10 PROJECT MANAGEMENT -->
+      <h3 class="sub" id="f-pm"><span class="num">4.10</span> Project Management Suite</h3>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-PM-1</span><span class="feature-title">Projects &amp; membership</span></div><div class="roles"><span class="role sa">Super Admin</span><span class="role tl">Team Lead</span><span class="role emp">Employee (as member)</span></div></div>
+        <p>Create projects, manage member rosters, assign a per-project <em>Coordinator</em> (a delegated capability, not a role or permission — resolved by <code>ProjectAuthorizationService</code>), mark a project "live", and drill into status/progress detail.</p>
+        <div class="screens">Screens: <code>/project-management</code>, <code>/project-management/projects</code>, <code>/project-management/status</code></div>
+      </div>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-PM-2</span><span class="feature-title">Task management</span></div><div class="roles"><span class="role all">All roles (scoped)</span></div></div>
+        <ul class="rules">
+          <li>Tasks support multiple assignees, a task-level coordinator, status transitions, comments, attachments, and CSV bulk import (with a sample template).</li>
+          <li>Filtered views: My Tasks, Overdue, Completed, Forecast, a team daily-report, and (Team Lead/Super Admin) the full task list across the team.</li>
+          <li>A reusable Task Catalog (Super Admin) standardizes recurring task definitions teams can draw from.</li>
+        </ul>
+        <div class="screens">Screens: <code>/project-management/tasks</code>, <code>/tasks/my</code>, <code>/tasks/overdue</code>, <code>/tasks/completed</code>, <code>/tasks/forecast</code>, <code>/project-management/task-catalog</code></div>
+      </div>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-PM-3</span><span class="feature-title">Bug tracking</span></div><div class="roles"><span class="role all">All roles (scoped)</span></div></div>
+        <p>Task-linked bug reports feed a dedicated Bug Reports / Bug Tracker view for triage.</p>
+        <div class="screens">Screens: <code>/project-management/bug-reports</code></div>
+      </div>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-PM-4</span><span class="feature-title">Hubstaff time-tracking integration</span></div><div class="roles"><span class="role sa">Super Admin</span><span class="role tl">Team Lead</span></div></div>
+        <p>Bulk-imports Hubstaff projects, links Hubstaff users to portal employees, syncs users, and surfaces tracked-time analytics (including historical/past-date queries) inside the portal.</p>
+        <div class="screens">Screens: <code>/project-management/hubstaff</code></div>
+      </div>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-PM-5</span><span class="feature-title">Add-ons &amp; team/role permissions</span></div><div class="roles"><span class="role sa">Super Admin</span></div></div>
+        <p>Optional PM sub-modules (Portal Customization, Email &amp; SMTP Management, Leave Policy Management, Team &amp; Role Permissions, Bug Tracker) can be individually assigned to, or toggled per, team — decoupled from the three base roles via <code>PmAddon</code> / <code>CustomTeamPermission</code>.</p>
+        <div class="screens">Screens: <code>/project-management/addons</code> and its sub-pages</div>
+      </div>
+
+      <!-- 4.11 COMMUNITY -->
+      <h3 class="sub" id="f-community"><span class="num">4.11</span> Community, Direct Chat &amp; AI Assistant</h3>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-COM-1</span><span class="feature-title">Company social feed</span></div><div class="roles"><span class="role all">All roles</span></div></div>
+        <p>Post text/media updates or polls to a company-wide feed; like, comment, and vote. Authors (or Super Admin) can delete posts/comments.</p>
+        <div class="screens">Screen: <code>/community</code></div>
+      </div>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-COM-2</span><span class="feature-title">Direct messaging</span></div><div class="roles"><span class="role all">All roles</span></div></div>
+        <p>1:1 conversations with user search, unread counts, read receipts, and an online-presence heartbeat. Super Admin can audit and clear any conversation or delete individual messages for moderation.</p>
+        <div class="screens">Screen: <code>/community</code> (chat panel)</div>
+      </div>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-COM-3</span><span class="feature-title">AI chatbot assistant</span></div><div class="roles"><span class="role all">All roles</span></div></div>
+        <p>An in-portal assistant answers questions using the requester's own portal context (leave balances, policies, holidays, etc.).</p>
+      </div>
+
+      <!-- 4.12 ANNOUNCEMENTS -->
+      <h3 class="sub" id="f-ann"><span class="num">4.12</span> Announcements</h3>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-ANN-1</span><span class="feature-title">Company announcements &amp; categories</span></div><div class="roles"><span class="role sa">Super Admin</span></div></div>
+        <p>Create, edit, and delete categorized announcements; readable by everyone. Surfaced on the dashboard's "company updates" feed.</p>
+        <div class="screens">Screen: <code>/announcements</code></div>
+      </div>
+
+      <!-- 4.13 RECOGNITIONS -->
+      <h3 class="sub" id="f-recog"><span class="num">4.13</span> Recognitions &amp; The Hall</h3>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-RC-1</span><span class="feature-title">Employee recognition &amp; awards</span></div><div class="roles"><span class="role sa">Super Admin</span></div></div>
+        <p>Grant/edit/retire recognitions; a public leaderboard and "top awardee" spotlight are visible to everyone, alongside a per-employee recognition history and a wall-of-fame "Hall" view.</p>
+        <div class="screens">Screens: <code>/recognitions</code>, <code>/recognitions/leaderboard</code>, <code>/hall</code></div>
+      </div>
+
+      <!-- 4.14 BIRTHDAY -->
+      <h3 class="sub" id="f-bday"><span class="num">4.14</span> Birthday Wishes</h3>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-BW-1</span><span class="feature-title">Send &amp; view birthday wishes</span></div><div class="roles"><span class="role all">All roles</span></div></div>
+        <p>Today's birthdays surface on the dashboard; colleagues post wishes, viewable per-user or as "today's wishes."</p>
+        <div class="screens">Screen: <code>/birthday-wishes</code></div>
+      </div>
+
+      <!-- 4.15 CALENDAR -->
+      <h3 class="sub" id="f-cal"><span class="num">4.15</span> Holidays &amp; Calendar</h3>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-CAL-1</span><span class="feature-title">Holiday list &amp; working-day overrides</span></div><div class="roles"><span class="role sa">Super Admin</span></div></div>
+        <p>Maintain the annual holiday list (with a one-click "seed Kerala holidays" helper) and ad-hoc working-day overrides (e.g. a declared working Saturday); a unified calendar view merges holidays with leave/WFH activity for every user.</p>
+        <div class="screens">Screens: <code>/holidays</code>, <code>/calendar</code></div>
+      </div>
+
+      <!-- 4.16 DOCS -->
+      <h3 class="sub" id="f-docs"><span class="num">4.16</span> Documents &amp; HR Policies</h3>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-DOC-1</span><span class="feature-title">Document requests &amp; HR policy library</span></div><div class="roles"><span class="role all">All roles</span></div></div>
+        <p>Employees request HR documents (e.g. employment letters); Super Admin fulfills the request by uploading the file. HR Policies are a readable library that Super Admin maintains.</p>
+        <div class="screens">Screens: <code>/documents</code>, <code>/policies</code></div>
+      </div>
+
+      <!-- 4.17 ISSUES -->
+      <h3 class="sub" id="f-issues"><span class="num">4.17</span> Issues / Internal Helpdesk</h3>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-ISS-1</span><span class="feature-title">Raise, comment on &amp; resolve issues</span></div><div class="roles"><span class="role all">All roles</span></div></div>
+        <p>Employees log an issue with category, priority, description, related module, and optional attachment; threaded comments (with their own attachments) support resolution; an assignee and status (Open → … → Resolved) are tracked, with a resolution timestamp.</p>
+        <div class="screens">Screens: <code>/issues</code>, <code>/issues/new</code>, <code>/issues/[id]</code></div>
+      </div>
+
+      <!-- 4.18 NOTIF -->
+      <h3 class="sub" id="f-notif"><span class="num">4.18</span> Notifications</h3>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-NOT-1</span><span class="feature-title">In-app notification center</span></div><div class="roles"><span class="role all">All roles</span></div></div>
+        <p>Bell-icon dropdown with unread badge, mark-as-read (single or all), and delete. A "send test alert" action exists for admins but is hidden from the dropdown once notifications are confirmed active.</p>
+        <div class="screens">Screen: <code>/notifications</code></div>
+      </div>
+
+      <!-- 4.19 MISC -->
+      <h3 class="sub" id="f-misc"><span class="num">4.19</span> Emergency Contacts, Sticky Notes &amp; Favorites</h3>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-MSC-1</span><span class="feature-title">Emergency contact directory</span></div><div class="roles"><span class="role all">Read: all &nbsp;·&nbsp; Manage: Super Admin</span></div></div>
+        <p>A maintained, orderable list of emergency/escalation contacts, with a helper to auto-sync current Team Leads into the list.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-MSC-2</span><span class="feature-title">Personal sticky notes</span></div><div class="roles"><span class="role all">All roles</span></div></div>
+        <p>Lightweight personal notes on the dashboard — create, edit, delete one, or clear all.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-MSC-3</span><span class="feature-title">Favorites / quick links</span></div><div class="roles"><span class="role all">All roles</span></div></div>
+        <p>Any user can star a page for one-click access from a personal shortcuts list.</p>
+      </div>
+
+      <!-- 4.20 REPORTS/AUDIT -->
+      <h3 class="sub" id="f-reports"><span class="num">4.20</span> Reports &amp; Audit Logs</h3>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-REP-1</span><span class="feature-title">Operational reports</span></div><div class="roles"><span class="role sa">Super Admin</span><span class="role tl">Team Lead</span></div></div>
+        <p>Employee list, leave history, leave-balance snapshot, and attendance-summary reports with an employee-filter helper.</p>
+        <div class="screens">Screen: <code>/reports</code></div>
+      </div>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-AUD-1</span><span class="feature-title">System audit trail</span></div><div class="roles"><span class="role sa">Super Admin</span></div></div>
+        <p>Read-only log of sensitive actions across the system (balance overrides, approvals, admin edits) for compliance review.</p>
+        <div class="screens">Screen: <code>/audit-logs</code></div>
+      </div>
+
+      <!-- 4.21 SETTINGS -->
+      <h3 class="sub" id="f-settings"><span class="num">4.21</span> Settings, Customization &amp; Maintenance</h3>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-SET-1</span><span class="feature-title">System settings</span></div><div class="roles"><span class="role sa">Super Admin</span></div></div>
+        <p>Global, key-value system configuration.</p>
+        <div class="screens">Screen: <code>/settings</code></div>
+      </div>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-SET-2</span><span class="feature-title">Portal branding / customization</span></div><div class="roles"><span class="role sa">Super Admin</span></div></div>
+        <p>Upload logo/branding assets and adjust theme settings; public read endpoint lets the login screen apply branding before authentication.</p>
+        <div class="screens">Screen: <code>/project-management/addons/customization</code></div>
+      </div>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-SET-3</span><span class="feature-title">Email &amp; SMTP management</span></div><div class="roles"><span class="role sa">Super Admin</span></div></div>
+        <p>Configure outbound SMTP, per-event routing rules, per-employee email overrides, and send a test email to verify delivery.</p>
+        <div class="screens">Screen: <code>/project-management/addons/email-management</code></div>
+      </div>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-SET-4</span><span class="feature-title">Storage &amp; retention policy</span></div><div class="roles"><span class="role sa">Super Admin</span></div></div>
+        <p>Configure how long uploaded files/records are retained and trigger an immediate cleanup pass.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-head"><div><span class="fr-id">FR-SET-5</span><span class="feature-title">Infrastructure maintenance endpoints</span></div><div class="roles"><span class="role sa">Super Admin</span></div></div>
+        <p>One-click migration runner, cache/config optimizer, attendance-timezone corruption fixer, and leave-type/table self-heal utilities — operational escape hatches for a host (cPanel) without shell/SSH deploy hooks.</p>
+      </div>
+    </section>
+
+    <!-- ============ 5. UI REQUIREMENTS ============ -->
+    <section id="s5">
+      <h2 class="sec"><span class="num">5</span> User Interface Requirements</h2>
+
+      <h3 class="sub"><span class="num">5.1</span> Visual Design System</h3>
+      <ul class="plain">
+        <li><b>Theme:</b> dark slate gradient background (<code>from-slate-900 via-slate-800 to-slate-900</code>) across every authenticated page.</li>
+        <li><b>Surfaces:</b> glass-morphic cards — <code>bg-white/5</code>, <code>backdrop-blur-md</code>, <code>border-white/10</code>, <code>rounded-2xl</code>.</li>
+        <li><b>Accent:</b> amber/gold (<code>text-amber-400</code> / <code>bg-amber-500</code>) — used for header icons, primary actions, and active nav state; plain <code>text-primary</code> is avoided as it is invisible on the dark background.</li>
+        <li><b>Typography:</b> Inter, via Google Fonts.</li>
+        <li><b>Iconography:</b> Lucide React throughout.</li>
+        <li><b>Layout shell:</b> universal hamburger navigation with role-filtered groups, auto-generated breadcrumbs from the URL path, and enforced <code>overflow-x:hidden</code> to eliminate horizontal scroll on any viewport.</li>
+      </ul>
+
+      <h3 class="sub"><span class="num">5.2</span> Navigation Structure</h3>
+      <p>The primary navigation is grouped by domain; each group and item is independently role-filtered, so two users can see structurally different menus from the same shell.</p>
+      <div class="twrap">
+        <table>
+          <thead><tr><th>Nav group</th><th>Representative items</th><th>Visible to</th></tr></thead>
+          <tbody>
+            <tr><td>Leaves</td><td>My/All Leaves, Apply, Leave Calendar, Holidays, Approvals, Balances, Leave Policy, Manage Approved</td><td>All (items filtered per role)</td></tr>
+            <tr><td>Work From Home</td><td>WFH Requests, WFH Approvals</td><td>All / TL &amp; SA for approvals</td></tr>
+            <tr><td>Project Management</td><td>Overview, Status, Projects, Tasks (All/My/Overdue/Completed/Forecast), Bug Reports, Hubstaff, Task Catalog</td><td>All (scoped items filtered)</td></tr>
+            <tr><td>Add-ons</td><td>Directory, Customization, Email &amp; SMTP, Leave Policy, Team &amp; Role Permissions, Bug Tracker</td><td>Per add-on assignment, mostly SA</td></tr>
+            <tr><td>Travel Allowance</td><td>Apply for TA, TA Status, Manage TA Requests</td><td>Employee/TL apply; SA manages</td></tr>
+            <tr><td>HR Services</td><td>Community &amp; Chat, Updates &amp; Announcements, Request Documents, HR Policies</td><td>All</td></tr>
+            <tr><td>People &amp; Teams</td><td>Employees, Departments, Attendance Management, The Hall, Birthday Wishes, Recognition, Team Tracker (TL, external)</td><td>Mostly SA; some items open to all</td></tr>
+            <tr><td>My Account</td><td>Notifications, Raise an Issue</td><td>All</td></tr>
+            <tr><td>Administration</td><td>Profile Approvals, Reports, Audit Logs, Settings</td><td>Super Admin</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="callout muted">Header quick-links additionally adapt per role — e.g. Super Admin sees Employee Management, Community, Attendance Management, Hubstaff; Team Lead sees Dashboard, Community, Tasks, Hubstaff; Employee sees Dashboard, Community, and Tasks scoped to "My Tasks."</p>
+
+      <h3 class="sub"><span class="num">5.3</span> Screen Inventory</h3>
+      <p>Every route under the authenticated app shell, grouped by module.</p>
+      <div class="twrap">
+        <table>
+          <thead><tr><th>Route</th><th>Screen</th><th>Primary roles</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">/login</td><td>Sign in</td><td>Public</td></tr>
+            <tr><td class="mono">/forgot-password</td><td>Request password reset</td><td>Public</td></tr>
+            <tr><td class="mono">/reset-password</td><td>Set new password</td><td>Public</td></tr>
+            <tr><td class="mono">/dashboard</td><td>Home dashboard</td><td>All</td></tr>
+            <tr><td class="mono">/activities</td><td>Activity stream</td><td>All</td></tr>
+            <tr><td class="mono">/profile</td><td>My profile</td><td>All</td></tr>
+            <tr><td class="mono">/profile-requests</td><td>Profile change approvals</td><td>SA</td></tr>
+            <tr><td class="mono">/employees</td><td>Employee directory</td><td>SA / TL</td></tr>
+            <tr><td class="mono">/employees/create</td><td>Add employee</td><td>SA</td></tr>
+            <tr><td class="mono">/employees/[id]</td><td>Employee detail</td><td>SA / TL</td></tr>
+            <tr><td class="mono">/teams</td><td>Departments</td><td>SA</td></tr>
+            <tr><td class="mono">/teams/create</td><td>Add department</td><td>SA</td></tr>
+            <tr><td class="mono">/teams/[id]</td><td>Department detail</td><td>SA</td></tr>
+            <tr><td class="mono">/leaves</td><td>My / all leaves</td><td>All</td></tr>
+            <tr><td class="mono">/leaves/apply</td><td>Apply for leave</td><td>Employee / TL</td></tr>
+            <tr><td class="mono">/leaves/approvals</td><td>Leave &amp; WFH approvals</td><td>TL / SA</td></tr>
+            <tr><td class="mono">/leave-balances</td><td>Leave balance management</td><td>SA</td></tr>
+            <tr><td class="mono">/manage-leaves</td><td>Manage approved leaves/WFH</td><td>SA</td></tr>
+            <tr><td class="mono">/wfh</td><td>WFH requests</td><td>All</td></tr>
+            <tr><td class="mono">/attendance</td><td>My attendance</td><td>All</td></tr>
+            <tr><td class="mono">/attendance/details</td><td>Attendance history</td><td>All</td></tr>
+            <tr><td class="mono">/attendance/management</td><td>Attendance administration</td><td>SA</td></tr>
+            <tr><td class="mono">/ta/apply</td><td>Apply for travel allowance</td><td>Employee / TL</td></tr>
+            <tr><td class="mono">/ta/status</td><td>My TA claims</td><td>Employee / TL</td></tr>
+            <tr><td class="mono">/ta/management</td><td>Manage TA claims</td><td>SA</td></tr>
+            <tr><td class="mono">/project-management</td><td>PM overview</td><td>All</td></tr>
+            <tr><td class="mono">/project-management/status</td><td>Project status board</td><td>SA / TL</td></tr>
+            <tr><td class="mono">/project-management/projects</td><td>Projects</td><td>All (scoped)</td></tr>
+            <tr><td class="mono">/project-management/tasks</td><td>All tasks</td><td>SA / TL</td></tr>
+            <tr><td class="mono">/project-management/task-catalog</td><td>Task catalog</td><td>SA</td></tr>
+            <tr><td class="mono">/project-management/bug-reports</td><td>Bug reports</td><td>All (scoped)</td></tr>
+            <tr><td class="mono">/project-management/hubstaff</td><td>Hubstaff integration</td><td>SA / TL</td></tr>
+            <tr><td class="mono">/project-management/addons</td><td>Add-ons directory</td><td>SA (per-addon)</td></tr>
+            <tr><td class="mono">/community</td><td>Community feed, chat &amp; DMs</td><td>All</td></tr>
+            <tr><td class="mono">/announcements</td><td>Company announcements</td><td>All (manage: SA)</td></tr>
+            <tr><td class="mono">/hall</td><td>The Hall (recognition wall)</td><td>All</td></tr>
+            <tr><td class="mono">/recognitions</td><td>Manage awards</td><td>SA</td></tr>
+            <tr><td class="mono">/recognitions/leaderboard</td><td>Recognition leaderboard</td><td>All</td></tr>
+            <tr><td class="mono">/birthday-wishes</td><td>Birthday wishes</td><td>All</td></tr>
+            <tr><td class="mono">/holidays</td><td>Holiday calendar management</td><td>SA</td></tr>
+            <tr><td class="mono">/calendar</td><td>Unified calendar</td><td>All</td></tr>
+            <tr><td class="mono">/documents</td><td>Document requests</td><td>All</td></tr>
+            <tr><td class="mono">/policies</td><td>HR policy library</td><td>All (manage: SA)</td></tr>
+            <tr><td class="mono">/issues</td><td>Helpdesk ticket list</td><td>All</td></tr>
+            <tr><td class="mono">/issues/new</td><td>Raise an issue</td><td>All</td></tr>
+            <tr><td class="mono">/issues/[id]</td><td>Issue detail &amp; thread</td><td>All</td></tr>
+            <tr><td class="mono">/notifications</td><td>Notification center</td><td>All</td></tr>
+            <tr><td class="mono">/reports</td><td>Reports</td><td>SA / TL</td></tr>
+            <tr><td class="mono">/audit-logs</td><td>Audit log</td><td>SA</td></tr>
+            <tr><td class="mono">/settings</td><td>System settings</td><td>SA</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="sub"><span class="num">5.4</span> Responsive &amp; Accessibility Requirements</h3>
+      <ul class="plain">
+        <li>Fully responsive from mobile to desktop; hamburger nav collapses on small viewports; no horizontal scroll is permitted on any breakpoint.</li>
+        <li>Tabular numerals and non-breaking time strings on dashboard time displays to prevent layout jitter as digits change.</li>
+        <li>Breadcrumbs on every page for wayfinding, auto-derived from the URL segment path.</li>
+        <li>Header icons use amber (not the default primary token) to remain visible against the dark theme.</li>
+      </ul>
+    </section>
+
+    <!-- ============ 6. DATA MODEL ============ -->
+    <section id="s6">
+      <h2 class="sec"><span class="num">6</span> Data Model Overview</h2>
+      <p>60+ Eloquent models back the system. Grouped by domain:</p>
+      <div class="twrap">
+        <table>
+          <thead><tr><th>Domain</th><th>Key models</th></tr></thead>
+          <tbody>
+            <tr><td>Identity &amp; org</td><td class="mono">User, Team, UserFavorite</td></tr>
+            <tr><td>Leave &amp; WFH</td><td class="mono">LeaveRequest, LeaveType, LeaveBalance, LeaveBalanceAuditLog, LeaveAuditLog, LeaveLedger, LeaveAllocationLedger, LeavePolicySetting, EmployeeLeavePolicy, WfhRequest</td></tr>
+            <tr><td>Attendance</td><td class="mono">Attendance, AttendanceBreak, BiometricEvent, BiometricSyncState</td></tr>
+            <tr><td>Travel Allowance</td><td class="mono">TARequest, TARequestItem</td></tr>
+            <tr><td>Project Management</td><td class="mono">Project, ProjectMember, ProjectSetting, ProjectSubPhase, ProjectChecklistItem, ProjectChecklistAssignment, ProjectCorrection(+Attachment/Comment), ProjectTask, ProjectTaskAssignee, ProjectTaskAttachment, ProjectTaskComment, ProjectTaskBug, ProjectTaskCatalog, ProjectHubstaffToken, ProjectUserHubstaffLink, PmAddon, PmTeamAddon, CustomTeamPermission</td></tr>
+            <tr><td>Community &amp; Chat</td><td class="mono">CommunityPost, CommunityPostLike, CommunityPostComment, Conversation, ConversationParticipant, ChatMessage, ChatMessageAttachment</td></tr>
+            <tr><td>Engagement</td><td class="mono">Recognition, BirthdayWish, StickyNote</td></tr>
+            <tr><td>HR Services</td><td class="mono">DocumentRequest, DocumentUpload, HrPolicy, Holiday, WorkingDaysOverride, EmergencyContact</td></tr>
+            <tr><td>Helpdesk</td><td class="mono">Issue, IssueComment, IssueAttachment</td></tr>
+            <tr><td>Comms &amp; Announcements</td><td class="mono">Announcement, AnnouncementCategory, EmailSetting</td></tr>
+            <tr><td>Governance</td><td class="mono">AuditLog, SystemSetting, CustomizationSetting, ProfileUpdateRequest</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ 7. EXTERNAL INTERFACES ============ -->
+    <section id="s7">
+      <h2 class="sec"><span class="num">7</span> External Interfaces</h2>
+
+      <h3 class="sub"><span class="num">7.1</span> Email Notifications</h3>
+      <p>SMTP is configured per the Email &amp; SMTP Management add-on, with routing rules and per-employee overrides. Leave, WFH, and TA approval emails embed Laravel signed URLs (<code>email-approve</code> / <code>email-reject</code>) that let an approver act with one click without logging in first — the signed link redirects to the relevant management screen (<code>FRONTEND_URL</code>, defaulting to <code>http://localhost:3000</code>), which then prompts the logged-in admin to confirm the action with optional notes.</p>
+
+      <h3 class="sub"><span class="num">7.2</span> Biometric Device Ingestion</h3>
+      <p><code>POST /v1/biometric/ingest</code> accepts punch events from an external device agent, authenticated by a dedicated shared-secret middleware (<code>VerifyBiometricAgent</code>) rather than user login — this is a machine-to-machine interface.</p>
+
+      <h3 class="sub"><span class="num">7.3</span> Hubstaff Integration</h3>
+      <p>Per-project Hubstaff API tokens authorize pulling project/user lists and time-tracking analytics into the PM module, and linking Hubstaff users to portal employee accounts.</p>
+
+      <h3 class="sub"><span class="num">7.4</span> Scheduler Webhook</h3>
+      <p><code>POST /api/system/scheduler/run</code> is a bearer-secret-protected endpoint that invokes Laravel's <code>schedule:run</code> — a workaround for the cPanel host not exposing a native cron-to-artisan hook, meant to be called by an external cron pinger.</p>
+
+      <h3 class="sub"><span class="num">7.5</span> External Team Tracker Link</h3>
+      <p>The Team Lead navigation includes an outbound link to a separate hosted tool (<code>qa-tracker-pro.vercel.app</code>) — not part of this codebase, but part of the Team Lead's day-to-day toolchain.</p>
+    </section>
+
+    <!-- ============ 8. NON-FUNCTIONAL ============ -->
+    <section id="s8">
+      <h2 class="sec"><span class="num">8</span> Non-Functional Requirements</h2>
+      <div class="twrap">
+        <table>
+          <thead><tr><th>Category</th><th>Requirement</th></tr></thead>
+          <tbody>
+            <tr><td>Security</td><td>Token-based auth (Sanctum) on every non-public route; role checks re-validated server-side on every request; signed, time-limited URLs for unauthenticated email actions; a dedicated shared-secret middleware gates the biometric and scheduler webhooks.</td></tr>
+            <tr><td>Availability</td><td>Single-region deployment (Vercel + cPanel); no documented HA/failover — acceptable for an internal tool with business-hours usage.</td></tr>
+            <tr><td>Performance</td><td>Synchronous request/response for all operations, including email sends, since no queue worker runs in production — approval actions should complete without perceptible delay for typical SMTP round-trips.</td></tr>
+            <tr><td>Usability</td><td>Single consistent dark-theme design system across 45+ screens; role-aware navigation avoids exposing controls a user cannot act on.</td></tr>
+            <tr><td>Auditability</td><td>Leave balance changes and other sensitive admin actions are logged with actor, timestamp, and before/after state.</td></tr>
+            <tr><td>Maintainability</td><td>Controller-per-resource REST structure; Eloquent models mirror the schema 1:1; PM module explicitly isolated/additive to avoid regressing the core HR routes.</td></tr>
+            <tr><td>Data integrity</td><td>Soft deletes on Users, Teams, and TA requests preserve history instead of hard-deleting; foreign keys enforce referential integrity in PostgreSQL.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ 9. APPENDIX ============ -->
+    <section id="s9">
+      <h2 class="sec"><span class="num">9</span> Appendix — API Reference</h2>
+      <p class="lede">Complete endpoint list, grouped to match Section 4. All endpoints are under <code>/api</code> and require a Sanctum bearer token unless marked Public.</p>
+
+      <details open>
+        <summary>Auth &amp; Profile <span class="mono" style="font-weight:400;color:var(--text-muted);font-size:.78rem;">7 endpoints</span></summary>
+        <div class="twrap">
+          <table>
+            <tbody>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/login</td><td>Public</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/logout</td><td>All</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/me</td><td>All</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/profile</td><td>All</td></tr>
+              <tr><td><span class="method put">PUT</span></td><td class="mono">/me/profile</td><td>All</td></tr>
+              <tr><td><span class="method get">GET</span> / <span class="method post">POST</span></td><td class="mono">/me/profile/request</td><td>All</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/me/recognitions</td><td>All</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+
+      <details>
+        <summary>Employees &amp; Teams <span class="mono" style="font-weight:400;color:var(--text-muted);font-size:.78rem;">14 endpoints</span></summary>
+        <div class="twrap">
+          <table>
+            <tbody>
+              <tr><td><span class="method get">GET</span>/<span class="method post">POST</span>/<span class="method put">PUT</span>/<span class="method delete">DEL</span></td><td class="mono">/employees{,/{id}}</td><td>SA / TL</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/employees/{id}/password</td><td>SA / TL</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/employees/{id}/photo</td><td>SA / TL</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/employees/{id}/photo-url</td><td>SA / TL</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/employees/{id}/status</td><td>SA / TL</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/employees/import/sample</td><td>SA / TL</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/employees/import/csv</td><td>SA / TL</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/employees-search</td><td>All</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/employees/{id}/public</td><td>All</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/teams{,/{id}}</td><td>All (read)</td></tr>
+              <tr><td><span class="method post">POST</span>/<span class="method put">PUT</span>/<span class="method delete">DEL</span></td><td class="mono">/teams</td><td>SA / TL</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/teams/{id}/members</td><td>SA / TL</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+
+      <details>
+        <summary>Leave, WFH &amp; Leave Policy <span class="mono" style="font-weight:400;color:var(--text-muted);font-size:.78rem;">25 endpoints</span></summary>
+        <div class="twrap">
+          <table>
+            <tbody>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/leave-types{,/{id}}</td><td>All</td></tr>
+              <tr><td><span class="method post">POST</span>/<span class="method put">PUT</span>/<span class="method delete">DEL</span></td><td class="mono">/leave-types</td><td>SA / TL</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/leaves/calculate</td><td>All</td></tr>
+              <tr><td><span class="method get">GET</span>/<span class="method post">POST</span></td><td class="mono">/leave-requests</td><td>All</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/leave-requests/{id}/cancel</td><td>All</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/leave-requests/{id}/status</td><td>SA / TL</td></tr>
+              <tr><td><span class="method put">PUT</span></td><td class="mono">/leave-requests/{id}/override</td><td>SA</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/leave-requests/{id}/confirm-lop</td><td>SA</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/leave-requests/{id}/reject-lop</td><td>SA</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/leave-requests/{id}/email-approve</td><td>Public (signed)</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/leave-requests/{id}/email-reject</td><td>Public (signed)</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/leave-balances</td><td>All</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/leave-balances/{userId}</td><td>SA</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/leave-balance-audit-logs</td><td>SA</td></tr>
+              <tr><td><span class="method get">GET</span>/<span class="method post">POST</span></td><td class="mono">/wfh-requests</td><td>All</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/wfh-requests/{id}/cancel</td><td>All</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/wfh-requests/{id}/status</td><td>SA / TL</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/admin/mark-leave</td><td>SA</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/admin/mark-wfh</td><td>SA</td></tr>
+              <tr><td><span class="method get">GET</span>/<span class="method delete">DEL</span></td><td class="mono">/admin/approved-leaves{,/{id}}</td><td>SA</td></tr>
+              <tr><td><span class="method get">GET</span>/<span class="method delete">DEL</span></td><td class="mono">/admin/approved-wfh{,/{id}}</td><td>SA</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/admin/run-annual-allocation</td><td>SA</td></tr>
+              <tr><td><span class="method get">GET</span>/<span class="method post">POST</span></td><td class="mono">/leave-policy/settings</td><td>All read / SA write</td></tr>
+              <tr><td><span class="method get">GET</span>/<span class="method post">POST</span></td><td class="mono">/leave-policy/employees{,/{userId}}</td><td>All read / SA write</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/leave-policy/ledger</td><td>All</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/leave-policy/adjust-balance/{userId}</td><td>SA</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/leave-policy/trigger-cycle</td><td>SA</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+
+      <details>
+        <summary>Attendance &amp; Biometric <span class="mono" style="font-weight:400;color:var(--text-muted);font-size:.78rem;">7 endpoints</span></summary>
+        <div class="twrap">
+          <table>
+            <tbody>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/attendance/status</td><td>All</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/attendance/details</td><td>All</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/attendance/check-in</td><td>All</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/attendance/check-out</td><td>All</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/attendance/break-start</td><td>All</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/attendance/break-end</td><td>All</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/v1/biometric/ingest</td><td>Public (shared secret)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+
+      <details>
+        <summary>Travel Allowance <span class="mono" style="font-weight:400;color:var(--text-muted);font-size:.78rem;">9 endpoints</span></summary>
+        <div class="twrap">
+          <table>
+            <tbody>
+              <tr><td><span class="method get">GET</span>/<span class="method post">POST</span></td><td class="mono">/ta-requests</td><td>All</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/ta-requests/{id}</td><td>All (own)</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/ta-requests/{id}/cancel</td><td>All (own)</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/ta-requests/{id}/approve</td><td>SA</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/ta-requests/{id}/reject</td><td>SA</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/ta-requests/{id}/override</td><td>SA</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/ta-requests/{id}/mark-paid</td><td>SA</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/admin/ta-requests</td><td>SA</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/ta-requests/{id}/email-approve</td><td>Public (signed)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+
+      <details>
+        <summary>Project Management Suite <span class="mono" style="font-weight:400;color:var(--text-muted);font-size:.78rem;">33 endpoints</span></summary>
+        <div class="twrap">
+          <table>
+            <tbody>
+              <tr><td><span class="method get">GET</span>/<span class="method post">POST</span>/<span class="method put">PUT</span>/<span class="method delete">DEL</span></td><td class="mono">/projects{,/{id}}</td><td>All (scoped)</td></tr>
+              <tr><td><span class="method get">GET</span>/<span class="method post">POST</span>/<span class="method delete">DEL</span></td><td class="mono">/projects/{id}/members{,/{userId}}</td><td>All (scoped)</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/projects/{id}/coordinator</td><td>Eligible members</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/projects/{id}/mark-live</td><td>SA / TL</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/projects/{id}/status-details</td><td>All (scoped)</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/projects/import-hubstaff</td><td>SA / TL</td></tr>
+              <tr><td><span class="method get">GET</span>/<span class="method post">POST</span>/<span class="method put">PUT</span>/<span class="method delete">DEL</span></td><td class="mono">/project-tasks{,/{id}}</td><td>All (scoped)</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/project-tasks/my</td><td>All</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/project-tasks/daily-report</td><td>SA / TL</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/project-tasks/team-members</td><td>SA / TL</td></tr>
+              <tr><td><span class="method get">GET</span>/<span class="method post">POST</span></td><td class="mono">/project-tasks/import{,/template}</td><td>SA / TL</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/project-tasks/{id}/status</td><td>All (scoped)</td></tr>
+              <tr><td><span class="method post">POST</span>/<span class="method delete">DEL</span></td><td class="mono">/project-tasks/{id}/assignees{,/{userId}}</td><td>SA / TL</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/project-tasks/{id}/coordinator</td><td>Eligible assignees</td></tr>
+              <tr><td><span class="method get">GET</span>/<span class="method post">POST</span></td><td class="mono">/project-tasks/{id}/comments</td><td>All (scoped)</td></tr>
+              <tr><td><span class="method get">GET</span>/<span class="method post">POST</span>/<span class="method put">PUT</span>/<span class="method delete">DEL</span></td><td class="mono">/pm-task-catalog{,/{id}}</td><td>SA</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/pm/bug-reports</td><td>All (scoped)</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/pm/addons{,/my}</td><td>All</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/pm/addons/{id}/assign-teams</td><td>SA</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/pm/addons/{id}/toggle-status</td><td>SA</td></tr>
+              <tr><td><span class="method get">GET</span>/<span class="method post">POST</span></td><td class="mono">/addons/permissions</td><td>SA</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/user-permissions</td><td>All</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/hubstaff/analytics</td><td>SA / TL</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/hubstaff/projects</td><td>SA / TL</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/hubstaff/users</td><td>SA / TL</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/hubstaff/link-user</td><td>SA / TL</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/hubstaff/sync-users</td><td>SA / TL</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>An identical set is mirrored under <code>/pm/hubstaff/*</code> for backward compatibility.</p>
+      </details>
+
+      <details>
+        <summary>Community, Chat &amp; AI <span class="mono" style="font-weight:400;color:var(--text-muted);font-size:.78rem;">20 endpoints</span></summary>
+        <div class="twrap">
+          <table>
+            <tbody>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/community/{summary,employees,projects}</td><td>All</td></tr>
+              <tr><td><span class="method get">GET</span>/<span class="method post">POST</span>/<span class="method delete">DEL</span></td><td class="mono">/community/posts{,/{id}}</td><td>All</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/community/posts/{id}/{like,comments,vote}</td><td>All</td></tr>
+              <tr><td><span class="method delete">DEL</span></td><td class="mono">/community/comments/{id}</td><td>Author / SA</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/direct-chat/conversations</td><td>All</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/direct-chat/conversations/direct</td><td>All</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/direct-chat/users/search</td><td>All</td></tr>
+              <tr><td><span class="method get">GET</span>/<span class="method post">POST</span></td><td class="mono">/direct-chat/conversations/{id}/messages</td><td>All (participants)</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/direct-chat/conversations/{id}/read</td><td>All (participants)</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/direct-chat/heartbeat</td><td>All</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/direct-chat/unread-count</td><td>All</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/direct-chat/admin/conversations{,/{id}/messages}</td><td>SA</td></tr>
+              <tr><td><span class="method delete">DEL</span></td><td class="mono">/direct-chat/admin/conversations/{id}/clear</td><td>SA</td></tr>
+              <tr><td><span class="method delete">DEL</span></td><td class="mono">/direct-chat/admin/messages/{id}</td><td>SA</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/chat/context</td><td>All</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/chat</td><td>All</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+
+      <details>
+        <summary>Engagement, HR Services &amp; Helpdesk <span class="mono" style="font-weight:400;color:var(--text-muted);font-size:.78rem;">28 endpoints</span></summary>
+        <div class="twrap">
+          <table>
+            <tbody>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/hall</td><td>All</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/active-recognitions</td><td>All</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/recognitions/{leaderboard,top-awardee,employee/{userId}}</td><td>All</td></tr>
+              <tr><td><span class="method get">GET</span>/<span class="method post">POST</span>/<span class="method put">PUT</span>/<span class="method delete">DEL</span></td><td class="mono">/recognitions{,/{id},/{id}/toggle}</td><td>SA</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/birthday-wishes</td><td>All</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/birthday-wishes/my-wishes</td><td>All</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/users/{userId}/wishes</td><td>All</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/today-wishes</td><td>All</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/today-birthdays</td><td>All</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/calendar</td><td>All</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/holidays</td><td>All</td></tr>
+              <tr><td><span class="method post">POST</span>/<span class="method put">PUT</span>/<span class="method delete">DEL</span></td><td class="mono">/holidays{,/seed-kerala,/{id}}</td><td>SA</td></tr>
+              <tr><td><span class="method get">GET</span>/<span class="method post">POST</span>/<span class="method delete">DEL</span></td><td class="mono">/working-days-overrides{,/{id}}</td><td>All read / SA write</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/announcements</td><td>All</td></tr>
+              <tr><td><span class="method post">POST</span>/<span class="method put">PUT</span>/<span class="method delete">DEL</span></td><td class="mono">/announcements/{id}</td><td>SA</td></tr>
+              <tr><td><span class="method get">GET</span>/<span class="method post">POST</span></td><td class="mono">/announcement-categories</td><td>All read / SA write</td></tr>
+              <tr><td><span class="method get">GET</span>/<span class="method post">POST</span></td><td class="mono">/document-requests</td><td>All</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/document-requests/{id}/upload</td><td>SA</td></tr>
+              <tr><td><span class="method get">GET</span>/<span class="method post">POST</span>/<span class="method delete">DEL</span></td><td class="mono">/hr-policies{,/{id}}</td><td>All read / SA write</td></tr>
+              <tr><td><span class="method get">GET</span>/<span class="method post">POST</span>/<span class="method put">PUT</span>/<span class="method delete">DEL</span></td><td class="mono">/issues{,/{id}}</td><td>All</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/issues/{id}/comments</td><td>All</td></tr>
+              <tr><td><span class="method put">PUT</span></td><td class="mono">/issues/{id}/{status,assign}</td><td>SA</td></tr>
+              <tr><td><span class="method get">GET</span>/<span class="method post">POST</span>/<span class="method put">PUT</span>/<span class="method delete">DEL</span></td><td class="mono">/sticky-notes{,/{id},/clear}</td><td>All (own)</td></tr>
+              <tr><td><span class="method get">GET</span>/<span class="method post">POST</span>/<span class="method delete">DEL</span></td><td class="mono">/favorites{,/check/{href},/{href}}</td><td>All (own)</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/emergency-contacts</td><td>All</td></tr>
+              <tr><td><span class="method get">GET</span>/<span class="method post">POST</span>/<span class="method put">PUT</span>/<span class="method delete">DEL</span>/<span class="method patch">PATCH</span></td><td class="mono">/admin/emergency-contacts{,/{id},/{id}/toggle,/reorder,/sync-team-leads}</td><td>SA</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/notifications{,/unread}</td><td>All</td></tr>
+              <tr><td><span class="method post">POST</span>/<span class="method delete">DEL</span></td><td class="mono">/notifications/{mark-as-read/{id?},/{id}}</td><td>All</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+
+      <details>
+        <summary>Reports, Audit &amp; Administration <span class="mono" style="font-weight:400;color:var(--text-muted);font-size:.78rem;">22 endpoints</span></summary>
+        <div class="twrap">
+          <table>
+            <tbody>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/reports/{employees,leaves,leave-balances,attendance-summary,employee-list}</td><td>SA / TL</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/audit-logs</td><td>SA</td></tr>
+              <tr><td><span class="method get">GET</span>/<span class="method post">POST</span></td><td class="mono">/settings</td><td>SA</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/customization/settings</td><td>Public</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/uploads/customization/{filename}</td><td>Public</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/customization/{settings,upload,reset}</td><td>SA</td></tr>
+              <tr><td><span class="method get">GET</span>/<span class="method post">POST</span></td><td class="mono">/email-settings{,/smtp,/routing,/employee-overrides,/test}</td><td>SA</td></tr>
+              <tr><td><span class="method get">GET</span>/<span class="method post">POST</span></td><td class="mono">/storage-settings{,/cleanup-now}</td><td>SA</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/admin/run-migrations</td><td>SA</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/admin/optimize-cache</td><td>SA</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/admin/fix-attendance-timezone</td><td>SA</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/admin/ensure-leave-types</td><td>SA</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/admin/ensure-database-columns</td><td>SA</td></tr>
+              <tr><td><span class="method post">POST</span></td><td class="mono">/system/scheduler/run</td><td>Public (bearer secret)</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/ping</td><td>Public</td></tr>
+              <tr><td><span class="method get">GET</span></td><td class="mono">/photos/{path}, /storage/{path}</td><td>Public</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </section>
+
+    <footer class="doc-foot">
+      <span>Intersmart Employee Portal — Software Requirements Specification v1.0</span>
+      <span>Compiled from the live <code>main</code> branch, 07 Sep 2026</span>
+    </footer>
+  </main>
+</div>

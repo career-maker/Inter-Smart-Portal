@@ -279,23 +279,23 @@ export default function ProjectManagementDashboard() {
             className="p-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/80 !text-slate-800 dark:!text-slate-200 border border-slate-300 dark:border-slate-700 shadow-2xs transition-colors disabled:opacity-50 cursor-pointer"
             title="Refresh Data"
           >
-            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-[#56348f]" : "text-slate-700 dark:text-slate-300"}`} />
+            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-teal-600" : "text-slate-700 dark:text-slate-300"}`} />
           </button>
 
           <Link
             href="/project-management/tasks/my"
-            style={{ backgroundColor: "#f3e8ff", color: "#56348f", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-100 dark:bg-purple-950/60 hover:bg-purple-200/80 dark:hover:bg-purple-900/80 !text-[#56348f] dark:!text-purple-300 text-[13px] leading-[20px] font-normal border border-purple-300 dark:border-purple-800/80 shadow-2xs transition-colors"
+            style={{ backgroundColor: "#E6F8F6", color: "#0F766E", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-teal-50 dark:bg-teal-950/60 hover:bg-teal-100/80 dark:hover:bg-teal-900/80 !text-teal-800 dark:!text-teal-300 text-[13px] leading-[20px] font-normal border border-teal-200 dark:border-teal-800/80 shadow-2xs transition-colors"
           >
-            <ListTodo className="w-4 h-4 !text-[#56348f] dark:!text-purple-300" />
-            <span style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }} className="!text-[#56348f] dark:!text-purple-300">My Tasks</span>
+            <ListTodo className="w-4 h-4 !text-teal-700 dark:!text-teal-300" />
+            <span style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }} className="!text-teal-800 dark:!text-teal-300">My Tasks</span>
           </Link>
 
 
           <Link
             href="/project-management/projects"
-            style={{ backgroundColor: "#56348f", color: "rgb(255, 255, 255)", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-[13px] leading-[20px] font-normal shadow-sm transition-colors"
+            style={{ backgroundColor: "var(--portal-primary-color, #0F766E)", color: "rgb(255, 255, 255)", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-teal-700 hover:bg-teal-800 !text-white text-[13px] leading-[20px] font-normal shadow-sm transition-colors"
           >
             <FolderKanban className="w-4 h-4 !text-white" />
             <span style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400, color: "rgb(255, 255, 255)" }} className="!text-white">View Projects</span>

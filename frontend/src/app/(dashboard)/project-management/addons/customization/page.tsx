@@ -135,6 +135,208 @@ const PRIMARY_COLOR_PRESETS = [
   { label: "Rose", hex: "#f43f5e" },
 ];
 
+export interface PalettePreset {
+  id: string;
+  name: string;
+  tagline: string;
+  category: "green_teal" | "corporate" | "dark";
+  previewColors: string[];
+  settings: {
+    sidebar_bg_color: string;
+    sidebar_hover_color: string;
+    sidebar_active_color: string;
+    header_bg_color: string;
+    primary_color: string;
+    hover_color: string;
+    active_color: string;
+    dark_text_color: string;
+    light_bg_color: string;
+    card_bg_color: string;
+    border_color: string;
+    header_text_color: string;
+    sub_header_active_color: string;
+  };
+}
+
+export const PALETTE_PRESETS: PalettePreset[] = [
+  {
+    id: "default_current",
+    name: "Default (Current Style)",
+    tagline: "Balanced Teal & Emerald contrast - InterSmart standard",
+    category: "green_teal",
+    previewColors: ["#093E3A", "#0F766E", "#138A80", "#14A092", "#E6F8F6"],
+    settings: {
+      sidebar_bg_color: "#093E3A",
+      sidebar_hover_color: "#138A80",
+      sidebar_active_color: "#14A092",
+      header_bg_color: "#0F766E",
+      primary_color: "#0F766E",
+      hover_color: "#138A80",
+      active_color: "#14A092",
+      dark_text_color: "#093E3A",
+      light_bg_color: "#E6F8F6",
+      card_bg_color: "#F2FCFB",
+      border_color: "#CBEFEA",
+      header_text_color: "#FFFFFF",
+      sub_header_active_color: "#0F766E",
+    },
+  },
+  {
+    id: "deep_professional",
+    name: "Deep Professional",
+    tagline: "Executive dark teal header with bright cyan highlights",
+    category: "green_teal",
+    previewColors: ["#052F2D", "#093E3A", "#0F766E", "#4DC4B8", "#CBEFEA"],
+    settings: {
+      sidebar_bg_color: "#052F2D",
+      sidebar_hover_color: "#0F766E",
+      sidebar_active_color: "#4DC4B8",
+      header_bg_color: "#093E3A",
+      primary_color: "#0F766E",
+      hover_color: "#138A80",
+      active_color: "#4DC4B8",
+      dark_text_color: "#052F2D",
+      light_bg_color: "#E6F8F6",
+      card_bg_color: "#F2FCFB",
+      border_color: "#CBEFEA",
+      header_text_color: "#FFFFFF",
+      sub_header_active_color: "#4DC4B8",
+    },
+  },
+  {
+    id: "modern_fresh",
+    name: "Modern Fresh",
+    tagline: "Vibrant aqua header with mint accents and crisp card borders",
+    category: "green_teal",
+    previewColors: ["#0C514B", "#14A092", "#2FB5A8", "#7FD6CC", "#F2FCFB"],
+    settings: {
+      sidebar_bg_color: "#0C514B",
+      sidebar_hover_color: "#14A092",
+      sidebar_active_color: "#2FB5A8",
+      header_bg_color: "#14A092",
+      primary_color: "#14A092",
+      hover_color: "#2FB5A8",
+      active_color: "#7FD6CC",
+      dark_text_color: "#093E3A",
+      light_bg_color: "#E6F8F6",
+      card_bg_color: "#F2FCFB",
+      border_color: "#CBEFEA",
+      header_text_color: "#FFFFFF",
+      sub_header_active_color: "#14A092",
+    },
+  },
+  {
+    id: "soft_minimal",
+    name: "Soft Minimal",
+    tagline: "Light pastel sage aesthetic with subtle contrast lines",
+    category: "green_teal",
+    previewColors: ["#0F766E", "#2FB5A8", "#7FD6CC", "#A7E3DB", "#F8FCFC"],
+    settings: {
+      sidebar_bg_color: "#0F766E",
+      sidebar_hover_color: "#2FB5A8",
+      sidebar_active_color: "#7FD6CC",
+      header_bg_color: "#2FB5A8",
+      primary_color: "#2FB5A8",
+      hover_color: "#7FD6CC",
+      active_color: "#A7E3DB",
+      dark_text_color: "#093E3A",
+      light_bg_color: "#E6F8F6",
+      card_bg_color: "#F8FCFC",
+      border_color: "#CBEFEA",
+      header_text_color: "#FFFFFF",
+      sub_header_active_color: "#2FB5A8",
+    },
+  },
+  {
+    id: "premium_dark",
+    name: "Premium Dark",
+    tagline: "Obsidian teal stealth aesthetic with rich glowing emerald tones",
+    category: "green_teal",
+    previewColors: ["#052F2D", "#0C514B", "#0F766E", "#14A092", "#4DC4B8"],
+    settings: {
+      sidebar_bg_color: "#052F2D",
+      sidebar_hover_color: "#0C514B",
+      sidebar_active_color: "#14A092",
+      header_bg_color: "#0F766E",
+      primary_color: "#0F766E",
+      hover_color: "#0C514B",
+      active_color: "#14A092",
+      dark_text_color: "#052F2D",
+      light_bg_color: "#E6F8F6",
+      card_bg_color: "#F2FCFB",
+      border_color: "#4DC4B8",
+      header_text_color: "#FFFFFF",
+      sub_header_active_color: "#14A092",
+    },
+  },
+  {
+    id: "forest_emerald",
+    name: "Forest Emerald",
+    tagline: "Rich deep pine and emerald greens for a lush organic feel",
+    category: "green_teal",
+    previewColors: ["#022C22", "#064E3B", "#059669", "#10B981", "#ECFDF5"],
+    settings: {
+      sidebar_bg_color: "#022C22",
+      sidebar_hover_color: "#064E3B",
+      sidebar_active_color: "#059669",
+      header_bg_color: "#064E3B",
+      primary_color: "#059669",
+      hover_color: "#10B981",
+      active_color: "#34D399",
+      dark_text_color: "#022C22",
+      light_bg_color: "#ECFDF5",
+      card_bg_color: "#F0FDF4",
+      border_color: "#A7F3D0",
+      header_text_color: "#FFFFFF",
+      sub_header_active_color: "#059669",
+    },
+  },
+  {
+    id: "ocean_sapphire",
+    name: "Ocean Sapphire",
+    tagline: "Modern navy blue and electric sapphire corporate finish",
+    category: "corporate",
+    previewColors: ["#082F49", "#0369A1", "#0284C7", "#38BDF8", "#F0F9FF"],
+    settings: {
+      sidebar_bg_color: "#082F49",
+      sidebar_hover_color: "#0369A1",
+      sidebar_active_color: "#0284C7",
+      header_bg_color: "#0369A1",
+      primary_color: "#0284C7",
+      hover_color: "#38BDF8",
+      active_color: "#7DD3FC",
+      dark_text_color: "#082F49",
+      light_bg_color: "#F0F9FF",
+      card_bg_color: "#F8FAFC",
+      border_color: "#BAE6FD",
+      header_text_color: "#FFFFFF",
+      sub_header_active_color: "#0284C7",
+    },
+  },
+  {
+    id: "executive_slate",
+    name: "Executive Slate",
+    tagline: "Neutral graphite slate with crisp teal brand action accents",
+    category: "corporate",
+    previewColors: ["#0F172A", "#1E293B", "#0F766E", "#14A092", "#F8FAFC"],
+    settings: {
+      sidebar_bg_color: "#0F172A",
+      sidebar_hover_color: "#1E293B",
+      sidebar_active_color: "#0F766E",
+      header_bg_color: "#1E293B",
+      primary_color: "#0F766E",
+      hover_color: "#138A80",
+      active_color: "#14A092",
+      dark_text_color: "#0F172A",
+      light_bg_color: "#F8FAFC",
+      card_bg_color: "#FFFFFF",
+      border_color: "#E2E8F0",
+      header_text_color: "#FFFFFF",
+      sub_header_active_color: "#0F766E",
+    },
+  },
+];
+
 const RADIUS_OPTIONS = [
   { id: "4px", label: "4px Sharp", desc: "Enterprise & structured" },
   { id: "8px", label: "8px Subtle", desc: "Classic & refined" },
@@ -278,6 +480,18 @@ export default function CustomizationPage() {
     setForm(updated);
     setPreviewSettings(updated);
     setSuccessMessage("Green / Teal unified brand color palette applied! Click 'Save Changes' to persist.");
+    setErrorMessage(null);
+  };
+
+  // Apply any curated multi-token color palette preset
+  const applyPalettePreset = (preset: PalettePreset) => {
+    const updated: CustomizationSettings = {
+      ...form,
+      ...preset.settings,
+    };
+    setForm(updated);
+    setPreviewSettings(updated);
+    setSuccessMessage(`Applied "${preset.name}" color palette! Click 'Save Changes' below to persist.`);
     setErrorMessage(null);
   };
 
@@ -1051,24 +1265,24 @@ export default function CustomizationPage() {
                   <div className="flex items-center gap-2">
                     <h2 className="text-[15px] font-semibold text-slate-900 dark:text-white box-title">Global Brand Color Palette System</h2>
                     <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-100 text-teal-800 dark:bg-teal-900/60 dark:text-teal-200">
-                      Green / Teal Active
+                      Brand Themes
                     </span>
                   </div>
                   <p className="text-[13px] text-slate-500 dark:text-slate-400">
-                    Unified brand palette applied system-wide (Header, interactive buttons, cards, backgrounds, borders, and typography).
+                    Unified brand palettes applied system-wide (Header, side menu, interactive buttons, cards, backgrounds, borders, and typography).
                   </p>
                 </div>
               </div>
 
-              {/* One-Click Apply Button with Palette Preview Dots */}
+              {/* One-Click Quick Apply Default Green/Teal Button */}
               <button
                 type="button"
                 onClick={applyGreenTealPalette}
                 className="flex items-center gap-2.5 px-4 py-2 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-xs font-semibold shadow-xs transition-all cursor-pointer self-start sm:self-auto shrink-0"
-                title="Reset/Apply the standard Green / Teal 8-color system"
+                title="Apply standard InterSmart Green / Teal 8-color system"
               >
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Apply Green / Teal Palette</span>
+                <span>Reset to Default Teal</span>
                 <div className="flex items-center -space-x-1 ml-1">
                   {["#0F766E", "#138A80", "#14A092", "#093E3A", "#E6F8F6", "#F2FCFB", "#CBEFEA", "#FFFFFF"].map((c, i) => (
                     <span
@@ -1079,6 +1293,105 @@ export default function CustomizationPage() {
                   ))}
                 </div>
               </button>
+            </div>
+
+            {/* CURATED COLOR PALETTE PRESETS (ONE-CLICK SELECTION) */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-teal-900 dark:text-teal-200">
+                    Curated Color Palettes (Click to Apply)
+                  </h3>
+                  <p className="text-[12px] text-slate-500 dark:text-slate-400">
+                    Select any pre-configured color harmony to immediately transform your entire portal layout and buttons.
+                  </p>
+                </div>
+                <span className="text-[11px] font-medium text-slate-500">
+                  {PALETTE_PRESETS.length} Themes Available
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                {PALETTE_PRESETS.map((preset) => {
+                  const isActive =
+                    (form.header_bg_color || "").toLowerCase() === preset.settings.header_bg_color.toLowerCase() &&
+                    (form.sidebar_bg_color || "").toLowerCase() === preset.settings.sidebar_bg_color.toLowerCase();
+
+                  return (
+                    <div
+                      key={preset.id}
+                      onClick={() => applyPalettePreset(preset)}
+                      className={`group relative p-3.5 rounded-xl border transition-all duration-200 cursor-pointer flex flex-col justify-between text-left ${
+                        isActive
+                          ? "bg-teal-50/70 dark:bg-teal-950/40 border-teal-600 dark:border-teal-400 shadow-md ring-2 ring-teal-500/30"
+                          : "bg-slate-50/70 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 hover:border-teal-400 dark:hover:border-teal-600 hover:shadow-xs"
+                      }`}
+                    >
+                      {/* Top row: Name & Active Indicator */}
+                      <div>
+                        <div className="flex items-center justify-between gap-1 mb-1">
+                          <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                            {preset.name}
+                          </span>
+                          {isActive ? (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-teal-600 text-white shrink-0">
+                              <Check className="w-2.5 h-2.5" />
+                              Active
+                            </span>
+                          ) : (
+                            <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 capitalize shrink-0">
+                              {preset.category === "green_teal" ? "Teal" : preset.category}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed mb-3">
+                          {preset.tagline}
+                        </p>
+                      </div>
+
+                      {/* Bottom row: Swatches & Apply button */}
+                      <div className="pt-2 border-t border-slate-200/60 dark:border-slate-800/60 flex items-center justify-between gap-2">
+                        {/* 5 Swatches Strip */}
+                        <div className="flex items-center -space-x-1.5 overflow-hidden">
+                          {preset.previewColors.map((color, idx) => (
+                            <span
+                              key={idx}
+                              className="w-5 h-5 rounded-full border-2 border-white dark:border-slate-900 shadow-xs shrink-0 transition-transform group-hover:scale-110"
+                              style={{ backgroundColor: color }}
+                              title={color}
+                            />
+                          ))}
+                        </div>
+
+                        {/* Action Text */}
+                        <span
+                          className={`text-[11px] font-semibold transition-colors ${
+                            isActive
+                              ? "text-teal-700 dark:text-teal-300 font-bold"
+                              : "text-slate-600 dark:text-slate-400 group-hover:text-teal-600 dark:group-hover:text-teal-400"
+                          }`}
+                        >
+                          {isActive ? "Selected" : "Apply →"}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* DIVIDER & CUSTOM FINE-TUNING HEADER */}
+            <div className="pt-4 border-t border-slate-200/80 dark:border-slate-800">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
+                    Fine-Tune Individual Component Colors
+                  </h3>
+                  <p className="text-[12px] text-slate-500 dark:text-slate-400">
+                    Customize specific UI areas to perfectly align with your brand guidelines.
+                  </p>
+                </div>
+              </div>
             </div>
 
             {/* Portal Component Color Grid */}

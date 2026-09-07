@@ -167,8 +167,8 @@ export default function LoginPage() {
         Your browser does not support the video tag.
       </video>
 
-      {/* Video overlay to darken it */}
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-[0.5px]" style={{ zIndex: 2 }}></div>
+      {/* Video overlay to darken it - semi-transparent black overlay for readability */}
+      <div className="absolute inset-0 backdrop-blur-[0.5px]" style={{ zIndex: 2, backgroundColor: 'rgba(0,0,0,0.55)' }}></div>
 
       {/* Animated gradient background */}
       <div className="absolute inset-0 opacity-20 overflow-hidden pointer-events-none" style={{ zIndex: 3 }}>

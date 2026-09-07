@@ -192,7 +192,7 @@ export default function ProjectsListPage() {
             className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 !text-slate-800 dark:!text-slate-200 border border-slate-300 dark:border-slate-700 transition-colors disabled:opacity-50 cursor-pointer"
             title="Refresh List"
           >
-            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-[#56348f]" : "text-slate-700 dark:text-slate-300"}`} />
+            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-teal-600" : "text-slate-700 dark:text-slate-300"}`} />
           </button>
 
           {/* Hubstaff Bulk Import Button (Always visible) */}
@@ -212,8 +212,8 @@ export default function ProjectsListPage() {
           <button
             type="button"
             onClick={() => setIsCreateModalOpen(true)}
-            style={{ backgroundColor: "#56348f", color: "rgb(255, 255, 255)", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-[13px] leading-[20px] font-normal shadow-sm transition-colors cursor-pointer"
+            style={{ backgroundColor: "var(--portal-primary-color, #0F766E)", color: "rgb(255, 255, 255)", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-teal-700 hover:bg-teal-800 !text-white text-[13px] leading-[20px] font-normal shadow-sm transition-colors cursor-pointer"
           >
             <Plus className="w-4 h-4 !text-white" />
             <span style={{ color: "rgb(255, 255, 255)", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }} className="!text-white">Create Project</span>
@@ -268,7 +268,7 @@ export default function ProjectsListPage() {
                   setStatusFilter(status);
                 }}
                 style={{
-                  backgroundColor: isSelected ? "#56348f" : undefined,
+                  backgroundColor: isSelected ? "var(--portal-primary-color, #0F766E)" : undefined,
                   color: isSelected ? "rgb(255, 255, 255)" : undefined,
                   fontFamily: '"Proxima Nova", sans-serif',
                   fontSize: "13px",
@@ -277,8 +277,8 @@ export default function ProjectsListPage() {
                 }}
                 className={`px-3.5 py-1.5 rounded-xl text-[13px] leading-[20px] font-normal whitespace-nowrap transition-all cursor-pointer ${
                   isSelected
-                    ? "bg-[#56348f] !text-white shadow-sm"
-                    : "bg-slate-100 dark:bg-slate-800 !text-slate-800 dark:!text-slate-200 hover:bg-purple-50 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700"
+                    ? "bg-teal-700 !text-white shadow-sm"
+                    : "bg-slate-100 dark:bg-slate-800 !text-slate-800 dark:!text-slate-200 hover:bg-teal-50 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700"
                 }`}
               >
                 {status}
@@ -456,14 +456,14 @@ export default function ProjectsListPage() {
                               setIsMarkLiveOpen(true);
                             }}
                             style={{
-                              backgroundColor: "#56348f",
+                              backgroundColor: "var(--portal-primary-color, #0F766E)",
                               color: "rgb(255, 255, 255)",
                               fontFamily: '"Proxima Nova", sans-serif',
                               fontSize: "12px",
                               lineHeight: "18px",
                               fontWeight: 500,
                             }}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-medium shadow-sm transition-colors cursor-pointer shrink-0 whitespace-nowrap"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-teal-700 hover:bg-teal-800 !text-white text-xs font-medium shadow-sm transition-colors cursor-pointer shrink-0 whitespace-nowrap"
                             title="Mark project as Made Live"
                           >
                             <Rocket className="w-3.5 h-3.5 !text-white shrink-0" />

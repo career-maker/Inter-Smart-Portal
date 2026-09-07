@@ -504,8 +504,8 @@ export function CreateTaskModal({
             <button
               type="submit"
               disabled={submitting || !formData.title.trim() || !projectId}
-              style={{ backgroundColor: "#56348f", color: "rgb(255, 255, 255)", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
-              className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-[13px] leading-[20px] font-normal shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
+              style={{ backgroundColor: "var(--portal-primary-color, #0F766E)", color: "rgb(255, 255, 255)", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+              className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-teal-700 hover:bg-teal-800 !text-white text-[13px] leading-[20px] font-normal shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
             >
               {submitting ? (
                 <>

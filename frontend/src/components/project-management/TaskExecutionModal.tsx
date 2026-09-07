@@ -490,8 +490,8 @@ export function TaskExecutionModal({
               <button
                 type="submit"
                 disabled={submitting || deleting}
-                style={{ backgroundColor: "#56348f", color: "#ffffff", fontFamily: '"Proxima Nova", sans-serif' }}
-                className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs sm:text-sm font-semibold shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
+                style={{ backgroundColor: "var(--portal-primary-color, #0F766E)", color: "#ffffff", fontFamily: '"Proxima Nova", sans-serif' }}
+                className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-teal-700 hover:bg-teal-800 !text-white text-xs sm:text-sm font-semibold shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
               >
                 {submitting ? (
                   <>
