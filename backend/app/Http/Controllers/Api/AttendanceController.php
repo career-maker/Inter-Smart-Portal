@@ -162,21 +162,48 @@ class AttendanceController extends Controller
         }
 
         $now = Carbon::now('Asia/Kolkata');
-        if ($existing) {
-            $existing->update([
-                'check_in_time' => $now,
-                'status'        => 'Present',
-                'source'        => 'wfh_manual',
-            ]);
-            $attendance = $existing;
-        } else {
-            $attendance = Attendance::create([
-                'user_id'        => $user->id,
-                'date'           => $today,
-                'check_in_time'  => $now,
-                'status'         => 'Present',
-                'source'         => 'wfh_manual',
-            ]);
+        $source = 'wfh_manual';
+
+        try {
+            if ($existing) {
+                $existing->update([
+                    'check_in_time' => $now,
+                    'status'        => 'Present',
+                    'source'        => $source,
+                ]);
+                $attendance = $existing;
+            } else {
+                $attendance = Attendance::create([
+                    'user_id'        => $user->id,
+                    'date'           => $today,
+                    'check_in_time'  => $now,
+                    'status'         => 'Present',
+                    'source'         => $source,
+                ]);
+            }
+        } catch (\Throwable $e) {
+            // If DB column is still enum('manual', 'biometric') prior to migration, fallback to 'manual'
+            if (str_contains($e->getMessage(), 'source') || str_contains($e->getMessage(), '1265')) {
+                $source = 'manual';
+                if ($existing) {
+                    $existing->update([
+                        'check_in_time' => $now,
+                        'status'        => 'Present',
+                        'source'        => $source,
+                    ]);
+                    $attendance = $existing;
+                } else {
+                    $attendance = Attendance::create([
+                        'user_id'        => $user->id,
+                        'date'           => $today,
+                        'check_in_time'  => $now,
+                        'status'         => 'Present',
+                        'source'         => $source,
+                    ]);
+                }
+            } else {
+                throw $e;
+            }
         }
 
         return response()->json([
