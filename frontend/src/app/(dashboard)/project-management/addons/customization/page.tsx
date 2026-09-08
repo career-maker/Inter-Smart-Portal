@@ -68,6 +68,7 @@ const HEADER_COLOR_PRESETS = [
   { label: "Obsidian Black", hex: "#0f172a" },
   { label: "Rose Crimson", hex: "#be123c" },
   { label: "Warm Maroon", hex: "#881337" },
+  { label: "Imperial Gold", hex: "#CCA50A" },
 ];
 
 const HEADER_TEXT_PRESETS = [
@@ -93,6 +94,7 @@ const SUB_HEADER_ACTIVE_PRESETS = [
   { label: "Royal Blue", hex: "#2563eb" },
   { label: "Amber", hex: "#d97706" },
   { label: "Rose", hex: "#e11d48" },
+  { label: "Imperial Gold", hex: "#CCA50A" },
 ];
 
 const SIDEBAR_COLOR_PRESETS = [
@@ -113,6 +115,7 @@ const SIDEBAR_ACTIVE_PRESETS = [
   { label: "Keka Purple", hex: "#56348f" },
   { label: "Royal Blue", hex: "#1d4ed8" },
   { label: "Dark Slate", hex: "#1e293b" },
+  { label: "Imperial Gold", hex: "#CCA50A" },
 ];
 
 const SIDEBAR_HOVER_PRESETS = [
@@ -122,6 +125,7 @@ const SIDEBAR_HOVER_PRESETS = [
   { label: "Deep Slate", hex: "#1e293b" },
   { label: "Keka Purple", hex: "#6b46a8" },
   { label: "Emerald", hex: "#047857" },
+  { label: "Bronze Gold", hex: "#4D3C08" },
 ];
 
 const PRIMARY_COLOR_PRESETS = [
@@ -133,6 +137,7 @@ const PRIMARY_COLOR_PRESETS = [
   { label: "Emerald", hex: "#10b981" },
   { label: "Amber", hex: "#f59e0b" },
   { label: "Rose", hex: "#f43f5e" },
+  { label: "Imperial Gold", hex: "#CCA50A" },
 ];
 
 export interface PalettePreset {
@@ -400,6 +405,28 @@ export const PALETTE_PRESETS: PalettePreset[] = [
       border_color: "#FDE68A",
       header_text_color: "#FFFFFF",
       sub_header_active_color: "#D97706",
+    },
+  },
+  {
+    id: "imperial_gold",
+    name: "Imperial Gold (#CCA50A)",
+    tagline: "Prestigious radiant gold (#CCA50A) and warm ochre with deep espresso bronze depth",
+    category: "warm",
+    previewColors: ["#1F1803", "#4D3C08", "#CCA50A", "#E0B70E", "#FDFBE8"],
+    settings: {
+      sidebar_bg_color: "#1F1803",
+      sidebar_hover_color: "#4D3C08",
+      sidebar_active_color: "#CCA50A",
+      header_bg_color: "#CCA50A",
+      primary_color: "#CCA50A",
+      hover_color: "#E0B70E",
+      active_color: "#F3C81A",
+      dark_text_color: "#1F1803",
+      light_bg_color: "#FDFBE8",
+      card_bg_color: "#FFFEF7",
+      border_color: "#F5E598",
+      header_text_color: "#FFFFFF",
+      sub_header_active_color: "#CCA50A",
     },
   },
   {
