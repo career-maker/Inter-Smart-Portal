@@ -112,6 +112,11 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
     root.style.setProperty("--border", borderColor);
     root.style.setProperty("--primary", primaryColor);
     root.style.setProperty("--foreground", darkTextColor);
+    root.style.setProperty("--sidebar", sidebarBg);
+    root.style.setProperty("--sidebar-primary", sidebarActive);
+    root.style.setProperty("--sidebar-accent", sidebarHover);
+    root.style.setProperty("--sidebar-border", borderColor);
+    root.style.setProperty("--ring", primaryColor);
 
     // 5. Font Sizes & Scales
     const bodySize = conf.body_font_size ? (conf.body_font_size.endsWith("px") ? conf.body_font_size : `${conf.body_font_size}px`) : "12px";

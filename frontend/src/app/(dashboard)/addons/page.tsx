@@ -214,14 +214,14 @@ export default function PmAddonsPage() {
                 key={addon.id}
                 className={`rounded-2xl bg-white dark:bg-slate-900 border transition-all shadow-sm p-6 space-y-5 ${
                   addon.is_active
-                    ? "border-[#CBEFEA] dark:border-teal-800/60 ring-1 ring-[#0F766E]/10"
+                    ? "border-slate-200 dark:border-slate-800 ring-1 ring-black/5 dark:ring-white/5"
                     : "border-slate-200 dark:border-slate-800 opacity-80"
                 }`}
               >
                 {/* Header */}
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-start gap-3">
-                    <div className="p-3 rounded-2xl bg-teal-50 dark:bg-teal-950/80 text-[#0F766E] dark:text-teal-300 shrink-0">
+                    <div className="p-3 rounded-2xl bg-purple-50 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300 shrink-0">
                       {addon.key === "bug_tracker" ? (
                         <Bug className="w-6 h-6" />
                       ) : addon.key === "leave_policy" ? (
@@ -266,7 +266,7 @@ export default function PmAddonsPage() {
                     title={addon.is_active ? "Disable Add-on" : "Enable Add-on"}
                   >
                     {addon.is_active ? (
-                      <ToggleRight className="w-8 h-8 text-[#0F766E] dark:text-teal-400" />
+                      <ToggleRight className="w-8 h-8 text-[#56348f] dark:text-purple-400" />
                     ) : (
                       <ToggleLeft className="w-8 h-8 text-slate-300 dark:text-slate-600" />
                     )}
@@ -276,12 +276,12 @@ export default function PmAddonsPage() {
                 {/* Sub-Panel Content based on Addon Type */}
                 {addon.key === "customization" ? (
                   <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
-                    <div className="p-3.5 rounded-xl bg-teal-50/60 dark:bg-teal-950/30 border border-[#CBEFEA] dark:border-teal-800/60 text-xs text-[#093E3A] dark:text-teal-200 space-y-1.5">
+                    <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-slate-200 space-y-1.5">
                       <div className="font-bold flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5 text-[#0F766E] dark:text-teal-400" />
+                        <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
                         <span>Portal Branding, Typography & Theme Customization</span>
                       </div>
-                      <p className="text-[11px] text-[#093E3A]/80 dark:text-teal-300/80 leading-relaxed">
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
                         Customize global font family, header background and text colors, heading and body font scales, and browser tab page title formatting.
                       </p>
                     </div>
@@ -306,12 +306,12 @@ export default function PmAddonsPage() {
                   </div>
                 ) : addon.key === "leave_policy" ? (
                   <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
-                    <div className="p-3.5 rounded-xl bg-teal-50/60 dark:bg-teal-950/30 border border-[#CBEFEA] dark:border-teal-800/60 text-xs text-[#093E3A] dark:text-teal-200 space-y-1.5">
+                    <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-slate-200 space-y-1.5">
                       <div className="font-bold flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5 text-[#0F766E] dark:text-teal-400" />
+                        <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
                         <span>System Policy Engine & Employee Accrual Rules</span>
                       </div>
-                      <p className="text-[11px] text-[#093E3A]/80 dark:text-teal-300/80 leading-relaxed">
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
                         Configure monthly cycle cutoffs (26th), probation periods, automatic CL/SL accrual rates, and individual employee balances.
                       </p>
                     </div>
@@ -320,14 +320,14 @@ export default function PmAddonsPage() {
                       <Link
                         href="/addons/leave-policy"
                         style={{
-                          backgroundColor: "var(--portal-primary-color, #0F766E)",
+                          backgroundColor: "var(--portal-primary-color, #56348f)",
                           color: "rgb(255, 255, 255)",
                           fontFamily: '"Proxima Nova", sans-serif',
                           fontSize: "13px",
                           lineHeight: "20px",
                           fontWeight: 600,
                         }}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--portal-primary-color,#0F766E)] hover:bg-[var(--portal-hover-color,#138A80)] !text-white text-[13px] leading-[20px] font-semibold shadow-sm transition-colors cursor-pointer"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--portal-primary-color,#56348f)] hover:opacity-90 !text-white text-[13px] leading-[20px] font-semibold shadow-sm transition-colors cursor-pointer"
                       >
                         <Settings2 className="w-4 h-4 !text-white" />
                         <span className="!text-white">Configure Policy Management</span>
@@ -336,12 +336,12 @@ export default function PmAddonsPage() {
                   </div>
                 ) : addon.key === "email_management" ? (
                   <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
-                    <div className="p-3.5 rounded-xl bg-teal-50/60 dark:bg-teal-950/30 border border-[#CBEFEA] dark:border-teal-800/60 text-xs text-[#093E3A] dark:text-teal-200 space-y-1.5">
+                    <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-slate-200 space-y-1.5">
                       <div className="font-bold flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5 text-[#0F766E] dark:text-teal-400" />
+                        <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
                         <span>SMTP Server & Notification Recipient Matrix</span>
                       </div>
-                      <p className="text-[11px] text-[#093E3A]/80 dark:text-teal-300/80 leading-relaxed">
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
                         Configure sender Google App Passwords, SMTP server settings, custom TO/CC routing for leaves, WFH, awards, and employee-specific overrides.
                       </p>
                     </div>
@@ -350,14 +350,14 @@ export default function PmAddonsPage() {
                       <Link
                         href="/addons/email-management"
                         style={{
-                          backgroundColor: "var(--portal-primary-color, #0F766E)",
+                          backgroundColor: "var(--portal-primary-color, #56348f)",
                           color: "rgb(255, 255, 255)",
                           fontFamily: '"Proxima Nova", sans-serif',
                           fontSize: "13px",
                           lineHeight: "20px",
                           fontWeight: 600,
                         }}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--portal-primary-color,#0F766E)] hover:bg-[var(--portal-hover-color,#138A80)] !text-white text-[13px] leading-[20px] font-semibold shadow-sm transition-colors cursor-pointer"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--portal-primary-color,#56348f)] hover:opacity-90 !text-white text-[13px] leading-[20px] font-semibold shadow-sm transition-colors cursor-pointer"
                       >
                         <Settings2 className="w-4 h-4 !text-white" />
                         <span className="!text-white">Configure Email Management</span>
@@ -366,12 +366,12 @@ export default function PmAddonsPage() {
                   </div>
                 ) : addon.key === "permissions" ? (
                   <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
-                    <div className="p-3.5 rounded-xl bg-teal-50/60 dark:bg-teal-950/30 border border-[#CBEFEA] dark:border-teal-800/60 text-xs text-[#093E3A] dark:text-teal-200 space-y-1.5">
+                    <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-slate-200 space-y-1.5">
                       <div className="font-bold flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5 text-[#0F766E] dark:text-teal-400" />
+                        <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
                         <span>Team & Role Permissions Matrix</span>
                       </div>
-                      <p className="text-[11px] text-[#093E3A]/80 dark:text-teal-300/80 leading-relaxed">
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
                         Configure fine-grained cross-team visibility, task data tables switcher, cross-team assignment, and team-lead-only scoping.
                       </p>
                     </div>
@@ -380,14 +380,14 @@ export default function PmAddonsPage() {
                       <Link
                         href="/addons/permissions"
                         style={{
-                          backgroundColor: "var(--portal-primary-color, #0F766E)",
+                          backgroundColor: "var(--portal-primary-color, #56348f)",
                           color: "rgb(255, 255, 255)",
                           fontFamily: '"Proxima Nova", sans-serif',
                           fontSize: "13px",
                           lineHeight: "20px",
                           fontWeight: 600,
                         }}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--portal-primary-color,#0F766E)] hover:bg-[var(--portal-hover-color,#138A80)] !text-white text-[13px] leading-[20px] font-semibold shadow-sm transition-colors cursor-pointer"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--portal-primary-color,#56348f)] hover:opacity-90 !text-white text-[13px] leading-[20px] font-semibold shadow-sm transition-colors cursor-pointer"
                       >
                         <Settings2 className="w-4 h-4 !text-white" />
                         <span className="!text-white">Configure Permissions</span>
@@ -471,10 +471,10 @@ export default function PmAddonsPage() {
           })}
 
           {/* ── Storage & Data Retention Policy Add-on Card ── */}
-          <div className="rounded-2xl bg-white dark:bg-slate-900 border border-[#CBEFEA] dark:border-teal-800/60 transition-all shadow-sm p-6 space-y-5">
+          <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 transition-all shadow-sm p-6 space-y-5">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-start gap-3">
-                <div className="p-3 rounded-2xl bg-teal-50 dark:bg-teal-950/80 text-[#0F766E] dark:text-teal-300 shrink-0">
+                <div className="p-3 rounded-2xl bg-purple-50 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300 shrink-0">
                   <HardDrive className="w-6 h-6" />
                 </div>
                 <div>
@@ -492,9 +492,9 @@ export default function PmAddonsPage() {
             </div>
 
             <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
-              <div className="p-3.5 rounded-xl bg-teal-50/60 dark:bg-teal-950/30 border border-[#CBEFEA] dark:border-teal-800/60 text-xs text-[#093E3A] dark:text-teal-200 space-y-1.5">
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-slate-200 space-y-1.5">
                 <p className="font-semibold">💾 Automatic Monthly Cleanup</p>
-                <p className="text-[11px] opacity-80">
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
                   Prune expired chat history and community posts while ensuring employee, attendance, and project data remains completely safe.
                 </p>
               </div>
@@ -502,7 +502,7 @@ export default function PmAddonsPage() {
               <div className="flex justify-end pt-1">
                 <Link
                   href="/addons/storage"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--portal-primary-color,#0F766E)] hover:bg-[var(--portal-hover-color,#138A80)] text-white text-[13px] leading-[20px] font-semibold shadow-sm transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--portal-primary-color,#56348f)] hover:opacity-90 text-white text-[13px] leading-[20px] font-semibold shadow-sm transition-colors cursor-pointer"
                 >
                   <Settings2 className="w-4 h-4 text-white" />
                   <span>Configure Storage & Retention</span>

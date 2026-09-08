@@ -117,11 +117,10 @@ export function normalizeCustomizationSettings(raw?: any): CustomizationSettings
       raw.sidebar_active_color ||
       extra.sidebar_active_color ||
       DEFAULT_CUSTOMIZATION_SETTINGS.sidebar_active_color,
-    // Map legacy dark navy sidebar colors to the unified Green / Teal palette (#093E3A)
     sidebar_bg_color:
-      (!raw.sidebar_bg_color || raw.sidebar_bg_color === "#071724" || raw.sidebar_bg_color === "#0e2638" || raw.sidebar_bg_color === "#0b1a2b")
-        ? (DEFAULT_CUSTOMIZATION_SETTINGS.sidebar_bg_color || "#093E3A")
-        : raw.sidebar_bg_color,
+      raw.sidebar_bg_color ||
+      extra.sidebar_bg_color ||
+      DEFAULT_CUSTOMIZATION_SETTINGS.sidebar_bg_color,
     // Flatten any values stored inside extra_colors (used as database fallback)
     login_bg_video_url:
       raw.login_bg_video_url ||

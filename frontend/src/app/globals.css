@@ -187,31 +187,32 @@ aside[class*="bg-slate-900"] *,
 
 
 #light-theme-sidebar {
-  background-color: var(--portal-sidebar-bg, #093E3A) !important;
+  background-color: var(--portal-sidebar-bg, #0f172a) !important;
 }
 
 #light-theme-sidebar .sidebar-brand-top,
 #light-theme-sidebar .sidebar-profile-bottom {
-  background-color: var(--portal-sidebar-bg, #093E3A) !important;
+  background-color: var(--portal-sidebar-bg, #0f172a) !important;
   filter: brightness(0.9);
 }
 
 #light-theme-flyout-portal {
-  background-color: var(--portal-sidebar-bg, #093E3A) !important;
+  background-color: var(--portal-sidebar-bg, #0f172a) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
 }
 
 /* ── Dynamic Sidebar Item Hover & Active Highlight ── */
 #light-theme-sidebar a:hover,
 #light-theme-sidebar button:hover,
 #light-theme-flyout-portal a:hover {
-  background-color: var(--portal-sidebar-hover, #138A80) !important;
+  background-color: var(--portal-sidebar-hover, rgba(255, 255, 255, 0.12)) !important;
 }
 
 #light-theme-sidebar [data-active="true"],
 #light-theme-sidebar a.active,
 #light-theme-sidebar button.active,
 #light-theme-flyout-portal [data-active="true"] {
-  background-color: var(--portal-sidebar-active, #14A092) !important;
+  background-color: var(--portal-sidebar-active, #2563eb) !important;
 }
 
 /* ── Dynamic Sub-header Navigation Tab Bar ── */
@@ -531,28 +532,28 @@ html:not(.dark) a[class*="bg-white"]:not([class*="text-white"]) {
   --primary-foreground: #FFFFFF;
   --secondary: var(--portal-light-bg, #E6F8F6);
   --secondary-foreground: var(--portal-dark-text, #093E3A);
-  --muted: #CBEFEA;
-  --muted-foreground: #138A80;
-  --accent: var(--portal-active-color, #14A092);
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+  --accent: var(--portal-active-color, #2563EB);
   --accent-foreground: #FFFFFF;
   --destructive: #EF4444;
-  --border: var(--portal-border-color, #CBEFEA);
-  --input: var(--portal-card-bg, #F2FCFB);
-  --ring: var(--portal-primary-color, #0F766E);
-  --chart-1: #0F766E;
-  --chart-2: #14A092;
-  --chart-3: #138A80;
+  --border: var(--portal-border-color, #E2E8F0);
+  --input: var(--portal-card-bg, #FFFFFF);
+  --ring: var(--portal-primary-color, #2563EB);
+  --chart-1: #2563EB;
+  --chart-2: #38BDF8;
+  --chart-3: #6366F1;
   --chart-4: #F59E0B;
   --chart-5: #10B981;
   --radius: 6px;
-  --sidebar: var(--portal-sidebar-bg, #093E3A);
+  --sidebar: var(--portal-sidebar-bg, #0F172A);
   --sidebar-foreground: #FFFFFF;
-  --sidebar-primary: var(--portal-sidebar-active, #14A092);
+  --sidebar-primary: var(--portal-sidebar-active, #2563EB);
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: var(--portal-sidebar-hover, #138A80);
+  --sidebar-accent: var(--portal-sidebar-hover, rgba(255, 255, 255, 0.12));
   --sidebar-accent-foreground: #FFFFFF;
-  --sidebar-border: var(--portal-border-color, #CBEFEA);
-  --sidebar-ring: var(--portal-primary-color, #0F766E);
+  --sidebar-border: var(--portal-border-color, rgba(255, 255, 255, 0.1));
+  --sidebar-ring: var(--portal-primary-color, #2563EB);
 }
 
 .dark {
@@ -562,31 +563,31 @@ html:not(.dark) a[class*="bg-white"]:not([class*="text-white"]) {
   --card-foreground: #f8fafc;
   --popover: #1e293b;
   --popover-foreground: #f8fafc;
-  --primary: var(--portal-primary-color, #0F766E);
+  --primary: var(--portal-primary-color, #2563EB);
   --primary-foreground: #ffffff;
   --secondary: #334155; /* slate-700 */
   --secondary-foreground: #f8fafc;
   --muted: #334155;
   --muted-foreground: #94a3b8; /* slate-400 */
-  --accent: var(--portal-active-color, #14A092);
+  --accent: var(--portal-active-color, #38BDF8);
   --accent-foreground: #f8fafc;
   --destructive: #ef4444; /* red-500 */
   --border: rgba(255, 255, 255, 0.1);
   --input: rgba(255, 255, 255, 0.15);
-  --ring: var(--portal-primary-color, #0F766E);
-  --chart-1: #0F766E;
-  --chart-2: #14A092;
-  --chart-3: #138A80;
+  --ring: var(--portal-primary-color, #2563EB);
+  --chart-1: #2563EB;
+  --chart-2: #38BDF8;
+  --chart-3: #6366F1;
   --chart-4: #F59E0B;
   --chart-5: #10B981;
-  --sidebar: var(--portal-sidebar-bg, #093E3A);
+  --sidebar: var(--portal-sidebar-bg, #0F172A);
   --sidebar-foreground: #FFFFFF;
-  --sidebar-primary: var(--portal-sidebar-active, #14A092);
+  --sidebar-primary: var(--portal-sidebar-active, #2563EB);
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: var(--portal-sidebar-hover, #138A80);
+  --sidebar-accent: var(--portal-sidebar-hover, rgba(255, 255, 255, 0.12));
   --sidebar-accent-foreground: #FFFFFF;
   --sidebar-border: rgba(255, 255, 255, 0.1);
-  --sidebar-ring: var(--portal-primary-color, #0F766E);
+  --sidebar-ring: var(--portal-primary-color, #2563EB);
 }
 
 @layer base {
@@ -3674,190 +3675,190 @@ body:has(.fixed.inset-y-0.right-0:not([data-chat-widget="true"])) [aria-label="O
 
 /* ── Solid filled backgrounds ─────────────────────────────────────────── */
 .bg-purple-500, .bg-purple-600, .bg-purple-700 {
-  background-color: var(--portal-primary-color, #0F766E) !important;
+  background-color: var(--portal-primary-color, #2563EB) !important;
   color: #ffffff !important;
 }
 .bg-purple-800, .bg-purple-900, .bg-purple-950 {
-  background-color: var(--portal-dark-text, #093E3A) !important;
+  background-color: var(--portal-dark-text, #0F172A) !important;
   color: #ffffff !important;
 }
 .bg-violet-500, .bg-violet-600, .bg-violet-700 {
-  background-color: var(--portal-primary-color, #0F766E) !important;
+  background-color: var(--portal-primary-color, #2563EB) !important;
   color: #ffffff !important;
 }
 .bg-indigo-500, .bg-indigo-600, .bg-indigo-700 {
-  background-color: var(--portal-primary-color, #0F766E) !important;
+  background-color: var(--portal-primary-color, #2563EB) !important;
   color: #ffffff !important;
 }
 
 /* ── Text colors ──────────────────────────────────────────────────────── */
 .text-purple-600, .text-purple-700, .text-purple-800 {
-  color: var(--portal-primary-color, #0F766E) !important;
+  color: var(--portal-primary-color, #2563EB) !important;
 }
 .text-purple-400, .text-purple-500 {
-  color: var(--portal-hover-color, #138A80) !important;
+  color: var(--portal-hover-color, #1D4ED8) !important;
 }
 .text-purple-300 {
-  color: var(--portal-active-color, #14A092) !important;
+  color: var(--portal-active-color, #3B82F6) !important;
 }
 .text-purple-900, .text-purple-950 {
-  color: var(--portal-dark-text, #093E3A) !important;
+  color: var(--portal-dark-text, #0F172A) !important;
 }
 .text-violet-600, .text-violet-700 {
-  color: var(--portal-primary-color, #0F766E) !important;
+  color: var(--portal-primary-color, #2563EB) !important;
 }
 .text-violet-400, .text-violet-500 {
-  color: var(--portal-hover-color, #138A80) !important;
+  color: var(--portal-hover-color, #1D4ED8) !important;
 }
 .text-violet-300 {
-  color: var(--portal-active-color, #14A092) !important;
+  color: var(--portal-active-color, #3B82F6) !important;
 }
 .text-indigo-600, .text-indigo-700 {
-  color: var(--portal-primary-color, #0F766E) !important;
+  color: var(--portal-primary-color, #2563EB) !important;
 }
 .text-indigo-400, .text-indigo-500 {
-  color: var(--portal-hover-color, #138A80) !important;
+  color: var(--portal-hover-color, #1D4ED8) !important;
 }
 .text-indigo-300 {
-  color: var(--portal-active-color, #14A092) !important;
+  color: var(--portal-active-color, #3B82F6) !important;
 }
 
 /* ── Hover text ───────────────────────────────────────────────────────── */
 .hover\:text-purple-600:hover, .hover\:text-purple-700:hover,
 .hover\:text-violet-600:hover,
 .hover\:text-indigo-600:hover {
-  color: var(--portal-hover-color, #138A80) !important;
+  color: var(--portal-hover-color, #1D4ED8) !important;
 }
 .hover\:text-purple-400:hover, .hover\:text-purple-300:hover,
 .hover\:text-violet-400:hover, .hover\:text-indigo-400:hover {
-  color: var(--portal-active-color, #14A092) !important;
+  color: var(--portal-active-color, #3B82F6) !important;
 }
 
 /* ── Border colors ────────────────────────────────────────────────────── */
 .border-purple-200, .border-purple-300 {
-  border-color: var(--portal-border-color, #CBEFEA) !important;
+  border-color: var(--portal-border-color, #E2E8F0) !important;
 }
 .border-purple-500, .border-purple-600 {
-  border-color: var(--portal-primary-color, #0F766E) !important;
+  border-color: var(--portal-primary-color, #2563EB) !important;
 }
 .border-purple-700, .border-purple-800 {
-  border-color: var(--portal-dark-text, #093E3A) !important;
+  border-color: var(--portal-dark-text, #0F172A) !important;
 }
 .border-violet-200, .border-violet-300 {
-  border-color: var(--portal-border-color, #CBEFEA) !important;
+  border-color: var(--portal-border-color, #E2E8F0) !important;
 }
 .border-violet-500, .border-violet-600 {
-  border-color: var(--portal-primary-color, #0F766E) !important;
+  border-color: var(--portal-primary-color, #2563EB) !important;
 }
 .border-indigo-200, .border-indigo-300 {
-  border-color: var(--portal-border-color, #CBEFEA) !important;
+  border-color: var(--portal-border-color, #E2E8F0) !important;
 }
 .border-indigo-500, .border-indigo-600 {
-  border-color: var(--portal-primary-color, #0F766E) !important;
+  border-color: var(--portal-primary-color, #2563EB) !important;
 }
 
 /* ── Hover backgrounds ────────────────────────────────────────────────── */
 .hover\:bg-purple-50:hover, .hover\:bg-purple-100:hover,
 .hover\:bg-violet-50:hover, .hover\:bg-violet-100:hover,
 .hover\:bg-indigo-50:hover, .hover\:bg-indigo-100:hover {
-  background-color: var(--portal-light-bg, #E6F8F6) !important;
+  background-color: var(--portal-light-bg, #F8FAFC) !important;
 }
 .hover\:bg-purple-200:hover, .hover\:bg-violet-200:hover,
 .hover\:bg-indigo-200:hover {
-  background-color: #A8E4DD !important;
+  background-color: color-mix(in srgb, var(--portal-primary-color, #2563EB) 15%, transparent) !important;
 }
 .hover\:bg-purple-600:hover, .hover\:bg-purple-700:hover,
 .hover\:bg-violet-600:hover, .hover\:bg-violet-700:hover,
 .hover\:bg-indigo-600:hover, .hover\:bg-indigo-700:hover {
-  background-color: var(--portal-hover-color, #138A80) !important;
+  background-color: var(--portal-hover-color, #1D4ED8) !important;
 }
 
 /* ── Focus ring overrides ─────────────────────────────────────────────── */
 .focus\:ring-purple-500:focus,
 .focus\:ring-violet-500:focus,
 .focus\:ring-indigo-500:focus {
-  --tw-ring-color: rgba(15, 118, 110, 0.35) !important;
+  --tw-ring-color: color-mix(in srgb, var(--portal-primary-color, #2563EB) 35%, transparent) !important;
 }
 .focus\:border-purple-500:focus, .focus\:border-purple-600:focus,
 .focus\:border-violet-500:focus, .focus\:border-indigo-500:focus {
-  border-color: var(--portal-primary-color, #0F766E) !important;
+  border-color: var(--portal-primary-color, #2563EB) !important;
 }
 
 /* ── Ring utilities ───────────────────────────────────────────────────── */
 .ring-purple-500, .ring-purple-600,
 .ring-violet-500, .ring-indigo-500 {
-  --tw-ring-color: var(--portal-primary-color, #0F766E) !important;
+  --tw-ring-color: var(--portal-primary-color, #2563EB) !important;
 }
 
 /* ── Shadow tints ─────────────────────────────────────────────────────── */
-.shadow-purple-900\/20 { --tw-shadow-color: rgba(15, 118, 110, 0.20) !important; }
-.shadow-purple-900\/30 { --tw-shadow-color: rgba(15, 118, 110, 0.30) !important; }
+.shadow-purple-900\/20 { --tw-shadow-color: color-mix(in srgb, var(--portal-primary-color, #2563EB) 20%, transparent) !important; }
+.shadow-purple-900\/30 { --tw-shadow-color: color-mix(in srgb, var(--portal-primary-color, #2563EB) 30%, transparent) !important; }
 
 /* ── Gradient from purple/violet (banners) ────────────────────────────── */
 .from-purple-50\/70, .from-violet-50\/70, .from-indigo-50\/70 {
-  --tw-gradient-from: color-mix(in srgb, var(--portal-light-bg, #E6F8F6) 70%, transparent) !important;
+  --tw-gradient-from: color-mix(in srgb, var(--portal-light-bg, #F8FAFC) 70%, transparent) !important;
 }
 
 /* ── Group-hover colors ───────────────────────────────────────────────── */
 .group:hover .group-hover\:text-purple-600,
 .group:hover .group-hover\:text-violet-600 {
-  color: var(--portal-primary-color, #0F766E) !important;
+  color: var(--portal-primary-color, #2563EB) !important;
 }
 .group:hover .group-hover\:text-purple-400,
 .group:hover .group-hover\:text-violet-400 {
-  color: var(--portal-hover-color, #138A80) !important;
+  color: var(--portal-hover-color, #1D4ED8) !important;
 }
 .group:hover .group-hover\:border-purple-500,
 .group:hover .group-hover\:border-violet-500 {
-  border-color: var(--portal-primary-color, #0F766E) !important;
+  border-color: var(--portal-primary-color, #2563EB) !important;
 }
 
 /* ── Background opacity variants ──────────────────────────────────────── */
-.bg-purple-500\/10 { background-color: rgba(15, 118, 110, 0.10) !important; }
-.bg-purple-500\/20 { background-color: rgba(15, 118, 110, 0.20) !important; }
+.bg-purple-500\/10 { background-color: color-mix(in srgb, var(--portal-primary-color, #2563EB) 10%, transparent) !important; }
+.bg-purple-500\/20 { background-color: color-mix(in srgb, var(--portal-primary-color, #2563EB) 20%, transparent) !important; }
 
 /* ── All inputs: focus ring to brand primary ─────────────────────────── */
 input:focus,
 textarea:focus,
 select:focus {
-  border-color: var(--portal-primary-color, #0F766E) !important;
-  outline-color: var(--portal-primary-color, #0F766E) !important;
-  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15) !important;
+  border-color: var(--portal-primary-color, #2563EB) !important;
+  outline-color: var(--portal-primary-color, #2563EB) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--portal-primary-color, #2563EB) 15%, transparent) !important;
 }
 
 /* ── Hardcoded hex class overrides ────────────────────────────────────── */
 .bg-\[\#56348f\], .bg-\[\#472a77\], .bg-\[\#462875\], .bg-\[\#3a1c68\] {
-  background-color: var(--portal-primary-color, #0F766E) !important;
+  background-color: var(--portal-primary-color, #2563EB) !important;
   color: #ffffff !important;
-  border-color: var(--portal-primary-color, #0F766E) !important;
+  border-color: var(--portal-primary-color, #2563EB) !important;
 }
 .text-\[\#56348f\] {
-  color: var(--portal-primary-color, #0F766E) !important;
+  color: var(--portal-primary-color, #2563EB) !important;
 }
 .hover\:bg-\[\#462875\]:hover,
 .hover\:bg-\[\#472a77\]:hover,
 .hover\:bg-\[\#3a1c68\]:hover {
-  background-color: var(--portal-hover-color, #138A80) !important;
+  background-color: var(--portal-hover-color, #1D4ED8) !important;
 }
 
 /* ── Dark-class text fallbacks (portal is light-only but some components set dark: classes) */
 .dark\:text-purple-300, .dark\:text-purple-400,
 .dark\:text-violet-300, .dark\:text-violet-400,
 .dark\:text-indigo-300, .dark\:text-indigo-400 {
-  color: var(--portal-hover-color, #138A80) !important;
+  color: var(--portal-hover-color, #1D4ED8) !important;
 }
 .dark\:bg-purple-950\/40, .dark\:bg-purple-950\/50,
 .dark\:bg-purple-950\/60, .dark\:bg-purple-950\/70 {
-  background-color: rgba(15, 118, 110, 0.12) !important;
+  background-color: color-mix(in srgb, var(--portal-primary-color, #2563EB) 12%, transparent) !important;
 }
 .dark\:border-purple-700, .dark\:border-purple-800,
 .dark\:border-violet-700, .dark\:border-indigo-700 {
-  border-color: var(--portal-border-color, #CBEFEA) !important;
+  border-color: var(--portal-border-color, #E2E8F0) !important;
 }
 
 /* ── Loader spinner tint fix ──────────────────────────────────────────── */
 .border-t-\[\#56348f\], .border-t-purple-400, .border-t-violet-400 {
-  border-top-color: var(--portal-primary-color, #0F766E) !important;
+  border-top-color: var(--portal-primary-color, #2563EB) !important;
 }
 
 /* ─── Uiverse.io Dropdown Design (by 3bdel3ziz-T) with Theme Color & Portal Fonts ─── */
