@@ -95,18 +95,18 @@ export function SearchableProjectSelect({
         type="button"
         disabled={disabled}
         onClick={() => !disabled && setIsOpen(!isOpen)}
-        className={`w-full text-left flex items-center justify-between gap-2 transition-all duration-200 cursor-pointer rounded-xl border ${
+        className={`w-full text-left flex items-center justify-between gap-2 transition-all duration-300 cursor-pointer rounded-[6px] border ${
           isSmall ? "px-3 py-2 text-xs" : "px-3.5 py-2.5 text-xs sm:text-sm"
         } ${
           disabled
             ? "bg-slate-100 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 text-slate-400 cursor-not-allowed opacity-75"
             : isOpen
-            ? "bg-white dark:bg-slate-800 border-teal-600 ring-2 ring-teal-500/20 shadow-md text-slate-900 dark:text-white"
-            : "bg-slate-50 hover:bg-slate-100/80 dark:bg-slate-800/60 dark:hover:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white shadow-xs"
+            ? "bg-white dark:bg-[#1e293b] border-[var(--portal-primary-color,#0F766E)] ring-2 ring-[var(--portal-primary-color,#0F766E)]/20 shadow-md text-slate-900 dark:text-white"
+            : "bg-white hover:bg-slate-50 dark:bg-[#1e293b] dark:hover:bg-slate-800 border-slate-300 dark:border-slate-700 hover:border-[var(--portal-primary-color,#0F766E)] text-slate-900 dark:text-white shadow-xs"
         }`}
       >
         <div className="flex items-center gap-2 truncate flex-1">
-          <div className="p-1 rounded-lg bg-teal-50 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300 border border-teal-200/50 shrink-0">
+          <div className="p-1 rounded-[5px] bg-teal-50 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300 border border-teal-200/50 shrink-0">
             <FolderKanban className="w-3.5 h-3.5" />
           </div>
           {selectedProject ? (
@@ -115,7 +115,7 @@ export function SearchableProjectSelect({
                 {selectedProject.name}
               </span>
               {selectedProject.team?.name && (
-                <span className="text-[10px] font-medium px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 shrink-0">
+                <span className="text-[10px] font-medium px-1.5 py-0.2 rounded-[4px] bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 shrink-0">
                   {selectedProject.team.name}
                 </span>
               )}
@@ -142,8 +142,8 @@ export function SearchableProjectSelect({
             </button>
           )}
           <ChevronDown
-            className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
-              isOpen ? "rotate-180 text-teal-600 dark:text-teal-400" : ""
+            className={`w-3.5 h-3.5 text-[var(--portal-primary-color,#0F766E)] transition-transform duration-300 ${
+              isOpen ? "rotate-180" : ""
             }`}
           />
         </div>
@@ -152,7 +152,7 @@ export function SearchableProjectSelect({
       {/* Floating Dropdown Panel - STRICTLY DOWNWARDS */}
       {isOpen && (
         <div
-          className="absolute z-50 left-0 right-0 top-full mt-1.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl overflow-hidden animate-in fade-in-50 zoom-in-95 duration-150 flex flex-col max-h-80 ring-1 ring-black/5"
+          className="absolute z-50 left-0 right-0 top-full mt-1.5 rounded-[6px] bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden duration-300 flex flex-col max-h-80 ring-1 ring-black/5"
           style={{ width: "100%", minWidth: "260px" }}
         >
           {/* Live Search Input */}
@@ -252,10 +252,10 @@ export function SearchableProjectSelect({
                       color: isSelected ? "#ffffff" : undefined,
                       fontFamily: '"Proxima Nova", sans-serif',
                     }}
-                    className={`px-3 py-2 rounded-xl cursor-pointer flex items-center justify-between gap-3 text-xs transition-colors duration-150 ${
+                    className={`px-3 py-2 rounded-[5px] cursor-pointer flex items-center justify-between gap-3 text-xs transition-all duration-300 ${
                       isSelected
                         ? "bg-teal-700 !text-white shadow-xs font-semibold"
-                        : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200"
+                        : "hover:bg-[var(--portal-primary-color,#0F766E)]/10 hover:text-[var(--portal-primary-color,#0F766E)] dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200"
                     }`}
                   >
                     <div className="flex items-center gap-2.5 truncate flex-1">

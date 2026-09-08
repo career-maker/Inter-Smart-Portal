@@ -90,10 +90,10 @@ export function SearchableCoordinatorSelect({
         type="button"
         disabled={disabled}
         onClick={() => !disabled && setIsOpen((prev) => !prev)}
-        className={`w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border text-left text-sm flex items-center justify-between transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 ${
+        className={`w-full px-3.5 py-2 rounded-[6px] bg-white dark:bg-[#1e293b] border text-left text-xs sm:text-sm flex items-center justify-between transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[var(--portal-primary-color,#0F766E)]/20 focus:border-[var(--portal-primary-color,#0F766E)] ${
           isOpen
-            ? "border-blue-500 ring-2 ring-blue-500/20"
-            : "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600"
+            ? "border-[var(--portal-primary-color,#0F766E)] ring-2 ring-[var(--portal-primary-color,#0F766E)]/20 shadow-md"
+            : "border-slate-300 dark:border-slate-700 hover:border-[var(--portal-primary-color,#0F766E)]"
         } ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
       >
         <div className="flex items-center gap-2 truncate pr-2">
@@ -106,7 +106,7 @@ export function SearchableCoordinatorSelect({
                   ({selectedCoordinator.employee_code})
                 </span>
               )}
-              <span className="text-xs text-blue-600 dark:text-blue-400 font-normal ml-1.5">
+              <span className="text-xs text-[var(--portal-primary-color,#0F766E)] font-normal ml-1.5">
                 • {selectedCoordinator.department || "General"}
               </span>
             </span>
@@ -128,8 +128,8 @@ export function SearchableCoordinatorSelect({
             </span>
           )}
           <ChevronDown
-            className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
-              isOpen ? "rotate-180 text-blue-500" : ""
+            className={`w-3.5 h-3.5 text-[var(--portal-primary-color,#0F766E)] transition-transform duration-300 ${
+              isOpen ? "rotate-180" : ""
             }`}
           />
         </div>
@@ -137,7 +137,7 @@ export function SearchableCoordinatorSelect({
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute left-0 right-0 top-full mt-1.5 z-50 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden animate-in fade-in-0 zoom-in-95 duration-100">
+        <div className="absolute left-0 right-0 top-full mt-1.5 z-50 bg-white dark:bg-[#1e293b] rounded-[6px] border border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden duration-300">
           {/* Search Bar */}
           <div className="p-2 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40">
             <div className="relative">
@@ -168,14 +168,14 @@ export function SearchableCoordinatorSelect({
             <button
               type="button"
               onClick={() => handleSelect(null)}
-              className={`w-full text-left px-3.5 py-2 flex items-center justify-between text-xs transition-colors ${
+              className={`w-full text-left px-3.5 py-2 flex items-center justify-between text-xs rounded-[5px] transition-all duration-300 ${
                 !value
-                  ? "bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-300 font-semibold"
-                  : "hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-600 dark:text-slate-400"
+                  ? "bg-[var(--portal-primary-color,#0F766E)]/10 text-[var(--portal-primary-color,#0F766E)] font-semibold"
+                  : "hover:bg-[var(--portal-primary-color,#0F766E)]/10 hover:text-[var(--portal-primary-color,#0F766E)] dark:hover:bg-slate-800/60 text-slate-600 dark:text-slate-400"
               }`}
             >
               <span>— Unassigned / No Coordinator —</span>
-              {!value && <Check className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />}
+              {!value && <Check className="w-4 h-4 text-[var(--portal-primary-color,#0F766E)] shrink-0" />}
             </button>
 
             {/* List of coordinators */}
@@ -191,10 +191,10 @@ export function SearchableCoordinatorSelect({
                     type="button"
                     key={c.id}
                     onClick={() => handleSelect(c.id)}
-                    className={`w-full text-left px-3.5 py-2 flex items-center justify-between text-xs transition-colors ${
+                    className={`w-full text-left px-3.5 py-2 flex items-center justify-between text-xs rounded-[5px] transition-all duration-300 ${
                       isSelected
-                        ? "bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 font-semibold"
-                        : "hover:bg-slate-100/60 dark:hover:bg-slate-800/60 text-slate-800 dark:text-slate-200"
+                        ? "bg-[var(--portal-primary-color,#0F766E)]/15 text-[var(--portal-primary-color,#0F766E)] font-semibold"
+                        : "hover:bg-[var(--portal-primary-color,#0F766E)]/10 hover:text-[var(--portal-primary-color,#0F766E)] dark:hover:bg-slate-800/60 text-slate-800 dark:text-slate-200"
                     }`}
                   >
                     <div className="truncate pr-2">

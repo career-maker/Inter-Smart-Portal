@@ -3859,3 +3859,212 @@ select:focus {
 .border-t-\[\#56348f\], .border-t-purple-400, .border-t-violet-400 {
   border-top-color: var(--portal-primary-color, #0F766E) !important;
 }
+
+/* ─── Uiverse.io Dropdown Design (by 3bdel3ziz-T) with Theme Color & Portal Fonts ─── */
+.select {
+  width: fit-content;
+  cursor: pointer;
+  position: relative;
+  transition: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--portal-dark-text, #0f1824);
+  font-family: var(--portal-font-family, "Proxima Nova", sans-serif) !important;
+}
+
+.selected {
+  background-color: var(--bg-primary, #ffffff);
+  color: var(--portal-dark-text, #0f1824);
+  border: 1px solid var(--border-medium, #cbd5e1);
+  padding: 6px 12px;
+  margin-bottom: 3px;
+  border-radius: 6px;
+  position: relative;
+  z-index: 1000;
+  font-size: var(--portal-body-size, 13px);
+  font-family: var(--portal-font-family, "Proxima Nova", sans-serif) !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.dark .selected {
+  background-color: #1e293b;
+  color: #f8fafc;
+  border-color: #334155;
+}
+
+.select:hover > .selected,
+.selected:hover {
+  border-color: var(--portal-primary-color, #0F766E);
+  box-shadow: 0 0 0 1px var(--portal-primary-color, #0F766E), 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.arrow {
+  position: relative;
+  right: 0px;
+  height: 10px;
+  transform: rotate(-90deg);
+  width: 14px;
+  fill: var(--portal-primary-color, #0F766E);
+  z-index: 1000;
+  transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+}
+
+.select:hover > .selected .arrow,
+.select.is-open .arrow,
+.selected.is-open .arrow {
+  transform: rotate(0deg);
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  border-radius: 6px;
+  padding: 5px;
+  background-color: var(--bg-primary, #ffffff);
+  border: 1px solid var(--border-medium, #cbd5e1);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  position: absolute;
+  top: calc(100% - 10px);
+  left: 0;
+  min-width: 100%;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1001;
+  font-family: var(--portal-font-family, "Proxima Nova", sans-serif) !important;
+}
+
+.dark .options {
+  background-color: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+.select:hover > .options,
+.select:focus-within > .options,
+.options.is-open {
+  opacity: 1;
+  top: 100%;
+  pointer-events: auto;
+}
+
+.option {
+  border-radius: 5px;
+  padding: 6px 10px;
+  transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1), color 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: transparent;
+  width: 100%;
+  font-size: var(--portal-body-size, 13px);
+  font-family: var(--portal-font-family, "Proxima Nova", sans-serif) !important;
+  color: var(--portal-dark-text, #0f1824);
+  cursor: pointer;
+}
+
+.dark .option {
+  color: #f1f5f9;
+}
+
+.option:hover {
+  background-color: rgba(15, 118, 110, 0.1);
+  color: var(--portal-primary-color, #0F766E);
+}
+
+.dark .option:hover {
+  background-color: rgba(15, 118, 110, 0.25);
+  color: #5eead4;
+}
+
+.options input[type="radio"] {
+  display: none;
+}
+
+.options label {
+  display: inline-block;
+}
+
+.options label::before {
+  content: attr(data-txt);
+}
+
+.options input[type="radio"]:checked + label {
+  display: none;
+}
+
+.options input[type="radio"]#all:checked + label {
+  display: none;
+}
+
+.select:has(.options input[type="radio"]#all:checked) .selected::before {
+  content: attr(data-default);
+}
+.select:has(.options input[type="radio"]#option-1:checked) .selected::before {
+  content: attr(data-one);
+}
+.select:has(.options input[type="radio"]#option-2:checked) .selected::before {
+  content: attr(data-two);
+}
+.select:has(.options input[type="radio"]#option-3:checked) .selected::before {
+  content: attr(data-three);
+}
+
+/* ── Universal Restyling for all HTML <select> Dropdown Elements ── */
+select:not([multiple]),
+.form-select {
+  font-family: var(--portal-font-family, "Proxima Nova", sans-serif) !important;
+  font-size: var(--portal-body-size, 13px) !important;
+  border-radius: 6px !important;
+  border: 1px solid var(--border-medium, #cbd5e1) !important;
+  background-color: var(--bg-primary, #ffffff) !important;
+  color: var(--portal-dark-text, #0f1824) !important;
+  padding: 6px 34px 6px 12px !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%230F766E' d='M233.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 338.7 86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 10px center !important;
+  background-size: 11px !important;
+  cursor: pointer !important;
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+}
+
+.dark select:not([multiple]),
+.dark .form-select {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%232dd4bf' d='M233.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 338.7 86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z'/%3E%3C/svg%3E") !important;
+}
+
+select:not([multiple]):hover,
+.form-select:hover {
+  border-color: var(--portal-primary-color, #0F766E) !important;
+  box-shadow: 0 0 0 1px var(--portal-primary-color, #0F766E), 0 2px 4px rgba(0, 0, 0, 0.06) !important;
+}
+
+select:not([multiple]):focus,
+.form-select:focus {
+  outline: none !important;
+  border-color: var(--portal-primary-color, #0F766E) !important;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.18) !important;
+}
+
+select option,
+.form-select option {
+  font-family: var(--portal-font-family, "Proxima Nova", sans-serif) !important;
+  padding: 8px 12px !important;
+  background-color: var(--bg-primary, #ffffff) !important;
+  color: var(--portal-dark-text, #0f1824) !important;
+}
+
+.dark select option,
+.dark .form-select option {
+  background-color: #1e293b !important;
+  color: #f1f5f9 !important;
+}
+
