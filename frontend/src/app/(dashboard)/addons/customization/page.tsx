@@ -943,12 +943,8 @@ export default function CustomizationPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800/80 pb-5">
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
-            <Link href="/project-management" className="hover:text-purple-600 dark:hover:text-purple-400">
-              Project Management
-            </Link>
-            <span>/</span>
-            <Link href="/project-management/addons" className="hover:text-purple-600 dark:hover:text-purple-400">
-              Add-on Modules
+            <Link href="/addons" className="hover:text-purple-600 dark:hover:text-purple-400">
+              Add-ons
             </Link>
             <span>/</span>
             <span className="text-purple-600 dark:text-purple-400 font-bold">Portal Customization</span>

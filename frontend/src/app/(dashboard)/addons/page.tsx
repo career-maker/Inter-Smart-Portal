@@ -155,15 +155,11 @@ export default function PmAddonsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800/80 pb-5">
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
-            <Link href="/project-management" className="hover:text-purple-600 dark:hover:text-purple-400">
-              Project Management
-            </Link>
-            <span>/</span>
-            <span className="text-slate-900 dark:text-white">Add-on Features</span>
+            <span className="text-slate-900 dark:text-white">Add-ons Directory</span>
           </div>
           <h1 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
             <Puzzle className="w-5 h-5 text-[#56348f]" />
-            <span>Project Management Add-ons</span>
+            <span>Portal Add-ons</span>
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400">
             Manage optional features and assign module capabilities to specific delivery teams
@@ -292,7 +288,7 @@ export default function PmAddonsPage() {
 
                     <div className="flex items-center justify-end pt-2">
                       <Link
-                        href="/project-management/addons/customization"
+                        href="/addons/customization"
                         style={{
                           backgroundColor: "var(--portal-primary-color, #0F766E)",
                           color: "rgb(255, 255, 255)",
@@ -322,7 +318,7 @@ export default function PmAddonsPage() {
 
                     <div className="flex items-center justify-end pt-2">
                       <Link
-                        href="/project-management/addons/leave-policy"
+                        href="/addons/leave-policy"
                         style={{
                           backgroundColor: "var(--portal-primary-color, #0F766E)",
                           color: "rgb(255, 255, 255)",
@@ -352,7 +348,7 @@ export default function PmAddonsPage() {
 
                     <div className="flex items-center justify-end pt-2">
                       <Link
-                        href="/project-management/addons/email-management"
+                        href="/addons/email-management"
                         style={{
                           backgroundColor: "var(--portal-primary-color, #0F766E)",
                           color: "rgb(255, 255, 255)",
@@ -382,7 +378,7 @@ export default function PmAddonsPage() {
 
                     <div className="flex items-center justify-end pt-2">
                       <Link
-                        href="/project-management/addons/permissions"
+                        href="/addons/permissions"
                         style={{
                           backgroundColor: "var(--portal-primary-color, #0F766E)",
                           color: "rgb(255, 255, 255)",
@@ -505,7 +501,7 @@ export default function PmAddonsPage() {
 
               <div className="flex justify-end pt-1">
                 <Link
-                  href="/project-management/addons/storage"
+                  href="/addons/storage"
                   className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--portal-primary-color,#0F766E)] hover:bg-[var(--portal-hover-color,#138A80)] text-white text-[13px] leading-[20px] font-semibold shadow-sm transition-colors cursor-pointer"
                 >
                   <Settings2 className="w-4 h-4 text-white" />

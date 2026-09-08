@@ -13,6 +13,20 @@ const nextConfig: NextConfig = {
       "tailwind-merge",
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: "/project-management/addons",
+        destination: "/addons",
+        permanent: true,
+      },
+      {
+        source: "/project-management/addons/:path*",
+        destination: "/addons/:path*",
+        permanent: true,
+      },
+    ];
+  },
   async rewrites() {
     return [
       {

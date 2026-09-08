@@ -198,7 +198,7 @@ export default function PermissionsManagementPage() {
         <div>
           <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
             <Link
-              href="/project-management/addons"
+              href="/addons"
               className="hover:text-purple-600 dark:hover:text-purple-400"
             >
               Add-ons

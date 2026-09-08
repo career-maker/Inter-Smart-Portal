@@ -475,8 +475,8 @@ export default function EmailManagementPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
-            <Link href="/project-management/addons" className="hover:text-purple-600 dark:hover:text-purple-400">
-              Add-ons
+            <Link href="/addons" className="hover:text-purple-600 dark:hover:text-purple-400">
+              Add-on Modules
             </Link>
             <span>/</span>
             <span className="text-slate-900 dark:text-white">Email Management</span>

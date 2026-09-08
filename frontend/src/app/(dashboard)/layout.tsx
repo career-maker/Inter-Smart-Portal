@@ -68,7 +68,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/holidays",         label: "Holidays", roles: ["Super Admin", "HR"] },
       { href: "/leaves/approvals", label: "Leave Approvals", roles: ["Super Admin", "Team Lead"] },
       { href: "/leave-balances",   label: "Leave Balances", roles: ["Super Admin"] },
-      { href: "/project-management/addons/leave-policy", label: "Leave Policy Management", roles: ["Super Admin"] },
+      { href: "/addons/leave-policy", label: "Leave Policy Management", roles: ["Super Admin"] },
       { href: "/manage-leaves",    label: "Manage Approved Leaves", roles: ["Super Admin"] },
     ],
   },
@@ -108,11 +108,11 @@ const NAV_GROUPS: NavGroup[] = [
     icon: Puzzle,
     roles: ["Super Admin"],
     items: [
-      { href: "/project-management/addons", label: "All Add-ons Directory" },
-      { href: "/project-management/addons/customization", label: "Portal Customization" },
-      { href: "/project-management/addons/email-management", label: "Email & SMTP Management" },
-      { href: "/project-management/addons/leave-policy", label: "Leave Policy Management" },
-      { href: "/project-management/addons/permissions", label: "Team & Role Permissions" },
+      { href: "/addons", label: "All Add-ons Directory" },
+      { href: "/addons/customization", label: "Portal Customization" },
+      { href: "/addons/email-management", label: "Email & SMTP Management" },
+      { href: "/addons/leave-policy", label: "Leave Policy Management" },
+      { href: "/addons/permissions", label: "Team & Role Permissions" },
       { href: "/project-management/bug-reports", label: "Bug Tracker & Reports" },
     ],
   },
@@ -218,6 +218,9 @@ function pathBelongsToGroup(group: NavGroup, pathname: string, currentTab?: stri
       const clean = item.href.split("?")[0];
       return pathname === clean || pathname.startsWith(clean + "/");
     });
+  }
+  if (group.id === "addons") {
+    if (pathname === "/customization" || pathname.startsWith("/customization/")) return true;
   }
   return group.items.some((item) => {
     const clean = item.href.split("?")[0];

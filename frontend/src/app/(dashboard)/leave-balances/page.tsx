@@ -237,7 +237,7 @@ export default function LeaveBalancesPage() {
         <div className="flex flex-wrap items-center gap-2.5 self-start sm:self-auto">
           {/* Link to Leave Policy Management */}
           <Link
-            href="/project-management/addons/leave-policy"
+            href="/addons/leave-policy"
             style={{
               backgroundColor: "#56348f",
               color: "rgb(255, 255, 255)",

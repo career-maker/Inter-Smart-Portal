@@ -166,8 +166,16 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
           title: "Storage & Data Retention",
           subtitle: "Configure automated chat and community post retention.",
           icon: HardDrive,
-          href: "/project-management/addons/storage",
+          href: "/addons/storage",
           keywords: "storage retention clean database cleanup delete chat history posts",
+        },
+        {
+          id: "customization",
+          title: "Portal Customization",
+          subtitle: "Customize themes, branding, fonts, colors, and layout styles.",
+          icon: FileText,
+          href: "/addons/customization",
+          keywords: "customization theme colors branding logo appearance styling font",
         },
         {
           id: "audit-logs",

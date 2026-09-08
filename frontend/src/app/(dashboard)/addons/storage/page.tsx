@@ -143,7 +143,7 @@ export default function StorageRetentionAddonPage() {
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-3">
           <Link
-            href="/project-management/addons"
+            href="/addons"
             className="p-2 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
