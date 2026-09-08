@@ -17,6 +17,7 @@ import {
   ChevronRight
 } from "lucide-react";
 import { format, parseISO, isToday } from "date-fns";
+import { UiverseSelect } from "@/components/ui/UiverseSelect";
 
 interface PMAllTasksTableProps {
   tasks: ProjectTask[];
@@ -197,10 +198,11 @@ export function PMAllTasksTable({
 
           {/* All PCs Coordinator Filter */}
           <div className="relative">
-            <select
+            <UiverseSelect
               value={selectedCoordinatorId || ""}
-              onChange={(e) => onCoordinatorChange(e.target.value ? Number(e.target.value) : null)}
-              className="pl-3 pr-8 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-[#56348f]/20 focus:border-[#56348f] cursor-pointer"
+              onChange={(val) => onCoordinatorChange(val ? Number(val) : null)}
+              placeholder="All PCs"
+              className="min-w-[150px]"
             >
               <option value="">All PCs</option>
               {coordinators.map((c) => (
@@ -208,7 +210,7 @@ export function PMAllTasksTable({
                   {c.first_name} {c.last_name}
                 </option>
               ))}
-            </select>
+            </UiverseSelect>
           </div>
 
           {/* Results Count Pill */}

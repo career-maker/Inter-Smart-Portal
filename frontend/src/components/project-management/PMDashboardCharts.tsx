@@ -8,6 +8,7 @@ import {
 } from "recharts";
 import { subDays, subMonths, isAfter, parseISO, format } from "date-fns";
 import { Download } from "lucide-react";
+import { UiverseSelect } from "@/components/ui/UiverseSelect";
 
 interface PMDashboardChartsProps {
   tasks: ProjectTask[];
@@ -182,15 +183,16 @@ export function PMDashboardCharts({ tasks }: PMDashboardChartsProps) {
                 Breakdown of task delivery states
               </p>
             </div>
-            <select
+            <UiverseSelect
               value={statusTimeRange}
-              onChange={(e) => setStatusTimeRange(e.target.value)}
-              className="text-xs border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500/20"
+              onChange={(val) => setStatusTimeRange(val)}
+              size="sm"
+              className="min-w-[125px]"
             >
               <option value="7d">Last 7 days</option>
               <option value="30d">Last 30 days</option>
               <option value="3m">Last 3 months</option>
-            </select>
+            </UiverseSelect>
           </div>
 
           <div className="h-[260px] w-full">

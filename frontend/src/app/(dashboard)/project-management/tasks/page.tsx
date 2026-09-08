@@ -32,6 +32,7 @@ import { CreateTaskModal } from "@/components/project-management/CreateTaskModal
 import { DailyReportModal } from "@/components/project-management/DailyReportModal";
 import { ImportTasksModal } from "@/components/project-management/ImportTasksModal";
 import { SearchableProjectSelect } from "@/components/project-management/SearchableProjectSelect";
+import { UiverseSelect } from "@/components/ui/UiverseSelect";
 import teamPermissionsApi from "@/services/teamPermissions";
 
 export default function AllTasksPage() {
@@ -583,10 +584,11 @@ export default function AllTasksPage() {
           </div>
 
           <div>
-            <select
+            <UiverseSelect
               value={priorityFilter}
-              onChange={(e) => setPriorityFilter(e.target.value)}
-              className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+              onChange={(val) => setPriorityFilter(val)}
+              placeholder="All Priorities"
+              className="w-full min-w-[140px]"
             >
               <option value="All">All Priorities</option>
               {TASK_PRIORITIES.map((pr) => (
@@ -594,7 +596,7 @@ export default function AllTasksPage() {
                   {pr} Priority
                 </option>
               ))}
-            </select>
+            </UiverseSelect>
           </div>
         </div>
       </div>

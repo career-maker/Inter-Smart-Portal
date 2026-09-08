@@ -28,6 +28,7 @@ import {
 import { useAuthStore } from "@/store/auth";
 import api from "@/services/api";
 import pmApi from "@/services/pm";
+import { UiverseSelect } from "@/components/ui/UiverseSelect";
 import {
   Project,
   ProjectStatus,
@@ -301,10 +302,11 @@ export default function ProjectsListPage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <select
+            <UiverseSelect
               value={teamFilter}
-              onChange={(e) => setTeamFilter(e.target.value)}
-              className="px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 text-slate-700 dark:text-slate-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+              onChange={(val) => setTeamFilter(val)}
+              placeholder="All Departments"
+              className="min-w-[170px]"
             >
               <option value="">All Departments</option>
               {teams.map((t) => (
@@ -312,7 +314,7 @@ export default function ProjectsListPage() {
                   {t.name}
                 </option>
               ))}
-            </select>
+            </UiverseSelect>
 
             <button
               type="submit"

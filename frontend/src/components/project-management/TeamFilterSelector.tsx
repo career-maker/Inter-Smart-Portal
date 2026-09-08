@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Users, Filter } from "lucide-react";
 import api from "@/services/api";
+import { UiverseSelect } from "@/components/ui/UiverseSelect";
 
 interface Team {
   id: number;
@@ -55,17 +56,11 @@ export function TeamFilterSelector({
 
   return (
     <div className={`relative inline-flex items-center ${className}`}>
-      <select
+      <UiverseSelect
         value={selectedTeamId}
-        onChange={(e) => onSelectTeam(e.target.value === "all" ? "all" : Number(e.target.value))}
-        style={{
-          fontFamily: '"Proxima Nova", sans-serif',
-          fontSize: "13px",
-          lineHeight: "20px",
-          fontWeight: 400,
-        }}
-        className="pl-3 pr-8 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer"
-        aria-label="Filter by Team"
+        onChange={(val) => onSelectTeam(val === "all" ? "all" : Number(val))}
+        placeholder="All Departments / Teams"
+        className="min-w-[190px]"
       >
         <option value="all">All Departments / Teams</option>
         {teams.map((t) => (
@@ -73,7 +68,7 @@ export function TeamFilterSelector({
             {t.name}
           </option>
         ))}
-      </select>
+      </UiverseSelect>
     </div>
   );
 }
