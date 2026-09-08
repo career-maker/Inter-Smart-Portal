@@ -39,7 +39,8 @@ import {
   AlertTriangle,
   CheckCircle2,
   Server,
-  Users
+  Users,
+  ShieldCheck,
 } from "lucide-react";
 import Link from "next/link";
 import { format, parseISO } from "date-fns";
@@ -59,6 +60,80 @@ import { EmployeeAttendanceDrawer } from "@/components/attendance/EmployeeAttend
 import { useCustomization } from "@/context/CustomizationContext";
 import { resolveCustomizationAssetUrl } from "@/services/customization";
 
+/**
+ * Senior Designer Glassmorphic Role Pill for Welcome Card Hero Banner
+ */
+function WelcomeRolePill({ role }: { role?: string }) {
+  const normalized = (role || "").trim().toLowerCase();
+
+  let roleLabel = role || "Employee";
+  let IconComponent = Users;
+  let themeStyles = {
+    gradient: "from-emerald-500/20 via-teal-400/10 to-emerald-600/20 hover:from-emerald-500/30 hover:to-emerald-500/30",
+    border: "border-emerald-400/35 hover:border-emerald-300/60",
+    text: "text-emerald-100",
+    iconColor: "text-emerald-300 drop-shadow-[0_0_8px_rgba(52,211,153,0.7)]",
+    dotBg: "bg-emerald-400 shadow-[0_0_8px_#10b981]",
+    pingBg: "bg-emerald-400",
+    glow: "shadow-[0_2px_12px_rgba(0,0,0,0.3),0_0_16px_rgba(16,185,129,0.22),inset_0_1px_1px_rgba(255,255,255,0.35)]",
+  };
+
+  if (normalized.includes("super")) {
+    roleLabel = "Super Admin";
+    IconComponent = Crown;
+    themeStyles = {
+      gradient: "from-amber-500/20 via-yellow-400/10 to-amber-600/20 hover:from-amber-500/30 hover:to-amber-500/30",
+      border: "border-amber-400/40 hover:border-amber-300/60",
+      text: "text-amber-100",
+      iconColor: "text-amber-300 drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]",
+      dotBg: "bg-amber-400 shadow-[0_0_8px_#f59e0b]",
+      pingBg: "bg-amber-400",
+      glow: "shadow-[0_2px_12px_rgba(0,0,0,0.3),0_0_18px_rgba(245,158,11,0.25),inset_0_1px_1px_rgba(255,255,255,0.35)]",
+    };
+  } else if (normalized.includes("lead")) {
+    roleLabel = "Team Lead";
+    IconComponent = Sparkles;
+    themeStyles = {
+      gradient: "from-purple-500/20 via-indigo-400/10 to-purple-600/20 hover:from-purple-500/30 hover:to-purple-500/30",
+      border: "border-purple-400/40 hover:border-purple-300/60",
+      text: "text-purple-100",
+      iconColor: "text-purple-300 drop-shadow-[0_0_8px_rgba(192,132,252,0.8)]",
+      dotBg: "bg-purple-400 shadow-[0_0_8px_#a855f7]",
+      pingBg: "bg-purple-400",
+      glow: "shadow-[0_2px_12px_rgba(0,0,0,0.3),0_0_18px_rgba(168,85,247,0.25),inset_0_1px_1px_rgba(255,255,255,0.35)]",
+    };
+  } else if (normalized.includes("admin") || normalized.includes("hr") || normalized.includes("manager")) {
+    roleLabel = role || "Administrator";
+    IconComponent = ShieldCheck;
+    themeStyles = {
+      gradient: "from-sky-500/20 via-blue-400/10 to-sky-600/20 hover:from-sky-500/30 hover:to-sky-500/30",
+      border: "border-sky-400/40 hover:border-sky-300/60",
+      text: "text-sky-100",
+      iconColor: "text-sky-300 drop-shadow-[0_0_8px_rgba(56,189,248,0.8)]",
+      dotBg: "bg-sky-400 shadow-[0_0_8px_#0ea5e9]",
+      pingBg: "bg-sky-400",
+      glow: "shadow-[0_2px_12px_rgba(0,0,0,0.3),0_0_18px_rgba(14,165,233,0.25),inset_0_1px_1px_rgba(255,255,255,0.35)]",
+    };
+  }
+
+  return (
+    <span
+      className={`relative inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10.5px] sm:text-[11px] font-bold tracking-[0.06em] uppercase bg-gradient-to-r ${themeStyles.gradient} ${themeStyles.text} border ${themeStyles.border} backdrop-blur-md ${themeStyles.glow} transition-all duration-300 hover:scale-[1.03] select-none shrink-0 overflow-hidden group/role-pill`}
+    >
+      {/* Top subtle highlight reflection line */}
+      <span className="absolute inset-x-2 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent pointer-events-none" />
+      
+      <IconComponent className={`w-3.5 h-3.5 shrink-0 ${themeStyles.iconColor}`} />
+      <span className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)]">{roleLabel}</span>
+      
+      {/* Ambient Pulsing Jewel Dot */}
+      <span className="relative flex h-2 w-2 shrink-0 items-center justify-center">
+        <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-60 ${themeStyles.pingBg}`} />
+        <span className={`relative inline-flex rounded-full h-1.5 w-1.5 ${themeStyles.dotBg}`} />
+      </span>
+    </span>
+  );
+}
 
 export default function DashboardPage() {
   const { settings: customizationSettings } = useCustomization();
@@ -425,6 +500,8 @@ export default function DashboardPage() {
                   <line x1="10" y1="14" x2="21" y2="3" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </Link>
+
+              <WelcomeRolePill role={user?.role || profile?.role} />
 
               {/* Active Achievement Animating Trophy Badge */}
               {hasActiveRec && profile.active_recognition && (
@@ -1435,10 +1512,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                 </svg>
               </Link>
 
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-400/20 text-amber-300 text-xs font-bold uppercase tracking-wider rounded-full border border-amber-400/40 shadow-xs">
-                <Crown className="w-3 h-3 text-amber-300" />
-                Super Admin
-              </span>
+              <WelcomeRolePill role="Super Admin" />
             </div>
 
             {/* Subtitle: Role • Location */}
