@@ -125,6 +125,8 @@ class CustomizationController extends Controller
                 'welcome_banner_url',
                 'login_bg_video_url',
                 'welcome_banner_media_type',
+                'sidebar_bg_color',
+                'sidebar_active_color',
                 'sidebar_hover_color',
                 'hover_color',
                 'active_color',
@@ -132,6 +134,8 @@ class CustomizationController extends Controller
                 'light_bg_color',
                 'card_bg_color',
                 'border_color',
+                'sub_header_bg',
+                'sub_header_active_color',
             ];
 
             foreach ($dynamicFields as $field) {

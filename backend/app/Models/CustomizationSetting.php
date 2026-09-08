@@ -140,6 +140,26 @@ class CustomizationSetting extends Model
         return $value ?: ($this->extra_colors['border_color'] ?? '#CBEFEA');
     }
 
+    public function getSidebarBgColorAttribute($value): string
+    {
+        return $value ?: ($this->extra_colors['sidebar_bg_color'] ?? '#093E3A');
+    }
+
+    public function getSidebarActiveColorAttribute($value): string
+    {
+        return $value ?: ($this->extra_colors['sidebar_active_color'] ?? '#14A092');
+    }
+
+    public function getSubHeaderBgAttribute($value): string
+    {
+        return $value ?: ($this->extra_colors['sub_header_bg'] ?? '#ffffff');
+    }
+
+    public function getSubHeaderActiveColorAttribute($value): string
+    {
+        return $value ?: ($this->extra_colors['sub_header_active_color'] ?? ($this->primary_color ?? '#0F766E'));
+    }
+
     public static function defaults(): array
     {
         return [
