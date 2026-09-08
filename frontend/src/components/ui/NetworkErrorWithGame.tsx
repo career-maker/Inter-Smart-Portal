@@ -65,6 +65,11 @@ export function NetworkErrorWithGame({ onRetry, errorMessage }: NetworkErrorWith
         // Ensure current user is marked correctly with current name
         let foundUser = false;
         const normalized = parsed.map((p) => {
+          // Ensure Aswathi's designation is correctly shown as QA Analyst, not Team Lead
+          if (p.name.includes("Aswathi") || p.id === "colleague-1") {
+            p.role = "QA Analyst";
+          }
+
           if (p.isCurrentUser || p.id === currentUserId || p.name === currentUserName) {
             foundUser = true;
             return {
@@ -108,7 +113,7 @@ export function NetworkErrorWithGame({ onRetry, errorMessage }: NetworkErrorWith
         id: "colleague-1",
         name: "Aswathi M Ashok",
         score: 148,
-        role: "Team Lead",
+        role: "QA Analyst",
         isCurrentUser: false,
         avatarBg: "bg-pink-600",
         avatarText: "AA",
