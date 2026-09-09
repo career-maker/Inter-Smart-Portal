@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { format, parseISO } from "date-fns";
 import {
@@ -12,6 +12,9 @@ import {
   Clock,
   CheckCircle2,
   Calendar,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 import {
   ProjectTask,
@@ -23,6 +26,83 @@ import {
 import { TaskStatusBadge } from "@/components/project-management/TaskStatusBadge";
 import { TaskPriorityBadge } from "@/components/project-management/TaskPriorityBadge";
 import { getTaskOverdueInfo } from "@/utils/taskOverdue";
+
+export type SortField =
+  | "project"
+  | "priority"
+  | "task"
+  | "assignees"
+  | "pc"
+  | "status"
+  | "start_date"
+  | "due_date"
+  | "achieved"
+  | "comments"
+  | "dev"
+  | "sprint";
+
+export type SortDirection = "asc" | "desc";
+
+const PRIORITY_WEIGHTS: Record<string, number> = {
+  Critical: 4,
+  High: 3,
+  Medium: 2,
+  Low: 1,
+};
+
+const STATUS_WEIGHTS: Record<string, number> = {
+  "Yet to Start": 1,
+  "Being Developed": 2,
+  "Ready for QA": 3,
+  "Assigned to QA": 4,
+  "In Progress": 5,
+  "On Hold": 6,
+  "Forecast": 7,
+  "Completed": 8,
+  "Rejected": 9,
+  "Cancelled": 10,
+};
+
+function getTaskStatusClass(status: TaskStatus | string): string {
+  switch (status) {
+    case "Yet to Start":
+      return "task-status-yet-to-start";
+    case "Being Developed":
+      return "task-status-being-developed";
+    case "Ready for QA":
+      return "task-status-ready-for-qa";
+    case "Assigned to QA":
+      return "task-status-assigned-to-qa";
+    case "In Progress":
+      return "task-status-in-progress";
+    case "On Hold":
+      return "task-status-on-hold";
+    case "Completed":
+      return "task-status-completed";
+    case "Forecast":
+      return "task-status-forecast";
+    case "Rejected":
+      return "task-status-rejected";
+    case "Cancelled":
+      return "task-status-cancelled";
+    default:
+      return "task-status-yet-to-start";
+  }
+}
+
+function getTaskPriorityClass(priority: TaskPriority | string): string {
+  switch (priority) {
+    case "Critical":
+      return "task-priority-critical";
+    case "High":
+      return "task-priority-high";
+    case "Medium":
+      return "task-priority-medium";
+    case "Low":
+    default:
+      return "task-priority-low";
+  }
+}
 
 interface TaskTrackerTableProps {
   tasks: ProjectTask[];
@@ -55,46 +135,6 @@ function toDateInputValue(dateStr?: string | null): string {
     return dateStr.split("T")[0];
   } catch {
     return "";
-  }
-}
-
-function getStatusBadgeStyle(status: TaskStatus | string): string {
-  switch (status) {
-    case "Yet to Start":
-      return "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700";
-    case "Being Developed":
-      return "bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border-indigo-300 dark:border-indigo-700";
-    case "Ready for QA":
-      return "bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700";
-    case "Assigned to QA":
-      return "bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-700";
-    case "In Progress":
-      return "bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700";
-    case "On Hold":
-      return "bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border-rose-300 dark:border-rose-700";
-    case "Completed":
-      return "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700";
-    case "Forecast":
-      return "bg-cyan-50 dark:bg-cyan-950/50 text-cyan-700 dark:text-cyan-300 border-cyan-300 dark:border-cyan-700";
-    case "Rejected":
-      return "bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 border-red-300 dark:border-red-700";
-    default:
-      return "bg-slate-100 text-slate-700 border-slate-300";
-  }
-}
-
-function getPriorityBadgeStyle(priority: TaskPriority | string): string {
-  switch (priority) {
-    case "Low":
-      return "bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700";
-    case "Medium":
-      return "bg-amber-50 text-amber-700 border-amber-300 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-700";
-    case "High":
-      return "bg-orange-50 text-orange-700 border-orange-300 dark:bg-orange-950/50 dark:text-orange-300 dark:border-orange-700";
-    case "Critical":
-      return "bg-red-50 text-red-700 border-red-300 dark:bg-red-950/50 dark:text-red-300 dark:border-red-700";
-    default:
-      return "bg-slate-100 text-slate-700 border-slate-300";
   }
 }
 
@@ -210,16 +250,99 @@ export function TaskTrackerTable({
 }: TaskTrackerTableProps) {
   const [activeCommentPopover, setActiveCommentPopover] = useState<number | null>(null);
   const [tablePage, setTablePage] = useState<number>(1);
+  const [sortField, setSortField] = useState<SortField | null>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      if (sortDirection === "asc") {
+        setSortDirection("desc");
+      } else {
+        setSortField(null);
+        setSortDirection("asc");
+      }
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+    setTablePage(1);
+  };
+
+  const sortedTasks = useMemo(() => {
+    if (!sortField) return tasks;
+
+    const getFieldValue = (t: ProjectTask, field: SortField): string | number => {
+      switch (field) {
+        case "project":
+          return (t.project?.name || "").toLowerCase();
+        case "priority":
+          return PRIORITY_WEIGHTS[t.priority] || 0;
+        case "task":
+          return (t.title || "").toLowerCase();
+        case "assignees":
+          if (t.assignees && t.assignees.length > 0) {
+            const first = t.assignees[0];
+            return `${first.first_name || ""} ${first.last_name || ""}`.trim().toLowerCase();
+          }
+          return "";
+        case "pc":
+          if (t.coordinator) {
+            return `${t.coordinator.first_name || ""} ${t.coordinator.last_name || ""}`.trim().toLowerCase();
+          }
+          return "";
+        case "status":
+          return STATUS_WEIGHTS[t.status] || (t.status || "").toLowerCase();
+        case "start_date":
+          return t.start_date ? new Date(t.start_date).getTime() : 0;
+        case "due_date":
+          return t.due_date ? new Date(t.due_date).getTime() : 0;
+        case "achieved": {
+          const d = t.actual_completion_date || (t.status === "Completed" ? t.updated_at : null);
+          return d ? new Date(d).getTime() : 0;
+        }
+        case "comments":
+          return (t.current_updates || t.description || "").toLowerCase();
+        case "dev":
+          return Number(t.deviation || 0);
+        case "sprint":
+          return (t.sprint || "").toLowerCase();
+        default:
+          return "";
+      }
+    };
+
+    const copy = [...tasks];
+    copy.sort((a, b) => {
+      const valA = getFieldValue(a, sortField);
+      const valB = getFieldValue(b, sortField);
+
+      if (typeof valA === "number" && typeof valB === "number") {
+        if (valA === 0 && valB !== 0) return 1;
+        if (valB === 0 && valA !== 0) return -1;
+        return sortDirection === "asc" ? valA - valB : valB - valA;
+      }
+
+      const strA = String(valA);
+      const strB = String(valB);
+      if (!strA && strB) return 1;
+      if (!strB && strA) return -1;
+
+      const cmp = strA.localeCompare(strB, undefined, { numeric: true, sensitivity: "base" });
+      return sortDirection === "asc" ? cmp : -cmp;
+    });
+
+    return copy;
+  }, [tasks, sortField, sortDirection]);
 
   const perPage = pageSize;
-  const totalPages = Math.ceil(tasks.length / perPage);
-  const visibleTasks = tasks.slice((tablePage - 1) * perPage, tablePage * perPage);
+  const totalPages = Math.ceil(sortedTasks.length / perPage);
+  const visibleTasks = sortedTasks.slice((tablePage - 1) * perPage, tablePage * perPage);
 
   React.useEffect(() => {
     if (tablePage > totalPages && totalPages > 0) {
       setTablePage(1);
     }
-  }, [tasks.length, totalPages, tablePage]);
+  }, [sortedTasks.length, totalPages, tablePage]);
 
   if (!tasks || tasks.length === 0) {
     return (
@@ -229,28 +352,93 @@ export function TaskTrackerTable({
     );
   }
 
+  const renderSortHeader = (
+    field: SortField,
+    label: string,
+    align: "left" | "center" | "right" = "left",
+    extraClass = ""
+  ) => {
+    const isActive = sortField === field;
+    return (
+      <th
+        onClick={() => handleSort(field)}
+        style={{
+          fontFamily: '"Proxima Nova", sans-serif',
+          fontStyle: "normal",
+          fontWeight: 600,
+          fontSize: "12px",
+          lineHeight: "18px",
+        }}
+        className={`py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800 cursor-pointer select-none transition-colors hover:bg-slate-100/90 dark:hover:bg-slate-800/80 group/th task-col-title ${
+          isActive
+            ? "text-purple-700 dark:text-purple-300 bg-purple-50/70 dark:bg-purple-950/30 font-bold"
+            : "text-slate-800 dark:!text-slate-200"
+        } ${extraClass}`}
+        title={`Sort by ${label} (${
+          isActive
+            ? sortDirection === "asc"
+              ? "Ascending - click for Descending"
+              : "Descending - click to clear"
+            : "click to sort"
+        })`}
+      >
+        <div
+          className={`flex items-center gap-1.5 ${
+            align === "center"
+              ? "justify-center"
+              : align === "right"
+              ? "justify-end"
+              : "justify-start"
+          }`}
+        >
+          <span>{label}</span>
+          <span className="inline-flex shrink-0">
+            {isActive ? (
+              sortDirection === "asc" ? (
+                <ArrowUp className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 stroke-[2.5]" />
+              ) : (
+                <ArrowDown className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 stroke-[2.5]" />
+              )
+            ) : (
+              <ArrowUpDown className="w-3 h-3 text-slate-400/50 group-hover/th:text-slate-600 dark:group-hover/th:text-slate-300 transition-colors" />
+            )}
+          </span>
+        </div>
+      </th>
+    );
+  };
+
   return (
     <div className="w-full flex flex-col">
       <div className="w-full overflow-x-auto table-scrollbar">
         <table className="w-full text-left border-collapse task-tracker-table">
           <thead>
             <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-800/50 whitespace-nowrap task-table-header">
-              <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-3 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">PROJECT</th>
-              <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2 border-r border-slate-200/80 dark:border-slate-800 text-center dark:!text-white task-col-title min-w-[70px]">PTY</th>
-              <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-3 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">SUB PHASE / TASK</th>
-              {showAssigneesCol && (
-                <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-3 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">ASSIGNEES</th>
-              )}
-              <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">PC</th>
-              <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">STATUS</th>
-              <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">START</th>
-              <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">END</th>
-              <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">ACHIEVED</th>
-              <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">COMMENTS</th>
-              <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2 border-r border-slate-200/80 dark:border-slate-800 text-center dark:!text-white task-col-title">DEV</th>
-              <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800 dark:!text-white task-col-title">SPRINT</th>
+              {renderSortHeader("project", "PROJECT", "left", "px-3")}
+              {renderSortHeader("priority", "PTY", "center", "min-w-[84px]")}
+              {renderSortHeader("task", "SUB PHASE / TASK", "left", "px-3")}
+              {showAssigneesCol && renderSortHeader("assignees", "ASSIGNEES", "left", "px-3")}
+              {renderSortHeader("pc", "PC", "left")}
+              {renderSortHeader("status", "STATUS", "left")}
+              {renderSortHeader("start_date", "START", "left")}
+              {renderSortHeader("due_date", "END", "left")}
+              {renderSortHeader("achieved", "ACHIEVED", "left")}
+              {renderSortHeader("comments", "COMMENTS", "left")}
+              {renderSortHeader("dev", "DEV", "center")}
+              {renderSortHeader("sprint", "SPRINT", "left")}
               {canEdit && (
-                <th style={{ fontFamily: '"Proxima Nova", sans-serif', fontStyle: 'normal', fontWeight: 400, color: 'black', fontSize: '13px', lineHeight: '20px' }} className="py-2.5 px-3 text-right dark:!text-white task-col-title">ACTIONS</th>
+                <th
+                  style={{
+                    fontFamily: '"Proxima Nova", sans-serif',
+                    fontStyle: "normal",
+                    fontWeight: 600,
+                    fontSize: "12px",
+                    lineHeight: "18px",
+                  }}
+                  className="py-2.5 px-3 text-right text-slate-800 dark:!text-slate-200 task-col-title"
+                >
+                  ACTIONS
+                </th>
               )}
             </tr>
           </thead>
@@ -328,21 +516,10 @@ export function TaskTrackerTable({
                           disabled={updatingTaskId === task.id}
                           onChange={(e) => onPriorityChange(task.id, e.target.value as TaskPriority)}
                           title={`Priority: ${task.priority}`}
-                          style={{
-                            fontFamily: '"Proxima Nova", sans-serif',
-                            fontSize: "11px",
-                            lineHeight: "14px",
-                            fontWeight: 600,
-                            backgroundImage: "none",
-                            paddingLeft: "6px",
-                            paddingRight: "6px",
-                            paddingTop: "2px",
-                            paddingBottom: "2px",
-                          }}
-                          className={`min-w-[62px] h-6 px-1.5 text-center [text-align-last:center] rounded-md border text-[11px] font-semibold cursor-pointer transition-all focus:outline-none focus:ring-1 focus:ring-purple-500/20 disabled:opacity-50 !bg-none ${getPriorityBadgeStyle(task.priority)}`}
+                          className={`task-priority-select ${getTaskPriorityClass(task.priority)} disabled:opacity-50`}
                         >
                           {TASK_PRIORITIES.map((pr) => (
-                            <option key={pr} value={pr} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-medium">
+                            <option key={pr} value={pr} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-bold py-1">
                               {pr}
                             </option>
                           ))}
@@ -433,16 +610,11 @@ export function TaskTrackerTable({
                           value={task.status}
                           disabled={updatingTaskId === task.id}
                           onChange={(e) => onStatusChange(task.id, e.target.value as TaskStatus)}
-                          style={{
-                            fontFamily: '"Proxima Nova", sans-serif',
-                            fontSize: "11px",
-                            lineHeight: "16px",
-                            fontWeight: 400,
-                          }}
-                          className={`px-2 py-0.5 rounded-full border text-[11px] font-normal cursor-pointer transition-all focus:outline-none focus:ring-1 focus:ring-purple-500/20 disabled:opacity-50 ${getStatusBadgeStyle(task.status)}`}
+                          title={`Status: ${task.status}`}
+                          className={`task-status-select ${getTaskStatusClass(task.status)} disabled:opacity-50`}
                         >
                           {TASK_STATUSES.map((st) => (
-                            <option key={st} value={st} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
+                            <option key={st} value={st} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-medium py-1">
                               {st}
                             </option>
                           ))}

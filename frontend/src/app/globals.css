@@ -3879,7 +3879,6 @@ select:focus {
   margin-bottom: 3px;
   border-radius: 6px;
   position: relative;
-  z-index: 1000;
   font-size: var(--portal-body-size, 13px);
   font-family: var(--portal-font-family, "Proxima Nova", sans-serif) !important;
   display: flex;
@@ -3898,8 +3897,8 @@ select:focus {
 
 .select:hover > .selected,
 .selected:hover {
-  border-color: var(--portal-primary-color, #0F766E);
-  box-shadow: 0 0 0 1px var(--portal-primary-color, #0F766E), 0 2px 4px rgba(0, 0, 0, 0.05);
+  border-color: var(--portal-primary-color, #2563EB);
+  box-shadow: 0 0 0 1px var(--portal-primary-color, #2563EB), 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .arrow {
@@ -3908,8 +3907,7 @@ select:focus {
   height: 10px;
   transform: rotate(-90deg);
   width: 14px;
-  fill: var(--portal-primary-color, #0F766E);
-  z-index: 1000;
+  fill: var(--portal-primary-color, #2563EB);
   transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
   flex-shrink: 0;
 }
@@ -3935,7 +3933,7 @@ select:focus {
   opacity: 0;
   pointer-events: none;
   transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 1001;
+  z-index: 30;
   font-family: var(--portal-font-family, "Proxima Nova", sans-serif) !important;
 }
 
@@ -4068,4 +4066,210 @@ select option,
   background-color: #1e293b !important;
   color: #f1f5f9 !important;
 }
+
+/* ==========================================================================
+   Project Management Task Table: Status & Priority Badges & Selects
+   ========================================================================== */
+
+.task-status-select {
+  padding-left: 0.75rem !important;
+  padding-right: 1.6rem !important;
+  padding-top: 0.2rem !important;
+  padding-bottom: 0.2rem !important;
+  border-radius: 9999px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  line-height: 1.25rem !important;
+  cursor: pointer !important;
+  background-position: right 0.45rem center !important;
+  background-size: 0.75rem !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  transition: all 0.15s ease !important;
+}
+
+.task-status-select:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.25) !important;
+}
+
+/* Status variants */
+.task-status-yet-to-start {
+  background-color: #f1f5f9 !important;
+  color: #475569 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+.dark .task-status-yet-to-start {
+  background-color: rgba(30, 41, 59, 0.8) !important;
+  color: #cbd5e1 !important;
+  border: 1px solid rgba(100, 116, 139, 0.5) !important;
+}
+
+.task-status-being-developed {
+  background-color: #eef2ff !important;
+  color: #4338ca !important;
+  border: 1px solid #a5b4fc !important;
+}
+.dark .task-status-being-developed {
+  background-color: rgba(49, 46, 129, 0.5) !important;
+  color: #c7d2fe !important;
+  border: 1px solid rgba(99, 102, 241, 0.45) !important;
+}
+
+.task-status-ready-for-qa {
+  background-color: #fef3c7 !important;
+  color: #b45309 !important;
+  border: 1px solid #fcd34d !important;
+}
+.dark .task-status-ready-for-qa {
+  background-color: rgba(120, 53, 15, 0.5) !important;
+  color: #fde68a !important;
+  border: 1px solid rgba(245, 158, 11, 0.45) !important;
+}
+
+.task-status-assigned-to-qa {
+  background-color: #f3e8ff !important;
+  color: #7e22ce !important;
+  border: 1px solid #d8b4fe !important;
+}
+.dark .task-status-assigned-to-qa {
+  background-color: rgba(88, 28, 135, 0.5) !important;
+  color: #e9d5ff !important;
+  border: 1px solid rgba(168, 85, 247, 0.45) !important;
+}
+
+.task-status-in-progress {
+  background-color: #dbeafe !important;
+  color: #1d4ed8 !important;
+  border: 1px solid #93c5fd !important;
+}
+.dark .task-status-in-progress {
+  background-color: rgba(30, 58, 138, 0.5) !important;
+  color: #bfdbfe !important;
+  border: 1px solid rgba(59, 130, 246, 0.45) !important;
+}
+
+.task-status-on-hold {
+  background-color: #ffe4e6 !important;
+  color: #be123c !important;
+  border: 1px solid #fda4af !important;
+}
+.dark .task-status-on-hold {
+  background-color: rgba(136, 19, 55, 0.5) !important;
+  color: #fecdd3 !important;
+  border: 1px solid rgba(244, 63, 94, 0.45) !important;
+}
+
+.task-status-completed {
+  background-color: #d1fae5 !important;
+  color: #047857 !important;
+  border: 1px solid #6ee7b7 !important;
+}
+.dark .task-status-completed {
+  background-color: rgba(6, 78, 59, 0.5) !important;
+  color: #a7f3d0 !important;
+  border: 1px solid rgba(16, 185, 129, 0.45) !important;
+}
+
+.task-status-forecast {
+  background-color: #cffafe !important;
+  color: #0e7490 !important;
+  border: 1px solid #67e8f9 !important;
+}
+.dark .task-status-forecast {
+  background-color: rgba(22, 78, 99, 0.5) !important;
+  color: #a5f3fc !important;
+  border: 1px solid rgba(6, 182, 212, 0.45) !important;
+}
+
+.task-status-rejected {
+  background-color: #fee2e2 !important;
+  color: #b91c1c !important;
+  border: 1px solid #fca5a5 !important;
+}
+.dark .task-status-rejected {
+  background-color: rgba(127, 29, 29, 0.5) !important;
+  color: #fecaca !important;
+  border: 1px solid rgba(239, 68, 68, 0.45) !important;
+}
+
+.task-status-cancelled {
+  background-color: #f4f4f5 !important;
+  color: #52525b !important;
+  border: 1px solid #d4d4d8 !important;
+}
+.dark .task-status-cancelled {
+  background-color: rgba(39, 39, 42, 0.6) !important;
+  color: #e4e4e7 !important;
+  border: 1px solid rgba(113, 113, 122, 0.45) !important;
+}
+
+/* Priority Select & Badge Styles */
+.task-priority-select {
+  min-width: 74px !important;
+  height: 25px !important;
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+  padding-top: 0.15rem !important;
+  padding-bottom: 0.15rem !important;
+  border-radius: 6px !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em !important;
+  background-image: none !important;
+  text-align: center !important;
+  text-align-last: center !important;
+  cursor: pointer !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  transition: all 0.15s ease !important;
+}
+
+.task-priority-select:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.25) !important;
+}
+
+.task-priority-critical {
+  background-color: #fee2e2 !important;
+  color: #991b1b !important;
+  border: 1.5px solid #f87171 !important;
+}
+.dark .task-priority-critical {
+  background-color: rgba(153, 27, 27, 0.55) !important;
+  color: #fca5a5 !important;
+  border: 1.5px solid rgba(248, 113, 113, 0.55) !important;
+}
+
+.task-priority-high {
+  background-color: #ffedd5 !important;
+  color: #9a3412 !important;
+  border: 1.5px solid #fb923c !important;
+}
+.dark .task-priority-high {
+  background-color: rgba(154, 52, 18, 0.55) !important;
+  color: #fdba74 !important;
+  border: 1.5px solid rgba(251, 146, 60, 0.55) !important;
+}
+
+.task-priority-medium {
+  background-color: #dbeafe !important;
+  color: #1e40af !important;
+  border: 1.5px solid #60a5fa !important;
+}
+.dark .task-priority-medium {
+  background-color: rgba(30, 64, 175, 0.55) !important;
+  color: #93c5fd !important;
+  border: 1.5px solid rgba(96, 165, 250, 0.55) !important;
+}
+
+.task-priority-low {
+  background-color: #f1f5f9 !important;
+  color: #334155 !important;
+  border: 1.5px solid #94a3b8 !important;
+}
+.dark .task-priority-low {
+  background-color: rgba(51, 65, 85, 0.6) !important;
+  color: #e2e8f0 !important;
+  border: 1.5px solid rgba(148, 163, 184, 0.45) !important;
+}
+
 

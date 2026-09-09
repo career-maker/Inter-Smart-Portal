@@ -124,8 +124,8 @@ export function UiverseSelect({
           disabled
             ? "opacity-50 cursor-not-allowed bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400"
             : isOpen
-            ? "bg-white dark:bg-[#1e293b] border-[var(--portal-primary-color,#0F766E)] ring-2 ring-[var(--portal-primary-color,#0F766E)]/20 shadow-md cursor-pointer text-slate-900 dark:text-white"
-            : "bg-white hover:bg-slate-50 dark:bg-[#1e293b] dark:hover:bg-slate-800 border-slate-300 dark:border-slate-700 hover:border-[var(--portal-primary-color,#0F766E)] text-slate-800 dark:text-slate-100 cursor-pointer shadow-xs"
+            ? "bg-white dark:bg-[#1e293b] border-[var(--portal-primary-color,#2563EB)] ring-2 ring-[var(--portal-primary-color,#2563EB)]/20 shadow-md cursor-pointer text-slate-900 dark:text-white"
+            : "bg-white hover:bg-slate-50 dark:bg-[#1e293b] dark:hover:bg-slate-800 border-slate-300 dark:border-slate-700 hover:border-[var(--portal-primary-color,#2563EB)] text-slate-800 dark:text-slate-100 cursor-pointer shadow-xs"
         } ${triggerClassName}`}
       >
         <span className="truncate font-medium flex-1">
@@ -137,7 +137,7 @@ export function UiverseSelect({
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 512 512"
           className={`arrow shrink-0 w-3 h-3 transition-transform duration-300 ${
-            isOpen ? "rotate-0 text-[var(--portal-primary-color,#0F766E)]" : "-rotate-90 text-slate-400 dark:text-slate-500"
+            isOpen ? "rotate-0 text-[var(--portal-primary-color,#2563EB)]" : "-rotate-90 text-slate-400 dark:text-slate-500"
           }`}
           fill="currentColor"
         >
@@ -151,7 +151,7 @@ export function UiverseSelect({
           style={{
             fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)',
           }}
-          className="options absolute left-0 top-full mt-1.5 z-[9999] min-w-full w-max max-w-xs sm:max-w-sm rounded-[6px] p-1 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 shadow-xl flex flex-col transition-all duration-300 animate-in fade-in-50 zoom-in-95"
+          className="options absolute left-0 top-full mt-1.5 z-30 min-w-full w-max max-w-xs sm:max-w-sm rounded-[6px] p-1 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 shadow-xl flex flex-col transition-all duration-300 animate-in fade-in-50 zoom-in-95"
         >
           {/* Quick Search if more than 10 options */}
           {isAutoSearchable && (
@@ -162,7 +162,7 @@ export function UiverseSelect({
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search..."
-                className="w-full px-2.5 py-1 text-xs rounded-[4px] bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:border-[var(--portal-primary-color,#0F766E)] focus:ring-1 focus:ring-[var(--portal-primary-color,#0F766E)]"
+                className="w-full px-2.5 py-1 text-xs rounded-[4px] bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:border-[var(--portal-primary-color,#2563EB)] focus:ring-1 focus:ring-[var(--portal-primary-color,#2563EB)]"
               />
             </div>
           )}
@@ -184,13 +184,13 @@ export function UiverseSelect({
                     }}
                     className={`option px-3 py-1.5 rounded-[5px] text-xs sm:text-sm cursor-pointer transition-all duration-300 flex items-center justify-between gap-2 ${
                       isSelected
-                        ? "bg-[var(--portal-primary-color,#0F766E)]/15 text-[var(--portal-primary-color,#0F766E)] font-semibold"
-                        : "text-slate-700 dark:text-slate-200 hover:bg-[var(--portal-primary-color,#0F766E)]/10 hover:text-[var(--portal-primary-color,#0F766E)] dark:hover:bg-slate-800/80"
+                        ? "bg-[var(--portal-primary-color,#2563EB)]/15 text-[var(--portal-primary-color,#2563EB)] font-semibold"
+                        : "text-slate-700 dark:text-slate-200 hover:bg-[var(--portal-primary-color,#2563EB)]/10 hover:text-[var(--portal-primary-color,#2563EB)] dark:hover:bg-slate-800/80"
                     }`}
                   >
                     <span className="truncate">{opt.label}</span>
                     {isSelected && (
-                      <span className="text-[var(--portal-primary-color,#0F766E)] font-bold text-xs shrink-0">
+                      <span className="text-[var(--portal-primary-color,#2563EB)] font-bold text-xs shrink-0">
                         ✓
                       </span>
                     )}

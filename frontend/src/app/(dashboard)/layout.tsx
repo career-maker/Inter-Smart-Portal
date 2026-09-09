@@ -918,7 +918,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* ── FIXED TOP HEADER & SUB-TABS BAR (ALWAYS PINNED AT TOP ON SCROLL) ── */}
         <div
           id="global-fixed-header-container"
-          className={`fixed top-0 right-0 z-40 transition-all duration-300 ease-in-out shadow-md ${
+          className={`fixed top-0 right-0 z-50 transition-all duration-300 ease-in-out shadow-md ${
             !isDark ? 'left-0 md:left-[84px]' : isSidebarCollapsed ? 'left-0 md:left-20' : 'left-0 md:left-64'
           }`}
         >
@@ -1187,7 +1187,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="h-[104px] shrink-0 w-full" />
 
         {/* Page Content (Full width across wide displays, zero awkward side gaps) */}
-        <main key={pathname} className="flex-1 px-4 sm:px-6 lg:px-8 xl:px-10 pt-1 sm:pt-1.5 pb-14 sm:pb-16 w-full max-w-full">
+        <main key={pathname} className="flex-1 px-4 sm:px-6 lg:px-8 xl:px-10 pt-1 sm:pt-1.5 pb-14 sm:pb-16 w-full max-w-full relative z-0 [isolation:isolate]">
           {children}
         </main>
 
