@@ -227,12 +227,10 @@ export function UpcomingHolidaysCard({ holidays = [], className = "" }: Upcoming
               href="/holidays"
               style={{
                 fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)',
-                color: "var(--portal-primary-color, #56348f)",
-                fontSize: "13px",
-                lineHeight: "20px",
-                fontWeight: 500,
+                backgroundColor: "var(--portal-primary-color, #0F766E)",
+                color: "#ffffff",
               }}
-              className="hover:underline transition-colors cursor-pointer"
+              className="inline-flex items-center justify-center px-3 py-1 rounded-lg text-xs font-semibold text-white hover:opacity-90 shadow-2xs transition-all cursor-pointer"
             >
               View All
             </NextLink>
