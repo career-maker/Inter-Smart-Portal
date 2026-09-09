@@ -24,6 +24,7 @@ import {
   Loader2,
   FolderKanban,
 } from "lucide-react";
+import { Portal } from "@/components/ui/portal";
 import pmApi from "@/services/pm";
 import { Project, ProjectStatusDetailsData, TaskStatus } from "@/types/pm";
 import { ProjectStatusBadge } from "@/components/project-management/ProjectStatusBadge";
@@ -87,16 +88,20 @@ export function ProjectStatusDrawer({
     ? Math.round((stats.completed_tasks / stats.total_tasks) * 100)
     : project?.is_live || project?.status === "Completed" ? 100 : 0;
 
-  return (
-    <div className="fixed inset-0 z-[9999] overflow-hidden bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200">
-      <div className="absolute inset-0" onClick={onClose} />
+  if (!isOpen) return null;
 
-      <div
-        style={{
-          fontFamily: '"Proxima Nova", sans-serif',
-        }}
-        className="fixed inset-y-0 right-0 max-w-full flex pl-10 sm:pl-16 z-10"
-      >
+  return (
+    <Portal>
+      <div className="fixed inset-0 z-[99999] overflow-hidden bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200" data-side-popup="true">
+        <div className="absolute inset-0" onClick={onClose} />
+
+        <div
+          style={{
+            fontFamily: '"Proxima Nova", sans-serif',
+          }}
+          className="fixed inset-y-0 right-0 max-w-full flex pl-10 sm:pl-16 z-10"
+          data-side-popup="true"
+        >
         <div className="w-screen max-w-3xl bg-white dark:bg-slate-900 shadow-2xl border-l border-slate-200 dark:border-slate-800 flex flex-col">
           {/* ── Top Header ── */}
           <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-gradient-to-r from-purple-50 via-white to-white dark:from-slate-800/80 dark:via-slate-900 dark:to-slate-900 shrink-0">
@@ -681,5 +686,6 @@ export function ProjectStatusDrawer({
         </div>
       </div>
     </div>
+    </Portal>
   );
 }

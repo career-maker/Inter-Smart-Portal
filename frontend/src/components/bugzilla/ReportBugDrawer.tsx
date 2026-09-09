@@ -372,6 +372,7 @@ export function ReportBugDrawer({
 
   return createPortal(
     <div
+      data-side-popup="true"
       className="fixed inset-0 z-[99999] bg-slate-900/60 backdrop-blur-xs flex items-center justify-end"
       style={{ zIndex: 99999 }}
       onClick={(e) => {

@@ -21,6 +21,7 @@ import {
   FileCheck,
 } from "lucide-react";
 import api from "@/services/api";
+import { Portal } from "@/components/ui/portal";
 
 interface TAItem {
   category: string;
@@ -163,20 +164,22 @@ export function TAApplyModal({ isOpen, onClose, onSuccess }: TAApplyModalProps) 
   if (!isOpen) return null;
 
   return (
-    <div
-      style={{
-        fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      }}
-      className="fixed inset-0 z-50 overflow-hidden"
-    >
-      {/* Backdrop */}
+    <Portal>
       <div
-        onClick={onClose}
-        className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
-      />
+        style={{
+          fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        }}
+        className="fixed inset-0 z-[99999] overflow-hidden"
+        data-side-popup="true"
+      >
+        {/* Backdrop */}
+        <div
+          onClick={onClose}
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+        />
 
-      {/* Side Drawer Popup */}
-      <div className="fixed inset-y-0 right-0 max-w-lg w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-50 animate-in slide-in-from-right duration-300">
+        {/* Side Drawer Popup */}
+        <div className="fixed inset-y-0 right-0 max-w-lg w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-[99999] animate-in slide-in-from-right duration-300" data-side-popup="true">
         
         {/* Drawer Header */}
         <div className="relative p-5 sm:p-6 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-b from-purple-50/70 via-white to-white dark:from-slate-850 dark:to-slate-900">
@@ -450,5 +453,6 @@ export function TAApplyModal({ isOpen, onClose, onSuccess }: TAApplyModalProps) 
         </div>
       </div>
     </div>
+    </Portal>
   );
 }

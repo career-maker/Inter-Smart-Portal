@@ -18,6 +18,7 @@ import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 import { format, parseISO } from "date-fns";
+import { Portal } from "@/components/ui/portal";
 
 export interface WishTargetPerson {
   id: number | string;
@@ -106,18 +107,19 @@ export function BirthdayWishDrawer({
   const isBirthday = person.type === "birthday";
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden font-sans">
-      {/* Backdrop */}
-      <div
-        onClick={onClose}
-        className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
-      />
+    <Portal>
+      <div className="fixed inset-0 z-[99999] overflow-hidden font-sans" data-side-popup="true">
+        {/* Backdrop */}
+        <div
+          onClick={onClose}
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+        />
 
-      {/* Drawer */}
-      <div
-        data-side-popup="true"
-        className="fixed inset-y-0 right-0 max-w-lg w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-50 animate-in slide-in-from-right duration-300"
-      >
+        {/* Drawer */}
+        <div
+          data-side-popup="true"
+          className="fixed inset-y-0 right-0 max-w-lg w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-[99999] animate-in slide-in-from-right duration-300"
+        >
         
         {/* Header with Confetti Background */}
         <div className="relative p-6 text-center border-b border-slate-100 dark:border-slate-800 bg-gradient-to-b from-purple-50/80 to-white dark:from-slate-850 dark:to-slate-900 overflow-hidden">
@@ -339,5 +341,6 @@ export function BirthdayWishDrawer({
 
       </div>
     </div>
+    </Portal>
   );
 }

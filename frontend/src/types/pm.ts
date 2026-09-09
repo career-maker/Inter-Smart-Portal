@@ -198,7 +198,13 @@ export interface ProjectTask {
   updated_at: string;
 
   // Eager-loaded relations
-  project?: { id: number; name: string; team_id?: number | null };
+  project?: {
+    id: number;
+    name: string;
+    team_id?: number | null;
+    project_coordinator_id?: number | null;
+    coordinator?: ProjectCoordinatorSummary | null;
+  };
   sub_phase?: { id: number; name: string } | null;
   catalog_task?: ProjectTaskCatalog | null;
   catalogTask?: ProjectTaskCatalog | null;

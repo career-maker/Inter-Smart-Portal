@@ -309,7 +309,14 @@ class ProjectTaskController extends Controller
             return response()->json(['message' => 'Unauthorized.'], 403);
         }
 
-        $task->load(['project:id,name,team_id', 'subPhase:id,name', 'catalogTask:id,name,category', 'coordinator:id,first_name,last_name', 'assignees:id,first_name,last_name']);
+        $task->load([
+            'project:id,name,team_id,project_coordinator_id',
+            'project.coordinator:id,first_name,last_name',
+            'subPhase:id,name',
+            'catalogTask:id,name,category',
+            'coordinator:id,first_name,last_name',
+            'assignees:id,first_name,last_name',
+        ]);
 
         return response()->json(['data' => $task]);
     }

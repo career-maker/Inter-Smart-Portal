@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { format, addDays, subDays, parseISO } from "date-fns";
 import api from "@/services/api";
+import { Portal } from "@/components/ui/portal";
 import { RoyalAvatar } from "@/components/ui/RoyalAvatar";
 
 interface AttendanceWidgetProps {
@@ -534,15 +535,16 @@ export function AttendanceWidget({
           (Strictly shows current employee's own check-in/out for today)
           ───────────────────────────────────────────────────────────── */}
       {isTimelineDrawerOpen && (
-        <div className="fixed inset-0 z-50 overflow-hidden font-sans">
-          {/* Backdrop */}
-          <div
-            onClick={handleCloseDrawer}
-            className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
-          />
+        <Portal>
+          <div className="fixed inset-0 z-[99999] overflow-hidden font-sans" data-side-popup="true">
+            {/* Backdrop */}
+            <div
+              onClick={handleCloseDrawer}
+              className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+            />
 
-          {/* Drawer Panel */}
-          <div className="fixed inset-y-0 right-0 max-w-md w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-50 animate-in slide-in-from-right duration-300 text-slate-900 dark:text-white">
+            {/* Drawer Panel */}
+            <div className="fixed inset-y-0 right-0 max-w-md w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-[99999] animate-in slide-in-from-right duration-300 text-slate-900 dark:text-white">
             {/* Header */}
             <div className="relative p-5 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-b from-purple-50/80 via-purple-50/30 to-white dark:from-slate-800 dark:to-slate-900 shrink-0">
               <button
@@ -988,6 +990,7 @@ export function AttendanceWidget({
             </div>
           </div>
         </div>
+      </Portal>
       )}
     </>
   );

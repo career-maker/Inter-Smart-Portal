@@ -37,6 +37,7 @@ import { openReportBugDrawer } from "@/components/bugzilla/ReportBugDrawer";
 import { TaskPriorityBadge } from "@/components/project-management/TaskPriorityBadge";
 import { TaskStatusBadge } from "@/components/project-management/TaskStatusBadge";
 import { ProjectStatusBadge } from "@/components/project-management/ProjectStatusBadge";
+import { Portal } from "@/components/ui/portal";
 
 interface UnifiedProjectCard {
   id: number;
@@ -474,8 +475,9 @@ export default function BugSmartProjectsPage() {
 
       {/* ── Project Tasks & Bugs Drawer ── */}
       {selectedProject && (
-        <div className="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-xs flex items-center justify-end">
-          <div className="bg-white dark:bg-slate-900 w-full max-w-3xl h-full shadow-2xl flex flex-col border-l border-slate-200 dark:border-slate-800 animate-in slide-in-from-right duration-200">
+        <Portal>
+          <div className="fixed inset-0 z-[99999] bg-slate-900/60 backdrop-blur-xs flex items-center justify-end" data-side-popup="true">
+            <div className="bg-white dark:bg-slate-900 w-full max-w-3xl h-full shadow-2xl flex flex-col border-l border-slate-200 dark:border-slate-800 animate-in slide-in-from-right duration-200">
             {/* Drawer Header */}
             <div className="p-5 border-b border-slate-200 dark:border-slate-800 flex items-start justify-between gap-4 bg-slate-50/50 dark:bg-slate-800/30">
               <div>
@@ -856,6 +858,7 @@ export default function BugSmartProjectsPage() {
             </div>
           </div>
         </div>
+      </Portal>
       )}
     </div>
   );

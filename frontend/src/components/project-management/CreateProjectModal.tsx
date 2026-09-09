@@ -6,6 +6,7 @@ import api from "@/services/api";
 import pmApi from "@/services/pm";
 import { Project, ProjectStatus, PROJECT_STATUSES, StoreProjectPayload, HubstaffProject } from "@/types/pm";
 import { SearchableCoordinatorSelect } from "./SearchableCoordinatorSelect";
+import { Portal } from "@/components/ui/portal";
 
 interface CreateProjectModalProps {
   isOpen: boolean;
@@ -187,27 +188,30 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
     }
   };
 
+  if (!isOpen) return null;
+
   return (
-    <div className="fixed inset-0 z-[9999] overflow-hidden font-sans">
-      <div
-        onClick={onClose}
-        className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
-      />
-      <div className="fixed inset-y-0 right-0 max-w-2xl sm:max-w-3xl w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-[9999] animate-in slide-in-from-right duration-300">
-        {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
-              <FolderPlus className="w-5 h-5" />
+    <Portal>
+      <div className="fixed inset-0 z-[99999] overflow-hidden font-sans" data-side-popup="true">
+        <div
+          onClick={onClose}
+          className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+        />
+        <div className="fixed inset-y-0 right-0 max-w-2xl sm:max-w-3xl w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-[99999] animate-in slide-in-from-right duration-300" data-side-popup="true">
+          {/* Modal Header */}
+          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                <FolderPlus className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Create New Project</h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Initialize a new project deliverable and assign coordinator
+                </p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">Create New Project</h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Initialize a new project deliverable and assign coordinator
-              </p>
-            </div>
-          </div>
-          <button
+            <button
             onClick={onClose}
             className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
@@ -499,5 +503,6 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
         </form>
       </div>
     </div>
+    </Portal>
   );
 }

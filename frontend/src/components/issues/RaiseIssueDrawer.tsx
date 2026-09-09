@@ -15,6 +15,7 @@ import {
   Loader2,
   ArrowRight,
 } from "lucide-react";
+import { Portal } from "@/components/ui/portal";
 
 const CATEGORIES = [
   "Technical Issue",
@@ -165,16 +166,19 @@ export function RaiseIssueDrawer({
   const inputCls =
     "w-full bg-white dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-xl px-3.5 py-2.5 outline-none focus:ring-2 focus:ring-[#56348f]/20 focus:border-[#56348f] dark:focus:border-purple-400 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-xs";
 
-  return (
-    <div className="fixed inset-0 z-50 overflow-hidden font-sans">
-      {/* Backdrop */}
-      <div
-        onClick={handleClose}
-        className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
-      />
+  if (!isOpen) return null;
 
-      {/* Drawer */}
-      <div className="fixed inset-y-0 right-0 max-w-xl w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-50 animate-in slide-in-from-right duration-300">
+  return (
+    <Portal>
+      <div className="fixed inset-0 z-[99999] overflow-hidden font-sans" data-side-popup="true">
+        {/* Backdrop */}
+        <div
+          onClick={handleClose}
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+        />
+
+        {/* Drawer */}
+        <div className="fixed inset-y-0 right-0 max-w-xl w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-[99999] animate-in slide-in-from-right duration-300" data-side-popup="true">
         {/* Header */}
         <div className="relative px-6 py-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-850/80 shrink-0">
           <button
@@ -465,5 +469,6 @@ export function RaiseIssueDrawer({
         )}
       </div>
     </div>
+    </Portal>
   );
 }

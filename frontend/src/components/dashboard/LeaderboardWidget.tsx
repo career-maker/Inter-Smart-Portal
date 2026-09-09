@@ -20,6 +20,7 @@ import api from "@/services/api";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 import { useAuthStore } from "@/store/auth";
 import { useTopAwardee } from "@/context/TopAwardeeContext";
+import { Portal } from "@/components/ui/portal";
 
 const RANK_STYLES = [
   { bg: "from-amber-500/20 to-yellow-500/10", border: "border-amber-500/40", text: "text-amber-300", icon: "🥇" },
@@ -201,15 +202,16 @@ export function LeaderboardWidget() {
 
       {/* ── RIGHT-SIDE SLIDE-OVER DRAWER FOR EMPLOYEES & TEAM LEADS ── */}
       {showGuideDrawer && (
-        <div className="fixed inset-0 z-50 overflow-hidden">
-          {/* Backdrop */}
-          <div
-            onClick={() => setShowGuideDrawer(false)}
-            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"
-          />
+        <Portal>
+          <div className="fixed inset-0 z-[99999] overflow-hidden" data-side-popup="true">
+            {/* Backdrop */}
+            <div
+              onClick={() => setShowGuideDrawer(false)}
+              className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"
+            />
 
-          {/* Drawer Container */}
-          <div className="fixed inset-y-0 right-0 max-w-md w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-50">
+            {/* Drawer Container */}
+            <div className="fixed inset-y-0 right-0 max-w-md w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-[99999] animate-in slide-in-from-right duration-300">
             {/* Drawer Header */}
             <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900">
               <div>
@@ -346,6 +348,7 @@ export function LeaderboardWidget() {
             </div>
           </div>
         </div>
+      </Portal>
       )}
     </>
   );

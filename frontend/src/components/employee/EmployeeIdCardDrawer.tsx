@@ -24,6 +24,7 @@ import {
   Users,
   Send,
 } from "lucide-react";
+import { Portal } from "@/components/ui/portal";
 import api from "@/services/api";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 import { cn } from "@/lib/utils";
@@ -182,20 +183,23 @@ export function EmployeeIdCardDrawer({
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-[9999] overflow-hidden font-sans">
-      {/* Backdrop */}
-      <div
-        onClick={onClose}
-        className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
-      />
+  if (!isOpen) return null;
 
-      {/* Slide-in ID Card Panel */}
-      <div
-        id="employee-id-drawer"
-        data-side-popup="true"
-        className="fixed inset-y-0 right-0 w-full sm:w-[540px] md:w-[560px] max-w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-50 animate-in slide-in-from-right duration-300 overflow-hidden"
-      >
+  return (
+    <Portal>
+      <div className="fixed inset-0 z-[99999] overflow-hidden font-sans" data-side-popup="true">
+        {/* Backdrop */}
+        <div
+          onClick={onClose}
+          className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+        />
+
+        {/* Slide-in ID Card Panel */}
+        <div
+          id="employee-id-drawer"
+          data-side-popup="true"
+          className="fixed inset-y-0 right-0 w-full sm:w-[540px] md:w-[560px] max-w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-[99999] animate-in slide-in-from-right duration-300 overflow-hidden"
+        >
         {/* Top Header matching exact mockup */}
         <div className="p-4 px-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 shrink-0">
           <div className="flex items-center gap-2">
@@ -514,6 +518,7 @@ export function EmployeeIdCardDrawer({
         )}
       </div>
     </div>
+    </Portal>
   );
 }
 

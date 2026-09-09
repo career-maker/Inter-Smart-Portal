@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { X, Send, Sparkles, AlertCircle, RotateCcw, Clock, CheckCircle2 } from "lucide-react";
 import api from "@/services/api";
+import { Portal } from "@/components/ui/portal";
 
 interface Message {
   id: string;
@@ -328,19 +329,20 @@ export default function ChatWidget() {
 
       {/* Side Popup Drawer (Matching Birthday Wish Drawer styling & light theme) */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 overflow-hidden font-sans">
-          {/* Backdrop */}
-          <div
-            onClick={() => setIsOpen(false)}
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
-          />
+        <Portal>
+          <div className="fixed inset-0 z-[99999] overflow-hidden font-sans">
+            {/* Backdrop */}
+            <div
+              onClick={() => setIsOpen(false)}
+              className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+            />
 
-          {/* Drawer Container */}
-          <div
-            data-chat-widget="true"
-            id="chat-widget-drawer"
-            className="fixed inset-y-0 right-0 w-full sm:w-[460px] max-w-full bg-white shadow-2xl flex flex-col justify-between border-l border-slate-200 z-50 animate-in slide-in-from-right duration-300"
-          >
+            {/* Drawer Container */}
+            <div
+              data-chat-widget="true"
+              id="chat-widget-drawer"
+              className="fixed inset-y-0 right-0 w-full sm:w-[460px] max-w-full bg-white shadow-2xl flex flex-col justify-between border-l border-slate-200 z-[99999] animate-in slide-in-from-right duration-300"
+            >
             {/* Header with Royal Purple gradient accent */}
             <div className="relative px-5 py-4 border-b border-slate-100 bg-gradient-to-b from-purple-50/80 to-white flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -566,6 +568,7 @@ export default function ChatWidget() {
             </div>
           </div>
         </div>
+      </Portal>
       )}
       {/* Hide Chatbot Launcher whenever any side popup or modal is open */}
       <style>{`

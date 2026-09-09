@@ -22,6 +22,7 @@ import { DailySummaryCard } from "@/components/attendance/DailySummaryCard";
 import { BiometricPunchTimeline } from "@/components/attendance/BiometricPunchTimeline";
 import { AdminLeaveWfhModal } from "@/components/attendance/AdminLeaveWfhModal";
 import { Button } from "@/components/ui/button";
+import { Portal } from "@/components/ui/portal";
 
 export interface AttendanceDrawerEmployee {
   id: number;
@@ -131,16 +132,17 @@ export function EmployeeAttendanceDrawer({
 
   return (
     <>
-      <div className="fixed inset-0 z-50 overflow-hidden font-sans">
-        {/* Backdrop */}
-        <div
-          onClick={onClose}
-          className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
-        />
+      <Portal>
+        <div className="fixed inset-0 z-[99999] overflow-hidden font-sans" data-side-popup="true">
+          {/* Backdrop */}
+          <div
+            onClick={onClose}
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+          />
 
-        {/* Drawer Panel */}
-        <div className="fixed inset-y-0 right-0 max-w-xl sm:max-w-2xl w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-50 animate-in slide-in-from-right duration-300">
-          {/* ── HEADER ── */}
+          {/* Drawer Panel */}
+          <div className="fixed inset-y-0 right-0 max-w-xl sm:max-w-2xl w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-[99999] animate-in slide-in-from-right duration-300">
+            {/* ── HEADER ── */}
           <div className="relative p-6 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-b from-purple-50/80 via-purple-50/30 to-white dark:from-slate-800 dark:to-slate-900 shrink-0">
             {/* Close Button */}
             <button
@@ -394,6 +396,7 @@ export function EmployeeAttendanceDrawer({
           </div>
         </div>
       </div>
+    </Portal>
 
       {/* Admin Leave/WFH Modal */}
       {isLeaveWfhModalOpen && employee && (

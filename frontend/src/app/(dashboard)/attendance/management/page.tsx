@@ -38,6 +38,7 @@ import {
 } from "@/components/attendance";
 import { MonthlyReportModal } from "@/components/employees/MonthlyReportModal";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
+import { Portal } from "@/components/ui/portal";
 import {
   Dialog,
   DialogContent,
@@ -685,15 +686,16 @@ export default function AttendanceManagementPage() {
           EMPLOYEE ACTION SIDE DRAWER (POPUP MODAL ON RIGHT SIDE)
           ──────────────────────────────────────────────────────── */}
       {isDrawerOpen && selectedEmployee && (
-        <div className="fixed inset-0 z-50 overflow-hidden font-sans">
-          {/* Backdrop */}
-          <div
-            onClick={() => setIsDrawerOpen(false)}
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
-          />
+        <Portal>
+          <div className="fixed inset-0 z-[99999] overflow-hidden font-sans" data-side-popup="true">
+            {/* Backdrop */}
+            <div
+              onClick={() => setIsDrawerOpen(false)}
+              className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+            />
 
-          {/* Drawer Panel */}
-          <div className="fixed inset-y-0 right-0 max-w-md w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-50 animate-in slide-in-from-right duration-300">
+            {/* Drawer Panel */}
+            <div className="fixed inset-y-0 right-0 max-w-md w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-[99999] animate-in slide-in-from-right duration-300">
             
             {/* Header */}
             <div className="relative p-6 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-b from-purple-50/80 via-purple-50/30 to-white dark:from-slate-800 dark:to-slate-900">
@@ -852,6 +854,7 @@ export default function AttendanceManagementPage() {
             </div>
           </div>
         </div>
+      </Portal>
       )}
 
       {/* ────────────────────────────────────────────────────────

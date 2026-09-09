@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
+import { Portal } from "@/components/ui/portal";
 
 export interface DailyReportModalProps {
   isOpen: boolean;
@@ -796,13 +797,15 @@ export function DailyReportModal({
 
   const summary = reportData?.summary || {};
 
+  if (!isOpen) return null;
+
   return (
-    <>
+    <Portal>
       {/* ── Main Daily Report Right-Side Drawer ── */}
-      <div className="fixed inset-0 z-[9999] overflow-hidden font-sans">
+      <div className="fixed inset-0 z-[99999] overflow-hidden font-sans" data-side-popup="true">
         <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs transition-opacity animate-in fade-in duration-200" onClick={onClose} />
 
-        <div className="fixed inset-y-0 right-0 max-w-2xl sm:max-w-3xl w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-[9999] animate-in slide-in-from-right duration-300">
+        <div className="fixed inset-y-0 right-0 max-w-2xl sm:max-w-3xl w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-[99999] animate-in slide-in-from-right duration-300" data-side-popup="true">
           {/* Header Bar */}
           <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-gradient-to-r from-purple-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-900 dark:to-purple-950/30 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -1256,6 +1259,6 @@ export function DailyReportModal({
           </div>
         </div>
       )}
-    </>
+    </Portal>
   );
 }

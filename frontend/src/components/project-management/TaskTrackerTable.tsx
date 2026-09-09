@@ -285,11 +285,13 @@ export function TaskTrackerTable({
             return `${first.first_name || ""} ${first.last_name || ""}`.trim().toLowerCase();
           }
           return "";
-        case "pc":
-          if (t.coordinator) {
-            return `${t.coordinator.first_name || ""} ${t.coordinator.last_name || ""}`.trim().toLowerCase();
+        case "pc": {
+          const coord = t.coordinator || t.project?.coordinator;
+          if (coord) {
+            return `${coord.first_name || ""} ${coord.last_name || ""}`.trim().toLowerCase();
           }
           return "";
+        }
         case "status":
           return STATUS_WEIGHTS[t.status] || (t.status || "").toLowerCase();
         case "start_date":
@@ -445,8 +447,9 @@ export function TaskTrackerTable({
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
             {visibleTasks.map((task) => {
               const overdueInfo = getTaskOverdueInfo(task.due_date, task.status, task.actual_completion_date);
-              const pcName = task.coordinator
-                ? `${task.coordinator.first_name || ""} ${task.coordinator.last_name || ""}`.trim() || "PC"
+              const coord = task.coordinator || task.project?.coordinator;
+              const pcName = coord
+                ? `${coord.first_name || ""} ${coord.last_name || ""}`.trim() || "PC"
                 : "—";
 
               const achievedDateStr = task.actual_completion_date || (task.status === "Completed" ? task.updated_at : null);

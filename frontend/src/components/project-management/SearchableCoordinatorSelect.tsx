@@ -12,9 +12,10 @@ export interface CoordinatorOption {
 }
 
 interface SearchableCoordinatorSelectProps {
-  value: number | null;
+  value: number | string | null;
   onChange: (id: number | null) => void;
   coordinators: CoordinatorOption[];
+  initialCoordinator?: CoordinatorOption | { id: number; first_name: string; last_name: string; employee_code?: string; department?: string; email?: string } | null;
   placeholder?: string;
   disabled?: boolean;
 }
@@ -23,6 +24,7 @@ export function SearchableCoordinatorSelect({
   value,
   onChange,
   coordinators,
+  initialCoordinator,
   placeholder = "Unassigned",
   disabled = false,
 }: SearchableCoordinatorSelectProps) {
@@ -59,23 +61,32 @@ export function SearchableCoordinatorSelect({
     };
   }, [isOpen]);
 
+  // Combine initialCoordinator if missing from fetched list
+  const allCoordinators = useMemo(() => {
+    if (initialCoordinator && !coordinators.some((c) => Number(c.id) === Number(initialCoordinator.id))) {
+      return [initialCoordinator as CoordinatorOption, ...coordinators];
+    }
+    return coordinators;
+  }, [coordinators, initialCoordinator]);
+
   // Selected item object
   const selectedCoordinator = useMemo(() => {
     if (!value) return null;
-    return coordinators.find((c) => c.id === value) || null;
-  }, [value, coordinators]);
+    const num = Number(value);
+    return allCoordinators.find((c) => Number(c.id) === num) || null;
+  }, [value, allCoordinators]);
 
   // Filtered coordinators list
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return coordinators;
-    return coordinators.filter((c) => {
+    if (!q) return allCoordinators;
+    return allCoordinators.filter((c) => {
       const fullName = `${c.first_name || ""} ${c.last_name || ""}`.toLowerCase();
       const code = (c.employee_code || "").toLowerCase();
       const dept = (c.department || "").toLowerCase();
       return fullName.includes(q) || code.includes(q) || dept.includes(q);
     });
-  }, [coordinators, search]);
+  }, [allCoordinators, search]);
 
   const handleSelect = (id: number | null) => {
     onChange(id);

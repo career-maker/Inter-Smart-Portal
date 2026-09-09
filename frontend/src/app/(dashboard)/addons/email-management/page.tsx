@@ -39,6 +39,7 @@ import emailSettingsApi, {
   RoutingRule,
   EmployeeOverride,
 } from "@/services/emailSettings";
+import { Portal } from "@/components/ui/portal";
 import api from "@/services/api";
 
 type TabKey = "smtp" | "routing" | "overrides";
@@ -1291,20 +1292,22 @@ export default function EmailManagementPage() {
 
       {/* ── Override Side Drawer (Matching Birthday Wish Drawer) ── */}
       {isOverrideModalOpen && (
-        <div
-          style={{
-            fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-          }}
-          className="fixed inset-0 z-50 overflow-hidden font-sans"
-        >
-          {/* Backdrop */}
+        <Portal>
           <div
-            onClick={() => setIsOverrideModalOpen(false)}
-            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
-          />
+            style={{
+              fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+            }}
+            className="fixed inset-0 z-[99999] overflow-hidden font-sans"
+            data-side-popup="true"
+          >
+            {/* Backdrop */}
+            <div
+              onClick={() => setIsOverrideModalOpen(false)}
+              className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+            />
 
-          {/* Sliding Right Drawer */}
-          <div className="fixed inset-y-0 right-0 max-w-lg w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-50 animate-in slide-in-from-right duration-300">
+            {/* Sliding Right Drawer */}
+            <div className="fixed inset-y-0 right-0 max-w-lg w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-[99999] animate-in slide-in-from-right duration-300">
             {/* Header */}
             <div className="p-6 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-b from-purple-50/80 to-white dark:from-slate-850 dark:to-slate-900 flex items-start justify-between">
               <div>
@@ -1607,6 +1610,7 @@ export default function EmailManagementPage() {
             </div>
           </div>
         </div>
+      </Portal>
       )}
     </div>
   );
