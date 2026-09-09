@@ -128,22 +128,8 @@ class BugzillaAuthService
             return false;
         }
 
-        $userTeamIds = self::resolveUserTeamIds($user);
-        if ($project->team_id && in_array((int) $project->team_id, $userTeamIds, true)) {
-            return true;
-        }
-
-        // Project coordinator check
-        if ((int) $project->project_coordinator_id === (int) $user->id) {
-            return true;
-        }
-
-        // Project member check
-        if ($project->members()->where('user_id', $user->id)->exists()) {
-            return true;
-        }
-
-        return false;
+        // All users with BugSmart access have access to all portal projects
+        return true;
     }
 
     /**

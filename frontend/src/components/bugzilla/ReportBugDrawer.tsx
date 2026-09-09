@@ -28,6 +28,7 @@ import {
 import { Project, ProjectTask } from "@/types/pm";
 import { BugzillaStatusBadge } from "@/components/bugzilla/BugzillaStatusBadge";
 import { useAuthStore } from "@/store/auth";
+import { SearchableProjectSelect } from "@/components/project-management/SearchableProjectSelect";
 
 // In-memory session cache: preserved across modal open/close until the page is refreshed
 let inMemoryProjectId: number | "" = "";
@@ -122,27 +123,37 @@ export function ReportBugDrawer({
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  // Load Projects on initial mount
-  useEffect(() => {
-    let isMounted = true;
+  // Load Projects on initial mount and when drawer opens
+  const fetchProjects = useCallback(() => {
     setLoadingProjects(true);
 
     pmApi
       .getProjects({ all: true } as any)
       .then((res: any) => {
-        if (!isMounted) return;
-        const list = res.data || (Array.isArray(res) ? res : []);
+        const list = Array.isArray(res.data)
+          ? res.data
+          : Array.isArray(res.data?.data)
+          ? res.data.data
+          : Array.isArray(res)
+          ? res
+          : [];
         setProjects(list);
       })
       .catch((e) => console.warn("Failed to load projects for Report Bug drawer", e))
       .finally(() => {
-        if (isMounted) setLoadingProjects(false);
+        setLoadingProjects(false);
       });
-
-    return () => {
-      isMounted = false;
-    };
   }, []);
+
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
+
+  useEffect(() => {
+    if (effectiveOpen && projects.length === 0) {
+      fetchProjects();
+    }
+  }, [effectiveOpen, projects.length, fetchProjects]);
 
   // When Drawer opens, initialize or restore pre-filled project and task until page refresh
   useEffect(() => {
@@ -177,21 +188,35 @@ export function ReportBugDrawer({
     setLoadingTasks(true);
 
     pmApi
-      .getTasks({ project_id: Number(portalProjectId), per_page: 100 })
+      .getTasks({ project_id: Number(portalProjectId), per_page: 100, all_project_tasks: true } as any)
       .then((res: any) => {
         if (!isMounted) return;
-        const taskList: ProjectTask[] = res.data || (Array.isArray(res) ? res : []);
-        setTasks(taskList);
+        const rawList: ProjectTask[] = Array.isArray(res.data)
+          ? res.data
+          : Array.isArray(res.data?.data)
+          ? res.data.data
+          : Array.isArray(res)
+          ? res
+          : [];
+
+        // Sort tasks so tasks assigned to current employee appear on top
+        const sortedTasks = [...rawList].sort((a, b) => {
+          const aMine = user?.id && a.assignees?.some((u) => u.id === user.id) ? 1 : 0;
+          const bMine = user?.id && b.assignees?.some((u) => u.id === user.id) ? 1 : 0;
+          return bMine - aMine;
+        });
+
+        setTasks(sortedTasks);
 
         // Pre-fill task if in memory or event/prop and belongs to this project
         const targetTaskId = eventTaskId || defaultTaskId || inMemoryTaskId;
-        if (targetTaskId && taskList.some((t) => t.id === Number(targetTaskId))) {
+        if (targetTaskId && sortedTasks.some((t) => t.id === Number(targetTaskId))) {
           setTaskId(Number(targetTaskId));
           inMemoryTaskId = Number(targetTaskId);
-        } else if (taskList.length === 1) {
+        } else if (sortedTasks.length === 1) {
           // If project has only 1 task, auto-select it
-          setTaskId(taskList[0].id);
-          inMemoryTaskId = taskList[0].id;
+          setTaskId(sortedTasks[0].id);
+          inMemoryTaskId = sortedTasks[0].id;
         }
       })
       .catch((e) => {
@@ -406,29 +431,31 @@ export function ReportBugDrawer({
             </h3>
 
             <div className="space-y-3">
-              {/* Project Select */}
+              {/* Project Select with Search */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                  Project <span className="text-red-500">*</span>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
+                  <span>
+                    Project <span className="text-red-500">*</span>
+                  </span>
+                  {loadingProjects && (
+                    <span className="text-[10px] text-rose-600 flex items-center gap-1 font-normal">
+                      <Loader2 className="w-3 h-3 animate-spin" /> Loading projects…
+                    </span>
+                  )}
                 </label>
-                <select
+                <SearchableProjectSelect
+                  projects={projects}
                   value={portalProjectId}
-                  onChange={(e) => {
-                    const val = e.target.value ? Number(e.target.value) : "";
-                    setPortalProjectId(val);
-                    inMemoryProjectId = val;
+                  onChange={(val) => {
+                    const numVal = val ? Number(val) : "";
+                    setPortalProjectId(numVal);
+                    inMemoryProjectId = numVal;
                   }}
-                  required
                   disabled={loadingProjects}
-                  className="w-full px-3 py-2 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-rose-500"
-                >
-                  <option value="">Select Project…</option>
-                  {projects.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name} #{p.id} {p.team ? `(${p.team.name})` : ""}
-                    </option>
-                  ))}
-                </select>
+                  required={true}
+                  placeholder="Search and select project…"
+                  size="sm"
+                />
               </div>
 
               {/* Task Select: Only visible/enabled once a Project is selected, and MANDATORY */}

@@ -74,6 +74,8 @@ class ProjectTaskController extends Controller
                 $q->where('team_id', $teamId)
                   ->orWhereHas('assignees', fn ($a) => $a->where('users.team_id', $teamId));
             });
+        } elseif ($request->filled('project_id') && $request->boolean('all_project_tasks')) {
+            // Defect reporting / project task selector explicitly requests all tasks under the project
         } elseif (!$hasCrossTeamView) {
             // User does not have cross-team access -> strictly isolate to user's own team / assigned tasks
             $userRolesStr = strtolower($user->roles->pluck('name')->implode(' '));

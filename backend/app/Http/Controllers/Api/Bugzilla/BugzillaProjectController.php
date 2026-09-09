@@ -39,14 +39,10 @@ class BugzillaProjectController extends Controller
                 },
             ]);
 
-        // Filter projects by team or assignment if not super admin and no cross-team view
-        if (!BugzillaAuthService::isSuperAdmin($user) && !\App\Models\CustomTeamPermission::userHasPermission($user, 'task_cross_team_view')) {
-            $userTeamIds = BugzillaAuthService::resolveUserTeamIds($user);
-            $query->where(function ($q) use ($user, $userTeamIds) {
-                if (!empty($userTeamIds)) {
-                    $q->whereIn('team_id', $userTeamIds);
-                }
-                $q->orWhere('project_coordinator_id', $user->id)
+        // All users with BugSmart view capability can see all project names
+        if ($request->boolean('my')) {
+            $query->where(function ($q) use ($user) {
+                $q->where('project_coordinator_id', $user->id)
                   ->orWhereHas('members', fn ($m) => $m->where('users.id', $user->id))
                   ->orWhereHas('tasks', function ($t) use ($user) {
                       $t->whereHas('assignees', fn ($a) => $a->where('users.id', $user->id));
