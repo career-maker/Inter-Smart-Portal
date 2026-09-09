@@ -211,7 +211,7 @@ export default function NewBugzillaBugPage() {
         }
       }
 
-      router.push(`/project-management/bugzilla/bugs/${newBug.id}`);
+      router.push(`/project-management/bugsmart/bugs/${newBug.id}`);
     } catch (err: any) {
       console.error("Failed to create bug", err);
       setError(err?.response?.data?.message || err?.message || "Failed to submit defect report.");
@@ -231,7 +231,7 @@ export default function NewBugzillaBugPage() {
           Your current capability is Viewer. You do not have permission to file new defects.
         </p>
         <Link
-          href="/project-management/bugzilla/bugs"
+          href="/project-management/bugsmart/bugs"
           className="inline-flex items-center px-4 py-2 text-xs font-semibold rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50"
         >
           Back to Bug Registry
@@ -246,7 +246,7 @@ export default function NewBugzillaBugPage() {
       <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
         <div className="flex items-center gap-3">
           <Link
-            href="/project-management/bugzilla/bugs"
+            href="/project-management/bugsmart/bugs"
             className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -385,7 +385,7 @@ export default function NewBugzillaBugPage() {
                       <BugzillaStatusBadge status={dup.status} size="sm" />
                     </div>
                     <a
-                      href={`/project-management/bugzilla/bugs/${dup.id}`}
+                      href={`/project-management/bugsmart/bugs/${dup.id}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-amber-700 dark:text-amber-300 hover:underline flex items-center gap-1 text-[11px] shrink-0 font-medium"
@@ -631,7 +631,7 @@ export default function NewBugzillaBugPage() {
         {/* Action Footer */}
         <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
           <Link
-            href="/project-management/bugzilla/bugs"
+            href="/project-management/bugsmart/bugs"
             className="px-4 py-2 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
           >
             Cancel

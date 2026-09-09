@@ -25,18 +25,20 @@ const nextConfig: NextConfig = {
         destination: "/addons/:path*",
         permanent: true,
       },
+      {
+        source: "/project-management/bugzilla",
+        destination: "/project-management/bugsmart",
+        permanent: true,
+      },
+      {
+        source: "/project-management/bugzilla/:path*",
+        destination: "/project-management/bugsmart/:path*",
+        permanent: true,
+      },
     ];
   },
   async rewrites() {
     return [
-      {
-        source: "/project-management/bugsmart",
-        destination: "/project-management/bugzilla/overview",
-      },
-      {
-        source: "/project-management/bugsmart/:path*",
-        destination: "/project-management/bugzilla/:path*",
-      },
       {
         source: "/uploads/:path*",
         destination: "https://workplace.intersmart.in/api/api/uploads/:path*",

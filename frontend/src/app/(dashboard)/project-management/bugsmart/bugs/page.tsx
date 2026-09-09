@@ -307,7 +307,7 @@ export default function BugzillaBugsListPage() {
           </button>
           {canReport && (
             <Link
-              href="/project-management/bugzilla/bugs/new"
+              href="/project-management/bugsmart/bugs/new"
               className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-xl text-white bg-rose-600 hover:bg-rose-700 transition-colors shadow-xs"
             >
               <Plus className="w-3.5 h-3.5" />
@@ -593,7 +593,7 @@ export default function BugzillaBugsListPage() {
                       )}
                       <td className="py-3 px-3 whitespace-nowrap">
                         <Link
-                          href={`/project-management/bugzilla/bugs/${bug.id}`}
+                          href={`/project-management/bugsmart/bugs/${bug.id}`}
                           className="font-mono font-bold text-rose-600 hover:text-rose-700 dark:text-rose-400 underline decoration-dotted"
                         >
                           {bug.bug_number}
@@ -601,7 +601,7 @@ export default function BugzillaBugsListPage() {
                       </td>
                       <td className="py-3 px-3 max-w-sm truncate">
                         <Link
-                          href={`/project-management/bugzilla/bugs/${bug.id}`}
+                          href={`/project-management/bugsmart/bugs/${bug.id}`}
                           className="font-medium text-slate-900 dark:text-white hover:text-rose-600 dark:hover:text-rose-400"
                           title={bug.summary}
                         >

@@ -118,4 +118,14 @@ class Project extends Model
         return $this->hasMany(ProjectChecklistAssignment::class, 'checklistable_id')
             ->where('checklistable_type', 'Project');
     }
+
+    public function bugzillaProject(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(BugzillaProject::class, 'portal_project_id');
+    }
+
+    public function bugzillaBugs(): HasMany
+    {
+        return $this->hasMany(BugzillaBug::class, 'portal_project_id');
+    }
 }

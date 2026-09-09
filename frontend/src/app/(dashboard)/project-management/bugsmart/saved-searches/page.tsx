@@ -63,7 +63,7 @@ export default function BugzillaSavedSearchesPage() {
         }
       });
     }
-    router.push(`/project-management/bugzilla/bugs?${params.toString()}`);
+    router.push(`/project-management/bugsmart/bugs?${params.toString()}`);
   };
 
   if (loading) {
@@ -94,7 +94,7 @@ export default function BugzillaSavedSearchesPage() {
             Refresh
           </button>
           <Link
-            href="/project-management/bugzilla/bugs"
+            href="/project-management/bugsmart/bugs"
             className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-xl text-white bg-rose-600 hover:bg-rose-700 transition-colors shadow-2xs"
           >
             <Search className="w-3.5 h-3.5" />
@@ -117,7 +117,7 @@ export default function BugzillaSavedSearchesPage() {
             You can save queries on the Bugs list page by clicking "Save Search" after configuring filters.
           </p>
           <Link
-            href="/project-management/bugzilla/bugs"
+            href="/project-management/bugsmart/bugs"
             className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-xl text-white bg-rose-600 hover:bg-rose-700"
           >
             Go to Bugs Registry

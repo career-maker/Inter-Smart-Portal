@@ -12,6 +12,38 @@ class BugzillaComponentController extends Controller
 {
     /**
      * List components for a project.
+    /**
+     * Helper to resolve or auto-create Bugzilla project row from ID or Portal Project ID.
+     */
+    protected function resolveProject($projectId, $user): ?BugzillaProject
+    {
+        $project = BugzillaProject::where('id', $projectId)
+            ->orWhere('portal_project_id', $projectId)
+            ->first();
+
+        if (!$project) {
+            $portalProject = \App\Models\Project::find($projectId);
+            if ($portalProject) {
+                $project = BugzillaProject::firstOrCreate(
+                    ['portal_project_id' => $portalProject->id],
+                    [
+                        'name' => $portalProject->name,
+                        'description' => $portalProject->description,
+                        'status' => 'active',
+                        'created_by' => $user->id,
+                    ]
+                );
+                if ($project->components()->count() === 0) {
+                    $project->components()->create(['name' => 'General', 'status' => 'active']);
+                }
+            }
+        }
+
+        return $project;
+    }
+
+    /**
+     * List components for a project.
      */
     public function index(Request $request, $projectId)
     {
@@ -20,12 +52,16 @@ class BugzillaComponentController extends Controller
             return response()->json(['message' => 'Unauthorized.'], 403);
         }
 
-        $project = BugzillaProject::findOrFail($projectId);
+        $project = $this->resolveProject($projectId, $user);
+        if (!$project) {
+            return response()->json(['message' => 'Project not found.'], 404);
+        }
+
         if (!BugzillaAuthService::canAccessProject($user, $project->portal_project_id)) {
             return response()->json(['message' => 'Unauthorized project access.'], 403);
         }
 
-        $components = BugzillaComponent::where('bugzilla_project_id', $projectId)
+        $components = BugzillaComponent::where('bugzilla_project_id', $project->id)
             ->with('defaultAssignee:id,first_name,last_name,email')
             ->withCount('bugs')
             ->orderBy('name')
@@ -46,7 +82,10 @@ class BugzillaComponentController extends Controller
             return response()->json(['message' => 'Developer or Admin permission required.'], 403);
         }
 
-        $project = BugzillaProject::findOrFail($projectId);
+        $project = $this->resolveProject($projectId, $user);
+        if (!$project) {
+            return response()->json(['message' => 'Project not found.'], 404);
+        }
 
         $validated = $request->validate([
             'name' => 'required|string|max:150',
@@ -55,7 +94,7 @@ class BugzillaComponentController extends Controller
             'status' => 'sometimes|in:active,inactive',
         ]);
 
-        $exists = BugzillaComponent::where('bugzilla_project_id', $projectId)
+        $exists = BugzillaComponent::where('bugzilla_project_id', $project->id)
             ->where('name', trim($validated['name']))
             ->exists();
 
@@ -64,7 +103,7 @@ class BugzillaComponentController extends Controller
         }
 
         $component = BugzillaComponent::create([
-            'bugzilla_project_id' => $projectId,
+            'bugzilla_project_id' => $project->id,
             'name' => trim($validated['name']),
             'description' => $validated['description'] ?? null,
             'default_assignee_id' => $validated['default_assignee_id'] ?? null,

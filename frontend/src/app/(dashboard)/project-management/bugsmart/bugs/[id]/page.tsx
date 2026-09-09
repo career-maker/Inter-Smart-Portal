@@ -323,7 +323,7 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
         <h3 className="font-bold">Defect Not Found</h3>
         <p className="text-xs text-slate-400">The requested bug does not exist or you lack authorization.</p>
         <Link
-          href="/project-management/bugzilla/bugs"
+          href="/project-management/bugsmart/bugs"
           className="inline-flex items-center px-4 py-2 text-xs font-semibold rounded-xl bg-rose-600 text-white"
         >
           Return to Bug Registry
@@ -341,7 +341,7 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
         <div className="flex items-center gap-3">
           <Link
-            href="/project-management/bugzilla/bugs"
+            href="/project-management/bugsmart/bugs"
             className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -925,7 +925,7 @@ export default function BugzillaBugDetailPage({ params }: { params: Promise<{ id
                           {dep.relationship_type.replace("_", " ")}
                         </span>
                         <Link
-                          href={`/project-management/bugzilla/bugs/${dep.depends_on_bug_id}`}
+                          href={`/project-management/bugsmart/bugs/${dep.depends_on_bug_id}`}
                           className="font-mono font-bold text-rose-600 hover:underline"
                         >
                           {dep.depends_on_bug?.bug_number || `Bug #${dep.depends_on_bug_id}`}

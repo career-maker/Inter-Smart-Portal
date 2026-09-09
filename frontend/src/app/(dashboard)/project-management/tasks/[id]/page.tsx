@@ -231,7 +231,7 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ id: stri
 
             {task.project && (
               <Link
-                href={`/project-management/bugzilla/bugs/new?portal_project_id=${task.project.id}&task_id=${task.id}`}
+                href={`/project-management/bugsmart/bugs/new?portal_project_id=${task.project.id}&task_id=${task.id}`}
                 className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 hover:bg-rose-100 text-xs sm:text-sm font-semibold transition-colors shadow-2xs"
                 title="Report a defect for this task in bugSmart"
               >
@@ -599,7 +599,7 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ id: stri
                   <h3 className="text-sm font-bold text-slate-900 dark:text-white">bugSmart Registry</h3>
                 </div>
                 <Link
-                  href={`/project-management/bugzilla/bugs/new?portal_project_id=${task.project.id}&task_id=${task.id}`}
+                  href={`/project-management/bugsmart/bugs/new?portal_project_id=${task.project.id}&task_id=${task.id}`}
                   className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-600 dark:text-rose-400 hover:underline"
                 >
                   <span>Report Bug</span>
@@ -613,16 +613,16 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ id: stri
 
                 <div className="flex items-center gap-2 pt-1 flex-wrap">
                   <Link
-                    href={`/project-management/bugzilla/bugs?portal_project_id=${task.project.id}`}
+                    href={`/project-management/bugsmart/bugs?portal_project_id=${task.project.id}`}
                     className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950 dark:text-rose-300 dark:border-rose-800 hover:bg-rose-100 transition-colors"
                   >
                     View Project Bugs
                   </Link>
                   <Link
-                    href={`/project-management/bugzilla/projects`}
+                    href={`/project-management/bugsmart/projects`}
                     className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                   >
-                    bugSmart Mapping
+                    bugSmart Components
                   </Link>
                 </div>
               </div>

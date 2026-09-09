@@ -97,7 +97,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/project-management/tasks/completed", label: "Completed Tasks" },
       { href: "/project-management/tasks/forecast", label: "Forecast Tasks" },
       { href: "/project-management/bug-reports", label: "Bug Reports" },
-      { href: "/project-management/bugzilla", label: "bugSmart" },
+      { href: "/project-management/bugsmart", label: "bugSmart" },
       { href: "/project-management/hubstaff",       label: "Hubstaff", roles: ["Super Admin", "Team Lead"] },
       { href: "/project-management/task-catalog", label: "Task Catalog", roles: ["Super Admin", "HR"] },
     ],
@@ -115,7 +115,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/addons/leave-policy", label: "Leave Policy Management" },
       { href: "/addons/permissions", label: "Team & Role Permissions" },
       { href: "/project-management/bug-reports", label: "Bug Tracker & Reports" },
-      { href: "/project-management/bugzilla", label: "bugSmart" },
+      { href: "/project-management/bugsmart", label: "bugSmart" },
     ],
   },
   {

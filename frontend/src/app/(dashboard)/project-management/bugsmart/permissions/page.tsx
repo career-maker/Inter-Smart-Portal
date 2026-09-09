@@ -48,7 +48,7 @@ export default function BugSmartPermissionsPage() {
 
   useEffect(() => {
     if (user && user.role !== "Super Admin") {
-      router.replace("/project-management/bugzilla");
+      router.replace("/project-management/bugsmart");
     }
   }, [user, router]);
 

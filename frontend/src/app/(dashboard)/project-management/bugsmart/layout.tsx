@@ -18,12 +18,12 @@ import { useBugzillaAuth } from "@/hooks/useBugzillaAuth";
 import { PageLoader } from "@/components/ui/PageLoader";
 
 const SUB_NAV_ITEMS = [
-  { href: "/project-management/bugzilla/overview", label: "Overview", icon: LayoutDashboard },
-  { href: "/project-management/bugzilla/bugs", label: "Bugs", icon: ListOrdered },
-  { href: "/project-management/bugzilla/projects", label: "Projects & Components", icon: FolderTree },
-  { href: "/project-management/bugzilla/reports", label: "Reports", icon: BarChart3 },
-  { href: "/project-management/bugzilla/saved-searches", label: "Saved Searches", icon: BookmarkCheck },
-  { href: "/project-management/bugzilla/permissions", label: "Team Permissions", icon: ShieldCheck },
+  { href: "/project-management/bugsmart/overview", label: "Overview", icon: LayoutDashboard },
+  { href: "/project-management/bugsmart/bugs", label: "Bugs", icon: ListOrdered },
+  { href: "/project-management/bugsmart/projects", label: "Projects & Components", icon: FolderTree },
+  { href: "/project-management/bugsmart/reports", label: "Reports", icon: BarChart3 },
+  { href: "/project-management/bugsmart/saved-searches", label: "Saved Searches", icon: BookmarkCheck },
+  { href: "/project-management/bugsmart/permissions", label: "Team Permissions", icon: ShieldCheck },
 ];
 
 export default function BugzillaLayout({ children }: { children: React.ReactNode }) {
@@ -99,7 +99,7 @@ export default function BugzillaLayout({ children }: { children: React.ReactNode
             <div className="flex items-center gap-2">
               {canReport && (
                 <Link
-                  href="/project-management/bugzilla/bugs/new"
+                  href="/project-management/bugsmart/bugs/new"
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 dark:bg-rose-600 dark:hover:bg-rose-500 shadow-sm transition-all"
                 >
                   <Plus className="w-4 h-4" />
@@ -115,8 +115,8 @@ export default function BugzillaLayout({ children }: { children: React.ReactNode
               const Icon = item.icon;
               const isActive =
                 pathname === item.href ||
-                (item.href === "/project-management/bugzilla/overview" && pathname === "/project-management/bugzilla") ||
-                (item.href === "/project-management/bugzilla/bugs" && pathname.startsWith("/project-management/bugzilla/bugs"));
+                (item.href === "/project-management/bugsmart/overview" && pathname === "/project-management/bugsmart") ||
+                (item.href === "/project-management/bugsmart/bugs" && pathname.startsWith("/project-management/bugsmart/bugs"));
 
               return (
                 <Link

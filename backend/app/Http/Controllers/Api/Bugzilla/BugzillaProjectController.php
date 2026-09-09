@@ -18,36 +18,76 @@ class BugzillaProjectController extends Controller
     {
         $user = $request->user();
         if (!BugzillaAuthService::canView($user)) {
-            return response()->json(['message' => 'Bugzilla module is not enabled for your team or account.'], 403);
+            return response()->json(['message' => 'bugSmart module is not enabled for your team or account.'], 403);
         }
 
-        $query = BugzillaProject::with([
-            'portalProject:id,name,status,category,team_id,project_coordinator_id',
-            'portalProject.team:id,name,code',
-            'portalProject.coordinator:id,first_name,last_name',
-            'defaultAssignee:id,first_name,last_name,email',
-        ])
-        ->withCount([
-            'components',
-            'bugs',
-            'bugs as open_bugs_count' => function ($q) {
-                $q->whereNotIn('status', ['RESOLVED', 'CLOSED']);
-            },
-            'bugs as critical_bugs_count' => function ($q) {
-                $q->whereIn('severity', ['BLOCKER', 'CRITICAL'])
-                  ->whereNotIn('status', ['RESOLVED', 'CLOSED']);
-            },
-        ]);
+        $query = Project::query()
+            ->with([
+                'team:id,name,code',
+                'coordinator:id,first_name,last_name',
+                'bugzillaProject.defaultAssignee:id,first_name,last_name,email',
+                'bugzillaProject.components',
+            ])
+            ->withCount([
+                'bugzillaBugs as bugs_count',
+                'bugzillaBugs as open_bugs_count' => function ($q) {
+                    $q->whereNotIn('status', ['RESOLVED', 'CLOSED']);
+                },
+                'bugzillaBugs as critical_bugs_count' => function ($q) {
+                    $q->whereIn('severity', ['BLOCKER', 'CRITICAL'])
+                      ->whereNotIn('status', ['RESOLVED', 'CLOSED']);
+                },
+            ]);
 
-        // Filter projects by team if not super admin and no cross-team view
+        // Filter projects by team or assignment if not super admin and no cross-team view
         if (!BugzillaAuthService::isSuperAdmin($user) && !\App\Models\CustomTeamPermission::userHasPermission($user, 'task_cross_team_view')) {
             $userTeamIds = BugzillaAuthService::resolveUserTeamIds($user);
-            $query->whereHas('portalProject', function ($q) use ($userTeamIds) {
-                $q->whereIn('team_id', $userTeamIds);
+            $query->where(function ($q) use ($user, $userTeamIds) {
+                if (!empty($userTeamIds)) {
+                    $q->whereIn('team_id', $userTeamIds);
+                }
+                $q->orWhere('project_coordinator_id', $user->id)
+                  ->orWhereHas('members', fn ($m) => $m->where('users.id', $user->id))
+                  ->orWhereHas('tasks', function ($t) use ($user) {
+                      $t->whereHas('assignees', fn ($a) => $a->where('users.id', $user->id));
+                  });
             });
         }
 
-        $projects = $query->orderBy('name')->get();
+        if ($request->filled('status') && $request->query('status') !== 'all') {
+            $query->where('status', $request->query('status'));
+        }
+
+        $portalProjects = $query->orderBy('name')->get();
+
+        $projects = $portalProjects->map(function ($p) {
+            $bz = $p->bugzillaProject;
+            return [
+                'id' => $bz ? $bz->id : $p->id,
+                'portal_project_id' => $p->id,
+                'name' => $p->name,
+                'description' => $p->description,
+                'status' => $p->status,
+                'category' => $p->category,
+                'team' => $p->team,
+                'coordinator' => $p->coordinator,
+                'portal_project' => [
+                    'id' => $p->id,
+                    'name' => $p->name,
+                    'status' => $p->status,
+                    'category' => $p->category,
+                    'team' => $p->team,
+                    'coordinator' => $p->coordinator,
+                ],
+                'default_assignee' => $bz?->defaultAssignee,
+                'components' => $bz ? $bz->components : [],
+                'components_count' => $bz ? $bz->components->count() : 0,
+                'bugs_count' => (int) ($p->bugs_count ?? 0),
+                'open_bugs_count' => (int) ($p->open_bugs_count ?? 0),
+                'critical_bugs_count' => (int) ($p->critical_bugs_count ?? 0),
+                'created_at' => $p->created_at,
+            ];
+        });
 
         return response()->json([
             'projects' => $projects,
@@ -185,7 +225,7 @@ class BugzillaProjectController extends Controller
     }
 
     /**
-     * Show Bugzilla project with components and metadata.
+     * Show bugSmart project with components and metadata.
      */
     public function show(Request $request, $id)
     {
@@ -194,7 +234,31 @@ class BugzillaProjectController extends Controller
             return response()->json(['message' => 'Unauthorized.'], 403);
         }
 
-        $project = BugzillaProject::with([
+        $project = BugzillaProject::where('id', $id)
+            ->orWhere('portal_project_id', $id)
+            ->first();
+
+        if (!$project) {
+            $portalProject = Project::find($id);
+            if ($portalProject) {
+                $project = BugzillaProject::firstOrCreate(
+                    ['portal_project_id' => $portalProject->id],
+                    [
+                        'name' => $portalProject->name,
+                        'description' => $portalProject->description,
+                        'status' => 'active',
+                        'created_by' => $user->id,
+                    ]
+                );
+                if ($project->components()->count() === 0) {
+                    $project->components()->create(['name' => 'General', 'status' => 'active']);
+                }
+            } else {
+                return response()->json(['message' => 'Project not found.'], 404);
+            }
+        }
+
+        $project->load([
             'portalProject',
             'portalProject.team',
             'portalProject.coordinator',
@@ -204,9 +268,8 @@ class BugzillaProjectController extends Controller
             },
             'components.defaultAssignee:id,first_name,last_name,email',
             'defaultAssignee:id,first_name,last_name,email',
-        ])
-        ->withCount(['bugs', 'components'])
-        ->findOrFail($id);
+        ]);
+        $project->loadCount(['bugs', 'components']);
 
         if (!BugzillaAuthService::canAccessProject($user, $project->portal_project_id)) {
             return response()->json(['message' => 'You do not have permission to view this project.'], 403);
@@ -218,7 +281,7 @@ class BugzillaProjectController extends Controller
     }
 
     /**
-     * Update Bugzilla project settings.
+     * Update bugSmart project settings.
      */
     public function update(Request $request, $id)
     {
@@ -227,7 +290,22 @@ class BugzillaProjectController extends Controller
             return response()->json(['message' => 'Unauthorized.'], 403);
         }
 
-        $project = BugzillaProject::findOrFail($id);
+        $project = BugzillaProject::where('id', $id)
+            ->orWhere('portal_project_id', $id)
+            ->first();
+
+        if (!$project) {
+            $portalProject = Project::findOrFail($id);
+            $project = BugzillaProject::firstOrCreate(
+                ['portal_project_id' => $portalProject->id],
+                [
+                    'name' => $portalProject->name,
+                    'description' => $portalProject->description,
+                    'status' => 'active',
+                    'created_by' => $user->id,
+                ]
+            );
+        }
 
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
@@ -239,7 +317,7 @@ class BugzillaProjectController extends Controller
         $project->update($validated);
 
         return response()->json([
-            'message' => 'Bugzilla project updated successfully.',
+            'message' => 'bugSmart project updated successfully.',
             'project' => $project->fresh(['components', 'defaultAssignee']),
         ]);
     }

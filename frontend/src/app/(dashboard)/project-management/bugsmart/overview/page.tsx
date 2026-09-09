@@ -135,7 +135,7 @@ export default function BugzillaOverviewPage() {
           </button>
           {canReport && (
             <Link
-              href="/project-management/bugzilla/bugs/new"
+              href="/project-management/bugsmart/bugs/new"
               className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-xl text-white bg-rose-600 hover:bg-rose-700 transition-colors shadow-xs"
             >
               <Plus className="w-3.5 h-3.5" />
@@ -155,7 +155,7 @@ export default function BugzillaOverviewPage() {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
         {/* Total */}
         <Link
-          href="/project-management/bugzilla/bugs"
+          href="/project-management/bugsmart/bugs"
           className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-rose-400 dark:hover:border-rose-700 shadow-xs transition-all block group"
         >
           <div className="flex items-center justify-between">
@@ -170,7 +170,7 @@ export default function BugzillaOverviewPage() {
 
         {/* Open */}
         <Link
-          href="/project-management/bugzilla/bugs?quick_filter=open"
+          href="/project-management/bugsmart/bugs?quick_filter=open"
           className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-700 shadow-xs transition-all block group"
         >
           <div className="flex items-center justify-between">
@@ -185,7 +185,7 @@ export default function BugzillaOverviewPage() {
 
         {/* Critical & Blocker */}
         <Link
-          href="/project-management/bugzilla/bugs?quick_filter=critical_blocker"
+          href="/project-management/bugsmart/bugs?quick_filter=critical_blocker"
           className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-rose-400 dark:hover:border-rose-700 shadow-xs transition-all block group"
         >
           <div className="flex items-center justify-between">
@@ -202,7 +202,7 @@ export default function BugzillaOverviewPage() {
 
         {/* Unassigned */}
         <Link
-          href="/project-management/bugzilla/bugs?quick_filter=unassigned"
+          href="/project-management/bugsmart/bugs?quick_filter=unassigned"
           className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-indigo-400 dark:hover:border-indigo-700 shadow-xs transition-all block group"
         >
           <div className="flex items-center justify-between">
@@ -217,7 +217,7 @@ export default function BugzillaOverviewPage() {
 
         {/* Resolved */}
         <Link
-          href="/project-management/bugzilla/bugs?quick_filter=resolved"
+          href="/project-management/bugsmart/bugs?quick_filter=resolved"
           className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-emerald-400 dark:hover:border-emerald-700 shadow-xs transition-all block group"
         >
           <div className="flex items-center justify-between">
@@ -232,7 +232,7 @@ export default function BugzillaOverviewPage() {
 
         {/* Reopened */}
         <Link
-          href="/project-management/bugzilla/bugs?quick_filter=reopened"
+          href="/project-management/bugsmart/bugs?quick_filter=reopened"
           className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-rose-400 dark:hover:border-rose-700 shadow-xs transition-all block group"
         >
           <div className="flex items-center justify-between">
@@ -247,7 +247,7 @@ export default function BugzillaOverviewPage() {
 
         {/* Closed */}
         <Link
-          href="/project-management/bugzilla/bugs?quick_filter=closed"
+          href="/project-management/bugsmart/bugs?quick_filter=closed"
           className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-700 shadow-xs transition-all block group"
         >
           <div className="flex items-center justify-between">
@@ -390,7 +390,7 @@ export default function BugzillaOverviewPage() {
             <h3 className="text-sm font-bold text-slate-900 dark:text-white">Recent Bug Reports & Triage</h3>
           </div>
           <Link
-            href="/project-management/bugzilla/bugs"
+            href="/project-management/bugsmart/bugs"
             className="text-xs font-semibold text-rose-600 hover:text-rose-700 dark:text-rose-400 flex items-center gap-1"
           >
             Open Bugs Tracker <ArrowRight className="w-3.5 h-3.5" />
@@ -404,7 +404,7 @@ export default function BugzillaOverviewPage() {
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <Link
-                      href={`/project-management/bugzilla/bugs/${bug.id}`}
+                      href={`/project-management/bugsmart/bugs/${bug.id}`}
                       className="font-mono text-xs font-bold text-rose-600 hover:text-rose-700 dark:text-rose-400 underline decoration-dotted"
                     >
                       {bug.bug_number}
@@ -437,7 +437,7 @@ export default function BugzillaOverviewPage() {
                     </div>
                   </div>
                   <Link
-                    href={`/project-management/bugzilla/bugs/${bug.id}`}
+                    href={`/project-management/bugsmart/bugs/${bug.id}`}
                     className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors"
                     title="View details"
                   >

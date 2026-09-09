@@ -449,14 +449,14 @@ export default function PmAddonsPage() {
                       {addon.key === "bugzilla" ? (
                         <div className="flex items-center gap-2">
                           <Link
-                            href="/project-management/bugzilla"
+                            href="/project-management/bugsmart"
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                           >
                             <Settings2 className="w-3.5 h-3.5" />
                             Open bugSmart
                           </Link>
                           <Link
-                            href="/project-management/bugzilla/permissions"
+                            href="/project-management/bugsmart/permissions"
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                           >
                             <ShieldCheck className="w-3.5 h-3.5" />
