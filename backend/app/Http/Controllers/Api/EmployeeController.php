@@ -400,7 +400,13 @@ class EmployeeController extends Controller
             $processor->recoverOrphanedEventsForEmployeeCode($newEmployeeCode);
         }
 
-        return new EmployeeResource($employee->load(['team', 'roles']));
+        \Log::info("Employee updated successfully", [
+            'employee_id' => $employee->id,
+            'team_id' => $employee->team_id,
+            'role' => $role
+        ]);
+
+        return new EmployeeResource($employee->unsetRelation('team')->load(['team', 'roles']));
     }
 
     public function destroy(User $employee)

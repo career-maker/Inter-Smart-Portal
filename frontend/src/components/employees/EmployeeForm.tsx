@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { LifeBuoy } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
+import { toastManager } from "@/components/ui/toast";
 import {
   Form,
   FormControl,
@@ -94,7 +95,7 @@ export default function EmployeeForm({ initialData, isEdit }: EmployeeFormProps)
       
       employee_code: initialData?.employee_code || "",
       designation: initialData?.designation || "",
-      team_id: initialData?.team_id?.toString() || "none",
+      team_id: initialData?.team_id ? initialData.team_id.toString() : "none",
       joining_date: initialData?.joining_date || "",
       role: initialData?.role || "Employee",
       password: "",
@@ -107,6 +108,32 @@ export default function EmployeeForm({ initialData, isEdit }: EmployeeFormProps)
       is_emergency_contact: Boolean(initialData?.is_emergency_contact),
     },
   });
+
+  useEffect(() => {
+    if (initialData) {
+      form.reset({
+        first_name: initialData.first_name || "",
+        last_name: initialData.last_name || "",
+        dob: initialData.dob || "",
+        gender: initialData.gender || "",
+        blood_group: initialData.blood_group || "",
+        marital_status: initialData.marital_status || "",
+        permanent_address: initialData.permanent_address || "",
+        current_address: initialData.current_address || "",
+        employee_code: initialData.employee_code || "",
+        designation: initialData.designation || "",
+        team_id: initialData.team_id ? initialData.team_id.toString() : "none",
+        joining_date: initialData.joining_date || "",
+        role: initialData.role || "Employee",
+        password: "",
+        email: initialData.email || "",
+        personal_email: initialData.personal_email || "",
+        contact_number: initialData.contact_number || "",
+        alternate_contact_number: initialData.alternate_contact_number || "",
+        is_emergency_contact: Boolean(initialData.is_emergency_contact),
+      });
+    }
+  }, [initialData, form]);
 
   useEffect(() => {
     async function fetchTeams() {
@@ -138,15 +165,25 @@ export default function EmployeeForm({ initialData, isEdit }: EmployeeFormProps)
     try {
       const payload = {
         ...values,
-        team_id: values.team_id === "none" ? null : values.team_id,
+        team_id: !values.team_id || values.team_id === "none" ? null : Number(values.team_id),
         is_emergency_contact: Boolean(values.is_emergency_contact),
       };
 
       if (isEdit) {
         if (!payload.password) delete payload.password;
         await api.put(`/employees/${initialData.id}`, payload);
+        toastManager.add({
+          type: "success",
+          title: "Employee Profile Saved",
+          description: "Employee details and department have been updated successfully.",
+        });
       } else {
         await api.post("/employees", payload);
+        toastManager.add({
+          type: "success",
+          title: "Employee Created",
+          description: "New employee profile created successfully.",
+        });
       }
       router.push(`/employees?refresh=${Date.now()}`);
     } catch (e: any) {
@@ -189,7 +226,7 @@ export default function EmployeeForm({ initialData, isEdit }: EmployeeFormProps)
             <FormField control={form.control} name="gender" render={({ field }) => (
               <FormItem>
                 <FormLabel>Gender</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value || ""}>
                   <FormControl><SelectTrigger><SelectValue placeholder="Select gender" /></SelectTrigger></FormControl>
                   <SelectContent>
                     <SelectItem value="Male">Male</SelectItem>
@@ -208,7 +245,7 @@ export default function EmployeeForm({ initialData, isEdit }: EmployeeFormProps)
             <FormField control={form.control} name="marital_status" render={({ field }) => (
               <FormItem>
                 <FormLabel>Marital Status</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value || ""}>
                   <FormControl><SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger></FormControl>
                   <SelectContent>
                     <SelectItem value="Single">Single</SelectItem>
@@ -253,9 +290,13 @@ export default function EmployeeForm({ initialData, isEdit }: EmployeeFormProps)
 
             <FormField control={form.control} name="team_id" render={({ field }) => (
               <FormItem>
-                <FormLabel>Team</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl><SelectTrigger><SelectValue placeholder="Select a team" /></SelectTrigger></FormControl>
+                <FormLabel>Department / Team</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value || "none"}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder={teams.length === 0 ? "Loading departments..." : "Select a department / team"} />
+                    </SelectTrigger>
+                  </FormControl>
                   <SelectContent>
                     <SelectItem value="none">Unassigned</SelectItem>
                     {teams.map(t => <SelectItem key={t.id} value={t.id.toString()}>{t.name}</SelectItem>)}
@@ -268,7 +309,7 @@ export default function EmployeeForm({ initialData, isEdit }: EmployeeFormProps)
             <FormField control={form.control} name="role" render={({ field }) => (
               <FormItem>
                 <FormLabel>Role *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value || "Employee"}>
                   <FormControl><SelectTrigger><SelectValue placeholder="Select a role" /></SelectTrigger></FormControl>
                   <SelectContent>
                     {roles.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}
