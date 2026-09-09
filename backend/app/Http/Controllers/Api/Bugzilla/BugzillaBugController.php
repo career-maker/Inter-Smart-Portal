@@ -227,6 +227,8 @@ class BugzillaBugController extends Controller
             'assignee_id' => 'nullable|integer|exists:users,id',
             'labels' => 'nullable|array',
             'labels.*' => 'string|max:50',
+            'attachment_urls' => 'nullable|array',
+            'attachment_urls.*' => 'nullable|string|max:1000',
             'linked_pm_bug_id' => 'nullable|integer|exists:pm_task_bugs,id',
         ]);
 
@@ -300,6 +302,27 @@ class BugzillaBugController extends Controller
                     if ($clean) {
                         $labelObj = BugzillaLabel::firstOrCreate(['name' => strtolower($clean)]);
                         $createdBug->labels()->syncWithoutDetaching([$labelObj->id]);
+                    }
+                }
+            }
+
+            // Add attachment URLs if any
+            if (!empty($validated['attachment_urls'])) {
+                foreach ($validated['attachment_urls'] as $urlItem) {
+                    $rawUrl = trim((string)$urlItem);
+                    if ($rawUrl) {
+                        $urlTitle = parse_url($rawUrl, PHP_URL_HOST) ?: 'Attachment Link';
+                        \App\Models\BugzillaAttachment::create([
+                            'bug_id' => $createdBug->id,
+                            'uploaded_by' => $user->id,
+                            'file_path' => $rawUrl,
+                            'original_name' => $urlTitle,
+                            'mime_type' => 'text/uri-list',
+                            'file_size' => null,
+                            'description' => 'Link added with defect report',
+                            'is_private' => false,
+                            'created_at' => now(),
+                        ]);
                     }
                 }
             }

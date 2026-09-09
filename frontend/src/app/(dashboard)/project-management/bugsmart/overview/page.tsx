@@ -71,8 +71,8 @@ export default function BugzillaOverviewPage() {
       const res = await bugzillaApi.getReports();
       setData(res.data);
     } catch (err: any) {
-      console.error("Failed to load Bugzilla overview data", err);
-      setError(err?.response?.data?.message || err?.message || "Failed to load Bugzilla overview data.");
+      console.error("Failed to load BugSmart overview data", err);
+      setError(err?.response?.data?.message || err?.message || "Failed to load BugSmart overview data.");
     } finally {
       setLoading(false);
       setRefreshing(false);

@@ -32,6 +32,21 @@ class BugzillaAttachment extends Model
         'created_at' => 'datetime',
     ];
 
+    protected $appends = ['file_url', 'is_url'];
+
+    public function getFileUrlAttribute(): string
+    {
+        if (str_starts_with($this->file_path, 'http://') || str_starts_with($this->file_path, 'https://')) {
+            return $this->file_path;
+        }
+        return asset('storage/' . $this->file_path);
+    }
+
+    public function getIsUrlAttribute(): bool
+    {
+        return str_starts_with($this->file_path, 'http://') || str_starts_with($this->file_path, 'https://');
+    }
+
     public function bug(): BelongsTo
     {
         return $this->belongsTo(BugzillaBug::class, 'bug_id');

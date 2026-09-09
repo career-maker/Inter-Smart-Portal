@@ -314,7 +314,7 @@ export default function BugSmartProjectsPage() {
         <div>
           <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <FolderTree className="w-4 h-4 text-rose-600" />
-            <span>bugSmart Projects & Components</span>
+            <span>BugSmart Projects & Components</span>
           </h2>
           <p className="text-xs text-slate-500 dark:text-slate-400">
             Unified directly with Project Management. Click any project to inspect its tasks, defects, and components.

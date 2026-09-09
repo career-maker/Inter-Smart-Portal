@@ -28,9 +28,39 @@ class BugzillaAttachmentController extends Controller
         }
 
         $request->validate([
-            'file' => 'required|file|max:20480', // 20MB limit
+            'file' => 'nullable|file|max:20480', // 20MB limit
+            'url' => 'nullable|string|max:1000',
+            'url_title' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:255',
         ]);
+
+        if (!$request->hasFile('file') && !$request->filled('url')) {
+            return response()->json(['message' => 'Either a URL or a file is required.'], 422);
+        }
+
+        if ($request->filled('url')) {
+            $rawUrl = trim($request->input('url'));
+            $urlTitle = trim($request->input('url_title')) ?: (parse_url($rawUrl, PHP_URL_HOST) ?: 'Attachment Link');
+
+            $attachment = BugzillaAttachment::create([
+                'bug_id' => $bug->id,
+                'uploaded_by' => $user->id,
+                'file_path' => $rawUrl,
+                'original_name' => $urlTitle,
+                'mime_type' => 'text/uri-list',
+                'file_size' => null,
+                'description' => $request->input('description'),
+                'is_private' => false,
+                'created_at' => now(),
+            ]);
+
+            BugzillaHistory::logChange($bug->id, $user->id, 'attachment_uploaded', 'attachment', null, "Added attachment link: {$urlTitle} ({$rawUrl})");
+
+            return response()->json([
+                'message' => 'Attachment URL added successfully.',
+                'attachment' => $attachment->load('uploader:id,first_name,last_name'),
+            ], 201);
+        }
 
         $file = $request->file('file');
         $originalName = $file->getClientOriginalName();
@@ -77,8 +107,10 @@ class BugzillaAttachmentController extends Controller
             return response()->json(['message' => 'You can only delete your own attachments.'], 403);
         }
 
-        if (Storage::disk('public')->exists($attachment->file_path)) {
-            Storage::disk('public')->delete($attachment->file_path);
+        if (!str_starts_with($attachment->file_path, 'http://') && !str_starts_with($attachment->file_path, 'https://')) {
+            if (Storage::disk('public')->exists($attachment->file_path)) {
+                Storage::disk('public')->delete($attachment->file_path);
+            }
         }
 
         $fileName = $attachment->original_name;

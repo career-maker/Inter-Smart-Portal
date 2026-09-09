@@ -11,6 +11,7 @@ import {
   Upload,
   CheckCircle2,
   ExternalLink,
+  Link2,
   CheckSquare,
   Building2,
   FolderKanban,
@@ -101,8 +102,9 @@ export function ReportBugDrawer({
   const [labels, setLabels] = useState<string[]>([]);
   const [labelInput, setLabelInput] = useState("");
 
-  // Attachments
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  // Attachment URLs
+  const [attachmentUrls, setAttachmentUrls] = useState<string[]>([]);
+  const [urlInput, setUrlInput] = useState("");
 
   // Duplicate detection state
   const [duplicateCandidates, setDuplicateCandidates] = useState<DuplicateCandidate[]>([]);
@@ -237,16 +239,19 @@ export function ReportBugDrawer({
     setLabels(labels.filter((l) => l !== lbl));
   };
 
-  // Handle files
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const arr = Array.from(e.target.files);
-      setSelectedFiles((prev) => [...prev, ...arr]);
+  // Handle Attachment URLs
+  const handleAddUrl = () => {
+    const trimmed = urlInput.trim();
+    if (trimmed) {
+      if (!attachmentUrls.includes(trimmed)) {
+        setAttachmentUrls([...attachmentUrls, trimmed]);
+      }
+      setUrlInput("");
     }
   };
 
-  const handleRemoveFile = (idx: number) => {
-    setSelectedFiles((prev) => prev.filter((_, i) => i !== idx));
+  const handleRemoveUrl = (idx: number) => {
+    setAttachmentUrls(attachmentUrls.filter((_, i) => i !== idx));
   };
 
   // Submit Form
@@ -294,20 +299,10 @@ export function ReportBugDrawer({
       if (browser.trim()) payload.browser = browser.trim();
       if (device.trim()) payload.device = device.trim();
       if (labels.length > 0) payload.labels = labels;
+      if (attachmentUrls.length > 0) payload.attachment_urls = attachmentUrls;
 
       const res = await bugzillaApi.createBug(payload);
       const newBug = res.data || res;
-
-      // Upload attachments if any
-      if (selectedFiles.length > 0 && newBug?.id) {
-        for (const file of selectedFiles) {
-          try {
-            await bugzillaApi.uploadAttachment(newBug.id, file, `Uploaded with defect report`);
-          } catch (attErr) {
-            console.warn("Failed to upload attachment", attErr);
-          }
-        }
-      }
 
       // Preserve selected Project & Task in session cache for next bug report until page refresh!
       inMemoryProjectId = Number(portalProjectId);
@@ -321,7 +316,8 @@ export function ReportBugDrawer({
       setStepsToReproduce("");
       setExpectedResult("");
       setActualResult("");
-      setSelectedFiles([]);
+      setAttachmentUrls([]);
+      setUrlInput("");
       setLabels([]);
 
       if (onSuccess) {
@@ -360,7 +356,7 @@ export function ReportBugDrawer({
               <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <span>Report Defect</span>
                 <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-md bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300">
-                  bugSmart
+                  BugSmart
                 </span>
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -660,34 +656,67 @@ export function ReportBugDrawer({
               />
             </div>
 
-            {/* Attachments */}
+            {/* Attachment URLs */}
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Screenshots & Attachments
-              </label>
-              <label className="flex flex-col items-center justify-center p-3 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/40 cursor-pointer transition-colors">
-                <Upload className="w-5 h-5 text-slate-400 mb-1" />
-                <span className="text-xs text-slate-600 dark:text-slate-300 font-medium">Click to upload screenshots or logs</span>
-                <input
-                  type="file"
-                  multiple
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
+                <span>Attachment URLs (Loom, Drive, Figma, Screenshots)</span>
+                <span className="text-[10px] text-slate-400 font-normal">Optional</span>
               </label>
 
-              {selectedFiles.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {selectedFiles.map((f, i) => (
-                    <span
-                      key={i}
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1">
+                  <Link2 className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="url"
+                    value={urlInput}
+                    onChange={(e) => setUrlInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleAddUrl();
+                      }
+                    }}
+                    placeholder="Paste URL (e.g. Loom video, Google Drive, screenshot link)…"
+                    className="w-full pl-8 pr-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleAddUrl}
+                  disabled={!urlInput.trim()}
+                  className="px-3 py-2 text-xs font-semibold rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-colors disabled:opacity-50 cursor-pointer shrink-0"
+                >
+                  + Add URL
+                </button>
+              </div>
+
+              {attachmentUrls.length > 0 && (
+                <div className="space-y-1.5 mt-2.5">
+                  {attachmentUrls.map((link, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between gap-2 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs"
                     >
-                      <span className="truncate max-w-[150px]">{f.name}</span>
-                      <button type="button" onClick={() => handleRemoveFile(i)} className="text-slate-400 hover:text-red-500">
+                      <div className="flex items-center gap-2 truncate flex-1 min-w-0">
+                        <ExternalLink className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                        <a
+                          href={link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="truncate text-rose-600 dark:text-rose-400 hover:underline font-medium"
+                        >
+                          {link}
+                        </a>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveUrl(idx)}
+                        className="text-slate-400 hover:text-red-500 p-1 transition-colors cursor-pointer"
+                        title="Remove URL"
+                      >
                         <X className="w-3.5 h-3.5" />
                       </button>
-                    </span>
+                    </div>
                   ))}
                 </div>
               )}

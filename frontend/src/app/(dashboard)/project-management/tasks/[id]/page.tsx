@@ -233,7 +233,7 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ id: stri
               <Link
                 href={`/project-management/bugsmart/bugs/new?portal_project_id=${task.project.id}&task_id=${task.id}`}
                 className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 hover:bg-rose-100 text-xs sm:text-sm font-semibold transition-colors shadow-2xs"
-                title="Report a defect for this task in bugSmart"
+                title="Report a defect for this task in BugSmart"
               >
                 <Bug className="w-4 h-4 text-rose-600 dark:text-rose-400" />
                 <span>Report Bug</span>
@@ -590,13 +590,13 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ id: stri
             </div>
           )}
 
-          {/* bugSmart Project Card (Optional - Section 18 & 19) */}
+          {/* BugSmart Project Card (Optional - Section 18 & 19) */}
           {task.project && (
             <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-5 shadow-sm space-y-3">
               <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
                 <div className="flex items-center gap-2">
                   <Bug className="w-4 h-4 text-rose-600 dark:text-rose-400" />
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">bugSmart Registry</h3>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">BugSmart Registry</h3>
                 </div>
                 <Link
                   href={`/project-management/bugsmart/bugs/new?portal_project_id=${task.project.id}&task_id=${task.id}`}
@@ -622,7 +622,7 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ id: stri
                     href={`/project-management/bugsmart/projects`}
                     className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                   >
-                    bugSmart Components
+                    BugSmart Components
                   </Link>
                 </div>
               </div>

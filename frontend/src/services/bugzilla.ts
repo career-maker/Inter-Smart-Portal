@@ -159,6 +159,15 @@ export const bugzillaApi = {
     return res.data;
   },
 
+  addAttachmentUrl: async (bugId: number, url: string, urlTitle?: string, description?: string): Promise<ApiResponse<BugzillaAttachment>> => {
+    const res = await api.post<ApiResponse<BugzillaAttachment>>(`/bugzilla/bugs/${bugId}/attachments`, {
+      url,
+      url_title: urlTitle,
+      description,
+    });
+    return res.data;
+  },
+
   deleteAttachment: async (attachmentId: number): Promise<ApiResponse<null>> => {
     const res = await api.delete<ApiResponse<null>>(`/bugzilla/attachments/${attachmentId}`);
     return res.data;

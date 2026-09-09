@@ -63,6 +63,7 @@ export default function BugSmartPermissionsPage() {
       const allDefs = res.definitions || [];
       const bugSmartDefs = allDefs.filter(
         (d: any) =>
+          d.category === "BugSmart Defect Management" ||
           d.category === "bugSmart Defect Management" ||
           d.category === "Bugzilla Defect Management" ||
           d.key.startsWith("bugzilla")
@@ -71,7 +72,7 @@ export default function BugSmartPermissionsPage() {
       setTeams(res.teams || []);
       setMatrix(res.matrix || {});
     } catch (err: any) {
-      console.error("Failed to load bugSmart permissions:", err);
+      console.error("Failed to load BugSmart permissions:", err);
       setError(
         err?.response?.data?.message ||
           err?.message ||
@@ -132,7 +133,7 @@ export default function BugSmartPermissionsPage() {
 
     try {
       const res = await teamPermissionsApi.updateMatrix(matrix);
-      setSuccessMessage(res.message || "bugSmart permissions updated successfully.");
+      setSuccessMessage(res.message || "BugSmart permissions updated successfully.");
       await fetchData(true);
     } catch (err: any) {
       setError(
@@ -177,14 +178,14 @@ export default function BugSmartPermissionsPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-              bugSmart Team Permissions
+              BugSmart Team Permissions
             </h1>
             <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800">
-              Scraped to bugSmart Only
+              Scoped to BugSmart Only
             </span>
           </div>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-2xl">
-            Granularly configure which departmental teams can view, report, or develop defects inside bugSmart.
+            Granularly configure which departmental teams can view, report, or develop defects inside BugSmart.
           </p>
         </div>
 
@@ -260,7 +261,7 @@ export default function BugSmartPermissionsPage() {
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Filter bugSmart capabilities..."
+          placeholder="Filter BugSmart capabilities..."
           className="w-full pl-10 pr-4 py-2 rounded-xl text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all"
         />
       </div>

@@ -63,44 +63,44 @@ const STATUS_WEIGHTS: Record<string, number> = {
   "Cancelled": 10,
 };
 
-function getTaskStatusClass(status: TaskStatus | string): string {
+export function getTaskStatusClass(status: TaskStatus | string): string {
   switch (status) {
     case "Yet to Start":
-      return "task-status-yet-to-start";
+      return "task-status-yet-to-start !bg-slate-100 !text-slate-700 !border-slate-300 dark:!bg-slate-800 dark:!text-slate-300 dark:!border-slate-600";
     case "Being Developed":
-      return "task-status-being-developed";
+      return "task-status-being-developed !bg-indigo-100 !text-indigo-800 !border-indigo-300 dark:!bg-indigo-950/70 dark:!text-indigo-300 dark:!border-indigo-700";
     case "Ready for QA":
-      return "task-status-ready-for-qa";
+      return "task-status-ready-for-qa !bg-amber-100 !text-amber-800 !border-amber-300 dark:!bg-amber-950/70 dark:!text-amber-300 dark:!border-amber-700";
     case "Assigned to QA":
-      return "task-status-assigned-to-qa";
+      return "task-status-assigned-to-qa !bg-purple-100 !text-purple-800 !border-purple-300 dark:!bg-purple-950/70 dark:!text-purple-300 dark:!border-purple-700";
     case "In Progress":
-      return "task-status-in-progress";
+      return "task-status-in-progress !bg-blue-100 !text-blue-800 !border-blue-300 dark:!bg-blue-950/70 dark:!text-blue-300 dark:!border-blue-700";
     case "On Hold":
-      return "task-status-on-hold";
+      return "task-status-on-hold !bg-rose-100 !text-rose-800 !border-rose-300 dark:!bg-rose-950/70 dark:!text-rose-300 dark:!border-rose-700";
     case "Completed":
-      return "task-status-completed";
+      return "task-status-completed !bg-emerald-100 !text-emerald-800 !border-emerald-300 dark:!bg-emerald-950/70 dark:!text-emerald-300 dark:!border-emerald-700";
     case "Forecast":
-      return "task-status-forecast";
+      return "task-status-forecast !bg-cyan-100 !text-cyan-800 !border-cyan-300 dark:!bg-cyan-950/70 dark:!text-cyan-300 dark:!border-cyan-700";
     case "Rejected":
-      return "task-status-rejected";
+      return "task-status-rejected !bg-red-100 !text-red-800 !border-red-300 dark:!bg-red-950/70 dark:!text-red-300 dark:!border-red-700";
     case "Cancelled":
-      return "task-status-cancelled";
+      return "task-status-cancelled !bg-zinc-100 !text-zinc-600 !border-zinc-300 dark:!bg-zinc-800 dark:!text-zinc-400 dark:!border-zinc-700";
     default:
-      return "task-status-yet-to-start";
+      return "task-status-yet-to-start !bg-slate-100 !text-slate-700 !border-slate-300 dark:!bg-slate-800 dark:!text-slate-300 dark:!border-slate-600";
   }
 }
 
-function getTaskPriorityClass(priority: TaskPriority | string): string {
+export function getTaskPriorityClass(priority: TaskPriority | string): string {
   switch (priority) {
     case "Critical":
-      return "task-priority-critical";
+      return "task-priority-critical !bg-rose-100 !text-rose-800 !border-rose-400 dark:!bg-rose-950/70 dark:!text-rose-300 dark:!border-rose-700 font-bold";
     case "High":
-      return "task-priority-high";
+      return "task-priority-high !bg-orange-100 !text-orange-800 !border-orange-400 dark:!bg-orange-950/70 dark:!text-orange-300 dark:!border-orange-700 font-bold";
     case "Medium":
-      return "task-priority-medium";
+      return "task-priority-medium !bg-yellow-100 !text-yellow-800 !border-yellow-400 dark:!bg-amber-950/70 dark:!text-amber-300 dark:!border-amber-700 font-semibold";
     case "Low":
     default:
-      return "task-priority-low";
+      return "task-priority-low !bg-teal-50 !text-teal-800 !border-teal-400 dark:!bg-teal-950/70 dark:!text-teal-300 dark:!border-teal-700 font-medium";
   }
 }
 
@@ -391,17 +391,7 @@ export function TaskTrackerTable({
               : "justify-start"
           }`}
         >
-          {field === "priority" ? (
-            <span className="px-1.5 py-0.5 rounded text-[11px] font-black uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/80 dark:text-amber-300 dark:border-amber-700 shadow-2xs">
-              {label}
-            </span>
-          ) : field === "status" ? (
-            <span className="px-1.5 py-0.5 rounded text-[11px] font-black uppercase tracking-wider bg-indigo-100 text-indigo-900 border border-indigo-300 dark:bg-indigo-950/80 dark:text-indigo-300 dark:border-indigo-700 shadow-2xs">
-              {label}
-            </span>
-          ) : (
-            <span>{label}</span>
-          )}
+          <span>{label}</span>
           <span className="inline-flex shrink-0">
             {isActive ? (
               sortDirection === "asc" ? (
@@ -526,7 +516,7 @@ export function TaskTrackerTable({
                           disabled={updatingTaskId === task.id}
                           onChange={(e) => onPriorityChange(task.id, e.target.value as TaskPriority)}
                           title={`Priority: ${task.priority}`}
-                          className={`task-priority-select ${getTaskPriorityClass(task.priority)} disabled:opacity-50`}
+                          className={`task-priority-select px-2.5 py-0.5 rounded-md text-[11px] font-bold border shadow-2xs cursor-pointer outline-none transition-all ${getTaskPriorityClass(task.priority)} disabled:opacity-50`}
                         >
                           {TASK_PRIORITIES.map((pr) => (
                             <option key={pr} value={pr} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-bold py-1">
@@ -621,7 +611,7 @@ export function TaskTrackerTable({
                           disabled={updatingTaskId === task.id}
                           onChange={(e) => onStatusChange(task.id, e.target.value as TaskStatus)}
                           title={`Status: ${task.status}`}
-                          className={`task-status-select ${getTaskStatusClass(task.status)} disabled:opacity-50`}
+                          className={`task-status-select px-2.5 py-0.5 rounded-full text-[11px] font-semibold border shadow-2xs cursor-pointer outline-none transition-all ${getTaskStatusClass(task.status)} disabled:opacity-50`}
                         >
                           {TASK_STATUSES.map((st) => (
                             <option key={st} value={st} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-medium py-1">
