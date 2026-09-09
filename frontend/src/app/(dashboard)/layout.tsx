@@ -204,9 +204,6 @@ function isItemVisible(item: NavItem, role: string, permissions: Record<string, 
   if (item.href === "/project-management/hubstaff" && permissions.hubstaff_team_view) {
     return true;
   }
-  if (item.href === "/attendance/management" && permissions.attendance_team_view) {
-    return true;
-  }
   if (item.roles && !item.roles.includes(role)) return false;
   return true;
 }

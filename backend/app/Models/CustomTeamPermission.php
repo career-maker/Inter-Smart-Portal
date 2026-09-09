@@ -46,13 +46,6 @@ class CustomTeamPermission extends Model
                 'icon' => 'Bug',
             ],
             [
-                'key' => 'attendance_team_view',
-                'name' => 'Department Attendance Matrix Access',
-                'description' => 'Allows assigned teams/leads to inspect the full attendance matrix and daily biometric punches for all departments.',
-                'category' => 'Attendance',
-                'icon' => 'CalendarCheck',
-            ],
-            [
                 'key' => 'hubstaff_team_view',
                 'name' => 'Hubstaff Productivity & Telemetry View',
                 'description' => 'Allows assigned teams/leads to view Hubstaff activity rates, keyboard/mouse percentages, and tracked hours for team members.',
