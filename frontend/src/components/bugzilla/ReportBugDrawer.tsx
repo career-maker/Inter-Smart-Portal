@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import {
   Bug,
@@ -62,6 +63,12 @@ export function ReportBugDrawer({
   const [eventTaskId, setEventTaskId] = useState<number | "">("");
 
   const effectiveOpen = isOpen || internalOpen;
+
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const handler = (e: any) => {
@@ -336,11 +343,12 @@ export function ReportBugDrawer({
     }
   };
 
-  if (!effectiveOpen) return null;
+  if (!effectiveOpen || !mounted) return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-xs flex items-center justify-end"
+      className="fixed inset-0 z-[99999] bg-slate-900/60 backdrop-blur-xs flex items-center justify-end"
+      style={{ zIndex: 99999 }}
       onClick={(e) => {
         if (e.target === e.currentTarget) handleClose();
       }}
@@ -754,6 +762,7 @@ export function ReportBugDrawer({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
