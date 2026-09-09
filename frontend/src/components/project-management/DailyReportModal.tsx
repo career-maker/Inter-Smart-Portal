@@ -1200,7 +1200,7 @@ export function DailyReportModal({
 
       {/* ── Generated Image Preview Modal ── */}
       {imageModalOpen && generatedImageUrl && (
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4" data-side-popup="true">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setImageModalOpen(false)} />
           <div className="relative w-full max-w-4xl max-h-[90vh] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-10 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             {/* Header */}

@@ -34,6 +34,7 @@ import { useAuthStore } from "@/store/auth";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 import { TeamFilterSelector } from "@/components/project-management/TeamFilterSelector";
 import { DailyHubstaffReportModal } from "@/components/project-management/DailyHubstaffReportModal";
+import { Portal } from "@/components/ui/portal";
 
 type TabType = "users" | "projects" | "trends";
 type ActivityLevelFilter = "all" | "high" | "moderate" | "low";
@@ -1480,163 +1481,167 @@ export default function HubstaffAnalyticsPage() {
 
       {/* ── User Detail Drawer / Modal ── */}
       {selectedUserDetail && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm" onClick={() => setSelectedUserDetail(null)} />
-          <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl z-10 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            {/* Header */}
-            <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <RoyalAvatar
-                  src={selectedUserDetail.avatar}
-                  name={selectedUserDetail.name}
-                  userId={selectedUserDetail.user_id}
-                  employeeCode={selectedUserDetail.employee_code}
-                  className="w-11 h-11 rounded-full text-sm font-bold bg-purple-600 text-white"
-                />
-                <div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                    <RoyalName
-                      name={selectedUserDetail.name}
-                      userId={selectedUserDetail.user_id}
-                      employeeCode={selectedUserDetail.employee_code}
-                    />
-                  </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    {selectedUserDetail.team_name} • {selectedUserDetail.designation}
-                  </p>
+        <Portal>
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4" data-side-popup="true">
+            <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm" onClick={() => setSelectedUserDetail(null)} />
+            <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl z-10 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+              {/* Header */}
+              <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <RoyalAvatar
+                    src={selectedUserDetail.avatar}
+                    name={selectedUserDetail.name}
+                    userId={selectedUserDetail.user_id}
+                    employeeCode={selectedUserDetail.employee_code}
+                    className="w-11 h-11 rounded-full text-sm font-bold bg-purple-600 text-white"
+                  />
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                      <RoyalName
+                        name={selectedUserDetail.name}
+                        userId={selectedUserDetail.user_id}
+                        employeeCode={selectedUserDetail.employee_code}
+                      />
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      {selectedUserDetail.team_name} • {selectedUserDetail.designation}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedUserDetail(null)}
+                  className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Quick Metrics */}
+              <div className="grid grid-cols-2 gap-4 p-6 bg-slate-50/50 dark:bg-slate-800/30 border-b border-slate-200 dark:border-slate-800">
+                <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                  <p className="text-[10px] font-bold text-slate-500 uppercase">Tracked Work Time</p>
+                  <p className="text-xl font-black text-slate-900 dark:text-white mt-0.5">{selectedUserDetail.tracked_formatted}</p>
+                </div>
+                <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                  <p className="text-[10px] font-bold text-slate-500 uppercase">Overall Activity</p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-xl font-black text-slate-900 dark:text-white">{selectedUserDetail.activity_percentage}%</span>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full border font-bold ${getActivityBadge(selectedUserDetail.activity_percentage).bg}`}>
+                      {selectedUserDetail.activity_level.toUpperCase()}
+                    </span>
+                  </div>
                 </div>
               </div>
-              <button
-                onClick={() => setSelectedUserDetail(null)}
-                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
 
-            {/* Quick Metrics */}
-            <div className="grid grid-cols-2 gap-4 p-6 bg-slate-50/50 dark:bg-slate-800/30 border-b border-slate-200 dark:border-slate-800">
-              <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-                <p className="text-[10px] font-bold text-slate-500 uppercase">Tracked Work Time</p>
-                <p className="text-xl font-black text-slate-900 dark:text-white mt-0.5">{selectedUserDetail.tracked_formatted}</p>
-              </div>
-              <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-                <p className="text-[10px] font-bold text-slate-500 uppercase">Overall Activity</p>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-xl font-black text-slate-900 dark:text-white">{selectedUserDetail.activity_percentage}%</span>
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full border font-bold ${getActivityBadge(selectedUserDetail.activity_percentage).bg}`}>
-                    {selectedUserDetail.activity_level.toUpperCase()}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Project Breakdown List */}
-            <div className="p-6 overflow-y-auto max-h-[50vh] space-y-3">
-              <h4 className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
-                Project Activity Breakdown
-              </h4>
-              {selectedUserDetail.projects?.map((p: any) => {
-                const pBadge = getActivityBadge(p.activity_percentage);
-                return (
-                  <div
-                    key={p.project_name}
-                    className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/80 flex items-center justify-between gap-3 text-xs"
-                  >
-                    <div className="space-y-0.5 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <FolderKanban className="w-3.5 h-3.5 text-purple-600" />
-                        <span className="font-bold text-slate-900 dark:text-white truncate">{p.project_name}</span>
+              {/* Project Breakdown List */}
+              <div className="p-6 overflow-y-auto max-h-[50vh] space-y-3">
+                <h4 className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
+                  Project Activity Breakdown
+                </h4>
+                {selectedUserDetail.projects?.map((p: any) => {
+                  const pBadge = getActivityBadge(p.activity_percentage);
+                  return (
+                    <div
+                      key={p.project_name}
+                      className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/80 flex items-center justify-between gap-3 text-xs"
+                    >
+                      <div className="space-y-0.5 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <FolderKanban className="w-3.5 h-3.5 text-purple-600" />
+                          <span className="font-bold text-slate-900 dark:text-white truncate">{p.project_name}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4 shrink-0">
+                        <span className="font-black text-slate-900 dark:text-white text-xs sm:text-sm">{p.tracked_formatted}</span>
+                        <span className={`px-2 py-0.5 rounded-md border text-[10px] font-bold ${pBadge.bg}`}>
+                          {p.activity_percentage}% Act
+                        </span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4 shrink-0">
-                      <span className="font-black text-slate-900 dark:text-white text-xs sm:text-sm">{p.tracked_formatted}</span>
-                      <span className={`px-2 py-0.5 rounded-md border text-[10px] font-bold ${pBadge.bg}`}>
-                        {p.activity_percentage}% Act
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
 
-            <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 flex justify-end">
-              <button
-                onClick={() => setSelectedUserDetail(null)}
-                className="px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold rounded-xl hover:bg-slate-300 transition"
-              >
-                Close
-              </button>
+              <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 flex justify-end">
+                <button
+                  onClick={() => setSelectedUserDetail(null)}
+                  className="px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold rounded-xl hover:bg-slate-300 transition"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </Portal>
       )}
 
       {/* ── Project Detail Modal ── */}
       {selectedProjectDetail && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm" onClick={() => setSelectedProjectDetail(null)} />
-          <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl z-10 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-purple-600 text-white flex items-center justify-center">
-                  <FolderKanban className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white">{selectedProjectDetail.name}</h3>
-                  <p className="text-xs text-slate-500">Hubstaff Tracked Project</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setSelectedProjectDetail(null)}
-                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 p-6 bg-slate-50/50 dark:bg-slate-800/30 border-b border-slate-200 dark:border-slate-800">
-              <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-                <p className="text-[10px] font-bold text-slate-500 uppercase">Total Tracked Time</p>
-                <p className="text-xl font-black text-slate-900 dark:text-white mt-0.5">{selectedProjectDetail.tracked_formatted}</p>
-              </div>
-              <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-                <p className="text-[10px] font-bold text-slate-500 uppercase">Average Activity</p>
-                <p className="text-xl font-black text-slate-900 dark:text-white mt-0.5">{selectedProjectDetail.activity_percentage}%</p>
-              </div>
-            </div>
-
-            <div className="p-6 overflow-y-auto max-h-[50vh] space-y-3">
-              <h4 className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
-                Team Member Contributions ({selectedProjectDetail.members_count})
-              </h4>
-              {selectedProjectDetail.members?.map((m: any) => (
-                <div
-                  key={m.name}
-                  className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/80 flex items-center justify-between gap-3 text-xs"
-                >
+        <Portal>
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4" data-side-popup="true">
+            <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm" onClick={() => setSelectedProjectDetail(null)} />
+            <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl z-10 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+              <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-purple-600 text-white flex items-center justify-center">
+                    <FolderKanban className="w-5 h-5" />
+                  </div>
                   <div>
-                    <span className="font-bold text-slate-900 dark:text-white">{m.name}</span>
-                    <p className="text-[10px] text-slate-500">{m.designation}</p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="font-black text-slate-900 dark:text-white">{m.tracked_formatted}</span>
-                    <span className="text-slate-500 font-semibold">{m.activity_percentage}% Act</span>
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white">{selectedProjectDetail.name}</h3>
+                    <p className="text-xs text-slate-500">Hubstaff Tracked Project</p>
                   </div>
                 </div>
-              ))}
-            </div>
+                <button
+                  onClick={() => setSelectedProjectDetail(null)}
+                  className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
 
-            <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 flex justify-end">
-              <button
-                onClick={() => setSelectedProjectDetail(null)}
-                className="px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold rounded-xl hover:bg-slate-300 transition"
-              >
-                Close
-              </button>
+              <div className="grid grid-cols-2 gap-4 p-6 bg-slate-50/50 dark:bg-slate-800/30 border-b border-slate-200 dark:border-slate-800">
+                <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                  <p className="text-[10px] font-bold text-slate-500 uppercase">Total Tracked Time</p>
+                  <p className="text-xl font-black text-slate-900 dark:text-white mt-0.5">{selectedProjectDetail.tracked_formatted}</p>
+                </div>
+                <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                  <p className="text-[10px] font-bold text-slate-500 uppercase">Average Activity</p>
+                  <p className="text-xl font-black text-slate-900 dark:text-white mt-0.5">{selectedProjectDetail.activity_percentage}%</p>
+                </div>
+              </div>
+
+              <div className="p-6 overflow-y-auto max-h-[50vh] space-y-3">
+                <h4 className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
+                  Team Member Contributions ({selectedProjectDetail.members_count})
+                </h4>
+                {selectedProjectDetail.members?.map((m: any) => (
+                  <div
+                    key={m.name}
+                    className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/80 flex items-center justify-between gap-3 text-xs"
+                  >
+                    <div>
+                      <span className="font-bold text-slate-900 dark:text-white">{m.name}</span>
+                      <p className="text-[10px] text-slate-500">{m.designation}</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="font-black text-slate-900 dark:text-white">{m.tracked_formatted}</span>
+                      <span className="text-slate-500 font-semibold">{m.activity_percentage}% Act</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 flex justify-end">
+                <button
+                  onClick={() => setSelectedProjectDetail(null)}
+                  className="px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold rounded-xl hover:bg-slate-300 transition"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </Portal>
       )}
 
       {/* Daily Hubstaff Report Modal (Day-wise, Image & Sheet Models) */}

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import api from "@/services/api";
 import html2canvas from "html2canvas";
+import { Portal } from "@/components/ui/portal";
 
 interface MemberReportRow {
   user_id: number;
@@ -537,9 +538,19 @@ export function DailyHubstaffReportModal({
     URL.revokeObjectURL(url);
   };
 
+  if (!isOpen) return null;
+
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-4 bg-slate-950/70 backdrop-blur-md overflow-hidden animate-in fade-in duration-200">
-      <div className="relative w-full max-w-[98vw] xl:max-w-[96vw] max-h-[96vh] flex flex-col bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+    <Portal>
+      <div className="fixed inset-0 z-[99999] flex items-center justify-center p-2 sm:p-4 overflow-hidden font-sans" data-side-popup="true">
+        {/* Backdrop */}
+        <div
+          className="fixed inset-0 bg-slate-950/70 backdrop-blur-md transition-opacity animate-in fade-in duration-200"
+          onClick={onClose}
+        />
+
+        {/* Modal Container */}
+        <div className="relative w-full max-w-[98vw] xl:max-w-[96vw] max-h-[96vh] flex flex-col bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden z-10 animate-in zoom-in-95 duration-200">
         {/* ── Modal Header & Date Navigation ── */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80 shrink-0 gap-4 flex-wrap">
           <div className="flex items-center gap-3">
@@ -974,5 +985,6 @@ export function DailyHubstaffReportModal({
         </div>
       </div>
     </div>
+  </Portal>
   );
 }
