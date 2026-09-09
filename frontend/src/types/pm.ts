@@ -190,6 +190,7 @@ export interface ProjectTask {
   html_bugs?: number | null;
   functional_bugs?: number | null;
   total_bugs?: number | null;
+  bugs_count?: number | null;
   bug_tracker_link?: string | null;
   created_by?: number;
   updated_by?: number | null;

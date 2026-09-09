@@ -149,6 +149,10 @@ class BugzillaBugController extends Controller
 
         return response()->json([
             'bugs' => $bugs,
+            'data' => $bugs->items(),
+            'total' => $bugs->total(),
+            'current_page' => $bugs->currentPage(),
+            'last_page' => $bugs->lastPage(),
             'capabilities' => BugzillaAuthService::getCapabilitiesPayload($user),
         ]);
     }

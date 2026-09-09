@@ -25,9 +25,15 @@ import {
 
 export const bugzillaApi = {
   // ── Projects ───────────────────────────────────────────────────────────────
-  getProjects: async (params?: { search?: string; status?: string; per_page?: number; page?: number }): Promise<PaginatedResponse<BugzillaProject>> => {
-    const res = await api.get<PaginatedResponse<BugzillaProject>>('/bugzilla/projects', { params });
-    return res.data;
+  getProjects: async (params?: { search?: string; status?: string; per_page?: number; page?: number }): Promise<any> => {
+    const res = await api.get<any>('/bugzilla/projects', { params });
+    const list = res.data?.projects || res.data?.data || (Array.isArray(res.data) ? res.data : []);
+    return {
+      projects: list,
+      data: list,
+      total: res.data?.total ?? list.length,
+      ...res.data,
+    };
   },
 
   getProject: async (id: number): Promise<ApiResponse<BugzillaProject>> => {
@@ -78,9 +84,18 @@ export const bugzillaApi = {
   },
 
   // ── Bugs ───────────────────────────────────────────────────────────────────
-  getBugs: async (params?: BugzillaBugListParams): Promise<PaginatedResponse<BugzillaBug>> => {
-    const res = await api.get<PaginatedResponse<BugzillaBug>>('/bugzilla/bugs', { params });
-    return res.data;
+  getBugs: async (params?: BugzillaBugListParams): Promise<any> => {
+    const res = await api.get<any>('/bugzilla/bugs', { params });
+    const paginator = res.data?.bugs || res.data;
+    const items = paginator?.data || (Array.isArray(paginator) ? paginator : []);
+    return {
+      data: items,
+      bugs: items,
+      total: paginator?.total ?? items.length,
+      current_page: paginator?.current_page ?? 1,
+      last_page: paginator?.last_page ?? 1,
+      ...res.data,
+    };
   },
 
   getBug: async (id: number): Promise<ApiResponse<BugzillaBug>> => {
