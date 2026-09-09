@@ -638,6 +638,55 @@ Route::middleware('auth:sanctum')->prefix('pm/bug-reports')->group(function () {
     Route::get('/', [\App\Http\Controllers\Api\BugReportController::class, 'index']);
 });
 
+Route::middleware('auth:sanctum')->prefix('bugzilla')->group(function () {
+    // Project management
+    Route::get('projects', [\App\Http\Controllers\Api\Bugzilla\BugzillaProjectController::class, 'index']);
+    Route::get('projects/unmapped-portal', [\App\Http\Controllers\Api\Bugzilla\BugzillaProjectController::class, 'unmappedPortalProjects']);
+    Route::post('projects', [\App\Http\Controllers\Api\Bugzilla\BugzillaProjectController::class, 'store']);
+    Route::post('projects/auto-create', [\App\Http\Controllers\Api\Bugzilla\BugzillaProjectController::class, 'autoCreate']);
+    Route::get('projects/{id}', [\App\Http\Controllers\Api\Bugzilla\BugzillaProjectController::class, 'show']);
+    Route::put('projects/{id}', [\App\Http\Controllers\Api\Bugzilla\BugzillaProjectController::class, 'update']);
+
+    // Component management
+    Route::get('projects/{projectId}/components', [\App\Http\Controllers\Api\Bugzilla\BugzillaComponentController::class, 'index']);
+    Route::post('projects/{projectId}/components', [\App\Http\Controllers\Api\Bugzilla\BugzillaComponentController::class, 'store']);
+    Route::put('components/{id}', [\App\Http\Controllers\Api\Bugzilla\BugzillaComponentController::class, 'update']);
+    Route::delete('components/{id}', [\App\Http\Controllers\Api\Bugzilla\BugzillaComponentController::class, 'destroy']);
+
+    // Bug management
+    Route::get('bugs', [\App\Http\Controllers\Api\Bugzilla\BugzillaBugController::class, 'index']);
+    Route::post('bugs/check-duplicates', [\App\Http\Controllers\Api\Bugzilla\BugzillaBugController::class, 'checkDuplicates']);
+    Route::post('bugs/bulk-update', [\App\Http\Controllers\Api\Bugzilla\BugzillaBugController::class, 'bulkUpdate']);
+    Route::post('bugs', [\App\Http\Controllers\Api\Bugzilla\BugzillaBugController::class, 'store']);
+    Route::get('bugs/{id}', [\App\Http\Controllers\Api\Bugzilla\BugzillaBugController::class, 'show']);
+    Route::put('bugs/{id}', [\App\Http\Controllers\Api\Bugzilla\BugzillaBugController::class, 'update']);
+    Route::delete('bugs/{id}', [\App\Http\Controllers\Api\Bugzilla\BugzillaBugController::class, 'destroy']);
+
+    // Comments
+    Route::get('bugs/{bugId}/comments', [\App\Http\Controllers\Api\Bugzilla\BugzillaCommentController::class, 'index']);
+    Route::post('bugs/{bugId}/comments', [\App\Http\Controllers\Api\Bugzilla\BugzillaCommentController::class, 'store']);
+
+    // Attachments
+    Route::post('bugs/{bugId}/attachments', [\App\Http\Controllers\Api\Bugzilla\BugzillaAttachmentController::class, 'store']);
+    Route::delete('attachments/{id}', [\App\Http\Controllers\Api\Bugzilla\BugzillaAttachmentController::class, 'destroy']);
+
+    // Dependencies
+    Route::post('bugs/{bugId}/dependencies', [\App\Http\Controllers\Api\Bugzilla\BugzillaDependencyController::class, 'store']);
+    Route::delete('dependencies/{id}', [\App\Http\Controllers\Api\Bugzilla\BugzillaDependencyController::class, 'destroy']);
+
+    // Watchers
+    Route::post('bugs/{bugId}/watch', [\App\Http\Controllers\Api\Bugzilla\BugzillaWatcherController::class, 'toggle']);
+
+    // Saved Searches
+    Route::get('saved-searches', [\App\Http\Controllers\Api\Bugzilla\BugzillaSavedSearchController::class, 'index']);
+    Route::post('saved-searches', [\App\Http\Controllers\Api\Bugzilla\BugzillaSavedSearchController::class, 'store']);
+    Route::delete('saved-searches/{id}', [\App\Http\Controllers\Api\Bugzilla\BugzillaSavedSearchController::class, 'destroy']);
+
+    // Reports & Dashboard metrics
+    Route::get('overview', [\App\Http\Controllers\Api\Bugzilla\BugzillaReportController::class, 'overview']);
+    Route::get('reports', [\App\Http\Controllers\Api\Bugzilla\BugzillaReportController::class, 'reports']);
+});
+
 Route::middleware('auth:sanctum')->prefix('pm-task-catalog')->group(function () {
     Route::get('/', [\App\Http\Controllers\Api\ProjectTaskCatalogController::class, 'index']);
     Route::post('/', [\App\Http\Controllers\Api\ProjectTaskCatalogController::class, 'store']);

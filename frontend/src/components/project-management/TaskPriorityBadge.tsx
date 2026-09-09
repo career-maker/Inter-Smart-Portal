@@ -33,7 +33,7 @@ export function TaskPriorityBadge({ priority, className = "", compact = false }:
     <span
       title={`Priority: ${priority}`}
       className={`inline-flex items-center justify-center ${
-        compact ? "w-6 h-5 px-0 text-center font-bold" : "min-w-[72px] px-2 py-0.5 font-bold"
+        compact ? "w-6 h-5 px-0 text-center font-bold" : "min-w-[92px] px-2.5 py-0.5 font-bold"
       } rounded text-[11.5px] border ${badgeStyle} ${className}`}
     >
       {label}

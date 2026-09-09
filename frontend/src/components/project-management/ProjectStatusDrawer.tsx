@@ -88,7 +88,7 @@ export function ProjectStatusDrawer({
     : project?.is_live || project?.status === "Completed" ? 100 : 0;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[9999] overflow-hidden bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200">
       <div className="absolute inset-0" onClick={onClose} />
 
       <div

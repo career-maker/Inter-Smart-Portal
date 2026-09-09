@@ -59,6 +59,27 @@ class CustomTeamPermission extends Model
                 'category' => 'Productivity',
                 'icon' => 'Clock',
             ],
+            [
+                'key' => 'bugzilla_viewer',
+                'name' => 'Bugzilla - Viewer',
+                'description' => 'Allows viewing Bugzilla projects, components, bugs, comments, attachments, history, and dependencies.',
+                'category' => 'Bugzilla Defect Management',
+                'icon' => 'Eye',
+            ],
+            [
+                'key' => 'bugzilla_reporter',
+                'name' => 'Bugzilla - Reporter',
+                'description' => 'Allows filing new bugs, editing reporter-owned reproduction details, and uploading bug attachments.',
+                'category' => 'Bugzilla Defect Management',
+                'icon' => 'FilePlus',
+            ],
+            [
+                'key' => 'bugzilla_developer',
+                'name' => 'Bugzilla - Developer',
+                'description' => 'Allows updating bug statuses, assigning defects, changing severities/priorities, adding comments, managing labels and resolving bugs.',
+                'category' => 'Bugzilla Defect Management',
+                'icon' => 'Code',
+            ],
         ];
     }
 

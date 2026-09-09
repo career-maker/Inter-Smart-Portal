@@ -97,6 +97,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/project-management/tasks/completed", label: "Completed Tasks" },
       { href: "/project-management/tasks/forecast", label: "Forecast Tasks" },
       { href: "/project-management/bug-reports", label: "Bug Reports" },
+      { href: "/project-management/bugzilla", label: "Bugzilla" },
       { href: "/project-management/hubstaff",       label: "Hubstaff", roles: ["Super Admin", "Team Lead"] },
       { href: "/project-management/task-catalog", label: "Task Catalog", roles: ["Super Admin", "HR"] },
     ],
@@ -114,6 +115,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/addons/leave-policy", label: "Leave Policy Management" },
       { href: "/addons/permissions", label: "Team & Role Permissions" },
       { href: "/project-management/bug-reports", label: "Bug Tracker & Reports" },
+      { href: "/project-management/bugzilla", label: "Bugzilla" },
     ],
   },
   {
@@ -185,6 +187,14 @@ const NAV_GROUPS: NavGroup[] = [
 ];
 
 function isItemVisible(item: NavItem, role: string, permissions: Record<string, boolean> = {}) {
+  if (item.href === "/project-management/bugzilla") {
+    if (role === "Super Admin") return true;
+    return Boolean(
+      permissions.bugzilla_viewer ||
+      permissions.bugzilla_reporter ||
+      permissions.bugzilla_developer
+    );
+  }
   if (item.href === "/project-management/tasks" && permissions.task_cross_team_view) {
     return true;
   }

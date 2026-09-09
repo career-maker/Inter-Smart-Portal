@@ -224,6 +224,8 @@ export default function PmAddonsPage() {
                     <div className="p-3 rounded-2xl bg-purple-50 dark:bg-purple-950/80 text-[#56348f] dark:text-purple-300 shrink-0">
                       {addon.key === "bug_tracker" ? (
                         <Bug className="w-6 h-6" />
+                      ) : addon.key === "bugzilla" ? (
+                        <Bug className="w-6 h-6 text-rose-600 dark:text-rose-400" />
                       ) : addon.key === "leave_policy" ? (
                         <CalendarCheck className="w-6 h-6" />
                       ) : addon.key === "permissions" ? (
@@ -443,7 +445,25 @@ export default function PmAddonsPage() {
                     </div>
 
                     {/* Save Changes Footer */}
-                    <div className="flex items-center justify-end pt-3 border-t border-slate-100 dark:border-slate-800">
+                    <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+                      {addon.key === "bugzilla" ? (
+                        <div className="flex items-center gap-2">
+                          <Link
+                            href="/project-management/bugzilla"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                          >
+                            <Settings2 className="w-3.5 h-3.5" />
+                            Open Bugzilla
+                          </Link>
+                          <Link
+                            href="/addons/permissions"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                          >
+                            <ShieldCheck className="w-3.5 h-3.5" />
+                            Capabilities
+                          </Link>
+                        </div>
+                      ) : <div />}
                       <button
                         type="button"
                         onClick={() => handleSaveTeams(addon.id)}

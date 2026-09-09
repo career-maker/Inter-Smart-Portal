@@ -391,7 +391,17 @@ export function TaskTrackerTable({
               : "justify-start"
           }`}
         >
-          <span>{label}</span>
+          {field === "priority" ? (
+            <span className="px-1.5 py-0.5 rounded text-[11px] font-black uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/80 dark:text-amber-300 dark:border-amber-700 shadow-2xs">
+              {label}
+            </span>
+          ) : field === "status" ? (
+            <span className="px-1.5 py-0.5 rounded text-[11px] font-black uppercase tracking-wider bg-indigo-100 text-indigo-900 border border-indigo-300 dark:bg-indigo-950/80 dark:text-indigo-300 dark:border-indigo-700 shadow-2xs">
+              {label}
+            </span>
+          ) : (
+            <span>{label}</span>
+          )}
           <span className="inline-flex shrink-0">
             {isActive ? (
               sortDirection === "asc" ? (
@@ -415,7 +425,7 @@ export function TaskTrackerTable({
           <thead>
             <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-800/50 whitespace-nowrap task-table-header">
               {renderSortHeader("project", "PROJECT", "left", "px-3")}
-              {renderSortHeader("priority", "PTY", "center", "min-w-[84px]")}
+              {renderSortHeader("priority", "PTY", "center", "w-[108px] min-w-[108px]")}
               {renderSortHeader("task", "SUB PHASE / TASK", "left", "px-3")}
               {showAssigneesCol && renderSortHeader("assignees", "ASSIGNEES", "left", "px-3")}
               {renderSortHeader("pc", "PC", "left")}
@@ -508,7 +518,7 @@ export function TaskTrackerTable({
                   </td>
 
                   {/* 2. PRIORITY (Pty) */}
-                  <td className="py-2 px-1.5 border-r border-slate-200/70 dark:border-slate-800/70 whitespace-nowrap text-center">
+                  <td className="py-2 px-1 border-r border-slate-200/70 dark:border-slate-800/70 whitespace-nowrap text-center w-[108px] min-w-[108px]">
                     {canEdit && onPriorityChange ? (
                       <div className="inline-flex items-center justify-center">
                         <select
