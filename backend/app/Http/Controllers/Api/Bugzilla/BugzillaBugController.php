@@ -250,8 +250,15 @@ class BugzillaBugController extends Controller
             $bzProject->components()->create(['name' => 'General', 'status' => 'active']);
         }
 
-        // Determine assignee: provided, or component default, or project default
+        // Determine assignee: provided, or task primary assignee, or component default, or project default
         $assigneeId = $validated['assignee_id'] ?? null;
+        if (!$assigneeId && !empty($validated['task_id'])) {
+            $task = \App\Models\ProjectTask::with('assignees')->find($validated['task_id']);
+            if ($task && $task->assignees && $task->assignees->isNotEmpty()) {
+                $primary = $task->assignees->firstWhere('pivot.is_primary', true) ?? $task->assignees->first();
+                $assigneeId = $primary?->id;
+            }
+        }
         if (!$assigneeId && !empty($validated['component_id'])) {
             $comp = \App\Models\BugzillaComponent::find($validated['component_id']);
             $assigneeId = $comp?->default_assignee_id;

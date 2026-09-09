@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useBugzillaAuth } from "@/hooks/useBugzillaAuth";
 import { PageLoader } from "@/components/ui/PageLoader";
+import { ReportBugDrawer, openReportBugDrawer } from "@/components/bugzilla/ReportBugDrawer";
 
 const SUB_NAV_ITEMS = [
   { href: "/project-management/bugsmart/overview", label: "Overview", icon: LayoutDashboard },
@@ -98,13 +99,14 @@ export default function BugzillaLayout({ children }: { children: React.ReactNode
             {/* Quick Actions */}
             <div className="flex items-center gap-2">
               {canReport && (
-                <Link
-                  href="/project-management/bugsmart/bugs/new"
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 dark:bg-rose-600 dark:hover:bg-rose-500 shadow-sm transition-all"
+                <button
+                  type="button"
+                  onClick={() => openReportBugDrawer()}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 dark:bg-rose-600 dark:hover:bg-rose-500 shadow-sm transition-all cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
                   Report Bug
-                </Link>
+                </button>
               )}
             </div>
           </div>
@@ -139,6 +141,9 @@ export default function BugzillaLayout({ children }: { children: React.ReactNode
 
       {/* ── Main Content Area ── */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">{children}</main>
+
+      {/* ── Global Side Drawer for Report Bug ── */}
+      <ReportBugDrawer />
     </div>
   );
 }

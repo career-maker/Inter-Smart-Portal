@@ -34,6 +34,7 @@ import { BugzillaSeverityBadge } from "@/components/bugzilla/BugzillaSeverityBad
 import { BugzillaPriorityBadge } from "@/components/bugzilla/BugzillaPriorityBadge";
 import { PageLoader } from "@/components/ui/PageLoader";
 import { useBugzillaAuth } from "@/hooks/useBugzillaAuth";
+import { openReportBugDrawer } from "@/components/bugzilla/ReportBugDrawer";
 
 const STATUS_COLORS: Record<string, string> = {
   NEW: "#0284c7",
@@ -134,13 +135,14 @@ export default function BugzillaOverviewPage() {
             Refresh
           </button>
           {canReport && (
-            <Link
-              href="/project-management/bugsmart/bugs/new"
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-xl text-white bg-rose-600 hover:bg-rose-700 transition-colors shadow-xs"
+            <button
+              type="button"
+              onClick={() => openReportBugDrawer()}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-xl text-white bg-rose-600 hover:bg-rose-700 transition-colors shadow-xs cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
               New Bug
-            </Link>
+            </button>
           )}
         </div>
       </div>

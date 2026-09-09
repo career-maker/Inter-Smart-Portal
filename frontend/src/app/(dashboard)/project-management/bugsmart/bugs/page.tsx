@@ -34,6 +34,7 @@ import { BugzillaPriorityBadge } from "@/components/bugzilla/BugzillaPriorityBad
 import { PageLoader } from "@/components/ui/PageLoader";
 import { useBugzillaAuth } from "@/hooks/useBugzillaAuth";
 import { useAuthStore } from "@/store/auth";
+import { openReportBugDrawer } from "@/components/bugzilla/ReportBugDrawer";
 
 const QUICK_FILTERS = [
   { id: "all", label: "All Bugs" },
@@ -306,13 +307,14 @@ export default function BugzillaBugsListPage() {
             Refresh
           </button>
           {canReport && (
-            <Link
-              href="/project-management/bugsmart/bugs/new"
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-xl text-white bg-rose-600 hover:bg-rose-700 transition-colors shadow-xs"
+            <button
+              type="button"
+              onClick={() => openReportBugDrawer()}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-xl text-white bg-rose-600 hover:bg-rose-700 transition-colors shadow-xs cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
               Report Bug
-            </Link>
+            </button>
           )}
         </div>
       </div>
@@ -563,6 +565,16 @@ export default function BugzillaBugsListPage() {
                       <p className="text-[11px] text-slate-400">
                         Try modifying your search or filters to see more results.
                       </p>
+                      {canReport && (
+                        <button
+                          type="button"
+                          onClick={() => openReportBugDrawer()}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl text-white bg-rose-600 hover:bg-rose-700 transition-colors shadow-2xs mt-2 cursor-pointer"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          Report Defect
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

@@ -33,6 +33,7 @@ import { useBugzillaAuth } from "@/hooks/useBugzillaAuth";
 import { BugzillaStatusBadge } from "@/components/bugzilla/BugzillaStatusBadge";
 import { BugzillaSeverityBadge } from "@/components/bugzilla/BugzillaSeverityBadge";
 import { BugzillaPriorityBadge } from "@/components/bugzilla/BugzillaPriorityBadge";
+import { openReportBugDrawer } from "@/components/bugzilla/ReportBugDrawer";
 import { TaskPriorityBadge } from "@/components/project-management/TaskPriorityBadge";
 import { TaskStatusBadge } from "@/components/project-management/TaskStatusBadge";
 import { ProjectStatusBadge } from "@/components/project-management/ProjectStatusBadge";
@@ -508,13 +509,14 @@ export default function BugSmartProjectsPage() {
 
               <div className="flex items-center gap-2 shrink-0">
                 {canReport && (
-                  <Link
-                    href={`/project-management/bugsmart/bugs/new?portal_project_id=${selectedProject.portal_project_id}`}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl text-white bg-rose-600 hover:bg-rose-700 transition-colors shadow-2xs"
+                  <button
+                    type="button"
+                    onClick={() => openReportBugDrawer(selectedProject.portal_project_id)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl text-white bg-rose-600 hover:bg-rose-700 transition-colors shadow-2xs cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     Report Bug
-                  </Link>
+                  </button>
                 )}
                 <Link
                   href={`/project-management/projects/${selectedProject.portal_project_id}`}
@@ -607,13 +609,14 @@ export default function BugSmartProjectsPage() {
                       />
                     </div>
                     {canReport && (
-                      <Link
-                        href={`/project-management/bugsmart/bugs/new?portal_project_id=${selectedProject.portal_project_id}`}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-xl text-white bg-rose-600 hover:bg-rose-700 shrink-0"
+                      <button
+                        type="button"
+                        onClick={() => openReportBugDrawer(selectedProject.portal_project_id)}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-xl text-white bg-rose-600 hover:bg-rose-700 shrink-0 cursor-pointer"
                       >
                         <Plus className="w-3.5 h-3.5" />
                         Report Bug
-                      </Link>
+                      </button>
                     )}
                   </div>
 
@@ -624,13 +627,14 @@ export default function BugSmartProjectsPage() {
                         {bugSearch ? "No bugs match your search." : "No defects reported for this project yet."}
                       </div>
                       {canReport && !bugSearch && (
-                        <Link
-                          href={`/project-management/bugsmart/bugs/new?portal_project_id=${selectedProject.portal_project_id}`}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl text-white bg-rose-600 hover:bg-rose-700"
+                        <button
+                          type="button"
+                          onClick={() => openReportBugDrawer(selectedProject.portal_project_id)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl text-white bg-rose-600 hover:bg-rose-700 cursor-pointer"
                         >
                           <Plus className="w-3.5 h-3.5" />
                           Report First Bug
-                        </Link>
+                        </button>
                       )}
                     </div>
                   ) : (
@@ -736,12 +740,29 @@ export default function BugSmartProjectsPage() {
                               </span>
                             </div>
 
-                            {(t.bugs_count || 0) > 0 && (
-                              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-semibold">
-                                <Bug className="w-2.5 h-2.5" />
-                                {t.bugs_count} defects
-                              </span>
-                            )}
+                            <div className="flex items-center gap-2">
+                              {(t.bugs_count || 0) > 0 && (
+                                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-semibold">
+                                  <Bug className="w-2.5 h-2.5" />
+                                  {t.bugs_count} defects
+                                </span>
+                              )}
+                              {canReport && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    openReportBugDrawer(selectedProject.portal_project_id, t.id);
+                                  }}
+                                  className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-lg text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-[11px] font-semibold transition-colors cursor-pointer"
+                                  title="Report defect for this task"
+                                >
+                                  <Plus className="w-3 h-3" />
+                                  <span>Bug</span>
+                                </button>
+                              )}
+                            </div>
                           </div>
                         </Link>
                       ))}
