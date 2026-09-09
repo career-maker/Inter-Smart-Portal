@@ -453,14 +453,14 @@ export default function PmAddonsPage() {
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                           >
                             <Settings2 className="w-3.5 h-3.5" />
-                            Open Bugzilla
+                            Open bugSmart
                           </Link>
                           <Link
-                            href="/addons/permissions"
+                            href="/project-management/bugzilla/permissions"
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                           >
                             <ShieldCheck className="w-3.5 h-3.5" />
-                            Capabilities
+                            Permissions
                           </Link>
                         </div>
                       ) : <div />}

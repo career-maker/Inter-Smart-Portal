@@ -253,7 +253,7 @@ export default function NewBugzillaBugPage() {
           </Link>
           <div>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <span>Report New Bugzilla Defect</span>
+              <span>Report New bugSmart Defect</span>
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">
               Submit an issue with rich reproduction steps, system environment, and live duplicate checking.

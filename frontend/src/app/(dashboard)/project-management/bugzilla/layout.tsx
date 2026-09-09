@@ -23,6 +23,7 @@ const SUB_NAV_ITEMS = [
   { href: "/project-management/bugzilla/projects", label: "Projects & Components", icon: FolderTree },
   { href: "/project-management/bugzilla/reports", label: "Reports", icon: BarChart3 },
   { href: "/project-management/bugzilla/saved-searches", label: "Saved Searches", icon: BookmarkCheck },
+  { href: "/project-management/bugzilla/permissions", label: "Team Permissions", icon: ShieldCheck },
 ];
 
 export default function BugzillaLayout({ children }: { children: React.ReactNode }) {
@@ -38,12 +39,12 @@ export default function BugzillaLayout({ children }: { children: React.ReactNode
       <div className="max-w-4xl mx-auto p-6 sm:p-12">
         <div className="p-8 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-200 text-center space-y-4">
           <ShieldAlert className="w-12 h-12 mx-auto text-amber-600 dark:text-amber-400" />
-          <h2 className="text-xl font-bold">Bugzilla Access Restricted</h2>
+          <h2 className="text-xl font-bold">bugSmart Access Restricted</h2>
           <p className="text-sm max-w-md mx-auto text-amber-800/90 dark:text-amber-300/90">
-            Bugzilla is either not enabled for your team, or your account does not have an active capability (Viewer, Reporter, or Developer).
+            bugSmart is either not enabled for your team, or your account does not have an active capability (Viewer, Reporter, or Developer).
           </p>
           <p className="text-xs text-amber-700/80 dark:text-amber-400/80">
-            Please contact a Super Administrator to enable the Bugzilla add-on for your department in Add-ons → All Add-ons Directory.
+            Please contact a Super Administrator to enable the bugSmart add-on for your department in Add-ons → All Add-ons Directory.
           </p>
           <div className="pt-2">
             <Link
@@ -72,7 +73,7 @@ export default function BugzillaLayout({ children }: { children: React.ReactNode
               <div>
                 <div className="flex items-center gap-2.5">
                   <h1 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-tight">
-                    Bugzilla Defect Management
+                    bugSmart Defect Management
                   </h1>
                   <span
                     className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full border ${

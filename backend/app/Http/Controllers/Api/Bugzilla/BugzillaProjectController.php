@@ -169,11 +169,18 @@ class BugzillaProjectController extends Controller
         }
 
         return response()->json([
+            'success' => true,
             'message' => "Auto-creation complete. Created: {$createdCount}, Skipped (already mapped): {$skippedCount}, Failures: " . count($errors),
             'created' => $createdCount,
             'skipped' => $skippedCount,
             'failed' => count($errors),
             'errors' => $errors,
+            'data' => [
+                'created' => $createdCount,
+                'skipped' => $skippedCount,
+                'failed' => count($errors),
+                'errors' => $errors,
+            ],
         ]);
     }
 
