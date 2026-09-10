@@ -7,6 +7,7 @@ import { useAuthStore } from "@/store/auth";
 interface NetworkErrorWithGameProps {
   onRetry?: () => void;
   errorMessage?: string;
+  standalone?: boolean;
 }
 
 interface LeaderboardPlayer {
@@ -19,7 +20,7 @@ interface LeaderboardPlayer {
   avatarText?: string;
 }
 
-export function NetworkErrorWithGame({ onRetry, errorMessage }: NetworkErrorWithGameProps) {
+export function NetworkErrorWithGame({ onRetry, errorMessage, standalone = false }: NetworkErrorWithGameProps) {
   const { user } = useAuthStore();
   const [retrying, setRetrying] = useState(false);
   const [score, setScore] = useState(0);
@@ -530,18 +531,27 @@ export function NetworkErrorWithGame({ onRetry, errorMessage }: NetworkErrorWith
   return (
     <div className="flex justify-center items-center min-h-[75vh] p-4">
       <div className="max-w-2xl w-full bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl text-center relative overflow-hidden transition-all">
-        {/* Network Status Badge */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300 border border-rose-200/80 dark:border-rose-500/30 mb-3 shadow-2xs">
-          <WifiOff className="w-3.5 h-3.5" />
-          <span>Server Connection Interrupted</span>
-        </div>
+        {/* Network Status / Header Badge */}
+        {standalone ? (
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-purple-50 text-purple-700 dark:bg-purple-500/15 dark:text-purple-300 border border-purple-200/80 dark:border-purple-500/30 mb-3 shadow-2xs">
+            <Gamepad2 className="w-3.5 h-3.5" />
+            <span>Workplace Break</span>
+          </div>
+        ) : (
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300 border border-rose-200/80 dark:border-rose-500/30 mb-3 shadow-2xs">
+            <WifiOff className="w-3.5 h-3.5" />
+            <span>Server Connection Interrupted</span>
+          </div>
+        )}
 
         {/* Header Title */}
         <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-          Unable to Reach Workplace Server
+          {standalone ? "Workplace Runner" : "Unable to Reach Workplace Server"}
         </h2>
         <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-md mx-auto mt-1.5">
-          {errorMessage || "We couldn't connect to the employee portal. While your network re-establishes, enjoy the offline runner game!"}
+          {standalone
+            ? "Take a quick breather, jump over the office bugs, and set a new workplace high score!"
+            : (errorMessage || "We couldn't connect to the employee portal. While your network re-establishes, enjoy the offline runner game!")}
         </p>
 
         {/* Embedded Chrome-style Offline Runner Game Canvas */}
@@ -581,20 +591,26 @@ export function NetworkErrorWithGame({ onRetry, errorMessage }: NetworkErrorWith
 
         {/* Action Controls */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-1 mb-5">
-          <button
-            onClick={handleRetry}
-            disabled={retrying}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 bg-[#56348f] hover:bg-[#472a77] text-white text-sm font-bold rounded-xl shadow-md shadow-purple-900/20 transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
-          >
-            <RefreshCw className={`w-4 h-4 ${retrying ? "animate-spin" : ""}`} />
-            <span>{retrying ? "Connecting..." : "Try Reconnecting"}</span>
-          </button>
+          {!standalone && (
+            <button
+              onClick={handleRetry}
+              disabled={retrying}
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 bg-[#56348f] hover:bg-[#472a77] text-white text-sm font-bold rounded-xl shadow-md shadow-purple-900/20 transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+            >
+              <RefreshCw className={`w-4 h-4 ${retrying ? "animate-spin" : ""}`} />
+              <span>{retrying ? "Connecting..." : "Try Reconnecting"}</span>
+            </button>
+          )}
 
           <button
             onClick={triggerJump}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700/80 text-slate-800 dark:text-slate-200 text-sm font-semibold rounded-xl border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
+            className={`w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 text-sm font-bold rounded-xl transition-all active:scale-95 cursor-pointer ${
+              standalone
+                ? "bg-[#56348f] hover:bg-[#472a77] text-white shadow-md shadow-purple-900/20"
+                : "bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700/80 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700"
+            }`}
           >
-            <ArrowUp className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+            <ArrowUp className={`w-4 h-4 ${standalone ? "text-white" : "text-purple-600 dark:text-purple-400"}`} />
             <span>{gameState === "playing" ? "Jump!" : "Start Game"}</span>
           </button>
         </div>
@@ -710,11 +726,18 @@ export function NetworkErrorWithGame({ onRetry, errorMessage }: NetworkErrorWith
           </div>
         </div>
 
-        {/* Auto-reconnect note */}
-        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-4 flex items-center justify-center gap-1.5">
-          <Sparkles className="w-3 h-3 text-emerald-500" />
-          <span>Will automatically reconnect when your internet is back online</span>
-        </p>
+        {/* Footer note */}
+        {standalone ? (
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-4 flex items-center justify-center gap-1.5">
+            <Sparkles className="w-3 h-3 text-purple-500" />
+            <span>Tip: Space or ↑ to Jump. Beat your teammates&apos; high scores!</span>
+          </p>
+        ) : (
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-4 flex items-center justify-center gap-1.5">
+            <Sparkles className="w-3 h-3 text-emerald-500" />
+            <span>Will automatically reconnect when your internet is back online</span>
+          </p>
+        )}
       </div>
     </div>
   );
