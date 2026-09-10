@@ -51,7 +51,7 @@ interface ChatAttachment {
   id?: number;
   file_path?: string;
   file_url: string;
-  original_name: string;
+  original_name?: string | null;
   file_type?: string;
   file_size?: number;
   created_at?: string;
@@ -1155,14 +1155,14 @@ export function DirectChatModule() {
                         {msg.attachments && msg.attachments.length > 0 && (
                           <div className={`space-y-1.5 ${msg.message ? "mt-2" : ""}`}>
                             {msg.attachments.map((att, attIdx) => {
-                              const isImg = att.file_type?.startsWith("image/") || att.original_name.match(/\.(png|jpe?g|gif|webp|svg)$/i);
+                              const isImg = att.file_type?.startsWith("image/") || att.original_name?.match(/\.(png|jpe?g|gif|webp|svg)$/i);
 
                               if (isImg) {
                                 return (
                                   <div key={att.id || attIdx} className="relative overflow-hidden rounded-xl max-w-sm border border-black/10 dark:border-white/10">
                                     <img
                                       src={att.file_url}
-                                      alt={att.original_name}
+                                      alt={att.original_name ?? undefined}
                                       onClick={() => setPreviewImage(att.file_url)}
                                       className="max-h-60 w-auto rounded-xl object-cover bg-black/5 cursor-pointer hover:opacity-95"
                                     />
@@ -1182,12 +1182,12 @@ export function DirectChatModule() {
                                   href={isSending ? "#" : att.file_url}
                                   target={isSending ? "_self" : "_blank"}
                                   rel="noopener noreferrer"
-                                  download={att.original_name}
+                                  download={att.original_name ?? undefined}
                                   className="flex items-center gap-2.5 p-2 bg-black/5 dark:bg-white/5 hover:bg-black/10 rounded-xl text-xs transition-colors"
                                 >
                                   <FileText className="w-4 h-4 text-[#56348f] shrink-0" />
                                   <div className="min-w-0 flex-1">
-                                    <p className="truncate font-semibold text-xs">{att.original_name}</p>
+                                    <p className="truncate font-semibold text-xs">{att.original_name ?? ""}</p>
                                     <p className="text-[10px] opacity-70">{formatFileSize(att.file_size)}</p>
                                   </div>
                                   <Download className="w-3.5 h-3.5 opacity-60 shrink-0" />
