@@ -41,6 +41,8 @@ import {
   Server,
   Users,
   ShieldCheck,
+  Calendar,
+  ExternalLink,
 } from "lucide-react";
 import Link from "next/link";
 import { format, parseISO } from "date-fns";
@@ -67,70 +69,21 @@ function WelcomeRolePill({ role }: { role?: string }) {
   const normalized = (role || "").trim().toLowerCase();
 
   let roleLabel = role || "Employee";
-  let IconComponent = Users;
-  let themeStyles = {
-    gradient: "from-emerald-500/20 via-teal-400/10 to-emerald-600/20 hover:from-emerald-500/30 hover:to-emerald-500/30",
-    border: "border-emerald-400/35 hover:border-emerald-300/60",
-    text: "text-emerald-100",
-    iconColor: "text-emerald-300 drop-shadow-[0_0_8px_rgba(52,211,153,0.7)]",
-    dotBg: "bg-emerald-400 shadow-[0_0_8px_#10b981]",
-    pingBg: "bg-emerald-400",
-    glow: "shadow-[0_2px_12px_rgba(0,0,0,0.3),0_0_16px_rgba(16,185,129,0.22),inset_0_1px_1px_rgba(255,255,255,0.35)]",
-  };
-
   if (normalized.includes("super")) {
     roleLabel = "Super Admin";
-    IconComponent = Crown;
-    themeStyles = {
-      gradient: "from-amber-500/20 via-yellow-400/10 to-amber-600/20 hover:from-amber-500/30 hover:to-amber-500/30",
-      border: "border-amber-400/40 hover:border-amber-300/60",
-      text: "text-amber-100",
-      iconColor: "text-amber-300 drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]",
-      dotBg: "bg-amber-400 shadow-[0_0_8px_#f59e0b]",
-      pingBg: "bg-amber-400",
-      glow: "shadow-[0_2px_12px_rgba(0,0,0,0.3),0_0_18px_rgba(245,158,11,0.25),inset_0_1px_1px_rgba(255,255,255,0.35)]",
-    };
   } else if (normalized.includes("lead")) {
     roleLabel = "Team Lead";
-    IconComponent = Sparkles;
-    themeStyles = {
-      gradient: "from-purple-500/20 via-indigo-400/10 to-purple-600/20 hover:from-purple-500/30 hover:to-purple-500/30",
-      border: "border-purple-400/40 hover:border-purple-300/60",
-      text: "text-purple-100",
-      iconColor: "text-purple-300 drop-shadow-[0_0_8px_rgba(192,132,252,0.8)]",
-      dotBg: "bg-purple-400 shadow-[0_0_8px_#a855f7]",
-      pingBg: "bg-purple-400",
-      glow: "shadow-[0_2px_12px_rgba(0,0,0,0.3),0_0_18px_rgba(168,85,247,0.25),inset_0_1px_1px_rgba(255,255,255,0.35)]",
-    };
-  } else if (normalized.includes("admin") || normalized.includes("hr") || normalized.includes("manager")) {
-    roleLabel = role || "Administrator";
-    IconComponent = ShieldCheck;
-    themeStyles = {
-      gradient: "from-sky-500/20 via-blue-400/10 to-sky-600/20 hover:from-sky-500/30 hover:to-sky-500/30",
-      border: "border-sky-400/40 hover:border-sky-300/60",
-      text: "text-sky-100",
-      iconColor: "text-sky-300 drop-shadow-[0_0_8px_rgba(56,189,248,0.8)]",
-      dotBg: "bg-sky-400 shadow-[0_0_8px_#0ea5e9]",
-      pingBg: "bg-sky-400",
-      glow: "shadow-[0_2px_12px_rgba(0,0,0,0.3),0_0_18px_rgba(14,165,233,0.25),inset_0_1px_1px_rgba(255,255,255,0.35)]",
-    };
+  } else if (normalized.includes("admin")) {
+    roleLabel = "Administrator";
+  } else if (normalized.includes("hr")) {
+    roleLabel = "HR Manager";
   }
 
   return (
-    <span
-      className={`relative inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10.5px] sm:text-[11px] font-bold tracking-[0.06em] uppercase bg-gradient-to-r ${themeStyles.gradient} ${themeStyles.text} border ${themeStyles.border} backdrop-blur-md ${themeStyles.glow} transition-all duration-300 hover:scale-[1.03] select-none shrink-0 overflow-hidden group/role-pill`}
-    >
-      {/* Top subtle highlight reflection line */}
-      <span className="absolute inset-x-2 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent pointer-events-none" />
-      
-      <IconComponent className={`w-3.5 h-3.5 shrink-0 ${themeStyles.iconColor}`} />
-      <span className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)]">{roleLabel}</span>
-      
-      {/* Ambient Pulsing Jewel Dot */}
-      <span className="relative flex h-2 w-2 shrink-0 items-center justify-center">
-        <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-60 ${themeStyles.pingBg}`} />
-        <span className={`relative inline-flex rounded-full h-1.5 w-1.5 ${themeStyles.dotBg}`} />
-      </span>
+    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-[#f3e8ff] dark:bg-[#2b1055]/80 border border-[#d8b4fe] dark:border-[#a855f7]/40 text-[#6b21a8] dark:text-[#f3e8ff] shadow-2xs dark:shadow-[0_0_12px_rgba(168,85,247,0.25)] shrink-0 transition-transform duration-200 hover:scale-105 select-none">
+      <Users className="w-3.5 h-3.5 shrink-0 text-[#8b5cf6] dark:text-[#c084fc]" />
+      <span className="tracking-wider">{roleLabel}</span>
+      <span className="w-2 h-2 rounded-full bg-[#a855f7] dark:bg-[#c084fc] shadow-[0_0_6px_rgba(192,132,252,0.9)] shrink-0 ml-0.5" />
     </span>
   );
 }
@@ -382,22 +335,16 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* ─────────────────────────────────────────────────────────────────────────────
-          KEKA-STYLE WELCOME HERO BANNER (TOP OF DASHBOARD FOR ALL USERS)
+          WELCOME HERO BANNER (TOP OF DASHBOARD FOR ALL USERS)
       ───────────────────────────────────────────────────────────────────────────── */}
       <div
-        id="keka-welcome-hero-banner"
-        style={{
-          ...(!isBannerVideo
-            ? {
-                backgroundImage: `linear-gradient(to right, rgba(12, 24, 45, 0.92) 0%, rgba(15, 23, 42, 0.72) 50%, rgba(12, 24, 45, 0.92) 100%), var(--portal-welcome-banner, url('${welcomeBannerMedia}'))`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-              }
-            : { backgroundColor: "#0c182d" }),
-          fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-        }}
-        className="relative rounded-md overflow-hidden shadow-xl p-6 sm:p-8 min-h-[160px] flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 border border-white/15 select-none"
+        id="welcome-hero-banner"
+        className="relative rounded-[28px] overflow-hidden p-6 sm:p-7 md:p-8 min-h-[175px] flex flex-col justify-between gap-6 select-none transition-all duration-300
+          bg-white dark:bg-[#060c18]
+          border border-slate-200/90 dark:border-blue-900/40
+          shadow-[0_4px_25px_rgba(0,0,0,0.03)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.7)]"
       >
+        {/* Optional Custom Video Banner Fallback */}
         {isBannerVideo && (
           <>
             <video
@@ -421,247 +368,202 @@ export default function DashboardPage() {
             />
           </>
         )}
-        <style>{`
-          #keka-welcome-hero-banner, #keka-welcome-hero-banner * {
-            box-sizing: border-box;
-          }
-          #keka-welcome-hero-banner a,
-          #keka-welcome-hero-banner h1,
-          #keka-welcome-hero-banner h2,
-          #keka-welcome-hero-banner h3 {
-            color: #ffffff !important;
-          }
-          #keka-welcome-hero-banner .hero-user-name,
-          #keka-welcome-hero-banner .hero-user-name * {
-            color: #ffffff !important;
-          }
-          #keka-welcome-hero-banner .hero-subtitle,
-          #keka-welcome-hero-banner .hero-subtitle * {
-            color: rgba(255, 255, 255, 0.95) !important;
-          }
-          #keka-welcome-hero-banner .hero-datetime,
-          #keka-welcome-hero-banner .hero-datetime * {
-            color: rgba(255, 255, 255, 0.90) !important;
-          }
-          #keka-welcome-hero-banner .hero-growing-title {
-            color: #fde047 !important;
-          }
-          #keka-welcome-hero-banner .hero-stat-box {
-            background-color: rgba(0, 0, 0, 0.6) !important;
-            border-color: rgba(255, 255, 255, 0.15) !important;
-          }
-          #keka-welcome-hero-banner .hero-stat-value {
-            color: #ffffff !important;
-          }
-          #keka-welcome-hero-banner .hero-stat-label {
-            color: #cbd5e1 !important;
-          }
-          #keka-welcome-hero-banner .status-punched-in,
-          #keka-welcome-hero-banner .status-punched-in * {
-            color: #6ee7b7 !important;
-          }
-          #keka-welcome-hero-banner .status-punched-out,
-          #keka-welcome-hero-banner .status-punched-out * {
-            color: #fde047 !important;
-          }
-          #keka-welcome-hero-banner .status-not-punched,
-          #keka-welcome-hero-banner .status-not-punched * {
-            color: #fecdd3 !important;
-          }
-        `}</style>
 
-        {/* Left: Avatar, Name, Role, Location, Attendance Status & Clock */}
-        <div className="flex items-center gap-5 sm:gap-6 z-10 min-w-0">
-          <div className="relative shrink-0">
-            <RoyalAvatar
-              src={profile.profile_photo_path}
-              name={`${profile.first_name} ${profile.last_name || ""}`.trim()}
-              userId={user?.id || profile?.id}
-              employeeCode={profile?.employee_code || (user as any)?.employee_code}
-              className="w-20 h-20 sm:w-22 sm:h-22 rounded-full border-2 border-white/80 shadow-2xl shrink-0"
-              textClass="text-white text-xl font-bold"
-            />
-          </div>
+        {/* Building Facade Background (Right Side) */}
+        {!isBannerVideo && (
+          <div
+            className="absolute right-0 top-0 bottom-0 w-full sm:w-2/3 lg:w-1/2 pointer-events-none bg-right bg-cover opacity-35 dark:opacity-30 mix-blend-multiply dark:mix-blend-screen"
+            style={{
+              backgroundImage: `url('${welcomeBannerMedia}')`,
+              maskImage: "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.3) 25%, rgba(0,0,0,1) 85%)",
+              WebkitMaskImage: "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.3) 25%, rgba(0,0,0,1) 85%)",
+            }}
+          />
+        )}
 
-          <div className="min-w-0 space-y-1.5">
-            {/* User Full Name with external link icon & achievement badge */}
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <Link
-                href="/profile"
-                style={{ color: "#ffffff" }}
-                className="hero-user-name text-2xl sm:text-3xl font-bold text-white hover:text-amber-300 transition-colors flex items-center gap-2 group truncate cursor-pointer"
-              >
-                <span style={{ color: "#ffffff" }} className="truncate font-bold">
-                  {profile.first_name} {profile.last_name || ""}
-                </span>
-                <svg className="w-4 h-4 opacity-80 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all text-white shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" strokeLinecap="round" strokeLinejoin="round"/>
-                  <polyline points="15 3 21 3 21 9" strokeLinecap="round" strokeLinejoin="round"/>
-                  <line x1="10" y1="14" x2="21" y2="3" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </Link>
-
-              <WelcomeRolePill role={user?.role || profile?.role} />
-
-              {/* Active Achievement Animating Trophy Badge */}
-              {hasActiveRec && profile.active_recognition && (
-                <button
-                  onClick={() => setShowRecognitionModal(true)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-amber-500/25 via-yellow-500/20 to-amber-500/25 hover:from-amber-500/35 hover:to-amber-500/35 text-amber-300 border border-amber-400/50 rounded-full text-xs font-black shadow-[0_0_14px_rgba(245,158,11,0.35)] transition-all transform hover:scale-105 cursor-pointer shrink-0"
-                  title={`${profile.active_recognition.title} - Click to view certificate`}
-                >
-                  <div className="w-4 h-4 flex items-center justify-center shrink-0">
-                    <DotLottiePlayer
-                      src="https://assets2.lottiefiles.com/packages/lf20_touohxv0.json"
-                      background="transparent"
-                      speed={1}
-                      style={{ width: 18, height: 18 }}
-                      loop
-                      autoplay
-                    />
-                  </div>
-                  <span className="tracking-wide uppercase text-[10.5px] font-black drop-shadow-sm">
-                    {profile.active_recognition.title}
-                  </span>
-                </button>
-              )}
-            </div>
-
-            {/* Subtitle: Role • Location with Exact Proxima Nova 13px / 20px typography */}
-            <p
-              style={{
-                fontFamily: '"Proxima Nova", sans-serif',
-                fontSize: "13px",
-                lineHeight: "20px",
-                color: "rgba(255, 255, 255, 0.95)",
-                fontWeight: 400
-              }}
-              className="hero-subtitle flex items-center gap-2 flex-wrap"
-            >
-              <span style={{ color: "rgba(255, 255, 255, 0.95)" }}>{profile.designation || user?.role || "Member"}</span>
-              <span style={{ color: "rgba(255, 255, 255, 0.60)" }}>•</span>
-              <span style={{ color: "rgba(255, 255, 255, 0.95)" }}>Inter Smart, Kochi</span>
-            </p>
-
-            {/* Team Lead Badge & Direct Contact Button for Employees */}
-            {profile?.team_lead && (
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-xs text-white max-w-full flex-wrap">
-                <span className="text-[11px] text-purple-200 font-bold uppercase tracking-wider">
-                  Lead:
-                </span>
-                <div className="flex items-center gap-1.5 min-w-0">
-                  <RoyalAvatar
-                    src={profile.team_lead.profile_photo_path}
-                    name={profile.team_lead.name}
-                    userId={profile.team_lead.id}
-                    className="w-5 h-5 rounded-full ring-1 ring-white/60 shrink-0"
-                  />
-                  <span className="font-bold text-white text-xs truncate">
-                    {profile.team_lead.name}
-                  </span>
-                </div>
-                <Link
-                  href={`/community?tab=chat&userId=${profile.team_lead.id}`}
-                  style={{ color: "#ffffff" }}
-                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-[#56348f] hover:bg-[#6e43b6] text-white text-[11px] font-bold shadow-xs transition-all cursor-pointer border border-purple-400/50 hover:scale-105 ml-1 shrink-0"
-                  title={`Direct Message ${profile.team_lead.name}`}
-                >
-                  <MessageSquare className="w-3 h-3" />
-                  <span>Contact</span>
-                </Link>
-              </div>
-            )}
-
-            {/* Attendance Status Badge & Real-time Date Time */}
-            <div className="flex items-center gap-3 flex-wrap pt-1">
-              <span
-                style={{
-                  fontSize: "12px",
-                  lineHeight: "16px",
-                  backgroundColor:
-                    profile.attendance_status === 'Punched In'
-                      ? 'rgba(16, 185, 129, 0.25)'
-                      : profile.attendance_status === 'Punched Out'
-                      ? 'rgba(245, 158, 11, 0.25)'
-                      : 'rgba(225, 29, 72, 0.25)',
-                  borderColor:
-                    profile.attendance_status === 'Punched In'
-                      ? 'rgba(52, 211, 153, 0.8)'
-                      : profile.attendance_status === 'Punched Out'
-                      ? 'rgba(253, 224, 71, 0.8)'
-                      : 'rgba(251, 113, 133, 0.8)',
-                  color:
-                    profile.attendance_status === 'Punched In'
-                      ? '#6ee7b7'
-                      : profile.attendance_status === 'Punched Out'
-                      ? '#fde047'
-                      : '#fecdd3'
-                }}
-                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-bold uppercase tracking-wider border shadow-sm ${
-                  profile.attendance_status === 'Punched In'
-                    ? 'status-punched-in'
-                    : profile.attendance_status === 'Punched Out'
-                    ? 'status-punched-out'
-                    : 'status-not-punched'
-                }`}
-              >
-                {profile.attendance_status === 'Punched In' && (
-                  <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse shrink-0" />
-                )}
-                <Clock
-                  className="w-3.5 h-3.5 shrink-0"
-                  style={{
-                    color:
-                      profile.attendance_status === 'Punched In'
-                        ? '#6ee7b7'
-                        : profile.attendance_status === 'Punched Out'
-                        ? '#fde047'
-                        : '#fecdd3'
-                  }}
-                />
-                <span
-                  style={{
-                    color:
-                      profile.attendance_status === 'Punched In'
-                        ? '#6ee7b7'
-                        : profile.attendance_status === 'Punched Out'
-                        ? '#fde047'
-                        : '#fecdd3',
-                    fontWeight: 700
-                  }}
-                >
-                  {profile.attendance_status}
-                </span>
-              </span>
-
-              <div
-                style={{
-                  fontFamily: '"Proxima Nova", sans-serif',
-                  fontSize: "12px",
-                  lineHeight: "16px",
-                  color: "rgba(255, 255, 255, 0.90)"
-                }}
-                className="hero-datetime font-medium inline-flex items-center gap-1.5 flex-wrap"
-              >
-                <span className="whitespace-nowrap">{format(time, "EEEE, d MMMM yyyy")}</span>
-                <span className="opacity-60">•</span>
-                <span className="whitespace-nowrap tabular-nums font-mono text-[11px] sm:text-xs">
-                  {format(time, "h:mm:ss")}&nbsp;{format(time, "a")}
-                </span>
-              </div>
-            </div>
-          </div>
+        {/* Ambient Gradients (Dark Mode Navy Glow & Light Mode Soft Gradient) */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="hidden dark:block absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,#0e1e38_0%,#060c18_65%)]" />
+          <div className="hidden dark:block absolute -bottom-10 left-1/3 w-96 h-40 bg-sky-500/10 blur-3xl rounded-full" />
+          <div className="dark:hidden absolute inset-0 bg-gradient-to-r from-white via-[#fcfdff] to-transparent" />
+          <div className="dark:hidden absolute -bottom-8 -left-8 w-80 h-48 bg-purple-100/60 blur-3xl rounded-full" />
         </div>
 
-        {/* Right: Growing Together Card with 6 Metrics Boxes & Live Clock */}
-        {profile.service_stats && (
-          <div className="z-10 shrink-0">
-            <GrowingTogetherCard
-              liveStats={liveServiceStats}
-              defaultStats={profile.service_stats}
-            />
+        {/* Decorative Dot Matrix Grid (Top Left) */}
+        <div className="absolute top-6 left-6 pointer-events-none opacity-30 dark:opacity-20">
+          <svg width="60" height="48" viewBox="0 0 60 48" fill="none" className="text-slate-400 dark:text-sky-400">
+            {[0, 1, 2, 3].map((row) =>
+              [0, 1, 2, 3, 4].map((col) => (
+                <circle key={`t-${row}-${col}`} cx={col * 14 + 2} cy={row * 14 + 2} r="1.5" fill="currentColor" />
+              ))
+            )}
+          </svg>
+        </div>
+
+        {/* Decorative Dot Matrix Grid (Bottom Left above Good to See You) */}
+        <div className="absolute bottom-14 left-6 pointer-events-none opacity-20 dark:opacity-15">
+          <svg width="46" height="32" viewBox="0 0 46 32" fill="none" className="text-slate-400 dark:text-sky-400">
+            {[0, 1, 2].map((row) =>
+              [0, 1, 2, 3].map((col) => (
+                <circle key={`b-${row}-${col}`} cx={col * 14 + 2} cy={row * 14 + 2} r="1.5" fill="currentColor" />
+              ))
+            )}
+          </svg>
+        </div>
+
+        {/* Flowing Wave Vector Lines along the bottom */}
+        <div className="absolute inset-x-0 bottom-0 pointer-events-none overflow-hidden h-28 opacity-40 dark:opacity-25">
+          <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="w-full h-full text-indigo-400 dark:text-sky-400" fill="none">
+            <path d="M0,90 C200,120 350,40 600,75 C850,110 1000,45 1200,80" stroke="currentColor" strokeWidth="1" />
+            <path d="M0,100 C220,130 380,50 630,85 C880,120 1020,55 1200,90" stroke="currentColor" strokeWidth="1" strokeOpacity="0.7" />
+            <path d="M0,110 C240,140 410,60 660,95 C910,130 1040,65 1200,100" stroke="currentColor" strokeWidth="1" strokeOpacity="0.4" />
+          </svg>
+        </div>
+
+        {/* Signature Script Slogan (Bottom Right) */}
+        <div className="hidden sm:block absolute right-8 bottom-3.5 pointer-events-none select-none z-10">
+          <span
+            className="font-serif italic text-base sm:text-[17px] text-indigo-400/80 dark:text-sky-300/60 drop-shadow-xs rotate-[-2deg] inline-block tracking-wide"
+            style={{ fontFamily: "'Caveat', 'Dancing Script', 'Segoe Script', cursive" }}
+          >
+            Stronger People Brighter Tomorrows
+          </span>
+        </div>
+
+        {/* ── TOP ROW: PROFILE & STATS ── */}
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 relative z-10">
+          {/* Left: Avatar & User Information */}
+          <div className="flex items-center gap-5 sm:gap-6 min-w-0">
+            {/* Avatar with Radiant Neon Gradient Ring & Green Online Status Dot */}
+            <div className="relative shrink-0">
+              <div className="relative p-[3px] rounded-full bg-gradient-to-tr from-cyan-400 via-indigo-500 to-purple-500 shadow-[0_0_22px_rgba(56,189,248,0.35)] dark:shadow-[0_0_28px_rgba(56,189,248,0.45)]">
+                <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-900 border-2 border-white dark:border-[#070e1b]">
+                  <PhotoAvatar
+                    src={profile.profile_photo_path}
+                    name={`${profile.first_name} ${profile.last_name || ""}`.trim()}
+                    className="w-full h-full object-cover"
+                    textClass="text-slate-800 dark:text-white text-xl font-black"
+                  />
+                </div>
+              </div>
+
+              {/* Active Online Green Dot */}
+              <span className="absolute bottom-1 right-1 w-4.5 h-4.5 rounded-full bg-emerald-400 border-[2.5px] border-white dark:border-[#070e1b] shadow-[0_0_8px_rgba(52,211,153,0.9)]" />
+            </div>
+
+            {/* Profile Info Details */}
+            <div className="min-w-0 space-y-1.5">
+              {/* Name & Role Pill */}
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <Link
+                  href="/profile"
+                  className="text-2xl sm:text-[28px] font-black tracking-tight text-slate-900 dark:text-white hover:text-purple-600 dark:hover:text-amber-300 transition-colors flex items-center gap-2 group cursor-pointer"
+                >
+                  <span className="truncate">{profile.first_name} {profile.last_name || ""}</span>
+                  <ExternalLink className="w-4 h-4 opacity-75 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all text-slate-700 dark:text-slate-200 shrink-0" />
+                </Link>
+
+                <WelcomeRolePill role={user?.role || profile?.role} />
+
+                {/* Active Achievement Animating Trophy Badge */}
+                {hasActiveRec && profile.active_recognition && (
+                  <button
+                    onClick={() => setShowRecognitionModal(true)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-amber-500/25 via-yellow-500/20 to-amber-500/25 hover:from-amber-500/35 hover:to-amber-500/35 text-amber-600 dark:text-amber-300 border border-amber-400/50 rounded-full text-xs font-black shadow-[0_0_14px_rgba(245,158,11,0.25)] transition-all transform hover:scale-105 cursor-pointer shrink-0"
+                    title={`${profile.active_recognition.title} - Click to view certificate`}
+                  >
+                    <div className="w-4 h-4 flex items-center justify-center shrink-0">
+                      <DotLottiePlayer
+                        src="https://assets2.lottiefiles.com/packages/lf20_touohxv0.json"
+                        background="transparent"
+                        speed={1}
+                        style={{ width: 18, height: 18 }}
+                        loop
+                        autoplay
+                      />
+                    </div>
+                    <span className="tracking-wide uppercase text-[10.5px] font-black drop-shadow-xs">
+                      {profile.active_recognition.title}
+                    </span>
+                  </button>
+                )}
+              </div>
+
+              {/* Subtitle: Designation • Inter Smart, Kochi */}
+              <p className="text-xs sm:text-[13px] font-medium text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                <span>{profile.designation || user?.role || "Member"}</span>
+                <span className="text-slate-400 dark:text-slate-600">•</span>
+                <span>Inter Smart, Kochi</span>
+              </p>
+
+              {/* Team Lead Contact Button if applicable */}
+              {profile?.team_lead && (
+                <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-lg bg-slate-100 dark:bg-white/10 border border-slate-200 dark:border-white/20 text-xs text-slate-700 dark:text-white max-w-full flex-wrap">
+                  <span className="text-[10.5px] text-purple-600 dark:text-purple-300 font-bold uppercase tracking-wider">
+                    Lead:
+                  </span>
+                  <span className="font-bold text-xs truncate">
+                    {profile.team_lead.name}
+                  </span>
+                  <Link
+                    href={`/community?tab=chat&userId=${profile.team_lead.id}`}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#56348f] hover:bg-[#6e43b6] text-white text-[10px] font-bold shadow-2xs transition-all cursor-pointer border border-purple-400/50 hover:scale-105 ml-1 shrink-0"
+                    title={`Direct Message ${profile.team_lead.name}`}
+                  >
+                    <MessageSquare className="w-2.5 h-2.5" />
+                    <span>Contact</span>
+                  </Link>
+                </div>
+              )}
+
+              {/* Attendance Status Pill & Date / Time */}
+              <div className="flex items-center gap-3.5 flex-wrap pt-1">
+                <span
+                  className={`inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider border transition-all ${
+                    profile.attendance_status === 'Punched In'
+                      ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border-emerald-300 dark:border-emerald-500/50 dark:shadow-[0_0_15px_rgba(16,185,129,0.25)]'
+                      : profile.attendance_status === 'Punched Out'
+                      ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-500/50 dark:shadow-[0_0_15px_rgba(245,158,11,0.25)]'
+                      : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 border-rose-300 dark:border-rose-500/50'
+                  }`}
+                >
+                  {profile.attendance_status === 'Punched In' && (
+                    <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shrink-0" />
+                  )}
+                  <Clock className="w-3.5 h-3.5 shrink-0" />
+                  <span>{profile.attendance_status || 'NOT PUNCHED IN'}</span>
+                </span>
+
+                <div className="inline-flex items-center gap-1.5 text-xs sm:text-[12.5px] font-medium text-slate-700 dark:text-slate-300 flex-wrap">
+                  <Calendar className="w-3.5 h-3.5 text-slate-400 dark:text-slate-400 shrink-0" />
+                  <span className="whitespace-nowrap">{format(time, "EEEE, d MMMM yyyy")}</span>
+                  <span className="text-slate-400 dark:text-slate-600">•</span>
+                  <span className="whitespace-nowrap tabular-nums font-mono">
+                    {format(time, "h:mm:ss a")}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
-        )}
+
+          {/* Right: Growing Together Card with 6 Metrics Boxes & Live Clock */}
+          {profile.service_stats && (
+            <div className="z-10 shrink-0">
+              <GrowingTogetherCard
+                liveStats={liveServiceStats}
+                defaultStats={profile.service_stats}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* ── BOTTOM ROW: "GOOD TO SEE YOU BACK" BAR ── */}
+        <div className="flex items-center gap-3 relative z-10 pt-2 border-t border-slate-100/60 dark:border-slate-800/60">
+          <span className="text-[10.5px] font-bold tracking-[0.25em] uppercase text-slate-400 dark:text-slate-500 whitespace-nowrap">
+            GOOD TO SEE YOU BACK
+          </span>
+          <div className="h-[1px] w-24 sm:w-36 bg-gradient-to-r from-slate-300 dark:from-slate-700 to-transparent" />
+        </div>
       </div>
 
       {/* Employee Dashboard: Upcoming Holidays Banner */}
@@ -1265,7 +1167,7 @@ export default function DashboardPage() {
   );
 }
 
-// Growing Together Card — Redesigned with 6 Metrics Boxes & Gold Accents
+// Growing Together Card — Redesigned with Exact Visual Design from Screenshot
 function GrowingTogetherCard({ liveStats, defaultStats }: { liveStats: any; defaultStats?: any }) {
   const current = liveStats || defaultStats;
   if (!current) return null;
@@ -1287,43 +1189,98 @@ function GrowingTogetherCard({ liveStats, defaultStats }: { liveStats: any; defa
   ];
 
   return (
-    <div className="w-full lg:w-auto bg-black/40 border border-white/15 rounded-md p-4 sm:p-4.5 shadow-2xl backdrop-blur-md">
+    <div className="w-full lg:w-auto rounded-[22px] p-4 sm:p-4.5 transition-all duration-300 backdrop-blur-md relative overflow-hidden
+      bg-gradient-to-b from-[#fffef7]/95 via-[#fffcf0]/95 to-[#fffbf0]/95 dark:from-[#111c2e]/95 dark:via-[#091120]/95 dark:to-[#091120]/95
+      border border-amber-200/90 dark:border-amber-500/30
+      shadow-[0_8px_30px_rgba(245,158,11,0.12)] dark:shadow-[0_12px_35px_rgba(0,0,0,0.6)]"
+    >
+      {/* Warm Golden Ambient Glow (Top Right behind bars) */}
+      <div
+        className="absolute top-0 right-0 w-44 h-32 pointer-events-none opacity-60 dark:opacity-25"
+        style={{ background: 'radial-gradient(circle at 80% 20%, rgba(251, 191, 36, 0.28) 0%, rgba(254, 243, 199, 0.1) 50%, transparent 80%)' }}
+        aria-hidden
+      />
+
       {/* Top Header */}
-      <div className="flex items-center justify-between gap-6 mb-2.5">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-full border border-amber-400/80 bg-amber-400/20 flex items-center justify-center text-amber-300 shrink-0 shadow-inner">
-            <svg className="w-4 h-4 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-            </svg>
+      <div className="flex items-center justify-between gap-3 sm:gap-4 mb-3.5 relative z-10">
+        {/* Left: Golden Badge + Title & Subtitle */}
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-10 h-10 rounded-full bg-[#f59e0b] dark:bg-[#d97706] flex items-center justify-center text-white shadow-md shadow-amber-500/25 shrink-0">
+            <Users className="w-5 h-5 text-white stroke-[2.2]" />
           </div>
-          <span style={{ fontFamily: '"Proxima Nova", sans-serif', color: '#fde047' }} className="hero-growing-title text-xs font-black uppercase tracking-wider">
-            GROWING TOGETHER
-          </span>
+          <div className="min-w-0">
+            <h4 className="text-xs sm:text-[13px] font-black uppercase tracking-wider text-slate-900 dark:text-white leading-tight">
+              GROWING TOGETHER
+            </h4>
+            <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 tracking-tight mt-0.5 whitespace-nowrap">
+              People • Progress • A Stronger Tomorrow
+            </p>
+          </div>
         </div>
 
-        {/* Right Clock Icon */}
-        <div className="flex items-center justify-center text-amber-300 pr-1">
-          <Clock className="w-4 h-4 animate-spin [animation-duration:15s]" />
+        {/* Right: Ascending 3D Growth Bars with Arrow & Speedometer Gauge */}
+        <div className="flex items-center gap-2 shrink-0">
+          {/* 3D Ascending Bars with Upward Diagonal Arrow */}
+          <svg width="58" height="38" viewBox="0 0 58 38" fill="none" className="shrink-0 pointer-events-none">
+            <path
+              d="M6 30 L45 5 M45 5 L33 5 M45 5 L45 17"
+              stroke="url(#gt-arrow-grad)"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <rect x="7" y="23" width="6.5" height="11" rx="1.5" fill="url(#gt-bar-grad-1)" />
+            <rect x="18" y="17" width="6.5" height="17" rx="1.5" fill="url(#gt-bar-grad-2)" />
+            <rect x="29" y="11" width="6.5" height="23" rx="1.5" fill="url(#gt-bar-grad-3)" />
+            <rect x="40" y="4" width="6.5" height="30" rx="1.5" fill="url(#gt-bar-grad-4)" />
+            <defs>
+              <linearGradient id="gt-arrow-grad" x1="6" y1="30" x2="45" y2="5" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#f59e0b" />
+                <stop offset="1" stopColor="#fbbf24" />
+              </linearGradient>
+              <linearGradient id="gt-bar-grad-1" x1="7" y1="23" x2="13.5" y2="34" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#fef3c7" />
+                <stop offset="1" stopColor="#f59e0b" />
+              </linearGradient>
+              <linearGradient id="gt-bar-grad-2" x1="18" y1="17" x2="24.5" y2="34" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#fef3c7" />
+                <stop offset="1" stopColor="#f59e0b" />
+              </linearGradient>
+              <linearGradient id="gt-bar-grad-3" x1="29" y1="11" x2="35.5" y2="34" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#fef3c7" />
+                <stop offset="1" stopColor="#f59e0b" />
+              </linearGradient>
+              <linearGradient id="gt-bar-grad-4" x1="40" y1="4" x2="46.5" y2="34" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#fef3c7" />
+                <stop offset="1" stopColor="#f59e0b" />
+              </linearGradient>
+            </defs>
+          </svg>
+
+          {/* Speedometer / Gauge Icon */}
+          <svg className="w-5.5 h-5.5 text-amber-500 dark:text-amber-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="9.5" stroke="currentColor" strokeWidth="1.75" />
+            <line x1="12" y1="2.5" x2="12" y2="5" stroke="currentColor" strokeWidth="2" />
+            <line x1="12" y1="12" x2="16.5" y2="7.5" stroke="currentColor" strokeWidth="2" />
+            <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+          </svg>
         </div>
       </div>
 
-      {/* Horizontal Divider */}
-      <div className="border-t border-white/10 my-2.5" />
-
       {/* 6 Stat Boxes */}
-      <div className="grid grid-cols-6 gap-1.5 sm:gap-2">
+      <div className="grid grid-cols-6 gap-1.5 sm:gap-2 relative z-10">
         {statBoxes.map((box, idx) => (
           <div
             key={idx}
-            className="hero-stat-box rounded-md py-2 px-2 sm:px-2.5 flex flex-col items-center justify-center text-center min-w-[44px] sm:min-w-[50px] shadow-inner border border-white/15"
+            className="rounded-xl py-2 sm:py-2.5 px-2 flex flex-col items-center justify-center text-center min-w-[42px] sm:min-w-[48px]
+              bg-white dark:bg-[#060a12]/80
+              border border-slate-200/90 dark:border-white/10
+              shadow-2xs dark:shadow-inner"
           >
-            <span style={{ color: "#ffffff" }} className="hero-stat-value text-lg sm:text-xl font-black font-mono leading-none tracking-tight">
+            <span className="text-lg sm:text-xl font-black leading-tight tracking-tight font-sans text-slate-900 dark:text-white">
               {box.value}
             </span>
-            <span style={{ fontFamily: '"Proxima Nova", sans-serif', color: "#cbd5e1" }} className="hero-stat-label text-[8.5px] sm:text-[9.5px] font-bold uppercase tracking-widest mt-1 leading-none">
+            <span className="text-[9px] font-black uppercase tracking-wider mt-1.5 leading-none text-slate-400">
               {box.label}
             </span>
           </div>
@@ -1396,19 +1353,13 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           SUPER ADMIN KEKA-STYLE WELCOME HERO BANNER (MATCHING ALL ROLES)
       ───────────────────────────────────────────────────────────────────────────── */}
       <div
-        id="keka-welcome-hero-banner"
-        style={{
-          ...(!isBannerVideo
-            ? {
-                backgroundImage: `linear-gradient(to right, rgba(12, 24, 45, 0.92) 0%, rgba(15, 23, 42, 0.72) 50%, rgba(12, 24, 45, 0.92) 100%), var(--portal-welcome-banner, url('${welcomeBannerMedia}'))`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-              }
-            : { backgroundColor: "#0c182d" }),
-          fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-        }}
-        className="relative rounded-md overflow-hidden shadow-xl p-6 sm:p-8 min-h-[160px] flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 border border-white/15 select-none"
+        id="welcome-hero-banner-admin"
+        className="relative rounded-[28px] overflow-hidden p-6 sm:p-7 md:p-8 min-h-[175px] flex flex-col justify-between gap-6 select-none transition-all duration-300
+          bg-white dark:bg-[#060c18]
+          border border-slate-200/90 dark:border-blue-900/40
+          shadow-[0_4px_25px_rgba(0,0,0,0.03)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.7)]"
       >
+        {/* Optional Custom Video Banner Fallback */}
         {isBannerVideo && (
           <>
             <video
@@ -1432,146 +1383,154 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
             />
           </>
         )}
-        <style>{`
-          #keka-welcome-hero-banner, #keka-welcome-hero-banner * {
-            box-sizing: border-box;
-          }
-          #keka-welcome-hero-banner a,
-          #keka-welcome-hero-banner h1,
-          #keka-welcome-hero-banner h2,
-          #keka-welcome-hero-banner h3 {
-            color: #ffffff !important;
-          }
-          #keka-welcome-hero-banner .hero-user-name,
-          #keka-welcome-hero-banner .hero-user-name * {
-            color: #ffffff !important;
-          }
-          #keka-welcome-hero-banner .hero-subtitle,
-          #keka-welcome-hero-banner .hero-subtitle * {
-            color: rgba(255, 255, 255, 0.95) !important;
-          }
-          #keka-welcome-hero-banner .hero-datetime,
-          #keka-welcome-hero-banner .hero-datetime * {
-            color: rgba(255, 255, 255, 0.90) !important;
-          }
-          #keka-welcome-hero-banner .hero-growing-title {
-            color: #fde047 !important;
-          }
-          #keka-welcome-hero-banner .hero-stat-box {
-            background-color: rgba(0, 0, 0, 0.6) !important;
-            border-color: rgba(255, 255, 255, 0.15) !important;
-          }
-          #keka-welcome-hero-banner .hero-stat-value {
-            color: #ffffff !important;
-          }
-          #keka-welcome-hero-banner .hero-stat-label {
-            color: #cbd5e1 !important;
-          }
-          #keka-welcome-hero-banner .status-punched-in,
-          #keka-welcome-hero-banner .status-punched-in * {
-            color: #6ee7b7 !important;
-          }
-          #keka-welcome-hero-banner .status-punched-out,
-          #keka-welcome-hero-banner .status-punched-out * {
-            color: #fde047 !important;
-          }
-          #keka-welcome-hero-banner .status-not-punched,
-          #keka-welcome-hero-banner .status-not-punched * {
-            color: #fecdd3 !important;
-          }
-        `}</style>
 
-        {/* Left: Avatar, Name, Role, Location, Attendance Status & Clock */}
-        <div className="flex items-center gap-5 sm:gap-6 z-10 min-w-0">
-          <div className="relative shrink-0">
-            <RoyalAvatar
-              src={profile.profile_photo_path}
-              name={`${profile.first_name} ${profile.last_name || ""}`.trim()}
-              userId={user?.id || profile?.id}
-              employeeCode={profile?.employee_code || (user as any)?.employee_code}
-              className="w-20 h-20 sm:w-22 sm:h-22 rounded-full border-2 border-white/80 shadow-2xl shrink-0"
-              textClass="text-white text-xl font-bold"
-            />
-          </div>
+        {/* Building Facade Background (Right Side) */}
+        {!isBannerVideo && (
+          <div
+            className="absolute right-0 top-0 bottom-0 w-full sm:w-2/3 lg:w-1/2 pointer-events-none bg-right bg-cover opacity-35 dark:opacity-30 mix-blend-multiply dark:mix-blend-screen"
+            style={{
+              backgroundImage: `url('${welcomeBannerMedia}')`,
+              maskImage: "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.3) 25%, rgba(0,0,0,1) 85%)",
+              WebkitMaskImage: "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.3) 25%, rgba(0,0,0,1) 85%)",
+            }}
+          />
+        )}
 
-          <div className="min-w-0 space-y-1.5">
-            {/* User Full Name with external link icon & Admin badge */}
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <Link
-                href="/profile"
-                style={{ color: "#ffffff" }}
-                className="hero-user-name text-2xl sm:text-3xl font-bold text-white hover:text-amber-300 transition-colors flex items-center gap-2 group truncate cursor-pointer"
-              >
-                <span style={{ color: "#ffffff" }} className="truncate font-bold">
-                  {profile.first_name} {profile.last_name || ""}
-                </span>
-                <svg className="w-4 h-4 opacity-80 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all text-white shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" strokeLinecap="round" strokeLinejoin="round"/>
-                  <polyline points="15 3 21 3 21 9" strokeLinecap="round" strokeLinejoin="round"/>
-                  <line x1="10" y1="14" x2="21" y2="3" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </Link>
+        {/* Ambient Gradients (Dark Mode Navy Glow & Light Mode Soft Gradient) */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="hidden dark:block absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,#0e1e38_0%,#060c18_65%)]" />
+          <div className="hidden dark:block absolute -bottom-10 left-1/3 w-96 h-40 bg-sky-500/10 blur-3xl rounded-full" />
+          <div className="dark:hidden absolute inset-0 bg-gradient-to-r from-white via-[#fcfdff] to-transparent" />
+          <div className="dark:hidden absolute -bottom-8 -left-8 w-80 h-48 bg-purple-100/60 blur-3xl rounded-full" />
+        </div>
 
-              <WelcomeRolePill role="Super Admin" />
+        {/* Decorative Dot Matrix Grid (Top Left) */}
+        <div className="absolute top-6 left-6 pointer-events-none opacity-30 dark:opacity-20">
+          <svg width="60" height="48" viewBox="0 0 60 48" fill="none" className="text-slate-400 dark:text-sky-400">
+            {[0, 1, 2, 3].map((row) =>
+              [0, 1, 2, 3, 4].map((col) => (
+                <circle key={`at-${row}-${col}`} cx={col * 14 + 2} cy={row * 14 + 2} r="1.5" fill="currentColor" />
+              ))
+            )}
+          </svg>
+        </div>
+
+        {/* Decorative Dot Matrix Grid (Bottom Left above Good to See You) */}
+        <div className="absolute bottom-14 left-6 pointer-events-none opacity-20 dark:opacity-15">
+          <svg width="46" height="32" viewBox="0 0 46 32" fill="none" className="text-slate-400 dark:text-sky-400">
+            {[0, 1, 2].map((row) =>
+              [0, 1, 2, 3].map((col) => (
+                <circle key={`ab-${row}-${col}`} cx={col * 14 + 2} cy={row * 14 + 2} r="1.5" fill="currentColor" />
+              ))
+            )}
+          </svg>
+        </div>
+
+        {/* Flowing Wave Vector Lines along the bottom */}
+        <div className="absolute inset-x-0 bottom-0 pointer-events-none overflow-hidden h-28 opacity-40 dark:opacity-25">
+          <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="w-full h-full text-indigo-400 dark:text-sky-400" fill="none">
+            <path d="M0,90 C200,120 350,40 600,75 C850,110 1000,45 1200,80" stroke="currentColor" strokeWidth="1" />
+            <path d="M0,100 C220,130 380,50 630,85 C880,120 1020,55 1200,90" stroke="currentColor" strokeWidth="1" strokeOpacity="0.7" />
+            <path d="M0,110 C240,140 410,60 660,95 C910,130 1040,65 1200,100" stroke="currentColor" strokeWidth="1" strokeOpacity="0.4" />
+          </svg>
+        </div>
+
+        {/* Signature Script Slogan (Bottom Right) */}
+        <div className="hidden sm:block absolute right-8 bottom-3.5 pointer-events-none select-none z-10">
+          <span
+            className="font-serif italic text-base sm:text-[17px] text-indigo-400/80 dark:text-sky-300/60 drop-shadow-xs rotate-[-2deg] inline-block tracking-wide"
+            style={{ fontFamily: "'Caveat', 'Dancing Script', 'Segoe Script', cursive" }}
+          >
+            Stronger People Brighter Tomorrows
+          </span>
+        </div>
+
+        {/* ── TOP ROW: PROFILE & PENDING ITEMS ── */}
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 relative z-10">
+          {/* Left: Avatar & Admin Information */}
+          <div className="flex items-center gap-5 sm:gap-6 min-w-0">
+            {/* Avatar with Radiant Neon Gradient Ring & Green Online Status Dot */}
+            <div className="relative shrink-0">
+              <div className="relative p-[3px] rounded-full bg-gradient-to-tr from-cyan-400 via-indigo-500 to-purple-500 shadow-[0_0_22px_rgba(56,189,248,0.35)] dark:shadow-[0_0_28px_rgba(56,189,248,0.45)]">
+                <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-900 border-2 border-white dark:border-[#070e1b]">
+                  <PhotoAvatar
+                    src={profile.profile_photo_path}
+                    name={`${profile.first_name} ${profile.last_name || ""}`.trim()}
+                    className="w-full h-full object-cover"
+                    textClass="text-slate-800 dark:text-white text-xl font-black"
+                  />
+                </div>
+              </div>
+
+              {/* Active Online Green Dot */}
+              <span className="absolute bottom-1 right-1 w-4.5 h-4.5 rounded-full bg-emerald-400 border-[2.5px] border-white dark:border-[#070e1b] shadow-[0_0_8px_rgba(52,211,153,0.9)]" />
             </div>
 
-            {/* Subtitle: Role • Location */}
-            <p
-              style={{
-                fontFamily: '"Proxima Nova", sans-serif',
-                fontSize: "13px",
-                lineHeight: "20px",
-                color: "rgba(255, 255, 255, 0.95)",
-                fontWeight: 400
-              }}
-              className="hero-subtitle flex items-center gap-2 flex-wrap"
-            >
-              <span style={{ color: "rgba(255, 255, 255, 0.95)" }}>{profile.designation || "Super Administrator"}</span>
-              <span style={{ color: "rgba(255, 255, 255, 0.60)" }}>•</span>
-              <span style={{ color: "rgba(255, 255, 255, 0.95)" }}>Inter Smart, Kochi</span>
-            </p>
+            {/* Profile Info Details */}
+            <div className="min-w-0 space-y-1.5">
+              {/* Name & Role Pill */}
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <Link
+                  href="/profile"
+                  className="text-2xl sm:text-[28px] font-black tracking-tight text-slate-900 dark:text-white hover:text-purple-600 dark:hover:text-amber-300 transition-colors flex items-center gap-2 group cursor-pointer"
+                >
+                  <span className="truncate">{profile.first_name} {profile.last_name || ""}</span>
+                  <ExternalLink className="w-4 h-4 opacity-75 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all text-slate-700 dark:text-slate-200 shrink-0" />
+                </Link>
 
-            {/* Real-time Date Time (Attendance status hidden for Super Admin) */}
-            <div className="flex items-center gap-3 flex-wrap pt-1">
-              <div
-                style={{
-                  fontFamily: '"Proxima Nova", sans-serif',
-                  fontSize: "12px",
-                  lineHeight: "16px",
-                  color: "rgba(255, 255, 255, 0.90)"
-                }}
-                className="hero-datetime font-medium inline-flex items-center gap-1.5 flex-wrap"
-              >
-                <span className="whitespace-nowrap">{format(time, "EEEE, d MMMM yyyy")}</span>
-                <span className="opacity-60">•</span>
-                <span className="whitespace-nowrap tabular-nums font-mono text-[11px] sm:text-xs">
-                  {format(time, "h:mm:ss")}&nbsp;{format(time, "a")}
-                </span>
+                <WelcomeRolePill role="Super Admin" />
+              </div>
+
+              {/* Subtitle: Role • Location */}
+              <p className="text-xs sm:text-[13px] font-medium text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                <span>{profile.designation || "Super Administrator"}</span>
+                <span className="text-slate-400 dark:text-slate-600">•</span>
+                <span>Inter Smart, Kochi</span>
+              </p>
+
+              {/* Date & Time */}
+              <div className="flex items-center gap-3.5 flex-wrap pt-1">
+                <div className="inline-flex items-center gap-1.5 text-xs sm:text-[12.5px] font-medium text-slate-700 dark:text-slate-300 flex-wrap">
+                  <Calendar className="w-3.5 h-3.5 text-slate-400 dark:text-slate-400 shrink-0" />
+                  <span className="whitespace-nowrap">{format(time, "EEEE, d MMMM yyyy")}</span>
+                  <span className="text-slate-400 dark:text-slate-600">•</span>
+                  <span className="whitespace-nowrap tabular-nums font-mono">
+                    {format(time, "h:mm:ss a")}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
+
+          {/* Right: Pending Items Card Only (Growing Together hidden for Super Admin) */}
+          <div className="z-10 shrink-0">
+            <Link
+              href="/leaves/approvals"
+              className="group flex flex-col justify-center bg-white/95 dark:bg-[#0b1220]/90 border border-amber-200/90 dark:border-amber-500/30 hover:border-amber-400/70 transition-all duration-300 rounded-2xl p-4 sm:p-5 shadow-[0_8px_30px_rgba(0,0,0,0.06),0_0_25px_rgba(245,158,11,0.12)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.5),0_0_25px_rgba(245,158,11,0.08)] backdrop-blur-md cursor-pointer min-w-[190px]"
+            >
+              <p className="text-xs font-black text-amber-500 dark:text-amber-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <Sparkles className="w-4 h-4 text-amber-500 dark:text-amber-400" />
+                Pending Items
+              </p>
+              <div className="flex items-baseline gap-2">
+                <p className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white font-mono">
+                  {kpis.pending_requests}
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold">request{kpis.pending_requests !== 1 ? 's' : ''}</p>
+              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 group-hover:text-amber-500 dark:group-hover:text-amber-300 transition-colors">
+                Awaiting review →
+              </p>
+            </Link>
+          </div>
         </div>
 
-        {/* Right: Pending Items Card Only (Growing Together hidden for Super Admin) */}
-        <div className="z-10 shrink-0">
-          <Link
-            href="/leaves/approvals"
-            className="group flex flex-col justify-center bg-black/40 border border-white/15 hover:border-amber-400/50 transition-all duration-300 rounded-md p-5 sm:p-6 shadow-2xl backdrop-blur-md cursor-pointer text-white min-w-[180px]"
-          >
-            <p className="text-xs font-bold text-amber-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-amber-300" />
-              Pending Items
-            </p>
-            <div className="flex items-baseline gap-2">
-              <p className="text-3xl sm:text-4xl font-black text-white font-mono">
-                {kpis.pending_requests}
-              </p>
-              <p className="text-xs text-slate-300 font-semibold">request{kpis.pending_requests !== 1 ? 's' : ''}</p>
-            </div>
-            <p className="text-xs text-slate-300 mt-2 group-hover:text-amber-300 transition-colors">
-              Awaiting review →
-            </p>
-          </Link>
+        {/* ── BOTTOM ROW: "GOOD TO SEE YOU BACK" BAR ── */}
+        <div className="flex items-center gap-3 relative z-10 pt-2 border-t border-slate-100/60 dark:border-slate-800/60">
+          <span className="text-[10.5px] font-bold tracking-[0.25em] uppercase text-slate-400 dark:text-slate-500 whitespace-nowrap">
+            GOOD TO SEE YOU BACK
+          </span>
+          <div className="h-[1px] w-24 sm:w-36 bg-gradient-to-r from-slate-300 dark:from-slate-700 to-transparent" />
         </div>
       </div>
 
