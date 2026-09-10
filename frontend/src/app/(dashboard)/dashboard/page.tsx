@@ -341,8 +341,8 @@ export default function DashboardPage() {
         id="welcome-hero-banner"
         className="relative rounded-[28px] overflow-hidden p-4 sm:p-6 md:p-8 min-h-[175px] flex flex-col justify-between gap-6 select-none transition-all duration-300
           bg-white dark:bg-[#060c18]
-          border border-slate-200/90 dark:border-blue-900/40
-          shadow-[0_4px_25px_rgba(0,0,0,0.03)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.7)]"
+          border border-slate-200/90 dark:border-[#1c3a63]
+          shadow-[0_4px_25px_rgba(0,0,0,0.03)] dark:shadow-[inset_0_0_0_1px_rgba(96,165,250,0.10),0_12px_40px_rgba(0,0,0,0.7)]"
       >
         {/* Optional Custom Video Banner Fallback */}
         {isBannerVideo && (
@@ -371,14 +371,14 @@ export default function DashboardPage() {
           </>
         )}
 
-        {/* Building Facade Background (Right Side) */}
+        {/* Building Facade Background — visible on the right, concentrated behind the Growing Together card */}
         {!isBannerVideo && (
           <div
-            className="absolute right-0 top-0 bottom-0 w-full sm:w-2/3 lg:w-1/2 pointer-events-none bg-right bg-cover opacity-35 dark:opacity-30 mix-blend-multiply dark:mix-blend-screen"
+            className="absolute right-0 top-0 bottom-0 w-full sm:w-3/4 lg:w-[58%] pointer-events-none bg-right bg-cover opacity-55 dark:opacity-50 mix-blend-multiply dark:mix-blend-screen"
             style={{
               backgroundImage: `url('${welcomeBannerMedia}')`,
-              maskImage: "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.3) 25%, rgba(0,0,0,1) 85%)",
-              WebkitMaskImage: "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.3) 25%, rgba(0,0,0,1) 85%)",
+              maskImage: "linear-gradient(to right, transparent 0%, transparent 28%, rgba(0,0,0,0.5) 52%, rgba(0,0,0,1) 100%)",
+              WebkitMaskImage: "linear-gradient(to right, transparent 0%, transparent 28%, rgba(0,0,0,0.5) 52%, rgba(0,0,0,1) 100%)",
             }}
           />
         )}
@@ -411,7 +411,13 @@ export default function DashboardPage() {
           <div className="hidden dark:block absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,#0e1e38_0%,#060c18_65%)]" />
         </div>
 
-
+        {/* Cursive Tagline (bottom-right, above the divider bar) */}
+        <div className="hidden sm:block absolute bottom-14 right-6 md:right-10 z-10 pointer-events-none select-none">
+          <p className="card-tagline cursive-slogan">
+            Stronger People<br />Brighter Tomorrows
+          </p>
+          <span className="card-tagline-line" />
+        </div>
 
         {/* ── TOP ROW: PROFILE & STATS ── */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 relative z-10">
@@ -1172,75 +1178,32 @@ function GrowingTogetherCard({ liveStats, defaultStats }: { liveStats: any; defa
 
   return (
     <div className="w-full lg:w-auto rounded-[22px] p-3.5 sm:p-4.5 transition-all duration-300 backdrop-blur-md relative overflow-hidden
-      bg-gradient-to-b from-[#fffef7]/95 via-[#fffcf0]/95 to-[#fffbf0]/95 dark:from-[#111c2e]/95 dark:via-[#091120]/95 dark:to-[#091120]/95
-      border border-amber-200/90 dark:border-amber-500/30
+      bg-gradient-to-b from-[#fffef7]/95 via-[#fffcf0]/95 to-[#fffbf0]/95 dark:from-[#0b1220]/97 dark:via-[#070d18]/97 dark:to-[#070d18]/97
+      border border-amber-200/90 dark:border-white/10
       shadow-[0_8px_30px_rgba(245,158,11,0.12)] dark:shadow-[0_12px_35px_rgba(0,0,0,0.6)]"
     >
-      {/* Warm Golden Ambient Glow (Top Right behind bars) */}
+      {/* Warm Golden Ambient Glow (Top Right) */}
       <div
-        className="absolute top-0 right-0 w-44 h-32 pointer-events-none opacity-60 dark:opacity-25"
+        className="absolute top-0 right-0 w-44 h-32 pointer-events-none opacity-60 dark:opacity-20"
         style={{ background: 'radial-gradient(circle at 80% 20%, rgba(251, 191, 36, 0.28) 0%, rgba(254, 243, 199, 0.1) 50%, transparent 80%)' }}
         aria-hidden
       />
 
       {/* Top Header */}
       <div className="flex items-center justify-between gap-2 sm:gap-4 mb-3 sm:mb-3.5 relative z-10">
-        {/* Left: Golden Badge + Title & Subtitle */}
+        {/* Left: Golden Badge + Title */}
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#f59e0b] dark:bg-[#d97706] flex items-center justify-center text-white shadow-md shadow-amber-500/25 shrink-0">
             <Users className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-white stroke-[2.2]" />
           </div>
-          <div className="min-w-0 flex-1">
-            <h4 className="text-xs sm:text-[13px] font-black uppercase tracking-wider text-slate-900 dark:text-white leading-tight truncate">
-              GROWING TOGETHER
-            </h4>
-            <p className="text-[9.5px] sm:text-[10px] font-semibold text-slate-500 dark:text-slate-400 tracking-tight mt-0.5 truncate">
-              People • Progress • A Stronger Tomorrow
-            </p>
-          </div>
+          <h4 className="text-xs sm:text-[13px] font-black uppercase tracking-wider text-amber-600 dark:text-amber-400 leading-tight truncate">
+            GROWING TOGETHER
+          </h4>
         </div>
 
-        {/* Right: Ascending 3D Growth Bars with Arrow & Speedometer Gauge */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-1">
-          {/* 3D Ascending Bars with Upward Diagonal Arrow */}
-          <svg width="46" height="30" viewBox="0 0 58 38" fill="none" className="sm:w-[58px] sm:h-[38px] shrink-0 pointer-events-none">
-            <path
-              d="M6 30 L45 5 M45 5 L33 5 M45 5 L45 17"
-              stroke="url(#gt-arrow-grad)"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <rect x="7" y="23" width="6.5" height="11" rx="1.5" fill="url(#gt-bar-grad-1)" />
-            <rect x="18" y="17" width="6.5" height="17" rx="1.5" fill="url(#gt-bar-grad-2)" />
-            <rect x="29" y="11" width="6.5" height="23" rx="1.5" fill="url(#gt-bar-grad-3)" />
-            <rect x="40" y="4" width="6.5" height="30" rx="1.5" fill="url(#gt-bar-grad-4)" />
-            <defs>
-              <linearGradient id="gt-arrow-grad" x1="6" y1="30" x2="45" y2="5" gradientUnits="userSpaceOnUse">
-                <stop stopColor="#f59e0b" />
-                <stop offset="1" stopColor="#fbbf24" />
-              </linearGradient>
-              <linearGradient id="gt-bar-grad-1" x1="7" y1="23" x2="13.5" y2="34" gradientUnits="userSpaceOnUse">
-                <stop stopColor="#fef3c7" />
-                <stop offset="1" stopColor="#f59e0b" />
-              </linearGradient>
-              <linearGradient id="gt-bar-grad-2" x1="18" y1="17" x2="24.5" y2="34" gradientUnits="userSpaceOnUse">
-                <stop stopColor="#fef3c7" />
-                <stop offset="1" stopColor="#f59e0b" />
-              </linearGradient>
-              <linearGradient id="gt-bar-grad-3" x1="29" y1="11" x2="35.5" y2="34" gradientUnits="userSpaceOnUse">
-                <stop stopColor="#fef3c7" />
-                <stop offset="1" stopColor="#f59e0b" />
-              </linearGradient>
-              <linearGradient id="gt-bar-grad-4" x1="40" y1="4" x2="46.5" y2="34" gradientUnits="userSpaceOnUse">
-                <stop stopColor="#fef3c7" />
-                <stop offset="1" stopColor="#f59e0b" />
-              </linearGradient>
-            </defs>
-          </svg>
-
-          {/* Speedometer / Gauge Icon */}
-          <svg className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 text-amber-500 dark:text-amber-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+        {/* Right: Ring / Gauge Icon */}
+        <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full border border-amber-400/60 dark:border-amber-500/40 flex items-center justify-center shrink-0 ml-1">
+          <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500 dark:text-amber-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="9.5" stroke="currentColor" strokeWidth="1.75" />
             <line x1="12" y1="2.5" x2="12" y2="5" stroke="currentColor" strokeWidth="2" />
             <line x1="12" y1="12" x2="16.5" y2="7.5" stroke="currentColor" strokeWidth="2" />
@@ -1338,8 +1301,8 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
         id="welcome-hero-banner-admin"
         className="relative rounded-[28px] overflow-hidden p-4 sm:p-6 md:p-8 min-h-[175px] flex flex-col justify-between gap-6 select-none transition-all duration-300
           bg-white dark:bg-[#060c18]
-          border border-slate-200/90 dark:border-blue-900/40
-          shadow-[0_4px_25px_rgba(0,0,0,0.03)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.7)]"
+          border border-slate-200/90 dark:border-[#1c3a63]
+          shadow-[0_4px_25px_rgba(0,0,0,0.03)] dark:shadow-[inset_0_0_0_1px_rgba(96,165,250,0.10),0_12px_40px_rgba(0,0,0,0.7)]"
       >
         {/* Optional Custom Video Banner Fallback */}
         {isBannerVideo && (
@@ -1368,14 +1331,14 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           </>
         )}
 
-        {/* Building Facade Background (Right Side) */}
+        {/* Building Facade Background — visible on the right side */}
         {!isBannerVideo && (
           <div
-            className="absolute right-0 top-0 bottom-0 w-full sm:w-2/3 lg:w-1/2 pointer-events-none bg-right bg-cover opacity-35 dark:opacity-30 mix-blend-multiply dark:mix-blend-screen"
+            className="absolute right-0 top-0 bottom-0 w-full sm:w-3/4 lg:w-[58%] pointer-events-none bg-right bg-cover opacity-55 dark:opacity-50 mix-blend-multiply dark:mix-blend-screen"
             style={{
               backgroundImage: `url('${welcomeBannerMedia}')`,
-              maskImage: "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.3) 25%, rgba(0,0,0,1) 85%)",
-              WebkitMaskImage: "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.3) 25%, rgba(0,0,0,1) 85%)",
+              maskImage: "linear-gradient(to right, transparent 0%, transparent 28%, rgba(0,0,0,0.5) 52%, rgba(0,0,0,1) 100%)",
+              WebkitMaskImage: "linear-gradient(to right, transparent 0%, transparent 28%, rgba(0,0,0,0.5) 52%, rgba(0,0,0,1) 100%)",
             }}
           />
         )}
@@ -1408,7 +1371,13 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           <div className="hidden dark:block absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,#0e1e38_0%,#060c18_65%)]" />
         </div>
 
-
+        {/* Cursive Tagline (bottom-right, above the divider bar) */}
+        <div className="hidden sm:block absolute bottom-14 right-6 md:right-10 z-10 pointer-events-none select-none">
+          <p className="card-tagline cursive-slogan">
+            Stronger People<br />Brighter Tomorrows
+          </p>
+          <span className="card-tagline-line" />
+        </div>
 
         {/* ── TOP ROW: PROFILE & PENDING ITEMS ── */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 relative z-10">
