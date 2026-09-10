@@ -1,8 +1,95 @@
 @import url('https://fonts.cdnfonts.com/css/proxima-nova-2');
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Dancing+Script:wght@600;700&display=swap');
 
+/* Welcome Card Design Styles (Adapted from welcome_card.html) */
+.card-purple-swoosh {
+  position: absolute;
+  left: -3%;
+  bottom: -105px;
+  width: 52%;
+  height: 250px;
+  border-radius: 55% 55% 0 0;
+  background: linear-gradient(145deg, rgba(161, 132, 255, 0.32), rgba(255, 255, 255, 0));
+  transform: rotate(14deg);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.card-waves {
+  position: absolute;
+  left: -5%;
+  right: 0;
+  bottom: -45px;
+  height: 220px;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.card-wave {
+  position: absolute;
+  width: 75%;
+  height: 170px;
+  border-top: 2px solid rgba(128, 159, 245, 0.22);
+  border-radius: 50%;
+  transform: rotate(5deg);
+}
+.card-wave.w1 { left: 40%; top: 28px; }
+.card-wave.w2 { left: 37%; top: 43px; width: 72%; }
+.card-wave.w3 { left: 34%; top: 58px; width: 70%; }
+.card-wave.w4 { left: 31%; top: 73px; width: 68%; }
+.card-wave.w5 { left: 28%; top: 88px; width: 66%; }
+
+.card-dots {
+  position: absolute;
+  left: 25px;
+  top: 79px;
+  width: 220px;
+  height: 80px;
+  background-image: radial-gradient(#7c9be8 2px, transparent 2px);
+  background-size: 27px 27px;
+  opacity: 0.65;
+  mask-image: linear-gradient(90deg, #000, transparent);
+  -webkit-mask-image: linear-gradient(90deg, #000, transparent);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.card-dots2 {
+  position: absolute;
+  left: 145px;
+  bottom: 32px;
+  width: 190px;
+  height: 125px;
+  background-image: radial-gradient(#8099e7 1.6px, transparent 1.6px);
+  background-size: 27px 27px;
+  opacity: 0.5;
+  mask-image: linear-gradient(0deg, transparent, #000);
+  -webkit-mask-image: linear-gradient(0deg, transparent, #000);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.card-tagline {
+  font-family: "Segoe Script", "Bradley Hand", "Caveat", cursive !important;
+  color: #7891ba !important;
+  font-size: 23px;
+  line-height: 1.08;
+  transform: rotate(-4deg);
+  text-align: center;
+}
+
+.card-tagline-line {
+  display: block;
+  width: 75px;
+  height: 2px;
+  background: #7891ba;
+  margin: 9px auto 0;
+  transform: rotate(4deg);
+}
+
 .cursive-slogan {
-  font-family: 'Caveat', 'Dancing Script', 'Segoe Script', 'Brush Script MT', cursive !important;
+  font-family: "Segoe Script", "Bradley Hand", 'Caveat', 'Dancing Script', cursive !important;
 }
 
 /* Global Typography - Universal Font with Customization Fallback */

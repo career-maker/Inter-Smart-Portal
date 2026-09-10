@@ -380,63 +380,50 @@ export default function DashboardPage() {
           />
         )}
 
-        {/* Ambient Gradients (Dark Mode Navy Glow & Light Mode Soft Gradient) */}
-        <div className="absolute inset-0 pointer-events-none">
+        {/* Ambient Gradients & Shapes from welcome_card.html */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {/* Soft Profile Circle Aura */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{ background: 'radial-gradient(circle at 14% 42%, rgba(118,156,255,0.18) 0%, transparent 26%)' }}
+            aria-hidden
+          />
+
+          {/* Purple Swoosh Shape from welcome_card.html */}
+          <div className="card-purple-swoosh" />
+
+          {/* Dot Matrix Grids from welcome_card.html */}
+          <div className="card-dots" />
+          <div className="card-dots2" />
+
+          {/* Wave Lines from welcome_card.html */}
+          <div className="card-waves">
+            <i className="card-wave w1" />
+            <i className="card-wave w2" />
+            <i className="card-wave w3" />
+            <i className="card-wave w4" />
+            <i className="card-wave w5" />
+          </div>
+
           <div className="hidden dark:block absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,#0e1e38_0%,#060c18_65%)]" />
-          <div className="hidden dark:block absolute -bottom-10 left-1/3 w-96 h-40 bg-sky-500/10 blur-3xl rounded-full" />
-          <div className="dark:hidden absolute inset-0 bg-gradient-to-r from-white via-[#fcfdff] to-transparent" />
-          <div className="dark:hidden absolute -bottom-8 -left-8 w-80 h-48 bg-purple-100/60 blur-3xl rounded-full" />
         </div>
 
-        {/* Decorative Dot Matrix Grid (Top Left) */}
-        <div className="absolute top-6 left-6 pointer-events-none opacity-30 dark:opacity-20">
-          <svg width="60" height="48" viewBox="0 0 60 48" fill="none" className="text-slate-400 dark:text-sky-400">
-            {[0, 1, 2, 3].map((row) =>
-              [0, 1, 2, 3, 4].map((col) => (
-                <circle key={`t-${row}-${col}`} cx={col * 14 + 2} cy={row * 14 + 2} r="1.5" fill="currentColor" />
-              ))
-            )}
-          </svg>
-        </div>
-
-        {/* Decorative Dot Matrix Grid (Bottom Left above Good to See You) */}
-        <div className="absolute bottom-14 left-6 pointer-events-none opacity-20 dark:opacity-15">
-          <svg width="46" height="32" viewBox="0 0 46 32" fill="none" className="text-slate-400 dark:text-sky-400">
-            {[0, 1, 2].map((row) =>
-              [0, 1, 2, 3].map((col) => (
-                <circle key={`b-${row}-${col}`} cx={col * 14 + 2} cy={row * 14 + 2} r="1.5" fill="currentColor" />
-              ))
-            )}
-          </svg>
-        </div>
-
-        {/* Flowing Wave Vector Lines along the bottom */}
-        <div className="absolute inset-x-0 bottom-0 pointer-events-none overflow-hidden h-28 opacity-40 dark:opacity-25">
-          <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="w-full h-full text-indigo-400 dark:text-sky-400" fill="none">
-            <path d="M0,90 C200,120 350,40 600,75 C850,110 1000,45 1200,80" stroke="currentColor" strokeWidth="1" />
-            <path d="M0,100 C220,130 380,50 630,85 C880,120 1020,55 1200,90" stroke="currentColor" strokeWidth="1" strokeOpacity="0.7" />
-            <path d="M0,110 C240,140 410,60 660,95 C910,130 1040,65 1200,100" stroke="currentColor" strokeWidth="1" strokeOpacity="0.4" />
-          </svg>
-        </div>
-
-        {/* Signature Script Slogan (Bottom Right) */}
-        <div className="hidden sm:flex flex-col items-end text-right absolute right-7 sm:right-9 bottom-3 sm:bottom-3.5 pointer-events-none select-none z-10">
-          <span className="cursive-slogan italic font-bold text-base sm:text-lg md:text-[20px] leading-[1.05] text-indigo-400/90 dark:text-sky-300/85 drop-shadow-xs rotate-[-2.5deg] tracking-wide">
-            Stronger People
-          </span>
-          <span className="cursive-slogan italic font-bold text-base sm:text-lg md:text-[20px] leading-[1.05] text-indigo-400/90 dark:text-sky-300/85 drop-shadow-xs rotate-[-2.5deg] tracking-wide mt-0.5">
-            Brighter Tomorrows
-          </span>
+        {/* Signature Script Tagline with Underline from welcome_card.html */}
+        <div className="hidden sm:flex flex-col items-center absolute right-8 sm:right-12 bottom-3 pointer-events-none select-none z-10">
+          <div className="card-tagline">
+            Stronger People<br />Brighter Tomorrows
+            <span className="card-tagline-line" />
+          </div>
         </div>
 
         {/* ── TOP ROW: PROFILE & STATS ── */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 relative z-10">
           {/* Left: Avatar & User Information */}
           <div className="flex items-center gap-5 sm:gap-6 min-w-0">
-            {/* Avatar with Radiant Neon Gradient Ring & Green Online Status Dot */}
+            {/* Avatar with Radiant Neon Gradient Ring & Green Online Status Dot from welcome_card.html */}
             <div className="relative shrink-0">
-              <div className="relative p-[3px] rounded-full bg-gradient-to-tr from-cyan-400 via-indigo-500 to-purple-500 shadow-[0_0_22px_rgba(56,189,248,0.35)] dark:shadow-[0_0_28px_rgba(56,189,248,0.45)]">
-                <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-900 border-2 border-white dark:border-[#070e1b]">
+              <div className="relative p-[5px] rounded-full bg-gradient-to-tr from-[#3f91ff] to-[#9b51ff] shadow-[0_8px_26px_rgba(65,95,190,0.24)]">
+                <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-900 border-[3px] border-white dark:border-[#070e1b]">
                   <PhotoAvatar
                     src={profile.profile_photo_path}
                     name={`${profile.first_name} ${profile.last_name || ""}`.trim()}
@@ -447,7 +434,7 @@ export default function DashboardPage() {
               </div>
 
               {/* Active Online Green Dot */}
-              <span className="absolute bottom-1 right-1 w-4.5 h-4.5 rounded-full bg-emerald-400 border-[2.5px] border-white dark:border-[#070e1b] shadow-[0_0_8px_rgba(52,211,153,0.9)]" />
+              <span className="absolute bottom-1 right-1 w-5 h-5 rounded-full bg-[#12dc9a] border-[3.5px] border-white dark:border-[#070e1b] shadow-xs" />
             </div>
 
             {/* Profile Info Details */}
@@ -556,12 +543,12 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* ── BOTTOM ROW: "GOOD TO SEE YOU BACK" BAR ── */}
-        <div className="flex items-center gap-3 relative z-10 pt-2 border-t border-slate-100/60 dark:border-slate-800/60">
-          <span className="text-[10.5px] font-bold tracking-[0.25em] uppercase text-slate-400 dark:text-slate-500 whitespace-nowrap">
+        {/* ── BOTTOM ROW: "GOOD TO SEE YOU BACK" BAR (from welcome_card.html) ── */}
+        <div className="flex items-center gap-4 relative z-10 pt-2 border-t border-slate-100/70 dark:border-slate-800/60">
+          <span className="text-[12px] sm:text-[13px] font-bold tracking-[3px] uppercase text-[#7b8ca8] whitespace-nowrap">
             GOOD TO SEE YOU BACK
           </span>
-          <div className="h-[1px] w-24 sm:w-36 bg-gradient-to-r from-slate-300 dark:from-slate-700 to-transparent" />
+          <div className="h-[2px] w-32 sm:w-60 bg-[#aab9d1] rounded-full" />
         </div>
       </div>
 
@@ -1394,63 +1381,50 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           />
         )}
 
-        {/* Ambient Gradients (Dark Mode Navy Glow & Light Mode Soft Gradient) */}
-        <div className="absolute inset-0 pointer-events-none">
+        {/* Ambient Gradients & Shapes from welcome_card.html */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {/* Soft Profile Circle Aura */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{ background: 'radial-gradient(circle at 14% 42%, rgba(118,156,255,0.18) 0%, transparent 26%)' }}
+            aria-hidden
+          />
+
+          {/* Purple Swoosh Shape from welcome_card.html */}
+          <div className="card-purple-swoosh" />
+
+          {/* Dot Matrix Grids from welcome_card.html */}
+          <div className="card-dots" />
+          <div className="card-dots2" />
+
+          {/* Wave Lines from welcome_card.html */}
+          <div className="card-waves">
+            <i className="card-wave w1" />
+            <i className="card-wave w2" />
+            <i className="card-wave w3" />
+            <i className="card-wave w4" />
+            <i className="card-wave w5" />
+          </div>
+
           <div className="hidden dark:block absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,#0e1e38_0%,#060c18_65%)]" />
-          <div className="hidden dark:block absolute -bottom-10 left-1/3 w-96 h-40 bg-sky-500/10 blur-3xl rounded-full" />
-          <div className="dark:hidden absolute inset-0 bg-gradient-to-r from-white via-[#fcfdff] to-transparent" />
-          <div className="dark:hidden absolute -bottom-8 -left-8 w-80 h-48 bg-purple-100/60 blur-3xl rounded-full" />
         </div>
 
-        {/* Decorative Dot Matrix Grid (Top Left) */}
-        <div className="absolute top-6 left-6 pointer-events-none opacity-30 dark:opacity-20">
-          <svg width="60" height="48" viewBox="0 0 60 48" fill="none" className="text-slate-400 dark:text-sky-400">
-            {[0, 1, 2, 3].map((row) =>
-              [0, 1, 2, 3, 4].map((col) => (
-                <circle key={`at-${row}-${col}`} cx={col * 14 + 2} cy={row * 14 + 2} r="1.5" fill="currentColor" />
-              ))
-            )}
-          </svg>
-        </div>
-
-        {/* Decorative Dot Matrix Grid (Bottom Left above Good to See You) */}
-        <div className="absolute bottom-14 left-6 pointer-events-none opacity-20 dark:opacity-15">
-          <svg width="46" height="32" viewBox="0 0 46 32" fill="none" className="text-slate-400 dark:text-sky-400">
-            {[0, 1, 2].map((row) =>
-              [0, 1, 2, 3].map((col) => (
-                <circle key={`ab-${row}-${col}`} cx={col * 14 + 2} cy={row * 14 + 2} r="1.5" fill="currentColor" />
-              ))
-            )}
-          </svg>
-        </div>
-
-        {/* Flowing Wave Vector Lines along the bottom */}
-        <div className="absolute inset-x-0 bottom-0 pointer-events-none overflow-hidden h-28 opacity-40 dark:opacity-25">
-          <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="w-full h-full text-indigo-400 dark:text-sky-400" fill="none">
-            <path d="M0,90 C200,120 350,40 600,75 C850,110 1000,45 1200,80" stroke="currentColor" strokeWidth="1" />
-            <path d="M0,100 C220,130 380,50 630,85 C880,120 1020,55 1200,90" stroke="currentColor" strokeWidth="1" strokeOpacity="0.7" />
-            <path d="M0,110 C240,140 410,60 660,95 C910,130 1040,65 1200,100" stroke="currentColor" strokeWidth="1" strokeOpacity="0.4" />
-          </svg>
-        </div>
-
-        {/* Signature Script Slogan (Bottom Right) */}
-        <div className="hidden sm:flex flex-col items-end text-right absolute right-7 sm:right-9 bottom-3 sm:bottom-3.5 pointer-events-none select-none z-10">
-          <span className="cursive-slogan italic font-bold text-base sm:text-lg md:text-[20px] leading-[1.05] text-indigo-400/90 dark:text-sky-300/85 drop-shadow-xs rotate-[-2.5deg] tracking-wide">
-            Stronger People
-          </span>
-          <span className="cursive-slogan italic font-bold text-base sm:text-lg md:text-[20px] leading-[1.05] text-indigo-400/90 dark:text-sky-300/85 drop-shadow-xs rotate-[-2.5deg] tracking-wide mt-0.5">
-            Brighter Tomorrows
-          </span>
+        {/* Signature Script Tagline with Underline from welcome_card.html */}
+        <div className="hidden sm:flex flex-col items-center absolute right-8 sm:right-12 bottom-3 pointer-events-none select-none z-10">
+          <div className="card-tagline">
+            Stronger People<br />Brighter Tomorrows
+            <span className="card-tagline-line" />
+          </div>
         </div>
 
         {/* ── TOP ROW: PROFILE & PENDING ITEMS ── */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 relative z-10">
           {/* Left: Avatar & Admin Information */}
           <div className="flex items-center gap-5 sm:gap-6 min-w-0">
-            {/* Avatar with Radiant Neon Gradient Ring & Green Online Status Dot */}
+            {/* Avatar with Radiant Neon Gradient Ring & Green Online Status Dot from welcome_card.html */}
             <div className="relative shrink-0">
-              <div className="relative p-[3px] rounded-full bg-gradient-to-tr from-cyan-400 via-indigo-500 to-purple-500 shadow-[0_0_22px_rgba(56,189,248,0.35)] dark:shadow-[0_0_28px_rgba(56,189,248,0.45)]">
-                <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-900 border-2 border-white dark:border-[#070e1b]">
+              <div className="relative p-[5px] rounded-full bg-gradient-to-tr from-[#3f91ff] to-[#9b51ff] shadow-[0_8px_26px_rgba(65,95,190,0.24)]">
+                <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-900 border-[3px] border-white dark:border-[#070e1b]">
                   <PhotoAvatar
                     src={profile.profile_photo_path}
                     name={`${profile.first_name} ${profile.last_name || ""}`.trim()}
@@ -1461,7 +1435,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
               </div>
 
               {/* Active Online Green Dot */}
-              <span className="absolute bottom-1 right-1 w-4.5 h-4.5 rounded-full bg-emerald-400 border-[2.5px] border-white dark:border-[#070e1b] shadow-[0_0_8px_rgba(52,211,153,0.9)]" />
+              <span className="absolute bottom-1 right-1 w-5 h-5 rounded-full bg-[#12dc9a] border-[3.5px] border-white dark:border-[#070e1b] shadow-xs" />
             </div>
 
             {/* Profile Info Details */}
@@ -1523,12 +1497,12 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           </div>
         </div>
 
-        {/* ── BOTTOM ROW: "GOOD TO SEE YOU BACK" BAR ── */}
-        <div className="flex items-center gap-3 relative z-10 pt-2 border-t border-slate-100/60 dark:border-slate-800/60">
-          <span className="text-[10.5px] font-bold tracking-[0.25em] uppercase text-slate-400 dark:text-slate-500 whitespace-nowrap">
+        {/* ── BOTTOM ROW: "GOOD TO SEE YOU BACK" BAR (from welcome_card.html) ── */}
+        <div className="flex items-center gap-4 relative z-10 pt-2 border-t border-slate-100/70 dark:border-slate-800/60">
+          <span className="text-[12px] sm:text-[13px] font-bold tracking-[3px] uppercase text-[#7b8ca8] whitespace-nowrap">
             GOOD TO SEE YOU BACK
           </span>
-          <div className="h-[1px] w-24 sm:w-36 bg-gradient-to-r from-slate-300 dark:from-slate-700 to-transparent" />
+          <div className="h-[2px] w-32 sm:w-60 bg-[#aab9d1] rounded-full" />
         </div>
       </div>
 
