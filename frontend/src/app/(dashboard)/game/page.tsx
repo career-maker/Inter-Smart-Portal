@@ -27,12 +27,148 @@ interface GameDef {
   buttonGradient: string;
 }
 
+// ── Static Games Definition (Outside component to adhere to Rules of Hooks) ──
+const GAMES: GameDef[] = [
+  {
+    id: "neongalaxy",
+    title: "Neon Galaxy",
+    subtitle: "Star Fighter Space Arcade",
+    category: "arcade",
+    badge: "60 FPS Synth",
+    badgeColor: "bg-sky-400/15 text-sky-400 border-sky-400/30",
+    tag: "SPACE DEFENDER",
+    icon: "🚀",
+    gradient: "from-[#0a1a2f] via-[#040c17] to-[#02050b]",
+    description: "Pilot your starfighter through hyperspace! Blast rogue drone swarms, collect weapon power-ups, and enjoy retro synth sound effects.",
+    accentColor: "#38bdf8",
+    stats: [
+      ["Engine", "Canvas 60fps"],
+      ["Audio", "Web Synth"],
+      ["Upgrades", "Tri-Beam & Shield"]
+    ],
+    launchText: "Play Neon Galaxy",
+    buttonGradient: "from-[#0284c7] to-[#0369a1] hover:from-[#0369a1] hover:to-[#075985] text-white border-sky-500/40"
+  },
+  {
+    id: "cybermatrix",
+    title: "Cyber Matrix",
+    subtitle: "Terminal Code Breaker",
+    category: "puzzle",
+    badge: "Cipher Memory",
+    badgeColor: "bg-emerald-400/15 text-emerald-300 border-emerald-400/30",
+    tag: "NEURAL TERMINAL",
+    icon: "⚡",
+    gradient: "from-[#06241e] via-[#031411] to-[#010a08]",
+    description: "Infiltrate high-security mainframes! Memorize flashing hex node sequences, bypass firewalls, and climb from Script Kiddie to Ghost rank.",
+    accentColor: "#00ffcc",
+    stats: [
+      ["Mode", "Pattern Recall"],
+      ["FX", "CRT Scanline"],
+      ["Theme", "Cyberpunk"]
+    ],
+    launchText: "Hack The Matrix",
+    buttonGradient: "from-[#0d9488] to-[#065f46] hover:from-[#14b8a6] hover:to-[#047857] text-[#ccfbf1] border-emerald-500/40"
+  },
+  {
+    id: "bugsmart",
+    title: "BugSmart Bounty",
+    subtitle: "Cartoon Bug Hunt & QA",
+    category: "qa",
+    badge: "8 Defects",
+    badgeColor: "bg-[#68ef9a]/15 text-[#68ef9a] border-[#68ef9a]/30",
+    tag: "QA INVESTIGATION",
+    icon: "🐞",
+    gradient: "from-[#0c283d] via-[#081724] to-[#040e17]",
+    description: "Step into a simulated e-commerce storefront. Click suspicious UI elements, trigger detective animations, identify bugs, and earn bounties!",
+    accentColor: "#43ddff",
+    stats: [
+      ["Mode", "Time Attack"],
+      ["Screen", "Fullscreen"],
+      ["Reward", "Bounty Rank"]
+    ],
+    launchText: "Launch BugSmart Bounty",
+    buttonGradient: "from-[#173f60] to-[#0c2b44] hover:from-[#1e4e75] hover:to-[#123857] text-[#43ddff] border-[#2b688c]"
+  },
+  {
+    id: "battleroyale",
+    title: "Bug Battle Royale",
+    subtitle: "Team QA vs Team DEV Boss",
+    category: "qa",
+    badge: "10 Rounds",
+    badgeColor: "bg-amber-400/15 text-amber-300 border-amber-400/30",
+    tag: "CO-OP & VERSUS",
+    icon: "👾",
+    gradient: "from-[#381024] via-[#1c0a1a] to-[#080d1a]",
+    description: "Two teams battle a terrifying production monster! Take turns answering real-world bug severities, security vulnerabilities, and logic flaws to win.",
+    accentColor: "#fb7185",
+    stats: [
+      ["Style", "Pass & Play"],
+      ["Screen", "Fullscreen"],
+      ["Teams", "QA vs DEV"]
+    ],
+    launchText: "Launch Battle Royale",
+    buttonGradient: "from-[#63142a] to-[#3b0818] hover:from-[#781833] hover:to-[#4a0a1f] text-rose-200 border-rose-500/40"
+  },
+  {
+    id: "imposter",
+    title: "Imposter Aircraft",
+    subtitle: "Rogue Jet Air Squad Intercept",
+    category: "arcade",
+    badge: "1 Chance",
+    badgeColor: "bg-orange-400/15 text-orange-300 border-orange-400/30",
+    tag: "RADAR INTERCEPT",
+    icon: "✈️",
+    gradient: "from-[#1c120c] via-[#100c08] to-[#040404]",
+    description: "There is an impostor aircraft flying in our fighter squad! Watch the high-speed radar flight paths and capture the rogue jet on your single chance.",
+    accentColor: "#fb923c",
+    stats: [
+      ["Chances", "1 Shot"],
+      ["Screen", "Fullscreen"],
+      ["Target", "Imposter Jet"]
+    ],
+    launchText: "Launch Imposter Aircraft",
+    buttonGradient: "from-[#9a3412] to-[#431407] hover:from-[#c2410c] hover:to-[#571b09] text-orange-100 border-orange-500/40"
+  },
+  {
+    id: "runner",
+    title: "InterSmart Pixel Runner",
+    subtitle: "Retro Office Obstacle Sprint",
+    category: "arcade",
+    badge: "Leaderboard",
+    badgeColor: "bg-amber-400/15 text-amber-300 border-amber-400/30",
+    tag: "OFFICE RUNNER",
+    icon: "🏃💨",
+    gradient: "from-[#2e1065] via-[#1e1b4b] to-[#0f172a]",
+    description: "Dodge office obstacles, jump over servers and flying coffee mugs, experience dynamic day-and-night cycles, and compete on the company leaderboard!",
+    accentColor: "#c084fc",
+    stats: [
+      ["Style", "8-bit Pixel"],
+      ["Controls", "Space / Tap"],
+      ["Feature", "High Scores"]
+    ],
+    launchText: "Play Pixel Runner",
+    buttonGradient: "from-[#56348f] to-[#3b1d6b] hover:from-[#673fb0] hover:to-[#482482] text-white border-purple-500/40"
+  }
+];
+
 export default function GamePage() {
+  // ── All Hooks Defined at the Very Top (Strict Rules of Hooks Compliance) ──
   const [activeGame, setActiveGame] = useState<GameKey>(null);
   const [selectedCategory, setSelectedCategory] = useState<CategoryKey>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // ── Fullscreen Game Wrappers with Back Button ──
+  const filteredGames = useMemo(() => {
+    return GAMES.filter(g => {
+      const matchCat = selectedCategory === "all" || g.category === selectedCategory;
+      const matchSearch = !searchQuery || 
+        g.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        g.subtitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        g.description.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchCat && matchSearch;
+    });
+  }, [selectedCategory, searchQuery]);
+
+  // ── Fullscreen Game Mode Returns (Only AFTER all hooks have executed) ──
   if (activeGame === "neongalaxy") {
     return (
       <div className="fixed inset-0 z-[99999] bg-[#030611] w-screen h-screen overflow-hidden flex flex-col">
@@ -138,7 +274,6 @@ export default function GamePage() {
     );
   }
 
-  // ── Runner Game Mode ──
   if (activeGame === "runner") {
     return (
       <div className="w-full max-w-6xl mx-auto py-3 sm:py-6 px-3 sm:px-6 space-y-4">
@@ -156,141 +291,6 @@ export default function GamePage() {
       </div>
     );
   }
-
-  // ── Games Definition List ──
-  const games: GameDef[] = [
-    {
-      id: "neongalaxy",
-      title: "Neon Galaxy",
-      subtitle: "Star Fighter Space Arcade",
-      category: "arcade",
-      badge: "60 FPS Synth",
-      badgeColor: "bg-sky-400/15 text-sky-400 border-sky-400/30",
-      tag: "SPACE DEFENDER",
-      icon: "🚀",
-      gradient: "from-[#0a1a2f] via-[#040c17] to-[#02050b]",
-      description: "Pilot your starfighter through hyperspace! Blast rogue drone swarms, collect weapon power-ups, and enjoy retro synth sound effects.",
-      accentColor: "#38bdf8",
-      stats: [
-        ["Engine", "Canvas 60fps"],
-        ["Audio", "Web Synth"],
-        ["Upgrades", "Tri-Beam & Shield"]
-      ],
-      launchText: "Play Neon Galaxy",
-      buttonGradient: "from-[#0284c7] to-[#0369a1] hover:from-[#0369a1] hover:to-[#075985] text-white border-sky-500/40"
-    },
-    {
-      id: "cybermatrix",
-      title: "Cyber Matrix",
-      subtitle: "Terminal Code Breaker",
-      category: "puzzle",
-      badge: "Cipher Memory",
-      badgeColor: "bg-emerald-400/15 text-emerald-300 border-emerald-400/30",
-      tag: "NEURAL TERMINAL",
-      icon: "⚡",
-      gradient: "from-[#06241e] via-[#031411] to-[#010a08]",
-      description: "Infiltrate high-security mainframes! Memorize flashing hex node sequences, bypass firewalls, and climb from Script Kiddie to Ghost rank.",
-      accentColor: "#00ffcc",
-      stats: [
-        ["Mode", "Pattern Recall"],
-        ["FX", "CRT Scanline"],
-        ["Theme", "Cyberpunk"]
-      ],
-      launchText: "Hack The Matrix",
-      buttonGradient: "from-[#0d9488] to-[#065f46] hover:from-[#14b8a6] hover:to-[#047857] text-[#ccfbf1] border-emerald-500/40"
-    },
-    {
-      id: "bugsmart",
-      title: "BugSmart Bounty",
-      subtitle: "Cartoon Bug Hunt & QA",
-      category: "qa",
-      badge: "8 Defects",
-      badgeColor: "bg-[#68ef9a]/15 text-[#68ef9a] border-[#68ef9a]/30",
-      tag: "QA INVESTIGATION",
-      icon: "🐞",
-      gradient: "from-[#0c283d] via-[#081724] to-[#040e17]",
-      description: "Step into a simulated e-commerce storefront. Click suspicious UI elements, trigger detective animations, identify bugs, and earn bounties!",
-      accentColor: "#43ddff",
-      stats: [
-        ["Mode", "Time Attack"],
-        ["Screen", "Fullscreen"],
-        ["Reward", "Bounty Rank"]
-      ],
-      launchText: "Launch BugSmart Bounty",
-      buttonGradient: "from-[#173f60] to-[#0c2b44] hover:from-[#1e4e75] hover:to-[#123857] text-[#43ddff] border-[#2b688c]"
-    },
-    {
-      id: "battleroyale",
-      title: "Bug Battle Royale",
-      subtitle: "Team QA vs Team DEV Boss",
-      category: "qa",
-      badge: "10 Rounds",
-      badgeColor: "bg-amber-400/15 text-amber-300 border-amber-400/30",
-      tag: "CO-OP & VERSUS",
-      icon: "👾",
-      gradient: "from-[#381024] via-[#1c0a1a] to-[#080d1a]",
-      description: "Two teams battle a terrifying production monster! Take turns answering real-world bug severities, security vulnerabilities, and logic flaws to win.",
-      accentColor: "#fb7185",
-      stats: [
-        ["Style", "Pass & Play"],
-        ["Screen", "Fullscreen"],
-        ["Teams", "QA vs DEV"]
-      ],
-      launchText: "Launch Battle Royale",
-      buttonGradient: "from-[#63142a] to-[#3b0818] hover:from-[#781833] hover:to-[#4a0a1f] text-rose-200 border-rose-500/40"
-    },
-    {
-      id: "imposter",
-      title: "Imposter Aircraft",
-      subtitle: "Rogue Jet Air Squad Intercept",
-      category: "arcade",
-      badge: "1 Chance",
-      badgeColor: "bg-orange-400/15 text-orange-300 border-orange-400/30",
-      tag: "RADAR INTERCEPT",
-      icon: "✈️",
-      gradient: "from-[#1c120c] via-[#100c08] to-[#040404]",
-      description: "There is an impostor aircraft flying in our fighter squad! Watch the high-speed radar flight paths and capture the rogue jet on your single chance.",
-      accentColor: "#fb923c",
-      stats: [
-        ["Chances", "1 Shot"],
-        ["Screen", "Fullscreen"],
-        ["Target", "Imposter Jet"]
-      ],
-      launchText: "Launch Imposter Aircraft",
-      buttonGradient: "from-[#9a3412] to-[#431407] hover:from-[#c2410c] hover:to-[#571b09] text-orange-100 border-orange-500/40"
-    },
-    {
-      id: "runner",
-      title: "InterSmart Pixel Runner",
-      subtitle: "Retro Office Obstacle Sprint",
-      category: "arcade",
-      badge: "Leaderboard",
-      badgeColor: "bg-amber-400/15 text-amber-300 border-amber-400/30",
-      tag: "OFFICE RUNNER",
-      icon: "🏃💨",
-      gradient: "from-[#2e1065] via-[#1e1b4b] to-[#0f172a]",
-      description: "Dodge office obstacles, jump over servers and flying coffee mugs, experience dynamic day-and-night cycles, and compete on the company leaderboard!",
-      accentColor: "#c084fc",
-      stats: [
-        ["Style", "8-bit Pixel"],
-        ["Controls", "Space / Tap"],
-        ["Feature", "High Scores"]
-      ],
-      launchText: "Play Pixel Runner",
-      buttonGradient: "from-[#56348f] to-[#3b1d6b] hover:from-[#673fb0] hover:to-[#482482] text-white border-purple-500/40"
-    }
-  ];
-
-  const filteredGames = useMemo(() => {
-    return games.filter(g => {
-      const matchCat = selectedCategory === "all" || g.category === selectedCategory;
-      const matchSearch = !searchQuery || 
-        g.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        g.subtitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        g.description.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchCat && matchSearch;
-    });
-  }, [games, selectedCategory, searchQuery]);
 
   // ── Games Hub / Arcade Library ──
   return (
@@ -345,7 +345,7 @@ export default function GamePage() {
                 : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
             }`}
           >
-            All Games ({games.length})
+            All Games ({GAMES.length})
           </button>
           <button
             onClick={() => setSelectedCategory("arcade")}
