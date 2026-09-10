@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bug Battle Royale</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{font-family:Inter,Segoe UI,Arial,sans-serif;background:#060b14;color:#f3f8ff}
+button{font:inherit;cursor:pointer}
+:root{--blue:#46d9ff;--red:#ff667d;--green:#62eb99;--gold:#ffd35c;--panel:#0a1522;--line:#1a3951}
+.game{width:100vw;height:100vh;display:grid;grid-template-rows:68px 1fr;background:radial-gradient(circle at 75% 10%,#163e56 0,transparent 28%),radial-gradient(circle at 15% 90%,#291a45 0,transparent 28%),#060b14}
+header{display:flex;align-items:center;justify-content:space-between;padding:0 24px 0 160px;border-bottom:1px solid #1b3549;background:#07111de8;z-index:5}
+.brand{display:flex;align-items:center;gap:11px}.logo{width:43px;height:43px;border-radius:14px;background:#0d2333;border:2px solid #285a70;display:grid;place-items:center;font-size:24px;animation:bob 2s infinite}
+@keyframes bob{50%{transform:translateY(-3px) rotate(4deg)}}
+.brand b{font-size:19px}.brand small{display:block;color:#7894aa;font-size:8px;letter-spacing:2px;margin-top:2px}
+.topright{display:flex;gap:8px}.topbox{min-width:100px;text-align:center;border:1px solid var(--line);background:#091724;border-radius:10px;padding:6px 11px}.topbox small{display:block;color:#7891a6;font-size:7px;letter-spacing:1.3px}.topbox strong{font-size:16px}.round{color:var(--gold)}
+.main{min-height:0;display:grid;grid-template-columns:220px minmax(0,1fr) 240px;gap:12px;padding:12px;overflow:hidden}
+.panel{min-height:0;background:#081521ed;border:1px solid #1b3a50;border-radius:18px}
+.left,.right{padding:14px}.label{font-size:8px;font-weight:900;letter-spacing:2px;color:var(--blue)}h2{margin:5px 0;font-size:21px}.sub{font-size:9px;color:#7893a8;line-height:1.45}
+.team{border-radius:12px;border:1px solid #203e54;padding:11px;margin-top:12px;background:#0a1927}.teamhead{display:flex;justify-content:space-between;align-items:center}.teamhead b{font-size:10px}.score{font-size:20px;font-weight:1000}.blue{color:var(--blue)}.red{color:var(--red)}.hp{height:6px;background:#172d3d;border-radius:5px;overflow:hidden;margin-top:7px}.hp i{display:block;height:100%;transition:.35s}.team:first-of-type .hp i{background:var(--blue);width:70%}.team:last-of-type .hp i{background:var(--red);width:64%}
+.members{font-size:8px;color:#718da2;margin-top:8px;line-height:1.5}.member{display:flex;justify-content:space-between}
+.power{margin-top:12px;padding:10px;border:1px dashed #28506a;border-radius:11px;background:#091a28;font-size:8px;color:#7894a9}.power b{color:#d6ebf8}
+.center{min-width:0;min-height:0;position:relative;overflow:hidden;display:flex;flex-direction:column}
+.arenahead{height:52px;flex:0 0 52px;display:flex;align-items:center;justify-content:space-between;padding:0 17px;border-bottom:1px solid #1b394e;background:#091622;border-radius:18px 18px 0 0}.incident{font-size:8px;color:#7e98ac;letter-spacing:1px}.incident b{color:#fff}.versus{display:flex;align-items:center;gap:10px;font-weight:1000}.vs{width:28px;height:28px;border-radius:50%;background:#1a2735;display:grid;place-items:center;font-size:9px;color:#fff}
+.arena{min-height:0;flex:1;position:relative;background:linear-gradient(180deg,#0b1826,#07111b);overflow:hidden}
+.gridbg{position:absolute;inset:0;opacity:.22;background-image:linear-gradient(#1a4b64 1px,transparent 1px),linear-gradient(90deg,#1a4b64 1px,transparent 1px);background-size:35px 35px;transform:perspective(400px) rotateX(55deg) scale(1.5);transform-origin:bottom}
+.boss{position:absolute;left:50%;top:49%;transform:translate(-50%,-50%);width:245px;height:245px;border-radius:50%;display:grid;place-items:center;z-index:2}
+.ring{position:absolute;inset:0;border:2px dashed #31536a;border-radius:50%;animation:spin 15s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+.monster{position:relative;width:145px;height:120px;border-radius:48% 48% 42% 42%;background:linear-gradient(145deg,#d84e6c,#6b254f);border:5px solid #25172b;box-shadow:0 12px 0 #291a35;animation:monster 1.4s ease-in-out infinite alternate}
+@keyframes monster{to{transform:translateY(-7px) rotate(2deg)}}.eye{position:absolute;top:27px;width:31px;height:36px;background:#fff;border:4px solid #25172b;border-radius:50%}.eye:after{content:"";position:absolute;width:10px;height:14px;background:#101722;border-radius:50%;left:7px;top:8px}.e1{left:30px}.e2{right:30px}.mouth{position:absolute;left:43px;bottom:19px;width:60px;height:28px;border:4px solid #25172b;border-top:0;border-radius:0 0 45px 45px;background:#ff7d91}.tooth{position:absolute;width:9px;height:12px;background:#fff;top:0}.t1{left:14px}.t2{right:14px}.horn{position:absolute;width:25px;height:35px;background:#ffd35c;border:4px solid #25172b;top:-28px;clip-path:polygon(50% 0,100% 100%,0 100%)}.h1{left:25px;transform:rotate(-12deg)}.h2{right:25px;transform:rotate(12deg)}
+.bossname{position:absolute;bottom:-36px;background:#0b1724;border:1px solid #36536a;border-radius:10px;padding:7px 12px;font-size:9px;white-space:nowrap}.bossname b{color:#ff7b91}.boss-hp{position:absolute;bottom:-59px;width:180px;height:7px;background:#241824;border-radius:5px;border:1px solid #563044;overflow:hidden}.boss-hp i{display:block;width:78%;height:100%;background:linear-gradient(90deg,#ff5874,#ff9a67);transition:.5s}
+.attack{position:absolute;bottom:17px;left:50%;transform:translateX(-50%);z-index:5;display:flex;gap:7px}.action{border:1px solid #2b5067;background:#0d2231;color:#dcecf6;border-radius:9px;padding:9px 13px;font-size:9px;font-weight:800}.action:hover{background:#12334a;border-color:#46d9ff}.action.attackblue{border-color:#23728b}.action.attackred{border-color:#81394a}
+.log{position:absolute;left:14px;top:14px;width:190px;z-index:4;background:#07131fe6;border:1px solid #1b3b51;border-radius:11px;padding:9px}.logtitle{font-size:8px;color:#7b96aa;letter-spacing:1px;margin-bottom:5px}.feed{font-size:8px;color:#9ab0c0;line-height:1.55;height:72px;overflow:hidden}.feed div{border-bottom:1px solid #122b3c;padding:2px 0}.feed .hit{color:#7eeea5}.feed .damage{color:#ff8396}
+.turn{position:absolute;right:14px;top:14px;z-index:4;padding:8px 11px;background:#0b1c2a;border:1px solid #23465d;border-radius:9px;font-size:8px;color:#7f9aac}.turn b{color:#fff}
+.right{display:flex;flex-direction:column}.right h3{font-size:16px;margin:5px 0}.card{margin-top:11px;padding:11px;border:1px solid #1d4057;background:#0a1a28;border-radius:12px}.card b{font-size:9px}.card p{font-size:8px;color:#7894a9;line-height:1.5;margin:5px 0 0}.choicegrid{display:grid;gap:6px;margin-top:9px}.choice{border:1px solid #23465d;background:#091724;color:#b8cddd;border-radius:8px;padding:8px;text-align:left;font-size:8px}.choice:hover{border-color:#43d9ff}.choice.selected{border-color:#43d9ff;background:#0c2d3d;color:#fff}.submit{width:100%;margin-top:8px;border:0;border-radius:8px;background:#43d9ff;color:#06121b;font-weight:1000;font-size:8px;padding:9px}.note{margin-top:auto;padding:10px;border:1px dashed #254c63;border-radius:10px;color:#718ca0;font-size:8px;line-height:1.5}
+.overlay{position:absolute;inset:0;z-index:30;background:#020811ed;display:none;place-items:center}.overlay.show{display:grid}.result{width:min(470px,82%);padding:24px;border:2px solid #285770;border-radius:22px;background:#0a1b29;text-align:center;box-shadow:8px 8px 0 #43d9ff}.result .emoji{font-size:50px;animation:bob 1s infinite}.result h2{font-size:26px}.result p{font-size:9px;color:#7893a8}.winner{font-size:14px;font-weight:1000}.finalscore{font-size:38px;color:#43d9ff;font-weight:1000;margin:8px}.resultgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.res{border:1px solid #20445a;border-radius:8px;padding:8px}.res small{display:block;color:#718ba0;font-size:7px}.res b{font-size:13px}.restart{margin-top:14px;border:0;border-radius:8px;background:#43d9ff;padding:10px 20px;font-weight:1000}
+.hitflash{position:absolute;inset:0;z-index:10;pointer-events:none;background:#ff5e7c55;opacity:0}.hitflash.go{animation:flash .45s}@keyframes flash{50%{opacity:1}}
+.projectile{position:absolute;z-index:12;font-size:28px;left:24%;bottom:100px;opacity:0}.projectile.go{animation:fly 650ms ease-out forwards}@keyframes fly{0%{opacity:1;transform:translate(0,0) scale(.5)}100%{opacity:0;transform:translate(280px,-120px) scale(1.2) rotate(260deg)}}
+@media(max-width:900px){.main{grid-template-columns:185px minmax(0,1fr)}.right{display:none}.top{padding:0 12px}.topbox{min-width:72px}.attack .action{padding:8px}.brand small{display:none}}
+</style>
+</head>
+<body>
+<div class="game" id="game">
+<header>
+ <div class="brand"><div class="logo">🐞</div><div><b>BUG BATTLE ROYALE</b><small>TEAM QA · TEAM DEV · SURVIVE PRODUCTION</small></div></div>
+ <div class="topright"><div class="topbox"><small>ROUND</small><strong class="round" id="round">01 / 10</strong></div><div class="topbox"><small>BOSS HP</small><strong id="bossHpText">780</strong></div><div class="topbox"><small>TIME</small><strong id="clock">05:00</strong></div></div>
+</header>
+<section class="main">
+<aside class="panel left">
+ <div class="label">LIVE MATCH</div><h2>Teams, attack!</h2><div class="sub">Two teams battle a production monster. Solve the QA challenge to damage the boss.</div>
+ <div class="team"><div class="teamhead"><b>🔵 TEAM QA</b><span class="score blue" id="qaScore">0</span></div><div class="hp"><i id="qaHp"></i></div><div class="members"><div class="member"><span>Abhiram</span><span>QA Lead</span></div><div class="member"><span>Priya</span><span>Tester</span></div><div class="member"><span>Arun</span><span>Tester</span></div></div></div>
+ <div class="team"><div class="teamhead"><b>🔴 TEAM DEV</b><span class="score red" id="devScore">0</span></div><div class="hp"><i id="devHp"></i></div><div class="members"><div class="member"><span>Ravi</span><span>Developer</span></div><div class="member"><span>Meera</span><span>Developer</span></div><div class="member"><span>Vikram</span><span>Developer</span></div></div></div>
+ <div class="power">⚡ <b>Power play:</b> A correct answer gives your team damage. The team that lands the final hit gets the round win.</div>
+</aside>
+
+<main class="panel center">
+ <div class="arenahead"><div class="incident">PRODUCTION INCIDENT <b>#BR-047</b></div><div class="versus"><span class="blue">TEAM QA</span><span class="vs">VS</span><span class="red">TEAM DEV</span></div></div>
+ <div class="arena">
+  <div class="gridbg"></div>
+  <div class="log"><div class="logtitle">⚔ BATTLE FEED</div><div class="feed" id="feed"></div></div>
+  <div class="turn">CURRENT TURN <b id="turn">TEAM QA</b></div>
+  <div class="boss">
+   <div class="ring"></div><div class="monster"><div class="horn h1"></div><div class="horn h2"></div><div class="eye e1"></div><div class="eye e2"></div><div class="mouth"><i class="tooth t1"></i><i class="tooth t2"></i></div></div>
+   <div class="bossname">👾 <b>PRODUCTION MONSTER</b></div><div class="boss-hp"><i id="bossBar"></i></div>
+  </div>
+  <div class="projectile" id="projectile">💥</div><div class="hitflash" id="flash"></div>
+  <div class="attack"><button class="action attackblue" id="solve">🔎 SOLVE CHALLENGE</button><button class="action attackred" id="skip">⏭ SKIP / LOSE TURN</button></div>
+  <div class="overlay" id="overlay"><div class="result"><div class="emoji" id="resultEmoji">🏆</div><div class="label">BATTLE OVER</div><h2 id="resultTitle">TEAM QA WINS!</h2><p id="resultText"></p><div class="winner" id="winner"></div><div class="finalscore" id="finalScore">0</div><div class="resultgrid"><div class="res"><small>QA SCORE</small><b id="rqa">0</b></div><div class="res"><small>DEV SCORE</small><b id="rdev">0</b></div><div class="res"><small>BOSS HP</small><b id="rboss">0</b></div></div><button class="restart" id="restart">🔄 PLAY AGAIN</button></div></div>
+ </div>
+</main>
+
+<aside class="panel right">
+ <div class="label">LIVE CHALLENGE</div><h3 id="challengeTitle">Ready for battle?</h3><div class="sub" id="challengeText">Press “Solve Challenge” when the current team is ready. Hand the screen to the next colleague after each turn.</div>
+ <div class="card" id="answerCard" style="display:none"><b>WHAT IS THE BEST ANSWER?</b><div class="choicegrid" id="choices"></div><button class="submit" id="submit">⚔ ATTACK THE BOSS</button></div>
+ <div class="note">🎮 <b>Pass-and-play mode</b><br>One screen is enough. Teams discuss their answer, then the current player submits it. Every round changes the challenge.</div>
+</aside>
+</section>
+</div>
+<script>
+(()=> {
+const root=document.getElementById('game');
+const challenges=[
+ {q:'Users can create an account without entering an email address. What is the most appropriate severity?',a:['P3 — Cosmetic','P1 — Critical','P2 — Major','P4 — Trivial'],c:2,d:120,why:'A core validation failure blocks data integrity and can affect account workflows.'},
+ {q:'The login button is blue on Chrome but invisible on Edge. What bug type is this?',a:['Compatibility / UI','Security','Database','Performance'],c:0,d:90,why:'The defect occurs because the UI behaves differently across browsers.'},
+ {q:'A user clicks “Pay Now” twice and is charged twice. What is the primary defect?',a:['Usability','Duplicate transaction / functional','Content','Cosmetic'],c:1,d:160,why:'The payment action is not safely handling repeated submissions.'},
+ {q:'A password reset link remains valid for 30 days. What should QA flag first?',a:['Typography','Security risk','Color issue','Accessibility only'],c:1,d:180,why:'A long-lived reset token can increase the impact of account takeover.'},
+ {q:'Search for “laptop” returns products for “shoes”. What is the likely bug class?',a:['Functional / data','Animation','Layout only','Localization'],c:0,d:110,why:'The search result does not match the requested query.'},
+ {q:'A button says “Delete” but clicking it silently archives the record. What is wrong?',a:['Content / functional mismatch','Performance','Security','Network'],c:0,d:100,why:'The label and actual behavior contradict each other.'},
+ {q:'A form accepts a phone number containing letters and saves it. What failed?',a:['Validation','Animation','Browser theme','Caching'],c:0,d:90,why:'Input validation should reject an invalid phone format.'},
+ {q:'The app exposes another customer’s invoice by changing /invoice/104 to /invoice/105. What is this?',a:['Broken image','IDOR / access control','UI alignment','Performance'],c:1,d:200,why:'The server is failing to enforce authorization for object access.'},
+ {q:'After logout, pressing Back reveals the authenticated dashboard. What should QA report?',a:['Cache / session security','Color mismatch','Copy issue','Minor UI'],c:0,d:170,why:'Protected content should not remain accessible after logout.'},
+ {q:'The checkout total shows ₹999, but the order confirmation shows ₹1,499. What category fits best?',a:['Data / calculation','Cosmetic','Accessibility','Browser compatibility'],c:0,d:140,why:'The price shown to the customer changes between checkout and confirmation.'}
+];
+let round=0,qa=0,dev=0,boss=780,time=300,turn='QA',current=null,choice=null,ended=false;
+const $=id=>document.getElementById(id);
+function feed(msg,cls=''){const f=$('feed'),d=document.createElement('div');d.className=cls;d.textContent=msg;f.prepend(d);while(f.children.length>5)f.lastChild.remove()}
+function render(){ $('round').textContent=String(Math.min(round+1,10)).padStart(2,'0')+' / 10';$('bossHpText').textContent=Math.max(0,boss);$('bossBar').style.width=(boss/780*100)+'%';$('qaScore').textContent=qa;$('devScore').textContent=dev;$('qaHp').style.width=Math.min(100,qa/7*100)+'%';$('devHp').style.width=Math.min(100,dev/7*100)+'%';$('turn').textContent='TEAM '+turn}
+function startChallenge(){
+ if(ended)return;
+ current=challenges[round%challenges.length];choice=null;
+ $('challengeTitle').textContent='⚔ ROUND '+(round+1)+': '+(turn==='QA'?'QA STRIKES':'DEV STRIKES');
+ $('challengeText').textContent=current.q;
+ const box=$('answerCard');box.style.display='block';const choices=$('choices');choices.innerHTML='';
+ current.a.forEach((ans,i)=>{const b=document.createElement('button');b.className='choice';b.type='button';b.textContent=ans;b.addEventListener('click',()=>{choice=i;root.querySelectorAll('.choice').forEach(x=>x.classList.remove('selected'));b.classList.add('selected')});choices.appendChild(b)});
+}
+function attack(){
+ if(choice===null){flashMsg('Choose an answer first.');return}
+ const correct=choice===current.c;
+ const team=turn;
+ if(correct){
+  boss=Math.max(0,boss-current.d);
+  if(team==='QA')qa++;else dev++;
+  feed('💥 Team '+team+' hits for '+current.d+' damage!','hit');
+  $('challengeText').textContent='✅ Correct! '+current.why;
+  projectile();
+ }else{
+  if(team==='QA')qa=Math.max(0,qa-1);else dev=Math.max(0,dev-1);
+  feed('🛡 Team '+team+' missed the attack!','damage');
+  $('challengeText').textContent='❌ Miss! Correct answer: '+current.a[current.c];
+ }
+ $('answerCard').style.display='none';render();
+ if(boss<=0){setTimeout(finish,650);return}
+ round++;
+ if(round>=10){setTimeout(finish,650);return}
+ turn=turn==='QA'?'DEV':'QA';render();
+ setTimeout(()=>startChallenge(),450);
+}
+function skip(){
+ if(ended)return;feed('⏭ Team '+turn+' skipped the round.','damage');round++;if(round>=10){finish();return}turn=turn==='QA'?'DEV':'QA';render();startChallenge();
+}
+function projectile(){const p=$('projectile');p.classList.remove('go');void p.offsetWidth;p.classList.add('go');$('flash').classList.remove('go');void $('flash').offsetWidth;$('flash').classList.add('go')}
+function flashMsg(m){$('challengeText').textContent='⚠ '+m}
+function finish(){
+ if(ended)return;ended=true;clearInterval(timer);
+ const winner=boss<=0?(qa>=dev?'TEAM QA':'TEAM DEV'):(qa===dev?'DRAW':qa>dev?'TEAM QA':'TEAM DEV');
+ $('resultTitle').textContent=winner==='DRAW'?'DRAW — GREAT BATTLE!':winner+' WINS!';
+ $('resultText').textContent=boss<=0?'The production monster has been defeated!':'The 10-round battle is over.';
+ $('winner').textContent=boss<=0?'👾 BOSS DEFEATED':'🏁 FINAL SCORE';
+ $('finalScore').textContent=winner==='TEAM QA'?qa:winner==='TEAM DEV'?dev:qa+dev;
+ $('rqa').textContent=qa;$('rdev').textContent=dev;$('rboss').textContent=Math.max(0,boss);$('resultEmoji').textContent=winner==='DRAW'?'🤝':boss<=0?'💥':'🏆';$('overlay').classList.add('show')
+}
+$('solve').addEventListener('click',startChallenge);$('skip').addEventListener('click',skip);$('submit').addEventListener('click',attack);$('restart').addEventListener('click',()=>location.reload());
+feed('⚡ Battle initialized. Team QA starts!','hit');render();
+let timer=setInterval(()=>{if(ended)return;time--;if(time<0)time=0;$('clock').textContent=String(Math.floor(time/60)).padStart(2,'0')+':'+String(time%60).padStart(2,'0');if(time===0)finish()},1000);
+})();
+</script>
+</body>
+</html>
