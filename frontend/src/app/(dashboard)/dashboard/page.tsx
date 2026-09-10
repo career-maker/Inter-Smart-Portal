@@ -613,42 +613,42 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
             {/* Team Status Today Card */}
             <div className="lg:col-span-2 flex flex-col">
-              <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 sm:p-6 border border-slate-200/90 dark:border-slate-700/60 shadow-xs h-full flex flex-col justify-between relative overflow-hidden">
+              <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 sm:p-5 border border-slate-200/90 dark:border-slate-700/60 shadow-xs h-full flex flex-col justify-between relative overflow-hidden">
                 <div>
                   {/* Card Header */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3.5 mb-3.5 gap-2 border-b border-slate-100 dark:border-slate-800/80">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 shadow-2xs">
-                        <Users className="w-5 h-5 stroke-[2.2]" />
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 mb-1.5 gap-2">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 shadow-2xs">
+                        <Users className="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[2.2]" />
                       </div>
                       <div>
-                        <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">
+                        <h2 className="text-sm sm:text-base font-black text-slate-900 dark:text-white tracking-tight leading-tight">
                           Team Status Today
                         </h2>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium leading-tight">
                           Daily attendance and availability breakdown
                         </p>
                       </div>
                     </div>
 
                     {/* Legend */}
-                    <div className="flex flex-wrap items-center gap-3 sm:gap-3.5 pt-1 sm:pt-0">
-                      <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#10b981]" /> Present
+                    <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+                      <span className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
+                        <span className="w-2 h-2 rounded-full bg-[#10b981]" /> Present
                       </span>
-                      <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#ef4444]" /> Absent
+                      <span className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
+                        <span className="w-2 h-2 rounded-full bg-[#ef4444]" /> Absent
                       </span>
-                      <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#3b82f6]" /> WFH
+                      <span className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
+                        <span className="w-2 h-2 rounded-full bg-[#3b82f6]" /> WFH
                       </span>
-                      <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#f59e0b]" /> Half Day
+                      <span className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
+                        <span className="w-2 h-2 rounded-full bg-[#f59e0b]" /> Half Day
                       </span>
                     </div>
                   </div>
 
-                  {/* Body Content */}
+                  {/* Body Content: All items in one horizontal line */}
                   {(() => {
                     const teamMembers = data?.widgets?.team_members || [];
                     const totalTeam = teamMembers.length;
@@ -660,7 +660,8 @@ export default function DashboardPage() {
                       return s === "absent" || (!s.includes("present") && !s.includes("wfh") && !s.includes("half day"));
                     }).length;
 
-                    const circumference = 2 * Math.PI * 38; // ~238.761
+                    // SVG Donut calculation with r=25, C ≈ 157.08
+                    const C = 2 * Math.PI * 25;
                     const segments = [
                       { count: presentCount, color: "#10b981" },
                       { count: absentCount, color: "#ef4444" },
@@ -670,138 +671,166 @@ export default function DashboardPage() {
 
                     let currentOffset = 0;
                     const strokeSegments = segments.map((seg) => {
-                      const strokeLength = totalTeam > 0 ? (seg.count / totalTeam) * circumference : 0;
-                      const strokeDasharray = `${strokeLength} ${circumference}`;
+                      const strokeLength = totalTeam > 0 ? (seg.count / totalTeam) * C : 0;
+                      const strokeDasharray = `${strokeLength} ${C}`;
                       const strokeDashoffset = -currentOffset;
                       currentOffset += strokeLength;
                       return { ...seg, strokeDasharray, strokeDashoffset };
                     });
 
+                    const isCompact = teamMembers.length > 2;
+                    const isUltraCompact = teamMembers.length > 4;
+
                     return (
-                      <div className="flex flex-col xl:flex-row items-stretch gap-4 sm:gap-6 pt-1">
-                        {/* Member Cards Area (Scrollable if many members, 2-col responsive) */}
-                        <div className="flex-1 min-w-0">
+                      <div className="relative flex items-center justify-between gap-3 sm:gap-4 pt-1">
+                        {/* Member Cards Area (All in one line, wrapping to multiple lines if many members) */}
+                        <div className="flex-1 min-w-0 flex flex-wrap items-center gap-2 sm:gap-2.5 max-h-[110px] overflow-y-auto pr-1 [scrollbar-width:thin]">
                           {teamMembers.length > 0 ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[240px] overflow-y-auto pr-1 [scrollbar-width:thin]">
-                              {teamMembers.map((member: any) => {
-                                const statusLower = (member.status || "").toLowerCase();
-                                const isPresent = statusLower === "present";
-                                const isWfh = statusLower.includes("wfh");
-                                const isHalfDay = statusLower.includes("half day");
+                            teamMembers.map((member: any) => {
+                              const statusLower = (member.status || "").toLowerCase();
+                              const isPresent = statusLower === "present";
+                              const isWfh = statusLower.includes("wfh");
+                              const isHalfDay = statusLower.includes("half day");
 
-                                let cardBg = "bg-[#fff1f2] border-[#fecdd3] dark:bg-rose-950/20 dark:border-rose-800/40";
-                                let dotColor = "bg-[#ef4444]";
-                                let textColor = "text-[#e11d48] dark:text-rose-400";
-                                let statusLabel = "Absent";
+                              let cardBg = "bg-[#fff1f2] dark:bg-rose-950/25 border-[#fecdd3] dark:border-rose-800/40";
+                              let dotColor = "bg-[#ef4444]";
+                              let textColor = "text-[#e11d48] dark:text-rose-400";
+                              let statusLabel = "Absent";
 
-                                if (isPresent) {
-                                  cardBg = "bg-[#f0fdf4] border-[#bbf7d0] dark:bg-emerald-950/20 dark:border-emerald-800/40";
-                                  dotColor = "bg-[#10b981]";
-                                  textColor = "text-[#16a34a] dark:text-emerald-400";
-                                  statusLabel = "Present";
-                                } else if (isWfh) {
-                                  cardBg = "bg-[#eff6ff] border-[#bfdbfe] dark:bg-blue-950/20 dark:border-blue-800/40";
-                                  dotColor = "bg-[#3b82f6]";
-                                  textColor = "text-[#2563eb] dark:text-blue-400";
-                                  statusLabel = "WFH";
-                                } else if (isHalfDay) {
-                                  cardBg = "bg-[#fffbeb] border-[#fde68a] dark:bg-amber-950/20 dark:border-amber-800/40";
-                                  dotColor = "bg-[#f59e0b]";
-                                  textColor = "text-[#d97706] dark:text-amber-400";
-                                  statusLabel = member.status || "Half Day";
-                                }
+                              if (isPresent) {
+                                cardBg = "bg-[#f0fdf4] dark:bg-emerald-950/25 border-[#bbf7d0] dark:border-emerald-800/40";
+                                dotColor = "bg-[#10b981]";
+                                textColor = "text-[#16a34a] dark:text-emerald-400";
+                                statusLabel = "Present";
+                              } else if (isWfh) {
+                                cardBg = "bg-[#eff6ff] dark:bg-blue-950/25 border-[#bfdbfe] dark:border-blue-800/40";
+                                dotColor = "bg-[#3b82f6]";
+                                textColor = "text-[#2563eb] dark:text-blue-400";
+                                statusLabel = "WFH";
+                              } else if (isHalfDay) {
+                                cardBg = "bg-[#fffbeb] dark:bg-amber-950/25 border-[#fde68a] dark:border-amber-800/40";
+                                dotColor = "bg-[#f59e0b]";
+                                textColor = "text-[#d97706] dark:text-amber-400";
+                                statusLabel = member.status || "Half Day";
+                              }
 
-                                const initials = (() => {
-                                  if (!member.name) return "??";
-                                  const parts = member.name.trim().split(/\s+/).filter(Boolean);
-                                  if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
-                                  return (parts[0][0] + parts[1][0]).toUpperCase();
-                                })();
+                              const initials = (() => {
+                                if (!member.name) return "??";
+                                const parts = member.name.trim().split(/\s+/).filter(Boolean);
+                                if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+                                return (parts[0][0] + parts[1][0]).toUpperCase();
+                              })();
 
-                                return (
+                              return (
+                                <div
+                                  key={member.id}
+                                  onClick={() => setSelectedTeamMemberForPunches(member)}
+                                  className={`group inline-flex items-center ${
+                                    isUltraCompact
+                                      ? "gap-1.5 p-1 px-2 rounded-xl"
+                                      : isCompact
+                                      ? "gap-2 p-1.5 px-2.5 rounded-xl"
+                                      : "gap-2.5 sm:gap-3 py-2 px-3 rounded-2xl flex-1 min-w-[150px] max-w-[220px]"
+                                  } ${cardBg} border hover:shadow-2xs transition-all duration-200 text-left cursor-pointer shrink-0`}
+                                  title={`Click to view punches for ${member.name} (${statusLabel})`}
+                                >
+                                  {/* Avatar */}
                                   <div
-                                    key={member.id}
-                                    onClick={() => setSelectedTeamMemberForPunches(member)}
-                                    className={`group flex items-center justify-between p-3 rounded-2xl border ${cardBg} hover:shadow-xs transition-all duration-200 text-left cursor-pointer`}
-                                    title={`Click to view punches for ${member.name} (${statusLabel})`}
+                                    className={`${
+                                      isUltraCompact
+                                        ? "w-6 h-6 text-[10px]"
+                                        : isCompact
+                                        ? "w-7 h-7 text-[11px]"
+                                        : "w-8 h-8 sm:w-9 sm:h-9 text-xs font-bold"
+                                    } rounded-full bg-[#2563eb] text-white flex items-center justify-center shrink-0 shadow-2xs overflow-hidden`}
                                   >
-                                    <div className="flex items-center gap-2.5 min-w-0">
-                                      <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#2563eb] text-white font-black text-xs sm:text-sm flex items-center justify-center shrink-0 shadow-2xs overflow-hidden">
-                                        {member.profile_photo_path ? (
-                                          <img
-                                            src={member.profile_photo_path}
-                                            alt={member.name}
-                                            className="w-full h-full object-cover"
-                                            onError={(e) => {
-                                              (e.currentTarget as HTMLElement).style.display = "none";
-                                            }}
-                                          />
-                                        ) : (
-                                          initials
-                                        )}
-                                      </div>
-                                      <div className="min-w-0">
-                                        <div className="text-[13px] sm:text-sm font-black text-slate-900 dark:text-white truncate">
-                                          {member.name}
-                                        </div>
-                                        <div className="flex items-center gap-1.5 mt-0.5">
-                                          <span className={`w-2 h-2 rounded-full shrink-0 ${dotColor}`} />
-                                          <span className={`text-[11px] sm:text-xs font-black ${textColor}`}>
-                                            {statusLabel}
-                                          </span>
-                                        </div>
-                                      </div>
-                                    </div>
+                                    {member.profile_photo_path ? (
+                                      <img
+                                        src={member.profile_photo_path}
+                                        alt={member.name}
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                          (e.currentTarget as HTMLElement).style.display = "none";
+                                        }}
+                                      />
+                                    ) : (
+                                      initials
+                                    )}
+                                  </div>
+
+                                  {/* Name + Text & Color Dot Only (No Pills) */}
+                                  <div className="min-w-0 flex-1">
                                     <div
-                                      role="button"
-                                      tabIndex={0}
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setSelectedTeamMemberForPunches(member);
-                                      }}
-                                      className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-200/50 dark:bg-slate-700/50 hover:bg-white dark:hover:bg-slate-700 border border-slate-300/40 dark:border-slate-600/40 flex items-center justify-center text-slate-400 hover:text-purple-600 dark:hover:text-purple-300 hover:border-purple-300 transition-all shrink-0 ml-1.5 cursor-pointer shadow-2xs"
-                                      title={`View punches for ${member.name}`}
+                                      className={`${
+                                        isUltraCompact
+                                          ? "text-[11px] max-w-[80px]"
+                                          : isCompact
+                                          ? "text-xs max-w-[100px]"
+                                          : "text-xs sm:text-[13px] font-bold max-w-[125px]"
+                                      } font-bold text-slate-800 dark:text-slate-100 truncate leading-tight`}
                                     >
-                                      <Clock className="w-3.5 h-3.5 stroke-[2]" />
+                                      {member.name}
+                                    </div>
+                                    <div className="flex items-center gap-1.5 mt-0.5">
+                                      <span className={`${isCompact ? "w-1.5 h-1.5" : "w-2 h-2"} rounded-full shrink-0 ${dotColor}`} />
+                                      <span className={`${isCompact ? "text-[10px]" : "text-xs"} font-bold ${textColor} leading-none`}>
+                                        {statusLabel}
+                                      </span>
                                     </div>
                                   </div>
-                                );
-                              })}
-                            </div>
+
+                                  {/* Subtle Clock Button */}
+                                  <div
+                                    role="button"
+                                    tabIndex={0}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSelectedTeamMemberForPunches(member);
+                                    }}
+                                    className={`${
+                                      isCompact ? "w-5 h-5" : "w-6 h-6 sm:w-7 sm:h-7"
+                                    } rounded-full bg-slate-200/50 dark:bg-slate-700/50 flex items-center justify-center text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 transition-colors shrink-0 ml-auto cursor-pointer`}
+                                    title={`View punches for ${member.name}`}
+                                  >
+                                    <Clock className={`${isCompact ? "w-2.5 h-2.5" : "w-3.5 h-3.5"} stroke-[1.8]`} />
+                                  </div>
+                                </div>
+                              );
+                            })
                           ) : (
-                            <p className="text-xs text-slate-500 dark:text-slate-400 py-4 text-center">
+                            <p className="text-xs text-slate-500 dark:text-slate-400 py-2">
                               No team members assigned
                             </p>
                           )}
                         </div>
 
-                        {/* Divider */}
-                        <div className="hidden xl:block w-px bg-slate-100 dark:bg-slate-700/80 self-stretch my-1 shrink-0" />
+                        {/* Vertical Divider */}
+                        <div className="w-px h-12 sm:h-14 bg-slate-200/80 dark:bg-slate-700/80 shrink-0 mx-0.5 sm:mx-1" />
 
-                        {/* Donut Chart, Stats & Stronger Together Corner */}
-                        <div className="relative flex items-center justify-between gap-4 sm:gap-6 shrink-0 pt-3 xl:pt-0 pl-0 xl:pl-3 overflow-hidden min-w-[280px] sm:min-w-[340px]">
+                        {/* Right: Donut Chart + Statistics */}
+                        <div className="flex items-center gap-2.5 sm:gap-3.5 shrink-0 z-10 pr-1">
                           {/* Donut Chart */}
-                          <div className="relative w-20 h-20 sm:w-22 sm:h-22 shrink-0 flex items-center justify-center">
-                            <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                          <div className="relative w-12 h-12 sm:w-14 sm:h-14 shrink-0 flex items-center justify-center">
+                            <svg className="w-full h-full -rotate-90" viewBox="0 0 64 64">
                               <circle
-                                cx="50"
-                                cy="50"
-                                r="38"
+                                cx="32"
+                                cy="32"
+                                r="25"
                                 fill="none"
                                 stroke="currentColor"
-                                strokeWidth="10"
+                                strokeWidth="7"
                                 className="text-slate-100 dark:text-slate-800"
                               />
                               {totalTeam > 0 &&
                                 strokeSegments.map((seg, idx) => (
                                   <circle
                                     key={idx}
-                                    cx="50"
-                                    cy="50"
-                                    r="38"
+                                    cx="32"
+                                    cy="32"
+                                    r="25"
                                     fill="none"
                                     stroke={seg.color}
-                                    strokeWidth="10"
+                                    strokeWidth="7"
                                     strokeDasharray={seg.strokeDasharray}
                                     strokeDashoffset={seg.strokeDashoffset}
                                     strokeLinecap="butt"
@@ -810,47 +839,47 @@ export default function DashboardPage() {
                                 ))}
                             </svg>
                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none text-slate-400 dark:text-slate-500">
-                              <Users className="w-5 h-5 stroke-[2]" />
+                              <Users className="w-3.5 h-3.5 stroke-[2]" />
                             </div>
                           </div>
 
                           {/* Stats Numbers */}
-                          <div className="flex flex-col justify-center gap-2 shrink-0 z-10">
+                          <div className="flex flex-col justify-center gap-1 shrink-0">
                             <div>
-                              <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white leading-none tracking-tight font-sans">
+                              <div className="text-lg sm:text-xl font-black text-slate-900 dark:text-white leading-none tracking-tight font-sans">
                                 {totalTeam}
                               </div>
-                              <div className="text-[10px] sm:text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-0.5">
+                              <div className="text-[9px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-0.5">
                                 Total Team
                               </div>
                             </div>
 
-                            <div className="flex items-center gap-3 pt-1 border-t border-slate-100 dark:border-slate-800">
+                            <div className="flex items-center gap-2 pt-0.5 border-t border-slate-100 dark:border-slate-800">
                               <div>
-                                <div className="text-base sm:text-lg font-black text-emerald-600 dark:text-emerald-400 leading-none">
+                                <div className="text-xs sm:text-sm font-black text-emerald-600 dark:text-emerald-400 leading-none">
                                   {presentCount}
                                 </div>
-                                <div className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
+                                <div className="text-[9px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
                                   Present
                                 </div>
                               </div>
-                              <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 shrink-0" />
+                              <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 shrink-0" />
                               <div>
-                                <div className="text-base sm:text-lg font-black text-rose-600 dark:text-rose-400 leading-none">
+                                <div className="text-xs sm:text-sm font-black text-rose-600 dark:text-rose-400 leading-none">
                                   {absentCount}
                                 </div>
-                                <div className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
+                                <div className="text-[9px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
                                   Absent
                                 </div>
                               </div>
                               {wfhCount > 0 && (
                                 <>
-                                  <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 shrink-0" />
+                                  <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 shrink-0" />
                                   <div>
-                                    <div className="text-base sm:text-lg font-black text-blue-600 dark:text-blue-400 leading-none">
+                                    <div className="text-xs sm:text-sm font-black text-blue-600 dark:text-blue-400 leading-none">
                                       {wfhCount}
                                     </div>
-                                    <div className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
+                                    <div className="text-[9px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
                                       WFH
                                     </div>
                                   </div>
@@ -858,12 +887,12 @@ export default function DashboardPage() {
                               )}
                               {halfDayCount > 0 && (
                                 <>
-                                  <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 shrink-0" />
+                                  <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 shrink-0" />
                                   <div>
-                                    <div className="text-base sm:text-lg font-black text-amber-600 dark:text-amber-400 leading-none">
+                                    <div className="text-xs sm:text-sm font-black text-amber-600 dark:text-amber-400 leading-none">
                                       {halfDayCount}
                                     </div>
-                                    <div className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
+                                    <div className="text-[9px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
                                       Half Day
                                     </div>
                                   </div>
@@ -871,18 +900,15 @@ export default function DashboardPage() {
                               )}
                             </div>
                           </div>
+                        </div>
 
-                          {/* Right Corner Shape Image with Faint Users Icon */}
-                          <div className="relative shrink-0 flex flex-col items-center justify-center self-stretch min-w-[90px] sm:min-w-[110px] pointer-events-none select-none overflow-hidden">
-                            <img
-                              src="/images/team-status-corner.png"
-                              alt="Stronger Together"
-                              className="absolute right-0 bottom-0 top-0 h-full w-auto max-w-[130px] object-contain object-right"
-                            />
-                            <div className="relative z-10 mb-4 opacity-35 text-blue-400">
-                              <Users className="w-7 h-7" />
-                            </div>
-                          </div>
+                        {/* Corner Graphic - Half style tucked into corner with low visibility */}
+                        <div className="absolute -right-5 -bottom-6 sm:-right-4 sm:-bottom-5 w-24 sm:w-28 h-24 sm:h-28 pointer-events-none select-none opacity-20 dark:opacity-10 overflow-hidden">
+                          <img
+                            src="/images/team-status-corner.png"
+                            alt=""
+                            className="w-full h-full object-contain object-bottom-right"
+                          />
                         </div>
                       </div>
                     );
