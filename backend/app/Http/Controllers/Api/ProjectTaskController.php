@@ -72,7 +72,8 @@ class ProjectTaskController extends Controller
             $teamId = (int) $request->input('team_id');
             $query->where(function ($q) use ($teamId) {
                 $q->where('team_id', $teamId)
-                  ->orWhereHas('assignees', fn ($a) => $a->where('users.team_id', $teamId));
+                  ->orWhereHas('assignees', fn ($a) => $a->where('users.team_id', $teamId))
+                  ->orWhereHas('project', fn ($p) => $p->where('team_id', $teamId));
             });
         } elseif ($request->filled('project_id') && $request->boolean('all_project_tasks')) {
             // Defect reporting / project task selector explicitly requests all tasks under the project
@@ -257,7 +258,10 @@ class ProjectTaskController extends Controller
             $effectiveTeamId = $project->team_id;
         }
 
-        if ($isTeamLead && !$isSuperAdmin) {
+        $hasCrossTeamAssign = $isSuperAdmin
+            || \App\Models\CustomTeamPermission::userHasPermission($user, 'task_cross_team_assign');
+
+        if ($isTeamLead && !$isSuperAdmin && !$hasCrossTeamAssign) {
             $data['team_id'] = $effectiveTeamId;
 
             if (!empty($assigneeIds) && $effectiveTeamId) {
@@ -468,8 +472,45 @@ class ProjectTaskController extends Controller
             }
         }
 
-        // If the user is a Team Lead or has an assigned team and is NOT pure Super Admin:
-        if ($isExplicitTeamLead || ($teamId && !str_contains($userRolesStr, 'super admin'))) {
+        // Super Admin check or Custom Cross-Team Permissions
+        $hasCrossTeamAccess = $user->hasRole('Super Admin')
+            || str_contains($userRolesStr, 'super admin')
+            || str_contains($userRolesStr, 'admin')
+            || \App\Models\CustomTeamPermission::userHasPermission($user, 'task_cross_team_view')
+            || \App\Models\CustomTeamPermission::userHasPermission($user, 'task_cross_team_assign');
+
+        if ($hasCrossTeamAccess) {
+            $query = \App\Models\User::where('status', 'Active')
+                ->select(['id', 'first_name', 'last_name', 'employee_code', 'designation', 'team_id'])
+                ->with('team:id,name')
+                ->orderBy('first_name');
+
+            if ($request->filled('team_id') && $request->input('team_id') !== 'all') {
+                $filterTeamId = (int) $request->input('team_id');
+                $query->where('team_id', $filterTeamId);
+            }
+
+            $members = $query->get()->map(fn($u) => [
+                'id' => $u->id,
+                'first_name' => $u->first_name,
+                'last_name' => $u->last_name,
+                'employee_code' => $u->employee_code,
+                'designation' => $u->designation,
+                'team_id' => $u->team_id,
+                'department' => $u->team?->name ?? 'General',
+            ]);
+
+            return response()->json([
+                'is_super_admin' => true,
+                'team_id' => $request->filled('team_id') && $request->input('team_id') !== 'all' ? (int) $request->input('team_id') : null,
+                'team_name' => 'All Organization Members',
+                'members' => $members,
+                'total' => $members->count(),
+            ]);
+        }
+
+        // If the user is a Team Lead or has an assigned team:
+        if ($isExplicitTeamLead || $teamId) {
             if ($teamId) {
                 $members = \App\Models\User::where('status', 'Active')
                     ->where(function ($q) use ($teamId, $user) {
@@ -498,37 +539,6 @@ class ProjectTaskController extends Controller
                     'total' => $members->count(),
                 ]);
             }
-        }
-
-        // Super Admin check or Custom Cross-Team Permissions
-        $isSuperAdmin = $user->hasRole('Super Admin')
-            || str_contains($userRolesStr, 'super admin')
-            || str_contains($userRolesStr, 'admin')
-            || \App\Models\CustomTeamPermission::userHasPermission($user, 'task_cross_team_view')
-            || \App\Models\CustomTeamPermission::userHasPermission($user, 'task_cross_team_assign');
-
-        if ($isSuperAdmin) {
-            $members = \App\Models\User::where('status', 'Active')
-                ->select(['id', 'first_name', 'last_name', 'employee_code', 'designation', 'team_id'])
-                ->with('team:id,name')
-                ->orderBy('first_name')
-                ->get()
-                ->map(fn($u) => [
-                    'id' => $u->id,
-                    'first_name' => $u->first_name,
-                    'last_name' => $u->last_name,
-                    'employee_code' => $u->employee_code,
-                    'designation' => $u->designation,
-                    'team_id' => $u->team_id,
-                    'department' => $u->team?->name ?? 'General',
-                ]);
-
-            return response()->json([
-                'is_super_admin' => true,
-                'team_name' => 'All Organization Members',
-                'members' => $members,
-                'total' => $members->count(),
-            ]);
         }
 
         // Fallback for regular employees: their team or themselves

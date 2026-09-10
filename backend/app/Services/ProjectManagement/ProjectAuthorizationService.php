@@ -159,6 +159,10 @@ class ProjectAuthorizationService
             return true;
         }
 
+        if (\App\Models\CustomTeamPermission::userHasPermission($user, 'task_cross_team_assign')) {
+            return true;
+        }
+
         return $user->can('manage tasks');
     }
 
@@ -174,7 +178,8 @@ class ProjectAuthorizationService
             $user->hasRole('Team Lead') ||
             $user->can('manage tasks') ||
             in_array(strtolower($user->role ?? ''), ['super admin', 'admin', 'team lead'], true) ||
-            \App\Models\Team::where('team_lead_id', $user->id)->exists()
+            \App\Models\Team::where('team_lead_id', $user->id)->exists() ||
+            \App\Models\CustomTeamPermission::userHasPermission($user, 'task_cross_team_assign')
         ) {
             return true;
         }
@@ -231,11 +236,15 @@ class ProjectAuthorizationService
      */
     public function canAssignUserToTask(User $actor, ProjectTask $task, User $targetUser): bool
     {
-        if ($actor->hasRole('Super Admin')) {
+        if ($actor->hasRole('Super Admin') || in_array(strtolower($actor->role ?? ''), ['super admin', 'admin'], true)) {
             return true;
         }
 
-        if ($actor->hasRole('Team Lead')) {
+        if (\App\Models\CustomTeamPermission::userHasPermission($actor, 'task_cross_team_assign')) {
+            return true;
+        }
+
+        if ($actor->hasRole('Team Lead') || in_array(strtolower($actor->role ?? ''), ['team lead'], true) || \App\Models\Team::where('team_lead_id', $actor->id)->exists()) {
             return $this->canManageTask($actor, $task)
                 && $targetUser->team_id !== null
                 && $targetUser->team_id === $actor->team_id;

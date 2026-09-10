@@ -114,7 +114,7 @@ export default function AllTasksPage() {
       setError(null);
 
       try {
-        if (isEmployee) {
+        if (isEmployee && !canViewCrossTeam) {
           const params: any = { page, per_page: 500 };
           if (statusFilter && statusFilter !== "All") params.status = statusFilter;
           const data = await pmApi.getMyTasks(params);
@@ -138,7 +138,7 @@ export default function AllTasksPage() {
         setRefreshing(false);
       }
     },
-    [search, statusFilter, priorityFilter, projectFilter, selectedTeamId, isEmployee]
+    [search, statusFilter, priorityFilter, projectFilter, selectedTeamId, isEmployee, canViewCrossTeam]
   );
 
   useEffect(() => {
@@ -321,11 +321,6 @@ export default function AllTasksPage() {
         }
 
         if (!memberMap.has(aId)) {
-          // Only add foreign member cards if in global "all" view and user has cross-team permissions
-          if (selectedTeamId !== "all" || !canViewCrossTeam) {
-            return;
-          }
-
           const aName = assignee.first_name ? `${assignee.first_name} ${assignee.last_name || ""}`.trim() : assignee.name || `User #${aId}`;
           memberMap.set(aId, {
             member: {
