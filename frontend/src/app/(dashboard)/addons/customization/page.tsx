@@ -1302,7 +1302,7 @@ export default function CustomizationPage() {
                     : { backgroundColor: "#0c182d" }),
                   borderRadius: currentRadius,
                 }}
-                className="relative overflow-hidden p-5 sm:p-6 border border-white/20 shadow-lg min-h-[150px] flex flex-col justify-between text-white transition-all select-none"
+                className="relative overflow-hidden p-5 sm:p-6 border border-white/20 shadow-none min-h-[150px] flex flex-col justify-between text-white transition-all select-none"
               >
                 {isBannerVideo && (
                   <>
@@ -2993,7 +2993,7 @@ export default function CustomizationPage() {
                         : { backgroundColor: "#0c182d" }),
                       borderRadius: currentRadius,
                     }}
-                    className="p-3 border border-white/20 text-white shadow-md relative overflow-hidden space-y-2 select-none"
+                    className="p-3 border border-white/20 text-white shadow-none relative overflow-hidden space-y-2 select-none"
                   >
                     {isBannerVideo && (
                       <>

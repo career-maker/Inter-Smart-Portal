@@ -341,8 +341,8 @@ export default function DashboardPage() {
         id="welcome-hero-banner"
         className="relative rounded-[28px] overflow-hidden p-4 sm:p-6 md:p-8 min-h-[175px] flex flex-col justify-between gap-6 select-none transition-all duration-300
           bg-[#060c18]
-          border border-[#1c3a63]
-          shadow-[inset_0_0_0_1px_rgba(96,165,250,0.10),0_12px_40px_rgba(0,0,0,0.7)]"
+          border border-[#1c3a63]/70
+          shadow-none"
       >
         {/* Video Banner Background */}
         {isBannerVideo && (
@@ -1299,8 +1299,8 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
         id="welcome-hero-banner-admin"
         className="relative rounded-[28px] overflow-hidden p-4 sm:p-6 md:p-8 min-h-[175px] flex flex-col justify-between gap-6 select-none transition-all duration-300
           bg-[#060c18]
-          border border-[#1c3a63]
-          shadow-[inset_0_0_0_1px_rgba(96,165,250,0.10),0_12px_40px_rgba(0,0,0,0.7)]"
+          border border-[#1c3a63]/70
+          shadow-none"
       >
         {/* Video Banner Background */}
         {isBannerVideo && (
