@@ -27,19 +27,26 @@ class AttendanceController extends Controller
 
     public function status(Request $request)
     {
-        $user       = $request->user();
-        $today      = Carbon::today('Asia/Kolkata')->toDateString();
+        $user  = $request->user();
+        $today = Carbon::today('Asia/Kolkata')->toDateString();
 
-        $hasApprovedWfhToday = \App\Models\WfhRequest::where('user_id', $user->id)
-            ->where('status', 'Approved')
-            ->whereDate('start_date', '<=', $today)
-            ->whereDate('end_date', '>=', $today)
-            ->exists();
-        
+        $wfhInfo             = $this->getWfhSessionInfo($user->id, $today);
+        $hasApprovedWfhToday = $wfhInfo['has_approved_wfh'];
+        $isWfhSessionActive  = $wfhInfo['is_wfh_session_active'];
+        $wfhDurationType     = $wfhInfo['duration_type'];
+        $wfhSessionMessage   = $wfhInfo['session_message'];
+
         $attendance = Attendance::with('breaks')
             ->where('user_id', $user->id)
             ->where('date', $today)
             ->first();
+
+        // If WFH was cancelled or not approved, but attendance source was left as wfh_manual,
+        // revert source to biometric so that physical office biometric processing resumes cleanly.
+        if (!$hasApprovedWfhToday && $attendance && in_array($attendance->source, ['wfh_manual', 'manual'], true)) {
+            $attendance->update(['source' => 'biometric']);
+            $attendance->source = 'biometric';
+        }
 
         // Auto-heal any WFH manual record where check_in_time was mistakenly stored as local IST instead of UTC
         $this->healSkewedAttendance($attendance, $today);
@@ -50,8 +57,23 @@ class AttendanceController extends Controller
             ->orderBy('local_punch_time', 'asc')
             ->get();
 
-        // 2. If there are raw events and NO manual override, rebuild on the fly
-        if ($rawEvents->isNotEmpty() && (!$attendance || $attendance->source === 'biometric')) {
+        // Check if there is a manual checkout timestamp
+        $latestBioUtc = null;
+        if ($rawEvents->isNotEmpty()) {
+            $lastEvt = $rawEvents->last();
+            $latestBioUtc = $lastEvt->utc_punch_time
+                ? Carbon::parse($lastEvt->utc_punch_time)
+                : Carbon::parse($lastEvt->local_punch_time, 'Asia/Kolkata')->setTimezone('UTC');
+        }
+
+        $hasManualCheckout = $attendance && $attendance->check_out_time && ($attendance->source === 'wfh_manual' || $hasApprovedWfhToday);
+        $checkoutUtc = $hasManualCheckout ? Carbon::parse($attendance->getRawOriginal('check_out_time'), 'UTC') : null;
+
+        // If manual checkout exists, only wipe it out if a physical biometric punch occurred AFTER the checkout
+        $biometricIsNewerThanManualCheckout = !$hasManualCheckout || ($latestBioUtc && $checkoutUtc && $latestBioUtc->isAfter($checkoutUtc));
+
+        // 2. If there are raw events, rebuild on the fly
+        if ($rawEvents->isNotEmpty() && (!$attendance || $attendance->source === 'biometric' || $hasApprovedWfhToday)) {
             $previousDate         = Carbon::parse($today)->subDay()->format('Y-m-d');
             $hasOpenPreviousShift = Attendance::where('user_id', $user->id)
                 ->where('date', $previousDate)
@@ -61,33 +83,42 @@ class AttendanceController extends Controller
                 ->exists();
 
             $build = $this->timeline->buildTimeline($rawEvents, $hasOpenPreviousShift);
-            
+
             if ($build['ok'] && !empty($build['timeline']) && $build['timeline'][0]['type'] === 'in') {
                 $interp = $this->timeline->interpretTimeline($build['timeline'], $today);
-                
+
                 if (!$attendance) {
                     $attendance = new Attendance();
                     $attendance->user_id = $user->id;
-                    $attendance->date = $today;
-                    $attendance->source = 'biometric';
+                    $attendance->date    = $today;
+                    $attendance->source  = 'biometric';
                 }
-                
-                $attendance->check_in_time         = $interp['first_in'];
-                $attendance->check_out_time        = $interp['is_currently_working'] ? null : $interp['last_out'];
-                $attendance->last_out              = $interp['last_out'];
-                $attendance->total_working_minutes = $interp['total_working_minutes'];
-                $attendance->status                = 'Present';
-                
+
+                // Preserve the morning biometric first_in punch!
+                $attendance->check_in_time = $interp['first_in'];
+
+                // Only overwrite check_out_time if no manual checkout or biometric punch occurred after checkout
+                if ($biometricIsNewerThanManualCheckout) {
+                    $attendance->check_out_time        = $interp['is_currently_working'] ? null : $interp['last_out'];
+                    $attendance->last_out              = $interp['last_out'];
+                    $attendance->total_working_minutes = $interp['total_working_minutes'];
+                } else {
+                    $attendance->last_out = $attendance->check_out_time;
+                }
+                $attendance->status = 'Present';
+
                 // Construct in-memory breaks
-                $breaksCollection = collect();
-                foreach ($interp['completed_breaks'] as $b) {
-                    $breakObj = new AttendanceBreak();
-                    $breakObj->break_start = $b['start'];
-                    $breakObj->break_end = $b['end'];
-                    $breakObj->total_break_minutes = $b['minutes'];
-                    $breaksCollection->push($breakObj);
+                if ($biometricIsNewerThanManualCheckout) {
+                    $breaksCollection = collect();
+                    foreach ($interp['completed_breaks'] as $b) {
+                        $breakObj = new AttendanceBreak();
+                        $breakObj->break_start        = $b['start'];
+                        $breakObj->break_end          = $b['end'];
+                        $breakObj->total_break_minutes = $b['minutes'];
+                        $breaksCollection->push($breakObj);
+                    }
+                    $attendance->setRelation('breaks', $breaksCollection);
                 }
-                $attendance->setRelation('breaks', $breaksCollection);
             }
         }
 
@@ -96,6 +127,9 @@ class AttendanceController extends Controller
                 'status'                 => 'Not Checked In',
                 'attendance'             => null,
                 'has_approved_wfh_today' => $hasApprovedWfhToday,
+                'is_wfh_session_active'  => $isWfhSessionActive,
+                'wfh_duration_type'      => $wfhDurationType,
+                'wfh_session_message'    => $wfhSessionMessage,
             ]);
         }
 
@@ -114,10 +148,6 @@ class AttendanceController extends Controller
             }
         }
 
-        // Biometric punch reconciliation is handled securely and canonically 
-        // by the BiometricProcessorService cron job, but building on the fly above
-        // ensures instant UI updates before the cron runs.
-
         $status = 'Checked In';
         if ($attendance->check_out_time) {
             $status = 'Checked Out';
@@ -135,6 +165,9 @@ class AttendanceController extends Controller
             'attendance'             => $resource,
             'last_out'               => $resource->toArray($request)['last_out'] ?? null,
             'has_approved_wfh_today' => $hasApprovedWfhToday,
+            'is_wfh_session_active'  => $isWfhSessionActive,
+            'wfh_duration_type'      => $wfhDurationType,
+            'wfh_session_message'    => $wfhSessionMessage,
         ]);
     }
 
@@ -147,15 +180,16 @@ class AttendanceController extends Controller
         $user  = $request->user();
         $today = Carbon::today('Asia/Kolkata')->toDateString();
 
-        $hasApprovedWfhToday = \App\Models\WfhRequest::where('user_id', $user->id)
-            ->where('status', 'Approved')
-            ->whereDate('start_date', '<=', $today)
-            ->whereDate('end_date', '>=', $today)
-            ->exists();
-
-        if (!$hasApprovedWfhToday) {
+        $wfhInfo = $this->getWfhSessionInfo($user->id, $today);
+        if (!$wfhInfo['has_approved_wfh']) {
             return response()->json([
                 'message' => 'Manual clock-in is only available for employees with an approved Work From Home (WFH) request today.'
+            ], 403);
+        }
+
+        if (!$wfhInfo['is_wfh_session_active']) {
+            return response()->json([
+                'message' => $wfhInfo['session_message'] ?? 'WFH session is not currently active.'
             ], 403);
         }
 
@@ -163,14 +197,14 @@ class AttendanceController extends Controller
         $now = now();
         $source = 'wfh_manual';
 
-        // If employee already clocked in today:
+        // If employee already clocked in today (either via morning biometric or earlier manual punch):
         if ($existing && $existing->check_in_time) {
             // If already currently working (checked in, not checked out)
             if (is_null($existing->check_out_time)) {
                 return response()->json(['message' => 'Already checked in and currently working'], 400);
             }
 
-            // Employee was previously clocked out and is now clocking back IN (break ends, resume work)
+            // Employee was previously clocked out and is now clocking back IN for WFH (break ends, resume work)
             $previousOut = Carbon::parse($existing->check_out_time);
             $breakMinutes = max(0, (int) round($previousOut->diffInMinutes($now)));
 
@@ -194,13 +228,15 @@ class AttendanceController extends Controller
             }
 
             // Re-open attendance: employee is working again, stored check_out_time must be NULL
+            // The morning biometric check_in_time is PRESERVED!
             $existing->update([
                 'check_out_time' => null,
                 'status'         => 'Present',
+                'source'         => $source,
             ]);
 
             return response()->json([
-                'message' => 'Clocked in successfully (resumed from break)',
+                'message' => 'Clocked in successfully (resumed working for WFH shift)',
                 'data'    => new AttendanceResource($existing->fresh(['breaks'])),
             ]);
         }
@@ -258,15 +294,16 @@ class AttendanceController extends Controller
         $user  = $request->user();
         $today = Carbon::today('Asia/Kolkata')->toDateString();
 
-        $hasApprovedWfhToday = \App\Models\WfhRequest::where('user_id', $user->id)
-            ->where('status', 'Approved')
-            ->whereDate('start_date', '<=', $today)
-            ->whereDate('end_date', '>=', $today)
-            ->exists();
-
-        if (!$hasApprovedWfhToday) {
+        $wfhInfo = $this->getWfhSessionInfo($user->id, $today);
+        if (!$wfhInfo['has_approved_wfh']) {
             return response()->json([
                 'message' => 'Manual clock-out is only available for employees with an approved Work From Home (WFH) request today.'
+            ], 403);
+        }
+
+        if (!$wfhInfo['is_wfh_session_active']) {
+            return response()->json([
+                'message' => $wfhInfo['session_message'] ?? 'WFH session is not currently active.'
             ], 403);
         }
 
@@ -292,6 +329,7 @@ class AttendanceController extends Controller
         $attendance->update([
             'check_out_time'        => $now,
             'total_working_minutes' => (int) round($workingMinutes),
+            'source'                => 'wfh_manual',
         ]);
         $attendance->last_out = $now;
 
@@ -591,6 +629,72 @@ class AttendanceController extends Controller
             'is_manual'              => $isManualAttendance,
             'source'                 => $attendance?->source ?? ($rawEvents->isNotEmpty() ? 'biometric' : 'manual'),
         ]);
+    }
+
+    /**
+     * Determine WFH approval and active session window for a user on a given date.
+     * Respects Full Day, Half-Morning (WFH active until 14:00 IST), and Half-Afternoon (WFH active from 14:30 IST).
+     * Returns false for all fields if WFH was cancelled by employee or admin.
+     */
+    private function getWfhSessionInfo(int $userId, string $dateString): array
+    {
+        $wfhRequest = \App\Models\WfhRequest::where('user_id', $userId)
+            ->where('status', 'Approved')
+            ->whereDate('start_date', '<=', $dateString)
+            ->whereDate('end_date', '>=', $dateString)
+            ->first();
+
+        if (!$wfhRequest) {
+            return [
+                'has_approved_wfh'      => false,
+                'is_wfh_session_active' => false,
+                'duration_type'          => null,
+                'session_message'        => null,
+                'wfh_request_id'         => null,
+            ];
+        }
+
+        $durationType = $wfhRequest->duration_type ?? 'Full';
+        $nowIst       = Carbon::now('Asia/Kolkata');
+        $nowMinutes   = $nowIst->hour * 60 + $nowIst->minute;
+
+        // Half-Afternoon WFH window starts at 14:30 IST (02:30 PM)
+        $afternoonStartMinutes = 14 * 60 + 30;
+        // Half-Morning WFH window ends at 14:00 IST (02:00 PM)
+        $morningEndMinutes     = 14 * 60;
+
+        $isActive = true;
+        $message  = null;
+
+        if ($durationType === 'Half-Afternoon') {
+            if ($nowMinutes < $afternoonStartMinutes) {
+                $isActive = false;
+                $message  = 'Afternoon WFH session starts at 02:30 PM. Morning office session is active via biometric device.';
+            } else {
+                $isActive = true;
+                $message  = 'Afternoon WFH session is active (since 02:30 PM). Manual punch entries enabled.';
+            }
+        } elseif ($durationType === 'Half-Morning') {
+            if ($nowMinutes >= $morningEndMinutes) {
+                $isActive = false;
+                $message  = 'Morning WFH session ended at 02:00 PM. Afternoon office session is active via biometric device.';
+            } else {
+                $isActive = true;
+                $message  = 'Morning WFH session is active. Manual punch entries enabled.';
+            }
+        } else {
+            // Full Day WFH
+            $isActive = true;
+            $message  = 'Full Day WFH Approved. Manual punch entries enabled.';
+        }
+
+        return [
+            'has_approved_wfh'      => true,
+            'is_wfh_session_active' => $isActive,
+            'duration_type'          => $durationType,
+            'session_message'        => $message,
+            'wfh_request_id'         => $wfhRequest->id,
+        ];
     }
 
     /**

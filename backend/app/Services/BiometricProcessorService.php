@@ -75,12 +75,29 @@ class BiometricProcessorService
                             ->first();
 
                         if ($manualAttendance) {
-                            BiometricEvent::whereIn('id', $dailyEvents->pluck('id'))->update([
-                                'processing_status' => 'error',
-                                'error_reason'      => 'manual_attendance_conflict',
-                            ]);
-                            $errors += $dailyEvents->count();
-                            return;
+                            $approvedWfh = \App\Models\WfhRequest::where('user_id', $user->id)
+                                ->where('status', 'Approved')
+                                ->whereDate('start_date', '<=', $dateString)
+                                ->whereDate('end_date', '>=', $dateString)
+                                ->first();
+
+                            // Allow biometric processing for Half-Day WFH (to preserve morning/afternoon office session)
+                            // or if WFH was cancelled (reverting back to biometric)
+                            $isHalfDayHybrid = $approvedWfh && in_array($approvedWfh->duration_type, ['Half-Morning', 'Half-Afternoon'], true);
+                            $isWfhCancelled  = !$approvedWfh && $manualAttendance->source === 'wfh_manual';
+
+                            if (!$isHalfDayHybrid && !$isWfhCancelled) {
+                                BiometricEvent::whereIn('id', $dailyEvents->pluck('id'))->update([
+                                    'processing_status' => 'error',
+                                    'error_reason'      => 'manual_attendance_conflict',
+                                ]);
+                                $errors += $dailyEvents->count();
+                                return;
+                            }
+
+                            if ($isWfhCancelled) {
+                                $manualAttendance->update(['source' => 'biometric']);
+                            }
                         }
 
                         // Fetch ALL mapped events for this user on this date
@@ -244,7 +261,22 @@ class BiometricProcessorService
             ->first();
 
         if ($manualAttendance) {
-            return; // Do not overwrite manual records
+            $approvedWfh = \App\Models\WfhRequest::where('user_id', $user->id)
+                ->where('status', 'Approved')
+                ->whereDate('start_date', '<=', $dateString)
+                ->whereDate('end_date', '>=', $dateString)
+                ->first();
+
+            $isHalfDayHybrid = $approvedWfh && in_array($approvedWfh->duration_type, ['Half-Morning', 'Half-Afternoon'], true);
+            $isWfhCancelled  = !$approvedWfh && $manualAttendance->source === 'wfh_manual';
+
+            if (!$isHalfDayHybrid && !$isWfhCancelled) {
+                return; // Do not overwrite full-day manual records
+            }
+
+            if ($isWfhCancelled) {
+                $manualAttendance->update(['source' => 'biometric']);
+            }
         }
 
         // Rebuild canonical timeline

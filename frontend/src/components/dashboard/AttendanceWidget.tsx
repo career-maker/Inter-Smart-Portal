@@ -329,7 +329,13 @@ export function AttendanceWidget({
               className="dark:text-slate-400 font-normal box-subtitle card-desc"
             >
               {data?.has_approved_wfh_today
-                ? "Work From Home (WFH) Approved • Manual entries enabled"
+                ? data?.is_wfh_session_active
+                  ? (data?.wfh_duration_type === "Half-Afternoon"
+                      ? "Afternoon WFH Active (since 02:30 PM) • Manual entries enabled"
+                      : "Work From Home (WFH) Approved • Manual entries enabled")
+                  : (data?.wfh_duration_type === "Half-Afternoon"
+                      ? "Half-Day WFH Approved (Starts at 02:30 PM) • Morning office shift via biometric"
+                      : "Work From Home (WFH) Approved")
                 : "Real-time biometric punch logs and work duration"}
             </p>
           </div>
@@ -380,66 +386,81 @@ export function AttendanceWidget({
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-bold text-slate-900 dark:text-white">
-                    Work From Home (WFH) Approved
+                    {data?.wfh_duration_type === "Half-Afternoon"
+                      ? data?.is_wfh_session_active
+                        ? "Afternoon Work From Home (WFH) Active"
+                        : "Afternoon WFH Approved (Starts at 02:30 PM)"
+                      : data?.wfh_duration_type === "Half-Morning"
+                      ? "Morning Work From Home (WFH)"
+                      : "Work From Home (WFH) Approved"}
                   </span>
-                  <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300">
-                    Manual Mode
+                  <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
+                    data?.is_wfh_session_active
+                      ? "bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300"
+                      : "bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300"
+                  }`}>
+                    {data?.is_wfh_session_active ? "Manual Mode Active" : "Office Session Active"}
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                  {data?.status === "Checked Out"
-                    ? "You are currently stepped out. Clock back in whenever you return to resume your working shift."
-                    : "Since you are working from home today, use manual clock in and clock out instead of biometric device punch."}
+                  {!data?.is_wfh_session_active
+                    ? data?.wfh_session_message || "Morning office shift is tracked via biometric punch. Manual entries enable when your WFH session starts."
+                    : data?.status === "Checked Out"
+                    ? "You are currently checked out / stepped out. Clock back in whenever you are ready to resume your shift."
+                    : "Since you are on an active WFH session, use manual clock in and clock out instead of biometric device punch."}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto">
-              {(!data?.attendance || data?.status === "Not Checked In") && (
-                <button
-                  type="button"
-                  onClick={handleManualClockIn}
-                  disabled={isPunching}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition-all cursor-pointer disabled:opacity-50"
-                  title="Manually clock in for today's WFH"
-                >
-                  <LogIn className={`w-4 h-4 ${isPunching ? "animate-spin" : ""}`} />
-                  <span>{isPunching ? "Clocking In..." : "Clock In (WFH)"}</span>
-                </button>
-              )}
-
-              {data?.status === "Checked In" && (
-                <button
-                  type="button"
-                  onClick={handleManualClockOut}
-                  disabled={isPunching}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg bg-rose-600 hover:bg-rose-700 text-white shadow-xs transition-all cursor-pointer disabled:opacity-50"
-                  title="Manually clock out for today's WFH"
-                >
-                  <LogOut className={`w-4 h-4 ${isPunching ? "animate-spin" : ""}`} />
-                  <span>{isPunching ? "Clocking Out..." : "Clock Out (WFH)"}</span>
-                </button>
-              )}
-
-              {data?.status === "Checked Out" && (
-                <div className="flex items-center gap-2">
+            {/* Action buttons only visible when WFH session is active */}
+            {data?.is_wfh_session_active && (
+              <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto">
+                {(!data?.attendance || data?.status === "Not Checked In") && (
                   <button
                     type="button"
                     onClick={handleManualClockIn}
                     disabled={isPunching}
                     className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition-all cursor-pointer disabled:opacity-50"
-                    title="Resume work / Clock back in after break"
+                    title="Manually clock in for today's WFH"
                   >
                     <LogIn className={`w-4 h-4 ${isPunching ? "animate-spin" : ""}`} />
                     <span>{isPunching ? "Clocking In..." : "Clock In (WFH)"}</span>
                   </button>
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/70 dark:border-amber-800/60">
-                    <Coffee className="w-3.5 h-3.5 text-amber-500" />
-                    <span>Stepped Out / On Break</span>
-                  </span>
-                </div>
-              )}
-            </div>
+                )}
+
+                {data?.status === "Checked In" && (
+                  <button
+                    type="button"
+                    onClick={handleManualClockOut}
+                    disabled={isPunching}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg bg-rose-600 hover:bg-rose-700 text-white shadow-xs transition-all cursor-pointer disabled:opacity-50"
+                    title="Manually clock out for today's WFH"
+                  >
+                    <LogOut className={`w-4 h-4 ${isPunching ? "animate-spin" : ""}`} />
+                    <span>{isPunching ? "Clocking Out..." : "Clock Out (WFH)"}</span>
+                  </button>
+                )}
+
+                {data?.status === "Checked Out" && (
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleManualClockIn}
+                      disabled={isPunching}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition-all cursor-pointer disabled:opacity-50"
+                      title="Resume work / Clock back in for WFH shift"
+                    >
+                      <LogIn className={`w-4 h-4 ${isPunching ? "animate-spin" : ""}`} />
+                      <span>{isPunching ? "Clocking In..." : "Clock In (WFH)"}</span>
+                    </button>
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/70 dark:border-amber-800/60">
+                      <Coffee className="w-3.5 h-3.5 text-amber-500" />
+                      <span>Stepped Out / On Break</span>
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
