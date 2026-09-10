@@ -797,13 +797,15 @@ export function AttendanceWidget({
                   </div>
 
                   {(() => {
-                    const isWfhManual = Boolean(
+                    const isHybrid = Boolean(
+                      timelineData?.is_hybrid ||
+                      (timelineData?.raw_punches?.some((p: any) => !p.is_manual && p.source === "biometric") &&
+                       timelineData?.raw_punches?.some((p: any) => p.is_manual || p.source === "wfh_manual"))
+                    );
+                    const isWfhManual = !isHybrid && Boolean(
                       timelineData?.is_manual ||
                       timelineData?.source === "wfh_manual" ||
-                      timelineData?.source === "manual" ||
-                      data?.attendance?.source === "wfh_manual" ||
-                      data?.attendance?.source === "manual" ||
-                      timelineData?.raw_punches?.some((p: any) => p.is_manual || p.event_id === "manual_in")
+                      timelineData?.source === "manual"
                     );
 
                     return (
@@ -829,6 +831,12 @@ export function AttendanceWidget({
                                   ? "Active / In Progress"
                                   : "--";
 
+                                const isSessionManual = Boolean(
+                                  session.is_manual ||
+                                  session.source === "wfh_manual" ||
+                                  session.source === "manual"
+                                );
+
                                 return (
                                   <div
                                     key={sIdx}
@@ -839,9 +847,13 @@ export function AttendanceWidget({
                                         <span className="text-xs font-bold text-slate-900 dark:text-white">
                                           Session #{sIdx + 1}
                                         </span>
-                                        {(session.is_manual || isWfhManual) && (
+                                        {isSessionManual ? (
                                           <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200/60 dark:border-purple-800">
                                             WFH Manual
+                                          </span>
+                                        ) : (
+                                          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-teal-100 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 border border-teal-200/60 dark:border-teal-800">
+                                            Office Biometric
                                           </span>
                                         )}
                                       </div>
@@ -899,13 +911,21 @@ export function AttendanceWidget({
                           <div className="pb-3 border-b border-slate-100 dark:border-slate-700/60 mb-3 flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               <h3 className="font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                                {isWfhManual ? "WFH Manual Punch Log" : "Biometric Scanner Log"}
+                                {isHybrid
+                                  ? "Hybrid Punch Log (Office & WFH)"
+                                  : isWfhManual
+                                  ? "WFH Manual Punch Log"
+                                  : "Biometric Scanner Log"}
                               </h3>
-                              {isWfhManual && (
+                              {isHybrid ? (
+                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300">
+                                  Hybrid Day
+                                </span>
+                              ) : isWfhManual ? (
                                 <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300">
                                   Manual Mode
                                 </span>
-                              )}
+                              ) : null}
                             </div>
                             <span className="text-[11px] font-semibold text-slate-400">
                               {timelineData?.raw_punches?.length || 0} Events
@@ -919,7 +939,12 @@ export function AttendanceWidget({
                                 const isPunchIn = typeUpper === "IN";
                                 const isPunchOut = typeUpper === "OUT";
                                 const isBreak = typeUpper.includes("BREAK");
-                                const isPunchManual = Boolean(p.is_manual || p.event_id === "manual_in" || p.event_id === "manual_out" || isWfhManual);
+                                const isPunchManual = Boolean(
+                                  p.is_manual ||
+                                  (typeof p.event_id === "string" && p.event_id.startsWith("manual_")) ||
+                                  p.source === "wfh_manual" ||
+                                  p.source === "manual"
+                                );
 
                                 return (
                                   <div
@@ -947,9 +972,13 @@ export function AttendanceWidget({
                                       <div>
                                         <p className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
                                           <span>{isPunchIn ? "Punch IN" : isPunchOut ? "Punch OUT" : typeUpper}</span>
-                                          {isPunchManual && (
-                                            <span className="text-[9px] font-semibold uppercase px-1.5 py-0.5 rounded bg-slate-200/80 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                                          {isPunchManual ? (
+                                            <span className="text-[9px] font-semibold uppercase px-1.5 py-0.5 rounded bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300">
                                               WFH
+                                            </span>
+                                          ) : (
+                                            <span className="text-[9px] font-semibold uppercase px-1.5 py-0.5 rounded bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300">
+                                              Office Bio
                                             </span>
                                           )}
                                         </p>
@@ -983,14 +1012,18 @@ export function AttendanceWidget({
 
                         {/* Security / WFH Notice */}
                         <div className={`p-3 rounded-xl text-center border ${
-                          isWfhManual
+                          isHybrid
+                            ? "bg-blue-50/50 dark:bg-blue-950/20 border-blue-100 dark:border-blue-900/30"
+                            : isWfhManual
                             ? "bg-purple-50/50 dark:bg-purple-950/20 border-purple-100 dark:border-purple-900/30"
                             : "bg-purple-50/50 dark:bg-purple-950/20 border-purple-100 dark:border-purple-900/30"
                         }`}>
                           <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                            {isWfhManual
-                              ? `🏠 Approved Work From Home (WFH) manual punch entries for ${selectedDate === todayStr ? "today" : selectedDate}.`
-                              : `🔒 Verified biometric punch logs for ${selectedDate === todayStr ? "today" : selectedDate}.`}
+                            {isHybrid
+                              ? "Morning office shift verified via biometric scanner. Afternoon shift tracked via approved Work From Home (WFH)."
+                              : isWfhManual
+                              ? "Approved Work From Home (WFH) manual punch entries for today."
+                              : "Official records synchronized from office biometric device."}
                           </p>
                         </div>
                       </>

@@ -540,15 +540,21 @@ class AttendanceController extends Controller
         $shiftCarbon = fn($c) => $c ? $c->setTimezone('Asia/Kolkata')->toIso8601String() : null;
 
         $shiftedRawPunches = array_map(fn($p) => [
-            'type'     => $p['type'],
-            'time'     => $shiftCarbon($p['time']),
-            'event_id' => $p['event_id'],
+            'type'      => $p['type'],
+            'time'      => $shiftCarbon($p['time']),
+            'event_id'  => $p['event_id'],
+            'is_manual' => false,
+            'source'    => 'biometric',
+            'label'     => 'Biometric Scanner',
         ], $interp['raw_punches']);
 
         $shiftedSessions = array_map(fn($s) => [
-            'start'   => $shiftCarbon($s['start']),
-            'end'     => $shiftCarbon($s['end']),
-            'minutes' => $s['minutes'],
+            'start'     => $shiftCarbon($s['start']),
+            'end'       => $shiftCarbon($s['end']),
+            'minutes'   => $s['minutes'],
+            'is_manual' => false,
+            'source'    => 'biometric',
+            'label'     => 'Office Session (Biometric)',
         ], $interp['working_sessions']);
 
         $shiftedBreaks = array_map(fn($b) => [
@@ -582,20 +588,131 @@ class AttendanceController extends Controller
         $firstInOutput = $shiftCarbon($interp['first_in']) ?: ($attendance?->check_in_time ? Carbon::parse($attendance->check_in_time)->setTimezone('Asia/Kolkata')->toIso8601String() : null);
         $lastOutOutput = $shiftCarbon($interp['last_out']) ?: ($attendance?->check_out_time ? Carbon::parse($attendance->check_out_time)->setTimezone('Asia/Kolkata')->toIso8601String() : null);
 
-        $isManualAttendance = in_array($attendance?->source, ['manual', 'wfh_manual'], true) || (empty($shiftedRawPunches) && (bool)$firstInOutput);
-
         $sessionsOutput   = $shiftedSessions;
         $rawPunchesOutput = $shiftedRawPunches;
         $breaksOutput     = $shiftedBreaks;
         $openBreakOutput  = $openBreakRow ? $shiftCarbon(Carbon::parse($openBreakRow->break_start)) : null;
 
-        if (empty($shiftedRawPunches) && $attendance && $firstInOutput) {
+        $hasManualEvents = $attendance && (
+            in_array($attendance->source, ['manual', 'wfh_manual'], true) ||
+            $attendance->breaks()->whereIn('source', ['manual', 'wfh_manual'])->exists() ||
+            ($attendance->check_out_time && (!empty($shiftedRawPunches) ? Carbon::parse($attendance->check_out_time)->isAfter(Carbon::parse(end($shiftedRawPunches)['time'])) : true))
+        );
+
+        if (!empty($shiftedRawPunches) && $hasManualEvents) {
+            // ── HYBRID DAY: Merge morning biometric punches with afternoon WFH manual actions ──
+            $manualBreaks = $attendance->breaks()
+                ->whereIn('source', ['manual', 'wfh_manual'])
+                ->orderBy('break_start', 'asc')
+                ->get();
+
+            foreach ($manualBreaks as $mb) {
+                $mbStart = Carbon::parse($mb->break_start);
+                $mbEnd   = $mb->break_end ? Carbon::parse($mb->break_end) : null;
+
+                $shiftedRawPunches[] = [
+                    'type'      => 'out',
+                    'time'      => $shiftCarbon($mbStart),
+                    'event_id'  => 'manual_out_' . $mb->id,
+                    'is_manual' => true,
+                    'source'    => 'wfh_manual',
+                    'label'     => 'WFH Clock Out / Transit',
+                ];
+
+                if ($mbEnd) {
+                    $shiftedRawPunches[] = [
+                        'type'      => 'in',
+                        'time'      => $shiftCarbon($mbEnd),
+                        'event_id'  => 'manual_in_' . $mb->id,
+                        'is_manual' => true,
+                        'source'    => 'wfh_manual',
+                        'label'     => 'WFH Clock In',
+                    ];
+
+                    $shiftedBreaks[] = [
+                        'start'   => $shiftCarbon($mbStart),
+                        'end'     => $shiftCarbon($mbEnd),
+                        'minutes' => (int) ($mb->total_break_minutes ?? floor($mbStart->diffInSeconds($mbEnd) / 60)),
+                    ];
+                }
+            }
+
+            // If manual check_out_time exists and is later than the latest punch
+            if ($attendance->check_out_time) {
+                $checkoutTime = Carbon::parse($attendance->check_out_time);
+                $lastRawTime  = !empty($shiftedRawPunches) ? Carbon::parse(end($shiftedRawPunches)['time']) : null;
+                if (!$lastRawTime || $checkoutTime->isAfter($lastRawTime)) {
+                    $shiftedRawPunches[] = [
+                        'type'      => 'out',
+                        'time'      => $shiftCarbon($checkoutTime),
+                        'event_id'  => 'manual_out_final',
+                        'is_manual' => true,
+                        'source'    => 'wfh_manual',
+                        'label'     => 'WFH Clock Out',
+                    ];
+                }
+            }
+
+            // Sort all punches chronologically
+            usort($shiftedRawPunches, fn($a, $b) => strcmp($a['time'], $b['time']));
+
+            // Reconstruct working sessions from the unified punch sequence
+            $unifiedSessions = [];
+            $currentSessionStart = null;
+            $currentSessionIsManual = false;
+
+            foreach ($shiftedRawPunches as $punch) {
+                if ($punch['type'] === 'in') {
+                    $currentSessionStart = $punch['time'];
+                    $currentSessionIsManual = $punch['is_manual'] ?? false;
+                } elseif ($punch['type'] === 'out' && $currentSessionStart) {
+                    $sStart = Carbon::parse($currentSessionStart);
+                    $sEnd   = Carbon::parse($punch['time']);
+                    $sMins  = max(0, (int) floor($sStart->diffInSeconds($sEnd) / 60));
+
+                    $unifiedSessions[] = [
+                        'start'     => $currentSessionStart,
+                        'end'       => $punch['time'],
+                        'minutes'   => $sMins,
+                        'is_manual' => $currentSessionIsManual || ($punch['is_manual'] ?? false),
+                        'source'    => ($currentSessionIsManual || ($punch['is_manual'] ?? false)) ? 'wfh_manual' : 'biometric',
+                        'label'     => ($currentSessionIsManual || ($punch['is_manual'] ?? false)) ? 'WFH Session (Manual)' : 'Office Session (Biometric)',
+                    ];
+                    $currentSessionStart = null;
+                }
+            }
+
+            // If an ongoing open session remains
+            if ($currentSessionStart) {
+                $sStart = Carbon::parse($currentSessionStart);
+                $sEnd   = Carbon::now();
+                $sMins  = max(0, (int) floor($sStart->diffInSeconds($sEnd) / 60));
+
+                $unifiedSessions[] = [
+                    'start'     => $currentSessionStart,
+                    'end'       => null,
+                    'minutes'   => $sMins,
+                    'is_manual' => $currentSessionIsManual,
+                    'source'    => $currentSessionIsManual ? 'wfh_manual' : 'biometric',
+                    'label'     => $currentSessionIsManual ? 'WFH Session (Manual)' : 'Office Session (Biometric)',
+                ];
+            }
+
+            $sessionsOutput   = $unifiedSessions;
+            $rawPunchesOutput = $shiftedRawPunches;
+            $breaksOutput     = $shiftedBreaks;
+        } elseif (empty($shiftedRawPunches) && $attendance && $firstInOutput) {
             $manualData       = $this->buildManualTimeline($attendance, Carbon::parse($dateString)->isToday());
             $sessionsOutput   = $manualData['working_sessions'];
             $rawPunchesOutput = $manualData['raw_punches'];
             $breaksOutput     = $manualData['completed_breaks'];
             $openBreakOutput  = $manualData['open_break_start'] ?? $openBreakOutput;
         }
+
+        $hasBiometric = $rawEvents->isNotEmpty();
+        $hasManual    = in_array($attendance?->source, ['manual', 'wfh_manual'], true) || collect($rawPunchesOutput)->contains(fn($p) => $p['is_manual'] ?? false);
+        $isHybrid     = $hasBiometric && $hasManual;
+        $isManualAttendance = in_array($attendance?->source, ['manual', 'wfh_manual'], true) || (empty($shiftedRawPunches) && (bool)$firstInOutput);
 
         $isCurrentlyWorking = $interp['is_currently_working'] ?: ($attendance && $attendance->check_in_time && is_null($attendance->check_out_time));
 
@@ -626,6 +743,7 @@ class AttendanceController extends Controller
             'completed_breaks'       => $breaksOutput,
             'raw_punches'            => $rawPunchesOutput,
             'orphan_event_ids'       => $build['orphan_event_ids'],
+            'is_hybrid'              => $isHybrid,
             'is_manual'              => $isManualAttendance,
             'source'                 => $attendance?->source ?? ($rawEvents->isNotEmpty() ? 'biometric' : 'manual'),
         ]);
