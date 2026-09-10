@@ -80,10 +80,10 @@ function WelcomeRolePill({ role }: { role?: string }) {
   }
 
   return (
-    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-[#f3e8ff] dark:bg-[#2b1055]/80 border border-[#d8b4fe] dark:border-[#a855f7]/40 text-[#6b21a8] dark:text-[#f3e8ff] shadow-2xs dark:shadow-[0_0_12px_rgba(168,85,247,0.25)] shrink-0 transition-transform duration-200 hover:scale-105 select-none">
-      <Users className="w-3.5 h-3.5 shrink-0 text-[#8b5cf6] dark:text-[#c084fc]" />
+    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-[#2b1055]/80 border border-[#a855f7]/40 text-[#f3e8ff] shadow-[0_0_12px_rgba(168,85,247,0.25)] shrink-0 transition-transform duration-200 hover:scale-105 select-none">
+      <Users className="w-3.5 h-3.5 shrink-0 text-[#c084fc]" />
       <span className="tracking-wider">{roleLabel}</span>
-      <span className="w-2 h-2 rounded-full bg-[#a855f7] dark:bg-[#c084fc] shadow-[0_0_6px_rgba(192,132,252,0.9)] shrink-0 ml-0.5" />
+      <span className="w-2 h-2 rounded-full bg-[#c084fc] shadow-[0_0_6px_rgba(192,132,252,0.9)] shrink-0 ml-0.5" />
     </span>
   );
 }
@@ -340,9 +340,9 @@ export default function DashboardPage() {
       <div
         id="welcome-hero-banner"
         className="relative rounded-[28px] overflow-hidden p-4 sm:p-6 md:p-8 min-h-[175px] flex flex-col justify-between gap-6 select-none transition-all duration-300
-          bg-white dark:bg-[#060c18]
-          border border-slate-200/90 dark:border-[#1c3a63]
-          shadow-[0_4px_25px_rgba(0,0,0,0.03)] dark:shadow-[inset_0_0_0_1px_rgba(96,165,250,0.10),0_12px_40px_rgba(0,0,0,0.7)]"
+          bg-[#060c18]
+          border border-[#1c3a63]
+          shadow-[inset_0_0_0_1px_rgba(96,165,250,0.10),0_12px_40px_rgba(0,0,0,0.7)]"
       >
         {/* Optional Custom Video Banner Fallback */}
         {isBannerVideo && (
@@ -359,14 +359,11 @@ export default function DashboardPage() {
             >
               <source src={welcomeBannerMedia} type={welcomeBannerMedia.endsWith(".webm") ? "video/webm" : "video/mp4"} />
             </video>
-            {/* White Gradient on Mobile: Solid white on top side where texts are displayed, video fully visible behind growing together card only */}
-            {/* On Desktop: Smooth horizontal gradient covering the left name section, video fully visible on the right */}
+            {/* Solid dark on the left name section, video fully visible behind the Growing Together card on the right */}
             <div
               className="absolute inset-0 pointer-events-none z-[1]
-                bg-[linear-gradient(to_bottom,#ffffff_0%,#ffffff_42%,rgba(255,255,255,0.85)_47%,rgba(255,255,255,0.25)_52%,transparent_56%)]
-                lg:bg-[linear-gradient(to_right,rgba(255,255,255,0.98)_0%,rgba(255,255,255,0.95)_28%,rgba(255,255,255,0.82)_44%,rgba(255,255,255,0.45)_58%,rgba(255,255,255,0.12)_72%,transparent_84%)]
-                dark:bg-[linear-gradient(to_bottom,#060c18_0%,#060c18_42%,rgba(6,12,24,0.85)_48%,rgba(6,12,24,0.30)_52%,transparent_56%)]
-                dark:lg:bg-[linear-gradient(to_right,rgba(6,12,24,0.98)_0%,rgba(6,12,24,0.94)_25%,rgba(6,12,24,0.80)_40%,rgba(6,12,24,0.35)_56%,rgba(6,12,24,0.10)_70%,transparent_82%)]"
+                bg-[linear-gradient(to_bottom,#060c18_0%,#060c18_42%,rgba(6,12,24,0.85)_48%,rgba(6,12,24,0.30)_52%,transparent_56%)]
+                lg:bg-[linear-gradient(to_right,rgba(6,12,24,0.98)_0%,rgba(6,12,24,0.94)_25%,rgba(6,12,24,0.80)_40%,rgba(6,12,24,0.35)_56%,rgba(6,12,24,0.10)_70%,transparent_82%)]"
             />
           </>
         )}
@@ -374,7 +371,7 @@ export default function DashboardPage() {
         {/* Building Facade Background — visible on the right, concentrated behind the Growing Together card */}
         {!isBannerVideo && (
           <div
-            className="absolute right-0 top-0 bottom-0 w-full sm:w-3/4 lg:w-[58%] pointer-events-none bg-right bg-cover opacity-55 dark:opacity-50 mix-blend-multiply dark:mix-blend-screen"
+            className="absolute right-0 top-0 bottom-0 w-full sm:w-3/4 lg:w-[58%] pointer-events-none bg-right bg-cover opacity-50 mix-blend-screen"
             style={{
               backgroundImage: `url('${welcomeBannerMedia}')`,
               maskImage: "linear-gradient(to right, transparent 0%, transparent 28%, rgba(0,0,0,0.5) 52%, rgba(0,0,0,1) 100%)",
@@ -408,15 +405,7 @@ export default function DashboardPage() {
             <i className="card-wave w5" />
           </div>
 
-          <div className="hidden dark:block absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,#0e1e38_0%,#060c18_65%)]" />
-        </div>
-
-        {/* Cursive Tagline (bottom-right, above the divider bar) */}
-        <div className="hidden sm:block absolute bottom-14 right-6 md:right-10 z-10 pointer-events-none select-none">
-          <p className="card-tagline cursive-slogan">
-            Stronger People<br />Brighter Tomorrows
-          </p>
-          <span className="card-tagline-line" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,#0e1e38_0%,#060c18_65%)]" />
         </div>
 
         {/* ── TOP ROW: PROFILE & STATS ── */}
@@ -426,18 +415,18 @@ export default function DashboardPage() {
             {/* Avatar with Radiant Neon Gradient Ring & Green Online Status Dot from welcome_card.html */}
             <div className="relative shrink-0">
               <div className="relative p-[5px] rounded-full bg-gradient-to-tr from-[#3f91ff] to-[#9b51ff] shadow-[0_8px_26px_rgba(65,95,190,0.24)]">
-                <div className="w-18 h-18 sm:w-22 sm:h-22 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-900 border-[3px] border-white dark:border-[#070e1b]">
+                <div className="w-18 h-18 sm:w-22 sm:h-22 rounded-full overflow-hidden bg-slate-900 border-[3px] border-[#070e1b]">
                   <PhotoAvatar
                     src={profile.profile_photo_path}
                     name={`${profile.first_name} ${profile.last_name || ""}`.trim()}
                     className="w-full h-full object-cover"
-                    textClass="text-slate-800 dark:text-white text-xl font-black"
+                    textClass="text-white text-xl font-black"
                   />
                 </div>
               </div>
 
               {/* Active Online Green Dot */}
-              <span className="absolute bottom-1 right-1 w-4.5 h-4.5 sm:w-5 sm:h-5 rounded-full bg-[#12dc9a] border-[3px] border-white dark:border-[#070e1b] shadow-xs" />
+              <span className="absolute bottom-1 right-1 w-4.5 h-4.5 sm:w-5 sm:h-5 rounded-full bg-[#12dc9a] border-[3px] border-[#070e1b] shadow-xs" />
             </div>
 
             {/* Profile Info Details */}
@@ -446,10 +435,10 @@ export default function DashboardPage() {
               <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
                 <Link
                   href="/profile"
-                  className="text-xl sm:text-2xl md:text-[28px] font-black tracking-tight text-slate-900 dark:text-white hover:text-purple-600 dark:hover:text-amber-300 transition-colors flex items-center gap-1.5 sm:gap-2 group cursor-pointer"
+                  className="text-xl sm:text-2xl md:text-[28px] font-black tracking-tight text-white hover:text-amber-300 transition-colors flex items-center gap-1.5 sm:gap-2 group cursor-pointer"
                 >
                   <span className="truncate">{profile.first_name} {profile.last_name || ""}</span>
-                  <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4 opacity-75 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all text-slate-700 dark:text-slate-200 shrink-0" />
+                  <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4 opacity-75 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all text-slate-200 shrink-0" />
                 </Link>
 
                 <WelcomeRolePill role={user?.role || profile?.role} />
@@ -479,16 +468,16 @@ export default function DashboardPage() {
               </div>
 
               {/* Subtitle: Designation • Inter Smart, Kochi */}
-              <p className="text-xs sm:text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2 flex-wrap">
+              <p className="text-xs sm:text-[13px] font-semibold text-slate-300 flex items-center gap-2 flex-wrap">
                 <span>{profile.designation || user?.role || "Member"}</span>
-                <span className="text-slate-400 dark:text-slate-500">•</span>
+                <span className="text-slate-500">•</span>
                 <span>Inter Smart, Kochi</span>
               </p>
 
               {/* Team Lead Contact Button if applicable */}
               {profile?.team_lead && (
-                <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-lg bg-slate-100 dark:bg-white/10 border border-slate-200 dark:border-white/20 text-xs text-slate-700 dark:text-white max-w-full flex-wrap">
-                  <span className="text-[10.5px] text-purple-600 dark:text-purple-300 font-bold uppercase tracking-wider">
+                <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-lg bg-white/10 border border-white/20 text-xs text-white max-w-full flex-wrap">
+                  <span className="text-[10.5px] text-purple-300 font-bold uppercase tracking-wider">
                     Lead:
                   </span>
                   <span className="font-bold text-xs truncate">
@@ -510,10 +499,10 @@ export default function DashboardPage() {
                 <span
                   className={`inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider border transition-all ${
                     profile.attendance_status === 'Punched In'
-                      ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border-emerald-300 dark:border-emerald-500/50 dark:shadow-[0_0_15px_rgba(16,185,129,0.25)]'
+                      ? 'bg-emerald-950/60 text-emerald-400 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.25)]'
                       : profile.attendance_status === 'Punched Out'
-                      ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-500/50 dark:shadow-[0_0_15px_rgba(245,158,11,0.25)]'
-                      : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 border-rose-300 dark:border-rose-500/50'
+                      ? 'bg-amber-950/60 text-amber-400 border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.25)]'
+                      : 'bg-rose-950/60 text-rose-400 border-rose-500/50'
                   }`}
                 >
                   {profile.attendance_status === 'Punched In' && (
@@ -523,10 +512,10 @@ export default function DashboardPage() {
                   <span>{profile.attendance_status || 'NOT PUNCHED IN'}</span>
                 </span>
 
-                <div className="inline-flex items-center gap-1.5 text-xs sm:text-[12.5px] font-semibold text-slate-800 dark:text-slate-200 flex-wrap">
-                  <Calendar className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
+                <div className="inline-flex items-center gap-1.5 text-xs sm:text-[12.5px] font-semibold text-slate-200 flex-wrap">
+                  <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                   <span>{format(time, "EEEE, d MMMM yyyy")}</span>
-                  <span className="text-slate-400 dark:text-slate-500">•</span>
+                  <span className="text-slate-500">•</span>
                   <span className="whitespace-nowrap tabular-nums font-mono">
                     {format(time, "h:mm:ss a")}
                   </span>
@@ -546,12 +535,15 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* ── BOTTOM ROW: "GOOD TO SEE YOU BACK" BAR (from welcome_card.html) ── */}
-        <div className="flex items-center gap-4 relative z-10 pt-2 border-t border-slate-100/70 dark:border-slate-800/60">
+        {/* ── BOTTOM ROW: "GOOD TO SEE YOU BACK" BAR + Cursive Tagline (from welcome_card.html) ── */}
+        <div className="flex items-center gap-4 relative z-10 pt-2 border-t border-slate-800/60">
           <span className="text-[12px] sm:text-[13px] font-bold tracking-[3px] uppercase text-[#7b8ca8] whitespace-nowrap">
             GOOD TO SEE YOU BACK
           </span>
           <div className="h-[2px] w-32 sm:w-60 bg-[#aab9d1] rounded-full" />
+          <p className="hidden sm:block ml-auto shrink-0 card-tagline cursive-slogan !text-base leading-[1.15]">
+            Stronger People<br />Brighter Tomorrows
+          </p>
         </div>
       </div>
 
@@ -1178,13 +1170,13 @@ function GrowingTogetherCard({ liveStats, defaultStats }: { liveStats: any; defa
 
   return (
     <div className="w-full lg:w-auto rounded-[22px] p-3.5 sm:p-4.5 transition-all duration-300 backdrop-blur-md relative overflow-hidden
-      bg-gradient-to-b from-[#fffef7]/95 via-[#fffcf0]/95 to-[#fffbf0]/95 dark:from-[#0b1220]/97 dark:via-[#070d18]/97 dark:to-[#070d18]/97
-      border border-amber-200/90 dark:border-white/10
-      shadow-[0_8px_30px_rgba(245,158,11,0.12)] dark:shadow-[0_12px_35px_rgba(0,0,0,0.6)]"
+      bg-gradient-to-b from-[#0b1220]/97 via-[#070d18]/97 to-[#070d18]/97
+      border border-white/10
+      shadow-[0_12px_35px_rgba(0,0,0,0.6)]"
     >
       {/* Warm Golden Ambient Glow (Top Right) */}
       <div
-        className="absolute top-0 right-0 w-44 h-32 pointer-events-none opacity-60 dark:opacity-20"
+        className="absolute top-0 right-0 w-44 h-32 pointer-events-none opacity-20"
         style={{ background: 'radial-gradient(circle at 80% 20%, rgba(251, 191, 36, 0.28) 0%, rgba(254, 243, 199, 0.1) 50%, transparent 80%)' }}
         aria-hidden
       />
@@ -1193,17 +1185,17 @@ function GrowingTogetherCard({ liveStats, defaultStats }: { liveStats: any; defa
       <div className="flex items-center justify-between gap-2 sm:gap-4 mb-3 sm:mb-3.5 relative z-10">
         {/* Left: Golden Badge + Title */}
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#f59e0b] dark:bg-[#d97706] flex items-center justify-center text-white shadow-md shadow-amber-500/25 shrink-0">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#d97706] flex items-center justify-center text-white shadow-md shadow-amber-500/25 shrink-0">
             <Users className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-white stroke-[2.2]" />
           </div>
-          <h4 className="text-xs sm:text-[13px] font-black uppercase tracking-wider text-amber-600 dark:text-amber-400 leading-tight truncate">
+          <h4 className="text-xs sm:text-[13px] font-black uppercase tracking-wider text-amber-400 leading-tight truncate">
             GROWING TOGETHER
           </h4>
         </div>
 
         {/* Right: Ring / Gauge Icon */}
-        <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full border border-amber-400/60 dark:border-amber-500/40 flex items-center justify-center shrink-0 ml-1">
-          <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500 dark:text-amber-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+        <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full border border-amber-500/40 flex items-center justify-center shrink-0 ml-1">
+          <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="9.5" stroke="currentColor" strokeWidth="1.75" />
             <line x1="12" y1="2.5" x2="12" y2="5" stroke="currentColor" strokeWidth="2" />
             <line x1="12" y1="12" x2="16.5" y2="7.5" stroke="currentColor" strokeWidth="2" />
@@ -1218,11 +1210,11 @@ function GrowingTogetherCard({ liveStats, defaultStats }: { liveStats: any; defa
           <div
             key={idx}
             className="rounded-xl py-1.5 sm:py-2.5 px-0.5 sm:px-2 flex flex-col items-center justify-center text-center min-w-0
-              bg-white dark:bg-[#060a12]/80
-              border border-slate-200/90 dark:border-white/10
-              shadow-2xs dark:shadow-inner"
+              bg-[#060a12]/80
+              border border-white/10
+              shadow-inner"
           >
-            <span className="text-sm sm:text-lg md:text-xl font-black leading-tight tracking-tight font-sans text-slate-900 dark:text-white">
+            <span className="text-sm sm:text-lg md:text-xl font-black leading-tight tracking-tight font-sans text-white">
               {box.value}
             </span>
             <span className="text-[7.5px] sm:text-[9px] font-black uppercase tracking-wider mt-1 sm:mt-1.5 leading-none text-slate-400">
@@ -1300,9 +1292,9 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
       <div
         id="welcome-hero-banner-admin"
         className="relative rounded-[28px] overflow-hidden p-4 sm:p-6 md:p-8 min-h-[175px] flex flex-col justify-between gap-6 select-none transition-all duration-300
-          bg-white dark:bg-[#060c18]
-          border border-slate-200/90 dark:border-[#1c3a63]
-          shadow-[0_4px_25px_rgba(0,0,0,0.03)] dark:shadow-[inset_0_0_0_1px_rgba(96,165,250,0.10),0_12px_40px_rgba(0,0,0,0.7)]"
+          bg-[#060c18]
+          border border-[#1c3a63]
+          shadow-[inset_0_0_0_1px_rgba(96,165,250,0.10),0_12px_40px_rgba(0,0,0,0.7)]"
       >
         {/* Optional Custom Video Banner Fallback */}
         {isBannerVideo && (
@@ -1319,14 +1311,11 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
             >
               <source src={welcomeBannerMedia} type={welcomeBannerMedia.endsWith(".webm") ? "video/webm" : "video/mp4"} />
             </video>
-            {/* White Gradient on Mobile: Solid white on top side where texts are displayed, video fully visible behind growing together card only */}
-            {/* On Desktop: Smooth horizontal gradient covering the left name section, video fully visible on the right */}
+            {/* Solid dark on the left name section, video fully visible behind the Pending Items card on the right */}
             <div
               className="absolute inset-0 pointer-events-none z-[1]
-                bg-[linear-gradient(to_bottom,#ffffff_0%,#ffffff_42%,rgba(255,255,255,0.85)_47%,rgba(255,255,255,0.25)_52%,transparent_56%)]
-                lg:bg-[linear-gradient(to_right,rgba(255,255,255,0.98)_0%,rgba(255,255,255,0.95)_28%,rgba(255,255,255,0.82)_44%,rgba(255,255,255,0.45)_58%,rgba(255,255,255,0.12)_72%,transparent_84%)]
-                dark:bg-[linear-gradient(to_bottom,#060c18_0%,#060c18_42%,rgba(6,12,24,0.85)_48%,rgba(6,12,24,0.30)_52%,transparent_56%)]
-                dark:lg:bg-[linear-gradient(to_right,rgba(6,12,24,0.98)_0%,rgba(6,12,24,0.94)_25%,rgba(6,12,24,0.80)_40%,rgba(6,12,24,0.35)_56%,rgba(6,12,24,0.10)_70%,transparent_82%)]"
+                bg-[linear-gradient(to_bottom,#060c18_0%,#060c18_42%,rgba(6,12,24,0.85)_48%,rgba(6,12,24,0.30)_52%,transparent_56%)]
+                lg:bg-[linear-gradient(to_right,rgba(6,12,24,0.98)_0%,rgba(6,12,24,0.94)_25%,rgba(6,12,24,0.80)_40%,rgba(6,12,24,0.35)_56%,rgba(6,12,24,0.10)_70%,transparent_82%)]"
             />
           </>
         )}
@@ -1334,7 +1323,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
         {/* Building Facade Background — visible on the right side */}
         {!isBannerVideo && (
           <div
-            className="absolute right-0 top-0 bottom-0 w-full sm:w-3/4 lg:w-[58%] pointer-events-none bg-right bg-cover opacity-55 dark:opacity-50 mix-blend-multiply dark:mix-blend-screen"
+            className="absolute right-0 top-0 bottom-0 w-full sm:w-3/4 lg:w-[58%] pointer-events-none bg-right bg-cover opacity-50 mix-blend-screen"
             style={{
               backgroundImage: `url('${welcomeBannerMedia}')`,
               maskImage: "linear-gradient(to right, transparent 0%, transparent 28%, rgba(0,0,0,0.5) 52%, rgba(0,0,0,1) 100%)",
@@ -1368,15 +1357,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
             <i className="card-wave w5" />
           </div>
 
-          <div className="hidden dark:block absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,#0e1e38_0%,#060c18_65%)]" />
-        </div>
-
-        {/* Cursive Tagline (bottom-right, above the divider bar) */}
-        <div className="hidden sm:block absolute bottom-14 right-6 md:right-10 z-10 pointer-events-none select-none">
-          <p className="card-tagline cursive-slogan">
-            Stronger People<br />Brighter Tomorrows
-          </p>
-          <span className="card-tagline-line" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,#0e1e38_0%,#060c18_65%)]" />
         </div>
 
         {/* ── TOP ROW: PROFILE & PENDING ITEMS ── */}
@@ -1386,18 +1367,18 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
             {/* Avatar with Radiant Neon Gradient Ring & Green Online Status Dot from welcome_card.html */}
             <div className="relative shrink-0">
               <div className="relative p-[5px] rounded-full bg-gradient-to-tr from-[#3f91ff] to-[#9b51ff] shadow-[0_8px_26px_rgba(65,95,190,0.24)]">
-                <div className="w-18 h-18 sm:w-22 sm:h-22 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-900 border-[3px] border-white dark:border-[#070e1b]">
+                <div className="w-18 h-18 sm:w-22 sm:h-22 rounded-full overflow-hidden bg-slate-900 border-[3px] border-[#070e1b]">
                   <PhotoAvatar
                     src={profile.profile_photo_path}
                     name={`${profile.first_name} ${profile.last_name || ""}`.trim()}
                     className="w-full h-full object-cover"
-                    textClass="text-slate-800 dark:text-white text-xl font-black"
+                    textClass="text-white text-xl font-black"
                   />
                 </div>
               </div>
 
               {/* Active Online Green Dot */}
-              <span className="absolute bottom-1 right-1 w-4.5 h-4.5 sm:w-5 sm:h-5 rounded-full bg-[#12dc9a] border-[3px] border-white dark:border-[#070e1b] shadow-xs" />
+              <span className="absolute bottom-1 right-1 w-4.5 h-4.5 sm:w-5 sm:h-5 rounded-full bg-[#12dc9a] border-[3px] border-[#070e1b] shadow-xs" />
             </div>
 
             {/* Profile Info Details */}
@@ -1406,28 +1387,28 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
               <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
                 <Link
                   href="/profile"
-                  className="text-xl sm:text-2xl md:text-[28px] font-black tracking-tight text-slate-900 dark:text-white hover:text-purple-600 dark:hover:text-amber-300 transition-colors flex items-center gap-1.5 sm:gap-2 group cursor-pointer"
+                  className="text-xl sm:text-2xl md:text-[28px] font-black tracking-tight text-white hover:text-amber-300 transition-colors flex items-center gap-1.5 sm:gap-2 group cursor-pointer"
                 >
                   <span className="truncate">{profile.first_name} {profile.last_name || ""}</span>
-                  <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4 opacity-75 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all text-slate-700 dark:text-slate-200 shrink-0" />
+                  <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4 opacity-75 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all text-slate-200 shrink-0" />
                 </Link>
 
                 <WelcomeRolePill role="Super Admin" />
               </div>
 
               {/* Subtitle: Role • Location */}
-              <p className="text-xs sm:text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2 flex-wrap">
+              <p className="text-xs sm:text-[13px] font-semibold text-slate-300 flex items-center gap-2 flex-wrap">
                 <span>{profile.designation || "Super Administrator"}</span>
-                <span className="text-slate-400 dark:text-slate-500">•</span>
+                <span className="text-slate-500">•</span>
                 <span>Inter Smart, Kochi</span>
               </p>
 
               {/* Date & Time */}
               <div className="flex items-center gap-2.5 sm:gap-3.5 flex-wrap pt-1">
-                <div className="inline-flex items-center gap-1.5 text-xs sm:text-[12.5px] font-semibold text-slate-800 dark:text-slate-200 flex-wrap">
-                  <Calendar className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
+                <div className="inline-flex items-center gap-1.5 text-xs sm:text-[12.5px] font-semibold text-slate-200 flex-wrap">
+                  <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                   <span>{format(time, "EEEE, d MMMM yyyy")}</span>
-                  <span className="text-slate-400 dark:text-slate-500">•</span>
+                  <span className="text-slate-500">•</span>
                   <span className="whitespace-nowrap tabular-nums font-mono">
                     {format(time, "h:mm:ss a")}
                   </span>
@@ -1440,31 +1421,34 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           <div className="z-10 shrink-0">
             <Link
               href="/leaves/approvals"
-              className="group flex flex-col justify-center bg-white/95 dark:bg-[#0b1220]/90 border border-amber-200/90 dark:border-amber-500/30 hover:border-amber-400/70 transition-all duration-300 rounded-2xl p-4 sm:p-5 shadow-[0_8px_30px_rgba(0,0,0,0.06),0_0_25px_rgba(245,158,11,0.12)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.5),0_0_25px_rgba(245,158,11,0.08)] backdrop-blur-md cursor-pointer min-w-[190px]"
+              className="group flex flex-col justify-center bg-[#0b1220]/90 border border-amber-500/30 hover:border-amber-400/70 transition-all duration-300 rounded-2xl p-4 sm:p-5 shadow-[0_10px_30px_rgba(0,0,0,0.5),0_0_25px_rgba(245,158,11,0.08)] backdrop-blur-md cursor-pointer min-w-[190px]"
             >
-              <p className="text-xs font-black text-amber-500 dark:text-amber-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-amber-500 dark:text-amber-400" />
+              <p className="text-xs font-black text-amber-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <Sparkles className="w-4 h-4 text-amber-400" />
                 Pending Items
               </p>
               <div className="flex items-baseline gap-2">
-                <p className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white font-mono">
+                <p className="text-3xl sm:text-4xl font-black text-white font-mono">
                   {kpis.pending_requests}
                 </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold">request{kpis.pending_requests !== 1 ? 's' : ''}</p>
+                <p className="text-xs text-slate-400 font-semibold">request{kpis.pending_requests !== 1 ? 's' : ''}</p>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 group-hover:text-amber-500 dark:group-hover:text-amber-300 transition-colors">
+              <p className="text-xs text-slate-400 mt-2 group-hover:text-amber-300 transition-colors">
                 Awaiting review →
               </p>
             </Link>
           </div>
         </div>
 
-        {/* ── BOTTOM ROW: "GOOD TO SEE YOU BACK" BAR (from welcome_card.html) ── */}
-        <div className="flex items-center gap-4 relative z-10 pt-2 border-t border-slate-100/70 dark:border-slate-800/60">
+        {/* ── BOTTOM ROW: "GOOD TO SEE YOU BACK" BAR + Cursive Tagline (from welcome_card.html) ── */}
+        <div className="flex items-center gap-4 relative z-10 pt-2 border-t border-slate-800/60">
           <span className="text-[12px] sm:text-[13px] font-bold tracking-[3px] uppercase text-[#7b8ca8] whitespace-nowrap">
             GOOD TO SEE YOU BACK
           </span>
           <div className="h-[2px] w-32 sm:w-60 bg-[#aab9d1] rounded-full" />
+          <p className="hidden sm:block ml-auto shrink-0 card-tagline cursive-slogan !text-base leading-[1.15]">
+            Stronger People<br />Brighter Tomorrows
+          </p>
         </div>
       </div>
 
