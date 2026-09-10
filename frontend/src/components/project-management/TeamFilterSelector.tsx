@@ -16,6 +16,7 @@ interface TeamFilterSelectorProps {
   onSelectTeam: (teamId: number | "all") => void;
   availableTeams?: Team[];
   className?: string;
+  align?: "left" | "right";
 }
 
 let cachedAllTeams: Team[] | null = null;
@@ -25,6 +26,7 @@ export function TeamFilterSelector({
   onSelectTeam,
   availableTeams,
   className = "",
+  align = "left",
 }: TeamFilterSelectorProps) {
   const [teams, setTeams] = useState<Team[]>(() => availableTeams || cachedAllTeams || []);
   const [loading, setLoading] = useState(!availableTeams && !cachedAllTeams);
@@ -55,12 +57,13 @@ export function TeamFilterSelector({
   }, [availableTeams]);
 
   return (
-    <div className={`relative inline-flex items-center ${className}`}>
+    <div className={`relative inline-flex items-center z-20 ${className}`}>
       <UiverseSelect
         value={selectedTeamId}
         onChange={(val) => onSelectTeam(val === "all" ? "all" : Number(val))}
         placeholder="All Departments / Teams"
         className="min-w-[190px]"
+        align={align}
       >
         <option value="all">All Departments / Teams</option>
         {teams.map((t) => (

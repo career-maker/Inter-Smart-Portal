@@ -19,6 +19,7 @@ export interface UiverseSelectProps {
   style?: React.CSSProperties;
   size?: "sm" | "default" | "md";
   searchable?: boolean;
+  align?: "left" | "right";
 }
 
 /**
@@ -38,6 +39,7 @@ export function UiverseSelect({
   style,
   size = "default",
   searchable = false,
+  align = "left",
 }: UiverseSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -110,7 +112,7 @@ export function UiverseSelect({
     <div
       ref={containerRef}
       style={style}
-      className={`uiverse-select select relative inline-block text-left select-none ${className}`}
+      className={`uiverse-select select relative inline-block text-left select-none ${isOpen ? "z-[60]" : "z-10"} ${className}`}
     >
       {/* Selected Box Trigger (From Uiverse.io by 3bdel3ziz-T) */}
       <div
@@ -151,7 +153,7 @@ export function UiverseSelect({
           style={{
             fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)',
           }}
-          className="options absolute left-0 top-full mt-1.5 z-30 min-w-full w-max max-w-xs sm:max-w-sm rounded-[6px] p-1 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 shadow-xl flex flex-col transition-all duration-300 animate-in fade-in-50 zoom-in-95"
+          className={`options absolute ${align === "right" ? "right-0" : "left-0"} top-full mt-1.5 z-50 min-w-full w-max max-w-xs sm:max-w-sm rounded-[6px] p-1 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 shadow-xl flex flex-col transition-all duration-300 animate-in fade-in-50 zoom-in-95`}
         >
           {/* Quick Search if more than 10 options */}
           {isAutoSearchable && (

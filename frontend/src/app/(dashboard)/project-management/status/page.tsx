@@ -154,7 +154,7 @@ export default function ProjectStatusPage() {
       className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6"
     >
       {/* ── Header Bar ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800/80 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800/80 pb-6 relative z-40">
         <div>
           <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
             <Link href="/project-management" className="hover:text-purple-600 dark:hover:text-purple-400">
