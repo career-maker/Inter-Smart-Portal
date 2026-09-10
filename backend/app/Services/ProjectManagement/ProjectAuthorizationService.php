@@ -94,6 +94,14 @@ class ProjectAuthorizationService
             return true;
         }
 
+        // Custom team permission: "All Projects Visibility & Access" or cross-team view
+        if (
+            \App\Models\CustomTeamPermission::userHasPermission($user, 'project_view_all') ||
+            \App\Models\CustomTeamPermission::userHasPermission($user, 'task_cross_team_view')
+        ) {
+            return true;
+        }
+
         if ($this->isProjectCoordinator($user, $project)) {
             return true;
         }
@@ -109,6 +117,11 @@ class ProjectAuthorizationService
     public function canManageProject(User $user, ?Project $project = null): bool
     {
         if ($user->hasRole('Super Admin')) {
+            return true;
+        }
+
+        // Custom team permission: project_create allows creating new projects
+        if ($project === null && \App\Models\CustomTeamPermission::userHasPermission($user, 'project_create')) {
             return true;
         }
 

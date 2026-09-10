@@ -30,6 +30,12 @@ import {
   ChevronRight,
   Sparkles,
   Info,
+  FolderKanban,
+  FolderPlus,
+  CloudDownload,
+  Eye,
+  FilePlus,
+  Code,
 } from "lucide-react";
 
 export default function PermissionsManagementPage() {
@@ -178,6 +184,18 @@ export default function PermissionsManagementPage() {
         return <CalendarCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />;
       case "Clock":
         return <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400" />;
+      case "Eye":
+        return <Eye className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />;
+      case "FilePlus":
+        return <FilePlus className="w-5 h-5 text-orange-600 dark:text-orange-400" />;
+      case "Code":
+        return <Code className="w-5 h-5 text-violet-600 dark:text-violet-400" />;
+      case "FolderKanban":
+        return <FolderKanban className="w-5 h-5 text-teal-600 dark:text-teal-400" />;
+      case "FolderPlus":
+        return <FolderPlus className="w-5 h-5 text-green-600 dark:text-green-400" />;
+      case "CloudDownload":
+        return <CloudDownload className="w-5 h-5 text-sky-600 dark:text-sky-400" />;
       default:
         return <Shield className="w-5 h-5 text-purple-600 dark:text-purple-400" />;
     }

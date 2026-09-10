@@ -73,6 +73,27 @@ class CustomTeamPermission extends Model
                 'category' => 'bugSmart Defect Management',
                 'icon' => 'Code',
             ],
+            [
+                'key' => 'project_view_all',
+                'name' => 'All Projects Visibility & Access',
+                'description' => 'Allows assigned team members or leads to view all projects in the Projects Directory and access individual project detail pages, regardless of direct membership.',
+                'category' => 'Tasks & Projects',
+                'icon' => 'FolderKanban',
+            ],
+            [
+                'key' => 'project_create',
+                'name' => 'Project Creation Access',
+                'description' => 'Allows assigned team members or leads to create new projects in the system.',
+                'category' => 'Tasks & Projects',
+                'icon' => 'FolderPlus',
+            ],
+            [
+                'key' => 'project_import_hubstaff',
+                'name' => 'Hubstaff Project Import Access',
+                'description' => 'Allows assigned team members or leads to import projects from Hubstaff into the Portal.',
+                'category' => 'Tasks & Projects',
+                'icon' => 'CloudDownload',
+            ],
         ];
     }
 

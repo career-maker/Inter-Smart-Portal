@@ -28,6 +28,7 @@ import {
 import { useAuthStore } from "@/store/auth";
 import api from "@/services/api";
 import pmApi from "@/services/pm";
+import teamPermissionsApi from "@/services/teamPermissions";
 import { UiverseSelect } from "@/components/ui/UiverseSelect";
 import {
   Project,
@@ -51,7 +52,7 @@ function formatDateDisplay(dateStr?: string | null): string {
 
 export default function ProjectsListPage() {
   const { user } = useAuthStore();
-  const isSuperAdmin = user?.role === "Super Admin" || user?.role === "Admin" || user?.role?.toLowerCase?.().includes("admin") || true;
+  const isSuperAdmin = user?.role === "Super Admin" || user?.role === "Admin" || user?.role?.toLowerCase?.().includes("admin");
   const isTeamLead = user?.role === "Team Lead";
 
   const [loading, setLoading] = useState(true);
@@ -74,6 +75,12 @@ export default function ProjectsListPage() {
   const [markLiveProject, setMarkLiveProject] = useState<Project | null>(null);
   const [isMarkLiveOpen, setIsMarkLiveOpen] = useState(false);
 
+  // User permissions from API
+  const [userPermissions, setUserPermissions] = useState<Record<string, boolean>>({});
+  const canCreateProject = isSuperAdmin || isTeamLead || userPermissions.project_create === true;
+  const canImportHubstaff = isSuperAdmin || userPermissions.project_import_hubstaff === true;
+  const canViewAllProjects = isSuperAdmin || isTeamLead || userPermissions.project_view_all === true || userPermissions.task_cross_team_view === true;
+
   // Fetch Teams for dropdown
   useEffect(() => {
     const fetchTeams = async () => {
@@ -86,6 +93,13 @@ export default function ProjectsListPage() {
       }
     };
     fetchTeams();
+  }, []);
+
+  // Fetch current user's custom permissions
+  useEffect(() => {
+    teamPermissionsApi.getMyPermissions()
+      .then((res) => setUserPermissions(res.permissions || {}))
+      .catch(() => {/* silently fail — permissions default to false */});
   }, []);
 
   const fetchProjects = useCallback(
@@ -196,29 +210,33 @@ export default function ProjectsListPage() {
             <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-teal-600" : "text-slate-700 dark:text-slate-300"}`} />
           </button>
 
-          {/* Hubstaff Bulk Import Button (Always visible) */}
-          <button
-            type="button"
-            onClick={handleImportHubstaff}
-            disabled={importingHubstaff || loading}
-            style={{ backgroundColor: "#ffffff", color: "#0f172a", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 !text-slate-900 dark:!text-slate-100 text-[13px] leading-[20px] font-normal border border-slate-300 dark:border-slate-700 shadow-2xs transition-all disabled:opacity-50 cursor-pointer"
-            title="Import all active projects from Hubstaff without duplicating"
-          >
-            <CloudDownload className={`w-4 h-4 text-sky-600 dark:text-sky-400 ${importingHubstaff ? "animate-spin" : ""}`} />
-            <span style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }} className="!text-slate-900 dark:!text-slate-100">{importingHubstaff ? "Importing Hubstaff…" : "Import from Hubstaff"}</span>
-          </button>
+          {/* Hubstaff Bulk Import Button — only for those with import permission */}
+          {canImportHubstaff && (
+            <button
+              type="button"
+              onClick={handleImportHubstaff}
+              disabled={importingHubstaff || loading}
+              style={{ backgroundColor: "#ffffff", color: "#0f172a", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 !text-slate-900 dark:!text-slate-100 text-[13px] leading-[20px] font-normal border border-slate-300 dark:border-slate-700 shadow-2xs transition-all disabled:opacity-50 cursor-pointer"
+              title="Import all active projects from Hubstaff without duplicating"
+            >
+              <CloudDownload className={`w-4 h-4 text-sky-600 dark:text-sky-400 ${importingHubstaff ? "animate-spin" : ""}`} />
+              <span style={{ fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }} className="!text-slate-900 dark:!text-slate-100">{importingHubstaff ? "Importing Hubstaff…" : "Import from Hubstaff"}</span>
+            </button>
+          )}
 
-          {/* Create Project Button */}
-          <button
-            type="button"
-            onClick={() => setIsCreateModalOpen(true)}
-            style={{ backgroundColor: "var(--portal-primary-color, #0F766E)", color: "rgb(255, 255, 255)", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-teal-700 hover:bg-teal-800 !text-white text-[13px] leading-[20px] font-normal shadow-sm transition-colors cursor-pointer"
-          >
-            <Plus className="w-4 h-4 !text-white" />
-            <span style={{ color: "rgb(255, 255, 255)", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }} className="!text-white">Create Project</span>
-          </button>
+          {/* Create Project Button — only for those with create permission */}
+          {canCreateProject && (
+            <button
+              type="button"
+              onClick={() => setIsCreateModalOpen(true)}
+              style={{ backgroundColor: "var(--portal-primary-color, #0F766E)", color: "rgb(255, 255, 255)", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-teal-700 hover:bg-teal-800 !text-white text-[13px] leading-[20px] font-normal shadow-sm transition-colors cursor-pointer"
+            >
+              <Plus className="w-4 h-4 !text-white" />
+              <span style={{ color: "rgb(255, 255, 255)", fontFamily: '"Proxima Nova", sans-serif', fontSize: "13px", lineHeight: "20px", fontWeight: 400 }} className="!text-white">Create Project</span>
+            </button>
+          )}
         </div>
       </div>
 

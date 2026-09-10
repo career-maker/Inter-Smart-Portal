@@ -1,0 +1,352 @@
+[
+  {
+    "id": "BUG-001",
+    "title": "Team Lead can reset the password of ANY user, including Super Admin (full privilege escalation)",
+    "severity": "Critical",
+    "priority": "P0",
+    "module": "Employee Management",
+    "feature": "FR-EMP-1",
+    "role": "Team Lead",
+    "preconditions": [
+      "Valid Team Lead account and Sanctum bearer token",
+      "Target user id known (e.g. the Super Admin's id, which is discoverable via GET /employees or GET /employees/{id}/public)"
+    ],
+    "steps_to_reproduce": [
+      "Log in as a Team Lead (e.g. abhiram@intersmart.in) and obtain a bearer token",
+      "Call POST /api/api/employees/{superAdminId}/password with body {\"password\":\"...\",\"password_confirmation\":\"...\"}",
+      "Observe the request is accepted (route is gated only by role:Super Admin|Team Lead|HR; EmployeeController@updatePassword performs no ownership/role-hierarchy check on the target user before hashing and saving the new password)"
+    ],
+    "expected_result": "Only Super Admin should be able to reset another user's password; a Team Lead should never be able to change the Super Admin's (or any user outside a legitimate, team-scoped relationship's) password.",
+    "actual_result": "The route `employees/{employee}/password` sits inside the same `role:Super Admin|Team Lead|HR` middleware group as the rest of Employee Management, and `EmployeeController@updatePassword` (backend/app/Http/Controllers/Api/EmployeeController.php:374-385) contains no check on which user is being targeted. A Team Lead token can call this endpoint for any user id, including id=1 (Super Admin), and set an arbitrary new password, taking over the account.",
+    "reproducibility": "Always (code-certain; not executed live against the real Super Admin account to avoid locking out or disrupting production access)",
+    "evidence": [
+      "backend/routes/api.php:66-73 — Route::middleware(['role:Super Admin|Team Lead|HR'])->group(...) wraps employees/{employee}/password",
+      "backend/app/Http/Controllers/Api/EmployeeController.php:374-385 — updatePassword() has zero authorization/ownership logic",
+      "Live-confirmed sibling endpoints in the same protected group (PUT /employees/{id}, POST /employees/{id}/status) were successfully called by a Team Lead token against an unrelated employee (id=74) during this audit, proving the middleware group grants full, unscoped access to every route in it"
+    ],
+    "impact": "A malicious or compromised Team Lead account can seize full Super Admin control of the entire portal (all employee data, all approvals, all settings, audit logs, everything), and can lock the real administrator out. This is a complete authorization-model failure.",
+    "likely_root_cause": "EmployeeController's mutating actions (update, updateStatus, updatePassword, updatePhoto) rely solely on the shared route-level Spatie role middleware and never verify that the acting Team Lead actually owns/leads the target employee's team, nor exclude protected accounts (e.g. Super Admin) as valid targets.",
+    "suggested_fix": "Add an authorization check (policy or inline) in every Employee-mutating controller method: Team Leads may only act on users whose team_id matches their own team_id, and must never be allowed to target a Super Admin or HR account. Consider a Laravel Policy class shared across index/show/update/updateStatus/updatePassword/updatePhoto."
+  },
+  {
+    "id": "BUG-002",
+    "title": "Team Lead has unrestricted create/edit/delete access to every Team/Department, not just their own",
+    "severity": "Critical",
+    "priority": "P0",
+    "module": "Teams / Departments",
+    "feature": "FR-TEAM-1",
+    "role": "Team Lead",
+    "preconditions": ["Valid Team Lead bearer token"],
+    "steps_to_reproduce": [
+      "Log in as Team Lead abhiram@intersmart.in (team: QA)",
+      "POST /api/api/teams { \"name\": \"<any name>\" } → HTTP 201, a brand-new department is created",
+      "PUT /api/api/teams/{newTeamId} { \"name\": \"...\" } → HTTP 200, renamed successfully",
+      "DELETE /api/api/teams/{newTeamId} → HTTP 200 \"Team deleted successfully.\"",
+      "Confirmed in the live UI too: logged in as the same Team Lead, opened /teams — every department card (Design, HTML, PHP — none belonging to QA) shows an active \"...\" edit menu, and the page header exposes a full department-mutation toolbar"
+    ],
+    "expected_result": "Per SRS FR-TEAM-1: \"Team list is readable by every authenticated user... but only mutable by Super Admin.\" A Team Lead should not be able to create, rename, or delete ANY department, let alone ones outside their own team.",
+    "actual_result": "TeamController@store/update/destroy/syncMembers (backend/app/Http/Controllers/Api/TeamController.php) contain no hasRole() or ownership check at all; the only gate is the shared route middleware `role:Super Admin|Team Lead|HR` (routes/api.php:66,76-77), which a Team Lead passes freely. A Team Lead can create, rename, and delete any team, including reassigning or removing another team's Team Lead — destroy() also auto-demotes the removed lead's role and nulls every member's team_id.",
+    "reproducibility": "Always — reproduced twice (create+edit+delete cycle completed successfully both via direct API call and confirmed present in the UI)",
+    "evidence": [
+      "backend/app/Http/Controllers/Api/TeamController.php:37-154 (store/update/destroy — no role/ownership checks)",
+      "backend/routes/api.php:66,76-77",
+      "Live API trace: POST /api/api/teams → 201 (team id 7 created), PUT → 200, DELETE → 200 \"Team deleted successfully.\" (test team fully cleaned up after verification)",
+      "Screenshot: Team Lead session at /teams shows edit (\"...\") controls on Design/HTML/PHP department cards"
+    ],
+    "impact": "Any Team Lead can restructure or destroy the entire organization's team hierarchy — delete departments, strip other teams of their lead, orphan every member's team assignment — with no audit barrier. Severe data-integrity and organizational-control risk.",
+    "likely_root_cause": "Team mutation routes share the same coarse role-only middleware as Employee Management, with no per-resource ownership scoping implemented in TeamController.",
+    "suggested_fix": "Restrict teams.store/update/destroy/syncMembers to Super Admin only (matching the documented business rule), or if Team Leads should retain any team-editing ability, scope it strictly to $team->id === $user->team_id inside the controller."
+  },
+  {
+    "id": "BUG-003",
+    "title": "Team Lead has full, un-scoped Employee Management access across the entire company, not just their own team",
+    "severity": "High",
+    "priority": "P1",
+    "module": "Employee Management",
+    "feature": "FR-EMP-1",
+    "role": "Team Lead",
+    "preconditions": ["Valid Team Lead bearer token"],
+    "steps_to_reproduce": [
+      "Log in as Team Lead abhiram@intersmart.in (team: QA, team_id 1)",
+      "GET /api/api/employees → 200, returns employees from multiple different teams (team_id 1, 2, 4, 6, and unassigned), not filtered to QA",
+      "GET /api/api/employees/1 (the Super Admin's own record, team_id null) → 200, full PII record returned (contact number, DOB, blood group, marital status, addresses fields)",
+      "Created a temporary probe employee in an unrelated/unassigned team; as the same Team Lead: PUT /api/api/employees/{id} (edit designation) → 200, POST /api/api/employees/{id}/status (Active→Disabled) → 200",
+      "Confirmed in the live UI: /employees as this Team Lead lists all 71 employees across 8 pages — the exact same directory Super Admin sees"
+    ],
+    "expected_result": "SRS FR-EMP-1 scopes Employee Management to \"Team Lead (own team)\" — a Team Lead should see and manage only their own team's roster.",
+    "actual_result": "EmployeeController has no team-based filtering anywhere in index()/show()/update()/updateStatus() — it optionally filters by team_id only if the caller explicitly passes that query param, and no server-side default restricts a Team Lead's results to their own team_id. Any Team Lead can view full PII (phone, DOB, blood group, marital status, addresses) and edit designation/status for every employee company-wide.",
+    "reproducibility": "Always",
+    "evidence": [
+      "backend/app/Http/Controllers/Api/EmployeeController.php — no hasRole()/team_id scoping in index/show/update/updateStatus",
+      "Live API: GET /employees as Team Lead returned team_id values 1,2,4,6,null in one unfiltered page",
+      "Live API: GET /employees/1 as Team Lead returned Super Admin's full record",
+      "Live UI: /employees as Team Lead showed \"Page 1 of 8\" (71 employees), identical to the Super Admin view"
+    ],
+    "impact": "Every Team Lead in the company can read sensitive personal data (contact numbers, DOB, blood group, marital status, home addresses) of every employee in every other department, and can edit their designation or disable their account. Significant privacy exposure and cross-department authorization bypass.",
+    "likely_root_cause": "Same coarse role-only middleware as BUG-002; EmployeeController was written assuming only Super Admin/HR would ever be in this group and never added a team_id === $user->team_id filter for the Team Lead case.",
+    "suggested_fix": "In EmployeeController@index/show/update/updateStatus/updatePassword/updatePhoto, when the authenticated user hasRole('Team Lead') and not Super Admin/HR, constrain all queries/targets to users whose team_id equals the Team Lead's team_id (mirroring the pattern already correctly implemented in LeaveRequestController for approvals)."
+  },
+  {
+    "id": "BUG-004",
+    "title": "Single-day leave requests are finalized by Team Lead approval alone, silently bypassing the mandatory Super Admin final approval",
+    "severity": "High",
+    "priority": "P1",
+    "module": "Leave Management",
+    "feature": "FR-LV-2",
+    "role": "Team Lead",
+    "preconditions": [
+      "Employee with an assigned Team Lead applies for a single-day leave",
+      "Employee has an available leave balance"
+    ],
+    "steps_to_reproduce": [
+      "As Employee aswathi@intersmart.in, POST /leave-requests for a single day (e.g. 2026-09-08) → created with tl_status=Pending, admin_status=Pending, status=Pending",
+      "As Team Lead abhiram@intersmart.in, POST /leave-requests/{id}/status {\"status\":\"Approved\"} → response shows tl_status=Approved, admin_status=\"Not Required\", status=\"Approved\" (fully finalized)",
+      "As Super Admin, attempt the same endpoint to give final approval → HTTP 400 \"Only pending requests can be updated\" — Super Admin is never able to review or approve/reject this request at all"
+    ],
+    "expected_result": "Per SRS FR-LV-2: \"Team Lead approves/rejects first; Super Admin gives final approval\" for every leave request, with the only documented exception being an employee who has no Team Lead assigned (routes directly to Super Admin).",
+    "actual_result": "LeaveRequestController@updateStatus (backend/app/Http/Controllers/Api/LeaveRequestController.php:836-849) contains an explicit `if ($isSingleDay || ...) { $leaveRequest->status = 'Approved'; ... }` short-circuit: any single-day leave request is fully approved and balance-deducted the moment the Team Lead approves it, with admin_status forced to \"Not Required\". Super Admin never sees or approves it.",
+    "reproducibility": "Always — reproduced with a real test leave request (created, approved by TL, confirmed SA could not act on it, then cleaned up by SA delete + manual balance restore)",
+    "evidence": [
+      "backend/app/Http/Controllers/Api/LeaveRequestController.php:840-849 (comment: \"Single-day: TL approval alone is sufficient\")",
+      "Live API trace: leave-requests/1/status as TL → status:\"Approved\", admin_status:\"Not Required\"; same call as SA → 400 \"Only pending requests can be updated\""
+    ],
+    "impact": "Removes the documented dual-control safeguard for the majority of real-world leave requests (most leave requests are single-day). Super Admin loses final oversight/audit ability over most leave approvals, weakening the intended approval control.",
+    "likely_root_cause": "Deliberate code shortcut for single-day requests, not an accidental defect — but it materially contradicts the SRS's stated two-stage approval guarantee with no carve-out for day-count.",
+    "suggested_fix": "Either update the SRS to explicitly document the single-day fast-path as intended behavior (if the business accepts it), or remove the `$isSingleDay` short-circuit so single-day requests still require both TL and Admin sign-off, consistent with multi-day requests."
+  },
+  {
+    "id": "BUG-005",
+    "title": "Deleting an approved leave request reports \"balance restored\" but the employee's leave balance is not actually refunded",
+    "severity": "High",
+    "priority": "P1",
+    "module": "Leave Management / Leave Balances",
+    "feature": "FR-LV-4",
+    "role": "Super Admin",
+    "preconditions": ["An Approved leave request exists that has already deducted balance"],
+    "steps_to_reproduce": [
+      "Employee's Casual Leave balance before approval: 2.0",
+      "Leave request (1 day) approved → balance correctly deducted to 1.0",
+      "As Super Admin: DELETE /api/api/admin/approved-leaves/{id} → HTTP 200 {\"message\":\"Approved leave deleted and balance restored\", ...}",
+      "Immediately re-check GET /leave-balances for the same user → casual_leave_balance is still 1.0, not restored to 2.0"
+    ],
+    "expected_result": "The success message explicitly promises the balance is restored; the employee's Casual Leave balance should return to its pre-approval value (2.0).",
+    "actual_result": "The balance remains at the post-deduction value (1.0) despite the API's own confirmation message claiming it was restored. Confirmed by direct before/after GET /leave-balances comparison.",
+    "reproducibility": "Always",
+    "evidence": [
+      "Live API trace: DELETE /admin/approved-leaves/1 → 200 \"Approved leave deleted and balance restored\"; follow-up GET /leave-balances still showed casual_leave_balance:1 (not 2)",
+      "Manually restored the affected test employee's real balance back to 2 via POST /leave-balances/42 afterward, with an audit remark, to leave production data correct"
+    ],
+    "impact": "If a Super Admin uses this exact, documented cleanup path to correct a wrongly-approved leave, the employee is left permanently short a day of leave balance with no visible indication anything is wrong — the UI/API actively confirms success. Silent, compounding balance-integrity corruption over time.",
+    "likely_root_cause": "The delete handler for admin/approved-leaves/{id} either never contains the balance-refund logic it claims to run, or the refund logic runs against the wrong leave-type branch / is a no-op for Casual Leave taken from current-year balance.",
+    "suggested_fix": "Locate the admin/approved-leaves destroy handler and implement (or fix) the actual balance-credit step to mirror LeaveRequestController's deduction logic exactly in reverse before returning the success message; add a regression test asserting balance delta equals the leave's day count."
+  },
+  {
+    "id": "BUG-006",
+    "title": "Late-notice Casual Leave is marked Unpaid/LOP but the day is still deducted from the employee's paid CL balance",
+    "severity": "Medium",
+    "priority": "P2",
+    "module": "Leave Management",
+    "feature": "FR-LV-1 / FR-LV-4",
+    "role": "Employee",
+    "preconditions": ["Employee applies for Casual Leave with less than 3 days' advance notice and has an available CL balance"],
+    "steps_to_reproduce": [
+      "As Employee, apply for 1 day of Casual Leave starting the next calendar day (1 day's notice)",
+      "Request is created with is_unpaid:true, lop_days:1, unpaid_reason:\"Applied less than 3 calendar days before the leave start date... Unpaid (LOP) due to late notice.\"",
+      "Team Lead approves the request (single-day fast path, see BUG-004)",
+      "Check the employee's Casual Leave balance before vs after approval: it drops by 1 (paid_cl_current_year:1 in the response) despite the request being explicitly flagged as unpaid/LOP"
+    ],
+    "expected_result": "A day flagged as LOP (Loss of Pay, i.e. unpaid) should not simultaneously be drawn from the employee's paid leave balance — LOP is meant to apply when balance is insufficient or the notice rule is violated, replacing the paid day, not consuming it in addition to marking it unpaid.",
+    "actual_result": "LeaveRequestController's balance-deduction block (approximately lines 863-909) deducts from casual_leave_balance/cl_carry_forward purely based on the leave type name, without ever checking the request's own is_unpaid/lop_days fields that were computed at apply-time.",
+    "reproducibility": "Always — reproduced with a real test leave request (balance 2 → 1 after approval of a request explicitly marked unpaid; production data restored afterward)",
+    "evidence": [
+      "backend/app/Http/Controllers/Api/LeaveRequestController.php:863-909 (deduction logic has no is_unpaid/lop_days check)",
+      "Live API trace: apply response carried is_unpaid:true, lop_days:1; approval response showed paid_cl_current_year:1 and the balance endpoint confirmed the CL balance dropped by 1"
+    ],
+    "impact": "Employees who apply for Casual Leave on short notice are effectively penalized twice for the same day: they lose a day of paid leave balance AND the day is recorded as unpaid/LOP. Over time this silently erodes leave balances incorrectly and could cause payroll disputes if the LOP flag also drives a payroll deduction.",
+    "likely_root_cause": "The late-notice LOP calculation (apply-time) and the balance deduction (approval-time) were implemented independently and never cross-checked against each other.",
+    "suggested_fix": "In the approval balance-deduction block, skip balance/carry-forward deduction entirely for days already counted in lop_days (or conversely, zero out lop_days/is_unpaid for any day that was actually paid from balance) so a single day is never both balance-deducted and marked unpaid."
+  },
+  {
+    "id": "BUG-007",
+    "title": "Super Admin can submit and auto-approve a Work-From-Home request for their own account",
+    "severity": "Medium",
+    "priority": "P2",
+    "module": "Work From Home",
+    "feature": "FR-WFH-1 (see also SRS §2.2 user classes)",
+    "role": "Super Admin",
+    "preconditions": ["Logged in as Super Admin"],
+    "steps_to_reproduce": [
+      "As Super Admin, POST /api/api/wfh-requests {\"start_date\":\"<today>\",\"end_date\":\"<today>\",\"reason\":\"...\",\"duration_type\":\"Full\"}",
+      "HTTP 201 — request created with status:\"Approved\", tl_status:\"Not Required\", admin_status:\"Not Required\", approved_by set to the Super Admin's own id, for user_id equal to the Super Admin's own account, bypassing even the same-day cutoff-time rule that blocks every other role"
+    ],
+    "expected_result": "SRS §2.2 explicitly states Super Admin \"Cannot apply for leave/WFH/TA on their own account.\"",
+    "actual_result": "WfhRequestController@store's role branch (`if ($user->hasRole('Super Admin') || $user->hasRole('HR')) { ... auto-approved ... }`) has no check preventing the Super Admin from being the applicant — it was written for the \"mark WFH on behalf of an employee\" admin feature but equally accepts the Super Admin's own account as the subject with no self-application guard.",
+    "reproducibility": "Always (test record created and cleaned up via admin/approved-wfh delete after verification)",
+    "evidence": [
+      "backend/app/Http/Controllers/Api/WfhRequestController.php:177-182",
+      "Live API trace: POST /wfh-requests as SA (own token, own user_id) → 201, status:\"Approved\", auto-approved same-day, no cutoff enforced"
+    ],
+    "impact": "Contradicts a specific, named integrity control in the SRS meant to prevent the one unconstrained role from granting itself unearned WFH/leave/TA without any second-party review.",
+    "likely_root_cause": "The auto-approval branch for Super Admin/HR was designed for admin-on-behalf-of-employee actions and never excludes the case where the target user is the acting admin themself.",
+    "suggested_fix": "In WfhRequestController@store (and the equivalent leave/TA apply endpoints), explicitly reject the request with 403 when the authenticated user hasRole('Super Admin') and the request's target user is themself; route self-service WFH for admins through a separate, clearly-labeled admin action if genuinely needed."
+  },
+  {
+    "id": "BUG-008",
+    "title": "Super Admin can submit a Travel Allowance claim for their own account",
+    "severity": "Medium",
+    "priority": "P2",
+    "module": "Travel Allowance",
+    "feature": "FR-TA-1 (see also SRS §2.2 user classes)",
+    "role": "Super Admin",
+    "preconditions": ["Logged in as Super Admin"],
+    "steps_to_reproduce": [
+      "As Super Admin, POST /api/api/ta-requests {\"reason\":\"...\",\"date_travelled\":\"<future date>\",\"items\":[{\"category\":\"Travel\",\"amount\":10,\"description\":\"...\"}]}",
+      "HTTP 201 — claim created for the Super Admin's own account (user_id = their own id)"
+    ],
+    "expected_result": "TA apply is documented as an Employee/Team-Lead-only feature, and SRS §2.2 states Super Admin \"Cannot apply for leave/WFH/TA on their own account.\" Super Admin is also the sole approver of TA claims (FR-TA-2), so self-application is a direct conflict-of-interest risk.",
+    "actual_result": "POST /ta-requests carries no role restriction at all (it sits in the general authenticated route group, not the Employee/TL-only group), and TARequestController@store never checks the caller's role against the applicant.",
+    "reproducibility": "Always (test claim created and cancelled after verification, no residual data)",
+    "evidence": [
+      "Live API trace: POST /ta-requests as SA → 201, TA request id 3 created for user_id 1 (Super Admin)",
+      "SRS Appendix lists /ta-requests as \"All\" rather than Employee/TL-scoped, contradicting the FR-TA-1 feature description's own role chips"
+    ],
+    "impact": "A Super Admin could submit and then, using their own unrestricted approve/mark-paid endpoints, approve and mark their own travel expense claim as paid — a real financial control bypass with no second approver, even though the code path was not taken to completion in this audit.",
+    "likely_root_cause": "The TA apply endpoint's role restriction was never implemented at either the route or controller level, unlike TA's approve/reject/mark-paid endpoints which are correctly Super-Admin-gated.",
+    "suggested_fix": "Restrict POST /ta-requests (and equally /leave-requests, /wfh-requests apply endpoints) to exclude Super Admin as an applicant, or explicitly gate them to Employee|Team Lead roles at the route middleware level."
+  },
+  {
+    "id": "BUG-009",
+    "title": "Travel Allowance validation errors (negative amount, missing line items) return HTTP 500 instead of HTTP 422",
+    "severity": "Medium",
+    "priority": "P2",
+    "module": "Travel Allowance",
+    "feature": "FR-TA-1",
+    "role": "Employee",
+    "preconditions": ["Logged in as Employee or Team Lead"],
+    "steps_to_reproduce": [
+      "POST /api/api/ta-requests with an item amount of -50 → HTTP 500 {\"message\":\"Error: The items.0.amount field must be at least 0.\"}",
+      "POST /api/api/ta-requests with items: [] → HTTP 500 {\"message\":\"Error: The items field is required.\"}"
+    ],
+    "expected_result": "Routine client-side validation failures (negative number, missing required field) should return HTTP 422 with a structured `errors` object, as Laravel does automatically for any uncaught ValidationException — matching how every other module in this portal (leave, WFH, employees) behaves.",
+    "actual_result": "Both cases return HTTP 500 with a generic 'Error: <message>' string body instead of a proper 422 response.",
+    "reproducibility": "Always",
+    "evidence": [
+      "backend/app/Http/Controllers/Api/TARequestController.php:70 ($request->validate(...) called inside a try block) and :110/:115 (catch (\\Illuminate\\Database\\QueryException) then catch (\\Exception $e) — the generic \\Exception catch also intercepts Illuminate\\Validation\\ValidationException, which extends \\Exception, converting Laravel's automatic 422 into a manual 500 response built from $e->getMessage())",
+      "The same store()/approve()/reject()/markPaid() pattern (validate() inside try, followed by catch (\\Exception $e)) repeats at lines 186, 276, 392, 440 — likely affecting multiple TA endpoints, not just create"
+    ],
+    "impact": "Frontend error handling almost certainly expects a 422 with field-level `errors` to show inline form validation messages; a 500 instead likely surfaces a generic \"Something went wrong\" toast, hiding the actual, perfectly clear validation reason from the user.",
+    "likely_root_cause": "Generic `catch (\\Exception $e)` blocks wrapped around `$request->validate()` calls swallow Laravel's ValidationException before the framework's exception handler can convert it to the standard 422 response.",
+    "suggested_fix": "Move `$request->validate()` calls outside the try/catch (so ValidationException propagates normally), or add an explicit `catch (\\Illuminate\\Validation\\ValidationException $e) { throw $e; }` before the generic `catch (\\Exception $e)` in every affected method."
+  },
+  {
+    "id": "BUG-010",
+    "title": "Travel Allowance line items accept a $0.00 amount with no minimum-value validation",
+    "severity": "Low",
+    "priority": "P3",
+    "module": "Travel Allowance",
+    "feature": "FR-TA-1",
+    "role": "Employee",
+    "preconditions": ["Logged in as Employee"],
+    "steps_to_reproduce": [
+      "POST /api/api/ta-requests with items: [{\"category\":\"Travel\",\"amount\":0,\"description\":\"...\"}]",
+      "HTTP 201 — claim created successfully with total_amount \"0.00\""
+    ],
+    "expected_result": "A meaningful expense claim should require a positive amount greater than zero per line item.",
+    "actual_result": "The validation rule only enforces 'at least 0' (confirmed by the negative-amount error message in BUG-009), allowing meaningless zero-value claims to be submitted and to reach the approval queue.",
+    "reproducibility": "Always",
+    "evidence": ["Live API trace: POST /ta-requests with amount:0 → 201 Created, total_amount \"0.00\""],
+    "impact": "Low — mostly a nuisance/data-quality issue (empty claims cluttering the approval queue), no security impact.",
+    "likely_root_cause": "Validation rule is `numeric|min:0` rather than `numeric|min:0.01` (or similar) on ta-request item amounts.",
+    "suggested_fix": "Change the amount validation rule to require a value greater than zero."
+  },
+  {
+    "id": "BUG-011",
+    "title": "The Employees page has no frontend route guard for the Employee role — it loads and shows a misleading empty state instead of redirecting or showing an access-denied message",
+    "severity": "Medium",
+    "priority": "P2",
+    "module": "Employee Management / Navigation",
+    "feature": "FR-EMP-1 / §5.2 Navigation",
+    "role": "Employee",
+    "preconditions": ["Logged in as a plain Employee (no Employee Management access)"],
+    "steps_to_reproduce": [
+      "As Employee aswathi@intersmart.in, directly navigate the browser to https://www.workplace.intersmart.in/employees",
+      "The page shell fully loads (title \"Employees\", search box, breadcrumb) rather than redirecting to /dashboard",
+      "The underlying data fetch fails with a console AxiosError: \"You do not have permission to perform this action.\" (backend correctly returns 403)",
+      "The UI silently falls back to displaying \"No employees found.\" — a normal-looking empty-directory state, not an access-denied notice"
+    ],
+    "expected_result": "Consistent with how this same portal treats other Super-Admin/Team-Lead-only pages: navigating to /settings or /audit-logs as an unauthorized role immediately redirects to /dashboard. /employees should behave the same way for a role with zero Employee Management access.",
+    "actual_result": "/employees has no client-side role guard at all; an Employee can open it and is shown a misleading empty state instead of being redirected or told they lack permission.",
+    "reproducibility": "Always — reproduced live in the browser as Employee (confirmed via page text extraction and console log capture)",
+    "evidence": [
+      "Live browser test: GET-guarded /settings and /audit-logs redirected Employee → /dashboard; /employees did not redirect and instead rendered \"No employees found.\"",
+      "Console: AxiosError \"You do not have permission to perform this action.\" at page load"
+    ],
+    "impact": "No data is actually exposed (the API correctly rejects the request), but the inconsistent, misleading UX could confuse users into thinking the company has no employees, and is a defense-in-depth gap compared to the rest of the app's route guards.",
+    "likely_root_cause": "The /employees page's role check was likely omitted from the shared route-guard configuration (middleware.ts / layout.tsx) that correctly protects /settings and /audit-logs.",
+    "suggested_fix": "Add /employees (and /employees/create, /employees/[id]) to the frontend's role-gated route list so Employee-role users are redirected before the page mounts, matching /settings and /audit-logs behavior."
+  },
+  {
+    "id": "BUG-012",
+    "title": "The Departments (Teams) page renders full create/edit/delete controls to every role, including plain Employees, with no client-side role gating",
+    "severity": "Medium",
+    "priority": "P2",
+    "module": "Teams / Departments / Navigation",
+    "feature": "FR-TEAM-1",
+    "role": "Employee",
+    "preconditions": ["Logged in as any role"],
+    "steps_to_reproduce": [
+      "As Employee aswathi@intersmart.in, navigate to /teams",
+      "Page renders a \"Create Department\" button and a \"...\" edit menu on every department card (Design, HTML, PHP — none belonging to this Employee), identical to what Super Admin and Team Lead both see"
+    ],
+    "expected_result": "Per SRS FR-TEAM-1, department mutation is Super-Admin-only; a plain Employee should see, at most, a read-only department directory with no create/edit affordances.",
+    "actual_result": "The Departments page performs no role-based conditional rendering at all for its action controls — every authenticated user sees the same full toolbar and per-card edit menus, regardless of role.",
+    "reproducibility": "Always — confirmed visually for both Team Lead and Employee sessions",
+    "evidence": ["Screenshots: /teams as Team Lead and as Employee both show identical \"...\" menus on every department card and a \"Create Department\" action"],
+    "impact": "For a plain Employee this is presentation-only (the backend correctly rejects POST/PUT/DELETE /teams with 403 for Employee — verified live), so no actual escalation occurs for this role. However it is misleading UX (buttons that always fail), and for Team Lead the identical unrestricted controls are backed by a backend that DOES allow the action (see BUG-002), turning the same UI gap into a real exploit path for that role.",
+    "likely_root_cause": "The Departments page was built without any role check on its action buttons, likely assuming (per the SRS's documented intent) that only Super Admin would ever reach mutating success — an assumption the backend does not enforce for Team Lead (BUG-002).",
+    "suggested_fix": "Gate the \"Create Department\" button and per-card \"...\" menu to Super Admin only in the frontend, in addition to fixing the backend authorization in BUG-002."
+  },
+  {
+    "id": "BUG-013",
+    "title": "Super Admin's dashboard/community sidebar shows a \"My Leave Balances: 0 / 0\" widget despite Super Admin being unable to apply for leave",
+    "severity": "Low",
+    "priority": "P3",
+    "module": "Dashboard / Community",
+    "feature": "FR-DASH-1",
+    "role": "Super Admin",
+    "preconditions": ["Logged in as Super Admin"],
+    "steps_to_reproduce": [
+      "Log in as Super Admin",
+      "Open /community (or /dashboard) and view the \"My Leave Balances\" sidebar widget",
+      "Widget shows \"Casual Leave: 0\" and \"Sick Leave: 0\""
+    ],
+    "expected_result": "Since SRS explicitly states Super Admin cannot apply for leave on their own account, and the backend confirms Super Admin has no LeaveBalance record at all (\"Leave balance record not found\"), this widget is not meaningful for this role and should not be shown, or should show \"Not applicable\" rather than a numeric zero.",
+    "actual_result": "The widget renders \"0\" for both leave types, which reads as \"you have zero leave left\" rather than \"leave balances do not apply to your role.\"",
+    "reproducibility": "Always",
+    "evidence": ["Live browser: /community sidebar for Super Admin session showed \"MY LEAVE BALANCES — Casual Leave 0, Sick Leave 0\"; API confirms no LeaveBalance row exists for user id 1"],
+    "impact": "Cosmetic/UX confusion only.",
+    "likely_root_cause": "The widget defaults missing balance data to 0 rather than checking for a null/absent LeaveBalance record.",
+    "suggested_fix": "Hide the \"My Leave Balances\" widget entirely for Super Admin, or render \"N/A\" when no LeaveBalance record exists for the current user."
+  },
+  {
+    "id": "BUG-014",
+    "title": "SRS/API documentation lists DELETE /issues/{id}, but the route does not support the DELETE verb",
+    "severity": "Low",
+    "priority": "P3",
+    "module": "Issues / Helpdesk / API Documentation",
+    "feature": "Appendix — API Reference",
+    "role": "Super Admin",
+    "preconditions": ["An issue record exists"],
+    "steps_to_reproduce": [
+      "As Super Admin, DELETE /api/api/issues/{id}",
+      "HTTP 405 \"The DELETE method is not supported for route api/issues/1. Supported methods: GET, HEAD.\""
+    ],
+    "expected_result": "The SRS Appendix groups /issues{,/{id}} under GET/POST/PUT/DELETE for \"All\", implying a working delete route.",
+    "actual_result": "Only GET and HEAD are registered for the singular /issues/{id} route (status/assign updates use separate PUT sub-routes); there is no working delete endpoint.",
+    "reproducibility": "Always",
+    "evidence": ["Live API trace: DELETE /api/api/issues/1 → 405, \"Supported methods: GET, HEAD\""],
+    "impact": "Documentation/implementation mismatch only; issues are resolved via status transitions instead, so there is no functional gap for end users, only for anyone relying on the SRS API reference as an integration contract.",
+    "likely_root_cause": "The SRS Appendix's route-grouping table summarized the whole apiResource verb set for /issues without checking which routes were actually excluded (->except([...])) when it was generated.",
+    "suggested_fix": "Correct the SRS Appendix to remove DELETE from the /issues{,/{id}} row, or add a real delete route if issue deletion is actually a desired capability."
+  }
+]

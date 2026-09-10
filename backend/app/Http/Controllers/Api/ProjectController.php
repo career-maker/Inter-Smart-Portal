@@ -117,7 +117,9 @@ class ProjectController extends Controller
         // A Team Lead (non-Super-Admin) may only create projects owned by
         // their own team — defaults to it if not supplied, rejects any
         // attempt to set a different team via the request.
-        if (!$user->hasRole('Super Admin')) {
+        // Exception: project_create custom permission holders may set any team.
+        $hasProjectCreatePermission = \App\Models\CustomTeamPermission::userHasPermission($user, 'project_create');
+        if (!$user->hasRole('Super Admin') && !$hasProjectCreatePermission) {
             if (isset($data['team_id']) && $data['team_id'] !== $user->team_id) {
                 return response()->json(['message' => 'You may only create projects for your own team.'], 403);
             }

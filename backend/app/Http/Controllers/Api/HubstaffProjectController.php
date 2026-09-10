@@ -24,7 +24,8 @@ class HubstaffProjectController extends Controller
             || $user->hasRole('Team Lead')
             || $user->can('manage projects')
             || $user->can('create projects')
-            || in_array(strtolower($user->role ?? ''), ['super admin', 'admin', 'team lead'], true);
+            || in_array(strtolower($user->role ?? ''), ['super admin', 'admin', 'team lead'], true)
+            || \App\Models\CustomTeamPermission::userHasPermission($user, 'project_import_hubstaff');
 
         if (!$isAuthorized) {
             return response()->json(['message' => 'Unauthorized to view Hubstaff projects.'], 403);
@@ -46,7 +47,8 @@ class HubstaffProjectController extends Controller
         $isAuthorized = $user->hasRole('Super Admin')
             || $user->hasRole('Admin')
             || $user->can('manage projects')
-            || in_array(strtolower($user->role ?? ''), ['super admin', 'admin'], true);
+            || in_array(strtolower($user->role ?? ''), ['super admin', 'admin'], true)
+            || \App\Models\CustomTeamPermission::userHasPermission($user, 'project_import_hubstaff');
 
         if (!$isAuthorized) {
             return response()->json(['message' => 'Only administrators can import projects from Hubstaff.'], 403);
