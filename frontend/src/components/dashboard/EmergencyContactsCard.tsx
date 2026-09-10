@@ -4,7 +4,18 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Phone, Mail, LifeBuoy, ChevronRight, UserPlus } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
+import api from "@/services/api";
 import emergencyContactsApi, { EmergencyContact } from "@/services/emergencyContacts";
+
+const fallbackAvatarBgs = [
+  "bg-[#56348f]",
+  "bg-indigo-600",
+  "bg-blue-600",
+  "bg-rose-500",
+  "bg-emerald-600",
+  "bg-amber-600",
+  "bg-purple-600",
+];
 
 export function EmergencyContactsCard({
   title = "Emergency Contacts",
@@ -37,8 +48,48 @@ export function EmergencyContactsCard({
       try {
         setLoading(true);
         const res = await emergencyContactsApi.getContacts();
+        let list: EmergencyContact[] = Array.isArray(res?.contacts) ? res.contacts : [];
+
+        // If any contact is missing profile_photo_path, fetch employee directory to resolve photos
+        const needsPhotos = list.some((c) => !c.profile_photo_path && !c.profile_photo_url);
+        if (needsPhotos && list.length > 0) {
+          try {
+            const empRes = await api.get("/employees", { params: { per_page: "all" } });
+            const empList: any[] = Array.isArray(empRes.data?.data)
+              ? empRes.data.data
+              : Array.isArray(empRes.data)
+              ? empRes.data
+              : [];
+
+            if (empList.length > 0) {
+              const photoMap = new Map<string, string>();
+              empList.forEach((e) => {
+                const p = e.profile_photo_path || e.profile_photo_url;
+                if (p) {
+                  if (e.id) photoMap.set(`id:${e.id}`, p);
+                  if (e.email) photoMap.set(`email:${e.email.toLowerCase().trim()}`, p);
+                  if (e.name) photoMap.set(`name:${e.name.toLowerCase().trim()}`, p);
+                  const full = `${e.first_name || ""} ${e.last_name || ""}`.trim();
+                  if (full) photoMap.set(`name:${full.toLowerCase()}`, p);
+                }
+              });
+
+              list = list.map((c) => {
+                if (c.profile_photo_path || c.profile_photo_url) return c;
+                const p =
+                  (c.id ? photoMap.get(`id:${c.id}`) : null) ||
+                  (c.email ? photoMap.get(`email:${c.email.toLowerCase().trim()}`) : null) ||
+                  (c.name ? photoMap.get(`name:${c.name.toLowerCase().trim()}`) : null);
+                return p ? { ...c, profile_photo_path: p, profile_photo_url: p } : c;
+              });
+            }
+          } catch {
+            // Silently continue with API returned contacts
+          }
+        }
+
         if (isMounted) {
-          setContacts(Array.isArray(res?.contacts) ? res.contacts : []);
+          setContacts(list);
         }
       } catch (err) {
         console.error("Failed to load emergency contacts:", err);
@@ -158,7 +209,18 @@ export function EmergencyContactsCard({
       {!loading && contacts.length > 0 && (
         <div className="flex-1 max-h-[220px] sm:max-h-[240px] overflow-y-auto pr-2 -mr-1 space-y-3 divide-y divide-slate-100 dark:divide-slate-700/50 scrollbar-thin [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-200 dark:[&::-webkit-scrollbar-thumb]:bg-slate-700 hover:[&::-webkit-scrollbar-thumb]:bg-slate-300 dark:hover:[&::-webkit-scrollbar-thumb]:bg-slate-600">
           {contacts.map((contact, index) => {
-            const avatarClass = contact.avatar_bg || "bg-[#56348f]";
+            const avatarClass =
+              contact.avatar_bg &&
+              (contact.avatar_bg.startsWith("bg-[#") ||
+                contact.avatar_bg.includes("indigo") ||
+                contact.avatar_bg.includes("rose") ||
+                contact.avatar_bg.includes("emerald") ||
+                contact.avatar_bg.includes("purple") ||
+                contact.avatar_bg.includes("blue"))
+                ? contact.avatar_bg
+                : fallbackAvatarBgs[(contact.id || index) % fallbackAvatarBgs.length];
+
+            const photoUrl = contact.profile_photo_path || contact.profile_photo_url;
 
             return (
               <div
@@ -168,9 +230,19 @@ export function EmergencyContactsCard({
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
                     <div
-                      className={`w-9 h-9 rounded-full ${avatarClass} text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs`}
+                      className={`relative w-9 h-9 rounded-full ${avatarClass} text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs overflow-hidden`}
                     >
-                      {contact.initials || "EC"}
+                      <span className="select-none">{contact.initials || "EC"}</span>
+                      {photoUrl && (
+                        <img
+                          src={photoUrl}
+                          alt={contact.name}
+                          className="absolute inset-0 w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.currentTarget as HTMLElement).style.display = "none";
+                          }}
+                        />
+                      )}
                     </div>
                     <div className="min-w-0 flex-1">
                       <div

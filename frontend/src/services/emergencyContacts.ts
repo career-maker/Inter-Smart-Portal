@@ -11,6 +11,8 @@ export interface EmergencyContact {
   initials: string;
   order: number;
   is_active?: boolean;
+  profile_photo_path?: string | null;
+  profile_photo_url?: string | null;
   created_at?: string;
   updated_at?: string;
 }

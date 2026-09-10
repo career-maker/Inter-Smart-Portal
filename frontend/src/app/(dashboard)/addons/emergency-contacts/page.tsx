@@ -856,9 +856,19 @@ export default function EmergencyContactsManagementPage() {
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-3">
                         <div
-                          className={`w-9 h-9 rounded-full ${contact.avatar_bg} text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs`}
+                          className={`relative w-9 h-9 rounded-full ${contact.avatar_bg || "bg-indigo-500"} text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs overflow-hidden`}
                         >
-                          {contact.initials}
+                          <span className="select-none">{contact.initials}</span>
+                          {(contact.profile_photo_path || contact.profile_photo_url) && (
+                            <img
+                              src={contact.profile_photo_path || contact.profile_photo_url || ""}
+                              alt={contact.name}
+                              className="absolute inset-0 w-full h-full object-cover"
+                              onError={(e) => {
+                                (e.currentTarget as HTMLElement).style.display = "none";
+                              }}
+                            />
+                          )}
                         </div>
                         <div>
                           <div className="font-bold text-slate-900 dark:text-white">

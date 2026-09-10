@@ -75,15 +75,17 @@ class EmergencyContactController extends Controller
                     $avatarBg = $colors[$u->id % count($colors)];
 
                     return [
-                        'id'         => $u->id,
-                        'name'       => $fullName,
-                        'role'       => $u->designation ?: 'Emergency Contact',
-                        'email'      => $u->email,
-                        'phone'      => $u->contact_number ?: $u->alternate_contact_number,
-                        'department' => $u->team?->name ?: 'General',
-                        'avatar_bg'  => $avatarBg,
-                        'initials'   => $initials,
-                        'order'      => $u->id,
+                        'id'                 => $u->id,
+                        'name'               => $fullName,
+                        'role'               => $u->designation ?: 'Emergency Contact',
+                        'email'              => $u->email,
+                        'phone'              => $u->contact_number ?: $u->alternate_contact_number,
+                        'department'         => $u->team?->name ?: 'General',
+                        'avatar_bg'          => $avatarBg,
+                        'initials'           => $initials,
+                        'order'              => $u->id,
+                        'profile_photo_path' => $u->profilePhotoUrl(),
+                        'profile_photo_url'  => $u->profilePhotoUrl(),
                     ];
                 });
 
@@ -141,19 +143,32 @@ class EmergencyContactController extends Controller
             ->orderBy('id', 'asc')
             ->get()
             ->map(function ($c) {
+                $matchedUser = null;
+                if ($c->email) {
+                    $matchedUser = \App\Models\User::where('email', $c->email)->first();
+                }
+                if (!$matchedUser && $c->name) {
+                    $matchedUser = \App\Models\User::whereRaw("TRIM(CONCAT(COALESCE(first_name, ''), ' ', COALESCE(last_name, ''))) = ?", [$c->name])
+                        ->orWhere('name', $c->name)
+                        ->first();
+                }
+                $photoUrl = $matchedUser?->profilePhotoUrl();
+
                 return [
-                    'id'         => $c->id,
-                    'name'       => $c->name,
-                    'role'       => $c->role,
-                    'email'      => $c->email,
-                    'phone'      => $c->phone,
-                    'department' => $c->department,
-                    'avatar_bg'  => $c->avatar_bg ?: 'bg-indigo-500',
-                    'initials'   => $c->effective_initials,
-                    'order'      => $c->order,
-                    'is_active'  => $c->is_active,
-                    'created_at' => $c->created_at?->toIso8601String(),
-                    'updated_at' => $c->updated_at?->toIso8601String(),
+                    'id'                 => $c->id,
+                    'name'               => $c->name,
+                    'role'               => $c->role,
+                    'email'              => $c->email,
+                    'phone'              => $c->phone,
+                    'department'         => $c->department,
+                    'avatar_bg'          => $c->avatar_bg ?: 'bg-indigo-500',
+                    'initials'           => $c->effective_initials,
+                    'order'              => $c->order,
+                    'is_active'          => $c->is_active,
+                    'profile_photo_path' => $photoUrl,
+                    'profile_photo_url'  => $photoUrl,
+                    'created_at'         => $c->created_at?->toIso8601String(),
+                    'updated_at'         => $c->updated_at?->toIso8601String(),
                 ];
             });
 
