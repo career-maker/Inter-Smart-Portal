@@ -359,12 +359,11 @@ export default function DashboardPage() {
             >
               <source src={welcomeBannerMedia} type={welcomeBannerMedia.endsWith(".webm") ? "video/webm" : "video/mp4"} />
             </video>
+            {/* Subtle White Gradient behind Name Section — smooth seamless fade, keeping background video fully visible on the right */}
             <div
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background: "linear-gradient(to right, rgba(12, 24, 45, 0.88) 0%, rgba(15, 23, 42, 0.65) 50%, rgba(12, 24, 45, 0.88) 100%)",
-                zIndex: 1,
-              }}
+              className="absolute inset-0 pointer-events-none z-[1]
+                bg-[linear-gradient(to_right,rgba(255,255,255,0.98)_0%,rgba(255,255,255,0.95)_25%,rgba(255,255,255,0.82)_40%,rgba(255,255,255,0.45)_56%,rgba(255,255,255,0.12)_70%,transparent_82%)]
+                dark:bg-[linear-gradient(to_right,rgba(6,12,24,0.98)_0%,rgba(6,12,24,0.94)_25%,rgba(6,12,24,0.80)_40%,rgba(6,12,24,0.35)_56%,rgba(6,12,24,0.10)_70%,transparent_82%)]"
             />
           </>
         )}
@@ -421,12 +420,12 @@ export default function DashboardPage() {
         </div>
 
         {/* Signature Script Slogan (Bottom Right) */}
-        <div className="hidden sm:block absolute right-8 bottom-3.5 pointer-events-none select-none z-10">
-          <span
-            className="font-serif italic text-base sm:text-[17px] text-indigo-400/80 dark:text-sky-300/60 drop-shadow-xs rotate-[-2deg] inline-block tracking-wide"
-            style={{ fontFamily: "'Caveat', 'Dancing Script', 'Segoe Script', cursive" }}
-          >
-            Stronger People Brighter Tomorrows
+        <div className="hidden sm:flex flex-col items-end text-right absolute right-7 sm:right-9 bottom-3 sm:bottom-3.5 pointer-events-none select-none z-10">
+          <span className="cursive-slogan italic font-bold text-base sm:text-lg md:text-[20px] leading-[1.05] text-indigo-400/90 dark:text-sky-300/85 drop-shadow-xs rotate-[-2.5deg] tracking-wide">
+            Stronger People
+          </span>
+          <span className="cursive-slogan italic font-bold text-base sm:text-lg md:text-[20px] leading-[1.05] text-indigo-400/90 dark:text-sky-300/85 drop-shadow-xs rotate-[-2.5deg] tracking-wide mt-0.5">
+            Brighter Tomorrows
           </span>
         </div>
 
@@ -1374,12 +1373,11 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
             >
               <source src={welcomeBannerMedia} type={welcomeBannerMedia.endsWith(".webm") ? "video/webm" : "video/mp4"} />
             </video>
+            {/* Subtle White Gradient behind Name Section — smooth seamless fade, keeping background video fully visible on the right */}
             <div
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background: "linear-gradient(to right, rgba(12, 24, 45, 0.88) 0%, rgba(15, 23, 42, 0.65) 50%, rgba(12, 24, 45, 0.88) 100%)",
-                zIndex: 1,
-              }}
+              className="absolute inset-0 pointer-events-none z-[1]
+                bg-[linear-gradient(to_right,rgba(255,255,255,0.98)_0%,rgba(255,255,255,0.95)_25%,rgba(255,255,255,0.82)_40%,rgba(255,255,255,0.45)_56%,rgba(255,255,255,0.12)_70%,transparent_82%)]
+                dark:bg-[linear-gradient(to_right,rgba(6,12,24,0.98)_0%,rgba(6,12,24,0.94)_25%,rgba(6,12,24,0.80)_40%,rgba(6,12,24,0.35)_56%,rgba(6,12,24,0.10)_70%,transparent_82%)]"
             />
           </>
         )}
@@ -1436,12 +1434,12 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
         </div>
 
         {/* Signature Script Slogan (Bottom Right) */}
-        <div className="hidden sm:block absolute right-8 bottom-3.5 pointer-events-none select-none z-10">
-          <span
-            className="font-serif italic text-base sm:text-[17px] text-indigo-400/80 dark:text-sky-300/60 drop-shadow-xs rotate-[-2deg] inline-block tracking-wide"
-            style={{ fontFamily: "'Caveat', 'Dancing Script', 'Segoe Script', cursive" }}
-          >
-            Stronger People Brighter Tomorrows
+        <div className="hidden sm:flex flex-col items-end text-right absolute right-7 sm:right-9 bottom-3 sm:bottom-3.5 pointer-events-none select-none z-10">
+          <span className="cursive-slogan italic font-bold text-base sm:text-lg md:text-[20px] leading-[1.05] text-indigo-400/90 dark:text-sky-300/85 drop-shadow-xs rotate-[-2.5deg] tracking-wide">
+            Stronger People
+          </span>
+          <span className="cursive-slogan italic font-bold text-base sm:text-lg md:text-[20px] leading-[1.05] text-indigo-400/90 dark:text-sky-300/85 drop-shadow-xs rotate-[-2.5deg] tracking-wide mt-0.5">
+            Brighter Tomorrows
           </span>
         </div>
 
