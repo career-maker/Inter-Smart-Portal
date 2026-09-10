@@ -31,7 +31,9 @@ import {
   FileSpreadsheet,
   AlertTriangle,
   HelpCircle,
+  X,
 } from "lucide-react";
+import { Portal } from "@/components/ui/portal";
 import { useAuthStore } from "@/store/auth";
 import leavePolicyApi, {
   LeavePolicySettings,
@@ -97,6 +99,17 @@ export default function LeavePolicyManagementPage() {
   const [adjSL, setAdjSL] = useState<string>("");
   const [adjRemarks, setAdjRemarks] = useState<string>("");
   const [savingAdjustment, setSavingAdjustment] = useState(false);
+
+  useEffect(() => {
+    if (editingEmployee || adjustingEmployee) {
+      document.body.classList.add("side-popup-open");
+    } else {
+      document.body.classList.remove("side-popup-open");
+    }
+    return () => {
+      document.body.classList.remove("side-popup-open");
+    };
+  }, [editingEmployee, adjustingEmployee]);
 
   // Simulator / Manual Run State
   const [simDate, setSimDate] = useState("");
@@ -1322,229 +1335,257 @@ export default function LeavePolicyManagementPage() {
           MODAL: CONFIGURE EMPLOYEE OVERRIDE
       ────────────────────────────────────────────────────────────────────────── */}
       {editingEmployee && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in">
-          <div className="w-full max-w-lg rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-6 space-y-5">
-            <div className="flex items-start justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-              <div>
-                <h3 className="text-[14px] font-semibold text-slate-900 dark:text-white box-title">
-                  Configure Leave Policy: {editingEmployee.name}
-                </h3>
-                <p className="text-xs text-slate-400">{editingEmployee.employee_code} • {editingEmployee.designation}</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setEditingEmployee(null)}
-                className="text-slate-400 hover:text-slate-600 cursor-pointer"
-              >
-                ✕
-              </button>
-            </div>
+        <Portal>
+          <div
+            className="fixed inset-0 z-[99999] overflow-hidden font-sans"
+            data-side-popup="true"
+          >
+            <div
+              className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+              onClick={() => setEditingEmployee(null)}
+            />
 
-            <div className="space-y-4 text-xs">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="block font-bold text-slate-700 dark:text-slate-300">
-                    Custom Monthly CL (Optional)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.5"
-                    min="0"
-                    max="10"
-                    placeholder={`Default (${settings.default_monthly_cl})`}
-                    value={customCL}
-                    onChange={(e) => setCustomCL(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none"
-                  />
+            <div
+              className="fixed inset-y-0 right-0 max-w-lg w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-[99999] animate-in slide-in-from-right duration-300"
+              data-side-popup="true"
+              style={{ fontFamily: '"Proxima Nova", sans-serif' }}
+            >
+              <div className="flex items-start justify-between border-b border-slate-100 dark:border-slate-800 p-6 pb-4 shrink-0">
+                <div>
+                  <h3 className="text-[14px] font-semibold text-slate-900 dark:text-white box-title">
+                    Configure Leave Policy: {editingEmployee.name}
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5">{editingEmployee.employee_code} • {editingEmployee.designation}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setEditingEmployee(null)}
+                  className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer ml-3"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="p-6 space-y-5 overflow-y-auto flex-1 custom-scrollbar text-xs">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="block font-bold text-slate-700 dark:text-slate-300">
+                      Custom Monthly CL (Optional)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.5"
+                      min="0"
+                      max="10"
+                      placeholder={`Default (${settings.default_monthly_cl})`}
+                      value={customCL}
+                      onChange={(e) => setCustomCL(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="block font-bold text-slate-700 dark:text-slate-300">
+                      Custom Monthly SL (Optional)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.5"
+                      min="0"
+                      max="10"
+                      placeholder={`Default (${settings.default_monthly_sl})`}
+                      value={customSL}
+                      onChange={(e) => setCustomSL(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none"
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-1.5">
                   <label className="block font-bold text-slate-700 dark:text-slate-300">
-                    Custom Monthly SL (Optional)
+                    Custom Probation Period in Months (Optional)
                   </label>
                   <input
                     type="number"
-                    step="0.5"
-                    min="0"
-                    max="10"
-                    placeholder={`Default (${settings.default_monthly_sl})`}
-                    value={customSL}
-                    onChange={(e) => setCustomSL(e.target.value)}
+                    min="1"
+                    max="36"
+                    placeholder={`Default (${settings.probation_period_months})`}
+                    value={customProbation}
+                    onChange={(e) => setCustomProbation(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none"
+                  />
+                  <p className="text-[10px] text-slate-400">Leave blank to use the common company probation period.</p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block font-bold text-slate-700 dark:text-slate-300">
+                    Internal Notes / Reason
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={customNotes}
+                    onChange={(e) => setCustomNotes(e.target.value)}
+                    placeholder="e.g. Contractual agreement for 2 CL per month"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none resize-none"
                   />
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="block font-bold text-slate-700 dark:text-slate-300">
-                  Custom Probation Period in Months (Optional)
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  max="36"
-                  placeholder={`Default (${settings.probation_period_months})`}
-                  value={customProbation}
-                  onChange={(e) => setCustomProbation(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none"
-                />
-                <p className="text-[10px] text-slate-400">Leave blank to use the common company probation period.</p>
+              <div className="flex items-center justify-end gap-2 p-4 px-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setEditingEmployee(null)}
+                  className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveEmployeePolicy}
+                  disabled={savingEmployeePolicy}
+                  style={{
+                    backgroundColor: "#56348f",
+                    color: "rgb(255, 255, 255)",
+                    fontFamily: '"Proxima Nova", sans-serif',
+                    fontSize: "12px",
+                    fontWeight: 600,
+                  }}
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-bold disabled:opacity-50 cursor-pointer"
+                >
+                  {savingEmployeePolicy ? <Loader2 className="w-3.5 h-3.5 animate-spin !text-white" /> : <Save className="w-3.5 h-3.5 !text-white" />}
+                  <span className="!text-white">Save Override</span>
+                </button>
               </div>
-
-              <div className="space-y-1.5">
-                <label className="block font-bold text-slate-700 dark:text-slate-300">
-                  Internal Notes / Reason
-                </label>
-                <textarea
-                  rows={2}
-                  value={customNotes}
-                  onChange={(e) => setCustomNotes(e.target.value)}
-                  placeholder="e.g. Contractual agreement for 2 CL per month"
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none resize-none"
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
-              <button
-                type="button"
-                onClick={() => setEditingEmployee(null)}
-                className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleSaveEmployeePolicy}
-                disabled={savingEmployeePolicy}
-                style={{
-                  backgroundColor: "#56348f",
-                  color: "rgb(255, 255, 255)",
-                  fontFamily: '"Proxima Nova", sans-serif',
-                  fontSize: "12px",
-                  fontWeight: 600,
-                }}
-                className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-bold disabled:opacity-50 cursor-pointer"
-              >
-                {savingEmployeePolicy ? <Loader2 className="w-3.5 h-3.5 animate-spin !text-white" /> : <Save className="w-3.5 h-3.5 !text-white" />}
-                <span className="!text-white">Save Override</span>
-              </button>
             </div>
           </div>
-        </div>
+        </Portal>
       )}
 
       {/* ──────────────────────────────────────────────────────────────────────────
           MODAL: MANUAL BALANCE ADJUSTMENT
       ────────────────────────────────────────────────────────────────────────── */}
       {adjustingEmployee && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in">
-          <div className="w-full max-w-lg rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-6 space-y-5">
-            <div className="flex items-start justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-              <div>
-                <h3 className="text-[14px] font-semibold text-slate-900 dark:text-white box-title">
-                  Manual Leave Balance Adjustment: {adjustingEmployee.name}
-                </h3>
-                <p className="text-xs text-slate-400">
-                  Directly adjust balances. If in probation, this will also clear probation and start future automatic monthly allocations.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setAdjustingEmployee(null)}
-                className="text-slate-400 hover:text-slate-600 cursor-pointer"
-              >
-                ✕
-              </button>
-            </div>
+        <Portal>
+          <div
+            className="fixed inset-0 z-[99999] overflow-hidden font-sans"
+            data-side-popup="true"
+          >
+            <div
+              className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+              onClick={() => setAdjustingEmployee(null)}
+            />
 
-            <div className="space-y-4 text-xs">
-              <div className="grid grid-cols-3 gap-3">
-                <div className="space-y-1.5">
-                  <label className="block font-bold text-purple-700 dark:text-purple-300">
-                    Casual Leave (Current)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.5"
-                    min="0"
-                    value={adjCL}
-                    onChange={(e) => setAdjCL(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none font-bold"
-                  />
+            <div
+              className="fixed inset-y-0 right-0 max-w-lg w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-[99999] animate-in slide-in-from-right duration-300"
+              data-side-popup="true"
+              style={{ fontFamily: '"Proxima Nova", sans-serif' }}
+            >
+              <div className="flex items-start justify-between border-b border-slate-100 dark:border-slate-800 p-6 pb-4 shrink-0">
+                <div>
+                  <h3 className="text-[14px] font-semibold text-slate-900 dark:text-white box-title">
+                    Manual Leave Balance Adjustment: {adjustingEmployee.name}
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Directly adjust balances. If in probation, this will also clear probation and start future automatic monthly allocations.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setAdjustingEmployee(null)}
+                  className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer ml-3"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="p-6 space-y-5 overflow-y-auto flex-1 custom-scrollbar text-xs">
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="space-y-1.5">
+                    <label className="block font-bold text-purple-700 dark:text-purple-300">
+                      Casual Leave (Current)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.5"
+                      min="0"
+                      value={adjCL}
+                      onChange={(e) => setAdjCL(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none font-bold"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="block font-bold text-purple-700 dark:text-purple-300">
+                      CL Carry Forward
+                    </label>
+                    <input
+                      type="number"
+                      step="0.5"
+                      min="0"
+                      value={adjCF}
+                      onChange={(e) => setAdjCF(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none font-bold"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="block font-bold text-rose-700 dark:text-rose-300">
+                      Sick Leave (SL)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.5"
+                      min="0"
+                      value={adjSL}
+                      onChange={(e) => setAdjSL(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none font-bold"
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block font-bold text-purple-700 dark:text-purple-300">
-                    CL Carry Forward
+                  <label className="block font-bold text-slate-700 dark:text-slate-300">
+                    Adjustment Remarks / Audit Reason <span className="text-rose-500">*</span>
                   </label>
-                  <input
-                    type="number"
-                    step="0.5"
-                    min="0"
-                    value={adjCF}
-                    onChange={(e) => setAdjCF(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none font-bold"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block font-bold text-rose-700 dark:text-rose-300">
-                    Sick Leave (SL)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.5"
-                    min="0"
-                    value={adjSL}
-                    onChange={(e) => setAdjSL(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none font-bold"
+                  <textarea
+                    rows={3}
+                    required
+                    value={adjRemarks}
+                    onChange={(e) => setAdjRemarks(e.target.value)}
+                    placeholder="e.g. Initial balance correction, or manual leaves granted"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none resize-none"
                   />
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="block font-bold text-slate-700 dark:text-slate-300">
-                  Adjustment Remarks / Audit Reason <span className="text-rose-500">*</span>
-                </label>
-                <textarea
-                  rows={2}
-                  required
-                  value={adjRemarks}
-                  onChange={(e) => setAdjRemarks(e.target.value)}
-                  placeholder="e.g. Initial balance correction, or manual leaves granted"
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none resize-none"
-                />
+              <div className="flex items-center justify-end gap-2 p-4 px-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setAdjustingEmployee(null)}
+                  className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveAdjustment}
+                  disabled={savingAdjustment}
+                  style={{
+                    backgroundColor: "#56348f",
+                    color: "rgb(255, 255, 255)",
+                    fontFamily: '"Proxima Nova", sans-serif',
+                    fontSize: "12px",
+                    fontWeight: 600,
+                  }}
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-bold disabled:opacity-50 cursor-pointer"
+                >
+                  {savingAdjustment ? <Loader2 className="w-3.5 h-3.5 animate-spin !text-white" /> : <Check className="w-3.5 h-3.5 !text-white" />}
+                  <span className="!text-white">Save Balance Adjustment</span>
+                </button>
               </div>
-            </div>
-
-            <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
-              <button
-                type="button"
-                onClick={() => setAdjustingEmployee(null)}
-                className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleSaveAdjustment}
-                disabled={savingAdjustment}
-                style={{
-                  backgroundColor: "#56348f",
-                  color: "rgb(255, 255, 255)",
-                  fontFamily: '"Proxima Nova", sans-serif',
-                  fontSize: "12px",
-                  fontWeight: 600,
-                }}
-                className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#56348f] hover:bg-[#462875] !text-white text-xs font-bold disabled:opacity-50 cursor-pointer"
-              >
-                {savingAdjustment ? <Loader2 className="w-3.5 h-3.5 animate-spin !text-white" /> : <Check className="w-3.5 h-3.5 !text-white" />}
-                <span className="!text-white">Save Balance Adjustment</span>
-              </button>
             </div>
           </div>
-        </div>
+        </Portal>
       )}
     </div>
   );

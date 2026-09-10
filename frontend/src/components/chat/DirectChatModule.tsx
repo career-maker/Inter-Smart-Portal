@@ -29,6 +29,7 @@ import {
   Volume2
 } from "lucide-react";
 import { format, isToday, isYesterday, parseISO } from "date-fns";
+import { Portal } from "@/components/ui/portal";
 import { useChatPushNotifications } from "@/hooks/useChatPushNotifications";
 
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
@@ -108,6 +109,17 @@ export function DirectChatModule() {
   const [userSearchQuery, setUserSearchQuery] = useState("");
   const [allColleagues, setAllColleagues] = useState<ChatUser[]>([]);
   const [loadingColleagues, setLoadingColleagues] = useState(false);
+
+  useEffect(() => {
+    if (showNewChatModal) {
+      document.body.classList.add("side-popup-open");
+    } else {
+      document.body.classList.remove("side-popup-open");
+    }
+    return () => {
+      document.body.classList.remove("side-popup-open");
+    };
+  }, [showNewChatModal]);
 
   // Message Input & Staged Attachments
   const [inputMessage, setInputMessage] = useState("");
@@ -1347,89 +1359,105 @@ export function DirectChatModule() {
           MODAL: NEW CHAT / INSTANT SEARCH COLLEAGUE
       ───────────────────────────────────────────────────────────── */}
       {showNewChatModal && (
-        <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
-          <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[80vh] animate-in zoom-in-95 duration-150">
-            <div className="p-4 px-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-[#56348f]/10 text-[#56348f] dark:bg-purple-900/40 dark:text-purple-300 flex items-center justify-center font-bold">
-                  <User className="w-4 h-4" />
+        <Portal>
+          <div
+            className="fixed inset-0 z-[99999] overflow-hidden font-sans"
+            data-side-popup="true"
+          >
+            {/* Backdrop */}
+            <div
+              className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+              onClick={() => setShowNewChatModal(false)}
+            />
+
+            {/* Side Drawer Panel */}
+            <div
+              className="fixed inset-y-0 right-0 max-w-md w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-[99999] animate-in slide-in-from-right duration-300"
+              data-side-popup="true"
+              style={{ fontFamily: '"Proxima Nova", sans-serif' }}
+            >
+              <div className="p-4 px-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between shrink-0">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-[#56348f]/10 text-[#56348f] dark:bg-purple-900/40 dark:text-purple-300 flex items-center justify-center font-bold">
+                    <User className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                      New Chat
+                    </h3>
+                    <p className="text-[11px] text-slate-400">Select an employee to message</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
-                    New Chat
-                  </h3>
-                  <p className="text-[11px] text-slate-400">Select an employee to message</p>
+                <button
+                  onClick={() => setShowNewChatModal(false)}
+                  className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="p-3 px-5 border-b border-slate-200/80 dark:border-slate-800 shrink-0">
+                <div className="relative">
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                  <input
+                    type="text"
+                    autoFocus
+                    value={userSearchQuery}
+                    onChange={(e) => setUserSearchQuery(e.target.value)}
+                    placeholder="Search name, email, or department..."
+                    className="w-full pl-10 pr-9 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500 text-slate-800 dark:text-slate-100"
+                  />
+                  {userSearchQuery && (
+                    <button
+                      onClick={() => setUserSearchQuery("")}
+                      className="absolute right-3.5 top-2.5 text-slate-400 hover:text-slate-600 cursor-pointer"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
               </div>
-              <button
-                onClick={() => setShowNewChatModal(false)}
-                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
 
-            <div className="p-3 px-5 border-b border-slate-200/80 dark:border-slate-800">
-              <div className="relative">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-                <input
-                  type="text"
-                  autoFocus
-                  value={userSearchQuery}
-                  onChange={(e) => setUserSearchQuery(e.target.value)}
-                  placeholder="Search name, email, or department..."
-                  className="w-full pl-10 pr-9 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500 text-slate-800 dark:text-slate-100"
-                />
-                {userSearchQuery && (
-                  <button
-                    onClick={() => setUserSearchQuery("")}
-                    className="absolute right-3.5 top-2.5 text-slate-400 hover:text-slate-600 cursor-pointer"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
+              <div className="flex-1 overflow-y-auto p-3 custom-scrollbar space-y-1">
+                {loadingColleagues && allColleagues.length === 0 ? (
+                  <div className="p-8 text-center text-xs text-slate-400">Loading directory...</div>
+                ) : filteredColleagues.length === 0 ? (
+                  <div className="p-8 text-center text-xs text-slate-400">
+                    {userSearchQuery ? `No employees found matching "${userSearchQuery}".` : "No colleagues found."}
+                  </div>
+                ) : (
+                  filteredColleagues.map((usr) => (
+                    <button
+                      key={usr.id}
+                      onClick={() => handleStartChatWithUser(usr)}
+                      className="w-full text-left p-2.5 rounded-2xl flex items-center justify-between hover:bg-purple-50 dark:hover:bg-slate-800 transition-colors cursor-pointer group"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <RoyalAvatar
+                          src={usr.profile_photo_path}
+                          name={usr.name}
+                          userId={usr.id}
+                          className="w-9 h-9 rounded-full text-xs"
+                        />
+                        <div className="min-w-0">
+                          <RoyalName
+                            name={usr.name}
+                            userId={usr.id}
+                            className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate block group-hover:text-[#56348f] transition-colors"
+                          />
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                            {usr.designation || "Employee"} • {usr.department || usr.email}
+                          </p>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#56348f] transition-colors" />
+                    </button>
+                  ))
                 )}
               </div>
             </div>
-
-            <div className="flex-1 overflow-y-auto p-3 custom-scrollbar space-y-1">
-              {loadingColleagues && allColleagues.length === 0 ? (
-                <div className="p-8 text-center text-xs text-slate-400">Loading directory...</div>
-              ) : filteredColleagues.length === 0 ? (
-                <div className="p-8 text-center text-xs text-slate-400">
-                  {userSearchQuery ? `No employees found matching "${userSearchQuery}".` : "No colleagues found."}
-                </div>
-              ) : (
-                filteredColleagues.map((usr) => (
-                  <button
-                    key={usr.id}
-                    onClick={() => handleStartChatWithUser(usr)}
-                    className="w-full text-left p-2.5 rounded-2xl flex items-center justify-between hover:bg-purple-50 dark:hover:bg-slate-800 transition-colors cursor-pointer group"
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <RoyalAvatar
-                        src={usr.profile_photo_path}
-                        name={usr.name}
-                        userId={usr.id}
-                        className="w-9 h-9 rounded-full text-xs"
-                      />
-                      <div className="min-w-0">
-                        <RoyalName
-                          name={usr.name}
-                          userId={usr.id}
-                          className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate block group-hover:text-[#56348f] transition-colors"
-                        />
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                          {usr.designation || "Employee"} • {usr.department || usr.email}
-                        </p>
-                      </div>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#56348f] transition-colors" />
-                  </button>
-                ))
-              )}
-            </div>
           </div>
-        </div>
+        </Portal>
       )}
 
       {/* ─────────────────────────────────────────────────────────────

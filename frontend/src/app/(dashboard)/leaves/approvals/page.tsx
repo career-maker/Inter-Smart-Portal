@@ -22,6 +22,7 @@ import {
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
 import { format, parseISO } from "date-fns";
+import { Portal } from "@/components/ui/portal";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 import { CommonSpinner } from "@/components/ui/PageLoader";
 
@@ -186,6 +187,17 @@ export default function ApprovalsPage() {
   const [recalcLoading, setRecalcLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (overrideDialog) {
+      document.body.classList.add("side-popup-open");
+    } else {
+      document.body.classList.remove("side-popup-open");
+    }
+    return () => {
+      document.body.classList.remove("side-popup-open");
+    };
+  }, [overrideDialog]);
 
   // Profile refresh
   useEffect(() => {
@@ -1118,205 +1130,229 @@ export default function ApprovalsPage() {
 
       {/* ── Override Dialog (Super Admin) ── */}
       {overrideDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setOverrideDialog(null)} />
-          <div className="relative w-full max-w-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-10 overflow-hidden">
-            <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800">
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">Override Leave Request</h2>
-              <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">Customize dates and manually split paid leaves and LOP.</p>
-            </div>
+        <Portal>
+          <div
+            className="fixed inset-0 z-[99999] overflow-hidden font-sans"
+            data-side-popup="true"
+          >
+            <div
+              className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+              onClick={() => setOverrideDialog(null)}
+            />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 max-h-[65vh] overflow-y-auto">
-              {/* Left Column: Form Inputs */}
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1.5">Start Date</label>
-                    <input
-                      type="date"
-                      value={overrideFields.start_date}
-                      onChange={(e) => handleDateChange("start_date", e.target.value)}
-                      className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs sm:text-sm rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-colors"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1.5">End Date</label>
-                    <input
-                      type="date"
-                      value={overrideFields.end_date}
-                      onChange={(e) => handleDateChange("end_date", e.target.value)}
-                      className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs sm:text-sm rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-colors"
-                    />
-                  </div>
+            <div
+              className="fixed inset-y-0 right-0 max-w-2xl sm:max-w-3xl w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-[99999] animate-in slide-in-from-right duration-300"
+              data-side-popup="true"
+              style={{ fontFamily: '"Proxima Nova", sans-serif' }}
+            >
+              <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between shrink-0">
+                <div>
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-white">Override Leave Request</h2>
+                  <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">Customize dates and manually split paid leaves and LOP.</p>
                 </div>
-
-                <div className="border-t border-slate-200 dark:border-slate-800 pt-4">
-                  <h3 className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">Custom Allocation Split</h3>
-                  <p className="text-xs text-slate-500 mb-4">Original auto-calculated total: <span className="font-bold text-slate-900 dark:text-white">{autoTotalDays} day(s)</span></p>
-
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between gap-4">
-                      <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-300">Paid Casual Leave</span>
-                      <input
-                        type="number"
-                        step="0.5"
-                        min="0"
-                        value={overrideFields.paid_casual_leave}
-                        onChange={(e) => setOverrideFields((f) => ({ ...f, paid_casual_leave: parseFloat(e.target.value) || 0 }))}
-                        className="w-24 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs sm:text-sm text-center rounded-xl px-2 py-1.5 outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
-                      />
-                    </div>
-                    <div className="flex items-center justify-between gap-4">
-                      <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-300">Paid Sick Leave</span>
-                      <input
-                        type="number"
-                        step="0.5"
-                        min="0"
-                        value={overrideFields.paid_sick_leave}
-                        onChange={(e) => setOverrideFields((f) => ({ ...f, paid_sick_leave: parseFloat(e.target.value) || 0 }))}
-                        className="w-24 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs sm:text-sm text-center rounded-xl px-2 py-1.5 outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
-                      />
-                    </div>
-                    <div className="flex items-center justify-between gap-4">
-                      <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-300">Loss of Pay (LOP)</span>
-                      <input
-                        type="number"
-                        step="0.5"
-                        min="0"
-                        value={overrideFields.lop_days}
-                        onChange={(e) => setOverrideFields((f) => ({ ...f, lop_days: parseFloat(e.target.value) || 0 }))}
-                        className="w-24 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs sm:text-sm text-center rounded-xl px-2 py-1.5 outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="border-t border-slate-200 dark:border-slate-800 pt-4">
-                  <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1.5">Reason for Override *</label>
-                  <textarea
-                    rows={2}
-                    value={overrideFields.remarks}
-                    onChange={(e) => setOverrideFields((f) => ({ ...f, remarks: e.target.value }))}
-                    placeholder="Provide a reason for overriding this allocation..."
-                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs sm:text-sm rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 placeholder:text-slate-400 resize-none transition-colors"
-                  />
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setOverrideDialog(null)}
+                  className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                >
+                  <XCircle className="w-5 h-5" />
+                </button>
               </div>
 
-              {/* Right Column: Before-and-After Summary Panel */}
-              <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 space-y-4">
-                <h3 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Before-and-After Summary</h3>
+              <div className="p-6 overflow-y-auto flex-1 custom-scrollbar space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Left Column: Form Inputs */}
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1.5">Start Date</label>
+                        <input
+                          type="date"
+                          value={overrideFields.start_date}
+                          onChange={(e) => handleDateChange("start_date", e.target.value)}
+                          className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs sm:text-sm rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-colors"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1.5">End Date</label>
+                        <input
+                          type="date"
+                          value={overrideFields.end_date}
+                          onChange={(e) => handleDateChange("end_date", e.target.value)}
+                          className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs sm:text-sm rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-colors"
+                        />
+                      </div>
+                    </div>
 
-                {recalcLoading ? (
-                  <div className="flex flex-col items-center justify-center py-16 gap-3">
-                    <Loader2 className="w-6 h-6 text-purple-600 animate-spin" />
-                    <span className="text-xs text-slate-500 dark:text-slate-400">Recalculating...</span>
+                    <div className="border-t border-slate-200 dark:border-slate-800 pt-4">
+                      <h3 className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">Custom Allocation Split</h3>
+                      <p className="text-xs text-slate-500 mb-4">Original auto-calculated total: <span className="font-bold text-slate-900 dark:text-white">{autoTotalDays} day(s)</span></p>
+
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between gap-4">
+                          <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-300">Paid Casual Leave</span>
+                          <input
+                            type="number"
+                            step="0.5"
+                            min="0"
+                            value={overrideFields.paid_casual_leave}
+                            onChange={(e) => setOverrideFields((f) => ({ ...f, paid_casual_leave: parseFloat(e.target.value) || 0 }))}
+                            className="w-24 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs sm:text-sm text-center rounded-xl px-2 py-1.5 outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                          />
+                        </div>
+                        <div className="flex items-center justify-between gap-4">
+                          <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-300">Paid Sick Leave</span>
+                          <input
+                            type="number"
+                            step="0.5"
+                            min="0"
+                            value={overrideFields.paid_sick_leave}
+                            onChange={(e) => setOverrideFields((f) => ({ ...f, paid_sick_leave: parseFloat(e.target.value) || 0 }))}
+                            className="w-24 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs sm:text-sm text-center rounded-xl px-2 py-1.5 outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                          />
+                        </div>
+                        <div className="flex items-center justify-between gap-4">
+                          <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-300">Loss of Pay (LOP)</span>
+                          <input
+                            type="number"
+                            step="0.5"
+                            min="0"
+                            value={overrideFields.lop_days}
+                            onChange={(e) => setOverrideFields((f) => ({ ...f, lop_days: parseFloat(e.target.value) || 0 }))}
+                            className="w-24 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs sm:text-sm text-center rounded-xl px-2 py-1.5 outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border-t border-slate-200 dark:border-slate-800 pt-4">
+                      <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1.5">Reason for Override *</label>
+                      <textarea
+                        rows={2}
+                        value={overrideFields.remarks}
+                        onChange={(e) => setOverrideFields((f) => ({ ...f, remarks: e.target.value }))}
+                        placeholder="Provide a reason for overriding this allocation..."
+                        className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs sm:text-sm rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 placeholder:text-slate-400 resize-none transition-colors"
+                      />
+                    </div>
                   </div>
-                ) : (
-                  <div className="space-y-4 text-xs">
-                    {/* Original Calculation */}
-                    <div className="space-y-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5">
-                      <p className="font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider mb-1 text-[10px]">Original Calculation</p>
-                      <div className="flex justify-between">
-                        <span className="text-slate-500 dark:text-slate-400">Dates:</span>
-                        <span className="text-slate-800 dark:text-slate-200 font-medium">{fmtDate(overrideDialog.original_start_date)} – {fmtDate(overrideDialog.original_end_date)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-slate-500 dark:text-slate-400">Total Leave:</span>
-                        <span className="text-slate-900 dark:text-white font-bold">{overrideDialog.original_days} day(s)</span>
-                      </div>
-                      <div className="flex justify-between pl-3 text-slate-600 dark:text-slate-400 border-l border-slate-200 dark:border-slate-700">
-                        <span>Paid Casual Leave:</span>
-                        <span>{overrideDialog.original_paid_cl}</span>
-                      </div>
-                      <div className="flex justify-between pl-3 text-slate-600 dark:text-slate-400 border-l border-slate-200 dark:border-slate-700">
-                        <span>Paid Sick Leave:</span>
-                        <span>{overrideDialog.original_paid_sl}</span>
-                      </div>
-                      <div className="flex justify-between pl-3 text-slate-600 dark:text-slate-400 border-l border-slate-200 dark:border-slate-700">
-                        <span>Loss of Pay (LOP):</span>
-                        <span>{overrideDialog.original_lop}</span>
-                      </div>
-                    </div>
 
-                    {/* Override Calculation */}
-                    <div className="space-y-2 bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 rounded-xl p-3.5">
-                      <p className="font-bold text-purple-700 dark:text-purple-300 uppercase tracking-wider mb-1 text-[10px]">Override Calculation</p>
-                      <div className="flex justify-between">
-                        <span className="text-slate-600 dark:text-slate-400">Dates:</span>
-                        <span className="text-slate-900 dark:text-white font-medium">{fmtDate(overrideFields.start_date)} – {fmtDate(overrideFields.end_date)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-slate-600 dark:text-slate-400">Total Leave:</span>
-                        <span className="text-purple-700 dark:text-purple-300 font-bold">{overrideTotalDays} day(s)</span>
-                      </div>
-                      <div className="flex justify-between pl-3 text-slate-600 dark:text-slate-400 border-l border-purple-200 dark:border-purple-800">
-                        <span>Paid Casual Leave:</span>
-                        <span className="font-semibold text-slate-900 dark:text-white">{overrideFields.paid_casual_leave}</span>
-                      </div>
-                      <div className="flex justify-between pl-3 text-slate-600 dark:text-slate-400 border-l border-purple-200 dark:border-purple-800">
-                        <span>Paid Sick Leave:</span>
-                        <span className="font-semibold text-slate-900 dark:text-white">{overrideFields.paid_sick_leave}</span>
-                      </div>
-                      <div className="flex justify-between pl-3 text-slate-600 dark:text-slate-400 border-l border-purple-200 dark:border-purple-800">
-                        <span>Loss of Pay (LOP):</span>
-                        <span className="font-semibold text-slate-900 dark:text-white">{overrideFields.lop_days}</span>
-                      </div>
-                    </div>
+                  {/* Right Column: Before-and-After Summary Panel */}
+                  <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 space-y-4">
+                    <h3 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Before-and-After Summary</h3>
 
-                    {/* Impact on Balances */}
-                    <div className="space-y-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5">
-                      <p className="font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1 text-[10px]">Leave Balances Impact</p>
-                      <div className="grid grid-cols-2 gap-3 pt-1">
-                        <div>
-                          <p className="text-[10px] text-slate-500 uppercase">Casual Leave Balance</p>
-                          <p className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mt-0.5">
-                            {currentBalances.cl} <span className="text-slate-400 font-normal">→</span> <span className="text-slate-900 dark:text-white font-bold">{Math.max(0, currentBalances.cl - overrideFields.paid_casual_leave)}</span>
-                          </p>
-                          {currentBalances.cf > 0 && (
-                            <p className="text-[10px] text-slate-400 mt-0.5">
-                              ({currentBalances.reg_cl} Reg + {currentBalances.cf} Carry-Fwd)
-                            </p>
-                          )}
+                    {recalcLoading ? (
+                      <div className="flex flex-col items-center justify-center py-16 gap-3">
+                        <Loader2 className="w-6 h-6 text-purple-600 animate-spin" />
+                        <span className="text-xs text-slate-500 dark:text-slate-400">Recalculating...</span>
+                      </div>
+                    ) : (
+                      <div className="space-y-4 text-xs">
+                        {/* Original Calculation */}
+                        <div className="space-y-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5">
+                          <p className="font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider mb-1 text-[10px]">Original Calculation</p>
+                          <div className="flex justify-between">
+                            <span className="text-slate-500 dark:text-slate-400">Dates:</span>
+                            <span className="text-slate-800 dark:text-slate-200 font-medium">{fmtDate(overrideDialog.original_start_date)} – {fmtDate(overrideDialog.original_end_date)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-500 dark:text-slate-400">Total Leave:</span>
+                            <span className="text-slate-900 dark:text-white font-bold">{overrideDialog.original_days} day(s)</span>
+                          </div>
+                          <div className="flex justify-between pl-3 text-slate-600 dark:text-slate-400 border-l border-slate-200 dark:border-slate-700">
+                            <span>Paid Casual Leave:</span>
+                            <span>{overrideDialog.original_paid_cl}</span>
+                          </div>
+                          <div className="flex justify-between pl-3 text-slate-600 dark:text-slate-400 border-l border-slate-200 dark:border-slate-700">
+                            <span>Paid Sick Leave:</span>
+                            <span>{overrideDialog.original_paid_sl}</span>
+                          </div>
+                          <div className="flex justify-between pl-3 text-slate-600 dark:text-slate-400 border-l border-slate-200 dark:border-slate-700">
+                            <span>Loss of Pay (LOP):</span>
+                            <span>{overrideDialog.original_lop}</span>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-[10px] text-slate-500 uppercase">Sick Leave Balance</p>
-                          <p className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mt-0.5">
-                            {currentBalances.sl} <span className="text-slate-400 font-normal">→</span> <span className="text-slate-900 dark:text-white font-bold">{Math.max(0, currentBalances.sl - overrideFields.paid_sick_leave)}</span>
-                          </p>
+
+                        {/* Override Calculation */}
+                        <div className="space-y-2 bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 rounded-xl p-3.5">
+                          <p className="font-bold text-purple-700 dark:text-purple-300 uppercase tracking-wider mb-1 text-[10px]">Override Calculation</p>
+                          <div className="flex justify-between">
+                            <span className="text-slate-600 dark:text-slate-400">Dates:</span>
+                            <span className="text-slate-900 dark:text-white font-medium">{fmtDate(overrideFields.start_date)} – {fmtDate(overrideFields.end_date)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-600 dark:text-slate-400">Total Leave:</span>
+                            <span className="text-purple-700 dark:text-purple-300 font-bold">{overrideTotalDays} day(s)</span>
+                          </div>
+                          <div className="flex justify-between pl-3 text-slate-600 dark:text-slate-400 border-l border-purple-200 dark:border-purple-800">
+                            <span>Paid Casual Leave:</span>
+                            <span className="font-semibold text-slate-900 dark:text-white">{overrideFields.paid_casual_leave}</span>
+                          </div>
+                          <div className="flex justify-between pl-3 text-slate-600 dark:text-slate-400 border-l border-purple-200 dark:border-purple-800">
+                            <span>Paid Sick Leave:</span>
+                            <span className="font-semibold text-slate-900 dark:text-white">{overrideFields.paid_sick_leave}</span>
+                          </div>
+                          <div className="flex justify-between pl-3 text-slate-600 dark:text-slate-400 border-l border-purple-200 dark:border-purple-800">
+                            <span>Loss of Pay (LOP):</span>
+                            <span className="font-semibold text-slate-900 dark:text-white">{overrideFields.lop_days}</span>
+                          </div>
+                        </div>
+
+                        {/* Impact on Balances */}
+                        <div className="space-y-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5">
+                          <p className="font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1 text-[10px]">Leave Balances Impact</p>
+                          <div className="grid grid-cols-2 gap-3 pt-1">
+                            <div>
+                              <p className="text-[10px] text-slate-500 uppercase">Casual Leave Balance</p>
+                              <p className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mt-0.5">
+                                {currentBalances.cl} <span className="text-slate-400 font-normal">→</span> <span className="text-slate-900 dark:text-white font-bold">{Math.max(0, currentBalances.cl - overrideFields.paid_casual_leave)}</span>
+                              </p>
+                              {currentBalances.cf > 0 && (
+                                <p className="text-[10px] text-slate-400 mt-0.5">
+                                  ({currentBalances.reg_cl} Reg + {currentBalances.cf} Carry-Fwd)
+                                </p>
+                              )}
+                            </div>
+                            <div>
+                              <p className="text-[10px] text-slate-500 uppercase">Sick Leave Balance</p>
+                              <p className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mt-0.5">
+                                {currentBalances.sl} <span className="text-slate-400 font-normal">→</span> <span className="text-slate-900 dark:text-white font-bold">{Math.max(0, currentBalances.sl - overrideFields.paid_sick_leave)}</span>
+                              </p>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Validation Message */}
+                {overrideTotalDays > autoTotalDays && (
+                  <div className="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs rounded-xl flex items-center gap-2">
+                    <span>⚠️ The sum of split days ({overrideTotalDays}) cannot exceed the total leave count for this date range ({autoTotalDays}).</span>
                   </div>
                 )}
               </div>
-            </div>
 
-            {/* Validation Message */}
-            {overrideTotalDays > autoTotalDays && (
-              <div className="mx-6 mb-4 p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs rounded-xl flex items-center gap-2">
-                <span>⚠️ The sum of split days ({overrideTotalDays}) cannot exceed the total leave count for this date range ({autoTotalDays}).</span>
+              <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 flex gap-3 justify-end bg-slate-50/50 dark:bg-slate-800/30 shrink-0">
+                <button
+                  onClick={() => setOverrideDialog(null)}
+                  className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={submitOverride}
+                  disabled={actionLoading || recalcLoading || !overrideFields.remarks.trim() || overrideTotalDays > autoTotalDays}
+                  className="flex items-center gap-2 px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
+                >
+                  {actionLoading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  Apply Override & Approve
+                </button>
               </div>
-            )}
-
-            <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 flex gap-3 justify-end bg-slate-50/50 dark:bg-slate-800/30">
-              <button
-                onClick={() => setOverrideDialog(null)}
-                className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={submitOverride}
-                disabled={actionLoading || recalcLoading || !overrideFields.remarks.trim() || overrideTotalDays > autoTotalDays}
-                className="flex items-center gap-2 px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
-              >
-                {actionLoading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                Apply Override & Approve
-              </button>
             </div>
           </div>
-        </div>
+        </Portal>
       )}
     </div>
   );
