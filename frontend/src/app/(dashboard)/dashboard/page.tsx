@@ -613,89 +613,280 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
             {/* Team Status Today Card */}
             <div className="lg:col-span-2 flex flex-col">
-              <div className="bg-white dark:bg-slate-800 rounded-md p-5 border border-slate-200/90 dark:border-slate-700/60 shadow-sm h-full flex flex-col justify-between">
+              <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 sm:p-6 border border-slate-200/90 dark:border-slate-700/60 shadow-xs h-full flex flex-col justify-between relative overflow-hidden">
                 <div>
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2">
-                    <div>
-                      <h2 style={{ fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)', fontSize: "calc(14px * var(--portal-heading-multiplier, 1))", lineHeight: "20px", fontWeight: 600, color: "rgb(15, 24, 36)" }} className="dark:text-white flex items-center gap-2 box-title">
-                        <Briefcase className="w-4 h-4 text-[#56348f] dark:text-purple-400" />
-                        Team Status Today
-                      </h2>
-                      <p style={{ fontSize: "var(--portal-desc-size, 13px)", lineHeight: "20px", color: "rgb(94, 105, 120)" }} className="dark:text-slate-400 font-normal box-subtitle card-desc">
-                        Daily attendance and availability breakdown
-                      </p>
+                  {/* Card Header */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3.5 mb-3.5 gap-2 border-b border-slate-100 dark:border-slate-800/80">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 shadow-2xs">
+                        <Users className="w-5 h-5 stroke-[2.2]" />
+                      </div>
+                      <div>
+                        <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">
+                          Team Status Today
+                        </h2>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                          Daily attendance and availability breakdown
+                        </p>
+                      </div>
                     </div>
-                    
+
                     {/* Legend */}
-                    <div className="flex flex-wrap items-center gap-3">
-                      <span className="flex items-center gap-1 text-[11px] font-normal text-slate-500 dark:text-slate-400">
-                        <div className="w-2 h-2 rounded-full bg-emerald-500"></div> Present
+                    <div className="flex flex-wrap items-center gap-3 sm:gap-3.5 pt-1 sm:pt-0">
+                      <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#10b981]" /> Present
                       </span>
-                      <span className="flex items-center gap-1 text-[11px] font-normal text-slate-500 dark:text-slate-400">
-                        <div className="w-2 h-2 rounded-full bg-red-500"></div> Absent
+                      <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#ef4444]" /> Absent
                       </span>
-                      <span className="flex items-center gap-1 text-[11px] font-normal text-slate-500 dark:text-slate-400">
-                        <div className="w-2 h-2 rounded-full bg-blue-500"></div> WFH
+                      <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#3b82f6]" /> WFH
                       </span>
-                      <span className="flex items-center gap-1 text-[11px] font-normal text-slate-500 dark:text-slate-400">
-                        <div className="w-2 h-2 rounded-full bg-amber-500"></div> Half Day
+                      <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#f59e0b]" /> Half Day
                       </span>
                     </div>
                   </div>
-      
-                  {data?.widgets?.team_members && data.widgets.team_members.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-2">
-                      {data.widgets.team_members.map((member: any) => {
-                        const statusLower = (member.status || "").toLowerCase();
-                        const isPresent = statusLower === "present";
-                        const isWfh = statusLower === "wfh" || statusLower.includes("wfh");
-                        const isHalfDay = statusLower.includes("half day");
 
-                        const statusConfig = isPresent
-                          ? { dot: "bg-emerald-500", label: "Present", text: "text-emerald-700 dark:text-emerald-400" }
-                          : isWfh
-                          ? { dot: "bg-blue-500", label: "WFH", text: "text-blue-700 dark:text-blue-400" }
-                          : isHalfDay
-                          ? { dot: "bg-amber-500", label: member.status, text: "text-amber-700 dark:text-amber-400" }
-                          : { dot: "bg-rose-500", label: "Absent", text: "text-rose-700 dark:text-rose-400" };
+                  {/* Body Content */}
+                  {(() => {
+                    const teamMembers = data?.widgets?.team_members || [];
+                    const totalTeam = teamMembers.length;
+                    const presentCount = teamMembers.filter((m: any) => (m.status || "").toLowerCase() === "present").length;
+                    const wfhCount = teamMembers.filter((m: any) => (m.status || "").toLowerCase().includes("wfh")).length;
+                    const halfDayCount = teamMembers.filter((m: any) => (m.status || "").toLowerCase().includes("half day")).length;
+                    const absentCount = teamMembers.filter((m: any) => {
+                      const s = (m.status || "").toLowerCase();
+                      return s === "absent" || (!s.includes("present") && !s.includes("wfh") && !s.includes("half day"));
+                    }).length;
 
-                        return (
-                          <button 
-                            key={member.id} 
-                            type="button"
-                            onClick={() => setSelectedTeamMemberForPunches(member)}
-                            className="group flex items-center justify-between p-2.5 rounded-xl bg-slate-50/70 dark:bg-slate-900/50 hover:bg-white dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700/60 hover:border-purple-300 dark:hover:border-purple-600/50 hover:shadow-xs transition-all duration-200 text-left cursor-pointer"
-                            title={`Click to view punches for ${member.name} (${statusConfig.label})`}
-                          >
-                            <div className="flex items-center gap-2.5 min-w-0">
-                              <div className="relative shrink-0">
-                                <RoyalAvatar
-                                  src={member.profile_photo_path}
-                                  name={member.name}
-                                  userId={member.id}
-                                  className="w-8 h-8 rounded-full"
-                                />
-                                <span className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ring-2 ring-white dark:ring-slate-800 ${statusConfig.dot}`} />
+                    const circumference = 2 * Math.PI * 38; // ~238.761
+                    const segments = [
+                      { count: presentCount, color: "#10b981" },
+                      { count: absentCount, color: "#ef4444" },
+                      { count: wfhCount, color: "#3b82f6" },
+                      { count: halfDayCount, color: "#f59e0b" },
+                    ].filter((s) => s.count > 0);
+
+                    let currentOffset = 0;
+                    const strokeSegments = segments.map((seg) => {
+                      const strokeLength = totalTeam > 0 ? (seg.count / totalTeam) * circumference : 0;
+                      const strokeDasharray = `${strokeLength} ${circumference}`;
+                      const strokeDashoffset = -currentOffset;
+                      currentOffset += strokeLength;
+                      return { ...seg, strokeDasharray, strokeDashoffset };
+                    });
+
+                    return (
+                      <div className="flex flex-col xl:flex-row items-stretch gap-4 sm:gap-6 pt-1">
+                        {/* Member Cards Area (Scrollable if many members, 2-col responsive) */}
+                        <div className="flex-1 min-w-0">
+                          {teamMembers.length > 0 ? (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[240px] overflow-y-auto pr-1 [scrollbar-width:thin]">
+                              {teamMembers.map((member: any) => {
+                                const statusLower = (member.status || "").toLowerCase();
+                                const isPresent = statusLower === "present";
+                                const isWfh = statusLower.includes("wfh");
+                                const isHalfDay = statusLower.includes("half day");
+
+                                let cardBg = "bg-[#fff1f2] border-[#fecdd3] dark:bg-rose-950/20 dark:border-rose-800/40";
+                                let dotColor = "bg-[#ef4444]";
+                                let textColor = "text-[#e11d48] dark:text-rose-400";
+                                let statusLabel = "Absent";
+
+                                if (isPresent) {
+                                  cardBg = "bg-[#f0fdf4] border-[#bbf7d0] dark:bg-emerald-950/20 dark:border-emerald-800/40";
+                                  dotColor = "bg-[#10b981]";
+                                  textColor = "text-[#16a34a] dark:text-emerald-400";
+                                  statusLabel = "Present";
+                                } else if (isWfh) {
+                                  cardBg = "bg-[#eff6ff] border-[#bfdbfe] dark:bg-blue-950/20 dark:border-blue-800/40";
+                                  dotColor = "bg-[#3b82f6]";
+                                  textColor = "text-[#2563eb] dark:text-blue-400";
+                                  statusLabel = "WFH";
+                                } else if (isHalfDay) {
+                                  cardBg = "bg-[#fffbeb] border-[#fde68a] dark:bg-amber-950/20 dark:border-amber-800/40";
+                                  dotColor = "bg-[#f59e0b]";
+                                  textColor = "text-[#d97706] dark:text-amber-400";
+                                  statusLabel = member.status || "Half Day";
+                                }
+
+                                const initials = (() => {
+                                  if (!member.name) return "??";
+                                  const parts = member.name.trim().split(/\s+/).filter(Boolean);
+                                  if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+                                  return (parts[0][0] + parts[1][0]).toUpperCase();
+                                })();
+
+                                return (
+                                  <div
+                                    key={member.id}
+                                    onClick={() => setSelectedTeamMemberForPunches(member)}
+                                    className={`group flex items-center justify-between p-3 rounded-2xl border ${cardBg} hover:shadow-xs transition-all duration-200 text-left cursor-pointer`}
+                                    title={`Click to view punches for ${member.name} (${statusLabel})`}
+                                  >
+                                    <div className="flex items-center gap-2.5 min-w-0">
+                                      <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#2563eb] text-white font-black text-xs sm:text-sm flex items-center justify-center shrink-0 shadow-2xs overflow-hidden">
+                                        {member.profile_photo_path ? (
+                                          <img
+                                            src={member.profile_photo_path}
+                                            alt={member.name}
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => {
+                                              (e.currentTarget as HTMLElement).style.display = "none";
+                                            }}
+                                          />
+                                        ) : (
+                                          initials
+                                        )}
+                                      </div>
+                                      <div className="min-w-0">
+                                        <div className="text-[13px] sm:text-sm font-black text-slate-900 dark:text-white truncate">
+                                          {member.name}
+                                        </div>
+                                        <div className="flex items-center gap-1.5 mt-0.5">
+                                          <span className={`w-2 h-2 rounded-full shrink-0 ${dotColor}`} />
+                                          <span className={`text-[11px] sm:text-xs font-black ${textColor}`}>
+                                            {statusLabel}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div
+                                      role="button"
+                                      tabIndex={0}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSelectedTeamMemberForPunches(member);
+                                      }}
+                                      className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-200/50 dark:bg-slate-700/50 hover:bg-white dark:hover:bg-slate-700 border border-slate-300/40 dark:border-slate-600/40 flex items-center justify-center text-slate-400 hover:text-purple-600 dark:hover:text-purple-300 hover:border-purple-300 transition-all shrink-0 ml-1.5 cursor-pointer shadow-2xs"
+                                      title={`View punches for ${member.name}`}
+                                    >
+                                      <Clock className="w-3.5 h-3.5 stroke-[2]" />
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <p className="text-xs text-slate-500 dark:text-slate-400 py-4 text-center">
+                              No team members assigned
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Divider */}
+                        <div className="hidden xl:block w-px bg-slate-100 dark:bg-slate-700/80 self-stretch my-1 shrink-0" />
+
+                        {/* Donut Chart, Stats & Stronger Together Corner */}
+                        <div className="relative flex items-center justify-between gap-4 sm:gap-6 shrink-0 pt-3 xl:pt-0 pl-0 xl:pl-3 overflow-hidden min-w-[280px] sm:min-w-[340px]">
+                          {/* Donut Chart */}
+                          <div className="relative w-20 h-20 sm:w-22 sm:h-22 shrink-0 flex items-center justify-center">
+                            <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                              <circle
+                                cx="50"
+                                cy="50"
+                                r="38"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="10"
+                                className="text-slate-100 dark:text-slate-800"
+                              />
+                              {totalTeam > 0 &&
+                                strokeSegments.map((seg, idx) => (
+                                  <circle
+                                    key={idx}
+                                    cx="50"
+                                    cy="50"
+                                    r="38"
+                                    fill="none"
+                                    stroke={seg.color}
+                                    strokeWidth="10"
+                                    strokeDasharray={seg.strokeDasharray}
+                                    strokeDashoffset={seg.strokeDashoffset}
+                                    strokeLinecap="butt"
+                                    className="transition-all duration-500 ease-out"
+                                  />
+                                ))}
+                            </svg>
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none text-slate-400 dark:text-slate-500">
+                              <Users className="w-5 h-5 stroke-[2]" />
+                            </div>
+                          </div>
+
+                          {/* Stats Numbers */}
+                          <div className="flex flex-col justify-center gap-2 shrink-0 z-10">
+                            <div>
+                              <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white leading-none tracking-tight font-sans">
+                                {totalTeam}
                               </div>
-                              <div className="min-w-0">
-                                <div className="text-[13px] font-semibold text-slate-800 dark:text-slate-100 truncate group-hover:text-[#56348f] dark:group-hover:text-purple-300 transition-colors">
-                                  <RoyalName name={member.name} userId={member.id} showCrownIcon={false} />
+                              <div className="text-[10px] sm:text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-0.5">
+                                Total Team
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-3 pt-1 border-t border-slate-100 dark:border-slate-800">
+                              <div>
+                                <div className="text-base sm:text-lg font-black text-emerald-600 dark:text-emerald-400 leading-none">
+                                  {presentCount}
                                 </div>
-                                <span className={`inline-flex items-center text-[10.5px] font-bold ${statusConfig.text}`}>
-                                  {statusConfig.label}
-                                </span>
+                                <div className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
+                                  Present
+                                </div>
                               </div>
+                              <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 shrink-0" />
+                              <div>
+                                <div className="text-base sm:text-lg font-black text-rose-600 dark:text-rose-400 leading-none">
+                                  {absentCount}
+                                </div>
+                                <div className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
+                                  Absent
+                                </div>
+                              </div>
+                              {wfhCount > 0 && (
+                                <>
+                                  <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 shrink-0" />
+                                  <div>
+                                    <div className="text-base sm:text-lg font-black text-blue-600 dark:text-blue-400 leading-none">
+                                      {wfhCount}
+                                    </div>
+                                    <div className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
+                                      WFH
+                                    </div>
+                                  </div>
+                                </>
+                              )}
+                              {halfDayCount > 0 && (
+                                <>
+                                  <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 shrink-0" />
+                                  <div>
+                                    <div className="text-base sm:text-lg font-black text-amber-600 dark:text-amber-400 leading-none">
+                                      {halfDayCount}
+                                    </div>
+                                    <div className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
+                                      Half Day
+                                    </div>
+                                  </div>
+                                </>
+                              )}
                             </div>
-                            <div className="flex items-center gap-1 text-slate-300 dark:text-slate-600 group-hover:text-[#56348f] dark:group-hover:text-purple-300 transition-colors pl-2 shrink-0">
-                              <Clock className="w-3.5 h-3.5" />
+                          </div>
+
+                          {/* Right Corner Shape Image with Faint Users Icon */}
+                          <div className="relative shrink-0 flex flex-col items-center justify-center self-stretch min-w-[90px] sm:min-w-[110px] pointer-events-none select-none overflow-hidden">
+                            <img
+                              src="/images/team-status-corner.png"
+                              alt="Stronger Together"
+                              className="absolute right-0 bottom-0 top-0 h-full w-auto max-w-[130px] object-contain object-right"
+                            />
+                            <div className="relative z-10 mb-4 opacity-35 text-blue-400">
+                              <Users className="w-7 h-7" />
                             </div>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <p className="text-xs text-slate-500 dark:text-slate-400 py-1">No team members assigned</p>
-                  )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             </div>
