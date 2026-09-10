@@ -279,22 +279,30 @@ export function NetworkErrorWithGame({ onRetry, errorMessage, standalone = false
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // High-DPI Canvas scaling
-    const dpr = window.devicePixelRatio || 1;
-    const width = 560;
+    // High-DPI Canvas scaling with dynamic responsive width
+    let width = canvas.parentElement?.clientWidth || (standalone ? 960 : 560);
     const height = 150;
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
-    ctx.scale(dpr, dpr);
+
+    const updateCanvasDimensions = () => {
+      if (!canvas || !canvas.parentElement) return;
+      const dpr = window.devicePixelRatio || 1;
+      width = canvas.parentElement.clientWidth || (standalone ? 960 : 560);
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+
+    updateCanvasDimensions();
+    window.addEventListener("resize", updateCanvasDimensions);
 
     const g = gameRef.current;
     g.groundY = height - 25;
 
-    // Initialize clouds
+    // Initialize clouds across the width
     g.clouds = [
-      { x: 100, y: 25, speed: 0.8, width: 45 },
-      { x: 320, y: 40, speed: 0.5, width: 55 },
-      { x: 480, y: 20, speed: 0.9, width: 40 },
+      { x: width * 0.15, y: 25, speed: 0.8, width: 45 },
+      { x: width * 0.5, y: 40, speed: 0.5, width: 55 },
+      { x: width * 0.85, y: 20, speed: 0.9, width: 40 },
     ];
 
     let animationId: number;
@@ -525,12 +533,15 @@ export function NetworkErrorWithGame({ onRetry, errorMessage, standalone = false
 
     animationId = requestAnimationFrame(loop);
 
-    return () => cancelAnimationFrame(animationId);
-  }, [recordScore]);
+    return () => {
+      window.removeEventListener("resize", updateCanvasDimensions);
+      cancelAnimationFrame(animationId);
+    };
+  }, [recordScore, standalone]);
 
   return (
-    <div className="flex justify-center items-center min-h-[75vh] p-4">
-      <div className="max-w-2xl w-full bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl text-center relative overflow-hidden transition-all">
+    <div className={`flex justify-center items-center ${standalone ? "w-full min-h-0 py-2" : "min-h-[75vh] p-4"}`}>
+      <div className={`w-full ${standalone ? "max-w-5xl p-6 sm:p-10" : "max-w-2xl p-6 sm:p-8"} bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-xl text-center relative overflow-hidden transition-all`}>
         {/* Network Status / Header Badge */}
         {standalone ? (
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-purple-50 text-purple-700 dark:bg-purple-500/15 dark:text-purple-300 border border-purple-200/80 dark:border-purple-500/30 mb-3 shadow-2xs">
@@ -566,14 +577,8 @@ export function NetworkErrorWithGame({ onRetry, errorMessage, standalone = false
           >
             <canvas
               ref={canvasRef}
-              style={{ width: "100%", height: "140px", display: "block" }}
+              style={{ width: "100%", height: "150px", display: "block" }}
             />
-
-            {/* Quick Game Hint Pill */}
-            <div className="absolute bottom-2 left-3 pointer-events-none flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 dark:text-slate-400 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xs px-2.5 py-1 rounded-lg border border-slate-200/60 dark:border-slate-800">
-              <Gamepad2 className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
-              <span>Tap, Space, or ↑ to Jump</span>
-            </div>
 
             {/* Live Score Pill */}
             <div className="absolute top-2 left-3 pointer-events-none flex items-center gap-2 text-xs font-bold font-mono">
@@ -586,6 +591,12 @@ export function NetworkErrorWithGame({ onRetry, errorMessage, standalone = false
                 </span>
               )}
             </div>
+          </div>
+
+          {/* Jump instruction helper outside canvas (no model overlap) */}
+          <div className="flex items-center justify-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 mt-2">
+            <Gamepad2 className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+            <span>Press <kbd className="px-1.5 py-0.5 text-[11px] font-mono bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded shadow-2xs text-slate-700 dark:text-slate-200 font-semibold">Space</kbd> or <kbd className="px-1.5 py-0.5 text-[11px] font-mono bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded shadow-2xs text-slate-700 dark:text-slate-200 font-semibold">↑</kbd> to Jump (or tap canvas)</span>
           </div>
         </div>
 
