@@ -339,7 +339,7 @@ export default function DashboardPage() {
       ───────────────────────────────────────────────────────────────────────────── */}
       <div
         id="welcome-hero-banner"
-        className="relative rounded-[28px] overflow-hidden p-6 sm:p-7 md:p-8 min-h-[175px] flex flex-col justify-between gap-6 select-none transition-all duration-300
+        className="relative rounded-[28px] overflow-hidden p-4 sm:p-6 md:p-8 min-h-[175px] flex flex-col justify-between gap-6 select-none transition-all duration-300
           bg-white dark:bg-[#060c18]
           border border-slate-200/90 dark:border-blue-900/40
           shadow-[0_4px_25px_rgba(0,0,0,0.03)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.7)]"
@@ -359,11 +359,13 @@ export default function DashboardPage() {
             >
               <source src={welcomeBannerMedia} type={welcomeBannerMedia.endsWith(".webm") ? "video/webm" : "video/mp4"} />
             </video>
-            {/* Subtle White Gradient behind Name Section — smooth seamless fade, keeping background video fully visible on the right */}
+            {/* Subtle White Gradient behind Name Section — on mobile covers top user info; on desktop transitions horizontally */}
             <div
               className="absolute inset-0 pointer-events-none z-[1]
-                bg-[linear-gradient(to_right,rgba(255,255,255,0.98)_0%,rgba(255,255,255,0.95)_25%,rgba(255,255,255,0.82)_40%,rgba(255,255,255,0.45)_56%,rgba(255,255,255,0.12)_70%,transparent_82%)]
-                dark:bg-[linear-gradient(to_right,rgba(6,12,24,0.98)_0%,rgba(6,12,24,0.94)_25%,rgba(6,12,24,0.80)_40%,rgba(6,12,24,0.35)_56%,rgba(6,12,24,0.10)_70%,transparent_82%)]"
+                bg-[linear-gradient(to_bottom,rgba(255,255,255,0.98)_0%,rgba(255,255,255,0.96)_56%,rgba(255,255,255,0.85)_72%,rgba(255,255,255,0.30)_88%,transparent_100%)]
+                lg:bg-[linear-gradient(to_right,rgba(255,255,255,0.98)_0%,rgba(255,255,255,0.95)_28%,rgba(255,255,255,0.82)_44%,rgba(255,255,255,0.45)_58%,rgba(255,255,255,0.12)_72%,transparent_84%)]
+                dark:bg-[linear-gradient(to_bottom,rgba(6,12,24,0.98)_0%,rgba(6,12,24,0.96)_56%,rgba(6,12,24,0.80)_72%,transparent_90%)]
+                dark:lg:bg-[linear-gradient(to_right,rgba(6,12,24,0.98)_0%,rgba(6,12,24,0.94)_25%,rgba(6,12,24,0.80)_40%,rgba(6,12,24,0.35)_56%,rgba(6,12,24,0.10)_70%,transparent_82%)]"
             />
           </>
         )}
@@ -408,22 +410,16 @@ export default function DashboardPage() {
           <div className="hidden dark:block absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,#0e1e38_0%,#060c18_65%)]" />
         </div>
 
-        {/* Signature Script Tagline with Underline from welcome_card.html */}
-        <div className="hidden sm:flex flex-col items-center absolute right-8 sm:right-12 bottom-3 pointer-events-none select-none z-10">
-          <div className="card-tagline">
-            Stronger People<br />Brighter Tomorrows
-            <span className="card-tagline-line" />
-          </div>
-        </div>
+
 
         {/* ── TOP ROW: PROFILE & STATS ── */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 relative z-10">
           {/* Left: Avatar & User Information */}
-          <div className="flex items-center gap-5 sm:gap-6 min-w-0">
+          <div className="flex items-start sm:items-center gap-3.5 sm:gap-6 min-w-0">
             {/* Avatar with Radiant Neon Gradient Ring & Green Online Status Dot from welcome_card.html */}
             <div className="relative shrink-0">
               <div className="relative p-[5px] rounded-full bg-gradient-to-tr from-[#3f91ff] to-[#9b51ff] shadow-[0_8px_26px_rgba(65,95,190,0.24)]">
-                <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-900 border-[3px] border-white dark:border-[#070e1b]">
+                <div className="w-18 h-18 sm:w-22 sm:h-22 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-900 border-[3px] border-white dark:border-[#070e1b]">
                   <PhotoAvatar
                     src={profile.profile_photo_path}
                     name={`${profile.first_name} ${profile.last_name || ""}`.trim()}
@@ -434,19 +430,19 @@ export default function DashboardPage() {
               </div>
 
               {/* Active Online Green Dot */}
-              <span className="absolute bottom-1 right-1 w-5 h-5 rounded-full bg-[#12dc9a] border-[3.5px] border-white dark:border-[#070e1b] shadow-xs" />
+              <span className="absolute bottom-1 right-1 w-4.5 h-4.5 sm:w-5 sm:h-5 rounded-full bg-[#12dc9a] border-[3px] border-white dark:border-[#070e1b] shadow-xs" />
             </div>
 
             {/* Profile Info Details */}
-            <div className="min-w-0 space-y-1.5">
+            <div className="min-w-0 space-y-1.5 flex-1">
               {/* Name & Role Pill */}
-              <div className="flex items-center gap-2.5 flex-wrap">
+              <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
                 <Link
                   href="/profile"
-                  className="text-2xl sm:text-[28px] font-black tracking-tight text-slate-900 dark:text-white hover:text-purple-600 dark:hover:text-amber-300 transition-colors flex items-center gap-2 group cursor-pointer"
+                  className="text-xl sm:text-2xl md:text-[28px] font-black tracking-tight text-slate-900 dark:text-white hover:text-purple-600 dark:hover:text-amber-300 transition-colors flex items-center gap-1.5 sm:gap-2 group cursor-pointer"
                 >
                   <span className="truncate">{profile.first_name} {profile.last_name || ""}</span>
-                  <ExternalLink className="w-4 h-4 opacity-75 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all text-slate-700 dark:text-slate-200 shrink-0" />
+                  <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4 opacity-75 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all text-slate-700 dark:text-slate-200 shrink-0" />
                 </Link>
 
                 <WelcomeRolePill role={user?.role || profile?.role} />
@@ -476,9 +472,9 @@ export default function DashboardPage() {
               </div>
 
               {/* Subtitle: Designation • Inter Smart, Kochi */}
-              <p className="text-xs sm:text-[13px] font-medium text-slate-500 dark:text-slate-400 flex items-center gap-2">
+              <p className="text-xs sm:text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2 flex-wrap">
                 <span>{profile.designation || user?.role || "Member"}</span>
-                <span className="text-slate-400 dark:text-slate-600">•</span>
+                <span className="text-slate-400 dark:text-slate-500">•</span>
                 <span>Inter Smart, Kochi</span>
               </p>
 
@@ -503,7 +499,7 @@ export default function DashboardPage() {
               )}
 
               {/* Attendance Status Pill & Date / Time */}
-              <div className="flex items-center gap-3.5 flex-wrap pt-1">
+              <div className="flex items-center gap-2.5 sm:gap-3.5 flex-wrap pt-1">
                 <span
                   className={`inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider border transition-all ${
                     profile.attendance_status === 'Punched In'
@@ -520,10 +516,10 @@ export default function DashboardPage() {
                   <span>{profile.attendance_status || 'NOT PUNCHED IN'}</span>
                 </span>
 
-                <div className="inline-flex items-center gap-1.5 text-xs sm:text-[12.5px] font-medium text-slate-700 dark:text-slate-300 flex-wrap">
-                  <Calendar className="w-3.5 h-3.5 text-slate-400 dark:text-slate-400 shrink-0" />
-                  <span className="whitespace-nowrap">{format(time, "EEEE, d MMMM yyyy")}</span>
-                  <span className="text-slate-400 dark:text-slate-600">•</span>
+                <div className="inline-flex items-center gap-1.5 text-xs sm:text-[12.5px] font-semibold text-slate-800 dark:text-slate-200 flex-wrap">
+                  <Calendar className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
+                  <span>{format(time, "EEEE, d MMMM yyyy")}</span>
+                  <span className="text-slate-400 dark:text-slate-500">•</span>
                   <span className="whitespace-nowrap tabular-nums font-mono">
                     {format(time, "h:mm:ss a")}
                   </span>
@@ -534,7 +530,7 @@ export default function DashboardPage() {
 
           {/* Right: Growing Together Card with 6 Metrics Boxes & Live Clock */}
           {profile.service_stats && (
-            <div className="z-10 shrink-0">
+            <div className="z-10 shrink-0 w-full lg:w-auto">
               <GrowingTogetherCard
                 liveStats={liveServiceStats}
                 defaultStats={profile.service_stats}
@@ -1157,7 +1153,6 @@ export default function DashboardPage() {
 function GrowingTogetherCard({ liveStats, defaultStats }: { liveStats: any; defaultStats?: any }) {
   const current = liveStats || defaultStats;
   if (!current) return null;
-
   const years = current.years ?? 0;
   const months = current.months ?? 0;
   const days = current.days ?? 0;
@@ -1175,7 +1170,7 @@ function GrowingTogetherCard({ liveStats, defaultStats }: { liveStats: any; defa
   ];
 
   return (
-    <div className="w-full lg:w-auto rounded-[22px] p-4 sm:p-4.5 transition-all duration-300 backdrop-blur-md relative overflow-hidden
+    <div className="w-full lg:w-auto rounded-[22px] p-3.5 sm:p-4.5 transition-all duration-300 backdrop-blur-md relative overflow-hidden
       bg-gradient-to-b from-[#fffef7]/95 via-[#fffcf0]/95 to-[#fffbf0]/95 dark:from-[#111c2e]/95 dark:via-[#091120]/95 dark:to-[#091120]/95
       border border-amber-200/90 dark:border-amber-500/30
       shadow-[0_8px_30px_rgba(245,158,11,0.12)] dark:shadow-[0_12px_35px_rgba(0,0,0,0.6)]"
@@ -1188,26 +1183,26 @@ function GrowingTogetherCard({ liveStats, defaultStats }: { liveStats: any; defa
       />
 
       {/* Top Header */}
-      <div className="flex items-center justify-between gap-3 sm:gap-4 mb-3.5 relative z-10">
+      <div className="flex items-center justify-between gap-2 sm:gap-4 mb-3 sm:mb-3.5 relative z-10">
         {/* Left: Golden Badge + Title & Subtitle */}
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="w-10 h-10 rounded-full bg-[#f59e0b] dark:bg-[#d97706] flex items-center justify-center text-white shadow-md shadow-amber-500/25 shrink-0">
-            <Users className="w-5 h-5 text-white stroke-[2.2]" />
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#f59e0b] dark:bg-[#d97706] flex items-center justify-center text-white shadow-md shadow-amber-500/25 shrink-0">
+            <Users className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-white stroke-[2.2]" />
           </div>
-          <div className="min-w-0">
-            <h4 className="text-xs sm:text-[13px] font-black uppercase tracking-wider text-slate-900 dark:text-white leading-tight">
+          <div className="min-w-0 flex-1">
+            <h4 className="text-xs sm:text-[13px] font-black uppercase tracking-wider text-slate-900 dark:text-white leading-tight truncate">
               GROWING TOGETHER
             </h4>
-            <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 tracking-tight mt-0.5 whitespace-nowrap">
+            <p className="text-[9.5px] sm:text-[10px] font-semibold text-slate-500 dark:text-slate-400 tracking-tight mt-0.5 truncate">
               People • Progress • A Stronger Tomorrow
             </p>
           </div>
         </div>
 
         {/* Right: Ascending 3D Growth Bars with Arrow & Speedometer Gauge */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-1">
           {/* 3D Ascending Bars with Upward Diagonal Arrow */}
-          <svg width="58" height="38" viewBox="0 0 58 38" fill="none" className="shrink-0 pointer-events-none">
+          <svg width="46" height="30" viewBox="0 0 58 38" fill="none" className="sm:w-[58px] sm:h-[38px] shrink-0 pointer-events-none">
             <path
               d="M6 30 L45 5 M45 5 L33 5 M45 5 L45 17"
               stroke="url(#gt-arrow-grad)"
@@ -1244,7 +1239,7 @@ function GrowingTogetherCard({ liveStats, defaultStats }: { liveStats: any; defa
           </svg>
 
           {/* Speedometer / Gauge Icon */}
-          <svg className="w-5.5 h-5.5 text-amber-500 dark:text-amber-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+          <svg className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 text-amber-500 dark:text-amber-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="9.5" stroke="currentColor" strokeWidth="1.75" />
             <line x1="12" y1="2.5" x2="12" y2="5" stroke="currentColor" strokeWidth="2" />
             <line x1="12" y1="12" x2="16.5" y2="7.5" stroke="currentColor" strokeWidth="2" />
@@ -1254,19 +1249,19 @@ function GrowingTogetherCard({ liveStats, defaultStats }: { liveStats: any; defa
       </div>
 
       {/* 6 Stat Boxes */}
-      <div className="grid grid-cols-6 gap-1.5 sm:gap-2 relative z-10">
+      <div className="grid grid-cols-6 gap-1 sm:gap-2 relative z-10">
         {statBoxes.map((box, idx) => (
           <div
             key={idx}
-            className="rounded-xl py-2 sm:py-2.5 px-2 flex flex-col items-center justify-center text-center min-w-[42px] sm:min-w-[48px]
+            className="rounded-xl py-1.5 sm:py-2.5 px-0.5 sm:px-2 flex flex-col items-center justify-center text-center min-w-0
               bg-white dark:bg-[#060a12]/80
               border border-slate-200/90 dark:border-white/10
               shadow-2xs dark:shadow-inner"
           >
-            <span className="text-lg sm:text-xl font-black leading-tight tracking-tight font-sans text-slate-900 dark:text-white">
+            <span className="text-sm sm:text-lg md:text-xl font-black leading-tight tracking-tight font-sans text-slate-900 dark:text-white">
               {box.value}
             </span>
-            <span className="text-[9px] font-black uppercase tracking-wider mt-1.5 leading-none text-slate-400">
+            <span className="text-[7.5px] sm:text-[9px] font-black uppercase tracking-wider mt-1 sm:mt-1.5 leading-none text-slate-400">
               {box.label}
             </span>
           </div>
@@ -1340,7 +1335,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
       ───────────────────────────────────────────────────────────────────────────── */}
       <div
         id="welcome-hero-banner-admin"
-        className="relative rounded-[28px] overflow-hidden p-6 sm:p-7 md:p-8 min-h-[175px] flex flex-col justify-between gap-6 select-none transition-all duration-300
+        className="relative rounded-[28px] overflow-hidden p-4 sm:p-6 md:p-8 min-h-[175px] flex flex-col justify-between gap-6 select-none transition-all duration-300
           bg-white dark:bg-[#060c18]
           border border-slate-200/90 dark:border-blue-900/40
           shadow-[0_4px_25px_rgba(0,0,0,0.03)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.7)]"
@@ -1360,11 +1355,13 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
             >
               <source src={welcomeBannerMedia} type={welcomeBannerMedia.endsWith(".webm") ? "video/webm" : "video/mp4"} />
             </video>
-            {/* Subtle White Gradient behind Name Section — smooth seamless fade, keeping background video fully visible on the right */}
+            {/* Subtle White Gradient behind Name Section — on mobile covers top user info; on desktop transitions horizontally */}
             <div
               className="absolute inset-0 pointer-events-none z-[1]
-                bg-[linear-gradient(to_right,rgba(255,255,255,0.98)_0%,rgba(255,255,255,0.95)_25%,rgba(255,255,255,0.82)_40%,rgba(255,255,255,0.45)_56%,rgba(255,255,255,0.12)_70%,transparent_82%)]
-                dark:bg-[linear-gradient(to_right,rgba(6,12,24,0.98)_0%,rgba(6,12,24,0.94)_25%,rgba(6,12,24,0.80)_40%,rgba(6,12,24,0.35)_56%,rgba(6,12,24,0.10)_70%,transparent_82%)]"
+                bg-[linear-gradient(to_bottom,rgba(255,255,255,0.98)_0%,rgba(255,255,255,0.96)_56%,rgba(255,255,255,0.85)_72%,rgba(255,255,255,0.30)_88%,transparent_100%)]
+                lg:bg-[linear-gradient(to_right,rgba(255,255,255,0.98)_0%,rgba(255,255,255,0.95)_28%,rgba(255,255,255,0.82)_44%,rgba(255,255,255,0.45)_58%,rgba(255,255,255,0.12)_72%,transparent_84%)]
+                dark:bg-[linear-gradient(to_bottom,rgba(6,12,24,0.98)_0%,rgba(6,12,24,0.96)_56%,rgba(6,12,24,0.80)_72%,transparent_90%)]
+                dark:lg:bg-[linear-gradient(to_right,rgba(6,12,24,0.98)_0%,rgba(6,12,24,0.94)_25%,rgba(6,12,24,0.80)_40%,rgba(6,12,24,0.35)_56%,rgba(6,12,24,0.10)_70%,transparent_82%)]"
             />
           </>
         )}
@@ -1409,22 +1406,16 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           <div className="hidden dark:block absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,#0e1e38_0%,#060c18_65%)]" />
         </div>
 
-        {/* Signature Script Tagline with Underline from welcome_card.html */}
-        <div className="hidden sm:flex flex-col items-center absolute right-8 sm:right-12 bottom-3 pointer-events-none select-none z-10">
-          <div className="card-tagline">
-            Stronger People<br />Brighter Tomorrows
-            <span className="card-tagline-line" />
-          </div>
-        </div>
+
 
         {/* ── TOP ROW: PROFILE & PENDING ITEMS ── */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 relative z-10">
           {/* Left: Avatar & Admin Information */}
-          <div className="flex items-center gap-5 sm:gap-6 min-w-0">
+          <div className="flex items-start sm:items-center gap-3.5 sm:gap-6 min-w-0">
             {/* Avatar with Radiant Neon Gradient Ring & Green Online Status Dot from welcome_card.html */}
             <div className="relative shrink-0">
               <div className="relative p-[5px] rounded-full bg-gradient-to-tr from-[#3f91ff] to-[#9b51ff] shadow-[0_8px_26px_rgba(65,95,190,0.24)]">
-                <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-900 border-[3px] border-white dark:border-[#070e1b]">
+                <div className="w-18 h-18 sm:w-22 sm:h-22 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-900 border-[3px] border-white dark:border-[#070e1b]">
                   <PhotoAvatar
                     src={profile.profile_photo_path}
                     name={`${profile.first_name} ${profile.last_name || ""}`.trim()}
@@ -1435,37 +1426,37 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
               </div>
 
               {/* Active Online Green Dot */}
-              <span className="absolute bottom-1 right-1 w-5 h-5 rounded-full bg-[#12dc9a] border-[3.5px] border-white dark:border-[#070e1b] shadow-xs" />
+              <span className="absolute bottom-1 right-1 w-4.5 h-4.5 sm:w-5 sm:h-5 rounded-full bg-[#12dc9a] border-[3px] border-white dark:border-[#070e1b] shadow-xs" />
             </div>
 
             {/* Profile Info Details */}
-            <div className="min-w-0 space-y-1.5">
+            <div className="min-w-0 space-y-1.5 flex-1">
               {/* Name & Role Pill */}
-              <div className="flex items-center gap-2.5 flex-wrap">
+              <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
                 <Link
                   href="/profile"
-                  className="text-2xl sm:text-[28px] font-black tracking-tight text-slate-900 dark:text-white hover:text-purple-600 dark:hover:text-amber-300 transition-colors flex items-center gap-2 group cursor-pointer"
+                  className="text-xl sm:text-2xl md:text-[28px] font-black tracking-tight text-slate-900 dark:text-white hover:text-purple-600 dark:hover:text-amber-300 transition-colors flex items-center gap-1.5 sm:gap-2 group cursor-pointer"
                 >
                   <span className="truncate">{profile.first_name} {profile.last_name || ""}</span>
-                  <ExternalLink className="w-4 h-4 opacity-75 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all text-slate-700 dark:text-slate-200 shrink-0" />
+                  <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4 opacity-75 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all text-slate-700 dark:text-slate-200 shrink-0" />
                 </Link>
 
                 <WelcomeRolePill role="Super Admin" />
               </div>
 
               {/* Subtitle: Role • Location */}
-              <p className="text-xs sm:text-[13px] font-medium text-slate-500 dark:text-slate-400 flex items-center gap-2">
+              <p className="text-xs sm:text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2 flex-wrap">
                 <span>{profile.designation || "Super Administrator"}</span>
-                <span className="text-slate-400 dark:text-slate-600">•</span>
+                <span className="text-slate-400 dark:text-slate-500">•</span>
                 <span>Inter Smart, Kochi</span>
               </p>
 
               {/* Date & Time */}
-              <div className="flex items-center gap-3.5 flex-wrap pt-1">
-                <div className="inline-flex items-center gap-1.5 text-xs sm:text-[12.5px] font-medium text-slate-700 dark:text-slate-300 flex-wrap">
-                  <Calendar className="w-3.5 h-3.5 text-slate-400 dark:text-slate-400 shrink-0" />
-                  <span className="whitespace-nowrap">{format(time, "EEEE, d MMMM yyyy")}</span>
-                  <span className="text-slate-400 dark:text-slate-600">•</span>
+              <div className="flex items-center gap-2.5 sm:gap-3.5 flex-wrap pt-1">
+                <div className="inline-flex items-center gap-1.5 text-xs sm:text-[12.5px] font-semibold text-slate-800 dark:text-slate-200 flex-wrap">
+                  <Calendar className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
+                  <span>{format(time, "EEEE, d MMMM yyyy")}</span>
+                  <span className="text-slate-400 dark:text-slate-500">•</span>
                   <span className="whitespace-nowrap tabular-nums font-mono">
                     {format(time, "h:mm:ss a")}
                   </span>
