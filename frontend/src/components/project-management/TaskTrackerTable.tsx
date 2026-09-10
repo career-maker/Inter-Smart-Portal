@@ -93,14 +93,14 @@ export function getTaskStatusClass(status: TaskStatus | string): string {
 export function getTaskPriorityClass(priority: TaskPriority | string): string {
   switch (priority) {
     case "Critical":
-      return "task-priority-critical !bg-rose-100 !text-rose-800 !border-rose-400 dark:!bg-rose-950/70 dark:!text-rose-300 dark:!border-rose-700 font-bold";
+      return "task-priority-critical !bg-rose-100 !text-rose-900 !border-rose-400 dark:!bg-rose-950/80 dark:!text-rose-100 dark:!border-rose-600 font-extrabold";
     case "High":
-      return "task-priority-high !bg-orange-100 !text-orange-800 !border-orange-400 dark:!bg-orange-950/70 dark:!text-orange-300 dark:!border-orange-700 font-bold";
+      return "task-priority-high !bg-orange-100 !text-orange-950 !border-orange-500 dark:!bg-orange-950/80 dark:!text-orange-100 dark:!border-orange-600 font-extrabold";
     case "Medium":
-      return "task-priority-medium !bg-yellow-100 !text-yellow-800 !border-yellow-400 dark:!bg-amber-950/70 dark:!text-amber-300 dark:!border-amber-700 font-semibold";
+      return "task-priority-medium !bg-amber-100 !text-amber-950 !border-amber-500 dark:!bg-amber-950/80 dark:!text-amber-100 dark:!border-amber-600 font-extrabold";
     case "Low":
     default:
-      return "task-priority-low !bg-teal-50 !text-teal-800 !border-teal-400 dark:!bg-teal-950/70 dark:!text-teal-300 dark:!border-teal-700 font-medium";
+      return "task-priority-low !bg-emerald-100 !text-emerald-950 !border-emerald-500 dark:!bg-emerald-950/80 dark:!text-emerald-100 dark:!border-emerald-600 font-extrabold";
   }
 }
 
@@ -519,7 +519,7 @@ export function TaskTrackerTable({
                           disabled={updatingTaskId === task.id}
                           onChange={(e) => onPriorityChange(task.id, e.target.value as TaskPriority)}
                           title={`Priority: ${task.priority}`}
-                          className={`task-priority-select px-2.5 py-0.5 rounded-md text-[11px] font-bold border shadow-2xs cursor-pointer outline-none transition-all ${getTaskPriorityClass(task.priority)} disabled:opacity-50`}
+                          className={`task-priority-select px-2.5 py-0.5 rounded-md text-xs font-extrabold border shadow-2xs cursor-pointer outline-none transition-all ${getTaskPriorityClass(task.priority)} disabled:opacity-50`}
                         >
                           {TASK_PRIORITIES.map((pr) => (
                             <option key={pr} value={pr} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-bold py-1">
