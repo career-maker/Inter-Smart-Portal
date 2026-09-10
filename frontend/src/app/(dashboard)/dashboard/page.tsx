@@ -622,7 +622,16 @@ export default function DashboardPage() {
                         <Users className="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[2.2]" />
                       </div>
                       <div>
-                        <h2 className="text-sm sm:text-base font-black text-slate-900 dark:text-white tracking-tight leading-tight">
+                        <h2
+                          style={{
+                            fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                            fontWeight: 600,
+                            fontSize: '14px',
+                            lineHeight: '20px',
+                            fontStyle: 'normal',
+                          }}
+                          className="text-[#0f1824] dark:text-slate-100 tracking-tight"
+                        >
                           Team Status Today
                         </h2>
                         <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium leading-tight">
