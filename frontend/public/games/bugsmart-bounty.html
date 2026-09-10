@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BugSmart Bounty — Cartoon Bug Hunt</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{font-family:"Trebuchet MS",Inter,Segoe UI,sans-serif;background:#07101b;color:#eef8ff}
+button{font:inherit}
+:root{--cyan:#43ddff;--green:#68ef9a;--yellow:#ffd45c;--pink:#ff6f9f;--ink:#08121d}
+.game{height:100vh;width:100vw;display:grid;grid-template-rows:70px 1fr;background:
+radial-gradient(circle at 78% 15%,#16455c 0,transparent 25%),
+radial-gradient(circle at 20% 100%,#30204c 0,transparent 28%),#06101a}
+.top{display:flex;align-items:center;justify-content:space-between;padding:0 24px;border-bottom:2px solid #16354b;background:#07121ee8;z-index:5}
+.brand{display:flex;gap:11px;align-items:center}.bug-logo{width:43px;height:43px;border-radius:14px;background:#10283a;border:2px solid #245b74;display:grid;place-items:center;font-size:23px;animation:wiggle 2.5s infinite}
+@keyframes wiggle{0%,90%,100%{transform:rotate(0)}93%{transform:rotate(-8deg)}96%{transform:rotate(8deg)}}
+.brand b{font-size:19px}.brand small{display:block;color:#7899b1;font-size:9px;letter-spacing:2px;margin-top:1px}
+.stats{display:flex;gap:8px}.stat{min-width:92px;padding:6px 12px;text-align:center;border:2px solid #183b54;border-radius:12px;background:#091a29}.stat small{display:block;color:#7894aa;font-size:8px;letter-spacing:1.2px}.stat strong{font-size:16px}.clock{color:var(--yellow)!important}
+.main{min-height:0;display:grid;grid-template-columns:220px minmax(0,1fr) 270px;gap:14px;padding:14px;overflow:hidden}
+.panel{min-height:0;border:2px solid #17384f;background:#081521e8;border-radius:20px}
+.left{padding:15px;display:flex;flex-direction:column}.tag{font-size:9px;font-weight:900;letter-spacing:2px;color:var(--cyan)}.left h2{font-size:23px;margin:5px 0 3px}.left p{font-size:10px;line-height:1.45;color:#7895aa;margin:0 0 13px}
+.progress{padding:10px;border:1px solid #21455d;background:#0b1c2b;border-radius:12px}.progress b{font-size:10px}.bar{height:5px;background:#142c3d;border-radius:5px;margin-top:8px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#42dfff,#6bef9b);transition:.3s}
+.list{display:grid;gap:5px;margin-top:12px}.item{display:flex;align-items:center;gap:8px;padding:7px;border-radius:9px;color:#7390a5;font-size:9px}.num{width:24px;height:24px;border:1px solid #21425a;border-radius:7px;display:grid;place-items:center}.item.done{background:#08271b;color:#a6efc4}.item.done .num{border-color:#31875e;color:#68ef9a}
+.hunter{margin-top:auto;border-top:1px solid #17374e;padding-top:11px;font-size:9px;color:#69869b;line-height:1.45}.hunter b{color:#cde5f5}
+.center{min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden;position:relative}.browser{height:40px;flex:0 0 40px;border-bottom:2px solid #17384f;background:#0b1b29;border-radius:18px 18px 0 0;display:flex;align-items:center;gap:6px;padding:0 12px}.bdot{width:9px;height:9px;border-radius:50%;background:#2b4a60}.url{flex:1;margin-left:7px;border:1px solid #1b3b53;background:#07131f;border-radius:8px;color:#7895aa;font-size:9px;padding:6px 10px}
+.site{min-height:0;flex:1;background:#f4f7fa;color:#172b3d;border-radius:0 0 18px 18px;overflow:hidden;position:relative}.sitehead{height:50px;background:white;border-bottom:1px solid #d8e2ea;display:flex;align-items:center;padding:0 18px;gap:20px}.shop{font-size:15px;font-weight:1000;color:#173652}.nav{display:flex;gap:14px;color:#718295;font-size:9px}.search{margin-left:auto;width:140px;height:26px;border:1px solid #d5dfe8;border-radius:7px;padding:7px 9px;color:#9baab8;font-size:8px}.profile{width:29px;height:29px;border:1px solid #ccd9e3;border-radius:8px;background:#fff;cursor:pointer}
+.page{height:calc(100% - 50px);padding:16px 20px}.crumb{font-size:8px;color:#8494a4}.product{height:calc(100% - 20px);display:grid;grid-template-columns:46% 54%;gap:22px;margin-top:11px}.photo{position:relative;border-radius:13px;background:linear-gradient(145deg,#dce8f2,#eef3f7);border:1px solid #d2dfe8;display:grid;place-items:center;cursor:pointer}.laptop{width:55%;aspect-ratio:1.35;background:linear-gradient(145deg,#213a54,#70889f);border-radius:11px;transform:rotate(-7deg);box-shadow:0 18px 22px #526b7d55;position:relative}.laptop:before{content:"";position:absolute;inset:9px;border-radius:5px;background:linear-gradient(135deg,#14283a,#36b9dc88)}.laptop:after{content:"";position:absolute;left:-9%;right:-9%;bottom:-7px;height:8px;border-radius:0 0 10px 10px;background:#71879a}.photo small{position:absolute;bottom:9px;font-size:7px;color:#8494a3}
+.details h1{font-size:23px;line-height:1;margin:0 0 6px;cursor:pointer}.rating{font-size:9px;color:#d19a20}.price{font-size:22px;font-weight:1000;margin:10px 0}.old{font-size:9px;text-decoration:line-through;color:#9ba7b2;font-weight:500;margin-left:5px}.qty{display:flex;gap:6px}.qty button,.qty span{height:29px;min-width:30px;border:1px solid #d0dbe4;background:#fff;border-radius:7px;display:grid;place-items:center;cursor:pointer}.cart{margin-top:9px;height:34px;padding:0 22px;background:#173f60;color:#fff;border:0;border-radius:8px;font-weight:900;font-size:9px;cursor:pointer}.delivery{margin-top:12px;padding:9px;border-radius:8px;background:#eaf7ef;border:1px solid #c9e6d2;font-size:8px;line-height:1.5;cursor:pointer}.tabs{display:flex;gap:18px;margin-top:16px;border-bottom:1px solid #dbe3ea}.tab{font-size:8px;color:#778797;padding:8px 1px;cursor:pointer}.active{font-weight:900;color:#173f60;border-bottom:2px solid #173f60}.reviews{display:flex;gap:7px;margin-top:8px}.review{flex:1;padding:8px;border:1px solid #dce4eb;border-radius:8px;font-size:8px;cursor:pointer}.review b{display:block;margin-bottom:3px}
+.hot{transition:.15s;cursor:crosshair}.hot:hover{outline:2px dashed #43cce877;outline-offset:2px}
+.right{padding:15px;display:flex;flex-direction:column;position:relative}.right h3{font-size:18px;margin:5px 0}.right p{font-size:10px;color:#7894a9;line-height:1.45;margin:0 0 12px}.radar{border:1px solid #20465e;border-radius:13px;padding:11px;background:#091a28}.radarhead{display:flex;justify-content:space-between;font-size:9px}.radarhead span{color:#7290a5}.radarline{height:5px;background:#132d40;border-radius:5px;margin-top:8px}.radarline i{display:block;width:68%;height:100%;background:var(--cyan)}
+.report{margin-top:11px;padding:12px;border:2px solid #24526b;border-radius:13px;background:#0b1d2c;display:none;animation:pop .2s ease}.report.show{display:block}@keyframes pop{from{transform:scale(.96);opacity:0}to{transform:none;opacity:1}}
+.report-title{font-weight:900;font-size:11px}.report-sub{font-size:8px;color:#7894a9;margin:3px 0 9px}.choices{display:grid;grid-template-columns:1fr 1fr;gap:5px}.choice{padding:7px 4px;border:1px solid #21435a;background:#081622;color:#a9c0d1;border-radius:7px;font-size:8px;cursor:pointer}.choice.selected{background:#0d3346;border-color:#43ddff;color:#fff}.submit{width:100%;height:29px;margin-top:7px;border:0;border-radius:7px;background:var(--cyan);font-size:9px;font-weight:1000;cursor:pointer}
+.tip{margin-top:auto;padding:10px;border:1px solid #17384e;background:#091a28;border-radius:10px;font-size:8px;color:#708ba0;line-height:1.5}
+
+/* Cartoon investigation layer */
+.magnifier{position:absolute;inset:0;display:none;place-items:center;z-index:20;background:#07121dcc}.magnifier.show{display:grid}.bubble{width:260px;text-align:center;background:#fff;color:#11263a;border:5px solid #152f46;border-radius:28px;padding:18px;box-shadow:9px 9px 0 #42ddff;animation:cartoonIn .35s cubic-bezier(.2,1.5,.4,1)}
+@keyframes cartoonIn{from{transform:scale(.2) rotate(-10deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.bugchar{font-size:50px;animation:bounce .55s infinite alternate}@keyframes bounce{to{transform:translateY(-7px) rotate(5deg)}}
+.bubble h2{margin:3px 0;font-size:20px}.bubble p{font-size:10px;color:#617286;margin:5px 0 10px}.scanring{height:5px;background:#dce8ef;border-radius:5px;overflow:hidden}.scanring i{display:block;width:0;height:100%;background:#42ddff;animation:scan 1s forwards}@keyframes scan{to{width:100%}}
+.reveal{margin-top:9px;padding:9px;border-radius:12px;background:#fff7d8;border:2px dashed #e0a92e;text-align:left;font-size:9px;line-height:1.35}.reveal b{display:block;color:#a36d00;font-size:10px;margin-bottom:3px}.continue{margin-top:10px;border:0;border-radius:9px;background:#172f47;color:#fff;padding:9px 18px;font-weight:900;font-size:9px;cursor:pointer}
+.flash{position:absolute;inset:0;pointer-events:none;z-index:19;background:#7cecff55;opacity:0}.flash.on{animation:flash .45s}@keyframes flash{50%{opacity:1}}
+.floatingbug{position:absolute;right:25%;top:24%;font-size:30px;z-index:21;opacity:0;pointer-events:none}.floatingbug.fly{animation:fly .9s ease-out forwards}@keyframes fly{0%{opacity:0;transform:scale(.3)}30%{opacity:1}100%{opacity:0;transform:translate(100px,-100px) rotate(360deg) scale(1.2)}}
+.toast{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:30;background:#10283a;border:2px solid #2c6881;border-radius:10px;padding:7px 12px;font-size:9px;opacity:0;transition:.2s}.toast.show{opacity:1}
+.end{position:absolute;inset:0;z-index:40;background:#04101aeF;display:none;place-items:center}.end.show{display:grid}.card{width:min(420px,82%);background:#0b1e2d;border:2px solid #2b6078;border-radius:22px;padding:25px;text-align:center;box-shadow:8px 8px 0 #42ddff}.card .big{font-size:47px}.card h2{font-size:25px;margin:3px}.card p{font-size:10px;color:#7894a9}.cash{font-size:37px;color:#43ddff;font-weight:1000;margin:9px}.results{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.res{border:1px solid #21455c;border-radius:8px;padding:8px}.res small{display:block;color:#718ca0;font-size:7px}.res b{font-size:13px}.again{margin-top:14px;border:0;background:#43ddff;color:#06111a;font-weight:1000;padding:10px 20px;border-radius:8px;cursor:pointer}
+@media(max-width:900px){.main{grid-template-columns:185px minmax(0,1fr)}.right{display:none}.top{padding:0 12px}.stat{min-width:68px}.sitehead .nav,.search{display:none}.page{padding:12px}.product{gap:12px}.details h1{font-size:18px}}
+</style>
+</head>
+<body>
+<div class="game" id="game">
+<header class="top">
+ <div class="brand"><div class="bug-logo">🐞</div><div><b>BugSmart Bounty</b><small>BUG HUNTING ARENA</small></div></div>
+ <div class="stats"><div class="stat"><small>BUGS FOUND</small><strong id="found">0 / 8</strong></div><div class="stat"><small>BOUNTY</small><strong id="cash">₹0</strong></div><div class="stat"><small>TIME LEFT</small><strong class="clock" id="clock">03:00</strong></div></div>
+</header>
+<section class="main">
+<aside class="panel left">
+ <div class="tag">MISSION 01 · LIVE SITE</div><h2>Hunt the bugs.</h2><p>Inspect the cartoon-styled app. Click anything suspicious. Your report must identify what is actually wrong.</p>
+ <div class="progress"><b>8 hidden bugs</b><div class="bar"><i id="bar"></i></div></div>
+ <div class="list" id="list"></div>
+ <div class="hunter">🎯 <b>Hunter tip</b><br>After you click an area, the investigation animation reveals the actual defect and why it is a bug.</div>
+</aside>
+
+<main class="panel center">
+ <div class="browser"><i class="bdot"></i><i class="bdot"></i><i class="bdot"></i><div class="url">🔒 shopwise.test/product/aurora-x1</div></div>
+ <div class="site">
+  <div class="sitehead"><div class="shop">SHOPWISE</div><div class="nav"><span>Home</span><span>Products</span><span>Deals</span><span>Support</span></div><div class="search">Search products...</div><button class="profile hot" data-bug="account">◎</button></div>
+  <div class="page"><div class="crumb">Home / Electronics / Laptops</div>
+   <div class="product">
+    <div class="photo hot" data-bug="image"><div class="laptop"></div><small>AURORA X1 · PRODUCT IMAGE</small></div>
+    <div class="details">
+     <h1 class="hot" data-bug="title">Aurora X1 Pro Laptop</h1>
+     <div class="rating">★★★★★ <span style="color:#7d8d9c">4.8 (126 reviews)</span></div>
+     <div class="price">₹74,999 <span class="old">₹89,999</span></div>
+     <div class="qty"><button class="hot" data-bug="qty">−</button><span>1</span><button class="hot" data-bug="qty2">+</button></div>
+     <button class="cart hot" data-bug="buy">ADD TO CART</button>
+     <div class="delivery hot" data-bug="delivery">✓ Free delivery by <b>Tomorrow</b><br>⚠ Only 2 left in stock</div>
+     <div class="tabs"><div class="tab active">Description</div><div class="tab hot" data-bug="tab">Specifications</div><div class="tab">Reviews</div></div>
+     <div class="reviews"><div class="review hot" data-bug="review"><b>★★★★★ Rahul K.</b>Great laptop for work and travel.</div><div class="review"><b>★★★★★ Meera S.</b>Excellent display and fast performance.</div></div>
+    </div>
+   </div>
+  </div>
+  <div class="flash" id="flash"></div><div class="floatingbug" id="flybug">🐞</div><div class="toast" id="toast"></div>
+  <div class="magnifier" id="investigate"><div class="bubble"><div class="bugchar">🔍🐞</div><div class="tag" style="color:#1596bd">BUG DETECTIVE</div><h2>Bug discovered!</h2><p>We found something suspicious in this area...</p><div class="scanring"><i></i></div><div class="reveal"><b id="bugName">Bug name</b><span id="bugExplain">What is wrong will appear here.</span></div><button class="continue" id="continue">Got it — report this bug →</button></div></div>
+  <div class="end" id="end"><div class="card"><div class="big" id="endIcon">🏆</div><div class="tag">MISSION COMPLETE</div><h2 id="endTitle">All Bugs Captured!</h2><p id="endText"></p><div class="cash" id="final">₹0</div><div class="results"><div class="res"><small>BUGS</small><b id="rbugs">0/8</b></div><div class="res"><small>ACCURACY</small><b id="racc">0%</b></div><div class="res"><small>RANK</small><b id="rrank">Rookie</b></div></div><button class="again" id="again">🔄 Hunt Again</button></div></div>
+ </div>
+</main>
+
+<aside class="panel right">
+ <div class="tag">ACTIVE INVESTIGATION</div><h3>Find what doesn't belong.</h3><p>Click a suspicious area. Before reporting, you'll see a detective animation explaining the defect.</p>
+ <div class="radar"><div class="radarhead"><span>DOM inspection</span><b>68%</b></div><div class="radarline"><i></i></div></div>
+ <div class="report" id="report"><div class="report-title">🎯 Report this bug</div><div class="report-sub" id="sub">Classify the defect.</div><div class="choices" id="choices"></div><button class="submit" id="submit">SUBMIT BUG REPORT</button></div>
+ <div class="tip">⚡ <b>How it works</b><br>1. Inspect → 2. Detective reveals the bug → 3. Choose the right category → 4. Earn bounty.</div>
+</aside>
+</section>
+</div>
+
+<script>
+(()=> {
+const root=document.getElementById('game');
+const bugs={
+ account:{name:'Account Menu Leak',type:'Security',points:180,explain:'The account control exposes a sensitive account action without proper authentication.'},
+ image:{name:'Wrong Product Asset',type:'UI / Visual',points:100,explain:'The product image does not match the expected Aurora X1 product asset.'},
+ title:{name:'Product Content Mismatch',type:'Content',points:90,explain:'The visible product title contains incorrect product information.'},
+ qty:{name:'Invalid Quantity',type:'Functional',points:140,explain:'The minus control permits the quantity to go below the minimum allowed value.'},
+ qty2:{name:'Quantity Update Failure',type:'Functional',points:120,explain:'The plus control fails to update the displayed cart quantity correctly.'},
+ buy:{name:'Add-to-Cart Failure',type:'Functional',points:200,explain:'The Add to Cart action does not complete the expected cart operation.'},
+ delivery:{name:'Stock / Delivery Mismatch',type:'Data',points:150,explain:'The delivery and stock information is inconsistent with the product state.'},
+ tab:{name:'Broken Specifications Tab',type:'Functional',points:130,explain:'Selecting Specifications does not open the specifications content.'},
+ review:{name:'Review Data Anomaly',type:'Data',points:110,explain:'The displayed review information contains inconsistent or suspicious review data.'}
+};
+const ids=['account','image','title','qty','qty2','buy','delivery','tab','review'].slice(0,8);
+const types=['UI / Visual','Functional','Security','Content','Data','Navigation'];
+let found=new Set(),wrong=0,score=0,time=180,current=null,choice='',busy=false;
+const list=document.getElementById('list');
+ids.forEach((id,i)=>{const el=document.createElement('div');el.className='item';el.id='item-'+id;el.innerHTML='<span class="num">'+String(i+1).padStart(2,'0')+'</span><span>Unknown defect</span>';list.appendChild(el)});
+function update(){document.getElementById('found').textContent=found.size+' / 8';document.getElementById('cash').textContent='₹'+score;document.getElementById('bar').style.width=(found.size/8*100)+'%';ids.forEach(id=>{if(found.has(id)){const e=document.getElementById('item-'+id);e.classList.add('done');e.querySelector('span:last-child').textContent='Bug confirmed'}})}
+function toast(s){const t=document.getElementById('toast');t.textContent=s;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1500)}
+function investigate(id){
+ if(busy||found.has(id))return;
+ busy=true;current=id;choice='';
+ const b=bugs[id];
+ document.getElementById('bugName').textContent=b.name;
+ document.getElementById('bugExplain').textContent=b.explain;
+ document.getElementById('investigate').classList.add('show');
+ document.getElementById('flash').classList.add('on');
+ const fb=document.getElementById('flybug');fb.classList.remove('fly');void fb.offsetWidth;fb.classList.add('fly');
+ setTimeout(()=>{document.getElementById('flash').classList.remove('on')},500);
+}
+root.querySelectorAll('[data-bug]').forEach(el=>el.addEventListener('click',e=>{e.stopPropagation();investigate(el.dataset.bug)}));
+document.getElementById('continue').addEventListener('click',()=>{
+ document.getElementById('investigate').classList.remove('show');
+ const b=bugs[current];
+ document.getElementById('sub').textContent='Detected: '+b.name+' · Choose the correct category.';
+ const c=document.getElementById('choices');c.innerHTML='';
+ types.forEach(t=>{const x=document.createElement('button');x.type='button';x.className='choice';x.textContent=t;x.addEventListener('click',()=>{choice=t;root.querySelectorAll('.choice').forEach(q=>q.classList.remove('selected'));x.classList.add('selected')});c.appendChild(x)});
+ document.getElementById('report').classList.add('show');busy=false;
+});
+document.getElementById('submit').addEventListener('click',()=>{
+ if(!choice){toast('Choose the bug category first.');return}
+ const b=bugs[current];
+ if(choice===b.type){found.add(current);score+=b.points;toast('🐞 Correct! +₹'+b.points+' bounty');}
+ else{wrong++;score=Math.max(0,score-40);toast('✕ Wrong category · −₹40');}
+ document.getElementById('report').classList.remove('show');update();current=null;choice='';
+ if(found.size===8)setTimeout(finish,450);
+});
+function finish(){
+ clearInterval(timer);
+ const acc=Math.round(found.size/(found.size+wrong)*100)||0;
+ document.getElementById('rbugs').textContent=found.size+'/8';
+ document.getElementById('racc').textContent=acc+'%';
+ document.getElementById('rrank').textContent=found.size===8&&wrong<=1?'Elite Hunter':found.size>=6?'Senior Hunter':found.size>=4?'Bug Hunter':'Rookie';
+ document.getElementById('final').textContent='₹'+score;
+ document.getElementById('endTitle').textContent=found.size===8?'Every Bug Captured!':'Hunt Complete';
+ document.getElementById('endText').textContent=found.size===8?'Outstanding! Your detective instincts caught every hidden defect.':'Nice hunt. Replay and investigate the missed areas to increase your bounty.';
+ document.getElementById('endIcon').textContent=found.size===8?'🏆':'🔎';
+ document.getElementById('end').classList.add('show');
+}
+let timer=setInterval(()=>{if(time<=0)return;time--;document.getElementById('clock').textContent=String(Math.floor(time/60)).padStart(2,'0')+':'+String(time%60).padStart(2,'0');if(time===0)finish()},1000);
+document.getElementById('again').addEventListener('click',()=>location.reload());
+update();
+})();
+</script>
+</body>
+</html>
