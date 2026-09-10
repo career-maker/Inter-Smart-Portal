@@ -158,7 +158,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/leaves/approvals", label: "My Requests",          roles: ["Employee"] },
       { href: "/recognitions",     label: "Manage Awards",        roles: ["Super Admin"] },
       { href: "/recognitions/leaderboard", label: "Recognition Leaderboard" },
-      { href: "/game",             label: "Gam" },
+      { href: "/game",             label: "Game" },
       { href: "https://qa-tracker-pro.vercel.app/", label: "Team Tracker", roles: ["Team Lead"], external: true },
     ],
   },
