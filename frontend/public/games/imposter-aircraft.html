@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Help Us To Capture The Imposter Aircraft</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
+      background-color: #000;
+      background-image: url('/games/img/sky.gif');
+      background-repeat: repeat;
+      font-family: Arial, sans-serif;
+      user-select: none;
+    }
+    .header-container {
+      text-align: center;
+      padding: 24px 20px 10px;
+    }
+    h1 {
+      font-family: Impact, "Arial Black", sans-serif;
+      font-size: clamp(28px, 5vw, 54px);
+      letter-spacing: 2px;
+      line-height: 1.15;
+      text-transform: uppercase;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+    }
+    .title-white {
+      color: #ffffff;
+    }
+    .title-red {
+      color: #ff334b;
+      text-shadow: 0 0 25px rgba(255, 51, 75, 0.8);
+    }
+    .description {
+      color: #d8e5f2;
+      font-size: clamp(14px, 2vw, 17px);
+      margin-top: 8px;
+      letter-spacing: 0.5px;
+    }
+    h2 {
+      font-family: Impact, "Arial Black", sans-serif;
+      color: #ffa500;
+      font-size: clamp(20px, 3.5vw, 32px);
+      letter-spacing: 2px;
+      margin-top: 10px;
+      text-shadow: 0 0 15px rgba(255, 165, 0, 0.7);
+    }
+    .marquee-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 10px 0 30px;
+    }
+    marquee {
+      height: 90px;
+      display: flex;
+      align-items: center;
+    }
+    .jet-btn {
+      background: transparent;
+      border: 0;
+      padding: 0;
+      cursor: crosshair;
+      display: inline-block;
+      transition: transform 0.15s ease, filter 0.15s ease;
+      outline: none;
+    }
+    .jet-btn:hover {
+      transform: scale(1.18);
+      filter: drop-shadow(0 0 12px rgba(255, 60, 60, 0.9));
+    }
+    .jet-img {
+      width: 120px;
+      height: auto;
+      pointer-events: none;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.6));
+    }
+
+    /* Interactive Outcome Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 5, 15, 0.88);
+      backdrop-filter: blur(8px);
+      display: none;
+      place-items: center;
+      z-index: 1000;
+      padding: 20px;
+      animation: fadeIn 0.25s ease-out forwards;
+    }
+    .modal-overlay.active {
+      display: grid;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .modal-box {
+      max-width: 480px;
+      width: 90%;
+      background: #0b1523;
+      border: 2px solid #284c68;
+      border-radius: 24px;
+      padding: 32px 24px;
+      text-align: center;
+      color: #fff;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(66, 175, 255, 0.25);
+      animation: popIn 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+    }
+    @keyframes popIn {
+      from { transform: scale(0.85); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .modal-box.win {
+      border-color: #38bdf8;
+      box-shadow: 0 0 40px rgba(56, 189, 248, 0.4);
+    }
+    .modal-box.lose {
+      border-color: #f43f5e;
+      box-shadow: 0 0 40px rgba(244, 63, 94, 0.4);
+    }
+    .modal-badge {
+      font-size: 52px;
+      margin-bottom: 12px;
+      display: block;
+      animation: bounce 1s infinite alternate ease-in-out;
+    }
+    @keyframes bounce {
+      from { transform: translateY(0); }
+      to { transform: translateY(-8px); }
+    }
+    .modal-title {
+      font-family: Impact, sans-serif;
+      font-size: 32px;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+    .win .modal-title {
+      color: #38bdf8;
+    }
+    .lose .modal-title {
+      color: #fb7185;
+    }
+    .modal-desc {
+      font-size: 14px;
+      color: #94a3b8;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      border: 0;
+      transition: all 0.2s;
+    }
+    .btn-retry {
+      background: #38bdf8;
+      color: #04101d;
+    }
+    .btn-retry:hover {
+      background: #7dd3fc;
+      transform: translateY(-1px);
+    }
+    .lose .btn-retry {
+      background: #f43f5e;
+      color: #fff;
+    }
+    .lose .btn-retry:hover {
+      background: #fb7185;
+    }
+    .codepen-link {
+      display: inline-block;
+      margin-top: 14px;
+      font-size: 11px;
+      color: #64748b;
+      text-decoration: underline;
+    }
+    .codepen-link:hover {
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body bgcolor="#000" background="/games/img/sky.gif">
+  <div class="header-container">
+    <h1>
+      <span class="title-white">HELP US TO CAPTURE THE</span>
+      <span class="title-red">IMPOSTER AIRCRAFT</span>
+    </h1>
+    <p class="description">
+      There is an impostor aircraft in our squad. We need your help to capture them.
+    </p>
+    <h2>
+      YOU HAVE JUST ONE SINGLE CHANCE
+    </h2>
+  </div>
+
+  <div class="marquee-container">
+    <!-- Row 1: Squad Jet (delay 0) -->
+    <marquee direction="right" scrolldelay="0">
+      <button type="button" class="jet-btn" onclick="handleTarget(false, 'abNVdrX')">
+        <img class="jet-img" src="/games/img/jet.png" onerror="this.src='https://images.vexels.com/media/users/3/258903/isolated/preview/b5102562d77638882698327f8b21db30-transporte-aereo-de-aviao-a-jato.png'" alt="Squad Aircraft" width="120">
+      </button>
+    </marquee>
+
+    <!-- Row 2: Squad Jet (delay 200) -->
+    <marquee direction="right" scrolldelay="200">
+      <button type="button" class="jet-btn" onclick="handleTarget(false, 'abNVdrX')">
+        <img class="jet-img" src="/games/img/jet.png" onerror="this.src='https://images.vexels.com/media/users/3/258903/isolated/preview/b5102562d77638882698327f8b21db30-transporte-aereo-de-aviao-a-jato.png'" alt="Squad Aircraft" width="120">
+      </button>
+    </marquee>
+
+    <!-- Row 3: Squad Jet (delay 130) -->
+    <marquee direction="right" scrolldelay="130">
+      <button type="button" class="jet-btn" onclick="handleTarget(false, 'abNVdrX')">
+        <img class="jet-img" src="/games/img/jet.png" onerror="this.src='https://images.vexels.com/media/users/3/258903/isolated/preview/b5102562d77638882698327f8b21db30-transporte-aereo-de-aviao-a-jato.png'" alt="Squad Aircraft" width="120">
+      </button>
+    </marquee>
+
+    <!-- Row 4: THE IMPOSTER AIRCRAFT! (delay 100) -->
+    <marquee direction="right" scrolldelay="100">
+      <button type="button" class="jet-btn" onclick="handleTarget(true, 'VwaraKe')">
+        <img class="jet-img" src="/games/img/jet.png" onerror="this.src='https://images.vexels.com/media/users/3/258903/isolated/preview/b5102562d77638882698327f8b21db30-transporte-aereo-de-aviao-a-jato.png'" alt="Squad Aircraft" width="120">
+      </button>
+    </marquee>
+
+    <!-- Row 5: Squad Jet (delay 150) -->
+    <marquee direction="right" scrolldelay="150">
+      <button type="button" class="jet-btn" onclick="handleTarget(false, 'abNVdrX')">
+        <img class="jet-img" src="/games/img/jet.png" onerror="this.src='https://images.vexels.com/media/users/3/258903/isolated/preview/b5102562d77638882698327f8b21db30-transporte-aereo-de-aviao-a-jato.png'" alt="Squad Aircraft" width="120">
+      </button>
+    </marquee>
+
+    <!-- Row 6: Squad Jet (delay 50) -->
+    <marquee direction="right" scrolldelay="50">
+      <button type="button" class="jet-btn" onclick="handleTarget(false, 'abNVdrX')">
+        <img class="jet-img" src="/games/img/jet.png" onerror="this.src='https://images.vexels.com/media/users/3/258903/isolated/preview/b5102562d77638882698327f8b21db30-transporte-aereo-de-aviao-a-jato.png'" alt="Squad Aircraft" width="120">
+      </button>
+    </marquee>
+  </div>
+
+  <!-- Interactive Result Modal -->
+  <div id="resultModal" class="modal-overlay">
+    <div id="modalBox" class="modal-box">
+      <span id="modalBadge" class="modal-badge">🎯</span>
+      <h3 id="modalTitle" class="modal-title">Imposter Captured!</h3>
+      <p id="modalDesc" class="modal-desc">
+        Mission accomplished! You identified the impostor jet on your single chance and saved the squadron!
+      </p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-retry" onclick="resetGame()">Play Again</button>
+      </div>
+      <div>
+        <a id="codepenRef" class="codepen-link" href="#" target="_blank" rel="noopener noreferrer">View original CodePen result</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let clicked = false;
+
+    function handleTarget(isImposter, codePenId) {
+      if (clicked) return;
+      clicked = true;
+
+      const modal = document.getElementById('resultModal');
+      const box = document.getElementById('modalBox');
+      const badge = document.getElementById('modalBadge');
+      const title = document.getElementById('modalTitle');
+      const desc = document.getElementById('modalDesc');
+      const codepenLink = document.getElementById('codepenRef');
+
+      codepenLink.href = 'https://codepen.io/sergioandrade/full/' + codePenId;
+
+      if (isImposter) {
+        box.className = 'modal-box win';
+        badge.textContent = '🏆';
+        title.textContent = 'IMPOSTER CAPTURED!';
+        desc.textContent = 'INCREDIBLE SHOT! You caught the rogue imposter aircraft on your single chance and defended the squadron!';
+      } else {
+        box.className = 'modal-box lose';
+        badge.textContent = '💥';
+        title.textContent = 'MISSION FAILED!';
+        desc.textContent = 'You struck a friendly squad aircraft! The real imposter slipped through your radar unnoticed.';
+      }
+
+      modal.classList.add('active');
+    }
+
+    function resetGame() {
+      clicked = false;
+      document.getElementById('resultModal').classList.remove('active');
+    }
+  </script>
+</body>
+</html>

@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { Gamepad2, Bug, Play, ArrowLeft, Trophy, Sparkles, ShieldAlert, Zap, Maximize2, Swords, Flame } from "lucide-react";
+import { Gamepad2, Bug, Play, ArrowLeft, Trophy, Sparkles, ShieldAlert, Zap, Maximize2, Swords, Flame, Plane, Crosshair } from "lucide-react";
 import { NetworkErrorWithGame } from "@/components/ui/NetworkErrorWithGame";
 
 export default function GamePage() {
-  const [activeGame, setActiveGame] = useState<"runner" | "bugsmart" | "battleroyale" | null>(null);
+  const [activeGame, setActiveGame] = useState<"runner" | "bugsmart" | "battleroyale" | "imposter" | null>(null);
 
   // ── Fullscreen BugSmart Bounty Mode ──
   if (activeGame === "bugsmart") {
@@ -57,6 +57,31 @@ export default function GamePage() {
     );
   }
 
+  // ── Fullscreen Imposter Aircraft Mode ──
+  if (activeGame === "imposter") {
+    return (
+      <div className="fixed inset-0 z-[99999] bg-black w-screen h-screen overflow-hidden flex flex-col">
+        {/* Floating Back to Games Button */}
+        <button
+          onClick={() => setActiveGame(null)}
+          className="absolute top-3.5 left-4 z-[100000] inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#081521]/95 hover:bg-[#0e2438] text-white font-bold text-xs border border-[#1e4460] shadow-2xl backdrop-blur-md transition-all cursor-pointer group"
+          title="Exit game and return to games hub"
+        >
+          <ArrowLeft className="w-4 h-4 text-[#38bdf8] group-hover:-translate-x-1 transition-transform" />
+          <span>Back to Games</span>
+        </button>
+
+        {/* Embedded Imposter Aircraft Game */}
+        <iframe
+          src="/games/imposter-aircraft.html"
+          className="w-full h-full border-0 flex-1"
+          title="Imposter Aircraft Game"
+          allow="fullscreen; autoplay"
+        />
+      </div>
+    );
+  }
+
   // ── Runner Game Mode ──
   if (activeGame === "runner") {
     return (
@@ -102,7 +127,7 @@ export default function GamePage() {
       </div>
 
       {/* Games Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 items-stretch">
         
         {/* Game Card 1: BugSmart Bounty */}
         <div className="flex flex-col justify-between rounded-2xl bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700/60 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group">
@@ -177,7 +202,7 @@ export default function GamePage() {
             <div className="flex items-center justify-between z-10">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-950/80 text-rose-300 text-[10px] font-extrabold border border-rose-800/60">
                 <Swords className="w-3 h-3 text-rose-400" />
-                CO-OP & VERSUS BATTLE
+                CO-OP & VERSUS
               </span>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-400/15 text-amber-300 border border-amber-400/30">
                 10 Rounds
@@ -236,7 +261,73 @@ export default function GamePage() {
           </div>
         </div>
 
-        {/* Game Card 3: InterSmart Pixel Runner */}
+        {/* Game Card 3: Imposter Aircraft */}
+        <div className="flex flex-col justify-between rounded-2xl bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700/60 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group">
+          {/* Card Preview Header */}
+          <div className="relative h-44 sm:h-48 bg-gradient-to-br from-[#1c120c] via-[#100c08] to-[#040404] p-5 flex flex-col justify-between overflow-hidden border-b border-slate-200 dark:border-slate-700">
+            <div className="flex items-center justify-between z-10">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-950/80 text-orange-300 text-[10px] font-extrabold border border-orange-800/60">
+                <Crosshair className="w-3 h-3 text-orange-400" />
+                RADAR INTERCEPT
+              </span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-orange-400/15 text-orange-300 border border-orange-400/30">
+                1 Chance
+              </span>
+            </div>
+
+            <div className="z-10 flex items-center gap-3.5">
+              <div className="w-12 h-12 rounded-2xl bg-[#1f150e] border-2 border-orange-500/50 flex items-center justify-center text-2xl shadow-lg group-hover:scale-110 transition-transform">
+                ✈️
+              </div>
+              <div>
+                <h2 className="text-lg sm:text-xl font-black text-white leading-tight">
+                  Imposter Aircraft
+                </h2>
+                <p className="text-xs text-orange-300/80 font-medium">
+                  Rogue Jet Air Squad Intercept
+                </p>
+              </div>
+            </div>
+
+            {/* Subtle background graphics */}
+            <div className="absolute -right-8 -bottom-8 w-36 h-36 rounded-full bg-orange-500/10 blur-2xl pointer-events-none" />
+            <div className="absolute right-4 bottom-2 text-6xl opacity-15 pointer-events-none select-none">
+              🎯
+            </div>
+          </div>
+
+          {/* Card Body */}
+          <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+              There is an impostor aircraft in our fighter squad! Watch the high-speed radar flight paths, pick the rogue jet with precision, and capture them with your single chance!
+            </p>
+
+            <div className="grid grid-cols-3 gap-2 py-2 border-y border-slate-100 dark:border-slate-700/60 text-center">
+              <div className="p-2 rounded-xl bg-slate-50 dark:bg-slate-900/50">
+                <div className="text-[10px] text-slate-400 font-semibold uppercase">Chances</div>
+                <div className="text-xs font-bold text-orange-500 mt-0.5">1 Shot</div>
+              </div>
+              <div className="p-2 rounded-xl bg-slate-50 dark:bg-slate-900/50">
+                <div className="text-[10px] text-slate-400 font-semibold uppercase">Screen</div>
+                <div className="text-xs font-bold text-[#38bdf8] mt-0.5">Fullscreen</div>
+              </div>
+              <div className="p-2 rounded-xl bg-slate-50 dark:bg-slate-900/50">
+                <div className="text-[10px] text-slate-400 font-semibold uppercase">Target</div>
+                <div className="text-xs font-bold text-rose-400 mt-0.5">Imposter</div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setActiveGame("imposter")}
+              className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#9a3412] to-[#431407] hover:from-[#c2410c] hover:to-[#571b09] text-orange-100 font-black text-sm border border-orange-500/40 flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all cursor-pointer"
+            >
+              <Crosshair className="w-4 h-4 text-orange-300" />
+              <span>Launch Imposter Aircraft</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Game Card 4: InterSmart Pixel Runner */}
         <div className="flex flex-col justify-between rounded-2xl bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700/60 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group">
           {/* Card Preview Header */}
           <div className="relative h-44 sm:h-48 bg-gradient-to-br from-[#2e1065] via-[#1e1b4b] to-[#0f172a] p-5 flex flex-col justify-between overflow-hidden border-b border-slate-200 dark:border-slate-700">
