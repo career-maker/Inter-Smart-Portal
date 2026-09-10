@@ -848,11 +848,11 @@ export function AttendanceWidget({
                                           Session #{sIdx + 1}
                                         </span>
                                         {isSessionManual ? (
-                                          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200/60 dark:border-purple-800">
+                                          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200/60 dark:border-purple-800 whitespace-nowrap shrink-0">
                                             WFH Manual
                                           </span>
                                         ) : (
-                                          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-teal-100 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 border border-teal-200/60 dark:border-teal-800">
+                                          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-teal-100 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 border border-teal-200/60 dark:border-teal-800 whitespace-nowrap shrink-0">
                                             Office Biometric
                                           </span>
                                         )}
@@ -908,26 +908,26 @@ export function AttendanceWidget({
 
                         {/* ── SECTION 2: BIOMETRIC / WFH PUNCH LOG ── */}
                         <div className="bg-white dark:bg-slate-800/90 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-4 shadow-2xs">
-                          <div className="pb-3 border-b border-slate-100 dark:border-slate-700/60 mb-3 flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <h3 className="font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                          <div className="pb-3 border-b border-slate-100 dark:border-slate-700/60 mb-3 flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <h3 className="font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-slate-300 whitespace-nowrap">
                                 {isHybrid
-                                  ? "Hybrid Punch Log (Office & WFH)"
+                                  ? "Hybrid Punch Log"
                                   : isWfhManual
                                   ? "WFH Manual Punch Log"
                                   : "Biometric Scanner Log"}
                               </h3>
                               {isHybrid ? (
-                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300">
+                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 whitespace-nowrap shrink-0">
                                   Hybrid Day
                                 </span>
                               ) : isWfhManual ? (
-                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300">
+                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 whitespace-nowrap shrink-0">
                                   Manual Mode
                                 </span>
                               ) : null}
                             </div>
-                            <span className="text-[11px] font-semibold text-slate-400">
+                            <span className="text-[11px] font-semibold text-slate-400 whitespace-nowrap shrink-0">
                               {timelineData?.raw_punches?.length || 0} Events
                             </span>
                           </div>
