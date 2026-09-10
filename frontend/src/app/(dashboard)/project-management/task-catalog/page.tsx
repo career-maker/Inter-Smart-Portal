@@ -302,7 +302,7 @@ export default function TaskCatalogPage() {
             </button>
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto table-scrollbar [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <table className="w-full min-w-[1000px] text-left text-xs sm:text-sm">
               <thead>
                 <tr className="border-b border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-800/30 text-slate-500 dark:text-slate-400 font-semibold text-xs uppercase tracking-wider">

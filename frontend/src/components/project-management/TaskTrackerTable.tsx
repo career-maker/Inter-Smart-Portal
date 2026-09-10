@@ -412,7 +412,7 @@ export function TaskTrackerTable({
 
   return (
     <div className="w-full flex flex-col">
-      <div className="w-full overflow-x-auto table-scrollbar">
+      <div className="w-full overflow-x-auto table-scrollbar [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <table className="w-full text-left border-collapse task-tracker-table">
           <thead>
             <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-800/50 whitespace-nowrap task-table-header">

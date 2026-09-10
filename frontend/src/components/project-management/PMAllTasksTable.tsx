@@ -236,7 +236,7 @@ export function PMAllTasksTable({
       </div>
 
       {/* ── Table Content ── */}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto table-scrollbar [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <table className="w-full text-left text-xs border-collapse">
           <thead>
             <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider text-[11px]">
