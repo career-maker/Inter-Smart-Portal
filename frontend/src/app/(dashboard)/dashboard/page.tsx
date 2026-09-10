@@ -354,17 +354,18 @@ export default function DashboardPage() {
               loop
               playsInline
               preload="auto"
-              className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+              className="absolute inset-0 w-full h-full object-cover object-bottom lg:object-center pointer-events-none"
               style={{ zIndex: 0 }}
             >
               <source src={welcomeBannerMedia} type={welcomeBannerMedia.endsWith(".webm") ? "video/webm" : "video/mp4"} />
             </video>
-            {/* Subtle White Gradient behind Name Section — on mobile covers top user info; on desktop transitions horizontally */}
+            {/* White Gradient on Mobile: Solid white on top side where texts are displayed, video fully visible behind growing together card only */}
+            {/* On Desktop: Smooth horizontal gradient covering the left name section, video fully visible on the right */}
             <div
               className="absolute inset-0 pointer-events-none z-[1]
-                bg-[linear-gradient(to_bottom,rgba(255,255,255,0.98)_0%,rgba(255,255,255,0.96)_56%,rgba(255,255,255,0.85)_72%,rgba(255,255,255,0.30)_88%,transparent_100%)]
+                bg-[linear-gradient(to_bottom,#ffffff_0%,#ffffff_42%,rgba(255,255,255,0.85)_47%,rgba(255,255,255,0.25)_52%,transparent_56%)]
                 lg:bg-[linear-gradient(to_right,rgba(255,255,255,0.98)_0%,rgba(255,255,255,0.95)_28%,rgba(255,255,255,0.82)_44%,rgba(255,255,255,0.45)_58%,rgba(255,255,255,0.12)_72%,transparent_84%)]
-                dark:bg-[linear-gradient(to_bottom,rgba(6,12,24,0.98)_0%,rgba(6,12,24,0.96)_56%,rgba(6,12,24,0.80)_72%,transparent_90%)]
+                dark:bg-[linear-gradient(to_bottom,#060c18_0%,#060c18_42%,rgba(6,12,24,0.85)_48%,rgba(6,12,24,0.30)_52%,transparent_56%)]
                 dark:lg:bg-[linear-gradient(to_right,rgba(6,12,24,0.98)_0%,rgba(6,12,24,0.94)_25%,rgba(6,12,24,0.80)_40%,rgba(6,12,24,0.35)_56%,rgba(6,12,24,0.10)_70%,transparent_82%)]"
             />
           </>
@@ -1350,17 +1351,18 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
               loop
               playsInline
               preload="auto"
-              className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+              className="absolute inset-0 w-full h-full object-cover object-bottom lg:object-center pointer-events-none"
               style={{ zIndex: 0 }}
             >
               <source src={welcomeBannerMedia} type={welcomeBannerMedia.endsWith(".webm") ? "video/webm" : "video/mp4"} />
             </video>
-            {/* Subtle White Gradient behind Name Section — on mobile covers top user info; on desktop transitions horizontally */}
+            {/* White Gradient on Mobile: Solid white on top side where texts are displayed, video fully visible behind growing together card only */}
+            {/* On Desktop: Smooth horizontal gradient covering the left name section, video fully visible on the right */}
             <div
               className="absolute inset-0 pointer-events-none z-[1]
-                bg-[linear-gradient(to_bottom,rgba(255,255,255,0.98)_0%,rgba(255,255,255,0.96)_56%,rgba(255,255,255,0.85)_72%,rgba(255,255,255,0.30)_88%,transparent_100%)]
+                bg-[linear-gradient(to_bottom,#ffffff_0%,#ffffff_42%,rgba(255,255,255,0.85)_47%,rgba(255,255,255,0.25)_52%,transparent_56%)]
                 lg:bg-[linear-gradient(to_right,rgba(255,255,255,0.98)_0%,rgba(255,255,255,0.95)_28%,rgba(255,255,255,0.82)_44%,rgba(255,255,255,0.45)_58%,rgba(255,255,255,0.12)_72%,transparent_84%)]
-                dark:bg-[linear-gradient(to_bottom,rgba(6,12,24,0.98)_0%,rgba(6,12,24,0.96)_56%,rgba(6,12,24,0.80)_72%,transparent_90%)]
+                dark:bg-[linear-gradient(to_bottom,#060c18_0%,#060c18_42%,rgba(6,12,24,0.85)_48%,rgba(6,12,24,0.30)_52%,transparent_56%)]
                 dark:lg:bg-[linear-gradient(to_right,rgba(6,12,24,0.98)_0%,rgba(6,12,24,0.94)_25%,rgba(6,12,24,0.80)_40%,rgba(6,12,24,0.35)_56%,rgba(6,12,24,0.10)_70%,transparent_82%)]"
             />
           </>
