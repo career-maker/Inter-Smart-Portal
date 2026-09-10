@@ -3945,10 +3945,12 @@ select:focus {
 
 .select:hover > .options,
 .select:focus-within > .options,
+.select.is-open > .options,
+.uiverse-select.is-open > .options,
 .options.is-open {
-  opacity: 1;
-  top: 100%;
-  pointer-events: auto;
+  opacity: 1 !important;
+  top: 100% !important;
+  pointer-events: auto !important;
 }
 
 .option {

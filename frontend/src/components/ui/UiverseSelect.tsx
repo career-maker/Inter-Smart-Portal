@@ -112,7 +112,7 @@ export function UiverseSelect({
     <div
       ref={containerRef}
       style={style}
-      className={`uiverse-select select relative inline-block text-left select-none ${isOpen ? "z-[60]" : "z-10"} ${className}`}
+      className={`uiverse-select select relative inline-block text-left select-none ${isOpen ? "is-open z-[60]" : "z-10"} ${className}`}
     >
       {/* Selected Box Trigger (From Uiverse.io by 3bdel3ziz-T) */}
       <div
@@ -120,7 +120,7 @@ export function UiverseSelect({
         style={{
           fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)',
         }}
-        className={`selected flex items-center justify-between gap-2.5 px-3 rounded-[6px] border transition-all duration-300 ${
+        className={`selected flex items-center justify-between gap-2.5 px-3 rounded-[6px] border transition-all duration-300 ${isOpen ? "is-open" : ""} ${
           size === "sm" ? "py-1 text-xs min-h-[32px]" : "py-2 text-xs sm:text-sm min-h-[38px]"
         } ${
           disabled
@@ -153,7 +153,7 @@ export function UiverseSelect({
           style={{
             fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)',
           }}
-          className={`options absolute ${align === "right" ? "right-0" : "left-0"} top-full mt-1.5 z-50 min-w-full w-max max-w-xs sm:max-w-sm rounded-[6px] p-1 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 shadow-xl flex flex-col transition-all duration-300 animate-in fade-in-50 zoom-in-95`}
+          className={`options is-open !opacity-100 !pointer-events-auto absolute ${align === "right" ? "right-0" : "left-0"} top-full mt-1.5 z-50 min-w-full w-max max-w-xs sm:max-w-sm rounded-[6px] p-1 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 shadow-xl flex flex-col transition-all duration-150 animate-in fade-in-50 zoom-in-95 before:absolute before:-top-2 before:left-0 before:right-0 before:h-2 before:content-['']`}
         >
           {/* Quick Search if more than 10 options */}
           {isAutoSearchable && (
