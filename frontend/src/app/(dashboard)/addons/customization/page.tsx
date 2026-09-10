@@ -2984,30 +2984,62 @@ export default function CustomizationPage() {
                   {/* Miniature Welcome Hero Banner Preview */}
                   <div
                     style={{
-                      backgroundImage: `linear-gradient(to right, rgba(12, 24, 45, 0.92) 0%, rgba(15, 23, 42, 0.72) 50%, rgba(12, 24, 45, 0.92) 100%), url('${currentWelcomeBanner}')`,
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
+                      ...(!isBannerVideo
+                        ? {
+                            backgroundImage: `linear-gradient(to right, rgba(12, 24, 45, 0.92) 0%, rgba(15, 23, 42, 0.72) 50%, rgba(12, 24, 45, 0.92) 100%), url('${currentWelcomeBanner}')`,
+                            backgroundSize: "cover",
+                            backgroundPosition: "center",
+                          }
+                        : { backgroundColor: "#0c182d" }),
                       borderRadius: currentRadius,
                     }}
                     className="p-3 border border-white/20 text-white shadow-md relative overflow-hidden space-y-2 select-none"
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-[9px] font-bold text-white shadow-inner">
-                          SA
+                    {isBannerVideo && (
+                      <>
+                        <video
+                          key={currentWelcomeBanner}
+                          autoPlay
+                          muted
+                          loop
+                          playsInline
+                          preload="auto"
+                          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                          style={{ zIndex: 0 }}
+                          onLoadedMetadata={(e) => {
+                            e.currentTarget.play().catch(() => {});
+                          }}
+                        >
+                          <source src={currentWelcomeBanner} type={currentWelcomeBanner.endsWith(".webm") ? "video/webm" : "video/mp4"} />
+                        </video>
+                        <div
+                          className="absolute inset-0 pointer-events-none"
+                          style={{
+                            background: "linear-gradient(to right, rgba(12, 24, 45, 0.88) 0%, rgba(15, 23, 42, 0.65) 50%, rgba(12, 24, 45, 0.88) 100%)",
+                            zIndex: 1,
+                          }}
+                        />
+                      </>
+                    )}
+                    <div className="relative z-10 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-[9px] font-bold text-white shadow-inner">
+                            SA
+                          </div>
+                          <div>
+                            <div className="text-[11px] font-bold text-white leading-tight">Good Day, Administrator</div>
+                            <div className="text-[8px] text-white/80 font-medium truncate max-w-[140px]">{form.header_subtitle || "PERFECTION AT ITS FINEST"}</div>
+                          </div>
                         </div>
-                        <div>
-                          <div className="text-[11px] font-bold text-white leading-tight">Good Day, Administrator</div>
-                          <div className="text-[8px] text-white/80 font-medium truncate max-w-[140px]">{form.header_subtitle || "PERFECTION AT ITS FINEST"}</div>
-                        </div>
+                        <span className="text-[7.5px] px-2 py-0.5 rounded-full bg-emerald-500/25 text-emerald-300 font-bold border border-emerald-400/30 shrink-0">
+                          ● In 10:02 AM
+                        </span>
                       </div>
-                      <span className="text-[7.5px] px-2 py-0.5 rounded-full bg-emerald-500/25 text-emerald-300 font-bold border border-emerald-400/30 shrink-0">
-                        ● In 10:02 AM
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between text-[7.5px] text-white/75 pt-1 border-t border-white/10">
-                      <span>Dashboard Hero Banner</span>
-                      <span className="font-mono">10:00 AM - 07:00 PM</span>
+                      <div className="flex items-center justify-between text-[7.5px] text-white/75 pt-1 border-t border-white/10">
+                        <span>Dashboard Hero Banner</span>
+                        <span className="font-mono">10:00 AM - 07:00 PM</span>
+                      </div>
                     </div>
                   </div>
 

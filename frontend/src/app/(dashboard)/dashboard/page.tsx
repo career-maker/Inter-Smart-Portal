@@ -344,7 +344,7 @@ export default function DashboardPage() {
           border border-[#1c3a63]
           shadow-[inset_0_0_0_1px_rgba(96,165,250,0.10),0_12px_40px_rgba(0,0,0,0.7)]"
       >
-        {/* Optional Custom Video Banner Fallback */}
+        {/* Video Banner Background */}
         {isBannerVideo && (
           <>
             <video
@@ -354,21 +354,24 @@ export default function DashboardPage() {
               loop
               playsInline
               preload="auto"
-              className="absolute inset-0 w-full h-full object-cover object-bottom lg:object-center pointer-events-none"
+              className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none"
               style={{ zIndex: 0 }}
+              onLoadedMetadata={(e) => {
+                e.currentTarget.play().catch(() => {});
+              }}
             >
               <source src={welcomeBannerMedia} type={welcomeBannerMedia.endsWith(".webm") ? "video/webm" : "video/mp4"} />
             </video>
-            {/* Solid dark on the left name section, video fully visible behind the Growing Together card on the right */}
+            {/* Balanced translucent dark overlay for contrast while keeping looping video visible */}
             <div
               className="absolute inset-0 pointer-events-none z-[1]
-                bg-[linear-gradient(to_bottom,#060c18_0%,#060c18_42%,rgba(6,12,24,0.85)_48%,rgba(6,12,24,0.30)_52%,transparent_56%)]
-                lg:bg-[linear-gradient(to_right,rgba(6,12,24,0.98)_0%,rgba(6,12,24,0.94)_25%,rgba(6,12,24,0.80)_40%,rgba(6,12,24,0.35)_56%,rgba(6,12,24,0.10)_70%,transparent_82%)]"
+                bg-[linear-gradient(to_bottom,rgba(6,12,24,0.78)_0%,rgba(6,12,24,0.52)_50%,rgba(6,12,24,0.80)_100%)]
+                lg:bg-[linear-gradient(to_right,rgba(6,12,24,0.80)_0%,rgba(6,12,24,0.55)_45%,rgba(6,12,24,0.75)_100%)]"
             />
           </>
         )}
 
-        {/* Building Facade Background — visible on the right, concentrated behind the Growing Together card */}
+        {/* Building Facade Background — visible on the right when video is not active */}
         {!isBannerVideo && (
           <div
             className="absolute right-0 top-0 bottom-0 w-full sm:w-3/4 lg:w-[58%] pointer-events-none bg-right bg-cover opacity-50 mix-blend-screen"
@@ -380,8 +383,13 @@ export default function DashboardPage() {
           />
         )}
 
-        {/* Ambient Gradients & Shapes from welcome_card.html */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {/* Ambient Gradients & Shapes from welcome_card.html (kept unchanged, layered over video) */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden z-[2]">
+          {/* Base radial gradient when not video */}
+          {!isBannerVideo && (
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,#0e1e38_0%,#060c18_65%)]" />
+          )}
+
           {/* Soft Profile Circle Aura */}
           <div
             className="absolute inset-0 pointer-events-none"
@@ -404,8 +412,6 @@ export default function DashboardPage() {
             <i className="card-wave w4" />
             <i className="card-wave w5" />
           </div>
-
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,#0e1e38_0%,#060c18_65%)]" />
         </div>
 
         {/* ── TOP ROW: PROFILE & STATS ── */}
@@ -1296,7 +1302,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           border border-[#1c3a63]
           shadow-[inset_0_0_0_1px_rgba(96,165,250,0.10),0_12px_40px_rgba(0,0,0,0.7)]"
       >
-        {/* Optional Custom Video Banner Fallback */}
+        {/* Video Banner Background */}
         {isBannerVideo && (
           <>
             <video
@@ -1306,21 +1312,24 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
               loop
               playsInline
               preload="auto"
-              className="absolute inset-0 w-full h-full object-cover object-bottom lg:object-center pointer-events-none"
+              className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none"
               style={{ zIndex: 0 }}
+              onLoadedMetadata={(e) => {
+                e.currentTarget.play().catch(() => {});
+              }}
             >
               <source src={welcomeBannerMedia} type={welcomeBannerMedia.endsWith(".webm") ? "video/webm" : "video/mp4"} />
             </video>
-            {/* Solid dark on the left name section, video fully visible behind the Pending Items card on the right */}
+            {/* Balanced translucent dark overlay for contrast while keeping looping video visible */}
             <div
               className="absolute inset-0 pointer-events-none z-[1]
-                bg-[linear-gradient(to_bottom,#060c18_0%,#060c18_42%,rgba(6,12,24,0.85)_48%,rgba(6,12,24,0.30)_52%,transparent_56%)]
-                lg:bg-[linear-gradient(to_right,rgba(6,12,24,0.98)_0%,rgba(6,12,24,0.94)_25%,rgba(6,12,24,0.80)_40%,rgba(6,12,24,0.35)_56%,rgba(6,12,24,0.10)_70%,transparent_82%)]"
+                bg-[linear-gradient(to_bottom,rgba(6,12,24,0.78)_0%,rgba(6,12,24,0.52)_50%,rgba(6,12,24,0.80)_100%)]
+                lg:bg-[linear-gradient(to_right,rgba(6,12,24,0.80)_0%,rgba(6,12,24,0.55)_45%,rgba(6,12,24,0.75)_100%)]"
             />
           </>
         )}
 
-        {/* Building Facade Background — visible on the right side */}
+        {/* Building Facade Background — visible on the right side when video is not active */}
         {!isBannerVideo && (
           <div
             className="absolute right-0 top-0 bottom-0 w-full sm:w-3/4 lg:w-[58%] pointer-events-none bg-right bg-cover opacity-50 mix-blend-screen"
@@ -1332,8 +1341,13 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           />
         )}
 
-        {/* Ambient Gradients & Shapes from welcome_card.html */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {/* Ambient Gradients & Shapes from welcome_card.html (kept unchanged, layered over video) */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden z-[2]">
+          {/* Base radial gradient when not video */}
+          {!isBannerVideo && (
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,#0e1e38_0%,#060c18_65%)]" />
+          )}
+
           {/* Soft Profile Circle Aura */}
           <div
             className="absolute inset-0 pointer-events-none"
@@ -1356,8 +1370,6 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
             <i className="card-wave w4" />
             <i className="card-wave w5" />
           </div>
-
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,#0e1e38_0%,#060c18_65%)]" />
         </div>
 
         {/* ── TOP ROW: PROFILE & PENDING ITEMS ── */}
