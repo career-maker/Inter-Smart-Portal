@@ -67,8 +67,9 @@ class CalendarController extends Controller
             $curr->addDay();
         }
 
-        // 2. Leave Requests
+        // 2. Leave Requests (do not display Rejected or Cancelled)
         $leaves = LeaveRequest::where('user_id', $user->id)
+            ->whereNotIn('status', ['Rejected', 'Cancelled', 'rejected', 'cancelled'])
             ->where(function($q) use ($startOfMonth, $endOfMonth) {
                 $q->whereBetween('start_date', [$startOfMonth->toDateString(), $endOfMonth->toDateString()])
                   ->orWhereBetween('end_date', [$startOfMonth->toDateString(), $endOfMonth->toDateString()]);
@@ -89,8 +90,9 @@ class CalendarController extends Controller
             ];
         }
 
-        // 3. WFH Requests
+        // 3. WFH Requests (do not display Rejected or Cancelled)
         $wfhs = WfhRequest::where('user_id', $user->id)
+            ->whereNotIn('status', ['Rejected', 'Cancelled', 'rejected', 'cancelled'])
             ->where(function($q) use ($startOfMonth, $endOfMonth) {
                 $q->whereBetween('start_date', [$startOfMonth->toDateString(), $endOfMonth->toDateString()])
                   ->orWhereBetween('end_date', [$startOfMonth->toDateString(), $endOfMonth->toDateString()]);

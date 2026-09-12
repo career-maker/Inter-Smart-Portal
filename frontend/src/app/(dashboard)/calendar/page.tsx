@@ -64,13 +64,19 @@ export default function CalendarPage() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const isExcludedEvent = (e: CalendarEvent) => {
+    const s = (e.status || "").toLowerCase();
+    return s === "rejected" || s === "cancelled";
+  };
+
   const fetchEvents = async () => {
     setIsLoading(true);
     try {
       const month = currentDate.getMonth() + 1;
       const year = currentDate.getFullYear();
       const res = await api.get(`/calendar?month=${month}&year=${year}`);
-      setEvents(res.data.data || []);
+      const rawEvents: CalendarEvent[] = res.data.data || [];
+      setEvents(rawEvents.filter((e) => !isExcludedEvent(e)));
     } catch (e) {
       console.error(e);
     } finally {
@@ -112,6 +118,7 @@ export default function CalendarPage() {
   const getEventsForDay = (date: Date) => {
     const dayStr = format(date, "yyyy-MM-dd");
     return events.filter((e) => {
+      if (isExcludedEvent(e)) return false;
       if (!e.date) return false;
       const eventStart = e.date.split(" ")[0].split("T")[0];
       if (!e.end_date) return eventStart === dayStr;
