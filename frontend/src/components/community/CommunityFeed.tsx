@@ -44,6 +44,17 @@ const EMOJI_REACTIONS = [
   { id: "think", emoji: "💭", label: "Think", color: "text-sky-500" },
 ];
 
+const POST_EMOJIS = [
+  "😊", "😃", "😄", "😁", "😆", "😅", "😂", "🤣",
+  "🙂", "😉", "😍", "🥰", "😘", "🤩", "😎", "🥳",
+  "🤗", "🤔", "🤫", "🫡", "👍", "👎", "👏", "🙌",
+  "🫶", "🤝", "💪", "✌️", "🤞", "🙏", "❤️", "💖",
+  "🔥", "⭐", "✨", "💯", "🎉", "🎊", "🎈", "🎂",
+  "🍰", "🥂", "🍻", "🏆", "🥇", "🌟", "🚀", "🎯",
+  "💡", "☕", "💻", "📝", "📊", "💼", "📅", "🌈",
+  "🌸", "🌺", "🌻", "🍀", "🦋", "🎁", "📢", "💬"
+];
+
 const PRAISE_BADGES = [
   { id: "superstar", name: "Superstar", icon: "⭐", bg: "bg-amber-100 text-amber-800 border-amber-300" },
   { id: "team_player", name: "Team Player", icon: "🚀", bg: "bg-sky-100 text-sky-800 border-sky-300" },
@@ -123,6 +134,41 @@ export function CommunityFeed() {
   const [mentionQuery, setMentionQuery] = useState<string | null>(null);
   const [mentionActiveField, setMentionActiveField] = useState<"post" | "praise" | "poll" | null>(null);
   const [mentionCursorPos, setMentionCursorPos] = useState<number>(0);
+
+  // Post Emoji Picker State
+  const [showPostEmojiPicker, setShowPostEmojiPicker] = useState(false);
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
+  const postTextareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    const handleEmojiClickOutside = (e: MouseEvent) => {
+      if (emojiPickerRef.current && !emojiPickerRef.current.contains(e.target as Node)) {
+        setShowPostEmojiPicker(false);
+      }
+    };
+    if (showPostEmojiPicker) {
+      document.addEventListener("mousedown", handleEmojiClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleEmojiClickOutside);
+    };
+  }, [showPostEmojiPicker]);
+
+  const handleInsertEmoji = (emoji: string) => {
+    if (postTextareaRef.current) {
+      const textarea = postTextareaRef.current;
+      const start = textarea.selectionStart || 0;
+      const end = textarea.selectionEnd || 0;
+      const newContent = content.substring(0, start) + emoji + content.substring(end);
+      setContent(newContent);
+      setTimeout(() => {
+        textarea.focus();
+        textarea.setSelectionRange(start + emoji.length, start + emoji.length);
+      }, 0);
+    } else {
+      setContent((prev) => prev + emoji);
+    }
+  };
 
   // Comment & Like State
     // Reaction Picker States
@@ -1018,13 +1064,19 @@ export function CommunityFeed() {
           /* ── STANDARD POST FORM ── */
           <div className="flex flex-col gap-3 relative">
             <div className="flex-1 min-w-0">
-              <textarea
-                value={content}
-                onChange={(e) => handleMentionChange(e, "post", setContent)}
-                rows={3}
-                placeholder="Write your post here and mention your peers"
-                className="w-full text-[15px] leading-relaxed bg-transparent border-0 focus:outline-none focus:ring-0 text-slate-700 dark:text-white placeholder:text-slate-400 placeholder:font-normal resize-none p-0"
-              />
+              {/* Text Input Box with clean white background and clear border (never turns grey when typing) */}
+              <div className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-3.5 focus-within:border-slate-300 dark:focus-within:border-slate-600 transition-colors">
+                <textarea
+                  ref={postTextareaRef}
+                  value={content}
+                  onChange={(e) => handleMentionChange(e, "post", setContent)}
+                  rows={4}
+                  placeholder="Write your post here and mention your peers"
+                  style={{ backgroundColor: "transparent" }}
+                  className="w-full text-[15px] leading-relaxed bg-transparent! focus:bg-transparent! active:bg-transparent! border-0! focus:outline-none! focus:ring-0! shadow-none! text-slate-800 dark:text-white placeholder:text-slate-400 placeholder:font-normal resize-none p-0 block"
+                />
+              </div>
+
               {mentionActiveField === "post" && mentionQuery !== null && (
                 <div className="absolute z-40 top-full left-0 right-0 mt-1 max-h-48 overflow-y-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md shadow-xl custom-scrollbar">
                   {employeesList.filter(e => e.name?.toLowerCase().includes(mentionQuery) || e.email?.toLowerCase().includes(mentionQuery)).map(emp => (
@@ -1078,9 +1130,7 @@ export function CommunityFeed() {
                 </div>
               )}
 
-
-
-              <div className="flex items-center gap-2 mt-2 pb-4">
+              <div className="flex items-center gap-2 mt-2 pb-4 relative">
                 <button
                   type="button"
                   onClick={() => setContent((prev) => prev + "@")}
@@ -1097,13 +1147,53 @@ export function CommunityFeed() {
                 >
                   <ImageIcon className="w-4 h-4" />
                 </button>
-                <button
-                  type="button"
-                  className="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                  title="Add emoji"
-                >
-                  <Smile className="w-4 h-4" />
-                </button>
+
+                {/* Emoji Button & Popover Picker */}
+                <div className="relative" ref={emojiPickerRef}>
+                  <button
+                    type="button"
+                    onClick={() => setShowPostEmojiPicker((prev) => !prev)}
+                    className={`w-8 h-8 rounded-full border transition-colors cursor-pointer flex items-center justify-center ${
+                      showPostEmojiPicker
+                        ? "border-[#56348f] text-[#56348f] bg-purple-50 dark:bg-purple-950/40"
+                        : "border-slate-200 dark:border-slate-700 text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                    }`}
+                    title="Add emoji"
+                  >
+                    <Smile className="w-4 h-4" />
+                  </button>
+
+                  {/* Emoji Picker Popover */}
+                  {showPostEmojiPicker && (
+                    <div className="absolute z-50 bottom-full left-0 mb-2 w-72 sm:w-80 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl p-3 animate-in fade-in zoom-in-95 duration-100">
+                      <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100 dark:border-slate-800">
+                        <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                          Add Emoji
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setShowPostEmojiPicker(false)}
+                          className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-0.5 rounded-md transition-colors cursor-pointer"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
+                      <div className="grid grid-cols-8 gap-1 max-h-48 overflow-y-auto p-1 custom-scrollbar">
+                        {POST_EMOJIS.map((emoji, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => handleInsertEmoji(emoji)}
+                            className="w-8 h-8 rounded-lg flex items-center justify-center text-lg hover:bg-purple-50 dark:hover:bg-purple-950/50 hover:scale-115 active:scale-90 transition-all cursor-pointer select-none"
+                          >
+                            {emoji}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-700/60">
