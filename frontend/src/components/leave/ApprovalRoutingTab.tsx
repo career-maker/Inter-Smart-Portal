@@ -67,6 +67,43 @@ const createDefaultThreeCards = (): {
   },
 });
 
+export const getCcCount = (card?: RoleApprovalRule | null): number => {
+  if (!card) return 0;
+  const ids = card.cc_user_ids || [];
+  const emails = card.cc_emails || [];
+  return Math.max(ids.length, emails.length);
+};
+
+export const normalizeCard = (card: RoleApprovalRule, allUsers: any[]): RoleApprovalRule => {
+  const existingIds = new Set((card.cc_user_ids || []).map(Number));
+  const existingEmails = new Set((card.cc_emails || []).map((e) => String(e).trim().toLowerCase()));
+
+  // Map any emails in cc_emails to user IDs
+  allUsers.forEach((u) => {
+    if (u.email && existingEmails.has(u.email.toLowerCase().trim())) {
+      existingIds.add(Number(u.id));
+    }
+  });
+
+  // Map any IDs in cc_user_ids to user emails
+  allUsers.forEach((u) => {
+    if (existingIds.has(Number(u.id)) && u.email) {
+      existingEmails.add(u.email.toLowerCase().trim());
+    }
+  });
+
+  const finalEmails = Array.from(existingEmails).map((em) => {
+    const match = allUsers.find((u) => u.email?.toLowerCase().trim() === em);
+    return match?.email?.trim() || em;
+  });
+
+  return {
+    ...card,
+    cc_user_ids: Array.from(existingIds),
+    cc_emails: finalEmails,
+  };
+};
+
 interface ThreeCardsEditorProps {
   wfh: RoleApprovalRule;
   leaveSingle: RoleApprovalRule;
@@ -140,30 +177,28 @@ function ThreeCardsEditor({
     const userId = Number(targetUser.id);
     const userEmail = (targetUser.email || "").trim().toLowerCase();
 
-    const existingIds = (currentRule.cc_user_ids || []).map(Number);
-    const existingEmails = (currentRule.cc_emails || []).map((e) => String(e).trim());
+    const existingIds = new Set((currentRule.cc_user_ids || []).map(Number));
+    const existingEmails = new Set((currentRule.cc_emails || []).map((e) => String(e).trim().toLowerCase()));
 
-    const isCheckedById = existingIds.includes(userId);
-    const isCheckedByEmail = userEmail ? existingEmails.some((e) => e.toLowerCase() === userEmail) : false;
-    const isChecked = isCheckedById || isCheckedByEmail;
-
-    let newIds: number[];
-    let newEmails: string[];
+    const isChecked = existingIds.has(userId) || (Boolean(userEmail) && existingEmails.has(userEmail));
 
     if (isChecked) {
-      newIds = existingIds.filter((id) => id !== userId);
-      newEmails = existingEmails.filter((em) => em.toLowerCase() !== userEmail);
+      existingIds.delete(userId);
+      if (userEmail) existingEmails.delete(userEmail);
     } else {
-      newIds = Array.from(new Set([...existingIds, userId]));
-      newEmails = userEmail
-        ? Array.from(new Set([...existingEmails, targetUser.email.trim()]))
-        : existingEmails;
+      existingIds.add(userId);
+      if (userEmail) existingEmails.add(userEmail);
     }
+
+    const finalEmails = Array.from(existingEmails).map((em) => {
+      const match = users.find((u) => u.email?.toLowerCase().trim() === em);
+      return match?.email?.trim() || em;
+    });
 
     updater({
       ...currentRule,
-      cc_user_ids: newIds,
-      cc_emails: newEmails,
+      cc_user_ids: Array.from(existingIds),
+      cc_emails: finalEmails,
     });
   };
 
@@ -311,7 +346,7 @@ function ThreeCardsEditor({
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
             <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-              CC Accounts ({rule.cc_user_ids?.length || 0})
+              CC Accounts ({getCcCount(rule)})
             </label>
             {(rule.cc_user_ids?.length > 0 || (rule.cc_emails?.length || 0) > 0) && (
               <button
@@ -729,22 +764,26 @@ export default function ApprovalRoutingTab() {
 
   // ── Team Lead Custom Rule Modal Handlers ──
   const openNewTlRuleModal = () => {
+    const defaults = createDefaultThreeCards();
     setTlModalForm({
       id: "tl_rule_" + Date.now(),
       name: "",
       team_lead_ids: [],
-      ...createDefaultThreeCards(),
+      wfh: normalizeCard(defaults.wfh, users),
+      leave_single_day: normalizeCard(defaults.leave_single_day, users),
+      leave_multi_day: normalizeCard(defaults.leave_multi_day, users),
       enabled: true,
     });
     setIsTlModalOpen(true);
   };
 
   const openEditTlRuleModal = (rule: TeamLeadApprovalRuleGroup) => {
+    const defaults = createDefaultThreeCards();
     setTlModalForm({
       ...rule,
-      wfh: { ...createDefaultThreeCards().wfh, ...(rule.wfh || {}) },
-      leave_single_day: { ...createDefaultThreeCards().leave_single_day, ...(rule.leave_single_day || {}) },
-      leave_multi_day: { ...createDefaultThreeCards().leave_multi_day, ...(rule.leave_multi_day || {}) },
+      wfh: normalizeCard({ ...defaults.wfh, ...(rule.wfh || {}) }, users),
+      leave_single_day: normalizeCard({ ...defaults.leave_single_day, ...(rule.leave_single_day || {}) }, users),
+      leave_multi_day: normalizeCard({ ...defaults.leave_multi_day, ...(rule.leave_multi_day || {}) }, users),
     });
     setIsTlModalOpen(true);
   };
@@ -817,23 +856,27 @@ export default function ApprovalRoutingTab() {
 
   // ── Employee Rule Modal Handlers ──
   const openNewEmpRuleModal = () => {
+    const defaults = createDefaultThreeCards();
     setEmpModalForm({
       id: "emp_rule_" + Date.now(),
       name: "",
       user_ids: [],
-      ...createDefaultThreeCards(),
+      wfh: normalizeCard(defaults.wfh, users),
+      leave_single_day: normalizeCard(defaults.leave_single_day, users),
+      leave_multi_day: normalizeCard(defaults.leave_multi_day, users),
       enabled: true,
     });
     setIsEmpModalOpen(true);
   };
 
   const openEditEmpRuleModal = (rule: EmployeeApprovalRuleGroup) => {
+    const defaults = createDefaultThreeCards();
     setEmpModalForm({
       ...rule,
-      user_ids: rule.user_ids || (rule as any).user_id ? [(rule as any).user_id] : [],
-      wfh: { ...createDefaultThreeCards().wfh, ...(rule.wfh || {}) },
-      leave_single_day: { ...createDefaultThreeCards().leave_single_day, ...(rule.leave_single_day || {}) },
-      leave_multi_day: { ...createDefaultThreeCards().leave_multi_day, ...(rule.leave_multi_day || {}) },
+      user_ids: rule.user_ids || ((rule as any).user_id ? [(rule as any).user_id] : []),
+      wfh: normalizeCard({ ...defaults.wfh, ...(rule.wfh || {}) }, users),
+      leave_single_day: normalizeCard({ ...defaults.leave_single_day, ...(rule.leave_single_day || {}) }, users),
+      leave_multi_day: normalizeCard({ ...defaults.leave_multi_day, ...(rule.leave_multi_day || {}) }, users),
     });
     setIsEmpModalOpen(true);
   };
@@ -1139,7 +1182,7 @@ export default function ApprovalRoutingTab() {
                           </div>
                           <div className="text-[11px] text-slate-400">
                             {rule.wfh?.approval_level === "multi" ? "Multi-Level" : "Single-Level"} •{" "}
-                            {rule.wfh?.cc_user_ids?.length || 0} CC(s)
+                            {getCcCount(rule.wfh)} CC(s)
                           </div>
                         </div>
 
@@ -1178,7 +1221,7 @@ export default function ApprovalRoutingTab() {
                             {rule.leave_single_day?.approval_level === "multi"
                               ? "Multi-Level"
                               : "Single-Level"}{" "}
-                            • {rule.leave_single_day?.cc_user_ids?.length || 0} CC(s)
+                            • {getCcCount(rule.leave_single_day)} CC(s)
                           </div>
                         </div>
 
@@ -1217,7 +1260,7 @@ export default function ApprovalRoutingTab() {
                             {rule.leave_multi_day?.approval_level === "multi"
                               ? "Multi-Level"
                               : "Single-Level"}{" "}
-                            • {rule.leave_multi_day?.cc_user_ids?.length || 0} CC(s)
+                            • {getCcCount(rule.leave_multi_day)} CC(s)
                           </div>
                         </div>
                       </div>
@@ -1388,7 +1431,7 @@ export default function ApprovalRoutingTab() {
                         </div>
                         <div className="text-[11px] text-slate-400">
                           {rule.wfh?.approval_level === "multi" ? "Multi-Level" : "Single-Level"} •{" "}
-                          {rule.wfh?.cc_user_ids?.length || 0} CC(s)
+                          {getCcCount(rule.wfh)} CC(s)
                         </div>
                       </div>
 
@@ -1427,7 +1470,7 @@ export default function ApprovalRoutingTab() {
                           {rule.leave_single_day?.approval_level === "multi"
                             ? "Multi-Level"
                             : "Single-Level"}{" "}
-                          • {rule.leave_single_day?.cc_user_ids?.length || 0} CC(s)
+                          • {getCcCount(rule.leave_single_day)} CC(s)
                         </div>
                       </div>
 
@@ -1443,7 +1486,7 @@ export default function ApprovalRoutingTab() {
                               rule.leave_multi_day?.enabled
                                 ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
                                 : "bg-slate-200 text-slate-600 dark:bg-slate-700"
-                              }`}
+                            }`}
                           >
                             {rule.leave_multi_day?.enabled ? "Enabled" : "Disabled"}
                           </span>
@@ -1466,7 +1509,7 @@ export default function ApprovalRoutingTab() {
                           {rule.leave_multi_day?.approval_level === "multi"
                             ? "Multi-Level"
                             : "Single-Level"}{" "}
-                          • {rule.leave_multi_day?.cc_user_ids?.length || 0} CC(s)
+                          • {getCcCount(rule.leave_multi_day)} CC(s)
                         </div>
                       </div>
                     </div>

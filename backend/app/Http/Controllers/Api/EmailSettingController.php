@@ -265,10 +265,10 @@ class EmailSettingController extends Controller
         ]);
 
         $cleaned = [
-            'role_rules' => $validated['role_rules'] ?? [],
-            'team_lead_rules' => $validated['team_lead_rules'] ?? [],
-            'department_rules' => $validated['department_rules'] ?? [],
-            'employee_rules' => $validated['employee_rules'] ?? [],
+            'role_rules' => $request->input('role_rules', []),
+            'team_lead_rules' => $request->input('team_lead_rules', []),
+            'department_rules' => $request->input('department_rules', []),
+            'employee_rules' => $request->input('employee_rules', []),
         ];
 
         try {
