@@ -28,6 +28,7 @@ import emailSettingsApi, {
   TeamLeadApprovalRuleGroup,
   EmployeeApprovalRuleGroup,
 } from "@/services/emailSettings";
+import { Portal } from "@/components/ui/portal";
 
 const createDefaultThreeCards = (): {
   wfh: RoleApprovalRule;
@@ -779,6 +780,17 @@ export default function ApprovalRoutingTab() {
     fetchData();
   }, [fetchData]);
 
+  useEffect(() => {
+    if (isTlModalOpen || isEmpModalOpen) {
+      document.body.classList.add("side-popup-open");
+    } else {
+      document.body.classList.remove("side-popup-open");
+    }
+    return () => {
+      document.body.classList.remove("side-popup-open");
+    };
+  }, [isTlModalOpen, isEmpModalOpen]);
+
   // Compute all team leads assigned in any custom Team Lead rule
   const assignedTeamLeadIds = useMemo(() => {
     const ids = new Set<number>();
@@ -1502,217 +1514,253 @@ export default function ApprovalRoutingTab() {
       )}
 
       {/* ══════════════════════════════════════════════════════════════
-          MODAL: TEAM LEAD ROUTING RULE (WITH MULTI-SELECT TLs & 3 CARDS)
+          SIDE POPUP DRAWER: TEAM LEAD ROUTING RULE
       ══════════════════════════════════════════════════════════════ */}
       {isTlModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-5xl w-full p-6 space-y-5 border border-slate-200 dark:border-slate-800 shadow-2xl my-8 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-              <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300">
-                  <ShieldCheck className="w-5 h-5" />
+        <Portal>
+          <div className="fixed inset-0 z-[99999] overflow-hidden font-sans" data-side-popup="true">
+            {/* Backdrop */}
+            <div
+              onClick={() => setIsTlModalOpen(false)}
+              className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+            />
+
+            {/* Side Drawer */}
+            <div
+              data-side-popup="true"
+              className="fixed inset-y-0 right-0 w-full sm:w-[680px] md:w-[820px] lg:w-[980px] xl:w-[1100px] max-w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-[99999] animate-in slide-in-from-right duration-300 overflow-hidden"
+            >
+              {/* Sticky Top Header */}
+              <div className="p-4 px-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300">
+                    <ShieldCheck className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                      {tlModalForm.id.includes(Date.now().toString().slice(0, 5))
+                        ? "Create Separate Rule for Team Leads"
+                        : "Edit Team Lead Routing Rule"}
+                    </h3>
+                    <p className="text-[11px] text-slate-400">
+                      Check specific Team Lead names and configure their 3 routing cards
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                    {tlModalForm.id.includes(Date.now().toString().slice(0, 5))
-                      ? "Create Separate Rule for Team Leads"
-                      : "Edit Team Lead Routing Rule"}
-                  </h3>
-                  <span className="text-[11px] text-slate-400">
-                    Check specific Team Lead names and configure their 3 routing cards
-                  </span>
+
+                <button
+                  type="button"
+                  onClick={() => setIsTlModalOpen(false)}
+                  className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Scrollable Content Body */}
+              <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                {/* Rule Name / Label */}
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Rule Label (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Frontend Team Leads Routing or Senior TLs"
+                    value={tlModalForm.name || ""}
+                    onChange={(e) => setTlModalForm({ ...tlModalForm, name: e.target.value })}
+                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#56348f]"
+                  />
+                </div>
+
+                {/* Check Team Lead Names (Search & Multi-Select) */}
+                <MultiSelectUserPicker
+                  availableUsers={teamLeads.length > 0 ? teamLeads : users}
+                  selectedIds={tlModalForm.team_lead_ids}
+                  onChangeSelectedIds={(ids) => setTlModalForm({ ...tlModalForm, team_lead_ids: ids })}
+                  title="Select Team Leads for this Rule"
+                  placeholder="Search team lead by name, code or email..."
+                  emptyNotice="No team leads found."
+                />
+
+                {/* The 3 Cards for Team Lead Routing */}
+                <div className="space-y-2 pt-2">
+                  <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+                    Routing Cards for Selected Team Leads
+                  </h4>
+                  <ThreeCardsEditor
+                    wfh={tlModalForm.wfh}
+                    leaveSingle={tlModalForm.leave_single_day}
+                    leaveMulti={tlModalForm.leave_multi_day}
+                    users={users}
+                    onChangeWfh={(f, v) =>
+                      setTlModalForm({
+                        ...tlModalForm,
+                        wfh: { ...tlModalForm.wfh, [f]: v },
+                      })
+                    }
+                    onChangeLeaveSingle={(f, v) =>
+                      setTlModalForm({
+                        ...tlModalForm,
+                        leave_single_day: { ...tlModalForm.leave_single_day, [f]: v },
+                      })
+                    }
+                    onChangeLeaveMulti={(f, v) =>
+                      setTlModalForm({
+                        ...tlModalForm,
+                        leave_multi_day: { ...tlModalForm.leave_multi_day, [f]: v },
+                      })
+                    }
+                  />
                 </div>
               </div>
 
-              <button
-                onClick={() => setIsTlModalOpen(false)}
-                className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Rule Name / Label */}
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                Rule Label (Optional)
-              </label>
-              <input
-                type="text"
-                placeholder="e.g. Frontend Team Leads Routing or Senior TLs"
-                value={tlModalForm.name || ""}
-                onChange={(e) => setTlModalForm({ ...tlModalForm, name: e.target.value })}
-                className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#56348f]"
-              />
-            </div>
-
-            {/* Check Team Lead Names (Search & Multi-Select) */}
-            <MultiSelectUserPicker
-              availableUsers={teamLeads.length > 0 ? teamLeads : users}
-              selectedIds={tlModalForm.team_lead_ids}
-              onChangeSelectedIds={(ids) => setTlModalForm({ ...tlModalForm, team_lead_ids: ids })}
-              title="Select Team Leads for this Rule"
-              placeholder="Search team lead by name, code or email..."
-              emptyNotice="No team leads found."
-            />
-
-            {/* The 3 Cards for Team Lead Routing */}
-            <div className="space-y-2 pt-2">
-              <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-                Routing Cards for Selected Team Leads
-              </h4>
-              <ThreeCardsEditor
-                wfh={tlModalForm.wfh}
-                leaveSingle={tlModalForm.leave_single_day}
-                leaveMulti={tlModalForm.leave_multi_day}
-                users={users}
-                onChangeWfh={(f, v) =>
-                  setTlModalForm({
-                    ...tlModalForm,
-                    wfh: { ...tlModalForm.wfh, [f]: v },
-                  })
-                }
-                onChangeLeaveSingle={(f, v) =>
-                  setTlModalForm({
-                    ...tlModalForm,
-                    leave_single_day: { ...tlModalForm.leave_single_day, [f]: v },
-                  })
-                }
-                onChangeLeaveMulti={(f, v) =>
-                  setTlModalForm({
-                    ...tlModalForm,
-                    leave_multi_day: { ...tlModalForm.leave_multi_day, [f]: v },
-                  })
-                }
-              />
-            </div>
-
-            <div className="flex justify-end gap-2.5 pt-4 border-t border-slate-100 dark:border-slate-800">
-              <button
-                type="button"
-                onClick={() => setIsTlModalOpen(false)}
-                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={saveTlRuleModal}
-                className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold bg-[#56348f] text-white hover:bg-[#462875] shadow-md shadow-purple-900/20"
-              >
-                <Check className="w-4 h-4" />
-                <span>Save Team Lead Rule</span>
-              </button>
+              {/* Sticky Bottom Actions */}
+              <div className="p-4 px-6 border-t border-slate-100 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xs flex items-center justify-end gap-3 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setIsTlModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={saveTlRuleModal}
+                  className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold bg-[#56348f] text-white hover:bg-[#462875] shadow-md shadow-purple-900/20 cursor-pointer"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>Save Team Lead Rule</span>
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </Portal>
       )}
 
       {/* ══════════════════════════════════════════════════════════════
-          MODAL: EMPLOYEE ROUTING RULE (WITH SEARCH & MULTI-SELECT & 3 CARDS)
+          SIDE POPUP DRAWER: EMPLOYEE ROUTING RULE
       ══════════════════════════════════════════════════════════════ */}
       {isEmpModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-5xl w-full p-6 space-y-5 border border-slate-200 dark:border-slate-800 shadow-2xl my-8 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-              <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300">
-                  <UserPlus className="w-5 h-5" />
+        <Portal>
+          <div className="fixed inset-0 z-[99999] overflow-hidden font-sans" data-side-popup="true">
+            {/* Backdrop */}
+            <div
+              onClick={() => setIsEmpModalOpen(false)}
+              className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+            />
+
+            {/* Side Drawer */}
+            <div
+              data-side-popup="true"
+              className="fixed inset-y-0 right-0 w-full sm:w-[680px] md:w-[820px] lg:w-[980px] xl:w-[1100px] max-w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between border-l border-slate-200 dark:border-slate-800 z-[99999] animate-in slide-in-from-right duration-300 overflow-hidden"
+            >
+              {/* Sticky Top Header */}
+              <div className="p-4 px-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300">
+                    <UserPlus className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                      {empModalForm.id.includes(Date.now().toString().slice(0, 5))
+                        ? "Create Employee-Wise Routing Rule"
+                        : "Edit Employee-Wise Routing Rule"}
+                    </h3>
+                    <p className="text-[11px] text-slate-400">
+                      Choose employee names (multi-select) and configure the 3 routing cards
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                    {empModalForm.id.includes(Date.now().toString().slice(0, 5))
-                      ? "Create Employee-Wise Routing Rule"
-                      : "Edit Employee-Wise Routing Rule"}
-                  </h3>
-                  <span className="text-[11px] text-slate-400">
-                    Choose employee names (multi-select) and configure the 3 routing cards
-                  </span>
+
+                <button
+                  type="button"
+                  onClick={() => setIsEmpModalOpen(false)}
+                  className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Scrollable Content Body */}
+              <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                {/* Rule Name / Label */}
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Rule Label (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Marketing Executives or Trainee Staff Routing"
+                    value={empModalForm.name || ""}
+                    onChange={(e) => setEmpModalForm({ ...empModalForm, name: e.target.value })}
+                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#56348f]"
+                  />
+                </div>
+
+                {/* Check Employee Names (Search & Multi-Select with Team Lead Filter) */}
+                <MultiSelectUserPicker
+                  availableUsers={eligibleEmployeesForEmployeeWise}
+                  selectedIds={empModalForm.user_ids}
+                  onChangeSelectedIds={(ids) => setEmpModalForm({ ...empModalForm, user_ids: ids })}
+                  title="Select Employees for this Rule"
+                  placeholder="Search employee by name, code or email..."
+                  emptyNotice="No eligible employees found (Team Leads already added in Role-Wise are excluded)."
+                />
+
+                {/* The SAME 3 CARDS as in Role-Wise (Team Leads) */}
+                <div className="space-y-2 pt-2">
+                  <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+                    Routing Cards for Selected Employees
+                  </h4>
+                  <ThreeCardsEditor
+                    wfh={empModalForm.wfh}
+                    leaveSingle={empModalForm.leave_single_day}
+                    leaveMulti={empModalForm.leave_multi_day}
+                    users={users}
+                    onChangeWfh={(f, v) =>
+                      setEmpModalForm({
+                        ...empModalForm,
+                        wfh: { ...empModalForm.wfh, [f]: v },
+                      })
+                    }
+                    onChangeLeaveSingle={(f, v) =>
+                      setEmpModalForm({
+                        ...empModalForm,
+                        leave_single_day: { ...empModalForm.leave_single_day, [f]: v },
+                      })
+                    }
+                    onChangeLeaveMulti={(f, v) =>
+                      setEmpModalForm({
+                        ...empModalForm,
+                        leave_multi_day: { ...empModalForm.leave_multi_day, [f]: v },
+                      })
+                    }
+                  />
                 </div>
               </div>
 
-              <button
-                onClick={() => setIsEmpModalOpen(false)}
-                className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Rule Name / Label */}
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                Rule Label (Optional)
-              </label>
-              <input
-                type="text"
-                placeholder="e.g. Marketing Executives or Trainee Staff Routing"
-                value={empModalForm.name || ""}
-                onChange={(e) => setEmpModalForm({ ...empModalForm, name: e.target.value })}
-                className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#56348f]"
-              />
-            </div>
-
-            {/* Check Employee Names (Search & Multi-Select with Team Lead Filter) */}
-            <MultiSelectUserPicker
-              availableUsers={eligibleEmployeesForEmployeeWise}
-              selectedIds={empModalForm.user_ids}
-              onChangeSelectedIds={(ids) => setEmpModalForm({ ...empModalForm, user_ids: ids })}
-              title="Select Employees for this Rule"
-              placeholder="Search employee by name, code or email..."
-              emptyNotice="No eligible employees found (Team Leads already added in Role-Wise are excluded)."
-            />
-
-            {/* The SAME 3 CARDS as in Role-Wise (Team Leads) */}
-            <div className="space-y-2 pt-2">
-              <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-                Routing Cards for Selected Employees
-              </h4>
-              <ThreeCardsEditor
-                wfh={empModalForm.wfh}
-                leaveSingle={empModalForm.leave_single_day}
-                leaveMulti={empModalForm.leave_multi_day}
-                users={users}
-                onChangeWfh={(f, v) =>
-                  setEmpModalForm({
-                    ...empModalForm,
-                    wfh: { ...empModalForm.wfh, [f]: v },
-                  })
-                }
-                onChangeLeaveSingle={(f, v) =>
-                  setEmpModalForm({
-                    ...empModalForm,
-                    leave_single_day: { ...empModalForm.leave_single_day, [f]: v },
-                  })
-                }
-                onChangeLeaveMulti={(f, v) =>
-                  setEmpModalForm({
-                    ...empModalForm,
-                    leave_multi_day: { ...empModalForm.leave_multi_day, [f]: v },
-                  })
-                }
-              />
-            </div>
-
-            <div className="flex justify-end gap-2.5 pt-4 border-t border-slate-100 dark:border-slate-800">
-              <button
-                type="button"
-                onClick={() => setIsEmpModalOpen(false)}
-                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={saveEmpRuleModal}
-                className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold bg-[#56348f] text-white hover:bg-[#462875] shadow-md shadow-purple-900/20"
-              >
-                <Check className="w-4 h-4" />
-                <span>Save Employee Rule</span>
-              </button>
+              {/* Sticky Bottom Actions */}
+              <div className="p-4 px-6 border-t border-slate-100 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xs flex items-center justify-end gap-3 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setIsEmpModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={saveEmpRuleModal}
+                  className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold bg-[#56348f] text-white hover:bg-[#462875] shadow-md shadow-purple-900/20 cursor-pointer"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>Save Employee Rule</span>
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </Portal>
       )}
     </div>
   );
