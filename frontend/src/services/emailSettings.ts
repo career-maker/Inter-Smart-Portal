@@ -52,6 +52,8 @@ export interface EmailSettingsResponse {
 export interface RoleApprovalRule {
   to_user_id: number | null;
   to_email: string | null;
+  to_user_id_2?: number | null;
+  to_email_2?: string | null;
   cc_user_ids: number[];
   cc_emails: string[];
   approval_level: "single" | "multi";

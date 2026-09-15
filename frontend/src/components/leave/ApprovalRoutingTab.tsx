@@ -38,6 +38,8 @@ const createDefaultThreeCards = (): {
   wfh: {
     to_user_id: null,
     to_email: null,
+    to_user_id_2: null,
+    to_email_2: "admin@intersmart.in",
     cc_user_ids: [],
     cc_emails: ["hr@intersmart.in", "admin@intersmart.in"],
     approval_level: "multi",
@@ -46,6 +48,8 @@ const createDefaultThreeCards = (): {
   leave_single_day: {
     to_user_id: null,
     to_email: null,
+    to_user_id_2: null,
+    to_email_2: "admin@intersmart.in",
     cc_user_ids: [],
     cc_emails: ["hr@intersmart.in", "admin@intersmart.in"],
     approval_level: "single",
@@ -54,6 +58,8 @@ const createDefaultThreeCards = (): {
   leave_multi_day: {
     to_user_id: null,
     to_email: null,
+    to_user_id_2: null,
+    to_email_2: "admin@intersmart.in",
     cc_user_ids: [],
     cc_emails: ["hr@intersmart.in", "admin@intersmart.in"],
     approval_level: "multi",
@@ -66,9 +72,9 @@ interface ThreeCardsEditorProps {
   leaveSingle: RoleApprovalRule;
   leaveMulti: RoleApprovalRule;
   users: any[];
-  onChangeWfh: (field: keyof RoleApprovalRule, val: any) => void;
-  onChangeLeaveSingle: (field: keyof RoleApprovalRule, val: any) => void;
-  onChangeLeaveMulti: (field: keyof RoleApprovalRule, val: any) => void;
+  onUpdateWfh: (updated: RoleApprovalRule) => void;
+  onUpdateLeaveSingle: (updated: RoleApprovalRule) => void;
+  onUpdateLeaveMulti: (updated: RoleApprovalRule) => void;
 }
 
 function ThreeCardsEditor({
@@ -76,45 +82,89 @@ function ThreeCardsEditor({
   leaveSingle,
   leaveMulti,
   users,
-  onChangeWfh,
-  onChangeLeaveSingle,
-  onChangeLeaveMulti,
+  onUpdateWfh,
+  onUpdateLeaveSingle,
+  onUpdateLeaveMulti,
 }: ThreeCardsEditorProps) {
   const [ccSearchWfh, setCcSearchWfh] = useState("");
   const [ccSearchSingle, setCcSearchSingle] = useState("");
   const [ccSearchMulti, setCcSearchMulti] = useState("");
 
   const handleToAccount = (
-    setter: (field: keyof RoleApprovalRule, val: any) => void,
+    currentRule: RoleApprovalRule,
+    updater: (updated: RoleApprovalRule) => void,
     userId: number | null
   ) => {
-    setter("to_user_id", userId);
-    const u = users.find((usr) => usr.id === userId);
-    setter("to_email", u?.email || null);
+    if (!userId || userId === 0) {
+      updater({
+        ...currentRule,
+        to_user_id: null,
+        to_email: null,
+      });
+      return;
+    }
+    const u = users.find((usr) => Number(usr.id) === Number(userId));
+    updater({
+      ...currentRule,
+      to_user_id: userId,
+      to_email: u?.email || null,
+    });
+  };
+
+  const handleToAccount2 = (
+    currentRule: RoleApprovalRule,
+    updater: (updated: RoleApprovalRule) => void,
+    userId: number | null
+  ) => {
+    if (!userId || userId === 0) {
+      updater({
+        ...currentRule,
+        to_user_id_2: null,
+        to_email_2: "admin@intersmart.in",
+      });
+      return;
+    }
+    const u = users.find((usr) => Number(usr.id) === Number(userId));
+    updater({
+      ...currentRule,
+      to_user_id_2: userId,
+      to_email_2: u?.email || "admin@intersmart.in",
+    });
   };
 
   const toggleCc = (
     currentRule: RoleApprovalRule,
-    setter: (field: keyof RoleApprovalRule, val: any) => void,
-    userId: number
+    updater: (updated: RoleApprovalRule) => void,
+    targetUser: any
   ) => {
-    const u = users.find((usr) => usr.id === userId);
-    const existingIds = currentRule.cc_user_ids || [];
-    const existingEmails = currentRule.cc_emails || [];
-    const isSelected = existingIds.includes(userId);
+    const userId = Number(targetUser.id);
+    const userEmail = (targetUser.email || "").trim().toLowerCase();
 
-    const newIds = isSelected
-      ? existingIds.filter((id) => id !== userId)
-      : [...existingIds, userId];
+    const existingIds = (currentRule.cc_user_ids || []).map(Number);
+    const existingEmails = (currentRule.cc_emails || []).map((e) => String(e).trim());
 
-    const newEmails = isSelected
-      ? existingEmails.filter((em) => em !== u?.email)
-      : u?.email
-      ? [...existingEmails, u.email]
-      : existingEmails;
+    const isCheckedById = existingIds.includes(userId);
+    const isCheckedByEmail = userEmail ? existingEmails.some((e) => e.toLowerCase() === userEmail) : false;
+    const isChecked = isCheckedById || isCheckedByEmail;
 
-    setter("cc_user_ids", newIds);
-    setter("cc_emails", Array.from(new Set(newEmails)));
+    let newIds: number[];
+    let newEmails: string[];
+
+    if (isChecked) {
+      newIds = existingIds.filter((id) => id !== userId);
+      newEmails = existingEmails.filter((em) => em.toLowerCase() !== userEmail);
+    } else {
+      newIds = Array.from(new Set([...existingIds, userId]));
+      newEmails = userEmail
+        ? Array.from(new Set([...existingEmails, targetUser.email.trim()]))
+        : existingEmails;
+    }
+
+    updater({
+      ...currentRule,
+      cc_user_ids: newIds,
+      cc_emails: newEmails,
+    });
   };
 
   const filterUsers = (query: string) => {
@@ -129,415 +179,231 @@ function ThreeCardsEditor({
     );
   };
 
+  // Helper renderer for a single rule card
+  const renderCard = (
+    title: string,
+    subtitle: string,
+    icon: React.ReactNode,
+    rule: RoleApprovalRule,
+    updater: (updated: RoleApprovalRule) => void,
+    ccSearch: string,
+    setCcSearch: (s: string) => void
+  ) => {
+    const isMulti = rule.approval_level === "multi";
+    return (
+      <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
+        {/* Card Header & Enabled Switch */}
+        <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+              {icon}
+            </div>
+            <div>
+              <h4 className="text-xs font-bold text-slate-900 dark:text-white">{title}</h4>
+              <span className="text-[11px] text-slate-400">{subtitle}</span>
+            </div>
+          </div>
+
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={rule.enabled ?? true}
+              onChange={(e) => updater({ ...rule, enabled: e.target.checked })}
+              className="sr-only peer"
+            />
+            <div className="w-8 h-4 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#56348f]"></div>
+          </label>
+        </div>
+
+        {/* Approval Level Toggle */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+            <span>Approval Level</span>
+            <span
+              className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                isMulti
+                  ? "bg-purple-100 text-purple-700 dark:bg-purple-900/60 dark:text-purple-300"
+                  : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
+              }`}
+            >
+              {isMulti ? "Multi-Level (2 Approvers)" : "Single-Level"}
+            </span>
+          </label>
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            <button
+              type="button"
+              onClick={() =>
+                updater({
+                  ...rule,
+                  approval_level: "multi",
+                  to_user_id_2: rule.to_user_id_2 ?? null,
+                  to_email_2: rule.to_email_2 || "admin@intersmart.in",
+                })
+              }
+              className={`py-1.5 px-2 rounded-xl font-semibold border text-center transition-all cursor-pointer ${
+                isMulti
+                  ? "bg-purple-50 text-[#56348f] border-purple-300 dark:bg-purple-950/40 dark:border-purple-800"
+                  : "border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-400"
+              }`}
+            >
+              Multi-Level
+            </button>
+            <button
+              type="button"
+              onClick={() => updater({ ...rule, approval_level: "single" })}
+              className={`py-1.5 px-2 rounded-xl font-semibold border text-center transition-all cursor-pointer ${
+                !isMulti
+                  ? "bg-purple-50 text-[#56348f] border-purple-300 dark:bg-purple-950/40 dark:border-purple-800"
+                  : "border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-400"
+              }`}
+            >
+              Single-Level
+            </button>
+          </div>
+        </div>
+
+        {/* Primary TO Account (Level 1 Approver) */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+            Primary Approver {isMulti ? "(Level 1)" : ""}
+          </label>
+          <select
+            value={rule.to_user_id || 0}
+            onChange={(e) => handleToAccount(rule, updater, Number(e.target.value) || null)}
+            className="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#56348f]"
+          >
+            <option value={0}>-- Direct to Super Admin (admin@intersmart.in) --</option>
+            {users.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.first_name} {u.last_name} ({u.employee_code || `ID ${u.id}`}) — {u.email}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Second TO Account (Level 2 Approver - Default Super Admin) */}
+        {isMulti && (
+          <div className="space-y-1.5 p-2.5 rounded-xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-200/70 dark:border-purple-800/50">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                Second Approver (Level 2)
+              </label>
+              <span className="text-[10px] font-semibold text-[#56348f] dark:text-purple-300">
+                Default: Super Admin
+              </span>
+            </div>
+            <select
+              value={rule.to_user_id_2 || 0}
+              onChange={(e) => handleToAccount2(rule, updater, Number(e.target.value) || null)}
+              className="w-full px-3 py-2 rounded-xl text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#56348f]"
+            >
+              <option value={0}>-- Super Admin (admin@intersmart.in) [Default] --</option>
+              {users.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.first_name} {u.last_name} ({u.employee_code || `ID ${u.id}`}) — {u.email}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {/* CC Accounts */}
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+              CC Accounts ({rule.cc_user_ids?.length || 0})
+            </label>
+            {(rule.cc_user_ids?.length > 0 || (rule.cc_emails?.length || 0) > 0) && (
+              <button
+                type="button"
+                onClick={() =>
+                  updater({
+                    ...rule,
+                    cc_user_ids: [],
+                    cc_emails: [],
+                  })
+                }
+                className="text-[10px] text-rose-500 hover:underline cursor-pointer"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+          <div className="relative">
+            <Search className="w-3 h-3 absolute left-2.5 top-2.5 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search user to CC..."
+              value={ccSearch}
+              onChange={(e) => setCcSearch(e.target.value)}
+              className="w-full pl-7 pr-3 py-1.5 rounded-lg text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#56348f]"
+            />
+          </div>
+          <div className="max-h-36 overflow-y-auto space-y-1 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+            {filterUsers(ccSearch).slice(0, 50).map((u) => {
+              const userEmail = (u.email || "").trim().toLowerCase();
+              const isChecked =
+                (rule.cc_user_ids || []).map(Number).includes(Number(u.id)) ||
+                (Boolean(userEmail) &&
+                  (rule.cc_emails || []).some((em) => String(em).trim().toLowerCase() === userEmail));
+
+              return (
+                <div
+                  key={u.id}
+                  onClick={() => toggleCc(rule, updater, u)}
+                  className={`flex items-center gap-2 text-[11px] p-1.5 rounded-lg cursor-pointer select-none transition-colors ${
+                    isChecked
+                      ? "bg-purple-100/70 text-[#56348f] dark:bg-purple-950/60 dark:text-purple-300 font-semibold"
+                      : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50"
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={isChecked}
+                    onChange={() => {}}
+                    className="rounded text-[#56348f] focus:ring-[#56348f] pointer-events-none"
+                  />
+                  <span className="truncate">
+                    {u.first_name} {u.last_name} ({u.email})
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-      {/* ── CARD 1: WFH Request ── */}
-      <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
-        <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-800">
-              <Home className="w-4 h-4" />
-            </div>
-            <div>
-              <h4 className="text-xs font-bold text-slate-900 dark:text-white">WFH Request</h4>
-              <span className="text-[11px] text-slate-400">Work from home remote routing</span>
-            </div>
-          </div>
-
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              checked={wfh.enabled ?? true}
-              onChange={(e) => onChangeWfh("enabled", e.target.checked)}
-              className="sr-only peer"
-            />
-            <div className="w-8 h-4 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#56348f]"></div>
-          </label>
-        </div>
-
-        {/* Approval Level Toggle */}
-        <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
-            <span>Approval Level</span>
-            <span
-              className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                wfh.approval_level === "multi"
-                  ? "bg-purple-100 text-purple-700 dark:bg-purple-900/60 dark:text-purple-300"
-                  : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
-              }`}
-            >
-              {wfh.approval_level === "multi" ? "Multi-Level (Approver + Admin)" : "Single-Level"}
-            </span>
-          </label>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <button
-              type="button"
-              onClick={() => onChangeWfh("approval_level", "multi")}
-              className={`py-1.5 px-2 rounded-xl font-semibold border text-center transition-all ${
-                wfh.approval_level === "multi"
-                  ? "bg-purple-50 text-[#56348f] border-purple-300 dark:bg-purple-950/40 dark:border-purple-800"
-                  : "border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-400"
-              }`}
-            >
-              Multi-Level
-            </button>
-            <button
-              type="button"
-              onClick={() => onChangeWfh("approval_level", "single")}
-              className={`py-1.5 px-2 rounded-xl font-semibold border text-center transition-all ${
-                wfh.approval_level === "single"
-                  ? "bg-purple-50 text-[#56348f] border-purple-300 dark:bg-purple-950/40 dark:border-purple-800"
-                  : "border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-400"
-              }`}
-            >
-              Single-Level
-            </button>
-          </div>
-        </div>
-
-        {/* Primary TO Account */}
-        <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-            Primary TO Account (Approver)
-          </label>
-          <select
-            value={wfh.to_user_id || 0}
-            onChange={(e) => handleToAccount(onChangeWfh, Number(e.target.value) || null)}
-            className="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#56348f]"
-          >
-            <option value={0}>-- Direct to Super Admin (admin@intersmart.in) --</option>
-            {users.map((u) => (
-              <option key={u.id} value={u.id}>
-                {u.first_name} {u.last_name} ({u.employee_code || `ID ${u.id}`}) — {u.email}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* CC Accounts */}
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-              CC Accounts ({wfh.cc_user_ids?.length || 0})
-            </label>
-            {wfh.cc_user_ids?.length > 0 && (
-              <button
-                type="button"
-                onClick={() => {
-                  onChangeWfh("cc_user_ids", []);
-                  onChangeWfh("cc_emails", []);
-                }}
-                className="text-[10px] text-rose-500 hover:underline"
-              >
-                Clear
-              </button>
-            )}
-          </div>
-          <div className="relative">
-            <Search className="w-3 h-3 absolute left-2.5 top-2.5 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search user to CC..."
-              value={ccSearchWfh}
-              onChange={(e) => setCcSearchWfh(e.target.value)}
-              className="w-full pl-7 pr-3 py-1.5 rounded-lg text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#56348f]"
-            />
-          </div>
-          <div className="max-h-36 overflow-y-auto space-y-1 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-            {filterUsers(ccSearchWfh).slice(0, 50).map((u) => {
-              const isChecked = (wfh.cc_user_ids || []).includes(u.id);
-              return (
-                <label
-                  key={u.id}
-                  className="flex items-center gap-2 text-[11px] text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 p-1 rounded cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    onChange={() => toggleCc(wfh, onChangeWfh, u.id)}
-                    className="rounded text-[#56348f] focus:ring-[#56348f]"
-                  />
-                  <span className="truncate">
-                    {u.first_name} {u.last_name} ({u.email})
-                  </span>
-                </label>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* ── CARD 2: Casual / Sick Leave (1 Day Only) ── */}
-      <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
-        <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
-              <Calendar className="w-4 h-4" />
-            </div>
-            <div>
-              <h4 className="text-xs font-bold text-slate-900 dark:text-white">1-Day Leave</h4>
-              <span className="text-[11px] text-slate-400">Casual / Sick (1 day only)</span>
-            </div>
-          </div>
-
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              checked={leaveSingle.enabled ?? true}
-              onChange={(e) => onChangeLeaveSingle("enabled", e.target.checked)}
-              className="sr-only peer"
-            />
-            <div className="w-8 h-4 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#56348f]"></div>
-          </label>
-        </div>
-
-        {/* Approval Level Toggle */}
-        <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
-            <span>Approval Level</span>
-            <span
-              className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                leaveSingle.approval_level === "single"
-                  ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-300"
-                  : "bg-purple-100 text-purple-700 dark:bg-purple-900/60 dark:text-purple-300"
-              }`}
-            >
-              {leaveSingle.approval_level === "single" ? "Single-Level" : "Multi-Level"}
-            </span>
-          </label>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <button
-              type="button"
-              onClick={() => onChangeLeaveSingle("approval_level", "single")}
-              className={`py-1.5 px-2 rounded-xl font-semibold border text-center transition-all ${
-                leaveSingle.approval_level === "single"
-                  ? "bg-emerald-50 text-emerald-700 border-emerald-300 dark:bg-emerald-950/40 dark:border-emerald-800"
-                  : "border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-400"
-              }`}
-            >
-              Single-Level
-            </button>
-            <button
-              type="button"
-              onClick={() => onChangeLeaveSingle("approval_level", "multi")}
-              className={`py-1.5 px-2 rounded-xl font-semibold border text-center transition-all ${
-                leaveSingle.approval_level === "multi"
-                  ? "bg-purple-50 text-[#56348f] border-purple-300 dark:bg-purple-950/40 dark:border-purple-800"
-                  : "border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-400"
-              }`}
-            >
-              Multi-Level
-            </button>
-          </div>
-        </div>
-
-        {/* Primary TO Account */}
-        <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-            Primary TO Account (Approver)
-          </label>
-          <select
-            value={leaveSingle.to_user_id || 0}
-            onChange={(e) => handleToAccount(onChangeLeaveSingle, Number(e.target.value) || null)}
-            className="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#56348f]"
-          >
-            <option value={0}>-- Direct to Super Admin (admin@intersmart.in) --</option>
-            {users.map((u) => (
-              <option key={u.id} value={u.id}>
-                {u.first_name} {u.last_name} ({u.employee_code || `ID ${u.id}`}) — {u.email}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* CC Accounts */}
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-              CC Accounts ({leaveSingle.cc_user_ids?.length || 0})
-            </label>
-            {leaveSingle.cc_user_ids?.length > 0 && (
-              <button
-                type="button"
-                onClick={() => {
-                  onChangeLeaveSingle("cc_user_ids", []);
-                  onChangeLeaveSingle("cc_emails", []);
-                }}
-                className="text-[10px] text-rose-500 hover:underline"
-              >
-                Clear
-              </button>
-            )}
-          </div>
-          <div className="relative">
-            <Search className="w-3 h-3 absolute left-2.5 top-2.5 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search user to CC..."
-              value={ccSearchSingle}
-              onChange={(e) => setCcSearchSingle(e.target.value)}
-              className="w-full pl-7 pr-3 py-1.5 rounded-lg text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#56348f]"
-            />
-          </div>
-          <div className="max-h-36 overflow-y-auto space-y-1 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-            {filterUsers(ccSearchSingle).slice(0, 50).map((u) => {
-              const isChecked = (leaveSingle.cc_user_ids || []).includes(u.id);
-              return (
-                <label
-                  key={u.id}
-                  className="flex items-center gap-2 text-[11px] text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 p-1 rounded cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    onChange={() => toggleCc(leaveSingle, onChangeLeaveSingle, u.id)}
-                    className="rounded text-[#56348f] focus:ring-[#56348f]"
-                  />
-                  <span className="truncate">
-                    {u.first_name} {u.last_name} ({u.email})
-                  </span>
-                </label>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* ── CARD 3: Multi-Day Leave (> 1 Day) ── */}
-      <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
-        <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
-              <Layers className="w-4 h-4" />
-            </div>
-            <div>
-              <h4 className="text-xs font-bold text-slate-900 dark:text-white">Multi-Day Leave</h4>
-              <span className="text-[11px] text-slate-400">Casual / Sick (&gt; 1 day)</span>
-            </div>
-          </div>
-
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              checked={leaveMulti.enabled ?? true}
-              onChange={(e) => onChangeLeaveMulti("enabled", e.target.checked)}
-              className="sr-only peer"
-            />
-            <div className="w-8 h-4 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#56348f]"></div>
-          </label>
-        </div>
-
-        {/* Approval Level Toggle */}
-        <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
-            <span>Approval Level</span>
-            <span
-              className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                leaveMulti.approval_level === "multi"
-                  ? "bg-purple-100 text-purple-700 dark:bg-purple-900/60 dark:text-purple-300"
-                  : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
-              }`}
-            >
-              {leaveMulti.approval_level === "multi" ? "Multi-Level" : "Single-Level"}
-            </span>
-          </label>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <button
-              type="button"
-              onClick={() => onChangeLeaveMulti("approval_level", "multi")}
-              className={`py-1.5 px-2 rounded-xl font-semibold border text-center transition-all ${
-                leaveMulti.approval_level === "multi"
-                  ? "bg-purple-50 text-[#56348f] border-purple-300 dark:bg-purple-950/40 dark:border-purple-800"
-                  : "border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-400"
-              }`}
-            >
-              Multi-Level
-            </button>
-            <button
-              type="button"
-              onClick={() => onChangeLeaveMulti("approval_level", "single")}
-              className={`py-1.5 px-2 rounded-xl font-semibold border text-center transition-all ${
-                leaveMulti.approval_level === "single"
-                  ? "bg-purple-50 text-[#56348f] border-purple-300 dark:bg-purple-950/40 dark:border-purple-800"
-                  : "border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-400"
-              }`}
-            >
-              Single-Level
-            </button>
-          </div>
-        </div>
-
-        {/* Primary TO Account */}
-        <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-            Primary TO Account (Approver)
-          </label>
-          <select
-            value={leaveMulti.to_user_id || 0}
-            onChange={(e) => handleToAccount(onChangeLeaveMulti, Number(e.target.value) || null)}
-            className="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#56348f]"
-          >
-            <option value={0}>-- Direct to Super Admin (admin@intersmart.in) --</option>
-            {users.map((u) => (
-              <option key={u.id} value={u.id}>
-                {u.first_name} {u.last_name} ({u.employee_code || `ID ${u.id}`}) — {u.email}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* CC Accounts */}
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-              CC Accounts ({leaveMulti.cc_user_ids?.length || 0})
-            </label>
-            {leaveMulti.cc_user_ids?.length > 0 && (
-              <button
-                type="button"
-                onClick={() => {
-                  onChangeLeaveMulti("cc_user_ids", []);
-                  onChangeLeaveMulti("cc_emails", []);
-                }}
-                className="text-[10px] text-rose-500 hover:underline"
-              >
-                Clear
-              </button>
-            )}
-          </div>
-          <div className="relative">
-            <Search className="w-3 h-3 absolute left-2.5 top-2.5 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search user to CC..."
-              value={ccSearchMulti}
-              onChange={(e) => setCcSearchMulti(e.target.value)}
-              className="w-full pl-7 pr-3 py-1.5 rounded-lg text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#56348f]"
-            />
-          </div>
-          <div className="max-h-36 overflow-y-auto space-y-1 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-            {filterUsers(ccSearchMulti).slice(0, 50).map((u) => {
-              const isChecked = (leaveMulti.cc_user_ids || []).includes(u.id);
-              return (
-                <label
-                  key={u.id}
-                  className="flex items-center gap-2 text-[11px] text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 p-1 rounded cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    onChange={() => toggleCc(leaveMulti, onChangeLeaveMulti, u.id)}
-                    className="rounded text-[#56348f] focus:ring-[#56348f]"
-                  />
-                  <span className="truncate">
-                    {u.first_name} {u.last_name} ({u.email})
-                  </span>
-                </label>
-              );
-            })}
-          </div>
-        </div>
-      </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {renderCard(
+        "WFH Request",
+        "Work from home remote routing",
+        <Home className="w-4 h-4 text-purple-600" />,
+        wfh,
+        onUpdateWfh,
+        ccSearchWfh,
+        setCcSearchWfh
+      )}
+      {renderCard(
+        "1-Day Leave",
+        "Casual / Sick (1 day only)",
+        <Calendar className="w-4 h-4 text-emerald-600" />,
+        leaveSingle,
+        onUpdateLeaveSingle,
+        ccSearchSingle,
+        setCcSearchSingle
+      )}
+      {renderCard(
+        "Multi-Day Leave",
+        "Casual / Sick (> 1 day)",
+        <Layers className="w-4 h-4 text-amber-600" />,
+        leaveMulti,
+        onUpdateLeaveMulti,
+        ccSearchMulti,
+        setCcSearchMulti
+      )}
     </div>
   );
 }
@@ -842,24 +708,19 @@ export default function ApprovalRoutingTab() {
   };
 
   // ── Team Lead Default Rule Updater ──
-  const updateDefaultTlRule = (
+  const updateDefaultTlRuleCard = (
     key: "wfh" | "leave_single_day" | "leave_multi_day",
-    field: keyof RoleApprovalRule,
-    value: any
+    updatedCard: RoleApprovalRule
   ) => {
     setRules((prev) => {
       const tl = prev.role_rules?.team_lead || createDefaultThreeCards();
-      const current = tl[key] || createDefaultThreeCards()[key];
       return {
         ...prev,
         role_rules: {
           ...prev.role_rules,
           team_lead: {
             ...tl,
-            [key]: {
-              ...current,
-              [field]: value,
-            },
+            [key]: updatedCard,
           },
         },
       };
@@ -1196,6 +1057,11 @@ export default function ApprovalRoutingTab() {
                                 rule.wfh?.to_email ||
                                 "Super Admin"}
                             </strong>
+                            {rule.wfh?.approval_level === "multi" && (
+                              <span className="text-[#56348f] dark:text-purple-300 font-semibold">
+                                {" "}→ {users.find((u) => u.id === rule.wfh?.to_user_id_2)?.first_name || rule.wfh?.to_email_2 || "Super Admin"}
+                              </span>
+                            )}
                           </div>
                           <div className="text-[11px] text-slate-400">
                             {rule.wfh?.approval_level === "multi" ? "Multi-Level" : "Single-Level"} •{" "}
@@ -1228,6 +1094,11 @@ export default function ApprovalRoutingTab() {
                                 rule.leave_single_day?.to_email ||
                                 "Super Admin"}
                             </strong>
+                            {rule.leave_single_day?.approval_level === "multi" && (
+                              <span className="text-[#56348f] dark:text-purple-300 font-semibold">
+                                {" "}→ {users.find((u) => u.id === rule.leave_single_day?.to_user_id_2)?.first_name || rule.leave_single_day?.to_email_2 || "Super Admin"}
+                              </span>
+                            )}
                           </div>
                           <div className="text-[11px] text-slate-400">
                             {rule.leave_single_day?.approval_level === "multi"
@@ -1262,6 +1133,11 @@ export default function ApprovalRoutingTab() {
                                 rule.leave_multi_day?.to_email ||
                                 "Super Admin"}
                             </strong>
+                            {rule.leave_multi_day?.approval_level === "multi" && (
+                              <span className="text-[#56348f] dark:text-purple-300 font-semibold">
+                                {" "}→ {users.find((u) => u.id === rule.leave_multi_day?.to_user_id_2)?.first_name || rule.leave_multi_day?.to_email_2 || "Super Admin"}
+                              </span>
+                            )}
                           </div>
                           <div className="text-[11px] text-slate-400">
                             {rule.leave_multi_day?.approval_level === "multi"
@@ -1295,9 +1171,9 @@ export default function ApprovalRoutingTab() {
               leaveSingle={defaultTl.leave_single_day}
               leaveMulti={defaultTl.leave_multi_day}
               users={users}
-              onChangeWfh={(f, v) => updateDefaultTlRule("wfh", f, v)}
-              onChangeLeaveSingle={(f, v) => updateDefaultTlRule("leave_single_day", f, v)}
-              onChangeLeaveMulti={(f, v) => updateDefaultTlRule("leave_multi_day", f, v)}
+              onUpdateWfh={(updated) => updateDefaultTlRuleCard("wfh", updated)}
+              onUpdateLeaveSingle={(updated) => updateDefaultTlRuleCard("leave_single_day", updated)}
+              onUpdateLeaveMulti={(updated) => updateDefaultTlRuleCard("leave_multi_day", updated)}
             />
           </div>
         </div>
@@ -1430,6 +1306,11 @@ export default function ApprovalRoutingTab() {
                               rule.wfh?.to_email ||
                               "Super Admin"}
                           </strong>
+                          {rule.wfh?.approval_level === "multi" && (
+                            <span className="text-[#56348f] dark:text-purple-300 font-semibold">
+                              {" "}→ {users.find((u) => u.id === rule.wfh?.to_user_id_2)?.first_name || rule.wfh?.to_email_2 || "Super Admin"}
+                            </span>
+                          )}
                         </div>
                         <div className="text-[11px] text-slate-400">
                           {rule.wfh?.approval_level === "multi" ? "Multi-Level" : "Single-Level"} •{" "}
@@ -1462,6 +1343,11 @@ export default function ApprovalRoutingTab() {
                               rule.leave_single_day?.to_email ||
                               "Super Admin"}
                           </strong>
+                          {rule.leave_single_day?.approval_level === "multi" && (
+                            <span className="text-[#56348f] dark:text-purple-300 font-semibold">
+                              {" "}→ {users.find((u) => u.id === rule.leave_single_day?.to_user_id_2)?.first_name || rule.leave_single_day?.to_email_2 || "Super Admin"}
+                            </span>
+                          )}
                         </div>
                         <div className="text-[11px] text-slate-400">
                           {rule.leave_single_day?.approval_level === "multi"
@@ -1496,6 +1382,11 @@ export default function ApprovalRoutingTab() {
                               rule.leave_multi_day?.to_email ||
                               "Super Admin"}
                           </strong>
+                          {rule.leave_multi_day?.approval_level === "multi" && (
+                            <span className="text-[#56348f] dark:text-purple-300 font-semibold">
+                              {" "}→ {users.find((u) => u.id === rule.leave_multi_day?.to_user_id_2)?.first_name || rule.leave_multi_day?.to_email_2 || "Super Admin"}
+                            </span>
+                          )}
                         </div>
                         <div className="text-[11px] text-slate-400">
                           {rule.leave_multi_day?.approval_level === "multi"
@@ -1593,23 +1484,12 @@ export default function ApprovalRoutingTab() {
                     leaveSingle={tlModalForm.leave_single_day}
                     leaveMulti={tlModalForm.leave_multi_day}
                     users={users}
-                    onChangeWfh={(f, v) =>
-                      setTlModalForm({
-                        ...tlModalForm,
-                        wfh: { ...tlModalForm.wfh, [f]: v },
-                      })
+                    onUpdateWfh={(wfh) => setTlModalForm((prev) => ({ ...prev, wfh }))}
+                    onUpdateLeaveSingle={(leaveSingle) =>
+                      setTlModalForm((prev) => ({ ...prev, leave_single_day: leaveSingle }))
                     }
-                    onChangeLeaveSingle={(f, v) =>
-                      setTlModalForm({
-                        ...tlModalForm,
-                        leave_single_day: { ...tlModalForm.leave_single_day, [f]: v },
-                      })
-                    }
-                    onChangeLeaveMulti={(f, v) =>
-                      setTlModalForm({
-                        ...tlModalForm,
-                        leave_multi_day: { ...tlModalForm.leave_multi_day, [f]: v },
-                      })
+                    onUpdateLeaveMulti={(leaveMulti) =>
+                      setTlModalForm((prev) => ({ ...prev, leave_multi_day: leaveMulti }))
                     }
                   />
                 </div>
@@ -1718,23 +1598,12 @@ export default function ApprovalRoutingTab() {
                     leaveSingle={empModalForm.leave_single_day}
                     leaveMulti={empModalForm.leave_multi_day}
                     users={users}
-                    onChangeWfh={(f, v) =>
-                      setEmpModalForm({
-                        ...empModalForm,
-                        wfh: { ...empModalForm.wfh, [f]: v },
-                      })
+                    onUpdateWfh={(wfh) => setEmpModalForm((prev) => ({ ...prev, wfh }))}
+                    onUpdateLeaveSingle={(leaveSingle) =>
+                      setEmpModalForm((prev) => ({ ...prev, leave_single_day: leaveSingle }))
                     }
-                    onChangeLeaveSingle={(f, v) =>
-                      setEmpModalForm({
-                        ...empModalForm,
-                        leave_single_day: { ...empModalForm.leave_single_day, [f]: v },
-                      })
-                    }
-                    onChangeLeaveMulti={(f, v) =>
-                      setEmpModalForm({
-                        ...empModalForm,
-                        leave_multi_day: { ...empModalForm.leave_multi_day, [f]: v },
-                      })
+                    onUpdateLeaveMulti={(leaveMulti) =>
+                      setEmpModalForm((prev) => ({ ...prev, leave_multi_day: leaveMulti }))
                     }
                   />
                 </div>

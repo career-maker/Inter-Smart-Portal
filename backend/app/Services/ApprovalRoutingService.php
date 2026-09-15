@@ -239,6 +239,14 @@ class ApprovalRoutingService
             if (!empty($matchedRule['to_email']) && filter_var(trim($matchedRule['to_email']), FILTER_VALIDATE_EMAIL)) {
                 $toEmails[] = trim($matchedRule['to_email']);
             }
+            if ($approvalLevel === 'multi') {
+                if (!empty($matchedRule['to_email_2']) && filter_var(trim($matchedRule['to_email_2']), FILTER_VALIDATE_EMAIL)) {
+                    $toEmails[] = trim($matchedRule['to_email_2']);
+                } elseif (empty($matchedRule['to_user_id_2'])) {
+                    // Default second approver for multi-level routing is Super Admin
+                    $toEmails[] = 'admin@intersmart.in';
+                }
+            }
             if (!empty($approverUserIds)) {
                 $toUsers = User::whereIn('id', $approverUserIds)->pluck('email')->filter()->all();
                 foreach ($toUsers as $em) {
