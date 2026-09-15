@@ -43,21 +43,26 @@ function fmtDate(d?: string | null) {
 }
 
 function calcWfhDays(req: any): string {
-  if (req?.days_count !== undefined && req?.days_count !== null) {
-    return Number(req.days_count).toFixed(1);
-  }
   const isHalf = req?.duration_type === "Half-Morning" || req?.duration_type === "Half-Afternoon";
   if (isHalf) return "0.5";
+
+  if (req?.days_count !== undefined && req?.days_count !== null) {
+    const val = Number(req.days_count);
+    if (!isNaN(val) && val > 0) {
+      return val.toFixed(1);
+    }
+  }
+
   if (!req?.start_date) return "1.0";
   if (!req?.end_date || req.end_date === req.start_date) return "1.0";
 
   try {
     const s = new Date(req.start_date + "T00:00:00");
     const e = new Date(req.end_date + "T00:00:00");
-    const diffMs = e.getTime() - s.getTime();
-    if (isNaN(diffMs) || diffMs < 0) return "1.0";
+    const diffMs = Math.abs(e.getTime() - s.getTime());
+    if (isNaN(diffMs)) return "1.0";
     const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24)) + 1;
-    return diffDays.toFixed(1);
+    return Math.max(1, diffDays).toFixed(1);
   } catch {
     return "1.0";
   }

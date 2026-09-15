@@ -34,12 +34,12 @@ class WfhRequest extends Model
         }
 
         try {
-            $start = \Carbon\Carbon::parse($this->start_date);
-            $end   = \Carbon\Carbon::parse($this->end_date);
+            $start = \Carbon\Carbon::parse($this->start_date)->startOfDay();
+            $end   = \Carbon\Carbon::parse($this->end_date)->startOfDay();
             if ($end->lessThan($start)) {
                 return 1.0;
             }
-            return (float) ($end->diffInDays($start) + 1);
+            return (float) (abs($start->diffInDays($end)) + 1);
         } catch (\Exception $e) {
             return 1.0;
         }
