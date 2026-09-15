@@ -27,6 +27,8 @@ class LeaveRequestController extends Controller
 
         // Check for delegated employee approver overrides
         $allOverrides = \App\Models\EmailSetting::getByKey('employee_overrides', []);
+        $routingApproverApplicantIds = \App\Services\ApprovalRoutingService::getDelegatedApplicantIdsForApprover($user);
+
         $delegatedEmployeeIds = collect($allOverrides)
             ->filter(function ($item) use ($user) {
                 return ($item['enabled'] ?? true) && (
@@ -35,6 +37,7 @@ class LeaveRequestController extends Controller
                 );
             })
             ->pluck('user_id')
+            ->concat($routingApproverApplicantIds)
             ->unique()
             ->values()
             ->all();
@@ -603,17 +606,39 @@ class LeaveRequestController extends Controller
             $adminStatus = 'Pending';
         }
 
-        if ($user->hasRole('Team Lead')) {
-            $tlStatus    = 'Not Required';
-            $adminStatus = 'Pending';
-        }
+        $actionType = $isSingleDay ? 'leave_single_day' : 'leave_multi_day';
+        $routing = \App\Services\ApprovalRoutingService::resolve($user, $actionType, (float)$days);
+
+        $isApplicantTL = $user->hasRole('Team Lead')
+            || in_array(strtolower($user->role ?? ''), ['team lead', 'lead'], true)
+            || \App\Models\Team::where('team_lead_id', $user->id)->exists();
 
         if ($user->hasRole('Super Admin') || $user->hasRole('HR')) {
             $tlStatus    = 'Not Required';
             $adminStatus = 'Pending';
-        }
-
-        if (!$user->hasTeamLead()) {
+        } elseif (!$user->team_id || $routing['direct_admin']) {
+            // General employee without team or direct admin configured
+            $tlStatus    = 'Not Required';
+            $adminStatus = 'Pending';
+        } elseif ($isApplicantTL) {
+            if ($routing['approval_level'] === 'multi' && !empty($routing['approver_user_ids'])) {
+                // Multi-level: The TO person and Super Admin must both approve
+                $tlStatus    = 'Pending';
+                $adminStatus = 'Pending';
+            } else {
+                // Single-level:
+                $tlStatus    = 'Not Required';
+                $adminStatus = 'Pending';
+            }
+        } elseif ($routing['matched_type'] === 'employee' || $routing['matched_type'] === 'department') {
+            if ($routing['approval_level'] === 'multi') {
+                $tlStatus    = 'Pending';
+                $adminStatus = 'Pending';
+            } else {
+                $tlStatus    = !empty($routing['approver_user_ids']) ? 'Pending' : 'Not Required';
+                $adminStatus = !empty($routing['approver_user_ids']) ? 'Not Required' : 'Pending';
+            }
+        } elseif (!$user->hasTeamLead()) {
             $tlStatus    = 'Not Required';
             $adminStatus = 'Pending';
         }
@@ -694,7 +719,7 @@ class LeaveRequestController extends Controller
                 }
             }
 
-            // Check if user has delegated custom approvers
+            // Check if user has delegated custom approvers or routing approvers
             $overrides = \App\Models\EmailSetting::getByKey('employee_overrides', []);
             $matchedOverride = collect($overrides)->first(function ($item) use ($user) {
                 return (int)($item['user_id'] ?? 0) === (int)$user->id && ($item['enabled'] ?? true);
@@ -705,6 +730,13 @@ class LeaveRequestController extends Controller
                 if (!empty($matchedOverride['approver_user_id'])) $approverIds[] = (int)$matchedOverride['approver_user_id'];
                 if (!empty($matchedOverride['approver_user_id_2'])) $approverIds[] = (int)$matchedOverride['approver_user_id_2'];
             }
+
+            $isSingle = (Carbon::parse($leaveRequest->start_date)->format('Y-m-d') === Carbon::parse($leaveRequest->end_date)->format('Y-m-d'));
+            $routing = \App\Services\ApprovalRoutingService::resolve($user, $isSingle ? 'leave_single_day' : 'leave_multi_day', floatval($leaveRequest->days ?? 1.0));
+            if (!empty($routing['approver_user_ids'])) {
+                $approverIds = array_merge($approverIds, $routing['approver_user_ids']);
+            }
+            $approverIds = array_values(array_unique(array_filter($approverIds)));
 
             if (!empty($approverIds)) {
                 $approvers = User::whereIn('id', $approverIds)->get();
@@ -743,8 +775,10 @@ class LeaveRequestController extends Controller
 
         $applicant   = $leaveRequest->user;
         $isSingleDay = (Carbon::parse($leaveRequest->start_date)->format('Y-m-d') === Carbon::parse($leaveRequest->end_date)->format('Y-m-d'));
+        $actionType  = $isSingleDay ? 'leave_single_day' : 'leave_multi_day';
+        $days        = floatval($leaveRequest->days ?? 1.0);
 
-        // Check for delegated employee approver overrides
+        // Check for delegated employee approver overrides or routing approver
         $allOverrides = \App\Models\EmailSetting::getByKey('employee_overrides', []);
         $isCustomApprover = collect($allOverrides)->contains(function ($item) use ($applicant, $user) {
             return ($item['enabled'] ?? true) &&
@@ -754,6 +788,8 @@ class LeaveRequestController extends Controller
                     (int)($item['approver_user_id_2'] ?? 0) === (int)$user->id
                 );
         });
+
+        $isRoutingApprover = \App\Services\ApprovalRoutingService::isUserAuthorizedApprover($user, $applicant, $actionType, $days);
 
         $hasAnotherApproverDelegated = collect($allOverrides)->contains(function ($item) use ($applicant, $user) {
             return ($item['enabled'] ?? true) &&
@@ -765,8 +801,8 @@ class LeaveRequestController extends Controller
 
         if ($user->hasRole('Super Admin') || $user->hasRole('HR')) {
             // Authorized Super Admin / HR
-        } elseif ($isCustomApprover) {
-            // Authorized delegated custom approver for this employee
+        } elseif ($isCustomApprover || $isRoutingApprover) {
+            // Authorized delegated custom approver or routing approver for this employee
         } elseif ($user->hasRole('Team Lead')) {
             if ($hasAnotherApproverDelegated) {
                 return response()->json(['message' => 'Approval for this employee has been redirected to a dedicated custom manager.'], 403);
@@ -775,13 +811,13 @@ class LeaveRequestController extends Controller
                 return response()->json(['message' => 'Unauthorized to approve this request.'], 403);
             }
             if ($applicant->hasRole('Team Lead')) {
-                return response()->json(['message' => 'Team Lead requests must be approved by a Super Admin.'], 403);
+                return response()->json(['message' => 'Team Lead requests must be approved by a Super Admin or designated manager.'], 403);
             }
         } else {
             return response()->json(['message' => 'Unauthorized to approve requests.'], 403);
         }
 
-        $isInitialApproverRole = $user->hasRole('Team Lead') || $isCustomApprover;
+        $isInitialApproverRole = $user->hasRole('Team Lead') || $isCustomApprover || $isRoutingApprover;
 
         try {
             DB::beginTransaction();

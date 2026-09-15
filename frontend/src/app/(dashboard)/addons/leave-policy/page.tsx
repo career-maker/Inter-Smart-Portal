@@ -41,8 +41,9 @@ import leavePolicyApi, {
   PolicyEmployee,
   LedgerEntry,
 } from "@/services/leavePolicy";
+import ApprovalRoutingTab from "@/components/leave/ApprovalRoutingTab";
 
-type TabKey = "general" | "employees" | "ledger" | "simulator";
+type TabKey = "general" | "routing" | "employees" | "ledger" | "simulator";
 
 export default function LeavePolicyManagementPage() {
   const { user } = useAuthStore();
@@ -487,6 +488,19 @@ export default function LeavePolicyManagementPage() {
 
         <button
           type="button"
+          onClick={() => setActiveTab("routing")}
+          className={`inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+            activeTab === "routing"
+              ? "border-[#56348f] text-[#56348f] dark:text-purple-400 bg-purple-50/50 dark:bg-purple-950/30 rounded-t-lg"
+              : "border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+          }`}
+        >
+          <ShieldCheck className="w-4 h-4" />
+          <span>Approval & Email Routing</span>
+        </button>
+
+        <button
+          type="button"
           onClick={() => setActiveTab("employees")}
           className={`inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
             activeTab === "employees"
@@ -825,6 +839,13 @@ export default function LeavePolicyManagementPage() {
             </button>
           </div>
         </form>
+      )}
+
+      {/* ──────────────────────────────────────────────────────────────────────────
+          TAB: APPROVAL & EMAIL ROUTING
+      ────────────────────────────────────────────────────────────────────────── */}
+      {activeTab === "routing" && (
+        <ApprovalRoutingTab />
       )}
 
       {/* ──────────────────────────────────────────────────────────────────────────

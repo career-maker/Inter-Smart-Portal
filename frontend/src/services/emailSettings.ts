@@ -49,6 +49,60 @@ export interface EmailSettingsResponse {
   default_routing: Record<string, RoutingRule>;
 }
 
+export interface RoleApprovalRule {
+  to_user_id: number | null;
+  to_email: string | null;
+  cc_user_ids: number[];
+  cc_emails: string[];
+  approval_level: "single" | "multi";
+  enabled: boolean;
+}
+
+export interface DepartmentApprovalRule {
+  id: string;
+  team_id: number;
+  request_type: "all" | "wfh" | "leave";
+  to_user_id: number | null;
+  to_email: string | null;
+  cc_user_ids: number[];
+  cc_emails: string[];
+  approval_level: "single" | "multi";
+  enabled: boolean;
+  notes?: string;
+}
+
+export interface EmployeeApprovalRule {
+  id: string;
+  user_id: number;
+  request_type: "all" | "wfh" | "leave";
+  to_user_id: number | null;
+  to_email: string | null;
+  cc_user_ids: number[];
+  cc_emails: string[];
+  approval_level: "single" | "multi";
+  enabled: boolean;
+  notes?: string;
+}
+
+export interface ApprovalRoutingRules {
+  role_rules: {
+    team_lead: {
+      wfh: RoleApprovalRule;
+      leave_single_day: RoleApprovalRule;
+      leave_multi_day: RoleApprovalRule;
+    };
+    [roleKey: string]: Record<string, RoleApprovalRule>;
+  };
+  department_rules: DepartmentApprovalRule[];
+  employee_rules: EmployeeApprovalRule[];
+}
+
+export interface ApprovalRoutingResponse {
+  rules: ApprovalRoutingRules;
+  teams: { id: number; name: string; code: string; team_lead_id: number | null; team_lead?: any }[];
+  users: { id: number; first_name: string; last_name: string; email: string; employee_code?: string; team_id?: number; designation?: string }[];
+}
+
 export const emailSettingsApi = {
   getSettings: async (): Promise<EmailSettingsResponse> => {
     const res = await api.get("/email-settings");
@@ -67,6 +121,16 @@ export const emailSettingsApi = {
 
   updateEmployeeOverrides: async (overrides: EmployeeOverride[]): Promise<any> => {
     const res = await api.post("/email-settings/employee-overrides", { overrides });
+    return res.data;
+  },
+
+  getApprovalRouting: async (): Promise<ApprovalRoutingResponse> => {
+    const res = await api.get("/email-settings/approval-routing");
+    return res.data.data;
+  },
+
+  updateApprovalRouting: async (payload: Partial<ApprovalRoutingRules>): Promise<any> => {
+    const res = await api.post("/email-settings/approval-routing", payload);
     return res.data;
   },
 

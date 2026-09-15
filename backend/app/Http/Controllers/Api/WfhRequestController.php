@@ -30,6 +30,8 @@ class WfhRequestController extends Controller
 
         // Check for delegated employee approver overrides
         $allOverrides = \App\Models\EmailSetting::getByKey('employee_overrides', []);
+        $routingApproverApplicantIds = \App\Services\ApprovalRoutingService::getDelegatedApplicantIdsForApprover($user);
+
         $delegatedEmployeeIds = collect($allOverrides)
             ->filter(function ($item) use ($user) {
                 return ($item['enabled'] ?? true) && (
@@ -38,6 +40,7 @@ class WfhRequestController extends Controller
                 );
             })
             ->pluck('user_id')
+            ->concat($routingApproverApplicantIds)
             ->unique()
             ->values()
             ->all();
@@ -174,7 +177,17 @@ class WfhRequestController extends Controller
             }
         }
 
-        // Determine approval status based on applicant's role
+        // For half-day WFH, end_date = start_date
+        $isHalfDay = in_array($data['duration_type'], ['Half-Morning', 'Half-Afternoon']);
+        $endDate   = $isHalfDay ? $data['start_date'] : ($data['end_date'] ?? $data['start_date']);
+
+        $days = 1.0;
+        if (!empty($data['start_date']) && !empty($endDate)) {
+            $diff = \Carbon\Carbon::parse($data['start_date'])->diffInDays(\Carbon\Carbon::parse($endDate)) + 1;
+            $days = $isHalfDay ? 0.5 : max(1.0, (float)$diff);
+        }
+
+        // Determine approval status based on applicant's role and ApprovalRoutingService
         $tlStatus    = 'Pending';
         $adminStatus = 'Pending';
         $status      = 'Pending';
@@ -184,22 +197,42 @@ class WfhRequestController extends Controller
             || in_array(strtolower($user->role ?? ''), ['team lead', 'lead'], true)
             || \App\Models\Team::where('team_lead_id', $user->id)->exists();
 
+        $routing = \App\Services\ApprovalRoutingService::resolve($user, 'wfh', $days);
+
         if ($user->hasRole('Super Admin') || $user->hasRole('HR')) {
             // Super Admin / HR auto-approved — no approval chain needed
             $tlStatus    = 'Not Required';
             $adminStatus = 'Not Required';
             $status      = 'Approved';
             $approvedBy  = $user->id;
-        } elseif ($isApplicantTL || !$user->hasTeamLead()) {
-            // TL or employee with no Team Lead — skip TL step, send only to Admin
+        } elseif (!$user->team_id || $routing['direct_admin']) {
+            // General employee with no team, or direct admin configured
             $tlStatus    = 'Not Required';
             $adminStatus = 'Pending';
+        } elseif ($isApplicantTL) {
+            // Team Lead applying:
+            if ($routing['approval_level'] === 'multi' && !empty($routing['approver_user_ids'])) {
+                // Multi-level: The TO person and Super Admin must both approve
+                $tlStatus    = 'Pending';
+                $adminStatus = 'Pending';
+            } else {
+                // Single-level:
+                $tlStatus    = 'Not Required';
+                $adminStatus = 'Pending';
+            }
+        } elseif ($routing['approval_level'] === 'single') {
+            if (!empty($routing['approver_user_ids'])) {
+                $tlStatus    = 'Pending';
+                $adminStatus = 'Not Required';
+            } else {
+                $tlStatus    = 'Not Required';
+                $adminStatus = 'Pending';
+            }
+        } else {
+            // Employee with TL → both TL and Admin need to approve
+            $tlStatus    = 'Pending';
+            $adminStatus = 'Pending';
         }
-        // else: Employee with TL → both TL and Admin need to approve
-
-        // For half-day WFH, end_date = start_date
-        $isHalfDay = in_array($data['duration_type'], ['Half-Morning', 'Half-Afternoon']);
-        $endDate   = $isHalfDay ? $data['start_date'] : ($data['end_date'] ?? $data['start_date']);
 
         $wfhRequest = WfhRequest::create([
             'user_id'       => $user->id,
@@ -314,11 +347,19 @@ class WfhRequestController extends Controller
             || in_array(strtolower($applicant->role ?? ''), ['team lead', 'lead'], true)
             || \App\Models\Team::where('team_lead_id', $applicant->id)->exists();
 
+        $days = 1.0;
+        if (!empty($wfhRequest->start_date) && !empty($wfhRequest->end_date)) {
+            $diff = \Carbon\Carbon::parse($wfhRequest->start_date)->diffInDays(\Carbon\Carbon::parse($wfhRequest->end_date)) + 1;
+            $days = max(1.0, (float)$diff);
+        }
+
+        $isRoutingApprover = \App\Services\ApprovalRoutingService::isUserAuthorizedApprover($user, $applicant, 'wfh', $days);
+
         // Authorization check
         if ($user->hasRole('Super Admin') || $user->hasRole('HR')) {
             // Always authorized
-        } elseif ($isCustomApprover) {
-            // Authorized delegated custom approver for this employee
+        } elseif ($isCustomApprover || $isRoutingApprover) {
+            // Authorized delegated custom approver or role/dept approver for this employee
             if ($wfhRequest->tl_status !== 'Pending') {
                 return response()->json(['message' => 'You have already acted on this request.'], 400);
             }
@@ -330,7 +371,7 @@ class WfhRequestController extends Controller
                 return response()->json(['message' => 'Unauthorized to approve this request.'], 403);
             }
             if ($isApplicantTLRole) {
-                return response()->json(['message' => 'Team Lead WFH requests must be approved by a Super Admin.'], 403);
+                return response()->json(['message' => 'Team Lead WFH requests must be approved by a Super Admin or designated manager.'], 403);
             }
             if ($wfhRequest->tl_status !== 'Pending') {
                 return response()->json(['message' => 'You have already acted on this request.'], 400);
@@ -339,7 +380,7 @@ class WfhRequestController extends Controller
             return response()->json(['message' => 'Unauthorized.'], 403);
         }
 
-        $isInitialApproverRole = $isTeamLeadRole || $isCustomApprover;
+        $isInitialApproverRole = $isTeamLeadRole || $isCustomApprover || $isRoutingApprover;
 
         $newStatus = $data['status']; // 'Approved' or 'Rejected'
 
@@ -353,21 +394,27 @@ class WfhRequestController extends Controller
                 'remarks'      => $data['remarks'] ?? null,
             ]);
         } else {
-            // Approval — dual approval required
+            // Approval
             if ($isInitialApproverRole && !$user->hasRole('Super Admin') && !$user->hasRole('HR')) {
                 $wfhRequest->tl_status = 'Approved';
-                // Status stays Pending until Admin also approves
+                // If admin approval is not required (single-level), finalize now
+                if ($wfhRequest->admin_status === 'Not Required') {
+                    $wfhRequest->status = 'Approved';
+                    $wfhRequest->approved_by = $user->id;
+                }
                 $wfhRequest->save();
 
-                // Notify Super Admins that initial approver has approved — their turn
-                try {
-                    $apprName = "{$user->first_name} {$user->last_name}";
-                    $empName  = "{$applicant->first_name} {$applicant->last_name}";
-                    $msg      = "Approver {$apprName} has approved {$empName}'s WFH request. Awaiting your final approval.";
-                    foreach (User::role('Super Admin')->get() as $admin) {
-                        $admin->notify(new WfhRequestNotification('tl_approved', $wfhRequest, $msg));
-                    }
-                } catch (\Exception $e) {}
+                // If multi-level (admin_status is Pending), notify Super Admins that initial approver has approved
+                if ($wfhRequest->admin_status === 'Pending') {
+                    try {
+                        $apprName = "{$user->first_name} {$user->last_name}";
+                        $empName  = "{$applicant->first_name} {$applicant->last_name}";
+                        $msg      = "Approver {$apprName} has approved {$empName}'s WFH request. Awaiting your final approval.";
+                        foreach (User::role('Super Admin')->get() as $admin) {
+                            $admin->notify(new WfhRequestNotification('tl_approved', $wfhRequest, $msg));
+                        }
+                    } catch (\Exception $e) {}
+                }
 
             } elseif ($user->hasRole('Super Admin') || $user->hasRole('HR')) {
                 $wfhRequest->admin_status = 'Approved';

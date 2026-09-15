@@ -41,8 +41,9 @@ import emailSettingsApi, {
 } from "@/services/emailSettings";
 import { Portal } from "@/components/ui/portal";
 import api from "@/services/api";
+import ApprovalRoutingTab from "@/components/leave/ApprovalRoutingTab";
 
-type TabKey = "smtp" | "routing" | "overrides";
+type TabKey = "smtp" | "routing" | "approval_workflow" | "overrides";
 
 const ACTION_DEFINITIONS: Record<
   string,
@@ -551,6 +552,18 @@ export default function EmailManagementPage() {
         >
           <Send className="w-4 h-4" />
           <span>Global Recipient & CC Matrix</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab("approval_workflow")}
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+            activeTab === "approval_workflow"
+              ? "bg-[#56348f] text-white shadow-sm"
+              : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+          }`}
+        >
+          <ShieldCheck className="w-4 h-4" />
+          <span>Approvals & Routing (WFH & Leaves)</span>
         </button>
 
         <button
@@ -1079,6 +1092,13 @@ export default function EmailManagementPage() {
                 })}
               </div>
             </div>
+          )}
+
+          {/* ══════════════════════════════════════════════════════════════
+              APPROVAL & ROUTING WORKFLOW (TEAM LEADS, DEPTS, EMPLOYEES)
+          ══════════════════════════════════════════════════════════════ */}
+          {activeTab === "approval_workflow" && (
+            <ApprovalRoutingTab />
           )}
 
           {/* ══════════════════════════════════════════════════════════════

@@ -380,6 +380,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('smtp', [\App\Http\Controllers\Api\EmailSettingController::class, 'updateSmtp']);
         Route::post('routing', [\App\Http\Controllers\Api\EmailSettingController::class, 'updateRouting']);
         Route::post('employee-overrides', [\App\Http\Controllers\Api\EmailSettingController::class, 'updateEmployeeOverrides']);
+        Route::get('approval-routing', [\App\Http\Controllers\Api\EmailSettingController::class, 'getApprovalRouting']);
+        Route::post('approval-routing', [\App\Http\Controllers\Api\EmailSettingController::class, 'updateApprovalRouting']);
         Route::post('test', [\App\Http\Controllers\Api\EmailSettingController::class, 'sendTestEmail']);
     });
 

@@ -60,6 +60,42 @@ class EmailService
             'bcc' => [],
         ];
 
+        // 0. Check ApprovalRoutingService (Role rules like Team Lead, Department rules, Employee rules, General without team)
+        try {
+            if (in_array($action, ['wfh_application', 'leave_application', 'leave_cl_short_notice'])) {
+                $isWfh = ($action === 'wfh_application');
+                $days = 1.0;
+                if ($isWfh && !empty($extraContext['wfh_request'])) {
+                    $wfhReq = $extraContext['wfh_request'];
+                    if (!empty($wfhReq->start_date) && !empty($wfhReq->end_date)) {
+                        $diff = \Carbon\Carbon::parse($wfhReq->start_date)->diffInDays(\Carbon\Carbon::parse($wfhReq->end_date)) + 1;
+                        $days = max(1.0, (float)$diff);
+                    }
+                } elseif (!empty($extraContext['leave_request'])) {
+                    $days = floatval($extraContext['leave_request']->days ?? 1.0);
+                }
+
+                $routing = \App\Services\ApprovalRoutingService::resolve($user, $isWfh ? 'wfh' : 'leave', $days);
+
+                if (!empty($routing['to_emails']) && in_array($routing['matched_type'], ['role_team_lead', 'department', 'employee', 'employee_legacy', 'general_no_team'], true)) {
+                    $recipients['to'] = $routing['to_emails'];
+                    $recipients['cc'] = $routing['cc_emails'];
+
+                    if (!empty($user->email) && filter_var($user->email, FILTER_VALIDATE_EMAIL)) {
+                        $recipients['cc'][] = trim($user->email);
+                    }
+
+                    $recipients['to'] = array_values(array_unique(array_filter($recipients['to'])));
+                    $recipients['cc'] = array_values(array_unique(array_filter($recipients['cc'])));
+
+                    Log::info("🎯 Resolved recipients from ApprovalRoutingService for action {$action} (type: {$routing['matched_type']})");
+                    return $recipients;
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::warning("ApprovalRoutingService resolution failed: " . $e->getMessage());
+        }
+
         $matchedOverride = null;
 
         // 1. Check for Employee-Specific Override first

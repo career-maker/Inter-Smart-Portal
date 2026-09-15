@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\EmailSetting;
+use App\Models\Team;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -202,6 +203,68 @@ class EmailSettingController extends Controller
             'status' => 'success',
             'message' => 'Employee email overrides saved successfully.',
             'data' => $cleanedOverrides,
+        ]);
+    }
+
+    /**
+     * Get approval routing rules (role-wise, department-wise, employee-wise)
+     * along with teams and users for dropdown account selection.
+     */
+    public function getApprovalRouting(Request $request): JsonResponse
+    {
+        $admin = $request->user();
+        if (!$admin->hasRole('Super Admin')) {
+            return response()->json(['message' => 'Forbidden: Super Admin access required.'], 403);
+        }
+
+        $rules = \App\Services\ApprovalRoutingService::getRules();
+
+        // Get teams
+        $teams = Team::select('id', 'name', 'code', 'team_lead_id')->with('teamLead:id,first_name,last_name,email')->get();
+
+        // Get active users for account picker
+        $users = User::where('status', 'Active')
+            ->select('id', 'first_name', 'last_name', 'email', 'employee_code', 'team_id', 'designation')
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'rules' => $rules,
+                'teams' => $teams,
+                'users' => $users,
+            ],
+        ]);
+    }
+
+    /**
+     * Update approval routing rules (role-wise, department-wise, employee-wise).
+     */
+    public function updateApprovalRouting(Request $request): JsonResponse
+    {
+        $admin = $request->user();
+        if (!$admin->hasRole('Super Admin')) {
+            return response()->json(['message' => 'Forbidden: Super Admin access required.'], 403);
+        }
+
+        $validated = $request->validate([
+            'role_rules' => 'nullable|array',
+            'department_rules' => 'nullable|array',
+            'employee_rules' => 'nullable|array',
+        ]);
+
+        $cleaned = [
+            'role_rules' => $validated['role_rules'] ?? [],
+            'department_rules' => $validated['department_rules'] ?? [],
+            'employee_rules' => $validated['employee_rules'] ?? [],
+        ];
+
+        \App\Services\ApprovalRoutingService::saveRules($cleaned);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Approval and email routing configurations saved successfully.',
+            'data' => \App\Services\ApprovalRoutingService::getRules(),
         ]);
     }
 
