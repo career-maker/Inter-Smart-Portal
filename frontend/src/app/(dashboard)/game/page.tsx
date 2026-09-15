@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { createPortal } from "react-dom";
 import { 
   Gamepad2, Play, ArrowLeft, Trophy, Sparkles, Zap, 
-  Maximize2, Swords, Crosshair, Rocket, Cpu, Search, Filter 
+  Maximize2, Swords, Crosshair, Rocket, Cpu, Search, Filter, ExternalLink
 } from "lucide-react";
 import { NetworkErrorWithGame } from "@/components/ui/NetworkErrorWithGame";
 
@@ -151,11 +152,64 @@ const GAMES: GameDef[] = [
   }
 ];
 
+const GAME_IFRAME_MAP: Record<
+  "neongalaxy" | "cybermatrix" | "bugsmart" | "battleroyale" | "imposter",
+  { src: string; title: string; bg: string; accentColor: string }
+> = {
+  neongalaxy: {
+    src: "/games/neon-galaxy.html",
+    title: "Neon Galaxy Star Fighter",
+    bg: "#030611",
+    accentColor: "#38bdf8",
+  },
+  cybermatrix: {
+    src: "/games/cyber-matrix.html",
+    title: "Cyber Matrix Code Breaker",
+    bg: "#050811",
+    accentColor: "#00ffcc",
+  },
+  bugsmart: {
+    src: "/games/bugsmart-bounty.html",
+    title: "BugSmart Bounty Game",
+    bg: "#06101a",
+    accentColor: "#43ddff",
+  },
+  battleroyale: {
+    src: "/games/bug-battle-royale.html",
+    title: "Bug Battle Royale Game",
+    bg: "#060b14",
+    accentColor: "#46d9ff",
+  },
+  imposter: {
+    src: "/games/imposter-aircraft.html",
+    title: "Imposter Aircraft Game",
+    bg: "#000000",
+    accentColor: "#fb923c",
+  },
+};
+
 export default function GamePage() {
   // ── All Hooks Defined at the Very Top (Strict Rules of Hooks Compliance) ──
+  const [mounted, setMounted] = useState(false);
   const [activeGame, setActiveGame] = useState<GameKey>(null);
   const [selectedCategory, setSelectedCategory] = useState<CategoryKey>("all");
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Listen for ESC key to exit active game mode
+  useEffect(() => {
+    if (!activeGame) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setActiveGame(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [activeGame]);
 
   const filteredGames = useMemo(() => {
     return GAMES.filter(g => {
@@ -168,110 +222,58 @@ export default function GamePage() {
     });
   }, [selectedCategory, searchQuery]);
 
-  // ── Fullscreen Game Mode Returns (Only AFTER all hooks have executed) ──
-  if (activeGame === "neongalaxy") {
-    return (
-      <div className="fixed inset-0 z-[99999] bg-[#030611] w-screen h-screen overflow-hidden flex flex-col">
-        <button
-          onClick={() => setActiveGame(null)}
-          className="absolute top-3.5 left-4 z-[100000] inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#081521]/95 hover:bg-[#0e2438] text-white font-bold text-xs border border-[#1e4460] shadow-2xl backdrop-blur-md transition-all cursor-pointer group"
-          title="Exit game and return to games hub"
+  // ── Fullscreen Game Overlay (Using React Portal to escape dashboard layout isolation) ──
+  if (activeGame && activeGame !== "runner") {
+    const config = GAME_IFRAME_MAP[activeGame];
+    if (config && mounted) {
+      return createPortal(
+        <div 
+          style={{ backgroundColor: config.bg }}
+          className="fixed inset-0 z-[999999] w-screen h-screen overflow-hidden flex flex-col select-none"
         >
-          <ArrowLeft className="w-4 h-4 text-[#38bdf8] group-hover:-translate-x-1 transition-transform" />
-          <span>Back to Games</span>
-        </button>
-        <iframe
-          src="/games/neon-galaxy.html"
-          className="w-full h-full border-0 flex-1"
-          title="Neon Galaxy Star Fighter"
-          allow="fullscreen; autoplay"
-        />
-      </div>
-    );
-  }
+          {/* Top Control Bar */}
+          <div className="h-14 px-4 bg-black/85 backdrop-blur-md border-b border-white/10 flex items-center justify-between z-[1000000] shrink-0">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setActiveGame(null)}
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/15 shadow-md transition-all cursor-pointer group"
+                title="Return to Arcade (Press Esc)"
+              >
+                <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" style={{ color: config.accentColor }} />
+                <span>Back to Games</span>
+              </button>
+              <div className="hidden sm:flex items-center gap-2 text-xs text-white/70">
+                <span className="font-semibold text-white">{config.title}</span>
+                <span className="text-white/40">•</span>
+                <span className="text-[11px] text-white/50">Press <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-white/80 text-[10px] font-mono">Esc</kbd> to exit</span>
+              </div>
+            </div>
 
-  if (activeGame === "cybermatrix") {
-    return (
-      <div className="fixed inset-0 z-[99999] bg-[#050811] w-screen h-screen overflow-hidden flex flex-col">
-        <button
-          onClick={() => setActiveGame(null)}
-          className="absolute top-3.5 left-4 z-[100000] inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#081521]/95 hover:bg-[#0e2438] text-white font-bold text-xs border border-[#1e4460] shadow-2xl backdrop-blur-md transition-all cursor-pointer group"
-          title="Exit game and return to games hub"
-        >
-          <ArrowLeft className="w-4 h-4 text-[#00ffcc] group-hover:-translate-x-1 transition-transform" />
-          <span>Back to Games</span>
-        </button>
-        <iframe
-          src="/games/cyber-matrix.html"
-          className="w-full h-full border-0 flex-1"
-          title="Cyber Matrix Code Breaker"
-          allow="fullscreen; autoplay"
-        />
-      </div>
-    );
-  }
+            <div className="flex items-center gap-2">
+              <a
+                href={`${config.src}?v=3`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white/90 hover:text-white text-xs font-semibold border border-white/15 transition-colors cursor-pointer"
+                title="Open game in dedicated window/tab"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                <span className="hidden md:inline">Open in New Tab</span>
+              </a>
+            </div>
+          </div>
 
-  if (activeGame === "bugsmart") {
-    return (
-      <div className="fixed inset-0 z-[99999] bg-[#06101a] w-screen h-screen overflow-hidden flex flex-col">
-        <button
-          onClick={() => setActiveGame(null)}
-          className="absolute top-3.5 left-4 z-[100000] inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#081521]/95 hover:bg-[#0e2438] text-white font-bold text-xs border border-[#1e4460] shadow-2xl backdrop-blur-md transition-all cursor-pointer group"
-          title="Exit game and return to games hub"
-        >
-          <ArrowLeft className="w-4 h-4 text-[#43ddff] group-hover:-translate-x-1 transition-transform" />
-          <span>Back to Games</span>
-        </button>
-        <iframe
-          src="/games/bugsmart-bounty.html"
-          className="w-full h-full border-0 flex-1"
-          title="BugSmart Bounty Game"
-          allow="fullscreen; autoplay"
-        />
-      </div>
-    );
-  }
-
-  if (activeGame === "battleroyale") {
-    return (
-      <div className="fixed inset-0 z-[99999] bg-[#060b14] w-screen h-screen overflow-hidden flex flex-col">
-        <button
-          onClick={() => setActiveGame(null)}
-          className="absolute top-3.5 left-4 z-[100000] inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#081521]/95 hover:bg-[#0e2438] text-white font-bold text-xs border border-[#1e4460] shadow-2xl backdrop-blur-md transition-all cursor-pointer group"
-          title="Exit game and return to games hub"
-        >
-          <ArrowLeft className="w-4 h-4 text-[#46d9ff] group-hover:-translate-x-1 transition-transform" />
-          <span>Back to Games</span>
-        </button>
-        <iframe
-          src="/games/bug-battle-royale.html"
-          className="w-full h-full border-0 flex-1"
-          title="Bug Battle Royale Game"
-          allow="fullscreen; autoplay"
-        />
-      </div>
-    );
-  }
-
-  if (activeGame === "imposter") {
-    return (
-      <div className="fixed inset-0 z-[99999] bg-black w-screen h-screen overflow-hidden flex flex-col">
-        <button
-          onClick={() => setActiveGame(null)}
-          className="absolute top-3.5 left-4 z-[100000] inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#081521]/95 hover:bg-[#0e2438] text-white font-bold text-xs border border-[#1e4460] shadow-2xl backdrop-blur-md transition-all cursor-pointer group"
-          title="Exit game and return to games hub"
-        >
-          <ArrowLeft className="w-4 h-4 text-[#38bdf8] group-hover:-translate-x-1 transition-transform" />
-          <span>Back to Games</span>
-        </button>
-        <iframe
-          src="/games/imposter-aircraft.html"
-          className="w-full h-full border-0 flex-1"
-          title="Imposter Aircraft Game"
-          allow="fullscreen; autoplay"
-        />
-      </div>
-    );
+          {/* Embedded Game Frame */}
+          <iframe
+            src={`${config.src}?v=3`}
+            className="w-full h-full border-0 flex-1 bg-transparent"
+            title={config.title}
+            allow="fullscreen; autoplay"
+          />
+        </div>,
+        document.body
+      );
+    }
   }
 
   if (activeGame === "runner") {

@@ -67,7 +67,7 @@ const nextConfig: NextConfig = {
         source: "/(.*)",
         headers: [
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
-          { key: "Content-Security-Policy", value: "frame-ancestors 'self'" },
+          { key: "Content-Security-Policy", value: "frame-ancestors 'self' https://*.intersmart.in https://workplace.intersmart.in https://www.workplace.intersmart.in" },
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
@@ -77,7 +77,9 @@ const nextConfig: NextConfig = {
         source: "/games/:path*",
         headers: [
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
-          { key: "Content-Security-Policy", value: "frame-ancestors 'self'" },
+          { key: "Content-Security-Policy", value: "frame-ancestors 'self' https://*.intersmart.in https://workplace.intersmart.in https://www.workplace.intersmart.in" },
+          { key: "Cache-Control", value: "no-cache, no-store, must-revalidate, max-age=0" },
+          { key: "Pragma", value: "no-cache" },
         ],
       },
     ];
