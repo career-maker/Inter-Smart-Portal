@@ -54,6 +54,10 @@ class WfhRequestController extends Controller
             ->values()
             ->all();
 
+        $isUserTL = $user->hasRole('Team Lead')
+            || in_array(strtolower($user->role ?? ''), ['team lead', 'lead'], true)
+            || \App\Models\Team::where('team_lead_id', $user->id)->exists();
+
         if ($user->hasRole('Super Admin') || $user->hasRole('HR')) {
             if ($request->has('status') && $request->status === 'Pending') {
                 // Admin sees requests where TL has acted, TL is not required, or employee has no team/TL
@@ -71,19 +75,21 @@ class WfhRequestController extends Controller
             } elseif ($request->has('status')) {
                 $query->where('status', $request->status);
             }
-        } elseif ($user->hasRole('Team Lead') || !empty($delegatedEmployeeIds)) {
-            $teamId = $user->team_id;
-            $query->where(function ($mainQ) use ($user, $teamId, $delegatedEmployeeIds, $redirectedAwayEmployeeIds) {
-                if ($user->hasRole('Team Lead')) {
-                    $mainQ->where(function ($subQ) use ($teamId, $redirectedAwayEmployeeIds) {
-                        $subQ->whereHas('user', fn($uq) => $uq->where('team_id', $teamId));
+        } elseif ($isUserTL || !empty($delegatedEmployeeIds)) {
+            $ledTeamIds = \App\Models\Team::where('team_lead_id', $user->id)->pluck('id')->toArray();
+            $allTeamIds = array_unique(array_filter(array_merge([$user->team_id], $ledTeamIds)));
+
+            $query->where(function ($mainQ) use ($isUserTL, $allTeamIds, $delegatedEmployeeIds, $redirectedAwayEmployeeIds) {
+                if ($isUserTL && !empty($allTeamIds)) {
+                    $mainQ->where(function ($subQ) use ($allTeamIds, $redirectedAwayEmployeeIds) {
+                        $subQ->whereHas('user', fn($uq) => $uq->whereIn('team_id', $allTeamIds));
                         if (!empty($redirectedAwayEmployeeIds)) {
                             $subQ->whereNotIn('user_id', $redirectedAwayEmployeeIds);
                         }
                     });
                 }
                 if (!empty($delegatedEmployeeIds)) {
-                    if ($user->hasRole('Team Lead')) {
+                    if ($isUserTL && !empty($allTeamIds)) {
                         $mainQ->orWhereIn('user_id', $delegatedEmployeeIds);
                     } else {
                         $mainQ->whereIn('user_id', $delegatedEmployeeIds);
@@ -174,13 +180,17 @@ class WfhRequestController extends Controller
         $status      = 'Pending';
         $approvedBy  = null;
 
+        $isApplicantTL = $user->hasRole('Team Lead')
+            || in_array(strtolower($user->role ?? ''), ['team lead', 'lead'], true)
+            || \App\Models\Team::where('team_lead_id', $user->id)->exists();
+
         if ($user->hasRole('Super Admin') || $user->hasRole('HR')) {
             // Super Admin / HR auto-approved — no approval chain needed
             $tlStatus    = 'Not Required';
             $adminStatus = 'Not Required';
             $status      = 'Approved';
             $approvedBy  = $user->id;
-        } elseif ($user->hasRole('Team Lead') || !$user->hasTeamLead()) {
+        } elseif ($isApplicantTL || !$user->hasTeamLead()) {
             // TL or employee with no Team Lead — skip TL step, send only to Admin
             $tlStatus    = 'Not Required';
             $adminStatus = 'Pending';
@@ -291,6 +301,19 @@ class WfhRequestController extends Controller
                 (int)($item['approver_user_id_2'] ?? 0) !== (int)$user->id;
         });
 
+        $isTeamLeadRole = $user->hasRole('Team Lead')
+            || in_array(strtolower($user->role ?? ''), ['team lead', 'lead'], true)
+            || \App\Models\Team::where('team_lead_id', $user->id)->exists();
+
+        $isApplicantTL = ($applicant->team_id && (
+            (int)$applicant->team_id === (int)$user->team_id ||
+            \App\Models\Team::where('id', $applicant->team_id)->where('team_lead_id', $user->id)->exists()
+        )) || ($applicant->teamLead()?->id === $user->id);
+
+        $isApplicantTLRole = $applicant->hasRole('Team Lead')
+            || in_array(strtolower($applicant->role ?? ''), ['team lead', 'lead'], true)
+            || \App\Models\Team::where('team_lead_id', $applicant->id)->exists();
+
         // Authorization check
         if ($user->hasRole('Super Admin') || $user->hasRole('HR')) {
             // Always authorized
@@ -299,14 +322,14 @@ class WfhRequestController extends Controller
             if ($wfhRequest->tl_status !== 'Pending') {
                 return response()->json(['message' => 'You have already acted on this request.'], 400);
             }
-        } elseif ($user->hasRole('Team Lead')) {
+        } elseif ($isTeamLeadRole) {
             if ($hasAnotherApproverDelegated) {
                 return response()->json(['message' => 'Approval for this employee has been redirected to a dedicated custom manager.'], 403);
             }
-            if ($applicant->team_id !== $user->team_id) {
+            if (!$isApplicantTL && $applicant->team_id !== $user->team_id) {
                 return response()->json(['message' => 'Unauthorized to approve this request.'], 403);
             }
-            if ($applicant->hasRole('Team Lead')) {
+            if ($isApplicantTLRole) {
                 return response()->json(['message' => 'Team Lead WFH requests must be approved by a Super Admin.'], 403);
             }
             if ($wfhRequest->tl_status !== 'Pending') {
@@ -316,7 +339,7 @@ class WfhRequestController extends Controller
             return response()->json(['message' => 'Unauthorized.'], 403);
         }
 
-        $isInitialApproverRole = $user->hasRole('Team Lead') || $isCustomApprover;
+        $isInitialApproverRole = $isTeamLeadRole || $isCustomApprover;
 
         $newStatus = $data['status']; // 'Approved' or 'Rejected'
 

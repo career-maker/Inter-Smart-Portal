@@ -25,7 +25,7 @@ const DURATION_OPTIONS = [
 const STEPS = [
   { id: 1, title: "WFH Type",   desc: "Choose your session" },
   { id: 2, title: "Date Range", desc: "Select the date(s)" },
-  { id: 3, title: "Reason",     desc: "Describe your tasks" },
+  { id: 3, title: "Reason",     desc: "Provide your reason" },
   { id: 4, title: "Review",     desc: "Confirm & submit" },
 ];
 
@@ -38,6 +38,27 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 /* ─── Helpers ───────────────────────────────────────────────────── */
+function calcWfhDays(req: any): string {
+  if (req?.days_count !== undefined && req?.days_count !== null) {
+    return Number(req.days_count).toFixed(1);
+  }
+  const isHalf = req?.duration_type === "Half-Morning" || req?.duration_type === "Half-Afternoon";
+  if (isHalf) return "0.5";
+  if (!req?.start_date) return "1.0";
+  if (!req?.end_date || req.end_date === req.start_date) return "1.0";
+
+  try {
+    const s = new Date(req.start_date + "T00:00:00");
+    const e = new Date(req.end_date + "T00:00:00");
+    const diffMs = e.getTime() - s.getTime();
+    if (isNaN(diffMs) || diffMs < 0) return "1.0";
+    const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24)) + 1;
+    return diffDays.toFixed(1);
+  } catch {
+    return "1.0";
+  }
+}
+
 function fmtDate(d: string) {
   try { return format(new Date(d + "T00:00:00"), "dd MMM yyyy"); }
   catch { return d; }
@@ -313,9 +334,15 @@ export default function WfhPage() {
         </span>
       );
 
+    const tlStatusLower = (req.tl_status || "").toLowerCase();
+    const adminStatusLower = (req.admin_status || "").toLowerCase();
+
     let pendingText = "Pending";
-    if (req.tl_status === "Pending") pendingText = "Pending TL";
-    else if (req.admin_status === "Pending") pendingText = "Pending Admin";
+    if (tlStatusLower === "pending") {
+      pendingText = "Pending TL";
+    } else if (adminStatusLower === "pending" || tlStatusLower === "approved" || tlStatusLower === "not required") {
+      pendingText = "Pending Admin";
+    }
 
     return (
       <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20">
@@ -324,7 +351,9 @@ export default function WfhPage() {
     );
   };
 
-  const pendingCount = requests.filter(r => r.status === "Pending").length;
+  const pendingCount = isTeamLead
+    ? requests.filter(r => r.status === "Pending" && (r.tl_status || "").toLowerCase() === "pending" && r.user_id !== user?.id).length
+    : requests.filter(r => r.status === "Pending").length;
 
   // Filter requests based on active view tab
   const displayedRequests = activeView === "my"
@@ -612,13 +641,13 @@ export default function WfhPage() {
             {step === 3 && (
               <div className="animate-in fade-in slide-in-from-right-4 duration-300">
                 <div className="mb-6">
-                  <h2 className="text-lg font-bold text-slate-900 dark:text-white">Describe Your Tasks</h2>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Tell your manager what you&apos;ll be working on</p>
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-white">Reason for WFH</h2>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Please provide the reason for working from home</p>
                 </div>
                 <textarea
                   rows={6}
                   {...form.register("reason")}
-                  placeholder="e.g. Working on the Q3 report, attending online client calls, fixing critical bugs on the production server…"
+                  placeholder="e.g. Need to work from home due to family commitment, personal work, attending client calls from home…"
                   className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-xl px-4 py-3 outline-none focus:border-amber-500 placeholder:text-slate-400 resize-none transition-colors"
                 />
                 {form.formState.errors.reason && <p className="text-xs text-red-500 mt-1.5">{form.formState.errors.reason.message}</p>}
@@ -657,7 +686,7 @@ export default function WfhPage() {
                   </div>
 
                   <div className="p-4 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl">
-                    <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold mb-2">Reason / Tasks</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold mb-2">Reason</p>
                     <p className="text-sm text-slate-800 dark:text-slate-200 leading-relaxed whitespace-pre-wrap">{reason || "—"}</p>
                   </div>
                 </div>
@@ -830,13 +859,11 @@ export default function WfhPage() {
                 <tbody className="divide-y divide-slate-200/80 dark:divide-slate-800">
                   {displayedRequests.map((req) => {
                     const singleDay = !req.end_date || req.end_date === req.start_date;
-                    const isHalf = req.duration_type !== "Full";
-                    const daysVal = isHalf ? "0.5" : "1.0";
                     const isOwnRequest = (req.user_id === user?.id || req.user?.id === user?.id);
 
                     // Check if current user can approve this request
                     const canApproveRow = (isSuperAdmin && req.status === "Pending") ||
-                      (isTeamLead && !isOwnRequest && req.tl_status === "Pending" && req.status === "Pending");
+                      (isTeamLead && !isOwnRequest && (req.tl_status || "").toLowerCase() === "pending" && req.status === "Pending");
 
                     return (
                       <tr key={req.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
@@ -880,7 +907,7 @@ export default function WfhPage() {
                         </td>
 
                         <td className="px-3 py-3 align-middle text-center font-bold text-slate-900 dark:text-white text-xs">
-                          {daysVal}
+                          {calcWfhDays(req)}
                         </td>
 
                         <td className="px-3 py-3 align-middle text-xs text-slate-600 dark:text-slate-300 break-words whitespace-normal leading-tight">

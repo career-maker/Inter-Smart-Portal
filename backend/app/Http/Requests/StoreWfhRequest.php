@@ -33,7 +33,7 @@ class StoreWfhRequest extends FormRequest
             'start_date.required'    => 'Please select a date.',
             'end_date.required'      => 'Please select an end date.',
             'end_date.after_or_equal'=> 'End date must be on or after the start date.',
-            'reason.required'        => 'Please provide a reason or task description.',
+            'reason.required'        => 'Please provide a reason.',
         ];
     }
 }

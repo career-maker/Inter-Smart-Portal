@@ -42,6 +42,27 @@ function fmtDate(d?: string | null) {
   }
 }
 
+function calcWfhDays(req: any): string {
+  if (req?.days_count !== undefined && req?.days_count !== null) {
+    return Number(req.days_count).toFixed(1);
+  }
+  const isHalf = req?.duration_type === "Half-Morning" || req?.duration_type === "Half-Afternoon";
+  if (isHalf) return "0.5";
+  if (!req?.start_date) return "1.0";
+  if (!req?.end_date || req.end_date === req.start_date) return "1.0";
+
+  try {
+    const s = new Date(req.start_date + "T00:00:00");
+    const e = new Date(req.end_date + "T00:00:00");
+    const diffMs = e.getTime() - s.getTime();
+    if (isNaN(diffMs) || diffMs < 0) return "1.0";
+    const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24)) + 1;
+    return diffDays.toFixed(1);
+  } catch {
+    return "1.0";
+  }
+}
+
 function DurationBadge({ type }: { type: string }) {
   const map: Record<string, string> = {
     Full: "bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800",
@@ -311,12 +332,16 @@ export default function ApprovalsPage() {
         if (approvedItem) {
           const updated = response.data?.data || {
             ...approvedItem,
-            status: "Approved",
+            status: isSuperAdmin ? "Approved" : "Pending",
             tl_status: "Approved",
-            admin_status: "Approved",
+            admin_status: isSuperAdmin ? "Approved" : "Pending",
           };
-          setWfhRequests((prev) => prev.filter((r) => r.id !== id));
-          setApprovedWfh((prev) => [updated, ...prev.filter((r) => r.id !== id)]);
+          if (isSuperAdmin) {
+            setWfhRequests((prev) => prev.filter((r) => r.id !== id));
+            setApprovedWfh((prev) => [updated, ...prev.filter((r) => r.id !== id)]);
+          } else {
+            setWfhRequests((prev) => prev.filter((r) => r.id !== id));
+          }
         }
       }
 
@@ -983,16 +1008,19 @@ export default function ApprovalsPage() {
                       {req.end_date && req.end_date !== req.start_date && (
                         <span className="text-slate-500 dark:text-slate-400"> - {fmtDate(req.end_date)}</span>
                       )}
+                      <span className="ml-1 text-[10px] font-bold text-amber-700 dark:text-amber-400">
+                        ({calcWfhDays(req)} {Number(calcWfhDays(req)) === 1 ? "day" : "days"})
+                      </span>
                     </td>
 
                     {/* TL Status */}
                     <td className="py-2.5 px-2 align-middle text-center border-r border-slate-100 dark:border-slate-800/60 break-words whitespace-normal leading-tight">
                       <span className={`text-[10px] font-bold ${
-                        req.tl_status === "Approved"
+                        (req.tl_status || "").toLowerCase() === "approved"
                           ? "text-emerald-600 dark:text-emerald-400"
-                          : req.tl_status === "Rejected"
+                          : (req.tl_status || "").toLowerCase() === "rejected"
                           ? "text-rose-600 dark:text-rose-400"
-                          : req.tl_status === "Not Required"
+                          : (req.tl_status || "").toLowerCase() === "not required"
                           ? "text-slate-500 dark:text-slate-400 font-medium"
                           : "text-amber-600 dark:text-amber-400"
                       }`}>
@@ -1021,7 +1049,11 @@ export default function ApprovalsPage() {
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
-                          <Clock className="w-2.5 h-2.5 text-amber-500" /> Pending
+                          <Clock className="w-2.5 h-2.5 text-amber-500" /> {
+                            (req.tl_status || "").toLowerCase() === "approved" || (req.tl_status || "").toLowerCase() === "not required"
+                              ? "Pending Admin"
+                              : "Pending TL"
+                          }
                         </span>
                       )}
                     </td>
