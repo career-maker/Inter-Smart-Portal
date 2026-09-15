@@ -248,6 +248,17 @@ export default function GamePage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [activeGame, showInGameLeaderboard]);
 
+  // Lock body scroll while fullscreen game overlay is active
+  useEffect(() => {
+    if (activeGame && activeGame !== "runner") {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [activeGame]);
+
   // Listen for score postMessage from iframe games
   useEffect(() => {
     const handleMessage = (e: MessageEvent) => {
@@ -276,8 +287,20 @@ export default function GamePage() {
     if (config && mounted) {
       return createPortal(
         <div 
-          style={{ backgroundColor: config.bg }}
-          className="fixed inset-0 z-[999999] w-full h-full h-[100dvh] overflow-hidden flex flex-col select-none relative"
+          style={{
+            backgroundColor: config.bg,
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: "100vw",
+            height: "100vh",
+            zIndex: 9999999,
+            margin: 0,
+            padding: 0,
+          }}
+          className="fixed inset-0 w-screen h-screen h-[100dvh] overflow-hidden flex flex-col select-none"
         >
           {/* Top Control Bar */}
           <div className="h-12 sm:h-14 px-2.5 sm:px-4 bg-black/90 backdrop-blur-md border-b border-white/10 flex items-center justify-between z-[1000000] shrink-0">
@@ -331,7 +354,7 @@ export default function GamePage() {
           {/* Embedded Game Frame */}
           <iframe
             src={`${config.src}?v=3`}
-            className="w-full h-full border-0 flex-1 bg-transparent"
+            className="w-full h-full min-h-0 border-0 flex-1 bg-transparent block"
             title={config.title}
             allow="fullscreen; autoplay"
           />
