@@ -65,6 +65,7 @@ export interface TeamLeadApprovalRuleGroup {
   name?: string;
   team_lead_ids: number[];
   wfh: RoleApprovalRule;
+  wfh_multi_day?: RoleApprovalRule;
   leave_single_day: RoleApprovalRule;
   leave_multi_day: RoleApprovalRule;
   enabled: boolean;
@@ -88,6 +89,7 @@ export interface EmployeeApprovalRuleGroup {
   name?: string;
   user_ids: number[];
   wfh: RoleApprovalRule;
+  wfh_multi_day?: RoleApprovalRule;
   leave_single_day: RoleApprovalRule;
   leave_multi_day: RoleApprovalRule;
   enabled: boolean;
@@ -99,6 +101,7 @@ export interface ApprovalRoutingRules {
   role_rules: {
     team_lead: {
       wfh: RoleApprovalRule;
+      wfh_multi_day?: RoleApprovalRule;
       leave_single_day: RoleApprovalRule;
       leave_multi_day: RoleApprovalRule;
     };

@@ -13,6 +13,7 @@ import {
   AlertCircle,
   Loader2,
   Home,
+  Building2,
   Calendar,
   Layers,
   X,
@@ -30,12 +31,23 @@ import emailSettingsApi, {
 } from "@/services/emailSettings";
 import { Portal } from "@/components/ui/portal";
 
-const createDefaultThreeCards = (): {
+const createDefaultCards = (): {
   wfh: RoleApprovalRule;
+  wfh_multi_day: RoleApprovalRule;
   leave_single_day: RoleApprovalRule;
   leave_multi_day: RoleApprovalRule;
 } => ({
   wfh: {
+    to_user_id: null,
+    to_email: null,
+    to_user_id_2: null,
+    to_email_2: "admin@intersmart.in",
+    cc_user_ids: [],
+    cc_emails: ["hr@intersmart.in", "admin@intersmart.in"],
+    approval_level: "multi",
+    enabled: true,
+  },
+  wfh_multi_day: {
     to_user_id: null,
     to_email: null,
     to_user_id_2: null,
@@ -66,6 +78,8 @@ const createDefaultThreeCards = (): {
     enabled: true,
   },
 });
+
+const createDefaultThreeCards = createDefaultCards;
 
 export const getCcCount = (card?: RoleApprovalRule | null): number => {
   if (!card) return 0;
@@ -106,24 +120,29 @@ export const normalizeCard = (card: RoleApprovalRule, allUsers: any[]): RoleAppr
 
 interface ThreeCardsEditorProps {
   wfh: RoleApprovalRule;
+  wfhMulti?: RoleApprovalRule;
   leaveSingle: RoleApprovalRule;
   leaveMulti: RoleApprovalRule;
   users: any[];
   onUpdateWfh: (updated: RoleApprovalRule) => void;
+  onUpdateWfhMulti?: (updated: RoleApprovalRule) => void;
   onUpdateLeaveSingle: (updated: RoleApprovalRule) => void;
   onUpdateLeaveMulti: (updated: RoleApprovalRule) => void;
 }
 
 function ThreeCardsEditor({
   wfh,
+  wfhMulti,
   leaveSingle,
   leaveMulti,
   users,
   onUpdateWfh,
+  onUpdateWfhMulti,
   onUpdateLeaveSingle,
   onUpdateLeaveMulti,
 }: ThreeCardsEditorProps) {
   const [ccSearchWfh, setCcSearchWfh] = useState("");
+  const [ccSearchWfhMulti, setCcSearchWfhMulti] = useState("");
   const [ccSearchSingle, setCcSearchSingle] = useState("");
   const [ccSearchMulti, setCcSearchMulti] = useState("");
 
@@ -411,15 +430,24 @@ function ThreeCardsEditor({
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
       {renderCard(
-        "WFH Request",
-        "Work from home remote routing",
+        "1-Day WFH",
+        "Single-day remote work",
         <Home className="w-4 h-4 text-purple-600" />,
         wfh,
         onUpdateWfh,
         ccSearchWfh,
         setCcSearchWfh
+      )}
+      {wfhMulti && onUpdateWfhMulti && renderCard(
+        "Multi-Day WFH",
+        "Remote work (> 1 day)",
+        <Building2 className="w-4 h-4 text-indigo-600" />,
+        wfhMulti,
+        onUpdateWfhMulti,
+        ccSearchWfhMulti,
+        setCcSearchWfhMulti
       )}
       {renderCard(
         "1-Day Leave",
@@ -744,11 +772,11 @@ export default function ApprovalRoutingTab() {
 
   // ── Team Lead Default Rule Updater ──
   const updateDefaultTlRuleCard = (
-    key: "wfh" | "leave_single_day" | "leave_multi_day",
+    key: "wfh" | "wfh_multi_day" | "leave_single_day" | "leave_multi_day",
     updatedCard: RoleApprovalRule
   ) => {
     setRules((prev) => {
-      const tl = prev.role_rules?.team_lead || createDefaultThreeCards();
+      const tl = prev.role_rules?.team_lead || createDefaultCards();
       return {
         ...prev,
         role_rules: {
@@ -764,12 +792,13 @@ export default function ApprovalRoutingTab() {
 
   // ── Team Lead Custom Rule Modal Handlers ──
   const openNewTlRuleModal = () => {
-    const defaults = createDefaultThreeCards();
+    const defaults = createDefaultCards();
     setTlModalForm({
       id: "tl_rule_" + Date.now(),
       name: "",
       team_lead_ids: [],
       wfh: normalizeCard(defaults.wfh, users),
+      wfh_multi_day: normalizeCard(defaults.wfh_multi_day, users),
       leave_single_day: normalizeCard(defaults.leave_single_day, users),
       leave_multi_day: normalizeCard(defaults.leave_multi_day, users),
       enabled: true,
@@ -778,10 +807,11 @@ export default function ApprovalRoutingTab() {
   };
 
   const openEditTlRuleModal = (rule: TeamLeadApprovalRuleGroup) => {
-    const defaults = createDefaultThreeCards();
+    const defaults = createDefaultCards();
     setTlModalForm({
       ...rule,
       wfh: normalizeCard({ ...defaults.wfh, ...(rule.wfh || {}) }, users),
+      wfh_multi_day: normalizeCard({ ...defaults.wfh_multi_day, ...(rule.wfh_multi_day || rule.wfh || {}) }, users),
       leave_single_day: normalizeCard({ ...defaults.leave_single_day, ...(rule.leave_single_day || {}) }, users),
       leave_multi_day: normalizeCard({ ...defaults.leave_multi_day, ...(rule.leave_multi_day || {}) }, users),
     });
@@ -856,12 +886,13 @@ export default function ApprovalRoutingTab() {
 
   // ── Employee Rule Modal Handlers ──
   const openNewEmpRuleModal = () => {
-    const defaults = createDefaultThreeCards();
+    const defaults = createDefaultCards();
     setEmpModalForm({
       id: "emp_rule_" + Date.now(),
       name: "",
       user_ids: [],
       wfh: normalizeCard(defaults.wfh, users),
+      wfh_multi_day: normalizeCard(defaults.wfh_multi_day, users),
       leave_single_day: normalizeCard(defaults.leave_single_day, users),
       leave_multi_day: normalizeCard(defaults.leave_multi_day, users),
       enabled: true,
@@ -870,11 +901,12 @@ export default function ApprovalRoutingTab() {
   };
 
   const openEditEmpRuleModal = (rule: EmployeeApprovalRuleGroup) => {
-    const defaults = createDefaultThreeCards();
+    const defaults = createDefaultCards();
     setEmpModalForm({
       ...rule,
       user_ids: rule.user_ids || ((rule as any).user_id ? [(rule as any).user_id] : []),
       wfh: normalizeCard({ ...defaults.wfh, ...(rule.wfh || {}) }, users),
+      wfh_multi_day: normalizeCard({ ...defaults.wfh_multi_day, ...(rule.wfh_multi_day || rule.wfh || {}) }, users),
       leave_single_day: normalizeCard({ ...defaults.leave_single_day, ...(rule.leave_single_day || {}) }, users),
       leave_multi_day: normalizeCard({ ...defaults.leave_multi_day, ...(rule.leave_multi_day || {}) }, users),
     });
@@ -1148,14 +1180,14 @@ export default function ApprovalRoutingTab() {
                         </div>
                       </div>
 
-                      {/* Display Summary of the 3 Cards */}
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-                        {/* WFH Summary */}
+                      {/* Display Summary of the 4 Cards */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                        {/* 1-Day WFH Summary */}
                         <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1">
                           <div className="flex items-center justify-between">
                             <span className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
                               <Home className="w-3.5 h-3.5 text-purple-600" />
-                              <span>WFH Routing</span>
+                              <span>1-Day WFH</span>
                             </span>
                             <span
                               className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${
@@ -1183,6 +1215,42 @@ export default function ApprovalRoutingTab() {
                           <div className="text-[11px] text-slate-400">
                             {rule.wfh?.approval_level === "multi" ? "Multi-Level" : "Single-Level"} •{" "}
                             {getCcCount(rule.wfh)} CC(s)
+                          </div>
+                        </div>
+
+                        {/* Multi-Day WFH Summary */}
+                        <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                              <Building2 className="w-3.5 h-3.5 text-indigo-600" />
+                              <span>Multi-Day WFH</span>
+                            </span>
+                            <span
+                              className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${
+                                (rule.wfh_multi_day || rule.wfh)?.enabled
+                                  ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
+                                  : "bg-slate-200 text-slate-600 dark:bg-slate-700"
+                              }`}
+                            >
+                              {(rule.wfh_multi_day || rule.wfh)?.enabled ? "Enabled" : "Disabled"}
+                            </span>
+                          </div>
+                          <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                            Approver:{" "}
+                            <strong className="text-slate-800 dark:text-slate-200">
+                              {users.find((u) => u.id === (rule.wfh_multi_day || rule.wfh)?.to_user_id)?.first_name ||
+                                (rule.wfh_multi_day || rule.wfh)?.to_email ||
+                                "Super Admin"}
+                            </strong>
+                            {(rule.wfh_multi_day || rule.wfh)?.approval_level === "multi" && (
+                              <span className="text-[#56348f] dark:text-purple-300 font-semibold">
+                                {" "}→ {users.find((u) => u.id === (rule.wfh_multi_day || rule.wfh)?.to_user_id_2)?.first_name || (rule.wfh_multi_day || rule.wfh)?.to_email_2 || "Super Admin"}
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-[11px] text-slate-400">
+                            {(rule.wfh_multi_day || rule.wfh)?.approval_level === "multi" ? "Multi-Level" : "Single-Level"} •{" "}
+                            {getCcCount(rule.wfh_multi_day || rule.wfh)} CC(s)
                           </div>
                         </div>
 
@@ -1285,10 +1353,12 @@ export default function ApprovalRoutingTab() {
 
             <ThreeCardsEditor
               wfh={defaultTl.wfh}
+              wfhMulti={defaultTl.wfh_multi_day || defaultTl.wfh}
               leaveSingle={defaultTl.leave_single_day}
               leaveMulti={defaultTl.leave_multi_day}
               users={users}
               onUpdateWfh={(updated) => updateDefaultTlRuleCard("wfh", updated)}
+              onUpdateWfhMulti={(updated) => updateDefaultTlRuleCard("wfh_multi_day", updated)}
               onUpdateLeaveSingle={(updated) => updateDefaultTlRuleCard("leave_single_day", updated)}
               onUpdateLeaveMulti={(updated) => updateDefaultTlRuleCard("leave_multi_day", updated)}
             />
@@ -1397,14 +1467,14 @@ export default function ApprovalRoutingTab() {
                       </div>
                     </div>
 
-                    {/* Display Summary of the 3 Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-                      {/* WFH Summary */}
+                    {/* Display Summary of the 4 Cards */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                      {/* 1-Day WFH Summary */}
                       <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1">
                         <div className="flex items-center justify-between">
                           <span className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
                             <Home className="w-3.5 h-3.5 text-purple-600" />
-                            <span>WFH Routing</span>
+                            <span>1-Day WFH</span>
                           </span>
                           <span
                             className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${
@@ -1432,6 +1502,42 @@ export default function ApprovalRoutingTab() {
                         <div className="text-[11px] text-slate-400">
                           {rule.wfh?.approval_level === "multi" ? "Multi-Level" : "Single-Level"} •{" "}
                           {getCcCount(rule.wfh)} CC(s)
+                        </div>
+                      </div>
+
+                      {/* Multi-Day WFH Summary */}
+                      <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                            <Building2 className="w-3.5 h-3.5 text-indigo-600" />
+                            <span>Multi-Day WFH</span>
+                          </span>
+                          <span
+                            className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${
+                              (rule.wfh_multi_day || rule.wfh)?.enabled
+                                ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
+                                : "bg-slate-200 text-slate-600 dark:bg-slate-700"
+                            }`}
+                          >
+                            {(rule.wfh_multi_day || rule.wfh)?.enabled ? "Enabled" : "Disabled"}
+                          </span>
+                        </div>
+                        <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                          Approver:{" "}
+                          <strong className="text-slate-800 dark:text-slate-200">
+                            {users.find((u) => u.id === (rule.wfh_multi_day || rule.wfh)?.to_user_id)?.first_name ||
+                              (rule.wfh_multi_day || rule.wfh)?.to_email ||
+                              "Super Admin"}
+                          </strong>
+                          {(rule.wfh_multi_day || rule.wfh)?.approval_level === "multi" && (
+                              <span className="text-[#56348f] dark:text-purple-300 font-semibold">
+                                {" "}→ {users.find((u) => u.id === (rule.wfh_multi_day || rule.wfh)?.to_user_id_2)?.first_name || (rule.wfh_multi_day || rule.wfh)?.to_email_2 || "Super Admin"}
+                              </span>
+                          )}
+                        </div>
+                        <div className="text-[11px] text-slate-400">
+                          {(rule.wfh_multi_day || rule.wfh)?.approval_level === "multi" ? "Multi-Level" : "Single-Level"} •{" "}
+                          {getCcCount(rule.wfh_multi_day || rule.wfh)} CC(s)
                         </div>
                       </div>
 
@@ -1591,17 +1697,21 @@ export default function ApprovalRoutingTab() {
                   emptyNotice="No team leads found."
                 />
 
-                {/* The 3 Cards for Team Lead Routing */}
+                {/* The 4 Cards for Team Lead Routing */}
                 <div className="space-y-2 pt-2">
                   <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
                     Routing Cards for Selected Team Leads
                   </h4>
                   <ThreeCardsEditor
                     wfh={tlModalForm.wfh}
+                    wfhMulti={tlModalForm.wfh_multi_day || tlModalForm.wfh}
                     leaveSingle={tlModalForm.leave_single_day}
                     leaveMulti={tlModalForm.leave_multi_day}
                     users={users}
                     onUpdateWfh={(wfh) => setTlModalForm((prev) => ({ ...prev, wfh }))}
+                    onUpdateWfhMulti={(wfh_multi_day) =>
+                      setTlModalForm((prev) => ({ ...prev, wfh_multi_day }))
+                    }
                     onUpdateLeaveSingle={(leaveSingle) =>
                       setTlModalForm((prev) => ({ ...prev, leave_single_day: leaveSingle }))
                     }
@@ -1706,17 +1816,21 @@ export default function ApprovalRoutingTab() {
                   emptyNotice="No eligible employees found (Team Leads already added in Role-Wise are excluded)."
                 />
 
-                {/* The SAME 3 CARDS as in Role-Wise (Team Leads) */}
+                {/* The 4 CARDS for Employee Routing */}
                 <div className="space-y-2 pt-2">
                   <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
                     Routing Cards for Selected Employees
                   </h4>
                   <ThreeCardsEditor
                     wfh={empModalForm.wfh}
+                    wfhMulti={empModalForm.wfh_multi_day || empModalForm.wfh}
                     leaveSingle={empModalForm.leave_single_day}
                     leaveMulti={empModalForm.leave_multi_day}
                     users={users}
                     onUpdateWfh={(wfh) => setEmpModalForm((prev) => ({ ...prev, wfh }))}
+                    onUpdateWfhMulti={(wfh_multi_day) =>
+                      setEmpModalForm((prev) => ({ ...prev, wfh_multi_day }))
+                    }
                     onUpdateLeaveSingle={(leaveSingle) =>
                       setEmpModalForm((prev) => ({ ...prev, leave_single_day: leaveSingle }))
                     }

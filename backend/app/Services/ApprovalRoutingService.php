@@ -27,6 +27,14 @@ class ApprovalRoutingService
                         'approval_level' => 'multi', // multi: TO person + Super Admin must approve; single: 1-level
                         'enabled' => true,
                     ],
+                    'wfh_multi_day' => [
+                        'to_user_id' => null,
+                        'to_email' => null,
+                        'cc_user_ids' => [],
+                        'cc_emails' => ['hr@intersmart.in', 'admin@intersmart.in'],
+                        'approval_level' => 'multi', // multi-day WFH: multi level approval
+                        'enabled' => true,
+                    ],
                     'leave_single_day' => [
                         'to_user_id' => null,
                         'to_email' => null,
@@ -41,6 +49,40 @@ class ApprovalRoutingService
                         'cc_user_ids' => [],
                         'cc_emails' => ['hr@intersmart.in', 'admin@intersmart.in'],
                         'approval_level' => 'multi', // multiple days: multi level approval
+                        'enabled' => true,
+                    ],
+                ],
+                'employee' => [
+                    'wfh' => [
+                        'to_user_id' => null,
+                        'to_email' => null,
+                        'cc_user_ids' => [],
+                        'cc_emails' => ['hr@intersmart.in', 'admin@intersmart.in'],
+                        'approval_level' => 'multi', // Employee 1-day WFH: default multi-level (TL + Admin)
+                        'enabled' => true,
+                    ],
+                    'wfh_multi_day' => [
+                        'to_user_id' => null,
+                        'to_email' => null,
+                        'cc_user_ids' => [],
+                        'cc_emails' => ['hr@intersmart.in', 'admin@intersmart.in'],
+                        'approval_level' => 'multi', // Employee multi-day WFH: default multi-level (TL + Admin)
+                        'enabled' => true,
+                    ],
+                    'leave_single_day' => [
+                        'to_user_id' => null,
+                        'to_email' => null,
+                        'cc_user_ids' => [],
+                        'cc_emails' => ['hr@intersmart.in', 'admin@intersmart.in'],
+                        'approval_level' => 'single',
+                        'enabled' => true,
+                    ],
+                    'leave_multi_day' => [
+                        'to_user_id' => null,
+                        'to_email' => null,
+                        'cc_user_ids' => [],
+                        'cc_emails' => ['hr@intersmart.in', 'admin@intersmart.in'],
+                        'approval_level' => 'multi',
                         'enabled' => true,
                     ],
                 ],
@@ -100,10 +142,29 @@ class ApprovalRoutingService
         $rules = self::getRules();
 
         // Normalize action
-        $isWfh = ($action === 'wfh');
+        $isWfh = ($action === 'wfh' || str_starts_with($action, 'wfh'));
         $isSingleDay = ($days <= 1.0);
-        $leaveCategory = $isSingleDay ? 'leave_single_day' : 'leave_multi_day';
-        $targetAction = $isWfh ? 'wfh' : $leaveCategory;
+
+        if ($isWfh) {
+            $targetAction = $isSingleDay ? 'wfh' : 'wfh_multi_day';
+            $fallbackAction = 'wfh';
+        } else {
+            $targetAction = $isSingleDay ? 'leave_single_day' : 'leave_multi_day';
+            $fallbackAction = 'leave_single_day';
+        }
+
+        $getCardFromRule = function ($ruleGroup) use ($targetAction, $fallbackAction) {
+            if (empty($ruleGroup) || !is_array($ruleGroup)) {
+                return null;
+            }
+            if (!empty($ruleGroup[$targetAction]) && !empty($ruleGroup[$targetAction]['enabled'])) {
+                return $ruleGroup[$targetAction];
+            }
+            if (!empty($fallbackAction) && !empty($ruleGroup[$fallbackAction]) && !empty($ruleGroup[$fallbackAction]['enabled'])) {
+                return $ruleGroup[$fallbackAction];
+            }
+            return null;
+        };
 
         $isTeamLead = $applicant->hasRole('Team Lead')
             || in_array(strtolower($applicant->role ?? ''), ['team lead', 'lead'], true)
@@ -120,10 +181,11 @@ class ApprovalRoutingService
                 continue;
             }
 
-            // Modern format with user_ids array and 3-card structure
+            // Modern format with user_ids array
             if (!empty($er['user_ids']) && is_array($er['user_ids']) && in_array((int)$applicant->id, array_map('intval', $er['user_ids']), true)) {
-                if (!empty($er[$targetAction]) && !empty($er[$targetAction]['enabled'])) {
-                    $matchedRule = $er[$targetAction];
+                $card = $getCardFromRule($er);
+                if ($card) {
+                    $matchedRule = $card;
                     $matchedType = 'employee';
                     break;
                 }
@@ -132,7 +194,7 @@ class ApprovalRoutingService
             // Legacy format with single user_id and request_type
             if (isset($er['user_id']) && (int)$er['user_id'] === (int)$applicant->id) {
                 $reqType = $er['request_type'] ?? 'all';
-                if ($reqType === 'all' || ($isWfh && $reqType === 'wfh') || (!$isWfh && in_array($reqType, ['leave', $targetAction]))) {
+                if ($reqType === 'all' || ($isWfh && in_array($reqType, ['wfh', 'wfh_single_day', 'wfh_multi_day'])) || (!$isWfh && in_array($reqType, ['leave', $targetAction]))) {
                     $matchedRule = $er;
                     $matchedType = 'employee_legacy';
                     break;
@@ -175,7 +237,7 @@ class ApprovalRoutingService
             foreach ($rules['department_rules'] as $dr) {
                 if (!empty($dr['enabled']) && (int)($dr['team_id'] ?? 0) === (int)$applicant->team_id) {
                     $reqType = $dr['request_type'] ?? 'all';
-                    if ($reqType === 'all' || ($isWfh && $reqType === 'wfh') || (!$isWfh && in_array($reqType, ['leave', $targetAction]))) {
+                    if ($reqType === 'all' || ($isWfh && in_array($reqType, ['wfh', 'wfh_single_day', 'wfh_multi_day'])) || (!$isWfh && in_array($reqType, ['leave', $targetAction]))) {
                         $matchedRule = $dr;
                         $matchedType = 'department';
                         break;
@@ -190,8 +252,9 @@ class ApprovalRoutingService
             foreach ($rules['team_lead_rules'] ?? [] as $tlRule) {
                 if (!empty($tlRule['enabled']) && !empty($tlRule['team_lead_ids']) && is_array($tlRule['team_lead_ids'])) {
                     if (in_array((int)$applicant->id, array_map('intval', $tlRule['team_lead_ids']), true)) {
-                        if (!empty($tlRule[$targetAction]) && !empty($tlRule[$targetAction]['enabled'])) {
-                            $matchedRule = $tlRule[$targetAction];
+                        $card = $getCardFromRule($tlRule);
+                        if ($card) {
+                            $matchedRule = $card;
                             $matchedType = 'role_team_lead_specific';
                             break;
                         }
@@ -202,10 +265,21 @@ class ApprovalRoutingService
             // 3b. Fallback to default role rule for team_lead
             if (!$matchedRule) {
                 $tlRules = $rules['role_rules']['team_lead'] ?? [];
-                if (!empty($tlRules[$targetAction]) && !empty($tlRules[$targetAction]['enabled'])) {
-                    $matchedRule = $tlRules[$targetAction];
+                $card = $getCardFromRule($tlRules);
+                if ($card) {
+                    $matchedRule = $card;
                     $matchedType = 'role_team_lead_default';
                 }
+            }
+        }
+
+        // 3c. Default employee role rules (if defined)
+        if (!$matchedRule && !$isTeamLead) {
+            $empRules = $rules['role_rules']['employee'] ?? [];
+            $card = $getCardFromRule($empRules);
+            if ($card && (!empty($card['to_user_id']) || !empty($card['to_email']))) {
+                $matchedRule = $card;
+                $matchedType = 'role_employee_default';
             }
         }
 
@@ -341,7 +415,7 @@ class ApprovalRoutingService
             $targetUserIds = array_filter($targetUserIds);
 
             $isApproverInCards = false;
-            foreach (['wfh', 'leave_single_day', 'leave_multi_day'] as $cardKey) {
+            foreach (['wfh', 'wfh_multi_day', 'leave_single_day', 'leave_multi_day'] as $cardKey) {
                 if (!empty($er[$cardKey]['enabled']) && ((int)($er[$cardKey]['to_user_id'] ?? 0) === $approverId || (int)($er[$cardKey]['to_user_id_2'] ?? 0) === $approverId)) {
                     $isApproverInCards = true;
                     break;
@@ -364,7 +438,7 @@ class ApprovalRoutingService
             $tlIds = array_filter($tlIds);
 
             $isApproverInCards = false;
-            foreach (['wfh', 'leave_single_day', 'leave_multi_day'] as $cardKey) {
+            foreach (['wfh', 'wfh_multi_day', 'leave_single_day', 'leave_multi_day'] as $cardKey) {
                 if (!empty($tlRule[$cardKey]['enabled']) && ((int)($tlRule[$cardKey]['to_user_id'] ?? 0) === $approverId || (int)($tlRule[$cardKey]['to_user_id_2'] ?? 0) === $approverId)) {
                     $isApproverInCards = true;
                     break;

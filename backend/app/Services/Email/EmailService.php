@@ -77,7 +77,7 @@ class EmailService
 
                 $routing = \App\Services\ApprovalRoutingService::resolve($user, $isWfh ? 'wfh' : 'leave', $days);
 
-                if (!empty($routing['to_emails']) && in_array($routing['matched_type'], ['role_team_lead', 'department', 'employee', 'employee_legacy', 'general_no_team'], true)) {
+                if (!empty($routing['to_emails']) && (str_starts_with($routing['matched_type'] ?? '', 'role_team_lead') || in_array($routing['matched_type'], ['role_employee_default', 'department', 'employee', 'employee_legacy', 'general_no_team'], true))) {
                     $recipients['to'] = $routing['to_emails'];
                     $recipients['cc'] = $routing['cc_emails'];
 
