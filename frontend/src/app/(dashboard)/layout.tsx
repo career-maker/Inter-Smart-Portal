@@ -27,6 +27,8 @@ import { useStickyNotesStore } from "@/store/stickyNotesStore";
 import { useChatPushNotifications } from "@/hooks/useChatPushNotifications";
 import ChatWidget from "@/components/ChatWidget";
 import { useCustomization } from "@/context/CustomizationContext";
+import { AddToHomeScreenModal } from "@/components/layout/AddToHomeScreenModal";
+import { DesktopPushConsent } from "@/components/layout/DesktopPushConsent";
 
 type NavItem = {
   href: string;
@@ -243,8 +245,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { isAuthenticated, user, logout, updateUser } = useAuthStore();
   const { settings: customizationSettings } = useCustomization();
   const { toggleStickyNotes, notesCount } = useStickyNotesStore();
-  const { unreadChatCount, latestConversationId, permissionStatus, requestNotificationPermission } = useChatPushNotifications();
-  const [dismissNotificationBanner, setDismissNotificationBanner] = useState(false);
+  const { unreadChatCount, latestConversationId } = useChatPushNotifications();
   const isDark = useThemeStore((state) => state.isDark);
   const router = useRouter();
   const pathname = usePathname();
@@ -934,46 +935,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             !isDark ? 'left-0 md:left-[84px]' : isSidebarCollapsed ? 'left-0 md:left-20' : 'left-0 md:left-64'
           }`}
         >
-          {/* Mobile Push Notification Permission Prompt (Visible whenever notifications not granted) */}
-          {permissionStatus !== "granted" && !dismissNotificationBanner && (
-            <div className="bg-[#3b1f63] text-white px-3 py-1.5 text-xs flex items-center justify-between border-b border-white/10 shadow-xs z-50">
-              <div className="flex items-center gap-2 min-w-0">
-                <span className="text-sm shrink-0">🔔</span>
-                <span className="truncate font-medium text-[11px] sm:text-xs">
-                  {permissionStatus === "denied"
-                    ? "Notifications blocked in browser. Tap site settings to allow."
-                    : permissionStatus === "unsupported"
-                    ? "iPhone: Tap Share ➔ 'Add to Home Screen' for alerts."
-                    : "Get instant chat & portal notifications on your phone"}
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5 shrink-0 ml-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (permissionStatus === "denied") {
-                      alert("Notifications are blocked in your browser. Please tap the lock/settings icon in the browser address bar and switch Notifications to Allow.");
-                    } else if (permissionStatus === "unsupported") {
-                      alert("To receive push notifications on iOS/iPhone:\n1. Tap the Share icon (box with arrow up).\n2. Tap 'Add to Home Screen'.\n3. Open the app from your home screen and enable alerts.");
-                    } else {
-                      requestNotificationPermission();
-                    }
-                  }}
-                  className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-2.5 py-0.5 rounded-full text-[10.5px] shadow-xs cursor-pointer transition-all active:scale-95"
-                >
-                  {permissionStatus === "denied" ? "How to Unblock" : permissionStatus === "unsupported" ? "How to Setup" : "Enable Alerts"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setDismissNotificationBanner(true)}
-                  className="p-1 text-white/70 hover:text-white rounded-full cursor-pointer"
-                  title="Dismiss"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-          )}
+
 
           {/* ── TOP HEADER (DYNAMIC CUSTOMIZATION COLOR FOR LIGHT THEME, SLATE-900 FOR DARK THEME) ── */}
           <header
@@ -1382,6 +1344,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Floating AI Portal Assistant Chat Widget */}
       <ChatWidget />
+
+      {/* Mobile/Tablet: Add to Home Screen bottom sheet matching native iOS/Android style */}
+      <AddToHomeScreenModal />
+
+      {/* Desktop: Push Notification Cookie-Consent Style Bottom Popup */}
+      <DesktopPushConsent />
     </div>
   );
 }
