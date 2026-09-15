@@ -409,7 +409,7 @@ export default function ApprovalsPage() {
   const cancelRequest = async (type: "leave" | "wfh", id: number) => {
     const isApproved = (type === "wfh" ? approvedWfh : approvedLeaves).some(r => r.id === id);
     const confirmMsg = isApproved
-      ? `Are you sure you want to delete this approved ${type.toUpperCase()} request? This will mark the request as Cancelled on the employee's page.`
+      ? `Are you sure you want to delete this approved ${type.toUpperCase()} request? ${type === "leave" ? "The employee's used leave balance will be refunded automatically." : "This will mark the request as Cancelled on the employee's page."}`
       : `Are you sure you want to cancel this ${type} request on behalf of the employee?`;
     if (!confirm(confirmMsg)) return;
 
@@ -728,7 +728,7 @@ export default function ApprovalsPage() {
               <col className="w-[8%]" />
               <col className="w-[14%]" />
               <col className="w-[14%]" />
-              {(statusFilter === "Pending" || statusFilter === "All") && (
+              {(statusFilter === "Pending" || statusFilter === "All" || (isSuperAdmin && statusFilter === "Approved")) && (
                 <col className="w-[22%]" />
               )}
             </colgroup>
@@ -740,7 +740,7 @@ export default function ApprovalsPage() {
                 <th className="py-2.5 px-2 text-center border-r border-slate-200/80 dark:border-slate-800">Days</th>
                 <th className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800">Reason</th>
                 <th className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800">Status</th>
-                {(statusFilter === "Pending" || statusFilter === "All") && (
+                {(statusFilter === "Pending" || statusFilter === "All" || (isSuperAdmin && statusFilter === "Approved")) && (
                   <th className="py-2.5 px-3 text-center">Actions</th>
                 )}
               </tr>
@@ -748,7 +748,7 @@ export default function ApprovalsPage() {
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
               {displayLeaves.length === 0 ? (
                 <tr>
-                  <td colSpan={(statusFilter === "Pending" || statusFilter === "All") ? 7 : 6} className="py-12 text-center text-slate-400 dark:text-slate-500 text-xs italic">
+                  <td colSpan={(statusFilter === "Pending" || statusFilter === "All" || (isSuperAdmin && statusFilter === "Approved")) ? 7 : 6} className="py-12 text-center text-slate-400 dark:text-slate-500 text-xs italic">
                     No {statusFilter === "All" ? "" : statusFilter.toLowerCase()} leave requests found.
                   </td>
                 </tr>
@@ -854,7 +854,7 @@ export default function ApprovalsPage() {
                     </td>
 
                     {/* Column 7: Actions */}
-                    {(statusFilter === "Pending" || statusFilter === "All") && (
+                    {(statusFilter === "Pending" || statusFilter === "All" || (isSuperAdmin && statusFilter === "Approved")) && (
                       <td className="py-2.5 px-3 align-middle text-center break-words whitespace-normal leading-tight">
                         <div className="flex items-center justify-center gap-1">
                         {req.pending_lop_conversion ? (
@@ -909,7 +909,19 @@ export default function ApprovalsPage() {
                               </button>
                             )}
                           </>
-                        ) : null}
+                        ) : isSuperAdmin && req.status === "Approved" ? (
+                          <button
+                            onClick={() => cancelRequest("leave", req.id)}
+                            disabled={actionLoading}
+                            title="Delete Approved Leave Request (Refunds Balance)"
+                            className="px-2.5 py-1 rounded-md text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800 transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1 shadow-sm"
+                          >
+                            <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+                            Delete
+                          </button>
+                        ) : (
+                          <span className="text-xs text-slate-400 dark:text-slate-600">—</span>
+                        )}
 
                         {/* Super Admin Override button */}
                         {isSuperAdmin && req.status === "Pending" && (

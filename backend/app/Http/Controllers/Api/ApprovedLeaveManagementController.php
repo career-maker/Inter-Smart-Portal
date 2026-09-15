@@ -83,38 +83,44 @@ class ApprovedLeaveManagementController extends Controller
             $balance = LeaveBalance::where('user_id', $leave->user_id)->first();
 
             if ($balance) {
-                // Get the exact paid amounts that were deducted
-                $paidCL = $leave->paid_casual_leave ?? 0;
-                $paidSL = $leave->paid_sick_leave ?? 0;
+                $leaveTypeName = $leave->leaveType?->name ?? '';
+                $daysCount     = floatval($leave->days_taken ?? $leave->actual_leave_days ?? $leave->days ?? 0);
 
-                // Restore casual leave with proper split handling
-                if ($paidCL > 0) {
-                    // Use the tracked split if available, otherwise estimate
-                    $paidCLCarryForward = $leave->paid_cl_carry_forward ?? 0;
-                    $paidCLCurrentYear = $leave->paid_cl_current_year ?? 0;
+                $paidCLCarryForward = floatval($leave->paid_cl_carry_forward ?? 0);
+                $paidCLCurrentYear  = floatval($leave->paid_cl_current_year ?? 0);
+                $paidCL             = floatval($leave->paid_casual_leave ?? 0);
+                $paidSL             = floatval($leave->paid_sick_leave ?? 0);
 
-                    // Fallback: if not tracked, assume it came from current year
-                    if ($paidCLCarryForward === 0 && $paidCLCurrentYear === 0) {
+                // Fallback for Casual Leave if split wasn't stored
+                if ($paidCLCarryForward == 0 && $paidCLCurrentYear == 0) {
+                    if ($paidCL > 0) {
                         $paidCLCurrentYear = $paidCL;
-                    }
-
-                    // Restore both components
-                    if ($paidCLCarryForward > 0) {
-                        $balance->cl_carry_forward += $paidCLCarryForward;
-                    }
-                    if ($paidCLCurrentYear > 0) {
-                        $balance->casual_leave_balance += $paidCLCurrentYear;
+                    } elseif (stripos($leaveTypeName, 'Casual') !== false && !$leave->is_unpaid) {
+                        $paidCLCurrentYear = $daysCount;
                     }
                 }
 
-                // Restore sick leave
+                // Fallback for Sick Leave
+                if ($paidSL == 0 && stripos($leaveTypeName, 'Sick') !== false && !$leave->is_unpaid) {
+                    $paidSL = $daysCount;
+                }
+
+                if ($paidCLCarryForward > 0) {
+                    $balance->cl_carry_forward = floatval($balance->cl_carry_forward ?? 0) + $paidCLCarryForward;
+                }
+                if ($paidCLCurrentYear > 0) {
+                    $balance->casual_leave_balance = floatval($balance->casual_leave_balance ?? 0) + $paidCLCurrentYear;
+                }
                 if ($paidSL > 0) {
-                    $balance->sick_leave_balance += $paidSL;
+                    $balance->sick_leave_balance = floatval($balance->sick_leave_balance ?? 0) + $paidSL;
                 }
 
-                // Revert total leaves taken
-                $actualDays = $leave->actual_leave_days ?? $leave->days_taken ?? 0;
-                $balance->total_leaves_taken -= $actualDays;
+                $deductedTotal = $paidCLCarryForward + $paidCLCurrentYear + $paidSL;
+                if ($deductedTotal <= 0 && !$leave->is_unpaid) {
+                    $deductedTotal = $daysCount;
+                }
+
+                $balance->total_leaves_taken = max(0, floatval($balance->total_leaves_taken ?? 0) - $deductedTotal);
                 $balance->save();
             }
 

@@ -249,6 +249,21 @@ export default function WfhPage() {
     }
   };
 
+  const handleDeleteWfh = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this past WFH record?")) return;
+    setCancellingId(id);
+    try {
+      await api.delete(`/wfh-requests/${id}`);
+      setSuccessMessage("WFH record deleted successfully.");
+      setTimeout(() => setSuccessMessage(null), 4000);
+      fetchRequests(currentPage);
+    } catch (err: any) {
+      alert(err?.response?.data?.message || "Failed to delete WFH record.");
+    } finally {
+      setCancellingId(null);
+    }
+  };
+
   /* ── Step navigation ── */
   const nextStep = async () => {
     if (step === 1) { setStep(2); return; }
@@ -969,6 +984,17 @@ export default function WfhPage() {
                                 className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/60 border border-rose-200 dark:border-rose-800 transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
                               >
                                 <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+                                <span>{cancellingId === req.id ? "…" : "Delete"}</span>
+                              </button>
+                            ) : isSuperAdmin && (req.status === "Cancelled" || req.status === "Rejected") ? (
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteWfh(req.id)}
+                                disabled={cancellingId === req.id}
+                                title="Delete Past WFH Record"
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/60 border border-slate-200 dark:border-slate-800 transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
                                 <span>{cancellingId === req.id ? "…" : "Delete"}</span>
                               </button>
                             ) : !canApproveRow && req.status !== "Pending" ? (

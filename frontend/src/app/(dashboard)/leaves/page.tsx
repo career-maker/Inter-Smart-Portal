@@ -5,7 +5,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { 
   Plus, Calendar, Clock, CheckCircle, XCircle, 
-  Info, Sparkles, FileText, ChevronRight, X
+  Info, Sparkles, FileText, ChevronRight, X, Trash2
 } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
@@ -109,6 +109,25 @@ export default function LeavesPage() {
       fetchData(currentPage);
     } catch (err: any) {
       alert(err?.response?.data?.message || "Failed to cancel leave request.");
+    } finally {
+      setCancellingId(null);
+    }
+  };
+
+  const handleDeleteLeave = async (id: number) => {
+    const req = requests.find((r) => r.id === id);
+    const isApproved = req?.status === "Approved";
+    const confirmMsg = isApproved
+      ? "Are you sure you want to delete this approved leave request? The employee's used leave balance will be refunded automatically."
+      : "Are you sure you want to delete this leave record?";
+    if (!confirm(confirmMsg)) return;
+
+    setCancellingId(id);
+    try {
+      await api.delete(`/leave-requests/${id}`);
+      fetchData(currentPage);
+    } catch (err: any) {
+      alert(err?.response?.data?.message || "Failed to delete leave request.");
     } finally {
       setCancellingId(null);
     }
@@ -748,7 +767,7 @@ export default function LeavesPage() {
                     <td className="px-3 py-3 text-slate-500 dark:text-slate-400 break-words whitespace-normal leading-tight">{req.reason}</td>
                     <td className="px-3 py-3">{getStatusBadge(req)}</td>
                     <td className="px-3 py-3 text-center break-words whitespace-normal leading-tight">
-                      {req.status === "Pending" && (
+                      {req.status === "Pending" ? (
                         <button
                           type="button"
                           onClick={() => handleCancelLeave(req.id)}
@@ -758,7 +777,29 @@ export default function LeavesPage() {
                           <X className="w-3.5 h-3.5" />
                           <span>{cancellingId === req.id ? "Cancelling…" : "Cancel"}</span>
                         </button>
-                      )}
+                      ) : isSuperAdmin && req.status === "Approved" ? (
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteLeave(req.id)}
+                          disabled={cancellingId === req.id}
+                          title="Delete Approved Leave (Refunds Balance)"
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/60 border border-rose-200 dark:border-rose-800 transition-colors cursor-pointer disabled:opacity-50 shadow-sm mx-auto"
+                        >
+                          <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+                          <span>{cancellingId === req.id ? "…" : "Delete"}</span>
+                        </button>
+                      ) : isSuperAdmin && (req.status === "Cancelled" || req.status === "Rejected") ? (
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteLeave(req.id)}
+                          disabled={cancellingId === req.id}
+                          title="Delete Past Leave Record"
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/60 border border-slate-200 dark:border-slate-800 transition-colors cursor-pointer disabled:opacity-50 shadow-sm mx-auto"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>{cancellingId === req.id ? "…" : "Delete"}</span>
+                        </button>
+                      ) : null}
                     </td>
                   </tr>
                 ))}

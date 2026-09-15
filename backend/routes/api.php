@@ -387,9 +387,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('leaves/calculate', [\App\Http\Controllers\Api\LeaveRequestController::class, 'calculate']);
     Route::post('leave-requests/{leaveRequest}/cancel', [\App\Http\Controllers\Api\LeaveRequestController::class, 'cancel']);
-    Route::apiResource('leave-requests', \App\Http\Controllers\Api\LeaveRequestController::class)->only(['index', 'store']);
+    Route::apiResource('leave-requests', \App\Http\Controllers\Api\LeaveRequestController::class)->only(['index', 'store', 'destroy']);
     Route::post('wfh-requests/{wfhRequest}/cancel', [\App\Http\Controllers\Api\WfhRequestController::class, 'cancel']);
-    Route::apiResource('wfh-requests', \App\Http\Controllers\Api\WfhRequestController::class)->only(['index', 'store']);
+    Route::apiResource('wfh-requests', \App\Http\Controllers\Api\WfhRequestController::class)->only(['index', 'store', 'destroy']);
 
     // Attendance Routes
     Route::prefix('attendance')->group(function () {

@@ -1453,12 +1453,20 @@ class LeaveRequestController extends Controller
             }
         }
 
+        $isAdmin = $user->hasRole('Super Admin') || $user->hasRole('HR');
+
         if (!$isApplicant && !$isAuthorizedManager) {
             return response()->json(['message' => 'Unauthorized to cancel this leave request.'], 403);
         }
 
-        if ($leaveRequest->status !== 'Pending') {
+        // Regular employees can only cancel pending requests; Super Admin/HR can cancel pending or approved requests
+        if (!$isAdmin && $leaveRequest->status !== 'Pending') {
             return response()->json(['message' => "Only pending requests can be cancelled. Current status is {$leaveRequest->status}."], 422);
+        }
+
+        // Refund leave balance if cancelling an approved leave
+        if ($leaveRequest->status === 'Approved') {
+            $this->refundApprovedLeaveBalance($leaveRequest);
         }
 
         $leaveRequest->update([
@@ -1469,8 +1477,113 @@ class LeaveRequestController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Leave request cancelled successfully.',
+            'message' => 'Leave request cancelled successfully and leave balance refunded if applicable.',
             'data'    => $leaveRequest->fresh(['user', 'leaveType', 'approver']),
         ]);
     }
+
+    /**
+     * Permanently delete a leave request (Super Admin / HR only).
+     * Automatically restores the employee's deducted leave balance if the request was approved.
+     */
+    public function destroy(Request $request, LeaveRequest $leaveRequest)
+    {
+        $user = $request->user();
+        if (!$user->hasRole('Super Admin') && !$user->hasRole('HR')) {
+            return response()->json(['message' => 'Unauthorized to delete leave requests.'], 403);
+        }
+
+        DB::beginTransaction();
+        try {
+            if ($leaveRequest->status === 'Approved') {
+                $this->refundApprovedLeaveBalance($leaveRequest);
+            }
+
+            $leaveRequest->delete();
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Leave request deleted successfully and leave balance refunded.',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Failed to delete leave request: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return response()->json([
+                'message' => 'Failed to delete leave request: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Restore deducted leave balance to the employee when an approved leave is cancelled or deleted.
+     */
+    public function refundApprovedLeaveBalance(LeaveRequest $leaveRequest): void
+    {
+        if ($leaveRequest->status !== 'Approved') {
+            return;
+        }
+
+        try {
+            $balance = LeaveBalance::where('user_id', $leaveRequest->user_id)->first();
+            if (!$balance) {
+                \Log::warning("Refund balance skipped: LeaveBalance record not found for user {$leaveRequest->user_id}");
+                return;
+            }
+
+            $leaveTypeName = $leaveRequest->leaveType?->name ?? '';
+            $daysCount     = floatval($leaveRequest->days_taken ?? $leaveRequest->actual_leave_days ?? $leaveRequest->days ?? 0);
+
+            $oldPaidCF      = floatval($leaveRequest->paid_cl_carry_forward ?? 0);
+            $oldPaidCurrent = floatval($leaveRequest->paid_cl_current_year ?? 0);
+            $oldPaidCL      = floatval($leaveRequest->paid_casual_leave ?? 0);
+            $oldPaidSL      = floatval($leaveRequest->paid_sick_leave ?? 0);
+
+            // Fallback for Casual Leave if granular split wasn't stored
+            if ($oldPaidCF == 0 && $oldPaidCurrent == 0) {
+                if ($oldPaidCL > 0) {
+                    $oldPaidCurrent = $oldPaidCL;
+                } elseif (stripos($leaveTypeName, 'Casual') !== false && !$leaveRequest->is_unpaid) {
+                    $oldPaidCurrent = $daysCount;
+                }
+            }
+
+            // Fallback for Sick Leave
+            if ($oldPaidSL == 0 && stripos($leaveTypeName, 'Sick') !== false && !$leaveRequest->is_unpaid) {
+                $oldPaidSL = $daysCount;
+            }
+
+            \Log::info("Refunding approved leave #{$leaveRequest->id}: user={$leaveRequest->user_id}, cf={$oldPaidCF}, current_cl={$oldPaidCurrent}, sl={$oldPaidSL}, days={$daysCount}");
+
+            if ($oldPaidCF > 0) {
+                $balance->cl_carry_forward = floatval($balance->cl_carry_forward ?? 0) + $oldPaidCF;
+            }
+            if ($oldPaidCurrent > 0) {
+                $balance->casual_leave_balance = floatval($balance->casual_leave_balance ?? 0) + $oldPaidCurrent;
+            }
+            if ($oldPaidSL > 0) {
+                $balance->sick_leave_balance = floatval($balance->sick_leave_balance ?? 0) + $oldPaidSL;
+            }
+
+            $deductedTotal = $oldPaidCF + $oldPaidCurrent + $oldPaidSL;
+            if ($deductedTotal <= 0 && !$leaveRequest->is_unpaid) {
+                $deductedTotal = $daysCount;
+            }
+
+            $balance->total_leaves_taken = max(0, floatval($balance->total_leaves_taken ?? 0) - $deductedTotal);
+            $balance->save();
+
+            // Clear the deducted tracking flags on the leave request
+            $leaveRequest->update([
+                'paid_cl_carry_forward' => 0,
+                'paid_cl_current_year'  => 0,
+                'paid_casual_leave'     => 0,
+                'paid_sick_leave'       => 0,
+            ]);
+
+            \Log::info("Leave balance refunded successfully for user {$leaveRequest->user_id}");
+        } catch (\Exception $e) {
+            \Log::error("Failed to refund leave balance: " . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+        }
+    }
 }
+

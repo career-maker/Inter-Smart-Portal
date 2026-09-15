@@ -589,4 +589,24 @@ class WfhRequestController extends Controller
             'data'    => $wfhRequest->fresh(['user', 'approver']),
         ]);
     }
+
+    /**
+     * Permanently delete a WFH request (Super Admin / HR only).
+     */
+    public function destroy(Request $request, WfhRequest $wfhRequest)
+    {
+        $user = $request->user();
+        $isAdmin = $user->hasRole('Super Admin') || $user->hasRole('HR');
+
+        if (!$isAdmin) {
+            return response()->json(['message' => 'Unauthorized to delete WFH requests.'], 403);
+        }
+
+        $wfhRequest->delete();
+
+        return response()->json([
+            'message' => 'WFH request deleted successfully.',
+        ]);
+    }
 }
+
