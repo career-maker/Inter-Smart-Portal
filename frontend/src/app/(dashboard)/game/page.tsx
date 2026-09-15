@@ -4,9 +4,12 @@ import React, { useState, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { 
   Gamepad2, Play, ArrowLeft, Trophy, Sparkles, Zap, 
-  Maximize2, Swords, Crosshair, Rocket, Cpu, Search, Filter, ExternalLink
+  Maximize2, Swords, Crosshair, Rocket, Cpu, Search, Filter, ExternalLink, X
 } from "lucide-react";
+import { useAuthStore } from "@/store/auth";
 import { NetworkErrorWithGame } from "@/components/ui/NetworkErrorWithGame";
+import { WorkplaceLeaderboard } from "@/components/game/WorkplaceLeaderboard";
+import { GameKeyType, recordGameScore } from "@/lib/gameLeaderboards";
 
 type GameKey = "runner" | "bugsmart" | "battleroyale" | "imposter" | "neongalaxy" | "cybermatrix" | null;
 type CategoryKey = "all" | "arcade" | "puzzle" | "qa";
@@ -188,28 +191,66 @@ const GAME_IFRAME_MAP: Record<
   },
 };
 
+const TOP_RECORDS: Record<string, string> = {
+  neongalaxy: "Vishal Ramesh • 8,950 pts",
+  cybermatrix: "Vishnu Sasidharan • 3,250 pts",
+  bugsmart: "Aswathi M Ashok • ₹5,200",
+  battleroyale: "Team QA • 4,600 pts",
+  imposter: "Bonies Doyal • 26 jets",
+  runner: "Manu K O • 285 pts",
+};
+
 export default function GamePage() {
   // ── All Hooks Defined at the Very Top (Strict Rules of Hooks Compliance) ──
+  const { user } = useAuthStore();
   const [mounted, setMounted] = useState(false);
   const [activeGame, setActiveGame] = useState<GameKey>(null);
   const [selectedCategory, setSelectedCategory] = useState<CategoryKey>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [showInGameLeaderboard, setShowInGameLeaderboard] = useState(false);
+
+  const currentUserInfo = useMemo(() => {
+    const full = `${user?.first_name || ""} ${user?.last_name || ""}`.trim();
+    return {
+      id: user?.id ? String(user.id) : "user-current",
+      name: full || user?.email || "Aswathi M Ashok",
+      role: user?.designation || user?.role || "Lead QA Analyst",
+      initials: user?.first_name
+        ? `${user.first_name[0]}${user.last_name?.[0] || ""}`.toUpperCase()
+        : "AA",
+    };
+  }, [user]);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Listen for ESC key to exit active game mode
+  // Listen for ESC key to exit active game mode or close leaderboard drawer
   useEffect(() => {
     if (!activeGame) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        setActiveGame(null);
+        if (showInGameLeaderboard) {
+          setShowInGameLeaderboard(false);
+        } else {
+          setActiveGame(null);
+        }
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [activeGame]);
+  }, [activeGame, showInGameLeaderboard]);
+
+  // Listen for score postMessage from iframe games
+  useEffect(() => {
+    const handleMessage = (e: MessageEvent) => {
+      if (e.data && e.data.type === "GAME_SCORE_SUBMIT" && e.data.game && typeof e.data.score === "number") {
+        recordGameScore(e.data.game as GameKeyType, e.data.score, currentUserInfo);
+      }
+    };
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [currentUserInfo]);
 
   const filteredGames = useMemo(() => {
     return GAMES.filter(g => {
@@ -229,13 +270,16 @@ export default function GamePage() {
       return createPortal(
         <div 
           style={{ backgroundColor: config.bg }}
-          className="fixed inset-0 z-[999999] w-screen h-screen overflow-hidden flex flex-col select-none"
+          className="fixed inset-0 z-[999999] w-screen h-screen overflow-hidden flex flex-col select-none relative"
         >
           {/* Top Control Bar */}
           <div className="h-14 px-4 bg-black/85 backdrop-blur-md border-b border-white/10 flex items-center justify-between z-[1000000] shrink-0">
             <div className="flex items-center gap-3">
               <button
-                onClick={() => setActiveGame(null)}
+                onClick={() => {
+                  setShowInGameLeaderboard(false);
+                  setActiveGame(null);
+                }}
                 className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/15 shadow-md transition-all cursor-pointer group"
                 title="Return to Arcade (Press Esc)"
               >
@@ -249,7 +293,21 @@ export default function GamePage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
+              {/* Leaderboard Toggle Button */}
+              <button
+                onClick={() => setShowInGameLeaderboard((prev) => !prev)}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                  showInGameLeaderboard
+                    ? "bg-amber-500 text-slate-950 border-amber-400 shadow-md scale-102"
+                    : "bg-white/10 hover:bg-white/20 text-amber-300 border-amber-400/30"
+                }`}
+                title="Toggle workplace scoreboard"
+              >
+                <Trophy className="w-3.5 h-3.5 text-amber-400" />
+                <span>Scoreboard</span>
+              </button>
+
               <a
                 href={`${config.src}?v=3`}
                 target="_blank"
@@ -270,6 +328,30 @@ export default function GamePage() {
             title={config.title}
             allow="fullscreen; autoplay"
           />
+
+          {/* In-Game Slide-over Leaderboard Drawer */}
+          {showInGameLeaderboard && (
+            <div className="absolute top-14 right-0 bottom-0 w-full sm:w-[420px] bg-slate-900/95 backdrop-blur-xl border-l border-white/10 z-[1000001] shadow-2xl p-4 overflow-y-auto animate-in slide-in-from-right duration-200">
+              <div className="flex items-center justify-between pb-3 mb-3 border-b border-white/10">
+                <div className="flex items-center gap-2 text-white font-extrabold text-sm">
+                  <Trophy className="w-4 h-4 text-amber-400" />
+                  <span>Workplace High Scores</span>
+                </div>
+                <button
+                  onClick={() => setShowInGameLeaderboard(false)}
+                  className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <WorkplaceLeaderboard
+                currentUser={currentUserInfo}
+                initialGame={activeGame as GameKeyType}
+                compact
+              />
+            </div>
+          )}
         </div>,
         document.body
       );
@@ -451,6 +533,14 @@ export default function GamePage() {
                 ))}
               </div>
 
+              <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-300 text-[11px] font-bold">
+                <span className="flex items-center gap-1.5 truncate">
+                  <Trophy className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400">CHAMPION</span>
+                  <span className="truncate">{TOP_RECORDS[game.id || ""] || "Top Champion"}</span>
+                </span>
+              </div>
+
               <button
                 onClick={() => setActiveGame(game.id)}
                 className={`w-full py-3 px-4 rounded-xl bg-gradient-to-r ${game.buttonGradient} font-black text-sm border flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all cursor-pointer`}
@@ -476,6 +566,14 @@ export default function GamePage() {
           </button>
         </div>
       )}
+
+      {/* ── WORKPLACE HIGH SCORES & LEADERBOARDS SECTION (ALL GAMES WITH REAL EMPLOYEES) ── */}
+      <section className="pt-2">
+        <WorkplaceLeaderboard
+          currentUser={currentUserInfo}
+          onLaunchGame={(k) => setActiveGame(k)}
+        />
+      </section>
     </div>
   );
 }

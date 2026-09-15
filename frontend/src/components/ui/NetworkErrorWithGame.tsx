@@ -3,21 +3,12 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { WifiOff, RefreshCw, Trophy, Gamepad2, ArrowUp, Sparkles, Award, Flame, Crown } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
+import { getGameLeaderboard, recordGameScore, GameLeaderboardEntry } from "@/lib/gameLeaderboards";
 
 interface NetworkErrorWithGameProps {
   onRetry?: () => void;
   errorMessage?: string;
   standalone?: boolean;
-}
-
-interface LeaderboardPlayer {
-  id: string;
-  name: string;
-  score: number;
-  role?: string;
-  isCurrentUser: boolean;
-  avatarBg?: string;
-  avatarText?: string;
 }
 
 export function NetworkErrorWithGame({ onRetry, errorMessage, standalone = false }: NetworkErrorWithGameProps) {
@@ -26,7 +17,7 @@ export function NetworkErrorWithGame({ onRetry, errorMessage, standalone = false
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(0);
   const [gameState, setGameState] = useState<"idle" | "playing" | "gameover">("idle");
-  const [leaderboard, setLeaderboard] = useState<LeaderboardPlayer[]>([]);
+  const [leaderboard, setLeaderboard] = useState<GameLeaderboardEntry[]>([]);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   // Current logged in user details
@@ -51,7 +42,7 @@ export function NetworkErrorWithGame({ onRetry, errorMessage, standalone = false
     return "AP";
   }, [user]);
 
-  // Load and sync Leaderboard from localStorage
+  // Load and sync Leaderboard from deduplicated gameLeaderboards module
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -59,125 +50,30 @@ export function NetworkErrorWithGame({ onRetry, errorMessage, standalone = false
     const initialHs = savedHs ? parseInt(savedHs, 10) || 0 : 0;
     setHighScore(initialHs);
 
-    const storedLb = localStorage.getItem("iss_offline_game_leaderboard_v2");
-    if (storedLb) {
-      try {
-        const parsed: LeaderboardPlayer[] = JSON.parse(storedLb);
-        // Ensure current user is marked correctly with current name
-        let foundUser = false;
-        const normalized = parsed.map((p) => {
-          // Ensure Aswathi's designation is correctly shown as QA Analyst, not Team Lead
-          if (p.name.includes("Aswathi") || p.id === "colleague-1") {
-            p.role = "QA Analyst";
-          }
+    const entries = getGameLeaderboard("runner", {
+      id: currentUserId,
+      name: currentUserName,
+      role: currentUserRole,
+      initials: currentUserInitials,
+    });
 
-          if (p.isCurrentUser || p.id === currentUserId || p.name === currentUserName) {
-            foundUser = true;
-            return {
-              ...p,
-              id: currentUserId,
-              name: currentUserName,
-              role: currentUserRole,
-              isCurrentUser: true,
-              score: Math.max(p.score, initialHs),
-              avatarBg: "bg-[#56348f]",
-              avatarText: currentUserInitials,
-            };
-          }
-          return { ...p, isCurrentUser: false };
-        });
-
-        if (!foundUser) {
-          normalized.push({
-            id: currentUserId,
-            name: currentUserName,
-            score: initialHs,
-            role: currentUserRole,
-            isCurrentUser: true,
-            avatarBg: "bg-[#56348f]",
-            avatarText: currentUserInitials,
-          });
-        }
-
-        normalized.sort((a, b) => b.score - a.score);
-        setLeaderboard(normalized);
-        localStorage.setItem("iss_offline_game_leaderboard_v2", JSON.stringify(normalized));
-        return;
-      } catch (e) {
-        console.warn("Failed parsing saved leaderboard, resetting defaults:", e);
-      }
-    }
-
-    // Default seed players reflecting company colleagues
-    const defaultRoster: LeaderboardPlayer[] = [
-      {
-        id: "colleague-1",
-        name: "Aswathi M Ashok",
-        score: 148,
-        role: "QA Analyst",
-        isCurrentUser: false,
-        avatarBg: "bg-pink-600",
-        avatarText: "AA",
-      },
-      {
-        id: "colleague-2",
-        name: "Amal Tomy",
-        score: 112,
-        role: "System Administrator",
-        isCurrentUser: false,
-        avatarBg: "bg-blue-600",
-        avatarText: "AT",
-      },
-      {
-        id: "colleague-3",
-        name: "Ashmi Mathew",
-        score: 76,
-        role: "Social Media Lead",
-        isCurrentUser: false,
-        avatarBg: "bg-amber-600",
-        avatarText: "AM",
-      },
-      {
-        id: currentUserId,
-        name: currentUserName,
-        score: initialHs > 0 ? initialHs : 23,
-        role: currentUserRole,
-        isCurrentUser: true,
-        avatarBg: "bg-[#56348f]",
-        avatarText: currentUserInitials,
-      },
-    ];
-
-    defaultRoster.sort((a, b) => b.score - a.score);
-    setLeaderboard(defaultRoster);
-    localStorage.setItem("iss_offline_game_leaderboard_v2", JSON.stringify(defaultRoster));
+    setLeaderboard(entries);
   }, [currentUserId, currentUserName, currentUserRole, currentUserInitials]);
 
-  // Update leaderboard with new score
+  // Update leaderboard with new score without duplicates
   const recordScore = useCallback((finalScore: number) => {
     if (finalScore <= 0) return;
 
-    setLeaderboard((prev) => {
-      const updated = prev.map((p) => {
-        if (p.isCurrentUser || p.id === currentUserId) {
-          return {
-            ...p,
-            name: currentUserName,
-            role: currentUserRole,
-            score: Math.max(p.score, finalScore),
-            isCurrentUser: true,
-          };
-        }
-        return p;
-      });
-
-      updated.sort((a, b) => b.score - a.score);
-      if (typeof window !== "undefined") {
-        localStorage.setItem("iss_offline_game_leaderboard_v2", JSON.stringify(updated));
-      }
-      return updated;
+    const updated = recordGameScore("runner", finalScore, {
+      id: currentUserId,
+      name: currentUserName,
+      role: currentUserRole,
+      initials: currentUserInitials,
     });
-  }, [currentUserId, currentUserName, currentUserRole]);
+
+    setLeaderboard(updated);
+    setHighScore((prev) => Math.max(prev, finalScore));
+  }, [currentUserId, currentUserName, currentUserRole, currentUserInitials]);
 
   // Rank computation for current logged-in user
   const currentUserRankIndex = leaderboard.findIndex((p) => p.isCurrentUser);
