@@ -277,20 +277,20 @@ export default function GamePage() {
       return createPortal(
         <div 
           style={{ backgroundColor: config.bg }}
-          className="fixed inset-0 z-[999999] w-screen h-screen overflow-hidden flex flex-col select-none relative"
+          className="fixed inset-0 z-[999999] w-full h-full h-[100dvh] overflow-hidden flex flex-col select-none relative"
         >
           {/* Top Control Bar */}
-          <div className="h-14 px-4 bg-black/85 backdrop-blur-md border-b border-white/10 flex items-center justify-between z-[1000000] shrink-0">
-            <div className="flex items-center gap-3">
+          <div className="h-12 sm:h-14 px-2.5 sm:px-4 bg-black/90 backdrop-blur-md border-b border-white/10 flex items-center justify-between z-[1000000] shrink-0">
+            <div className="flex items-center gap-2 sm:gap-3">
               <button
                 onClick={() => {
                   setShowInGameLeaderboard(false);
                   setActiveGame(null);
                 }}
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/15 shadow-md transition-all cursor-pointer group"
+                className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/15 shadow-md transition-all cursor-pointer group"
                 title="Return to Arcade (Press Esc)"
               >
-                <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" style={{ color: config.accentColor }} />
+                <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform group-hover:-translate-x-1" style={{ color: config.accentColor }} />
                 <span>Back to Games</span>
               </button>
               <div className="hidden sm:flex items-center gap-2 text-xs text-white/70">
@@ -300,11 +300,11 @@ export default function GamePage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2 sm:gap-2.5">
               {/* Leaderboard Toggle Button */}
               <button
                 onClick={() => setShowInGameLeaderboard((prev) => !prev)}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                   showInGameLeaderboard
                     ? "bg-amber-500 text-slate-950 border-amber-400 shadow-md scale-102"
                     : "bg-white/10 hover:bg-white/20 text-amber-300 border-amber-400/30"
@@ -312,14 +312,14 @@ export default function GamePage() {
                 title="Toggle workplace scoreboard"
               >
                 <Trophy className="w-3.5 h-3.5 text-amber-400" />
-                <span>Scoreboard</span>
+                <span className="hidden xs:inline">Scoreboard</span>
               </button>
 
               <a
                 href={`${config.src}?v=3`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white/90 hover:text-white text-xs font-semibold border border-white/15 transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white/90 hover:text-white text-xs font-semibold border border-white/15 transition-colors cursor-pointer"
                 title="Open game in dedicated window/tab"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
@@ -338,7 +338,7 @@ export default function GamePage() {
 
           {/* In-Game Slide-over Leaderboard Drawer */}
           {showInGameLeaderboard && (
-            <div className="absolute top-14 right-0 bottom-0 w-full sm:w-[420px] bg-slate-900/95 backdrop-blur-xl border-l border-white/10 z-[1000001] shadow-2xl p-4 overflow-y-auto animate-in slide-in-from-right duration-200">
+            <div className="absolute top-12 sm:top-14 right-0 bottom-0 w-full sm:w-[420px] bg-slate-900/95 backdrop-blur-xl border-l border-white/10 z-[1000001] shadow-2xl p-4 overflow-y-auto animate-in slide-in-from-right duration-200">
               <div className="flex items-center justify-between pb-3 mb-3 border-b border-white/10">
                 <div className="flex items-center gap-2 text-white font-extrabold text-sm">
                   <Trophy className="w-4 h-4 text-amber-400" />

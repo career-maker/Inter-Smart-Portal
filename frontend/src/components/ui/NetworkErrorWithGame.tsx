@@ -436,44 +436,45 @@ export function NetworkErrorWithGame({ onRetry, errorMessage, standalone = false
   }, [recordScore, standalone]);
 
   return (
-    <div className={`flex justify-center items-center ${standalone ? "w-full min-h-0 py-2" : "min-h-[75vh] p-4"}`}>
-      <div className={`w-full ${standalone ? "max-w-5xl p-6 sm:p-10" : "max-w-2xl p-6 sm:p-8"} bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-xl text-center relative overflow-hidden transition-all`}>
+    <div className={`flex justify-center items-center ${standalone ? "w-full min-h-0 py-1 sm:py-2" : "min-h-[75vh] p-2 sm:p-4"}`}>
+      <div className={`w-full ${standalone ? "max-w-5xl p-3.5 sm:p-10" : "max-w-2xl p-4 sm:p-8"} bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl sm:rounded-3xl shadow-xl text-center relative overflow-hidden transition-all`}>
         {/* Network Status / Header Badge */}
         {standalone ? (
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-purple-50 text-purple-700 dark:bg-purple-500/15 dark:text-purple-300 border border-purple-200/80 dark:border-purple-500/30 mb-3 shadow-2xs">
+          <div className="inline-flex items-center gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-xs font-bold bg-purple-50 text-purple-700 dark:bg-purple-500/15 dark:text-purple-300 border border-purple-200/80 dark:border-purple-500/30 mb-2 sm:mb-3 shadow-2xs">
             <Gamepad2 className="w-3.5 h-3.5" />
             <span>Workplace Break</span>
           </div>
         ) : (
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300 border border-rose-200/80 dark:border-rose-500/30 mb-3 shadow-2xs">
+          <div className="inline-flex items-center gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300 border border-rose-200/80 dark:border-rose-500/30 mb-2 sm:mb-3 shadow-2xs">
             <WifiOff className="w-3.5 h-3.5" />
             <span>Server Connection Interrupted</span>
           </div>
         )}
 
         {/* Header Title */}
-        <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-          {standalone ? "Workplace Runner" : "Unable to Reach Workplace Server"}
+        <h2 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+          {standalone ? "InterSmart Pixel Runner" : "Unable to Reach Workplace Server"}
         </h2>
-        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-md mx-auto mt-1.5">
+        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-md mx-auto mt-1">
           {standalone
             ? "Take a quick breather, jump over the office bugs, and set a new workplace high score!"
             : (errorMessage || "We couldn't connect to the employee portal. While your network re-establishes, enjoy the offline runner game!")}
         </p>
 
         {/* Embedded Chrome-style Offline Runner Game Canvas */}
-        <div className="mt-6 mb-4 relative group">
+        <div className="mt-4 sm:mt-6 mb-3 sm:mb-4 relative group">
           <div
             onClick={triggerJump}
             onTouchStart={(e) => {
               e.preventDefault();
               triggerJump();
             }}
-            className="w-full bg-slate-50 dark:bg-slate-950 border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-purple-300 dark:hover:border-purple-700/60 rounded-2xl overflow-hidden cursor-pointer shadow-inner relative transition-colors"
+            style={{ touchAction: "none" }}
+            className="w-full bg-slate-50 dark:bg-slate-950 border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-purple-300 dark:hover:border-purple-700/60 rounded-2xl overflow-hidden cursor-pointer shadow-inner relative transition-colors select-none"
           >
             <canvas
               ref={canvasRef}
-              style={{ width: "100%", height: "150px", display: "block" }}
+              style={{ width: "100%", height: "160px", display: "block", touchAction: "none" }}
             />
 
             {/* Live Score Pill */}
@@ -489,20 +490,20 @@ export function NetworkErrorWithGame({ onRetry, errorMessage, standalone = false
             </div>
           </div>
 
-          {/* Jump instruction helper outside canvas (no model overlap) */}
-          <div className="flex items-center justify-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 mt-2">
+          {/* Jump instruction helper outside canvas */}
+          <div className="flex items-center justify-center gap-1.5 text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-2">
             <Gamepad2 className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
-            <span>Press <kbd className="px-1.5 py-0.5 text-[11px] font-mono bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded shadow-2xs text-slate-700 dark:text-slate-200 font-semibold">Space</kbd> or <kbd className="px-1.5 py-0.5 text-[11px] font-mono bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded shadow-2xs text-slate-700 dark:text-slate-200 font-semibold">↑</kbd> to Jump (or tap canvas)</span>
+            <span>Tap canvas or press Jump button to leap over obstacles</span>
           </div>
         </div>
 
         {/* Action Controls */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-1 mb-5">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 pt-1 mb-4 sm:mb-5">
           {!standalone && (
             <button
               onClick={handleRetry}
               disabled={retrying}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 bg-[#56348f] hover:bg-[#472a77] text-white text-sm font-bold rounded-xl shadow-md shadow-purple-900/20 transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 sm:py-2.5 bg-[#56348f] hover:bg-[#472a77] text-white text-sm font-bold rounded-xl shadow-md shadow-purple-900/20 transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
             >
               <RefreshCw className={`w-4 h-4 ${retrying ? "animate-spin" : ""}`} />
               <span>{retrying ? "Connecting..." : "Try Reconnecting"}</span>
@@ -511,14 +512,15 @@ export function NetworkErrorWithGame({ onRetry, errorMessage, standalone = false
 
           <button
             onClick={triggerJump}
-            className={`w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 text-sm font-bold rounded-xl transition-all active:scale-95 cursor-pointer ${
+            style={{ touchAction: "manipulation" }}
+            className={`w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 sm:py-2.5 text-base sm:text-sm font-extrabold rounded-xl transition-all active:scale-95 cursor-pointer shadow-md select-none ${
               standalone
-                ? "bg-[#56348f] hover:bg-[#472a77] text-white shadow-md shadow-purple-900/20"
-                : "bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700/80 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700"
+                ? "bg-[#56348f] hover:bg-[#472a77] text-white shadow-purple-900/25"
+                : "bg-purple-600 hover:bg-purple-700 text-white shadow-purple-900/25"
             }`}
           >
-            <ArrowUp className={`w-4 h-4 ${standalone ? "text-white" : "text-purple-600 dark:text-purple-400"}`} />
-            <span>{gameState === "playing" ? "Jump!" : "Start Game"}</span>
+            <ArrowUp className="w-5 h-5 text-white" />
+            <span>{gameState === "playing" ? "JUMP!" : "START RUNNING"}</span>
           </button>
         </div>
 

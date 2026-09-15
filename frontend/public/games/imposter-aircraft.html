@@ -72,6 +72,8 @@
       display: inline-block;
       transition: transform 0.15s ease, filter 0.15s ease;
       outline: none;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
     }
     .jet-btn:hover {
       transform: scale(1.18);
@@ -195,6 +197,47 @@
     }
     .codepen-link:hover {
       color: #94a3b8;
+    }
+
+    @media (max-width: 600px) {
+      .header-container {
+        padding: 10px 10px 4px;
+      }
+      h1 {
+        font-size: 20px;
+        letter-spacing: 1px;
+      }
+      .description {
+        font-size: 11px;
+        margin-top: 4px;
+      }
+      h2 {
+        font-size: 14px;
+        margin-top: 4px;
+        letter-spacing: 1px;
+      }
+      .marquee-container {
+        gap: 2px;
+        padding: 4px 0 16px;
+      }
+      marquee {
+        height: 52px;
+      }
+      .jet-img {
+        width: 68px !important;
+      }
+      .modal-box {
+        padding: 20px 14px;
+        width: 92%;
+        border-radius: 20px;
+      }
+      .modal-title {
+        font-size: 22px;
+      }
+      .modal-desc {
+        font-size: 12px;
+        margin-bottom: 16px;
+      }
     }
   </style>
 </head>

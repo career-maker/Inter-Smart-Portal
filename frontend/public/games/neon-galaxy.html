@@ -9,26 +9,30 @@
     html, body {
       width: 100%;
       height: 100%;
+      height: 100dvh;
       overflow: hidden;
       background: #030611;
       color: #fff;
       font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
       user-select: none;
+      touch-action: none;
+      -webkit-touch-callout: none;
     }
     #canvas {
       display: block;
-      width: 100vw;
-      height: 100vh;
+      width: 100%;
+      height: 100%;
       background: #030611;
+      touch-action: none;
     }
 
     /* HUD Overlay */
     .hud {
       position: absolute;
-      top: 14px;
-      right: 20px;
+      top: 12px;
+      right: 16px;
       display: flex;
-      gap: 16px;
+      gap: 12px;
       align-items: center;
       z-index: 20;
       pointer-events: none;
@@ -36,21 +40,21 @@
     .hud-box {
       background: rgba(11, 22, 38, 0.85);
       border: 1px solid rgba(56, 189, 248, 0.3);
-      padding: 8px 16px;
+      padding: 6px 12px;
       border-radius: 12px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.5), inset 0 0 10px rgba(56, 189, 248, 0.1);
       backdrop-filter: blur(8px);
       text-align: center;
     }
     .hud-label {
-      font-size: 9px;
+      font-size: 8px;
       font-weight: 800;
-      letter-spacing: 1.5px;
+      letter-spacing: 1.2px;
       color: #7dd3fc;
       text-transform: uppercase;
     }
     .hud-val {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 900;
       font-family: 'Courier New', Courier, monospace;
       color: #fff;
@@ -66,9 +70,9 @@
       background: rgba(11, 22, 38, 0.9);
       border: 1px solid rgba(56, 189, 248, 0.4);
       color: #7dd3fc;
-      padding: 8px 12px;
-      border-radius: 12px;
-      font-size: 14px;
+      padding: 6px 10px;
+      border-radius: 10px;
+      font-size: 13px;
       cursor: pointer;
       backdrop-filter: blur(8px);
       transition: all 0.2s;
@@ -76,6 +80,67 @@
     .sound-toggle:hover {
       background: #1e3a5f;
       color: #fff;
+    }
+
+    .mobile-tip {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 11px;
+      color: #7dd3fc;
+      pointer-events: none;
+      z-index: 15;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 600px) {
+      .hud {
+        top: 8px;
+        left: 8px;
+        right: 8px;
+        justify-content: space-between;
+        gap: 6px;
+      }
+      .hud-box {
+        padding: 4px 8px;
+        border-radius: 8px;
+      }
+      .hud-label {
+        font-size: 7px;
+        letter-spacing: 0.5px;
+      }
+      .hud-val {
+        font-size: 13px;
+      }
+      .sound-toggle {
+        padding: 4px 8px;
+        font-size: 11px;
+      }
+      .card {
+        padding: 24px 18px !important;
+        border-radius: 20px !important;
+      }
+      .title {
+        font-size: 24px !important;
+      }
+      .subtitle {
+        font-size: 11px !important;
+        margin-bottom: 16px !important;
+      }
+      .stat-row {
+        gap: 8px !important;
+        margin-bottom: 16px !important;
+      }
+      .btn {
+        padding: 12px 24px !important;
+        font-size: 14px !important;
+      }
     }
 
     /* Game Screens Overlay */
@@ -201,6 +266,8 @@
     <button class="sound-toggle" id="soundBtn" onclick="toggleSound()">🔊</button>
   </div>
 
+  <div class="mobile-tip">👆 Drag finger to steer • Auto-laser active</div>
+
   <!-- Start Screen -->
   <div class="screen-overlay" id="startScreen">
     <div class="card">
@@ -321,10 +388,11 @@
     let W, H;
 
     function resize() {
-      W = canvas.width = window.innerWidth;
-      H = canvas.height = window.innerHeight;
+      W = canvas.width = window.innerWidth || document.documentElement.clientWidth;
+      H = canvas.height = window.innerHeight || document.documentElement.clientHeight;
     }
     window.addEventListener('resize', resize);
+    window.addEventListener('orientationchange', () => setTimeout(resize, 100));
     resize();
 
     // ── Game State ──
@@ -342,8 +410,8 @@
     const stars = [];
     for (let i = 0; i < 150; i++) {
       stars.push({
-        x: Math.random() * window.innerWidth,
-        y: Math.random() * window.innerHeight,
+        x: Math.random() * (window.innerWidth || 800),
+        y: Math.random() * (window.innerHeight || 600),
         size: Math.random() * 2 + 0.5,
         speed: Math.random() * 3 + 0.5,
         color: ['#38bdf8', '#818cf8', '#e0f2fe', '#c084fc'][Math.floor(Math.random() * 4)]
@@ -352,8 +420,8 @@
 
     // ── Player Object ──
     const player = {
-      x: window.innerWidth / 2,
-      y: window.innerHeight - 100,
+      x: (window.innerWidth || 800) / 2,
+      y: (window.innerHeight || 600) - 100,
       radius: 22,
       vx: 0,
       vy: 0,
@@ -378,22 +446,56 @@
     });
     window.addEventListener('keyup', e => { keys[e.code] = false; });
 
-    let pointer = { x: null, y: null, active: false };
+    let pointer = { x: null, y: null, active: false, isTouch: false };
+
+    function updatePointerPos(clientX, clientY, isTouch = false) {
+      const rect = canvas.getBoundingClientRect();
+      pointer.x = clientX - rect.left;
+      // On mobile touch, position the ship 52px above touch contact so user's thumb never blocks the starfighter!
+      pointer.y = (clientY - rect.top) - (isTouch ? 52 : 0);
+      pointer.active = true;
+      pointer.isTouch = isTouch;
+    }
+
     window.addEventListener('pointermove', e => {
-      if (isPlaying) {
-        pointer.x = e.clientX;
-        pointer.y = e.clientY;
-        pointer.active = true;
+      if (isPlaying && e.pointerType !== 'touch') {
+        updatePointerPos(e.clientX, e.clientY, false);
       }
     });
     window.addEventListener('pointerdown', e => {
-      if (isPlaying) {
-        pointer.x = e.clientX;
-        pointer.y = e.clientY;
-        pointer.active = true;
+      if (isPlaying && e.pointerType !== 'touch') {
+        updatePointerPos(e.clientX, e.clientY, false);
       }
     });
-    window.addEventListener('pointerup', () => { pointer.active = false; });
+    window.addEventListener('pointerup', e => {
+      if (e.pointerType !== 'touch') pointer.active = false;
+    });
+
+    // Touch events for flawless mobile responsiveness without pull-to-refresh or page bouncing
+    canvas.addEventListener('touchstart', e => {
+      if (!isPlaying) return;
+      e.preventDefault();
+      if (e.touches.length > 0) {
+        updatePointerPos(e.touches[0].clientX, e.touches[0].clientY, true);
+      }
+    }, { passive: false });
+
+    canvas.addEventListener('touchmove', e => {
+      if (!isPlaying) return;
+      e.preventDefault();
+      if (e.touches.length > 0) {
+        updatePointerPos(e.touches[0].clientX, e.touches[0].clientY, true);
+      }
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', e => {
+      e.preventDefault();
+      pointer.active = false;
+    }, { passive: false });
+
+    canvas.addEventListener('touchcancel', () => {
+      pointer.active = false;
+    });
 
     function startGame() {
       initAudio();
@@ -507,8 +609,9 @@
 
       // Player Movement Logic
       if (pointer.active && pointer.x !== null) {
-        player.x += (pointer.x - player.x) * 0.15;
-        player.y += (pointer.y - player.y) * 0.15;
+        const smoothing = pointer.isTouch ? 0.35 : 0.18;
+        player.x += (pointer.x - player.x) * smoothing;
+        player.y += (pointer.y - player.y) * smoothing;
       } else {
         if (keys['KeyA'] || keys['ArrowLeft']) player.x -= player.speed;
         if (keys['KeyD'] || keys['ArrowRight']) player.x += player.speed;
