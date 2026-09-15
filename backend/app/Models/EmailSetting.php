@@ -47,12 +47,12 @@ class EmailSetting extends Model
                 return;
             }
             $valStr = is_string($value) ? $value : json_encode($value);
-            static::updateOrInsert(
-                ['key' => $key],
-                ['value' => $valStr, 'updated_at' => now()]
-            );
+            $setting = static::firstOrNew(['key' => $key]);
+            $setting->value = $valStr;
+            $setting->save();
         } catch (\Throwable $e) {
             \Log::error("Failed to set EmailSetting for key '{$key}': " . $e->getMessage());
+            throw $e;
         }
     }
 

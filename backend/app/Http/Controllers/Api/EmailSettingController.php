@@ -271,7 +271,14 @@ class EmailSettingController extends Controller
             'employee_rules' => $validated['employee_rules'] ?? [],
         ];
 
-        \App\Services\ApprovalRoutingService::saveRules($cleaned);
+        try {
+            \App\Services\ApprovalRoutingService::saveRules($cleaned);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to save approval routing: ' . $e->getMessage(),
+            ], 500);
+        }
 
         return response()->json([
             'status' => 'success',

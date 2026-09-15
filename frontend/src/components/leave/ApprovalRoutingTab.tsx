@@ -749,33 +749,70 @@ export default function ApprovalRoutingTab() {
     setIsTlModalOpen(true);
   };
 
-  const saveTlRuleModal = () => {
+  const saveTlRuleModal = async () => {
     if (tlModalForm.team_lead_ids.length === 0) {
       alert("Please select at least one Team Lead for this routing rule.");
       return;
     }
 
-    setRules((prev) => {
-      const existingRules = prev.team_lead_rules || [];
-      const idx = existingRules.findIndex((r) => r.id === tlModalForm.id);
-      let updated: TeamLeadApprovalRuleGroup[];
-      if (idx >= 0) {
-        updated = [...existingRules];
-        updated[idx] = tlModalForm;
-      } else {
-        updated = [...existingRules, tlModalForm];
-      }
-      return { ...prev, team_lead_rules: updated };
-    });
+    const existingRules = rules.team_lead_rules || [];
+    const idx = existingRules.findIndex((r) => r.id === tlModalForm.id);
+    let updatedTlRules: TeamLeadApprovalRuleGroup[];
+    if (idx >= 0) {
+      updatedTlRules = [...existingRules];
+      updatedTlRules[idx] = tlModalForm;
+    } else {
+      updatedTlRules = [...existingRules, tlModalForm];
+    }
 
-    setIsTlModalOpen(false);
+    const updatedRules: ApprovalRoutingRules = {
+      ...rules,
+      team_lead_rules: updatedTlRules,
+    };
+
+    setRules(updatedRules);
+    setSaving(true);
+    setSuccessMessage(null);
+    setErrorMessage(null);
+
+    try {
+      const res = await emailSettingsApi.updateApprovalRouting(updatedRules);
+      setSuccessMessage(res.message || "Team Lead routing rule saved successfully.");
+      if (res.data) {
+        setRules((prev) => ({
+          ...prev,
+          ...res.data,
+        }));
+      }
+      setIsTlModalOpen(false);
+    } catch (err: any) {
+      setErrorMessage(
+        err?.response?.data?.message || err?.message || "Failed to save Team Lead routing rule."
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const deleteTlRule = (id: string) => {
-    setRules((prev) => ({
-      ...prev,
-      team_lead_rules: (prev.team_lead_rules || []).filter((r) => r.id !== id),
-    }));
+  const deleteTlRule = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this Team Lead routing rule?")) return;
+    const updatedTlRules = (rules.team_lead_rules || []).filter((r) => r.id !== id);
+    const updatedRules: ApprovalRoutingRules = { ...rules, team_lead_rules: updatedTlRules };
+    setRules(updatedRules);
+    setSaving(true);
+    setSuccessMessage(null);
+    setErrorMessage(null);
+    try {
+      const res = await emailSettingsApi.updateApprovalRouting(updatedRules);
+      setSuccessMessage("Team Lead routing rule deleted successfully.");
+      if (res.data) {
+        setRules((prev) => ({ ...prev, ...res.data }));
+      }
+    } catch (err: any) {
+      setErrorMessage(err?.response?.data?.message || err?.message || "Failed to delete rule.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   // ── Employee Rule Modal Handlers ──
@@ -801,33 +838,70 @@ export default function ApprovalRoutingTab() {
     setIsEmpModalOpen(true);
   };
 
-  const saveEmpRuleModal = () => {
+  const saveEmpRuleModal = async () => {
     if (empModalForm.user_ids.length === 0) {
       alert("Please select at least one Employee for this routing rule.");
       return;
     }
 
-    setRules((prev) => {
-      const existingRules = prev.employee_rules || [];
-      const idx = existingRules.findIndex((r) => r.id === empModalForm.id);
-      let updated: EmployeeApprovalRuleGroup[];
-      if (idx >= 0) {
-        updated = [...existingRules];
-        updated[idx] = empModalForm;
-      } else {
-        updated = [...existingRules, empModalForm];
-      }
-      return { ...prev, employee_rules: updated };
-    });
+    const existingRules = rules.employee_rules || [];
+    const idx = existingRules.findIndex((r) => r.id === empModalForm.id);
+    let updatedEmpRules: EmployeeApprovalRuleGroup[];
+    if (idx >= 0) {
+      updatedEmpRules = [...existingRules];
+      updatedEmpRules[idx] = empModalForm;
+    } else {
+      updatedEmpRules = [...existingRules, empModalForm];
+    }
 
-    setIsEmpModalOpen(false);
+    const updatedRules: ApprovalRoutingRules = {
+      ...rules,
+      employee_rules: updatedEmpRules,
+    };
+
+    setRules(updatedRules);
+    setSaving(true);
+    setSuccessMessage(null);
+    setErrorMessage(null);
+
+    try {
+      const res = await emailSettingsApi.updateApprovalRouting(updatedRules);
+      setSuccessMessage(res.message || "Employee routing rule saved successfully.");
+      if (res.data) {
+        setRules((prev) => ({
+          ...prev,
+          ...res.data,
+        }));
+      }
+      setIsEmpModalOpen(false);
+    } catch (err: any) {
+      setErrorMessage(
+        err?.response?.data?.message || err?.message || "Failed to save Employee routing rule."
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const deleteEmpRule = (id: string) => {
-    setRules((prev) => ({
-      ...prev,
-      employee_rules: (prev.employee_rules || []).filter((r) => r.id !== id),
-    }));
+  const deleteEmpRule = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this Employee routing rule?")) return;
+    const updatedEmpRules = (rules.employee_rules || []).filter((r) => r.id !== id);
+    const updatedRules: ApprovalRoutingRules = { ...rules, employee_rules: updatedEmpRules };
+    setRules(updatedRules);
+    setSaving(true);
+    setSuccessMessage(null);
+    setErrorMessage(null);
+    try {
+      const res = await emailSettingsApi.updateApprovalRouting(updatedRules);
+      setSuccessMessage("Employee routing rule deleted successfully.");
+      if (res.data) {
+        setRules((prev) => ({ ...prev, ...res.data }));
+      }
+    } catch (err: any) {
+      setErrorMessage(err?.response?.data?.message || err?.message || "Failed to delete rule.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (loading) {
@@ -1506,11 +1580,12 @@ export default function ApprovalRoutingTab() {
                 </button>
                 <button
                   type="button"
+                  disabled={saving}
                   onClick={saveTlRuleModal}
-                  className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold bg-[#56348f] text-white hover:bg-[#462875] shadow-md shadow-purple-900/20 cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold bg-[#56348f] text-white hover:bg-[#462875] shadow-md shadow-purple-900/20 cursor-pointer disabled:opacity-50"
                 >
-                  <Check className="w-4 h-4" />
-                  <span>Save Team Lead Rule</span>
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                  <span>{saving ? "Saving Rule..." : "Save Team Lead Rule"}</span>
                 </button>
               </div>
             </div>
@@ -1620,11 +1695,12 @@ export default function ApprovalRoutingTab() {
                 </button>
                 <button
                   type="button"
+                  disabled={saving}
                   onClick={saveEmpRuleModal}
-                  className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold bg-[#56348f] text-white hover:bg-[#462875] shadow-md shadow-purple-900/20 cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold bg-[#56348f] text-white hover:bg-[#462875] shadow-md shadow-purple-900/20 cursor-pointer disabled:opacity-50"
                 >
-                  <Check className="w-4 h-4" />
-                  <span>Save Employee Rule</span>
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                  <span>{saving ? "Saving Rule..." : "Save Employee Rule"}</span>
                 </button>
               </div>
             </div>
