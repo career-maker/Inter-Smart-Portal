@@ -116,6 +116,7 @@ class TeamPermissionController extends Controller
         return response()->json([
             'permissions' => $permissions,
             'is_super_admin' => $isSuperAdmin,
+            'is_approver' => (bool) ($permissions['is_approver'] ?? false),
         ]);
     }
 }

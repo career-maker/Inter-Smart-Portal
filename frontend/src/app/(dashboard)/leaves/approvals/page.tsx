@@ -94,13 +94,20 @@ export default function ApprovalsPage() {
 
   const canApprove = (request: any): boolean => {
     if (isSuperAdmin) return true;
+    const isOwnRequest =
+      (request?.user_id && user?.id && Number(request.user_id) === Number(user.id)) ||
+      (request?.user?.id && user?.id && Number(request.user.id) === Number(user.id));
+    if (isOwnRequest) return false;
+
     if (isTeamLead) {
       if (currentUserTeamId && request?.user?.team_id) {
         return String(request.user.team_id) === String(currentUserTeamId);
       }
       return true; // Filtered by backend
     }
-    return false;
+
+    // For non-TL delegated approvers, requests returned by backend are routed to them
+    return true;
   };
 
   const [tab, setTab] = useState<"leaves" | "wfh">(() => {

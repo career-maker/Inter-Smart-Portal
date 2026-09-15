@@ -21,6 +21,7 @@ export interface User {
   city?: string;
   state?: string;
   zip?: string;
+  is_approver?: boolean;
 }
 
 interface AuthState {

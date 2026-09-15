@@ -57,6 +57,36 @@ class WfhRequestController extends Controller
             ->values()
             ->all();
 
+        if (!empty($delegatedEmployeeIds)) {
+            // Auto-heal pending WFH requests submitted while TL was misconfigured as 'Not Required'
+            WfhRequest::whereIn('user_id', $delegatedEmployeeIds)
+                ->where('status', 'Pending')
+                ->where('tl_status', 'Not Required')
+                ->where('admin_status', 'Pending')
+                ->update(['tl_status' => 'Pending']);
+
+            // Auto-generate missing in-app notifications for this approver
+            try {
+                $pendingWfhs = WfhRequest::with('user')
+                    ->whereIn('user_id', $delegatedEmployeeIds)
+                    ->where('status', 'Pending')
+                    ->where('tl_status', 'Pending')
+                    ->get();
+                foreach ($pendingWfhs as $pwr) {
+                    $hasNotif = \Illuminate\Support\Facades\DB::table('notifications')
+                        ->where('notifiable_id', $user->id)
+                        ->where('type', \App\Notifications\WfhRequestNotification::class)
+                        ->where('data', 'like', '%"wfh_request_id":' . $pwr->id . '%')
+                        ->exists();
+                    if (!$hasNotif) {
+                        $fullName = "{$pwr->user->first_name} {$pwr->user->last_name}";
+                        $msg = "{$fullName} has submitted a WFH request ({$pwr->start_date} to {$pwr->end_date}).";
+                        $user->notify(new \App\Notifications\WfhRequestNotification('submitted', $pwr, $msg));
+                    }
+                }
+            } catch (\Throwable $e) {}
+        }
+
         $isUserTL = $user->hasRole('Team Lead')
             || in_array(strtolower($user->role ?? ''), ['team lead', 'lead'], true)
             || \App\Models\Team::where('team_lead_id', $user->id)->exists();
@@ -211,12 +241,10 @@ class WfhRequestController extends Controller
             $adminStatus = 'Pending';
         } elseif ($isApplicantTL) {
             // Team Lead applying:
-            if ($routing['approval_level'] === 'multi' && !empty($routing['approver_user_ids'])) {
-                // Multi-level: The TO person and Super Admin must both approve
+            if (!empty($routing['approver_user_ids'])) {
                 $tlStatus    = 'Pending';
-                $adminStatus = 'Pending';
+                $adminStatus = ($routing['approval_level'] === 'single') ? 'Not Required' : 'Pending';
             } else {
-                // Single-level:
                 $tlStatus    = 'Not Required';
                 $adminStatus = 'Pending';
             }
@@ -264,6 +292,11 @@ class WfhRequestController extends Controller
                     if (!empty($matchedOverride['approver_user_id'])) $approverIds[] = (int)$matchedOverride['approver_user_id'];
                     if (!empty($matchedOverride['approver_user_id_2'])) $approverIds[] = (int)$matchedOverride['approver_user_id_2'];
                 }
+
+                if (!empty($routing['approver_user_ids'])) {
+                    $approverIds = array_merge($approverIds, $routing['approver_user_ids']);
+                }
+                $approverIds = array_values(array_unique(array_filter($approverIds)));
 
                 if (!empty($approverIds)) {
                     $approvers = User::whereIn('id', $approverIds)->get();

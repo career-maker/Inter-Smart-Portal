@@ -298,7 +298,7 @@ class ApprovalRoutingService
         // 2. From department rules
         foreach ($rules['department_rules'] as $dr) {
             if (!empty($dr['enabled']) && !empty($dr['team_id'])) {
-                if ((int)($dr['to_user_id'] ?? 0) === $approverId) {
+                if ((int)($dr['to_user_id'] ?? 0) === $approverId || (int)($dr['to_user_id_2'] ?? 0) === $approverId) {
                     $teamUserIds = User::where('team_id', $dr['team_id'])->pluck('id')->all();
                     $applicantIds = array_merge($applicantIds, $teamUserIds);
                 }
@@ -306,13 +306,20 @@ class ApprovalRoutingService
         }
 
         // 3. From role rules (e.g. if approver is set as TO person for Team Leads)
-        $tlRules = $rules['role_rules']['team_lead'] ?? [];
-        foreach ($tlRules as $rule) {
-            if (!empty($rule['enabled']) && (int)($rule['to_user_id'] ?? 0) === $approverId) {
-                // All team leads
-                $tlUserIds = Team::whereNotNull('team_lead_id')->pluck('team_lead_id')->all();
-                $spatieTlIds = User::role('Team Lead')->pluck('id')->all();
-                $applicantIds = array_merge($applicantIds, $tlUserIds, $spatieTlIds);
+        foreach (($rules['role_rules'] ?? []) as $roleKey => $actionRules) {
+            if (is_array($actionRules)) {
+                foreach ($actionRules as $rule) {
+                    if (!empty($rule['enabled']) && ((int)($rule['to_user_id'] ?? 0) === $approverId || (int)($rule['to_user_id_2'] ?? 0) === $approverId)) {
+                        if ($roleKey === 'team_lead') {
+                            $tlUserIds = Team::whereNotNull('team_lead_id')->pluck('team_lead_id')->all();
+                            $spatieTlIds = User::role('Team Lead')->pluck('id')->all();
+                            $applicantIds = array_merge($applicantIds, $tlUserIds, $spatieTlIds);
+                        } else {
+                            $roleUserIds = User::role($roleKey)->pluck('id')->all();
+                            $applicantIds = array_merge($applicantIds, $roleUserIds);
+                        }
+                    }
+                }
             }
         }
 
@@ -329,5 +336,26 @@ class ApprovalRoutingService
         } catch (\Throwable $e) {}
 
         return array_values(array_unique(array_filter($applicantIds)));
+    }
+
+    /**
+     * Check if a user is an authorized approver for any employee, team, or role.
+     */
+    public static function isUserAnyApprover(User $user): bool
+    {
+        if ($user->hasRole('Super Admin') || $user->hasRole('HR')) {
+            return true;
+        }
+
+        $isTeamLead = $user->hasRole('Team Lead')
+            || in_array(strtolower($user->role ?? ''), ['team lead', 'lead'], true)
+            || Team::where('team_lead_id', $user->id)->exists();
+
+        if ($isTeamLead) {
+            return true;
+        }
+
+        $delegated = self::getDelegatedApplicantIdsForApprover($user);
+        return !empty($delegated);
     }
 }

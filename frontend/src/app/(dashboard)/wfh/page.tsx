@@ -115,10 +115,11 @@ export default function WfhPage() {
   const { user } = useAuthStore();
   const isSuperAdmin = user?.role === "Super Admin";
   const isTeamLead = user?.role === "Team Lead";
+  const isApprover = isSuperAdmin || isTeamLead || Boolean((user as any)?.is_approver);
 
   // Views: "team" (Team / All requests), "my" (Personal requests), "apply" (Submit WFH)
   const [activeView, setActiveView]             = useState<"team" | "my" | "apply">(() => {
-    if (isSuperAdmin || isTeamLead) return "team";
+    if (isApprover) return "team";
     return "my";
   });
 
@@ -499,7 +500,7 @@ export default function WfhPage() {
 
         {/* Action / View Switchers */}
         <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
-          {(isSuperAdmin || isTeamLead) && (
+          {isApprover && (
             <div className="inline-flex p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
               <button
                 onClick={() => setActiveView("team")}
@@ -510,7 +511,7 @@ export default function WfhPage() {
                 }`}
               >
                 <Users className="w-3.5 h-3.5" />
-                {isSuperAdmin ? "All Requests" : "Team Requests"}
+                {isSuperAdmin ? "All Requests" : "Approvals & Team"}
               </button>
               <button
                 onClick={() => setActiveView("my")}
@@ -848,7 +849,7 @@ export default function WfhPage() {
             <div className="overflow-x-auto">
               <table className="w-full min-w-[1000px] table-fixed text-sm text-left">
                 <colgroup>
-                  {(isSuperAdmin || isTeamLead) && activeView !== "my" && (
+                  {isApprover && activeView !== "my" && (
                     <col className="w-[20%]" />
                   )}
                   <col className="w-[14%]" />
@@ -860,7 +861,7 @@ export default function WfhPage() {
                 </colgroup>
                 <thead className="text-xs text-slate-500 dark:text-slate-400 uppercase bg-slate-50 dark:bg-slate-850 border-b border-slate-200 dark:border-slate-800">
                   <tr>
-                    {(isSuperAdmin || isTeamLead) && activeView !== "my" && (
+                    {isApprover && activeView !== "my" && (
                       <th className="px-3 py-3 font-semibold">Employee</th>
                     )}
                     <th className="px-3 py-3 font-semibold">Type</th>
@@ -878,11 +879,11 @@ export default function WfhPage() {
 
                     // Check if current user can approve this request
                     const canApproveRow = (isSuperAdmin && req.status === "Pending") ||
-                      (isTeamLead && !isOwnRequest && (req.tl_status || "").toLowerCase() === "pending" && req.status === "Pending");
+                      (!isOwnRequest && (req.tl_status || "").toLowerCase() === "pending" && req.status === "Pending");
 
                     return (
                       <tr key={req.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
-                        {(isSuperAdmin || isTeamLead) && activeView !== "my" && (
+                        {isApprover && activeView !== "my" && (
                           <td className="px-3 py-3 align-middle border-r border-slate-100 dark:border-slate-800/60">
                             <div className="flex items-center gap-2 min-w-0">
                               <RoyalAvatar

@@ -54,6 +54,37 @@ class LeaveRequestController extends Controller
             ->values()
             ->all();
 
+        if (!empty($delegatedEmployeeIds)) {
+            // Auto-heal pending requests submitted while TL was misconfigured as 'Not Required'
+            LeaveRequest::whereIn('user_id', $delegatedEmployeeIds)
+                ->where('status', 'Pending')
+                ->where('tl_status', 'Not Required')
+                ->where('admin_status', 'Pending')
+                ->update(['tl_status' => 'Pending']);
+
+            // Auto-generate missing in-app notifications for this approver
+            try {
+                $pendingRequests = LeaveRequest::with(['user', 'leaveType'])
+                    ->whereIn('user_id', $delegatedEmployeeIds)
+                    ->where('status', 'Pending')
+                    ->where('tl_status', 'Pending')
+                    ->get();
+                foreach ($pendingRequests as $pr) {
+                    $hasNotif = \Illuminate\Support\Facades\DB::table('notifications')
+                        ->where('notifiable_id', $user->id)
+                        ->where('type', \App\Notifications\LeaveRequestNotification::class)
+                        ->where('data', 'like', '%"leave_request_id":' . $pr->id . '%')
+                        ->exists();
+                    if (!$hasNotif) {
+                        $fullName = "{$pr->user->first_name} {$pr->user->last_name}";
+                        $typeName = $pr->leaveType->name ?? 'Leave';
+                        $msg = "{$fullName} has submitted a new {$typeName} request ({$pr->start_date} to {$pr->end_date}).";
+                        $user->notify(new \App\Notifications\LeaveRequestNotification('submitted', $pr, $msg));
+                    }
+                }
+            } catch (\Throwable $e) {}
+        }
+
         if ($user->hasRole('Super Admin') || $user->hasRole('HR')) {
             if ($request->has('status') && $request->status === 'Pending') {
                 $query->where(function ($mainQ) {
@@ -621,12 +652,10 @@ class LeaveRequestController extends Controller
             $tlStatus    = 'Not Required';
             $adminStatus = 'Pending';
         } elseif ($isApplicantTL) {
-            if ($routing['approval_level'] === 'multi' && !empty($routing['approver_user_ids'])) {
-                // Multi-level: The TO person and Super Admin must both approve
+            if (!empty($routing['approver_user_ids'])) {
                 $tlStatus    = 'Pending';
-                $adminStatus = 'Pending';
+                $adminStatus = ($routing['approval_level'] === 'single') ? 'Not Required' : 'Pending';
             } else {
-                // Single-level:
                 $tlStatus    = 'Not Required';
                 $adminStatus = 'Pending';
             }
@@ -823,7 +852,7 @@ class LeaveRequestController extends Controller
             DB::beginTransaction();
 
             if ($status === 'Rejected') {
-                $isTL    = ($user->hasRole('Team Lead') || $isCustomApprover) && !$user->hasRole('Super Admin') && !$user->hasRole('HR');
+                $isTL    = ($user->hasRole('Team Lead') || $isCustomApprover || $isRoutingApprover) && !$user->hasRole('Super Admin') && !$user->hasRole('HR');
                 $isAdmin = $user->hasRole('Super Admin') || $user->hasRole('HR');
 
                 $wasTlApproved = ($leaveRequest->tl_status === 'Approved');
@@ -870,7 +899,7 @@ class LeaveRequestController extends Controller
                 }
 
             } elseif ($status === 'Approved') {
-                $isTL    = ($user->hasRole('Team Lead') || $isCustomApprover) && !$user->hasRole('Super Admin') && !$user->hasRole('HR');
+                $isTL    = ($user->hasRole('Team Lead') || $isCustomApprover || $isRoutingApprover) && !$user->hasRole('Super Admin') && !$user->hasRole('HR');
                 $isAdmin = $user->hasRole('Super Admin') || $user->hasRole('HR');
 
                 if ($isTL) {
@@ -950,6 +979,16 @@ class LeaveRequestController extends Controller
                     } catch (\Exception $e) {
                         \Log::warning('Notification failed: ' . $e->getMessage());
                     }
+                } elseif ($isTL && $leaveRequest->status === 'Pending' && $leaveRequest->admin_status === 'Pending') {
+                    // Multi-level approval: initial approver approved, notify Super Admins
+                    try {
+                        $apprName = "{$user->first_name} {$user->last_name}";
+                        $empName  = "{$applicant->first_name} {$applicant->last_name}";
+                        $msg      = "Approver {$apprName} has approved {$empName}'s leave request. Awaiting your final approval.";
+                        foreach (User::role('Super Admin')->get() as $admin) {
+                            $admin->notify(new LeaveRequestNotification('tl_approved', $leaveRequest, $msg));
+                        }
+                    } catch (\Throwable $e) {}
                 }
             }
 

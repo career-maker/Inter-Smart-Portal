@@ -58,6 +58,7 @@ class AuthController extends Controller
                 'role' => $user->primaryRoleName(),
                 'permissions' => $user->getAllPermissions()->pluck('name'),
                 'profile_photo_path' => $user->profilePhotoUrl(),
+                'is_approver' => \App\Services\ApprovalRoutingService::isUserAnyApprover($user),
             ]
         ]);
     }
@@ -87,6 +88,7 @@ class AuthController extends Controller
                 'role' => $user->primaryRoleName(),
                 'permissions' => $user->getAllPermissions()->pluck('name'),
                 'profile_photo_path' => $user->profilePhotoUrl(),
+                'is_approver' => \App\Services\ApprovalRoutingService::isUserAnyApprover($user),
             ]
         ]);
     }

@@ -205,6 +205,9 @@ function isItemVisible(item: NavItem, role: string, permissions: Record<string, 
   if (item.href === "/project-management/hubstaff" && permissions.hubstaff_team_view) {
     return true;
   }
+  if ((item.href === "/leaves/approvals" || item.href === "/leaves/approvals?tab=wfh") && permissions.is_approver) {
+    return true;
+  }
   if (item.roles && !item.roles.includes(role)) return false;
   return true;
 }
@@ -276,9 +279,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [isAuthenticated]);
 
-  // Fetch pending approvals for Team Leads & Super Admins
+  // Fetch pending approvals for Team Leads, Super Admins, and delegated approvers
   useEffect(() => {
-    if (user?.role === "Team Lead" || user?.role === "Super Admin") {
+    const isApprover = user?.role === "Team Lead" || user?.role === "Super Admin" || (user as any)?.is_approver || userPermissions?.is_approver;
+    if (isApprover) {
       const fetchPendingCount = async () => {
         try {
           const [leavesRes, wfhRes] = await Promise.allSettled([
@@ -299,7 +303,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       const interval = setInterval(fetchPendingCount, 30000);
       return () => clearInterval(interval);
     }
-  }, [user?.role]);
+  }, [user?.role, (user as any)?.is_approver, userPermissions?.is_approver]);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -607,9 +611,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   const isHighlighted = groupActive || isFlyoutOpen;
                   const GroupIcon = group.icon;
                   const groupBadgeCount =
-                    group.id === "leaves" && (user?.role === "Team Lead" || user?.role === "Super Admin")
+                    group.id === "leaves"
                       ? pendingLeavesCount
-                      : group.id === "wfh" && (user?.role === "Team Lead" || user?.role === "Super Admin")
+                      : group.id === "wfh"
                       ? pendingWfhCount
                       : 0;
 
@@ -735,12 +739,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       <span style={{ color: active ? "#ffffff" : "rgba(255, 255, 255, 0.75)" }} className="truncate font-medium group-hover:!text-white">
                         {item.label}
                       </span>
-                      {item.href === "/leaves/approvals" && (user?.role === "Team Lead" || user?.role === "Super Admin") && pendingLeavesCount > 0 && (
+                      {item.href === "/leaves/approvals" && pendingLeavesCount > 0 && (
                         <span className="bg-[#ff5252] text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center ml-2">
                           {pendingLeavesCount}
                         </span>
                       )}
-                      {item.href === "/leaves/approvals?tab=wfh" && (user?.role === "Team Lead" || user?.role === "Super Admin") && pendingWfhCount > 0 && (
+                      {item.href === "/leaves/approvals?tab=wfh" && pendingWfhCount > 0 && (
                         <span className="bg-[#ff5252] text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center ml-2">
                           {pendingWfhCount}
                         </span>
@@ -861,10 +865,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                   <span className="w-1.5 h-1.5 rounded-full bg-current shrink-0 opacity-60 ml-2" />
                                   <span className="flex items-center gap-2 truncate">
                                     {item.label}
-                                    {item.href === "/leaves/approvals" && (user?.role === "Team Lead" || user?.role === "Super Admin") && pendingLeavesCount > 0 && (
+                                    {item.href === "/leaves/approvals" && pendingLeavesCount > 0 && (
                                       <span className="bg-red-500 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center shrink-0">{pendingLeavesCount}</span>
                                     )}
-                                    {item.href === "/leaves/approvals?tab=wfh" && (user?.role === "Team Lead" || user?.role === "Super Admin") && pendingWfhCount > 0 && (
+                                    {item.href === "/leaves/approvals?tab=wfh" && pendingWfhCount > 0 && (
                                       <span className="bg-red-500 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center shrink-0">{pendingWfhCount}</span>
                                     )}
                                   </span>

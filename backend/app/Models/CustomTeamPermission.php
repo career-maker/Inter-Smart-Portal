@@ -181,6 +181,8 @@ class CustomTeamPermission extends Model
             $results[$def['key']] = static::userHasPermission($user, $def['key']);
         }
 
+        $results['is_approver'] = \App\Services\ApprovalRoutingService::isUserAnyApprover($user);
+
         return $results;
     }
 }

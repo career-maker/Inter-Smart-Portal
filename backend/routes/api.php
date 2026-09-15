@@ -87,10 +87,6 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('attendance-summary', [\App\Http\Controllers\Api\ReportController::class, 'attendanceSummary']);
             Route::get('employee-list', [\App\Http\Controllers\Api\ReportController::class, 'allEmployeesForFilter']);
         });
-
-        // Approvals (Team Leads & Admins)
-        Route::post('leave-requests/{leaveRequest}/status', [\App\Http\Controllers\Api\LeaveRequestController::class, 'updateStatus']);
-        Route::post('wfh-requests/{wfhRequest}/status', [\App\Http\Controllers\Api\WfhRequestController::class, 'updateStatus']);
     });
 
     // Super Admin Routes
@@ -388,8 +384,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('leaves/calculate', [\App\Http\Controllers\Api\LeaveRequestController::class, 'calculate']);
     Route::post('leave-requests/{leaveRequest}/cancel', [\App\Http\Controllers\Api\LeaveRequestController::class, 'cancel']);
     Route::apiResource('leave-requests', \App\Http\Controllers\Api\LeaveRequestController::class)->only(['index', 'store', 'destroy']);
+    Route::post('leave-requests/{leaveRequest}/status', [\App\Http\Controllers\Api\LeaveRequestController::class, 'updateStatus']);
     Route::post('wfh-requests/{wfhRequest}/cancel', [\App\Http\Controllers\Api\WfhRequestController::class, 'cancel']);
     Route::apiResource('wfh-requests', \App\Http\Controllers\Api\WfhRequestController::class)->only(['index', 'store', 'destroy']);
+    Route::post('wfh-requests/{wfhRequest}/status', [\App\Http\Controllers\Api\WfhRequestController::class, 'updateStatus']);
 
     // Attendance Routes
     Route::prefix('attendance')->group(function () {
