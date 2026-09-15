@@ -93,14 +93,14 @@ export function getTaskStatusClass(status: TaskStatus | string): string {
 export function getTaskPriorityClass(priority: TaskPriority | string): string {
   switch (priority) {
     case "Critical":
-      return "task-priority-critical !bg-rose-100 !text-rose-900 !border-rose-400 dark:!bg-rose-950/80 dark:!text-rose-100 dark:!border-rose-600 font-extrabold";
+      return "task-priority-critical font-extrabold";
     case "High":
-      return "task-priority-high !bg-orange-100 !text-orange-950 !border-orange-500 dark:!bg-orange-950/80 dark:!text-orange-100 dark:!border-orange-600 font-extrabold";
+      return "task-priority-high font-extrabold";
     case "Medium":
-      return "task-priority-medium !bg-amber-100 !text-amber-950 !border-amber-500 dark:!bg-amber-950/80 dark:!text-amber-100 dark:!border-amber-600 font-extrabold";
+      return "task-priority-medium font-extrabold";
     case "Low":
     default:
-      return "task-priority-low !bg-emerald-100 !text-emerald-950 !border-emerald-500 dark:!bg-emerald-950/80 dark:!text-emerald-100 dark:!border-emerald-600 font-extrabold";
+      return "task-priority-low font-extrabold";
   }
 }
 

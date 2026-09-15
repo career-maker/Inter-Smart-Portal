@@ -227,18 +227,28 @@ class EmailSettingController extends Controller
             ->select('id', 'first_name', 'last_name', 'email', 'employee_code', 'team_id', 'designation')
             ->get();
 
+        // Get all unique Team Leads (assigned in teams or with role 'Team Lead')
+        $teamLeadIdsFromTeams = Team::whereNotNull('team_lead_id')->pluck('team_lead_id')->all();
+        $spatieTlIds = User::role('Team Lead')->pluck('id')->all();
+        $allTlIds = array_values(array_unique(array_filter(array_merge($teamLeadIdsFromTeams, $spatieTlIds))));
+
+        $teamLeads = User::whereIn('id', $allTlIds)
+            ->select('id', 'first_name', 'last_name', 'email', 'employee_code', 'team_id', 'designation')
+            ->get();
+
         return response()->json([
             'status' => 'success',
             'data' => [
                 'rules' => $rules,
                 'teams' => $teams,
                 'users' => $users,
+                'team_leads' => $teamLeads,
             ],
         ]);
     }
 
     /**
-     * Update approval routing rules (role-wise, department-wise, employee-wise).
+     * Update approval routing rules (role-wise, team-lead-wise, department-wise, employee-wise).
      */
     public function updateApprovalRouting(Request $request): JsonResponse
     {
@@ -249,12 +259,14 @@ class EmailSettingController extends Controller
 
         $validated = $request->validate([
             'role_rules' => 'nullable|array',
+            'team_lead_rules' => 'nullable|array',
             'department_rules' => 'nullable|array',
             'employee_rules' => 'nullable|array',
         ]);
 
         $cleaned = [
             'role_rules' => $validated['role_rules'] ?? [],
+            'team_lead_rules' => $validated['team_lead_rules'] ?? [],
             'department_rules' => $validated['department_rules'] ?? [],
             'employee_rules' => $validated['employee_rules'] ?? [],
         ];

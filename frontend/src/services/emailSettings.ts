@@ -58,6 +58,16 @@ export interface RoleApprovalRule {
   enabled: boolean;
 }
 
+export interface TeamLeadApprovalRuleGroup {
+  id: string;
+  name?: string;
+  team_lead_ids: number[];
+  wfh: RoleApprovalRule;
+  leave_single_day: RoleApprovalRule;
+  leave_multi_day: RoleApprovalRule;
+  enabled: boolean;
+}
+
 export interface DepartmentApprovalRule {
   id: string;
   team_id: number;
@@ -71,18 +81,17 @@ export interface DepartmentApprovalRule {
   notes?: string;
 }
 
-export interface EmployeeApprovalRule {
+export interface EmployeeApprovalRuleGroup {
   id: string;
-  user_id: number;
-  request_type: "all" | "wfh" | "leave";
-  to_user_id: number | null;
-  to_email: string | null;
-  cc_user_ids: number[];
-  cc_emails: string[];
-  approval_level: "single" | "multi";
+  name?: string;
+  user_ids: number[];
+  wfh: RoleApprovalRule;
+  leave_single_day: RoleApprovalRule;
+  leave_multi_day: RoleApprovalRule;
   enabled: boolean;
-  notes?: string;
 }
+
+export type EmployeeApprovalRule = EmployeeApprovalRuleGroup;
 
 export interface ApprovalRoutingRules {
   role_rules: {
@@ -93,14 +102,16 @@ export interface ApprovalRoutingRules {
     };
     [roleKey: string]: Record<string, RoleApprovalRule>;
   };
-  department_rules: DepartmentApprovalRule[];
-  employee_rules: EmployeeApprovalRule[];
+  team_lead_rules?: TeamLeadApprovalRuleGroup[];
+  department_rules?: DepartmentApprovalRule[];
+  employee_rules: EmployeeApprovalRuleGroup[];
 }
 
 export interface ApprovalRoutingResponse {
   rules: ApprovalRoutingRules;
   teams: { id: number; name: string; code: string; team_lead_id: number | null; team_lead?: any }[];
   users: { id: number; first_name: string; last_name: string; email: string; employee_code?: string; team_id?: number; designation?: string }[];
+  team_leads?: { id: number; first_name: string; last_name: string; email: string; employee_code?: string; team_id?: number; designation?: string }[];
 }
 
 export const emailSettingsApi = {

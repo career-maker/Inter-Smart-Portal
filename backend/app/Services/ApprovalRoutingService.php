@@ -45,11 +45,16 @@ class ApprovalRoutingService
                     ],
                 ],
             ],
+            'team_lead_rules' => [
+                // List of custom rules per team lead:
+                // [ 'id' => '...', 'name' => '...', 'team_lead_ids' => [1, 2], 'wfh' => [...], 'leave_single_day' => [...], 'leave_multi_day' => [...], 'enabled' => true ]
+            ],
             'department_rules' => [
-                // List of rules: [ 'id' => '...', 'team_id' => 1, 'request_type' => 'all|wfh|leave', 'to_user_id' => ..., 'cc_user_ids' => [...], 'approval_level' => 'single|multi', 'enabled' => true ]
+                // Kept for backward compatibility
             ],
             'employee_rules' => [
-                // List of rules: [ 'id' => '...', 'user_id' => 1, 'request_type' => 'all|wfh|leave', 'to_user_id' => ..., 'cc_user_ids' => [...], 'approval_level' => 'single|multi', 'enabled' => true ]
+                // List of custom rules per employee(s):
+                // [ 'id' => '...', 'name' => '...', 'user_ids' => [1, 2], 'wfh' => [...], 'leave_single_day' => [...], 'leave_multi_day' => [...], 'enabled' => true ]
             ],
         ];
     }
@@ -68,6 +73,7 @@ class ApprovalRoutingService
 
         return [
             'role_rules' => array_replace_recursive($defaults['role_rules'], $saved['role_rules'] ?? []),
+            'team_lead_rules' => $saved['team_lead_rules'] ?? [],
             'department_rules' => $saved['department_rules'] ?? [],
             'employee_rules' => $saved['employee_rules'] ?? [],
         ];
@@ -110,11 +116,25 @@ class ApprovalRoutingService
 
         // 1. Employee-level rule (highest priority)
         foreach ($rules['employee_rules'] as $er) {
-            if (!empty($er['enabled']) && (int)($er['user_id'] ?? 0) === (int)$applicant->id) {
+            if (empty($er['enabled'])) {
+                continue;
+            }
+
+            // Modern format with user_ids array and 3-card structure
+            if (!empty($er['user_ids']) && is_array($er['user_ids']) && in_array((int)$applicant->id, array_map('intval', $er['user_ids']), true)) {
+                if (!empty($er[$targetAction]) && !empty($er[$targetAction]['enabled'])) {
+                    $matchedRule = $er[$targetAction];
+                    $matchedType = 'employee';
+                    break;
+                }
+            }
+
+            // Legacy format with single user_id and request_type
+            if (isset($er['user_id']) && (int)$er['user_id'] === (int)$applicant->id) {
                 $reqType = $er['request_type'] ?? 'all';
                 if ($reqType === 'all' || ($isWfh && $reqType === 'wfh') || (!$isWfh && in_array($reqType, ['leave', $targetAction]))) {
                     $matchedRule = $er;
-                    $matchedType = 'employee';
+                    $matchedType = 'employee_legacy';
                     break;
                 }
             }
@@ -150,7 +170,7 @@ class ApprovalRoutingService
             } catch (\Throwable $e) {}
         }
 
-        // 2. Department / Team-level rule
+        // 2. Department / Team-level rule (legacy fallback)
         if (!$matchedRule && $hasTeam) {
             foreach ($rules['department_rules'] as $dr) {
                 if (!empty($dr['enabled']) && (int)($dr['team_id'] ?? 0) === (int)$applicant->team_id) {
@@ -164,12 +184,28 @@ class ApprovalRoutingService
             }
         }
 
-        // 3. Role-level rule (e.g. Team Lead)
+        // 3. Team Lead-level rules
         if (!$matchedRule && $isTeamLead) {
-            $tlRules = $rules['role_rules']['team_lead'] ?? [];
-            if (!empty($tlRules[$targetAction]) && !empty($tlRules[$targetAction]['enabled'])) {
-                $matchedRule = $tlRules[$targetAction];
-                $matchedType = 'role_team_lead';
+            // 3a. Specific Team Lead rule by team_lead_ids
+            foreach ($rules['team_lead_rules'] ?? [] as $tlRule) {
+                if (!empty($tlRule['enabled']) && !empty($tlRule['team_lead_ids']) && is_array($tlRule['team_lead_ids'])) {
+                    if (in_array((int)$applicant->id, array_map('intval', $tlRule['team_lead_ids']), true)) {
+                        if (!empty($tlRule[$targetAction]) && !empty($tlRule[$targetAction]['enabled'])) {
+                            $matchedRule = $tlRule[$targetAction];
+                            $matchedType = 'role_team_lead_specific';
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // 3b. Fallback to default role rule for team_lead
+            if (!$matchedRule) {
+                $tlRules = $rules['role_rules']['team_lead'] ?? [];
+                if (!empty($tlRules[$targetAction]) && !empty($tlRules[$targetAction]['enabled'])) {
+                    $matchedRule = $tlRules[$targetAction];
+                    $matchedType = 'role_team_lead_default';
+                }
             }
         }
 
@@ -288,14 +324,50 @@ class ApprovalRoutingService
 
         // 1. From employee rules
         foreach ($rules['employee_rules'] as $er) {
-            if (!empty($er['enabled']) && !empty($er['user_id'])) {
-                if ((int)($er['to_user_id'] ?? 0) === $approverId || (int)($er['to_user_id_2'] ?? 0) === $approverId) {
-                    $applicantIds[] = (int)$er['user_id'];
+            if (empty($er['enabled'])) {
+                continue;
+            }
+            $targetUserIds = !empty($er['user_ids']) && is_array($er['user_ids'])
+                ? array_map('intval', $er['user_ids'])
+                : (!empty($er['user_id']) ? [(int)$er['user_id']] : []);
+            $targetUserIds = array_filter($targetUserIds);
+
+            $isApproverInCards = false;
+            foreach (['wfh', 'leave_single_day', 'leave_multi_day'] as $cardKey) {
+                if (!empty($er[$cardKey]['enabled']) && ((int)($er[$cardKey]['to_user_id'] ?? 0) === $approverId || (int)($er[$cardKey]['to_user_id_2'] ?? 0) === $approverId)) {
+                    $isApproverInCards = true;
+                    break;
                 }
+            }
+
+            if ($isApproverInCards || (int)($er['to_user_id'] ?? 0) === $approverId || (int)($er['to_user_id_2'] ?? 0) === $approverId) {
+                $applicantIds = array_merge($applicantIds, $targetUserIds);
             }
         }
 
-        // 2. From department rules
+        // 2. From team lead rules
+        foreach ($rules['team_lead_rules'] ?? [] as $tlRule) {
+            if (empty($tlRule['enabled'])) {
+                continue;
+            }
+            $tlIds = !empty($tlRule['team_lead_ids']) && is_array($tlRule['team_lead_ids'])
+                ? array_map('intval', $tlRule['team_lead_ids'])
+                : [];
+            $tlIds = array_filter($tlIds);
+
+            $isApproverInCards = false;
+            foreach (['wfh', 'leave_single_day', 'leave_multi_day'] as $cardKey) {
+                if (!empty($tlRule[$cardKey]['enabled']) && ((int)($tlRule[$cardKey]['to_user_id'] ?? 0) === $approverId || (int)($tlRule[$cardKey]['to_user_id_2'] ?? 0) === $approverId)) {
+                    $isApproverInCards = true;
+                    break;
+                }
+            }
+            if ($isApproverInCards) {
+                $applicantIds = array_merge($applicantIds, $tlIds);
+            }
+        }
+
+        // 3. From department rules (legacy)
         foreach ($rules['department_rules'] as $dr) {
             if (!empty($dr['enabled']) && !empty($dr['team_id'])) {
                 if ((int)($dr['to_user_id'] ?? 0) === $approverId || (int)($dr['to_user_id_2'] ?? 0) === $approverId) {
@@ -305,7 +377,7 @@ class ApprovalRoutingService
             }
         }
 
-        // 3. From role rules (e.g. if approver is set as TO person for Team Leads)
+        // 4. From default role rules (e.g. if approver is set as TO person for Team Leads)
         foreach (($rules['role_rules'] ?? []) as $roleKey => $actionRules) {
             if (is_array($actionRules)) {
                 foreach ($actionRules as $rule) {
