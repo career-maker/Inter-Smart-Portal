@@ -23,6 +23,7 @@ interface GameDef {
   badgeColor: string;
   tag: string;
   icon: string;
+  image: string;
   gradient: string;
   description: string;
   accentColor: string;
@@ -42,6 +43,7 @@ const GAMES: GameDef[] = [
     badgeColor: "bg-sky-400/15 text-sky-400 border-sky-400/30",
     tag: "SPACE DEFENDER",
     icon: "🚀",
+    image: "/games/cards/neon-galaxy.jpg",
     gradient: "from-[#0a1a2f] via-[#040c17] to-[#02050b]",
     description: "Pilot your starfighter through hyperspace! Blast rogue drone swarms, collect weapon power-ups, and enjoy retro synth sound effects.",
     accentColor: "#38bdf8",
@@ -62,6 +64,7 @@ const GAMES: GameDef[] = [
     badgeColor: "bg-emerald-400/15 text-emerald-300 border-emerald-400/30",
     tag: "NEURAL TERMINAL",
     icon: "⚡",
+    image: "/games/cards/cyber-matrix.jpg",
     gradient: "from-[#06241e] via-[#031411] to-[#010a08]",
     description: "Infiltrate high-security mainframes! Memorize flashing hex node sequences, bypass firewalls, and climb from Script Kiddie to Ghost rank.",
     accentColor: "#00ffcc",
@@ -82,6 +85,7 @@ const GAMES: GameDef[] = [
     badgeColor: "bg-[#68ef9a]/15 text-[#68ef9a] border-[#68ef9a]/30",
     tag: "QA INVESTIGATION",
     icon: "🐞",
+    image: "/games/cards/bugsmart-bounty.jpg",
     gradient: "from-[#0c283d] via-[#081724] to-[#040e17]",
     description: "Step into a simulated e-commerce storefront. Click suspicious UI elements, trigger detective animations, identify bugs, and earn bounties!",
     accentColor: "#43ddff",
@@ -102,6 +106,7 @@ const GAMES: GameDef[] = [
     badgeColor: "bg-amber-400/15 text-amber-300 border-amber-400/30",
     tag: "CO-OP & VERSUS",
     icon: "👾",
+    image: "/games/cards/bug-battle-royale.jpg",
     gradient: "from-[#381024] via-[#1c0a1a] to-[#080d1a]",
     description: "Two teams battle a terrifying production monster! Take turns answering real-world bug severities, security vulnerabilities, and logic flaws to win.",
     accentColor: "#fb7185",
@@ -122,6 +127,7 @@ const GAMES: GameDef[] = [
     badgeColor: "bg-orange-400/15 text-orange-300 border-orange-400/30",
     tag: "RADAR INTERCEPT",
     icon: "✈️",
+    image: "/games/cards/imposter-aircraft.jpg",
     gradient: "from-[#1c120c] via-[#100c08] to-[#040404]",
     description: "There is an impostor aircraft flying in our fighter squad! Watch the high-speed radar flight paths and capture the rogue jet on your single chance.",
     accentColor: "#fb923c",
@@ -142,6 +148,7 @@ const GAMES: GameDef[] = [
     badgeColor: "bg-amber-400/15 text-amber-300 border-amber-400/30",
     tag: "OFFICE RUNNER",
     icon: "🏃💨",
+    image: "/games/cards/pixel-runner.jpg",
     gradient: "from-[#2e1065] via-[#1e1b4b] to-[#0f172a]",
     description: "Dodge office obstacles, jump over servers and flying coffee mugs, experience dynamic day-and-night cycles, and compete on the company leaderboard!",
     accentColor: "#c084fc",
@@ -483,36 +490,46 @@ export default function GamePage() {
             key={game.id}
             className="flex flex-col justify-between rounded-2xl bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700/60 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group hover:-translate-y-1"
           >
-            {/* Card Preview Header */}
-            <div className={`relative h-44 sm:h-48 bg-gradient-to-br ${game.gradient} p-5 flex flex-col justify-between overflow-hidden border-b border-slate-200 dark:border-slate-700`}>
-              <div className="flex items-center justify-between z-10">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-md text-[10px] font-extrabold border border-white/10" style={{ color: game.accentColor }}>
+            {/* Card Preview Header with Generated Cover Art */}
+            <div className="relative h-48 sm:h-52 overflow-hidden border-b border-slate-200 dark:border-slate-700 group/header bg-slate-950">
+              {/* Background Cover Image */}
+              <img
+                src={game.image}
+                alt={game.title}
+                className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-108"
+                loading="lazy"
+              />
+
+              {/* Multi-layered Cinematic Gradient Scrim for Contrast & Legibility */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#050b14] via-[#050b14]/50 to-black/35 pointer-events-none" />
+
+              {/* Top Badges */}
+              <div className="relative z-10 p-4 flex items-center justify-between">
+                <span
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/65 backdrop-blur-md text-[10px] font-black border border-white/15 shadow-sm"
+                  style={{ color: game.accentColor }}
+                >
                   <Sparkles className="w-3 h-3" />
                   {game.tag}
                 </span>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${game.badgeColor}`}>
+                <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-md backdrop-blur-md border ${game.badgeColor}`}>
                   {game.badge}
                 </span>
               </div>
 
-              <div className="z-10 flex items-center gap-3.5">
-                <div className="w-12 h-12 rounded-2xl bg-black/40 border-2 border-white/10 flex items-center justify-center text-2xl shadow-lg group-hover:scale-110 transition-transform">
+              {/* Bottom Title & Icon Overlay */}
+              <div className="absolute bottom-3.5 left-4 right-4 z-10 flex items-center gap-3">
+                <div className="w-11 h-11 rounded-2xl bg-black/60 backdrop-blur-md border border-white/20 flex items-center justify-center text-xl shadow-lg shrink-0 group-hover:scale-110 transition-transform">
                   {game.icon}
                 </div>
-                <div>
-                  <h2 className="text-lg sm:text-xl font-black text-white leading-tight">
+                <div className="min-w-0">
+                  <h2 className="text-lg sm:text-xl font-black text-white leading-tight drop-shadow-md truncate">
                     {game.title}
                   </h2>
-                  <p className="text-xs text-slate-400 font-medium">
+                  <p className="text-xs text-slate-300 font-medium drop-shadow-xs truncate">
                     {game.subtitle}
                   </p>
                 </div>
-              </div>
-
-              {/* Subtle background graphics */}
-              <div className="absolute -right-8 -bottom-8 w-36 h-36 rounded-full bg-white/5 blur-2xl pointer-events-none" />
-              <div className="absolute right-4 bottom-2 text-6xl opacity-15 pointer-events-none select-none">
-                {game.icon}
               </div>
             </div>
 
