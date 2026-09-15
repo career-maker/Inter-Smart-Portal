@@ -81,11 +81,28 @@ const createDefaultCards = (): {
 
 const createDefaultThreeCards = createDefaultCards;
 
-export const getCcCount = (card?: RoleApprovalRule | null): number => {
+export const getCcCount = (card?: RoleApprovalRule | null, allUsers?: any[]): number => {
   if (!card) return 0;
-  const ids = card.cc_user_ids || [];
-  const emails = card.cc_emails || [];
-  return Math.max(ids.length, emails.length);
+  const idSet = new Set((card.cc_user_ids || []).map(Number));
+  const emailSet = new Set((card.cc_emails || []).map((e) => String(e).trim().toLowerCase()));
+
+  if (allUsers && allUsers.length > 0) {
+    allUsers.forEach((u) => {
+      if (u.email && emailSet.has(u.email.trim().toLowerCase())) {
+        idSet.add(Number(u.id));
+      }
+      if (idSet.has(Number(u.id)) && u.email) {
+        emailSet.add(u.email.trim().toLowerCase());
+      }
+    });
+  }
+
+  const count = Math.max(idSet.size, emailSet.size);
+  // If card is enabled and has no explicit CCs defined, fallback to default 2 CCs (hr@intersmart.in, admin@intersmart.in)
+  if (count === 0 && (card.enabled ?? true) && (card.cc_user_ids === undefined || card.cc_emails === undefined)) {
+    return 2;
+  }
+  return count;
 };
 
 export const normalizeCard = (card: RoleApprovalRule, allUsers: any[]): RoleApprovalRule => {
@@ -115,6 +132,29 @@ export const normalizeCard = (card: RoleApprovalRule, allUsers: any[]): RoleAppr
     ...card,
     cc_user_ids: Array.from(existingIds),
     cc_emails: finalEmails,
+  };
+};
+
+export const normalizeRuleGroup = <T extends TeamLeadApprovalRuleGroup | EmployeeApprovalRuleGroup>(
+  rule: T,
+  allUsers: any[]
+): T => {
+  const defaults = createDefaultCards();
+  return {
+    ...rule,
+    wfh: normalizeCard({ ...defaults.wfh, ...(rule.wfh || {}) }, allUsers),
+    wfh_multi_day: normalizeCard(
+      { ...defaults.wfh_multi_day, ...(rule.wfh_multi_day || rule.wfh || {}) },
+      allUsers
+    ),
+    leave_single_day: normalizeCard(
+      { ...defaults.leave_single_day, ...(rule.leave_single_day || {}) },
+      allUsers
+    ),
+    leave_multi_day: normalizeCard(
+      { ...defaults.leave_multi_day, ...(rule.leave_multi_day || {}) },
+      allUsers
+    ),
   };
 };
 
@@ -664,25 +704,32 @@ export default function ApprovalRoutingTab() {
     setErrorMessage(null);
     try {
       const data: ApprovalRoutingResponse = await emailSettingsApi.getApprovalRouting();
+      const loadedUsers = data.users || [];
+      if (data.users) {
+        setUsers(data.users);
+      }
+      if (data.teams) {
+        setTeams(data.teams);
+      }
       if (data.rules) {
+        const normalizedTlRules = (data.rules.team_lead_rules || []).map((r) =>
+          normalizeRuleGroup(r, loadedUsers)
+        );
+        const normalizedEmpRules = (data.rules.employee_rules || []).map((r) =>
+          normalizeRuleGroup(r, loadedUsers)
+        );
         setRules({
           ...data.rules,
           role_rules: {
             ...data.rules.role_rules,
             team_lead: {
-              ...createDefaultThreeCards(),
+              ...createDefaultCards(),
               ...(data.rules.role_rules?.team_lead || {}),
             },
           },
-          team_lead_rules: data.rules.team_lead_rules || [],
-          employee_rules: data.rules.employee_rules || [],
+          team_lead_rules: normalizedTlRules,
+          employee_rules: normalizedEmpRules,
         });
-      }
-      if (data.teams) {
-        setTeams(data.teams);
-      }
-      if (data.users) {
-        setUsers(data.users);
       }
 
       // Compute or set Team Leads list
@@ -753,12 +800,16 @@ export default function ApprovalRoutingTab() {
           role_rules: {
             ...res.data.role_rules,
             team_lead: {
-              ...createDefaultThreeCards(),
+              ...createDefaultCards(),
               ...(res.data.role_rules?.team_lead || {}),
             },
           },
-          team_lead_rules: res.data.team_lead_rules || [],
-          employee_rules: res.data.employee_rules || [],
+          team_lead_rules: (res.data.team_lead_rules || []).map((r: any) =>
+            normalizeRuleGroup(r, users)
+          ),
+          employee_rules: (res.data.employee_rules || []).map((r: any) =>
+            normalizeRuleGroup(r, users)
+          ),
         });
       }
     } catch (err: any) {
@@ -826,12 +877,13 @@ export default function ApprovalRoutingTab() {
 
     const existingRules = rules.team_lead_rules || [];
     const idx = existingRules.findIndex((r) => r.id === tlModalForm.id);
+    const normalizedForm = normalizeRuleGroup(tlModalForm, users);
     let updatedTlRules: TeamLeadApprovalRuleGroup[];
     if (idx >= 0) {
       updatedTlRules = [...existingRules];
-      updatedTlRules[idx] = tlModalForm;
+      updatedTlRules[idx] = normalizedForm;
     } else {
-      updatedTlRules = [...existingRules, tlModalForm];
+      updatedTlRules = [...existingRules, normalizedForm];
     }
 
     const updatedRules: ApprovalRoutingRules = {
@@ -845,12 +897,23 @@ export default function ApprovalRoutingTab() {
     setErrorMessage(null);
 
     try {
-      const res = await emailSettingsApi.updateApprovalRouting(updatedRules);
+      const payload: ApprovalRoutingRules = {
+        role_rules: rules.role_rules,
+        team_lead_rules: updatedTlRules,
+        employee_rules: rules.employee_rules || [],
+      };
+      const res = await emailSettingsApi.updateApprovalRouting(payload);
       setSuccessMessage(res.message || "Team Lead routing rule saved successfully.");
       if (res.data) {
         setRules((prev) => ({
           ...prev,
           ...res.data,
+          team_lead_rules: (res.data.team_lead_rules || updatedTlRules).map((r: any) =>
+            normalizeRuleGroup(r, users)
+          ),
+          employee_rules: (res.data.employee_rules || prev.employee_rules || []).map((r: any) =>
+            normalizeRuleGroup(r, users)
+          ),
         }));
       }
       setIsTlModalOpen(false);
@@ -875,7 +938,16 @@ export default function ApprovalRoutingTab() {
       const res = await emailSettingsApi.updateApprovalRouting(updatedRules);
       setSuccessMessage("Team Lead routing rule deleted successfully.");
       if (res.data) {
-        setRules((prev) => ({ ...prev, ...res.data }));
+        setRules((prev) => ({
+          ...prev,
+          ...res.data,
+          team_lead_rules: (res.data.team_lead_rules || updatedTlRules).map((r: any) =>
+            normalizeRuleGroup(r, users)
+          ),
+          employee_rules: (res.data.employee_rules || prev.employee_rules || []).map((r: any) =>
+            normalizeRuleGroup(r, users)
+          ),
+        }));
       }
     } catch (err: any) {
       setErrorMessage(err?.response?.data?.message || err?.message || "Failed to delete rule.");
@@ -921,12 +993,13 @@ export default function ApprovalRoutingTab() {
 
     const existingRules = rules.employee_rules || [];
     const idx = existingRules.findIndex((r) => r.id === empModalForm.id);
+    const normalizedForm = normalizeRuleGroup(empModalForm, users);
     let updatedEmpRules: EmployeeApprovalRuleGroup[];
     if (idx >= 0) {
       updatedEmpRules = [...existingRules];
-      updatedEmpRules[idx] = empModalForm;
+      updatedEmpRules[idx] = normalizedForm;
     } else {
-      updatedEmpRules = [...existingRules, empModalForm];
+      updatedEmpRules = [...existingRules, normalizedForm];
     }
 
     const updatedRules: ApprovalRoutingRules = {
@@ -940,12 +1013,23 @@ export default function ApprovalRoutingTab() {
     setErrorMessage(null);
 
     try {
-      const res = await emailSettingsApi.updateApprovalRouting(updatedRules);
+      const payload: ApprovalRoutingRules = {
+        role_rules: rules.role_rules,
+        team_lead_rules: rules.team_lead_rules || [],
+        employee_rules: updatedEmpRules,
+      };
+      const res = await emailSettingsApi.updateApprovalRouting(payload);
       setSuccessMessage(res.message || "Employee routing rule saved successfully.");
       if (res.data) {
         setRules((prev) => ({
           ...prev,
           ...res.data,
+          team_lead_rules: (res.data.team_lead_rules || prev.team_lead_rules || []).map((r: any) =>
+            normalizeRuleGroup(r, users)
+          ),
+          employee_rules: (res.data.employee_rules || updatedEmpRules).map((r: any) =>
+            normalizeRuleGroup(r, users)
+          ),
         }));
       }
       setIsEmpModalOpen(false);
@@ -970,7 +1054,16 @@ export default function ApprovalRoutingTab() {
       const res = await emailSettingsApi.updateApprovalRouting(updatedRules);
       setSuccessMessage("Employee routing rule deleted successfully.");
       if (res.data) {
-        setRules((prev) => ({ ...prev, ...res.data }));
+        setRules((prev) => ({
+          ...prev,
+          ...res.data,
+          team_lead_rules: (res.data.team_lead_rules || prev.team_lead_rules || []).map((r: any) =>
+            normalizeRuleGroup(r, users)
+          ),
+          employee_rules: (res.data.employee_rules || updatedEmpRules).map((r: any) =>
+            normalizeRuleGroup(r, users)
+          ),
+        }));
       }
     } catch (err: any) {
       setErrorMessage(err?.response?.data?.message || err?.message || "Failed to delete rule.");
@@ -990,7 +1083,7 @@ export default function ApprovalRoutingTab() {
     );
   }
 
-  const defaultTl = rules.role_rules?.team_lead || createDefaultThreeCards();
+  const defaultTl = rules.role_rules?.team_lead || createDefaultCards();
 
   return (
     <div className="space-y-6">
@@ -1214,7 +1307,7 @@ export default function ApprovalRoutingTab() {
                           </div>
                           <div className="text-[11px] text-slate-400">
                             {rule.wfh?.approval_level === "multi" ? "Multi-Level" : "Single-Level"} •{" "}
-                            {getCcCount(rule.wfh)} CC(s)
+                            {getCcCount(rule.wfh, users)} CC(s)
                           </div>
                         </div>
 
@@ -1250,7 +1343,7 @@ export default function ApprovalRoutingTab() {
                           </div>
                           <div className="text-[11px] text-slate-400">
                             {(rule.wfh_multi_day || rule.wfh)?.approval_level === "multi" ? "Multi-Level" : "Single-Level"} •{" "}
-                            {getCcCount(rule.wfh_multi_day || rule.wfh)} CC(s)
+                            {getCcCount(rule.wfh_multi_day || rule.wfh, users)} CC(s)
                           </div>
                         </div>
 
@@ -1289,7 +1382,7 @@ export default function ApprovalRoutingTab() {
                             {rule.leave_single_day?.approval_level === "multi"
                               ? "Multi-Level"
                               : "Single-Level"}{" "}
-                            • {getCcCount(rule.leave_single_day)} CC(s)
+                            • {getCcCount(rule.leave_single_day, users)} CC(s)
                           </div>
                         </div>
 
@@ -1328,7 +1421,7 @@ export default function ApprovalRoutingTab() {
                             {rule.leave_multi_day?.approval_level === "multi"
                               ? "Multi-Level"
                               : "Single-Level"}{" "}
-                            • {getCcCount(rule.leave_multi_day)} CC(s)
+                            • {getCcCount(rule.leave_multi_day, users)} CC(s)
                           </div>
                         </div>
                       </div>
@@ -1501,7 +1594,7 @@ export default function ApprovalRoutingTab() {
                         </div>
                         <div className="text-[11px] text-slate-400">
                           {rule.wfh?.approval_level === "multi" ? "Multi-Level" : "Single-Level"} •{" "}
-                          {getCcCount(rule.wfh)} CC(s)
+                          {getCcCount(rule.wfh, users)} CC(s)
                         </div>
                       </div>
 
@@ -1537,7 +1630,7 @@ export default function ApprovalRoutingTab() {
                         </div>
                         <div className="text-[11px] text-slate-400">
                           {(rule.wfh_multi_day || rule.wfh)?.approval_level === "multi" ? "Multi-Level" : "Single-Level"} •{" "}
-                          {getCcCount(rule.wfh_multi_day || rule.wfh)} CC(s)
+                          {getCcCount(rule.wfh_multi_day || rule.wfh, users)} CC(s)
                         </div>
                       </div>
 
@@ -1576,7 +1669,7 @@ export default function ApprovalRoutingTab() {
                           {rule.leave_single_day?.approval_level === "multi"
                             ? "Multi-Level"
                             : "Single-Level"}{" "}
-                          • {getCcCount(rule.leave_single_day)} CC(s)
+                          • {getCcCount(rule.leave_single_day, users)} CC(s)
                         </div>
                       </div>
 
@@ -1615,7 +1708,7 @@ export default function ApprovalRoutingTab() {
                           {rule.leave_multi_day?.approval_level === "multi"
                             ? "Multi-Level"
                             : "Single-Level"}{" "}
-                          • {getCcCount(rule.leave_multi_day)} CC(s)
+                          • {getCcCount(rule.leave_multi_day, users)} CC(s)
                         </div>
                       </div>
                     </div>
