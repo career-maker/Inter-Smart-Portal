@@ -267,6 +267,55 @@ export function AttendanceWidget({
     }
   };
 
+  const getTotalWorkHoursDisplay = () => {
+    // If viewing personal logs on today and actively working/elapsed
+    if (!selectedMember && selectedDate === todayStr && elapsedSeconds > 0) {
+      const h = Math.floor(elapsedSeconds / 3600);
+      const m = Math.floor((elapsedSeconds % 3600) / 60);
+      return `${h}h ${m}m`;
+    }
+
+    // Explicit total_working_minutes from timelineData
+    if (
+      timelineData?.total_working_minutes !== undefined &&
+      timelineData?.total_working_minutes !== null &&
+      Number(timelineData.total_working_minutes) > 0
+    ) {
+      const mins = Number(timelineData.total_working_minutes);
+      const h = Math.floor(mins / 60);
+      const m = mins % 60;
+      return `${h}h ${m}m`;
+    }
+
+    // Calculate from working_sessions array
+    if (timelineData?.working_sessions && timelineData.working_sessions.length > 0) {
+      let sumMins = 0;
+      for (const s of timelineData.working_sessions) {
+        if (typeof s.minutes === "number" && s.minutes > 0) {
+          sumMins += s.minutes;
+        } else if (!s.end && s.start) {
+          const startMs = new Date(s.start).getTime();
+          sumMins += Math.max(0, Math.floor((Date.now() - startMs) / 60000));
+        }
+      }
+      if (sumMins > 0) {
+        const h = Math.floor(sumMins / 60);
+        const m = sumMins % 60;
+        return `${h}h ${m}m`;
+      }
+    }
+
+    // Fallback to data.attendance
+    if (!selectedMember && data?.attendance?.total_working_minutes && data.attendance.total_working_minutes > 0) {
+      const mins = Number(data.attendance.total_working_minutes);
+      const h = Math.floor(mins / 60);
+      const m = mins % 60;
+      return `${h}h ${m}m`;
+    }
+
+    return "--";
+  };
+
   if (isLoading) {
     return (
       <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-md p-6 shadow-sm animate-pulse h-48 mb-6"></div>
@@ -763,10 +812,10 @@ export function AttendanceWidget({
               ) : (
                 <div className="space-y-5">
                   {/* Summary Ribbon */}
-                  <div className="grid grid-cols-2 gap-2.5">
-                    <div className="bg-slate-50 dark:bg-slate-800/80 p-3 rounded-xl border border-slate-200/80 dark:border-slate-700/60">
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">First Punch In</p>
-                      <p className="text-sm font-bold text-slate-900 dark:text-white mt-0.5">
+                  <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
+                    <div className="bg-slate-50 dark:bg-slate-800/80 p-2.5 sm:p-3 rounded-xl border border-slate-200/80 dark:border-slate-700/60 min-w-0">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 truncate">First Punch In</p>
+                      <p className="text-sm font-bold text-slate-900 dark:text-white mt-0.5 truncate">
                         {formatTime(
                           selectedMember 
                             ? timelineData?.first_in 
@@ -775,14 +824,14 @@ export function AttendanceWidget({
                       </p>
                     </div>
 
-                    <div className="bg-slate-50 dark:bg-slate-800/80 p-3 rounded-xl border border-slate-200/80 dark:border-slate-700/60">
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Last Punch Out</p>
-                      <p className="text-sm font-bold text-slate-900 dark:text-white mt-0.5">
+                    <div className="bg-slate-50 dark:bg-slate-800/80 p-2.5 sm:p-3 rounded-xl border border-slate-200/80 dark:border-slate-700/60 min-w-0">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 truncate">Last Punch Out</p>
+                      <p className="text-sm font-bold text-slate-900 dark:text-white mt-0.5 truncate">
                         {timelineData?.last_out ? (
                           formatTime(timelineData.last_out)
                         ) : timelineData?.is_currently_working ? (
                           <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1 text-xs">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse inline-block" />
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse inline-block shrink-0" />
                             Working Now
                           </span>
                         ) : (
@@ -792,6 +841,18 @@ export function AttendanceWidget({
                               : (timelineData?.last_out || data?.attendance?.last_out || data?.attendance?.check_out_time)
                           )
                         )}
+                      </p>
+                    </div>
+
+                    <div className="bg-purple-50/70 dark:bg-purple-950/40 p-2.5 sm:p-3 rounded-xl border border-purple-200/80 dark:border-purple-800/60 min-w-0">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-[#56348f] dark:text-purple-300 truncate" title="Total Work Hours">
+                        Total Work Hours
+                      </p>
+                      <p className="text-sm font-black text-[#56348f] dark:text-purple-200 mt-0.5 font-mono tracking-tight truncate flex items-center gap-1">
+                        {timelineData?.is_currently_working && (
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block shrink-0" />
+                        )}
+                        <span>{getTotalWorkHoursDisplay()}</span>
                       </p>
                     </div>
                   </div>
