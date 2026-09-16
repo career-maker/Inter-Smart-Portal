@@ -246,9 +246,11 @@ class ApprovalRoutingService
             }
         }
 
-        // 3. Team Lead-level rules
-        if (!$matchedRule && $isTeamLead) {
-            // 3a. Specific Team Lead rule by team_lead_ids
+        // 3a. Specific team_lead_rules by explicit team_lead_ids list.
+        //     This check is intentionally NOT gated by $isTeamLead so that
+        //     custom routing rules created for specific people (via the UI)
+        //     work even when the applicant does not hold the Team Lead role.
+        if (!$matchedRule) {
             foreach ($rules['team_lead_rules'] ?? [] as $tlRule) {
                 if (!empty($tlRule['enabled']) && !empty($tlRule['team_lead_ids']) && is_array($tlRule['team_lead_ids'])) {
                     if (in_array((int)$applicant->id, array_map('intval', $tlRule['team_lead_ids']), true)) {
@@ -261,15 +263,15 @@ class ApprovalRoutingService
                     }
                 }
             }
+        }
 
-            // 3b. Fallback to default role rule for team_lead
-            if (!$matchedRule) {
-                $tlRules = $rules['role_rules']['team_lead'] ?? [];
-                $card = $getCardFromRule($tlRules);
-                if ($card) {
-                    $matchedRule = $card;
-                    $matchedType = 'role_team_lead_default';
-                }
+        // 3b. Fallback to default role rule for team_lead (only when applicant IS a TL)
+        if (!$matchedRule && $isTeamLead) {
+            $tlRules = $rules['role_rules']['team_lead'] ?? [];
+            $card = $getCardFromRule($tlRules);
+            if ($card) {
+                $matchedRule = $card;
+                $matchedType = 'role_team_lead_default';
             }
         }
 
@@ -354,16 +356,38 @@ class ApprovalRoutingService
                 }
             }
 
+            // If all resolved approver user IDs are Super Admins or HR, treat as
+            // direct_admin so the WFH lands in admin_status=Pending (visible to
+            // Super Admin's approval queue) instead of tl_status=Pending /
+            // admin_status=Not Required (which Super Admin would never see).
+            if (!empty($approverUserIds)) {
+                $saOrHrCount = User::whereIn('id', $approverUserIds)
+                    ->whereHas('roles', fn($r) => $r->whereIn('name', ['Super Admin', 'HR']))
+                    ->count();
+                if ($saOrHrCount === count($approverUserIds)) {
+                    $directAdmin     = true;
+                    $approverUserIds = [];   // clear so notify-else branch fires (notifies SA by role)
+                    // Remove SA emails from to_emails; they'll get the email via admin@intersmart.in fallback
+                    $toEmails = array_values(array_filter($toEmails, fn($e) => !
+                        User::whereHas('roles', fn($r) => $r->whereIn('name', ['Super Admin', 'HR']))
+                               ->where('email', $e)->exists()
+                    ));
+                    if (empty($toEmails)) {
+                        $toEmails = ['admin@intersmart.in'];
+                    }
+                }
+            }
+
             // If rule has no approver user ID assigned, it goes directly to Super Admin
-            $directAdmin = empty($approverUserIds) && empty($matchedRule['to_email']);
+            $directAdmin = $directAdmin ?? (empty($approverUserIds) && empty($matchedRule['to_email']));
 
             return [
-                'approval_level' => $approvalLevel,
-                'direct_admin' => $directAdmin,
+                'approval_level'    => $approvalLevel,
+                'direct_admin'      => $directAdmin,
                 'approver_user_ids' => array_values(array_unique($approverUserIds)),
-                'to_emails' => array_values(array_unique($toEmails)),
-                'cc_emails' => array_values(array_unique($ccEmails)),
-                'matched_type' => $matchedType,
+                'to_emails'         => array_values(array_unique($toEmails)),
+                'cc_emails'         => array_values(array_unique($ccEmails)),
+                'matched_type'      => $matchedType,
             ];
         }
 
