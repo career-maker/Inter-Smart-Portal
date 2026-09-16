@@ -17,6 +17,7 @@ use App\Notifications\PraiseReceivedNotification;
 use App\Notifications\PollNotification;
 use App\Notifications\PostMentionNotification;
 use App\Notifications\CommunityEngagementNotification;
+use App\Notifications\CommunityPostBroadcastNotification;
 use App\Services\Email\EmailService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -336,8 +337,10 @@ class CommunityController extends Controller
             }
         }
 
-        // Send notification to all employees when a poll is created with notify_employees = true
-        if ($type === 'poll' && $request->boolean('notify_employees')) {
+        // Broadcast in-app notification to all active employees when notify_employees or
+        // send_email_notification is requested (applies to posts, praise, and polls alike).
+        $shouldBroadcast = $request->boolean('notify_employees') || $request->boolean('send_email_notification');
+        if ($shouldBroadcast) {
             $authorFullName = trim("{$currentUser->first_name} {$currentUser->last_name}");
             $allEmployees = User::where('status', 'active')
                 ->where('id', '!=', $currentUser->id)
@@ -345,9 +348,10 @@ class CommunityController extends Controller
 
             foreach ($allEmployees as $emp) {
                 try {
-                    $emp->notify(new PollNotification(
+                    $emp->notify(new CommunityPostBroadcastNotification(
                         $authorFullName,
                         $post->content,
+                        $type,
                         $post->id
                     ));
                 } catch (\Exception $e) {}
@@ -355,8 +359,12 @@ class CommunityController extends Controller
         }
 
         // Broadcast email notification to all employees if requested
-        if ($request->boolean('send_email_notification') || ($type === 'poll' && $request->boolean('notify_employees'))) {
-            EmailService::sendCommunityBroadcastEmail($post);
+        if ($shouldBroadcast) {
+            try {
+                EmailService::sendCommunityBroadcastEmail($post);
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Community broadcast email failed: ' . $e->getMessage());
+            }
         }
 
         $post->load(['user:id,first_name,last_name,email,designation,profile_photo_path', 'comments']);

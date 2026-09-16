@@ -60,8 +60,10 @@ function resolveNotificationUrl(notification: any): string {
     type?.includes("PollNotification") ||
     type?.includes("PraiseReceivedNotification") ||
     type?.includes("PostMentionNotification") ||
+    type?.includes("CommunityPostBroadcastNotification") ||
     notification.data?.type === "community_engagement" ||
-    notification.data?.action_url === "/community"
+    notification.data?.action_url === "/community" ||
+    notification.data?.post_id
   ) {
     return "/community";
   }
@@ -93,6 +95,9 @@ function getNotificationCategory(notification: any) {
   }
   if (title.includes("comment") || msg.includes("commented")) {
     return { icon: "💬", bg: "bg-purple-50 dark:bg-purple-950/40 border-purple-200/60 dark:border-purple-800/40 text-purple-600 dark:text-purple-300" };
+  }
+  if (type.includes("CommunityPostBroadcast") || title.includes("community post") || title.includes("new post") || msg.includes("shared a new post")) {
+    return { icon: "📝", bg: "bg-teal-50 dark:bg-teal-950/40 border-teal-200/60 dark:border-teal-800/40 text-teal-600 dark:text-teal-300" };
   }
   if (type.includes("Birthday") || title.includes("birthday")) {
     return { icon: "🎂", bg: "bg-pink-50 dark:bg-pink-950/40 border-pink-200/60 dark:border-pink-800/40 text-pink-600 dark:text-pink-300" };
