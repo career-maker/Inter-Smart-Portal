@@ -16,6 +16,8 @@ use App\Models\Project;
 use App\Notifications\PraiseReceivedNotification;
 use App\Notifications\PollNotification;
 use App\Notifications\PostMentionNotification;
+use App\Notifications\CommunityEngagementNotification;
+use App\Services\Email\EmailService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -218,6 +220,7 @@ class CommunityController extends Controller
             'expires_at' => 'nullable|date',
             'is_anonymous' => 'nullable|boolean',
             'notify_employees' => 'nullable|boolean',
+            'send_email_notification' => 'nullable|boolean',
             'praised_user_id' => 'nullable|integer',
             'praised_user_ids' => 'nullable',
             'mentioned_user_ids' => 'nullable',
@@ -351,6 +354,11 @@ class CommunityController extends Controller
             }
         }
 
+        // Broadcast email notification to all employees if requested
+        if ($request->boolean('send_email_notification') || ($type === 'poll' && $request->boolean('notify_employees'))) {
+            EmailService::sendCommunityBroadcastEmail($post);
+        }
+
         $post->load(['user:id,first_name,last_name,email,designation,profile_photo_path', 'comments']);
         $post->user_has_liked = false;
         $post->user_voted_option_id = null;
@@ -451,6 +459,23 @@ class CommunityController extends Controller
         $post->poll_data = $pollData;
         $post->save();
 
+        // In-app notification for poll author
+        if ($post->user_id !== $userId) {
+            $actor = $request->user();
+            $actorName = trim("{$actor->first_name} {$actor->last_name}");
+            try {
+                $postOwner = User::find($post->user_id);
+                if ($postOwner) {
+                    $postOwner->notify(new CommunityEngagementNotification(
+                        $actorName,
+                        'poll_vote',
+                        'poll',
+                        $post->id
+                    ));
+                }
+            } catch (\Throwable $e) {}
+        }
+
         return response()->json([
             'message' => 'Vote recorded successfully',
             'poll_data' => $pollData,
@@ -501,6 +526,24 @@ class CommunityController extends Controller
                 'reaction_type' => $reactionType,
             ]);
             $userReaction = $reactionType;
+        }
+
+        // In-app notification for post author when reacting
+        if ($userReaction !== null && $post->user_id !== $userId) {
+            $actor = $request->user();
+            $actorName = trim("{$actor->first_name} {$actor->last_name}");
+            try {
+                $postOwner = User::find($post->user_id);
+                if ($postOwner) {
+                    $postOwner->notify(new CommunityEngagementNotification(
+                        $actorName,
+                        'reaction',
+                        $post->type ?? 'post',
+                        $post->id,
+                        $userReaction
+                    ));
+                }
+            } catch (\Throwable $e) {}
         }
 
         // Deduplicated reaction breakdown with users
@@ -566,6 +609,51 @@ class CommunityController extends Controller
 
         $post->increment('comments_count');
         $comment->load('user:id,first_name,last_name,designation,profile_photo_path');
+
+        $currentUser = $request->user();
+        $actorName = trim("{$currentUser->first_name} {$currentUser->last_name}");
+
+        // 1. In-app notification for post author
+        if ($post->user_id !== $currentUser->id) {
+            try {
+                $postOwner = User::find($post->user_id);
+                if ($postOwner) {
+                    $postOwner->notify(new CommunityEngagementNotification(
+                        $actorName,
+                        'comment',
+                        $post->type ?? 'post',
+                        $post->id,
+                        $comment->comment
+                    ));
+                }
+            } catch (\Throwable $e) {}
+        }
+
+        // 2. If praise post, also notify praised employees if they are not the commenter and not the author
+        if ($post->type === 'praise' && !empty($post->poll_data)) {
+            $praisedIds = [];
+            if (!empty($post->poll_data['praised_user_ids']) && is_array($post->poll_data['praised_user_ids'])) {
+                $praisedIds = $post->poll_data['praised_user_ids'];
+            } elseif (!empty($post->poll_data['praised_user_id'])) {
+                $praisedIds = [$post->poll_data['praised_user_id']];
+            }
+
+            $praisedIds = array_filter(array_map('intval', $praisedIds), fn($pId) => $pId !== $currentUser->id && $pId !== $post->user_id);
+            if (!empty($praisedIds)) {
+                $praisedUsers = User::whereIn('id', $praisedIds)->get();
+                foreach ($praisedUsers as $pUser) {
+                    try {
+                        $pUser->notify(new CommunityEngagementNotification(
+                            $actorName,
+                            'comment',
+                            'praise',
+                            $post->id,
+                            $comment->comment
+                        ));
+                    } catch (\Throwable $e) {}
+                }
+            }
+        }
 
         return response()->json([
             'message' => 'Comment added successfully',

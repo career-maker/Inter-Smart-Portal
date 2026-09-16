@@ -28,6 +28,7 @@ import {
   Plus,
   Globe,
   Smile,
+  Mail,
 } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
@@ -117,6 +118,7 @@ export function CommunityFeed() {
     format(addDays(new Date(), 7), "yyyy-MM-dd")
   );
   const [notifyEmployees, setNotifyEmployees] = useState(false);
+  const [sendEmailNotification, setSendEmailNotification] = useState(false);
   const [anonymousPoll, setAnonymousPoll] = useState(false);
 
   // Praise Form State (Multiple Employees Support)
@@ -406,7 +408,8 @@ export function CommunityFeed() {
           options: pollOptions.filter((o) => o.trim().length > 0),
           expires_at: pollExpiresOn,
           is_anonymous: anonymousPoll,
-          notify_employees: notifyEmployees,
+          notify_employees: notifyEmployees || sendEmailNotification,
+          send_email_notification: sendEmailNotification,
           mentioned_user_ids: mentionedIds,
         });
 
@@ -416,6 +419,7 @@ export function CommunityFeed() {
         }
         setPollQuestion("");
         setPollOptions(["", "", ""]);
+        setSendEmailNotification(false);
         setActiveType("post");
       } else if (activeType === "praise") {
         const mentionedIds = parseMentions(praiseDescription);
@@ -425,6 +429,7 @@ export function CommunityFeed() {
         formData.append("praised_user_ids", JSON.stringify(selectedEmployees.map((e) => e.id)));
         formData.append("praised_user_id", String(selectedEmployees[0]?.id || ""));
         formData.append("mentioned_user_ids", JSON.stringify(mentionedIds));
+        formData.append("send_email_notification", sendEmailNotification ? "1" : "0");
         if (selectedBadge?.name) {
           formData.append("badge", selectedBadge.name);
         }
@@ -449,6 +454,7 @@ export function CommunityFeed() {
         setSelectedEmployees([]);
         setEmployeeSearch("");
         setSelectedProject("");
+        setSendEmailNotification(false);
         handleRemoveImage();
         setActiveType("post");
       } else {
@@ -457,6 +463,7 @@ export function CommunityFeed() {
         formData.append("content", content.trim());
         formData.append("type", activeType);
         formData.append("mentioned_user_ids", JSON.stringify(mentionedIds));
+        formData.append("send_email_notification", sendEmailNotification ? "1" : "0");
         if (selectedImages.length > 0) {
           selectedImages.forEach((img) => {
             formData.append("images[]", img);
@@ -472,6 +479,7 @@ export function CommunityFeed() {
           setTotalPosts((prev) => prev + 1);
         }
         setContent("");
+        setSendEmailNotification(false);
         handleRemoveImage();
       }
     } catch (err: any) {
@@ -908,18 +916,33 @@ export function CommunityFeed() {
             )}
 
             {/* 7. Bottom Bar: Add Attachment & Submit Post */}
-            <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-700/60">
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  style={{ color: "#56348f" }}
-                  className="flex items-center gap-1.5 text-xs font-semibold hover:underline cursor-pointer dark:text-purple-400"
-                >
-                  <Paperclip className="w-3.5 h-3.5" />
-                  <span>Add Attachment</span>
-                </button>
-                <span className="text-[11px] text-slate-400">Max number of files allowed is 5</span>
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-700/60">
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    style={{ color: "#56348f" }}
+                    className="flex items-center gap-1.5 text-xs font-semibold hover:underline cursor-pointer dark:text-purple-400"
+                  >
+                    <Paperclip className="w-3.5 h-3.5" />
+                    <span>Add Attachment</span>
+                  </button>
+                  <span className="text-[11px] text-slate-400">Max 5 files</span>
+                </div>
+
+                <label className="flex items-center gap-1.5 cursor-pointer select-none text-xs text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={sendEmailNotification}
+                    onChange={(e) => setSendEmailNotification(e.target.checked)}
+                    className="w-3.5 h-3.5 rounded border-slate-300 text-[#56348f] focus:ring-[#56348f] cursor-pointer"
+                  />
+                  <span className="flex items-center gap-1 font-medium">
+                    <Mail className="w-3.5 h-3.5 text-[#56348f] dark:text-purple-400" />
+                    Send email notification to all employees
+                  </span>
+                </label>
               </div>
 
               <button
@@ -1022,11 +1045,17 @@ export function CommunityFeed() {
                 <label className="flex items-center gap-1.5 cursor-pointer select-none">
                   <input
                     type="checkbox"
-                    checked={notifyEmployees}
-                    onChange={(e) => setNotifyEmployees(e.target.checked)}
-                    className="rounded text-[#56348f] focus:ring-[#56348f]"
+                    checked={sendEmailNotification}
+                    onChange={(e) => {
+                      setSendEmailNotification(e.target.checked);
+                      setNotifyEmployees(e.target.checked);
+                    }}
+                    className="w-3.5 h-3.5 rounded border-slate-300 text-[#56348f] focus:ring-[#56348f] cursor-pointer"
                   />
-                  <span>Notify employees</span>
+                  <span className="flex items-center gap-1 font-medium">
+                    <Mail className="w-3.5 h-3.5 text-[#56348f] dark:text-purple-400" />
+                    Send email notification to all employees
+                  </span>
                 </label>
 
                 <label className="flex items-center gap-1.5 cursor-pointer select-none">
@@ -1196,12 +1225,27 @@ export function CommunityFeed() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-700/60">
-                <div className="flex items-center gap-2">
-                  <span className="text-[13px] text-slate-500 dark:text-slate-400">Posting to</span>
-                  <select className="border border-slate-200 dark:border-slate-700 rounded text-[13px] text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 py-1.5 px-2 focus:outline-none focus:ring-1 focus:ring-[#56348f]">
-                    <option>Organization</option>
-                  </select>
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-700/60">
+                <div className="flex flex-wrap items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[13px] text-slate-500 dark:text-slate-400">Posting to</span>
+                    <select className="border border-slate-200 dark:border-slate-700 rounded text-[13px] text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 py-1.5 px-2 focus:outline-none focus:ring-1 focus:ring-[#56348f]">
+                      <option>Organization</option>
+                    </select>
+                  </div>
+
+                  <label className="flex items-center gap-1.5 cursor-pointer select-none text-xs text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={sendEmailNotification}
+                      onChange={(e) => setSendEmailNotification(e.target.checked)}
+                      className="w-3.5 h-3.5 rounded border-slate-300 text-[#56348f] focus:ring-[#56348f] cursor-pointer"
+                    />
+                    <span className="flex items-center gap-1 font-medium">
+                      <Mail className="w-3.5 h-3.5 text-[#56348f] dark:text-purple-400" />
+                      Send email notification to all employees
+                    </span>
+                  </label>
                 </div>
 
                 <div className="flex items-center gap-2">

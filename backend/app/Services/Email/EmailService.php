@@ -7,11 +7,13 @@ use App\Models\WfhRequest;
 use App\Models\TARequest;
 use App\Models\EmailSetting;
 use App\Models\User;
+use App\Models\CommunityPost;
 use App\Mail\LeaveRequestMail;
 use App\Mail\WfhRequestMail;
 use App\Mail\RecognitionMail;
 use App\Mail\TARequestMail;
 use App\Mail\TAApprovedMail;
+use App\Mail\CommunityBroadcastMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Config;
@@ -460,8 +462,8 @@ class EmailService
             'applied_date'     => $leaveRequest->created_at->format('d M Y'),
             'reference_number' => "LR-{$leaveRequest->id}",
             'request_id'       => $leaveRequest->id,
-            'portal_url'       => config('app.frontend_url', 'https://www.workplace.intersmart.in'),
-            'approvals_url'    => config('app.frontend_url', 'https://www.workplace.intersmart.in') . '/leaves/approvals'
+            'portal_url'       => self::getFrontendUrl(),
+            'approvals_url'    => self::getFrontendUrl() . '/leaves/approvals'
         ];
     }
 
@@ -488,8 +490,122 @@ class EmailService
             'applied_date'     => $wfhRequest->created_at->format('d M Y'),
             'reference_number' => "WFH-{$wfhRequest->id}",
             'request_id'       => $wfhRequest->id,
-            'portal_url'       => config('app.frontend_url', 'https://www.workplace.intersmart.in'),
-            'approvals_url'    => config('app.frontend_url', 'https://www.workplace.intersmart.in') . '/leaves/approvals?tab=wfh'
+            'portal_url'       => self::getFrontendUrl(),
+            'approvals_url'    => self::getFrontendUrl() . '/leaves/approvals?tab=wfh'
         ];
+    }
+
+    /**
+     * Get frontend base URL, strictly sanitizing any legacy vercel.app URLs to https://www.workplace.intersmart.in
+     */
+    public static function getFrontendUrl(): string
+    {
+        $url = env('FRONTEND_URL') ?: config('app.frontend_url', 'https://www.workplace.intersmart.in');
+        if (!$url || str_contains($url, 'vercel.app')) {
+            $url = 'https://www.workplace.intersmart.in';
+        }
+        return rtrim($url, '/');
+    }
+
+    /**
+     * Broadcast email notification to all active employees when a post/praise/poll is created.
+     */
+    public static function sendCommunityBroadcastEmail(CommunityPost $post): void
+    {
+        try {
+            self::applySmtpConfig();
+            $post->loadMissing(['user']);
+
+            $author = $post->user;
+            $authorName = $author ? trim("{$author->first_name} {$author->last_name}") : 'A colleague';
+            $authorDesignation = $author?->designation ?? 'Team Member';
+            $frontendUrl = self::getFrontendUrl();
+            $actionUrl = $frontendUrl . '/community';
+
+            $type = $post->type ?? 'post';
+            $pollData = $post->poll_data ?? [];
+
+            if ($type === 'praise') {
+                $praisedNames = [];
+                if (!empty($pollData['praised_user_ids']) && is_array($pollData['praised_user_ids'])) {
+                    $praisedUsers = User::whereIn('id', $pollData['praised_user_ids'])->get();
+                    $praisedNames = $praisedUsers->map(fn($u) => trim("{$u->first_name} {$u->last_name}"))->filter()->values()->all();
+                } elseif (!empty($pollData['praised_user_id'])) {
+                    $pUser = User::find($pollData['praised_user_id']);
+                    if ($pUser) $praisedNames[] = trim("{$pUser->first_name} {$pUser->last_name}");
+                }
+                $praisedStr = !empty($praisedNames) ? implode(', ', $praisedNames) : 'the team';
+                $badge = $pollData['badge'] ?? null;
+
+                $subject = "🎖️ New Praise: {$authorName} praised {$praisedStr}";
+                $typeBadge = "Praise & Recognition";
+                $headline = "{$authorName} praised {$praisedStr}!";
+                $subheadline = "Check out this recognition on the Workplace Community Feed";
+            } elseif ($type === 'poll') {
+                $subject = "📊 New Poll: \"{$post->content}\" by {$authorName}";
+                $typeBadge = "Community Poll";
+                $headline = "{$authorName} created a new poll";
+                $subheadline = "Cast your vote and see what the team thinks";
+                $praisedStr = null;
+                $badge = null;
+            } else {
+                $snippet = mb_strlen($post->content) > 50 ? mb_substr($post->content, 0, 47) . '...' : $post->content;
+                $subject = "📝 New Post from {$authorName}: \"{$snippet}\"";
+                $typeBadge = "Community Post";
+                $headline = "{$authorName} shared a new post";
+                $subheadline = "Join the conversation on Workplace Community";
+                $praisedStr = null;
+                $badge = null;
+            }
+
+            $emailData = [
+                'subject'            => $subject,
+                'type_badge'         => $typeBadge,
+                'headline'           => $headline,
+                'subheadline'        => $subheadline,
+                'author_name'        => $authorName,
+                'author_designation' => $authorDesignation,
+                'content'            => $post->content,
+                'badge'              => $badge,
+                'praised_names'      => $praisedStr,
+                'poll_options'       => $pollData['options'] ?? null,
+                'action_url'         => $actionUrl,
+                'created_at'         => $post->created_at ? $post->created_at->format('d M Y, h:i A') : date('d M Y, h:i A'),
+            ];
+
+            // Fetch all active employees with valid emails, excluding author
+            $allEmployees = User::where('status', 'active')
+                ->when($author, fn($q) => $q->where('id', '!=', $author->id))
+                ->whereNotNull('email')
+                ->where('email', '!=', '')
+                ->pluck('email')
+                ->filter(fn($e) => filter_var(trim($e), FILTER_VALIDATE_EMAIL))
+                ->map(fn($e) => trim(strtolower($e)))
+                ->unique()
+                ->values()
+                ->all();
+
+            if (empty($allEmployees)) {
+                Log::info("ℹ️ No eligible employee recipients for community broadcast mail.");
+                return;
+            }
+
+            $fromAddr = config('mail.from.address', env('MAIL_FROM_ADDRESS', 'career@intersmart.in'));
+
+            // Send in BCC batches of 40 to avoid SMTP timeout or BCC limit
+            $chunks = array_chunk($allEmployees, 40);
+            foreach ($chunks as $chunk) {
+                try {
+                    Mail::to($fromAddr)
+                        ->bcc($chunk)
+                        ->send(new CommunityBroadcastMail($emailData));
+                    Log::info("✅ Sent community broadcast email batch to " . count($chunk) . " employees.");
+                } catch (\Throwable $e) {
+                    Log::error("❌ Failed to send community broadcast email batch: " . $e->getMessage());
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::error("💥 Error in sendCommunityBroadcastEmail: " . $e->getMessage());
+        }
     }
 }

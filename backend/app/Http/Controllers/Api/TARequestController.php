@@ -566,7 +566,10 @@ return response()->json([
         }
 
         // Get frontend URL from environment or config
-        $frontendUrl = env('FRONTEND_URL', config('app.frontend_url', 'http://localhost:3000'));
+        $frontendUrl = env('FRONTEND_URL', config('app.frontend_url', 'https://www.workplace.intersmart.in'));
+        if (str_contains($frontendUrl, 'vercel.app')) {
+            $frontendUrl = 'https://www.workplace.intersmart.in';
+        }
 
         // Redirect to frontend TA management page with the request ID
         return redirect("{$frontendUrl}/ta/management?action=approve&id={$taRequest->id}");
@@ -580,7 +583,10 @@ return response()->json([
         }
 
         // Get frontend URL from environment or config
-        $frontendUrl = env('FRONTEND_URL', config('app.frontend_url', 'http://localhost:3000'));
+        $frontendUrl = env('FRONTEND_URL', config('app.frontend_url', 'https://www.workplace.intersmart.in'));
+        if (str_contains($frontendUrl, 'vercel.app')) {
+            $frontendUrl = 'https://www.workplace.intersmart.in';
+        }
 
         // Redirect to frontend TA management page with the request ID
         return redirect("{$frontendUrl}/ta/management?action=reject&id={$taRequest->id}");

@@ -37,6 +37,9 @@ class DocumentFulfilledMail extends Mailable
     {
         $employeeName = "{$this->recipient->first_name} {$this->recipient->last_name}";
         $frontendUrl = env('FRONTEND_URL', config('app.frontend_url', 'https://www.workplace.intersmart.in'));
+        if (str_contains($frontendUrl, 'vercel.app')) {
+            $frontendUrl = 'https://www.workplace.intersmart.in';
+        }
         $backendUrl = config('app.url', 'https://www.workplace.intersmart.in/api');
         
         $fileUrl = $this->documentUpload->file_path 
