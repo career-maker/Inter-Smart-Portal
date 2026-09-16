@@ -69,11 +69,11 @@ class AdminLeaveMarkingController extends Controller
     {
         $validated = $request->validate([
             'employee_id' => 'required|exists:users,id',
-            'wfh_type_id' => 'required|exists:leave_types,id',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
-            'reason' => 'required|string|max:500',
+            'wfh_type_id' => 'nullable',
             'duration_type' => 'nullable|string',
+            'start_date' => 'required|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'reason' => 'required|string|max:500',
         ]);
 
         $admin = $request->user();
@@ -84,13 +84,26 @@ class AdminLeaveMarkingController extends Controller
         }
 
         try {
+            $rawDuration = $validated['duration_type'] ?? 'Full';
+            $durationLower = strtolower($rawDuration);
+            if ($durationLower === 'half-morning' || $durationLower === 'first_half' || $durationLower === 'morning') {
+                $durationType = 'Half-Morning';
+            } elseif ($durationLower === 'half-afternoon' || $durationLower === 'second_half' || $durationLower === 'afternoon') {
+                $durationType = 'Half-Afternoon';
+            } else {
+                $durationType = 'Full';
+            }
+
+            $isHalfDay = in_array($durationType, ['Half-Morning', 'Half-Afternoon']);
+            $endDate = ($isHalfDay || empty($validated['end_date'])) ? $validated['start_date'] : $validated['end_date'];
+
             $wfhRequest = WfhRequest::create([
                 'user_id' => $employee->id,
-                'wfh_type_id' => $validated['wfh_type_id'],
+                'wfh_type_id' => $validated['wfh_type_id'] ?? null,
                 'start_date' => $validated['start_date'],
-                'end_date' => $validated['end_date'],
+                'end_date' => $endDate,
                 'wfh_date' => $validated['start_date'],
-                'duration_type' => $request->input('duration_type', 'full') ?: 'full',
+                'duration_type' => $durationType,
                 'reason' => $validated['reason'] . ' [Admin marked]',
                 'status' => 'Approved',
                 'tl_status' => 'Not Required',

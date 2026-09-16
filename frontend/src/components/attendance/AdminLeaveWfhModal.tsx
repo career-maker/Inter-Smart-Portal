@@ -28,7 +28,6 @@ export function AdminLeaveWfhModal({
   initialType = "leave",
 }: Props) {
   const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>([]);
-  const [wfhTypes, setWfhTypes] = useState<LeaveType[]>([]);
   const [employees, setEmployees] = useState<any[]>([]);
   const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -38,8 +37,7 @@ export function AdminLeaveWfhModal({
   const [formData, setFormData] = useState({
     user_id: selectedEmployeeId || "",
     leave_type_id: "",
-    wfh_type_id: "",
-    duration_type: "full",
+    wfh_type: "Full",
     start_date: "",
     end_date: "",
     reason: "",
@@ -84,20 +82,13 @@ export function AdminLeaveWfhModal({
       const res = await api.get("/leave-types");
       const all = res.data?.data || res.data || [];
 
-      // Filter WFH types - includes any WFH or Work From Home keyword
-      const wfh = all.filter((lt: LeaveType) => {
-        const name = (lt.name || "").toLowerCase();
-        return name.includes("work from home") || name.includes("wfh");
-      });
-
-      // Filter Leave types - exclude WFH to avoid duplication
+      // Filter Leave types - exclude any accidental WFH entries from leave dropdown
       const leaves = all.filter((lt: LeaveType) => {
         const name = (lt.name || "").toLowerCase();
         return !name.includes("work from home") && !name.includes("wfh");
       });
 
       setLeaveTypes(leaves);
-      setWfhTypes(wfh.length > 0 ? wfh : all);
     } catch (err) {
       console.error("Failed to load leave types", err);
       setError("Failed to load leave types");
@@ -106,10 +97,23 @@ export function AdminLeaveWfhModal({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
+    if (name === "wfh_type" && value !== "Full") {
+      setFormData(prev => ({
+        ...prev,
+        wfh_type: value,
+        end_date: prev.start_date,
+      }));
+      return;
+    }
+
     setFormData(prev => {
       const next = { ...prev, [name]: value };
-      if (name === "start_date" && (!prev.end_date || prev.end_date < value)) {
-        next.end_date = value;
+      if (name === "start_date") {
+        if (prev.wfh_type !== "Full" && type === "wfh") {
+          next.end_date = value;
+        } else if (!prev.end_date || prev.end_date < value) {
+          next.end_date = value;
+        }
       }
       return next;
     });
@@ -124,8 +128,11 @@ export function AdminLeaveWfhModal({
       if (!formData.user_id) {
         throw new Error("Please select an employee");
       }
-      if (!formData.start_date || !formData.end_date) {
-        throw new Error("Start and end dates are required");
+      const isHalfDay = type === "wfh" && formData.wfh_type !== "Full";
+      const endDate = isHalfDay ? formData.start_date : formData.end_date;
+
+      if (!formData.start_date || (!isHalfDay && !formData.end_date)) {
+        throw new Error("Dates are required");
       }
       if (!formData.reason.trim()) {
         throw new Error("Reason is required");
@@ -133,13 +140,6 @@ export function AdminLeaveWfhModal({
 
       if (type === "leave" && !formData.leave_type_id) {
         throw new Error("Please select a leave type");
-      }
-      let chosenWfhId = formData.wfh_type_id;
-      if (type === "wfh" && !chosenWfhId) {
-        chosenWfhId = wfhTypes[0]?.id ? String(wfhTypes[0].id) : (leaveTypes[0]?.id ? String(leaveTypes[0].id) : "");
-        if (!chosenWfhId) {
-          throw new Error("Please select a WFH type");
-        }
       }
 
       const endpoint = type === "leave" ? "/admin/mark-leave" : "/admin/mark-wfh";
@@ -153,10 +153,9 @@ export function AdminLeaveWfhModal({
           }
         : {
             employee_id: parseInt(String(formData.user_id)),
-            wfh_type_id: parseInt(chosenWfhId),
-            duration_type: formData.duration_type || "full",
+            duration_type: formData.wfh_type || "Full",
             start_date: formData.start_date,
-            end_date: formData.end_date,
+            end_date: endDate,
             reason: formData.reason.trim(),
           };
 
@@ -166,8 +165,7 @@ export function AdminLeaveWfhModal({
       setFormData({
         user_id: selectedEmployeeId || "",
         leave_type_id: "",
-        wfh_type_id: "",
-        duration_type: "full",
+        wfh_type: "Full",
         start_date: "",
         end_date: "",
         reason: "",
@@ -178,9 +176,8 @@ export function AdminLeaveWfhModal({
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.message ||
-        err.response?.data?.error ||
         err.message ||
-        "Failed to create request";
+        `Failed to mark ${type === "leave" ? "leave" : "WFH"}`;
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -189,51 +186,57 @@ export function AdminLeaveWfhModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-xl">
-        <DialogHeader>
-          <DialogTitle className="text-lg font-bold text-slate-900 dark:text-white">
-            Direct Add {type === "leave" ? "Leave" : "Work From Home"}
+      <DialogContent className="max-w-md w-full p-0 overflow-hidden rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl">
+        <DialogHeader className="p-5 pb-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
+          <DialogTitle className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <span>Direct {type === "leave" ? "Add Leave" : "Add WFH"}</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+              Super Admin
+            </span>
           </DialogTitle>
-          <DialogDescription className="text-xs text-slate-500 dark:text-slate-400">
-            Directly create and approve a {type === "leave" ? "leave" : "work-from-home"} record for an employee without pending approval steps.
-          </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-5 pt-1">
+        <div className="p-5 space-y-4">
+          {/* Mode Switcher */}
+          <div className="grid grid-cols-2 gap-1.5 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700">
+            <button
+              type="button"
+              onClick={() => {
+                setType("leave");
+                setError(null);
+              }}
+              className={`py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                type === "leave"
+                  ? "bg-[#56348f] text-white shadow-xs"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+              }`}
+            >
+              🏖️ Mark Leave
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setType("wfh");
+                setError(null);
+              }}
+              className={`py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                type === "wfh"
+                  ? "bg-[#56348f] text-white shadow-xs"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+              }`}
+            >
+              🏠 Mark WFH
+            </button>
+          </div>
+
           {error && (
-            <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-red-500 text-xs font-semibold">
+            <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-xl text-xs text-red-600 dark:text-red-400 font-medium">
               {error}
             </div>
           )}
 
-          {/* Type Selector (Pill Style) */}
-          <div className="flex gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
-            <button
-              type="button"
-              onClick={() => setType("leave")}
-              className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                type === "leave"
-                  ? "bg-white dark:bg-slate-700 text-[#56348f] dark:text-purple-300 shadow-sm"
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900"
-              }`}
-            >
-              🌴 Leave
-            </button>
-            <button
-              type="button"
-              onClick={() => setType("wfh")}
-              className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                type === "wfh"
-                  ? "bg-white dark:bg-slate-700 text-amber-600 dark:text-amber-300 shadow-sm"
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900"
-              }`}
-            >
-              🏠 Work From Home
-            </button>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Employee Picker */}
+          <form onSubmit={handleSubmit} className="space-y-3.5">
+            {/* Employee Selector (if not preselected) */}
             {!selectedEmployeeId && (
               <div>
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
@@ -257,80 +260,99 @@ export function AdminLeaveWfhModal({
               </div>
             )}
 
-            {/* Leave or WFH Type */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* Leave Type OR WFH Type */}
+            {type === "leave" ? (
               <div>
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                  {type === "leave" ? "Leave Type" : "WFH Type"} <span className="text-red-500">*</span>
+                  Leave Type <span className="text-red-500">*</span>
                 </label>
                 <select
-                  name={type === "leave" ? "leave_type_id" : "wfh_type_id"}
-                  value={type === "leave" ? formData.leave_type_id : formData.wfh_type_id}
+                  name="leave_type_id"
+                  value={formData.leave_type_id}
                   onChange={handleInputChange}
                   required
                   className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500 text-xs font-medium"
                 >
-                  <option value="">Select {type === "leave" ? "leave type" : "WFH type"}...</option>
-                  {(type === "leave" ? leaveTypes : wfhTypes).map(lt => (
+                  <option value="">Select leave type...</option>
+                  {leaveTypes.map(lt => (
                     <option key={lt.id} value={lt.id}>{lt.name}</option>
                   ))}
                 </select>
               </div>
-
-              {type === "wfh" && (
-                <div>
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                    Duration
-                  </label>
-                  <select
-                    name="duration_type"
-                    value={formData.duration_type}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500 text-xs font-medium"
-                  >
-                    <option value="full">Full Day</option>
-                    <option value="first_half">First Half</option>
-                    <option value="second_half">Second Half</option>
-                  </select>
-                </div>
-              )}
-            </div>
-
-            {/* Date Range */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            ) : (
               <div>
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                  Start Date <span className="text-red-500">*</span>
+                  WFH Type <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="wfh_type"
+                  value={formData.wfh_type}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500 text-xs font-medium"
+                >
+                  <option value="Full">Full Day WFH</option>
+                  <option value="Half-Morning">Half Day – Morning Session</option>
+                  <option value="Half-Afternoon">Half Day – Afternoon Session</option>
+                </select>
+              </div>
+            )}
+
+            {/* Date Selection */}
+            {type === "wfh" && formData.wfh_type !== "Full" ? (
+              <div>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                  Date <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="date"
                   name="start_date"
                   value={formData.start_date}
-                  onChange={handleInputChange}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setFormData(prev => ({ ...prev, start_date: val, end_date: val }));
+                  }}
                   required
                   className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500 text-xs"
                 />
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Single day for half-day session</p>
               </div>
-              <div>
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                  End Date <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="date"
-                  name="end_date"
-                  value={formData.end_date}
-                  onChange={handleInputChange}
-                  required
-                  min={formData.start_date}
-                  className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500 text-xs"
-                />
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                    Start Date <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    name="start_date"
+                    value={formData.start_date}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500 text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                    End Date <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    name="end_date"
+                    value={formData.end_date}
+                    onChange={handleInputChange}
+                    required
+                    min={formData.start_date}
+                    className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500 text-xs"
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Reason */}
             <div>
               <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                Reason / Remarks <span className="text-red-500">*</span>
+                Reason <span className="text-red-500">*</span>
               </label>
               <textarea
                 name="reason"
@@ -338,14 +360,13 @@ export function AdminLeaveWfhModal({
                 onChange={handleInputChange}
                 required
                 rows={2}
-                placeholder="Enter reason or note for this entry..."
-                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500 text-xs"
+                placeholder="Specify reason for marking this record..."
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500 text-xs resize-none"
               />
             </div>
 
-            {/* Direct Admin Banner */}
-            <div className="p-3 bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800/60 rounded-xl">
-              <p className="text-purple-800 dark:text-purple-300 text-[11px] leading-relaxed">
+            <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/80 rounded-xl p-2.5">
+              <p className="text-[11px] text-amber-800 dark:text-amber-300 leading-relaxed">
                 <span className="font-bold">⚡ Direct Entry:</span> This record will be created in <span className="font-semibold text-emerald-600 dark:text-emerald-400">Approved</span> status immediately on behalf of the selected employee.
               </p>
             </div>
