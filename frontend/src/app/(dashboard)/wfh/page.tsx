@@ -14,6 +14,7 @@ import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
 import { format } from "date-fns";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
+import AdminLeaveWfhModal from "@/components/attendance/AdminLeaveWfhModal";
 
 /* ─── Constants ─────────────────────────────────────────────────── */
 const DURATION_OPTIONS = [
@@ -139,6 +140,7 @@ export default function WfhPage() {
   const [successMessage, setSuccessMessage]     = useState<string | null>(null);
   const [wfhWarning, setWfhWarning]             = useState<string | null>(null);
   const [step, setStep]                         = useState(1);
+  const [isDirectModalOpen, setIsDirectModalOpen] = useState(false);
 
   // Reject dialog state
   const [rejectDialogId, setRejectDialogId]     = useState<number | null>(null);
@@ -532,7 +534,15 @@ export default function WfhPage() {
             </div>
           )}
 
-          {!isSuperAdmin && (
+          {isSuperAdmin ? (
+            <button
+              onClick={() => setIsDirectModalOpen(true)}
+              className="px-4 py-2 font-semibold text-xs rounded-xl shadow-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5 bg-[#56348f] hover:bg-[#452875] text-white"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add Leave / WFH</span>
+            </button>
+          ) : (
             <button
               onClick={() => setActiveView(activeView === "apply" ? (isTeamLead ? "team" : "my") : "apply")}
               className={`px-4 py-2 font-semibold text-xs rounded-xl shadow-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5 ${
@@ -1043,6 +1053,13 @@ export default function WfhPage() {
         </div>
       )}
 
+      {/* Direct Add Leave / WFH Modal for Super Admin */}
+      <AdminLeaveWfhModal
+        isOpen={isDirectModalOpen}
+        onClose={() => setIsDirectModalOpen(false)}
+        onSuccess={() => fetchRequests(currentPage)}
+        initialType="wfh"
+      />
     </div>
   );
 }

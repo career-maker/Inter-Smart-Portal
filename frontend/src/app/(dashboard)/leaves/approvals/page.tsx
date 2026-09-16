@@ -17,7 +17,8 @@ import {
   Users,
   History,
   RefreshCw,
-  Trash2
+  Trash2,
+  Plus
 } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
@@ -25,6 +26,7 @@ import { format, parseISO } from "date-fns";
 import { Portal } from "@/components/ui/portal";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 import { CommonSpinner } from "@/components/ui/PageLoader";
+import AdminLeaveWfhModal from "@/components/attendance/AdminLeaveWfhModal";
 
 type RejectDialogState = { type: "leave" | "wfh"; id: number } | null;
 
@@ -135,6 +137,7 @@ export default function ApprovalsPage() {
   }, [searchParams]);
 
   const [statusFilter, setStatusFilter] = useState<"Pending" | "Approved" | "Rejected" | "All">("Pending");
+  const [isDirectModalOpen, setIsDirectModalOpen] = useState(false);
 
   // State with initial hydration from localStorage for 0ms page load
   const [leaveRequests, setLeaveRequests] = useState<any[]>(() => {
@@ -703,25 +706,37 @@ export default function ApprovalsPage() {
             </button>
           </div>
 
-          {/* Row 2: Type Switcher (Leaves/WFH) */}
-          <div className="inline-flex items-center gap-1 bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 p-0.5 rounded-xl">
-            {(["leaves", "wfh"] as const).map((t) => {
-              const isActive = tab === t;
-              return (
-                <button
-                  key={t}
-                  onClick={() => handleTabChange(t)}
-                  className={`flex items-center gap-1.5 px-3.5 py-1 text-xs rounded-lg transition-all whitespace-nowrap cursor-pointer ${
-                    isActive
-                      ? "bg-[#56348f] text-white font-bold shadow-sm"
-                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-semibold"
-                  }`}
-                >
-                  {t === "leaves" ? <Calendar className="w-3.5 h-3.5" /> : <Users className="w-3.5 h-3.5" />}
-                  <span>{t === "leaves" ? "Leave Requests" : "WFH Requests"}</span>
-                </button>
-              );
-            })}
+          {/* Row 2: Type Switcher (Leaves/WFH) & Super Admin Actions */}
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="inline-flex items-center gap-1 bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 p-0.5 rounded-xl">
+              {(["leaves", "wfh"] as const).map((t) => {
+                const isActive = tab === t;
+                return (
+                  <button
+                    key={t}
+                    onClick={() => handleTabChange(t)}
+                    className={`flex items-center gap-1.5 px-3.5 py-1 text-xs rounded-lg transition-all whitespace-nowrap cursor-pointer ${
+                      isActive
+                        ? "bg-[#56348f] text-white font-bold shadow-sm"
+                        : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-semibold"
+                    }`}
+                  >
+                    {t === "leaves" ? <Calendar className="w-3.5 h-3.5" /> : <Users className="w-3.5 h-3.5" />}
+                    <span>{t === "leaves" ? "Leave Requests" : "WFH Requests"}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {isSuperAdmin && (
+              <button
+                onClick={() => setIsDirectModalOpen(true)}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs rounded-xl font-bold bg-[#56348f] hover:bg-[#452875] text-white shadow-xs transition-colors cursor-pointer whitespace-nowrap"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add Leave / WFH</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -1438,6 +1453,14 @@ export default function ApprovalsPage() {
           </div>
         </Portal>
       )}
+
+      {/* Direct Add Leave / WFH Modal for Super Admin */}
+      <AdminLeaveWfhModal
+        isOpen={isDirectModalOpen}
+        onClose={() => setIsDirectModalOpen(false)}
+        onSuccess={() => fetchRequests(true)}
+        initialType={tab === "leaves" ? "leave" : "wfh"}
+      />
     </div>
   );
 }

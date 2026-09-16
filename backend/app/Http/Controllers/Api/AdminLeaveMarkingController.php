@@ -30,11 +30,16 @@ class AdminLeaveMarkingController extends Controller
         }
 
         try {
+            $diff = \Carbon\Carbon::parse($validated['start_date'])->diffInDays(\Carbon\Carbon::parse($validated['end_date'])) + 1;
+            $days = max(1.0, (float)$diff);
+
             $leaveRequest = LeaveRequest::create([
                 'user_id' => $employee->id,
                 'leave_type_id' => $validated['leave_type_id'],
                 'start_date' => $validated['start_date'],
                 'end_date' => $validated['end_date'],
+                'days' => $days,
+                'actual_leave_days' => $days,
                 'reason' => $validated['reason'] . ' [Admin marked]',
                 'status' => 'Approved',
                 'tl_status' => 'Not Required',
@@ -68,6 +73,7 @@ class AdminLeaveMarkingController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'reason' => 'required|string|max:500',
+            'duration_type' => 'nullable|string',
         ]);
 
         $admin = $request->user();
@@ -84,6 +90,7 @@ class AdminLeaveMarkingController extends Controller
                 'start_date' => $validated['start_date'],
                 'end_date' => $validated['end_date'],
                 'wfh_date' => $validated['start_date'],
+                'duration_type' => $request->input('duration_type', 'full') ?: 'full',
                 'reason' => $validated['reason'] . ' [Admin marked]',
                 'status' => 'Approved',
                 'tl_status' => 'Not Required',

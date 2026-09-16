@@ -11,6 +11,7 @@ import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
 import { FavoriteButton } from "@/components/layout/FavoriteButton";
 import { useRefreshKey } from "@/hooks/useRefreshKey";
+import AdminLeaveWfhModal from "@/components/attendance/AdminLeaveWfhModal";
 
 /* ─── Semi-Circular Arc Meter Gauge ──────────────────────────────── */
 function SemiCircleGauge({
@@ -82,6 +83,7 @@ export default function LeavesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [cancellingId, setCancellingId] = useState<number | null>(null);
+  const [isDirectModalOpen, setIsDirectModalOpen] = useState(false);
 
   // Filters
   const [filterType, setFilterType] = useState("");
@@ -372,6 +374,15 @@ export default function LeavesPage() {
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+          {isSuperAdmin && (
+            <button
+              onClick={() => setIsDirectModalOpen(true)}
+              className="flex items-center justify-center gap-2 px-5 py-2.5 bg-[#56348f] hover:bg-[#452875] active:bg-[#382061] text-white font-semibold text-sm rounded-xl shadow-xs transition-colors cursor-pointer text-center"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add Leave / WFH</span>
+            </button>
+          )}
           {!isSuperAdmin && (
             <div className="flex flex-col items-stretch sm:items-end gap-1.5 w-full sm:w-auto">
               <button
@@ -834,6 +845,13 @@ export default function LeavesPage() {
         )}
       </div>
 
+      {/* Direct Add Leave / WFH Modal for Super Admin */}
+      <AdminLeaveWfhModal
+        isOpen={isDirectModalOpen}
+        onClose={() => setIsDirectModalOpen(false)}
+        onSuccess={() => fetchData(currentPage)}
+        initialType="leave"
+      />
     </div>
   );
 }

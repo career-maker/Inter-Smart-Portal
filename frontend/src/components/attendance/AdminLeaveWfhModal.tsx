@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import api from "@/services/api";
 
@@ -18,19 +17,29 @@ interface Props {
   onClose: () => void;
   onSuccess?: () => void;
   selectedEmployeeId?: number;
+  initialType?: "leave" | "wfh";
 }
 
-export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmployeeId }: Props) {
+export function AdminLeaveWfhModal({
+  isOpen,
+  onClose,
+  onSuccess,
+  selectedEmployeeId,
+  initialType = "leave",
+}: Props) {
   const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>([]);
   const [wfhTypes, setWfhTypes] = useState<LeaveType[]>([]);
+  const [employees, setEmployees] = useState<any[]>([]);
+  const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [type, setType] = useState<"leave" | "wfh">("leave");
+  const [type, setType] = useState<"leave" | "wfh">(initialType);
 
   const [formData, setFormData] = useState({
     user_id: selectedEmployeeId || "",
     leave_type_id: "",
     wfh_type_id: "",
+    duration_type: "full",
     start_date: "",
     end_date: "",
     reason: "",
@@ -38,10 +47,15 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
 
   useEffect(() => {
     if (isOpen) {
-      // Always fetch fresh data when modal opens (bypass cache)
+      if (initialType) {
+        setType(initialType);
+      }
       fetchLeaveTypes();
+      if (!selectedEmployeeId) {
+        fetchEmployees();
+      }
     }
-  }, [isOpen, type]); // Re-fetch when type changes too
+  }, [isOpen, initialType, selectedEmployeeId]);
 
   useEffect(() => {
     if (selectedEmployeeId) {
@@ -49,38 +63,41 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
     }
   }, [selectedEmployeeId]);
 
+  const fetchEmployees = async () => {
+    setIsLoadingEmployees(true);
+    try {
+      const res = await api.get("/employees?per_page=all").catch(async () => {
+        return api.get("/employees?per_page=300");
+      });
+      const list = res.data?.data || res.data || [];
+      list.sort((a: any, b: any) => (a.first_name || "").localeCompare(b.first_name || ""));
+      setEmployees(list);
+    } catch (err) {
+      console.error("Failed to load employees", err);
+    } finally {
+      setIsLoadingEmployees(false);
+    }
+  };
+
   const fetchLeaveTypes = async () => {
     try {
-      // Clear cache for leave types to get fresh data
-      const { apiCache } = await import("@/services/api");
-      const cacheKey = `${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8002/api'}/leave-types`;
-      apiCache.clear(cacheKey);
-
       const res = await api.get("/leave-types");
       const all = res.data?.data || res.data || [];
 
-      console.log('All leave types from API:', all.map((l: LeaveType) => ({ id: l.id, name: l.name })));
-
-      // Filter WFH types - include all WFH options
-      const wfh = all.filter((lt: LeaveType) =>
-        lt.name && lt.name.toLowerCase().includes('work from home')
-      );
+      // Filter WFH types - includes any WFH or Work From Home keyword
+      const wfh = all.filter((lt: LeaveType) => {
+        const name = (lt.name || "").toLowerCase();
+        return name.includes("work from home") || name.includes("wfh");
+      });
 
       // Filter Leave types - exclude WFH to avoid duplication
       const leaves = all.filter((lt: LeaveType) => {
-        const name = lt.name?.toLowerCase() || '';
-        return !name.includes('work from home');
+        const name = (lt.name || "").toLowerCase();
+        return !name.includes("work from home") && !name.includes("wfh");
       });
 
-      console.log('Leave Types filtered:', leaves.map((l: LeaveType) => ({ id: l.id, name: l.name })));
-      console.log('WFH Types filtered:', wfh.map((l: LeaveType) => ({ id: l.id, name: l.name })));
-
       setLeaveTypes(leaves);
-      setWfhTypes(wfh);
-
-      if (wfh.length === 0) {
-        setError("Warning: No WFH types found. Database may need to be seeded.");
-      }
+      setWfhTypes(wfh.length > 0 ? wfh : all);
     } catch (err) {
       console.error("Failed to load leave types", err);
       setError("Failed to load leave types");
@@ -89,10 +106,13 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData(prev => {
+      const next = { ...prev, [name]: value };
+      if (name === "start_date" && (!prev.end_date || prev.end_date < value)) {
+        next.end_date = value;
+      }
+      return next;
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -101,22 +121,25 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
     setError(null);
 
     try {
-      // Validation
       if (!formData.user_id) {
-        throw new Error("Employee ID is required");
+        throw new Error("Please select an employee");
       }
       if (!formData.start_date || !formData.end_date) {
         throw new Error("Start and end dates are required");
       }
-      if (!formData.reason) {
+      if (!formData.reason.trim()) {
         throw new Error("Reason is required");
       }
 
       if (type === "leave" && !formData.leave_type_id) {
-        throw new Error("Leave type is required");
+        throw new Error("Please select a leave type");
       }
-      if (type === "wfh" && !formData.wfh_type_id) {
-        throw new Error("WFH type is required");
+      let chosenWfhId = formData.wfh_type_id;
+      if (type === "wfh" && !chosenWfhId) {
+        chosenWfhId = wfhTypes[0]?.id ? String(wfhTypes[0].id) : (leaveTypes[0]?.id ? String(leaveTypes[0].id) : "");
+        if (!chosenWfhId) {
+          throw new Error("Please select a WFH type");
+        }
       }
 
       const endpoint = type === "leave" ? "/admin/mark-leave" : "/admin/mark-wfh";
@@ -126,58 +149,38 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
             leave_type_id: parseInt(formData.leave_type_id),
             start_date: formData.start_date,
             end_date: formData.end_date,
-            reason: formData.reason,
+            reason: formData.reason.trim(),
           }
         : {
             employee_id: parseInt(String(formData.user_id)),
-            wfh_type_id: parseInt(formData.wfh_type_id),
+            wfh_type_id: parseInt(chosenWfhId),
+            duration_type: formData.duration_type || "full",
             start_date: formData.start_date,
             end_date: formData.end_date,
-            reason: formData.reason,
+            reason: formData.reason.trim(),
           };
 
-      console.log(`Creating ${type}:`, payload);
-      console.log(`Endpoint: ${endpoint}`);
-
-      try {
-        const response = await api.post(endpoint, payload);
-        console.log(`${type} created successfully:`, response.data);
-      } catch (apiErr: any) {
-        console.error(`Backend error details:`, {
-          status: apiErr.response?.status,
-          statusText: apiErr.response?.statusText,
-          data: apiErr.response?.data,
-          message: apiErr.message,
-        });
-        throw apiErr;
-      }
+      await api.post(endpoint, payload);
 
       // Reset form
       setFormData({
         user_id: selectedEmployeeId || "",
         leave_type_id: "",
         wfh_type_id: "",
+        duration_type: "full",
         start_date: "",
         end_date: "",
         reason: "",
       });
 
-      // Call success callback and close
       onSuccess?.();
       onClose();
     } catch (err: any) {
-      // Get error message from backend - try multiple fields
       const errorMessage =
         err.response?.data?.message ||
         err.response?.data?.error ||
-        err.response?.data?.errors?.[0] ||
         err.message ||
-        "Failed to create leave/WFH";
-
-      console.error(`Failed to create ${type}:`, err);
-      console.error(`Backend response:`, err.response?.data);
-      console.error(`Detailed error:`, errorMessage);
-
+        "Failed to create request";
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -186,139 +189,179 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-xl">
         <DialogHeader>
-          <DialogTitle>Create Leave / WFH</DialogTitle>
-          <DialogDescription>Create and manage leave or work-from-home requests for employees</DialogDescription>
+          <DialogTitle className="text-lg font-bold text-slate-900 dark:text-white">
+            Direct Add {type === "leave" ? "Leave" : "Work From Home"}
+          </DialogTitle>
+          <DialogDescription className="text-xs text-slate-500 dark:text-slate-400">
+            Directly create and approve a {type === "leave" ? "leave" : "work-from-home"} record for an employee without pending approval steps.
+          </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-5 pt-1">
           {error && (
-            <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm space-y-2">
-              <p className="font-semibold">Error creating {type}:</p>
-              <p>{error}</p>
-              {error.includes('type') && (
-                <p className="text-xs text-red-300 mt-2">
-                  💡 Make sure you selected a valid {type === 'leave' ? 'leave' : 'WFH'} type from the dropdown.
-                </p>
-              )}
+            <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-red-500 text-xs font-semibold">
+              {error}
             </div>
           )}
 
-          {/* Type Selector */}
-          <div className="flex gap-4">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="radio"
-                value="leave"
-                checked={type === "leave"}
-                onChange={(e) => setType(e.target.value as "leave" | "wfh")}
-                className="w-4 h-4"
-              />
-              <span>Leave</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="radio"
-                value="wfh"
-                checked={type === "wfh"}
-                onChange={(e) => setType(e.target.value as "leave" | "wfh")}
-                className="w-4 h-4"
-              />
-              <span>Work From Home</span>
-            </label>
+          {/* Type Selector (Pill Style) */}
+          <div className="flex gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
+            <button
+              type="button"
+              onClick={() => setType("leave")}
+              className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                type === "leave"
+                  ? "bg-white dark:bg-slate-700 text-[#56348f] dark:text-purple-300 shadow-sm"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900"
+              }`}
+            >
+              🌴 Leave
+            </button>
+            <button
+              type="button"
+              onClick={() => setType("wfh")}
+              className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                type === "wfh"
+                  ? "bg-white dark:bg-slate-700 text-amber-600 dark:text-amber-300 shadow-sm"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900"
+              }`}
+            >
+              🏠 Work From Home
+            </button>
           </div>
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* User ID */}
+            {/* Employee Picker */}
             {!selectedEmployeeId && (
               <div>
-                <label className="text-sm font-medium text-slate-900 dark:text-white">Employee ID</label>
-                <input
-                  type="number"
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                  Employee <span className="text-red-500">*</span>
+                </label>
+                <select
                   name="user_id"
                   value={formData.user_id}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-slate-200 dark:border-white/10 rounded-lg bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-400 text-sm"
-                  placeholder="Enter employee ID"
-                />
+                  disabled={isLoadingEmployees}
+                  className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500 text-xs font-medium"
+                >
+                  <option value="">{isLoadingEmployees ? "Loading employee directory..." : "Select Employee..."}</option>
+                  {employees.map((emp) => (
+                    <option key={emp.id} value={emp.id}>
+                      {emp.first_name} {emp.last_name || ""} {emp.employee_code ? `(${emp.employee_code})` : ""} {emp.designation ? `• ${emp.designation}` : ""}
+                    </option>
+                  ))}
+                </select>
               </div>
             )}
 
-            {/* Leave/WFH Type - Unified dropdown with all options */}
-            <div>
-              <label className="text-sm font-medium text-slate-900 dark:text-white">Type</label>
-              <select
-                name={type === "leave" ? "leave_type_id" : "wfh_type_id"}
-                value={type === "leave" ? formData.leave_type_id : formData.wfh_type_id}
-                onChange={handleInputChange}
-                required
-                className="w-full px-3 py-2 border border-slate-200 dark:border-white/10 rounded-lg bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-400 text-sm"
-              >
-                <option value="">Select {type === "leave" ? "leave type" : "WFH type"}</option>
-                {(type === "leave" ? leaveTypes : wfhTypes).map(lt => (
-                  <option key={lt.id} value={lt.id}>{lt.name}</option>
-                ))}
-              </select>
+            {/* Leave or WFH Type */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                  {type === "leave" ? "Leave Type" : "WFH Type"} <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name={type === "leave" ? "leave_type_id" : "wfh_type_id"}
+                  value={type === "leave" ? formData.leave_type_id : formData.wfh_type_id}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500 text-xs font-medium"
+                >
+                  <option value="">Select {type === "leave" ? "leave type" : "WFH type"}...</option>
+                  {(type === "leave" ? leaveTypes : wfhTypes).map(lt => (
+                    <option key={lt.id} value={lt.id}>{lt.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              {type === "wfh" && (
+                <div>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                    Duration
+                  </label>
+                  <select
+                    name="duration_type"
+                    value={formData.duration_type}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500 text-xs font-medium"
+                  >
+                    <option value="full">Full Day</option>
+                    <option value="first_half">First Half</option>
+                    <option value="second_half">Second Half</option>
+                  </select>
+                </div>
+              )}
             </div>
 
             {/* Date Range */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="text-sm font-medium text-slate-900 dark:text-white">Start Date</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                  Start Date <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="date"
                   name="start_date"
                   value={formData.start_date}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-slate-200 dark:border-white/10 rounded-lg bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-400 text-sm"
+                  className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500 text-xs"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-slate-900 dark:text-white">End Date</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                  End Date <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="date"
                   name="end_date"
                   value={formData.end_date}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-slate-200 dark:border-white/10 rounded-lg bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-400 text-sm"
+                  min={formData.start_date}
+                  className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500 text-xs"
                 />
               </div>
             </div>
 
             {/* Reason */}
             <div>
-              <label className="text-sm font-medium text-slate-900 dark:text-white">Reason</label>
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                Reason / Remarks <span className="text-red-500">*</span>
+              </label>
               <textarea
                 name="reason"
                 value={formData.reason}
                 onChange={handleInputChange}
                 required
-                className="w-full px-3 py-2 border border-slate-200 dark:border-white/10 rounded-lg bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-400 text-sm"
-                placeholder="Enter reason"
-                rows={3}
+                rows={2}
+                placeholder="Enter reason or note for this entry..."
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500 text-xs"
               />
             </div>
 
-            {/* Info note */}
-            <div className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
-              <p className="text-blue-300 text-sm">
-                <span className="font-semibold">Note:</span> Admin-created leave is marked as non-paid (LOP) and automatically approved.
+            {/* Direct Admin Banner */}
+            <div className="p-3 bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800/60 rounded-xl">
+              <p className="text-purple-800 dark:text-purple-300 text-[11px] leading-relaxed">
+                <span className="font-bold">⚡ Direct Entry:</span> This record will be created in <span className="font-semibold text-emerald-600 dark:text-emerald-400">Approved</span> status immediately on behalf of the selected employee.
               </p>
             </div>
 
             {/* Buttons */}
-            <div className="flex gap-3 justify-end pt-4">
-              <Button variant="outline" onClick={onClose} disabled={isLoading}>
+            <div className="flex gap-2 justify-end pt-2">
+              <Button type="button" variant="outline" onClick={onClose} disabled={isLoading} className="rounded-xl text-xs">
                 Cancel
               </Button>
-              <Button type="submit" disabled={isLoading} className="bg-amber-600 hover:bg-amber-700">
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Create
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="bg-[#56348f] hover:bg-[#452875] text-white rounded-xl text-xs font-bold shadow-xs px-5 cursor-pointer"
+              >
+                {isLoading && <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />}
+                Create & Approve
               </Button>
             </div>
           </form>
@@ -327,3 +370,5 @@ export function AdminLeaveWfhModal({ isOpen, onClose, onSuccess, selectedEmploye
     </Dialog>
   );
 }
+
+export default AdminLeaveWfhModal;
