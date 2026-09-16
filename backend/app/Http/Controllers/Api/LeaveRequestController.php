@@ -109,8 +109,11 @@ class LeaveRequestController extends Controller
         } elseif ($user->hasRole('Team Lead') || !empty($delegatedEmployeeIds)) {
             $teamId = $user->team_id;
             $query->where(function ($mainQ) use ($user, $teamId, $delegatedEmployeeIds, $redirectedAwayEmployeeIds) {
+                // Always include the approver's own leave records
+                $mainQ->where('user_id', $user->id);
+
                 if ($user->hasRole('Team Lead')) {
-                    $mainQ->where(function ($subQ) use ($teamId, $redirectedAwayEmployeeIds) {
+                    $mainQ->orWhere(function ($subQ) use ($teamId, $redirectedAwayEmployeeIds) {
                         $subQ->whereHas('user', fn($uq) => $uq->where('team_id', $teamId));
                         if (!empty($redirectedAwayEmployeeIds)) {
                             $subQ->whereNotIn('user_id', $redirectedAwayEmployeeIds);
@@ -118,11 +121,7 @@ class LeaveRequestController extends Controller
                     });
                 }
                 if (!empty($delegatedEmployeeIds)) {
-                    if ($user->hasRole('Team Lead')) {
-                        $mainQ->orWhereIn('user_id', $delegatedEmployeeIds);
-                    } else {
-                        $mainQ->whereIn('user_id', $delegatedEmployeeIds);
-                    }
+                    $mainQ->orWhereIn('user_id', $delegatedEmployeeIds);
                 }
             });
 

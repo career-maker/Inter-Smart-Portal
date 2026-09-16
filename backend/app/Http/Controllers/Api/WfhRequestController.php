@@ -112,9 +112,12 @@ class WfhRequestController extends Controller
             $ledTeamIds = \App\Models\Team::where('team_lead_id', $user->id)->pluck('id')->toArray();
             $allTeamIds = array_unique(array_filter(array_merge([$user->team_id], $ledTeamIds)));
 
-            $query->where(function ($mainQ) use ($isUserTL, $allTeamIds, $delegatedEmployeeIds, $redirectedAwayEmployeeIds) {
+            $query->where(function ($mainQ) use ($user, $isUserTL, $allTeamIds, $delegatedEmployeeIds, $redirectedAwayEmployeeIds) {
+                // Always include the approver's own WFH records
+                $mainQ->where('user_id', $user->id);
+
                 if ($isUserTL && !empty($allTeamIds)) {
-                    $mainQ->where(function ($subQ) use ($allTeamIds, $redirectedAwayEmployeeIds) {
+                    $mainQ->orWhere(function ($subQ) use ($allTeamIds, $redirectedAwayEmployeeIds) {
                         $subQ->whereHas('user', fn($uq) => $uq->whereIn('team_id', $allTeamIds));
                         if (!empty($redirectedAwayEmployeeIds)) {
                             $subQ->whereNotIn('user_id', $redirectedAwayEmployeeIds);
@@ -122,11 +125,7 @@ class WfhRequestController extends Controller
                     });
                 }
                 if (!empty($delegatedEmployeeIds)) {
-                    if ($isUserTL && !empty($allTeamIds)) {
-                        $mainQ->orWhereIn('user_id', $delegatedEmployeeIds);
-                    } else {
-                        $mainQ->whereIn('user_id', $delegatedEmployeeIds);
-                    }
+                    $mainQ->orWhereIn('user_id', $delegatedEmployeeIds);
                 }
             });
 
