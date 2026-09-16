@@ -437,16 +437,25 @@ export default function ApprovalsPage() {
 
   const cancelRequest = async (type: "leave" | "wfh", id: number) => {
     const isApproved = (type === "wfh" ? approvedWfh : approvedLeaves).some(r => r.id === id);
+    const isRejected = (type === "wfh" ? rejectedWfh : rejectedLeaves).some(r => r.id === id);
     const confirmMsg = isApproved
       ? `Are you sure you want to delete this approved ${type.toUpperCase()} request? ${type === "leave" ? "The employee's used leave balance will be refunded automatically." : "This will mark the request as Cancelled on the employee's page."}`
+      : isRejected
+      ? `Are you sure you want to delete this rejected ${type.toUpperCase()} request?`
       : `Are you sure you want to cancel this ${type} request on behalf of the employee?`;
     if (!confirm(confirmMsg)) return;
 
     setActionLoading(true);
     try {
-      const endpoint = type === "leave" ? `/leave-requests/${id}/cancel` : `/wfh-requests/${id}/cancel`;
-      await api.post(endpoint);
-      setSuccessMessage(isApproved ? `Approved ${type.toUpperCase()} request deleted successfully!` : `${type === "leave" ? "Leave" : "WFH"} request cancelled successfully!`);
+      if (isRejected) {
+        const endpoint = type === "leave" ? `/leave-requests/${id}` : `/wfh-requests/${id}`;
+        await api.delete(endpoint);
+        setSuccessMessage(`Rejected ${type.toUpperCase()} request deleted successfully!`);
+      } else {
+        const endpoint = type === "leave" ? `/leave-requests/${id}/cancel` : `/wfh-requests/${id}/cancel`;
+        await api.post(endpoint);
+        setSuccessMessage(isApproved ? `Approved ${type.toUpperCase()} request deleted successfully!` : `${type === "leave" ? "Leave" : "WFH"} request cancelled successfully!`);
+      }
       
       // Optimistic update
       if (type === "leave") {
@@ -454,11 +463,11 @@ export default function ApprovalsPage() {
         setApprovedLeaves((prev) => prev.filter((r) => r.id !== id));
         setRejectedLeaves((prev) => prev.filter((r) => r.id !== id));
       } else {
-        const item = wfhRequests.find(r => r.id === id) || approvedWfh.find(r => r.id === id);
+        const item = wfhRequests.find(r => r.id === id) || approvedWfh.find(r => r.id === id) || rejectedWfh.find(r => r.id === id);
         setWfhRequests((prev) => prev.filter((r) => r.id !== id));
         setApprovedWfh((prev) => prev.filter((r) => r.id !== id));
         setRejectedWfh((prev) => prev.filter((r) => r.id !== id));
-        if (item) {
+        if (item && !isRejected) {
           setCancelledWfh((prev) => [{ ...item, status: "Cancelled", tl_status: "Cancelled", admin_status: "Cancelled" }, ...prev]);
         }
       }
@@ -466,7 +475,7 @@ export default function ApprovalsPage() {
       fetchRequests(true);
       setTimeout(() => setSuccessMessage(null), 4000);
     } catch (e: any) {
-      alert(e.response?.data?.message || "Error cancelling request.");
+      alert(e.response?.data?.message || "Error deleting request.");
       fetchRequests(true);
     } finally {
       setActionLoading(false);
@@ -623,6 +632,8 @@ export default function ApprovalsPage() {
     return [...wfhRequests, ...approvedWfh, ...rejectedWfh, ...cancelledWfh];
   }, [statusFilter, wfhRequests, approvedWfh, rejectedWfh, cancelledWfh]);
 
+  const showActions = statusFilter === "Pending" || statusFilter === "All" || (isSuperAdmin && (statusFilter === "Approved" || statusFilter === "Rejected"));
+
   return (
     <div className="space-y-5 w-full max-w-7xl mx-auto p-3 sm:p-5 lg:p-6">
       {/* ── Header Row ── */}
@@ -757,7 +768,7 @@ export default function ApprovalsPage() {
               <col className="w-[8%]" />
               <col className="w-[14%]" />
               <col className="w-[14%]" />
-              {(statusFilter === "Pending" || statusFilter === "All" || (isSuperAdmin && statusFilter === "Approved")) && (
+              {showActions && (
                 <col className="w-[22%]" />
               )}
             </colgroup>
@@ -769,7 +780,7 @@ export default function ApprovalsPage() {
                 <th className="py-2.5 px-2 text-center border-r border-slate-200/80 dark:border-slate-800">Days</th>
                 <th className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800">Reason</th>
                 <th className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800">Status</th>
-                {(statusFilter === "Pending" || statusFilter === "All" || (isSuperAdmin && statusFilter === "Approved")) && (
+                {showActions && (
                   <th className="py-2.5 px-3 text-center">Actions</th>
                 )}
               </tr>
@@ -777,7 +788,7 @@ export default function ApprovalsPage() {
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
               {displayLeaves.length === 0 ? (
                 <tr>
-                  <td colSpan={(statusFilter === "Pending" || statusFilter === "All" || (isSuperAdmin && statusFilter === "Approved")) ? 7 : 6} className="py-12 text-center text-slate-400 dark:text-slate-500 text-xs italic">
+                  <td colSpan={showActions ? 7 : 6} className="py-12 text-center text-slate-400 dark:text-slate-500 text-xs italic">
                     No {statusFilter === "All" ? "" : statusFilter.toLowerCase()} leave requests found.
                   </td>
                 </tr>
@@ -883,7 +894,7 @@ export default function ApprovalsPage() {
                     </td>
 
                     {/* Column 7: Actions */}
-                    {(statusFilter === "Pending" || statusFilter === "All" || (isSuperAdmin && statusFilter === "Approved")) && (
+                    {showActions && (
                       <td className="py-2.5 px-3 align-middle text-center break-words whitespace-normal leading-tight">
                         <div className="flex items-center justify-center gap-1">
                         {req.pending_lop_conversion ? (
@@ -938,11 +949,11 @@ export default function ApprovalsPage() {
                               </button>
                             )}
                           </>
-                        ) : isSuperAdmin && req.status === "Approved" ? (
+                        ) : isSuperAdmin && (req.status === "Approved" || req.status === "Rejected") ? (
                           <button
                             onClick={() => cancelRequest("leave", req.id)}
                             disabled={actionLoading}
-                            title="Delete Approved Leave Request (Refunds Balance)"
+                            title={req.status === "Approved" ? "Delete Approved Leave Request (Refunds Balance)" : "Delete Rejected Leave Request"}
                             className="px-2.5 py-1 rounded-md text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800 transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1 shadow-sm"
                           >
                             <Trash2 className="w-3.5 h-3.5 text-rose-500" />
@@ -982,7 +993,7 @@ export default function ApprovalsPage() {
               <col className="w-[10%]" />
               <col className="w-[14%]" />
               <col className="w-[12%]" />
-              {(statusFilter === "Pending" || statusFilter === "All" || (isSuperAdmin && statusFilter === "Approved")) && (
+              {showActions && (
                 <col className="w-[22%]" />
               )}
             </colgroup>
@@ -994,7 +1005,7 @@ export default function ApprovalsPage() {
                 <th className="py-2.5 px-2 text-center border-r border-slate-200/80 dark:border-slate-800">TL Status</th>
                 <th className="py-2.5 px-2.5 border-r border-slate-200/80 dark:border-slate-800">Reason</th>
                 <th className="py-2.5 px-2 border-r border-slate-200/80 dark:border-slate-800">Status</th>
-                {(statusFilter === "Pending" || statusFilter === "All" || (isSuperAdmin && statusFilter === "Approved")) && (
+                {showActions && (
                   <th className="py-2.5 px-3 text-center">Actions</th>
                 )}
               </tr>
@@ -1002,7 +1013,7 @@ export default function ApprovalsPage() {
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
               {displayWfh.length === 0 ? (
                 <tr>
-                  <td colSpan={(statusFilter === "Pending" || statusFilter === "All" || (isSuperAdmin && statusFilter === "Approved")) ? 7 : 6} className="py-12 text-center text-slate-400 dark:text-slate-500 text-xs italic">
+                  <td colSpan={showActions ? 7 : 6} className="py-12 text-center text-slate-400 dark:text-slate-500 text-xs italic">
                     No {statusFilter === "All" ? "" : statusFilter.toLowerCase()} WFH requests found.
                   </td>
                 </tr>
@@ -1100,7 +1111,7 @@ export default function ApprovalsPage() {
                     </td>
 
                     {/* Actions */}
-                    {(statusFilter === "Pending" || statusFilter === "All" || (isSuperAdmin && statusFilter === "Approved")) && (
+                    {showActions && (
                       <td className="py-2.5 px-3 align-middle text-center break-words whitespace-normal leading-tight">
                         <div className="flex items-center justify-center gap-1">
                           {req.status === "Pending" ? (
@@ -1138,11 +1149,11 @@ export default function ApprovalsPage() {
                                 </button>
                               )}
                             </>
-                          ) : isSuperAdmin && req.status === "Approved" ? (
+                          ) : isSuperAdmin && (req.status === "Approved" || req.status === "Rejected") ? (
                             <button
                               onClick={() => cancelRequest("wfh", req.id)}
                               disabled={actionLoading}
-                              title="Delete Approved WFH Request"
+                              title={req.status === "Approved" ? "Delete Approved WFH Request" : "Delete Rejected WFH Request"}
                               className="px-2.5 py-1 rounded-md text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800 transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1 shadow-sm"
                             >
                               <Trash2 className="w-3.5 h-3.5 text-rose-500" />
