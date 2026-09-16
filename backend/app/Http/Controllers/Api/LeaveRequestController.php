@@ -895,6 +895,20 @@ class LeaveRequestController extends Controller
                             }
                         }
                     } catch (\Exception $e) {}
+                } elseif (!$isAdmin) {
+                    // Notify Super Admins when initial approver rejects
+                    try {
+                        $apprName   = "{$user->first_name} {$user->last_name}";
+                        $empName    = "{$applicant->first_name} {$applicant->last_name}";
+                        $typeName   = $leaveRequest->leaveType?->name ?? 'Leave';
+                        $reasonPart = !empty($data['remarks']) ? " Reason: {$data['remarks']}" : "";
+                        $adminMsg   = "Approver {$apprName} rejected {$empName}'s {$typeName} request.{$reasonPart}";
+                        foreach (User::role('Super Admin')->get() as $admin) {
+                            if ($admin->id !== $user->id) {
+                                $admin->notify(new LeaveRequestNotification('tl_rejected', $leaveRequest, $adminMsg));
+                            }
+                        }
+                    } catch (\Throwable $e) {}
                 }
 
             } elseif ($status === 'Approved') {
@@ -995,7 +1009,7 @@ class LeaveRequestController extends Controller
 
             return response()->json([
                 'message' => "Leave request {$status} successfully",
-                'data'    => $leaveRequest
+                'data'    => $leaveRequest->fresh()->load(['user', 'leaveType', 'approver'])
             ]);
         } catch (\Exception $e) {
             DB::rollBack();

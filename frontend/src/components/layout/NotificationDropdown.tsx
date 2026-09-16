@@ -49,7 +49,7 @@ function resolveNotificationUrl(notification: any): string {
     notification.data?.title?.includes("WFH")
   ) {
     const event = notification.data?.event;
-    if (event === "submitted" || event === "tl_approved") return "/leaves/approvals?tab=wfh";
+    if (event === "submitted" || event === "tl_approved" || event === "tl_rejected") return "/leaves/approvals?tab=wfh";
     if (event === "approved" || event === "rejected") return "/wfh";
     return stored || "/leaves/approvals?tab=wfh";
   }
@@ -69,7 +69,7 @@ function resolveNotificationUrl(notification: any): string {
   }
 
   const event = notification.data?.event;
-  if (event === "submitted" || event === "tl_approved") return "/leaves/approvals";
+  if (event === "submitted" || event === "tl_approved" || event === "tl_rejected") return "/leaves/approvals";
   return stored || "/notifications";
 }
 

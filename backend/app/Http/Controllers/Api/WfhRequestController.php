@@ -92,6 +92,34 @@ class WfhRequestController extends Controller
             || \App\Models\Team::where('team_lead_id', $user->id)->exists();
 
         if ($user->hasRole('Super Admin') || $user->hasRole('HR')) {
+            // Auto-heal missing notifications for recent TL rejections so Super Admin sees them even if rejected before this code was deployed
+            try {
+                $recentlyRejected = WfhRequest::with(['user'])
+                    ->where('status', 'Rejected')
+                    ->where('tl_status', 'Rejected')
+                    ->where('updated_at', '>=', now()->subDays(7))
+                    ->get();
+
+                foreach ($recentlyRejected as $rw) {
+                    if ($rw->approved_by && (int)$rw->approved_by !== (int)$user->id) {
+                        $hasNotif = \Illuminate\Support\Facades\DB::table('notifications')
+                            ->where('notifiable_id', $user->id)
+                            ->where('type', \App\Notifications\WfhRequestNotification::class)
+                            ->where('data', 'like', '%"wfh_request_id":' . $rw->id . '%')
+                            ->exists();
+
+                        if (!$hasNotif) {
+                            $appr = \App\Models\User::find($rw->approved_by);
+                            $apprName = $appr ? "{$appr->first_name} {$appr->last_name}" : "Approver";
+                            $empName = $rw->user ? "{$rw->user->first_name} {$rw->user->last_name}" : "Employee";
+                            $reasonPart = !empty($rw->remarks) ? " Reason: {$rw->remarks}" : "";
+                            $msg = "Approver {$apprName} rejected {$empName}'s WFH request.{$reasonPart}";
+                            $user->notify(new \App\Notifications\WfhRequestNotification('tl_rejected', $rw, $msg));
+                        }
+                    }
+                }
+            } catch (\Throwable $e) {}
+
             if ($request->has('status') && $request->status === 'Pending') {
                 // Admin sees requests where TL has acted, TL is not required, or employee has no team/TL
                 $query->where('admin_status', 'Pending')
@@ -425,6 +453,23 @@ class WfhRequestController extends Controller
                 'approved_by'  => $user->id,
                 'remarks'      => $data['remarks'] ?? null,
             ]);
+
+            // If rejected by a non-admin (Team Lead or custom/delegated approver), notify Super Admins
+            if (!$user->hasRole('Super Admin') && !$user->hasRole('HR')) {
+                try {
+                    $apprName   = "{$user->first_name} {$user->last_name}";
+                    $empName    = "{$applicant->first_name} {$applicant->last_name}";
+                    $reasonPart = !empty($data['remarks']) ? " Reason: {$data['remarks']}" : "";
+                    $adminMsg   = "Approver {$apprName} rejected {$empName}'s WFH request.{$reasonPart}";
+                    foreach (User::role('Super Admin')->get() as $admin) {
+                        if ($admin->id !== $user->id) {
+                            $admin->notify(new WfhRequestNotification('tl_rejected', $wfhRequest, $adminMsg));
+                        }
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('Failed to notify Super Admin of WFH rejection: ' . $e->getMessage());
+                }
+            }
         } else {
             // Approval
             if ($isInitialApproverRole && !$user->hasRole('Super Admin') && !$user->hasRole('HR')) {
@@ -484,7 +529,7 @@ class WfhRequestController extends Controller
 
         return response()->json([
             'message' => "WFH request {$newStatus} successfully.",
-            'data'    => $wfhRequest->fresh(),
+            'data'    => $wfhRequest->fresh()->load(['user', 'approver']),
         ]);
     }
 

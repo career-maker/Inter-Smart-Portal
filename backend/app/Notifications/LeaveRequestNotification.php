@@ -21,15 +21,17 @@ class LeaveRequestNotification extends Notification
     public function toDatabase($notifiable): array
     {
         $titles = [
-            'submitted' => 'New Leave Request',
-            'approved'  => 'Leave Approved',
-            'rejected'  => 'Leave Rejected',
-            'cancelled' => 'Leave Cancelled',
+            'submitted'   => 'New Leave Request',
+            'approved'    => 'Leave Approved',
+            'tl_approved' => 'Leave Approved by TL',
+            'rejected'    => 'Leave Rejected',
+            'tl_rejected' => 'Leave Rejected by Approver',
+            'cancelled'   => 'Leave Cancelled',
         ];
 
-        // Approver notifications (submitted) → approvals page
+        // Approver notifications (submitted / tl_approved / tl_rejected) → approvals page
         // Employee notifications (approved/rejected) → their own leaves list
-        $actionUrl = $this->event === 'submitted' ? '/leaves/approvals' : '/leaves';
+        $actionUrl = in_array($this->event, ['submitted', 'tl_approved', 'tl_rejected']) ? '/leaves/approvals' : '/leaves';
 
         return [
             'title'            => $titles[$this->event] ?? 'Leave Update',

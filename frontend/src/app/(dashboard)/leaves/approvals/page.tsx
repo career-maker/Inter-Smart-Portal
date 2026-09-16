@@ -331,22 +331,30 @@ export default function ApprovalsPage() {
         setSuccessMessage(`${type === "leave" ? "Leave" : "WFH"} request approved successfully!`);
       }
 
-      // Optimistic update
+      // Optimistic update — merge API response on top of local item so the
+      // user relation (which the API does not re-load) is preserved.
       if (type === "leave") {
         const approvedItem = leaveRequests.find((r) => r.id === id);
         if (approvedItem) {
-          const updated = response.data?.data || { ...approvedItem, status: "Approved" };
+          const updated = {
+            ...approvedItem,
+            ...(response.data?.data || {}),
+            status: "Approved",
+            user: approvedItem.user,
+          };
           setLeaveRequests((prev) => prev.filter((r) => r.id !== id));
           setApprovedLeaves((prev) => [updated, ...prev.filter((r) => r.id !== id)]);
         }
       } else {
         const approvedItem = wfhRequests.find((r) => r.id === id);
         if (approvedItem) {
-          const updated = response.data?.data || {
+          const updated = {
             ...approvedItem,
+            ...(response.data?.data || {}),
             status: isSuperAdmin ? "Approved" : "Pending",
             tl_status: "Approved",
             admin_status: isSuperAdmin ? "Approved" : "Pending",
+            user: approvedItem.user,
           };
           if (isSuperAdmin) {
             setWfhRequests((prev) => prev.filter((r) => r.id !== id));
@@ -384,23 +392,32 @@ export default function ApprovalsPage() {
       setRejectDialog(null);
       setRejectReason("");
 
-      // Optimistic update
+      // Optimistic update — merge API response on top of local item so the
+      // user relation (which the API does not re-load) is preserved.
       if (type === "leave") {
         const rejectedItem = leaveRequests.find((r) => r.id === id);
         if (rejectedItem) {
-          const updated = response.data?.data || { ...rejectedItem, status: "Rejected", rejection_reason: rejectReason };
+          const updated = {
+            ...rejectedItem,
+            ...(response.data?.data || {}),
+            status: "Rejected",
+            rejection_reason: rejectReason,
+            user: rejectedItem.user,
+          };
           setLeaveRequests((prev) => prev.filter((r) => r.id !== id));
           setRejectedLeaves((prev) => [updated, ...prev.filter((r) => r.id !== id)]);
         }
       } else {
         const rejectedItem = wfhRequests.find((r) => r.id === id);
         if (rejectedItem) {
-          const updated = response.data?.data || {
+          const updated = {
             ...rejectedItem,
+            ...(response.data?.data || {}),
             status: "Rejected",
             tl_status: isTeamLead ? "Rejected" : rejectedItem.tl_status,
             admin_status: isSuperAdmin ? "Rejected" : rejectedItem.admin_status,
             remarks: rejectReason,
+            user: rejectedItem.user,
           };
           setWfhRequests((prev) => prev.filter((r) => r.id !== id));
           setRejectedWfh((prev) => [updated, ...prev.filter((r) => r.id !== id)]);
