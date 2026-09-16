@@ -21,11 +21,12 @@ class WfhRequestNotification extends Notification
     public function toDatabase($notifiable): array
     {
         $titles = [
-            'submitted'   => 'New WFH Request',
-            'approved'    => 'WFH Approved',
-            'tl_approved' => 'WFH Approved by TL',
-            'rejected'    => 'WFH Rejected',
-            'tl_rejected' => 'WFH Rejected by Approver',
+            'submitted'    => 'New WFH Request',
+            'approved'     => 'WFH Approved',
+            'admin_marked' => 'WFH Added by Admin',
+            'tl_approved'  => 'WFH Approved by TL',
+            'rejected'     => 'WFH Rejected',
+            'tl_rejected'  => 'WFH Rejected by Approver',
         ];
 
         $actionUrl = in_array($this->event, ['submitted', 'tl_approved', 'tl_rejected']) ? '/leaves/approvals?tab=wfh' : '/wfh';

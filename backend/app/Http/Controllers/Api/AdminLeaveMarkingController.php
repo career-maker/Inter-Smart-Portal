@@ -47,6 +47,43 @@ class AdminLeaveMarkingController extends Controller
                 'approved_by' => $admin->id,
             ]);
 
+            // Notify the employee (In-app notification)
+            try {
+                $adminName = trim("{$admin->first_name} {$admin->last_name}") ?: 'Admin';
+                $leaveRequest->loadMissing('leaveType');
+                $leaveTypeName = $leaveRequest->leaveType->name ?? 'Leave';
+                $isSingleDay = ($validated['start_date'] === $validated['end_date']);
+                $dateStr = $isSingleDay
+                    ? \Carbon\Carbon::parse($validated['start_date'])->format('d M Y')
+                    : \Carbon\Carbon::parse($validated['start_date'])->format('d M Y') . ' to ' . \Carbon\Carbon::parse($validated['end_date'])->format('d M Y');
+
+                $cleanReason = trim($validated['reason']);
+                $reasonSuffix = !empty($cleanReason) ? " (Reason: {$cleanReason})" : "";
+                $msg = "{$adminName} has marked an approved {$leaveTypeName} for you ({$dateStr}){$reasonSuffix}.";
+                $employee->notify(new \App\Notifications\LeaveRequestNotification('admin_marked', $leaveRequest, $msg));
+            } catch (\Throwable $notifEx) {
+                \Log::warning('Failed to send in-app leave notification to employee: ' . $notifEx->getMessage());
+            }
+
+            // Send email to employee if email is available
+            try {
+                if (!empty($employee->email) && filter_var($employee->email, FILTER_VALIDATE_EMAIL)) {
+                    \App\Services\Email\EmailService::applySmtpConfig();
+                    $emailData = [
+                        'employee_name' => trim("{$employee->first_name} {$employee->last_name}"),
+                        'leave_type' => $leaveRequest->leaveType->name ?? 'Leave',
+                        'start_date' => $validated['start_date'],
+                        'end_date' => $validated['end_date'],
+                        'is_single_day' => ($validated['start_date'] === $validated['end_date']),
+                        'reason' => $validated['reason'] . ' [Directly marked by Admin]',
+                        'status' => 'Approved',
+                    ];
+                    \Illuminate\Support\Facades\Mail::to($employee->email)->send(new \App\Mail\LeaveRequestMail($emailData, $leaveRequest));
+                }
+            } catch (\Throwable $mailEx) {
+                \Log::warning('Failed to send leave email to employee: ' . $mailEx->getMessage());
+            }
+
             return response()->json([
                 'message' => 'Leave marked successfully',
                 'data' => $leaveRequest
@@ -110,6 +147,46 @@ class AdminLeaveMarkingController extends Controller
                 'admin_status' => 'Approved',
                 'approved_by' => $admin->id,
             ]);
+
+            // Notify the employee (In-app notification)
+            try {
+                $adminName = trim("{$admin->first_name} {$admin->last_name}") ?: 'Admin';
+                $isSingleDay = ($validated['start_date'] === $endDate);
+                $dateStr = $isSingleDay
+                    ? \Carbon\Carbon::parse($validated['start_date'])->format('d M Y')
+                    : \Carbon\Carbon::parse($validated['start_date'])->format('d M Y') . ' to ' . \Carbon\Carbon::parse($endDate)->format('d M Y');
+
+                $sessionLabel = $durationType;
+                if ($durationType === 'Half-Morning') $sessionLabel = 'Half Day (Morning)';
+                elseif ($durationType === 'Half-Afternoon') $sessionLabel = 'Half Day (Afternoon)';
+                elseif ($durationType === 'Full') $sessionLabel = 'Full Day';
+
+                $cleanReason = trim($validated['reason']);
+                $reasonSuffix = !empty($cleanReason) ? " (Reason: {$cleanReason})" : "";
+                $msg = "{$adminName} has marked an approved WFH ({$sessionLabel}) for you ({$dateStr}){$reasonSuffix}.";
+                $employee->notify(new \App\Notifications\WfhRequestNotification('admin_marked', $wfhRequest, $msg));
+            } catch (\Throwable $notifEx) {
+                \Log::warning('Failed to send in-app WFH notification to employee: ' . $notifEx->getMessage());
+            }
+
+            // Send email to employee if email is available
+            try {
+                if (!empty($employee->email) && filter_var($employee->email, FILTER_VALIDATE_EMAIL)) {
+                    \App\Services\Email\EmailService::applySmtpConfig();
+                    $emailData = [
+                        'employee_name' => trim("{$employee->first_name} {$employee->last_name}"),
+                        'duration_type' => $durationType,
+                        'start_date' => $validated['start_date'],
+                        'end_date' => $endDate,
+                        'is_single_day' => ($validated['start_date'] === $endDate),
+                        'reason' => $validated['reason'] . ' [Directly marked by Admin]',
+                        'status' => 'Approved',
+                    ];
+                    \Illuminate\Support\Facades\Mail::to($employee->email)->send(new \App\Mail\WfhRequestMail($emailData, $wfhRequest));
+                }
+            } catch (\Throwable $mailEx) {
+                \Log::warning('Failed to send WFH email to employee: ' . $mailEx->getMessage());
+            }
 
             return response()->json([
                 'message' => 'WFH marked successfully',

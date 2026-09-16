@@ -21,12 +21,13 @@ class LeaveRequestNotification extends Notification
     public function toDatabase($notifiable): array
     {
         $titles = [
-            'submitted'   => 'New Leave Request',
-            'approved'    => 'Leave Approved',
-            'tl_approved' => 'Leave Approved by TL',
-            'rejected'    => 'Leave Rejected',
-            'tl_rejected' => 'Leave Rejected by Approver',
-            'cancelled'   => 'Leave Cancelled',
+            'submitted'    => 'New Leave Request',
+            'approved'     => 'Leave Approved',
+            'admin_marked' => 'Leave Added by Admin',
+            'tl_approved'  => 'Leave Approved by TL',
+            'rejected'     => 'Leave Rejected',
+            'tl_rejected'  => 'Leave Rejected by Approver',
+            'cancelled'    => 'Leave Cancelled',
         ];
 
         // Approver notifications (submitted / tl_approved / tl_rejected) → approvals page
