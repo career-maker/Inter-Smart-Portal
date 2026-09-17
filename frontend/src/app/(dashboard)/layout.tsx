@@ -286,6 +286,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const isApprover = user?.role === "Team Lead" || user?.role === "Super Admin" || (user as any)?.is_approver || userPermissions?.is_approver;
     if (isApprover) {
       const fetchPendingCount = async () => {
+        // Strictly skip approval polling when actively using chat or when window is hidden
+        if (pathname === "/chat" || (typeof document !== "undefined" && document.visibilityState !== "visible")) {
+          return;
+        }
         try {
           const [leavesRes, wfhRes] = await Promise.allSettled([
             api.get("/leave-requests?status=Pending"),
@@ -301,11 +305,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           console.error("Failed to fetch pending approvals", e);
         }
       };
-      fetchPendingCount();
-      const interval = setInterval(fetchPendingCount, 30000);
+
+      if (pathname !== "/chat") {
+        fetchPendingCount();
+      }
+
+      const interval = setInterval(fetchPendingCount, 60000);
       return () => clearInterval(interval);
     }
-  }, [user?.role, (user as any)?.is_approver, userPermissions?.is_approver]);
+  }, [user?.role, (user as any)?.is_approver, userPermissions?.is_approver, pathname]);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -495,7 +503,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
 
   // Role-based Sub-Header Tabs (Keka exact style)
-  const getSubTabs = () => {
+  type SubTabItem = {
+    label: string;
+    href: string;
+    badge?: string;
+  };
+
+  const getSubTabs = (): SubTabItem[] => {
     const userRoleStr = (userRole || "").toLowerCase();
     const isTeamLead = userRole === "Team Lead" || userRoleStr.includes("lead") || Boolean((user as any)?.is_lead);
     const isSuperAdmin = userRole === "Super Admin" || userRoleStr === "admin";
@@ -504,8 +518,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (isSuperAdmin || userRole === "HR") {
       return [
         { label: "Dashboard", href: "/dashboard" },
+        { label: "Community", href: "/community" },
+        { label: "Chat", href: "/chat" },
         { label: "Employee Management", href: "/employees" },
-        { label: "Community", href: "/community", badge: "New" },
         { label: "Attendance Management", href: "/attendance/management" },
         { label: "Hubstaff", href: "/project-management/hubstaff" },
       ];
@@ -513,7 +528,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (isTeamLead) {
       return [
         { label: "Dashboard", href: "/dashboard" },
-        { label: "Community", href: "/community", badge: "New" },
+        { label: "Community", href: "/community" },
+        { label: "Chat", href: "/chat" },
         { label: "Tasks", href: "/project-management/tasks" },
         { label: "Hubstaff", href: "/project-management/hubstaff" },
       ];
@@ -521,7 +537,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     // Default for Employees
     return [
       { label: "Dashboard", href: "/dashboard" },
-      { label: "Community", href: "/community", badge: "New" },
+      { label: "Community", href: "/community" },
+      { label: "Chat", href: "/chat" },
       { label: "Tasks", href: canViewAllTasks ? "/project-management/tasks" : "/project-management/tasks/my" },
       ...(userPermissions.hubstaff_team_view ? [{ label: "Hubstaff", href: "/project-management/hubstaff" }] : []),
     ];

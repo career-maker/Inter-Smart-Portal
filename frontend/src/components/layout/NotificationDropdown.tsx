@@ -139,6 +139,7 @@ export function NotificationDropdown() {
 
   const fetchUnread = async () => {
     if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
+    if (typeof window !== "undefined" && window.location.pathname.startsWith("/chat")) return;
     if (isFetchingRef.current) return;
     try {
       isFetchingRef.current = true;

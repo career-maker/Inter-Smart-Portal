@@ -89,6 +89,235 @@ interface Conversation {
   is_optimistic?: boolean;
 }
 
+const CHAT_EMOJI_CATEGORIES = [
+  {
+    id: "smileys",
+    name: "Smileys",
+    icon: "😀",
+    emojis: [
+      "😀", "😃", "😄", "😁", "😆", "😅", "😂", "🤣", "🥲", "🥹",
+      "😊", "😇", "🙂", "😉", "😌", "😍", "🥰", "😘", "😋", "😛",
+      "😜", "🤪", "🤩", "🥳", "😏", "😒", "😞", "😔", "😟", "😕",
+      "🙁", "😣", "😖", "😫", "😩", "🥺", "😢", "😭", "😤", "😠",
+      "😡", "🤯", "😳", "🥵", "🥶", "😱", "😨", "😰", "😥", "😓",
+      "🤗", "🤔", "🫣", "🤭", "🤫", "🫡", "😶", "😐", "😑", "😬",
+      "🫠", "🙄", "😯", "🥱", "😴", "🤤", "😷", "🤒", "🤕", "🤠",
+    ],
+  },
+  {
+    id: "gestures",
+    name: "Gestures",
+    icon: "👍",
+    emojis: [
+      "👍", "👎", "👏", "🙌", "🫶", "👐", "🤲", "🤝", "🤜", "🤛",
+      "✊", "👊", "👋", "✍️", "🫰", "✌️", "🤞", "🤟", "🤘", "🤙",
+      "👈", "👉", "👆", "👇", "☝️", "✋", "🖖", "🙏", "💪", "🫂",
+      "🙋", "🙋‍♂️", "🙋‍♀️", "🙇", "🙇‍♂️", "🙇‍♀️", "🤦", "🤦‍♂️", "🤦‍♀️", "🤷",
+      "🤷‍♂️", "🤷‍♀️", "🫡", "👀", "👁️", "❤️", "🔥", "✨", "💯", "⭐",
+    ],
+  },
+  {
+    id: "celebration",
+    name: "Celebration",
+    icon: "🎉",
+    emojis: [
+      "🎉", "🎊", "🎈", "🎂", "🍰", "🧁", "🥂", "🍻", "🎁", "🎀",
+      "✨", "🌟", "⭐", "💫", "💥", "💯", "🏆", "🥇", "🥈", "🥉",
+      "❤️", "💖", "💘", "💝", "💕", "💞", "💓", "💗", "❣️", "❤️‍🔥",
+      "💙", "💚", "💛", "💜", "🧡", "🤍", "🤎", "🖤", "🌈", "🌸",
+    ],
+  },
+  {
+    id: "work",
+    name: "Work & Office",
+    icon: "💼",
+    emojis: [
+      "💼", "💻", "🖥️", "⌨️", "🖱️", "📱", "💡", "☕", "🍵", "📝",
+      "📊", "📈", "📉", "📄", "📑", "📁", "📂", "📅", "🗓️", "⏰",
+      "⏱️", "⏳", "⌛", "🎯", "🚀", "📌", "📍", "📎", "🖇️", "🔒",
+      "🔓", "🔑", "🛠️", "🔧", "⚙️", "📢", "💬", "💭", "✅", "❌",
+    ],
+  },
+];
+
+const EMOJI_KEYWORD_MAP: Record<string, string> = {
+  "😀": "grinning smile happy",
+  "😃": "smiley happy joy",
+  "😄": "smile laugh happy",
+  "😁": "beam grin teeth",
+  "😆": "laughing squint lol",
+  "😅": "sweat smile phew",
+  "😂": "joy tears laugh lol",
+  "🤣": "rofl laughing floor",
+  "🥲": "smiling tear emotional",
+  "🥹": "holding tears please eyes",
+  "😊": "blush happy warm",
+  "😇": "innocent angel halo",
+  "🙂": "slightly smiling fine",
+  "😉": "wink flirt playful",
+  "😌": "relieved peace calm",
+  "😍": "heart eyes love adore",
+  "🥰": "smiling hearts affection",
+  "😘": "kiss blow love",
+  "😋": "yum delicious tasty",
+  "😛": "tongue playful silly",
+  "😜": "wink tongue crazy",
+  "🤪": "zany goofy crazy",
+  "🤩": "star struck amazed wow",
+  "🥳": "party celebrate birthday",
+  "😏": "smirk sly tricky",
+  "😒": "unamused Meh bored",
+  "😞": "disappointed sad down",
+  "😔": "pensive thoughtful sorrow",
+  "😟": "worried nervous fret",
+  "😕": "confused puzzled what",
+  "🙁": "slightly frowning unhappy",
+  "🥺": "pleading puppy eyes please",
+  "😢": "cry sad tear",
+  "😭": "sob loud crying upset",
+  "😤": "triumph steam proud",
+  "😠": "angry mad upset",
+  "😡": "pouting rage angry furious",
+  "🤯": "mind blown exploding head",
+  "😳": "flushed surprised blush",
+  "🥵": "hot red sweating",
+  "🥶": "cold freezing blue",
+  "😱": "scream shocked afraid",
+  "🤗": "hug hugging warmth",
+  "🤔": "thinking hmm ponder",
+  "🫣": "peeking shy scared",
+  "🤭": "giggle oops hand mouth",
+  "🤫": "shh quiet secret silence",
+  "🫡": "salute respect yes sir",
+  "😶": "silent no mouth speechless",
+  "😐": "neutral poker face okay",
+  "😑": "expressionless flat",
+  "😬": "grimacing awkward cringe",
+  "🫠": "melting hot dissolve",
+  "🙄": "eye roll whatever",
+  "😯": "surprised hushed whoa",
+  "🥱": "yawn tired sleepy",
+  "😴": "sleeping zzz rest",
+  "🤤": "drooling hungry",
+  "😷": "mask sick covid",
+  "🤒": "sick thermometer fever",
+  "🤕": "hurt bandage head injured",
+  "🤠": "cowboy hat yeehaw",
+  "👍": "thumbs up like approve good yes ok",
+  "👎": "thumbs down dislike bad no",
+  "👏": "clap clapping applause bravo well done",
+  "🙌": "raising hands praise hooray celebration",
+  "🫶": "heart hands love care support",
+  "👐": "open hands welcome",
+  "🤲": "palms up hope pray offer",
+  "🤝": "handshake deal agree partner",
+  "🤜": "right fist bump",
+  "🤛": "left fist bump",
+  "✊": "raised fist power solidarity",
+  "👊": "fist punch bump yes",
+  "👋": "wave waving hello hi goodbye",
+  "✍️": "writing pen note typing",
+  "🫰": "hand heart finger love money",
+  "✌️": "peace victory two fingers",
+  "🤞": "fingers crossed luck hope",
+  "🤟": "love you gesture sign",
+  "🤘": "rock on metal horns",
+  "🤙": "call me phone hang loose",
+  "👈": "pointing left that way",
+  "👉": "pointing right this way",
+  "👆": "pointing up look",
+  "👇": "pointing down check below",
+  "☝️": "point index up one",
+  "✋": "high five stop palm",
+  "🖖": "vulcan salute spock",
+  "🙏": "praying please thanks thank you namaste",
+  "💪": "muscle flex strong power gym",
+  "🫂": "hug people support comfort",
+  "👀": "eyes looking watching see check",
+  "👁️": "eye vision look",
+  "❤️": "red heart love favorite like",
+  "🔥": "fire hot lit amazing trending",
+  "✨": "sparkles magic shine clean wow",
+  "💯": "hundred percent perfect 100",
+  "⭐": "star favorite best review",
+  "🎉": "party popper celebration congrats woo",
+  "🎊": "confetti ball celebrate festivity",
+  "🎈": "balloon birthday party event",
+  "🎂": "birthday cake sweet celebration",
+  "🍰": "shortcake slice sweet dessert",
+  "🧁": "cupcake treat dessert",
+  "🥂": "clinking glasses cheers toast celebrate",
+  "🍻": "beer mugs cheers drinks celebration",
+  "🎁": "wrapped gift present surprise box",
+  "🎀": "ribbon bow decoration gift",
+  "🌟": "glowing star bright shining",
+  "💫": "dizzy star spark swirl",
+  "💥": "collision boom blast pow",
+  "🏆": "trophy winner award first prize",
+  "🥇": "gold medal 1st place champion",
+  "🥈": "silver medal 2nd place runner up",
+  "🥉": "bronze medal 3rd place third",
+  "💖": "sparkling heart sparkle love",
+  "💘": "heart with arrow cupid crush",
+  "💝": "heart with ribbon gift love",
+  "💕": "two hearts love pink",
+  "💞": "revolving hearts affectionate",
+  "💓": "beating heart pulse alive",
+  "💗": "growing heart love emotion",
+  "❣️": "heart exclamation point loved",
+  "❤️‍🔥": "heart on fire burning passion",
+  "💙": "blue heart trust team",
+  "💚": "green heart nature eco",
+  "💛": "yellow heart friendship warm",
+  "💜": "purple heart intersmart royal",
+  "🧡": "orange heart care bright",
+  "🤍": "white heart pure peace",
+  "🤎": "brown heart neutral earth",
+  "🖤": "black heart dark sleek",
+  "🌈": "rainbow colors pride vibrant",
+  "🌸": "cherry blossom flower bloom spring",
+  "💼": "briefcase work business portfolio",
+  "💻": "laptop computer coding code developer tech",
+  "🖥️": "desktop computer screen monitor pc",
+  "⌨️": "keyboard typing tech input",
+  "🖱️": "computer mouse click tech",
+  "📱": "mobile phone smartphone iphone call",
+  "💡": "light bulb idea smart solution tip",
+  "☕": "coffee mug cup break tea energy",
+  "🍵": "tea matcha green cup drink",
+  "📝": "memo note writing checklist draft",
+  "📊": "bar chart metrics stats analytics report",
+  "📈": "chart increasing growth sales trending up",
+  "📉": "chart decreasing trending down",
+  "📄": "page document file paper text",
+  "📑": "bookmark tabs document report",
+  "📁": "file folder directory organizing",
+  "📂": "open file folder files archive",
+  "📅": "date calendar schedule meeting day",
+  "🗓️": "spiral calendar schedule appointments",
+  "⏰": "alarm clock time reminder wake",
+  "⏱️": "stopwatch timer tracking sprint",
+  "⏳": "hourglass time running waiting pending",
+  "⌛": "hourglass done completed time",
+  "🎯": "direct hit target bullseye goal accurate",
+  "🚀": "rocket launch fast ship deployed",
+  "📌": "pushpin pinned important notice bookmark",
+  "📍": "round pushpin location map pin spot",
+  "📎": "paperclip attachment file link",
+  "🖇️": "linked paperclips attached files join",
+  "🔒": "locked lock secure security private",
+  "🔓": "unlocked open access public",
+  "🔑": "key password login access secret",
+  "🛠️": "hammer and wrench tools fix maintenance dev",
+  "🔧": "wrench settings tool fix repair",
+  "⚙️": "gear settings options configure mechanism",
+  "📢": "loudspeaker announcement broadcast shoutout",
+  "💬": "speech balloon chat message talk comment",
+  "💭": "thought balloon thinking ideas wonder",
+  "✅": "check mark button done completed verified approved",
+  "❌": "cross mark cancel error rejected no",
+};
+
 export function DirectChatModule({ initialConversationId }: { initialConversationId?: number | null } = {}) {
   const currentUser = useAuthStore((state) => state.user);
   const { permissionStatus, requestNotificationPermission, sendTestNotification } = useChatPushNotifications();
@@ -131,6 +360,81 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // Emoji Picker State
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [emojiSearchQuery, setEmojiSearchQuery] = useState("");
+  const [activeEmojiCategory, setActiveEmojiCategory] = useState("smileys");
+  const [recentEmojis, setRecentEmojis] = useState<string[]>([]);
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem("recent_chat_emojis") || "[]");
+      if (Array.isArray(stored) && stored.length > 0) {
+        setRecentEmojis(stored);
+      }
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (
+        showEmojiPicker &&
+        emojiPickerRef.current &&
+        !emojiPickerRef.current.contains(e.target as Node)
+      ) {
+        setShowEmojiPicker(false);
+      }
+    };
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+    };
+  }, [showEmojiPicker]);
+
+  const handleInsertEmoji = (emoji: string) => {
+    if (textareaRef.current) {
+      const textarea = textareaRef.current;
+      const start = textarea.selectionStart ?? inputMessage.length;
+      const end = textarea.selectionEnd ?? inputMessage.length;
+      const newMessage = inputMessage.substring(0, start) + emoji + inputMessage.substring(end);
+      setInputMessage(newMessage);
+
+      textarea.style.height = "auto";
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 128)}px`;
+
+      try {
+        const updated = [emoji, ...recentEmojis.filter((e) => e !== emoji)].slice(0, 16);
+        setRecentEmojis(updated);
+        localStorage.setItem("recent_chat_emojis", JSON.stringify(updated));
+      } catch {}
+
+      setTimeout(() => {
+        textarea.focus();
+        textarea.setSelectionRange(start + emoji.length, start + emoji.length);
+      }, 0);
+    } else {
+      setInputMessage((prev) => prev + emoji);
+    }
+  };
+
+  const filteredEmojis = useMemo(() => {
+    if (!emojiSearchQuery.trim()) {
+      if (activeEmojiCategory === "recent") {
+        return recentEmojis.length > 0 ? recentEmojis : CHAT_EMOJI_CATEGORIES[0].emojis;
+      }
+      const cat = CHAT_EMOJI_CATEGORIES.find((c) => c.id === activeEmojiCategory);
+      return cat ? cat.emojis : CHAT_EMOJI_CATEGORIES[0].emojis;
+    }
+    const query = emojiSearchQuery.toLowerCase().trim();
+    const all = Array.from(new Set(CHAT_EMOJI_CATEGORIES.flatMap((c) => c.emojis)));
+    return all.filter((e) => {
+      if (e === query) return true;
+      const keywords = EMOJI_KEYWORD_MAP[e] || "";
+      return keywords.toLowerCase().includes(query);
+    });
+  }, [emojiSearchQuery, activeEmojiCategory, recentEmojis]);
+
   // Drag and Drop state
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   const dragCounterRef = useRef(0);
@@ -147,6 +451,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
   const lastHeartbeatTimeRef = useRef<number>(0);
   const lastFocusTimeRef = useRef<number>(0);
   const pollTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const runPollRef = useRef<() => void>(() => {});
 
   useEffect(() => {
     activeConvIdRef.current = activeConversationId;
@@ -339,21 +644,23 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
 
       if (isCancelled) return;
 
-      // Adaptive delay: 5s if recent message activity in last 45s, otherwise 10s idle delay
+      // Adaptive delay: 10s if active chatting in last 45s, otherwise 25s idle delay
       const isRecentlyActive = now - lastActivityTimeRef.current < 45000;
-      const nextDelay = isRecentlyActive ? 5000 : 10000;
+      const nextDelay = isRecentlyActive ? 10000 : 25000;
 
       pollTimerRef.current = setTimeout(runPoll, nextDelay);
     };
 
-    // Kick off background poll loop with 5s delay
-    pollTimerRef.current = setTimeout(runPoll, 5000);
+    runPollRef.current = runPoll;
+
+    // Kick off background poll loop with 10s delay
+    pollTimerRef.current = setTimeout(runPoll, 10000);
 
     const handleVisibilityOrFocus = () => {
       if (typeof document !== "undefined" && document.visibilityState === "visible") {
         const now = Date.now();
-        // Throttle to at most once every 10 seconds to prevent focus spam
-        if (now - lastFocusTimeRef.current >= 10000) {
+        // Throttle to at most once every 20 seconds to prevent focus spam
+        if (now - lastFocusTimeRef.current >= 20000) {
           lastFocusTimeRef.current = now;
           if (activeConvIdRef.current && activeConvIdRef.current > 0) {
             fetchMessages(activeConvIdRef.current, false);
@@ -363,7 +670,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
 
         // Ensure polling timer is active
         if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
-        pollTimerRef.current = setTimeout(runPoll, 5000);
+        pollTimerRef.current = setTimeout(runPoll, 10000);
       }
     };
 
@@ -829,6 +1136,12 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
         const serverMsg = res.data.data;
         knownMessageIdsRef.current.add(serverMsg.id);
         lastActivityTimeRef.current = Date.now();
+
+        // Reset poll timer to 12s so sending a message doesn't trigger immediate duplicate polling
+        if (pollTimerRef.current) {
+          clearTimeout(pollTimerRef.current);
+          pollTimerRef.current = setTimeout(() => runPollRef.current(), 12000);
+        }
 
         currentFiles.forEach((sf) => {
           if (sf.previewUrl) URL.revokeObjectURL(sf.previewUrl);
@@ -1361,7 +1674,105 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
             )}
 
             {/* Fixed Bottom Input Composer (Google Chat Style - Pinned at bottom) */}
-            <div className="p-3 sm:p-4 bg-white dark:bg-slate-900 border-t border-slate-200/80 dark:border-slate-800 shrink-0 z-10">
+            <div className="p-3 sm:p-4 bg-white dark:bg-slate-900 border-t border-slate-200/80 dark:border-slate-800 shrink-0 z-10 relative">
+              {/* Emoji Picker Popover Modal */}
+              {showEmojiPicker && (
+                <div
+                  ref={emojiPickerRef}
+                  className="absolute bottom-full mb-3 left-3 sm:left-4 z-50 w-[300px] sm:w-[350px] bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-150"
+                  style={{ maxHeight: "360px" }}
+                >
+                  {/* Picker Header: Search Input & Close */}
+                  <div className="p-2.5 pb-2 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2">
+                    <div className="flex-1 relative flex items-center">
+                      <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 pointer-events-none" />
+                      <input
+                        type="text"
+                        value={emojiSearchQuery}
+                        onChange={(e) => setEmojiSearchQuery(e.target.value)}
+                        placeholder="Search emoji..."
+                        className="w-full pl-8 pr-7 py-1.5 text-xs rounded-xl bg-slate-100 dark:bg-slate-800 border-none outline-none text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:ring-1 focus:ring-[#56348f]"
+                        autoFocus
+                      />
+                      {emojiSearchQuery && (
+                        <button
+                          type="button"
+                          onClick={() => setEmojiSearchQuery("")}
+                          className="absolute right-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowEmojiPicker(false)}
+                      className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* Category Nav (hidden when searching) */}
+                  {!emojiSearchQuery && (
+                    <div className="flex items-center gap-1 px-2.5 pt-2 pb-1.5 border-b border-slate-100 dark:border-slate-800 overflow-x-auto [scrollbar-width:none]">
+                      {recentEmojis.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setActiveEmojiCategory("recent")}
+                          className={`px-2 py-1 text-xs font-semibold rounded-lg transition-colors cursor-pointer flex items-center gap-1 shrink-0 ${
+                            activeEmojiCategory === "recent"
+                              ? "bg-purple-100 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300"
+                              : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
+                          }`}
+                        >
+                          <span>🕒</span>
+                          <span className="text-[11px]">Recent</span>
+                        </button>
+                      )}
+                      {CHAT_EMOJI_CATEGORIES.map((cat) => (
+                        <button
+                          key={cat.id}
+                          type="button"
+                          onClick={() => setActiveEmojiCategory(cat.id)}
+                          className={`px-2 py-1 text-xs font-semibold rounded-lg transition-colors cursor-pointer flex items-center gap-1 shrink-0 ${
+                            activeEmojiCategory === cat.id
+                              ? "bg-purple-100 dark:bg-purple-950/60 text-[#56348f] dark:text-purple-300"
+                              : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
+                          }`}
+                        >
+                          <span>{cat.icon}</span>
+                          <span className="text-[11px]">{cat.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Emoji Grid */}
+                  <div className="flex-1 overflow-y-auto p-2.5 max-h-[240px] custom-scrollbar">
+                    {filteredEmojis.length > 0 ? (
+                      <div className="grid grid-cols-8 gap-1">
+                        {filteredEmojis.map((emoji, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => handleInsertEmoji(emoji)}
+                            className="w-8 h-8 rounded-lg flex items-center justify-center text-lg hover:bg-purple-100 dark:hover:bg-purple-950/50 hover:scale-120 active:scale-90 transition-all cursor-pointer select-none"
+                            title={EMOJI_KEYWORD_MAP[emoji] || emoji}
+                          >
+                            {emoji}
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="py-8 text-center text-xs text-slate-400">
+                        No emojis found for &quot;{emojiSearchQuery}&quot;
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               <div className="flex items-end gap-2 bg-slate-100/90 dark:bg-slate-800/90 rounded-2xl p-2 px-3 border border-slate-200 dark:border-slate-700 focus-within:bg-white dark:focus-within:bg-slate-800 focus-within:border-purple-300 dark:focus-within:border-purple-600 focus-within:ring-2 focus-within:ring-purple-500/20 transition-all">
                 {/* Attachment Picker */}
                 <button
@@ -1380,6 +1791,20 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
                   className="hidden"
                   accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.zip,.txt"
                 />
+
+                {/* Emoji Picker Button */}
+                <button
+                  type="button"
+                  onClick={() => setShowEmojiPicker((prev) => !prev)}
+                  className={`p-1.5 rounded-full transition cursor-pointer mb-0.5 shrink-0 ${
+                    showEmojiPicker
+                      ? "text-[#56348f] dark:text-purple-400 bg-purple-100 dark:bg-purple-950/60"
+                      : "text-slate-500 hover:text-[#56348f] dark:hover:text-purple-400 hover:bg-slate-200/70 dark:hover:bg-slate-700"
+                  }`}
+                  title="Insert emoji"
+                >
+                  <Smile className="w-5 h-5" />
+                </button>
 
                 {/* Message Input Textarea */}
                 <textarea
