@@ -43,7 +43,7 @@ class DirectChatController extends Controller
                 ->pluck('tokenable_id')
                 ->toArray();
 
-            return array_map('intval', array_unique($tokenUserIds));
+            return array_values(array_map('intval', array_unique($tokenUserIds)));
         } catch (\Exception $e) {
             return [];
         }

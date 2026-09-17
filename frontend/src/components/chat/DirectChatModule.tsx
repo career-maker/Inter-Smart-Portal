@@ -295,15 +295,22 @@ export function DirectChatModule() {
       // 3. Presence heartbeat periodically (every 60s instead of every 30s)
       if (now - lastHeartbeatTimeRef.current >= 60000) {
         lastHeartbeatTimeRef.current = now;
-        api.post<{ online_user_ids: number[] }>("/direct-chat/heartbeat")
+        api.post<{ online_user_ids: number[] | Record<string, number> }>("/direct-chat/heartbeat")
           .then((res) => {
             if (isCancelled) return;
-            const onlineIds = res.data?.online_user_ids || [];
+            const rawOnline = res.data?.online_user_ids;
+            const onlineList: number[] = Array.isArray(rawOnline)
+              ? rawOnline
+              : rawOnline && typeof rawOnline === "object"
+              ? Object.values(rawOnline).map((v) => Number(v)).filter((v) => !isNaN(v))
+              : [];
+            const onlineSet = new Set(onlineList);
+
             setConversations((prev) => {
               let hasChanged = false;
               const updated = prev.map((c) => {
                 if (!c.other_user) return c;
-                const isOnline = onlineIds.includes(c.other_user.id);
+                const isOnline = onlineSet.has(c.other_user.id);
                 if (c.other_user.is_online !== isOnline) {
                   hasChanged = true;
                   return {
@@ -872,9 +879,10 @@ export function DirectChatModule() {
   };
 
   const filteredConversations = conversations.filter((c) => {
-    if (!searchQuery.trim()) return true;
-    const name = c.other_user?.name || c.title || "";
-    return name.toLowerCase().includes(searchQuery.toLowerCase());
+    const q = (searchQuery || "").trim().toLowerCase();
+    if (!q) return true;
+    const name = String(c.other_user?.name || c.title || "").toLowerCase();
+    return name.includes(q);
   });
 
   return (

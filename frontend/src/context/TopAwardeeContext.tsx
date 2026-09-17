@@ -188,9 +188,9 @@ export function TopAwardeeProvider({ children }: { children: React.ReactNode }) 
       if (strVal === String(topAwardeeId)) return true;
       if (Number(strVal) === Number(topAwardeeId)) return true;
       if (topAwardeeCode && strVal === topAwardeeCode.toLowerCase()) return true;
-      if (topAwardeeName) {
+      if (topAwardeeName && typeof topAwardeeName === "string") {
         const cleanTopName = topAwardeeName.trim().toLowerCase();
-        if (strVal === cleanTopName || cleanTopName.includes(strVal) || strVal.includes(cleanTopName)) {
+        if (cleanTopName && (strVal === cleanTopName || cleanTopName.includes(strVal) || strVal.includes(cleanTopName))) {
           return true;
         }
       }
@@ -200,13 +200,15 @@ export function TopAwardeeProvider({ children }: { children: React.ReactNode }) 
     if (typeof userOrId === "object") {
       if (userOrId.id && Number(userOrId.id) === Number(topAwardeeId)) return true;
       if (userOrId.user_id && Number(userOrId.user_id) === Number(topAwardeeId)) return true;
-      if (topAwardeeCode && userOrId.employee_code && userOrId.employee_code.toLowerCase() === topAwardeeCode.toLowerCase()) {
+      if (topAwardeeCode && userOrId.employee_code && String(userOrId.employee_code).toLowerCase() === String(topAwardeeCode).toLowerCase()) {
         return true;
       }
-      if (topAwardeeName) {
+      if (topAwardeeName && typeof topAwardeeName === "string") {
         const cleanTopName = topAwardeeName.trim().toLowerCase();
-        if (userOrId.name && cleanTopName.includes(userOrId.name.trim().toLowerCase())) return true;
-        if (userOrId.first_name && cleanTopName.includes(userOrId.first_name.trim().toLowerCase())) return true;
+        if (cleanTopName) {
+          if (userOrId.name && typeof userOrId.name === "string" && cleanTopName.includes(userOrId.name.trim().toLowerCase())) return true;
+          if (userOrId.first_name && typeof userOrId.first_name === "string" && cleanTopName.includes(userOrId.first_name.trim().toLowerCase())) return true;
+        }
       }
     }
 
