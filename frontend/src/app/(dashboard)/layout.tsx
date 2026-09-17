@@ -138,7 +138,8 @@ const NAV_GROUPS: NavGroup[] = [
     shortLabel: "Services",
     icon: Building2,
     items: [
-      { href: "/community",     label: "Community & Chat" },
+      { href: "/community",     label: "Community Feed" },
+      { href: "/chat",          label: "Direct Chat" },
       { href: "/announcements", label: "Updates & Announcements" },
       { href: "/documents",     label: "Request Documents" },
       { href: "/policies",      label: "HR Policies" },
@@ -1039,7 +1040,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
                 {/* Quick Chat Header Action */}
                 <Link
-                  href={latestConversationId ? `/community?tab=chat&conversationId=${latestConversationId}` : "/community?tab=chat"}
+                  href={latestConversationId ? `/chat?conversationId=${latestConversationId}` : "/chat"}
                   style={{ color: "var(--portal-header-text, #ffffff)" }}
                   className="header-action-btn w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full hover:bg-white/15 active:bg-white/25 transition-colors cursor-pointer shrink-0 relative"
                   title={unreadChatCount > 0 ? `${unreadChatCount} new message(s) - Open Direct Chat` : "Direct Chat"}

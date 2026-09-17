@@ -490,7 +490,7 @@ export default function DashboardPage() {
                     {profile.team_lead.name}
                   </span>
                   <Link
-                    href={`/community?tab=chat&userId=${profile.team_lead.id}`}
+                    href={`/chat?userId=${profile.team_lead.id}`}
                     className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#56348f] hover:bg-[#6e43b6] text-white text-[10px] font-bold shadow-2xs transition-all cursor-pointer border border-purple-400/50 hover:scale-105 ml-1 shrink-0"
                     title={`Direct Message ${profile.team_lead.name}`}
                   >

@@ -118,7 +118,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
           title: "Direct Chat",
           subtitle: "Message colleagues, paste screenshots, and share files.",
           icon: MessageSquare,
-          href: "/community?tab=chat",
+          href: "/chat",
           keywords: "chat direct message talk discussion conversation colleagues",
         },
         {
@@ -220,7 +220,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
           title: "Direct Chat",
           subtitle: "Message colleagues, paste screenshots, and share files.",
           icon: MessageSquare,
-          href: "/community?tab=chat",
+          href: "/chat",
           keywords: "chat direct message talk discussion conversation team",
         },
         {
@@ -297,7 +297,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
         title: "Direct Chat",
         subtitle: "Message colleagues, paste screenshots, and share files.",
         icon: MessageSquare,
-        href: "/community?tab=chat",
+        href: "/chat",
         keywords: "chat direct message talk discussion messages conversation",
       },
       {

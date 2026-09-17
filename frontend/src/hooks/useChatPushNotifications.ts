@@ -174,7 +174,7 @@ export function useChatPushNotifications() {
         triggerMobileNotification(
           "Inter Smart Portal",
           "🎉 Notifications enabled! You will now receive alerts for new chats on your phone.",
-          "/community?tab=chat"
+          "/chat"
         );
       }
       return result;
@@ -205,7 +205,7 @@ export function useChatPushNotifications() {
     await triggerMobileNotification(
       "Inter Smart Portal",
       "🔔 Test notification! Chat alerts will appear right here in your phone notification shade.",
-      "/community?tab=chat"
+      "/chat"
     );
   }, [triggerMobileNotification]);
 
@@ -237,11 +237,11 @@ export function useChatPushNotifications() {
     const checkUnread = async () => {
       if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
 
-      // Skip background polling if user is actively looking at the chat tab
+      // Skip background polling if user is actively looking at the chat page
       const isLookingAtChat =
         typeof window !== "undefined" &&
-        window.location.pathname.includes("/community") &&
-        window.location.search.includes("tab=chat") &&
+        (window.location.pathname.startsWith("/chat") ||
+          (window.location.pathname.includes("/community") && window.location.search.includes("tab=chat"))) &&
         document.visibilityState === "visible";
 
       if (isLookingAtChat) {
@@ -269,15 +269,15 @@ export function useChatPushNotifications() {
 
                 const isLookingAtChat =
                   typeof window !== "undefined" &&
-                  window.location.pathname.includes("/community") &&
-                  window.location.search.includes("tab=chat") &&
+                  (window.location.pathname.startsWith("/chat") ||
+                    (window.location.pathname.includes("/community") && window.location.search.includes("tab=chat"))) &&
                   document.visibilityState === "visible";
 
                 if (!isLookingAtChat) {
                   triggerMobileNotification(
                     `${latestMsg.sender_name} on InterSmart`,
                     latestMsg.message || "Sent you a message",
-                    `/community?tab=chat&conversationId=${latestMsg.conversation_id}`,
+                    `/chat?conversationId=${latestMsg.conversation_id}`,
                     `chat_${latestMsg.conversation_id}_${latestMsg.id}`
                   );
                 }

@@ -10,7 +10,7 @@ self.addEventListener('activate', (event) => {
 // Handle notification click on phone / desktop
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const targetUrl = event.notification.data?.url || '/community?tab=chat';
+  const targetUrl = event.notification.data?.url || '/chat';
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
@@ -41,7 +41,7 @@ self.addEventListener('push', (event) => {
         badge: '/logo.png',
         vibrate: [200, 100, 200],
         data: {
-          url: data.url || '/community?tab=chat',
+          url: data.url || '/chat',
         },
       };
       event.waitUntil(self.registration.showNotification(title, options));

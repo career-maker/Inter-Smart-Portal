@@ -8,7 +8,6 @@ import {
   Palmtree,
   Sparkles,
   Link as LinkIcon,
-  ShieldAlert,
 } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
@@ -19,47 +18,34 @@ import { BirthdayWishDrawer, WishTargetPerson } from "@/components/community/Bir
 import { CommunityHolidayCard } from "@/components/community/CommunityHolidayCard";
 import { MilestoneCelebrationsWidget } from "@/components/community/MilestoneCelebrationsWidget";
 import { CommunityFeed } from "@/components/community/CommunityFeed";
-import { DirectChatModule } from "@/components/chat/DirectChatModule";
-import { AdminChatAuditView } from "@/components/chat/AdminChatAuditView";
 
 function CommunityPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const tabParam = searchParams.get("tab");
   const currentUser = useAuthStore((state) => state.user);
   const isSuperAdmin =
     currentUser?.role === "Super Admin" ||
     (currentUser as any)?.roles?.some((r: any) => (r.name || r) === "Super Admin") ||
     (currentUser as any)?.is_super_admin === true;
 
-  const tabParam = searchParams.get("tab");
-  const activeTab: "feed" | "chat" | "admin-chats" =
-    tabParam === "chat"
-      ? "chat"
-      : tabParam === "admin-chats" || tabParam === "audit"
-      ? "admin-chats"
-      : "feed";
-
-  const convParam = searchParams.get("conversationId");
-  const initialConversationId = convParam ? parseInt(convParam, 10) : null;
-
   const [summary, setSummary] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [wishTarget, setWishTarget] = useState<WishTargetPerson | null>(null);
 
+  // Backward compatibility: redirect any legacy /community?tab=chat links to /chat
   useEffect(() => {
+    if (tabParam === "chat") {
+      const convParam = searchParams.get("conversationId");
+      router.replace(convParam ? `/chat?conversationId=${convParam}` : "/chat");
+      return;
+    }
+    if (tabParam === "admin-chats" || tabParam === "audit") {
+      router.replace("/chat?view=audit");
+      return;
+    }
     fetchSummary();
-  }, []);
-
-  const handleTabChange = (tab: "feed" | "chat" | "admin-chats") => {
-    if (typeof window !== "undefined") {
-      window.scrollTo({ top: 0, behavior: "instant" });
-    }
-    if (tab === "feed") {
-      router.push("/community");
-    } else {
-      router.push(`/community?tab=${tab}`);
-    }
-  };
+  }, [tabParam, searchParams, router]);
 
   const fetchSummary = async () => {
     try {
@@ -95,7 +81,11 @@ function CommunityPageContent() {
     }
   };
 
-  if (activeTab === "feed" && loading && !summary) {
+  if (tabParam === "chat" || tabParam === "admin-chats" || tabParam === "audit") {
+    return <PageLoader />;
+  }
+
+  if (loading && !summary) {
     return <PageLoader />;
   }
 
@@ -119,50 +109,10 @@ function CommunityPageContent() {
       style={{
         fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
-      className={activeTab === "chat" ? "pb-0 space-y-2" : "pb-12 space-y-6"}
+      className="pb-12 space-y-6"
     >
-      {/* ── TOP SUB-TABS (FEED, ADMIN AUDIT) ── */}
-      {(isSuperAdmin || activeTab !== "feed") && (
-        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 gap-3 flex-wrap">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => handleTabChange("feed")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                activeTab === "feed"
-                  ? "bg-[#56348f] text-white shadow-xs"
-                  : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
-              }`}
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>{activeTab === "chat" ? "← Back to Feed & Celebrations" : "Feed & Celebrations"}</span>
-            </button>
-
-            {isSuperAdmin && (
-              <button
-                onClick={() => handleTabChange("admin-chats")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  activeTab === "admin-chats"
-                    ? "bg-amber-600 text-white shadow-xs"
-                    : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
-                }`}
-              >
-                <ShieldAlert className="w-3.5 h-3.5" />
-                <span>View All Chats (Admin)</span>
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ── TAB 1: DIRECT CHAT MODULE ── */}
-      {activeTab === "chat" && <DirectChatModule initialConversationId={initialConversationId} />}
-
-      {/* ── TAB 2: SUPER ADMIN CHAT AUDIT ── */}
-      {activeTab === "admin-chats" && isSuperAdmin && <AdminChatAuditView />}
-
-      {/* ── TAB 3: COMMUNITY FEED & CELEBRATIONS ── */}
-      {activeTab === "feed" && (
-        <div className="space-y-6">
+      {/* ── COMMUNITY FEED & CELEBRATIONS ── */}
+      <div className="space-y-6">
           {/* ── TOP CELEBRATION HIGHLIGHTS: UPCOMING HOLIDAY + MILESTONE CELEBRATIONS ── */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
             <div className="lg:col-span-5 flex">
@@ -343,7 +293,6 @@ function CommunityPageContent() {
 
           </div>
         </div>
-      )}
 
       {/* ── BIRTHDAY & ANNIVERSARY WISH SLIDE-OVER DRAWER ── */}
       <BirthdayWishDrawer
