@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Bell } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -135,13 +135,20 @@ export function NotificationDropdown() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
 
+  const isFetchingRef = useRef(false);
+
   const fetchUnread = async () => {
+    if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
+    if (isFetchingRef.current) return;
     try {
+      isFetchingRef.current = true;
       const res = await api.get("/notifications/unread?limit=5");
       setNotifications(res.data.data.notifications);
       setUnreadCount(res.data.data.count);
     } catch (err) {
       console.error("Failed to fetch notifications", err);
+    } finally {
+      isFetchingRef.current = false;
     }
   };
 
@@ -174,7 +181,7 @@ export function NotificationDropdown() {
     
     // Only poll if the dropdown is closed
     if (!isOpen) {
-      interval = setInterval(fetchUnread, 15000);
+      interval = setInterval(fetchUnread, 30000);
     }
     
     window.addEventListener('notifications-refresh', fetchUnread);

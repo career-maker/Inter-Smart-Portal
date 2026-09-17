@@ -368,11 +368,25 @@ class DirectChatController extends Controller
             return response()->json(['message' => 'Unauthorized to view this conversation.'], 403);
         }
 
-        // Mark as read for this participant
+        // Mark as read for this participant only if unread messages exist
         if ($isParticipant) {
-            ConversationParticipant::where('conversation_id', $conversation->id)
+            $participant = ConversationParticipant::where('conversation_id', $conversation->id)
                 ->where('user_id', $user->id)
-                ->update(['last_read_at' => Carbon::now()]);
+                ->first();
+
+            if ($participant) {
+                $hasUnread = ChatMessage::where('conversation_id', $conversation->id)
+                    ->where('sender_id', '!=', $user->id)
+                    ->where('is_deleted', false)
+                    ->when($participant->last_read_at, function ($q, $lastRead) {
+                        $q->where('created_at', '>', $lastRead);
+                    })
+                    ->exists();
+
+                if ($hasUnread) {
+                    $participant->update(['last_read_at' => Carbon::now()]);
+                }
+            }
         }
 
         $messages = ChatMessage::where('conversation_id', $conversation->id)

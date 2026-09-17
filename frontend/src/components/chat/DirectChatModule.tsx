@@ -136,6 +136,17 @@ export function DirectChatModule() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isFetchingMessagesRef = useRef(false);
+  const isFetchingConversationsRef = useRef(false);
+  const activeConvIdRef = useRef<number | null>(activeConversationId);
+  const lastActivityTimeRef = useRef<number>(Date.now());
+  const lastConversationsFetchTimeRef = useRef<number>(0);
+  const lastHeartbeatTimeRef = useRef<number>(0);
+  const lastFocusTimeRef = useRef<number>(0);
+  const pollTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    activeConvIdRef.current = activeConversationId;
+  }, [activeConversationId]);
 
   const scrollToBottom = useCallback((smooth = false) => {
     if (chatStreamRef.current) {
@@ -255,27 +266,38 @@ export function DirectChatModule() {
     }
   }, []);
 
-  // Optimized background polling & Window Focus Listener for instant sync
+  // Adaptive background polling & Window Focus / Tab Visibility listener
   useEffect(() => {
-    let tick = 0;
-    const pollInterval = setInterval(() => {
-      if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
-      tick++;
+    let isCancelled = false;
 
-      // Poll messages every 3s
-      if (activeConversationId) {
-        fetchMessages(activeConversationId, false);
+    const runPoll = async () => {
+      if (isCancelled) return;
+
+      // Skip polling if document is hidden / tab not active
+      if (typeof document !== "undefined" && document.visibilityState !== "visible") {
+        return; // Will resume automatically when visibility changes back to visible
       }
 
-      // Poll conversation list every ~9s (every 3 ticks)
-      if (tick % 3 === 0) {
-        fetchConversations(false);
+      const currentConvId = activeConvIdRef.current;
+      const now = Date.now();
+
+      // 1. Poll active conversation messages if a real conversation is selected
+      if (currentConvId && currentConvId > 0) {
+        await fetchMessages(currentConvId, false);
       }
 
-      // Ping presence heartbeat every ~30s (every 10 ticks)
-      if (tick % 10 === 0) {
+      // 2. Poll conversation list periodically (every 30s instead of every 9s)
+      if (now - lastConversationsFetchTimeRef.current >= 30000) {
+        lastConversationsFetchTimeRef.current = now;
+        await fetchConversations(false);
+      }
+
+      // 3. Presence heartbeat periodically (every 60s instead of every 30s)
+      if (now - lastHeartbeatTimeRef.current >= 60000) {
+        lastHeartbeatTimeRef.current = now;
         api.post<{ online_user_ids: number[] }>("/direct-chat/heartbeat")
           .then((res) => {
+            if (isCancelled) return;
             const onlineIds = res.data?.online_user_ids || [];
             setConversations((prev) => {
               let hasChanged = false;
@@ -299,33 +321,66 @@ export function DirectChatModule() {
           })
           .catch(() => {});
       }
-    }, 3000);
 
-    const handleWindowFocus = () => {
-      fetchConversations(false);
-      if (activeConversationId) {
-        fetchMessages(activeConversationId, false);
+      if (isCancelled) return;
+
+      // Adaptive delay: 5s if recent message activity in last 45s, otherwise 10s idle delay
+      const isRecentlyActive = now - lastActivityTimeRef.current < 45000;
+      const nextDelay = isRecentlyActive ? 5000 : 10000;
+
+      pollTimerRef.current = setTimeout(runPoll, nextDelay);
+    };
+
+    // Kick off background poll loop with 5s delay
+    pollTimerRef.current = setTimeout(runPoll, 5000);
+
+    const handleVisibilityOrFocus = () => {
+      if (typeof document !== "undefined" && document.visibilityState === "visible") {
+        const now = Date.now();
+        // Throttle to at most once every 10 seconds to prevent focus spam
+        if (now - lastFocusTimeRef.current >= 10000) {
+          lastFocusTimeRef.current = now;
+          if (activeConvIdRef.current && activeConvIdRef.current > 0) {
+            fetchMessages(activeConvIdRef.current, false);
+          }
+          fetchConversations(false);
+        }
+
+        // Ensure polling timer is active
+        if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
+        pollTimerRef.current = setTimeout(runPoll, 5000);
       }
     };
 
-    window.addEventListener("focus", handleWindowFocus);
+    window.addEventListener("focus", handleVisibilityOrFocus);
+    document.addEventListener("visibilitychange", handleVisibilityOrFocus);
 
     return () => {
-      clearInterval(pollInterval);
-      window.removeEventListener("focus", handleWindowFocus);
+      isCancelled = true;
+      if (pollTimerRef.current) {
+        clearTimeout(pollTimerRef.current);
+        pollTimerRef.current = null;
+      }
+      window.removeEventListener("focus", handleVisibilityOrFocus);
+      document.removeEventListener("visibilitychange", handleVisibilityOrFocus);
     };
-  }, [activeConversationId]);
+  }, []);
 
   // Instant conversation switching using fast in-memory cache
   useEffect(() => {
     if (activeConversationId) {
-      if (messagesCacheRef.current[activeConversationId]) {
-        // Instant display from cache (0ms delay!)
-        setMessages(messagesCacheRef.current[activeConversationId]);
-        fetchMessages(activeConversationId, false);
+      if (activeConversationId > 0) {
+        if (messagesCacheRef.current[activeConversationId]) {
+          // Instant display from cache (0ms delay!)
+          setMessages(messagesCacheRef.current[activeConversationId]);
+          fetchMessages(activeConversationId, false);
+        } else {
+          setMessages([]);
+          fetchMessages(activeConversationId, true);
+        }
       } else {
+        // Optimistic newly created temporary conversation
         setMessages([]);
-        fetchMessages(activeConversationId, true);
       }
       setTimeout(() => {
         if (typeof window !== "undefined" && window.innerWidth >= 768) {
@@ -379,7 +434,9 @@ export function DirectChatModule() {
 
   // Fetch conversations
   const fetchConversations = async (showLoader = false) => {
+    if (isFetchingConversationsRef.current) return;
     try {
+      isFetchingConversationsRef.current = true;
       if (showLoader) setLoadingConversations(true);
       const res = await api.get(`/direct-chat/conversations?t=${Date.now()}`);
       if (res.data?.status === "success") {
@@ -416,12 +473,14 @@ export function DirectChatModule() {
     } catch (err) {
       console.error("Failed to fetch conversations", err);
     } finally {
+      isFetchingConversationsRef.current = false;
       if (showLoader) setLoadingConversations(false);
     }
   };
 
   // Fetch messages with optimistic merge, audio chime & browser push
   const fetchMessages = async (convId: number, showLoader = false) => {
+    if (!convId || convId <= 0) return;
     if (isFetchingMessagesRef.current) return;
     try {
       isFetchingMessagesRef.current = true;
@@ -450,9 +509,12 @@ export function DirectChatModule() {
           }
         });
 
-        if (hasNewIncoming && initialLoadDoneRef.current) {
-          playMessageSound();
-          showBrowserNotification(latestIncomingSender, latestIncomingText);
+        if (hasNewIncoming) {
+          lastActivityTimeRef.current = Date.now();
+          if (initialLoadDoneRef.current) {
+            playMessageSound();
+            showBrowserNotification(latestIncomingSender, latestIncomingText);
+          }
         }
 
         setMessages((current) => {
@@ -751,6 +813,7 @@ export function DirectChatModule() {
       if (res.data?.status === "success") {
         const serverMsg = res.data.data;
         knownMessageIdsRef.current.add(serverMsg.id);
+        lastActivityTimeRef.current = Date.now();
 
         currentFiles.forEach((sf) => {
           if (sf.previewUrl) URL.revokeObjectURL(sf.previewUrl);
@@ -762,7 +825,17 @@ export function DirectChatModule() {
           return next;
         });
 
-        fetchConversations(false);
+        setConversations((prev) =>
+          prev.map((c) =>
+            c.id === targetConvId
+              ? {
+                  ...c,
+                  latest_message: serverMsg,
+                  last_message_at: serverMsg.created_at || new Date().toISOString(),
+                }
+              : c
+          )
+        );
       }
     } catch (err: any) {
       console.error("Failed to send message", err);
@@ -785,6 +858,7 @@ export function DirectChatModule() {
 
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputMessage(e.target.value);
+    lastActivityTimeRef.current = Date.now();
     e.target.style.height = "auto";
     e.target.style.height = `${Math.min(e.target.scrollHeight, 100)}px`;
   };

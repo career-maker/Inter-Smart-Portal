@@ -237,6 +237,17 @@ export function useChatPushNotifications() {
     const checkUnread = async () => {
       if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
 
+      // Skip background polling if user is actively looking at the chat tab
+      const isLookingAtChat =
+        typeof window !== "undefined" &&
+        window.location.pathname.includes("/community") &&
+        window.location.search.includes("tab=chat") &&
+        document.visibilityState === "visible";
+
+      if (isLookingAtChat) {
+        return;
+      }
+
       try {
         try {
           const res = await api.get<UnreadResponse>(`/direct-chat/unread-count?t=${Date.now()}`);
@@ -331,7 +342,7 @@ export function useChatPushNotifications() {
 
     if (!globalInterval) {
       checkUnread();
-      globalInterval = setInterval(checkUnread, 8000); // Efficient 8s polling interval
+      globalInterval = setInterval(checkUnread, 20000); // Efficient 20s polling interval
     }
 
     return () => {
