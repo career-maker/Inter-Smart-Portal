@@ -7,7 +7,6 @@ import {
   Palmtree,
   Sparkles,
   Link as LinkIcon,
-  MessageSquare,
   ShieldAlert,
 } from "lucide-react";
 import api from "@/services/api";
@@ -121,48 +120,38 @@ export default function CommunityPage() {
       }}
       className={activeTab === "chat" ? "pb-0 space-y-2" : "pb-12 space-y-6"}
     >
-      {/* ── TOP SUB-TABS (FEED, DIRECT CHAT, ADMIN AUDIT) ── */}
-      <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 gap-3 flex-wrap">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => handleTabChange("feed")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-              activeTab === "feed"
-                ? "bg-[#56348f] text-white shadow-xs"
-                : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
-            }`}
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Feed & Celebrations</span>
-          </button>
-
-          <button
-            onClick={() => handleTabChange("chat")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-              activeTab === "chat"
-                ? "bg-purple-600 text-white shadow-xs"
-                : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
-            }`}
-          >
-            <MessageSquare className="w-3.5 h-3.5" />
-            <span>Direct Chat</span>
-          </button>
-
-          {isSuperAdmin && (
+      {/* ── TOP SUB-TABS (FEED, ADMIN AUDIT) ── */}
+      {(isSuperAdmin || activeTab !== "feed") && (
+        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 gap-3 flex-wrap">
+          <div className="flex items-center gap-2">
             <button
-              onClick={() => handleTabChange("admin-chats")}
+              onClick={() => handleTabChange("feed")}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                activeTab === "admin-chats"
-                  ? "bg-amber-600 text-white shadow-xs"
+                activeTab === "feed"
+                  ? "bg-[#56348f] text-white shadow-xs"
                   : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
               }`}
             >
-              <ShieldAlert className="w-3.5 h-3.5" />
-              <span>View All Chats (Admin)</span>
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Feed & Celebrations</span>
             </button>
-          )}
+
+            {isSuperAdmin && (
+              <button
+                onClick={() => handleTabChange("admin-chats")}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  activeTab === "admin-chats"
+                    ? "bg-amber-600 text-white shadow-xs"
+                    : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
+                }`}
+              >
+                <ShieldAlert className="w-3.5 h-3.5" />
+                <span>View All Chats (Admin)</span>
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ── TAB 1: DIRECT CHAT MODULE ── */}
       {activeTab === "chat" && <DirectChatModule />}
