@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   CalendarDays,
   Palmtree,
@@ -21,42 +22,42 @@ import { CommunityFeed } from "@/components/community/CommunityFeed";
 import { DirectChatModule } from "@/components/chat/DirectChatModule";
 import { AdminChatAuditView } from "@/components/chat/AdminChatAuditView";
 
-export default function CommunityPage() {
+function CommunityPageContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const currentUser = useAuthStore((state) => state.user);
   const isSuperAdmin =
     currentUser?.role === "Super Admin" ||
     (currentUser as any)?.roles?.some((r: any) => (r.name || r) === "Super Admin") ||
     (currentUser as any)?.is_super_admin === true;
-  const [activeTab, setActiveTab] = useState<"feed" | "chat" | "admin-chats">("feed");
+
+  const tabParam = searchParams.get("tab");
+  const activeTab: "feed" | "chat" | "admin-chats" =
+    tabParam === "chat"
+      ? "chat"
+      : tabParam === "admin-chats" || tabParam === "audit"
+      ? "admin-chats"
+      : "feed";
+
+  const convParam = searchParams.get("conversationId");
+  const initialConversationId = convParam ? parseInt(convParam, 10) : null;
+
   const [summary, setSummary] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [wishTarget, setWishTarget] = useState<WishTargetPerson | null>(null);
 
   useEffect(() => {
-    // Read query parameter if present
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const tabParam = params.get("tab");
-      if (tabParam === "chat") {
-        setActiveTab("chat");
-      } else if (tabParam === "admin-chats" || tabParam === "audit") {
-        setActiveTab("admin-chats");
-      }
-    }
     fetchSummary();
   }, []);
 
   const handleTabChange = (tab: "feed" | "chat" | "admin-chats") => {
-    setActiveTab(tab);
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "instant" });
-      const url = new URL(window.location.href);
-      if (tab === "feed") {
-        url.searchParams.delete("tab");
-      } else {
-        url.searchParams.set("tab", tab);
-      }
-      window.history.replaceState(null, "", url.toString());
+    }
+    if (tab === "feed") {
+      router.push("/community");
+    } else {
+      router.push(`/community?tab=${tab}`);
     }
   };
 
@@ -94,7 +95,7 @@ export default function CommunityPage() {
     }
   };
 
-  if (loading && !summary) {
+  if (activeTab === "feed" && loading && !summary) {
     return <PageLoader />;
   }
 
@@ -133,7 +134,7 @@ export default function CommunityPage() {
               }`}
             >
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Feed & Celebrations</span>
+              <span>{activeTab === "chat" ? "← Back to Feed & Celebrations" : "Feed & Celebrations"}</span>
             </button>
 
             {isSuperAdmin && (
@@ -154,7 +155,7 @@ export default function CommunityPage() {
       )}
 
       {/* ── TAB 1: DIRECT CHAT MODULE ── */}
-      {activeTab === "chat" && <DirectChatModule />}
+      {activeTab === "chat" && <DirectChatModule initialConversationId={initialConversationId} />}
 
       {/* ── TAB 2: SUPER ADMIN CHAT AUDIT ── */}
       {activeTab === "admin-chats" && isSuperAdmin && <AdminChatAuditView />}
@@ -351,5 +352,13 @@ export default function CommunityPage() {
         onWishSent={() => fetchSummary()}
       />
     </div>
+  );
+}
+
+export default function CommunityPage() {
+  return (
+    <Suspense fallback={<PageLoader />}>
+      <CommunityPageContent />
+    </Suspense>
   );
 }

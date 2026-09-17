@@ -89,11 +89,15 @@ interface Conversation {
   is_optimistic?: boolean;
 }
 
-export function DirectChatModule() {
+export function DirectChatModule({ initialConversationId }: { initialConversationId?: number | null } = {}) {
   const currentUser = useAuthStore((state) => state.user);
   const { permissionStatus, requestNotificationPermission, sendTestNotification } = useChatPushNotifications();
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [activeConversationId, setActiveConversationId] = useState<number | null>(null);
+  const [activeConversationId, setActiveConversationId] = useState<number | null>(
+    initialConversationId && !isNaN(initialConversationId) && initialConversationId > 0
+      ? initialConversationId
+      : null
+  );
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loadingConversations, setLoadingConversations] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
@@ -252,19 +256,23 @@ export function DirectChatModule() {
   useEffect(() => {
     fetchConversations(true);
     fetchAllColleagues();
+  }, []);
 
-    // Read conversationId from URL if navigated from header or notification
-    if (typeof window !== "undefined") {
+  // Sync active conversation whenever initialConversationId prop or URL param changes
+  useEffect(() => {
+    if (initialConversationId && !isNaN(initialConversationId) && initialConversationId > 0) {
+      setActiveConversationId(initialConversationId);
+    } else if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       const convParam = params.get("conversationId");
       if (convParam) {
         const id = parseInt(convParam, 10);
-        if (!isNaN(id)) {
+        if (!isNaN(id) && id > 0) {
           setActiveConversationId(id);
         }
       }
     }
-  }, []);
+  }, [initialConversationId]);
 
   // Adaptive background polling & Window Focus / Tab Visibility listener
   useEffect(() => {
