@@ -16,6 +16,8 @@ import {
 } from "date-fns";
 import { ArrowRight, Calendar as CalendarIcon, ChevronLeft, ChevronRight, X } from "lucide-react";
 
+type Target = "start" | "end";
+
 interface WfhDateRangeFieldProps {
   /** "range" for Full Day WFH, "single" for half-day types */
   mode: "range" | "single";
@@ -31,11 +33,41 @@ const WEEKDAYS = ["S", "M", "T", "W", "T", "F", "S"];
 const toKey = (d: Date) => format(d, "yyyy-MM-dd");
 const display = (key: string) => (key ? format(parseISO(key), "dd-MM-yyyy") : "");
 
+function Segment({
+  caption,
+  value,
+  active,
+  onClick,
+}: {
+  caption: string;
+  value: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-haspopup="dialog"
+      aria-expanded={active}
+      className={`portal-focus flex min-w-0 flex-col items-start rounded-lg px-2 py-1.5 text-left transition-colors cursor-pointer sm:px-3 ${
+        active ? "portal-accent-tint" : "hover:bg-black/5"
+      }`}
+    >
+      <span className="text-[10.5px] font-bold uppercase tracking-wider text-slate-400">{caption}</span>
+      <span className="text-sm font-semibold text-slate-800 sm:text-[15px] dark:text-slate-100">{value}</span>
+    </button>
+  );
+}
+
 export function WfhDateRangeField({ mode, start, end, onChange, invalid = false }: WfhDateRangeFieldProps) {
+  const isRange = mode === "range";
+  const effectiveEnd = end || start;
+
   const [open, setOpen] = useState(false);
+  // Which date the calendar is currently setting
+  const [target, setTarget] = useState<Target>("start");
   const [month, setMonth] = useState<Date>(() => (start ? parseISO(start) : new Date()));
-  // Range mode: first date picked, waiting for the end date
-  const [awaitingEnd, setAwaitingEnd] = useState(false);
   const [hover, setHover] = useState<string | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -60,77 +92,81 @@ export function WfhDateRangeField({ mode, start, end, onChange, invalid = false 
     [month]
   );
 
-  const toggle = () => {
-    if (!open) {
-      setMonth(start ? parseISO(start) : new Date());
-      setAwaitingEnd(false);
-      setHover(null);
+  const focusMonth = (next: Target) => {
+    const key = next === "end" ? effectiveEnd : start;
+    setMonth(key ? parseISO(key) : new Date());
+    setHover(null);
+  };
+
+  const openAt = (next: Target) => {
+    if (open && target === next) {
+      setOpen(false);
+      return;
     }
-    setOpen((o) => !o);
+    setTarget(next);
+    focusMonth(next);
+    setOpen(true);
+  };
+
+  const switchTarget = (next: Target) => {
+    setTarget(next);
+    focusMonth(next);
   };
 
   const pick = (key: string) => {
-    if (mode === "single") {
+    if (!isRange) {
       onChange(key, key);
       setOpen(false);
       return;
     }
-    if (!awaitingEnd || !start) {
-      // First click: already a valid one-day range; the next click extends it
-      onChange(key, key);
-      setAwaitingEnd(true);
+    if (target === "start") {
+      // Keep the current end when it is still on or after the new start; then ask for the end
+      onChange(key, effectiveEnd && effectiveEnd >= key ? effectiveEnd : key);
+      setTarget("end");
       return;
     }
-    if (key < start) {
-      onChange(key, key); // earlier than the start: restart from here
-      return;
-    }
-    onChange(start, key);
-    setAwaitingEnd(false);
+    onChange(start || key, key);
     setOpen(false);
   };
 
   // While choosing the end date, preview the range up to the hovered day
-  const rangeEnd = awaitingEnd && hover && hover >= start ? hover : end || start;
-  const isRange = mode === "range";
+  const previewEnd = target === "end" && hover && hover >= start ? hover : effectiveEnd;
 
   return (
     <div className="relative" ref={rootRef}>
-      <button
-        type="button"
-        onClick={toggle}
-        aria-haspopup="dialog"
-        aria-expanded={open}
-        className={`portal-focus flex w-full items-center gap-3 rounded-xl border bg-white px-4 py-3 pr-12 text-left transition-colors hover:border-slate-300 dark:bg-slate-900 ${
-          invalid
-            ? "border-rose-400"
-            : open
-            ? "portal-accent-border-solid"
-            : "border-slate-200 dark:border-slate-700"
+      <div
+        className={`flex w-full items-center gap-1 rounded-xl border bg-white py-1.5 pl-3 pr-12 transition-colors sm:gap-2 dark:bg-slate-900 ${
+          invalid ? "border-rose-400" : open ? "portal-accent-border-solid" : "border-slate-200 dark:border-slate-700"
         }`}
       >
-        <CalendarIcon className="h-5 w-5 shrink-0 text-slate-500" />
-        {start ? (
-          <span className="flex items-center gap-3 text-[15px] font-semibold text-slate-800 dark:text-slate-100">
-            <span>{display(start)}</span>
-            {isRange && (
-              <>
-                <ArrowRight className="h-4 w-4 text-slate-400" />
-                <span>{display(end || start)}</span>
-              </>
-            )}
-          </span>
+        <CalendarIcon className="mr-1 h-5 w-5 shrink-0 text-slate-500" />
+        {!start ? (
+          <button
+            type="button"
+            onClick={() => openAt("start")}
+            aria-haspopup="dialog"
+            aria-expanded={open}
+            className="portal-focus flex-1 rounded-lg px-2 py-3 text-left text-[15px] text-slate-400 cursor-pointer"
+          >
+            {isRange ? "Select date range" : "Select date"}
+          </button>
+        ) : isRange ? (
+          <>
+            <Segment caption="From" value={display(start)} active={open && target === "start"} onClick={() => openAt("start")} />
+            <ArrowRight className="h-4 w-4 shrink-0 text-slate-400" />
+            <Segment caption="To" value={display(effectiveEnd)} active={open && target === "end"} onClick={() => openAt("end")} />
+          </>
         ) : (
-          <span className="text-[15px] text-slate-400">{isRange ? "Select date range" : "Select date"}</span>
+          <Segment caption="Date" value={display(start)} active={open} onClick={() => openAt("start")} />
         )}
-      </button>
+      </div>
 
       {start && (
         <button
           type="button"
           onClick={() => {
             onChange("", "");
-            setAwaitingEnd(false);
+            setTarget("start");
           }}
           aria-label="Clear dates"
           title="Clear dates"
@@ -146,12 +182,30 @@ export function WfhDateRangeField({ mode, start, end, onChange, invalid = false 
           aria-label={isRange ? "Choose WFH dates" : "Choose WFH date"}
           className="absolute left-0 top-full z-30 mt-2 w-[19.5rem] rounded-2xl border border-slate-200 bg-white p-3 shadow-xl animate-in fade-in zoom-in-95 duration-150 dark:border-slate-700 dark:bg-slate-900"
         >
+          {isRange && (
+            <div className="portal-accent-tint mb-3 grid grid-cols-2 gap-1 rounded-xl p-1" role="group" aria-label="Which date to set">
+              {(["start", "end"] as const).map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => switchTarget(t)}
+                  aria-pressed={target === t}
+                  className={`rounded-lg py-1.5 text-xs font-bold transition-colors cursor-pointer ${
+                    target === t ? "portal-accent-solid shadow-sm" : "portal-accent-text hover:brightness-90"
+                  }`}
+                >
+                  {t === "start" ? "From date" : "To date"}
+                </button>
+              ))}
+            </div>
+          )}
+
           <div className="mb-2 flex items-center justify-between">
             <button
               type="button"
               onClick={() => setMonth((m) => subMonths(m, 1))}
               aria-label="Previous month"
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 cursor-pointer"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 hover:bg-black/5 dark:text-slate-300 cursor-pointer"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
@@ -160,7 +214,7 @@ export function WfhDateRangeField({ mode, start, end, onChange, invalid = false 
               type="button"
               onClick={() => setMonth((m) => addMonths(m, 1))}
               aria-label="Next month"
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 cursor-pointer"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 hover:bg-black/5 dark:text-slate-300 cursor-pointer"
             >
               <ChevronRight className="h-4 w-4" />
             </button>
@@ -178,23 +232,30 @@ export function WfhDateRangeField({ mode, start, end, onChange, invalid = false 
             {days.map((day) => {
               const key = toKey(day);
               const inMonth = isSameMonth(day, month);
-              const isEdge = !!start && (key === start || (isRange && key === rangeEnd));
-              const inRange = isRange && !!start && key > start && key < rangeEnd;
+              // The end date cannot be before the start date
+              const disabled = isRange && target === "end" && !!start && key < start;
+              const isEdge = !!start && (key === start || (isRange && key === previewEnd));
+              const inRange = isRange && !!start && key > start && key < previewEnd;
               return (
                 <button
                   key={key}
                   type="button"
+                  disabled={disabled}
                   onClick={() => pick(key)}
                   onMouseEnter={() => setHover(key)}
                   aria-label={format(day, "EEEE, d MMMM yyyy")}
                   aria-pressed={isEdge}
-                  className={`my-0.5 flex h-9 items-center justify-center text-sm font-semibold transition-colors cursor-pointer ${
+                  className={`my-0.5 flex h-9 items-center justify-center text-sm font-semibold transition-colors ${
+                    disabled ? "cursor-not-allowed" : "cursor-pointer"
+                  } ${
                     isEdge
                       ? "portal-accent-solid rounded-lg"
                       : inRange
                       ? "portal-accent-tint-strong portal-accent-text"
-                      : `rounded-lg hover:bg-black/5 dark:hover:bg-slate-800 ${
-                          inMonth ? "text-slate-800 dark:text-slate-100" : "text-slate-300 dark:text-slate-600"
+                      : `rounded-lg ${disabled ? "" : "hover:bg-black/5 dark:hover:bg-slate-800"} ${
+                          disabled || !inMonth
+                            ? "text-slate-300 dark:text-slate-600"
+                            : "text-slate-800 dark:text-slate-100"
                         }`
                   } ${isToday(day) && !isEdge ? "portal-accent-text underline underline-offset-4" : ""}`}
                 >
@@ -206,9 +267,9 @@ export function WfhDateRangeField({ mode, start, end, onChange, invalid = false 
 
           {isRange && (
             <p className="mt-2 border-t border-slate-100 pt-2 text-xs text-slate-500 dark:border-slate-800">
-              {awaitingEnd
-                ? "Now pick the end date, or click outside to keep a single day."
-                : "Pick a start date, then an end date."}
+              {target === "start"
+                ? "Choose the first day of your WFH."
+                : "Now choose the last day. Click outside to keep it as is."}
             </p>
           )}
         </div>
