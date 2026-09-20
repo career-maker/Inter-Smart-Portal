@@ -1,0 +1,43 @@
+/*
+ * Brand-following accents for pages built with fixed event/status colours (Leave Calendar,
+ * WFH request form). They track --portal-primary-color, which Portal Customization sets, and
+ * the tints are transparent so they read on light and dark surfaces.
+ */
+.portal-accent-text {
+  color: var(--portal-primary-color, #0f766e);
+}
+
+.portal-accent-solid {
+  background-color: var(--portal-primary-color, #0f766e);
+  color: #fff;
+}
+
+.portal-accent-tint {
+  background-color: color-mix(in srgb, var(--portal-primary-color, #0f766e) 9%, transparent);
+}
+
+.portal-accent-tint-strong {
+  background-color: color-mix(in srgb, var(--portal-primary-color, #0f766e) 16%, transparent);
+}
+
+.portal-accent-border {
+  border-color: color-mix(in srgb, var(--portal-primary-color, #0f766e) 28%, transparent);
+}
+
+.portal-accent-border-solid {
+  border-color: var(--portal-primary-color, #0f766e);
+}
+
+.portal-accent-ring {
+  --tw-ring-color: var(--portal-primary-color, #0f766e);
+}
+
+.portal-focus:focus-visible {
+  outline: 2px solid var(--portal-primary-color, #0f766e);
+  outline-offset: 2px;
+}
+
+.portal-focus-inset:focus-visible {
+  outline: 2px solid var(--portal-primary-color, #0f766e);
+  outline-offset: -2px;
+}

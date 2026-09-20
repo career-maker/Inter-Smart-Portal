@@ -29,6 +29,7 @@ import ChatWidget from "@/components/ChatWidget";
 import { useCustomization } from "@/context/CustomizationContext";
 import { AddToHomeScreenModal } from "@/components/layout/AddToHomeScreenModal";
 import { DesktopPushConsent } from "@/components/layout/DesktopPushConsent";
+import "@/styles/portal-accent.css";
 
 type NavItem = {
   href: string;

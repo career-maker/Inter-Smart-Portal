@@ -83,7 +83,7 @@ const ROUTE_NAME_MAP: Record<string, string> = {
   "/reports/leaves": "Leave Report",
   "/audit-logs": "Audit Logs",
   "/birthday-wishes": "Birthday Wishes",
-  "/calendar": "Company Calendar",
+  "/calendar": "Leave Calendar",
   "/hall": "Town Hall",
   "/issues": "Issues & Support",
   "/issues/new": "Raise Issue",
