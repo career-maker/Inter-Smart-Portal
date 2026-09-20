@@ -640,25 +640,54 @@ export default function DashboardPage() {
                       </div>
                     </div>
 
-                    {/* Legend */}
-                    <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
-                      <span className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
-                        <span className="w-2 h-2 rounded-full bg-[#10b981]" /> Present
-                      </span>
-                      <span className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
-                        <span className="w-2 h-2 rounded-full bg-[#ef4444]" /> Absent
-                      </span>
-                      <span className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
-                        <span className="w-2 h-2 rounded-full bg-[#3b82f6]" /> WFH
-                      </span>
-                      <span className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
-                        <span className="w-2 h-2 rounded-full bg-[#f59e0b]" /> Half Day
-                      </span>
-                    </div>
+                    {/* Legend (hidden on holidays / weekends) */}
+                    {!data?.widgets?.today_off?.is_off && (
+                      <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+                        <span className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
+                          <span className="w-2 h-2 rounded-full bg-[#10b981]" /> Present
+                        </span>
+                        <span className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
+                          <span className="w-2 h-2 rounded-full bg-[#ef4444]" /> Absent
+                        </span>
+                        <span className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
+                          <span className="w-2 h-2 rounded-full bg-[#3b82f6]" /> WFH
+                        </span>
+                        <span className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
+                          <span className="w-2 h-2 rounded-full bg-[#f59e0b]" /> Half Day
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Body Content: All items in one horizontal line */}
                   {(() => {
+                    // Holiday (set in Holiday Calendar) or weekend: show a friendly message instead of "Absent" cards
+                    const todayOff = data?.widgets?.today_off;
+                    if (todayOff?.is_off) {
+                      const isWeekendOff = todayOff.type === "weekend";
+                      return (
+                        <div className="flex items-center gap-3 sm:gap-4 rounded-2xl border border-amber-200/80 dark:border-amber-800/40 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/25 dark:to-orange-950/20 px-4 py-4 sm:px-5">
+                          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                            {isWeekendOff ? (
+                              <Palmtree className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2]" />
+                            ) : (
+                              <PartyPopper className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2]" />
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-sm sm:text-base font-extrabold text-amber-900 dark:text-amber-200 leading-tight">
+                              {isWeekendOff ? "Happy Weekend!" : `Today is a holiday${todayOff.name ? ` — ${todayOff.name}` : ""}`}
+                            </div>
+                            <p className="text-xs sm:text-[13px] font-medium text-amber-800/80 dark:text-amber-300/70 mt-0.5 leading-snug">
+                              {isWeekendOff
+                                ? `It's ${todayOff.name || "the weekend"} — no attendance is tracked today. Rest up and enjoy your day off!`
+                                : "The office is closed and no attendance is tracked today. Enjoy your day off!"}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    }
+
                     const teamMembers = data?.widgets?.team_members || [];
                     const totalTeam = teamMembers.length;
                     const presentCount = teamMembers.filter((m: any) => (m.status || "").toLowerCase() === "present").length;

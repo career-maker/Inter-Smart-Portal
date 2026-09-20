@@ -66,7 +66,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/leaves",           label: "All Leaves", roles: ["Super Admin"] },
       { href: "/leaves",           label: "My Leaves", roles: ["Employee", "Team Lead", "HR"] },
       { href: "/leaves/apply",     label: "Apply Leave", roles: ["Employee", "Team Lead"] },
-      { href: "/calendar",         label: "Leave Calendar" },
+      { href: "/calendar",         label: "Leave Calendar", roles: ["Employee", "Team Lead", "HR"] },
       { href: "/holidays",         label: "Holiday Calendar" },
       { href: "/leaves/approvals", label: "Leave Approvals", roles: ["Super Admin", "Team Lead"] },
       { href: "/leave-balances",   label: "Leave Balances", roles: ["Super Admin"] },

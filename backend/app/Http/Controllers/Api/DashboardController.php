@@ -342,11 +342,23 @@ class DashboardController extends Controller
                 ];
             });
 
+        // Today off-day info (holiday set by admin, or weekend not overridden as a working day)
+        $todayCarbon = Carbon::today('Asia/Kolkata');
+        $todayHoliday = Holiday::where('date', $todayStr)->first();
+        $isWeekendOff = $todayCarbon->isWeekend()
+            && !\App\Models\WorkingDaysOverride::whereDate('date', $todayStr)->exists();
+        $todayOff = [
+            'is_off' => (bool) ($todayHoliday || $isWeekendOff),
+            'type' => $todayHoliday ? 'holiday' : ($isWeekendOff ? 'weekend' : null),
+            'name' => $todayHoliday ? $todayHoliday->name : ($isWeekendOff ? $todayCarbon->format('l') : null),
+        ];
+
         $responseData = [
             'profile' => $profile,
             'attendance_widget_data' => $attendanceWidgetData,
             'leave_metrics' => $leaveMetrics,
             'widgets' => [
+                'today_off' => $todayOff,
                 'upcoming_holidays' => $upcomingHolidays,
                 'company_updates' => $latestUpdates,
                 'birthdays' => $birthdays,
