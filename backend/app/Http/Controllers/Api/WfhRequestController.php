@@ -169,6 +169,11 @@ class WfhRequestController extends Controller
             }
         }
 
+        // Own requests only (the "Your Recent WFH Requests" panel on the request form)
+        if ($request->boolean('mine')) {
+            $query->where('user_id', $user->id);
+        }
+
         if ($request->filled('duration_type')) {
             $query->where('duration_type', $request->duration_type);
         }

@@ -2,41 +2,16 @@
 
 import { PageLoader } from "@/components/ui/PageLoader";
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import {
   Calendar, Clock, CheckCircle, XCircle, Loader2, Home,
-  ArrowRight, ArrowLeft, Send, ChevronRight, X, Sparkles, Plus,
-  Check, Users, User, Trash2
+  X, Plus, Check, Users, User, Trash2
 } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
 import { format } from "date-fns";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 import AdminLeaveWfhModal from "@/components/attendance/AdminLeaveWfhModal";
-
-/* ─── Constants ─────────────────────────────────────────────────── */
-const DURATION_OPTIONS = [
-  { value: "Full",           label: "Full Day WFH",               icon: "🏠", desc: "Work from home the entire day" },
-  { value: "Half-Morning",   label: "Half Day – Morning Session",  icon: "🌅", desc: "Remote during morning session only" },
-  { value: "Half-Afternoon", label: "Half Day – Afternoon Session",icon: "🌇", desc: "Remote during afternoon session only" },
-];
-
-const STEPS = [
-  { id: 1, title: "WFH Type",   desc: "Choose your session" },
-  { id: 2, title: "Date Range", desc: "Select the date(s)" },
-  { id: 3, title: "Reason",     desc: "Provide your reason" },
-  { id: 4, title: "Review",     desc: "Confirm & submit" },
-];
-
-const formSchema = z.object({
-  duration_type: z.enum(["Full", "Half-Morning", "Half-Afternoon"]),
-  start_date: z.string().min(1, "Date is required"),
-  end_date: z.string().optional(),
-  reason: z.string().min(5, "Please provide at least 5 characters"),
-});
-type FormValues = z.infer<typeof formSchema>;
+import { WfhRequestForm } from "@/components/wfh/WfhRequestForm";
 
 /* ─── Helpers ───────────────────────────────────────────────────── */
 function calcWfhDays(req: any): string {
@@ -84,38 +59,6 @@ function DurationBadge({ type }: { type: string }) {
   );
 }
 
-/* ─── Step Progress Bar ──────────────────────────────────────────── */
-function StepBar({ current }: { current: number }) {
-  return (
-    <div className="flex items-center gap-0 mb-8">
-      {STEPS.map((s, i) => {
-        const done    = current > s.id;
-        const active  = current === s.id;
-        return (
-          <div key={s.id} className="flex items-center flex-1 last:flex-none">
-            <div className="flex flex-col items-center gap-1.5">
-              <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all duration-300 ${
-                done   ? "bg-emerald-500 border-emerald-500 text-white" :
-                active ? "bg-amber-500 border-amber-500 text-white shadow-sm" :
-                         "bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400"
-              }`}>
-                {done ? <CheckCircle className="w-4 h-4" /> : s.id}
-              </div>
-              <div className="text-center hidden sm:block">
-                <p className={`text-[11px] font-bold leading-tight ${active ? "text-amber-600 dark:text-amber-400" : done ? "text-emerald-600 dark:text-emerald-400" : "text-slate-500 dark:text-slate-400"}`}>{s.title}</p>
-                <p className="text-[10px] text-slate-400 dark:text-slate-500">{s.desc}</p>
-              </div>
-            </div>
-            {i < STEPS.length - 1 && (
-              <div className={`flex-1 h-0.5 mx-2 mb-5 rounded transition-all duration-300 ${done ? "bg-emerald-500" : "bg-slate-200 dark:bg-slate-700"}`} />
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
 /* ─── Main Page ─────────────────────────────────────────────────── */
 export default function WfhPage() {
   const { user } = useAuthStore();
@@ -135,11 +78,7 @@ export default function WfhPage() {
   const [isLoading, setIsLoading]               = useState(true);
   const [cancellingId, setCancellingId]         = useState<number | null>(null);
   const [actionLoading, setActionLoading]       = useState(false);
-  const [isSubmitting, setIsSubmitting]         = useState(false);
-  const [submitSuccess, setSubmitSuccess]       = useState(false);
   const [successMessage, setSuccessMessage]     = useState<string | null>(null);
-  const [wfhWarning, setWfhWarning]             = useState<string | null>(null);
-  const [step, setStep]                         = useState(1);
   const [isDirectModalOpen, setIsDirectModalOpen] = useState(false);
 
   // Reject dialog state
@@ -152,25 +91,9 @@ export default function WfhPage() {
   const [filterFromDate, setFilterFromDate]     = useState<string>("");
   const [filterToDate, setFilterToDate]         = useState<string>("");
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: { duration_type: "Full", start_date: "", end_date: "", reason: "" },
-  });
-
-  const durationType = form.watch("duration_type");
-  const startDate    = form.watch("start_date");
-  const endDate      = form.watch("end_date");
-  const reason       = form.watch("reason");
-  const isHalfDay    = durationType !== "Full";
-  const chosenOpt    = DURATION_OPTIONS.find(o => o.value === durationType) || DURATION_OPTIONS[0];
-
   useEffect(() => {
     fetchRequests(currentPage);
   }, [currentPage, filterStatus, filterDuration, filterFromDate, filterToDate]);
-
-  useEffect(() => {
-    if (isHalfDay && startDate) form.setValue("end_date", startDate);
-  }, [durationType, startDate]);
 
   const clearFilters = () => {
     setFilterStatus("");
@@ -272,69 +195,12 @@ export default function WfhPage() {
     }
   };
 
-  /* ── Step navigation ── */
-  const nextStep = async () => {
-    if (step === 1) { setStep(2); return; }
-    if (step === 2) {
-      const ok = await form.trigger("start_date");
-      if (!ok) return;
-      setStep(3);
-      return;
-    }
-    if (step === 3) {
-      const ok = await form.trigger("reason");
-      if (!ok) return;
-      setStep(4);
-      return;
-    }
+  const handleSubmitted = () => {
+    setSuccessMessage("WFH request submitted! Awaiting approval from your Team Lead and Admin.");
+    setTimeout(() => setSuccessMessage(null), 5000);
+    fetchRequests(1);
+    setActiveView(isSuperAdmin || isTeamLead ? "team" : "my");
   };
-  const prevStep = () => setStep(s => Math.max(1, s - 1));
-
-  /* ── Submit ── */
-  async function onSubmit(values: FormValues) {
-    const today      = new Date();
-    const todayStr   = today.toISOString().split("T")[0];
-    if (values.start_date === todayStr && !isSuperAdmin) {
-      const totalMin       = today.getHours() * 60 + today.getMinutes();
-      const cutoffMorning  = 9 * 60 + 45;
-      const cutoffAfternoon = 14 * 60 + 30;
-      if ((values.duration_type === "Full" || values.duration_type === "Half-Morning") && totalMin > cutoffMorning) {
-        setWfhWarning(
-          values.duration_type === "Full"
-            ? "⏰ You cannot apply for a Full Day WFH after 9:45 AM.\n\nSame-day Full Day WFH applications must be submitted before 9:45 AM."
-            : "⏰ You cannot apply for a Morning Session WFH after 9:45 AM.\n\nSame-day Morning WFH applications must be submitted before 9:45 AM."
-        );
-        return;
-      }
-      if (values.duration_type === "Half-Afternoon" && totalMin > cutoffAfternoon) {
-        setWfhWarning("⏰ You cannot apply for an Afternoon Session WFH after 2:30 PM.\n\nSame-day Afternoon WFH applications must be submitted before 2:30 PM.");
-        return;
-      }
-    }
-
-    setIsSubmitting(true);
-    setSubmitSuccess(false);
-    try {
-      await api.post("/wfh-requests", {
-        duration_type: values.duration_type,
-        start_date: values.start_date,
-        end_date: isHalfDay ? values.start_date : (values.end_date || values.start_date),
-        reason: values.reason,
-      });
-      form.reset({ duration_type: "Full", start_date: "", end_date: "", reason: "" });
-      setStep(1);
-      setSubmitSuccess(true);
-      setTimeout(() => setSubmitSuccess(false), 5000);
-      fetchRequests(1);
-      setActiveView(isSuperAdmin || isTeamLead ? "team" : "my");
-    } catch (e: any) {
-      const errs = e.response?.data?.errors;
-      const msg  = errs ? Object.values(errs).flat().join("\n") : e.response?.data?.message || "An error occurred.";
-      alert(msg);
-    } finally {
-      setIsSubmitting(false);
-    }
-  }
 
   /* ── Status badges ── */
   const getStatusBadge = (req: any) => {
@@ -384,43 +250,8 @@ export default function WfhPage() {
     : requests;
 
   return (
-    <div className="space-y-7 max-w-6xl mx-auto">
+    <div className={`space-y-7 mx-auto ${activeView === "apply" ? "max-w-[1400px]" : "max-w-6xl"}`}>
 
-      {/* ── Warning Modal ─────────────────────────────────────────── */}
-      {wfhWarning && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-900 border border-red-500/40 rounded-2xl shadow-2xl max-w-md w-full p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center flex-shrink-0">
-                <Clock className="w-6 h-6 text-red-600 dark:text-red-400" />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white">Application Not Allowed</h3>
-                <p className="text-xs text-red-600 dark:text-red-400 font-medium">Same-Day WFH Time Restriction</p>
-              </div>
-            </div>
-            <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl p-4 mb-5">
-              {wfhWarning.split("\n\n").map((line, i) => (
-                <p key={i} className={`text-sm ${i === 0 ? "font-bold text-red-700 dark:text-red-300 mb-2" : "text-slate-700 dark:text-slate-300"}`}>{line}</p>
-              ))}
-            </div>
-            <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3.5 mb-5 space-y-1.5 border border-slate-200 dark:border-slate-700">
-              <p className="text-xs font-bold text-amber-700 dark:text-amber-400 mb-2">📋 Same-Day WFH Cutoff Rules</p>
-              <div className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300">
-                <span className="w-2 h-2 rounded-full bg-sky-500 flex-shrink-0" />
-                Full Day / Morning — apply before <span className="font-bold text-slate-900 dark:text-white ml-1">9:45 AM</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300">
-                <span className="w-2 h-2 rounded-full bg-violet-500 flex-shrink-0" />
-                Afternoon Session — apply before <span className="font-bold text-slate-900 dark:text-white ml-1">2:30 PM</span>
-              </div>
-            </div>
-            <button onClick={() => setWfhWarning(null)} className="w-full py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-sm transition-colors cursor-pointer">
-              Got it, I&apos;ll apply in advance next time
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* ── Reject Reason Dialog ──────────────────────────────────── */}
       {rejectDialogId && (
@@ -475,6 +306,7 @@ export default function WfhPage() {
       )}
 
       {/* ── Top Header Banner (Keka Style) ────────────────────────── */}
+      {activeView !== "apply" && (
       <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-950/60 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0 border border-amber-200 dark:border-amber-800/60">
@@ -544,221 +376,23 @@ export default function WfhPage() {
             </button>
           ) : (
             <button
-              onClick={() => setActiveView(activeView === "apply" ? (isTeamLead ? "team" : "my") : "apply")}
-              className={`px-4 py-2 font-semibold text-xs rounded-xl shadow-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5 ${
-                activeView === "apply"
-                  ? "bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200"
-                  : "bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white"
-              }`}
+              onClick={() => setActiveView("apply")}
+              className="px-4 py-2 font-semibold text-xs rounded-xl shadow-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white"
             >
-              {activeView === "apply" ? (
-                <>View Requests List</>
-              ) : (
-                <><Plus className="w-4 h-4" /> Request WFH</>
-              )}
+              <Plus className="w-4 h-4" /> Request WFH
             </button>
           )}
         </div>
       </div>
+      )}
 
-      {/* ── Multi-Step Apply Form (When toggled) ───────────────────── */}
+      {/* ── Single-page WFH request form ───────────────────────────── */}
       {activeView === "apply" && (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-6 md:p-8 shadow-xs animate-in fade-in duration-300">
-          {submitSuccess && (
-            <div className="mb-6 flex items-center gap-3 p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-800 dark:text-emerald-300 text-sm">
-              <CheckCircle className="w-5 h-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
-              <div>
-                <p className="font-bold">WFH Request Submitted!</p>
-                <p className="text-xs text-emerald-700 dark:text-emerald-400/80 mt-0.5">Awaiting approval from your Team Lead and Admin.</p>
-              </div>
-            </div>
-          )}
-
-          <StepBar current={step} />
-
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            {step === 1 && (
-              <div className="space-y-3 animate-in fade-in slide-in-from-right-4 duration-300">
-                <div className="mb-6">
-                  <h2 className="text-lg font-bold text-slate-900 dark:text-white">Choose WFH Type</h2>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Select the session you want to work from home</p>
-                </div>
-                {DURATION_OPTIONS.map((opt) => {
-                  const selected = durationType === opt.value;
-                  return (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => form.setValue("duration_type", opt.value as FormValues["duration_type"])}
-                      className={`w-full flex items-center gap-4 p-5 rounded-xl border-2 transition-all text-left group cursor-pointer ${
-                        selected
-                          ? "border-amber-500 bg-amber-50/70 dark:bg-amber-950/20 shadow-sm"
-                          : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-850 hover:bg-slate-50 dark:hover:bg-slate-800/60"
-                      }`}
-                    >
-                      <span className="text-3xl">{opt.icon}</span>
-                      <div className="flex-1">
-                        <p className={`font-bold text-base ${selected ? "text-amber-800 dark:text-amber-300" : "text-slate-900 dark:text-white"}`}>{opt.label}</p>
-                        <p className={`text-sm mt-0.5 ${selected ? "text-amber-700/90 dark:text-amber-400/90" : "text-slate-600 dark:text-slate-400"}`}>{opt.desc}</p>
-                      </div>
-                      {selected
-                        ? <CheckCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />
-                        : <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors shrink-0" />
-                      }
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-
-            {step === 2 && (
-              <div className="animate-in fade-in slide-in-from-right-4 duration-300">
-                <div className="mb-6">
-                  <h2 className="text-lg font-bold text-slate-900 dark:text-white">Select Date{isHalfDay ? "" : " Range"}</h2>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-                    {isHalfDay ? "Pick the date for your half-day WFH" : "Choose the start and end dates"}
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-3 p-3.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl mb-6">
-                  <span className="text-2xl">{chosenOpt.icon}</span>
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900 dark:text-white">{chosenOpt.label}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">{chosenOpt.desc}</p>
-                  </div>
-                </div>
-
-                {isHalfDay ? (
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Date *</label>
-                    <input
-                      type="date"
-                      {...form.register("start_date")}
-                      className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-xl px-4 py-3 outline-none focus:border-amber-500 transition-colors"
-                    />
-                    {form.formState.errors.start_date && <p className="text-xs text-red-500 mt-1.5">{form.formState.errors.start_date.message}</p>}
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">From *</label>
-                      <input
-                        type="date"
-                        {...form.register("start_date")}
-                        className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-xl px-4 py-3 outline-none focus:border-amber-500 transition-colors"
-                      />
-                      {form.formState.errors.start_date && <p className="text-xs text-red-500 mt-1.5">{form.formState.errors.start_date.message}</p>}
-                    </div>
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">To</label>
-                      <input
-                        type="date"
-                        {...form.register("end_date")}
-                        min={startDate || undefined}
-                        className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-xl px-4 py-3 outline-none focus:border-amber-500 transition-colors"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                <div className="mt-5 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl p-3.5 text-xs text-amber-800 dark:text-amber-300 space-y-1">
-                  <p className="font-bold text-amber-900 dark:text-amber-200">⏰ Same-Day Cutoff Times</p>
-                  <p>Full Day / Morning Session → apply before <strong>9:45 AM</strong></p>
-                  <p>Afternoon Session → apply before <strong>2:30 PM</strong></p>
-                </div>
-              </div>
-            )}
-
-            {step === 3 && (
-              <div className="animate-in fade-in slide-in-from-right-4 duration-300">
-                <div className="mb-6">
-                  <h2 className="text-lg font-bold text-slate-900 dark:text-white">Reason for WFH</h2>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Please provide the reason for working from home</p>
-                </div>
-                <textarea
-                  rows={6}
-                  {...form.register("reason")}
-                  placeholder="e.g. Need to work from home due to family commitment, personal work, attending client calls from home…"
-                  className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-xl px-4 py-3 outline-none focus:border-amber-500 placeholder:text-slate-400 resize-none transition-colors"
-                />
-                {form.formState.errors.reason && <p className="text-xs text-red-500 mt-1.5">{form.formState.errors.reason.message}</p>}
-                <p className="text-xs text-slate-500 mt-2">{reason?.length || 0} characters (minimum 5)</p>
-              </div>
-            )}
-
-            {step === 4 && (
-              <div className="animate-in fade-in slide-in-from-right-4 duration-300">
-                <div className="mb-6">
-                  <h2 className="text-lg font-bold text-slate-900 dark:text-white">Review & Submit</h2>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Confirm your WFH request details before submitting</p>
-                </div>
-
-                <div className="space-y-3 mb-6">
-                  <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl">
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">{chosenOpt.icon}</span>
-                      <div>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold">WFH Type</p>
-                        <p className="text-sm font-semibold text-slate-900 dark:text-white mt-0.5">{chosenOpt.label}</p>
-                      </div>
-                    </div>
-                    <DurationBadge type={durationType} />
-                  </div>
-
-                  <div className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl">
-                    <Calendar className="w-5 h-5 text-amber-500 shrink-0" />
-                    <div>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold">Date</p>
-                      <p className="text-sm font-semibold text-slate-900 dark:text-white mt-0.5">
-                        {startDate ? fmtDate(startDate) : "—"}
-                        {!isHalfDay && endDate && endDate !== startDate && <> → {fmtDate(endDate)}</>}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="p-4 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl">
-                    <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold mb-2">Reason</p>
-                    <p className="text-sm text-slate-800 dark:text-slate-200 leading-relaxed whitespace-pre-wrap">{reason || "—"}</p>
-                  </div>
-                </div>
-
-                <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-6 text-xs text-blue-800 dark:text-blue-300 space-y-1.5">
-                  <p className="font-bold text-blue-900 dark:text-blue-200">🔐 Dual Approval Required</p>
-                  <p>Your request goes to your <strong>Team Lead</strong> first. After TL approval, the <strong>Super Admin</strong> gives the final decision. WFH is granted only when <strong>both</strong> approve.</p>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full flex items-center justify-center gap-2 py-3.5 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white font-bold rounded-xl transition-all shadow-md shadow-amber-500/20 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                >
-                  {isSubmitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Submitting…</> : <><Send className="w-4 h-4" /> Submit WFH Request</>}
-                </button>
-              </div>
-            )}
-
-            <div className={`flex mt-8 gap-3 ${step === 1 ? "justify-end" : "justify-between"}`}>
-              {step > 1 && (
-                <button
-                  type="button"
-                  onClick={prevStep}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-sm font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                >
-                  <ArrowLeft className="w-4 h-4" /> Back
-                </button>
-              )}
-              {step < 4 && (
-                <button
-                  type="button"
-                  onClick={nextStep}
-                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold transition-colors ml-auto cursor-pointer shadow-sm"
-                >
-                  Next <ArrowRight className="w-4 h-4" />
-                </button>
-              )}
-            </div>
-          </form>
-        </div>
+        <WfhRequestForm
+          onCancel={() => setActiveView(isSuperAdmin || isTeamLead ? "team" : "my")}
+          onViewAll={() => setActiveView("my")}
+          onSubmitted={handleSubmitted}
+        />
       )}
 
       {/* ── Requests Table Section ─────────────────────────────────── */}
