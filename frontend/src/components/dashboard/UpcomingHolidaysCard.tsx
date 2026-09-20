@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import NextLink from "next/link";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import { format, differenceInCalendarDays, parseISO } from "date-fns";
+import { useAuthStore } from "@/store/auth";
 
 interface Holiday {
   id?: number | string;
@@ -39,6 +40,9 @@ const CELEBRATION_COLORS = [
 ];
 
 export function UpcomingHolidaysCard({ holidays = [], className = "" }: UpcomingHolidaysCardProps) {
+  // Employees / Team Leads see holidays on their Leave Calendar; the Holiday Calendar page is for admins
+  const role = useAuthStore((s) => s.user?.role);
+  const calendarHref = role === "Employee" || role === "Team Lead" ? "/calendar" : "/holidays";
   const [currentIndex, setCurrentIndex] = useState(0);
   const [particles, setParticles] = useState<Particle[]>([]);
   const [isPopping, setIsPopping] = useState(false);
@@ -224,7 +228,7 @@ export function UpcomingHolidaysCard({ holidays = [], className = "" }: Upcoming
             </button>
 
             <NextLink
-              href="/holidays"
+              href={calendarHref}
               style={{
                 fontFamily: 'var(--portal-font-family, "Proxima Nova", sans-serif)',
                 backgroundColor: "var(--portal-primary-color, #0F766E)",
@@ -247,10 +251,10 @@ export function UpcomingHolidaysCard({ holidays = [], className = "" }: Upcoming
               No upcoming holidays scheduled.
             </p>
             <NextLink
-              href="/holidays"
+              href={calendarHref}
               className="inline-block text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline pt-1"
             >
-              Configure holidays →
+              {calendarHref === "/calendar" ? "View calendar →" : "Configure holidays →"}
             </NextLink>
           </div>
         ) : (

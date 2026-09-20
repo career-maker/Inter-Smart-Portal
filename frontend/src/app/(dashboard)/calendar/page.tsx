@@ -31,6 +31,15 @@ import {
 } from "date-fns";
 import api from "@/services/api";
 import { Button } from "@/components/ui/button";
+import { RoyalAvatar } from "@/components/ui/RoyalAvatar";
+
+interface CalendarEventUser {
+  id: number;
+  name: string;
+  designation?: string | null;
+  profile_photo_path?: string | null;
+  is_self?: boolean;
+}
 
 interface CalendarEvent {
   id: string | number;
@@ -40,12 +49,46 @@ interface CalendarEvent {
   type: "Holiday" | "WFH" | "Leave" | string;
   status?: "Approved" | "Pending" | "Rejected" | string;
   reason?: string;
+  user?: CalendarEventUser | null;
 }
+
+interface CalendarMeta {
+  is_team_view: boolean;
+  team_name: string | null;
+  member_count: number;
+}
+
+// Max people chips per day cell in the Team Lead view before collapsing into "+N more"
+const MAX_PEOPLE_CHIPS = 3;
+
+const wfhChipClass =
+  "bg-sky-100 dark:bg-sky-900/50 text-sky-800 dark:text-sky-300 border-sky-200 dark:border-sky-800";
+
+const leaveChipClass = (status?: string) =>
+  status === "Approved"
+    ? "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800"
+    : status === "Rejected"
+    ? "bg-rose-100 dark:bg-rose-900/50 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-800"
+    : "bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800";
+
+// Self first, then Leave before WFH, then by name
+const comparePeopleEvents = (a: CalendarEvent, b: CalendarEvent) => {
+  const selfDiff = Number(!!b.user?.is_self) - Number(!!a.user?.is_self);
+  if (selfDiff !== 0) return selfDiff;
+  if (a.type !== b.type) return a.type === "Leave" ? -1 : 1;
+  return (a.user?.name || "").localeCompare(b.user?.name || "");
+};
+
+const personChipLabel = (ev: CalendarEvent) => {
+  const who = ev.user?.is_self ? "You" : (ev.user?.name || "").split(" ")[0] || "Member";
+  return `${who} · ${ev.type === "WFH" ? "WFH" : ev.title || "Leave"}`;
+};
 
 export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
   const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [meta, setMeta] = useState<CalendarMeta | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showMonthDropdown, setShowMonthDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -77,6 +120,7 @@ export default function CalendarPage() {
       const res = await api.get(`/calendar?month=${month}&year=${year}`);
       const rawEvents: CalendarEvent[] = res.data.data || [];
       setEvents(rawEvents.filter((e) => !isExcludedEvent(e)));
+      setMeta(res.data.meta || null);
     } catch (e) {
       console.error(e);
     } finally {
@@ -170,7 +214,17 @@ export default function CalendarPage() {
     };
   }, [currentDate, events]);
 
-  const selectedDayEvents = selectedDate ? getEventsForDay(selectedDate) : [];
+  const isTeamView = !!meta?.is_team_view;
+
+  // Holidays first, then people (self first) so the day panel reads top-down
+  const selectedDayEvents = selectedDate
+    ? [...getEventsForDay(selectedDate)].sort((a, b) => {
+        const aHoliday = a.type === "Holiday";
+        const bHoliday = b.type === "Holiday";
+        if (aHoliday !== bHoliday) return aHoliday ? -1 : 1;
+        return comparePeopleEvents(a, b);
+      })
+    : [];
 
   return (
     <div className="relative min-h-[calc(100vh-5rem)] pb-12 space-y-6">
@@ -200,10 +254,12 @@ export default function CalendarPage() {
           </div>
           <div>
             <h1 className="text-2xl md:text-[26px] font-extrabold tracking-tight text-slate-900 dark:text-white">
-              Holiday Calendar
+              Leave Calendar
             </h1>
             <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400">
-              View company holidays and weekends at a glance.
+              {isTeamView
+                ? `Your leave and WFH, your team's${meta?.team_name ? ` (${meta.team_name})` : ""}, plus company holidays.`
+                : "Your leave and WFH, plus company holidays and weekends."}
             </p>
           </div>
         </div>
@@ -359,17 +415,29 @@ export default function CalendarPage() {
         </div>
 
         {/* Card 4: Legend */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-4 flex flex-col justify-center gap-2.5 shadow-xs">
-          <div className="flex items-center gap-2.5">
-            <span className="w-3.5 h-3.5 rounded-full bg-[#E11D48] shrink-0 shadow-2xs" />
-            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-              Company Holiday / Weekend
+        <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-4 grid grid-cols-2 content-center gap-x-3 gap-y-2.5 shadow-xs">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="w-3 h-3 rounded-full bg-[#E11D48] shrink-0 shadow-2xs" />
+            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 truncate">
+              Holiday / Weekend
             </span>
           </div>
-          <div className="flex items-center gap-2.5">
-            <span className="w-3.5 h-3.5 rounded-full bg-[#94A3B8] shrink-0 shadow-2xs" />
-            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="w-3 h-3 rounded-full bg-[#94A3B8] shrink-0 shadow-2xs" />
+            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 truncate">
               Working Day
+            </span>
+          </div>
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="w-3 h-3 rounded-full bg-emerald-500 shrink-0 shadow-2xs" />
+            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 truncate">
+              Leave
+            </span>
+          </div>
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="w-3 h-3 rounded-full bg-sky-500 shrink-0 shadow-2xs" />
+            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 truncate">
+              Work From Home
             </span>
           </div>
         </div>
@@ -416,6 +484,10 @@ export default function CalendarPage() {
             );
             const wfhEvents = dayEvents.filter((ev) => ev.type === "WFH");
             const leaveEvents = dayEvents.filter((ev) => ev.type === "Leave" || (ev.type !== "Holiday" && ev.type !== "WFH"));
+            // Team Lead view: one chip per person (self + team members) instead of generic WFH/Leave badges
+            const peopleEvents = isTeamView
+              ? dayEvents.filter((ev) => ev.type !== "Holiday").sort(comparePeopleEvents)
+              : [];
 
             const hasHoliday = companyHolidaysOnDay.length > 0;
             const isNonWorking = isWeekend || hasHoliday;
@@ -491,13 +563,36 @@ export default function CalendarPage() {
                     </div>
                   )}
 
+                  {/* Team Lead view: self + team members, one chip per person */}
+                  {isCurrentMonth && isTeamView && peopleEvents.length > 0 && (
+                    <div className="w-full space-y-0.5">
+                      {peopleEvents.slice(0, MAX_PEOPLE_CHIPS).map((ev) => (
+                        <div
+                          key={ev.id}
+                          title={`${ev.user?.name || "Member"} — ${ev.title} (${ev.status || "Pending"})`}
+                          className={`flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[11px] font-bold border shadow-2xs ${
+                            ev.type === "WFH" ? wfhChipClass : leaveChipClass(ev.status)
+                          }`}
+                        >
+                          {ev.type === "WFH" && <Laptop className="w-3 h-3 shrink-0" />}
+                          <span className="truncate">{personChipLabel(ev)}</span>
+                        </div>
+                      ))}
+                      {peopleEvents.length > MAX_PEOPLE_CHIPS && (
+                        <div className="text-[10.5px] font-bold text-center text-slate-500 dark:text-slate-400">
+                          +{peopleEvents.length - MAX_PEOPLE_CHIPS} more
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   {/* Work From Home (WFH) Badges */}
-                  {isCurrentMonth && wfhEvents.length > 0 && (
+                  {isCurrentMonth && !isTeamView && wfhEvents.length > 0 && (
                     <div className="w-full flex flex-wrap justify-center gap-1">
                       {wfhEvents.map((w) => (
                         <span
                           key={w.id}
-                          className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-sky-100 dark:bg-sky-900/50 text-sky-800 dark:text-sky-300 text-[11px] font-bold border border-sky-200 dark:border-sky-800 shadow-2xs"
+                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-bold border shadow-2xs ${wfhChipClass}`}
                         >
                           <Laptop className="w-3 h-3" />
                           WFH
@@ -507,27 +602,17 @@ export default function CalendarPage() {
                   )}
 
                   {/* Leave Badges */}
-                  {isCurrentMonth && leaveEvents.length > 0 && (
+                  {isCurrentMonth && !isTeamView && leaveEvents.length > 0 && (
                     <div className="w-full space-y-0.5">
-                      {leaveEvents.map((l) => {
-                        const isApproved = l.status === "Approved";
-                        const isRejected = l.status === "Rejected";
-                        const bgStyle = isApproved
-                          ? "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800"
-                          : isRejected
-                          ? "bg-rose-100 dark:bg-rose-900/50 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-800"
-                          : "bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800";
-
-                        return (
-                          <div
-                            key={l.id}
-                            title={`${l.title} (${l.status || "Pending"})`}
-                            className={`px-2 py-0.5 rounded-md text-[11px] font-bold border truncate text-center shadow-2xs ${bgStyle}`}
-                          >
-                            {l.title || "Leave"}
-                          </div>
-                        );
-                      })}
+                      {leaveEvents.map((l) => (
+                        <div
+                          key={l.id}
+                          title={`${l.title} (${l.status || "Pending"})`}
+                          className={`px-2 py-0.5 rounded-md text-[11px] font-bold border truncate text-center shadow-2xs ${leaveChipClass(l.status)}`}
+                        >
+                          {l.title || "Leave"}
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>
@@ -589,19 +674,36 @@ export default function CalendarPage() {
                   IconComponent = XCircle;
                 }
 
+                const person = isTeamView && event.type !== "Holiday" ? event.user : null;
+
                 return (
                   <div
                     key={event.id}
-                    className="flex items-center justify-between p-3.5 bg-slate-50/70 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 rounded-xl"
+                    className="flex items-center justify-between gap-3 p-3.5 bg-slate-50/70 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 rounded-xl"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0">
-                        <IconComponent className="w-4 h-4 text-slate-700 dark:text-slate-300" />
-                      </div>
-                      <div>
-                        <p className="font-bold text-slate-900 dark:text-white text-sm">
-                          {event.title}
+                    <div className="flex items-center gap-3 min-w-0">
+                      {person ? (
+                        <RoyalAvatar
+                          src={person.profile_photo_path}
+                          name={person.name}
+                          userId={person.id}
+                          className="w-9 h-9 rounded-full shrink-0 border border-slate-200 dark:border-slate-700 text-xs"
+                        />
+                      ) : (
+                        <div className="w-9 h-9 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0">
+                          <IconComponent className="w-4 h-4 text-slate-700 dark:text-slate-300" />
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <p className="font-bold text-slate-900 dark:text-white text-sm truncate">
+                          {person ? `${person.name}${person.is_self ? " (You)" : ""}` : event.title}
                         </p>
+                        {person && (
+                          <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 truncate">
+                            {event.title}
+                            {person.designation ? ` · ${person.designation}` : ""}
+                          </p>
+                        )}
                         {event.date && event.type !== "Holiday" && (
                           <p className="text-xs text-slate-400">
                             {event.end_date && event.end_date !== event.date

@@ -574,7 +574,7 @@ export default function DashboardPage() {
             </div>
           </div>
           <Link
-            href="/holidays"
+            href="/calendar"
             className="flex-shrink-0 text-xs font-bold text-[#56348f] dark:text-purple-300 hover:underline px-3.5 py-1.5 bg-white dark:bg-slate-800 border border-purple-200/80 dark:border-purple-800 rounded-xl shadow-2xs hover:bg-slate-50 transition-colors"
           >
             View Calendar →

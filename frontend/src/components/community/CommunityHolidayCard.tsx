@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Calendar, ChevronRight } from "lucide-react";
 import { format, parseISO } from "date-fns";
+import { useAuthStore } from "@/store/auth";
 
 interface Holiday {
   id?: number | string;
@@ -16,6 +17,10 @@ interface CommunityHolidayCardProps {
 }
 
 export function CommunityHolidayCard({ holiday }: CommunityHolidayCardProps) {
+  // Employees / Team Leads see holidays on their Leave Calendar; the Holiday Calendar page is for admins
+  const role = useAuthStore((s) => s.user?.role);
+  const calendarHref = role === "Employee" || role === "Team Lead" ? "/calendar" : "/holidays";
+
   return (
     <div
       style={{
@@ -35,7 +40,7 @@ export function CommunityHolidayCard({ holiday }: CommunityHolidayCardProps) {
         </div>
 
         <Link
-          href="/holidays"
+          href={calendarHref}
           className="text-[#2563eb] dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-xs sm:text-sm font-bold flex items-center gap-0.5 transition-colors group"
         >
           <span>View All</span>

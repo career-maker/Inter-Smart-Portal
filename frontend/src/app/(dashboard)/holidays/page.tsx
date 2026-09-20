@@ -1,15 +1,17 @@
 "use client";
 
 import { PageLoader } from "@/components/ui/PageLoader";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import {
   CalendarDays,
+  CalendarOff,
   Gift,
   Calendar as CalendarIcon,
   CalendarCheck2,
   ChevronLeft,
   ChevronRight,
   ChevronDown,
+  Laptop,
   Plus,
   Trash2,
   Edit,
@@ -21,6 +23,8 @@ import {
 } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
+import { RoyalAvatar } from "@/components/ui/RoyalAvatar";
+import { Portal } from "@/components/ui/portal";
 import {
   format,
   addMonths,
@@ -73,12 +77,70 @@ const MONTH_NAMES = [
   "July", "August", "September", "October", "November", "December"
 ];
 
+// Approved leave / WFH entries for the month (Super Admin only), from GET /calendar/overview
+interface PeopleEvent {
+  id: string;
+  type: "Leave" | "WFH";
+  title: string;
+  start_date: string;
+  end_date: string;
+  days?: number | string | null;
+  duration?: string | null;
+  reason?: string | null;
+  user: {
+    id: number;
+    name: string;
+    employee_code?: string | null;
+    designation?: string | null;
+    profile_photo_path?: string | null;
+    team?: string | null;
+  };
+}
+
+interface DayPeople {
+  leave: PeopleEvent[];
+  wfh: PeopleEvent[];
+}
+
+const EMPTY_DAY_PEOPLE: DayPeople = { leave: [], wfh: [] };
+
+// One row per employee; a person with several entries that day (e.g. two half-days) is grouped
+function groupByEmployee(entries: PeopleEvent[]) {
+  const byUser = new Map<number, { user: PeopleEvent["user"]; entries: PeopleEvent[] }>();
+  entries.forEach((e) => {
+    const group = byUser.get(e.user.id);
+    if (group) group.entries.push(e);
+    else byUser.set(e.user.id, { user: e.user, entries: [e] });
+  });
+  return Array.from(byUser.values()).sort((a, b) => a.user.name.localeCompare(b.user.name));
+}
+
+function formatEntryDates(e: PeopleEvent) {
+  try {
+    const start = parseISO(e.start_date);
+    const end = parseISO(e.end_date);
+    if (e.start_date === e.end_date) return format(start, "dd MMM yyyy");
+    return `${format(start, "dd MMM")} – ${format(end, "dd MMM yyyy")}`;
+  } catch {
+    return e.start_date;
+  }
+}
+
+function formatDays(days?: number | string | null) {
+  const n = Number(days);
+  if (!days || Number.isNaN(n)) return null;
+  return `${n} ${n === 1 ? "day" : "days"}`;
+}
+
 export default function HolidaysPage() {
   const user = useAuthStore((s) => s.user);
   const isSuperAdmin =
     user?.role === "Super Admin" ||
     (user as any)?.roles?.some((r: any) => (r.name || r) === "Super Admin") ||
     user?.role === "HR";
+
+  // Per-day leave/WFH counts + side popup (backed by the Super Admin-only /calendar/overview)
+  const canViewPeople = isSuperAdmin;
 
   // Date Navigation State
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
@@ -91,6 +153,10 @@ export default function HolidaysPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [seedingLoading, setSeedingLoading] = useState(false);
+
+  // Leave / WFH overview (Super Admin) + day side popup
+  const [peopleEvents, setPeopleEvents] = useState<PeopleEvent[]>([]);
+  const [peopleDrawer, setPeopleDrawer] = useState<{ date: string; tab: "leave" | "wfh" } | null>(null);
 
   // Admin Management Dialog States
   const [showAdminMenu, setShowAdminMenu] = useState(false);
@@ -131,6 +197,56 @@ export default function HolidaysPage() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // Load approved leave/WFH for the visible month (Super Admin only)
+  const viewYear = currentDate.getFullYear();
+  const viewMonth = currentDate.getMonth();
+  useEffect(() => {
+    if (!canViewPeople) return;
+    let cancelled = false;
+    api
+      .get(`/calendar/overview?month=${viewMonth + 1}&year=${viewYear}`)
+      .then((res) => {
+        if (!cancelled) setPeopleEvents(res.data?.data || []);
+      })
+      .catch((e) => {
+        console.error(e);
+        if (!cancelled) setPeopleEvents([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [canViewPeople, viewYear, viewMonth]);
+
+  // Expand each entry across its date range: { "yyyy-MM-dd": { leave: [...], wfh: [...] } }
+  const peopleByDay = useMemo(() => {
+    const map: Record<string, DayPeople> = {};
+    peopleEvents.forEach((ev) => {
+      try {
+        const start = parseISO(ev.start_date);
+        let end = parseISO(ev.end_date);
+        if (end < start) end = start;
+        eachDayOfInterval({ start, end }).forEach((d) => {
+          const key = format(d, "yyyy-MM-dd");
+          const bucket = (map[key] ||= { leave: [], wfh: [] });
+          (ev.type === "WFH" ? bucket.wfh : bucket.leave).push(ev);
+        });
+      } catch {
+        // skip entries with unparseable dates
+      }
+    });
+    return map;
+  }, [peopleEvents]);
+
+  // Escape closes the side popup
+  useEffect(() => {
+    if (!peopleDrawer) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setPeopleDrawer(null);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [peopleDrawer]);
 
   const fetchHolidays = async () => {
     try {
@@ -342,6 +458,12 @@ export default function HolidaysPage() {
   if (isLoading) {
     return <PageLoader />;
   }
+
+  // Side popup data: who is on leave / WFH on the clicked day, one row per employee
+  const drawerDay = peopleDrawer ? peopleByDay[peopleDrawer.date] ?? EMPTY_DAY_PEOPLE : null;
+  const drawerLeaveRows = drawerDay ? groupByEmployee(drawerDay.leave) : [];
+  const drawerWfhRows = drawerDay ? groupByEmployee(drawerDay.wfh) : [];
+  const drawerRows = peopleDrawer?.tab === "wfh" ? drawerWfhRows : drawerLeaveRows;
 
   return (
     <div
@@ -612,7 +734,7 @@ export default function HolidaysPage() {
         </div>
 
         {/* Card 4: Legend Card */}
-        <div className="bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/60 rounded-2xl p-4 flex items-center justify-around gap-2 shadow-2xs">
+        <div className="bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/60 rounded-2xl p-4 flex flex-wrap items-center justify-around gap-x-3 gap-y-2 shadow-2xs">
           {/* Legend 1 */}
           <div className="flex items-center gap-2">
             <span className="w-3 h-3 rounded-full bg-rose-500 shrink-0 shadow-2xs" />
@@ -628,6 +750,26 @@ export default function HolidaysPage() {
               Working Day
             </span>
           </div>
+
+          {canViewPeople && (
+            <>
+              {/* Legend 3 */}
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-emerald-500 shrink-0 shadow-2xs" />
+                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  On Leave
+                </span>
+              </div>
+
+              {/* Legend 4 */}
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-sky-500 shrink-0 shadow-2xs" />
+                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  Work From Home
+                </span>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -662,6 +804,15 @@ export default function HolidaysPage() {
 
             // Determine weekend background and text colors
             const isTreatedAsWeekend = isWeekend && !isWorkingWeekend && isCurrentMonth;
+
+            // Distinct employees on approved leave / WFH. Only counted on working days:
+            // a leave range that spans a weekend or holiday is not a leave day there.
+            const dayPeople =
+              canViewPeople && isCurrentMonth && !isTreatedAsWeekend && !holiday
+                ? peopleByDay[dateStr] ?? EMPTY_DAY_PEOPLE
+                : EMPTY_DAY_PEOPLE;
+            const leaveCount = new Set(dayPeople.leave.map((e) => e.user.id)).size;
+            const wfhCount = new Set(dayPeople.wfh.map((e) => e.user.id)).size;
 
             return (
               <div
@@ -748,13 +899,192 @@ export default function HolidaysPage() {
                   </div>
                 )}
 
-                {/* Bottom spacer / empty */}
-                <div className="h-1" />
+                {/* Bottom row: leave / WFH headcount badges (Super Admin) — click opens the day side popup */}
+                {leaveCount > 0 || wfhCount > 0 ? (
+                  <div className="flex flex-wrap items-center gap-1 pt-1">
+                    {leaveCount > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setPeopleDrawer({ date: dateStr, tab: "leave" })}
+                        title={`${leaveCount} on leave — click for details`}
+                        aria-label={`${leaveCount} on leave on ${format(day, "d MMMM")}`}
+                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[11px] font-bold border cursor-pointer transition-colors bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-200 dark:hover:bg-emerald-900"
+                      >
+                        <CalendarOff className="w-3 h-3" />
+                        <span>{leaveCount}</span>
+                        <span className="hidden xl:inline">Leave</span>
+                      </button>
+                    )}
+                    {wfhCount > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setPeopleDrawer({ date: dateStr, tab: "wfh" })}
+                        title={`${wfhCount} working from home — click for details`}
+                        aria-label={`${wfhCount} working from home on ${format(day, "d MMMM")}`}
+                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[11px] font-bold border cursor-pointer transition-colors bg-sky-100 dark:bg-sky-900/50 text-sky-800 dark:text-sky-300 border-sky-200 dark:border-sky-800 hover:bg-sky-200 dark:hover:bg-sky-900"
+                      >
+                        <Laptop className="w-3 h-3" />
+                        <span>{wfhCount}</span>
+                        <span className="hidden xl:inline">WFH</span>
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="h-1" />
+                )}
               </div>
             );
           })}
         </div>
       </div>
+
+      {/* ── 3b. DAY SIDE POPUP: who is on leave / WFH (Super Admin) ── */}
+      {peopleDrawer && drawerDay && (
+        <Portal>
+          <div className="fixed inset-0 z-[99999] overflow-hidden font-sans" data-side-popup="true">
+            {/* Backdrop */}
+            <div
+              onClick={() => setPeopleDrawer(null)}
+              className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200"
+            />
+
+            {/* Drawer Panel */}
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-label={`Leave and WFH on ${format(parseISO(peopleDrawer.date), "d MMMM yyyy")}`}
+              className="fixed inset-y-0 right-0 w-full max-w-md sm:max-w-lg bg-white dark:bg-slate-900 shadow-2xl flex flex-col border-l border-slate-200 dark:border-slate-800 z-[99999] animate-in slide-in-from-right duration-300"
+            >
+              {/* Header */}
+              <div className="p-5 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-b from-purple-50/80 to-white dark:from-slate-800 dark:to-slate-900 shrink-0 flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-[#56348f] dark:text-purple-300">
+                    Leave &amp; WFH
+                  </p>
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-white leading-tight mt-0.5">
+                    {format(parseISO(peopleDrawer.date), "EEEE, dd MMMM yyyy")}
+                  </h2>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPeopleDrawer(null)}
+                  className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
+                  title="Close (Esc)"
+                  aria-label="Close"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Tabs */}
+              <div className="px-5 pt-4 flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setPeopleDrawer({ date: peopleDrawer.date, tab: "leave" })}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                    peopleDrawer.tab === "leave"
+                      ? "bg-emerald-600 text-white"
+                      : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+                  }`}
+                >
+                  <CalendarOff className="w-3.5 h-3.5" />
+                  On Leave ({drawerLeaveRows.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPeopleDrawer({ date: peopleDrawer.date, tab: "wfh" })}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                    peopleDrawer.tab === "wfh"
+                      ? "bg-sky-600 text-white"
+                      : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+                  }`}
+                >
+                  <Laptop className="w-3.5 h-3.5" />
+                  Work From Home ({drawerWfhRows.length})
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="flex-1 overflow-y-auto p-5 space-y-3">
+                {drawerRows.length === 0 ? (
+                  <p className="text-sm font-medium text-slate-400 py-6 text-center">
+                    {peopleDrawer.tab === "wfh"
+                      ? "No one is working from home on this day."
+                      : "No one is on leave on this day."}
+                  </p>
+                ) : (
+                  drawerRows.map(({ user: person, entries }) => (
+                    <div
+                      key={person.id}
+                      className="p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40"
+                    >
+                      <div className="flex items-center gap-3">
+                        <RoyalAvatar
+                          src={person.profile_photo_path}
+                          name={person.name}
+                          userId={person.id}
+                          employeeCode={person.employee_code}
+                          className="w-10 h-10 rounded-full shrink-0 border border-slate-200 dark:border-slate-700 text-sm"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <p className="font-bold text-sm text-slate-900 dark:text-white truncate">{person.name}</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                            {[person.employee_code, person.designation].filter(Boolean).join(" · ") || "Employee"}
+                          </p>
+                        </div>
+                        {person.team && (
+                          <span className="shrink-0 max-w-[40%] truncate text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200/70 dark:border-purple-800/50">
+                            {person.team}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="mt-3 pt-3 border-t border-slate-200/70 dark:border-slate-700/60 space-y-2.5">
+                        {entries.map((e) => {
+                          const half =
+                            e.duration === "Half-Morning"
+                              ? "Morning half"
+                              : e.duration === "Half-Afternoon"
+                              ? "Afternoon half"
+                              : null;
+                          const days = formatDays(e.days);
+                          return (
+                            <div key={e.id} className="text-xs">
+                              <div className="flex items-center flex-wrap gap-1.5">
+                                <span
+                                  className={`font-bold px-2 py-0.5 rounded-md border ${
+                                    e.type === "WFH"
+                                      ? "bg-sky-100 dark:bg-sky-900/50 text-sky-800 dark:text-sky-300 border-sky-200 dark:border-sky-800"
+                                      : "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800"
+                                  }`}
+                                >
+                                  {e.title}
+                                </span>
+                                {half && (
+                                  <span className="font-semibold text-slate-500 dark:text-slate-400">{half}</span>
+                                )}
+                              </div>
+                              <p className="mt-1 font-medium text-slate-500 dark:text-slate-400">
+                                {formatEntryDates(e)}
+                                {days ? ` · ${days}` : ""}
+                              </p>
+                              {e.reason && (
+                                <p className="mt-1 text-slate-600 dark:text-slate-300 line-clamp-2" title={e.reason}>
+                                  {e.reason}
+                                </p>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        </Portal>
+      )}
 
       {/* ── 4. ADD / EDIT HOLIDAY MODAL ── */}
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
