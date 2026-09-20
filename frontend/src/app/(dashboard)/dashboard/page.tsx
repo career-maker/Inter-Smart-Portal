@@ -666,24 +666,15 @@ export default function DashboardPage() {
                     if (todayOff?.is_off) {
                       const isWeekendOff = todayOff.type === "weekend";
                       return (
-                        <div className="flex items-center gap-3 sm:gap-4 rounded-2xl border border-amber-200/80 dark:border-amber-800/40 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/25 dark:to-orange-950/20 px-4 py-4 sm:px-5">
-                          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
-                            {isWeekendOff ? (
-                              <Palmtree className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2]" />
-                            ) : (
-                              <PartyPopper className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2]" />
-                            )}
+                        <div className="px-1 py-3 sm:py-4">
+                          <div className="text-base sm:text-lg font-bold text-[#0f1824] dark:text-slate-100 tracking-tight leading-tight">
+                            {isWeekendOff ? "Happy Weekend" : `Company Holiday${todayOff.name ? ` — ${todayOff.name}` : ""}`}
                           </div>
-                          <div className="min-w-0">
-                            <div className="text-sm sm:text-base font-extrabold text-amber-900 dark:text-amber-200 leading-tight">
-                              {isWeekendOff ? "Happy Weekend!" : `Today is a holiday${todayOff.name ? ` — ${todayOff.name}` : ""}`}
-                            </div>
-                            <p className="text-xs sm:text-[13px] font-medium text-amber-800/80 dark:text-amber-300/70 mt-0.5 leading-snug">
-                              {isWeekendOff
-                                ? `It's ${todayOff.name || "the weekend"} — no attendance is tracked today. Rest up and enjoy your day off!`
-                                : "The office is closed and no attendance is tracked today. Enjoy your day off!"}
-                            </p>
-                          </div>
+                          <p className="text-xs sm:text-[13px] font-medium text-slate-500 dark:text-slate-400 mt-1 leading-relaxed max-w-xl">
+                            {isWeekendOff
+                              ? `Today is ${todayOff.name || "a weekend"}, a non-working day, so team attendance is not recorded. Wishing you and your team a restful weekend.`
+                              : "Today is an official company holiday, so team attendance is not recorded. Wishing you and your team a pleasant day off."}
+                          </p>
                         </div>
                       );
                     }
