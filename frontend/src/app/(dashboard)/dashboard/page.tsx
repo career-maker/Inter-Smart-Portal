@@ -55,6 +55,7 @@ import { LeaderboardWidget } from "@/components/dashboard/LeaderboardWidget";
 import { EmergencyContactsCard } from "@/components/dashboard/EmergencyContactsCard";
 import { UpcomingBirthdaysWithWishes } from "@/components/dashboard/UpcomingBirthdaysWithWishes";
 import { UpcomingHolidaysCard } from "@/components/dashboard/UpcomingHolidaysCard";
+import { DayOffBanner } from "@/components/dashboard/DayOffBanner";
 import { NetworkErrorWithGame } from "@/components/ui/NetworkErrorWithGame";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, AreaChart, Area } from "recharts";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
@@ -664,19 +665,7 @@ export default function DashboardPage() {
                     // Holiday (set in Holiday Calendar) or weekend: show a friendly message instead of "Absent" cards
                     const todayOff = data?.widgets?.today_off;
                     if (todayOff?.is_off) {
-                      const isWeekendOff = todayOff.type === "weekend";
-                      return (
-                        <div className="px-1 py-3 sm:py-4">
-                          <div className="text-base sm:text-lg font-bold text-[#0f1824] dark:text-slate-100 tracking-tight leading-tight">
-                            {isWeekendOff ? "Happy Weekend" : `Company Holiday${todayOff.name ? ` — ${todayOff.name}` : ""}`}
-                          </div>
-                          <p className="text-xs sm:text-[13px] font-medium text-slate-500 dark:text-slate-400 mt-1 leading-relaxed max-w-xl">
-                            {isWeekendOff
-                              ? `Today is ${todayOff.name || "a weekend"}, a non-working day, so team attendance is not recorded. Wishing you and your team a restful weekend.`
-                              : "Today is an official company holiday, so team attendance is not recorded. Wishing you and your team a pleasant day off."}
-                          </p>
-                        </div>
-                      );
+                      return <DayOffBanner type={todayOff.type === "weekend" ? "weekend" : "holiday"} name={todayOff.name} />;
                     }
 
                     const teamMembers = data?.widgets?.team_members || [];
