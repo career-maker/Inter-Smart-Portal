@@ -57,7 +57,7 @@ function resolveNotificationUrl(notification: any): string {
   }
 
   const event = notification.data?.event;
-  if (event === "submitted" || event === "tl_approved") return "/leaves/approvals";
+  if (event === "submitted" || event === "tl_approved" || event === "tl_rejected" || event === "cancelled") return "/leaves/approvals";
   if (event === "approved" || event === "rejected" || event === "admin_marked") return "/leaves";
   return stored || "/notifications";
 }

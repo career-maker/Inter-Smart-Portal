@@ -30,9 +30,9 @@ class LeaveRequestNotification extends Notification
             'cancelled'    => 'Leave Cancelled',
         ];
 
-        // Approver notifications (submitted / tl_approved / tl_rejected) → approvals page
+        // Approver notifications (submitted / tl_approved / tl_rejected / cancelled) → approvals page
         // Employee notifications (approved/rejected) → their own leaves list
-        $actionUrl = in_array($this->event, ['submitted', 'tl_approved', 'tl_rejected']) ? '/leaves/approvals' : '/leaves';
+        $actionUrl = in_array($this->event, ['submitted', 'tl_approved', 'tl_rejected', 'cancelled']) ? '/leaves/approvals' : '/leaves';
 
         return [
             'title'            => $titles[$this->event] ?? 'Leave Update',

@@ -106,15 +106,17 @@ class LeaveRequestController extends Controller
             } elseif ($request->has('status')) {
                 $query->where('status', $request->status);
             }
-        } elseif ($user->hasRole('Team Lead') || !empty($delegatedEmployeeIds)) {
-            $teamId = $user->team_id;
-            $query->where(function ($mainQ) use ($user, $teamId, $delegatedEmployeeIds, $redirectedAwayEmployeeIds) {
+        } elseif ($user->hasRole('Team Lead') || in_array(strtolower($user->role ?? ''), ['team lead', 'lead'], true) || \App\Models\Team::where('team_lead_id', $user->id)->exists() || !empty($delegatedEmployeeIds)) {
+            $ledTeamIds = \App\Models\Team::where('team_lead_id', $user->id)->pluck('id')->toArray();
+            $allTeamIds = array_unique(array_filter(array_merge([$user->team_id], $ledTeamIds)));
+
+            $query->where(function ($mainQ) use ($user, $allTeamIds, $delegatedEmployeeIds, $redirectedAwayEmployeeIds) {
                 // Always include the approver's own leave records
                 $mainQ->where('user_id', $user->id);
 
-                if ($user->hasRole('Team Lead')) {
-                    $mainQ->orWhere(function ($subQ) use ($teamId, $redirectedAwayEmployeeIds) {
-                        $subQ->whereHas('user', fn($uq) => $uq->where('team_id', $teamId));
+                if (!empty($allTeamIds)) {
+                    $mainQ->orWhere(function ($subQ) use ($allTeamIds, $redirectedAwayEmployeeIds) {
+                        $subQ->whereHas('user', fn($uq) => $uq->whereIn('team_id', $allTeamIds));
                         if (!empty($redirectedAwayEmployeeIds)) {
                             $subQ->whereNotIn('user_id', $redirectedAwayEmployeeIds);
                         }
@@ -1038,6 +1040,99 @@ class LeaveRequestController extends Controller
         }
     }
 
+    /**
+     * Send notification when a leave request is cancelled.
+     * When cancelled by an employee, the Team Lead and Super Admins receive notifications.
+     */
+    private function notifyOnCancel(User $actor, LeaveRequest $leaveRequest): void
+    {
+        try {
+            $leaveRequest->loadMissing(['user', 'leaveType']);
+            $applicant = $leaveRequest->user;
+            if (!$applicant) {
+                return;
+            }
+
+            $typeName = $leaveRequest->leaveType->name ?? 'Leave';
+            $applicantName = "{$applicant->first_name} {$applicant->last_name}";
+            $dateRange = ($leaveRequest->start_date === $leaveRequest->end_date)
+                ? $leaveRequest->start_date
+                : "{$leaveRequest->start_date} to {$leaveRequest->end_date}";
+
+            $isCancelledByEmployee = ((int)$actor->id === (int)$applicant->id);
+            $message = $isCancelledByEmployee
+                ? "{$applicantName} has cancelled their {$typeName} request ({$dateRange})."
+                : "{$typeName} request for {$applicantName} ({$dateRange}) has been cancelled by {$actor->first_name} {$actor->last_name}.";
+
+            // 1. Notify all Super Admins
+            $superAdmins = User::role('Super Admin')->get();
+            foreach ($superAdmins as $admin) {
+                if ($admin->id !== $actor->id) {
+                    $admin->notify(new LeaveRequestNotification('cancelled', $leaveRequest, $message));
+                }
+            }
+
+            // 2. Identify Team Lead / Delegated Approvers to notify
+            $approverIds = [];
+
+            // Check custom approver overrides for this employee
+            $overrides = \App\Models\EmailSetting::getByKey('employee_overrides', []);
+            $matchedOverride = collect($overrides)->first(function ($item) use ($applicant) {
+                return (int)($item['user_id'] ?? 0) === (int)$applicant->id && ($item['enabled'] ?? true);
+            });
+
+            if ($matchedOverride) {
+                if (!empty($matchedOverride['approver_user_id'])) $approverIds[] = (int)$matchedOverride['approver_user_id'];
+                if (!empty($matchedOverride['approver_user_id_2'])) $approverIds[] = (int)$matchedOverride['approver_user_id_2'];
+            }
+
+            // Check ApprovalRoutingService rules
+            $isSingle = ($leaveRequest->start_date === $leaveRequest->end_date);
+            $routing = \App\Services\ApprovalRoutingService::resolve($applicant, $isSingle ? 'leave_single_day' : 'leave_multi_day', floatval($leaveRequest->days ?? 1.0));
+            if (!empty($routing['approver_user_ids'])) {
+                $approverIds = array_merge($approverIds, $routing['approver_user_ids']);
+            }
+
+            // Check standard Team Lead via User model helper
+            if ($applicant->hasTeamLead()) {
+                $tl = $applicant->teamLead();
+                if ($tl) {
+                    $approverIds[] = (int)$tl->id;
+                }
+            }
+
+            // Also check team_lead_id directly on applicant's team
+            if (!empty($applicant->team_id)) {
+                $team = \App\Models\Team::find($applicant->team_id);
+                if ($team && !empty($team->team_lead_id)) {
+                    $approverIds[] = (int)$team->team_lead_id;
+                }
+            }
+
+            $approverIds = array_values(array_unique(array_filter($approverIds)));
+
+            foreach ($approverIds as $apprId) {
+                if ($apprId !== (int)$actor->id) {
+                    $approver = User::find($apprId);
+                    if ($approver) {
+                        $approver->notify(new LeaveRequestNotification('cancelled', $leaveRequest, $message));
+                    }
+                }
+            }
+
+            // 3. If cancelled by someone other than the employee, notify the employee
+            if (!$isCancelledByEmployee) {
+                $applicant->notify(new LeaveRequestNotification(
+                    'cancelled',
+                    $leaveRequest,
+                    "Your {$typeName} request ({$dateRange}) has been cancelled by {$actor->first_name} {$actor->last_name}."
+                ));
+            }
+        } catch (\Throwable $e) {
+            \Log::warning('notifyOnCancel failed silently: ' . $e->getMessage());
+        }
+    }
+
     public function override(Request $request, LeaveRequest $leaveRequest)
     {
         $user = $request->user();
@@ -1527,6 +1622,8 @@ class LeaveRequestController extends Controller
             'admin_status' => 'Cancelled',
             'approved_by'  => $user->id,
         ]);
+
+        $this->notifyOnCancel($user, $leaveRequest);
 
         return response()->json([
             'message' => 'Leave request cancelled successfully and leave balance refunded if applicable.',

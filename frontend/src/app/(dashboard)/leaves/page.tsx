@@ -86,6 +86,7 @@ export default function LeavesPage() {
   const [isDirectModalOpen, setIsDirectModalOpen] = useState(false);
 
   // Filters
+  const [filterStatus, setFilterStatus] = useState<string>("All");
   const [filterType, setFilterType] = useState("");
   const [filterFromDate, setFilterFromDate] = useState("");
   const [filterToDate, setFilterToDate] = useState("");
@@ -137,9 +138,10 @@ export default function LeavesPage() {
 
   useEffect(() => {
     fetchData(currentPage);
-  }, [currentPage, filterType, filterFromDate, filterToDate, refreshKey]);
+  }, [currentPage, filterStatus, filterType, filterFromDate, filterToDate, refreshKey]);
 
   const clearFilters = () => {
+    setFilterStatus("All");
     setFilterType("");
     setFilterFromDate("");
     setFilterToDate("");
@@ -150,6 +152,7 @@ export default function LeavesPage() {
     setIsLoading(true);
     try {
       let queryParams = `page=${page}`;
+      if (filterStatus && filterStatus !== "All") queryParams += `&status=${filterStatus}`;
       if (filterType) queryParams += `&type=${filterType}`;
       if (filterFromDate) queryParams += `&from_date=${filterFromDate}`;
       if (filterToDate) queryParams += `&to_date=${filterToDate}`;
@@ -294,6 +297,24 @@ export default function LeavesPage() {
     return allUserRequests.filter(
       (r) => r.status === "Pending" || r.tl_status === "Pending" || r.admin_status === "Pending"
     ).length;
+  }, [allUserRequests]);
+
+  const statusCounts = useMemo(() => {
+    const counts = {
+      All: allUserRequests.length,
+      Pending: 0,
+      Approved: 0,
+      Rejected: 0,
+      Cancelled: 0,
+    };
+    allUserRequests.forEach((r) => {
+      const s = r.status;
+      if (s === "Pending") counts.Pending++;
+      else if (s === "Approved") counts.Approved++;
+      else if (s === "Rejected") counts.Rejected++;
+      else if (s === "Cancelled") counts.Cancelled++;
+    });
+    return counts;
   }, [allUserRequests]);
 
   const getStatusBadge = (req: any) => {
@@ -715,7 +736,7 @@ export default function LeavesPage() {
               />
             </div>
             
-            {(filterType || filterFromDate || filterToDate) && (
+            {(filterStatus !== "All" || filterType || filterFromDate || filterToDate) && (
               <button
                 onClick={clearFilters}
                 className="mt-4 text-[11px] uppercase font-bold text-rose-500 hover:text-rose-600 dark:hover:text-rose-400 transition-colors cursor-pointer"
@@ -726,8 +747,46 @@ export default function LeavesPage() {
           </div>
         </div>
 
+        {/* ── Status Filter Tabs ── */}
+        <div className="px-6 py-2.5 border-b border-slate-200/80 dark:border-slate-800 flex flex-wrap items-center gap-1.5 bg-slate-50/20 dark:bg-slate-900/40">
+          {(["All", "Pending", "Approved", "Rejected", "Cancelled"] as const).map((st) => {
+            const count = statusCounts[st] || 0;
+            const isActive = filterStatus === st;
+            return (
+              <button
+                key={st}
+                type="button"
+                onClick={() => { setFilterStatus(st); setCurrentPage(1); }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+                  isActive
+                    ? "bg-[#56348f]/15 border border-[#56348f]/40 text-[#56348f] dark:text-purple-300 font-bold shadow-xs"
+                    : "bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/70 border border-slate-200 dark:border-slate-700"
+                }`}
+              >
+                {st === "All" && <FileText className="w-3.5 h-3.5 text-slate-500" />}
+                {st === "Pending" && <Clock className="w-3.5 h-3.5 text-amber-500" />}
+                {st === "Approved" && <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />}
+                {st === "Rejected" && <XCircle className="w-3.5 h-3.5 text-rose-500" />}
+                {st === "Cancelled" && <XCircle className="w-3.5 h-3.5 text-slate-500" />}
+                <span>{st}</span>
+                <span
+                  className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${
+                    isActive
+                      ? "bg-[#56348f] text-white"
+                      : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
         {requests.length === 0 ? (
-          <div className="py-12 text-center text-slate-500 dark:text-slate-400 text-sm">No leave requests found.</div>
+          <div className="py-12 text-center text-slate-500 dark:text-slate-400 text-sm">
+            No {filterStatus === "All" ? "" : filterStatus.toLowerCase()} leave requests found.
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[1000px] table-fixed text-sm text-left">

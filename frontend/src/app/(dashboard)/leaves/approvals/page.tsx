@@ -136,7 +136,7 @@ export default function ApprovalsPage() {
     }
   }, [searchParams]);
 
-  const [statusFilter, setStatusFilter] = useState<"Pending" | "Approved" | "Rejected" | "All">("Pending");
+  const [statusFilter, setStatusFilter] = useState<"Pending" | "Approved" | "Rejected" | "Cancelled" | "All">("Pending");
   const [isDirectModalOpen, setIsDirectModalOpen] = useState(false);
 
   // State with initial hydration from localStorage for 0ms page load
@@ -162,6 +162,15 @@ export default function ApprovalsPage() {
     if (typeof window !== "undefined") {
       try {
         const cached = localStorage.getItem(`${CACHE_KEY}_rejected`);
+        if (cached) return JSON.parse(cached);
+      } catch {}
+    }
+    return [];
+  });
+  const [cancelledLeaves, setCancelledLeaves] = useState<any[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem(`${CACHE_KEY}_cancelled`);
         if (cached) return JSON.parse(cached);
       } catch {}
     }
@@ -277,9 +286,10 @@ export default function ApprovalsPage() {
       setIsLoading(false);
 
       // 2. Fetch approved, rejected, and cancelled records in parallel background
-      const [approvedLeavesRes, rejectedLeavesRes, approvedWfhRes, rejectedWfhRes, cancelledWfhRes] = await Promise.allSettled([
+      const [approvedLeavesRes, rejectedLeavesRes, cancelledLeavesRes, approvedWfhRes, rejectedWfhRes, cancelledWfhRes] = await Promise.allSettled([
         api.get("/leave-requests?status=Approved&per_page=50"),
         api.get("/leave-requests?status=Rejected&per_page=50"),
+        api.get("/leave-requests?status=Cancelled&per_page=50"),
         api.get("/wfh-requests?status=Approved&per_page=50"),
         api.get("/wfh-requests?status=Rejected&per_page=50"),
         api.get("/wfh-requests?status=Cancelled&per_page=50"),
@@ -294,6 +304,11 @@ export default function ApprovalsPage() {
         const d = rejectedLeavesRes.value.data?.data?.data ?? [];
         setRejectedLeaves(d);
         try { localStorage.setItem(`${CACHE_KEY}_rejected`, JSON.stringify(d)); } catch {}
+      }
+      if (cancelledLeavesRes.status === "fulfilled") {
+        const d = cancelledLeavesRes.value.data?.data?.data ?? [];
+        setCancelledLeaves(d);
+        try { localStorage.setItem(`${CACHE_KEY}_cancelled`, JSON.stringify(d)); } catch {}
       }
       if (approvedWfhRes.status === "fulfilled") {
         const d = approvedWfhRes.value.data?.data?.data ?? [];
@@ -462,9 +477,13 @@ export default function ApprovalsPage() {
       
       // Optimistic update
       if (type === "leave") {
+        const item = leaveRequests.find(r => r.id === id) || approvedLeaves.find(r => r.id === id) || rejectedLeaves.find(r => r.id === id);
         setLeaveRequests((prev) => prev.filter((r) => r.id !== id));
         setApprovedLeaves((prev) => prev.filter((r) => r.id !== id));
         setRejectedLeaves((prev) => prev.filter((r) => r.id !== id));
+        if (item && !isRejected) {
+          setCancelledLeaves((prev) => [{ ...item, status: "Cancelled", tl_status: "Cancelled", admin_status: "Cancelled" }, ...prev]);
+        }
       } else {
         const item = wfhRequests.find(r => r.id === id) || approvedWfh.find(r => r.id === id) || rejectedWfh.find(r => r.id === id);
         setWfhRequests((prev) => prev.filter((r) => r.id !== id));
@@ -625,13 +644,15 @@ export default function ApprovalsPage() {
     if (statusFilter === "Pending") return leaveRequests;
     if (statusFilter === "Approved") return approvedLeaves;
     if (statusFilter === "Rejected") return rejectedLeaves;
-    return [...leaveRequests, ...approvedLeaves, ...rejectedLeaves];
-  }, [statusFilter, leaveRequests, approvedLeaves, rejectedLeaves]);
+    if (statusFilter === "Cancelled") return cancelledLeaves;
+    return [...leaveRequests, ...approvedLeaves, ...rejectedLeaves, ...cancelledLeaves];
+  }, [statusFilter, leaveRequests, approvedLeaves, rejectedLeaves, cancelledLeaves]);
 
   const displayWfh = useMemo(() => {
     if (statusFilter === "Pending") return wfhRequests;
     if (statusFilter === "Approved") return approvedWfh;
     if (statusFilter === "Rejected") return rejectedWfh;
+    if (statusFilter === "Cancelled") return cancelledWfh;
     return [...wfhRequests, ...approvedWfh, ...rejectedWfh, ...cancelledWfh];
   }, [statusFilter, wfhRequests, approvedWfh, rejectedWfh, cancelledWfh]);
 
@@ -653,17 +674,19 @@ export default function ApprovalsPage() {
 
           {/* Row 1: Status Filter Tabs */}
           <div className="flex flex-wrap items-center gap-1.5">
-            {(["Pending", "Approved", "Rejected", "All"] as const).map((status) => {
+            {(["Pending", "Approved", "Rejected", "Cancelled", "All"] as const).map((status) => {
               let count = 0;
               if (tab === "leaves") {
                 if (status === "Pending") count = leaveRequests.length;
                 else if (status === "Approved") count = approvedLeaves.length;
                 else if (status === "Rejected") count = rejectedLeaves.length;
-                else count = leaveRequests.length + approvedLeaves.length + rejectedLeaves.length;
+                else if (status === "Cancelled") count = cancelledLeaves.length;
+                else count = leaveRequests.length + approvedLeaves.length + rejectedLeaves.length + cancelledLeaves.length;
               } else {
                 if (status === "Pending") count = wfhRequests.length;
                 else if (status === "Approved") count = approvedWfh.length;
                 else if (status === "Rejected") count = rejectedWfh.length;
+                else if (status === "Cancelled") count = cancelledWfh.length;
                 else count = wfhRequests.length + approvedWfh.length + rejectedWfh.length + cancelledWfh.length;
               }
 
@@ -682,6 +705,7 @@ export default function ApprovalsPage() {
                   {status === "Pending" && <Calendar className="w-3.5 h-3.5 text-amber-500" />}
                   {status === "Approved" && <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />}
                   {status === "Rejected" && <XCircle className="w-3.5 h-3.5 text-rose-500" />}
+                  {status === "Cancelled" && <XCircle className="w-3.5 h-3.5 text-slate-500" />}
                   {status === "All" && <History className="w-3.5 h-3.5 text-slate-500" />}
                   <span>{status}</span>
                   <span
@@ -890,6 +914,10 @@ export default function ApprovalsPage() {
                         ) : req.status === "Rejected" ? (
                           <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
                             <XCircle className="w-2.5 h-2.5 text-rose-500" /> Rejected
+                          </span>
+                        ) : req.status === "Cancelled" ? (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-300 dark:border-slate-700">
+                            <XCircle className="w-2.5 h-2.5 text-slate-500" /> Cancelled
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
