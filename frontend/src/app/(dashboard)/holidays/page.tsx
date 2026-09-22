@@ -817,14 +817,35 @@ export default function HolidaysPage() {
             return (
               <div
                 key={dateStr + idx}
-                className={`min-h-[105px] sm:min-h-[115px] p-2 sm:p-2.5 flex flex-col justify-between border-b border-r border-slate-100 dark:border-slate-750 transition-colors relative ${
+                className={`group/day min-h-[105px] sm:min-h-[115px] p-2 sm:p-2.5 flex flex-col justify-between border-b border-r border-slate-100 dark:border-slate-750 transition-colors relative ${
                   isTreatedAsWeekend
                     ? "bg-[#FFF5F6] dark:bg-rose-950/15"
                     : "bg-white dark:bg-slate-800"
                 } ${!isCurrentMonth ? "bg-white/60 dark:bg-slate-850/40" : ""}`}
               >
-                {/* Top Row: Date number */}
-                <div className="flex justify-end items-center w-full">
+              {/* Top Row: Date number + quick-add button for Super Admin */}
+                <div className="flex justify-between items-center w-full">
+                  {/* Quick add holiday button (Super Admin only, visible on hover) */}
+                  {isSuperAdmin && isCurrentMonth ? (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditId(null);
+                        setName("");
+                        setDate(dateStr);
+                        setType("Company Holiday");
+                        setDescription("");
+                        setShowDialog(true);
+                      }}
+                      title={`Add holiday on ${format(day, "d MMMM")}`}
+                      className="opacity-0 group-hover/day:opacity-100 w-5 h-5 rounded-md bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-800 flex items-center justify-center transition-all cursor-pointer shrink-0"
+                    >
+                      <Plus className="w-3 h-3" />
+                    </button>
+                  ) : (
+                    <span />
+                  )}
                   <span
                     className={`text-sm font-bold ${
                       !isCurrentMonth
@@ -841,45 +862,95 @@ export default function HolidaysPage() {
                 {/* Middle Content Row: Weekend Badge OR Holiday Card OR Working Override */}
                 {isCurrentMonth && (
                   <div className="my-auto w-full flex items-center justify-center">
-                    {/* CASE A: Weekday Holiday (like Day 21 in screenshot) */}
+                    {/* CASE A: Weekday Holiday */}
                     {holiday && !isWeekend && (
-                      <div
-                        onClick={() => isSuperAdmin && openEditHoliday(holiday)}
-                        className={`bg-[#FFE4E8] dark:bg-rose-950/60 border border-rose-200/60 dark:border-rose-900/50 rounded-lg p-2 flex items-start gap-2 w-full shadow-2xs transition-transform ${
-                          isSuperAdmin ? "cursor-pointer hover:scale-[1.02]" : ""
-                        }`}
-                        title={isSuperAdmin ? "Click to edit holiday" : holiday.name}
-                      >
-                        <span className="text-rose-600 dark:text-rose-400 font-bold text-sm shrink-0">
-                          {format(day, "d")}
-                        </span>
-                        <span className="text-slate-900 dark:text-white font-bold text-xs leading-snug line-clamp-2">
-                          {holiday.name}
-                        </span>
+                      <div className="bg-[#FFE4E8] dark:bg-rose-950/60 border border-rose-200/60 dark:border-rose-900/50 rounded-lg p-2 w-full shadow-2xs">
+                        <div className="flex items-start gap-1.5">
+                          <span className="text-rose-600 dark:text-rose-400 font-bold text-sm shrink-0">
+                            {format(day, "d")}
+                          </span>
+                          <span className="text-slate-900 dark:text-white font-bold text-xs leading-snug line-clamp-2 flex-1">
+                            {holiday.name}
+                          </span>
+                        </div>
+                        {isSuperAdmin && (
+                          <div className="flex items-center gap-1 mt-1.5 justify-end">
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); openEditHoliday(holiday); }}
+                              title="Edit holiday"
+                              className="p-1 rounded-md text-rose-600 dark:text-rose-400 hover:bg-rose-200/60 dark:hover:bg-rose-900/60 transition-colors cursor-pointer"
+                            >
+                              <Edit className="w-3 h-3" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); deleteHoliday(holiday.id); }}
+                              title="Delete holiday"
+                              className="p-1 rounded-md text-rose-600 dark:text-rose-400 hover:bg-rose-200/60 dark:hover:bg-rose-900/60 transition-colors cursor-pointer"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
+                        )}
                       </div>
                     )}
 
                     {/* CASE B: Weekend Day (Sunday or Saturday, not overridden) */}
                     {isTreatedAsWeekend && !holiday && (
-                      <span className="bg-[#FFE4E8] dark:bg-rose-900/30 text-[#E11D48] dark:text-rose-300 text-[10.5px] font-bold px-3 py-0.5 rounded-md shadow-2xs self-center">
-                        Weekend
-                      </span>
+                      <div className="flex flex-col items-center gap-1 w-full">
+                        <span className="bg-[#FFE4E8] dark:bg-rose-900/30 text-[#E11D48] dark:text-rose-300 text-[10.5px] font-bold px-3 py-0.5 rounded-md shadow-2xs self-center">
+                          Weekend
+                        </span>
+                        {isSuperAdmin && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setOverrideDate(dateStr);
+                              setOverrideReason("");
+                              setShowOverrideDialog(true);
+                            }}
+                            title="Mark as working day"
+                            className="opacity-0 group-hover/day:opacity-100 text-[9.5px] font-bold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/40 border border-purple-200/60 dark:border-purple-800/40 px-2 py-0.5 rounded-md hover:bg-purple-100 transition-all cursor-pointer"
+                          >
+                            Mark Working
+                          </button>
+                        )}
+                      </div>
                     )}
 
                     {/* CASE C: Holiday falling on a weekend */}
                     {holiday && isWeekend && (
-                      <div
-                        onClick={() => isSuperAdmin && openEditHoliday(holiday)}
-                        className={`bg-[#FFE4E8] dark:bg-rose-950/60 border border-rose-200/60 dark:border-rose-900/50 rounded-lg p-1.5 flex flex-col items-center text-center w-full shadow-2xs transition-transform ${
-                          isSuperAdmin ? "cursor-pointer hover:scale-[1.02]" : ""
-                        }`}
-                      >
-                        <span className="text-slate-900 dark:text-white font-bold text-xs leading-tight line-clamp-2">
-                          {holiday.name}
-                        </span>
-                        <span className="text-[10px] text-rose-600 dark:text-rose-400 font-semibold mt-0.5">
-                          (Weekend Holiday)
-                        </span>
+                      <div className="bg-[#FFE4E8] dark:bg-rose-950/60 border border-rose-200/60 dark:border-rose-900/50 rounded-lg p-1.5 w-full shadow-2xs">
+                        <div className="flex flex-col items-center text-center">
+                          <span className="text-slate-900 dark:text-white font-bold text-xs leading-tight line-clamp-2">
+                            {holiday.name}
+                          </span>
+                          <span className="text-[10px] text-rose-600 dark:text-rose-400 font-semibold mt-0.5">
+                            (Weekend Holiday)
+                          </span>
+                        </div>
+                        {isSuperAdmin && (
+                          <div className="flex items-center gap-1 mt-1 justify-center">
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); openEditHoliday(holiday); }}
+                              title="Edit holiday"
+                              className="p-1 rounded-md text-rose-600 dark:text-rose-400 hover:bg-rose-200/60 dark:hover:bg-rose-900/60 transition-colors cursor-pointer"
+                            >
+                              <Edit className="w-3 h-3" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); deleteHoliday(holiday.id); }}
+                              title="Delete holiday"
+                              className="p-1 rounded-md text-rose-600 dark:text-rose-400 hover:bg-rose-200/60 dark:hover:bg-rose-900/60 transition-colors cursor-pointer"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
+                        )}
                       </div>
                     )}
 
@@ -893,6 +964,16 @@ export default function HolidaysPage() {
                           <span className="text-[9.5px] text-slate-500 dark:text-slate-400 block truncate">
                             {override.reason}
                           </span>
+                        )}
+                        {isSuperAdmin && (
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); deleteOverride(override.id); }}
+                            title="Remove working day override (revert to weekend)"
+                            className="mt-1 text-[9px] font-bold text-rose-500 hover:text-rose-700 transition-colors cursor-pointer"
+                          >
+                            ✕ Revert to Weekend
+                          </button>
                         )}
                       </div>
                     )}
