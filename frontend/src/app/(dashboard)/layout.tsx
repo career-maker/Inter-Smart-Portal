@@ -1287,8 +1287,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </button>
 
               {NAV_GROUPS.map((group) => {
-                if (!groupHasVisibleItems(group, userRole)) return null;
-                const visibleItems = group.items.filter((item) => isItemVisible(item, userRole));
+                if (!groupHasVisibleItems(group, userRole, userPermissions)) return null;
+                const visibleItems = group.items.filter((item) => isItemVisible(item, userRole, userPermissions));
                 const GroupIcon = group.icon;
 
                 return (
