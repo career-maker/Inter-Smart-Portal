@@ -715,6 +715,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {/* ── Fixed Position Floating Submenu Flyout (High Contrast, Never Clipped) ── */}
           {flyoutState && activeFlyoutGroupObj && activeFlyoutVisibleItems.length > 0 && (
             <div
+              key={flyoutState.groupId}
               id="light-theme-flyout-portal"
               onMouseEnter={handleLightFlyoutMouseEnter}
               onMouseLeave={handleLightFlyoutMouseLeave}
@@ -776,7 +777,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   if (isExternal) {
                     return (
                       <a
-                        key={item.href}
+                        key={`${item.href}__${item.label}`}
                         href={item.href}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -789,7 +790,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
                   return (
                     <Link
-                      key={item.href}
+                      key={`${item.href}__${item.label}`}
                       href={item.href}
                       prefetch={true}
                       onClick={() => setFlyoutState(null)}
