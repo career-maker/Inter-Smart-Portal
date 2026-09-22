@@ -437,13 +437,13 @@ export default function HolidaysPage() {
         date: overrideDate,
         reason: overrideReason || "Compensatory Working Day",
       });
-      // Optimistic update so calendar immediately reflects the change
+      // Optimistic update — do NOT call fetchOverrides() here; it races with
+      // this state update and can wipe the new entry before it's committed.
       const newOverride = res.data?.data || { id: Date.now(), date: overrideDate, reason: overrideReason || "Compensatory Working Day" };
       setOverrides((prev) => [...prev.filter((o) => o.date !== overrideDate), newOverride]);
       setShowOverrideDialog(false);
       setSuccessMessage("Working day override saved successfully!");
       setShowSuccess(true);
-      fetchOverrides(); // sync real ID from server
     } catch (e: any) {
       const errors = e.response?.data?.errors;
       const msg = errors
@@ -457,14 +457,13 @@ export default function HolidaysPage() {
 
   const deleteOverride = async (id: number) => {
     if (!confirm("Delete this working day override? The day will revert to being a weekend.")) return;
-    // Optimistic update
+    // Optimistic update — remove immediately, revert only on API error.
     setOverrides((prev) => prev.filter((o) => o.id !== id));
     try {
       await api.delete(`/working-days-overrides/${id}`);
-      fetchOverrides();
     } catch (e: any) {
       alert(e.response?.data?.message || "Error deleting override.");
-      fetchOverrides(); // revert optimistic on error
+      fetchOverrides(); // revert optimistic on error only
     }
   };
 
@@ -476,11 +475,11 @@ export default function HolidaysPage() {
         date: dateStr,
         reason: inlineOverrideReason || "Compensatory Working Day",
       });
+      // Optimistic update — do NOT call fetchOverrides() here (race condition).
       const newOverride = res.data?.data || { id: Date.now(), date: dateStr, reason: inlineOverrideReason || "Compensatory Working Day" };
       setOverrides((prev) => [...prev.filter((o) => o.date !== dateStr), newOverride]);
       setInlineOverrideDate(null);
       setInlineOverrideReason("");
-      fetchOverrides();
     } catch (e: any) {
       const msg = e.response?.data?.message || "Error saving override.";
       alert(msg);
@@ -650,55 +649,66 @@ export default function HolidaysPage() {
                 <span>Admin</span>
               </button>
 
+              {/* Render via Portal so it is never clipped by KPI card stacking contexts */}
               {showAdminMenu && (
-                <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl p-2 z-[200] animate-in fade-in zoom-in-95 duration-100 space-y-1">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowAdminMenu(false);
-                      openNewHoliday();
+                <Portal>
+                  <div
+                    style={{
+                      position: "fixed",
+                      top: (adminMenuRef.current?.getBoundingClientRect().bottom ?? 0) + 8,
+                      right: window.innerWidth - (adminMenuRef.current?.getBoundingClientRect().right ?? 0),
+                      zIndex: 99999,
                     }}
-                    className="w-full flex items-center gap-2 p-2 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-purple-50 dark:hover:bg-purple-950/40 text-left cursor-pointer"
+                    className="w-56 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl p-2 animate-in fade-in zoom-in-95 duration-100 space-y-1"
                   >
-                    <Plus className="w-3.5 h-3.5 text-purple-600" />
-                    <span>Add New Holiday</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowAdminMenu(false);
-                      openNewOverride();
-                    }}
-                    className="w-full flex items-center gap-2 p-2 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-purple-50 dark:hover:bg-purple-950/40 text-left cursor-pointer"
-                  >
-                    <CalendarCheck2 className="w-3.5 h-3.5 text-purple-600" />
-                    <span>Mark Weekend Working</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowAdminMenu(false);
-                      seedKeralaHolidays();
-                    }}
-                    className="w-full flex items-center gap-2 p-2 rounded-lg text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-left cursor-pointer"
-                  >
-                    <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Pre-add Kerala Holidays</span>
-                  </button>
-                  <div className="border-t border-slate-100 dark:border-slate-800 pt-1">
                     <button
                       type="button"
                       onClick={() => {
                         setShowAdminMenu(false);
-                        setShowManageModal(true);
+                        openNewHoliday();
                       }}
-                      className="w-full flex items-center gap-2 p-2 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 text-left cursor-pointer"
+                      className="w-full flex items-center gap-2 p-2 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-purple-50 dark:hover:bg-purple-950/40 text-left cursor-pointer"
                     >
-                      <Edit className="w-3.5 h-3.5" />
-                      <span>Manage All / View List</span>
+                      <Plus className="w-3.5 h-3.5 text-purple-600" />
+                      <span>Add New Holiday</span>
                     </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowAdminMenu(false);
+                        openNewOverride();
+                      }}
+                      className="w-full flex items-center gap-2 p-2 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-purple-50 dark:hover:bg-purple-950/40 text-left cursor-pointer"
+                    >
+                      <CalendarCheck2 className="w-3.5 h-3.5 text-purple-600" />
+                      <span>Mark Weekend Working</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowAdminMenu(false);
+                        seedKeralaHolidays();
+                      }}
+                      className="w-full flex items-center gap-2 p-2 rounded-lg text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-left cursor-pointer"
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Pre-add Kerala Holidays</span>
+                    </button>
+                    <div className="border-t border-slate-100 dark:border-slate-800 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowAdminMenu(false);
+                          setShowManageModal(true);
+                        }}
+                        className="w-full flex items-center gap-2 p-2 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 text-left cursor-pointer"
+                      >
+                        <Edit className="w-3.5 h-3.5" />
+                        <span>Manage All / View List</span>
+                      </button>
+                    </div>
                   </div>
-                </div>
+                </Portal>
               )}
             </div>
           )}
