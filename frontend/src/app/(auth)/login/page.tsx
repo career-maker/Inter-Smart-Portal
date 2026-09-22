@@ -106,10 +106,10 @@ export default function LoginPage() {
           description: "Verifying your credentials.",
         },
         success: (data: any) => {
-          setTimeout(() => {
-            toastManager.dismissAll();
-            router.push("/dashboard");
-          }, 900);
+          // Navigate immediately — auth state & cookie are already set.
+          // Do NOT wrap in setTimeout; that races against page unmount
+          // and occasionally leaves the user on the login page.
+          router.push("/dashboard");
           return {
             title: "Login Successful",
             description: `Welcome back, ${data.user?.first_name || "Employee"}! Preparing your workspace…`,
