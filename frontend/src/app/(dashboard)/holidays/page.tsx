@@ -132,6 +132,19 @@ function formatDays(days?: number | string | null) {
   return `${n} ${n === 1 ? "day" : "days"}`;
 }
 
+// Normalize any date representation (ISO timestamp, YYYY-MM-DD, Date object) to "YYYY-MM-DD"
+const toDateKey = (val: any): string => {
+  if (!val) return "";
+  if (typeof val === "string") {
+    return val.substring(0, 10);
+  }
+  try {
+    return format(new Date(val), "yyyy-MM-dd");
+  } catch {
+    return String(val).substring(0, 10);
+  }
+};
+
 export default function HolidaysPage() {
   const user = useAuthStore((s) => s.user);
   const isSuperAdmin =
@@ -270,7 +283,11 @@ export default function HolidaysPage() {
   const fetchOverrides = async () => {
     try {
       const res = await api.get("/working-days-overrides");
-      setOverrides(res.data.data || []);
+      const list = (res.data?.data || []).map((o: any) => ({
+        ...o,
+        date: toDateKey(o.date),
+      }));
+      setOverrides(list);
     } catch (e) {
       console.error(e);
     }
@@ -312,7 +329,7 @@ export default function HolidaysPage() {
     const dayOfWeek = day.getDay();
     if (dayOfWeek === 0 || dayOfWeek === 6) {
       const dateStr = format(day, "yyyy-MM-dd");
-      const isOverridden = overrides.some((o) => o.date === dateStr);
+      const isOverridden = overrides.some((o) => toDateKey(o.date) === dateStr);
       if (!isOverridden) {
         weekendsCount++;
       }
@@ -432,15 +449,21 @@ export default function HolidaysPage() {
   const saveOverride = async () => {
     if (!overrideDate) return;
     setActionLoading(true);
+    const dateKey = toDateKey(overrideDate);
     try {
       const res = await api.post("/working-days-overrides", {
-        date: overrideDate,
+        date: dateKey,
         reason: overrideReason || "Compensatory Working Day",
       });
       // Optimistic update — do NOT call fetchOverrides() here; it races with
       // this state update and can wipe the new entry before it's committed.
-      const newOverride = res.data?.data || { id: Date.now(), date: overrideDate, reason: overrideReason || "Compensatory Working Day" };
-      setOverrides((prev) => [...prev.filter((o) => o.date !== overrideDate), newOverride]);
+      const raw = res.data?.data;
+      const newOverride = {
+        id: raw?.id || Date.now(),
+        date: toDateKey(raw?.date) || dateKey,
+        reason: raw?.reason || overrideReason || "Compensatory Working Day",
+      };
+      setOverrides((prev) => [...prev.filter((o) => toDateKey(o.date) !== dateKey), newOverride]);
       setShowOverrideDialog(false);
       setSuccessMessage("Working day override saved successfully!");
       setShowSuccess(true);
@@ -455,10 +478,10 @@ export default function HolidaysPage() {
     }
   };
 
-  const deleteOverride = async (id: number) => {
+  const deleteOverride = async (id: number | string) => {
     if (!confirm("Delete this working day override? The day will revert to being a weekend.")) return;
     // Optimistic update — remove immediately, revert only on API error.
-    setOverrides((prev) => prev.filter((o) => o.id !== id));
+    setOverrides((prev) => prev.filter((o) => String(o.id) !== String(id) && toDateKey(o.date) !== String(id)));
     try {
       await api.delete(`/working-days-overrides/${id}`);
     } catch (e: any) {
@@ -470,14 +493,20 @@ export default function HolidaysPage() {
   // Inline override save (used inside the manage panel weekend list)
   const saveInlineOverride = async (dateStr: string) => {
     setInlineOverrideLoading(true);
+    const dateKey = toDateKey(dateStr);
     try {
       const res = await api.post("/working-days-overrides", {
-        date: dateStr,
+        date: dateKey,
         reason: inlineOverrideReason || "Compensatory Working Day",
       });
       // Optimistic update — do NOT call fetchOverrides() here (race condition).
-      const newOverride = res.data?.data || { id: Date.now(), date: dateStr, reason: inlineOverrideReason || "Compensatory Working Day" };
-      setOverrides((prev) => [...prev.filter((o) => o.date !== dateStr), newOverride]);
+      const raw = res.data?.data;
+      const newOverride = {
+        id: raw?.id || Date.now(),
+        date: toDateKey(raw?.date) || dateKey,
+        reason: raw?.reason || inlineOverrideReason || "Compensatory Working Day",
+      };
+      setOverrides((prev) => [...prev.filter((o) => toDateKey(o.date) !== dateKey), newOverride]);
       setInlineOverrideDate(null);
       setInlineOverrideReason("");
     } catch (e: any) {
@@ -840,11 +869,11 @@ export default function HolidaysPage() {
             const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 
             // Check if there is a working day override on this date
-            const override = overrides.find((o) => o.date === dateStr);
+            const override = overrides.find((o) => toDateKey(o.date) === dateStr);
             const isWorkingWeekend = isWeekend && !!override;
 
             // Check if there is a holiday on this date
-            const holiday = holidays.find((h) => h.date === dateStr);
+            const holiday = holidays.find((h) => toDateKey(h.date) === dateStr);
 
             // Determine weekend background and text colors
             const isTreatedAsWeekend = isWeekend && !isWorkingWeekend && isCurrentMonth;
@@ -864,6 +893,8 @@ export default function HolidaysPage() {
                 className={`group/day min-h-[105px] sm:min-h-[115px] p-2 sm:p-2.5 flex flex-col justify-between border-b border-r border-slate-100 dark:border-slate-750 transition-colors relative ${
                   isTreatedAsWeekend
                     ? "bg-[#FFF5F6] dark:bg-rose-950/15"
+                    : isWorkingWeekend
+                    ? "bg-purple-50/40 dark:bg-purple-950/20"
                     : "bg-white dark:bg-slate-800"
                 } ${!isCurrentMonth ? "bg-white/60 dark:bg-slate-850/40" : ""}`}
               >
@@ -896,6 +927,8 @@ export default function HolidaysPage() {
                         ? "text-slate-300 dark:text-slate-600"
                         : isTreatedAsWeekend || (holiday && isCurrentMonth)
                         ? "text-rose-500 dark:text-rose-400 font-bold"
+                        : isWorkingWeekend
+                        ? "text-purple-700 dark:text-purple-300 font-bold"
                         : "text-slate-800 dark:text-slate-200"
                     }`}
                   >
@@ -1524,7 +1557,7 @@ export default function HolidaysPage() {
                       <div className="space-y-2">
                         {weekendsInMonth.map((day) => {
                           const ds = format(day, "yyyy-MM-dd");
-                          const existing = overrides.find((o) => o.date === ds);
+                          const existing = overrides.find((o) => toDateKey(o.date) === ds);
                           const isExpanded = inlineOverrideDate === ds;
                           return (
                             <div
