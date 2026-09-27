@@ -22,6 +22,10 @@ return Application::configure(basePath: dirname(__DIR__))
         // Apply CORS middleware to all requests
         $middleware->append(\App\Http\Middleware\CorsMiddleware::class);
 
+        $middleware->api(append: [
+            \App\Http\Middleware\CheckEmployeeStatus::class,
+        ]);
+
         $middleware->alias([
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
