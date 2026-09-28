@@ -1260,7 +1260,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
           WHATSAPP-STYLE CHATS LIST (Left on desktop, Full screen on mobile)
       ───────────────────────────────────────────────────────────── */}
       <div
-        className={`w-full md:w-80 lg:w-92 border-r border-slate-200/90 dark:border-slate-800 flex flex-col shrink-0 bg-white dark:bg-slate-900 overflow-x-hidden ${
+        className={`w-full md:w-80 lg:w-92 border-r border-slate-200/90 dark:border-slate-800 flex flex-col shrink-0 bg-white dark:bg-slate-900 overflow-x-hidden transition-all ${
           activeConversationId ? "hidden md:flex" : "flex"
         }`}
       >
@@ -1279,14 +1279,26 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
             </div>
           </div>
 
-          <button
-            onClick={() => setShowNewChatModal(true)}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#56348f] hover:bg-[#452875] text-white rounded-full text-xs font-bold shadow-sm transition-all cursor-pointer hover:shadow-md active:scale-95"
-            title="Start New Chat"
-          >
-            <Plus className="w-4 h-4 stroke-[2.5]" />
-            <span>New Chat</span>
-          </button>
+          <div className="flex items-center gap-1.5">
+            {/* Fullscreen Toggle */}
+            <button
+              type="button"
+              onClick={() => setIsFullscreen(!isFullscreen)}
+              className="p-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full transition-colors cursor-pointer hidden md:flex items-center justify-center"
+              title={isFullscreen ? "Exit full screen" : "Full screen"}
+            >
+              {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+            </button>
+
+            <button
+              onClick={() => setShowNewChatModal(true)}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#56348f] hover:bg-[#452875] text-white rounded-full text-xs font-bold shadow-sm transition-all cursor-pointer hover:shadow-md active:scale-95"
+              title="Start New Chat"
+            >
+              <Plus className="w-4 h-4 stroke-[2.5]" />
+              <span className="hidden sm:inline">New Chat</span>
+            </button>
+          </div>
         </div>
 
         {/* Mobile Push Notification Alert Status (Mobile Only, Test Button Hidden) */}
@@ -1528,7 +1540,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
               </div>
 
               {/* Header Right Actions */}
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1.5">
                 {/* Minimize to Side Chat */}
                 <button
                   type="button"
@@ -1544,20 +1556,11 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
                       if (isFullscreen) setIsFullscreen(false);
                     }
                   }}
-                  className="p-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
-                  title="Minimize to side chat"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-lg transition-colors cursor-pointer"
+                  title="Minimize chat to floating window"
                 >
-                  <Minimize2 className="w-4 h-4" />
-                </button>
-
-                {/* Fullscreen Toggle */}
-                <button
-                  type="button"
-                  onClick={() => setIsFullscreen(!isFullscreen)}
-                  className="p-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer hidden md:block"
-                  title={isFullscreen ? "Exit full screen" : "Full screen"}
-                >
-                  {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+                  <Minimize2 className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Pop Out</span>
                 </button>
               </div>
             </div>

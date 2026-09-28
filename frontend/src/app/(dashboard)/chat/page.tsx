@@ -15,8 +15,8 @@ function ChatPageContent() {
   const currentUser = useAuthStore((state) => state.user);
 
   const isSuperAdmin =
-    currentUser?.role === "Super Admin" ||
-    (currentUser as any)?.roles?.some((r: any) => (r.name || r) === "Super Admin") ||
+    currentUser?.role?.toLowerCase().includes("super") ||
+    (currentUser as any)?.roles?.some((r: any) => (r.name || r).toLowerCase().includes("super")) ||
     (currentUser as any)?.is_super_admin === true;
 
   const viewParam = searchParams.get("view");
@@ -30,7 +30,7 @@ function ChatPageContent() {
       style={{
         fontFamily: '"Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
-      className="pb-2 space-y-3"
+      className="pb-2 space-y-3 px-2 md:px-0"
     >
       {/* Super Admin Switcher (Only visible to Super Admin) */}
       {isSuperAdmin && (
