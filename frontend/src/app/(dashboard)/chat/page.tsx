@@ -2,11 +2,11 @@
 
 import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { DirectChatModule } from "@/components/chat/DirectChatModule";
 import { AdminChatAuditView } from "@/components/chat/AdminChatAuditView";
 import { PageLoader } from "@/components/ui/PageLoader";
 import { useAuthStore } from "@/store/auth";
 import { MessageSquare, ShieldAlert } from "lucide-react";
+import MacbookMockup from "@/components/ui/great-ui-macbook-mockup";
 
 function ChatPageContent() {
   const router = useRouter();
@@ -20,9 +20,6 @@ function ChatPageContent() {
 
   const viewParam = searchParams.get("view");
   const isAudit = isSuperAdmin && (viewParam === "audit" || viewParam === "admin-chats");
-
-  const convParam = searchParams.get("conversationId");
-  const initialConversationId = convParam ? parseInt(convParam, 10) : null;
 
   return (
     <div
@@ -66,7 +63,9 @@ function ChatPageContent() {
       {isAudit ? (
         <AdminChatAuditView />
       ) : (
-        <DirectChatModule initialConversationId={initialConversationId} />
+        <div className="flex w-full items-center justify-center p-4">
+          <MacbookMockup />
+        </div>
       )}
     </div>
   );
