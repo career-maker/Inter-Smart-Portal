@@ -57,17 +57,17 @@ function SideChatWindow({ chat, onMinimize, onClose, currentUser }: any) {
 
   useEffect(() => {
     // Initial fetch
-    api.get(`/chat/conversations/${chat.conversationId}/messages`).then(res => {
-      setMessages(res.data.data.reverse() || []);
+    api.get(`/direct-chat/conversations/${chat.conversationId}/messages`).then(res => {
+      setMessages(res.data?.data || []);
       setTimeout(() => {
         chatStreamRef.current?.scrollTo({ top: chatStreamRef.current.scrollHeight });
       }, 50);
-    });
+    }).catch(err => console.error("Failed to fetch initial side chat msg", err));
 
     const interval = setInterval(() => {
-      api.get(`/chat/conversations/${chat.conversationId}/messages`).then(res => {
+      api.get(`/direct-chat/conversations/${chat.conversationId}/messages`).then(res => {
         setMessages(prev => {
-          const newMsgs = res.data.data.reverse() || [];
+          const newMsgs = res.data?.data || [];
           if (newMsgs.length > prev.length) {
             setTimeout(() => {
               chatStreamRef.current?.scrollTo({ top: chatStreamRef.current.scrollHeight });
@@ -75,7 +75,7 @@ function SideChatWindow({ chat, onMinimize, onClose, currentUser }: any) {
           }
           return newMsgs;
         });
-      });
+      }).catch(err => console.error("Failed to poll side chat msg", err));
     }, 5000);
 
     return () => clearInterval(interval);
@@ -99,7 +99,7 @@ function SideChatWindow({ chat, onMinimize, onClose, currentUser }: any) {
     }, 50);
 
     try {
-      await api.post(`/chat/conversations/${chat.conversationId}/messages`, {
+      await api.post(`/direct-chat/conversations/${chat.conversationId}/messages`, {
         message: tempMsg.message,
       });
     } catch (err) {
