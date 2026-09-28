@@ -1550,7 +1550,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
                         activeConversation.id,
                         activeConversation.other_user?.id || 0,
                         activeConversation.other_user?.name || activeConversation.title || "Chat",
-                        activeConversation.other_user?.profile_photo_path
+                        activeConversation.other_user?.profile_photo_path || undefined
                       );
                       setActiveConversationId(null);
                       if (isFullscreen) setIsFullscreen(false);
