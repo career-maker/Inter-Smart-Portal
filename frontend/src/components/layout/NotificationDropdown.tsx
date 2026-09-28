@@ -122,24 +122,24 @@ function NotificationItem({
 
   return (
     <div
-      className="w-full py-4 first:pt-0 last:pb-0 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors px-4 -mx-4 rounded-xl"
+      className="w-full py-2.5 first:pt-0 last:pb-0 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors px-3 -mx-3 rounded-xl"
       onClick={() => onItemClick(notification)}
     >
-      <div className="flex gap-3">
-        <Avatar className="size-11">
+      <div className="flex gap-2.5">
+        <Avatar className="size-9">
           <AvatarImage
             src=""
             alt="Notification avatar"
             className="object-cover ring-1 ring-border"
           />
-          <AvatarFallback className="bg-primary/10 text-primary font-medium">{fallback}</AvatarFallback>
+          <AvatarFallback className="text-xs bg-primary/10 text-primary font-medium">{fallback}</AvatarFallback>
         </Avatar>
 
-        <div className="flex flex-1 flex-col space-y-2">
+        <div className="flex flex-1 flex-col space-y-1.5">
           <div className="w-full items-start">
             <div>
               <div className="flex items-center justify-between gap-2">
-                <div className="text-sm">
+                <div className="text-xs">
                   <span className="font-medium text-slate-900 dark:text-slate-100">{title}</span>
                 </div>
                 {isUnread && (
@@ -167,7 +167,7 @@ function NotificationItem({
           </div>
 
           {message && (
-            <div className="rounded-lg bg-muted p-2.5 text-sm tracking-[-0.006em] text-slate-700 dark:text-slate-300">
+            <div className="rounded-lg bg-muted p-2 text-xs tracking-[-0.006em] text-slate-700 dark:text-slate-300">
               {message}
             </div>
           )}
@@ -288,13 +288,13 @@ export function NotificationDropdown() {
         )}
       </DropdownMenuTrigger>
       
-      <DropdownMenuContent align="end" className="w-[360px] sm:w-[420px] p-0 overflow-hidden shadow-none border-none">
-        <div className="flex w-full flex-col gap-6 p-4 md:p-6 bg-card text-card-foreground border rounded-xl shadow-2xl">
+      <DropdownMenuContent align="end" className="w-[320px] sm:w-[380px] p-0 overflow-hidden shadow-none border-none">
+        <div className="flex w-full flex-col gap-4 p-3 md:p-4 bg-card text-card-foreground border rounded-xl shadow-2xl">
           <div className="flex items-center justify-between">
-            <h3 className="text-base leading-none font-semibold tracking-[-0.006em]">
+            <h3 className="text-sm leading-none font-semibold tracking-[-0.006em]">
               Your notifications
             </h3>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               <Button className="size-8" variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -370,7 +370,7 @@ export function NotificationDropdown() {
               </div>
             )}
 
-            <div className="space-y-0 divide-y divide-dashed divide-border max-h-[380px] overflow-y-auto px-4 -mx-4 custom-scrollbar">
+            <div className="space-y-0 divide-y divide-dashed divide-border max-h-[280px] overflow-y-auto px-3 -mx-3 custom-scrollbar">
               {filteredNotifications.length > 0 ? (
                 filteredNotifications.map((notification) => (
                   <NotificationItem
