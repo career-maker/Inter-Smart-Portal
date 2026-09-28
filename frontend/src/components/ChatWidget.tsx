@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { X, Send, Sparkles, AlertCircle, RotateCcw, Clock, CheckCircle2 } from "lucide-react";
 import api from "@/services/api";
 import { Portal } from "@/components/ui/portal";
@@ -101,6 +102,7 @@ function FormattedMessage({ text }: { text: string }) {
 }
 
 export default function ChatWidget() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [isSidePopupOpen, setIsSidePopupOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([

@@ -5,6 +5,7 @@ import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
 import Link from "next/link";
 import { useMinimizedChatsStore } from "@/store/minimizedChatsStore";
+import { Portal } from "@/components/ui/portal";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 import {
   Search,
@@ -1211,7 +1212,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
     return name.includes(q);
   });
 
-  return (
+  const content = (
     <div
       style={{
         fontFamily: '"Google Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
@@ -2042,4 +2043,6 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
       )}
     </div>
   );
+
+  return isFullscreen ? <Portal>{content}</Portal> : content;
 }
