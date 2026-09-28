@@ -67,11 +67,7 @@ function ChatPageContent() {
       {isAudit ? (
         <AdminChatAuditView />
       ) : (
-        <div className="flex w-full items-center justify-center p-4">
-          <MacbookFrame>
-            <DirectChatModule initialConversationId={initialConversationId} />
-          </MacbookFrame>
-        </div>
+        <DirectChatModule initialConversationId={initialConversationId} />
       )}
     </div>
   );

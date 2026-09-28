@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
+import Link from "next/link";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 import {
   Search,
@@ -1215,7 +1216,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
       onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
-      className="relative bg-white dark:bg-[#111b21] overflow-hidden flex flex-col md:flex-row h-full w-full max-w-full select-text"
+      className="fixed inset-0 z-[100] bg-white dark:bg-[#111b21] overflow-hidden flex flex-col md:flex-row h-[100dvh] w-full max-w-full select-text"
     >
       {/* ─────────────────────────────────────────────────────────────
           DRAG & DROP OVERLAY DROPZONE
@@ -1258,8 +1259,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
           activeConversationId ? "hidden md:flex" : "flex"
         }`}
       >
-        {/* WhatsApp Mobile/Desktop Top Header */}
-        <div className="p-3.5 px-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-2 bg-[#f0f2f5] dark:bg-slate-900 shrink-0">
+        <div className="p-3.5 px-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-2 bg-[#f0f2f5] dark:bg-[#202c33] shrink-0">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-full bg-[#56348f]/15 text-[#56348f] dark:bg-purple-900/40 dark:text-purple-300 flex items-center justify-center font-bold shadow-xs">
               <Sparkles className="w-5 h-5" />
@@ -1456,10 +1456,16 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
       >
         {activeConversation ? (
           <>
-            {/* Pinned Top Header Bar */}
-            <div className="p-3 px-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-2 bg-white dark:bg-slate-900 shrink-0 z-10 shadow-2xs">
+            <div className="p-3 px-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-2 bg-white dark:bg-[#202c33] shrink-0 z-10 shadow-2xs">
               <div className="flex items-center gap-2.5 min-w-0">
-                {/* Mobile Back Button */}
+                {/* Exit Chat Button / Back to Dashboard */}
+                <Link
+                  href="/dashboard"
+                  className="p-1.5 -ml-1 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full cursor-pointer shrink-0 transition-colors hidden md:flex"
+                  title="Exit Chat & Return to Dashboard"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </Link>
                 <button
                   type="button"
                   onClick={() => setActiveConversationId(null)}
@@ -1773,7 +1779,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
                 </div>
               )}
 
-              <div className="flex items-end gap-2 bg-slate-100/90 dark:bg-slate-800/90 rounded-2xl p-2 px-3 border border-slate-200 dark:border-slate-700 focus-within:bg-white dark:focus-within:bg-slate-800 focus-within:border-purple-300 dark:focus-within:border-purple-600 focus-within:ring-2 focus-within:ring-purple-500/20 transition-all">
+              <div className="flex items-end gap-2 bg-slate-100/90 dark:bg-[#202c33] rounded-2xl p-2 px-3 focus-within:bg-white dark:focus-within:bg-[#202c33] transition-all">
                 {/* Attachment Picker */}
                 <button
                   type="button"
