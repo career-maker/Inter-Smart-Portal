@@ -29,6 +29,7 @@ import ChatWidget from "@/components/ChatWidget";
 import { useCustomization } from "@/context/CustomizationContext";
 import { AddToHomeScreenModal } from "@/components/layout/AddToHomeScreenModal";
 import { DesktopPushConsent } from "@/components/layout/DesktopPushConsent";
+import { SideChatsContainer } from "@/components/chat/SideChatsContainer";
 import "@/styles/portal-accent.css";
 
 type NavItem = {
@@ -1370,6 +1371,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Desktop: Push Notification Cookie-Consent Style Bottom Popup */}
       <DesktopPushConsent />
+
+      {/* Global Side Chats System */}
+      <SideChatsContainer />
     </div>
   );
 }

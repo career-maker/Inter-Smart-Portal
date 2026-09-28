@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from "react"
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
 import Link from "next/link";
+import { useMinimizedChatsStore } from "@/store/minimizedChatsStore";
 import { RoyalAvatar, RoyalName } from "@/components/ui/RoyalAvatar";
 import {
   Search,
@@ -21,6 +22,7 @@ import {
   User,
   ChevronRight,
   Maximize2,
+  Minimize2,
   AlertCircle,
   UploadCloud,
   RotateCw,
@@ -321,6 +323,8 @@ const EMOJI_KEYWORD_MAP: Record<string, string> = {
 
 export function DirectChatModule({ initialConversationId }: { initialConversationId?: number | null } = {}) {
   const currentUser = useAuthStore((state) => state.user);
+  const minimizeChat = useMinimizedChatsStore((state) => state.minimizeChat);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const { permissionStatus, requestNotificationPermission, sendTestNotification } = useChatPushNotifications();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<number | null>(
@@ -1216,7 +1220,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
       onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
-      className="fixed inset-0 z-[100] bg-white dark:bg-[#111b21] overflow-hidden flex flex-col md:flex-row h-[100dvh] w-full max-w-full select-text"
+      className={isFullscreen ? "fixed inset-0 z-[100] bg-white dark:bg-[#111b21] overflow-hidden flex flex-col md:flex-row h-[100dvh] w-full max-w-full select-text" : "relative bg-white dark:bg-[#111b21] overflow-hidden flex flex-col md:flex-row h-[calc(100dvh-150px)] w-full max-w-full select-text border border-slate-200 dark:border-slate-800 rounded-xl"}
     >
       {/* ─────────────────────────────────────────────────────────────
           DRAG & DROP OVERLAY DROPZONE
@@ -1459,13 +1463,15 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
             <div className="p-3 px-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-2 bg-white dark:bg-[#202c33] shrink-0 z-10 shadow-2xs">
               <div className="flex items-center gap-2.5 min-w-0">
                 {/* Exit Chat Button / Back to Dashboard */}
-                <Link
-                  href="/dashboard"
-                  className="p-1.5 -ml-1 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full cursor-pointer shrink-0 transition-colors hidden md:flex"
-                  title="Exit Chat & Return to Dashboard"
-                >
-                  <ArrowLeft className="w-5 h-5" />
-                </Link>
+                {isFullscreen && (
+                  <Link
+                    href="/dashboard"
+                    className="p-1.5 -ml-1 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full cursor-pointer shrink-0 transition-colors hidden md:flex"
+                    title="Exit Chat & Return to Dashboard"
+                  >
+                    <ArrowLeft className="w-5 h-5" />
+                  </Link>
+                )}
                 <button
                   type="button"
                   onClick={() => setActiveConversationId(null)}
@@ -1518,6 +1524,40 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
                     )}
                   </div>
                 </div>
+              </div>
+
+              {/* Header Right Actions */}
+              <div className="flex items-center gap-1">
+                {/* Minimize to Side Chat */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (activeConversation) {
+                      minimizeChat(
+                        activeConversation.id,
+                        activeConversation.other_user?.id || 0,
+                        activeConversation.other_user?.name || activeConversation.title || "Chat",
+                        activeConversation.other_user?.profile_photo_path
+                      );
+                      setActiveConversationId(null);
+                      if (isFullscreen) setIsFullscreen(false);
+                    }
+                  }}
+                  className="p-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                  title="Minimize to side chat"
+                >
+                  <Minimize2 className="w-4 h-4" />
+                </button>
+
+                {/* Fullscreen Toggle */}
+                <button
+                  type="button"
+                  onClick={() => setIsFullscreen(!isFullscreen)}
+                  className="p-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer hidden md:block"
+                  title={isFullscreen ? "Exit full screen" : "Full screen"}
+                >
+                  {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 
