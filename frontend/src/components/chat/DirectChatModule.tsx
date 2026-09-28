@@ -33,7 +33,7 @@ import {
   Volume2
 } from "lucide-react";
 import { format, isToday, isYesterday, parseISO } from "date-fns";
-import { Portal } from "@/components/ui/portal";
+
 import { useChatPushNotifications } from "@/hooks/useChatPushNotifications";
 
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
