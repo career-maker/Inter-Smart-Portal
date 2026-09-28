@@ -682,4 +682,31 @@ export function MacbookMockup({
   );
 }
 
+export function MacbookFrame({ children, className }: { children: React.ReactNode; className?: string }) {
+  return (
+    <div
+      className={cn(
+        "relative mx-auto flex w-full max-w-[480px] transform-gpu flex-col items-center justify-center py-4 select-none [perspective:1200px] sm:max-w-[620px] md:max-w-[850px] lg:max-w-[1000px] xl:max-w-[1200px]",
+        className,
+      )}
+    >
+      <motion.div
+        initial={{ rotateX: -70, opacity: 0, scale: 0.92 }}
+        animate={{ rotateX: 0, opacity: 1, scale: 1 }}
+        transition={{ type: "spring", stiffness: 140, damping: 20, mass: 0.9 }}
+        style={{ transformOrigin: "bottom center" }}
+        className="relative z-10 flex h-[600px] w-full transform-gpu flex-col overflow-hidden rounded-t-2xl bg-neutral-900 p-2 sm:h-[700px] sm:p-2.5 md:h-[800px] dark:bg-neutral-950 shadow-2xl"
+      >
+        <div className="relative isolate flex h-full w-full transform-gpu overflow-hidden rounded-[10px] bg-white text-neutral-900 transition-colors dark:bg-[#111b21] dark:text-neutral-100">
+          {children}
+        </div>
+      </motion.div>
+
+      <div className="relative z-20 flex h-3.5 w-[105%] items-start justify-center rounded-b-xl bg-neutral-300 sm:h-4 dark:bg-neutral-800 shadow-xl">
+        <div className="h-1.5 w-14 rounded-b-md bg-neutral-400/90 sm:w-20 dark:bg-neutral-700/90" />
+      </div>
+    </div>
+  );
+}
+
 export default MacbookMockup;

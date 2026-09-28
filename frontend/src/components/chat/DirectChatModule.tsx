@@ -1215,7 +1215,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
       onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
-      className="relative bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden flex flex-col md:flex-row h-[calc(100dvh-175px)] w-full max-w-full select-text"
+      className="relative bg-white dark:bg-[#111b21] overflow-hidden flex flex-col md:flex-row h-full w-full max-w-full select-text"
     >
       {/* ─────────────────────────────────────────────────────────────
           DRAG & DROP OVERLAY DROPZONE
