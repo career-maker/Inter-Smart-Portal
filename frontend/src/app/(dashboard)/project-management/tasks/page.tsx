@@ -53,7 +53,7 @@ export default function AllTasksPage() {
   }, []);
 
   const canViewCrossTeam = isSuperAdmin || userRoleStr === "admin" || Boolean(userPermissions.task_cross_team_view);
-  const canEditTasks = !isEmployee || Boolean(userPermissions.task_cross_team_assign) || canViewCrossTeam;
+  const canEditTasks = !isEmployee || Boolean(userPermissions.task_cross_team_assign) || Boolean(userPermissions.task_cross_team_edit);
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);

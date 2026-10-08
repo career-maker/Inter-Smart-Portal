@@ -32,6 +32,13 @@ class CustomTeamPermission extends Model
                 'icon' => 'Layers',
             ],
             [
+                'key' => 'task_cross_team_edit',
+                'name' => 'Cross-Team Task Editing',
+                'description' => 'Allows assigned teams/leads/members to edit tasks they can view (status, priority, dates, details). Without this, cross-team task view is read-only.',
+                'category' => 'Tasks & Projects',
+                'icon' => 'Pencil',
+            ],
+            [
                 'key' => 'task_cross_team_assign',
                 'name' => 'Cross-Team Task Creation & Assignment',
                 'description' => 'Allows assigned teams/leads to create and assign tasks to members of other departments/teams.',

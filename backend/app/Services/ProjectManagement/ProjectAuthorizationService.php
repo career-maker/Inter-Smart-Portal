@@ -172,7 +172,10 @@ class ProjectAuthorizationService
             return true;
         }
 
-        if (\App\Models\CustomTeamPermission::userHasPermission($user, 'task_cross_team_assign')) {
+        if (
+            \App\Models\CustomTeamPermission::userHasPermission($user, 'task_cross_team_assign') ||
+            \App\Models\CustomTeamPermission::userHasPermission($user, 'task_cross_team_edit')
+        ) {
             return true;
         }
 

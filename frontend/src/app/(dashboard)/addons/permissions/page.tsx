@@ -16,6 +16,7 @@ import teamPermissionsApi, {
 import {
   Shield,
   Layers,
+  Pencil,
   UserPlus,
   Bug,
   CalendarCheck,
@@ -196,6 +197,8 @@ export default function PermissionsManagementPage() {
     switch (iconName) {
       case "Layers":
         return <Layers className="w-5 h-5 text-purple-600 dark:text-purple-400" />;
+      case "Pencil":
+        return <Pencil className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />;
       case "UserPlus":
         return <UserPlus className="w-5 h-5 text-blue-600 dark:text-blue-400" />;
       case "Bug":
