@@ -388,7 +388,7 @@ export function TaskTrackerTable({
         })`}
       >
         <div
-          className={`flex items-center gap-1.5 ${
+          className={`flex items-center gap-1.5 ${align === "center" ? "relative" : ""} ${
             align === "center"
               ? "justify-center"
               : align === "right"
@@ -397,7 +397,7 @@ export function TaskTrackerTable({
           }`}
         >
           <span>{label}</span>
-          <span className="inline-flex shrink-0">
+          <span className={`inline-flex shrink-0 ${align === "center" ? "absolute right-1" : ""}`}>
             {isActive ? (
               sortDirection === "asc" ? (
                 <ArrowUp className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 stroke-[2.5]" />

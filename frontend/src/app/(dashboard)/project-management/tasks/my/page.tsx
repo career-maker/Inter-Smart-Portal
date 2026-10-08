@@ -23,6 +23,8 @@ import { TaskTrackerTable } from "@/components/project-management/TaskTrackerTab
 import { DailyReportModal } from "@/components/project-management/DailyReportModal";
 import teamPermissionsApi from "@/services/teamPermissions";
 
+const INACTIVE_STATUSES: string[] = ["Completed", "Rejected", "Cancelled", "Forecast"];
+
 export default function MyTasksPage() {
   const { user } = useAuthStore();
   const [userPermissions, setUserPermissions] = useState<Record<string, boolean>>({});
@@ -46,7 +48,7 @@ export default function MyTasksPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [tasksData, setTasksData] = useState<PaginatedResponse<ProjectTask> | null>(null);
-  const [statusFilter, setStatusFilter] = useState<string>("All");
+  const [statusFilter, setStatusFilter] = useState<string>("Active");
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isDailyReportOpen, setIsDailyReportOpen] = useState(false);
@@ -120,7 +122,9 @@ export default function MyTasksPage() {
   const rawList = tasksData?.data || [];
   const filteredTasks = useMemo(() => {
     return rawList.filter((task) => {
-      if (statusFilter !== "All" && task.status !== statusFilter) {
+      if (statusFilter === "Active") {
+        if (INACTIVE_STATUSES.includes(task.status)) return false;
+      } else if (statusFilter !== "All" && task.status !== statusFilter) {
         return false;
       }
       if (search.trim()) {
@@ -207,7 +211,7 @@ export default function MyTasksPage() {
       <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-4 sm:p-5 shadow-sm space-y-4">
         {/* Status Filter Pills */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
-          {["All", ...TASK_STATUSES].map((status) => {
+          {["Active", "All", ...TASK_STATUSES].map((status) => {
             const isSelected = statusFilter === status;
             return (
               <button
@@ -274,7 +278,7 @@ export default function MyTasksPage() {
           <CheckSquare className="w-10 h-10 mx-auto text-slate-400 opacity-50" />
           <p className="text-base font-bold text-slate-800 dark:text-slate-200">No tasks assigned</p>
           <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
-            {statusFilter !== "All" || search
+            {statusFilter !== "Active" || search
               ? "No tasks match your selected filters."
               : "You have no deliverable tasks currently assigned."}
           </p>

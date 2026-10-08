@@ -4394,3 +4394,8 @@ select option,
 }
 
 
+
+/* Read-only priority badge: drop the select chevron inherited from .task-priority-* */
+span.task-priority-badge {
+  background-image: none !important;
+}
