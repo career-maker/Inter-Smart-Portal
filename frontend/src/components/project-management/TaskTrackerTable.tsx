@@ -115,6 +115,8 @@ interface TaskTrackerTableProps {
   showAssigneesCol?: boolean;
   emptyMessage?: string;
   pageSize?: number;
+  /** Start/End dates stay read-only (assignees may only edit execution fields). */
+  planningLocked?: boolean;
 }
 
 function formatDateDisplay(dateStr?: string | null): string {
@@ -247,6 +249,7 @@ export function TaskTrackerTable({
   showAssigneesCol = false,
   emptyMessage = "No tasks found in this section.",
   pageSize = 20,
+  planningLocked = false,
 }: TaskTrackerTableProps) {
   const [activeCommentPopover, setActiveCommentPopover] = useState<number | null>(null);
   const [tablePage, setTablePage] = useState<number>(1);
@@ -651,7 +654,7 @@ export function TaskTrackerTable({
                     field="start_date"
                     taskId={task.id}
                     disabled={updatingTaskId === task.id}
-                    onDateChange={canEdit ? onDateChange : undefined}
+                    onDateChange={canEdit && !planningLocked ? onDateChange : undefined}
                   />
                 </td>
 
@@ -668,7 +671,7 @@ export function TaskTrackerTable({
                     field="due_date"
                     taskId={task.id}
                     disabled={updatingTaskId === task.id}
-                    onDateChange={canEdit ? onDateChange : undefined}
+                    onDateChange={canEdit && !planningLocked ? onDateChange : undefined}
                     isOverdue={overdueInfo.isOverdue}
                   />
                 </td>

@@ -16,6 +16,7 @@ import pmApi from "@/services/pm";
 import {
   ProjectTask,
   TASK_STATUSES,
+  TaskStatus,
   PaginatedResponse,
 } from "@/types/pm";
 import { TaskTrackerTable } from "@/components/project-management/TaskTrackerTable";
@@ -60,7 +61,7 @@ export default function MyTasksPage() {
       setError(null);
 
       try {
-        const data = await pmApi.getMyTasks({ page });
+        const data = await pmApi.getMyTasks({ page, per_page: 500 } as any);
         setTasksData(data);
         setCurrentPage(page);
       } catch (err: any) {
@@ -76,6 +77,45 @@ export default function MyTasksPage() {
   useEffect(() => {
     fetchMyTasks(1);
   }, [fetchMyTasks]);
+
+  const [updatingTaskId, setUpdatingTaskId] = useState<number | null>(null);
+
+  // Assignees may change status and achieved date only (backend EXECUTION_FIELDS).
+  const handleStatusChange = async (taskId: number, newStatus: TaskStatus) => {
+    setUpdatingTaskId(taskId);
+    try {
+      if (newStatus === "Completed") {
+        const current = tasksData?.data.find((t) => t.id === taskId);
+        await pmApi.updateTask(taskId, {
+          status: newStatus,
+          actual_completion_date: current?.actual_completion_date || new Date().toISOString().split("T")[0],
+        });
+      } else {
+        await pmApi.updateTaskStatus(taskId, { status: newStatus });
+      }
+    } catch (err) {
+      console.error("Failed to update status", err);
+    } finally {
+      setUpdatingTaskId(null);
+      fetchMyTasks(currentPage, true);
+    }
+  };
+
+  const handleDateChange = async (
+    taskId: number,
+    field: "start_date" | "due_date" | "actual_completion_date",
+    newDate: string | null
+  ) => {
+    setUpdatingTaskId(taskId);
+    try {
+      await pmApi.updateTask(taskId, { [field]: newDate });
+    } catch (err) {
+      console.error("Failed to update date", err);
+    } finally {
+      setUpdatingTaskId(null);
+      fetchMyTasks(currentPage, true);
+    }
+  };
 
   const rawList = tasksData?.data || [];
   const filteredTasks = useMemo(() => {
@@ -243,7 +283,11 @@ export default function MyTasksPage() {
         <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden">
           <TaskTrackerTable
             tasks={filteredTasks}
-            canEdit={false}
+            canEdit={true}
+            planningLocked
+            onStatusChange={handleStatusChange}
+            onDateChange={handleDateChange}
+            updatingTaskId={updatingTaskId}
           />
 
           {/* Pagination Footer */}
