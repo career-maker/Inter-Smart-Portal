@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\CustomTeamPermission;
+use App\Models\CustomUserPermission;
 use App\Models\Team;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class TeamPermissionController extends Controller
@@ -39,10 +41,25 @@ class TeamPermissionController extends Controller
             $matrix[$a->permission_key][$a->team_id] = $a->scope;
         }
 
+        $userMatrix = [];
+        foreach ($definitions as $def) {
+            $userMatrix[$def['key']] = [];
+        }
+        foreach (CustomUserPermission::all() as $row) {
+            $userMatrix[$row->permission_key][] = (int) $row->user_id;
+        }
+
+        $users = User::where('status', 'Active')
+            ->select('id', 'first_name', 'last_name', 'employee_code', 'designation')
+            ->orderBy('first_name')
+            ->get();
+
         return response()->json([
             'definitions' => $definitions,
             'teams' => $teams,
             'matrix' => $matrix,
+            'users' => $users,
+            'user_matrix' => $userMatrix,
         ]);
     }
 
@@ -60,9 +77,27 @@ class TeamPermissionController extends Controller
 
         $request->validate([
             'matrix' => 'required|array',
+            'user_matrix' => 'sometimes|array',
+            'user_matrix.*' => 'array',
+            'user_matrix.*.*' => 'integer|exists:users,id',
         ]);
 
         $matrix = $request->input('matrix');
+
+        // Individual member grants: replace the full set for each submitted permission key.
+        $validKeys = array_column(CustomTeamPermission::getDefinitions(), 'key');
+        foreach ($request->input('user_matrix', []) as $permissionKey => $userIds) {
+            if (!in_array($permissionKey, $validKeys, true)) {
+                continue;
+            }
+            $userIds = array_values(array_unique(array_map('intval', $userIds)));
+            CustomUserPermission::where('permission_key', $permissionKey)
+                ->whereNotIn('user_id', $userIds)
+                ->delete();
+            foreach ($userIds as $uid) {
+                CustomUserPermission::firstOrCreate(['permission_key' => $permissionKey, 'user_id' => $uid]);
+            }
+        }
 
         // Update permissions transactionally
         foreach ($matrix as $permissionKey => $teamAssignments) {

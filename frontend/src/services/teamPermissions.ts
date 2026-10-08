@@ -29,10 +29,24 @@ export interface PermissionMatrix {
   };
 }
 
+export interface PermissionUser {
+  id: number;
+  first_name: string;
+  last_name: string;
+  employee_code?: string | null;
+  designation?: string | null;
+}
+
+export interface UserPermissionMatrix {
+  [permission_key: string]: number[];
+}
+
 export interface PermissionsResponse {
   definitions: PermissionDefinition[];
   teams: PermissionTeam[];
   matrix: PermissionMatrix;
+  users: PermissionUser[];
+  user_matrix: UserPermissionMatrix;
 }
 
 export interface UserPermissionsMap {
@@ -52,8 +66,11 @@ const teamPermissionsApi = {
   },
 
   // Update permission assignments matrix (Super Admin)
-  updateMatrix: async (matrix: PermissionMatrix): Promise<{ message: string }> => {
-    const res = await api.post<{ message: string }>("/addons/permissions", { matrix });
+  updateMatrix: async (
+    matrix: PermissionMatrix,
+    user_matrix?: UserPermissionMatrix
+  ): Promise<{ message: string }> => {
+    const res = await api.post<{ message: string }>("/addons/permissions", { matrix, user_matrix });
     return res.data;
   },
 

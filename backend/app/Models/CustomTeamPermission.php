@@ -111,6 +111,11 @@ class CustomTeamPermission extends Model
             return true;
         }
 
+        // Individually granted users
+        if (CustomUserPermission::where('permission_key', $permissionKey)->where('user_id', $user->id)->exists()) {
+            return true;
+        }
+
         $activePermissions = static::where('permission_key', $permissionKey)
             ->where('is_active', true)
             ->with('team')
