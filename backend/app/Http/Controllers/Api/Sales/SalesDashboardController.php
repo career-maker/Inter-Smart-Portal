@@ -25,7 +25,7 @@ class SalesDashboardController extends Controller
         $won = $leads->where('status', 'Won')->count();
         $lost = $leads->where('status', 'Lost')->count();
 
-        $finance = $mine(ProjectFinance::query(), 'sales_user_id')->get();
+        $finance = $mine(ProjectFinance::query()->whereNotNull('sales_user_id'), 'sales_user_id')->get(); // projects Accounts set up without a salesperson are not Sales numbers
         $signedThisMonth = $finance->filter(fn ($f) => $f->created_at >= $monthStart)->sum('contract_value');
         $target = $mine(SalesTarget::query(), 'user_id')->where('period', now()->format('Y-m'))->sum('target_amount');
 

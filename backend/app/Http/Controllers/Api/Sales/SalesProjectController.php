@@ -26,7 +26,7 @@ class SalesProjectController extends Controller
 
     public function index(Request $request)
     {
-        $finance = ProjectFinance::query();
+        $finance = ProjectFinance::query()->whereNotNull('sales_user_id');
         if (! Access::salesSeesAll($request->user())) {
             $finance->where('sales_user_id', $request->user()->id);
         }

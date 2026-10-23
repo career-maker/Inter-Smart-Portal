@@ -157,6 +157,11 @@ class SalesModuleTest extends TestCase
         $this->assertSame(50, $mine[0]['progress_percent']);
         $this->assertSame('Advance awaiting', $mine[0]['state']);
         $this->assertCount(2, $this->as($this->ann)->getJson('/api/sales/projects')->json('data'));
+
+        // A project Accounts set up with no salesperson is not a Sales project.
+        $orphan = Project::create(['name' => 'No seller', 'status' => 'Active', 'start_date' => now()->toDateString(), 'created_by' => $this->admin->id]);
+        \App\Models\ProjectFinance::create(['project_id' => $orphan->id, 'contract_value' => 999]);
+        $this->assertCount(2, $this->as($this->ann)->getJson('/api/sales/projects')->json('data'));
     }
 
     public function test_hold_and_terminate_need_a_reason_own_project_only_and_notify_accounts(): void
