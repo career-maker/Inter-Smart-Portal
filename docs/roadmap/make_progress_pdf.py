@@ -88,10 +88,17 @@ st.append(table(rows, [8 * mm, 98 * mm, 14 * mm, 22 * mm, 32 * mm], ["#", "Phase
 st.append(P("Done in this update", H2))
 st += bullets(data["done_this_update"])
 
-st.append(P("Phase 0 detail: the safety net", H1))
-st.append(P("Phase 0 adds no features. It makes sure new work cannot break what already runs."))
-rows = [[P(t["task"], S), status_cell(t["status"]), P(t["note"], S)] for t in data["phase0_tasks"]]
-st.append(table(rows, [64 * mm, 25 * mm, 85 * mm], ["Task", "Status", "Note"]))
+def phase_detail(title, intro, tasks, first=False):
+    st.append(P(title, H1 if first else H2))
+    st.append(P(intro))
+    rows = [[P(t["task"], S), status_cell(t["status"]), P(t["note"], S)] for t in tasks]
+    st.append(table(rows, [64 * mm, 25 * mm, 85 * mm], ["Task", "Status", "Note"]))
+
+
+phase_detail("Phase 0 detail: the safety net", "Phase 0 adds no features. It makes sure new work cannot break what already runs.",
+             data["phase0_tasks"], first=True)
+if data.get("phase1_tasks"):
+    phase_detail("Phase 1 detail: Accounts module", data.get("phase1_intro", ""), data["phase1_tasks"])
 
 st.append(P("What happens next", H2))
 st += bullets(data["next"])

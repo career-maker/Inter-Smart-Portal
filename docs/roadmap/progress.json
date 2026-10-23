@@ -1,7 +1,7 @@
 {
   "updated": "23 Oct 2026",
-  "headline": "Phase 0 (safety net) is about 85% done. The security and stability fixes are live. What remains needs a decision or access from you (see below). All existing modules are working normally.",
-  "overall_percent": 6,
+  "headline": "Phase 0 (safety net) is about 85% done. Phase 1 (Accounts module) is built, tested and installed on the live system, but switched off until you decide to turn it on. All existing modules are working normally.",
+  "overall_percent": 15,
   "live_health": [
     "Website and login: working",
     "Database: working (backup taken before every live change)",
@@ -21,8 +21,8 @@
       "n": "1",
       "name": "Accounts module",
       "weeks": "3",
-      "status": "Not started",
-      "percent": 0,
+      "status": "In progress",
+      "percent": 80,
       "delivers": "Payment approval, advance/pending payments, budget increase, targets, AMC list"
     },
     {
@@ -152,18 +152,16 @@
     }
   ],
   "done_this_update": [
-    "Released login expiry (90 days) and a per-user request limit to live; nobody was logged out",
-    "Moved sessions and cache off the database on live; site checked after each step",
-    "Backup restore test passed: data restored identically in a separate database, then removed",
-    "Found and fixed a live bug: Super Admin dashboard widgets (alerts, recent activity) were failing every few minutes",
-    "Added a safety test that opens about 90 screens for 3 roles on every change",
-    "Test count is now 165 (125 passing); the 40 older failures are tracked and no new ones were introduced"
+    "Built the whole Accounts module: payment states, approvals, budget increase, hold/terminate, sales targets, AMC list",
+    "Installed it on the live system (hidden): backup first, 5 new tables and one new role, existing data untouched",
+    "Added 8 tests; total 173, no new failures",
+    "Checked the full payment flow end to end through the real login and system on a test copy"
   ],
   "next": [
-    "Your approval for the staging copy (sub-domain, DNS, certificate), then the 150-user load test on it",
-    "Decide whether to require review before changes reach the main branch on GitHub",
-    "Review and fix the 40 older failing tests",
-    "Start Phase 1: Accounts module (can begin in parallel)"
+    "Pick the Accounts person and switch the module on for a pilot",
+    "Look at the three Accounts screens together and fix anything that looks off",
+    "Staging copy and load test (needs your approval, see decisions)",
+    "Start Phase 2: Sales module (leads, project creation, sales inbox)"
   ],
   "capacity_answer": "The database will not break with 100+ users working at once. The live server is strong (24 processors, 40 GB memory). Improvements planned in Phase 0 (lighter background checks, rate limits, caching) give comfortable room for 150 to 300 users at the same time. A load test will confirm the exact number.",
   "risks": [
@@ -189,6 +187,7 @@
     }
   ],
   "decisions": [
+    "Who is the Accounts person? (needed to create the Accounts user and switch the module on for a pilot)",
     "Approve creating the staging (test) copy: needs a sub-domain, DNS entry and certificate on your hosting",
     "Require review before merging to main on GitHub? (safer, but slows direct pushes)",
     "Send the Sales document fields (needed for Phase 2)",
@@ -203,6 +202,10 @@
   ],
   "changelog": [
     {
+      "date": "23 Oct 2026 (late)",
+      "text": "Phase 1 Accounts module built and installed on live (hidden). 8 new tests."
+    },
+    {
       "date": "23 Oct 2026 (night)",
       "text": "Login expiry, request limit, faster sessions/cache released to live. Backup restore test passed. Super Admin dashboard bug fixed."
     },
@@ -213,6 +216,69 @@
     {
       "date": "23 Oct 2026",
       "text": "Plan approved. Phase 0 started. Live debug mode off, live code updated, switch + login protection + automatic checks built."
+    }
+  ],
+  "phase1_intro": "The Accounts module is installed on the live server but hidden. Nobody sees it until it is switched on for a pilot.",
+  "phase1_tasks": [
+    {
+      "task": "Payment state of every project (advance awaiting, pending payment, paid in full)",
+      "status": "Done",
+      "note": "Project list with contract value, received and balance; filters and search"
+    },
+    {
+      "task": "Approve or reject payments, with notifications",
+      "status": "Done",
+      "note": "Advance and later payments; the project coordinator and sales person are notified when a payment is approved"
+    },
+    {
+      "task": "Budget increase",
+      "status": "Done",
+      "note": "Logged with a reason; management and HR are notified"
+    },
+    {
+      "task": "Hold or terminate a project",
+      "status": "Done",
+      "note": "Reason is required; recorded in the audit log; coordinator and PMO notified"
+    },
+    {
+      "task": "Sales targets (per person per month)",
+      "status": "Done",
+      "note": "Saving again for the same month updates it"
+    },
+    {
+      "task": "AMC list",
+      "status": "Done",
+      "note": "Shows Expired automatically after the end date; filter for contracts ending in 30 days"
+    },
+    {
+      "task": "New 'Accounts' user role and menu",
+      "status": "Done",
+      "note": "Role created on live; menu and role option appear only when the module is switched on"
+    },
+    {
+      "task": "Automated tests",
+      "status": "Done",
+      "note": "8 new tests cover switch, permissions, payment flow, budget, hold, targets, AMC (173 tests total, no new failures)"
+    },
+    {
+      "task": "Installed on the live system without disturbing it",
+      "status": "Done",
+      "note": "Backup first; 5 new tables and 1 role added, nothing existing changed; site checked afterwards"
+    },
+    {
+      "task": "Check the screens by eye",
+      "status": "Needs approval",
+      "note": "Screens compile and the full flow works through the real system, but I could not view them in a browser here. Needs a quick look once switched on"
+    },
+    {
+      "task": "Switch on for a pilot and create the Accounts user",
+      "status": "Needs approval",
+      "note": "Needs the name of the person in Accounts, and your go-ahead"
+    },
+    {
+      "task": "Link each project to its sales person",
+      "status": "Waiting for Phase 2",
+      "note": "The Sales module will set this automatically; until then the sales person is not notified"
     }
   ]
 }
