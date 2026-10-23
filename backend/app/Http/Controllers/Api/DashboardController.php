@@ -706,12 +706,13 @@ class DashboardController extends Controller
                     $auditLogs = \App\Models\AuditLog::with('user:id,first_name,last_name')
                         ->latest()
                         ->take(10)
-                        ->get(['id', 'user_id', 'action', 'description', 'created_at'])
+                        ->get(['id', 'user_id', 'action', 'model_type', 'model_id', 'created_at'])
                         ->map(function($log) {
                             return [
                                 'id' => $log->id,
                                 'action' => $log->action ?? 'System',
-                                'description' => $log->description ?? 'No description',
+                                // audit_logs has no description column; build one from what it does store
+                                'description' => trim(($log->model_type ? class_basename($log->model_type) : '') . ($log->model_id ? " #{$log->model_id}" : '')) ?: 'No details',
                                 'user_name' => ($log->user ? $log->user->first_name . ' ' . $log->user->last_name : 'System'),
                                 'created_at' => $log->created_at
                             ];
