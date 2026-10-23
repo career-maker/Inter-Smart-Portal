@@ -225,7 +225,7 @@ export default function LoginPage() {
 
           <div className="bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-sm shadow-2xl relative">
             {/* Contact HR link - responsive positioning */}
-            <div className="flex justify-end mb-4 sm:mb-0 sm:absolute sm:top-6 sm:right-6">
+            <div className="flex justify-end mb-4">
               <a
                 href="mailto:hr@intersmart.in"
                 className="text-xs !text-amber-400 hover:!text-amber-300 font-semibold transition flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/30 px-2.5 py-1 rounded-lg"
