@@ -10,6 +10,7 @@ use App\Models\ProjectFinance;
 use App\Models\ProjectPayment;
 use App\Models\User;
 use App\Notifications\AccountsNotification;
+use App\Support\Access;
 use App\Support\ProjectPaymentState;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -186,7 +187,7 @@ class AccountsProjectController extends Controller
         $ids = collect([$finance?->sales_user_id, $project->project_coordinator_id])->filter();
         $users = User::whereIn('id', $ids)->get();
 
-        return $includePmo ? $users->merge($this->usersWithRoles(['PMO'])) : $users;
+        return $includePmo ? $users->merge($this->usersWithRoles(['PMO']))->merge(Access::teamMembers(['pmo'])) : $users;
     }
 
     /** Safe when a role does not exist yet (PMO arrives in a later phase). */

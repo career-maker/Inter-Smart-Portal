@@ -66,12 +66,7 @@ export default function EmployeeForm({ initialData, isEdit }: EmployeeFormProps)
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [teams, setTeams] = useState<any[]>([]);
-  const [accountsOn, setAccountsOn] = useState(false);
-  // 'Accounts' role is offered only once the Accounts module is switched on.
-  const roles = accountsOn ? ["Super Admin", "Team Lead", "Employee", "Accounts"] : ["Super Admin", "Team Lead", "Employee"];
-  useEffect(() => {
-    api.get("/features").then((r) => setAccountsOn(Boolean(r.data?.accounts))).catch(() => {});
-  }, []);
+  const roles = ["Super Admin", "Team Lead", "Employee"];
 
   const user = useAuthStore((state) => state.user);
   const userRoleStr = (user?.role || "").toLowerCase();

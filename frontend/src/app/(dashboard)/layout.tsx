@@ -183,8 +183,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Accounts",
     shortLabel: "Accounts",
     icon: Wallet,
-    roles: ["Accounts", "Super Admin"],
-    feature: "accounts",
+    feature: "accounts", // per-person: GET /features is true only for Super Admin / Accounts team
     items: [
       { href: "/accounts",         label: "Projects & Payments" },
       { href: "/accounts/targets", label: "Sales Targets" },

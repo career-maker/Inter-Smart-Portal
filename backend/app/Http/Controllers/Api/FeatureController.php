@@ -3,15 +3,20 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Support\Access;
 use App\Support\Feature;
+use Illuminate\Http\Request;
 
-/** Tells the frontend which optional modules are switched on, so menus hide switched-off modules. */
+/**
+ * Which optional modules are on AND usable by the signed-in person, so menus only show
+ * what that person can open.
+ */
 class FeatureController extends Controller
 {
-    private const MODULES = ['accounts'];
-
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(collect(self::MODULES)->mapWithKeys(fn ($m) => [$m => Feature::enabled($m)]));
+        return response()->json([
+            'accounts' => Feature::enabled('accounts') && Access::accounts($request->user()),
+        ]);
     }
 }

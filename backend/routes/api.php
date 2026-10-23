@@ -456,7 +456,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::get('features', [\App\Http\Controllers\Api\FeatureController::class, 'index']);
 
     // Accounts module (Phase 1): hidden (404) until module.accounts.enabled is switched on.
-    Route::prefix('accounts')->middleware(['feature:accounts', 'role:Accounts|Super Admin'])->group(function () {
+    Route::prefix('accounts')->middleware(['feature:accounts', 'accounts.access'])->group(function () {
         $projects = \App\Http\Controllers\Api\Accounts\AccountsProjectController::class;
         Route::get('projects', [$projects, 'index']);
         Route::get('projects/{project}', [$projects, 'show']);

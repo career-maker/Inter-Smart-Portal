@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\AuditLog;
 use App\Models\Project;
+use App\Models\Team;
 use App\Models\User;
 use App\Support\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -27,12 +28,9 @@ class AccountsModuleTest extends TestCase
         }
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
-        // 'Accounts' role comes from the module migration itself.
-        $this->assertTrue(Role::where('name', 'Accounts')->exists());
-
-        $this->accounts = User::factory()->create();
-        $this->accounts->assignRole('Accounts');
-        $this->employee = User::factory()->create();
+        // Access comes from department membership: no special role needed.
+        $this->accounts = User::factory()->create(['team_id' => Team::create(['name' => 'Accounts'])->id]);
+        $this->employee = User::factory()->create(['team_id' => Team::create(['name' => 'Sales'])->id]);
         $this->employee->assignRole('Employee');
         $this->admin = User::factory()->create();
         $this->admin->assignRole('Super Admin');
@@ -63,11 +61,35 @@ class AccountsModuleTest extends TestCase
         $this->as($this->admin)->getJson('/api/accounts/projects')->assertOk();
     }
 
-    public function test_features_endpoint_reports_the_flag(): void
+    public function test_features_endpoint_is_per_person(): void
     {
-        $this->as($this->employee)->getJson('/api/features')->assertOk()->assertJson(['accounts' => false]);
+        $this->as($this->accounts)->getJson('/api/features')->assertOk()->assertJson(['accounts' => false]); // module off
         Feature::set('accounts', true);
-        $this->as($this->employee)->getJson('/api/features')->assertOk()->assertJson(['accounts' => true]);
+        $this->as($this->accounts)->getJson('/api/features')->assertOk()->assertJson(['accounts' => true]);
+        $this->as($this->admin)->getJson('/api/features')->assertOk()->assertJson(['accounts' => true]);
+        $this->as($this->employee)->getJson('/api/features')->assertOk()->assertJson(['accounts' => false]); // Sales team
+    }
+
+    public function test_accounts_role_also_grants_access_without_team(): void
+    {
+        Feature::set('accounts', true);
+        Role::firstOrCreate(['name' => 'Accounts']);
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+        $other = User::factory()->create();
+        $other->assignRole('Accounts');
+        $this->as($other)->getJson('/api/accounts/projects')->assertOk();
+    }
+
+    public function test_pmo_team_members_are_notified_when_a_payment_is_approved(): void
+    {
+        Feature::set('accounts', true);
+        $pmo = User::factory()->create(['team_id' => Team::create(['name' => 'PMO 1'])->id]);
+        $project = $this->project();
+        $this->as($this->accounts)->putJson("/api/accounts/projects/{$project->id}/finance", ['contract_value' => 100]);
+        $p = $this->as($this->accounts)->postJson("/api/accounts/projects/{$project->id}/payments", ['kind' => 'advance', 'amount' => 50])->json('data.id');
+        $this->as($this->accounts)->postJson("/api/accounts/payments/{$p}/approve")->assertOk();
+
+        $this->assertSame(1, $pmo->notifications()->count());
     }
 
     public function test_payment_flow_moves_state_and_notifies_sales_and_coordinator(): void

@@ -1,0 +1,33 @@
+<?php
+
+namespace App\Support;
+
+use App\Models\User;
+
+/**
+ * Module access by department (team) membership. A person belongs to the module's team
+ * (for example the "Accounts" team) or is a Super Admin. An explicit Spatie role of the
+ * same name also works, so access can be granted without moving someone between teams.
+ */
+class Access
+{
+    public static function inTeam(?User $user, string $teamNameStart): bool
+    {
+        $name = $user?->team?->name;
+
+        return $name !== null && str_starts_with(strtolower(trim($name)), strtolower($teamNameStart));
+    }
+
+    public static function accounts(?User $user): bool
+    {
+        return $user !== null
+            && ($user->hasAnyRole(['Super Admin', 'Accounts']) || self::inTeam($user, 'accounts'));
+    }
+
+    /** Members of departments whose name starts with any of the given words (e.g. "PMO 1", "PMO 2"). */
+    public static function teamMembers(array $teamNameStarts)
+    {
+        return User::with('team')->whereNotNull('team_id')->get()
+            ->filter(fn ($u) => collect($teamNameStarts)->contains(fn ($s) => self::inTeam($u, $s)));
+    }
+}
