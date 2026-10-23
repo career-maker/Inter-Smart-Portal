@@ -47,7 +47,7 @@ export default function AccountsProjectsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 [&_label]:block [&_label]:mb-1 [&_label]:text-xs [&_label]:text-slate-500">
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
           <Wallet className="h-7 w-7 text-amber-500" /> Projects &amp; Payments
@@ -134,26 +134,33 @@ function ProjectDialog({ id, onClose, onChanged }: { id: number; onClose: () => 
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
-        <DialogHeader><DialogTitle>{d.project.name}</DialogTitle></DialogHeader>
+      <DialogContent className="sm:max-w-lg p-0 gap-0">
+        <DialogHeader className="shrink-0 px-6 py-4 pr-14 border-b border-slate-200 dark:border-slate-800">
+          <DialogTitle className="text-lg">{d.project.name}</DialogTitle>
+          <p className="text-xs text-slate-500">{d.project.status}</p>
+        </DialogHeader>
+        <div className="flex-1 min-h-0 overflow-y-auto px-6 py-4 space-y-4 [&_label]:block [&_label]:mb-1 [&_label]:text-xs [&_label]:text-slate-500 [&>*]:shrink-0">
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
-          {[["Contract", money(s.contract_value)], ["Received", money(s.received)], ["Balance", money(s.balance)], ["State", s.state]].map(([k, v]) => (
-            <Card key={k}><CardContent className="p-3"><div className="text-xs text-slate-500">{k}</div><div className="font-semibold">{v}</div></CardContent></Card>
+        <div className="grid grid-cols-2 gap-3 text-sm">
+          {[["Contract", money(s.contract_value)], ["Received", money(s.received)], ["Balance", money(s.balance)], ["Payment state", s.state]].map(([k, v]) => (
+            <div key={k} className="rounded-xl border border-slate-200 dark:border-slate-700 px-3 py-2">
+              <div className="text-xs text-slate-500">{k}</div>
+              <div className="font-semibold break-words">{v}</div>
+            </div>
           ))}
         </div>
 
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-base">Contract value</CardTitle></CardHeader>
-          <CardContent className="flex gap-2 items-end">
+          <CardHeader className="pb-0"><CardTitle className="text-base">Contract value</CardTitle></CardHeader>
+          <CardContent className="flex gap-2 items-end pt-0">
             <div className="flex-1"><Label>Amount</Label><Input type="number" min="0" value={contract} onChange={(e) => setContract(e.target.value)} /></div>
             <Button disabled={busy || contract === ""} onClick={() => run(() => api.put(`/accounts/projects/${id}/finance`, { contract_value: Number(contract) }))}>Save</Button>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-base">Payments</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
+          <CardHeader className="pb-0"><CardTitle className="text-base">Payments</CardTitle></CardHeader>
+          <CardContent className="space-y-3 pt-0">
             {d.payments.length === 0 && <p className="text-sm text-slate-500">No payments yet.</p>}
             {d.payments.map((p: any) => (
               <div key={p.id} className="flex flex-wrap items-center gap-2 text-sm border rounded-lg p-2">
@@ -170,9 +177,9 @@ function ProjectDialog({ id, onClose, onChanged }: { id: number; onClose: () => 
                 )}
               </div>
             ))}
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 items-end pt-2 border-t">
+            <div className="grid grid-cols-2 gap-2 items-end pt-3 border-t">
               <div><Label>Type</Label>
-                <select className="w-full h-9 rounded-md border bg-transparent px-2 text-sm" value={pay.kind} onChange={(e) => setPay({ ...pay, kind: e.target.value })}>
+                <select className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={pay.kind} onChange={(e) => setPay({ ...pay, kind: e.target.value })}>
                   <option value="advance">Advance</option><option value="installment">Installment</option><option value="final">Final</option>
                 </select></div>
               <div><Label>Amount</Label><Input type="number" min="0" value={pay.amount} onChange={(e) => setPay({ ...pay, amount: e.target.value })} /></div>
@@ -187,8 +194,8 @@ function ProjectDialog({ id, onClose, onChanged }: { id: number; onClose: () => 
         </Card>
 
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-base">Increase budget</CardTitle></CardHeader>
-          <CardContent className="grid sm:grid-cols-3 gap-2 items-end">
+          <CardHeader className="pb-0"><CardTitle className="text-base">Increase budget</CardTitle></CardHeader>
+          <CardContent className="grid grid-cols-1 gap-2 pt-0">
             <div><Label>New total</Label><Input type="number" min="0" value={budget.new_value} onChange={(e) => setBudget({ ...budget, new_value: e.target.value })} /></div>
             <div><Label>Reason</Label><Input value={budget.reason} onChange={(e) => setBudget({ ...budget, reason: e.target.value })} /></div>
             <Button disabled={busy || !budget.new_value || !budget.reason} onClick={() => run(async () => {
@@ -196,7 +203,7 @@ function ProjectDialog({ id, onClose, onChanged }: { id: number; onClose: () => 
               setBudget({ new_value: "", reason: "" });
             })}>Increase &amp; notify</Button>
             {d.budget_changes.length > 0 && (
-              <ul className="sm:col-span-3 text-xs text-slate-500 list-disc pl-4">
+              <ul className="text-xs text-slate-500 list-disc pl-4">
                 {d.budget_changes.map((b: any) => <li key={b.id}>{money(b.old_value)} to {money(b.new_value)}: {b.reason}</li>)}
               </ul>
             )}
@@ -204,10 +211,10 @@ function ProjectDialog({ id, onClose, onChanged }: { id: number; onClose: () => 
         </Card>
 
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-base">Project status ({d.project.status})</CardTitle></CardHeader>
-          <CardContent className="grid sm:grid-cols-3 gap-2 items-end">
+          <CardHeader className="pb-0"><CardTitle className="text-base">Project status ({d.project.status})</CardTitle></CardHeader>
+          <CardContent className="grid grid-cols-1 gap-2 pt-0">
             <div><Label>Action</Label>
-              <select className="w-full h-9 rounded-md border bg-transparent px-2 text-sm" value={status.status} onChange={(e) => setStatus({ ...status, status: e.target.value })}>
+              <select className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={status.status} onChange={(e) => setStatus({ ...status, status: e.target.value })}>
                 <option value="On Hold">Hold</option><option value="Cancelled">Terminate</option><option value="Active">Resume</option>
               </select></div>
             <div><Label>Reason (required)</Label><Input value={status.reason} onChange={(e) => setStatus({ ...status, reason: e.target.value })} /></div>
@@ -217,6 +224,7 @@ function ProjectDialog({ id, onClose, onChanged }: { id: number; onClose: () => 
             }}>Apply</Button>
           </CardContent>
         </Card>
+        </div>
       </DialogContent>
     </Dialog>
   );

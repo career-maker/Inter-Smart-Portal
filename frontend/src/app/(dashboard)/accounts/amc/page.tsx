@@ -47,7 +47,7 @@ export default function AmcPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 [&_label]:block [&_label]:mb-1 [&_label]:text-xs [&_label]:text-slate-500">
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
           <CalendarClock className="h-7 w-7 text-amber-500" /> AMC List
@@ -59,7 +59,7 @@ export default function AmcPage() {
         <CardHeader className="pb-2"><CardTitle className="text-base">Add AMC</CardTitle></CardHeader>
         <CardContent className="grid sm:grid-cols-6 gap-2 items-end">
           <div className="sm:col-span-2"><Label>Project</Label>
-            <select className="w-full h-9 rounded-md border bg-transparent px-2 text-sm" value={form.project_id} onChange={(e) => setForm({ ...form, project_id: e.target.value })}>
+            <select className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={form.project_id} onChange={(e) => setForm({ ...form, project_id: e.target.value })}>
               <option value="">Select</option>
               {projects.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select></div>

@@ -59,7 +59,7 @@ export default function LeadsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 [&_label]:block [&_label]:mb-1 [&_label]:text-xs [&_label]:text-slate-500">
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
           <Users className="h-7 w-7 text-amber-500" /> Leads
@@ -114,7 +114,7 @@ export default function LeadsPage() {
                     <Button size="sm" variant="outline" onClick={() => setOpen(open === l.id ? null : l.id)}>Add to inbox</Button>
                     {open === l.id && (
                       <div className="mt-2 grid gap-2 text-left">
-                        <select className="h-9 rounded-md border bg-transparent px-2 text-sm" value={act.kind} onChange={(e) => setAct({ ...act, kind: e.target.value })}>
+                        <select className="h-10 rounded-md border bg-transparent px-2 text-sm" value={act.kind} onChange={(e) => setAct({ ...act, kind: e.target.value })}>
                           <option value="followup">Follow-up</option><option value="proposal">Proposal</option><option value="meeting">Meeting</option><option value="other">Other</option>
                         </select>
                         <Input placeholder="What needs doing?" value={act.title} onChange={(e) => setAct({ ...act, title: e.target.value })} />

@@ -40,7 +40,7 @@ export default function SalesTargetsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 [&_label]:block [&_label]:mb-1 [&_label]:text-xs [&_label]:text-slate-500">
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
           <Target className="h-7 w-7 text-amber-500" /> Sales Targets
@@ -53,7 +53,7 @@ export default function SalesTargetsPage() {
         <CardContent className="grid sm:grid-cols-4 gap-2 items-end">
           <div><Label>Month</Label><Input type="month" value={period} onChange={(e) => setPeriod(e.target.value)} /></div>
           <div><Label>Person</Label>
-            <select className="w-full h-9 rounded-md border bg-transparent px-2 text-sm" value={userId} onChange={(e) => setUserId(e.target.value)}>
+            <select className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={userId} onChange={(e) => setUserId(e.target.value)}>
               <option value="">Select</option>
               {employees.map((u: any) => <option key={u.id} value={u.id}>{u.first_name} {u.last_name}</option>)}
             </select></div>
