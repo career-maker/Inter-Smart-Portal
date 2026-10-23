@@ -78,7 +78,7 @@ class SalesProjectController extends Controller
 
         // Copying another website is priced on budget and page count only (sheet), so pages are required there.
         if (($data['cms_variant'] ?? null) === 'Copy of other website' && empty($data['pages_count'])) {
-            return response()->json(['message' => 'Number of pages is required for a copy of another website.', 'errors' => ['pages_count' => ['Required.']]], 422);
+            return response()->json(['message' => 'Number of pages is required for a copy of another website.', 'errors' => ['pages_count' => ['Number of pages is required for a copy of another website.']]], 422);
         }
 
         $user = $request->user();
@@ -108,7 +108,7 @@ class SalesProjectController extends Controller
             });
         } catch (QueryException $e) {
             if (str_contains($e->getMessage(), 'Duplicate') || str_contains($e->getMessage(), 'UNIQUE')) {
-                return response()->json(['message' => 'A project with this name already exists.', 'errors' => ['name' => ['Already used.']]], 422);
+                return response()->json(['message' => 'A project with this name already exists.', 'errors' => ['name' => ['A project with this name already exists.']]], 422);
             }
             throw $e;
         }

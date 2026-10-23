@@ -128,7 +128,7 @@ class LeadController extends Controller
             'lost_reason' => 'nullable|string|max:2000',
         ]);
         if (($data['status'] ?? null) === 'Lost' && empty($data['lost_reason'])) {
-            abort(response()->json(['message' => 'Give a reason when marking a lead Lost.', 'errors' => ['lost_reason' => ['Required when status is Lost.']]], 422));
+            abort(response()->json(['message' => 'Give a reason when marking a lead Lost.', 'errors' => ['lost_reason' => ['Give a reason when marking a lead Lost.']]], 422));
         }
 
         return $data;

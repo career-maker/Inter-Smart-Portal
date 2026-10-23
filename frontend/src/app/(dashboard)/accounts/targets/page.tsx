@@ -25,7 +25,7 @@ export default function SalesTargetsPage() {
 
   useEffect(() => { load().catch(() => {}); }, [load]);
   useEffect(() => {
-    api.get("/employees?per_page=all").then((r) => setEmployees(r.data?.data ?? r.data ?? [])).catch(() => {});
+    api.get("/accounts/sales-people").then((r) => setEmployees(r.data?.data ?? [])).catch(() => {});
   }, []);
 
   const save = async () => {
@@ -55,7 +55,7 @@ export default function SalesTargetsPage() {
           <div><Label>Person</Label>
             <select className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={userId} onChange={(e) => setUserId(e.target.value)}>
               <option value="">Select</option>
-              {employees.map((u: any) => <option key={u.id} value={u.id}>{u.first_name} {u.last_name}</option>)}
+              {employees.map((u: any) => <option key={u.id} value={u.id}>{u.name}</option>)}
             </select></div>
           <div><Label>Target amount</Label><Input type="number" min="0" value={amount} onChange={(e) => setAmount(e.target.value)} /></div>
           <Button disabled={!userId || !amount} onClick={save}>Save target</Button>

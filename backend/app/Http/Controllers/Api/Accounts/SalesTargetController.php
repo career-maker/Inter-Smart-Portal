@@ -4,10 +4,18 @@ namespace App\Http\Controllers\Api\Accounts;
 
 use App\Http\Controllers\Controller;
 use App\Models\SalesTarget;
+use App\Support\Access;
 use Illuminate\Http\Request;
 
 class SalesTargetController extends Controller
 {
+    /** Who a target can be set for: members of the Sales team(s). Accounts staff cannot list all employees. */
+    public function salesPeople()
+    {
+        return response()->json(['data' => Access::teamMembers(['sales'])
+            ->map(fn ($u) => ['id' => $u->id, 'name' => trim("{$u->first_name} {$u->last_name}")])->sortBy('name')->values()]);
+    }
+
     public function index(Request $request)
     {
         $period = $request->input('period', now()->format('Y-m'));

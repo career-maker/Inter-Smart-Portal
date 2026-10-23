@@ -96,7 +96,7 @@ class PmoWorkController extends Controller
         abort_unless(Access::pmoManager($request->user()), 403, 'Only the project manager can decide this.');
         $data = $request->validate(['decision' => ['required', Rule::in(['approve', 'reject'])], 'note' => 'nullable|string|max:2000']);
         if ($data['decision'] === 'reject' && empty($data['note'])) {
-            return response()->json(['message' => 'Give a reason when rejecting.', 'errors' => ['note' => ['Required.']]], 422);
+            return response()->json(['message' => 'Give a reason when rejecting.', 'errors' => ['note' => ['Give a reason when rejecting.']]], 422);
         }
         if ($oos->status !== 'Pending') {
             return response()->json(['message' => "Already {$oos->status}."], 422);

@@ -167,6 +167,16 @@ class AccountsModuleTest extends TestCase
         $this->assertTrue(AuditLog::where('action', 'changed project status')->where('model_id', $project->id)->exists());
     }
 
+    public function test_accounts_can_list_the_sales_team_for_targets(): void
+    {
+        Feature::set('accounts', true);
+        $sales = User::factory()->create(['first_name' => 'Ann', 'last_name' => 'Seller', 'team_id' => Team::where('name', 'Sales')->value('id')]);
+
+        $names = collect($this->as($this->accounts)->getJson('/api/accounts/sales-people')->assertOk()->json('data'))->pluck('name');
+        $this->assertTrue($names->contains('Ann Seller'));
+        $this->assertFalse($names->contains($this->accounts->first_name . ' ' . $this->accounts->last_name)); // not the Accounts person
+    }
+
     public function test_targets_upsert_per_person_per_month_and_amc_shows_expired(): void
     {
         Feature::set('accounts', true);

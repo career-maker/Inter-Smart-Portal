@@ -190,7 +190,9 @@ class PmoProjectController extends Controller
         $contract = (float) (ProjectFinance::where('project_id', $project->id)->value('contract_value') ?? 0);
         $over = $total > $contract;
         if ($over && empty($data['allow_over_contract'])) {
-            return response()->json(['message' => 'Allocated ' . number_format($total, 2) . ' is more than the contract value ' . number_format($contract, 2) . '. Confirm to go over.', 'errors' => ['allocations' => ['Over contract value.']], 'over_contract' => true], 422);
+            $msg = 'Allocated ' . number_format($total, 2) . ' is more than the contract value ' . number_format($contract, 2) . '.';
+
+            return response()->json(['message' => $msg . ' Confirm to go over.', 'errors' => ['allocations' => [$msg]], 'over_contract' => true], 422);
         }
 
         DB::transaction(function () use ($project, $data, $request) {
@@ -214,7 +216,7 @@ class PmoProjectController extends Controller
         $this->requireManager($request);
         $data = $request->validate(['reason_code' => ['required', Rule::in(array_keys(self::HOLD_REASONS))], 'note' => 'nullable|string|max:2000']);
         if ($data['reason_code'] === 'other' && empty($data['note'])) {
-            return response()->json(['message' => 'Add a note when the reason is Other.', 'errors' => ['note' => ['Required.']]], 422);
+            return response()->json(['message' => 'Add a note when the reason is Other.', 'errors' => ['note' => ['Add a note when the reason is Other.']]], 422);
         }
 
         DB::transaction(function () use ($project, $data, $request) {

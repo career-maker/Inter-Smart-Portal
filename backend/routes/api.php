@@ -468,6 +468,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::post('payments/{payment}/reject', [$projects, 'rejectPayment']);
 
         $targets = \App\Http\Controllers\Api\Accounts\SalesTargetController::class;
+        Route::get('sales-people', [$targets, 'salesPeople']);
         Route::get('targets', [$targets, 'index']);
         Route::post('targets', [$targets, 'store']);
         Route::delete('targets/{target}', [$targets, 'destroy']);
