@@ -1,0 +1,38 @@
+{
+  "updated": "24 Oct 2026",
+  "tagline": "One connected workflow from the first sales lead to a delivered, paid and reviewed project, built on the existing Employee Portal without disturbing it.",
+  "flow": [
+    {"who": "Sales", "what": "Records leads and follow-ups, then creates the project with platform, pages, quality level and budget. The project is linked to the salesperson.", "status": "live"},
+    {"who": "Accounts", "what": "Is told a new project awaits its advance. Approves or rejects payments, raises the budget, holds or terminates, sets sales targets and keeps the AMC list. Sales is told when payment is approved.", "status": "live"},
+    {"who": "Project Office (PMO)", "what": "Assigns a coordinator, gives each department its budget, holds a project with a reason, approves out-of-scope work. Work tabs stay locked until the advance is approved.", "status": "live"},
+    {"who": "Project Coordinator", "what": "Accepts the project, fills the business analysis, adds client resources (logo, domain, brochure) and asks for out-of-scope work with effort.", "status": "live"},
+    {"who": "Design (UI) team", "what": "Defines pages and sections, works pages through the status chain (revisions, feedback, corrections), all inside the design budget.", "status": "live"},
+    {"who": "UX and Dev teams", "what": "Team lead plans sprints with effort, the project manager approves against the budget, the coordinator requests dates, resources report daily progress.", "status": "building"},
+    {"who": "QA team", "what": "Finished work moves to QA automatically. QA lists bugs, the team lead verifies, and overruns alert the project manager.", "status": "building"},
+    {"who": "Go live and after-sales", "what": "System admin allocates the server and marks the project live. AMC renewals are tracked; customer feedback and appreciation follow.", "status": "planned"},
+    {"who": "HR and Management", "what": "Performance by department and person, leave approvals (already live), ratings and dashboards for every role.", "status": "planned"}
+  ],
+  "rules": [
+    "Nothing is released without a database backup, a preview of the change and a check of the live site afterwards.",
+    "Each new module has an on/off switch and starts hidden. It is switched on only when it is ready.",
+    "Access follows the department: the Sales team sees Sales, the Accounts team sees Accounts, and so on. Nobody sees more than their job needs.",
+    "Existing modules (leave, attendance, projects, TA, chat) were not changed and keep working.",
+    "Every action that matters leaves a trail: who did it, when and why (audit log and history)."
+  ],
+  "numbers": [
+    ["Departments connected", "Sales, Accounts, PMO, Design (4 live), UX/Dev/QA next"],
+    ["Automated checks", "201 tests, plus 48 browser steps that click through the real screens"],
+    ["New database tables (all add-only)", "18 new tables; nothing existing was altered"],
+    ["Safety fixes on the live system", "Debug mode off, login protection, request limits, token expiry, backups proven by a restore test"]
+  ],
+  "needs_from_manager": [
+    "Sales document fields, so the project form matches exactly",
+    "How the budget per department is calculated (sections x animation level) and who can change it",
+    "Rating formula for coordinators and resources (HR approval)",
+    "Customer feedback questions and who enters them",
+    "Meetings: simple request and approve, or full calendar invites",
+    "LinkedIn and mail sharing for appreciation, and Google review count: manual or automatic",
+    "Keep the old bug tracker next to the new bug flow, or replace it",
+    "Go-live approach: pilot team first, or everyone at once"
+  ]
+}

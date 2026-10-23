@@ -1,0 +1,13 @@
+extension_dir="C:/Users/Abhiram P M/AppData/Roaming/Local/lightning-services/php-8.2.29+0/bin/win64/ext"
+extension=curl
+extension=fileinfo
+extension=mbstring
+extension=openssl
+extension=pdo_mysql
+extension=mysqli
+extension=zip
+extension=gd
+extension=intl
+extension=sodium
+memory_limit=1G
+date.timezone=UTC

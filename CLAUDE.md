@@ -1,4 +1,5 @@
-# Ongoing work: READ `docs/roadmap/PROGRESS.md` FIRST
+# Ongoing work: READ `docs/roadmap/CHECKPOINT.md` FIRST (then `PROGRESS.md`)
+A new agent can continue the Internal Software Plan from `CHECKPOINT.md` alone: current state, ordered next steps, standing rules, how to deploy and test. Keep it updated and committed after every unit of work.
 Internal Software Plan (Sales/Accounts/PMO/PC workflow), execution plan, live-server facts and rules are in `docs/roadmap/`. Live app folder on the server is `~/public_html/api/Inter-Smart-Portal` (see `docs/roadmap/SERVER.md`).
 
 # Intersmart Employee Portal — Complete Project Memory
