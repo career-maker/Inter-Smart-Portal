@@ -1,7 +1,7 @@
 {
   "updated": "23 Oct 2026",
-  "headline": "Accounts, Sales and the Project Office are built and LIVE, each visible only to its own department. The safety net (Phase 0) is about 85% done. Existing modules are working normally.",
-  "overall_percent": 40,
+  "headline": "Accounts, Sales, the Project Office and the first department work screens (UI pages) are LIVE, each visible only to the right people. The browser self-test passed all 40 earlier steps, and the 8 new UI steps pass; one combined run of all 48 is still to do. Existing modules are working normally.",
+  "overall_percent": 47,
   "live_health": [
     "Website and login: working",
     "Database: working (backup taken before every live change)",
@@ -45,8 +45,8 @@
       "n": "4",
       "name": "UI / UX / Dev workflow",
       "weeks": "5",
-      "status": "Not started",
-      "percent": 0,
+      "status": "In progress",
+      "percent": 25,
       "delivers": "Pages and sections, sprints, effort approval, QA hand-off, corrections with budget"
     },
     {
@@ -157,16 +157,15 @@
     }
   ],
   "done_this_update": [
-    "Re-ran the full browser test after the fixes: 40 of 40 steps passed",
-    "Ran the whole test script myself in a real browser on a local copy: 36 of 40 steps passed; the full lead-to-project chain passed",
-    "Fixed what it found: clear error messages when an action is refused, and the Accounts team can now pick salespeople when setting targets",
-    "Fixes released to the live system with a backup first; site checked before and after",
-    "Saved the browser test in the project so it can be re-run after every change"
+    "Built and released the UI department screens: pages, sections, status chain with history, page budgets, My Work",
+    "Ran the 8 new browser steps for the UI screens: all pass (the earlier 40 passed in their own run)",
+    "201 automated tests, no new failures"
   ],
   "next": [
-    "Project managers, coordinators, Sales and Accounts: run one real project through the chain",
-    "Phase 4: UI / UX / Dev workflow",
-    "Staging copy and load test (needs your approval)"
+    "Slice 2: UX and Dev sprints with effort approval",
+    "Slice 3: QA hand-off and budget-overrun alerts; slice 4: corrections with budget approval",
+    "Then team lead and resource screens, HR views and dashboards",
+    "Manager's answers (formula, ratings, feedback questions) and your approvals (staging, GitHub review rule)"
   ],
   "capacity_answer": "The database will not break with 100+ users working at once. The live server is strong (24 processors, 40 GB memory). Improvements planned in Phase 0 (lighter background checks, rate limits, caching) give comfortable room for 150 to 300 users at the same time. A load test will confirm the exact number.",
   "risks": [
@@ -214,6 +213,10 @@
     "Go-live: pilot team first, or everyone at once?"
   ],
   "changelog": [
+    {
+      "date": "24 Oct 2026",
+      "text": "Phase 4 slice 1 (UI department work screens) built, installed and switched on."
+    },
     {
       "date": "24 Oct 2026",
       "text": "Full browser self-test re-run: 40 of 40 passed."
@@ -428,6 +431,59 @@
       "task": "Confirm who the project managers are",
       "status": "Needs approval",
       "note": "Assumed: PMO 1 / PMO 2 team leads are project managers, PMO team members are coordinators. Easy to change"
+    }
+  ],
+  "phase4_intro": "Built in slices. Slice 1 (UI department) is live. Next: UX and Dev sprints with effort approval, QA hand-off, and corrections with budget approval. Budgets are entered by hand until the manager gives the formula.",
+  "phase4_tasks": [
+    {
+      "task": "UI pages: add pages, assign a designer, due date, Figma link, animation level",
+      "status": "Done",
+      "note": "Pages beyond the number sold wait for the project manager to approve them"
+    },
+    {
+      "task": "Sections and sub-sections (title, subtitle, statistics, content, description)",
+      "status": "Done",
+      "note": "Limited to the number planned for the page; the UI lead can raise it"
+    },
+    {
+      "task": "Page status chain with history",
+      "status": "Done",
+      "note": "Pending, Ongoing, Completed, three internal revisions, Waiting for feedback, Rejected, three corrections. Every change is logged with who and why; UI lead and coordinator are told"
+    },
+    {
+      "task": "Page budgets inside the design budget",
+      "status": "Done",
+      "note": "Entered by hand. The total can never go above what the project manager gave the design team"
+    },
+    {
+      "task": "My Work screen for team members",
+      "status": "Done",
+      "note": "People see only projects where their department has a budget, or that they coordinate. Payment and budget locks still apply"
+    },
+    {
+      "task": "Tested and installed on live",
+      "status": "Done",
+      "note": "6 new unit tests (201 total) and 8 new browser steps; backup first; 3 new tables; nothing existing changed"
+    },
+    {
+      "task": "UX and Dev: sprints and effort requests",
+      "status": "Not started",
+      "note": "Team lead creates, project manager approves, coordinator requests dates"
+    },
+    {
+      "task": "QA hand-off and bug list",
+      "status": "Not started",
+      "note": "Finished work moves to QA automatically; budget overruns alert the project manager"
+    },
+    {
+      "task": "Corrections with budget approval",
+      "status": "Not started",
+      "note": "Coordinator raises, team lead sets effort, project manager approves against the budget"
+    },
+    {
+      "task": "Automatic page budget from sections x animation level",
+      "status": "Needs approval",
+      "note": "Waiting for the manager's formula"
     }
   ]
 }

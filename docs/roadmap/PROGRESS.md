@@ -56,6 +56,13 @@ Edit `docs/roadmap/progress.json` (phase status/percent, tasks, done list, chang
 - Not built: PC rating, project category tree, UI/UX/Dev/QA/bugs/system-admin tab contents (Phase 4), PM dashboard (Phase 6), meeting requests.
 - Disable: `Feature::set('pmo', false)` via tinker.
 
+### Phase 4 slice 1: UI department work screens (deployed 2026-10-24; commit 33ddf8d; live backup `~/safety_backup_2026-10-24_0016_phase4a`)
+- Tables (live now 110): project_pages, page_sections, page_events. Flag `module.workflow.enabled` = true. No role middleware: access is per project via `App\Support\WorkAccess` (manager, coordinator, member/lead of a department that has a budget on the project, or a QA team member). UI department = team name starts 'design' (UI lead = lead of that team).
+- API under `api/work/*`; frontend `src/app/(dashboard)/work/{page,projects/[id]}` and `src/components/work/UiPages.tsx` (add more tabs there for sprints, QA, changes), nav group 'work' (`workflow` feature, true only for people with a project on their list).
+- Extra pages beyond `project_intake.pages_count` are Pending until a PMO manager approves. Page budgets are capped by the design allocation.
+- Slice plan: 2 = UX/Dev sprints + effort approval; 3 = QA hand-off + budget overrun alerts; 4 = corrections with budget approval.
+- Test run note: end-to-end test now has 48 steps (section I added); the 40 old steps and the 8 new ones have each passed, but not yet together in one run. Use `until(...)` and `act(...)` helpers; never fixed sleeps.
+
 ### Visual check recipe (browser extension is not connected in this setup)
 Install `playwright-core` in a scratch folder and drive the installed Edge headlessly (`executablePath: C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe`) against a LOCAL stack: `php -c ini -S 127.0.0.1:8765 -t public`, a CORS proxy on 8766 (backend only allows origin port 3000), and `NEXT_PUBLIC_API_URL=http://127.0.0.1:8766/api npx next dev -p 3100`. Log in with a locally seeded Super Admin, screenshot pages, then stop the servers. The dialog component is already a right-hand side panel (like BirthdayWishDrawer); put content in a header + `flex-1 overflow-y-auto` body with `shrink-0` children, otherwise Cards get squashed (fixed 2026-10-23, commit 2ce1336).
 

@@ -1,7 +1,7 @@
 {
-  "version": "1.1",
-  "updated": "23 Oct 2026",
-  "covers": "Accounts, Sales and Project Office modules, plus a check that the older modules still work",
+  "version": "1.2",
+  "updated": "24 Oct 2026",
+  "covers": "Accounts, Sales, Project Office and UI department work screens, plus a check that the older modules still work",
   "before_you_start": [
     "Use a dummy project called TEST - Demo Website, so real data stays clean. There is no delete for projects; finish by terminating the dummy ones.",
     "Notifications go to real people. Tell the Sales, Accounts and PMO teams that a test is running.",
@@ -300,6 +300,68 @@
       ]
     },
     {
+      "id": "I",
+      "title": "I. UI department work screens",
+      "status": "new",
+      "intro": "Run after section A. Needs a project with a Design budget (section A, step 10) and people in the Design team: a UI lead (team lead) and a designer.",
+      "steps": [
+        {
+          "who": "Coordinator",
+          "where": "My Work > the project > UI pages",
+          "do": "Add two pages, 'Contact' and 'Careers'",
+          "expect": "Both appear in the list as Pending. 'Pages 2 of N sold' is shown"
+        },
+        {
+          "who": "UI lead",
+          "where": "Open the Contact page",
+          "do": "Set budget 12,000, sections planned 2, assign the designer; Save details",
+          "expect": "Saved. The designer gets a 'Page assigned' notice"
+        },
+        {
+          "who": "UI lead",
+          "where": "Same panel",
+          "do": "Try a page budget bigger than the whole design budget",
+          "expect": "Refused with a sentence about the design budget"
+        },
+        {
+          "who": "Designer",
+          "where": "My Work, then the project",
+          "do": "Find the project, set Contact to Ongoing, open it and add two sections",
+          "expect": "Project is on the list. Status changes. Both sections appear"
+        },
+        {
+          "who": "Designer",
+          "where": "Same panel",
+          "do": "Add a third section",
+          "expect": "Refused: 'set up for 2 sections'. A sub-section under a section is still allowed"
+        },
+        {
+          "who": "Designer",
+          "where": "Change status",
+          "do": "Set Completed",
+          "expect": "UI lead and coordinator get a 'Page completed' notice; History lists the change with your name"
+        },
+        {
+          "who": "Coordinator",
+          "where": "Open the page > Change status",
+          "do": "Choose Correction 1, update type 'correction', note 'Logo too small'",
+          "expect": "Status changes. History shows the note"
+        },
+        {
+          "who": "Coordinator",
+          "where": "Add page beyond the number sold",
+          "do": "Add pages until you pass the number in the sale",
+          "expect": "The extra page says 'Waiting for project manager'. The PMO manager can approve or reject it (a reason is needed to reject)"
+        },
+        {
+          "who": "HTML team member",
+          "where": "Address bar: the project's /work/projects/ link",
+          "do": "Open a project where HTML has no budget",
+          "expect": "Refused"
+        }
+      ]
+    },
+    {
       "id": "H",
       "title": "H. Older modules still work (regression)",
       "status": "new",
@@ -345,6 +407,10 @@
     }
   ],
   "changelog": [
+    {
+      "date": "24 Oct 2026",
+      "text": "Version 1.2. New section I: UI department work screens (pages, sections, status chain, page budgets)."
+    },
     {
       "date": "23 Oct 2026 (night)",
       "text": "Version 1.1. Refused actions now show a full sentence instead of 'Required.' (sections C, D). The sales-target person list now comes from the Sales team (section E). Steps in A to H were also run by Claude on a local copy: 36 of 40 passed, the 4 failures were fixed. The re-run after the fixes passed 40 of 40."
