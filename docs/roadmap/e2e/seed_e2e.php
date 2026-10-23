@@ -32,6 +32,8 @@ $mk('Hari', 'emp@test.local', $html->id, 'Employee', 'E6');
 $uilead = $mk('Uma', 'uilead@test.local', $design->id, 'Employee', 'E7');
 $mk('Dina', 'designer@test.local', $design->id, 'Employee', 'E8');
 $design->update(['team_lead_id' => $uilead->id]);
+$htmllead = $mk('Hema', 'htmllead@test.local', $html->id, 'Employee', 'E9');
+$html->update(['team_lead_id' => $htmllead->id]);
 $sales->update(['team_lead_id' => $ann->id]);
 $pmo->update(['team_lead_id' => $pm->id]);
 

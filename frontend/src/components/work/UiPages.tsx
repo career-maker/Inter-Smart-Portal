@@ -109,16 +109,18 @@ function PageDialog({ id, d, onClose, onChanged }: { id: number; d: any; onClose
   const [sec, setSec] = useState({ title: "", subtitle: "", statistics: "", content: "", description: "" });
   const [subOf, setSubOf] = useState<number | null>(null);
 
-  const load = useCallback(async () => {
+  // The form is filled from the server once, and again only after something was saved. A background reload must never wipe what someone is typing.
+  const load = useCallback(async (force = false) => {
     const r = await api.get(`/work/ui/pages/${id}`);
     setData(r.data);
     const p = r.data.page;
-    setEdit({ title: p.title, animation_level: p.animation_level, est_sections: p.est_sections ?? "", budget: p.budget ?? "", figma_url: p.figma_url ?? "", due_date: p.due_date ?? "", assigned_to: p.assigned_to ?? "" });
-    setStatus((s) => ({ ...s, status: p.status }));
+    const fresh = { title: p.title, animation_level: p.animation_level, est_sections: p.est_sections ?? "", budget: p.budget ?? "", figma_url: p.figma_url ?? "", due_date: p.due_date ?? "", assigned_to: p.assigned_to ?? "" };
+    setEdit((cur: any) => (cur && !force ? cur : fresh));
+    setStatus((s) => (s.status && !force ? s : { ...s, status: p.status }));
   }, [id]);
   useEffect(() => { load(); }, [load]);
 
-  const run = async (fn: () => Promise<any>) => { try { await fn(); await load(); onChanged(); } catch (e: any) { alert(errMsg(e)); } };
+  const run = async (fn: () => Promise<any>) => { try { await fn(); await load(true); onChanged(); } catch (e: any) { alert(errMsg(e)); } };
   if (!data || !edit) return null;
   const page = data.page;
   const frozen = page.approval !== "Approved";

@@ -211,7 +211,7 @@ async function step(id, name, fn) {
     await act(p, () => p.click('button:has-text("Dev")'));
     await p.locator('xpath=//label[contains(.,"Override budget lock")]/following-sibling::input').fill("Budget follows next week");
     await act(p, () => p.click('button:has-text("Open this tab anyway")'));
-    await until(async () => must(/working screens arrive/.test(await p.innerText("body")), "Dev tab did not open"));
+    await until(async () => must(/project work view/.test(await p.innerText("body")), "Dev tab did not open"));
   });
 
   // ================= C. Hold / resume / terminate =================
@@ -441,6 +441,83 @@ async function step(id, name, fn) {
     must((await api("emp@test.local", "GET", `/work/projects/${otherPid}/ui`)).status === 403, "HTML employee could open a project with no HTML budget");
     const p = await as("emp@test.local"); await go(p, "/dashboard");
     await until(async () => must(!/My Work/.test(await p.innerText("body")) || true, "x"));
+  });
+
+
+  // ================= J. UX / Dev sprints =================
+  let sprintId = null;
+  const openSprint = async (p, title) => { await p.locator("tr", { hasText: title }).locator('button:text-is("Open")').click(); await dialog(p).waitFor({ timeout: 30000 }); await settle(p); };
+  const sprintTab = async (p) => { await go(p, `/work/projects/${pid}`); await p.click('button:has-text("UX / Dev sprints")'); await settle(p); };
+  await step("J1", "HTML team lead plans a sprint with two tasks and submits it", async () => {
+    const p = await as("htmllead@test.local"); await sprintTab(p);
+    await field(p, "Department").selectOption({ label: "HTML" });
+    await field(p, "Sprint title").fill("Sprint 1");
+    await field(p, "Cost estimate").fill("15000");
+    await act(p, () => p.click('button:has-text("Create sprint")'));
+    const dlg = dialog(p); await dlg.waitFor({ timeout: 30000 });
+    for (const [t, d, who] of [["Header", "2", "Hari Test"], ["Footer", "1", "Hari Test"]]) {
+      await field(dlg, "New task").fill(t); await field(dlg, "Effort (days)").fill(d);
+      await field(dlg, "Assign to").selectOption({ label: who });
+      await act(p, () => dlg.locator('button:text-is("Add task")').click());
+    }
+    await act(p, () => dlg.locator('button:has-text("Submit for approval")').click());
+    await until(async () => { const l = (await api("htmllead@test.local", "GET", `/work/projects/${pid}/sprints`)).json.sprints; sprintId = l[0].id; must(l[0].status === "Submitted" && l[0].items_count === 2, `status ${l[0].status}, items ${l[0].items_count}`); });
+  });
+  await step("J2", "PMO manager approves the sprint against the department budget", async () => {
+    must((await notifs("pm@test.local")).includes("Sprint needs approval"), "manager not told");
+    const p = await as("pm@test.local"); await sprintTab(p); await openSprint(p, "Sprint 1");
+    await act(p, () => dialog(p).locator('button:text-is("Approve")').click());
+    await until(async () => must((await api("pm@test.local", "GET", `/work/sprints/${sprintId}`)).json.sprint.status === "Approved", "not approved"));
+    must((await notifs("htmllead@test.local")).includes("Sprint approved"), "team lead not told");
+  });
+  await step("J3", "Coordinator requests dates", async () => {
+    const p = await as("pc@test.local"); await sprintTab(p); await openSprint(p, "Sprint 1");
+    const dlg = dialog(p);
+    await field(dlg, "Start").fill(today); await field(dlg, "End").fill(plus(5));
+    await act(p, () => dlg.locator('button:has-text("Request these dates")').click());
+    await until(async () => must((await api("pc@test.local", "GET", `/work/sprints/${sprintId}`)).json.sprint.requested_start === today, "dates not saved"));
+    must((await notifs("htmllead@test.local")).includes("Dates requested"), "team lead not told");
+  });
+  await step("J4", "Team lead confirms and schedules; the assignee is told", async () => {
+    const p = await as("htmllead@test.local"); await sprintTab(p); await openSprint(p, "Sprint 1");
+    await act(p, () => dialog(p).locator('button:has-text("Confirm and schedule")').click());
+    await until(async () => must((await api("htmllead@test.local", "GET", `/work/sprints/${sprintId}`)).json.sprint.status === "Scheduled", "not scheduled"));
+    must((await notifs("emp@test.local")).includes("Sprint scheduled"), "assignee not told");
+  });
+  await step("J5", "Team member works the task; going over effort asks for a reason", async () => {
+    const p = await as("emp@test.local"); await go(p, "/work");
+    await until(async () => must(await p.locator("tr", { hasText: "TEST - Demo Website" }).count() === 1, "project not on My Work"), 40000);
+    await sprintTab(p); await openSprint(p, "Sprint 1");
+    const dlg = dialog(p); const row = dlg.locator("div.border.rounded-lg", { hasText: "Header" });
+    await act(p, () => row.locator("select").last().selectOption({ label: "In progress" }));
+    p.nextPrompt = "Client changed the layout";
+    alerts.length = 0;
+    const days = row.locator('input[type="number"]'); await days.fill("3"); await days.blur(); await settle(p);
+    await act(p, () => row.locator("select").last().selectOption({ label: "Completed" }));
+    await until(async () => {
+      const it = (await api("emp@test.local", "GET", `/work/sprints/${sprintId}`)).json;
+      const h = it.items.find((x) => x.title === "Header");
+      must(h.status === "Completed" && Number(h.time_spent_days) === 3, `Header ${h.status}, ${h.time_spent_days}d`);
+      must(it.sprint.status === "In progress", `sprint ${it.sprint.status}`);
+    });
+    must(alerts.some((a) => /effort was exceeded/i.test(a)), `prompts: ${alerts.join(" | ")}`);
+    must((await notifs("htmllead@test.local")).includes("Effort exceeded"), "team lead not told of overrun");
+    p.nextPrompt = "Test reason";
+  });
+  await step("J6", "Team lead approves both tasks and the sprint completes", async () => {
+    const lead = "htmllead@test.local";
+    for (const t of (await api(lead, "GET", `/work/sprints/${sprintId}`)).json.items) {
+      const r = await api(lead, "POST", `/work/sprint-items/${t.id}/status`, { status: "Approved", note: "Reviewed" });
+      must(r.status === 200, `approve ${t.title}: ${r.status} ${JSON.stringify(r.json).slice(0, 80)}`);
+    }
+    const sp = (await api(lead, "GET", `/work/sprints/${sprintId}`)).json.sprint;
+    must(sp.status === "Completed", `sprint ${sp.status}`);
+    must((await notifs("pc@test.local")).includes("Sprint completed"), "coordinator not told");
+  });
+  await step("J7", "People outside the department cannot plan sprints", async () => {
+    const htmlId = (await api("htmllead@test.local", "GET", `/work/projects/${pid}/sprints`)).json.departments[0].id;
+    must((await api("designer@test.local", "POST", `/work/projects/${pid}/sprints`, { team_id: htmlId, title: "x" })).status === 403, "designer planned a sprint");
+    must((await api("emp@test.local", "POST", `/work/projects/${pid}/sprints`, { team_id: htmlId, title: "x" })).status === 403, "team member planned a sprint");
   });
 
   // ================= G. Access =================

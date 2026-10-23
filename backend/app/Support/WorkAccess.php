@@ -87,6 +87,26 @@ class WorkAccess
         return (float) ProjectBudgetAllocation::where('project_id', $project->id)->whereIn('team_id', self::uiTeamIds())->sum('amount');
     }
 
+    // ---- UX / Dev sprints -------------------------------------------------------
+
+    /** Departments that can run sprints on a project: the ones with a budget, except the office and design/QA teams. */
+    public static function sprintTeamIds(Project $project): array
+    {
+        return Team::whereIn('id', self::allocatedTeamIds($project))->get()
+            ->reject(fn ($t) => preg_match('/^(pmo|sales|accounts|design|qa)/i', trim($t->name)))->pluck('id')->all();
+    }
+
+    public static function isLeadOf(User $user, int $teamId): bool
+    {
+        return Team::where('id', $teamId)->where('team_lead_id', $user->id)->exists();
+    }
+
+    /** Plan the sprint, edit items, submit, schedule: the department's team lead or the project manager. */
+    public static function canManageSprint(User $user, int $teamId): bool
+    {
+        return Access::pmoManager($user) || self::isLeadOf($user, $teamId);
+    }
+
     /** Refuse (HTTP 423) when the project's tab is still locked by the payment or budget lock. */
     public static function requireOpenTab(Project $project, string $tab): void
     {

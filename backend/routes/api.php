@@ -512,6 +512,20 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::post('ui/pages/{page}/sections', [$ui, 'storeSection']);
         Route::put('ui/sections/{section}', [$ui, 'updateSection']);
         Route::delete('ui/sections/{section}', [$ui, 'destroySection']);
+
+        $sp = \App\Http\Controllers\Api\Work\SprintController::class;
+        Route::get('projects/{project}/sprints', [$sp, 'index']);
+        Route::post('projects/{project}/sprints', [$sp, 'store']);
+        Route::get('sprints/{sprint}', [$sp, 'show']);
+        Route::put('sprints/{sprint}', [$sp, 'update']);
+        Route::post('sprints/{sprint}/items', [$sp, 'storeItem']);
+        Route::put('sprint-items/{item}', [$sp, 'updateItem']);
+        Route::delete('sprint-items/{item}', [$sp, 'destroyItem']);
+        Route::post('sprints/{sprint}/submit', [$sp, 'submit']);
+        Route::post('sprints/{sprint}/decision', [$sp, 'decide']);
+        Route::post('sprints/{sprint}/request-dates', [$sp, 'requestDates']);
+        Route::post('sprints/{sprint}/schedule', [$sp, 'schedule']);
+        Route::post('sprint-items/{item}/status', [$sp, 'itemStatus']);
     });
 
     // Project Office (Phase 3): hidden (404) until module.pmo.enabled is switched on.
