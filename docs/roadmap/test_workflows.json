@@ -347,7 +347,7 @@
   "changelog": [
     {
       "date": "23 Oct 2026 (night)",
-      "text": "Version 1.1. Refused actions now show a full sentence instead of 'Required.' (sections C, D). The sales-target person list now comes from the Sales team (section E). Steps in A to H were also run by Claude on a local copy: 36 of 40 passed, the 4 failures were fixed."
+      "text": "Version 1.1. Refused actions now show a full sentence instead of 'Required.' (sections C, D). The sales-target person list now comes from the Sales team (section E). Steps in A to H were also run by Claude on a local copy: 36 of 40 passed, the 4 failures were fixed. The re-run after the fixes passed 40 of 40."
     },
     {
       "date": "23 Oct 2026",

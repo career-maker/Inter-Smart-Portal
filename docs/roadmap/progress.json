@@ -132,8 +132,8 @@
     },
     {
       "task": "Walk through every test workflow with a real browser (self-test)",
-      "status": "In progress",
-      "note": "Claude ran all 40 steps on a local copy: 36 passed first time; the 4 failures (unclear error text, Accounts could not list salespeople, a test selector) are fixed and live. A full re-run is waiting for free memory"
+      "status": "Done",
+      "note": "Claude ran all 40 steps in a real browser on a local copy. First run 36 passed; the 4 problems found were fixed and released; the re-run passed 40 of 40"
     },
     {
       "task": "Test copy of live system (staging)",
@@ -157,13 +157,13 @@
     }
   ],
   "done_this_update": [
+    "Re-ran the full browser test after the fixes: 40 of 40 steps passed",
     "Ran the whole test script myself in a real browser on a local copy: 36 of 40 steps passed; the full lead-to-project chain passed",
     "Fixed what it found: clear error messages when an action is refused, and the Accounts team can now pick salespeople when setting targets",
     "Fixes released to the live system with a backup first; site checked before and after",
     "Saved the browser test in the project so it can be re-run after every change"
   ],
   "next": [
-    "Re-run the full browser test when the PC has free memory (it was stopped once for low memory)",
     "Project managers, coordinators, Sales and Accounts: run one real project through the chain",
     "Phase 4: UI / UX / Dev workflow",
     "Staging copy and load test (needs your approval)"
@@ -214,6 +214,10 @@
     "Go-live: pilot team first, or everyone at once?"
   ],
   "changelog": [
+    {
+      "date": "24 Oct 2026",
+      "text": "Full browser self-test re-run: 40 of 40 passed."
+    },
     {
       "date": "23 Oct 2026 (night)",
       "text": "Self-test of all workflows run; 4 issues found and fixed; fixes released."

@@ -16,4 +16,4 @@ Needs about 3 GB of free memory (the Next.js dev server alone uses ~1.4 GB). Clo
 5. Stop the three servers.
 
 ## Last results (23 Oct 2026)
-Run 3: 36 of 40 passed. The 4 failures were: two unclear error messages ("Required."), the Accounts team unable to list people for sales targets, and a test button selector. All fixed (commit 8f5e2a2). The re-run after the fixes was stopped by low memory and has not been repeated.
+Run 3: 36 of 40 passed. The 4 failures were: two unclear error messages ("Required."), the Accounts team unable to list people for sales targets, and a test button selector. All fixed (commit 8f5e2a2). The re-run after the fixes passed **40 of 40** (with the dev server capped by `NODE_OPTIONS=--max-old-space-size=900` and about 1.8 GB free memory).
