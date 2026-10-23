@@ -187,7 +187,7 @@ class BiometricIngestionController extends Controller
 
                     if (!empty($insertPayload)) {
                         \Log::info('BIOMETRIC_TRACE_9_INSERT_START');
-                        // Use Laravel's insertOrIgnore for MySQL/PostgreSQL cross-compatibility
+                        // Use Laravel's insertOrIgnore (INSERT IGNORE on MySQL)
                         DB::table('biometric_events')->insertOrIgnore($insertPayload);
                         \Log::info('BIOMETRIC_TRACE_10_INSERT_END');
 

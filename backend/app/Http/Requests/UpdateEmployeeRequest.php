@@ -20,7 +20,7 @@ class UpdateEmployeeRequest extends FormRequest
         }
 
         // Treat every empty string as null so nullable rules work correctly
-        // and date/email fields don't receive "" which PostgreSQL rejects
+        // and date/email fields don't receive "" which the database rejects
         $this->merge(
             collect($all)->map(fn($v) => $v === '' ? null : $v)->toArray()
         );

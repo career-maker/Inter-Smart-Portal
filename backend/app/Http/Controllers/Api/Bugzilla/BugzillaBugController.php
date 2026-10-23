@@ -73,9 +73,9 @@ class BugzillaBugController extends Controller
         // Free-text search
         if ($search = trim($request->query('search', ''))) {
             $query->where(function ($q) use ($search) {
-                $q->where('bug_number', 'ilike', "%{$search}%")
-                  ->orWhere('summary', 'ilike', "%{$search}%")
-                  ->orWhere('description', 'ilike', "%{$search}%");
+                $q->where('bug_number', 'like', "%{$search}%")
+                  ->orWhere('summary', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
@@ -184,7 +184,7 @@ class BugzillaBugController extends Controller
             ->with('bugzillaProject:id,name')
             ->where(function ($q) use ($words) {
                 foreach (array_slice($words, 0, 4) as $word) {
-                    $q->orWhere('summary', 'ilike', "%{$word}%");
+                    $q->orWhere('summary', 'like', "%{$word}%");
                 }
             });
 

@@ -321,14 +321,14 @@ class BiometricIngestionTest extends TestCase
     public function test_concurrent_race_condition_production_sql_seam()
     {
         // This test represents the smallest valid integration-test seam necessary to prove the
-        // exact PostgreSQL ON CONFLICT DO NOTHING RETURNING behavior used in the controller.
+        // exact insertOrIgnore (MySQL INSERT IGNORE) behavior used in the controller.
         // It bypasses the controller's SELECT pre-check to guarantee the INSERT statement encounters a true collision.
         // What is proven:
-        // 1. The exact raw SQL used in production handles the unique constraint collision safely.
+        // 1. The insertOrIgnore call used in production handles the unique constraint collision safely.
         // 2. The database DOES NOT throw a 500 error on conflict.
-        // 3. The RETURNING clause successfully omits the duplicate row, returning an empty array.
+        // 3. No duplicate row is created (zero rows affected).
         // What is NOT proven by this specific test:
-        // 1. The HTTP response formatting (which relies on the empty array to output 'already_exists').
+        // 1. The HTTP response formatting (which relies on the ignored insert to output 'already_exists').
         
         // Step 1: Insert the race winner into the database
         BiometricEvent::create([
@@ -345,31 +345,18 @@ class BiometricIngestionTest extends TestCase
             'processing_status' => 'pending'
         ]);
 
-        // Step 2: Construct the exact same parameterized payload and SQL as the controller
-        $bindings = [
-            'essl', 'DeviceLogs_7_2026', 'RACE_SEAM', 'EMP', null, '10', 'in',
-            '2026-07-03 10:00:00', 'Asia/Kolkata', '2026-07-03 04:30:00', 'unmapped', 'pending',
-            now(), now()
-        ];
+        // Step 2: Insert the same unique key again through the same call the controller uses
+        $affected = DB::table('biometric_events')->insertOrIgnore([[
+            'source_system' => 'essl', 'source_table' => 'DeviceLogs_7_2026', 'source_event_id' => 'RACE_SEAM',
+            'employee_code' => 'EMP', 'user_id' => null, 'device_id' => '10', 'direction' => 'in',
+            'local_punch_time' => '2026-07-03 10:00:00', 'source_timezone' => 'Asia/Kolkata',
+            'utc_punch_time' => '2026-07-03 04:30:00', 'mapping_status' => 'unmapped',
+            'processing_status' => 'pending', 'created_at' => now(), 'updated_at' => now(),
+        ]]);
 
-        $columns = [
-            'source_system', 'source_table', 'source_event_id', 'employee_code', 'user_id',
-            'device_id', 'direction', 'local_punch_time', 'source_timezone', 'utc_punch_time',
-            'mapping_status', 'processing_status', 'created_at', 'updated_at'
-        ];
-        
-        $columnList = implode(', ', $columns);
-        $placeholders = implode(', ', array_fill(0, count($columns), '?'));
-        $valueString = "({$placeholders})";
-        
-        $sql = "INSERT INTO biometric_events ({$columnList}) VALUES {$valueString} ON CONFLICT (source_system, source_table, source_event_id) DO NOTHING RETURNING source_system, source_table, source_event_id";
-        
-        // Step 3: Execute the raw query, which will hit the Postgres conflict handler
-        $insertedRows = DB::select($sql, $bindings);
+        // Step 3-4: Verify the collision was absorbed without error and nothing was inserted
+        $this->assertSame(0, $affected);
 
-        // Step 4: Verify the collision was absorbed without error and the row was omitted from RETURNING
-        $this->assertEmpty($insertedRows);
-        
         // Step 5: Verify exactly one row exists (no duplicate was created)
         $this->assertDatabaseCount('biometric_events', 1);
     }

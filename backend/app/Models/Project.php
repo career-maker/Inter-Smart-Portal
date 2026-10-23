@@ -62,7 +62,7 @@ class Project extends Model
     ];
 
     // name_normalized is a DB-generated (STORED) column — deliberately not
-    // in $fillable above; MySQL/Postgres compute and store it themselves.
+    // in $fillable above; MySQL computes and stores it themselves.
 
     public function coordinator(): BelongsTo
     {

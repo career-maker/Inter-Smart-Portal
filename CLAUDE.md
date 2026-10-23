@@ -19,7 +19,7 @@
 - **Repo:** `https://github.com/career-maker/Inter-Smart-Portal.git`
 - **Branch:** `main`
 - **Remote name:** `origin`
-- **Workflow:** Push to main → Vercel auto-deploys frontend; Render rebuilds backend Docker image
+- **Workflow:** Push to main → Vercel auto-deploys frontend; backend is pulled on the cPanel server (branch `office`, see Backend section)
 
 ### Frontend — Vercel
 - **Platform:** Vercel (auto-deploy from GitHub main branch)
@@ -29,18 +29,17 @@
 - **Build command:** `pnpm run build`
 - **Dev command:** `pnpm run dev`
 
-### Backend — Render
-- **Platform:** Render (Docker-based)
-- **Dockerfile location:** `backend/Dockerfile`
-- **Runtime:** PHP 8.2 + Apache
-- **Auto-deploy:** Yes, on push to main
-- **Startup script** (in Dockerfile): Runs `php artisan storage:link --force`, then `php artisan migrate --force`, then starts Apache
+### Backend — cPanel (live)
+- **Platform:** cPanel server (not Render/Docker; `backend/Dockerfile` is unused)
+- **Path:** `~/public_html/backend`, API at `https://workplace.intersmart.in/api`
+- **Runtime:** PHP 8.2, Laravel 12, MySQL 8
+- **Deploy:** live server runs git branch `office`; deploy script `~/deploy.sh`. How `main` reaches `office` must be confirmed before release.
 
-### Database — Supabase
-- **Platform:** Supabase (PostgreSQL 15+)
-- **Driver:** `pdo_pgsql`
-- **Connection:** Via `DATABASE_URL` environment variable in Render
-- **Local backend:** Connects to same Supabase DB (configured in `backend/.env`)
+### Database — MySQL 8 (live)
+- **Platform:** MySQL 8.0 on the same cPanel server (`127.0.0.1:3306`)
+- **Driver:** `pdo_mysql`
+- **Local backend:** needs its own local MySQL (`DB_DATABASE=intersmart_local` in `backend/.env`); never point local at the live database
+- Old Supabase/PostgreSQL setup is retired (settings kept in `backend/.env.supabase.bak`, git-ignored)
 
 ### Local Development
 - **PHP:** `C:\xampp\php\php.exe`
@@ -58,7 +57,7 @@
 - **Laravel 12** (PHP 8.2+)
 - **Auth:** Laravel Sanctum (token-based)
 - **Roles/Permissions:** Spatie Laravel Permission package
-- **Database:** PostgreSQL via Supabase
+- **Database:** MySQL 8 (cPanel)
 - **Storage:** Laravel local disk → `storage/app/public` → symlinked to `public/storage`
 - **Queue:** Sync driver (no Redis)
 - **Scheduler:** Laravel scheduler via `routes/console.php`
@@ -97,7 +96,7 @@ Inter Smart-Employee-Portal/
 │   │   └── console.php          # Scheduled commands
 │   ├── storage/                 # File uploads go here
 │   ├── .env                     # Local env (DB, APP_KEY, etc.)
-│   └── Dockerfile               # Docker config for Render
+│   └── Dockerfile               # Docker config (unused; live is cPanel)
 │
 ├── frontend/                    # Next.js 16 App
 │   ├── src/
@@ -347,7 +346,7 @@ $code = $base . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
 - Stored in: `storage/app/public/profile-photos/`
 - Accessible at: `/storage/profile-photos/filename.jpg` (requires `storage:link`)
 - Column: `users.profile_photo_path` (migration added 2026_06_30_000002)
-- **Render note:** `storage:link` runs automatically via Dockerfile startup script
+- **cPanel note:** run `php artisan storage:link` on the server (Dockerfile is unused)
 
 ### Service Duration (Welcome Card)
 - Displayed on Employee/Team Lead dashboard welcome card
@@ -382,7 +381,7 @@ Pending:
 4. `2026_07_24_000002_create_ta_request_items_table.php`  
    → Creates `ta_request_items` table for expense breakdown
 
-> On Render: These run automatically via the Dockerfile startup script (`php artisan migrate --force`)
+> On cPanel: run `php artisan migrate --force` via deploy.sh/SSH; it does not run automatically
 
 ---
 
@@ -442,14 +441,14 @@ c995c93  Fetch real teams from API in Employee form instead of using dummy data
 APP_NAME="Intersmart Employee Portal"
 APP_ENV=production
 APP_KEY=<generated>
-APP_URL=https://your-render-url.onrender.com
+APP_URL=https://workplace.intersmart.in/api
 
-DB_CONNECTION=pgsql
-DB_HOST=<supabase-host>
-DB_PORT=5432
-DB_DATABASE=postgres
-DB_USERNAME=postgres
-DB_PASSWORD=<supabase-password>
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=<database>
+DB_USERNAME=<user>
+DB_PASSWORD=<password>
 
 SANCTUM_STATEFUL_DOMAINS=intersmart-portal.vercel.app,localhost:3000
 SESSION_DRIVER=cookie
@@ -457,7 +456,7 @@ SESSION_DRIVER=cookie
 
 ### Frontend (`frontend/.env.local`)
 ```env
-NEXT_PUBLIC_API_URL=https://your-render-url.onrender.com/api
+NEXT_PUBLIC_API_URL=https://workplace.intersmart.in/api
 ```
 
 ---
@@ -502,7 +501,7 @@ NEXT_PUBLIC_API_URL=https://your-render-url.onrender.com/api
 
 ## 17. What's Pending / Future
 
-- [ ] Profile photo actually serving on Render (needs redeployment with new Dockerfile)
+- [ ] Profile photo serving on cPanel (verify storage:link)
 - [ ] Email notifications (SMTP not yet configured)
 - [ ] Reports (PDF/Excel export)
 - [ ] Documents page
