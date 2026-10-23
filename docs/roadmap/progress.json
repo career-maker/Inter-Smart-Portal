@@ -1,7 +1,7 @@
 {
   "updated": "23 Oct 2026",
-  "headline": "Phase 0 (safety net) is about 65% done and the first safety features are now live. All existing modules are working normally.",
-  "overall_percent": 5,
+  "headline": "Phase 0 (safety net) is about 85% done. The security and stability fixes are live. What remains needs a decision or access from you (see below). All existing modules are working normally.",
+  "overall_percent": 6,
   "live_health": [
     "Website and login: working",
     "Database: working (backup taken before every live change)",
@@ -14,7 +14,7 @@
       "name": "Safety net + hardening",
       "weeks": "2",
       "status": "In progress",
-      "percent": 65,
+      "percent": 85,
       "delivers": "Backups, test environment, automatic checks, on/off switches for new modules, security fixes"
     },
     {
@@ -78,27 +78,27 @@
     {
       "task": "Take a live database backup before any change",
       "status": "Done",
-      "note": "Backup taken 23 Oct; restore test still to do"
+      "note": "Backup taken before every release. Restore test passed: backup restored into a separate database with identical data (92 tables, 71 users, 687 tasks), then removed"
     },
     {
       "task": "Local test database that matches the live system",
       "status": "Done",
-      "note": "Live structure saved as a reusable file; new test environments can now be built in minutes"
+      "note": "Live structure saved as a reusable file; new test environments build in minutes"
     },
     {
       "task": "On/off switch for each new module",
       "status": "Done",
-      "note": "Live since 23 Oct. New modules stay hidden until switched on; tested"
+      "note": "Live. New modules stay hidden until switched on; tested"
     },
     {
       "task": "Login protection against repeated wrong passwords",
       "status": "Done",
-      "note": "Live since 23 Oct; confirmed on the live site (blocks after 10 wrong tries for one user, others unaffected)"
+      "note": "Live and confirmed: blocks after 10 wrong tries for one user, others unaffected"
     },
     {
       "task": "Automatic test check on every code change",
       "status": "Done",
-      "note": "Running on GitHub; first run passed. Blocks new failures only"
+      "note": "Running on GitHub; passes. Blocks new failures only"
     },
     {
       "task": "Live server debug mode off",
@@ -108,66 +108,89 @@
     {
       "task": "Record current test health",
       "status": "Done",
-      "note": "159 tests: 119 pass, 40 were already failing; list saved so new breakage is caught"
+      "note": "165 tests: 125 pass, 40 were already failing; list saved so new breakage is caught"
+    },
+    {
+      "task": "Safety test for every read screen of every module",
+      "status": "Done",
+      "note": "About 90 screens checked for 3 roles (Super Admin, Team Lead, Employee) on every change; none crash"
+    },
+    {
+      "task": "Login expiry (90 days) and overall request limit per user",
+      "status": "Done",
+      "note": "Live. Nobody was logged out (no login was older than 90 days). Expired logins are cleaned daily"
+    },
+    {
+      "task": "Sessions and cache moved off the database",
+      "status": "Done",
+      "note": "Live. Lighter load on the database for every page; site checked after the change"
+    },
+    {
+      "task": "Fix: Super Admin dashboard widgets",
+      "status": "Done",
+      "note": "Found a bug on live (errors every 5 minutes); fixed and released. Please confirm the dashboard shows alerts and recent activity"
     },
     {
       "task": "Test copy of live system (staging)",
-      "status": "Not started",
-      "note": "Needs a second database and sub-domain on the server"
+      "status": "Needs approval",
+      "note": "Needs a new sub-domain, web address (DNS) and certificate on your hosting account"
     },
     {
       "task": "Protect the main branch on GitHub (review required)",
-      "status": "Not started",
-      "note": "Needs GitHub admin settings"
-    },
-    {
-      "task": "Tests for modules that have none (WFH, TA, Hubstaff, bug tracker, chat, hall, issues)",
-      "status": "Not started",
-      "note": "Planned next"
-    },
-    {
-      "task": "Faster, safer sessions and cache; login token expiry; general rate limits",
-      "status": "Not started",
-      "note": "Changes need care so nobody is logged out suddenly"
+      "status": "Needs approval",
+      "note": "Would stop direct pushes to main; needs a decision on the team's workflow"
     },
     {
       "task": "Load test with 150 simulated users",
+      "status": "Waiting for staging",
+      "note": "Must not be run against the live site; will run on the test copy"
+    },
+    {
+      "task": "Review the 40 older failing tests",
       "status": "Not started",
-      "note": "Gives the manager a real number for the capacity question"
+      "note": "Mostly biometric and leave tests written before recent changes"
     }
   ],
   "done_this_update": [
-    "Released the safety features to the live site: module on/off switch and login protection (verified live, no downtime)",
-    "Automatic test checks now run on GitHub for every change; first run passed",
-    "Took a fresh live database backup before the release",
-    "Earlier today: fixed bug-tracker search on live, turned off debug mode, cleaned leftover files, updated login heading"
+    "Released login expiry (90 days) and a per-user request limit to live; nobody was logged out",
+    "Moved sessions and cache off the database on live; site checked after each step",
+    "Backup restore test passed: data restored identically in a separate database, then removed",
+    "Found and fixed a live bug: Super Admin dashboard widgets (alerts, recent activity) were failing every few minutes",
+    "Added a safety test that opens about 90 screens for 3 roles on every change",
+    "Test count is now 165 (125 passing); the 40 older failures are tracked and no new ones were introduced"
   ],
   "next": [
-    "Create the staging (test) copy of the live system and restore a backup there",
-    "Add tests for modules that have none",
-    "Safer sessions/cache and login token expiry, then a 150-user load test",
-    "Then start Phase 1: Accounts module"
+    "Your approval for the staging copy (sub-domain, DNS, certificate), then the 150-user load test on it",
+    "Decide whether to require review before changes reach the main branch on GitHub",
+    "Review and fix the 40 older failing tests",
+    "Start Phase 1: Accounts module (can begin in parallel)"
   ],
   "capacity_answer": "The database will not break with 100+ users working at once. The live server is strong (24 processors, 40 GB memory). Improvements planned in Phase 0 (lighter background checks, rate limits, caching) give comfortable room for 150 to 300 users at the same time. A load test will confirm the exact number.",
   "risks": [
     {
-      "risk": "Sessions and cache are stored in the database, adding load per page",
-      "action": "Move to faster storage in Phase 0"
+      "risk": "Sessions and cache were in the database",
+      "action": "Fixed on live 23 Oct"
     },
     {
-      "risk": "Only login has rate limiting so far",
-      "action": "Add limits for uploads and general use"
+      "risk": "Only login had rate limiting",
+      "action": "Fixed: every signed-in user is now limited to 300 requests per minute"
     },
     {
       "risk": "40 older automated tests already fail",
-      "action": "Fix important ones; new failures are blocked meanwhile"
+      "action": "New failures are blocked meanwhile; review planned"
     },
     {
-      "risk": "An old unused copy of the app is on the server and could be mistaken for the live one",
+      "risk": "An old unused copy of the app and its old database remain on the server",
       "action": "Archive after owner approval"
+    },
+    {
+      "risk": "No safe place to load-test yet",
+      "action": "Staging copy needs approval"
     }
   ],
   "decisions": [
+    "Approve creating the staging (test) copy: needs a sub-domain, DNS entry and certificate on your hosting",
+    "Require review before merging to main on GitHub? (safer, but slows direct pushes)",
     "Send the Sales document fields (needed for Phase 2)",
     "How is budget per department calculated (sections x animation level)? Who can change it?",
     "Rating formula for Project Coordinators and resources (HR approval needed)",
@@ -179,6 +202,10 @@
     "Go-live: pilot team first, or everyone at once?"
   ],
   "changelog": [
+    {
+      "date": "23 Oct 2026 (night)",
+      "text": "Login expiry, request limit, faster sessions/cache released to live. Backup restore test passed. Super Admin dashboard bug fixed."
+    },
     {
       "date": "23 Oct 2026 (evening)",
       "text": "Safety features (module switch, login protection) released to live and verified. Automatic checks active on GitHub."

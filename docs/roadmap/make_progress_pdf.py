@@ -20,7 +20,7 @@ data = json.load(open(os.path.join(HERE, "progress.json"), encoding="utf-8"))
 
 NAVY, AMBER, LG = colors.HexColor("#1e293b"), colors.HexColor("#d97706"), colors.HexColor("#f1f5f9")
 GREEN, YELLOW, GREY = colors.HexColor("#16a34a"), colors.HexColor("#ca8a04"), colors.HexColor("#94a3b8")
-STATUS_COLOR = {"Done": GREEN, "In progress": YELLOW, "Not started": GREY}
+STATUS_COLOR = {"Done": GREEN, "In progress": YELLOW, "Not started": GREY, "Needs approval": colors.HexColor("#dc2626"), "Waiting for staging": YELLOW}
 
 ss = getSampleStyleSheet()
 H1 = ParagraphStyle("H1", parent=ss["Heading1"], textColor=NAVY, fontSize=17, spaceBefore=4, spaceAfter=6)

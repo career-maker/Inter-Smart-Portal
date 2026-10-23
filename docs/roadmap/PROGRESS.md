@@ -5,7 +5,7 @@ _Last updated: 2026-10-23_
 ## Goal
 Manager asked to implement the features in `SOURCE_Internal_software_plan.xlsx` (Sales, Accounts, PMO, PC, TLs, resources, QA, HR workflow) in the portal, and asked whether 100+ simultaneous users would break the DB or cause performance/security issues. Existing modules must not break.
 
-## Status: PHASE 0 IN PROGRESS (about 65% of Phase 0, 5% overall). Live server and GitHub `main` are at `4307a9e` (+ later docs-only commits).
+## Status: PHASE 0 about 85% (6% overall). Remaining items need owner approval/access: staging subdomain+DNS+SSL, GitHub branch protection, then load test on staging. Live server and GitHub `main` are at `4307a9e` (+ later docs-only commits).
 Follow `EXECUTION_PLAN.md`: finish Phase 0, then Accounts, then Sales.
 
 ### Manager progress PDF (update after every phase/change)
@@ -16,6 +16,15 @@ Edit `docs/roadmap/progress.json` (phase status/percent, tasks, done list, chang
 - DONE: live backup taken; live schema saved as `backend/database/schema/mysql-schema.sql` (fresh MySQL DBs now build from it because the old migrations break on MySQL at `2026_06_29_083830`); feature switch (`App\Support\Feature`, middleware `feature:<module>`, setting `module.<name>.enabled`); login throttle per email+IP (10/min, not IP only because the office shares one IP); GitHub Actions `.github/workflows/backend-tests.yml` fails only on NEW test failures vs `backend/tests/known-failures.txt`; live debug off.
 - Test baseline: 159 tests, 119 pass, 40 already failing (listed in `known-failures.txt`; mostly ProcessBiometricEvents 23, BiometricReconciliation 4, LeaveRequest 3, ProjectAuthorization 3, ProjectTask 3 and a few singles).
 - TODO: staging copy + restore test, branch protection (GitHub admin), smoke tests for WFH/TA/Hubstaff/BugSmart/chat/hall/issues, token expiry + general rate limits + cache/sessions off DB (careful not to log everyone out), load test 150 users, review 40 old failing tests.
+
+### Later 2026-10-23 additions (all deployed to live, verified)
+- Sanctum token expiry 90 days (`SANCTUM_EXPIRATION_MINUTES`, live had 636 tokens, none older than 90 days); `throttle:api` 300/min per user on the authenticated group; `sanctum:prune-expired` daily 01:30.
+- Live `.env`: `CACHE_STORE=file`, `SESSION_DRIVER=file` (queue still database). Rollback: `~/safety_backup_2026-10-23_2035/env.before_cache_change`.
+- Fixed Super Admin dashboard widgets (audit_logs has no `description` column). Confirm on next Super Admin dashboard load that no new 'dashboard widgets error' lines appear in laravel.log after 15:13 UTC.
+- Restore test passed (dump restored to temp DB with identical counts; temp DB deleted). The unused DB `workplaceintersm_intersmart_office` still exists (belongs to old copy).
+- `uapi` on the server works as a normal user (no `--user`): used for DB create/delete.
+- New tests: SmokeReadEndpointsTest (about 90 GET screens x 3 roles), ApiHardeningTest, SuperAdminDashboardTest. Suite: 165 tests, 40 known failures, 0 new.
+- Note: tool text mangles double backslashes in heredocs; use chr(92) in scripts.
 
 ### Local test environment (no XAMPP needed)
 PHP 8.2 and MySQL 8.4 come from Local by Flywheel (`%APPDATA%\Local\lightning-services`). A private MySQL was initialised in the session scratchpad on port 3306 (root, blank password, DBs `intersmart_local` and `hrms_test_db`); it must be started again in a new session with `mysqld --datadir=<dir> --port=3306 --mysqlx=OFF`. Run PHP with a custom ini enabling curl, fileinfo, mbstring, openssl, pdo_mysql, zip, gd, intl, sodium. Put the Local `mysql.exe` folder on PATH so `migrate` can load the schema file. Run tests with `php vendor/bin/phpunit`.
