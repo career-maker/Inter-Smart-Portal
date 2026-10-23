@@ -14,7 +14,7 @@ You are continuing the **Internal Software Plan** for the Intersmart Employee Po
 | 1 Accounts | **Live** (flag `accounts`), access = Accounts team + Super Admin |
 | 2 Sales | **Live** (flag `sales`), built from the manager's sheet because the Sales document has not arrived |
 | 3 Project Office (PMO) | **Live** (flag `pmo`). Assumption: PMO 1/PMO 2 team leads = project managers, PMO team members = coordinators |
-| 4 Department work screens | **Slice 1 live** (flag `workflow`): UI pages, sections, status chain, page budgets, My Work. **Slices 2 to 4 not started** |
+| 4 Department work screens | **Slice 1 live** (flag `workflow`): UI pages, sections, status chain, page budgets, My Work. **Slice 2 (UX/Dev sprints) is BUILT BUT NOT RELEASED**, saved on branch `wip/phase4-slice2` (commit `f71b15d`). Slices 3 and 4 not started |
 | 5 Team lead and resource screens, 6 Dashboards and feedback, 7 HR and go-live | Not started |
 
 **Live server** (cPanel, MySQL 8): the live code last changed in commit `33ddf8d` (Phase 4 slice 1). Commits after it are docs-only; the server was brought level with `origin/main` on 2026-10-24. 4 flags are ON: accounts, sales, pmo, workflow. Live has 110 tables. Latest backup folders are `~/safety_backup_*` on the server (newest: `2026-10-24_0016_phase4a`).
@@ -25,14 +25,24 @@ You are continuing the **Internal Software Plan** for the Intersmart Employee Po
 
 ## 2. Next actions, in order
 
-1. **Phase 4 slice 2: UX and Dev sprints with effort approval.** Design (follow the UI slice's pattern in `UiWorkflowController`, `WorkAccess`, `components/work/UiPages.tsx`):
-   - Tables (new migration, add-only): `work_sprints` (project_id, team_id = department, title, status, effort_days, created_by, approved_by/at, requested start/end, confirmed start/end), `sprint_items` (sprint_id, title, effort_days, assigned_to, status chain: Pending, In progress, Completed, Testing bugs 1/2/3, Waiting for approval, Corrections 1/2/3, Approved, time_spent_days), `sprint_events` (history).
-   - Flow: team lead (lead of the department team) creates a sprint with items and effort and submits; project manager (`Access::pmoManager`) approves or rejects (reason needed) against the department budget; coordinator requests start and end dates; team lead schedules and assigns resources; resources update item status daily. Notifications at each hand-off through `App\Support\Notify`.
-   - Same gates as UI: `WorkAccess::requireOpenTab($project, 'ux'|'dev')`, flip those tabs' `ready` to true in `ProjectGate`, add tabs to `work/projects/[id]/page.tsx`.
-2. **Slice 3: QA hand-off.** When an item becomes Completed it creates a QA review; QA team (name starts 'qa') lists bugs with priority; team lead verifies; if effort spent exceeds the department budget, notify the project manager and Super Admin ("budget exceeded").
-3. **Slice 4: corrections and changes with budget approval.** Coordinator raises, team lead sets effort, project manager approves against the budget.
-4. Phase 5: team lead and resource inbox (start/end task, budget and date exceeded reasons, team list, the fixed feedback questions: attitude, attire, learning new things, on-time completion), Phase 6/7: HR performance views, appreciation approval, dashboards.
-5. Whenever memory allows: one combined run of all 48 browser steps, then update the docs.
+### 2.0 RESUME HERE: finish and release slice 2 (UX/Dev sprints)
+
+State at the pause: the code is written and committed on branch `wip/phase4-slice2` (pushed to GitHub, NOT merged to `main`, NOT on the live server, no live migration run). Backend: migration `2026_10_24_140000_create_workflow_sprint_tables.php` (work_sprints, sprint_items, sprint_events), `SprintController`, models, `WorkAccess::sprintTeamIds/isLeadOf/canManageSprint`, `ProjectGate` ux and dev tabs now `ready`, 12 routes under `api/work`. `SprintWorkflowTest` (7 tests, 88 assertions) passes; the whole backend suite was last run at 201 tests before this slice. Frontend: `components/work/Sprints.tsx`, a "UX / Dev sprints" tab in `work/projects/[id]/page.tsx`; both side panels (`UiPages.tsx`, `Sprints.tsx`) now fill their forms once and refresh only after a save (fixes a real bug where a background reload wiped typing).
+
+Rules implemented: team lead of a department (or PMO manager) plans a sprint with items (effort days, assignee from the same department) and a cost estimate, then submits; items and effort freeze after submit; the PMO manager approves (budget check against the department allocation, over budget needs `allow_over_budget` and tells the Super Admin) or rejects (reason needed; the team lead can fix and resubmit); after approval the coordinator requests dates, the team lead confirms ("Scheduled", assignees told); the assignee updates item status and days spent; finishing an item that overran its effort needs a reason and alerts the team lead and managers; first item in progress moves the sprint to "In progress"; all items Approved completes the sprint.
+
+Steps to finish:
+1. `git checkout wip/phase4-slice2` (or `git merge origin/wip/phase4-slice2`). Start the local stack (section 5, `e2e/README.md`): about 3 GB free memory is needed.
+2. Run the whole browser test (`e2e/e2e.js`, 55 steps: A-F, I, J, G, H). Last results: first combined run 51/55 (B5 and J5 were outdated test expectations, I2 and I5 were the typing-wipe bug); all of those are now fixed in code and test. The second combined run was stopped at the pause with one failure seen, **F1** (the lead's status dropdown did not apply "Lost" under load; it passed in every earlier run, so treat it as a flaky step: make it wait for the PUT response, or retry). Need one clean 55/55 run.
+3. Run `php -c <ini> vendor/bin/phpunit` and `python backend/tests/check_new_failures.py`; expected: 40 known failures, 0 new.
+4. Merge to `main`, push (Vercel redeploys the frontend), then deploy with the standing routine: backup, `git pull --ff-only`, `migrate --pretend --force`, `migrate --force` (3 new tables), verify `/api/ping`=200 and fake login=401, check access with temporary tokens. The `workflow` flag is already ON, so the sprint tab becomes usable as soon as the code is live.
+5. Update all three PDFs and this file: `test_workflows.json` add section **J** (steps: team lead plans a sprint with two tasks and submits; PMO manager approves; coordinator requests dates; team lead schedules, assignee told; team member works the task, over-effort asks for a reason; team lead approves tasks and sprint completes; outsiders cannot plan sprints), bump to v1.3, mark J as new, B5 text now says the Dev tab shows "Open the work view"; `progress.json` (Phase 4 percent about 50, sprint task Done); `overview.json` (UX and Dev stage becomes `live`).
+
+### 2.1 Then
+
+1. **Slice 3: QA hand-off.** When a sprint item becomes Completed it creates a QA review; QA team (name starts 'qa') lists bugs with priority; team lead verifies; if effort spent exceeds the department budget, notify the project manager and Super Admin ("budget exceeded").
+2. **Slice 4: corrections and changes with budget approval.** Coordinator raises, team lead sets effort, project manager approves against the budget.
+3. Phase 5: team lead and resource inbox (start/end task, budget and date exceeded reasons, team list, the fixed feedback questions: attitude, attire, learning new things, on-time completion). Phase 6/7: HR performance views, appreciation approval, dashboards.
 
 ## 3. Blocked on the manager (do not guess these)
 

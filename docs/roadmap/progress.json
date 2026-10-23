@@ -162,7 +162,7 @@
     "201 automated tests, no new failures"
   ],
   "next": [
-    "Slice 2: UX and Dev sprints with effort approval",
+    "Finish and release the UX and Dev sprints (one clean full browser test, then a backed-up release)",
     "Slice 3: QA hand-off and budget-overrun alerts; slice 4: corrections with budget approval",
     "Then team lead and resource screens, HR views and dashboards",
     "Manager's answers (formula, ratings, feedback questions) and your approvals (staging, GitHub review rule)"
@@ -213,6 +213,10 @@
     "Go-live: pilot team first, or everyone at once?"
   ],
   "changelog": [
+    {
+      "date": "24 Oct 2026 (night)",
+      "text": "Paused by the owner. UX and Dev sprints are built and saved on a separate branch, not yet released. Local test machines shut down."
+    },
     {
       "date": "24 Oct 2026",
       "text": "Phase 4 slice 1 (UI department work screens) built, installed and switched on."
@@ -467,8 +471,8 @@
     },
     {
       "task": "UX and Dev: sprints and effort requests",
-      "status": "Not started",
-      "note": "Team lead creates, project manager approves, coordinator requests dates"
+      "status": "In progress",
+      "note": "Built and passing its automated tests, saved safely but not yet released to the live system. Needs one clean full browser run first"
     },
     {
       "task": "QA hand-off and bug list",
