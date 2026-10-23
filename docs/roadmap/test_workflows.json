@@ -1,0 +1,109 @@
+{
+  "version": "1.0",
+  "updated": "23 Oct 2026",
+  "covers": "Accounts, Sales and Project Office modules, plus a check that the older modules still work",
+  "before_you_start": [
+    "Use a dummy project called TEST - Demo Website, so real data stays clean. There is no delete for projects; finish by terminating the dummy ones.",
+    "Notifications go to real people. Tell the Sales, Accounts and PMO teams that a test is running.",
+    "Testers: a Sales person (for example Ann), an Accounts person (for example Ameesha), a PMO project manager (a PMO 1 or PMO 2 team lead), a coordinator (a PMO team member), a Super Admin, and one ordinary employee from another team (for example HTML).",
+    "Tick Pass or Fail for every step. For a Fail, write the page, what you clicked, what you expected and what happened, and attach a screenshot."
+  ],
+  "sections": [
+    {
+      "id": "A", "title": "A. Main chain: lead to a working project", "status": "new",
+      "intro": "The happy path. Run these in order; each step depends on the one before.",
+      "steps": [
+        {"who": "Sales", "where": "Sales > Leads", "do": "Add a lead 'TEST Client', value 50,000, status Hot", "expect": "Appears in the list. Dashboard 'Hot leads' goes up by 1"},
+        {"who": "Sales", "where": "Leads > Add to inbox", "do": "Add a proposal item due today", "expect": "Shows in Sales > Inbox. Dashboard 'Pending actions' goes up by 1"},
+        {"who": "Sales", "where": "Sales > Inbox", "do": "Mark it Done with an outcome and a next follow-up date", "expect": "Item leaves the inbox. The lead's next follow-up date changes"},
+        {"who": "Sales", "where": "Sales > Projects > New project", "do": "Create 'TEST - Demo Website' from the lead: CMS, WordPress, 10 pages, budget 50,000", "expect": "Project shows as Planning and Advance awaiting. The lead becomes Won"},
+        {"who": "Accounts", "where": "Notification bell, then Accounts > Projects & Payments", "do": "Read the notice, then open Manage on the project", "expect": "Notice 'New project awaiting advance'. Contract 50,000, state Advance awaiting"},
+        {"who": "Accounts", "where": "Manage panel > Payments", "do": "Add an advance of 15,000, then click Approve", "expect": "State becomes Pending payment. Balance 35,000"},
+        {"who": "Sales", "where": "Notification bell", "do": "Check notifications", "expect": "'Payment approved' notice has arrived"},
+        {"who": "PMO manager", "where": "Project Office > open the project", "do": "Assign a coordinator (a PMO team member)", "expect": "Coordinator receives 'New project assigned'"},
+        {"who": "Coordinator", "where": "Project Office > open the project", "do": "Click Accept this project", "expect": "Status becomes Active. Sales and the PMO managers are notified"},
+        {"who": "PMO manager", "where": "Budget tab", "do": "Give Design 30,000 and HTML 20,000, then Save", "expect": "Allocated 50,000, unallocated 0"},
+        {"who": "Coordinator", "where": "Business analysis tab", "do": "Fill in the form and save, then reopen the tab", "expect": "The text is still there"},
+        {"who": "Coordinator", "where": "Resources tab", "do": "Add a logo link, then remove it", "expect": "It appears in the list, and Remove works"}
+      ]
+    },
+    {
+      "id": "B", "title": "B. Locks and overrides", "status": "new",
+      "intro": "Create a second TEST project and approve no payment on it.",
+      "steps": [
+        {"who": "Coordinator", "where": "Project Office > Business analysis tab", "do": "Open the tab on the unpaid project", "expect": "Lock message and no form. A padlock shows on the tab"},
+        {"who": "PMO manager", "where": "Same locked tab", "do": "Look for the payment override", "expect": "Not offered. Only the Super Admin can override payment"},
+        {"who": "Super Admin", "where": "Same locked tab", "do": "Override payment with a reason", "expect": "Tab opens. The override and its reason show on the Budget tab"},
+        {"who": "PMO manager", "where": "A paid project with no department budget, UI tab", "do": "Open the UI, UX, Dev and QA tabs", "expect": "Locked until a department budget exists"},
+        {"who": "PMO manager", "where": "Same tab", "do": "Override the budget lock with a reason", "expect": "UI, UX, Dev and QA tabs open"}
+      ]
+    },
+    {
+      "id": "C", "title": "C. Hold, resume and terminate", "status": "new",
+      "intro": "",
+      "steps": [
+        {"who": "PMO manager", "where": "Project Office > Overview > Hold or resume", "do": "Hold with reason 'Waiting for content'", "expect": "List shows the reason. Sales, Accounts and the coordinator get a notice"},
+        {"who": "PMO manager", "where": "Same", "do": "Choose reason Other with no note", "expect": "Refused until a note is written"},
+        {"who": "PMO manager", "where": "Same", "do": "Click Resume project", "expect": "Status returns to Active. The reason clears"},
+        {"who": "Sales", "where": "Sales > Projects", "do": "Hold your own project with a reason, then Resume it, then Terminate it", "expect": "A reason is always required. Accounts and the PMO are told"},
+        {"who": "Accounts", "where": "Manage panel > Project status", "do": "Hold, Resume, then Terminate with a reason", "expect": "A reason is required. Terminate asks for confirmation"}
+      ]
+    },
+    {
+      "id": "D", "title": "D. Out-of-scope work", "status": "new",
+      "intro": "",
+      "steps": [
+        {"who": "Coordinator", "where": "Project Office > Overview > Out-of-scope work", "do": "Request 'Add blog module', 3.5 days", "expect": "Appears as Pending. PMO managers get a notice"},
+        {"who": "PMO manager", "where": "Project Office > Out-of-scope requests", "do": "Approve it", "expect": "Status Approved. Sales is told to agree the extra cost with the client; the coordinator is told too"},
+        {"who": "PMO manager", "where": "Same page", "do": "Reject another request with no note", "expect": "Refused until a note is written"},
+        {"who": "PMO manager", "where": "Same page", "do": "Reject it with a note", "expect": "Status Rejected. The coordinator and Sales are told"},
+        {"who": "Coordinator", "where": "Out-of-scope requests", "do": "Open the page", "expect": "Only your own requests show, with no Approve or Reject buttons"}
+      ]
+    },
+    {
+      "id": "E", "title": "E. Accounts extras", "status": "new",
+      "intro": "",
+      "steps": [
+        {"who": "Accounts", "where": "Manage panel > Increase budget", "do": "Raise 50,000 to 60,000 with a reason", "expect": "Contract shows 60,000. Super Admin gets a notice"},
+        {"who": "Accounts", "where": "Same", "do": "Try a lower number", "expect": "Refused"},
+        {"who": "Accounts", "where": "Payments", "do": "Add a payment, then Reject it with a reason", "expect": "A reason is required. It does not count as received"},
+        {"who": "Accounts", "where": "Accounts > Sales Targets", "do": "Set a target for Ann this month, then save a different number", "expect": "One target per person per month; the second save updates it. Sales dashboard shows achieved vs target"},
+        {"who": "Accounts", "where": "Accounts > AMC List", "do": "Add an AMC that ended last month and one that ends in 10 days", "expect": "First shows Expired. 'Expiring in 30 days' lists only the second"}
+      ]
+    },
+    {
+      "id": "F", "title": "F. Sales dashboard and visibility", "status": "new",
+      "intro": "",
+      "steps": [
+        {"who": "Sales", "where": "Sales > Dashboard", "do": "Check each tile against your leads and projects", "expect": "Leads to follow up, hot, ready to close with value, conversion %, target, projects ongoing, pending actions, meetings, proposals all match"},
+        {"who": "Sales", "where": "Leads", "do": "Mark a lead Lost with no reason, then with a reason", "expect": "Refused, then accepted. Conversion % changes"},
+        {"who": "Sales (not the lead)", "where": "Sales > Leads", "do": "Look at the list", "expect": "Only your own leads. The Sales team lead and Super Admin see everyone's"}
+      ]
+    },
+    {
+      "id": "G", "title": "G. Access: these should be blocked", "status": "new",
+      "intro": "",
+      "steps": [
+        {"who": "Employee (HTML team)", "where": "Left menu", "do": "Look for Sales, Accounts and Project Office", "expect": "None of them appear"},
+        {"who": "Sales", "where": "Address bar: /accounts and /pmo", "do": "Open them directly", "expect": "'Not switched on for your account'"},
+        {"who": "Accounts", "where": "Address bar: /sales and /pmo", "do": "Open them directly", "expect": "'Not switched on for your account'"},
+        {"who": "Coordinator", "where": "Project Office list", "do": "Look for a project assigned to someone else", "expect": "Not listed, and opening its link is refused"}
+      ]
+    },
+    {
+      "id": "H", "title": "H. Older modules still work (regression)", "status": "new",
+      "intro": "Nothing here should have changed.",
+      "steps": [
+        {"who": "Anyone", "where": "Login page", "do": "Log in and log out; try a wrong password 11 times for one email", "expect": "Works. The 11th wrong try is blocked for that email only, and others can still log in"},
+        {"who": "Employee", "where": "Leaves > Apply Leave", "do": "Apply for leave; the team lead then approves it", "expect": "Request, approval and balance behave as before"},
+        {"who": "Employee", "where": "Attendance", "do": "Check in and check out", "expect": "Times recorded as before"},
+        {"who": "Employee", "where": "TA > Apply", "do": "Submit a travel allowance request", "expect": "Appears in TA status; approvers can act on it"},
+        {"who": "Anyone", "where": "Chat and notification bell", "do": "Send a message; open notifications", "expect": "Both work"},
+        {"who": "Super Admin", "where": "Dashboard", "do": "Open the dashboard", "expect": "Alerts and recent activity widgets load"}
+      ]
+    }
+  ],
+  "changelog": [
+    {"date": "23 Oct 2026", "text": "Version 1.0. First test script, covering Accounts, Sales and Project Office, and the older-modules check."}
+  ]
+}

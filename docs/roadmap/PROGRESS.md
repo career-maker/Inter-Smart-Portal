@@ -104,3 +104,4 @@ Verdict given to manager: DB will not break at 100+ users; with Step 0 fixes exp
 5. Do not run `config:cache`, `optimize` or `migrate` on live without a preview and backup.
 6. Add-only DB changes, feature flags, new roles only (see `EXECUTION_PLAN.md`).
 7. Commit messages end with the Claude co-author line; push only when asked. `main` pushes reach Vercel immediately; backend goes live only when someone pulls on the server.
+8. **After every change that users can see:** (a) update `docs/roadmap/progress.json` and run `python docs/roadmap/make_progress_pdf.py` (manager's Progress Report); (b) update `docs/roadmap/test_workflows.json` (add/change steps, mark the section `new` or `changed`, bump `version` and `updated`, add a changelog line) and run `python docs/roadmap/make_test_pdf.py` (testers' Test Workflows). Both scripts copy the PDF to `D:\downloads`. Commit the JSON and PDFs.

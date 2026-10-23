@@ -14,3 +14,4 @@ Everything needed to continue the "Internal Software Plan" work in a fresh sessi
 Also read the repo `CLAUDE.md` (Backend/Database sections were corrected on 2026-10-23).
 
 | `Progress Report.pdf`, `progress.json`, `make_progress_pdf.py` | Manager-facing live progress PDF. Edit the JSON, run the script, share the PDF |
+| `Test Workflows.pdf`, `test_workflows.json`, `make_test_pdf.py` | Tick-box test script for the testers. Edit the JSON, run the script, share the PDF |
