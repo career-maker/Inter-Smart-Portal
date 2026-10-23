@@ -47,6 +47,9 @@ Edit `docs/roadmap/progress.json` (phase status/percent, tasks, done list, chang
 - Disable: `App\Support\Feature::set('sales', false)`.
 - Not built yet: meetings, completed-project fields (free support/AMC/feedback), out-of-scope and 'action required' items from PC (Phase 3).
 
+### Visual check recipe (browser extension is not connected in this setup)
+Install `playwright-core` in a scratch folder and drive the installed Edge headlessly (`executablePath: C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe`) against a LOCAL stack: `php -c ini -S 127.0.0.1:8765 -t public`, a CORS proxy on 8766 (backend only allows origin port 3000), and `NEXT_PUBLIC_API_URL=http://127.0.0.1:8766/api npx next dev -p 3100`. Log in with a locally seeded Super Admin, screenshot pages, then stop the servers. The dialog component is already a right-hand side panel (like BirthdayWishDrawer); put content in a header + `flex-1 overflow-y-auto` body with `shrink-0` children, otherwise Cards get squashed (fixed 2026-10-23, commit 2ce1336).
+
 ### Local test environment (no XAMPP needed)
 PHP 8.2 and MySQL 8.4 come from Local by Flywheel (`%APPDATA%\Local\lightning-services`). A private MySQL was initialised in the session scratchpad on port 3306 (root, blank password, DBs `intersmart_local` and `hrms_test_db`); it must be started again in a new session with `mysqld --datadir=<dir> --port=3306 --mysqlx=OFF`. Run PHP with a custom ini enabling curl, fileinfo, mbstring, openssl, pdo_mysql, zip, gd, intl, sodium. Put the Local `mysql.exe` folder on PATH so `migrate` can load the schema file. Run tests with `php vendor/bin/phpunit`.
 
