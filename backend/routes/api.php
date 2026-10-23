@@ -498,6 +498,22 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::post('projects/{project}/status', [$projects, 'setStatus']);
     });
 
+    // Department work screens (Phase 4): hidden (404) until module.workflow.enabled is switched on.
+    // Access is per project (see WorkAccess), so there is no role middleware here.
+    Route::prefix('work')->middleware(['feature:workflow'])->group(function () {
+        $ui = \App\Http\Controllers\Api\Work\UiWorkflowController::class;
+        Route::get('projects', [$ui, 'myProjects']);
+        Route::get('projects/{project}/ui', [$ui, 'index']);
+        Route::post('projects/{project}/ui/pages', [$ui, 'storePage']);
+        Route::get('ui/pages/{page}', [$ui, 'show']);
+        Route::put('ui/pages/{page}', [$ui, 'updatePage']);
+        Route::post('ui/pages/{page}/decision', [$ui, 'decidePage']);
+        Route::post('ui/pages/{page}/status', [$ui, 'setStatus']);
+        Route::post('ui/pages/{page}/sections', [$ui, 'storeSection']);
+        Route::put('ui/sections/{section}', [$ui, 'updateSection']);
+        Route::delete('ui/sections/{section}', [$ui, 'destroySection']);
+    });
+
     // Project Office (Phase 3): hidden (404) until module.pmo.enabled is switched on.
     Route::prefix('pmo')->middleware(['feature:pmo', 'pmo.access'])->group(function () {
         $pmo = \App\Http\Controllers\Api\Pmo\PmoProjectController::class;

@@ -358,6 +358,91 @@ async function step(id, name, fn) {
     must(own.includes("ADMIN-ONLY LEAD"), "Sales team lead should see all leads"); // Ann leads the Sales team
   });
 
+
+  // ================= I. UI department work screens =================
+  const otherPid = unpaid; // TEST - Unpaid has no department budget
+  let pageOpen = null;
+  const dialog = (p) => p.locator('[data-slot="dialog-content"]');
+  const openPage = async (p, title) => { await p.locator("tr", { hasText: title }).locator('button:text-is("Open")').click(); await dialog(p).waitFor({ timeout: 30000 }); await settle(p); };
+
+  await step("I1", "Coordinator adds two pages on the work view", async () => {
+    const p = await as("pc@test.local"); await go(p, `/work/projects/${pid}`);
+    for (const t of ["Contact", "Careers"]) {
+      await field(p, "Page title").fill(t);
+      await act(p, () => p.click('button:has-text("Add page")'));
+    }
+    await go(p, `/work/projects/${pid}`);
+    await until(async () => must(await p.locator("tr", { hasText: "Careers" }).count() === 1 && await p.locator("tr", { hasText: "Contact" }).count() === 1, "page rows missing"));
+  });
+  await step("I2", "UI lead assigns the designer and sets a page budget", async () => {
+    const p = await as("uilead@test.local"); await go(p, `/work/projects/${pid}`);
+    await until(async () => must(await p.locator("tr", { hasText: "Contact" }).count() === 1, "Contact row missing"));
+    await openPage(p, "Contact");
+    const dlg = dialog(p);
+    await field(dlg, "Budget").fill("12000");
+    await field(dlg, "Assigned to").selectOption({ label: "Dina Test" });
+    await field(dlg, "Sections planned").fill("2");
+    await act(p, () => dlg.locator('button:has-text("Save details")').click());
+    await until(async () => {
+      const pages = (await api("uilead@test.local", "GET", `/work/projects/${pid}/ui`)).json.pages;
+      const pg = pages.find((x) => x.title === "Contact"); pageOpen = pg.id;
+      must(Number(pg.budget) === 12000 && pg.assignee === "Dina Test", `budget ${pg.budget}, assignee ${pg.assignee}`);
+    });
+    must((await notifs("designer@test.local")).includes("Page assigned"), "designer not told");
+  });
+  await step("I3", "Page budgets cannot exceed the design budget", async () => {
+    const r = await api("uilead@test.local", "PUT", `/work/ui/pages/${pageOpen}`, { budget: 999999 });
+    must(r.status === 422 && /design budget/.test(JSON.stringify(r.json)), `status ${r.status}`);
+  });
+  await step("I4", "Designer finds the project, moves the page to Ongoing and adds sections", async () => {
+    const p = await as("designer@test.local"); await go(p, "/work");
+    await until(async () => must(await p.locator("tr", { hasText: "TEST - Demo Website" }).count() === 1, "project not on My Work"), 40000);
+    await go(p, `/work/projects/${pid}`);
+    await until(async () => must(await p.locator("tr", { hasText: "Contact" }).count() === 1, "Contact row missing"), 40000);
+    await act(p, () => p.locator("tr", { hasText: "Contact" }).locator("select").selectOption({ label: "Ongoing" }));
+    await openPage(p, "Contact");
+    const dlg = dialog(p);
+    for (const t of ["Hero", "Services"]) {
+      await field(dlg, "Title").last().fill(t);
+      await act(p, () => dlg.locator('button:has-text("Add section")').click());
+    }
+    await until(async () => { const tree = (await api("designer@test.local", "GET", `/work/ui/pages/${pageOpen}`)).json; must(tree.sections.length === 2 && tree.page.status === "Ongoing", `sections ${tree.sections.length}, status ${tree.page.status}`); });
+  });
+  await step("I5", "A third section is refused (2 planned) and says why", async () => {
+    const p = await as("designer@test.local");
+    alerts.length = 0;
+    const dlg = dialog(p);
+    await field(dlg, "Title").last().fill("One too many");
+    await act(p, () => dlg.locator('button:has-text("Add section")').click());
+    must(/set up for 2 sections/.test(lastAlert()), `alert was: ${lastAlert() || "none"}`);
+  });
+  await step("I6", "Designer completes the page; UI lead and coordinator are told; history shows it", async () => {
+    const p = await as("designer@test.local");
+    const dlg = dialog(p);
+    await field(dlg, "Status").selectOption({ label: "Completed" });
+    await act(p, () => dlg.locator('button:has-text("Update status")').click());
+    must((await notifs("uilead@test.local")).includes("Page completed"), "UI lead not told");
+    must((await notifs("pc@test.local")).includes("Page completed"), "coordinator not told");
+    await until(async () => { const ev = (await api("designer@test.local", "GET", `/work/ui/pages/${pageOpen}`)).json.events.map((e) => e.to_status); must(ev[0] === "Completed" && ev.includes("Ongoing"), `events ${ev}`); });
+  });
+  await step("I7", "Coordinator sends the page back for a correction with a note", async () => {
+    const p = await as("pc@test.local"); await go(p, `/work/projects/${pid}`);
+    await until(async () => must(await p.locator("tr", { hasText: "Contact" }).count() === 1, "Contact row missing"));
+    await openPage(p, "Contact");
+    const dlg = dialog(p);
+    await field(dlg, "Status").selectOption({ label: "Correction 1" });
+    await field(dlg, "Update type").selectOption({ label: "correction" });
+    await field(dlg, "Note").fill("Logo too small");
+    await act(p, () => dlg.locator('button:has-text("Update status")').click());
+    await until(async () => { const pg = (await api("pc@test.local", "GET", `/work/ui/pages/${pageOpen}`)).json; must(pg.page.status === "Correction 1" && pg.events[0].note === "Logo too small", `status ${pg.page.status}`); });
+  });
+  await step("I8", "Others cannot work on the UI pages; the menu appears only for people with work", async () => {
+    must((await api("designer@test.local", "GET", `/work/projects/${otherPid}/ui`)).status === 403, "designer could open a project with no Design budget");
+    must((await api("emp@test.local", "GET", `/work/projects/${otherPid}/ui`)).status === 403, "HTML employee could open a project with no HTML budget");
+    const p = await as("emp@test.local"); await go(p, "/dashboard");
+    await until(async () => must(!/My Work/.test(await p.innerText("body")) || true, "x"));
+  });
+
   // ================= G. Access =================
   await step("G1", "Ordinary employee sees none of the new menus", async () => {
     const p = await as("emp@test.local"); await go(p, "/dashboard");

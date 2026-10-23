@@ -21,7 +21,7 @@ class ProjectGate
         'overview' => ['Overview', false, false, true],
         'business_analysis' => ['Business analysis', true, false, true],
         'resources' => ['Resources', true, false, true],
-        'ui' => ['UI', true, true, false],
+        'ui' => ['UI', true, true, true],
         'ux' => ['UX', true, true, false],
         'dev' => ['Dev', true, true, false],
         'qa' => ['QA', true, true, false],

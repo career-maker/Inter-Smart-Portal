@@ -8,7 +8,7 @@ import { useThemeStore } from "@/store/theme";
 import {
   LogOut, Menu, X, ChevronRight, Home, ChevronDown,
   LayoutDashboard, CalendarCheck, Briefcase, UserCircle,
-  Users, ShieldCheck, PanelLeftClose, PanelLeftOpen, Wallet, TrendingUp, ClipboardList,
+  Users, ShieldCheck, PanelLeftClose, PanelLeftOpen, Wallet, TrendingUp, ClipboardList, Layers,
   FolderKanban, CheckSquare, Clock, Building2, HeartHandshake, HelpCircle,
   Search, Rocket, Bell, Settings, Puzzle, Laptop, StickyNote, MessageSquare
 } from "lucide-react";
@@ -189,6 +189,16 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/sales/leads",    label: "Leads" },
       { href: "/sales/inbox",    label: "Inbox" },
       { href: "/sales/projects", label: "Projects" },
+    ],
+  },
+  {
+    id: "work",
+    label: "My Work",
+    shortLabel: "Work",
+    icon: Layers,
+    feature: "workflow", // per-person: GET /features is true only for people with a project on their work list
+    items: [
+      { href: "/work", label: "My projects" },
     ],
   },
   {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Support\Access;
 use App\Support\Feature;
+use App\Support\WorkAccess;
 use Illuminate\Http\Request;
 
 /**
@@ -19,6 +20,7 @@ class FeatureController extends Controller
             'accounts' => Feature::enabled('accounts') && Access::accounts($request->user()),
             'sales' => Feature::enabled('sales') && Access::sales($request->user()),
             'pmo' => Feature::enabled('pmo') && Access::pmo($request->user()),
+            'workflow' => Feature::enabled('workflow') && ($request->user() ? WorkAccess::hasAnyWork($request->user()) : false),
         ]);
     }
 }

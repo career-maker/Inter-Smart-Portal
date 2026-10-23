@@ -75,6 +75,12 @@ export default function PmoProjectPage() {
       {current.enabled && tab === "business_analysis" && <BusinessAnalysis d={d} run={run} id={id} />}
       {current.enabled && tab === "resources" && <Resources d={d} run={run} id={id} />}
       {current.enabled && tab === "budget" && <Budget d={d} meta={meta} run={run} id={id} />}
+      {current.enabled && current.ready && ["ui", "ux", "dev", "qa", "bugs"].includes(tab) && (
+        <Card><CardContent className="p-4 text-sm space-y-2">
+          <p>The {current.label} work is done in the project work view, where the department team can also see it.</p>
+          <Link href={`/work/projects/${id}`}><Button>Open the work view</Button></Link>
+        </CardContent></Card>
+      )}
       {current.enabled && !current.ready && (
         <Card><CardContent className="p-4 text-sm text-slate-600 dark:text-slate-300">The {current.label} tab is open for this project. Its working screens arrive in the next phase.</CardContent></Card>
       )}
