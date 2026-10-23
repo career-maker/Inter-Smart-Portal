@@ -236,7 +236,7 @@ export default function LoginPage() {
             </div>
 
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-white mb-1">Sign in to your account</h2>
+              <h2 className="text-2xl font-bold text-white mb-1">Welcome Back! Let&apos;s Get Started</h2>
               <p className="text-slate-400 text-sm">Enter your official email and password to continue.</p>
             </div>
 
