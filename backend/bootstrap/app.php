@@ -33,6 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'feature' => \App\Http\Middleware\EnsureFeatureEnabled::class,
             'accounts.access' => \App\Http\Middleware\EnsureAccountsAccess::class,
             'sales.access' => \App\Http\Middleware\EnsureSalesAccess::class,
+            'pmo.access' => \App\Http\Middleware\EnsurePmoAccess::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

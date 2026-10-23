@@ -18,6 +18,7 @@ class FeatureController extends Controller
         return response()->json([
             'accounts' => Feature::enabled('accounts') && Access::accounts($request->user()),
             'sales' => Feature::enabled('sales') && Access::sales($request->user()),
+            'pmo' => Feature::enabled('pmo') && Access::pmo($request->user()),
         ]);
     }
 }

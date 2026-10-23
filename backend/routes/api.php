@@ -496,6 +496,29 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::post('projects', [$projects, 'store']);
         Route::post('projects/{project}/status', [$projects, 'setStatus']);
     });
+
+    // Project Office (Phase 3): hidden (404) until module.pmo.enabled is switched on.
+    Route::prefix('pmo')->middleware(['feature:pmo', 'pmo.access'])->group(function () {
+        $pmo = \App\Http\Controllers\Api\Pmo\PmoProjectController::class;
+        Route::get('meta', [$pmo, 'meta']);
+        Route::get('projects', [$pmo, 'index']);
+        Route::get('projects/{project}', [$pmo, 'show']);
+        Route::post('projects/{project}/assign', [$pmo, 'assign']);
+        Route::post('projects/{project}/accept', [$pmo, 'accept']);
+        Route::put('projects/{project}/budget', [$pmo, 'setBudget']);
+        Route::post('projects/{project}/hold', [$pmo, 'hold']);
+        Route::post('projects/{project}/resume', [$pmo, 'resume']);
+        Route::post('projects/{project}/overrides', [$pmo, 'override']);
+        Route::delete('projects/{project}/overrides/{type}', [$pmo, 'removeOverride']);
+
+        $work = \App\Http\Controllers\Api\Pmo\PmoWorkController::class;
+        Route::put('projects/{project}/business-analysis', [$work, 'saveBusinessAnalysis']);
+        Route::post('projects/{project}/resources', [$work, 'addResource']);
+        Route::delete('projects/{project}/resources/{resource}', [$work, 'removeResource']);
+        Route::post('projects/{project}/out-of-scope', [$work, 'requestOutOfScope']);
+        Route::get('out-of-scope', [$work, 'outOfScopeQueue']);
+        Route::post('out-of-scope/{oos}/decide', [$work, 'decideOutOfScope']);
+    });
     Route::get('activities', [\App\Http\Controllers\Api\DashboardController::class, 'activities']);
 
     // Calendar & Holidays (all authenticated users can view)

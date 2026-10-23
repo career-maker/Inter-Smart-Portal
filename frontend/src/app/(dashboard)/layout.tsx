@@ -8,7 +8,7 @@ import { useThemeStore } from "@/store/theme";
 import {
   LogOut, Menu, X, ChevronRight, Home, ChevronDown,
   LayoutDashboard, CalendarCheck, Briefcase, UserCircle,
-  Users, ShieldCheck, PanelLeftClose, PanelLeftOpen, Wallet, TrendingUp,
+  Users, ShieldCheck, PanelLeftClose, PanelLeftOpen, Wallet, TrendingUp, ClipboardList,
   FolderKanban, CheckSquare, Clock, Building2, HeartHandshake, HelpCircle,
   Search, Rocket, Bell, Settings, Puzzle, Laptop, StickyNote, MessageSquare
 } from "lucide-react";
@@ -189,6 +189,17 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/sales/leads",    label: "Leads" },
       { href: "/sales/inbox",    label: "Inbox" },
       { href: "/sales/projects", label: "Projects" },
+    ],
+  },
+  {
+    id: "pmo",
+    label: "Project Office",
+    shortLabel: "PMO",
+    icon: ClipboardList,
+    feature: "pmo", // per-person: GET /features is true only for Super Admin / PMO team members
+    items: [
+      { href: "/pmo",           label: "Projects" },
+      { href: "/pmo/approvals", label: "Out-of-scope requests" },
     ],
   },
   {
