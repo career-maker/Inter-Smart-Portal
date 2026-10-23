@@ -33,7 +33,7 @@ Route::prefix('ta-requests')->group(function () {
         ->name('ta-request.email-reject');
 });
 
-Route::post('login', [AuthController::class, 'login']);
+Route::post('login', [AuthController::class, 'login'])->middleware('throttle:login');
 
 Route::middleware('auth:sanctum')->group(function () {
     // Community Feed & Milestone Celebrations Routes

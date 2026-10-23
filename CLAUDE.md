@@ -1,3 +1,6 @@
+# Ongoing work: READ `docs/roadmap/PROGRESS.md` FIRST
+Internal Software Plan (Sales/Accounts/PMO/PC workflow), execution plan, live-server facts and rules are in `docs/roadmap/`. Live app folder on the server is `~/public_html/api/Inter-Smart-Portal` (see `docs/roadmap/SERVER.md`).
+
 # Intersmart Employee Portal — Complete Project Memory
 # For Claude Terminal / New Sessions
 
@@ -31,9 +34,9 @@
 
 ### Backend — cPanel (live)
 - **Platform:** cPanel server (not Render/Docker; `backend/Dockerfile` is unused)
-- **Path:** `~/public_html/backend`, API at `https://workplace.intersmart.in/api`
+- **Path:** `~/public_html/api/Inter-Smart-Portal/backend` (a symlinked entry in `~/public_html/api`), API at `https://workplace.intersmart.in/api`
 - **Runtime:** PHP 8.2, Laravel 12, MySQL 8
-- **Deploy:** live server runs git branch `office`; deploy script `~/deploy.sh`. How `main` reaches `office` must be confirmed before release.
+- **Deploy:** live server runs branch `main`; update with `git pull origin main` in `~/public_html/api/Inter-Smart-Portal`, then migrate. `~/public_html/backend` is an old unused copy - do not use.
 
 ### Database — MySQL 8 (live)
 - **Platform:** MySQL 8.0 on the same cPanel server (`127.0.0.1:3306`)
