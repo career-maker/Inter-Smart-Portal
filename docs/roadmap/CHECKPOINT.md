@@ -17,7 +17,7 @@ You are continuing the **Internal Software Plan** for the Intersmart Employee Po
 | 4 Department work screens | **Slice 1 live** (flag `workflow`): UI pages, sections, status chain, page budgets, My Work. **Slices 2 to 4 not started** |
 | 5 Team lead and resource screens, 6 Dashboards and feedback, 7 HR and go-live | Not started |
 
-**Live server** (cPanel, MySQL 8): code is at commit `33ddf8d` (Phase 4 slice 1). `origin/main` is ahead only by docs commits. 4 flags are ON: accounts, sales, pmo, workflow. Live has 110 tables. Latest backup folders are `~/safety_backup_*` on the server (newest: `2026-10-24_0016_phase4a`).
+**Live server** (cPanel, MySQL 8): the live code last changed in commit `33ddf8d` (Phase 4 slice 1). Commits after it are docs-only; the server was brought level with `origin/main` on 2026-10-24. 4 flags are ON: accounts, sales, pmo, workflow. Live has 110 tables. Latest backup folders are `~/safety_backup_*` on the server (newest: `2026-10-24_0016_phase4a`).
 
 **Tests:** 201 backend tests, 40 known old failures listed in `backend/tests/known-failures.txt` (CI fails only on NEW failures). Browser end-to-end: `docs/roadmap/e2e/` (48 steps; the first 40 passed together, the 8 new UI steps passed separately, one combined run is still to do).
 
