@@ -19,3 +19,4 @@ Schedule::command('biometric:process')->everyFiveMinutes()->withoutOverlapping()
 
 // Daily data retention cleanup – chat and community posts based on admin retention policy
 Schedule::command('portal:cleanup-retention')->dailyAt('01:00')->withoutOverlapping();
+Schedule::command('sanctum:prune-expired --hours=24')->dailyAt('01:30')->withoutOverlapping();

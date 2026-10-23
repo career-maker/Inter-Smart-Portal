@@ -35,7 +35,7 @@ Route::prefix('ta-requests')->group(function () {
 
 Route::post('login', [AuthController::class, 'login'])->middleware('throttle:login');
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     // Community Feed & Milestone Celebrations Routes
     Route::get('community/summary', [\App\Http\Controllers\Api\CommunityController::class, 'getSummary']);
     Route::get('community/employees', [\App\Http\Controllers\Api\CommunityController::class, 'getEmployees']);

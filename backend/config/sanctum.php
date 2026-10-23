@@ -50,7 +50,7 @@ return [
     |
     */
 
-    'expiration' => null,
+    'expiration' => (int) env('SANCTUM_EXPIRATION_MINUTES', 129600), // 90 days; set SANCTUM_EXPIRATION_MINUTES to a larger number to relax
 
     /*
     |--------------------------------------------------------------------------
