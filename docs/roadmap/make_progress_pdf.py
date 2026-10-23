@@ -99,6 +99,8 @@ phase_detail("Phase 0 detail: the safety net", "Phase 0 adds no features. It mak
              data["phase0_tasks"], first=True)
 if data.get("phase1_tasks"):
     phase_detail("Phase 1 detail: Accounts module", data.get("phase1_intro", ""), data["phase1_tasks"])
+if data.get("phase2_tasks"):
+    phase_detail("Phase 2 detail: Sales module", data.get("phase2_intro", ""), data["phase2_tasks"])
 
 st.append(P("What happens next", H2))
 st += bullets(data["next"])

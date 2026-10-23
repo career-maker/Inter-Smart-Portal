@@ -1,7 +1,7 @@
 {
   "updated": "23 Oct 2026",
-  "headline": "Phase 0 (safety net) is about 85% done. Phase 1 (Accounts module) is now LIVE for the Accounts team (and Super Admin). Existing modules are working normally.",
-  "overall_percent": 15,
+  "headline": "Phase 0 (safety net) is about 85% done. Phase 1 (Accounts) and Phase 2 (Sales) are built and LIVE for their departments. Existing modules are working normally.",
+  "overall_percent": 30,
   "live_health": [
     "Website and login: working",
     "Database: working (backup taken before every live change)",
@@ -29,8 +29,8 @@
       "n": "2",
       "name": "Sales module",
       "weeks": "4",
-      "status": "Not started",
-      "percent": 0,
+      "status": "In progress",
+      "percent": 70,
       "delivers": "Leads, project creation, sales inbox, meeting requests, sales dashboard"
     },
     {
@@ -152,14 +152,15 @@
     }
   ],
   "done_this_update": [
-    "Switched the Accounts module on in the live system",
-    "Access now follows the department: Accounts team members and Super Admins; Sales and others are blocked (tested on live)",
-    "PMO 1 and PMO 2 team members are notified when a payment is approved",
-    "Checked everything on live with short-lived test logins that were deleted straight afterwards"
+    "Built and released the Sales module: leads, follow-up inbox, project creation, sales project list, dashboard",
+    "Sales and Accounts now work as one loop: a new Sales project appears in Accounts as 'Advance awaiting'; approving payment notifies the salesperson",
+    "Access by department: Sales team sees Sales, Accounts team sees Accounts, others see neither (tested on live)",
+    "Added 9 tests; 184 in total with no new failures"
   ],
   "next": [
-    "Accounts team: try the module with a real project (set the contract value, add and approve an advance) and report anything odd",
-    "Phase 2 Sales module (needs the Sales document fields, see decisions)",
+    "Sales and Accounts teams: try the modules with a real project and report what is missing or off",
+    "Send the Sales document so the project fields can be matched exactly",
+    "Phase 3: PMO and Project Coordinator core (needs the budget-per-department rules)",
     "Staging copy and load test (needs your approval)"
   ],
   "capacity_answer": "The database will not break with 100+ users working at once. The live server is strong (24 processors, 40 GB memory). Improvements planned in Phase 0 (lighter background checks, rate limits, caching) give comfortable room for 150 to 300 users at the same time. A load test will confirm the exact number.",
@@ -183,6 +184,10 @@
     {
       "risk": "No safe place to load-test yet",
       "action": "Staging copy needs approval"
+    },
+    {
+      "risk": "Sales fields were built from the manager's sheet, not the Sales document",
+      "action": "Adjust once the document arrives; small change"
     }
   ],
   "decisions": [
@@ -200,6 +205,10 @@
     "Go-live: pilot team first, or everyone at once?"
   ],
   "changelog": [
+    {
+      "date": "23 Oct 2026 (late night)",
+      "text": "Sales module built, installed and switched on for the Sales team."
+    },
     {
       "date": "23 Oct 2026 (night)",
       "text": "Accounts module switched on for the Accounts team; access by department; PMO teams notified."
@@ -282,6 +291,64 @@
       "task": "Link each project to its sales person",
       "status": "Waiting for Phase 2",
       "note": "The Sales module will set this automatically; until then the sales person is not notified"
+    }
+  ],
+  "phase2_intro": "The Sales module is switched on for the Sales team (and Super Admin). Built from the manager's sheet because the Sales document has not been received yet; field names are easy to change.",
+  "phase2_tasks": [
+    {
+      "task": "Leads with status, value and next follow-up",
+      "status": "Done",
+      "note": "New, Follow up, Hot, Ready to close, Won, Lost. Lost needs a reason. Each person sees their own; Super Admin and the Sales team lead see everyone's"
+    },
+    {
+      "task": "Sales inbox (follow-up, proposal, meeting, other) with status updates",
+      "status": "Done",
+      "note": "Mark done with an outcome and set the next follow-up date, or cancel"
+    },
+    {
+      "task": "Create a project (project intake)",
+      "status": "Done",
+      "note": "Platform, type, pages, quality level, budget, client details. Accounts is told an advance is awaiting; the project is linked to the salesperson"
+    },
+    {
+      "task": "Payment approved notification from Accounts",
+      "status": "Done",
+      "note": "The salesperson is notified when Accounts approves a payment (tested end to end)"
+    },
+    {
+      "task": "Projects list with payment state and progress %",
+      "status": "Done",
+      "note": "Progress comes from completed tasks once the team starts working"
+    },
+    {
+      "task": "Hold or terminate a project",
+      "status": "Done",
+      "note": "Reason required; Accounts, PMO and the project coordinator are notified"
+    },
+    {
+      "task": "Sales dashboard",
+      "status": "Done",
+      "note": "Leads to follow up, hot, ready to close with value, conversion %, target achieved vs target (set by Accounts), projects ongoing, pending actions, meetings attended, proposals shared"
+    },
+    {
+      "task": "Automated tests and safe live install",
+      "status": "Done",
+      "note": "9 new tests (184 total, no new failures). Backup first; 3 new tables; nothing existing changed; checked on live with Sales and Accounts logins"
+    },
+    {
+      "task": "Out of scope requests, 'action required' and payment follow-up from PC / Accounts",
+      "status": "Waiting for Phase 3",
+      "note": "These arrive from the Project Coordinator, who is built in Phase 3"
+    },
+    {
+      "task": "Meetings (view upcoming) and completed-project details (free support, AMC link, feedback)",
+      "status": "Not started",
+      "note": "Planned with the dashboards and feedback phase"
+    },
+    {
+      "task": "Check the Sales screens by eye and confirm the project fields",
+      "status": "Needs approval",
+      "note": "Needs the Sales team to try it, and the Sales document so the fields match exactly"
     }
   ]
 }

@@ -5,7 +5,7 @@ _Last updated: 2026-10-23_
 ## Goal
 Manager asked to implement the features in `SOURCE_Internal_software_plan.xlsx` (Sales, Accounts, PMO, PC, TLs, resources, QA, HR workflow) in the portal, and asked whether 100+ simultaneous users would break the DB or cause performance/security issues. Existing modules must not break.
 
-## Status: PHASE 0 about 85%; PHASE 1 (Accounts) LIVE for the Accounts team (flag ON since 2026-10-23, about 15% overall). Next: Phase 2 Sales, blocked on the sales document fields. Remaining items need owner approval/access: staging subdomain+DNS+SSL, GitHub branch protection, then load test on staging. Live server and GitHub `main` are at `4307a9e` (+ later docs-only commits).
+## Status: PHASE 0 about 85%; PHASE 1 (Accounts) LIVE for the Accounts team (flag ON since 2026-10-23, about 15% overall). PHASE 2 (Sales) built + LIVE for the Sales team (about 30% overall). Next: Phase 3 PMO/PC core (needs budget-per-department rules), staging + load test. Remaining items need owner approval/access: staging subdomain+DNS+SSL, GitHub branch protection, then load test on staging. Live server and GitHub `main` are at `4307a9e` (+ later docs-only commits).
 Follow `EXECUTION_PLAN.md`: finish Phase 0, then Accounts, then Sales.
 
 ### Manager progress PDF (update after every phase/change)
@@ -38,6 +38,14 @@ Edit `docs/roadmap/progress.json` (phase status/percent, tasks, done list, chang
 - Live teams (id: name, lead, members): 10 Sales (Ann Mary Elias, 1), 11 Accounts (Ameesha Helan O R, 1), 5 PMO 2, 8 PMO 1, plus QA, HTML, WordPress, PHP, Design, React. There is no HR role/team on live.
 - Verified on live with temp tokens (deleted): Accounts lead -> 200; Sales lead -> 403. Disable with `Feature::set('accounts', false)` (cached up to 60 s).
 - Phase 2 Sales should use the same pattern (team name starts 'sales'; `Access` helper + middleware + flag) and set `project_finance.sales_user_id`.
+
+### Phase 2 Sales (deployed 2026-10-23 late night; commits ad8fb0a, a0d0da4; live backup `~/safety_backup_2026-10-23_2124_phase2`)
+- Built from the manager's sheet (no sales doc yet). Tables: leads, lead_activities, project_intake (live now 100 tables). Flag `module.sales.enabled` = true. Access: `Access::sales()` (Super Admin or team name starts 'sales'); `Access::salesSeesAll()` (Super Admin or lead of a 'sales%' team). Middleware `sales.access`.
+- API under `api/sales/*`: dashboard, leads (+ activities), inbox, projects (create/list/status). Creating a project makes pm_projects row (status Planning, project_type=platform, category=site_category) + project_finance (sales_user_id = creator, contract_value = budget) + project_intake, marks the lead Won, and notifies Accounts team members.
+- Frontend: `src/app/(dashboard)/sales/{page,leads,inbox,projects}`, nav group 'sales' (feature-gated per person via /api/features).
+- Live data note: Accounts staff had already put a contract value on project 380 (no salesperson). Sales views ignore finance rows without a salesperson.
+- Disable: `App\Support\Feature::set('sales', false)`.
+- Not built yet: meetings, completed-project fields (free support/AMC/feedback), out-of-scope and 'action required' items from PC (Phase 3).
 
 ### Local test environment (no XAMPP needed)
 PHP 8.2 and MySQL 8.4 come from Local by Flywheel (`%APPDATA%\Local\lightning-services`). A private MySQL was initialised in the session scratchpad on port 3306 (root, blank password, DBs `intersmart_local` and `hrms_test_db`); it must be started again in a new session with `mysqld --datadir=<dir> --port=3306 --mysqlx=OFF`. Run PHP with a custom ini enabling curl, fileinfo, mbstring, openssl, pdo_mysql, zip, gd, intl, sodium. Put the Local `mysql.exe` folder on PATH so `migrate` can load the schema file. Run tests with `php vendor/bin/phpunit`.
