@@ -1,6 +1,6 @@
 {
   "updated": "23 Oct 2026",
-  "headline": "Phase 0 (safety net) is about 85% done. Phase 1 (Accounts module) is built, tested and installed on the live system, but switched off until you decide to turn it on. All existing modules are working normally.",
+  "headline": "Phase 0 (safety net) is about 85% done. Phase 1 (Accounts module) is now LIVE for the Accounts team (and Super Admin). Existing modules are working normally.",
   "overall_percent": 15,
   "live_health": [
     "Website and login: working",
@@ -22,7 +22,7 @@
       "name": "Accounts module",
       "weeks": "3",
       "status": "In progress",
-      "percent": 80,
+      "percent": 90,
       "delivers": "Payment approval, advance/pending payments, budget increase, targets, AMC list"
     },
     {
@@ -152,16 +152,15 @@
     }
   ],
   "done_this_update": [
-    "Built the whole Accounts module: payment states, approvals, budget increase, hold/terminate, sales targets, AMC list",
-    "Installed it on the live system (hidden): backup first, 5 new tables and one new role, existing data untouched",
-    "Added 8 tests; total 173, no new failures",
-    "Checked the full payment flow end to end through the real login and system on a test copy"
+    "Switched the Accounts module on in the live system",
+    "Access now follows the department: Accounts team members and Super Admins; Sales and others are blocked (tested on live)",
+    "PMO 1 and PMO 2 team members are notified when a payment is approved",
+    "Checked everything on live with short-lived test logins that were deleted straight afterwards"
   ],
   "next": [
-    "Pick the Accounts person and switch the module on for a pilot",
-    "Look at the three Accounts screens together and fix anything that looks off",
-    "Staging copy and load test (needs your approval, see decisions)",
-    "Start Phase 2: Sales module (leads, project creation, sales inbox)"
+    "Accounts team: try the module with a real project (set the contract value, add and approve an advance) and report anything odd",
+    "Phase 2 Sales module (needs the Sales document fields, see decisions)",
+    "Staging copy and load test (needs your approval)"
   ],
   "capacity_answer": "The database will not break with 100+ users working at once. The live server is strong (24 processors, 40 GB memory). Improvements planned in Phase 0 (lighter background checks, rate limits, caching) give comfortable room for 150 to 300 users at the same time. A load test will confirm the exact number.",
   "risks": [
@@ -187,7 +186,7 @@
     }
   ],
   "decisions": [
-    "Who is the Accounts person? (needed to create the Accounts user and switch the module on for a pilot)",
+    "Send the Sales document fields. Phase 2 (Sales module) cannot start properly without them",
     "Approve creating the staging (test) copy: needs a sub-domain, DNS entry and certificate on your hosting",
     "Require review before merging to main on GitHub? (safer, but slows direct pushes)",
     "Send the Sales document fields (needed for Phase 2)",
@@ -201,6 +200,10 @@
     "Go-live: pilot team first, or everyone at once?"
   ],
   "changelog": [
+    {
+      "date": "23 Oct 2026 (night)",
+      "text": "Accounts module switched on for the Accounts team; access by department; PMO teams notified."
+    },
     {
       "date": "23 Oct 2026 (late)",
       "text": "Phase 1 Accounts module built and installed on live (hidden). 8 new tests."
@@ -218,7 +221,7 @@
       "text": "Plan approved. Phase 0 started. Live debug mode off, live code updated, switch + login protection + automatic checks built."
     }
   ],
-  "phase1_intro": "The Accounts module is installed on the live server but hidden. Nobody sees it until it is switched on for a pilot.",
+  "phase1_intro": "The Accounts module is switched on in the live system. Access comes from the department: members of the Accounts team (and Super Admins) see it; everyone else does not.",
   "phase1_tasks": [
     {
       "task": "Payment state of every project (advance awaiting, pending payment, paid in full)",
@@ -251,29 +254,29 @@
       "note": "Shows Expired automatically after the end date; filter for contracts ending in 30 days"
     },
     {
-      "task": "New 'Accounts' user role and menu",
+      "task": "Access by department (Accounts team) and menu",
       "status": "Done",
-      "note": "Role created on live; menu and role option appear only when the module is switched on"
+      "note": "Live. Accounts team members and Super Admins see the menu; Sales team member checked and correctly blocked"
     },
     {
       "task": "Automated tests",
       "status": "Done",
-      "note": "8 new tests cover switch, permissions, payment flow, budget, hold, targets, AMC (173 tests total, no new failures)"
+      "note": "10 new tests (switch, department access, payment flow, PMO notification, budget, hold, targets, AMC); 175 total, no new failures"
     },
     {
       "task": "Installed on the live system without disturbing it",
       "status": "Done",
-      "note": "Backup first; 5 new tables and 1 role added, nothing existing changed; site checked afterwards"
+      "note": "Backup first; 5 new tables added, nothing existing changed; site checked after every step"
     },
     {
       "task": "Check the screens by eye",
       "status": "Needs approval",
-      "note": "Screens compile and the full flow works through the real system, but I could not view them in a browser here. Needs a quick look once switched on"
+      "note": "Screens compile and the whole flow works through the real system, but nobody has looked at them in a browser yet. Please open Accounts > Projects & Payments and tell us anything that looks off"
     },
     {
-      "task": "Switch on for a pilot and create the Accounts user",
-      "status": "Needs approval",
-      "note": "Needs the name of the person in Accounts, and your go-ahead"
+      "task": "Switched on for the Accounts team",
+      "status": "Done",
+      "note": "Live since 23 Oct. Verified for the Accounts team lead (allowed) and the Sales team lead (blocked)"
     },
     {
       "task": "Link each project to its sales person",

@@ -5,7 +5,7 @@ _Last updated: 2026-10-23_
 ## Goal
 Manager asked to implement the features in `SOURCE_Internal_software_plan.xlsx` (Sales, Accounts, PMO, PC, TLs, resources, QA, HR workflow) in the portal, and asked whether 100+ simultaneous users would break the DB or cause performance/security issues. Existing modules must not break.
 
-## Status: PHASE 0 about 85%; PHASE 1 (Accounts) built + installed on live, flag OFF (about 15% overall). Remaining items need owner approval/access: staging subdomain+DNS+SSL, GitHub branch protection, then load test on staging. Live server and GitHub `main` are at `4307a9e` (+ later docs-only commits).
+## Status: PHASE 0 about 85%; PHASE 1 (Accounts) LIVE for the Accounts team (flag ON since 2026-10-23, about 15% overall). Next: Phase 2 Sales, blocked on the sales document fields. Remaining items need owner approval/access: staging subdomain+DNS+SSL, GitHub branch protection, then load test on staging. Live server and GitHub `main` are at `4307a9e` (+ later docs-only commits).
 Follow `EXECUTION_PLAN.md`: finish Phase 0, then Accounts, then Sales.
 
 ### Manager progress PDF (update after every phase/change)
@@ -32,6 +32,12 @@ Edit `docs/roadmap/progress.json` (phase status/percent, tasks, done list, chang
 - To enable on live (after owner OK): on server in backend folder run `php artisan tinker --execute="App\Support\Feature::set('accounts', true);"` then create the Accounts user via Employees form (role 'Accounts' now appears). Disable again with `Feature::set('accounts', false)` (cached up to 60s).
 - Not yet done: eyeball the UI (browser extension was not connected; only compile + API flow verified); link projects to sales person (Phase 2 sets `project_finance.sales_user_id`); 'HR' role does not exist on live, so HR notifications reach no one until it exists; pm_projects already has a `budget` column, unrelated to `project_finance.contract_value`.
 - Local test setup notes: `php artisan serve` ignores `-c`; run `php -c <ini> -S 127.0.0.1:8765 -t public` instead. Local frontend on port 3000 belongs to another process; backend CORS only allows port 3000, so a small proxy rewrote CORS for a test on 3100. `artisan tinker file.php` does not execute; use `--execute="require 'file.php';"`.
+
+### Accounts switched ON (2026-10-23 night, commit 75f67a3)
+- Access is by DEPARTMENT, not role: `App\Support\Access::accounts()` = Super Admin, or team name starts with 'accounts', or role 'Accounts'. Middleware alias `accounts.access`. `/api/features` returns accounts=true only for people who can use it. PMO teams (name starts 'pmo') get payment notifications.
+- Live teams (id: name, lead, members): 10 Sales (Ann Mary Elias, 1), 11 Accounts (Ameesha Helan O R, 1), 5 PMO 2, 8 PMO 1, plus QA, HTML, WordPress, PHP, Design, React. There is no HR role/team on live.
+- Verified on live with temp tokens (deleted): Accounts lead -> 200; Sales lead -> 403. Disable with `Feature::set('accounts', false)` (cached up to 60 s).
+- Phase 2 Sales should use the same pattern (team name starts 'sales'; `Access` helper + middleware + flag) and set `project_finance.sales_user_id`.
 
 ### Local test environment (no XAMPP needed)
 PHP 8.2 and MySQL 8.4 come from Local by Flywheel (`%APPDATA%\Local\lightning-services`). A private MySQL was initialised in the session scratchpad on port 3306 (root, blank password, DBs `intersmart_local` and `hrms_test_db`); it must be started again in a new session with `mysqld --datadir=<dir> --port=3306 --mysqlx=OFF`. Run PHP with a custom ini enabling curl, fileinfo, mbstring, openssl, pdo_mysql, zip, gd, intl, sodium. Put the Local `mysql.exe` folder on PATH so `migrate` can load the schema file. Run tests with `php vendor/bin/phpunit`.
