@@ -5,7 +5,7 @@ _Last updated: 2026-10-23_
 ## Goal
 Manager asked to implement the features in `SOURCE_Internal_software_plan.xlsx` (Sales, Accounts, PMO, PC, TLs, resources, QA, HR workflow) in the portal, and asked whether 100+ simultaneous users would break the DB or cause performance/security issues. Existing modules must not break.
 
-## Status: PHASE 0 about 85%; PHASE 1 (Accounts) LIVE for the Accounts team (flag ON since 2026-10-23, about 15% overall). PHASE 2 (Sales) built + LIVE for the Sales team (about 30% overall). Next: Phase 3 PMO/PC core (needs budget-per-department rules), staging + load test. Remaining items need owner approval/access: staging subdomain+DNS+SSL, GitHub branch protection, then load test on staging. Live server and GitHub `main` are at `4307a9e` (+ later docs-only commits).
+## Status: PHASE 0 about 85%; PHASE 1 (Accounts) LIVE for the Accounts team (flag ON since 2026-10-23, about 15% overall). PHASE 2 (Sales) LIVE; PHASE 3 (Project Office) built + LIVE for PMO teams (about 40% overall). Next: Phase 3 PMO/PC core (needs budget-per-department rules), staging + load test. Remaining items need owner approval/access: staging subdomain+DNS+SSL, GitHub branch protection, then load test on staging. Live server and GitHub `main` are at `4307a9e` (+ later docs-only commits).
 Follow `EXECUTION_PLAN.md`: finish Phase 0, then Accounts, then Sales.
 
 ### Manager progress PDF (update after every phase/change)
@@ -46,6 +46,15 @@ Edit `docs/roadmap/progress.json` (phase status/percent, tasks, done list, chang
 - Live data note: Accounts staff had already put a contract value on project 380 (no salesperson). Sales views ignore finance rows without a salesperson.
 - Disable: `App\Support\Feature::set('sales', false)`.
 - Not built yet: meetings, completed-project fields (free support/AMC/feedback), out-of-scope and 'action required' items from PC (Phase 3).
+
+### Phase 3 Project Office (deployed 2026-10-24 early; commit 96181b8; live backup `~/safety_backup_2026-10-23_2152_phase3`)
+- Tables (live now 107): project_acceptance, project_budget_allocations, project_holds, project_overrides, project_business_analysis, project_resources, out_of_scope_requests. Flag `module.pmo.enabled` = true.
+- Access: `Access::pmo()` = Super Admin or team name starts 'pmo'; `Access::pmoManager()` = Super Admin or lead of a 'pmo%' team (ASSUMPTION: PMO 1/2 leads = project managers, PMO members = coordinators; live leads are users 71 and 11); `Access::pmoManagers()` for notifications. Middleware `pmo.access`. Notify helper `App\Support\Notify`.
+- Tab lock rules in `ProjectGate`: payment open when advance approved or Super Admin override; working tabs (ui/ux/dev/qa) also need a department budget or PMO override. Locked tabs return HTTP 423 from the API.
+- API under `api/pmo/*`; frontend `src/app/(dashboard)/pmo/{page,approvals,projects/[id]}`, nav group 'pmo'.
+- Default PMO list = projects with a finance or coordinator record (the sales pipeline); `scope=all` adds older projects.
+- Not built: PC rating, project category tree, UI/UX/Dev/QA/bugs/system-admin tab contents (Phase 4), PM dashboard (Phase 6), meeting requests.
+- Disable: `Feature::set('pmo', false)` via tinker.
 
 ### Visual check recipe (browser extension is not connected in this setup)
 Install `playwright-core` in a scratch folder and drive the installed Edge headlessly (`executablePath: C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe`) against a LOCAL stack: `php -c ini -S 127.0.0.1:8765 -t public`, a CORS proxy on 8766 (backend only allows origin port 3000), and `NEXT_PUBLIC_API_URL=http://127.0.0.1:8766/api npx next dev -p 3100`. Log in with a locally seeded Super Admin, screenshot pages, then stop the servers. The dialog component is already a right-hand side panel (like BirthdayWishDrawer); put content in a header + `flex-1 overflow-y-auto` body with `shrink-0` children, otherwise Cards get squashed (fixed 2026-10-23, commit 2ce1336).

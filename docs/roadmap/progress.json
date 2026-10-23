@@ -1,7 +1,7 @@
 {
   "updated": "23 Oct 2026",
-  "headline": "Phase 0 (safety net) is about 85% done. Phase 1 (Accounts) and Phase 2 (Sales) are built and LIVE for their departments. Existing modules are working normally.",
-  "overall_percent": 30,
+  "headline": "Accounts, Sales and the Project Office are built and LIVE, each visible only to its own department. The safety net (Phase 0) is about 85% done. Existing modules are working normally.",
+  "overall_percent": 40,
   "live_health": [
     "Website and login: working",
     "Database: working (backup taken before every live change)",
@@ -37,8 +37,8 @@
       "n": "3",
       "name": "Project Manager + Coordinator core",
       "weeks": "5",
-      "status": "Not started",
-      "percent": 0,
+      "status": "In progress",
+      "percent": 70,
       "delivers": "Accept project, department budgets, project tabs with payment lock, out-of-scope approval"
     },
     {
@@ -152,15 +152,15 @@
     }
   ],
   "done_this_update": [
-    "Built and released the Sales module: leads, follow-up inbox, project creation, sales project list, dashboard",
-    "Sales and Accounts now work as one loop: a new Sales project appears in Accounts as 'Advance awaiting'; approving payment notifies the salesperson",
-    "Access by department: Sales team sees Sales, Accounts team sees Accounts, others see neither (tested on live)",
-    "Added 9 tests; 184 in total with no new failures"
+    "Built and released the Project Office: project list, coordinator assignment and acceptance, department budgets, hold reasons, payment and budget locks with overrides, business analysis, resources, out-of-scope approvals",
+    "The whole chain now works: Sales creates a project, Accounts approves the advance, the PMO assigns a coordinator and opens the work tabs",
+    "Fixed the Accounts side popup and label spacing; checked all screens in a real browser on a test copy",
+    "10 more tests; 194 in total, no new failures"
   ],
   "next": [
-    "Sales and Accounts teams: try the modules with a real project and report what is missing or off",
-    "Send the Sales document so the project fields can be matched exactly",
-    "Phase 3: PMO and Project Coordinator core (needs the budget-per-department rules)",
+    "Project managers, coordinators, Sales and Accounts: run one real project through the chain and report what is missing or off",
+    "Confirm who the project managers are (assumption above)",
+    "Phase 4: UI / UX / Dev workflow (pages and sections, sprints, effort approval, QA hand-off)",
     "Staging copy and load test (needs your approval)"
   ],
   "capacity_answer": "The database will not break with 100+ users working at once. The live server is strong (24 processors, 40 GB memory). Improvements planned in Phase 0 (lighter background checks, rate limits, caching) give comfortable room for 150 to 300 users at the same time. A load test will confirm the exact number.",
@@ -188,6 +188,10 @@
     {
       "risk": "Sales fields were built from the manager's sheet, not the Sales document",
       "action": "Adjust once the document arrives; small change"
+    },
+    {
+      "risk": "Project manager role is assumed to be the PMO team leads",
+      "action": "Confirm; changing it is a one-line rule"
     }
   ],
   "decisions": [
@@ -205,6 +209,10 @@
     "Go-live: pilot team first, or everyone at once?"
   ],
   "changelog": [
+    {
+      "date": "24 Oct 2026",
+      "text": "Project Office built, installed and switched on for the PMO teams."
+    },
     {
       "date": "23 Oct 2026 (late night)",
       "text": "Sales module built, installed and switched on for the Sales team."
@@ -349,6 +357,64 @@
       "task": "Check the Sales screens by eye and confirm the project fields",
       "status": "Needs approval",
       "note": "Needs the Sales team to try it, and the Sales document so the fields match exactly"
+    }
+  ],
+  "phase3_intro": "The Project Office is switched on for the PMO teams (project managers = PMO team leads and Super Admin; coordinators = PMO team members). The department work screens (UI, UX, Dev, QA) arrive in Phase 4.",
+  "phase3_tasks": [
+    {
+      "task": "Project list for the PMO",
+      "status": "Done",
+      "note": "Payment state, coordinator, department budget, progress, hold reason, 'date exceeded' and pending out-of-scope flags; filters and search. Coordinators see only their own projects"
+    },
+    {
+      "task": "Assign a coordinator and accept the project",
+      "status": "Done",
+      "note": "Manager assigns a PMO team member; the coordinator accepts and a Planning project becomes Active; Sales is told"
+    },
+    {
+      "task": "Department budgets",
+      "status": "Done",
+      "note": "Entered by hand per department. Over the contract value needs confirmation and tells the Super Admin"
+    },
+    {
+      "task": "Hold with a reason",
+      "status": "Done",
+      "note": "Approval, content, images, payment gateway, SMS, SMTP, no response, out of scope, too many corrections, payment pending, budget exceeded, date exceeded, other. Everyone involved is notified"
+    },
+    {
+      "task": "Payment lock and budget lock on project tabs",
+      "status": "Done",
+      "note": "Work tabs open once the advance is approved. Super Admin can override payment; PMO manager can override budget; both are recorded"
+    },
+    {
+      "task": "Business analysis form and project resources",
+      "status": "Done",
+      "note": "Purpose, company, competitors, audience, USP, conclusion; brand book, logo, domain, brochure, proposal links"
+    },
+    {
+      "task": "Out-of-scope requests",
+      "status": "Done",
+      "note": "Coordinator asks with effort; PMO manager approves or rejects; Sales is told to agree the extra cost with the client"
+    },
+    {
+      "task": "Automated tests and safe live install",
+      "status": "Done",
+      "note": "10 new tests (194 total, no new failures). Backup first; 7 new tables; nothing existing changed; checked on live with PMO leads, Sales and Accounts logins"
+    },
+    {
+      "task": "Project categories tree and the PC rating",
+      "status": "Not started",
+      "note": "Rating needs the formula from the manager"
+    },
+    {
+      "task": "UI, UX, Dev, QA and bugs tabs",
+      "status": "Waiting for Phase 4",
+      "note": "Tabs and locks are in place; their working screens come next"
+    },
+    {
+      "task": "Confirm who the project managers are",
+      "status": "Needs approval",
+      "note": "Assumed: PMO 1 / PMO 2 team leads are project managers, PMO team members are coordinators. Easy to change"
     }
   ]
 }

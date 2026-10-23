@@ -97,10 +97,10 @@ def phase_detail(title, intro, tasks, first=False):
 
 phase_detail("Phase 0 detail: the safety net", "Phase 0 adds no features. It makes sure new work cannot break what already runs.",
              data["phase0_tasks"], first=True)
-if data.get("phase1_tasks"):
-    phase_detail("Phase 1 detail: Accounts module", data.get("phase1_intro", ""), data["phase1_tasks"])
-if data.get("phase2_tasks"):
-    phase_detail("Phase 2 detail: Sales module", data.get("phase2_intro", ""), data["phase2_tasks"])
+for n in range(1, 8):  # one detail section per phase that has a task list (phase1_tasks, phase2_tasks, ...)
+    if data.get(f"phase{n}_tasks"):
+        name = next((p["name"] for p in data["phases"] if p["n"] == str(n)), "")
+        phase_detail(f"Phase {n} detail: {name}", data.get(f"phase{n}_intro", ""), data[f"phase{n}_tasks"])
 
 st.append(P("What happens next", H2))
 st += bullets(data["next"])
