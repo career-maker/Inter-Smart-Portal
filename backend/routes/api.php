@@ -452,6 +452,31 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
 
     // Dashboard Data
     Route::get('dashboard', [\App\Http\Controllers\Api\DashboardController::class, 'index']);
+
+    Route::get('features', [\App\Http\Controllers\Api\FeatureController::class, 'index']);
+
+    // Accounts module (Phase 1): hidden (404) until module.accounts.enabled is switched on.
+    Route::prefix('accounts')->middleware(['feature:accounts', 'role:Accounts|Super Admin'])->group(function () {
+        $projects = \App\Http\Controllers\Api\Accounts\AccountsProjectController::class;
+        Route::get('projects', [$projects, 'index']);
+        Route::get('projects/{project}', [$projects, 'show']);
+        Route::put('projects/{project}/finance', [$projects, 'saveFinance']);
+        Route::post('projects/{project}/payments', [$projects, 'requestPayment']);
+        Route::post('projects/{project}/budget-increase', [$projects, 'increaseBudget']);
+        Route::post('projects/{project}/status', [$projects, 'setStatus']);
+        Route::post('payments/{payment}/approve', [$projects, 'approvePayment']);
+        Route::post('payments/{payment}/reject', [$projects, 'rejectPayment']);
+
+        $targets = \App\Http\Controllers\Api\Accounts\SalesTargetController::class;
+        Route::get('targets', [$targets, 'index']);
+        Route::post('targets', [$targets, 'store']);
+        Route::delete('targets/{target}', [$targets, 'destroy']);
+
+        $amc = \App\Http\Controllers\Api\Accounts\AmcController::class;
+        Route::get('amc', [$amc, 'index']);
+        Route::post('amc', [$amc, 'store']);
+        Route::put('amc/{amc}', [$amc, 'update']);
+    });
     Route::get('activities', [\App\Http\Controllers\Api\DashboardController::class, 'activities']);
 
     // Calendar & Holidays (all authenticated users can view)

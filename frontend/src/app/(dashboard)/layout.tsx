@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from "@/store/auth";
@@ -8,7 +8,7 @@ import { useThemeStore } from "@/store/theme";
 import {
   LogOut, Menu, X, ChevronRight, Home, ChevronDown,
   LayoutDashboard, CalendarCheck, Briefcase, UserCircle,
-  Users, ShieldCheck, PanelLeftClose, PanelLeftOpen,
+  Users, ShieldCheck, PanelLeftClose, PanelLeftOpen, Wallet,
   FolderKanban, CheckSquare, Clock, Building2, HeartHandshake, HelpCircle,
   Search, Rocket, Bell, Settings, Puzzle, Laptop, StickyNote, MessageSquare
 } from "lucide-react";
@@ -45,6 +45,7 @@ type NavGroup = {
   shortLabel?: string;
   icon: React.ElementType;
   roles?: string[];   // if set, only these roles see the group
+  feature?: string;   // if set, hidden unless this module is switched on (GET /features)
   items: NavItem[];
 };
 
@@ -178,6 +179,19 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
+    id: "accounts",
+    label: "Accounts",
+    shortLabel: "Accounts",
+    icon: Wallet,
+    roles: ["Accounts", "Super Admin"],
+    feature: "accounts",
+    items: [
+      { href: "/accounts",         label: "Projects & Payments" },
+      { href: "/accounts/targets", label: "Sales Targets" },
+      { href: "/accounts/amc",     label: "AMC List" },
+    ],
+  },
+  {
     id: "admin",
     label: "Administration",
     shortLabel: "Admin",
@@ -271,6 +285,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [pendingLeavesCount, setPendingLeavesCount] = useState(0);
   const [pendingWfhCount, setPendingWfhCount] = useState(0);
   const [userPermissions, setUserPermissions] = useState<Record<string, boolean>>({});
+  const [features, setFeatures] = useState<Record<string, boolean>>({});
+  const navGroups = useMemo(() => NAV_GROUPS.filter((g) => !g.feature || features[g.feature]), [features]);
   const flyoutTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -280,6 +296,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           setUserPermissions(res.permissions || {});
         })
         .catch((err) => console.warn("Failed to fetch user permissions in layout", err));
+    }
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      // Optional modules stay hidden unless switched on; a failure just keeps them hidden.
+      api.get("/features").then((res) => setFeatures(res.data || {})).catch(() => {});
     }
   }, [isAuthenticated]);
 
@@ -352,7 +375,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   // Determine which group should start open based on current path
   useEffect(() => {
-    const active = NAV_GROUPS.find((g) => pathBelongsToGroup(g, pathname));
+    const active = navGroups.find((g) => pathBelongsToGroup(g, pathname));
     if (active) setOpenGroup(active.id);
   }, [pathname]);
 
@@ -475,7 +498,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (flyoutTimeoutRef.current) clearTimeout(flyoutTimeoutRef.current);
     const rect = e.currentTarget.getBoundingClientRect();
     const windowH = typeof window !== "undefined" ? window.innerHeight : 800;
-    const groupObj = NAV_GROUPS.find((g) => g.id === groupId);
+    const groupObj = navGroups.find((g) => g.id === groupId);
     const visibleCount = groupObj ? groupObj.items.filter((i) => isItemVisible(i, userRole, userPermissions)).length : 8;
     const estHeight = 40 + (visibleCount * 36) + 16;
     const maxTop = Math.max(10, windowH - estHeight - 20);
@@ -500,7 +523,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   };
 
   // Resolve currently open flyout group definition
-  const activeFlyoutGroupObj = flyoutState ? NAV_GROUPS.find((g) => g.id === flyoutState.groupId) : null;
+  const activeFlyoutGroupObj = flyoutState ? navGroups.find((g) => g.id === flyoutState.groupId) : null;
   const activeFlyoutVisibleItems = activeFlyoutGroupObj ? activeFlyoutGroupObj.items.filter((i) => isItemVisible(i, userRole, userPermissions)) : [];
 
 
@@ -625,7 +648,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 })}
 
                 {/* Nav Groups */}
-                {NAV_GROUPS.map((group) => {
+                {navGroups.map((group) => {
                   if (!groupHasVisibleItems(group, userRole, userPermissions)) return null;
                   const groupActive = pathBelongsToGroup(group, pathname, currentTab);
                   const isFlyoutOpen = flyoutState?.groupId === group.id;
@@ -846,7 +869,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </div>
 
               {/* Nav Groups */}
-              {NAV_GROUPS.map((group) => {
+              {navGroups.map((group) => {
                 if (!groupHasVisibleItems(group, userRole, userPermissions)) return null;
                 const visibleItems = group.items.filter((item) => isItemVisible(item, userRole, userPermissions));
                 const isOpen = openGroup === group.id;
@@ -1288,7 +1311,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 )}
               </button>
 
-              {NAV_GROUPS.map((group) => {
+              {navGroups.map((group) => {
                 if (!groupHasVisibleItems(group, userRole, userPermissions)) return null;
                 const visibleItems = group.items.filter((item) => isItemVisible(item, userRole, userPermissions));
                 const GroupIcon = group.icon;
