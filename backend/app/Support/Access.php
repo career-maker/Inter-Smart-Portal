@@ -24,6 +24,18 @@ class Access
             && ($user->hasAnyRole(['Super Admin', 'Accounts']) || self::inTeam($user, 'accounts'));
     }
 
+    public static function sales(?User $user): bool
+    {
+        return $user !== null && ($user->hasRole('Super Admin') || self::inTeam($user, 'sales'));
+    }
+
+    /** Super Admin and the lead of a Sales team see every salesperson's records; others see their own. */
+    public static function salesSeesAll(User $user): bool
+    {
+        return $user->hasRole('Super Admin')
+            || \App\Models\Team::where('team_lead_id', $user->id)->where('name', 'like', 'sales%')->exists();
+    }
+
     /** Members of departments whose name starts with any of the given words (e.g. "PMO 1", "PMO 2"). */
     public static function teamMembers(array $teamNameStarts)
     {

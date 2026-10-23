@@ -8,7 +8,7 @@ import { useThemeStore } from "@/store/theme";
 import {
   LogOut, Menu, X, ChevronRight, Home, ChevronDown,
   LayoutDashboard, CalendarCheck, Briefcase, UserCircle,
-  Users, ShieldCheck, PanelLeftClose, PanelLeftOpen, Wallet,
+  Users, ShieldCheck, PanelLeftClose, PanelLeftOpen, Wallet, TrendingUp,
   FolderKanban, CheckSquare, Clock, Building2, HeartHandshake, HelpCircle,
   Search, Rocket, Bell, Settings, Puzzle, Laptop, StickyNote, MessageSquare
 } from "lucide-react";
@@ -176,6 +176,19 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: "/notifications",  label: "Notifications" },
       { href: "/issues",         label: "Raise an Issue" },
+    ],
+  },
+  {
+    id: "sales",
+    label: "Sales",
+    shortLabel: "Sales",
+    icon: TrendingUp,
+    feature: "sales", // per-person: GET /features is true only for Super Admin / Sales team
+    items: [
+      { href: "/sales",          label: "Dashboard" },
+      { href: "/sales/leads",    label: "Leads" },
+      { href: "/sales/inbox",    label: "Inbox" },
+      { href: "/sales/projects", label: "Projects" },
     ],
   },
   {

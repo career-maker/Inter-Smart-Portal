@@ -32,6 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
             'feature' => \App\Http\Middleware\EnsureFeatureEnabled::class,
             'accounts.access' => \App\Http\Middleware\EnsureAccountsAccess::class,
+            'sales.access' => \App\Http\Middleware\EnsureSalesAccess::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

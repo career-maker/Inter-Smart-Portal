@@ -477,6 +477,25 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::post('amc', [$amc, 'store']);
         Route::put('amc/{amc}', [$amc, 'update']);
     });
+
+    // Sales module (Phase 2): hidden (404) until module.sales.enabled is switched on.
+    Route::prefix('sales')->middleware(['feature:sales', 'sales.access'])->group(function () {
+        Route::get('dashboard', [\App\Http\Controllers\Api\Sales\SalesDashboardController::class, 'index']);
+
+        $leads = \App\Http\Controllers\Api\Sales\LeadController::class;
+        Route::get('leads', [$leads, 'index']);
+        Route::post('leads', [$leads, 'store']);
+        Route::put('leads/{lead}', [$leads, 'update']);
+        Route::delete('leads/{lead}', [$leads, 'destroy']);
+        Route::post('leads/{lead}/activities', [$leads, 'addActivity']);
+        Route::get('inbox', [$leads, 'inbox']);
+        Route::put('activities/{activity}', [$leads, 'updateActivity']);
+
+        $projects = \App\Http\Controllers\Api\Sales\SalesProjectController::class;
+        Route::get('projects', [$projects, 'index']);
+        Route::post('projects', [$projects, 'store']);
+        Route::post('projects/{project}/status', [$projects, 'setStatus']);
+    });
     Route::get('activities', [\App\Http\Controllers\Api\DashboardController::class, 'activities']);
 
     // Calendar & Holidays (all authenticated users can view)
