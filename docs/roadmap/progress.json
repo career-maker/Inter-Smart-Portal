@@ -131,6 +131,11 @@
       "note": "Found a bug on live (errors every 5 minutes); fixed and released. Please confirm the dashboard shows alerts and recent activity"
     },
     {
+      "task": "Walk through every test workflow with a real browser (self-test)",
+      "status": "In progress",
+      "note": "Claude ran all 40 steps on a local copy: 36 passed first time; the 4 failures (unclear error text, Accounts could not list salespeople, a test selector) are fixed and live. A full re-run is waiting for free memory"
+    },
+    {
       "task": "Test copy of live system (staging)",
       "status": "Needs approval",
       "note": "Needs a new sub-domain, web address (DNS) and certificate on your hosting account"
@@ -152,15 +157,15 @@
     }
   ],
   "done_this_update": [
-    "Built and released the Project Office: project list, coordinator assignment and acceptance, department budgets, hold reasons, payment and budget locks with overrides, business analysis, resources, out-of-scope approvals",
-    "The whole chain now works: Sales creates a project, Accounts approves the advance, the PMO assigns a coordinator and opens the work tabs",
-    "Fixed the Accounts side popup and label spacing; checked all screens in a real browser on a test copy",
-    "10 more tests; 194 in total, no new failures"
+    "Ran the whole test script myself in a real browser on a local copy: 36 of 40 steps passed; the full lead-to-project chain passed",
+    "Fixed what it found: clear error messages when an action is refused, and the Accounts team can now pick salespeople when setting targets",
+    "Fixes released to the live system with a backup first; site checked before and after",
+    "Saved the browser test in the project so it can be re-run after every change"
   ],
   "next": [
-    "Project managers, coordinators, Sales and Accounts: run one real project through the chain and report what is missing or off",
-    "Confirm who the project managers are (assumption above)",
-    "Phase 4: UI / UX / Dev workflow (pages and sections, sprints, effort approval, QA hand-off)",
+    "Re-run the full browser test when the PC has free memory (it was stopped once for low memory)",
+    "Project managers, coordinators, Sales and Accounts: run one real project through the chain",
+    "Phase 4: UI / UX / Dev workflow",
     "Staging copy and load test (needs your approval)"
   ],
   "capacity_answer": "The database will not break with 100+ users working at once. The live server is strong (24 processors, 40 GB memory). Improvements planned in Phase 0 (lighter background checks, rate limits, caching) give comfortable room for 150 to 300 users at the same time. A load test will confirm the exact number.",
@@ -209,6 +214,10 @@
     "Go-live: pilot team first, or everyone at once?"
   ],
   "changelog": [
+    {
+      "date": "23 Oct 2026 (night)",
+      "text": "Self-test of all workflows run; 4 issues found and fixed; fixes released."
+    },
     {
       "date": "23 Oct 2026 (night)",
       "text": "Project Office built, installed and switched on for the PMO teams."
