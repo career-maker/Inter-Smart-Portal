@@ -5,14 +5,14 @@ _Last updated: 2026-10-23_
 ## Goal
 Manager asked to implement the features in `SOURCE_Internal_software_plan.xlsx` (Sales, Accounts, PMO, PC, TLs, resources, QA, HR workflow) in the portal, and asked whether 100+ simultaneous users would break the DB or cause performance/security issues. Existing modules must not break.
 
-## Status: PHASE 0 IN PROGRESS (about 55% of Phase 0, 4% overall)
+## Status: PHASE 0 IN PROGRESS (about 65% of Phase 0, 5% overall). Live server and GitHub `main` are at `4307a9e` (+ later docs-only commits).
 Follow `EXECUTION_PLAN.md`: finish Phase 0, then Accounts, then Sales.
 
 ### Manager progress PDF (update after every phase/change)
 Edit `docs/roadmap/progress.json` (phase status/percent, tasks, done list, changelog, `updated` date), then run
 `python docs/roadmap/make_progress_pdf.py` (needs `pip install reportlab`). It writes `docs/roadmap/Progress Report.pdf` and copies it to `D:\downloads`. Share that PDF with the manager.
 
-### Phase 0 results so far (2026-10-23)
+### Phase 0 results so far (2026-10-23). Deployed to live with backup `~/safety_backup_2026-10-23_2035` and verified: ping 200, fake login 401, throttle returns 429 after 10 tries; GitHub 'Backend tests' run passed.
 - DONE: live backup taken; live schema saved as `backend/database/schema/mysql-schema.sql` (fresh MySQL DBs now build from it because the old migrations break on MySQL at `2026_06_29_083830`); feature switch (`App\Support\Feature`, middleware `feature:<module>`, setting `module.<name>.enabled`); login throttle per email+IP (10/min, not IP only because the office shares one IP); GitHub Actions `.github/workflows/backend-tests.yml` fails only on NEW test failures vs `backend/tests/known-failures.txt`; live debug off.
 - Test baseline: 159 tests, 119 pass, 40 already failing (listed in `known-failures.txt`; mostly ProcessBiometricEvents 23, BiometricReconciliation 4, LeaveRequest 3, ProjectAuthorization 3, ProjectTask 3 and a few singles).
 - TODO: staging copy + restore test, branch protection (GitHub admin), smoke tests for WFH/TA/Hubstaff/BugSmart/chat/hall/issues, token expiry + general rate limits + cache/sessions off DB (careful not to log everyone out), load test 150 users, review 40 old failing tests.

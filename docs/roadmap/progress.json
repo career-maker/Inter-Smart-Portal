@@ -1,7 +1,7 @@
 {
   "updated": "23 Oct 2026",
-  "headline": "Phase 0 (safety net) is under way. Nothing new has been released to users yet, and all existing modules are working normally.",
-  "overall_percent": 4,
+  "headline": "Phase 0 (safety net) is about 65% done and the first safety features are now live. All existing modules are working normally.",
+  "overall_percent": 5,
   "live_health": [
     "Website and login: working",
     "Database: working (backup taken before every live change)",
@@ -9,58 +9,163 @@
     "Debug mode on the live server switched off (security improvement)"
   ],
   "phases": [
-    {"n": "0", "name": "Safety net + hardening", "weeks": "2", "status": "In progress", "percent": 55,
-     "delivers": "Backups, test environment, automatic checks, on/off switches for new modules, security fixes"},
-    {"n": "1", "name": "Accounts module", "weeks": "3", "status": "Not started", "percent": 0,
-     "delivers": "Payment approval, advance/pending payments, budget increase, targets, AMC list"},
-    {"n": "2", "name": "Sales module", "weeks": "4", "status": "Not started", "percent": 0,
-     "delivers": "Leads, project creation, sales inbox, meeting requests, sales dashboard"},
-    {"n": "3", "name": "Project Manager + Coordinator core", "weeks": "5", "status": "Not started", "percent": 0,
-     "delivers": "Accept project, department budgets, project tabs with payment lock, out-of-scope approval"},
-    {"n": "4", "name": "UI / UX / Dev workflow", "weeks": "5", "status": "Not started", "percent": 0,
-     "delivers": "Pages and sections, sprints, effort approval, QA hand-off, corrections with budget"},
-    {"n": "5", "name": "Team Lead + resource screens", "weeks": "3", "status": "Not started", "percent": 0,
-     "delivers": "Task inbox with priorities, team list, feedback, ratings"},
-    {"n": "6", "name": "Dashboards + feedback", "weeks": "3", "status": "Not started", "percent": 0,
-     "delivers": "Dashboards for every role, monthly customer feedback, appreciation approval"},
-    {"n": "7", "name": "HR performance + go-live", "weeks": "2", "status": "Not started", "percent": 0,
-     "delivers": "HR performance views, full testing, load test, rollout"}
+    {
+      "n": "0",
+      "name": "Safety net + hardening",
+      "weeks": "2",
+      "status": "In progress",
+      "percent": 65,
+      "delivers": "Backups, test environment, automatic checks, on/off switches for new modules, security fixes"
+    },
+    {
+      "n": "1",
+      "name": "Accounts module",
+      "weeks": "3",
+      "status": "Not started",
+      "percent": 0,
+      "delivers": "Payment approval, advance/pending payments, budget increase, targets, AMC list"
+    },
+    {
+      "n": "2",
+      "name": "Sales module",
+      "weeks": "4",
+      "status": "Not started",
+      "percent": 0,
+      "delivers": "Leads, project creation, sales inbox, meeting requests, sales dashboard"
+    },
+    {
+      "n": "3",
+      "name": "Project Manager + Coordinator core",
+      "weeks": "5",
+      "status": "Not started",
+      "percent": 0,
+      "delivers": "Accept project, department budgets, project tabs with payment lock, out-of-scope approval"
+    },
+    {
+      "n": "4",
+      "name": "UI / UX / Dev workflow",
+      "weeks": "5",
+      "status": "Not started",
+      "percent": 0,
+      "delivers": "Pages and sections, sprints, effort approval, QA hand-off, corrections with budget"
+    },
+    {
+      "n": "5",
+      "name": "Team Lead + resource screens",
+      "weeks": "3",
+      "status": "Not started",
+      "percent": 0,
+      "delivers": "Task inbox with priorities, team list, feedback, ratings"
+    },
+    {
+      "n": "6",
+      "name": "Dashboards + feedback",
+      "weeks": "3",
+      "status": "Not started",
+      "percent": 0,
+      "delivers": "Dashboards for every role, monthly customer feedback, appreciation approval"
+    },
+    {
+      "n": "7",
+      "name": "HR performance + go-live",
+      "weeks": "2",
+      "status": "Not started",
+      "percent": 0,
+      "delivers": "HR performance views, full testing, load test, rollout"
+    }
   ],
   "phase0_tasks": [
-    {"task": "Take a live database backup before any change", "status": "Done", "note": "Backup taken 23 Oct; restore test still to do"},
-    {"task": "Local test database that matches the live system", "status": "Done", "note": "Live structure saved as a reusable file; new test environments can now be built in minutes"},
-    {"task": "On/off switch for each new module", "status": "Done", "note": "New modules stay hidden until switched on; tested"},
-    {"task": "Login protection against repeated wrong passwords", "status": "Done", "note": "Limits guessing per user without locking out the whole office; tested"},
-    {"task": "Automatic test check on every code change", "status": "Done", "note": "Starts running on the next code push; blocks new failures only"},
-    {"task": "Live server debug mode off", "status": "Done", "note": "Done 23 Oct with backup and checks"},
-    {"task": "Record current test health", "status": "Done", "note": "159 tests: 119 pass, 40 were already failing; list saved so new breakage is caught"},
-    {"task": "Test copy of live system (staging)", "status": "Not started", "note": "Needs a second database and sub-domain on the server"},
-    {"task": "Protect the main branch on GitHub (review required)", "status": "Not started", "note": "Needs GitHub admin settings"},
-    {"task": "Tests for modules that have none (WFH, TA, Hubstaff, bug tracker, chat, hall, issues)", "status": "Not started", "note": "Planned next"},
-    {"task": "Faster, safer sessions and cache; login token expiry; general rate limits", "status": "Not started", "note": "Changes need care so nobody is logged out suddenly"},
-    {"task": "Load test with 150 simulated users", "status": "Not started", "note": "Gives the manager a real number for the capacity question"}
+    {
+      "task": "Take a live database backup before any change",
+      "status": "Done",
+      "note": "Backup taken 23 Oct; restore test still to do"
+    },
+    {
+      "task": "Local test database that matches the live system",
+      "status": "Done",
+      "note": "Live structure saved as a reusable file; new test environments can now be built in minutes"
+    },
+    {
+      "task": "On/off switch for each new module",
+      "status": "Done",
+      "note": "Live since 23 Oct. New modules stay hidden until switched on; tested"
+    },
+    {
+      "task": "Login protection against repeated wrong passwords",
+      "status": "Done",
+      "note": "Live since 23 Oct; confirmed on the live site (blocks after 10 wrong tries for one user, others unaffected)"
+    },
+    {
+      "task": "Automatic test check on every code change",
+      "status": "Done",
+      "note": "Running on GitHub; first run passed. Blocks new failures only"
+    },
+    {
+      "task": "Live server debug mode off",
+      "status": "Done",
+      "note": "Done 23 Oct with backup and checks"
+    },
+    {
+      "task": "Record current test health",
+      "status": "Done",
+      "note": "159 tests: 119 pass, 40 were already failing; list saved so new breakage is caught"
+    },
+    {
+      "task": "Test copy of live system (staging)",
+      "status": "Not started",
+      "note": "Needs a second database and sub-domain on the server"
+    },
+    {
+      "task": "Protect the main branch on GitHub (review required)",
+      "status": "Not started",
+      "note": "Needs GitHub admin settings"
+    },
+    {
+      "task": "Tests for modules that have none (WFH, TA, Hubstaff, bug tracker, chat, hall, issues)",
+      "status": "Not started",
+      "note": "Planned next"
+    },
+    {
+      "task": "Faster, safer sessions and cache; login token expiry; general rate limits",
+      "status": "Not started",
+      "note": "Changes need care so nobody is logged out suddenly"
+    },
+    {
+      "task": "Load test with 150 simulated users",
+      "status": "Not started",
+      "note": "Gives the manager a real number for the capacity question"
+    }
   ],
   "done_this_update": [
-    "Confirmed the real live setup (MySQL database, live code folder) and corrected our documents",
-    "Fixed a bug on live: bug-tracker search used a command the live database does not support",
-    "Updated the login page heading to 'Welcome Back! Let's Get Started' and fixed an overlap",
-    "Switched off debug mode on the live server (it was exposing technical details on errors)",
-    "Moved leftover files out of the live folder, including one public file with employee punch data",
-    "Built the on/off switch for new modules and the login protection, both tested",
-    "Set up automatic test checks and recorded the current test baseline"
+    "Released the safety features to the live site: module on/off switch and login protection (verified live, no downtime)",
+    "Automatic test checks now run on GitHub for every change; first run passed",
+    "Took a fresh live database backup before the release",
+    "Earlier today: fixed bug-tracker search on live, turned off debug mode, cleaned leftover files, updated login heading"
   ],
   "next": [
     "Create the staging (test) copy of the live system and restore a backup there",
     "Add tests for modules that have none",
-    "Review the 40 older failing tests and fix the important ones",
+    "Safer sessions/cache and login token expiry, then a 150-user load test",
     "Then start Phase 1: Accounts module"
   ],
   "capacity_answer": "The database will not break with 100+ users working at once. The live server is strong (24 processors, 40 GB memory). Improvements planned in Phase 0 (lighter background checks, rate limits, caching) give comfortable room for 150 to 300 users at the same time. A load test will confirm the exact number.",
   "risks": [
-    {"risk": "Sessions and cache are stored in the database, adding load per page", "action": "Move to faster storage in Phase 0"},
-    {"risk": "Only login has rate limiting so far", "action": "Add limits for uploads and general use"},
-    {"risk": "40 older automated tests already fail", "action": "Fix important ones; new failures are blocked meanwhile"},
-    {"risk": "An old unused copy of the app is on the server and could be mistaken for the live one", "action": "Archive after owner approval"}
+    {
+      "risk": "Sessions and cache are stored in the database, adding load per page",
+      "action": "Move to faster storage in Phase 0"
+    },
+    {
+      "risk": "Only login has rate limiting so far",
+      "action": "Add limits for uploads and general use"
+    },
+    {
+      "risk": "40 older automated tests already fail",
+      "action": "Fix important ones; new failures are blocked meanwhile"
+    },
+    {
+      "risk": "An old unused copy of the app is on the server and could be mistaken for the live one",
+      "action": "Archive after owner approval"
+    }
   ],
   "decisions": [
     "Send the Sales document fields (needed for Phase 2)",
@@ -74,6 +179,13 @@
     "Go-live: pilot team first, or everyone at once?"
   ],
   "changelog": [
-    {"date": "23 Oct 2026", "text": "Plan approved. Phase 0 started. Live debug mode off, live code updated, switch + login protection + automatic checks built."}
+    {
+      "date": "23 Oct 2026 (evening)",
+      "text": "Safety features (module switch, login protection) released to live and verified. Automatic checks active on GitHub."
+    },
+    {
+      "date": "23 Oct 2026",
+      "text": "Plan approved. Phase 0 started. Live debug mode off, live code updated, switch + login protection + automatic checks built."
+    }
   ]
 }
