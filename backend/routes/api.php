@@ -536,6 +536,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::post('changes/{change}/progress', [$ch, 'progress']);
 
         Route::get('dashboard', \App\Http\Controllers\Api\Work\WorkDashboardController::class);
+        Route::get('go-live', [\App\Http\Controllers\Api\Pmo\GoLiveController::class, 'queue']);
         $ib = \App\Http\Controllers\Api\Work\InboxController::class;
         Route::get('inbox', [$ib, 'inbox']);
         Route::get('team', [$ib, 'team']);
@@ -572,6 +573,16 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::post('projects/{project}/out-of-scope', [$work, 'requestOutOfScope']);
         Route::get('out-of-scope', [$work, 'outOfScopeQueue']);
         Route::post('out-of-scope/{oos}/decide', [$work, 'decideOutOfScope']);
+
+        $gl = \App\Http\Controllers\Api\Pmo\GoLiveController::class;
+        Route::post('projects/{project}/payment-request', [$gl, 'requestPayment']);
+        Route::post('projects/{project}/go-live', [$gl, 'requestServer']);
+    });
+    // The system admin team is not part of the Project Office, so its go-live steps sit outside the pmo.access check (the controller checks the team).
+    Route::prefix('pmo')->middleware(['feature:pmo'])->group(function () {
+        $gl = \App\Http\Controllers\Api\Pmo\GoLiveController::class;
+        Route::get('projects/{project}/go-live', [$gl, 'show']);
+        Route::post('projects/{project}/go-live/handle', [$gl, 'handle']);
     });
     Route::get('activities', [\App\Http\Controllers\Api\DashboardController::class, 'activities']);
 

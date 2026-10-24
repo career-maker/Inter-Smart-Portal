@@ -201,6 +201,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/work/inbox", label: "My inbox" },
       { href: "/work", label: "My projects" },
       { href: "/work/team", label: "My team" },
+      { href: "/work/go-live", label: "Go-live requests" },
       { href: "/work/qa", label: "QA queue" },
     ],
   },

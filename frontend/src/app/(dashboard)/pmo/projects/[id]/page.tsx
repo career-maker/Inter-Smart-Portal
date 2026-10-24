@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Handover from "@/components/work/Handover";
 
 const money = (n: number | string) => Number(n || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 });
 const errMsg = (e: any) => e?.response?.data?.message || "Something went wrong. Please try again.";
@@ -107,6 +108,7 @@ function Overview({ d, meta, run, id }: any) {
 
   return (
     <div className="space-y-4">
+      <Handover projectId={id} />
       {intake && (
         <Card><CardHeader className="pb-0"><CardTitle className="text-base">Project details from Sales</CardTitle></CardHeader>
           <CardContent className="grid sm:grid-cols-4 gap-3 text-sm pt-3">
