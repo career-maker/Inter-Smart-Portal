@@ -188,9 +188,13 @@ class PmoProjectController extends Controller
 
         $total = collect($data['allocations'])->sum('amount');
         $contract = (float) (ProjectFinance::where('project_id', $project->id)->value('contract_value') ?? 0);
-        $over = $total > $contract;
+        // Sales may set a max budget cap on the project; the managers' manual split is held to it, else to the contract value.
+        $cap = \App\Models\ProjectIntake::where('project_id', $project->id)->value('budget_cap');
+        $limit = $cap !== null ? (float) $cap : $contract;
+        $what = $cap !== null ? 'the maximum budget cap set by Sales' : 'the contract value';
+        $over = $total > $limit;
         if ($over && empty($data['allow_over_contract'])) {
-            $msg = 'Allocated ' . number_format($total, 2) . ' is more than the contract value ' . number_format($contract, 2) . '.';
+            $msg = 'Allocated ' . number_format($total, 2) . " is more than {$what} " . number_format($limit, 2) . '.';
 
             return response()->json(['message' => $msg . ' Confirm to go over.', 'errors' => ['allocations' => [$msg]], 'over_contract' => true], 422);
         }

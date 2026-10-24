@@ -22,7 +22,7 @@ const STATE_COLOR: Record<string, string> = {
 };
 const money = (n: number | string) => Number(n || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 });
 const errMsg = (e: any) => e?.response?.data?.message || "Something went wrong. Please try again.";
-const EMPTY = { name: "", client_name: "", client_email: "", client_phone: "", site_category: "CMS", cms_variant: "", platform: "WordPress", pages_count: "", quality_level: "Standard", budget: "", overview: "", lead_id: "" };
+const EMPTY = { name: "", client_name: "", client_email: "", client_phone: "", site_category: "CMS", cms_variant: "", platform: "WordPress", pages_count: "", quality_level: "Standard", budget: "", budget_cap: "", overview: "", lead_id: "" };
 
 export default function SalesProjectsPage() {
   const [rows, setRows] = useState<any[]>([]);
@@ -44,7 +44,7 @@ export default function SalesProjectsPage() {
     setBusy(true);
     try {
       await api.post("/sales/projects", {
-        ...form, budget: Number(form.budget), pages_count: form.pages_count ? Number(form.pages_count) : null,
+        ...form, budget: Number(form.budget), budget_cap: form.budget_cap === "" ? null : Number(form.budget_cap), pages_count: form.pages_count ? Number(form.pages_count) : null,
         cms_variant: form.cms_variant || null, lead_id: form.lead_id ? Number(form.lead_id) : null,
         client_email: form.client_email || null, client_phone: form.client_phone || null, overview: form.overview || null,
       });
@@ -89,6 +89,7 @@ export default function SalesProjectsPage() {
             <div><Label>Client email</Label><Input value={form.client_email} onChange={(e) => setForm({ ...form, client_email: e.target.value })} /></div>
             <div><Label>Client phone</Label><Input value={form.client_phone} onChange={(e) => setForm({ ...form, client_phone: e.target.value })} /></div>
             <div><Label>Budget</Label><Input type="number" min="0" value={form.budget} onChange={(e) => setForm({ ...form, budget: e.target.value })} /></div>
+            <div><Label>Max budget cap (optional)</Label><Input type="number" min="0" value={form.budget_cap} onChange={(e) => setForm({ ...form, budget_cap: e.target.value })} /><p className="text-xs text-slate-500 mt-1">Project managers split the budget by hand and cannot go above this.</p></div>
             <div><Label>Type</Label>
               <select className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={form.site_category} onChange={(e) => setForm({ ...form, site_category: e.target.value, platform: PLATFORMS[e.target.value][0], cms_variant: "" })}>
                 {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
