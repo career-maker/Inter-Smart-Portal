@@ -535,6 +535,12 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::post('changes/{change}/assign', [$ch, 'assign']);
         Route::post('changes/{change}/progress', [$ch, 'progress']);
 
+        Route::get('dashboard', \App\Http\Controllers\Api\Work\WorkDashboardController::class);
+        $ib = \App\Http\Controllers\Api\Work\InboxController::class;
+        Route::get('inbox', [$ib, 'inbox']);
+        Route::get('team', [$ib, 'team']);
+        Route::post('team/{member}/feedback', [$ib, 'feedback']);
+
         $qa = \App\Http\Controllers\Api\Work\QaController::class;
         Route::get('qa/queue', [$qa, 'queue']);
         Route::get('projects/{project}/qa', [$qa, 'forProject']);

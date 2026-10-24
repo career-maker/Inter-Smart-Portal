@@ -198,7 +198,9 @@ const NAV_GROUPS: NavGroup[] = [
     icon: Layers,
     feature: "workflow", // per-person: GET /features is true only for people with a project on their work list
     items: [
+      { href: "/work/inbox", label: "My inbox" },
       { href: "/work", label: "My projects" },
+      { href: "/work/team", label: "My team" },
       { href: "/work/qa", label: "QA queue" },
     ],
   },
