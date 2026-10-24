@@ -74,7 +74,9 @@
     "Leads and follow-up inbox",
     "Create a project from the sales form",
     "Projects with payment state and progress",
-    "Sales dashboard"
+    "Sales dashboard",
+    "Full project sheet (project, client, scope, in-house) with dropdowns",
+    "Maximum budget cap (built, not yet released)"
    ]
   },
   {
@@ -85,7 +87,8 @@
     "Assign coordinator, department budgets",
     "Hold with a reason, out-of-scope approval",
     "Payment and budget locks with overrides",
-    "Business analysis and client resources"
+    "Business analysis and client resources",
+    "Sees the Sales sheet answers; manual department split with a reason for any increase (built, not yet released)"
    ]
   },
   {

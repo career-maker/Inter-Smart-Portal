@@ -157,15 +157,14 @@
   }
  ],
  "done_this_update": [
-  "Built corrections and changes with effort, cost and budget approval",
-  "Built the resource inbox, team lead to-do list, team list and monthly feedback (four fixed questions)",
-  "Built dashboard tiles on My Work for managers, coordinators, team leads and QA",
-  "Built payment request to Accounts and the server and go-live hand-over for the system admin team",
-  "Fixed the stale-screen bug that kept the QA review panel on Open after taking it",
+  "Sales form now has the whole Sales Team Documentation sheet: Project info, Client info, Project scope and In-house, with the sheet's own dropdowns",
+  "Sales can set a maximum budget cap; it replaces the contract value as the limit for the managers' manual department split",
+  "Project managers keep full access: going over the limit or raising a set budget needs a written reason (audited, Super Admin told when over)",
+  "The Project Office sees what Sales promised in a new \"Sales sheet\" card; the server accepts only the sheet's allowed answers",
   "Nothing was tested or released in this update, by the owner's instruction"
  ],
  "next": [
-  "Finish the remaining modules (HR performance views, appreciation, meetings) once the manager answers",
+  "Remaining pieces from the manager's sheet (HR performance views, appreciation, meetings) once the manager answers",
   "Then one full test of everything: backend suite, whole browser run, fix what fails",
   "Then merge, back up and release to the live server in one controlled step",
   "Manager's answers (formula, ratings, customer feedback, meetings) and your approvals (staging, GitHub review rule)"
