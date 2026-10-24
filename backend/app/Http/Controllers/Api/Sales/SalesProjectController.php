@@ -84,6 +84,10 @@ class SalesProjectController extends Controller
             return response()->json(['message' => 'Number of pages is required for a copy of another website.', 'errors' => ['pages_count' => ['Number of pages is required for a copy of another website.']]], 422);
         }
 
+        if ($problem = \App\Support\SalesSheet::problem($data['details'] ?? [])) {
+            return response()->json(['message' => $problem, 'errors' => ['details' => [$problem]]], 422);
+        }
+
         $user = $request->user();
         $lead = isset($data['lead_id']) ? Lead::find($data['lead_id']) : null;
         if ($lead && ! Access::salesSeesAll($user) && $lead->owner_id !== $user->id) {

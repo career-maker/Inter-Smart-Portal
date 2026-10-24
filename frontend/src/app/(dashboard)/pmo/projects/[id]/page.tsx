@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ArrowLeft, Lock, Loader2 } from "lucide-react";
 import api from "@/services/api";
+import { SALES_SHEET } from "@/lib/salesSheet";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -116,6 +117,21 @@ function Overview({ d, meta, run, id }: any) {
               <div key={k as string}><div className="text-xs text-slate-500">{k}</div><div className="font-medium break-words">{v}</div></div>
             ))}
             {intake.overview && <div className="sm:col-span-4"><div className="text-xs text-slate-500">Scope</div><div>{intake.overview}</div></div>}
+          </CardContent></Card>
+      )}
+      {intake?.details && Object.keys(intake.details).length > 0 && (
+        <Card><CardHeader className="pb-0"><CardTitle className="text-base">Sales sheet</CardTitle></CardHeader>
+          <CardContent className="pt-3 space-y-4 text-sm">
+            {SALES_SHEET.map((sec) => {
+              const filled = sec.fields.filter((f) => intake.details[f.key]);
+              return filled.length === 0 ? null : (
+                <div key={sec.title}><div className="font-semibold mb-1">{sec.title}</div>
+                  <div className="grid sm:grid-cols-3 gap-x-4 gap-y-2">
+                    {filled.map((f) => <div key={f.key}><div className="text-xs text-slate-500">{f.label}</div><div>{intake.details[f.key]}</div></div>)}
+                  </div>
+                </div>
+              );
+            })}
           </CardContent></Card>
       )}
 

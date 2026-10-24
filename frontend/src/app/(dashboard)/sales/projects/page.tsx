@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { FolderPlus } from "lucide-react";
 import api from "@/services/api";
+import { SALES_SHEET } from "@/lib/salesSheet";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -22,7 +23,7 @@ const STATE_COLOR: Record<string, string> = {
 };
 const money = (n: number | string) => Number(n || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 });
 const errMsg = (e: any) => e?.response?.data?.message || "Something went wrong. Please try again.";
-const EMPTY = { name: "", client_name: "", client_email: "", client_phone: "", site_category: "CMS", cms_variant: "", platform: "WordPress", pages_count: "", quality_level: "Standard", budget: "", budget_cap: "", overview: "", lead_id: "" };
+const EMPTY = { name: "", client_name: "", client_email: "", client_phone: "", site_category: "CMS", cms_variant: "", platform: "WordPress", pages_count: "", quality_level: "Standard", budget: "", budget_cap: "", overview: "", lead_id: "", details: {} as Record<string, string> };
 
 export default function SalesProjectsPage() {
   const [rows, setRows] = useState<any[]>([]);
@@ -46,6 +47,7 @@ export default function SalesProjectsPage() {
       await api.post("/sales/projects", {
         ...form, budget: Number(form.budget), budget_cap: form.budget_cap === "" ? null : Number(form.budget_cap), pages_count: form.pages_count ? Number(form.pages_count) : null,
         cms_variant: form.cms_variant || null, lead_id: form.lead_id ? Number(form.lead_id) : null,
+        details: Object.fromEntries(Object.entries(form.details).filter(([, v]) => v !== "")),
         client_email: form.client_email || null, client_phone: form.client_phone || null, overview: form.overview || null,
       });
       setForm(EMPTY);
@@ -110,6 +112,32 @@ export default function SalesProjectsPage() {
                 <option>Basic</option><option>Standard</option><option>Premium</option>
               </select></div>
             <div className="sm:col-span-4"><Label>Scope / overview</Label><Input value={form.overview} onChange={(e) => setForm({ ...form, overview: e.target.value })} /></div>
+            {SALES_SHEET.map((sec) => (
+              <div key={sec.title} className="sm:col-span-4 border-t pt-3 mt-2">
+                <div className="font-semibold text-slate-900 dark:text-white mb-2">{sec.title}</div>
+                <div className="grid sm:grid-cols-4 gap-2 items-end">
+                  {sec.fields.map((f) => {
+                    const v = form.details[f.key] ?? "";
+                    const set = (x: string) => setForm({ ...form, details: { ...form.details, [f.key]: x } });
+                    const wide = f.type === "textarea" ? "sm:col-span-4" : "";
+                    return (
+                      <div key={f.key} className={wide}><Label>{f.label}</Label>
+                        {f.type === "select" ? (
+                          <select className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={v} onChange={(e) => set(e.target.value)}>
+                            <option value="">-</option>{f.options!.map((o) => <option key={o}>{o}</option>)}
+                          </select>
+                        ) : f.type === "textarea" ? (
+                          <textarea className="w-full rounded-md border bg-transparent px-2 py-1 text-sm" rows={2} value={v} onChange={(e) => set(e.target.value)} />
+                        ) : (
+                          <Input type={f.type === "number" ? "number" : f.type === "date" ? "date" : "text"} value={v} onChange={(e) => set(e.target.value)} />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+            <p className="sm:col-span-4 text-xs text-slate-500">The salesperson is you (recorded automatically).</p>
             <Button disabled={busy || !form.name || !form.client_name || form.budget === ""} onClick={create}>Create project</Button>
             <p className="sm:col-span-3 text-xs text-slate-500">Accounts is told an advance payment is awaiting. You are told when it is approved.</p>
           </CardContent>

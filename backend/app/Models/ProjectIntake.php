@@ -8,4 +8,5 @@ class ProjectIntake extends Model
 {
     protected $table = 'project_intake';
     protected $guarded = [];
+    protected $casts = ['details' => 'array'];
 }
