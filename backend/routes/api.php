@@ -527,6 +527,14 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::post('sprints/{sprint}/schedule', [$sp, 'schedule']);
         Route::post('sprint-items/{item}/status', [$sp, 'itemStatus']);
 
+        $ch = \App\Http\Controllers\Api\Work\ChangeController::class;
+        Route::get('projects/{project}/changes', [$ch, 'index']);
+        Route::post('projects/{project}/changes', [$ch, 'store']);
+        Route::post('changes/{change}/estimate', [$ch, 'estimate']);
+        Route::post('changes/{change}/decision', [$ch, 'decide']);
+        Route::post('changes/{change}/assign', [$ch, 'assign']);
+        Route::post('changes/{change}/progress', [$ch, 'progress']);
+
         $qa = \App\Http\Controllers\Api\Work\QaController::class;
         Route::get('qa/queue', [$qa, 'queue']);
         Route::get('projects/{project}/qa', [$qa, 'forProject']);
