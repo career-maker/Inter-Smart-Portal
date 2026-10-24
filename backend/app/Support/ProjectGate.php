@@ -24,7 +24,7 @@ class ProjectGate
         'ui' => ['UI', true, true, true],
         'ux' => ['UX', true, true, true],
         'dev' => ['Dev', true, true, true],
-        'qa' => ['QA', true, true, false],
+        'qa' => ['QA', true, true, true],
         'bugs' => ['Bugs & changes', true, false, false],
         'budget' => ['Budget', false, false, true],
         'system_admin' => ['System admin', true, false, false],

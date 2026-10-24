@@ -526,6 +526,15 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::post('sprints/{sprint}/request-dates', [$sp, 'requestDates']);
         Route::post('sprints/{sprint}/schedule', [$sp, 'schedule']);
         Route::post('sprint-items/{item}/status', [$sp, 'itemStatus']);
+
+        $qa = \App\Http\Controllers\Api\Work\QaController::class;
+        Route::get('qa/queue', [$qa, 'queue']);
+        Route::get('projects/{project}/qa', [$qa, 'forProject']);
+        Route::get('qa/reviews/{review}', [$qa, 'show']);
+        Route::post('qa/reviews/{review}/take', [$qa, 'take']);
+        Route::post('qa/reviews/{review}/bugs', [$qa, 'addBug']);
+        Route::put('qa/bugs/{bug}', [$qa, 'updateBug']);
+        Route::post('qa/reviews/{review}/complete', [$qa, 'complete']);
     });
 
     // Project Office (Phase 3): hidden (404) until module.pmo.enabled is switched on.

@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Models\WorkSprint;
 use App\Support\Access;
 use App\Support\Notify;
+use App\Support\QaHandoff;
 use App\Support\WorkAccess;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -269,6 +270,9 @@ class SprintController extends Controller
 
         $sprint->refresh();
         $leads = User::whereIn('id', [Team::find($sprint->team_id)?->team_lead_id])->get();
+        if ($data['status'] === 'Completed' && $from !== 'Completed') {
+            QaHandoff::open($item, $user);
+        }
         if ($data['status'] === 'Completed') {
             Notify::users($leads, 'Task completed', "\"{$project->name}\": \"{$item->title}\" is completed and ready for review.", 'item_completed', $project->id, $user);
         }
@@ -277,6 +281,12 @@ class SprintController extends Controller
         }
         if ($sprint->status === 'Completed') {
             Notify::users(Access::pmoManagers()->merge(User::where('id', $project->project_coordinator_id)->get()), 'Sprint completed', "\"{$project->name}\": sprint \"{$sprint->title}\" is complete.", 'sprint_completed', $project->id, $user);
+            $planned = (float) $sprint->items()->sum('effort_days');
+            $spentAll = (float) $sprint->items()->sum('time_spent_days');
+            if ($spentAll > $planned) {
+                // Effort went over the plan: the project manager and management are told.
+                Notify::users(Access::pmoManagers()->merge(User::role('Super Admin')->get()), 'Sprint went over its effort', "\"{$project->name}\": sprint \"{$sprint->title}\" took {$spentAll} days against {$planned} planned.", 'sprint_over_effort', $project->id, $user);
+            }
         }
 
         return response()->json(['data' => $item->fresh(), 'sprint_status' => $sprint->status]);

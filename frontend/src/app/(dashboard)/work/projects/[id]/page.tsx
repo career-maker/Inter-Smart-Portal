@@ -6,9 +6,10 @@ import { useParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import UiPages from "@/components/work/UiPages";
 import Sprints from "@/components/work/Sprints";
+import QaReviews from "@/components/work/QaReviews";
 
 // Tabs are added here as each department's work screens are built.
-const TABS = [{ key: "ui", label: "UI pages" }, { key: "sprints", label: "UX / Dev sprints" }];
+const TABS = [{ key: "ui", label: "UI pages" }, { key: "sprints", label: "UX / Dev sprints" }, { key: "qa", label: "QA" }];
 
 export default function WorkProjectPage() {
   const id = useParams<{ id: string }>().id;
@@ -28,6 +29,7 @@ export default function WorkProjectPage() {
       </div>
       {tab === "ui" && <UiPages projectId={id} />}
       {tab === "sprints" && <Sprints projectId={id} />}
+      {tab === "qa" && <QaReviews projectId={id} />}
     </div>
   );
 }
