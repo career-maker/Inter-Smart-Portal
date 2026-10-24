@@ -91,6 +91,10 @@ api.interceptors.request.use((config) => {
 // Response interceptor for handling common errors and caching responses
 api.interceptors.response.use(
   (response) => {
+    // A slow GET already in flight can re-cache stale data after the request-time clear; clear again once a work mutation lands
+    if (typeof window !== 'undefined' && response.config.method?.toLowerCase() !== 'get' && response.config.url?.startsWith('/work/')) {
+      apiCache.clearPattern('/work/');
+    }
     // Cache successful GET responses only if safe and scoped
     if (typeof window !== 'undefined' && response.config.method?.toLowerCase() === 'get') {
       const token = localStorage.getItem('token');

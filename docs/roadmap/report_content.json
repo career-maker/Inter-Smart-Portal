@@ -1,0 +1,66 @@
+{
+  "_help": "Content for the Live Report page. Statuses: existing (the portal already had it), live (new, released), built (new, built and tested, release pending), pending (planned, nothing blocking), decision (waiting for the manager's answer). Update a line's status when its work ships, then run make_live_report.py.",
+  "existing_modules": [
+    {"group": "People and HR", "items": ["Employee records, profiles and photos", "Departments and teams", "Leave: casual and sick, carry-forward, two-step approval, policy rules", "Work from home requests", "Profile change approvals", "HR policies and document requests", "Emergency contacts", "Issues and complaints", "Recognitions, The Hall and birthday wishes"]},
+    {"group": "Time and attendance", "items": ["Attendance with check-in and check-out", "Biometric device sync", "Holidays and leave calendar", "Hubstaff time and activity", "Travel allowance (TA) with email approvals"]},
+    {"group": "Work and projects", "items": ["Projects, tasks and the task catalog", "BugSmart bug tracker and bug reports", "Team and role permissions", "Reports"]},
+    {"group": "Communication", "items": ["Direct chat and community feed", "Announcements", "Notifications", "Sticky notes"]},
+    {"group": "Administration", "items": ["Super Admin dashboard", "Audit logs", "Settings and customization", "Email and SMTP management", "Storage retention"]}
+  ],
+  "new_modules": [
+    {"name": "Accounts", "status": "live", "who": "Accounts team", "points": ["Payment state of every project", "Approve or reject advance and later payments", "Budget increase, hold or terminate", "Sales targets and the AMC list"]},
+    {"name": "Sales", "status": "live", "who": "Sales team", "points": ["Leads and follow-up inbox", "Create a project from the sales form", "Projects with payment state and progress", "Sales dashboard"]},
+    {"name": "Project Office", "status": "live", "who": "PMO managers and coordinators", "points": ["Assign coordinator, department budgets", "Hold with a reason, out-of-scope approval", "Payment and budget locks with overrides", "Business analysis and client resources"]},
+    {"name": "UI department work", "status": "live", "who": "Design team", "points": ["Pages and sections", "Page status chain with history", "Page budgets inside the design budget", "My Work list"]},
+    {"name": "UX and Dev sprints", "status": "built", "who": "UX and Dev teams", "points": ["Sprints with effort and cost", "Project manager approval against budget", "Dates requested by the coordinator", "Daily progress and effort alerts"]},
+    {"name": "QA hand-off", "status": "built", "who": "QA team", "points": ["Review opens when a task is completed", "Bug list with priority", "Pass or fail with up to three rounds", "Team lead verifies, overruns alert managers"]},
+    {"name": "Safety and hardening", "status": "live", "who": "Everyone", "points": ["Login protection and request limits", "Cache and sessions moved off the database", "Backups with a tested restore", "On/off switches and automatic checks"]}
+  ],
+  "coverage": [
+    {"role": "Sales", "lines": [
+      ["Lead list and follow-ups", "live"], ["Sales inbox (follow-up, proposal, meeting, other)", "live"], ["Create a project from the sales form", "live"],
+      ["'Payment approved' notice from Accounts", "live"], ["Projects list with progress %", "live"], ["Hold or terminate a project", "live"], ["Sales dashboard", "live"],
+      ["Leave, upcoming leaves, HR complaints", "existing"], ["Out-of-scope reply, 'action required', payment follow-up", "pending"],
+      ["Completed-project details (free support, AMC link)", "pending"], ["Customer feedback at any time", "decision"], ["Upcoming meetings", "decision"]]},
+    {"role": "Accounts", "lines": [
+      ["Project list by payment state", "live"], ["Approve or reject payments (Sales and PMO told)", "live"], ["Hold or terminate a project", "live"],
+      ["Budget increase (management and HR told)", "live"], ["Sales targets", "live"], ["AMC list", "live"]]},
+    {"role": "Project manager", "lines": [
+      ["Project list with hold reasons and date exceeded", "live"], ["Assign the coordinator", "live"], ["Budget per department", "live"], ["Hold with a reason", "live"],
+      ["Approve out-of-scope work with effort", "live"], ["Payment and budget lock overrides", "live"], ["Approve sprints against the budget", "built"],
+      ["Payment request to Accounts", "pending"], ["Approve corrections with budget", "pending"], ["Out-of-budget list and action", "pending"],
+      ["Tracker with budget left and drag and drop", "pending"], ["Project manager dashboard", "pending"],
+      ["Coordinator list with ratings", "decision"], ["Monthly customer feedback with rating", "decision"], ["Meeting requests", "decision"]]},
+    {"role": "Coordinator", "lines": [
+      ["Accept a new project", "live"], ["Project list and status reasons", "live"], ["Tabbed project view with locks", "live"], ["Business analysis form", "live"],
+      ["Client resources (logo, domain, brochure)", "live"], ["Out-of-scope request with effort", "live"], ["Request sprint dates", "built"], ["QA results on the project", "built"],
+      ["System admin: allocate server, go live", "pending"], ["Coordinator dashboard", "pending"]]},
+    {"role": "UI team", "lines": [
+      ["Pages with sections and sub-sections", "live"], ["Page status chain with history", "live"], ["Extra page needs approval", "live"], ["Page budgets inside the design budget", "live"],
+      ["Assign designers to pages", "live"], ["Automatic page budget from sections and animation", "decision"], ["Team lead inbox with progress and priority", "pending"],
+      ["Team list (time, leaves, rating, overdue)", "pending"], ["Feedback to team members (fixed questions)", "pending"], ["Team lead dashboard", "pending"]]},
+    {"role": "UX and Dev teams", "lines": [
+      ["Sprints with effort and cost", "built"], ["Effort approval by the project manager", "built"], ["Daily task status and time spent", "built"],
+      ["Reason when effort is exceeded", "built"], ["Resource inbox with start and end task", "pending"], ["Team dashboards", "pending"]]},
+    {"role": "QA team", "lines": [
+      ["Automatic hand-off when a task completes", "built"], ["Bug list with priority", "built"], ["Team lead verification", "built"],
+      ["Overrun alerts to the project manager", "built"], ["QA dashboard", "pending"]]},
+    {"role": "HR and management", "lines": [
+      ["Leave approval after the team lead", "existing"], ["Complaints to HR", "existing"], ["Performance by department and person", "pending"],
+      ["Management dashboards", "pending"], ["Appreciation approval and sharing", "decision"], ["Ratings and feedback metrics", "decision"]]}
+  ],
+  "technology": [
+    {"layer": "What people use", "items": ["Web browser on desktop or phone", "Installable as a home-screen app"], "note": "Works on every screen size"},
+    {"layer": "Front end", "items": ["Next.js 16 and React", "TypeScript", "Tailwind CSS v4 and Shadcn/UI", "Zustand and Axios"], "note": "Hosted on Vercel, redeploys automatically from GitHub"},
+    {"layer": "Back end", "items": ["Laravel 12 on PHP 8.2", "Sanctum login tokens", "Spatie permissions", "Scheduled jobs and notifications"], "note": "cPanel server: 24 cores, 40 GB memory"},
+    {"layer": "Data", "items": ["MySQL 8 (same server)", "File uploads", "Audit log of important actions"], "note": "Backed up before every release"},
+    {"layer": "Connected services", "items": ["Hubstaff time tracking", "Biometric attendance devices", "Email (SMTP)"], "note": "Existing integrations keep working"},
+    {"layer": "Quality and safety", "items": ["PHPUnit automated tests", "Browser test that clicks the real screens", "GitHub Actions on every change", "On/off switch per module"], "note": "Nothing goes live without a backup and a check"}
+  ],
+  "workflows": [
+    {"title": "A project from lead to delivery", "intro": "Each hand-over is automatic and the next team is notified.", "mermaid": "flowchart LR\n  L([Lead]):::sales --> P[Sales creates the project]:::sales\n  P --> A{Accounts approves the advance?}:::acc\n  A -- yes --> M[Project manager assigns a coordinator and gives each department a budget]:::pmo\n  A -- not yet --> W[Work tabs stay locked]:::lock\n  M --> C[Coordinator accepts and plans]:::pmo\n  C --> D[Design pages, UX and Dev sprints]:::work\n  D --> Q[QA tests each finished task]:::work\n  Q --> G([Go live, AMC and feedback]):::later\n  classDef sales fill:#d7ece9,stroke:#0f766e,color:#0b2a27\n  classDef acc fill:#fde9c4,stroke:#b7791f,color:#3b2606\n  classDef pmo fill:#dfe5f7,stroke:#4c5fb0,color:#13193b\n  classDef work fill:#e6f4d9,stroke:#4d8a1d,color:#17300a\n  classDef lock fill:#fbdcd8,stroke:#b42318,color:#4a0f0a\n  classDef later fill:#e8ecee,stroke:#667781,color:#1d272c"},
+    {"title": "Sprint approval and the QA loop", "intro": "The team lead plans, the project manager checks the budget, QA tests, and a failed task goes back to its developer.", "mermaid": "flowchart TD\n  T[Team lead plans a sprint with effort and cost]:::a --> S[Submit]:::a\n  S --> D{Project manager decides}:::b\n  D -- reject with a reason --> T\n  D -- approve within budget --> R[Coordinator requests dates]:::b\n  R --> SC[Team lead schedules and assigns]:::a\n  SC --> W[Developer works and logs days spent]:::c\n  W --> F[Task completed]:::c\n  F --> QA{QA review}:::d\n  QA -- bugs found --> W\n  QA -- passed --> V[Team lead verifies and approves]:::a\n  V --> E([Sprint complete]):::e\n  classDef a fill:#d7ece9,stroke:#0f766e,color:#0b2a27\n  classDef b fill:#dfe5f7,stroke:#4c5fb0,color:#13193b\n  classDef c fill:#e6f4d9,stroke:#4d8a1d,color:#17300a\n  classDef d fill:#fde9c4,stroke:#b7791f,color:#3b2606\n  classDef e fill:#e8ecee,stroke:#667781,color:#1d272c"},
+    {"title": "A design page from start to approval", "intro": "Every move is logged with who made it and why.", "mermaid": "stateDiagram-v2\n  [*] --> Pending\n  Pending --> Ongoing\n  Ongoing --> Completed\n  Completed --> InternalRevision: internal review (up to 3 times)\n  InternalRevision --> Completed\n  Completed --> WaitingForFeedback: sent to the client\n  WaitingForFeedback --> Correction: client asks for changes (up to 3 times)\n  Correction --> Completed\n  WaitingForFeedback --> Rejected: needs a reason\n  WaitingForFeedback --> [*]: approved"}
+  ],
+  "tests_growth": [["Start", 159], ["Safety net", 165], ["Accounts", 173], ["Sales", 184], ["Project Office", 194], ["UI work", 201], ["Sprints", 208]]
+}
