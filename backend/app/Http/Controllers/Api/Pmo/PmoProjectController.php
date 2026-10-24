@@ -183,20 +183,26 @@ class PmoProjectController extends Controller
             'allocations' => 'required|array',
             'allocations.*.team_id' => 'required|exists:teams,id|distinct',
             'allocations.*.amount' => 'required|numeric|min:0',
-            'allow_over_contract' => 'sometimes|boolean',
+            'reason' => 'nullable|string|max:2000',
         ]);
 
         $total = collect($data['allocations'])->sum('amount');
         $contract = (float) (ProjectFinance::where('project_id', $project->id)->value('contract_value') ?? 0);
-        // Sales may set a max budget cap on the project; the managers' manual split is held to it, else to the contract value.
+        // Limit = the Sales max budget cap when set, else the contract value. The manager has full access: going over the limit,
+        // or raising a budget that was already set, is allowed but needs a written reason, which is audited and sent to the Super Admin.
         $cap = \App\Models\ProjectIntake::where('project_id', $project->id)->value('budget_cap');
         $limit = $cap !== null ? (float) $cap : $contract;
         $what = $cap !== null ? 'the maximum budget cap set by Sales' : 'the contract value';
+        $previous = (float) ProjectBudgetAllocation::where('project_id', $project->id)->sum('amount');
         $over = $total > $limit;
-        if ($over && empty($data['allow_over_contract'])) {
-            $msg = 'Allocated ' . number_format($total, 2) . " is more than {$what} " . number_format($limit, 2) . '.';
+        $raised = $previous > 0 && $total > $previous;
+        $reason = trim((string) ($data['reason'] ?? ''));
+        if (($over || $raised) && $reason === '') {
+            $msg = $over
+                ? 'Allocated ' . number_format($total, 2) . " is more than {$what} " . number_format($limit, 2) . '. Enter the reason for the increase.'
+                : 'You are raising the budget from ' . number_format($previous, 2) . ' to ' . number_format($total, 2) . '. Enter the reason for the increase.';
 
-            return response()->json(['message' => $msg . ' Confirm to go over.', 'errors' => ['allocations' => [$msg]], 'over_contract' => true], 422);
+            return response()->json(['message' => $msg, 'errors' => ['reason' => [$msg]], 'over_contract' => $over, 'needs_reason' => true], 422);
         }
 
         DB::transaction(function () use ($project, $data, $request) {
@@ -207,9 +213,9 @@ class PmoProjectController extends Controller
             }
         });
 
-        $this->audit($request, $project, 'allocated department budget', ['total' => $total, 'contract' => $contract]);
+        $this->audit($request, $project, 'allocated department budget', ['total' => $total, 'previous' => $previous, 'limit' => $limit, 'reason' => $reason ?: null]);
         if ($over) {
-            Notify::users(User::role('Super Admin')->get(), 'Budget allocated over contract', "\"{$project->name}\": departments were given " . number_format($total, 2) . ' against a contract of ' . number_format($contract, 2) . '.', 'budget_over_contract', $project->id, $request->user());
+            Notify::users(User::role('Super Admin')->get(), 'Budget allocated over contract', "\"{$project->name}\": departments were given " . number_format($total, 2) . ' against ' . $what . ' ' . number_format($limit, 2) . ". Reason: {$reason}", 'budget_over_contract', $project->id, $request->user());
         }
 
         return response()->json(['gate' => ProjectGate::state($project), 'allocations' => ProjectBudgetAllocation::with('team:id,name')->where('project_id', $project->id)->get()]);

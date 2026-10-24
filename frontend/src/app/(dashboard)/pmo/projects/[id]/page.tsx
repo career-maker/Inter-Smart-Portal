@@ -212,21 +212,22 @@ function Budget({ d, meta, run, id }: any) {
   d.allocations.forEach((a: any) => { initial[a.team_id] = String(a.amount); });
   const [amounts, setAmounts] = useState<Record<number, string>>(initial);
   const contract = d.gate.payment.contract_value;
+  const limit = d.intake?.budget_cap != null ? Number(d.intake?.budget_cap) : contract;
   const total = Object.values(amounts).reduce((s, v) => s + Number(v || 0), 0);
 
-  const save = async (allow = false) => {
+  const [reason, setReason] = useState("");
+  const [needReason, setNeedReason] = useState<string | null>(null);
+
+  const save = async () => {
     const allocations = meta.departments.filter((t: any) => amounts[t.id] !== undefined && amounts[t.id] !== "").map((t: any) => ({ team_id: t.id, amount: Number(amounts[t.id]) }));
-    try { await api.put(`/pmo/projects/${id}/budget`, { allocations, allow_over_contract: allow || undefined }); await run(async () => {}); }
-    catch (e: any) {
-      if (e?.response?.data?.over_contract && confirm(`${e.response.data.message}\n\nGo over the contract value anyway? Management will be told.`)) return save(true);
-      if (!e?.response?.data?.over_contract) alert(errMsg(e));
-    }
+    try { await api.put(`/pmo/projects/${id}/budget`, { allocations, reason: reason.trim() || undefined }); setNeedReason(null); setReason(""); await run(async () => {}); }
+    catch (e: any) { setNeedReason(errMsg(e)); }
   };
 
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-3 gap-3 text-sm">
-        {[["Contract value", money(contract)], ["Allocated", money(total)], ["Unallocated", money(contract - total)]].map(([k, v]) => (
+        {[[d.intake?.budget_cap != null ? "Max budget cap (Sales)" : "Contract value", money(limit)], ["Allocated", money(total)], ["Unallocated", money(limit - total)]].map(([k, v]) => (
           <div key={k} className="rounded-xl border border-slate-200 dark:border-slate-700 px-3 py-2"><div className="text-xs text-slate-500">{k}</div><div className="font-semibold">{v}</div></div>
         ))}
       </div>
@@ -238,6 +239,8 @@ function Budget({ d, meta, run, id }: any) {
                 <div key={t.id}><Label>{t.name}</Label><Input type="number" min="0" value={amounts[t.id] ?? ""} onChange={(e) => setAmounts({ ...amounts, [t.id]: e.target.value })} /></div>
               ))}
             </div>
+            {needReason && <div role="alert" className="rounded-lg border border-amber-300 bg-amber-50 text-amber-900 px-3 py-2 text-sm">{needReason}</div>}
+            {needReason && <div><Label>Reason for the increase</Label><Input value={reason} onChange={(e) => setReason(e.target.value)} /></div>}
             <Button onClick={() => save()}>Save department budgets</Button>
           </>
         ) : (

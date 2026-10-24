@@ -185,7 +185,7 @@ class PmoModuleTest extends TestCase
         $this->assertDatabaseHas('project_budget_allocations', ['project_id' => $id, 'team_id' => $this->design->id, 'amount' => 60000]);
 
         // Confirmed over-allocation goes through and tells the Super Admin.
-        $this->as($this->manager)->putJson("/api/pmo/projects/{$id}/budget", $over + ['allow_over_contract' => true])->assertOk();
+        $this->as($this->manager)->putJson("/api/pmo/projects/{$id}/budget", $over + ['reason' => 'Client added scope'])->assertOk();
         $this->assertTrue($this->admin->notifications()->get()->pluck('data.event')->contains('budget_over_contract'));
 
         // Zero removes a department.
