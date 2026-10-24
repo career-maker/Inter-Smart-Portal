@@ -1,493 +1,496 @@
 {
-  "updated": "23 Oct 2026",
-  "headline": "Accounts, Sales, the Project Office and the first department work screens (UI pages) are LIVE, each visible only to the right people. The browser self-test passed all 40 earlier steps, and the 8 new UI steps pass; one combined run of all 48 is still to do. Existing modules are working normally.",
-  "overall_percent": 47,
-  "live_health": [
-    "Website and login: working",
-    "Database: working (backup taken before every live change)",
-    "Existing modules (leave, attendance, projects, TA, chat and others): not affected",
-    "Debug mode on the live server switched off (security improvement)"
-  ],
-  "phases": [
-    {
-      "n": "0",
-      "name": "Safety net + hardening",
-      "weeks": "2",
-      "status": "In progress",
-      "percent": 85,
-      "delivers": "Backups, test environment, automatic checks, on/off switches for new modules, security fixes"
-    },
-    {
-      "n": "1",
-      "name": "Accounts module",
-      "weeks": "3",
-      "status": "In progress",
-      "percent": 90,
-      "delivers": "Payment approval, advance/pending payments, budget increase, targets, AMC list"
-    },
-    {
-      "n": "2",
-      "name": "Sales module",
-      "weeks": "4",
-      "status": "In progress",
-      "percent": 70,
-      "delivers": "Leads, project creation, sales inbox, meeting requests, sales dashboard"
-    },
-    {
-      "n": "3",
-      "name": "Project Manager + Coordinator core",
-      "weeks": "5",
-      "status": "In progress",
-      "percent": 70,
-      "delivers": "Accept project, department budgets, project tabs with payment lock, out-of-scope approval"
-    },
-    {
-      "n": "4",
-      "name": "UI / UX / Dev workflow",
-      "weeks": "5",
-      "status": "In progress",
-      "percent": 25,
-      "delivers": "Pages and sections, sprints, effort approval, QA hand-off, corrections with budget"
-    },
-    {
-      "n": "5",
-      "name": "Team Lead + resource screens",
-      "weeks": "3",
-      "status": "Not started",
-      "percent": 0,
-      "delivers": "Task inbox with priorities, team list, feedback, ratings"
-    },
-    {
-      "n": "6",
-      "name": "Dashboards + feedback",
-      "weeks": "3",
-      "status": "Not started",
-      "percent": 0,
-      "delivers": "Dashboards for every role, monthly customer feedback, appreciation approval"
-    },
-    {
-      "n": "7",
-      "name": "HR performance + go-live",
-      "weeks": "2",
-      "status": "Not started",
-      "percent": 0,
-      "delivers": "HR performance views, full testing, load test, rollout"
-    }
-  ],
-  "phase0_tasks": [
-    {
-      "task": "Take a live database backup before any change",
-      "status": "Done",
-      "note": "Backup taken before every release. Restore test passed: backup restored into a separate database with identical data (92 tables, 71 users, 687 tasks), then removed"
-    },
-    {
-      "task": "Local test database that matches the live system",
-      "status": "Done",
-      "note": "Live structure saved as a reusable file; new test environments build in minutes"
-    },
-    {
-      "task": "On/off switch for each new module",
-      "status": "Done",
-      "note": "Live. New modules stay hidden until switched on; tested"
-    },
-    {
-      "task": "Login protection against repeated wrong passwords",
-      "status": "Done",
-      "note": "Live and confirmed: blocks after 10 wrong tries for one user, others unaffected"
-    },
-    {
-      "task": "Automatic test check on every code change",
-      "status": "Done",
-      "note": "Running on GitHub; passes. Blocks new failures only"
-    },
-    {
-      "task": "Live server debug mode off",
-      "status": "Done",
-      "note": "Done 23 Oct with backup and checks"
-    },
-    {
-      "task": "Record current test health",
-      "status": "Done",
-      "note": "165 tests: 125 pass, 40 were already failing; list saved so new breakage is caught"
-    },
-    {
-      "task": "Safety test for every read screen of every module",
-      "status": "Done",
-      "note": "About 90 screens checked for 3 roles (Super Admin, Team Lead, Employee) on every change; none crash"
-    },
-    {
-      "task": "Login expiry (90 days) and overall request limit per user",
-      "status": "Done",
-      "note": "Live. Nobody was logged out (no login was older than 90 days). Expired logins are cleaned daily"
-    },
-    {
-      "task": "Sessions and cache moved off the database",
-      "status": "Done",
-      "note": "Live. Lighter load on the database for every page; site checked after the change"
-    },
-    {
-      "task": "Fix: Super Admin dashboard widgets",
-      "status": "Done",
-      "note": "Found a bug on live (errors every 5 minutes); fixed and released. Please confirm the dashboard shows alerts and recent activity"
-    },
-    {
-      "task": "Walk through every test workflow with a real browser (self-test)",
-      "status": "Done",
-      "note": "Claude ran all 40 steps in a real browser on a local copy. First run 36 passed; the 4 problems found were fixed and released; the re-run passed 40 of 40"
-    },
-    {
-      "task": "Test copy of live system (staging)",
-      "status": "Needs approval",
-      "note": "Needs a new sub-domain, web address (DNS) and certificate on your hosting account"
-    },
-    {
-      "task": "Protect the main branch on GitHub (review required)",
-      "status": "Needs approval",
-      "note": "Would stop direct pushes to main; needs a decision on the team's workflow"
-    },
-    {
-      "task": "Load test with 150 simulated users",
-      "status": "Waiting for staging",
-      "note": "Must not be run against the live site; will run on the test copy"
-    },
-    {
-      "task": "Review the 40 older failing tests",
-      "status": "Not started",
-      "note": "Mostly biometric and leave tests written before recent changes"
-    }
-  ],
-  "done_this_update": [
-    "Built and released the UI department screens: pages, sections, status chain with history, page budgets, My Work",
-    "Ran the 8 new browser steps for the UI screens: all pass (the earlier 40 passed in their own run)",
-    "201 automated tests, no new failures"
-  ],
-  "next": [
-    "Finish and release the UX and Dev sprints (one clean full browser test, then a backed-up release)",
-    "Slice 3: QA hand-off and budget-overrun alerts; slice 4: corrections with budget approval",
-    "Then team lead and resource screens, HR views and dashboards",
-    "Manager's answers (formula, ratings, feedback questions) and your approvals (staging, GitHub review rule)"
-  ],
-  "capacity_answer": "The database will not break with 100+ users working at once. The live server is strong (24 processors, 40 GB memory). Improvements planned in Phase 0 (lighter background checks, rate limits, caching) give comfortable room for 150 to 300 users at the same time. A load test will confirm the exact number.",
-  "risks": [
-    {
-      "risk": "Sessions and cache were in the database",
-      "action": "Fixed on live 23 Oct"
-    },
-    {
-      "risk": "Only login had rate limiting",
-      "action": "Fixed: every signed-in user is now limited to 300 requests per minute"
-    },
-    {
-      "risk": "40 older automated tests already fail",
-      "action": "New failures are blocked meanwhile; review planned"
-    },
-    {
-      "risk": "An old unused copy of the app and its old database remain on the server",
-      "action": "Archive after owner approval"
-    },
-    {
-      "risk": "No safe place to load-test yet",
-      "action": "Staging copy needs approval"
-    },
-    {
-      "risk": "Sales fields were built from the manager's sheet, not the Sales document",
-      "action": "Adjust once the document arrives; small change"
-    },
-    {
-      "risk": "Project manager role is assumed to be the PMO team leads",
-      "action": "Confirm; changing it is a one-line rule"
-    }
-  ],
-  "decisions": [
-    "Send the Sales document fields. Phase 2 (Sales module) cannot start properly without them",
-    "Approve creating the staging (test) copy: needs a sub-domain, DNS entry and certificate on your hosting",
-    "Require review before merging to main on GitHub? (safer, but slows direct pushes)",
-    "Send the Sales document fields (needed for Phase 2)",
-    "How is budget per department calculated (sections x animation level)? Who can change it?",
-    "Rating formula for Project Coordinators and resources (HR approval needed)",
-    "Customer feedback questions, and who enters them",
-    "Meetings: simple request/approve, or full calendar invites?",
-    "Appreciation sharing to mail/LinkedIn: manual or automatic?",
-    "Google review count: manual entry or automatic?",
-    "Keep the old bug tracker alongside the new bug flow, or replace it?",
-    "Go-live: pilot team first, or everyone at once?"
-  ],
-  "changelog": [
-    {
-      "date": "24 Oct 2026 (night)",
-      "text": "Paused by the owner. UX and Dev sprints are built and saved on a separate branch, not yet released. Local test machines shut down."
-    },
-    {
-      "date": "24 Oct 2026",
-      "text": "Phase 4 slice 1 (UI department work screens) built, installed and switched on."
-    },
-    {
-      "date": "24 Oct 2026",
-      "text": "Full browser self-test re-run: 40 of 40 passed."
-    },
-    {
-      "date": "23 Oct 2026 (night)",
-      "text": "Self-test of all workflows run; 4 issues found and fixed; fixes released."
-    },
-    {
-      "date": "23 Oct 2026 (night)",
-      "text": "Project Office built, installed and switched on for the PMO teams."
-    },
-    {
-      "date": "23 Oct 2026 (late night)",
-      "text": "Sales module built, installed and switched on for the Sales team."
-    },
-    {
-      "date": "23 Oct 2026 (night)",
-      "text": "Accounts module switched on for the Accounts team; access by department; PMO teams notified."
-    },
-    {
-      "date": "23 Oct 2026 (late)",
-      "text": "Phase 1 Accounts module built and installed on live (hidden). 8 new tests."
-    },
-    {
-      "date": "23 Oct 2026 (night)",
-      "text": "Login expiry, request limit, faster sessions/cache released to live. Backup restore test passed. Super Admin dashboard bug fixed."
-    },
-    {
-      "date": "23 Oct 2026 (evening)",
-      "text": "Safety features (module switch, login protection) released to live and verified. Automatic checks active on GitHub."
-    },
-    {
-      "date": "23 Oct 2026",
-      "text": "Plan approved. Phase 0 started. Live debug mode off, live code updated, switch + login protection + automatic checks built."
-    }
-  ],
-  "phase1_intro": "The Accounts module is switched on in the live system. Access comes from the department: members of the Accounts team (and Super Admins) see it; everyone else does not.",
-  "phase1_tasks": [
-    {
-      "task": "Payment state of every project (advance awaiting, pending payment, paid in full)",
-      "status": "Done",
-      "note": "Project list with contract value, received and balance; filters and search"
-    },
-    {
-      "task": "Approve or reject payments, with notifications",
-      "status": "Done",
-      "note": "Advance and later payments; the project coordinator and sales person are notified when a payment is approved"
-    },
-    {
-      "task": "Budget increase",
-      "status": "Done",
-      "note": "Logged with a reason; management and HR are notified"
-    },
-    {
-      "task": "Hold or terminate a project",
-      "status": "Done",
-      "note": "Reason is required; recorded in the audit log; coordinator and PMO notified"
-    },
-    {
-      "task": "Sales targets (per person per month)",
-      "status": "Done",
-      "note": "Saving again for the same month updates it"
-    },
-    {
-      "task": "AMC list",
-      "status": "Done",
-      "note": "Shows Expired automatically after the end date; filter for contracts ending in 30 days"
-    },
-    {
-      "task": "Access by department (Accounts team) and menu",
-      "status": "Done",
-      "note": "Live. Accounts team members and Super Admins see the menu; Sales team member checked and correctly blocked"
-    },
-    {
-      "task": "Automated tests",
-      "status": "Done",
-      "note": "10 new tests (switch, department access, payment flow, PMO notification, budget, hold, targets, AMC); 175 total, no new failures"
-    },
-    {
-      "task": "Installed on the live system without disturbing it",
-      "status": "Done",
-      "note": "Backup first; 5 new tables added, nothing existing changed; site checked after every step"
-    },
-    {
-      "task": "Check the screens by eye",
-      "status": "Needs approval",
-      "note": "Screens compile and the whole flow works through the real system, but nobody has looked at them in a browser yet. Please open Accounts > Projects & Payments and tell us anything that looks off"
-    },
-    {
-      "task": "Switched on for the Accounts team",
-      "status": "Done",
-      "note": "Live since 23 Oct. Verified for the Accounts team lead (allowed) and the Sales team lead (blocked)"
-    },
-    {
-      "task": "Link each project to its sales person",
-      "status": "Waiting for Phase 2",
-      "note": "The Sales module will set this automatically; until then the sales person is not notified"
-    }
-  ],
-  "phase2_intro": "The Sales module is switched on for the Sales team (and Super Admin). Built from the manager's sheet because the Sales document has not been received yet; field names are easy to change.",
-  "phase2_tasks": [
-    {
-      "task": "Leads with status, value and next follow-up",
-      "status": "Done",
-      "note": "New, Follow up, Hot, Ready to close, Won, Lost. Lost needs a reason. Each person sees their own; Super Admin and the Sales team lead see everyone's"
-    },
-    {
-      "task": "Sales inbox (follow-up, proposal, meeting, other) with status updates",
-      "status": "Done",
-      "note": "Mark done with an outcome and set the next follow-up date, or cancel"
-    },
-    {
-      "task": "Create a project (project intake)",
-      "status": "Done",
-      "note": "Platform, type, pages, quality level, budget, client details. Accounts is told an advance is awaiting; the project is linked to the salesperson"
-    },
-    {
-      "task": "Payment approved notification from Accounts",
-      "status": "Done",
-      "note": "The salesperson is notified when Accounts approves a payment (tested end to end)"
-    },
-    {
-      "task": "Projects list with payment state and progress %",
-      "status": "Done",
-      "note": "Progress comes from completed tasks once the team starts working"
-    },
-    {
-      "task": "Hold or terminate a project",
-      "status": "Done",
-      "note": "Reason required; Accounts, PMO and the project coordinator are notified"
-    },
-    {
-      "task": "Sales dashboard",
-      "status": "Done",
-      "note": "Leads to follow up, hot, ready to close with value, conversion %, target achieved vs target (set by Accounts), projects ongoing, pending actions, meetings attended, proposals shared"
-    },
-    {
-      "task": "Automated tests and safe live install",
-      "status": "Done",
-      "note": "9 new tests (184 total, no new failures). Backup first; 3 new tables; nothing existing changed; checked on live with Sales and Accounts logins"
-    },
-    {
-      "task": "Out of scope requests, 'action required' and payment follow-up from PC / Accounts",
-      "status": "Waiting for Phase 3",
-      "note": "These arrive from the Project Coordinator, who is built in Phase 3"
-    },
-    {
-      "task": "Meetings (view upcoming) and completed-project details (free support, AMC link, feedback)",
-      "status": "Not started",
-      "note": "Planned with the dashboards and feedback phase"
-    },
-    {
-      "task": "Check the Sales screens by eye and confirm the project fields",
-      "status": "Needs approval",
-      "note": "Needs the Sales team to try it, and the Sales document so the fields match exactly"
-    }
-  ],
-  "phase3_intro": "The Project Office is switched on for the PMO teams (project managers = PMO team leads and Super Admin; coordinators = PMO team members). The department work screens (UI, UX, Dev, QA) arrive in Phase 4.",
-  "phase3_tasks": [
-    {
-      "task": "Project list for the PMO",
-      "status": "Done",
-      "note": "Payment state, coordinator, department budget, progress, hold reason, 'date exceeded' and pending out-of-scope flags; filters and search. Coordinators see only their own projects"
-    },
-    {
-      "task": "Assign a coordinator and accept the project",
-      "status": "Done",
-      "note": "Manager assigns a PMO team member; the coordinator accepts and a Planning project becomes Active; Sales is told"
-    },
-    {
-      "task": "Department budgets",
-      "status": "Done",
-      "note": "Entered by hand per department. Over the contract value needs confirmation and tells the Super Admin"
-    },
-    {
-      "task": "Hold with a reason",
-      "status": "Done",
-      "note": "Approval, content, images, payment gateway, SMS, SMTP, no response, out of scope, too many corrections, payment pending, budget exceeded, date exceeded, other. Everyone involved is notified"
-    },
-    {
-      "task": "Payment lock and budget lock on project tabs",
-      "status": "Done",
-      "note": "Work tabs open once the advance is approved. Super Admin can override payment; PMO manager can override budget; both are recorded"
-    },
-    {
-      "task": "Business analysis form and project resources",
-      "status": "Done",
-      "note": "Purpose, company, competitors, audience, USP, conclusion; brand book, logo, domain, brochure, proposal links"
-    },
-    {
-      "task": "Out-of-scope requests",
-      "status": "Done",
-      "note": "Coordinator asks with effort; PMO manager approves or rejects; Sales is told to agree the extra cost with the client"
-    },
-    {
-      "task": "Automated tests and safe live install",
-      "status": "Done",
-      "note": "10 new tests (194 total, no new failures). Backup first; 7 new tables; nothing existing changed; checked on live with PMO leads, Sales and Accounts logins"
-    },
-    {
-      "task": "Project categories tree and the PC rating",
-      "status": "Not started",
-      "note": "Rating needs the formula from the manager"
-    },
-    {
-      "task": "UI, UX, Dev, QA and bugs tabs",
-      "status": "Waiting for Phase 4",
-      "note": "Tabs and locks are in place; their working screens come next"
-    },
-    {
-      "task": "Confirm who the project managers are",
-      "status": "Needs approval",
-      "note": "Assumed: PMO 1 / PMO 2 team leads are project managers, PMO team members are coordinators. Easy to change"
-    }
-  ],
-  "phase4_intro": "Built in slices. Slice 1 (UI department) is live. Next: UX and Dev sprints with effort approval, QA hand-off, and corrections with budget approval. Budgets are entered by hand until the manager gives the formula.",
-  "phase4_tasks": [
-    {
-      "task": "UI pages: add pages, assign a designer, due date, Figma link, animation level",
-      "status": "Done",
-      "note": "Pages beyond the number sold wait for the project manager to approve them"
-    },
-    {
-      "task": "Sections and sub-sections (title, subtitle, statistics, content, description)",
-      "status": "Done",
-      "note": "Limited to the number planned for the page; the UI lead can raise it"
-    },
-    {
-      "task": "Page status chain with history",
-      "status": "Done",
-      "note": "Pending, Ongoing, Completed, three internal revisions, Waiting for feedback, Rejected, three corrections. Every change is logged with who and why; UI lead and coordinator are told"
-    },
-    {
-      "task": "Page budgets inside the design budget",
-      "status": "Done",
-      "note": "Entered by hand. The total can never go above what the project manager gave the design team"
-    },
-    {
-      "task": "My Work screen for team members",
-      "status": "Done",
-      "note": "People see only projects where their department has a budget, or that they coordinate. Payment and budget locks still apply"
-    },
-    {
-      "task": "Tested and installed on live",
-      "status": "Done",
-      "note": "6 new unit tests (201 total) and 8 new browser steps; backup first; 3 new tables; nothing existing changed"
-    },
-    {
-      "task": "UX and Dev: sprints and effort requests",
-      "status": "In progress",
-      "note": "Built and passing its automated tests, saved safely but not yet released to the live system. Needs one clean full browser run first"
-    },
-    {
-      "task": "QA hand-off and bug list",
-      "status": "Not started",
-      "note": "Finished work moves to QA automatically; budget overruns alert the project manager"
-    },
-    {
-      "task": "Corrections with budget approval",
-      "status": "Not started",
-      "note": "Coordinator raises, team lead sets effort, project manager approves against the budget"
-    },
-    {
-      "task": "Automatic page budget from sections x animation level",
-      "status": "Needs approval",
-      "note": "Waiting for the manager's formula"
-    }
-  ]
+ "updated": "24 Oct 2026",
+ "headline": "Accounts, Sales, the Project Office and the UI screens are LIVE. UX/Dev sprints, QA hand-off, corrections and changes, the team inbox and feedback, dashboard tiles and the go-live hand-over are BUILT and saved on a work branch, not yet released. A full browser run reached 55 of 57 steps (the two QA steps failed on a stale-screen bug, since fixed in code but not re-run). Per the owner, all testing is done after implementation. Existing modules are untouched.",
+ "overall_percent": 62,
+ "live_health": [
+  "Website and login: working",
+  "Database: working (backup taken before every live change)",
+  "Existing modules (leave, attendance, projects, TA, chat and others): not affected",
+  "Debug mode on the live server switched off (security improvement)"
+ ],
+ "phases": [
+  {
+   "n": "0",
+   "name": "Safety net + hardening",
+   "weeks": "2",
+   "status": "In progress",
+   "percent": 85,
+   "delivers": "Backups, test environment, automatic checks, on/off switches for new modules, security fixes"
+  },
+  {
+   "n": "1",
+   "name": "Accounts module",
+   "weeks": "3",
+   "status": "In progress",
+   "percent": 90,
+   "delivers": "Payment approval, advance/pending payments, budget increase, targets, AMC list"
+  },
+  {
+   "n": "2",
+   "name": "Sales module",
+   "weeks": "4",
+   "status": "In progress",
+   "percent": 70,
+   "delivers": "Leads, project creation, sales inbox, meeting requests, sales dashboard"
+  },
+  {
+   "n": "3",
+   "name": "Project Manager + Coordinator core",
+   "weeks": "5",
+   "status": "In progress",
+   "percent": 70,
+   "delivers": "Accept project, department budgets, project tabs with payment lock, out-of-scope approval"
+  },
+  {
+   "n": "4",
+   "name": "UI / UX / Dev workflow",
+   "weeks": "5",
+   "status": "In progress",
+   "percent": 75,
+   "delivers": "Pages and sections, sprints, effort approval, QA hand-off, corrections with budget"
+  },
+  {
+   "n": "5",
+   "name": "Team Lead + resource screens",
+   "weeks": "3",
+   "status": "In progress",
+   "percent": 50,
+   "delivers": "Task inbox with priorities, team list, feedback, ratings"
+  },
+  {
+   "n": "6",
+   "name": "Dashboards + feedback",
+   "weeks": "3",
+   "status": "In progress",
+   "percent": 15,
+   "delivers": "Dashboards for every role, monthly customer feedback, appreciation approval"
+  },
+  {
+   "n": "7",
+   "name": "HR performance + go-live",
+   "weeks": "2",
+   "status": "Not started",
+   "percent": 0,
+   "delivers": "HR performance views, full testing, load test, rollout"
+  }
+ ],
+ "phase0_tasks": [
+  {
+   "task": "Take a live database backup before any change",
+   "status": "Done",
+   "note": "Backup taken before every release. Restore test passed: backup restored into a separate database with identical data (92 tables, 71 users, 687 tasks), then removed"
+  },
+  {
+   "task": "Local test database that matches the live system",
+   "status": "Done",
+   "note": "Live structure saved as a reusable file; new test environments build in minutes"
+  },
+  {
+   "task": "On/off switch for each new module",
+   "status": "Done",
+   "note": "Live. New modules stay hidden until switched on; tested"
+  },
+  {
+   "task": "Login protection against repeated wrong passwords",
+   "status": "Done",
+   "note": "Live and confirmed: blocks after 10 wrong tries for one user, others unaffected"
+  },
+  {
+   "task": "Automatic test check on every code change",
+   "status": "Done",
+   "note": "Running on GitHub; passes. Blocks new failures only"
+  },
+  {
+   "task": "Live server debug mode off",
+   "status": "Done",
+   "note": "Done 23 Oct with backup and checks"
+  },
+  {
+   "task": "Record current test health",
+   "status": "Done",
+   "note": "165 tests: 125 pass, 40 were already failing; list saved so new breakage is caught"
+  },
+  {
+   "task": "Safety test for every read screen of every module",
+   "status": "Done",
+   "note": "About 90 screens checked for 3 roles (Super Admin, Team Lead, Employee) on every change; none crash"
+  },
+  {
+   "task": "Login expiry (90 days) and overall request limit per user",
+   "status": "Done",
+   "note": "Live. Nobody was logged out (no login was older than 90 days). Expired logins are cleaned daily"
+  },
+  {
+   "task": "Sessions and cache moved off the database",
+   "status": "Done",
+   "note": "Live. Lighter load on the database for every page; site checked after the change"
+  },
+  {
+   "task": "Fix: Super Admin dashboard widgets",
+   "status": "Done",
+   "note": "Found a bug on live (errors every 5 minutes); fixed and released. Please confirm the dashboard shows alerts and recent activity"
+  },
+  {
+   "task": "Walk through every test workflow with a real browser (self-test)",
+   "status": "Done",
+   "note": "Claude ran all 40 steps in a real browser on a local copy. First run 36 passed; the 4 problems found were fixed and released; the re-run passed 40 of 40"
+  },
+  {
+   "task": "Test copy of live system (staging)",
+   "status": "Needs approval",
+   "note": "Needs a new sub-domain, web address (DNS) and certificate on your hosting account"
+  },
+  {
+   "task": "Protect the main branch on GitHub (review required)",
+   "status": "Needs approval",
+   "note": "Would stop direct pushes to main; needs a decision on the team's workflow"
+  },
+  {
+   "task": "Load test with 150 simulated users",
+   "status": "Waiting for staging",
+   "note": "Must not be run against the live site; will run on the test copy"
+  },
+  {
+   "task": "Review the 40 older failing tests",
+   "status": "Not started",
+   "note": "Mostly biometric and leave tests written before recent changes"
+  }
+ ],
+ "done_this_update": [
+  "Built corrections and changes with effort, cost and budget approval",
+  "Built the resource inbox, team lead to-do list, team list and monthly feedback (four fixed questions)",
+  "Built dashboard tiles on My Work for managers, coordinators, team leads and QA",
+  "Built payment request to Accounts and the server and go-live hand-over for the system admin team",
+  "Fixed the stale-screen bug that kept the QA review panel on Open after taking it",
+  "Nothing was tested or released in this update, by the owner's instruction"
+ ],
+ "next": [
+  "Finish the remaining modules (HR performance views, appreciation, meetings) once the manager answers",
+  "Then one full test of everything: backend suite, whole browser run, fix what fails",
+  "Then merge, back up and release to the live server in one controlled step",
+  "Manager's answers (formula, ratings, customer feedback, meetings) and your approvals (staging, GitHub review rule)"
+ ],
+ "capacity_answer": "The database will not break with 100+ users working at once. The live server is strong (24 processors, 40 GB memory). Improvements planned in Phase 0 (lighter background checks, rate limits, caching) give comfortable room for 150 to 300 users at the same time. A load test will confirm the exact number.",
+ "risks": [
+  {
+   "risk": "Sessions and cache were in the database",
+   "action": "Fixed on live 23 Oct"
+  },
+  {
+   "risk": "Only login had rate limiting",
+   "action": "Fixed: every signed-in user is now limited to 300 requests per minute"
+  },
+  {
+   "risk": "40 older automated tests already fail",
+   "action": "New failures are blocked meanwhile; review planned"
+  },
+  {
+   "risk": "An old unused copy of the app and its old database remain on the server",
+   "action": "Archive after owner approval"
+  },
+  {
+   "risk": "No safe place to load-test yet",
+   "action": "Staging copy needs approval"
+  },
+  {
+   "risk": "Sales fields were built from the manager's sheet, not the Sales document",
+   "action": "Adjust once the document arrives; small change"
+  },
+  {
+   "risk": "Project manager role is assumed to be the PMO team leads",
+   "action": "Confirm; changing it is a one-line rule"
+  }
+ ],
+ "decisions": [
+  "Send the Sales document fields. Phase 2 (Sales module) cannot start properly without them",
+  "Approve creating the staging (test) copy: needs a sub-domain, DNS entry and certificate on your hosting",
+  "Require review before merging to main on GitHub? (safer, but slows direct pushes)",
+  "Send the Sales document fields (needed for Phase 2)",
+  "How is budget per department calculated (sections x animation level)? Who can change it?",
+  "Rating formula for Project Coordinators and resources (HR approval needed)",
+  "Customer feedback questions, and who enters them",
+  "Meetings: simple request/approve, or full calendar invites?",
+  "Appreciation sharing to mail/LinkedIn: manual or automatic?",
+  "Google review count: manual entry or automatic?",
+  "Keep the old bug tracker alongside the new bug flow, or replace it?",
+  "Go-live: pilot team first, or everyone at once?"
+ ],
+ "changelog": [
+  {
+   "date": "24 Oct 2026 (night)",
+   "text": "Paused by the owner. UX and Dev sprints are built and saved on a separate branch, not yet released. Local test machines shut down."
+  },
+  {
+   "date": "24 Oct 2026",
+   "text": "Phase 4 slice 1 (UI department work screens) built, installed and switched on."
+  },
+  {
+   "date": "24 Oct 2026",
+   "text": "Full browser self-test re-run: 40 of 40 passed."
+  },
+  {
+   "date": "23 Oct 2026 (night)",
+   "text": "Self-test of all workflows run; 4 issues found and fixed; fixes released."
+  },
+  {
+   "date": "23 Oct 2026 (night)",
+   "text": "Project Office built, installed and switched on for the PMO teams."
+  },
+  {
+   "date": "23 Oct 2026 (late night)",
+   "text": "Sales module built, installed and switched on for the Sales team."
+  },
+  {
+   "date": "23 Oct 2026 (night)",
+   "text": "Accounts module switched on for the Accounts team; access by department; PMO teams notified."
+  },
+  {
+   "date": "23 Oct 2026 (late)",
+   "text": "Phase 1 Accounts module built and installed on live (hidden). 8 new tests."
+  },
+  {
+   "date": "23 Oct 2026 (night)",
+   "text": "Login expiry, request limit, faster sessions/cache released to live. Backup restore test passed. Super Admin dashboard bug fixed."
+  },
+  {
+   "date": "23 Oct 2026 (evening)",
+   "text": "Safety features (module switch, login protection) released to live and verified. Automatic checks active on GitHub."
+  },
+  {
+   "date": "23 Oct 2026",
+   "text": "Plan approved. Phase 0 started. Live debug mode off, live code updated, switch + login protection + automatic checks built."
+  }
+ ],
+ "phase1_intro": "The Accounts module is switched on in the live system. Access comes from the department: members of the Accounts team (and Super Admins) see it; everyone else does not.",
+ "phase1_tasks": [
+  {
+   "task": "Payment state of every project (advance awaiting, pending payment, paid in full)",
+   "status": "Done",
+   "note": "Project list with contract value, received and balance; filters and search"
+  },
+  {
+   "task": "Approve or reject payments, with notifications",
+   "status": "Done",
+   "note": "Advance and later payments; the project coordinator and sales person are notified when a payment is approved"
+  },
+  {
+   "task": "Budget increase",
+   "status": "Done",
+   "note": "Logged with a reason; management and HR are notified"
+  },
+  {
+   "task": "Hold or terminate a project",
+   "status": "Done",
+   "note": "Reason is required; recorded in the audit log; coordinator and PMO notified"
+  },
+  {
+   "task": "Sales targets (per person per month)",
+   "status": "Done",
+   "note": "Saving again for the same month updates it"
+  },
+  {
+   "task": "AMC list",
+   "status": "Done",
+   "note": "Shows Expired automatically after the end date; filter for contracts ending in 30 days"
+  },
+  {
+   "task": "Access by department (Accounts team) and menu",
+   "status": "Done",
+   "note": "Live. Accounts team members and Super Admins see the menu; Sales team member checked and correctly blocked"
+  },
+  {
+   "task": "Automated tests",
+   "status": "Done",
+   "note": "10 new tests (switch, department access, payment flow, PMO notification, budget, hold, targets, AMC); 175 total, no new failures"
+  },
+  {
+   "task": "Installed on the live system without disturbing it",
+   "status": "Done",
+   "note": "Backup first; 5 new tables added, nothing existing changed; site checked after every step"
+  },
+  {
+   "task": "Check the screens by eye",
+   "status": "Needs approval",
+   "note": "Screens compile and the whole flow works through the real system, but nobody has looked at them in a browser yet. Please open Accounts > Projects & Payments and tell us anything that looks off"
+  },
+  {
+   "task": "Switched on for the Accounts team",
+   "status": "Done",
+   "note": "Live since 23 Oct. Verified for the Accounts team lead (allowed) and the Sales team lead (blocked)"
+  },
+  {
+   "task": "Link each project to its sales person",
+   "status": "Waiting for Phase 2",
+   "note": "The Sales module will set this automatically; until then the sales person is not notified"
+  }
+ ],
+ "phase2_intro": "The Sales module is switched on for the Sales team (and Super Admin). Built from the manager's sheet because the Sales document has not been received yet; field names are easy to change.",
+ "phase2_tasks": [
+  {
+   "task": "Leads with status, value and next follow-up",
+   "status": "Done",
+   "note": "New, Follow up, Hot, Ready to close, Won, Lost. Lost needs a reason. Each person sees their own; Super Admin and the Sales team lead see everyone's"
+  },
+  {
+   "task": "Sales inbox (follow-up, proposal, meeting, other) with status updates",
+   "status": "Done",
+   "note": "Mark done with an outcome and set the next follow-up date, or cancel"
+  },
+  {
+   "task": "Create a project (project intake)",
+   "status": "Done",
+   "note": "Platform, type, pages, quality level, budget, client details. Accounts is told an advance is awaiting; the project is linked to the salesperson"
+  },
+  {
+   "task": "Payment approved notification from Accounts",
+   "status": "Done",
+   "note": "The salesperson is notified when Accounts approves a payment (tested end to end)"
+  },
+  {
+   "task": "Projects list with payment state and progress %",
+   "status": "Done",
+   "note": "Progress comes from completed tasks once the team starts working"
+  },
+  {
+   "task": "Hold or terminate a project",
+   "status": "Done",
+   "note": "Reason required; Accounts, PMO and the project coordinator are notified"
+  },
+  {
+   "task": "Sales dashboard",
+   "status": "Done",
+   "note": "Leads to follow up, hot, ready to close with value, conversion %, target achieved vs target (set by Accounts), projects ongoing, pending actions, meetings attended, proposals shared"
+  },
+  {
+   "task": "Automated tests and safe live install",
+   "status": "Done",
+   "note": "9 new tests (184 total, no new failures). Backup first; 3 new tables; nothing existing changed; checked on live with Sales and Accounts logins"
+  },
+  {
+   "task": "Out of scope requests, 'action required' and payment follow-up from PC / Accounts",
+   "status": "Waiting for Phase 3",
+   "note": "These arrive from the Project Coordinator, who is built in Phase 3"
+  },
+  {
+   "task": "Meetings (view upcoming) and completed-project details (free support, AMC link, feedback)",
+   "status": "Not started",
+   "note": "Planned with the dashboards and feedback phase"
+  },
+  {
+   "task": "Check the Sales screens by eye and confirm the project fields",
+   "status": "Needs approval",
+   "note": "Needs the Sales team to try it, and the Sales document so the fields match exactly"
+  }
+ ],
+ "phase3_intro": "The Project Office is switched on for the PMO teams (project managers = PMO team leads and Super Admin; coordinators = PMO team members). The department work screens (UI, UX, Dev, QA) arrive in Phase 4.",
+ "phase3_tasks": [
+  {
+   "task": "Project list for the PMO",
+   "status": "Done",
+   "note": "Payment state, coordinator, department budget, progress, hold reason, 'date exceeded' and pending out-of-scope flags; filters and search. Coordinators see only their own projects"
+  },
+  {
+   "task": "Assign a coordinator and accept the project",
+   "status": "Done",
+   "note": "Manager assigns a PMO team member; the coordinator accepts and a Planning project becomes Active; Sales is told"
+  },
+  {
+   "task": "Department budgets",
+   "status": "Done",
+   "note": "Entered by hand per department. Over the contract value needs confirmation and tells the Super Admin"
+  },
+  {
+   "task": "Hold with a reason",
+   "status": "Done",
+   "note": "Approval, content, images, payment gateway, SMS, SMTP, no response, out of scope, too many corrections, payment pending, budget exceeded, date exceeded, other. Everyone involved is notified"
+  },
+  {
+   "task": "Payment lock and budget lock on project tabs",
+   "status": "Done",
+   "note": "Work tabs open once the advance is approved. Super Admin can override payment; PMO manager can override budget; both are recorded"
+  },
+  {
+   "task": "Business analysis form and project resources",
+   "status": "Done",
+   "note": "Purpose, company, competitors, audience, USP, conclusion; brand book, logo, domain, brochure, proposal links"
+  },
+  {
+   "task": "Out-of-scope requests",
+   "status": "Done",
+   "note": "Coordinator asks with effort; PMO manager approves or rejects; Sales is told to agree the extra cost with the client"
+  },
+  {
+   "task": "Automated tests and safe live install",
+   "status": "Done",
+   "note": "10 new tests (194 total, no new failures). Backup first; 7 new tables; nothing existing changed; checked on live with PMO leads, Sales and Accounts logins"
+  },
+  {
+   "task": "Project categories tree and the PC rating",
+   "status": "Not started",
+   "note": "Rating needs the formula from the manager"
+  },
+  {
+   "task": "UI, UX, Dev, QA and bugs tabs",
+   "status": "Waiting for Phase 4",
+   "note": "Tabs and locks are in place; their working screens come next"
+  },
+  {
+   "task": "Confirm who the project managers are",
+   "status": "Needs approval",
+   "note": "Assumed: PMO 1 / PMO 2 team leads are project managers, PMO team members are coordinators. Easy to change"
+  }
+ ],
+ "phase4_intro": "Built in slices. Slice 1 (UI department) is live. Next: UX and Dev sprints with effort approval, QA hand-off, and corrections with budget approval. Budgets are entered by hand until the manager gives the formula.",
+ "phase4_tasks": [
+  {
+   "task": "UI pages: add pages, assign a designer, due date, Figma link, animation level",
+   "status": "Done",
+   "note": "Pages beyond the number sold wait for the project manager to approve them"
+  },
+  {
+   "task": "Sections and sub-sections (title, subtitle, statistics, content, description)",
+   "status": "Done",
+   "note": "Limited to the number planned for the page; the UI lead can raise it"
+  },
+  {
+   "task": "Page status chain with history",
+   "status": "Done",
+   "note": "Pending, Ongoing, Completed, three internal revisions, Waiting for feedback, Rejected, three corrections. Every change is logged with who and why; UI lead and coordinator are told"
+  },
+  {
+   "task": "Page budgets inside the design budget",
+   "status": "Done",
+   "note": "Entered by hand. The total can never go above what the project manager gave the design team"
+  },
+  {
+   "task": "My Work screen for team members",
+   "status": "Done",
+   "note": "People see only projects where their department has a budget, or that they coordinate. Payment and budget locks still apply"
+  },
+  {
+   "task": "Tested and installed on live",
+   "status": "Done",
+   "note": "6 new unit tests (201 total) and 8 new browser steps; backup first; 3 new tables; nothing existing changed"
+  },
+  {
+   "task": "UX and Dev: sprints and effort requests",
+   "status": "In progress",
+   "note": "Built and passing its automated tests, saved safely but not yet released to the live system. Needs one clean full browser run first"
+  },
+  {
+   "task": "QA hand-off and bug list",
+   "status": "Not started",
+   "note": "Finished work moves to QA automatically; budget overruns alert the project manager"
+  },
+  {
+   "task": "Corrections with budget approval",
+   "status": "Not started",
+   "note": "Coordinator raises, team lead sets effort, project manager approves against the budget"
+  },
+  {
+   "task": "Automatic page budget from sections x animation level",
+   "status": "Needs approval",
+   "note": "Waiting for the manager's formula"
+  }
+ ]
 }

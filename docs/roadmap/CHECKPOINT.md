@@ -25,6 +25,18 @@ You are continuing the **Internal Software Plan** for the Intersmart Employee Po
 
 ## 2. Next actions, in order
 
+### 2.00 STATE AT 2026-10-24 (read this before 2.0 below)
+
+Owner instruction: **no testing until ALL implementation is done**, then one full test and one release. Everything below is committed on branch `wip/phase4-slice2` (NOT merged, NOT deployed, no live migration). Built since slice 2, all dark behind the existing flags:
+- Slice 3 QA hand-off (`QaController`, `QaHandoff`, tables qa_reviews, qa_bugs). Unit tests pass (QaWorkflowTest, 6).
+- Slice 4 corrections and changes (`ChangeController`, table `work_changes`, tab "Corrections and changes", `ChangeWorkflowTest` written but NEVER RUN).
+- Phase 5/6: `InboxController` (`GET work/inbox`, `work/team`, `POST work/team/{member}/feedback`, table `team_feedback`, four fixed questions scored 1-5), `WorkDashboardController` (`GET work/dashboard`, tiles at the top of My Work), pages `/work/inbox` and `/work/team`. Never run.
+- Go-live: `Pmo\GoLiveController` (payment request to Accounts, server request, system admin allocates and marks live, table `project_go_live`), `components/work/Handover.tsx` on the PMO project overview, page `/work/go-live` (team name must start with "system"). Never run.
+- Fix: `frontend/src/services/api.ts` clears the work cache again when a `/work/` change request returns (the browser test's QA steps K1/K2 failed because the review panel stayed on "Open"; the fix is NOT re-verified).
+- Browser test last full run: 55 of 57 (K1, K2 failed, cause above). New migrations on this branch to apply on release: `2026_10_24_140000` sprints, `150000` QA, `160000` changes, `170000` team_feedback, `180000` go_live (9 new tables). Backend `ChangeWorkflowTest` and the new screens have no browser steps yet: add sections L (changes), M (inbox/team/feedback/dashboard), N (go-live) to `test_workflows.json` and the e2e before release.
+- Not built (blocked on the manager): HR performance views and rating formula, appreciation, meetings, customer feedback, automatic page budgets, completed-project/AMC details for Sales, Sales out-of-scope reply.
+- Release routine after the one full test: merge branch to `main`, push, then backup, `git pull --ff-only`, `migrate --pretend --force`, `migrate --force`, ping 200, fake login 401, temporary-token access checks (section 4 rule 1).
+
 ### 2.0 RESUME HERE: finish and release slice 2 (UX/Dev sprints)
 
 State at the pause: the code is written and committed on branch `wip/phase4-slice2` (pushed to GitHub, NOT merged to `main`, NOT on the live server, no live migration run). Backend: migration `2026_10_24_140000_create_workflow_sprint_tables.php` (work_sprints, sprint_items, sprint_events), `SprintController`, models, `WorkAccess::sprintTeamIds/isLeadOf/canManageSprint`, `ProjectGate` ux and dev tabs now `ready`, 12 routes under `api/work`. `SprintWorkflowTest` (7 tests, 88 assertions) passes; the whole backend suite was last run at 201 tests before this slice. Frontend: `components/work/Sprints.tsx`, a "UX / Dev sprints" tab in `work/projects/[id]/page.tsx`; both side panels (`UiPages.tsx`, `Sprints.tsx`) now fill their forms once and refresh only after a save (fixes a real bug where a background reload wiped typing).
