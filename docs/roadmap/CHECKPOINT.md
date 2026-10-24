@@ -21,7 +21,7 @@ You are continuing the **Internal Software Plan** for the Intersmart Employee Po
 
 **Tests:** 201 backend tests, 40 known old failures listed in `backend/tests/known-failures.txt` (CI fails only on NEW failures). Browser end-to-end: `docs/roadmap/e2e/` (48 steps; the first 40 passed together, the 8 new UI steps passed separately, one combined run is still to do).
 
-**Manager-facing PDFs** (regenerate after every change, they copy to `D:\downloads`): `Progress Report.pdf`, `Test Workflows.pdf`, `System Overview.pdf`.
+**Manager-facing page:** the combined Live Report (System overview, Progress, Test workflows with tick boxes) is the Artifact at https://claude.ai/artifact/1YxcaJqixY6biuxQTmQ8K3. Update it after every unit of work (rule 4 below). The three PDFs exist too (`Progress Report.pdf`, `Test Workflows.pdf`, `System Overview.pdf`) but are no longer updated every time.
 
 ## 2. Next actions, in order
 
@@ -54,7 +54,7 @@ Sales document fields; budget-per-department formula (sections x animation level
 1. **Never disturb the running site or database.** Every live change: back up the database and `.env` first, preview migrations with `php artisan migrate --pretend --force`, apply, then check `/api/ping` = 200 and a fake login = 401. New modules ship **dark** behind `module.<name>.enabled` and are switched on only after verification.
 2. Add-only database changes: new tables, new nullable columns. No rename, drop or type changes on existing tables.
 3. New roles and access follow the **department (team name)**, never edits to existing roles. See `App\Support\Access` and `WorkAccess`.
-4. After every user-visible change update **both** PDFs: `progress.json` then `python docs/roadmap/make_progress_pdf.py`; `test_workflows.json` (mark sections `new`/`changed`, bump version, changelog) then `python docs/roadmap/make_test_pdf.py`; and `overview.json` then `python docs/roadmap/make_overview_pdf.py` when a stage changes status.
+4. After every user-visible change update the **Live Report page** (owner's request, replaces regenerating PDFs each time): edit `progress.json`, `test_workflows.json` (mark sections `new`/`changed`, bump version, changelog) and `overview.json` (when a stage changes status), run `python docs/roadmap/make_live_report.py`, then republish `docs/roadmap/Live Report.html` with the Artifact tool using the SAME file path so the link stays `https://claude.ai/artifact/1YxcaJqixY6biuxQTmQ8K3` (private; the owner shares it from the page's Share menu). The three PDFs (`make_progress_pdf.py`, `make_test_pdf.py`, `make_overview_pdf.py`) are optional now: regenerate them only when the owner asks or at a milestone.
 5. After every unit of work update this file (section 1 and 2) and `PROGRESS.md`, then commit and push. Commit messages end with the co-author lines from the session's instructions.
 6. Test yourself before telling the owner it works: PHPUnit for logic, the browser test for screens. Never claim a test run you did not do.
 7. Never run browser tests or write data on the **live** site. Use the local copy.

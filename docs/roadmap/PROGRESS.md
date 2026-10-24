@@ -116,3 +116,4 @@ Verdict given to manager: DB will not break at 100+ users; with Step 0 fixes exp
 
 ### Pause note (2026-10-24 night)
 Owner paused work. See `CHECKPOINT.md` section 2.0 for exactly how to resume: slice 2 (sprints) lives on branch `wip/phase4-slice2`, tested by 7 unit tests, final combined browser run still to do, not released. Local MySQL, PHP server, proxy and Next dev were all shut down; the local MySQL data folder was in the old session's scratch folder, so re-initialise it with the commands in `CHECKPOINT.md` section 5.
+10. **Live Report page** replaces per-change PDF updates: after each unit of work edit the three JSON files, run `make_live_report.py`, and republish `Live Report.html` (same path, link https://claude.ai/artifact/1YxcaJqixY6biuxQTmQ8K3). See `CHECKPOINT.md` rule 4.

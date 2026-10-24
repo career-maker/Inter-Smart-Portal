@@ -18,3 +18,4 @@ Also read the repo `CLAUDE.md` (Backend/Database sections were corrected on 2026
 | `Test Workflows.pdf`, `test_workflows.json`, `make_test_pdf.py` | Tick-box test script for the testers. Edit the JSON, run the script, share the PDF |
 | `System Overview.pdf`, `overview.json`, `make_overview_pdf.py` | Plain-English picture of the whole workflow for the manager. Edit the JSON, run the script |
 | `dev-env/php.ini.template` | PHP settings for running tests and the local stack |
+| `Live Report.html`, `make_live_report.py` | One page combining overview, progress and test workflows. Published as an Artifact; update it after every unit of work |
