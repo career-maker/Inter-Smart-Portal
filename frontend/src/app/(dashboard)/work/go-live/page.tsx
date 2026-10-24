@@ -18,7 +18,7 @@ export default function GoLivePage() {
   const load = useCallback(() => { api.get("/work/go-live").then((r) => setRows(r.data.data)).catch((e) => { if ([403, 404].includes(e?.response?.status)) setUnavailable(true); }); }, []);
   useEffect(() => { load(); }, [load]);
 
-  if (unavailable) return <p className="text-slate-600 dark:text-slate-300">Go-live requests are for the system admin team.</p>;
+  if (unavailable) return <p className="text-slate-600 dark:text-slate-300">Go-live requests are for people with the System Administrator designation.</p>;
   if (!rows) return <div className="p-8 flex justify-center"><Loader2 className="h-6 w-6 animate-spin" /></div>;
 
   return (

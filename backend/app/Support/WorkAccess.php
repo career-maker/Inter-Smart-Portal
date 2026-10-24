@@ -49,7 +49,7 @@ class WorkAccess
 
     public static function hasAnyWork(User $user): bool
     {
-        return Access::pmoManager($user) || Access::inTeam($user, 'qa') || Access::inTeam($user, 'system') || self::projectIds($user)->isNotEmpty();
+        return Access::pmoManager($user) || Access::inTeam($user, 'qa') || Access::systemAdmin($user) || self::projectIds($user)->isNotEmpty();
     }
 
     // ---- UI department ---------------------------------------------------------

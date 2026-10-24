@@ -18,6 +18,12 @@ class Access
         return $name !== null && str_starts_with(strtolower(trim($name)), strtolower($teamNameStart));
     }
 
+    /** System administrators are people whose designation is "System Administrator" (there can be several), whatever their team. */
+    public static function systemAdmin(?User $user): bool
+    {
+        return $user !== null && strtolower(trim((string) $user->designation)) === 'system administrator';
+    }
+
     public static function accounts(?User $user): bool
     {
         return $user !== null

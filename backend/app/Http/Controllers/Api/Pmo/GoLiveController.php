@@ -95,11 +95,11 @@ class GoLiveController extends Controller
 
     private function systemAdmins()
     {
-        return User::whereHas('team', fn ($q) => $q->where('name', 'like', 'system%'))->get();
+        return User::whereRaw('lower(trim(designation)) = ?', ['system administrator'])->get();
     }
 
     private function isSystemAdmin(User $user): bool
     {
-        return Access::inTeam($user, 'system') || $user->hasRole('Super Admin');
+        return Access::systemAdmin($user) || $user->hasRole('Super Admin');
     }
 }
