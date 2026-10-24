@@ -1,10 +1,28 @@
 # CHECKPOINT: read this first, then continue
 
-_Last updated: 2026-10-24. Update this file and commit it after every unit of work (see "Standing rules")._
+_Last updated: 2026-10-24 (handover note in section 0). Update this file and commit it after every unit of work (see "Standing rules")._
 
 You are continuing the **Internal Software Plan** for the Intersmart Employee Portal. The owner is a developer on Team QA; the manager's sheet is `SOURCE_Internal_software_plan.xlsx`. Work in small, tested, reversible slices. Never break the existing modules.
 
 **Read order for a new agent:** this file, then `PROGRESS.md` (history and gotchas), then `EXECUTION_PLAN.md` (rules and phase order), then `SOFTWARE_PLAN.md` (have vs build per role). `SERVER.md` has the live server layout.
+
+## 0. WHEN THE OWNER SAYS "CONTINUE" (written 2026-10-24, handover between accounts)
+
+Git: work is on branch `wip/phase4-slice2` (last commit 21c31219 + this file), pushed, NOT merged to `main`, NOT on the live server. First run `git checkout wip/phase4-slice2 && git pull`. Then read section 2.00 below (state) and 2.0 (older detail).
+
+Owner rules: nothing may affect the live site or database; backup before any live change; add-only migrations; no testing and no release until ALL implementation is done, then ONE full test and ONE release; never store passwords; never run browser tests on the live site; update `Live Report.html` (`python docs/roadmap/make_live_report.py`, then publish `docs/roadmap/Live Report.html` with the Artifact tool to https://claude.ai/artifact/1YxcaJqixY6biuxQTmQ8K3 using the same file path or `url`) and this file after each unit of work, commit and push.
+
+Decisions made: system admin = users whose designation is "System Administrator" (several allowed). No staging copy. No GitHub review rule. Owner changes the SSH password only after all work is done (do not ask for it; the live deploy uses SSH access the owner granted earlier; ask the owner to supply credentials in chat if needed, never write them to a file).
+
+Latest work: Sales sheet form (sections Project info, Client info, Scope, In-house with the sheet's dropdowns), Sales max budget cap that replaces the contract value as the limit, manager must give a reason to exceed the limit or raise a set budget, "Sales sheet" card for the Project Office, go-live by designation.
+
+What is NEXT, in order:
+1. WAIT for the owner to bring the manager's answers (HR performance views and rating formula, appreciation approval and sharing, meetings, customer feedback, automatic page budgets from the effort tables, Sales completed-project/AMC details, Sales out-of-scope reply and "action required", out-of-budget list and drag-and-drop tracker). Build each as the answers arrive: backend + frontend + feature test, dark behind the existing flags, add-only migration, then update the Live Report and this file.
+2. When the owner says implementation is done (or says go), run the ONE full test: PHPUnit (`php -c <ini> vendor/bin/phpunit`, then `python backend/tests/check_new_failures.py`, expect the 40 known failures and 0 new; tests written but never run: ChangeWorkflowTest, SalesModuleTest sheet test, PmoModuleTest budget reason test), and the whole browser run (`scratchpad/pw/e2e.js`, needs about 3 GB free memory; the older scratchpad may be gone: recreate per `e2e/README.md`). Add browser steps and `test_workflows.json` sections for: sheet form and cap, reason on budget increase, changes (L), inbox/team/feedback/dashboard (M), go-live (N). Fix failures.
+3. Then release: merge branch to `main`, push (Vercel redeploys), live deploy via SSH: backup, `git pull --ff-only` in `~/public_html/api/Inter-Smart-Portal`, `php artisan migrate --pretend --force`, `migrate --force` (about 10 new tables/columns: sprints, QA, changes, team_feedback, go_live, intake cap/details), `/api/ping` 200, fake login 401, temporary-token access checks. Confirm with the owner before touching live.
+4. After release: refresh section 1 of this file (stale), `test_workflows.json`, `overview.json`, Live Report.
+
+Open owner answers needed: the manager's answers above. Nothing else is blocking.
 
 ## 1. Where we are
 
