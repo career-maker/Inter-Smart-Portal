@@ -188,7 +188,7 @@ class MeetingController extends Controller
             return $this->refuse('You are not part of this meeting.');
         }
 
-        return response($this->buildIcs($meeting, 'REQUEST'), 200, ['Content-Type' => 'text/calendar; charset=utf-8', 'Content-Disposition' => 'attachment; filename="meeting.ics"']);
+        return response($this->buildIcs($meeting, $meeting->status === 'Cancelled' ? 'CANCEL' : 'REQUEST'), 200, ['Content-Type' => 'text/calendar; charset=utf-8', 'Content-Disposition' => 'attachment; filename="meeting.ics"']);
     }
 
     /** In-app notice to attendees and an email with the .ics invite to attendees and client addresses. Mail trouble never blocks the meeting. */

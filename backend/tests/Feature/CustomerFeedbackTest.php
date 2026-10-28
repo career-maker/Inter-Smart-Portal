@@ -39,6 +39,9 @@ class CustomerFeedbackTest extends TestCase
         $this->as($member)->getJson('/api/customer-feedback')->assertStatus(403);
         $this->as($member)->postJson('/api/customer-feedback', $body + ['stage' => 'during'])->assertStatus(403);
 
+        // permission is checked before the form: even an empty or invalid request from a non-allowed person is a plain 403
+        $this->as($member)->postJson('/api/customer-feedback', [])->assertStatus(403);
+
         // manager: during yes, post-live no
         $this->as($manager)->postJson('/api/customer-feedback', $body + ['stage' => 'during'])->assertCreated();
         $this->as($manager)->postJson('/api/customer-feedback', $body + ['stage' => 'post_live'])->assertStatus(403);

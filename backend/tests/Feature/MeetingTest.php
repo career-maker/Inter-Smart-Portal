@@ -48,6 +48,11 @@ class MeetingTest extends TestCase
         $this->as($outsider)->putJson("/api/meetings/actions/$aid/toggle")->assertStatus(403);
         $this->as($guest)->putJson("/api/meetings/actions/$aid/toggle")->assertOk()->assertJsonPath('data.done', true);
 
+        // the calendar file of a cancelled meeting says CANCELLED (so it leaves people's calendars)
+        $id2 = $this->as($org)->postJson('/api/meetings', ['title' => 'Second'] + $body)->assertCreated()->json('data.id');
+        $this->as($org)->postJson("/api/meetings/$id2/cancel")->assertOk();
+        $this->as($org)->get("/api/meetings/$id2/ics")->assertOk()->assertSee('STATUS:CANCELLED', false)->assertSee('METHOD:CANCEL', false);
+
         // a done meeting cannot be cancelled
         $this->as($org)->postJson("/api/meetings/$id/cancel")->assertStatus(403);
     }

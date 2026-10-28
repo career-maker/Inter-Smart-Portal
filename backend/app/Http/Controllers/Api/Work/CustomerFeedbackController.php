@@ -54,6 +54,9 @@ class CustomerFeedbackController extends Controller
     public function store(Request $request)
     {
         $user = $request->user();
+        if (! $this->allowed($user)) { // check permission before looking at the form, so the answer is a clear 403
+            return $this->refuse('Customer feedback is for the project manager and HR.');
+        }
         $d = $request->validate([
             'project_id' => ['required', 'exists:pm_projects,id'],
             'stage' => ['required', 'in:during,post_live'],
