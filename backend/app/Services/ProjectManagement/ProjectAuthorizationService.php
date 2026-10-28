@@ -135,9 +135,21 @@ class ProjectAuthorizationService
             return true;
         }
 
-        return $user->hasRole('Team Lead')
-            || $user->hasRole('Admin')
-            || in_array(strtolower($user->role ?? ''), ['super admin', 'admin', 'team lead'], true);
+        if ($user->hasRole('Admin') || in_array(strtolower($user->role ?? ''), ['super admin', 'admin'], true)) {
+            return true;
+        }
+
+        // A Team Lead manages only projects of their own team (the team they belong to or lead), or a project they coordinate.
+        // Knowing another team's project ID must not be enough (a project with no team can be managed by its creator).
+        if ($user->hasRole('Team Lead') || strtolower($user->role ?? '') === 'team lead') {
+            $teamIds = array_filter(array_merge([$user->team_id], \App\Models\Team::where('team_lead_id', $user->id)->pluck('id')->all()));
+
+            return ($project->team_id !== null && in_array($project->team_id, $teamIds))
+                || $this->isProjectCoordinator($user, $project)
+                || ($project->team_id === null && $project->created_by === $user->id);
+        }
+
+        return false;
     }
 
     /**
