@@ -1,6 +1,6 @@
 # CHECKPOINT: read this first, then continue
 
-_Last updated: 2026-10-24 (handover note in section 0). Update this file and commit it after every unit of work (see "Standing rules")._
+_Last updated: 2026-10-28 (handover note in section 0). Update this file and commit it after every unit of work (see "Standing rules")._
 
 You are continuing the **Internal Software Plan** for the Intersmart Employee Portal. The owner is a developer on Team QA; the manager's sheet is `SOURCE_Internal_software_plan.xlsx`. Work in small, tested, reversible slices. Never break the existing modules.
 
@@ -19,7 +19,18 @@ Decisions made: system admin = users whose designation is "System Administrator"
 
 Latest work: Sales sheet form (sections Project info, Client info, Scope, In-house with the sheet's dropdowns), Sales max budget cap that replaces the contract value as the limit, manager must give a reason to exceed the limit or raise a set budget, "Sales sheet" card for the Project Office, go-live by designation.
 
-What is NEXT, in order:
+**STATE AT 28 Oct 2026 HANDOVER (read this, it supersedes item 1 below):** the manager's answers arrived (section 3). Built since, all on this branch, all dark behind flags, none run or released (only `php -l` and `tsc` checks): appreciation, meetings with .ics invites, customer feedback notes, Sales completed projects and AMC (reuses Accounts' `amc_contracts`, adds `reminded_at`), Sales out-of-scope reply. Details of each are in the bullets of section 2.00 (grep "28 Oct"). New migrations since the 24 Oct list: `2026_10_28_100000` appreciations, `110000` meetings (3 tables), `120000` customer_feedback, `130000` amc_contracts.reminded_at, `140000` out_of_scope_requests sales columns. New flags to switch on after release: `appreciation`, `meetings`, `customer_feedback` (sales/workflow flags already exist). New tests written, never run: AppreciationTest, MeetingTest, CustomerFeedbackTest, CompletedProjectAmcTest, SalesOutOfScopeReplyTest.
+
+**LIVE REPORT STILL NEEDS PUBLISHING:** data and `Live Report.html` were regenerated on 28 Oct and committed, but the artifact link above could not be read from the account that did this work ("not found / not shared"). Whoever is logged in as the artifact's owner: `Artifact action:"read"` the link, then publish `docs/roadmap/Live Report.html` with `url` = the link. If that is refused, publish as a new private artifact and tell the owner the new link (then update the link in this file).
+
+NEXT, in order:
+1. Build the **out-of-budget list** (projects over the limit; plus a separate "nearing the limit" view, default 90%). The drag-and-drop tracker waits: its columns (project stages or task statuses) are unanswered.
+2. Build **HR performance views and rating LAST** (owner: not automated; do not invent a formula, HR must approve inputs).
+3. Ask the owner the open points: tracker columns; whether Sales's out-of-scope answer should gate the project manager's decision (built as independent); confirm AMC reminder 30 days and near-limit 90%; Google review count; old bug tracker; pilot vs all-at-once go-live.
+4. Add browser steps (`e2e/`) for sections L (changes), M (inbox/team/feedback/dashboard), N (go-live, plus the 28 Oct modules; `test_workflows.json` v1.4 already has a written section N for the 28 Oct modules) before the one full test.
+(Older list kept below for reference; item 1 there is done.)
+
+Old list:
 1. WAIT for the owner to bring the manager's answers (HR performance views and rating formula, appreciation approval and sharing, meetings, customer feedback, automatic page budgets from the effort tables, Sales completed-project/AMC details, Sales out-of-scope reply and "action required", out-of-budget list and drag-and-drop tracker). Build each as the answers arrive: backend + frontend + feature test, dark behind the existing flags, add-only migration, then update the Live Report and this file.
 2. When the owner says implementation is done (or says go), run the ONE full test: PHPUnit (`php -c <ini> vendor/bin/phpunit`, then `python backend/tests/check_new_failures.py`, expect the 40 known failures and 0 new; tests written but never run: ChangeWorkflowTest, SalesModuleTest sheet test, PmoModuleTest budget reason test), and the whole browser run (`scratchpad/pw/e2e.js`, needs about 3 GB free memory; the older scratchpad may be gone: recreate per `e2e/README.md`). Add browser steps and `test_workflows.json` sections for: sheet form and cap, reason on budget increase, changes (L), inbox/team/feedback/dashboard (M), go-live (N). Fix failures.
 3. Then release: merge branch to `main`, push (Vercel redeploys), live deploy via SSH: backup, `git pull --ff-only` in `~/public_html/api/Inter-Smart-Portal`, `php artisan migrate --pretend --force`, `migrate --force` (about 10 new tables/columns: sprints, QA, changes, team_feedback, go_live, intake cap/details), `/api/ping` 200, fake login 401, temporary-token access checks. Confirm with the owner before touching live.
