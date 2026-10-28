@@ -136,3 +136,6 @@ Owner paused work. See `CHECKPOINT.md` section 2.0 for exactly how to resume: sl
 
 ### 2026-10-29 module switches and PMO powers
 - Super Admin can switch each module off/on and assign each privilege and each of six separate PMO powers to people or teams (CHECKPOINT.md). 231 tests, 0 new failures.
+
+### 2026-10-29 live test
+- 12 real staff logins tested from the server; access matrix correct; 51 functional checks; two bugs fixed and released; log rotation on; Vercel production OK. See CHECKPOINT.md.

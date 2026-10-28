@@ -211,6 +211,10 @@
   "changelog": [
     {
       "date": "29 Oct 2026",
+      "text": "Live test with 12 accounts: 48 of 51 checks passed first time, 2 bugs fixed and released, log rotation enabled."
+    },
+    {
+      "date": "29 Oct 2026",
       "text": "Module switches and separate Project Office powers added for the Super Admin; PMO 1 and PMO 2 are project managers."
     },
     {
@@ -566,7 +570,10 @@
     "Page budgets stay manual (manager's decision)",
     "Privileges: only Super Admin, Employee and Team Lead are login roles. Accounts, Sales, Sales lead, Project Office, project manager, QA, QA lead, system administrator and HR are assigned by the Super Admin (Add-ons > Portal Customization) to people or whole teams, with a reset to the old rule. HR is Nobby Pachat (hr@intersmart.in) now (released)",
     "Security: the API now sends safe headers (nosniff, referrer policy, HSTS over https); sensitive files (.env, .git) are blocked; the server's bot protection (Imunify360) blocks automated probing",
-    "Super Admin control (Add-ons > Portal Customization): on/off switch for every module, plus privileges for people and teams, including six separate Project Office powers (assign coordinator, department budgets, hold and resume, lock overrides, approvals, out-of-budget list and tracker) that follow 'Project manager' until set separately. PMO 1 and PMO 2 members are all project managers (project manager = coordinator in this company)"
+    "Super Admin control (Add-ons > Portal Customization): on/off switch for every module, plus privileges for people and teams, including six separate Project Office powers (assign coordinator, department budgets, hold and resume, lock overrides, approvals, out-of-budget list and tracker) that follow 'Project manager' until set separately. PMO 1 and PMO 2 members are all project managers (project manager = coordinator in this company)",
+    "LIVE TEST 29 Oct with 12 real staff accounts (admin, accounts, sales, sales lead, employee, PMO, UI member and lead, QA member and lead, system administrator, HR): all 12 log in; 25 screens checked for who can open them (every privilege opens exactly the right screens); 51 functional checks passed except two bugs, both fixed and released (a cancelled meeting's calendar file said CONFIRMED; customer feedback now checks permission before the form)",
+    "Vercel: the production site serves the new design; a full local production build passes (92 pages). A failed deployment seen in Vercel is most likely a branch preview of wip/phase4-slice2",
+    "Performance: every screen answers in about 0.4 to 1.2 seconds from the server; log rotation switched on (the log had grown to 89 MB with debug lines from the biometric trace)"
   ],
   "status_todo": [
     "A person follows the Test Workflows PDF on the live site (or a test copy) and ticks every step; report failures",
@@ -577,7 +584,8 @@
     "Confirm assumptions: AMC reminder 30 days, near-limit 90%, whether Sales's out-of-scope answer should block the manager's own decision",
     "About 20 old biometric timeline tests still fail because their test data uses an old format (not a live bug); to be updated",
     "Owner: change the SSH password after everything is complete; still open: Google review count, old bug tracker, pilot or everyone at go-live",
-    "Live testing of every screen as each kind of user could not be done with real staff accounts; a tester should follow the Test Workflows PDF (new section Q covers privileges)",
-    "Speed under real use was not measured (the bot protection blocks load testing from outside); watch the live site while testers work"
+    "Not tested on live in a browser: the page layouts (checked by build and type check only) and the full create-a-project-to-go-live walk-through (it would create real finance and PMO records and notify staff). A person can follow the Test Workflows PDF",
+    "Speed: even the simplest request takes about 0.6 to 0.8 seconds; the cause is the shared host (not caching of routes, which saved only 10%). Ask the host about PHP opcache and CPU limits",
+    "SECURITY: the real Super Admin password and most of the staff passwords supplied for testing are short, guessable patterns. Set strong unique passwords for every account used in testing and do not share passwords in chat"
   ]
 }
