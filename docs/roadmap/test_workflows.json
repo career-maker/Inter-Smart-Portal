@@ -1,11 +1,11 @@
 {
-  "version": "2.1",
+  "version": "2.2",
   "updated": "28 Oct 2026",
   "covers": "every module in the manager's sheet: Sales, Accounts, Project Office, UI, UX and Dev sprints, QA, corrections and changes, team inbox and feedback, go-live, appreciation, meetings, customer feedback, AMC, out-of-budget list, tracker and HR performance figures, plus a check that the older modules still work",
   "before_you_start": [
     "Use a dummy project called TEST - Demo Website, so real data stays clean. There is no delete for projects; finish by terminating the dummy ones.",
     "Notifications and emails go to real people. Tell the teams that a test is running, and use your own email address for client invites.",
-    "Testers needed: a Sales person, an Accounts person, a PMO project manager (PMO team lead), a coordinator (PMO team member), a Super Admin, a team lead and a member for each of UI, UX and Dev, a QA person, an HR person, a System Administrator (by designation), and one ordinary employee from another team.",
+    "Testers needed: a Sales person, an Accounts person, a person in PMO 1 or PMO 2 (in this company project managers and coordinators are the same people), a Super Admin, a team lead and a member for each of UI, UX and Dev, a QA person, an HR person, a System Administrator (by designation), and one ordinary employee from another team.",
     "Switch on the four new modules first: appreciation, meetings, customer feedback and HR performance (one command each on the server).",
     "Tick Pass or Fail for every step. For a Fail, write the page, what you clicked, what you expected and what happened, and attach a screenshot."
   ],
@@ -808,6 +808,10 @@
     }
   ],
   "changelog": [
+    {
+      "date": "29 Oct 2026",
+      "text": "Version 2.2. Project manager and coordinator are the same people (everyone in PMO 1 and PMO 2); steps that name both can be done by one PMO person."
+    },
     {
       "date": "28 Oct 2026 (late)",
       "text": "Version 2.1. New section Q: Super Admin assigns privileges. HR step names hr@intersmart.in."
