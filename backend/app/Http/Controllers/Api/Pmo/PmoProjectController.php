@@ -132,7 +132,7 @@ class PmoProjectController extends Controller
 
     public function assign(Request $request, Project $project)
     {
-        $this->requireManager($request);
+        $this->requireManager($request, 'pmo_assign');
         $data = $request->validate(['coordinator_id' => 'required|exists:users,id']);
         $coordinator = User::with('team')->findOrFail($data['coordinator_id']);
         abort_unless(Access::inTeam($coordinator, 'pmo'), 422, 'A coordinator must belong to a PMO team.');
@@ -178,7 +178,7 @@ class PmoProjectController extends Controller
      */
     public function setBudget(Request $request, Project $project)
     {
-        $this->requireManager($request);
+        $this->requireManager($request, 'pmo_budget');
         $data = $request->validate([
             'allocations' => 'required|array',
             'allocations.*.team_id' => 'required|exists:teams,id|distinct',
@@ -223,7 +223,7 @@ class PmoProjectController extends Controller
 
     public function hold(Request $request, Project $project)
     {
-        $this->requireManager($request);
+        $this->requireManager($request, 'pmo_hold');
         $data = $request->validate(['reason_code' => ['required', Rule::in(array_keys(self::HOLD_REASONS))], 'note' => 'nullable|string|max:2000']);
         if ($data['reason_code'] === 'other' && empty($data['note'])) {
             return response()->json(['message' => 'Add a note when the reason is Other.', 'errors' => ['note' => ['Add a note when the reason is Other.']]], 422);
@@ -244,7 +244,7 @@ class PmoProjectController extends Controller
 
     public function resume(Request $request, Project $project)
     {
-        $this->requireManager($request);
+        $this->requireManager($request, 'pmo_hold');
         ProjectHold::where('project_id', $project->id)->whereNull('cleared_at')->update(['cleared_at' => now(), 'cleared_by' => $request->user()->id]);
         $project->update(['status' => 'Active']);
         $this->audit($request, $project, 'resumed project', []);
@@ -260,7 +260,7 @@ class PmoProjectController extends Controller
         if ($data['type'] === 'payment') {
             abort_unless($request->user()->hasRole('Super Admin'), 403, 'Only the Super Admin can override the payment lock.');
         } else {
-            $this->requireManager($request);
+            $this->requireManager($request, 'pmo_override');
         }
 
         ProjectOverride::updateOrCreate(['project_id' => $project->id, 'type' => $data['type']], ['reason' => $data['reason'], 'by_user_id' => $request->user()->id]);
@@ -272,7 +272,7 @@ class PmoProjectController extends Controller
     public function removeOverride(Request $request, Project $project, string $type)
     {
         abort_unless(in_array($type, ['payment', 'budget'], true), 404);
-        abort_unless($type === 'payment' ? $request->user()->hasRole('Super Admin') : Access::pmoManager($request->user()), 403, 'Not allowed.');
+        abort_unless($type === 'payment' ? $request->user()->hasRole('Super Admin') : Access::can('pmo_override', $request->user()), 403, 'Not allowed.');
         ProjectOverride::where('project_id', $project->id)->where('type', $type)->delete();
         $this->audit($request, $project, "removed {$type} override", []);
 
@@ -291,9 +291,9 @@ class PmoProjectController extends Controller
         abort_unless(self::canView($request->user(), $project), 403, 'This project is not assigned to you.');
     }
 
-    private function requireManager(Request $request): void
+    private function requireManager(Request $request, string $power = 'pmo_manager'): void
     {
-        abort_unless(Access::pmoManager($request->user()), 403, 'Only the project manager can do this.');
+        abort_unless(Access::can($power, $request->user()), 403, 'Only the project manager can do this.');
     }
 
     /** Sales person, coordinator, Accounts team and PMO managers for a project. */

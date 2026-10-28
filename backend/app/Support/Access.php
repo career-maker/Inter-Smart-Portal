@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Cache;
  */
 class Access
 {
-    /** key => [label, what it unlocks]. Order is the order shown to the Super Admin. */
+    /** key => [label, what it unlocks, (optional) the privilege it follows until the Super Admin sets it separately]. Order is the order shown to the Super Admin. */
     public const PRIVILEGES = [
         'accounts' => ['Accounts', 'Accounts module: payments, budget increases, sales targets, AMC list'],
         'sales' => ['Sales', 'Sales module: leads, inbox, create projects, completed projects and AMC'],
@@ -26,7 +26,20 @@ class Access
         'qa_lead' => ['QA lead', 'Assigns and oversees QA reviews'],
         'system_admin' => ['System administrator', 'Go-live requests: allocate servers and mark projects live'],
         'hr' => ['HR', 'Approve appreciation, customer feedback after go-live, performance figures'],
+        // Project Office powers: each follows "Project manager" until set separately, so any single power can be given, moved or removed
+        'pmo_assign' => ['PMO power: assign the coordinator', 'Assign a coordinator to a project', 'pmo_manager'],
+        'pmo_budget' => ['PMO power: department budgets', 'Set and raise the department budget split', 'pmo_manager'],
+        'pmo_hold' => ['PMO power: hold and resume projects', 'Put a project on hold and resume it', 'pmo_manager'],
+        'pmo_override' => ['PMO power: lock overrides', 'Open a budget-locked tab anyway', 'pmo_manager'],
+        'pmo_approve' => ['PMO power: approvals', 'Approve or reject sprints, corrections and changes, out-of-scope work and extra design pages', 'pmo_manager'],
+        'pmo_budget_views' => ['PMO power: out-of-budget list and tracker', 'See the out-of-budget list and use the project tracker', 'pmo_manager'],
     ];
+
+    /** A single power: Super Admin, or the people given it (by default whoever is a project manager). */
+    public static function can(string $key, ?User $user): bool
+    {
+        return $user !== null && ($user->hasRole('Super Admin') || self::has($key, $user));
+    }
 
     /** @return array<string,array{users:int[],teams:int[]}> the saved choices, keyed by privilege */
     public static function settings(): array
@@ -66,7 +79,9 @@ class Access
             return in_array($user->id, $cfg['users'], true) || ($user->team_id !== null && in_array((int) $user->team_id, $cfg['teams'], true));
         }
 
-        return self::legacy($key, $user);
+        $follows = self::PRIVILEGES[$key][2] ?? null;
+
+        return $follows !== null ? self::has($follows, $user) : self::legacy($key, $user);
     }
 
     /** Everyone holding the privilege (active people only). Super Admin is not added automatically. */
@@ -75,6 +90,11 @@ class Access
         $cfg = self::settings()[$key] ?? null;
         if ($cfg !== null) {
             return User::with('team')->where('status', 'Active')->where(fn ($q) => $q->whereIn('id', $cfg['users'])->orWhereIn('team_id', $cfg['teams']))->get();
+        }
+
+        $follows = self::PRIVILEGES[$key][2] ?? null;
+        if ($follows !== null) {
+            return self::usersWith($follows);
         }
 
         return User::with('team')->where('status', 'Active')->get()->filter(fn ($u) => self::legacy($key, $u))->values();

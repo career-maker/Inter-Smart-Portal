@@ -46,7 +46,7 @@ class SprintController extends Controller
 
                 return ['id' => $t->id, 'name' => $t->name, 'budget' => $alloc, 'approved_cost' => $used, 'left' => $alloc - $used, 'can_plan' => WorkAccess::canManageSprint($user, $t->id)];
             })->values(),
-            'is_manager' => Access::pmoManager($user), 'is_coordinator' => $project->project_coordinator_id === $user->id,
+            'is_manager' => Access::can('pmo_approve', $user), 'is_coordinator' => $project->project_coordinator_id === $user->id,
         ]);
     }
 
@@ -70,7 +70,7 @@ class SprintController extends Controller
             'members' => ($team?->members ?? collect())->map(fn ($u) => ['id' => $u->id, 'name' => trim("{$u->first_name} {$u->last_name}")])->values(),
             'budget' => ['department' => $budget, 'other_approved' => $used, 'left' => $budget - $used],
             'item_statuses' => SprintItem::STATUSES,
-            'can_manage' => WorkAccess::canManageSprint($user, $sprint->team_id), 'is_manager' => Access::pmoManager($user),
+            'can_manage' => WorkAccess::canManageSprint($user, $sprint->team_id), 'is_manager' => Access::can('pmo_approve', $user),
             'is_coordinator' => $project->project_coordinator_id === $user->id,
             'totals' => ['effort_days' => (float) $items->sum('effort_days'), 'spent_days' => (float) $items->sum('time_spent_days')],
         ]);
@@ -162,7 +162,7 @@ class SprintController extends Controller
     /** Project manager approves against the department budget (over budget needs a confirmation) or rejects with a reason. */
     public function decide(Request $request, WorkSprint $sprint)
     {
-        abort_unless(Access::pmoManager($request->user()), 403, 'Only the project manager can decide this.');
+        abort_unless(Access::can('pmo_approve', $request->user()), 403, 'Only the project manager can decide this.');
         $data = $request->validate(['decision' => ['required', Rule::in(['approve', 'reject'])], 'note' => 'nullable|string|max:2000', 'allow_over_budget' => 'sometimes|boolean']);
         abort_unless($sprint->status === 'Submitted', 422, 'This sprint is not waiting for a decision.');
         $project = Project::findOrFail($sprint->project_id);

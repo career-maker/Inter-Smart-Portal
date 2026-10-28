@@ -133,3 +133,6 @@ Owner paused work. See `CHECKPOINT.md` section 2.0 for exactly how to resume: sl
 - Super-Admin-assignable privileges (see CHECKPOINT.md): HR is hr@intersmart.in by default; accounts, sales, pmo, pmo_manager, qa, system_admin, hr ... are assigned to people/teams in Add-ons > Portal Customization. 229 tests, 0 new failures. Released.
 - Security headers middleware. Live probes from outside are blocked by Imunify360 (good), so test from the server or by hand.
 - Owner rule: do not impersonate real staff accounts for testing, even briefly; use the Super Admin or a dedicated test account.
+
+### 2026-10-29 module switches and PMO powers
+- Super Admin can switch each module off/on and assign each privilege and each of six separate PMO powers to people or teams (CHECKPOINT.md). 231 tests, 0 new failures.

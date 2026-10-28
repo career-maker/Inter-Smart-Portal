@@ -1,5 +1,5 @@
 {
-  "version": "2.2",
+  "version": "2.3",
   "updated": "28 Oct 2026",
   "covers": "every module in the manager's sheet: Sales, Accounts, Project Office, UI, UX and Dev sprints, QA, corrections and changes, team inbox and feedback, go-live, appreciation, meetings, customer feedback, AMC, out-of-budget list, tracker and HR performance figures, plus a check that the older modules still work",
   "before_you_start": [
@@ -708,7 +708,7 @@
     },
     {
       "id": "Q",
-      "title": "Q. Super Admin: who holds each privilege",
+      "title": "Q. Super Admin: module switches, privileges and Project Office powers",
       "status": "new",
       "intro": "The portal's login roles are only Super Admin, Employee and Team Lead. Accounts, Sales, Project Office, project manager, QA, system administrator and HR are privileges the Super Admin assigns.",
       "steps": [
@@ -759,6 +759,42 @@
           "where": "Audit logs",
           "do": "Look for the changes just made",
           "expect": "Each change is listed with who made it"
+        },
+        {
+          "who": "Super Admin",
+          "where": "Add-ons > Portal Customization > Module switches",
+          "do": "Untick Meetings",
+          "expect": "Saved. Meetings disappears from the menu and its page says it is not switched on; nothing is deleted"
+        },
+        {
+          "who": "Super Admin",
+          "where": "Same card",
+          "do": "Tick Meetings again",
+          "expect": "Meetings is back with the old meetings still there"
+        },
+        {
+          "who": "Super Admin",
+          "where": "Module privileges > 'PMO power: hold and resume projects'",
+          "do": "It shows 'same as Project manager'. Save with nobody ticked",
+          "expect": "Now only Super Admins can hold or resume projects; project managers get a refusal, their other powers still work"
+        },
+        {
+          "who": "Super Admin",
+          "where": "Same row",
+          "do": "Click 'Back to same as Project manager'",
+          "expect": "Managers can hold and resume again"
+        },
+        {
+          "who": "Super Admin",
+          "where": "Module privileges > 'Project manager'",
+          "do": "Add or remove a person or a team",
+          "expect": "Every PMO power that follows 'Project manager' changes with it; powers set separately do not"
+        },
+        {
+          "who": "Project manager",
+          "where": "Direct link to Module switches",
+          "do": "Try to open it or switch a module",
+          "expect": "Refused: Super Admin only"
         }
       ]
     },
@@ -808,6 +844,10 @@
     }
   ],
   "changelog": [
+    {
+      "date": "29 Oct 2026",
+      "text": "Version 2.3. Section Q extended: module switches and separate Project Office powers."
+    },
     {
       "date": "29 Oct 2026",
       "text": "Version 2.2. Project manager and coordinator are the same people (everyone in PMO 1 and PMO 2); steps that name both can be done by one PMO person."

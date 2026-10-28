@@ -20,7 +20,7 @@ class AccessSettingsController extends Controller
     {
         $saved = Access::settings();
         $privileges = collect(Access::PRIVILEGES)->map(fn ($p, $key) => [
-            'key' => $key, 'label' => $p[0], 'description' => $p[1],
+            'key' => $key, 'label' => $p[0], 'description' => $p[1], 'follows' => isset($p[2]) ? Access::PRIVILEGES[$p[2]][0] : null,
             'customised' => isset($saved[$key]),
             'users' => $saved[$key]['users'] ?? Access::usersWith($key)->pluck('id')->all(), // when not customised: who the default rule gives it to
             'teams' => $saved[$key]['teams'] ?? [],

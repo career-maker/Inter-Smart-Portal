@@ -22,7 +22,7 @@ class BudgetWatchController extends Controller
 
     public function index(Request $request)
     {
-        if (! Access::pmoManager($request->user())) {
+        if (! Access::can('pmo_budget_views', $request->user())) {
             $m = 'Only the project manager can see the out-of-budget list.';
 
             return response()->json(['message' => $m, 'errors' => ['budget' => [$m]]], 403);
@@ -46,7 +46,7 @@ class BudgetWatchController extends Controller
     /** Project board for the manager: every open project with its stage and the budget left. Moves go through the hold and resume endpoints. */
     public function tracker(Request $request)
     {
-        if (! Access::pmoManager($request->user())) {
+        if (! Access::can('pmo_budget_views', $request->user())) {
             $m = 'Only the project manager can use the tracker.';
 
             return response()->json(['message' => $m, 'errors' => ['tracker' => [$m]]], 403);

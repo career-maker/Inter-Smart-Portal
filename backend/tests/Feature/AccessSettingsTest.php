@@ -61,6 +61,43 @@ class AccessSettingsTest extends TestCase
         $this->assertFalse(Access::accounts($opsPerson));
     }
 
+    public function test_single_pmo_powers_follow_the_project_manager_until_set_and_modules_can_be_switched_off(): void
+    {
+        Role::firstOrCreate(['name' => 'Super Admin']);
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+        Feature::set('pmo', true);
+        Feature::set('meetings', true);
+        $admin = User::factory()->create();
+        $admin->assignRole('Super Admin');
+        $pmo = Team::create(['name' => 'PMO 1']);
+        $pm = User::factory()->create(['team_id' => $pmo->id]);
+        $pmo->update(['team_lead_id' => $pm->id]);
+        $project = \App\Models\Project::create(['name' => 'Acme', 'status' => 'Active', 'start_date' => now()->toDateString(), 'created_by' => $admin->id, 'project_coordinator_id' => $pm->id]);
+
+        // default: the project manager may put a project on hold
+        $this->as($pm)->postJson("/api/pmo/projects/{$project->id}/resume")->assertOk();
+        $this->as($pm)->postJson("/api/pmo/projects/{$project->id}/hold", ['reason_code' => 'content'])->assertOk();
+
+        // take the hold power away from everyone (only Super Admin keeps it): the manager is refused, the other powers still work
+        $this->as($admin)->postJson('/api/access-settings', ['key' => 'pmo_hold', 'users' => [], 'teams' => []])->assertOk();
+        $this->as($pm)->postJson("/api/pmo/projects/{$project->id}/resume")->assertStatus(403);
+        $this->as($pm)->getJson('/api/pmo/budget-watch')->assertOk();
+        $this->as($admin)->postJson("/api/pmo/projects/{$project->id}/resume")->assertOk();
+
+        // give it back by resetting to "same as project manager"
+        $this->as($admin)->postJson('/api/access-settings/reset', ['key' => 'pmo_hold'])->assertOk();
+        $this->as($pm)->postJson("/api/pmo/projects/{$project->id}/resume")->assertOk();
+
+        // module switch: off hides the module for everyone, on brings it back; only the Super Admin can switch
+        $this->as($pm)->getJson('/api/meetings')->assertOk();
+        $this->as($pm)->postJson('/api/module-switches', ['key' => 'meetings', 'enabled' => false])->assertStatus(403);
+        $this->as($admin)->postJson('/api/module-switches', ['key' => 'meetings', 'enabled' => false])->assertOk();
+        $this->as($pm)->getJson('/api/meetings')->assertStatus(404);
+        $this->as($admin)->postJson('/api/module-switches', ['key' => 'meetings', 'enabled' => true])->assertOk();
+        $this->as($pm)->getJson('/api/meetings')->assertOk();
+        $this->as($admin)->postJson('/api/module-switches', ['key' => 'nonsense', 'enabled' => true])->assertStatus(422);
+    }
+
     private function as(User $user): static
     {
         $this->app['auth']->forgetGuards();

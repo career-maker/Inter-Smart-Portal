@@ -41,7 +41,7 @@ class ChangeController extends Controller
             ]),
             'departments' => $teams->map(fn ($t) => ['id' => $t->id, 'name' => $t->name, 'budget' => $b = $this->budget($project->id, $t->id), 'used' => $u = $this->used($project->id, $t->id), 'left' => $b - $u])->values(),
             'members' => $teams->mapWithKeys(fn ($t) => [$t->id => User::where('team_id', $t->id)->get()->map(fn ($u) => ['id' => $u->id, 'name' => trim("{$u->first_name} {$u->last_name}")])->values()]),
-            'is_manager' => Access::pmoManager($user),
+            'is_manager' => Access::can('pmo_approve', $user),
             'can_raise' => Access::pmoManager($user) || $project->project_coordinator_id === $user->id,
             'kinds' => WorkChange::KINDS,
         ]);
@@ -81,7 +81,7 @@ class ChangeController extends Controller
 
     public function decide(Request $request, WorkChange $change)
     {
-        abort_unless(Access::pmoManager($request->user()), 403, 'Only the project manager can decide this.');
+        abort_unless(Access::can('pmo_approve', $request->user()), 403, 'Only the project manager can decide this.');
         $data = $request->validate(['decision' => ['required', Rule::in(['approve', 'reject'])], 'note' => 'nullable|string|max:2000', 'allow_over_budget' => 'sometimes|boolean']);
         abort_unless($change->status === 'Estimated', 422, 'This item is not waiting for a decision.');
         $project = Project::findOrFail($change->project_id);

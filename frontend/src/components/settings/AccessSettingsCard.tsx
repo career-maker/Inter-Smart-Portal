@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { KeyRound } from "lucide-react";
 import api from "@/services/api";
 
-type Priv = { key: string; label: string; description: string; customised: boolean; users: number[]; teams: number[] };
+type Priv = { key: string; label: string; description: string; follows: string | null; customised: boolean; users: number[]; teams: number[] };
 
 /** Super Admin: assign every module privilege (Accounts, Sales, Project Office, project manager, QA, system administrator, HR ...) to people and/or teams. */
 export default function AccessSettingsCard() {
@@ -39,7 +39,7 @@ function Row({ p, people, teams, onChanged }: { p: Priv; people: any[]; teams: a
   return (
     <details className="rounded-lg border border-slate-200 dark:border-slate-800 px-3 py-2">
       <summary className="cursor-pointer text-sm font-medium text-slate-900 dark:text-white">
-        {p.label} <span className="font-normal text-slate-500">{p.customised ? "· set by you" : "· default rule"} · {names.length ? names.join(", ") : "nobody"}</span>
+        {p.label} <span className="font-normal text-slate-500">{p.customised ? "· set by you" : p.follows ? `· same as ${p.follows}` : "· default rule"} · {names.length ? names.join(", ") : "nobody"}</span>
       </summary>
       <div className="mt-2 space-y-2 text-sm">
         <p className="text-slate-600 dark:text-slate-300">{p.description}</p>
@@ -69,7 +69,7 @@ function Row({ p, people, teams, onChanged }: { p: Priv; people: any[]; teams: a
         </div>
         <div className="flex items-center gap-2">
           <button className="h-8 px-3 rounded-md bg-amber-500 text-white font-medium" onClick={save}>Save</button>
-          {p.customised && <button className="h-8 px-3 rounded-md border" onClick={reset}>Back to default rule</button>}
+          {p.customised && <button className="h-8 px-3 rounded-md border" onClick={reset}>{p.follows ? `Back to same as ${p.follows}` : "Back to default rule"}</button>}
           {msg && <span className="text-slate-600 dark:text-slate-300">{msg}</span>}
         </div>
         <p className="text-xs text-slate-500">Super Admins always keep access. Saving with nobody ticked means only Super Admins have it.</p>

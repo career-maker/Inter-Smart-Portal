@@ -137,7 +137,7 @@ class UiWorkflowController extends Controller
     /** Project manager decides on a page beyond the sold number of pages. */
     public function decidePage(Request $request, ProjectPage $page)
     {
-        abort_unless(Access::pmoManager($request->user()), 403, 'Only the project manager can decide this.');
+        abort_unless(Access::can('pmo_approve', $request->user()), 403, 'Only the project manager can decide this.');
         $data = $request->validate(['decision' => ['required', Rule::in(['approve', 'reject'])], 'note' => 'nullable|string|max:2000']);
         abort_unless($page->approval === 'Pending', 422, "This page is already {$page->approval}.");
         if ($data['decision'] === 'reject' && empty($data['note'])) {

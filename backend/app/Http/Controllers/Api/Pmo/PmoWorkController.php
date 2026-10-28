@@ -96,7 +96,7 @@ class PmoWorkController extends Controller
     /** Manager approves (the salesperson is told to agree it with the client, with the effort) or rejects with a note. */
     public function decideOutOfScope(Request $request, OutOfScopeRequest $oos)
     {
-        abort_unless(Access::pmoManager($request->user()), 403, 'Only the project manager can decide this.');
+        abort_unless(Access::can('pmo_approve', $request->user()), 403, 'Only the project manager can decide this.');
         $data = $request->validate(['decision' => ['required', Rule::in(['approve', 'reject'])], 'note' => 'nullable|string|max:2000']);
         if ($data['decision'] === 'reject' && empty($data['note'])) {
             return response()->json(['message' => 'Give a reason when rejecting.', 'errors' => ['note' => ['Give a reason when rejecting.']]], 422);

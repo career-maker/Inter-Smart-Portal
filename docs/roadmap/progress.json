@@ -210,6 +210,10 @@
   ],
   "changelog": [
     {
+      "date": "29 Oct 2026",
+      "text": "Module switches and separate Project Office powers added for the Super Admin; PMO 1 and PMO 2 are project managers."
+    },
+    {
       "date": "28 Oct 2026 (late)",
       "text": "Privileges assignable by the Super Admin (released). HR set to hr@intersmart.in. Security headers added."
     },
@@ -561,7 +565,8 @@
     "Complete step-by-step test script for testers: Test Workflows PDF version 2.0 (102 steps across 16 sections)",
     "Page budgets stay manual (manager's decision)",
     "Privileges: only Super Admin, Employee and Team Lead are login roles. Accounts, Sales, Sales lead, Project Office, project manager, QA, QA lead, system administrator and HR are assigned by the Super Admin (Add-ons > Portal Customization) to people or whole teams, with a reset to the old rule. HR is Nobby Pachat (hr@intersmart.in) now (released)",
-    "Security: the API now sends safe headers (nosniff, referrer policy, HSTS over https); sensitive files (.env, .git) are blocked; the server's bot protection (Imunify360) blocks automated probing"
+    "Security: the API now sends safe headers (nosniff, referrer policy, HSTS over https); sensitive files (.env, .git) are blocked; the server's bot protection (Imunify360) blocks automated probing",
+    "Super Admin control (Add-ons > Portal Customization): on/off switch for every module, plus privileges for people and teams, including six separate Project Office powers (assign coordinator, department budgets, hold and resume, lock overrides, approvals, out-of-budget list and tracker) that follow 'Project manager' until set separately. PMO 1 and PMO 2 members are all project managers (project manager = coordinator in this company)"
   ],
   "status_todo": [
     "A person follows the Test Workflows PDF on the live site (or a test copy) and ticks every step; report failures",
