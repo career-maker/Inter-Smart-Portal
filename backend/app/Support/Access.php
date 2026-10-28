@@ -65,6 +65,29 @@ class Access
             ->get();
     }
 
+    /** HR: the HR role or a department whose name starts with "HR". */
+    public static function hr(?User $user): bool
+    {
+        return $user !== null && ($user->hasRole('HR') || self::inTeam($user, 'hr'));
+    }
+
+    /** Appreciation: team leads (of any team), HR and PCs (Project Office members) may nominate. */
+    public static function appreciationNominator(User $user): bool
+    {
+        return self::hr($user) || self::pmo($user) || \App\Models\Team::where('team_lead_id', $user->id)->exists();
+    }
+
+    /** Appreciation is approved by project managers or HR. */
+    public static function appreciationApprover(User $user): bool
+    {
+        return self::hr($user) || self::pmoManager($user);
+    }
+
+    public static function appreciationApprovers()
+    {
+        return self::pmoManagers()->merge(self::teamMembers(['hr']))->unique('id');
+    }
+
     /** Members of departments whose name starts with any of the given words (e.g. "PMO 1", "PMO 2"). */
     public static function teamMembers(array $teamNameStarts)
     {

@@ -206,6 +206,14 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
+    id: "appreciation",
+    label: "Appreciation",
+    shortLabel: "Thanks",
+    icon: HeartHandshake,
+    feature: "appreciation", // per-person: GET /features is true only for team leads, HR and Project Office
+    items: [{ href: "/appreciation", label: "Nominations" }],
+  },
+  {
     id: "pmo",
     label: "Project Office",
     shortLabel: "PMO",

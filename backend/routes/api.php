@@ -552,6 +552,15 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::post('qa/reviews/{review}/complete', [$qa, 'complete']);
     });
 
+    // Appreciation: dark until module.appreciation.enabled; nominate and approve rules are checked in the controller.
+    Route::prefix('appreciations')->middleware(['feature:appreciation'])->group(function () {
+        $ap = \App\Http\Controllers\Api\Work\AppreciationController::class;
+        Route::get('/', [$ap, 'index']);
+        Route::get('people', [$ap, 'people']);
+        Route::post('/', [$ap, 'store']);
+        Route::post('{appreciation}/decision', [$ap, 'decide']);
+    });
+
     // Project Office (Phase 3): hidden (404) until module.pmo.enabled is switched on.
     Route::prefix('pmo')->middleware(['feature:pmo', 'pmo.access'])->group(function () {
         $pmo = \App\Http\Controllers\Api\Pmo\PmoProjectController::class;
