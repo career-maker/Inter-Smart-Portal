@@ -37,7 +37,10 @@ export default function MeetingsPage() {
 }
 
 function Schedule({ people, onSaved }: { people: any[]; onSaved: () => void }) {
-  const [f, setF] = useState({ kind: "internal", title: "", start: "", end: "", location: "", agenda: "", emails: "" });
+  // opened from a Sales lead (?lead_id=&title=&email=): start a client meeting for that lead
+  const q = typeof window === "undefined" ? new URLSearchParams() : new URLSearchParams(window.location.search);
+  const leadId = q.get("lead_id");
+  const [f, setF] = useState({ kind: leadId ? "client" : "internal", title: q.get("title") || "", start: "", end: "", location: "", agenda: "", emails: q.get("email") || "" });
   const [ids, setIds] = useState<number[]>([]);
   const [err, setErr] = useState<string | null>(null);
   const set = (k: string, v: string) => setF((p) => ({ ...p, [k]: v }));
@@ -45,7 +48,7 @@ function Schedule({ people, onSaved }: { people: any[]; onSaved: () => void }) {
     setErr(null);
     try {
       await api.post("/meetings", {
-        kind: f.kind, title: f.title, starts_at: f.start.replace("T", " "), ends_at: f.end.replace("T", " "), location: f.location || null, agenda: f.agenda || null,
+        kind: f.kind, lead_id: leadId ? Number(leadId) : null, title: f.title, starts_at: f.start.replace("T", " "), ends_at: f.end.replace("T", " "), location: f.location || null, agenda: f.agenda || null,
         attendee_ids: ids, external_emails: f.emails.split(/[\s,;]+/).filter(Boolean),
       });
       setF({ kind: "internal", title: "", start: "", end: "", location: "", agenda: "", emails: "" }); setIds([]); onSaved();

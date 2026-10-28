@@ -21,8 +21,10 @@ class CheckEmployeeStatus
         $user = Auth::guard('sanctum')->user();
         
         if ($user && $user->status !== 'Active') {
-            if (method_exists($user, 'currentAccessToken') && $user->currentAccessToken()) {
-                $user->currentAccessToken()->delete();
+            // Only a real personal access token can be revoked; a transient token (used by actingAs and some guards) has no delete() and used to cause a 500
+            $token = method_exists($user, 'currentAccessToken') ? $user->currentAccessToken() : null;
+            if ($token instanceof \Laravel\Sanctum\PersonalAccessToken) {
+                $token->delete();
             }
 
             return response()->json([

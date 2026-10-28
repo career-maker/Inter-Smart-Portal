@@ -35,6 +35,12 @@ class ProcessBiometricEvents extends Command
                 $this->error('No valid event IDs provided.');
                 return self::FAILURE;
             }
+
+            // Explicit mode: process exactly the listed events (this branch used to build the list and then return nothing, which is a TypeError)
+            $results = $processor->processEvents(array_values($ids));
+            $this->info(sprintf('Processed: %d, Errors: %d', $results['processed'], $results['errors']));
+
+            return self::SUCCESS;
         } else {
             // Automatic bounded processing mode - drain pending queue in safe chunks
             $totalProcessed = 0;

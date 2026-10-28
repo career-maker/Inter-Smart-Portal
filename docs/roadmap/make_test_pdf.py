@@ -44,7 +44,7 @@ def footer(c, d):
 
 
 st = [P("Test Workflows", T),
-      P("How to test the Accounts, Sales and Project Office modules", ParagraphStyle("sub", parent=B, fontSize=12, textColor=AMBER)),
+      P("How to test every module from the manager's sheet, step by step", ParagraphStyle("sub", parent=B, fontSize=12, textColor=AMBER)),
       P(f"Version <b>{data['version']}</b> &nbsp;|&nbsp; Updated <b>{data['updated']}</b> &nbsp;|&nbsp; Covers: {data['covers']}", S),
       Spacer(1, 3 * mm), P("Before you start", H2)]
 st += [P("&bull; " + x) for x in data["before_you_start"]]

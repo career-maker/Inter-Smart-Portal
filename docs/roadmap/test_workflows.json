@@ -1,11 +1,12 @@
 {
-  "version": "1.5",
+  "version": "2.0",
   "updated": "28 Oct 2026",
-  "covers": "Accounts, Sales, Project Office and UI department work screens, plus a check that the older modules still work",
+  "covers": "every module in the manager's sheet: Sales, Accounts, Project Office, UI, UX and Dev sprints, QA, corrections and changes, team inbox and feedback, go-live, appreciation, meetings, customer feedback, AMC, out-of-budget list, tracker and HR performance figures, plus a check that the older modules still work",
   "before_you_start": [
     "Use a dummy project called TEST - Demo Website, so real data stays clean. There is no delete for projects; finish by terminating the dummy ones.",
-    "Notifications go to real people. Tell the Sales, Accounts and PMO teams that a test is running.",
-    "Testers: a Sales person (for example Ann), an Accounts person (for example Ameesha), a PMO project manager (a PMO 1 or PMO 2 team lead), a coordinator (a PMO team member), a Super Admin, and one ordinary employee from another team (for example HTML).",
+    "Notifications and emails go to real people. Tell the teams that a test is running, and use your own email address for client invites.",
+    "Testers needed: a Sales person, an Accounts person, a PMO project manager (PMO team lead), a coordinator (PMO team member), a Super Admin, a team lead and a member for each of UI, UX and Dev, a QA person, an HR person, a System Administrator (by designation), and one ordinary employee from another team.",
+    "Switch on the four new modules first: appreciation, meetings, customer feedback and HR performance (one command each on the server).",
     "Tick Pass or Fail for every step. For a Fail, write the page, what you clicked, what you expected and what happened, and attach a screenshot."
   ],
   "sections": [
@@ -362,54 +363,238 @@
       ]
     },
     {
-      "id": "H",
-      "title": "H. Older modules still work (regression)",
+      "id": "J",
+      "title": "J. Sales form, budget cap and department budgets",
       "status": "new",
-      "intro": "Nothing here should have changed.",
+      "intro": "The Sales form follows the manager's sheet. Use the dummy project TEST - Demo Website.",
       "steps": [
         {
-          "who": "Anyone",
-          "where": "Login page",
-          "do": "Log in and log out; try a wrong password 11 times for one email",
-          "expect": "Works. The 11th wrong try is blocked for that email only, and others can still log in"
+          "who": "Sales",
+          "where": "Sales > Projects > New project",
+          "do": "Fill the four sections (Project info, Client info, Project scope, In-house) using the dropdowns; set a maximum budget cap of 100000 and a budget of 80000",
+          "expect": "Project is created. Only the sheet's own dropdown answers are accepted"
         },
         {
-          "who": "Employee",
-          "where": "Leaves > Apply Leave",
-          "do": "Apply for leave; the team lead then approves it",
-          "expect": "Request, approval and balance behave as before"
+          "who": "Project manager",
+          "where": "Project Office > the project > Overview",
+          "do": "Open the 'Sales sheet' card",
+          "expect": "Shows exactly what Sales entered, including the budget cap"
         },
         {
-          "who": "Employee",
-          "where": "Attendance",
-          "do": "Check in and check out",
-          "expect": "Times recorded as before"
+          "who": "Project manager",
+          "where": "Project Office > Budget",
+          "do": "Give departments a total above the cap (for example 120000) without a reason",
+          "expect": "Refused: a written reason is needed to go over the limit"
         },
         {
-          "who": "Employee",
-          "where": "TA > Apply",
-          "do": "Submit a travel allowance request",
-          "expect": "Appears in TA status; approvers can act on it"
+          "who": "Project manager",
+          "where": "Project Office > Budget",
+          "do": "Repeat with a reason",
+          "expect": "Saved. The Super Admin is notified that the limit was exceeded"
+        }
+      ]
+    },
+    {
+      "id": "K",
+      "title": "K. UX and Dev sprints",
+      "status": "new",
+      "intro": "Needs a project with a department budget for UX or Dev (section J) and a team lead and a team member in that department.",
+      "steps": [
+        {
+          "who": "Team lead (UX or Dev)",
+          "where": "My Work > the project > UX / Dev sprints",
+          "do": "Plan a sprint with two tasks (effort days, an assignee from the same department) and a cost, then Submit",
+          "expect": "Sprint shows Submitted; tasks and effort can no longer change"
         },
         {
-          "who": "Anyone",
-          "where": "Chat and notification bell",
-          "do": "Send a message; open notifications",
-          "expect": "Both work"
+          "who": "Project manager",
+          "where": "Project > UX / Dev sprints",
+          "do": "Approve a sprint whose cost is more than the department budget",
+          "expect": "Asks for confirmation to go over budget; the Super Admin is told after confirming"
         },
         {
-          "who": "Super Admin",
-          "where": "Dashboard",
-          "do": "Open the dashboard",
-          "expect": "Alerts and recent activity widgets load"
+          "who": "Project manager",
+          "where": "Project > UX / Dev sprints",
+          "do": "Reject another sprint without a reason, then with one",
+          "expect": "A reason is required; the team lead can fix and resubmit"
+        },
+        {
+          "who": "Coordinator",
+          "where": "Project > UX / Dev sprints",
+          "do": "Request start and end dates for the approved sprint",
+          "expect": "The team lead is told"
+        },
+        {
+          "who": "Team lead",
+          "where": "Project > UX / Dev sprints",
+          "do": "Confirm the dates (Schedule)",
+          "expect": "Sprint shows Scheduled; assignees are notified"
+        },
+        {
+          "who": "Team member",
+          "where": "My Work > My inbox",
+          "do": "Open the task, set it In progress, add days spent; finish a task that took longer than planned",
+          "expect": "Finishing an overrun asks for a reason and alerts the team lead and managers"
+        },
+        {
+          "who": "Outsider (other department)",
+          "where": "Direct link to the project's sprints",
+          "do": "Try to plan a sprint",
+          "expect": "Refused"
+        }
+      ]
+    },
+    {
+      "id": "L",
+      "title": "L. QA hand-off",
+      "status": "new",
+      "intro": "Needs a completed sprint task from section K and a QA team member (team name starts with QA).",
+      "steps": [
+        {
+          "who": "QA",
+          "where": "My Work > QA queue",
+          "do": "After a task is Completed, find its review and take it",
+          "expect": "A review opened automatically when the task completed"
+        },
+        {
+          "who": "QA",
+          "where": "QA review",
+          "do": "Add two bugs with priorities (one High), then complete the review as Failed",
+          "expect": "Bugs listed with priority; the task goes back to its developer (up to three rounds)"
+        },
+        {
+          "who": "Team member",
+          "where": "My inbox",
+          "do": "Fix and complete the task again",
+          "expect": "A new QA round opens"
+        },
+        {
+          "who": "QA",
+          "where": "QA review",
+          "do": "Pass the review",
+          "expect": "Team lead is asked to verify"
+        },
+        {
+          "who": "Team lead",
+          "where": "Project > QA",
+          "do": "Verify and approve",
+          "expect": "Task is Approved; when all tasks are approved the sprint completes"
+        },
+        {
+          "who": "Project manager",
+          "where": "Notifications",
+          "do": "Check after QA when effort spent exceeded the department budget",
+          "expect": "A 'budget exceeded' notice arrives"
+        }
+      ]
+    },
+    {
+      "id": "M",
+      "title": "M. Corrections and changes",
+      "status": "new",
+      "intro": "Uses a project with a department budget.",
+      "steps": [
+        {
+          "who": "Coordinator",
+          "where": "Project > Corrections and changes",
+          "do": "Raise a correction for a department",
+          "expect": "Appears as Raised; the department team lead is notified"
+        },
+        {
+          "who": "Team lead",
+          "where": "Same tab",
+          "do": "Set the effort days and cost",
+          "expect": "Waiting for the project manager"
+        },
+        {
+          "who": "Project manager",
+          "where": "Same tab",
+          "do": "Approve (over budget needs confirmation) or reject with a reason",
+          "expect": "Approved work counts against the budget; reject needs a reason"
+        },
+        {
+          "who": "Team lead",
+          "where": "Same tab",
+          "do": "Assign it to a team member",
+          "expect": "Member sees it in My inbox"
+        },
+        {
+          "who": "Team member",
+          "where": "My inbox",
+          "do": "Update progress; exceed the effort",
+          "expect": "A reason is required and managers are alerted"
+        }
+      ]
+    },
+    {
+      "id": "O",
+      "title": "O. My inbox, my team, feedback and dashboard tiles",
+      "status": "new",
+      "intro": "Per person screens under My Work.",
+      "steps": [
+        {
+          "who": "Team member",
+          "where": "My Work > My inbox",
+          "do": "Open it with some assigned and some late tasks",
+          "expect": "Everything assigned to you, late work first, over-effort marked"
+        },
+        {
+          "who": "Team lead",
+          "where": "My Work > My team",
+          "do": "Open it",
+          "expect": "Each member: open and late work, days spent, leave"
+        },
+        {
+          "who": "Team lead",
+          "where": "My team > Feedback",
+          "do": "Give a member scores 1 to 5 for attitude, attire, learning and on-time work, with an optional comment; try again the same month",
+          "expect": "Saved; a second entry for the same month is refused"
+        },
+        {
+          "who": "Anyone with work",
+          "where": "My Work",
+          "do": "Look at the tiles at the top",
+          "expect": "Counts match what is in the inbox and the projects list"
+        }
+      ]
+    },
+    {
+      "id": "P",
+      "title": "P. Go-live hand-over",
+      "status": "new",
+      "intro": "Needs a system administrator (a person whose designation is System Administrator) and an Accounts person.",
+      "steps": [
+        {
+          "who": "Coordinator",
+          "where": "Project Office > the project > Handover card",
+          "do": "Ask Accounts for the final payment",
+          "expect": "It appears in Accounts as Awaiting"
+        },
+        {
+          "who": "Coordinator",
+          "where": "Same card",
+          "do": "Request a server",
+          "expect": "System admin is notified"
+        },
+        {
+          "who": "System administrator",
+          "where": "My Work > Go-live requests",
+          "do": "Allocate a server (no passwords), then mark live with the address",
+          "expect": "Status moves Requested, Allocated, Live; the coordinator and others are told"
+        },
+        {
+          "who": "Ordinary employee",
+          "where": "Direct link to go-live requests",
+          "do": "Open it",
+          "expect": "Refused: only System Administrators"
         }
       ]
     },
     {
       "id": "N",
-      "title": "N. Appreciation, meetings, feedback, AMC, Sales reply",
+      "title": "N. Appreciation, meetings, feedback, AMC, out-of-scope reply, budget list, tracker and HR figures",
       "status": "new",
-      "intro": "New and switched off until released. Switch on module.appreciation, meetings and customer_feedback first.",
+      "intro": "These modules start switched off. Switch on appreciation, meetings, customer feedback and HR performance first (Super Admin or the developer does this on the server).",
       "steps": [
         {
           "who": "Team lead",
@@ -512,11 +697,65 @@
           "where": "Performance",
           "do": "Try to open it",
           "expect": "Not available"
+        },
+        {
+          "who": "Salesperson",
+          "where": "Sales > Leads",
+          "do": "Click 'Schedule meeting' on a lead",
+          "expect": "Meetings opens with the title, client email and lead filled in as a Client meeting"
+        }
+      ]
+    },
+    {
+      "id": "H",
+      "title": "H. Older modules still work (regression)",
+      "status": "new",
+      "intro": "Nothing here should have changed.",
+      "steps": [
+        {
+          "who": "Anyone",
+          "where": "Login page",
+          "do": "Log in and log out; try a wrong password 11 times for one email",
+          "expect": "Works. The 11th wrong try is blocked for that email only, and others can still log in"
+        },
+        {
+          "who": "Employee",
+          "where": "Leaves > Apply Leave",
+          "do": "Apply for leave; the team lead then approves it",
+          "expect": "Request, approval and balance behave as before"
+        },
+        {
+          "who": "Employee",
+          "where": "Attendance",
+          "do": "Check in and check out",
+          "expect": "Times recorded as before"
+        },
+        {
+          "who": "Employee",
+          "where": "TA > Apply",
+          "do": "Submit a travel allowance request",
+          "expect": "Appears in TA status; approvers can act on it"
+        },
+        {
+          "who": "Anyone",
+          "where": "Chat and notification bell",
+          "do": "Send a message; open notifications",
+          "expect": "Both work"
+        },
+        {
+          "who": "Super Admin",
+          "where": "Dashboard",
+          "do": "Open the dashboard",
+          "expect": "Alerts and recent activity widgets load"
         }
       ]
     }
   ],
   "changelog": [
+    {
+      "date": "28 Oct 2026",
+      "text": "Version 2.0. Complete script for every module in the manager's sheet: new sections J to P, N extended."
+    },
     {
       "date": "28 Oct 2026 (night)",
       "text": "Section N run by Claude on a local copy: 8 of 8 steps passed."

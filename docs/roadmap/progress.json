@@ -1,11 +1,11 @@
 {
   "updated": "28 Oct 2026",
-  "headline": "The new code and database changes are now ON THE LIVE SERVER (28 Oct, 22:30 server time): backup taken first, 11 add-only database changes applied cleanly, the site and logins checked, and the old screens still work. The Accounts, Sales, Project Office, work-flow, QA, changes, inbox, go-live, tracker, out-of-budget, AMC and out-of-scope screens are live for the right people. Four modules are deployed but still switched OFF and need one command each from the owner: appreciation, meetings, customer feedback and HR performance. Some checks are still outstanding (see Still to do).",
-  "overall_percent": 88,
+  "headline": "Every module in the manager's sheet is now built, released to the live server and switched ON (28 Oct 2026, verified on the live site). Nothing remains to build from the sheet except the HR rating formula, which HR must approve first (the performance page shows the raw figures). What is left is checking: a full browser walk-through of the older screens could not be completed on the test PC (it ran out of memory), so a human tester should follow the new Test Workflows PDF, and a few answers are needed from the manager.",
+  "overall_percent": 95,
   "live_health": [
-    "Website and login: working (checked after the release)",
-    "Database: working; backup taken before the release",
-    "Existing modules (leave, attendance, projects, TA, chat and others): not affected; older dashboard checked",
+    "Website and login: working (checked after the release and after switching the modules on)",
+    "Database: working; verified backup taken before the release",
+    "Existing modules (leave, attendance, projects, TA, chat and others): not affected; dashboard checked",
     "New screens refuse people who are not signed in"
   ],
   "phases": [
@@ -164,9 +164,9 @@
     "The report's sheet table and test count now match the work built"
   ],
   "next": [
-    "Owner switches on the four modules, then each is checked as a real user",
-    "Run the older browser regression on a fresh local database",
-    "Get the manager's answers on the open points below"
+    "Testers follow the Test Workflows PDF and report anything that fails; fix it",
+    "Get the manager's answers on the open points",
+    "HR approves a rating formula, then it is built"
   ],
   "capacity_answer": "The database will not break with 100+ users working at once. The live server is strong (24 processors, 40 GB memory). Improvements planned in Phase 0 (lighter background checks, rate limits, caching) give comfortable room for 150 to 300 users at the same time. A load test will confirm the exact number.",
   "risks": [
@@ -206,10 +206,13 @@
     "HR rating formula: which inputs and weights? HR must approve",
     "Google review count: manual entry or automatic?",
     "Keep the old bug tracker alongside the new bug flow, or replace it?",
-    "Go-live: pilot team first, or everyone at once?",
-    "Owner: server login for the release; staging copy (sub-domain, DNS, certificate); GitHub review rule"
+    "Go-live: pilot team first, or everyone at once?"
   ],
   "changelog": [
+    {
+      "date": "28 Oct 2026 (late)",
+      "text": "All sheet modules switched on in the live system and verified. Four bugs fixed. Test Workflows PDF v2.0 covers every module."
+    },
     {
       "date": "28 Oct 2026 (22:30)",
       "text": "RELEASED to the live server: backup, code pull, 11 database changes, checks passed. Appreciation, meetings, customer feedback and HR performance are deployed but still switched off."
@@ -547,21 +550,21 @@
     }
   ],
   "status_done": [
-    "LIVE and verified on the server: Accounts, Sales (with the full sheet form, completed projects and AMC, out-of-scope reply), Project Office (budget cap, out-of-budget list, tracker), UI, UX/Dev sprints, QA, corrections and changes, team inbox, go-live hand-over",
-    "RELEASED 28 Oct: database backup (11 MB, verified), code pulled to commit ce24d9c5, 11 add-only database changes applied, caches cleared",
-    "CHECKED on the live site: it answers, a wrong login is refused, every new screen refuses people who are not signed in, and with a short-lived admin token the new screens answer correctly while the older dashboard still works (token deleted afterwards)",
-    "TESTED before release on a local copy: 228 backend tests with no new failures, 8 of 8 browser steps on the new screens",
+    "ALL sheet modules are LIVE and switched on: Accounts, Sales (sheet form, completed projects and AMC with reminders, out-of-scope reply, meeting from a lead), Project Office (budget cap, out-of-budget list, tracker), UI, UX/Dev sprints, QA, corrections and changes, team inbox and feedback, go-live hand-over, appreciation, meetings with calendar invites, customer feedback, HR performance figures",
+    "Released 28 Oct: verified backup, code pulled, 11 add-only database changes applied, site and logins checked, new modules switched on one by one with a check after each",
+    "Tested before release: 228 backend tests with no new failures; the new screens passed 8 of 8 browser steps; the first full browser run passed 42 steps with no failures before the local test server ran out of memory",
+    "Bugs found and fixed: meeting request without a note crashed; appreciation page opened for people who cannot use it; the biometric processing command crashed when run for specific events; a disabled user could cause a server error in the login check",
+    "Complete step-by-step test script for testers: Test Workflows PDF version 2.0 (102 steps across 16 sections)",
     "Page budgets stay manual (manager's decision)"
   ],
   "status_todo": [
-    "Switch on four modules that are deployed but off: appreciation, meetings, customer feedback, HR performance (one command each on the server; the owner must run them, the assistant was not allowed to change live settings)",
-    "After switching on: open each screen as the right person and confirm it works (a short-lived token check was done for the screens already on)",
-    "Repeat the full 57-step browser test of the older screens on a freshly reset local database (the earlier QA fix is still unverified in the browser)",
+    "A person follows the Test Workflows PDF on the live site (or a test copy) and ticks every step; report failures",
+    "Repeat the automated browser walk-through of the older screens (sections I4 to P) on a PC with at least 4 GB free memory; the QA screen fix is still unchecked in a browser",
     "Send one real meeting invite email and open it in a calendar app (the live email setup may not be ready)",
-    "HR rating: figures are shown but no rating exists. HR must approve a formula before one is built",
+    "HR rating: HR must approve which inputs and weights to use; the figures page is ready for it",
     "Tracker columns: built as project stages, waiting for the manager to confirm",
     "Confirm assumptions: AMC reminder 30 days, near-limit 90%, whether Sales's out-of-scope answer should block the manager's own decision",
-    "Meetings are not yet linked from Sales leads (only the out-of-scope 'request a meeting' creates one)",
-    "Owner: change the SSH password now that the release is done (it was shared in chat); still open: Google review count, old bug tracker, pilot or everyone at go-live"
+    "About 20 old biometric timeline tests still fail because their test data uses an old format (not a live bug); to be updated",
+    "Owner: change the SSH password after everything is complete; still open: Google review count, old bug tracker, pilot or everyone at go-live"
   ]
 }

@@ -215,11 +215,11 @@
         ],
         [
           "Customer feedback notes (project manager during, HR after go-live)",
-          "built"
+          "live"
         ],
         [
           "Meetings with calendar invites",
-          "built"
+          "live"
         ]
       ]
     },
@@ -305,15 +305,15 @@
         ],
         [
           "Coordinator performance figures (no rating formula)",
-          "built"
+          "live"
         ],
         [
           "Customer feedback notes (no effect on rating)",
-          "built"
+          "live"
         ],
         [
           "Meetings with calendar invites",
-          "built"
+          "live"
         ]
       ]
     },
@@ -474,19 +474,19 @@
         ],
         [
           "Performance figures by department and person (no rating formula)",
-          "built"
+          "live"
         ],
         [
           "Management dashboards (tiles on My Work, out-of-budget list)",
-          "built"
+          "live"
         ],
         [
           "Appreciation: nominate, approve, share on Hall and announcement",
-          "built"
+          "live"
         ],
         [
           "Feedback scores and metrics shown as figures (no rating formula)",
-          "built"
+          "live"
         ]
       ]
     }

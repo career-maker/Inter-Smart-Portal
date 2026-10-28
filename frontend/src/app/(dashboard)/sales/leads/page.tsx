@@ -111,6 +111,7 @@ export default function LeadsPage() {
                   <td className="p-3">{l.next_followup_at || "-"}</td>
                   <td className="p-3">{l.open_activities > 0 ? <Badge>{l.open_activities}</Badge> : "-"}</td>
                   <td className="p-3 text-right">
+                    <a className="mr-2 text-sm text-amber-600 hover:underline" href={`/meetings?lead_id=${l.id}&title=${encodeURIComponent(`Meeting with ${l.name}`)}&email=${encodeURIComponent(l.email || "")}`}>Schedule meeting</a>
                     <Button size="sm" variant="outline" onClick={() => setOpen(open === l.id ? null : l.id)}>Add to inbox</Button>
                     {open === l.id && (
                       <div className="mt-2 grid gap-2 text-left">
