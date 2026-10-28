@@ -307,7 +307,7 @@ page = f"""<title>Intersmart Portal Live Report</title>
 <div class="in"><div class="kpis">
   <div class="kpi"><b>{p["overall_percent"]}%</b><span>of the 27-week plan complete</span></div>
   <div class="kpi"><b>{covered_pct}%</b><span>of the manager's sheet is live ({count["live"] + count["existing"]} of {total} lines)</span></div>
-  <div class="kpi"><b>{count["built"]}</b><span>lines built and tested locally, not live yet</span></div>
+  <div class="kpi"><b>{len(content["new_modules"])}</b><span>new modules, all live and switched on</span></div>
   <div class="kpi"><b>{len(p["status_todo"])}</b><span>things still to do before everything is live</span></div>
   <div class="kpi"><b>{tests_now}</b><span>automated tests guarding it</span></div>
 </div></div>
@@ -338,7 +338,7 @@ page = f"""<title>Intersmart Portal Live Report</title>
 
 <section id="new" class="band full"><div class="in">
   <h2>What the sheet added</h2>
-  <p class="kicker">{done_live} new areas are live for their own departments. Two more are built and tested, waiting for a final check before release.</p>
+  <p class="kicker">Everything the manager asked for is live in the portal and switched on. Each card shows who uses it.</p>
   <div class="grid">{new_html()}</div>
 </div></section>
 

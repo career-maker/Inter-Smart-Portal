@@ -104,7 +104,7 @@
     },
     {
       "name": "UX and Dev sprints",
-      "status": "built",
+      "status": "live",
       "who": "UX and Dev teams",
       "points": [
         "Sprints with effort and cost",
@@ -115,7 +115,7 @@
     },
     {
       "name": "QA hand-off",
-      "status": "built",
+      "status": "live",
       "who": "QA team",
       "points": [
         "Review opens when a task is completed",
@@ -137,7 +137,7 @@
     },
     {
       "name": "Corrections and changes",
-      "status": "built",
+      "status": "live",
       "who": "Coordinator, team leads, project manager",
       "points": [
         "Coordinator raises it for a department",
@@ -148,7 +148,7 @@
     },
     {
       "name": "Inbox, team list and feedback",
-      "status": "built",
+      "status": "live",
       "who": "Team members and team leads",
       "points": [
         "Everything assigned to me, late work first",
@@ -159,13 +159,74 @@
     },
     {
       "name": "Go-live hand-over",
-      "status": "built",
+      "status": "live",
       "who": "Project Office and system admin team",
       "points": [
         "Ask Accounts for the next payment",
         "Request a server",
         "System admin allocates it and marks the project live",
         "Everyone involved is told"
+      ]
+    },
+    {
+      "name": "Appreciation",
+      "status": "live",
+      "who": "Team leads, HR and the Project Office",
+      "points": [
+        "Nominate a colleague with a reason",
+        "Project manager or HR approves or rejects with a reason",
+        "Approved: shown on the Hall page and posted as an announcement",
+        "Nominee and nominator are told"
+      ]
+    },
+    {
+      "name": "Meetings",
+      "status": "live",
+      "who": "Everyone",
+      "points": [
+        "Client and internal meetings",
+        "Date, attendees, minutes and follow-up actions",
+        "Calendar invite by email (.ics) to colleagues and clients",
+        "Start one from a Sales lead or an out-of-scope request"
+      ]
+    },
+    {
+      "name": "Customer feedback notes",
+      "status": "live",
+      "who": "Project manager and HR",
+      "points": [
+        "Project manager records feedback during a project",
+        "HR records it after go-live",
+        "Notes and an optional score; never changes anyone's rating"
+      ]
+    },
+    {
+      "name": "Sales: completed projects and AMC",
+      "status": "live",
+      "who": "Sales team",
+      "points": [
+        "Go-live date, AMC start and renewal, AMC amount, payment state",
+        "Reminder 30 days before an AMC expires",
+        "Answer out-of-scope requests: approve or reject with a reason, or request a meeting"
+      ]
+    },
+    {
+      "name": "Out-of-budget list and tracker",
+      "status": "live",
+      "who": "Project manager",
+      "points": [
+        "Projects over the department budgets",
+        "A separate list of projects nearing the limit (90%)",
+        "Board by stage with budget left; drag between Active and On Hold"
+      ]
+    },
+    {
+      "name": "HR performance figures",
+      "status": "live",
+      "who": "HR",
+      "points": [
+        "Tasks done and on time, effort against estimate, QA bugs, monthly feedback scores",
+        "Figures only: no rating until HR approves a formula"
       ]
     }
   ],
