@@ -189,6 +189,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/sales/leads",    label: "Leads" },
       { href: "/sales/inbox",    label: "Inbox" },
       { href: "/sales/projects", label: "Projects" },
+      { href: "/sales/completed", label: "Completed and AMC" },
     ],
   },
   {

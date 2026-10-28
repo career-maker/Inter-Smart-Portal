@@ -20,3 +20,6 @@ Schedule::command('biometric:process')->everyFiveMinutes()->withoutOverlapping()
 // Daily data retention cleanup – chat and community posts based on admin retention policy
 Schedule::command('portal:cleanup-retention')->dailyAt('01:00')->withoutOverlapping();
 Schedule::command('sanctum:prune-expired --hours=24')->dailyAt('01:30')->withoutOverlapping();
+
+// Remind Sales once when an AMC is within 30 days of its renewal date (does nothing while the sales module is off)
+Schedule::command('sales:amc-reminders')->dailyAt('08:00')->withoutOverlapping();

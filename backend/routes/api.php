@@ -496,6 +496,10 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::get('projects', [$projects, 'index']);
         Route::post('projects', [$projects, 'store']);
         Route::post('projects/{project}/status', [$projects, 'setStatus']);
+
+        $done = \App\Http\Controllers\Api\Sales\CompletedProjectController::class;
+        Route::get('completed', [$done, 'index']);
+        Route::put('projects/{project}/amc', [$done, 'setAmc']);
     });
 
     // Department work screens (Phase 4): hidden (404) until module.workflow.enabled is switched on.
