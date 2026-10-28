@@ -28,6 +28,39 @@ class BudgetWatchController extends Controller
             return response()->json(['message' => $m, 'errors' => ['budget' => [$m]]], 403);
         }
 
+        $over = [];
+        $near = [];
+        foreach ($this->rows() as $row) {
+            if ($row['used'] > $row['budget'] || collect($row['departments'])->contains('over', true)) {
+                $over[] = $row;
+            } elseif ($row['used'] >= $row['budget'] * self::NEAR_PERCENT / 100) {
+                $near[] = $row;
+            }
+        }
+        usort($over, fn ($a, $b) => $b['overrun'] <=> $a['overrun']);
+        usort($near, fn ($a, $b) => $b['percent'] <=> $a['percent']);
+
+        return response()->json(['over' => $over, 'near' => $near, 'near_percent' => self::NEAR_PERCENT]);
+    }
+
+    /** Project board for the manager: every open project with its stage and the budget left. Moves go through the hold and resume endpoints. */
+    public function tracker(Request $request)
+    {
+        if (! Access::pmoManager($request->user())) {
+            $m = 'Only the project manager can use the tracker.';
+
+            return response()->json(['message' => $m, 'errors' => ['tracker' => [$m]]], 403);
+        }
+        $rows = collect($this->rows(true))->keyBy('id');
+        $others = Project::whereNotIn('id', $rows->keys())->whereIn('status', ['Planning', 'Active', 'On Hold'])->get(['id', 'name', 'status'])
+            ->map(fn ($p) => ['id' => $p->id, 'name' => $p->name, 'status' => $p->status, 'budget' => 0.0, 'used' => 0.0, 'left' => 0.0, 'percent' => null]);
+
+        return response()->json(['data' => $rows->values()->concat($others)->whereIn('status', ['Planning', 'Active', 'On Hold', 'Completed'])->values(), 'stages' => ['Planning', 'Active', 'On Hold', 'Completed']]);
+    }
+
+    /** One row per project that has a budget: totals and the per-department breakdown. Completed and cancelled projects are left out unless asked for. */
+    private function rows(bool $includeClosed = false): array
+    {
         $alloc = ProjectBudgetAllocation::where('amount', '>', 0)->get()->groupBy('project_id');
         $sprints = WorkSprint::whereIn('status', WorkSprint::OPEN_STATUSES)->whereIn('project_id', $alloc->keys())->selectRaw('project_id, team_id, sum(cost_estimate) as c')->groupBy('project_id', 'team_id')->get();
         $changes = WorkChange::whereIn('status', WorkChange::COUNTED)->whereIn('project_id', $alloc->keys())->selectRaw('project_id, team_id, sum(cost_estimate) as c')->groupBy('project_id', 'team_id')->get();
@@ -35,11 +68,10 @@ class BudgetWatchController extends Controller
         foreach ($sprints->concat($changes) as $r) {
             $used[$r->project_id][$r->team_id] = ($used[$r->project_id][$r->team_id] ?? 0) + (float) $r->c;
         }
-        $projects = Project::whereIn('id', $alloc->keys())->whereNotIn('status', ['Completed', 'Cancelled'])->get()->keyBy('id');
+        $projects = Project::whereIn('id', $alloc->keys())->when(! $includeClosed, fn ($q) => $q->whereNotIn('status', ['Completed', 'Cancelled']))->get()->keyBy('id');
         $teams = Team::pluck('name', 'id');
 
-        $over = [];
-        $near = [];
+        $rows = [];
         foreach ($projects as $p) {
             $budget = (float) $alloc[$p->id]->sum('amount');
             $spent = array_sum($used[$p->id] ?? []);
@@ -53,15 +85,9 @@ class BudgetWatchController extends Controller
                 }
             }
             $row = ['id' => $p->id, 'name' => $p->name, 'budget' => $budget, 'used' => $spent, 'percent' => round(100 * $spent / $budget, 1), 'overrun' => max(0, $spent - $budget), 'departments' => $departments];
-            if ($spent > $budget || $departments->contains('over', true)) {
-                $over[] = $row;
-            } elseif ($spent >= $budget * self::NEAR_PERCENT / 100) {
-                $near[] = $row;
-            }
+            $rows[] = $row + ['status' => $p->status, 'left' => $budget - $spent];
         }
-        usort($over, fn ($a, $b) => $b['overrun'] <=> $a['overrun']);
-        usort($near, fn ($a, $b) => $b['percent'] <=> $a['percent']);
 
-        return response()->json(['over' => $over, 'near' => $near, 'near_percent' => self::NEAR_PERCENT]);
+        return $rows;
     }
 }

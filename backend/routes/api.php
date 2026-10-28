@@ -569,6 +569,9 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::post('{appreciation}/decision', [$ap, 'decide']);
     });
 
+    // HR performance figures (no rating formula): dark until module.hr_performance.enabled; HR and Super Admin only (checked in the controller).
+    Route::get('hr/performance', \App\Http\Controllers\Api\Work\HrPerformanceController::class . '@index')->middleware('feature:hr_performance');
+
     // Customer feedback notes: dark until module.customer_feedback.enabled; project manager and HR only (checked in the controller).
     Route::prefix('customer-feedback')->middleware(['feature:customer_feedback'])->group(function () {
         $cf = \App\Http\Controllers\Api\Work\CustomerFeedbackController::class;
@@ -595,6 +598,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::prefix('pmo')->middleware(['feature:pmo', 'pmo.access'])->group(function () {
         $pmo = \App\Http\Controllers\Api\Pmo\PmoProjectController::class;
         Route::get('meta', [$pmo, 'meta']);
+        Route::get('tracker', [\App\Http\Controllers\Api\Pmo\BudgetWatchController::class, 'tracker']);
         Route::get('budget-watch', [\App\Http\Controllers\Api\Pmo\BudgetWatchController::class, 'index']);
         Route::get('projects', [$pmo, 'index']);
         Route::get('projects/{project}', [$pmo, 'show']);

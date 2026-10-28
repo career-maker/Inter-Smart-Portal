@@ -45,5 +45,11 @@ class BudgetWatchTest extends TestCase
         $this->assertSame(['Over'], collect($r->json('over'))->pluck('name')->all());
         $this->assertSame(['Near'], collect($r->json('near'))->pluck('name')->all());
         $this->assertEquals(200, $r->json('over.0.overrun'));
+
+        // tracker: manager only, lists every open project with the budget left
+        $this->actingAs($pc)->getJson('/api/pmo/tracker')->assertStatus(403);
+        $t = collect($this->actingAs($manager)->getJson('/api/pmo/tracker')->assertOk()->json('data'))->keyBy('name');
+        $this->assertEquals(500, $t['Fine']['left']);
+        $this->assertEquals(-200, $t['Over']['left']);
     }
 }

@@ -1,5 +1,5 @@
 {
-  "version": "1.4",
+  "version": "1.5",
   "updated": "28 Oct 2026",
   "covers": "Accounts, Sales, Project Office and UI department work screens, plus a check that the older modules still work",
   "before_you_start": [
@@ -476,11 +476,51 @@
           "where": "Sales > Out-of-scope requests",
           "do": "Approve without a reason, then with one; request a meeting on another",
           "expect": "Reason is required; meeting creates a client meeting inviting the Project Office"
+        },
+        {
+          "who": "Project manager",
+          "where": "Project Office > Out of budget",
+          "do": "Open the page with one project over its department budgets and one at 95%",
+          "expect": "The first is under Over the limit with the overrun and department breakdown; the second under Nearing the limit"
+        },
+        {
+          "who": "Project coordinator",
+          "where": "Project Office > Out of budget",
+          "do": "Open the page",
+          "expect": "Refused: manager only"
+        },
+        {
+          "who": "Project manager",
+          "where": "Project Office > Project tracker",
+          "do": "Drag an Active project to On Hold and choose a reason; drag it back",
+          "expect": "Status changes, stakeholders are told; cards show budget left"
+        },
+        {
+          "who": "Project manager",
+          "where": "Project Office > Project tracker",
+          "do": "Drag a Planning project to Active",
+          "expect": "Refused with an explanation; it moves by the coordinator accepting"
+        },
+        {
+          "who": "HR",
+          "where": "Performance > Performance figures",
+          "do": "Open the page and filter by department",
+          "expect": "Per person: tasks done and on time, effort spent vs estimate, QA bugs, feedback scores; no rating column"
+        },
+        {
+          "who": "Team lead",
+          "where": "Performance",
+          "do": "Try to open it",
+          "expect": "Not available"
         }
       ]
     }
   ],
   "changelog": [
+    {
+      "date": "28 Oct 2026 (later)",
+      "text": "Version 1.5. Section N extended with the out-of-budget list, tracker and HR performance figures."
+    },
     {
       "date": "28 Oct 2026",
       "text": "Version 1.4. New section N: appreciation, meetings, customer feedback, Sales AMC and the Sales out-of-scope reply (all built, not yet run)."

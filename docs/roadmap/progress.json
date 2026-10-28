@@ -1,6 +1,6 @@
 {
   "updated": "28 Oct 2026",
-  "headline": "Accounts, Sales, the Project Office and the UI screens are LIVE. Everything else built since is saved on a work branch, NOT released and NOT tested (per the owner, testing comes after all building): UX/Dev sprints, QA hand-off, corrections and changes, team inbox and feedback, go-live hand-over, and now (28 Oct) appreciation, meetings with calendar invites, customer feedback notes, Sales completed projects and AMC with expiry reminders, and the Sales out-of-scope reply. Left to build: out-of-budget list and tracker, then the HR rating module (last, not automated). Existing modules are untouched.",
+  "headline": "Accounts, Sales, the Project Office and the UI screens are LIVE. Everything else built since is saved on a work branch, NOT released and NOT tested (per the owner, testing comes after all building): UX/Dev sprints, QA hand-off, corrections and changes, team inbox and feedback, go-live hand-over, and now (28 Oct) appreciation, meetings with calendar invites, customer feedback notes, Sales completed projects and AMC with expiry reminders, and the Sales out-of-scope reply. Also built: out-of-budget list with a near-limit view, a project tracker board, and HR performance figures (raw numbers, no rating formula). Everything the manager's answers asked for is now built; what remains is the one full test and the release. Existing modules are untouched.",
   "overall_percent": 62,
   "live_health": [
     "Website and login: working",
@@ -30,7 +30,7 @@
       "name": "Sales module",
       "weeks": "4",
       "status": "In progress",
-      "percent": 85,
+      "percent": 90,
       "delivers": "Leads, project creation, sales inbox, meeting requests, sales dashboard"
     },
     {
@@ -62,7 +62,7 @@
       "name": "Dashboards + feedback",
       "weeks": "3",
       "status": "In progress",
-      "percent": 45,
+      "percent": 70,
       "delivers": "Dashboards for every role, monthly customer feedback, appreciation approval"
     },
     {
@@ -70,7 +70,7 @@
       "name": "HR performance + go-live",
       "weeks": "2",
       "status": "In progress",
-      "percent": 25,
+      "percent": 45,
       "delivers": "HR performance views, full testing, load test, rollout"
     }
   ],
@@ -162,13 +162,17 @@
     "Customer feedback notes: project manager during a project, HR after go-live; questions are asked by phone, the portal records what was said; no effect on ratings",
     "Sales: completed projects with go-live date, AMC start/renewal/amount and payment status; Sales is reminded 30 days before an AMC expires (uses the AMC records Accounts already keeps)",
     "Sales answers out-of-scope requests: approve or reject with a reason, or request a meeting (creates a client meeting); shown as Action required with a notification",
+    "Out-of-budget list for project managers: projects over the department budgets, plus a separate list of projects at 90% or more",
+    "Project tracker board: projects by stage (Planning, Active, On Hold, Completed) with budget left; drag between Active and On Hold (asks the reason) or back",
+    "HR performance figures per person: tasks done on time, effort against estimate, QA bugs, monthly feedback scores. No rating is calculated: HR must approve a formula first",
+    "Automatic page budgets: the manager said no, budgets stay manual",
     "All of the above are switched off by default and nothing was tested or released in this update"
   ],
   "next": [
-    "Out-of-budget list (projects over the limit) with a separate 'nearing the limit' view; the drag-and-drop tracker waits for its columns",
-    "HR performance views and rating (last; HR must approve the formula)",
-    "Then one full test of everything: backend suite, whole browser run, fix what fails",
-    "Then merge, back up and release to the live server in one controlled step, and switch the new modules on one by one"
+    "Add browser steps for the new screens, then run the one full test (backend suite and the whole browser run) and fix what fails",
+    "Then merge, back up and release to the live server in one controlled step, and switch the new modules on one by one",
+    "HR approves a rating formula (optional, later); the performance page is ready for it",
+    "Owner questions: AMC reminder lead time (30 days), near-limit threshold (90%), tracker columns (project stages assumed), whether the Sales out-of-scope answer should gate the manager's decision"
   ],
   "capacity_answer": "The database will not break with 100+ users working at once. The live server is strong (24 processors, 40 GB memory). Improvements planned in Phase 0 (lighter background checks, rate limits, caching) give comfortable room for 150 to 300 users at the same time. A load test will confirm the exact number.",
   "risks": [
@@ -202,9 +206,10 @@
     }
   ],
   "decisions": [
-    "Drag-and-drop tracker: which columns (project stages or task statuses)?",
-    "Should Sales's out-of-scope answer gate the project manager's own approve/reject, or stay separate?",
+    "Tracker columns: built as project stages (Planning, Active, On Hold, Completed). Change to task statuses?",
+    "Should the Sales out-of-scope answer gate the project manager's own approve/reject, or stay separate?",
     "Confirm defaults: AMC reminder 30 days before expiry; near-limit threshold 90%",
+    "HR rating formula: which inputs and weights? (HR must approve)",
     "Google review count: manual entry or automatic?",
     "Keep the old bug tracker alongside the new bug flow, or replace it?",
     "Go-live: pilot team first, or everyone at once?",
@@ -212,6 +217,10 @@
     "Require review before merging to main on GitHub?"
   ],
   "changelog": [
+    {
+      "date": "28 Oct 2026 (later)",
+      "text": "Built (unreleased, untested, switched off): out-of-budget list, project tracker board, HR performance figures. All of the manager's answers are now built."
+    },
     {
       "date": "28 Oct 2026",
       "text": "Manager's answers received. Built (unreleased, untested, switched off): appreciation, meetings with calendar invites, customer feedback notes, Sales completed projects and AMC with reminders, Sales out-of-scope reply."
@@ -499,8 +508,8 @@
     },
     {
       "task": "Automatic page budget from sections x animation level",
-      "status": "Needs approval",
-      "note": "Waiting for the manager's formula"
+      "status": "Done",
+      "note": "Manager decided: budgets stay manual"
     }
   ],
   "phase6_tasks": [
@@ -515,9 +524,9 @@
       "note": "Project manager during, HR after go-live; notes and optional score, no effect on rating. Not tested or released"
     },
     {
-      "task": "Out-of-budget list and tracker",
-      "status": "Not started",
-      "note": "List: projects over the limit plus a 'nearing the limit' view. Tracker columns still to be answered"
+      "task": "Out-of-budget list and project tracker",
+      "status": "Built",
+      "note": "Over-the-limit list, near-limit (90%) list, and a stage board with budget left. Not tested or released"
     }
   ],
   "phase7_tasks": [
@@ -528,8 +537,8 @@
     },
     {
       "task": "HR performance views and rating",
-      "status": "Needs approval",
-      "note": "Built last and not automated; HR must approve the formula first"
+      "status": "Built",
+      "note": "Raw figures per person: on-time tasks, effort vs estimate, QA bugs, monthly feedback. No rating formula until HR approves one. Not tested or released"
     }
   ]
 }

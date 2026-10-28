@@ -216,6 +216,14 @@ const NAV_GROUPS: NavGroup[] = [
     items: [{ href: "/appreciation", label: "Nominations" }],
   },
   {
+    id: "hr_performance",
+    label: "Performance",
+    shortLabel: "Perf.",
+    icon: TrendingUp,
+    feature: "hr_performance", // per-person: GET /features is true only for HR and Super Admin
+    items: [{ href: "/hr-performance", label: "Performance figures" }],
+  },
+  {
     id: "customer_feedback",
     label: "Customer feedback",
     shortLabel: "Feedback",
@@ -241,6 +249,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/pmo",           label: "Projects" },
       { href: "/pmo/approvals", label: "Out-of-scope requests" },
       { href: "/pmo/budget-watch", label: "Out of budget" },
+      { href: "/pmo/tracker", label: "Project tracker" },
     ],
   },
   {

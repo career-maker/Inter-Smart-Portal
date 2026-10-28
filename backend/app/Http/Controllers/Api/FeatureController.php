@@ -22,6 +22,7 @@ class FeatureController extends Controller
             'pmo' => Feature::enabled('pmo') && Access::pmo($request->user()),
             'appreciation' => Feature::enabled('appreciation') && $request->user() && (Access::appreciationNominator($request->user()) || Access::appreciationApprover($request->user())),
             'customer_feedback' => Feature::enabled('customer_feedback') && $request->user() && (Access::hr($request->user()) || Access::pmoManager($request->user())),
+            'hr_performance' => Feature::enabled('hr_performance') && $request->user() && (Access::hr($request->user()) || $request->user()->hasRole('Super Admin')),
             'meetings' => Feature::enabled('meetings') && $request->user() !== null,
             'workflow' => Feature::enabled('workflow') && ($request->user() ? WorkAccess::hasAnyWork($request->user()) : false),
         ]);
