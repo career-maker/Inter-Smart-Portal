@@ -214,6 +214,14 @@ const NAV_GROUPS: NavGroup[] = [
     items: [{ href: "/appreciation", label: "Nominations" }],
   },
   {
+    id: "customer_feedback",
+    label: "Customer feedback",
+    shortLabel: "Feedback",
+    icon: HelpCircle,
+    feature: "customer_feedback", // per-person: GET /features is true only for project managers and HR
+    items: [{ href: "/customer-feedback", label: "Feedback notes" }],
+  },
+  {
     id: "meetings",
     label: "Meetings",
     shortLabel: "Meetings",

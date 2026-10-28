@@ -561,6 +561,13 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::post('{appreciation}/decision', [$ap, 'decide']);
     });
 
+    // Customer feedback notes: dark until module.customer_feedback.enabled; project manager and HR only (checked in the controller).
+    Route::prefix('customer-feedback')->middleware(['feature:customer_feedback'])->group(function () {
+        $cf = \App\Http\Controllers\Api\Work\CustomerFeedbackController::class;
+        Route::get('/', [$cf, 'index']);
+        Route::post('/', [$cf, 'store']);
+    });
+
     // Meetings: dark until module.meetings.enabled; then open to every signed-in person (organiser/attendee rules are in the controller).
     Route::prefix('meetings')->middleware(['feature:meetings'])->group(function () {
         $mt = \App\Http\Controllers\Api\Work\MeetingController::class;
