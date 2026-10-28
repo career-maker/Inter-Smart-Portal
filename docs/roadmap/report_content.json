@@ -207,11 +207,11 @@
         ],
         [
           "Out-of-scope reply (approve/reject with reason or meeting), 'action required'",
-          "built"
+          "live"
         ],
         [
           "Completed projects: go-live date, AMC start/renewal/amount, payment state, expiry reminder",
-          "built"
+          "live"
         ],
         [
           "Customer feedback notes (project manager during, HR after go-live)",
@@ -281,27 +281,27 @@
         ],
         [
           "Approve sprints against the budget",
-          "built"
+          "live"
         ],
         [
           "Payment request to Accounts",
-          "built"
+          "live"
         ],
         [
           "Approve corrections with budget",
-          "built"
+          "live"
         ],
         [
           "Out-of-budget list with a near-limit view",
-          "built"
+          "live"
         ],
         [
           "Project tracker board with budget left, drag between Active and On Hold",
-          "built"
+          "live"
         ],
         [
           "Project manager dashboard",
-          "built"
+          "live"
         ],
         [
           "Coordinator performance figures (no rating formula)",
@@ -346,19 +346,19 @@
         ],
         [
           "Request sprint dates",
-          "built"
+          "live"
         ],
         [
           "QA results on the project",
-          "built"
+          "live"
         ],
         [
           "System admin: allocate server, go live",
-          "built"
+          "live"
         ],
         [
           "Coordinator dashboard",
-          "built"
+          "live"
         ]
       ]
     },
@@ -391,19 +391,19 @@
         ],
         [
           "Team lead inbox with progress and priority",
-          "built"
+          "live"
         ],
         [
           "Team list (time, leaves, rating, overdue)",
-          "built"
+          "live"
         ],
         [
           "Feedback to team members (fixed questions)",
-          "built"
+          "live"
         ],
         [
           "Team lead dashboard",
-          "built"
+          "live"
         ]
       ]
     },
@@ -412,27 +412,27 @@
       "lines": [
         [
           "Sprints with effort and cost",
-          "built"
+          "live"
         ],
         [
           "Effort approval by the project manager",
-          "built"
+          "live"
         ],
         [
           "Daily task status and time spent",
-          "built"
+          "live"
         ],
         [
           "Reason when effort is exceeded",
-          "built"
+          "live"
         ],
         [
           "Resource inbox with start and end task",
-          "built"
+          "live"
         ],
         [
           "Team dashboards",
-          "built"
+          "live"
         ]
       ]
     },
@@ -441,23 +441,23 @@
       "lines": [
         [
           "Automatic hand-off when a task completes",
-          "built"
+          "live"
         ],
         [
           "Bug list with priority",
-          "built"
+          "live"
         ],
         [
           "Team lead verification",
-          "built"
+          "live"
         ],
         [
           "Overrun alerts to the project manager",
-          "built"
+          "live"
         ],
         [
           "QA dashboard",
-          "built"
+          "live"
         ]
       ]
     },
