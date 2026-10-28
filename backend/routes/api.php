@@ -595,6 +595,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::prefix('pmo')->middleware(['feature:pmo', 'pmo.access'])->group(function () {
         $pmo = \App\Http\Controllers\Api\Pmo\PmoProjectController::class;
         Route::get('meta', [$pmo, 'meta']);
+        Route::get('budget-watch', [\App\Http\Controllers\Api\Pmo\BudgetWatchController::class, 'index']);
         Route::get('projects', [$pmo, 'index']);
         Route::get('projects/{project}', [$pmo, 'show']);
         Route::post('projects/{project}/assign', [$pmo, 'assign']);

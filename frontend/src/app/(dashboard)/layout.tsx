@@ -240,6 +240,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: "/pmo",           label: "Projects" },
       { href: "/pmo/approvals", label: "Out-of-scope requests" },
+      { href: "/pmo/budget-watch", label: "Out of budget" },
     ],
   },
   {
