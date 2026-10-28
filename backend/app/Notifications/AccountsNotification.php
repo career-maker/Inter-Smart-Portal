@@ -26,7 +26,7 @@ class AccountsNotification extends Notification
             'message' => $this->message,
             'event' => $this->event,
             'project_id' => $this->projectId,
-            'action_url' => '/project-management/projects',
+            'action_url' => \App\Support\NotificationLink::for($this->event, $this->projectId, $notifiable),
         ];
     }
 }

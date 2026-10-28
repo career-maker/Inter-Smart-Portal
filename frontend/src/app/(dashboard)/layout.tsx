@@ -188,7 +188,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/sales",          label: "Dashboard" },
       { href: "/sales/leads",    label: "Leads" },
       { href: "/sales/inbox",    label: "Inbox" },
-      { href: "/sales/projects", label: "Projects" },
+      { href: "/sales/projects", label: "Sales projects" },
       { href: "/sales/completed", label: "Completed and AMC" },
       { href: "/sales/out-of-scope", label: "Out-of-scope requests" },
     ],
@@ -246,7 +246,7 @@ const NAV_GROUPS: NavGroup[] = [
     icon: ClipboardList,
     feature: "pmo", // per-person: GET /features is true only for Super Admin / PMO team members
     items: [
-      { href: "/pmo",           label: "Projects" },
+      { href: "/pmo",           label: "Office projects" },
       { href: "/pmo/approvals", label: "Out-of-scope requests" },
       { href: "/pmo/budget-watch", label: "Out of budget" },
       { href: "/pmo/tracker", label: "Project tracker" },
