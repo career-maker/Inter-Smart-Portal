@@ -500,6 +500,10 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         $done = \App\Http\Controllers\Api\Sales\CompletedProjectController::class;
         Route::get('completed', [$done, 'index']);
         Route::put('projects/{project}/amc', [$done, 'setAmc']);
+
+        $oos = \App\Http\Controllers\Api\Sales\OutOfScopeController::class;
+        Route::get('out-of-scope', [$oos, 'index']);
+        Route::post('out-of-scope/{oos}/reply', [$oos, 'reply']);
     });
 
     // Department work screens (Phase 4): hidden (404) until module.workflow.enabled is switched on.

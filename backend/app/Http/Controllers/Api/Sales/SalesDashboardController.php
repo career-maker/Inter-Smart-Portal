@@ -43,6 +43,7 @@ class SalesDashboardController extends Controller
             'target' => ['month' => now()->format('Y-m'), 'target' => (float) $target, 'achieved' => (float) $signedThisMonth],
             'projects_ongoing' => Project::whereIn('id', $finance->pluck('project_id'))->whereIn('status', ['Planning', 'Active'])->count(),
             'pending_actions' => $mine(LeadActivity::query())->where('status', 'Open')->whereDate('due_at', '<=', now()->toDateString())->count(),
+            'out_of_scope_waiting' => \App\Models\OutOfScopeRequest::whereNull('sales_status')->when(! $all, fn ($q) => $q->whereIn('project_id', $finance->pluck('project_id')))->count(),
             'meetings_attended' => $done('meeting'),
             'proposals_shared' => $done('proposal'),
         ]);

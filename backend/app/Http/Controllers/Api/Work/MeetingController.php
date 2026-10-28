@@ -87,18 +87,26 @@ class MeetingController extends Controller
         return Carbon::createFromFormat('Y-m-d H:i', $v, 'Asia/Kolkata')->utc();
     }
 
-    public function store(Request $request)
+    /** Create a meeting and send the invites. Also used when Sales asks for a meeting about an out-of-scope request. $d has the same keys as the store request. */
+    public function schedule($organizer, array $d): Meeting
     {
-        $d = $request->validate($this->rules());
         $m = Meeting::create([
-            'kind' => $d['kind'], 'title' => $d['title'], 'organizer_id' => $request->user()->id,
+            'kind' => $d['kind'], 'title' => $d['title'], 'organizer_id' => $organizer->id,
             'project_id' => $d['project_id'] ?? null, 'lead_id' => $d['lead_id'] ?? null,
             'starts_at' => $this->utc($d['starts_at']), 'ends_at' => $this->utc($d['ends_at']),
             'location' => $d['location'] ?? null, 'agenda' => $d['agenda'] ?? null,
             'external_emails' => array_values(array_unique($d['external_emails'] ?? [])),
         ]);
         $m->attendees()->sync($d['attendee_ids'] ?? []);
-        $this->invite($m, 'REQUEST', $request->user());
+        $this->invite($m, 'REQUEST', $organizer);
+
+        return $m;
+    }
+
+    public function store(Request $request)
+    {
+        $d = $request->validate($this->rules());
+        $m = $this->schedule($request->user(), $d);
 
         return response()->json(['message' => 'Meeting scheduled and invites sent.', 'data' => $this->load($m)], 201);
     }

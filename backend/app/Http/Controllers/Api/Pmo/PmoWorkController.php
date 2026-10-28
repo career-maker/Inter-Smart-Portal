@@ -67,6 +67,9 @@ class PmoWorkController extends Controller
         $this->audit($request, $req, 'requested out-of-scope work', ['project' => $project->id, 'effort_days' => $data['effort_days']]);
         Notify::users(Access::pmoManagers(), 'Out-of-scope request', "\"{$project->name}\": {$data['effort_days']} day(s) of extra work requested. Approve or reject it in the Project Office.", 'out_of_scope_requested', $project->id, $request->user());
 
+        // Sales has to answer it: a notification now, and the request shows as "action required" on their out-of-scope page
+        Notify::users(User::whereIn('id', ProjectFinance::where('project_id', $project->id)->pluck('sales_user_id'))->get(), 'Out-of-scope request needs your answer', "\"{$project->name}\": {$data['effort_days']} day(s) of extra work. Approve or reject with a reason, or ask for a meeting.", 'out_of_scope_sales_action', $project->id, $request->user());
+
         return response()->json(['data' => $req], 201);
     }
 
