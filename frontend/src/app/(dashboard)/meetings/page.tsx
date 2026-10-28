@@ -1,15 +1,9 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Loader2, CalendarClock } from "lucide-react";
 import api from "@/services/api";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { Page, Panel, Row, Dot, Primary, Quiet, Alert, Spinner, Label, field, area, errMsg } from "@/components/clean";
 
-const errMsg = (e: any) => (e?.response?.data?.errors ? Object.values(e.response.data.errors as Record<string, string[]>)[0]?.[0] : e?.response?.data?.message) || "Something went wrong. Please try again.";
 const ist = (iso: string) => new Date(iso).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", dateStyle: "medium", timeStyle: "short" });
 
 /** Client and internal meetings: schedule with a calendar invite, then record minutes and follow-up actions. */
@@ -20,19 +14,17 @@ export default function MeetingsPage() {
   const load = useCallback(() => { api.get("/meetings").then((r) => setRows(r.data.data)).catch((e) => { if ([403, 404].includes(e?.response?.status)) setUnavailable(true); }); }, []);
   useEffect(() => { load(); api.get("/meetings/people").then((r) => setPeople(r.data.data)).catch(() => {}); }, [load]);
 
-  if (unavailable) return <p className="text-slate-600 dark:text-slate-300">Meetings are not switched on yet.</p>;
-  if (!rows) return <div className="p-8 flex justify-center"><Loader2 className="h-6 w-6 animate-spin" /></div>;
+  if (unavailable) return <Page title="Meetings" hint="Meetings are not switched on." children={null} />;
+  if (!rows) return <Spinner />;
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2"><CalendarClock className="h-7 w-7 text-amber-500" /> Meetings</h1>
-        <p className="text-slate-600 dark:text-slate-300">Schedule client and internal meetings. Everyone invited gets a calendar invite by email. Times are India time.</p>
-      </div>
+    <Page title="Meetings" hint="Schedule client and internal meetings. Everyone invited gets a calendar invite by email. Times are India time.">
       <Schedule people={people} onSaved={load} />
-      {rows.length === 0 && <p className="text-sm text-slate-500">No meetings yet.</p>}
-      {rows.map((m) => <Row key={m.id} m={m} people={people} onDone={load} />)}
-    </div>
+      <Panel className="p-0">
+        {rows.length === 0 && <Row className="text-slate-500">No meetings yet.</Row>}
+        {rows.map((m) => <Item key={m.id} m={m} people={people} onDone={load} />)}
+      </Panel>
+    </Page>
   );
 }
 
@@ -55,31 +47,35 @@ function Schedule({ people, onSaved }: { people: any[]; onSaved: () => void }) {
     } catch (e: any) { setErr(errMsg(e)); }
   };
   return (
-    <Card><CardContent className="p-3 space-y-2 text-sm [&_label]:block [&_label]:mb-1 [&_label]:text-xs [&_label]:text-slate-500">
-      {err && <div role="alert" className="rounded-lg border border-red-300 bg-red-50 text-red-800 px-3 py-2">{err}</div>}
-      <div className="grid grid-cols-[auto_1fr] gap-2">
-        <div><Label>Type</Label><select className="h-9 rounded-md border bg-transparent px-2" value={f.kind} onChange={(e) => set("kind", e.target.value)}><option value="internal">Internal</option><option value="client">Client</option></select></div>
-        <div><Label>Title</Label><Input value={f.title} onChange={(e) => set("title", e.target.value)} /></div>
+    <Panel className="space-y-4">
+      {err && <Alert>{err}</Alert>}
+      <div className="grid gap-4 md:grid-cols-[160px_1fr]">
+        <div><Label>Type</Label><select className={field} value={f.kind} onChange={(e) => set("kind", e.target.value)}><option value="internal">Internal</option><option value="client">Client</option></select></div>
+        <div><Label>Title</Label><input className={field} value={f.title} onChange={(e) => set("title", e.target.value)} /></div>
       </div>
-      <div className="grid grid-cols-2 gap-2">
-        <div><Label>Starts</Label><Input type="datetime-local" value={f.start} onChange={(e) => set("start", e.target.value)} /></div>
-        <div><Label>Ends</Label><Input type="datetime-local" value={f.end} onChange={(e) => set("end", e.target.value)} /></div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div><Label>Starts</Label><input type="datetime-local" className={field} value={f.start} onChange={(e) => set("start", e.target.value)} /></div>
+        <div><Label>Ends</Label><input type="datetime-local" className={field} value={f.end} onChange={(e) => set("end", e.target.value)} /></div>
       </div>
-      <div><Label>Room or meeting link</Label><Input value={f.location} onChange={(e) => set("location", e.target.value)} /></div>
-      <div><Label>Agenda</Label><Input value={f.agenda} onChange={(e) => set("agenda", e.target.value)} /></div>
-      <div>
-        <Label>Colleagues to invite (hold Ctrl to pick several)</Label>
-        <select multiple className="w-full h-28 rounded-md border bg-transparent px-2" value={ids.map(String)} onChange={(e) => setIds(Array.from(e.target.selectedOptions).map((o) => Number(o.value)))}>
-          {people.map((p) => <option key={p.id} value={p.id}>{p.first_name} {p.last_name}</option>)}
-        </select>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div><Label>Room or meeting link</Label><input className={field} value={f.location} onChange={(e) => set("location", e.target.value)} /></div>
+        <div><Label>Agenda</Label><input className={field} value={f.agenda} onChange={(e) => set("agenda", e.target.value)} /></div>
       </div>
-      <div><Label>Client email addresses (separate with commas)</Label><Input value={f.emails} onChange={(e) => set("emails", e.target.value)} /></div>
-      <Button disabled={!f.title || !f.start || !f.end} onClick={save}>Schedule and send invites</Button>
-    </CardContent></Card>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div>
+          <Label>Colleagues to invite, hold Ctrl to pick several</Label>
+          <select multiple className={`${field} h-32 py-2`} value={ids.map(String)} onChange={(e) => setIds(Array.from(e.target.selectedOptions).map((o) => Number(o.value)))}>
+            {people.map((p) => <option key={p.id} value={p.id}>{p.first_name} {p.last_name}</option>)}
+          </select>
+        </div>
+        <div><Label>Client email addresses, separated by commas</Label><input className={field} value={f.emails} onChange={(e) => set("emails", e.target.value)} /></div>
+      </div>
+      <Primary disabled={!f.title || !f.start || !f.end} onClick={save}>Schedule and send invites</Primary>
+    </Panel>
   );
 }
 
-function Row({ m, people, onDone }: { m: any; people: any[]; onDone: () => void }) {
+function Item({ m, people, onDone }: { m: any; people: any[]; onDone: () => void }) {
   const [open, setOpen] = useState(false);
   const [d, setD] = useState<any>(null);
   const [minutes, setMinutes] = useState("");
@@ -89,45 +85,47 @@ function Row({ m, people, onDone }: { m: any; people: any[]; onDone: () => void 
   const reload = useCallback(() => api.get(`/meetings/${m.id}`).then((r) => { setD(r.data.data); setMinutes((x) => x || r.data.data.minutes || ""); }), [m.id]);
   useEffect(() => { if (open) reload(); }, [open, reload]);
   const run = async (fn: () => Promise<any>) => { setErr(null); try { await fn(); await reload(); onDone(); } catch (e: any) { setErr(errMsg(e)); } };
+  const tone = m.status === "Done" ? "ok" : m.status === "Cancelled" ? "bad" : "neutral";
 
   return (
-    <Card><CardContent className="p-3 space-y-2 text-sm">
-      <button className="flex w-full items-center gap-2 text-left" onClick={() => setOpen(!open)}>
-        <span className="font-semibold text-slate-900 dark:text-white">{m.title}</span>
-        <Badge variant="outline">{m.kind}</Badge>
-        <span className="text-slate-500">{ist(m.starts_at)}</span>
-        <Badge variant="outline" className="ml-auto">{m.status}</Badge>
+    <div className="border-b border-slate-200 dark:border-white/10 last:border-0">
+      <button className="w-full text-left" onClick={() => setOpen(!open)}>
+        <Row className="border-b-0">
+          <span className="font-medium text-slate-900 dark:text-white">{m.title}</span>
+          <span className="text-slate-500">{m.kind === "client" ? "Client" : "Internal"}</span>
+          <span className="text-slate-600 dark:text-slate-300">{ist(m.starts_at)}</span>
+          <span className="ml-auto"><Dot tone={tone}>{m.status}</Dot></span>
+        </Row>
       </button>
       {open && d && (
-        <div className="space-y-2">
-          {err && <div role="alert" className="rounded-lg border border-red-300 bg-red-50 text-red-800 px-3 py-2">{err}</div>}
-          <p className="text-xs text-slate-500">Organiser: {d.organizer?.first_name} {d.organizer?.last_name}. Invited: {[...d.attendees.map((a: any) => `${a.first_name} ${a.last_name}`), ...(d.external_emails || [])].join(", ") || "nobody"}.{d.location ? ` Where: ${d.location}.` : ""}</p>
-          {d.agenda && <p className="text-slate-600 dark:text-slate-300">Agenda: {d.agenda}</p>}
-          <div>
-            <Label className="text-xs text-slate-500">Minutes</Label>
-            <textarea className="w-full min-h-20 rounded-md border bg-transparent px-2 py-1" value={minutes} onChange={(e) => setMinutes(e.target.value)} />
-            <Button size="sm" disabled={!minutes} onClick={() => run(() => api.post(`/meetings/${m.id}/minutes`, { minutes }))}>Save minutes</Button>
+        <div className="px-4 pb-4 space-y-4">
+          {err && <Alert>{err}</Alert>}
+          <p className="text-xs text-slate-500">Organiser {d.organizer?.first_name} {d.organizer?.last_name}. Invited: {[...d.attendees.map((a: any) => `${a.first_name} ${a.last_name}`), ...(d.external_emails || [])].join(", ") || "nobody"}.{d.location ? ` Where: ${d.location}.` : ""}</p>
+          {d.agenda && <p className="text-sm text-slate-600 dark:text-slate-300">Agenda: {d.agenda}</p>}
+          <div className="space-y-2">
+            <Label>Minutes</Label>
+            <textarea className={area} value={minutes} onChange={(e) => setMinutes(e.target.value)} />
+            <Primary disabled={!minutes} onClick={() => run(() => api.post(`/meetings/${m.id}/minutes`, { minutes }))}>Save minutes</Primary>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs text-slate-500">Follow-up actions</Label>
+            <Label>Follow-up actions</Label>
             {d.actions.map((a: any) => (
-              <label key={a.id} className="flex items-center gap-2">
+              <label key={a.id} className="flex items-center gap-2 min-h-11 text-sm">
                 <input type="checkbox" checked={a.done} onChange={() => run(() => api.put(`/meetings/actions/${a.id}/toggle`))} />
-                <span className={a.done ? "line-through text-slate-400" : ""}>{a.text}{a.owner ? ` (${a.owner.first_name})` : ""}</span>
+                <span className={a.done ? "line-through text-slate-400" : ""}>{a.text}{a.owner ? `, ${a.owner.first_name}` : ""}</span>
               </label>
             ))}
-            <div className="grid grid-cols-[1fr_auto_auto] gap-2">
-              <Input placeholder="New follow-up" value={text} onChange={(e) => setText(e.target.value)} />
-              <select className="h-9 rounded-md border bg-transparent px-2" value={owner} onChange={(e) => setOwner(e.target.value)}>
-                <option value="">Owner</option>
-                {people.map((p) => <option key={p.id} value={p.id}>{p.first_name} {p.last_name}</option>)}
+            <div className="grid gap-4 md:grid-cols-[1fr_200px_auto] items-center">
+              <input className={field} placeholder="New follow-up" value={text} onChange={(e) => setText(e.target.value)} />
+              <select className={field} value={owner} onChange={(e) => setOwner(e.target.value)}>
+                <option value="">Owner</option>{people.map((p) => <option key={p.id} value={p.id}>{p.first_name} {p.last_name}</option>)}
               </select>
-              <Button size="sm" disabled={!text} onClick={() => run(async () => { await api.post(`/meetings/${m.id}/actions`, { text, owner_id: owner ? Number(owner) : null }); setText(""); setOwner(""); })}>Add</Button>
+              <Quiet disabled={!text} onClick={() => run(async () => { await api.post(`/meetings/${m.id}/actions`, { text, owner_id: owner ? Number(owner) : null }); setText(""); setOwner(""); })}>Add follow-up</Quiet>
             </div>
           </div>
-          {d.status === "Scheduled" && <Button size="sm" variant="outline" onClick={() => run(() => api.post(`/meetings/${m.id}/cancel`))}>Cancel meeting</Button>}
+          {d.status === "Scheduled" && <Quiet onClick={() => run(() => api.post(`/meetings/${m.id}/cancel`))}>Cancel meeting</Quiet>}
         </div>
       )}
-    </CardContent></Card>
+    </div>
   );
 }
