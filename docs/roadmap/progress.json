@@ -1,6 +1,6 @@
 {
   "updated": "28 Oct 2026",
-  "headline": "Accounts, Sales, the Project Office and the UI screens are LIVE. Everything else the manager asked for is now BUILT and saved on a work branch, NOT released and switched off: UX/Dev sprints, QA hand-off, corrections and changes, team inbox and feedback, go-live hand-over, appreciation, meetings with calendar invites, customer feedback notes, Sales completed projects and AMC reminders, the Sales out-of-scope reply, the out-of-budget list, a project tracker board, and HR performance figures (no rating formula). Tested on 28 Oct on a local copy: the full backend suite ran 228 tests with 0 new failures (the same 40 old ones still fail), the new migrations applied cleanly on MySQL, and the new screens passed 8 of 8 browser steps. The full 57-step browser run of the older screens has not been repeated since the QA fix. Next: that regression run, then one controlled release. Existing modules are untouched.",
+  "headline": "Everything the manager asked for is now written and passes its tests on a local copy, and the code is on GitHub main. It is NOT on the live server yet: the live server still runs the old version until someone pulls it and runs the database update. Live today: Accounts, Sales, Project Office and the UI department screens. Built and tested locally but not live: sprints, QA, corrections and changes, team inbox, go-live hand-over, appreciation, meetings, customer feedback, AMC and out-of-scope reply for Sales, out-of-budget list, tracker and HR performance figures.",
   "overall_percent": 88,
   "live_health": [
     "Website and login: working",
@@ -164,9 +164,9 @@
     "The report's sheet table and test count now match the work built"
   ],
   "next": [
-    "Repeat the older 57-step browser run on a fresh local database (needs the local database reset, which was not done in this session)",
-    "Then merge, back up and release to the live server in one controlled step (needs the server login from the owner), and switch the new modules on one by one",
-    "Owner questions: tracker columns (project stages assumed), AMC reminder 30 days, near-limit 90%, whether the Sales out-of-scope answer should gate the manager, HR rating formula"
+    "Release to the live server in one controlled step (backup, pull, update, check, switch on one by one)",
+    "Run the older browser regression on a fresh database",
+    "Get the manager's answers on the open points below"
   ],
   "capacity_answer": "The database will not break with 100+ users working at once. The live server is strong (24 processors, 40 GB memory). Improvements planned in Phase 0 (lighter background checks, rate limits, caching) give comfortable room for 150 to 300 users at the same time. A load test will confirm the exact number.",
   "risks": [
@@ -200,17 +200,20 @@
     }
   ],
   "decisions": [
-    "Tracker columns: built as project stages (Planning, Active, On Hold, Completed). Change to task statuses?",
-    "Should the Sales out-of-scope answer gate the project manager's own approve/reject, or stay separate?",
-    "Confirm defaults: AMC reminder 30 days before expiry; near-limit threshold 90%",
-    "HR rating formula: which inputs and weights? (HR must approve)",
+    "Tracker columns: project stages (built) or task statuses?",
+    "AMC reminder lead time (30 days built) and near-limit threshold (90% built): confirm",
+    "Should Sales's out-of-scope answer stop the project manager approving or rejecting it?",
+    "HR rating formula: which inputs and weights? HR must approve",
     "Google review count: manual entry or automatic?",
     "Keep the old bug tracker alongside the new bug flow, or replace it?",
     "Go-live: pilot team first, or everyone at once?",
-    "Approve creating the staging (test) copy (sub-domain, DNS, certificate)",
-    "Require review before merging to main on GitHub?"
+    "Owner: server login for the release; staging copy (sub-domain, DNS, certificate); GitHub review rule"
   ],
   "changelog": [
+    {
+      "date": "28 Oct 2026 (night)",
+      "text": "Code merged to GitHub main (not on the live server). Report now separates what is done from what is still to do."
+    },
     {
       "date": "28 Oct 2026 (night)",
       "text": "Local test run: 228 backend tests, no new failures; new screens passed 8 of 8 browser steps. Not released."
@@ -538,5 +541,24 @@
       "status": "Built",
       "note": "Raw figures per person: on-time tasks, effort vs estimate, QA bugs, monthly feedback. No rating formula until HR approves one. Not tested or released"
     }
+  ],
+  "status_done": [
+    "LIVE for users: Accounts, Sales, Project Office, UI department screens, login protection, backups, on/off switches",
+    "BUILT and on GitHub main (off until switched on): UX/Dev sprints, QA hand-off, corrections and changes, team inbox and monthly feedback, go-live hand-over, dashboard tiles",
+    "BUILT 28 Oct: appreciation (nominate, approve, Hall and announcement), meetings with calendar invites, customer feedback notes, Sales completed projects with AMC and 30-day reminder, Sales out-of-scope reply, out-of-budget list, project tracker board, HR performance figures",
+    "TESTED locally 28 Oct: 228 backend tests with no new failures (40 old known failures unchanged), all new database changes applied cleanly, 8 of 8 browser steps on the new screens",
+    "Bugs found by the tests and fixed: a meeting request without a note crashed; the appreciation page now refuses people who cannot use it",
+    "Manager's decision applied: page budgets stay manual"
+  ],
+  "status_todo": [
+    "Pull the code on the live server, run the database update, check the site (backup first). Needs the server login from the owner",
+    "Switch the new modules on one at a time: appreciation, meetings, customer feedback, HR performance",
+    "Repeat the full 57-step browser test of the older screens on a freshly reset local database (the earlier QA fix is still unverified; the reset was not allowed in this session)",
+    "Send one real meeting invite email and open it in a calendar app (the live email setup may not be ready)",
+    "HR rating: figures are shown but no rating exists. HR must approve a formula before one is built",
+    "Tracker columns: built as project stages, waiting for the manager to confirm",
+    "Confirm assumptions: AMC reminder 30 days, near-limit 90%, whether Sales's out-of-scope answer should block the manager's own decision",
+    "Meetings are not yet linked from Sales leads (only the out-of-scope 'request a meeting' creates one)",
+    "Still open from before: Google review count (manual or automatic), keep or replace the old bug tracker, pilot team or everyone at go-live, staging copy, GitHub review rule"
   ]
 }

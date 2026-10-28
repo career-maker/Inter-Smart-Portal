@@ -307,8 +307,8 @@ page = f"""<title>Intersmart Portal Live Report</title>
 <div class="in"><div class="kpis">
   <div class="kpi"><b>{p["overall_percent"]}%</b><span>of the 27-week plan complete</span></div>
   <div class="kpi"><b>{covered_pct}%</b><span>of the manager's sheet is live ({count["live"] + count["existing"]} of {total} lines)</span></div>
-  <div class="kpi"><b>{count["built"]}</b><span>lines built, release pending</span></div>
-  <div class="kpi"><b>{count["decision"]}</b><span>lines waiting for the manager</span></div>
+  <div class="kpi"><b>{count["built"]}</b><span>lines built and tested locally, not live yet</span></div>
+  <div class="kpi"><b>{len(p["status_todo"])}</b><span>things still to do before everything is live</span></div>
   <div class="kpi"><b>{tests_now}</b><span>automated tests guarding it</span></div>
 </div></div>
 
@@ -323,6 +323,10 @@ page = f"""<title>Intersmart Portal Live Report</title>
   <div class="cover">
     {donut()}
     <div><h3>Every line of the manager's sheet, by status</h3>{legend()}<p class="muted small">{total} lines across 8 roles. "Already had" means the portal did it before this plan started.</p></div>
+  </div>
+  <div class="two" style="margin-top:18px">
+    <div class="card"><h3>Done</h3><ul class="ticks">{"".join(f"<li>{esc(a)}</li>" for a in p["status_done"])}</ul></div>
+    <div class="card"><h3>Still to do</h3><ul class="plain asks">{"".join(f"<li>{esc(a)}</li>" for a in p["status_todo"])}</ul></div>
   </div>
 </div></section>
 
@@ -377,8 +381,8 @@ page = f"""<title>Intersmart Portal Live Report</title>
 </div></section>
 
 <section id="decisions"><div class="in">
-  <h2>What we need from the manager</h2>
-  <p class="kicker">These answers unblock the orange lines above.</p>
+  <h2>What we still need</h2>
+  <p class="kicker">Open questions for the manager and the owner.</p>
   <ul class="plain asks">{ask}</ul>
 </div></section>
 
