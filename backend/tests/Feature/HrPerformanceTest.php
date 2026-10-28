@@ -33,14 +33,22 @@ class HrPerformanceTest extends TestCase
         $item('open', 'Pending', 1, 0);
         DB::table('team_feedback')->insert(['user_id' => $dev->id, 'given_by' => $lead->id, 'team_id' => $html->id, 'month' => '2026-10', 'attitude' => 4, 'attire' => 4, 'learning' => 5, 'on_time' => 3, 'created_at' => now(), 'updated_at' => now()]);
 
-        $this->actingAs($lead)->getJson('/api/hr/performance')->assertStatus(403);
+        $this->as($lead)->getJson('/api/hr/performance')->assertStatus(403);
 
-        $row = collect($this->actingAs($hrUser)->getJson('/api/hr/performance')->assertOk()->json('data'))->firstWhere('id', $dev->id);
+        $row = collect($this->as($hrUser)->getJson('/api/hr/performance')->assertOk()->json('data'))->firstWhere('id', $dev->id);
         $this->assertSame(2, $row['tasks_assigned']);
         $this->assertSame(1, $row['tasks_done']);
         $this->assertSame(1, $row['tasks_done_late']);
         $this->assertEquals(1, $row['effort_variance_days']);
         $this->assertEquals(4.0, $row['feedback_latest_avg']);
         $this->assertArrayNotHasKey('rating', $row);
+    }
+
+    /** Sign in with a real bearer token, like the other feature tests (CheckEmployeeStatus needs a personal access token). */
+    private function as(User $user): static
+    {
+        $this->app['auth']->forgetGuards();
+
+        return $this->withHeader('Authorization', 'Bearer ' . $user->createToken('t')->plainTextToken);
     }
 }

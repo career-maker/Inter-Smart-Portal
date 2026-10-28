@@ -35,21 +35,29 @@ class CustomerFeedbackTest extends TestCase
 
         $body = ['project_id' => $project->id, 'contact_name' => 'Mr Rao', 'call_date' => now()->toDateString(), 'score' => 4, 'notes' => 'Happy with design'];
 
-        $this->actingAs($member)->getJson('/api/customer-feedback')->assertStatus(403);
-        $this->actingAs($member)->postJson('/api/customer-feedback', $body + ['stage' => 'during'])->assertStatus(403);
+        $this->as($member)->getJson('/api/customer-feedback')->assertStatus(403);
+        $this->as($member)->postJson('/api/customer-feedback', $body + ['stage' => 'during'])->assertStatus(403);
 
         // manager: during yes, post-live no
-        $this->actingAs($manager)->postJson('/api/customer-feedback', $body + ['stage' => 'during'])->assertCreated();
-        $this->actingAs($manager)->postJson('/api/customer-feedback', $body + ['stage' => 'post_live'])->assertStatus(403);
+        $this->as($manager)->postJson('/api/customer-feedback', $body + ['stage' => 'during'])->assertCreated();
+        $this->as($manager)->postJson('/api/customer-feedback', $body + ['stage' => 'post_live'])->assertStatus(403);
 
         // HR: during no; post-live refused until the project is live, then allowed
-        $this->actingAs($hrUser)->postJson('/api/customer-feedback', $body + ['stage' => 'during'])->assertStatus(403);
-        $this->actingAs($hrUser)->postJson('/api/customer-feedback', $body + ['stage' => 'post_live'])->assertStatus(403);
+        $this->as($hrUser)->postJson('/api/customer-feedback', $body + ['stage' => 'during'])->assertStatus(403);
+        $this->as($hrUser)->postJson('/api/customer-feedback', $body + ['stage' => 'post_live'])->assertStatus(403);
         DB::table('project_go_live')->insert(['project_id' => $project->id, 'status' => 'Live', 'created_at' => now(), 'updated_at' => now()]);
-        $this->actingAs($hrUser)->postJson('/api/customer-feedback', $body + ['stage' => 'post_live'])->assertCreated();
+        $this->as($hrUser)->postJson('/api/customer-feedback', $body + ['stage' => 'post_live'])->assertCreated();
 
         // score range and both roles read everything
-        $this->actingAs($hrUser)->postJson('/api/customer-feedback', ['score' => 9] + $body + ['stage' => 'post_live'])->assertStatus(422);
-        $this->actingAs($hrUser)->getJson('/api/customer-feedback')->assertOk()->assertJsonCount(2, 'data');
+        $this->as($hrUser)->postJson('/api/customer-feedback', ['score' => 9] + $body + ['stage' => 'post_live'])->assertStatus(422);
+        $this->as($hrUser)->getJson('/api/customer-feedback')->assertOk()->assertJsonCount(2, 'data');
+    }
+
+    /** Sign in with a real bearer token, like the other feature tests (CheckEmployeeStatus needs a personal access token). */
+    private function as(User $user): static
+    {
+        $this->app['auth']->forgetGuards();
+
+        return $this->withHeader('Authorization', 'Bearer ' . $user->createToken('t')->plainTextToken);
     }
 }

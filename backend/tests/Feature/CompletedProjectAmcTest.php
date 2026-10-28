@@ -38,17 +38,17 @@ class CompletedProjectAmcTest extends TestCase
         DB::table('project_go_live')->insert(['project_id' => $live->id, 'status' => 'Live', 'live_at' => now(), 'created_at' => now(), 'updated_at' => now()]);
 
         // only the live project is listed, and without an AMC yet
-        $rows = $this->actingAs($ravi)->getJson('/api/sales/completed')->assertOk()->json('data');
+        $rows = $this->as($ravi)->getJson('/api/sales/completed')->assertOk()->json('data');
         $this->assertCount(1, $rows);
         $this->assertSame('No AMC', $rows[0]['amc_status']);
 
         // another salesperson cannot set it; renewal must be after the start
-        $this->actingAs($other)->putJson("/api/sales/projects/{$live->id}/amc", ['amc_start' => '2026-01-01', 'renewal_date' => '2027-01-01', 'amount' => 5000])->assertStatus(403);
-        $this->actingAs($ravi)->putJson("/api/sales/projects/{$live->id}/amc", ['amc_start' => '2026-01-01', 'renewal_date' => '2025-01-01', 'amount' => 5000])->assertStatus(422);
+        $this->as($other)->putJson("/api/sales/projects/{$live->id}/amc", ['amc_start' => '2026-01-01', 'renewal_date' => '2027-01-01', 'amount' => 5000])->assertStatus(403);
+        $this->as($ravi)->putJson("/api/sales/projects/{$live->id}/amc", ['amc_start' => '2026-01-01', 'renewal_date' => '2025-01-01', 'amount' => 5000])->assertStatus(422);
 
         // AMC ending in 10 days shows as expiring soon
-        $this->actingAs($ravi)->putJson("/api/sales/projects/{$live->id}/amc", ['amc_start' => now()->subYear()->toDateString(), 'renewal_date' => now()->addDays(10)->toDateString(), 'amount' => 5000])->assertOk();
-        $row = $this->actingAs($ravi)->getJson('/api/sales/completed')->json('data.0');
+        $this->as($ravi)->putJson("/api/sales/projects/{$live->id}/amc", ['amc_start' => now()->subYear()->toDateString(), 'renewal_date' => now()->addDays(10)->toDateString(), 'amount' => 5000])->assertOk();
+        $row = $this->as($ravi)->getJson('/api/sales/completed')->json('data.0');
         $this->assertSame('Expiring soon', $row['amc_status']);
         $this->assertEquals(5000, $row['amc_amount']);
         $this->assertSame(1, AmcContract::count());
@@ -59,8 +59,16 @@ class CompletedProjectAmcTest extends TestCase
         $this->assertSame(1, $ravi->notifications()->count());
 
         // a new renewal date re-arms the reminder
-        $this->actingAs($ravi)->putJson("/api/sales/projects/{$live->id}/amc", ['amc_start' => now()->subYear()->toDateString(), 'renewal_date' => now()->addDays(20)->toDateString(), 'amount' => 5000])->assertOk();
+        $this->as($ravi)->putJson("/api/sales/projects/{$live->id}/amc", ['amc_start' => now()->subYear()->toDateString(), 'renewal_date' => now()->addDays(20)->toDateString(), 'amount' => 5000])->assertOk();
         $this->artisan('sales:amc-reminders')->assertSuccessful();
         $this->assertSame(2, $ravi->notifications()->count());
+    }
+
+    /** Sign in with a real bearer token, like the other feature tests (CheckEmployeeStatus needs a personal access token). */
+    private function as(User $user): static
+    {
+        $this->app['auth']->forgetGuards();
+
+        return $this->withHeader('Authorization', 'Bearer ' . $user->createToken('t')->plainTextToken);
     }
 }

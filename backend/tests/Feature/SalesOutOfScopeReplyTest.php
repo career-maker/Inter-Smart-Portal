@@ -40,28 +40,36 @@ class SalesOutOfScopeReplyTest extends TestCase
         $b = $mk();
 
         // the owning salesperson sees both as action required; another salesperson sees none
-        $rows = $this->actingAs($ravi)->getJson('/api/sales/out-of-scope')->assertOk()->json('data');
+        $rows = $this->as($ravi)->getJson('/api/sales/out-of-scope')->assertOk()->json('data');
         $this->assertCount(2, $rows);
         $this->assertTrue($rows[0]['action_required']);
-        $this->assertCount(0, $this->actingAs($other)->getJson('/api/sales/out-of-scope')->json('data'));
-        $this->actingAs($other)->postJson("/api/sales/out-of-scope/{$a->id}/reply", ['answer' => 'approve', 'reason' => 'ok'])->assertStatus(403);
+        $this->assertCount(0, $this->as($other)->getJson('/api/sales/out-of-scope')->json('data'));
+        $this->as($other)->postJson("/api/sales/out-of-scope/{$a->id}/reply", ['answer' => 'approve', 'reason' => 'ok'])->assertStatus(403);
 
         // approve/reject need a reason
-        $this->actingAs($ravi)->postJson("/api/sales/out-of-scope/{$a->id}/reply", ['answer' => 'approve'])->assertStatus(422);
-        $this->actingAs($ravi)->postJson("/api/sales/out-of-scope/{$a->id}/reply", ['answer' => 'approve', 'reason' => 'Client agreed on the price'])->assertOk()->assertJsonPath('data.sales_status', 'Approved');
+        $this->as($ravi)->postJson("/api/sales/out-of-scope/{$a->id}/reply", ['answer' => 'approve'])->assertStatus(422);
+        $this->as($ravi)->postJson("/api/sales/out-of-scope/{$a->id}/reply", ['answer' => 'approve', 'reason' => 'Client agreed on the price'])->assertOk()->assertJsonPath('data.sales_status', 'Approved');
         // final: cannot answer twice
-        $this->actingAs($ravi)->postJson("/api/sales/out-of-scope/{$a->id}/reply", ['answer' => 'reject', 'reason' => 'changed mind'])->assertStatus(422);
+        $this->as($ravi)->postJson("/api/sales/out-of-scope/{$a->id}/reply", ['answer' => 'reject', 'reason' => 'changed mind'])->assertStatus(422);
         $this->assertGreaterThanOrEqual(1, $manager->notifications()->count()); // Project Office was told
 
         // meeting: needs times, creates a client meeting with the Project Office invited, can be answered afterwards
-        $this->actingAs($ravi)->postJson("/api/sales/out-of-scope/{$b->id}/reply", ['answer' => 'meeting'])->assertStatus(422);
-        $this->actingAs($ravi)->postJson("/api/sales/out-of-scope/{$b->id}/reply", ['answer' => 'meeting', 'starts_at' => '2026-11-03 15:00', 'ends_at' => '2026-11-03 15:30'])->assertOk()->assertJsonPath('data.sales_status', 'Meeting requested');
+        $this->as($ravi)->postJson("/api/sales/out-of-scope/{$b->id}/reply", ['answer' => 'meeting'])->assertStatus(422);
+        $this->as($ravi)->postJson("/api/sales/out-of-scope/{$b->id}/reply", ['answer' => 'meeting', 'starts_at' => '2026-11-03 15:00', 'ends_at' => '2026-11-03 15:30'])->assertOk()->assertJsonPath('data.sales_status', 'Meeting requested');
         $m = Meeting::first();
         $this->assertSame('client', $m->kind);
-        $this->assertEqualsCanonicalizing([$manager->id, $pc->id], $m->attendees()->pluck('users.id')->all());
-        $this->actingAs($ravi)->postJson("/api/sales/out-of-scope/{$b->id}/reply", ['answer' => 'reject', 'reason' => 'Too costly'])->assertOk()->assertJsonPath('data.sales_status', 'Rejected');
+        $this->assertEqualsCanonicalizing([$manager->id, $pc->id, $admin->id], $m->attendees()->pluck('users.id')->all());
+        $this->as($ravi)->postJson("/api/sales/out-of-scope/{$b->id}/reply", ['answer' => 'reject', 'reason' => 'Too costly'])->assertOk()->assertJsonPath('data.sales_status', 'Rejected');
 
         // dashboard counts what is still waiting
-        $this->assertSame(0, $this->actingAs($ravi)->getJson('/api/sales/dashboard')->json('out_of_scope_waiting'));
+        $this->assertSame(0, $this->as($ravi)->getJson('/api/sales/dashboard')->json('out_of_scope_waiting'));
+    }
+
+    /** Sign in with a real bearer token, like the other feature tests (CheckEmployeeStatus needs a personal access token). */
+    private function as(User $user): static
+    {
+        $this->app['auth']->forgetGuards();
+
+        return $this->withHeader('Authorization', 'Bearer ' . $user->createToken('t')->plainTextToken);
     }
 }

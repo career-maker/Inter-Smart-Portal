@@ -55,6 +55,7 @@ const notifs = async (email) => JSON.stringify((await api(email, "GET", "/notifi
 const lastAlert = () => alerts[alerts.length - 1] || "";
 
 async function step(id, name, fn) {
+  if (process.env.ONLY && !new RegExp("^" + process.env.ONLY).test(id)) return; // ONLY is a regex on the step id, e.g. ONLY=N or ONLY=N[5-8]
   const before = alerts.length;
   try { await fn(); results.push({ id, name, ok: true }); console.log(`PASS ${id} ${name}`); }
   catch (e) {
@@ -555,6 +556,61 @@ async function step(id, name, fn) {
   await step("H3", "Home dashboard, leaves and attendance pages render without errors", async () => {
     const p = await as("emp@test.local");
     for (const path of ["/dashboard", "/leaves", "/attendance", "/ta/status"]) { await go(p, path); must(!/Application error|404/.test((await p.innerText("body")).slice(0, 400)), `${path} shows an error`); }
+  });
+
+  // ================= N. Appreciation, meetings, feedback, AMC, Sales reply, budget list, tracker, HR figures =================
+  await step("N1", "Team lead nominates a colleague for appreciation", async () => {
+    const p = await as("htmllead@test.local"); await go(p, "/appreciation");
+    await p.locator("select").first().selectOption({ label: "Hari Test" });
+    await field(p, "Title", "input").fill("Star of the month");
+    await field(p, "Why", "input").fill("Delivered the HTML early");
+    await act(p, () => p.locator('button:has-text("Nominate")').click());
+    await until(async () => { const r = (await api("htmllead@test.local", "GET", "/appreciations")).json; must(r.data.some((a) => a.title === "Star of the month" && a.status === "Pending"), "nomination missing"); });
+  });
+  await step("N2", "A plain team member cannot open appreciation", async () => {
+    must((await api("emp@test.local", "GET", "/appreciations")).status === 403, "member got in");
+  });
+  await step("N3", "HR approves it; it appears on the Hall and as an announcement", async () => {
+    const mine = (await api("htmllead@test.local", "GET", "/appreciations/people")).json.data.find((x) => x.first_name === "Dina");
+    await api("htmllead@test.local", "POST", "/appreciations", { nominee_id: mine.id, title: "Star of the month", reason: "Great designs" }); // keeps this step independent of N1
+    const p = await as("hr@test.local"); await go(p, "/appreciation");
+    await act(p, () => p.locator('button:has-text("Approve")').first().click());
+    await until(async () => {
+      const rec = (await api("admin@test.local", "GET", "/recognitions")).json.data;
+      must(rec.some((r) => r.title === "Star of the month"), "no Hall entry");
+      const annRaw = (await api("admin@test.local", "GET", "/announcements")).json.data;
+      const ann = Array.isArray(annRaw) ? annRaw : (annRaw.data || []);
+      must(ann.some((a) => a.category === "Appreciation"), "no announcement");
+    });
+  });
+  await step("N4", "Anyone schedules a client meeting with an invite", async () => {
+    const p = await as("ann@test.local"); await go(p, "/meetings");
+    await field(p, "Title", "input").fill("Kickoff with Acme");
+    await field(p, "Starts", "input").fill(`${plus(3)}T10:00`);
+    await field(p, "Ends", "input").fill(`${plus(3)}T11:00`);
+    await field(p, "Client email addresses", "input").fill("client@example.com");
+    await act(p, () => p.locator('button:has-text("Schedule and send invites")').click());
+    await until(async () => { const r = (await api("ann@test.local", "GET", "/meetings")).json.data; must(r.some((m) => m.title === "Kickoff with Acme"), "meeting missing"); });
+  });
+  await step("N5", "Project manager and HR can open customer feedback; a member cannot", async () => {
+    for (const e of ["pm@test.local", "hr@test.local"]) { const p = await as(e); await go(p, "/customer-feedback"); must(/Customer feedback/.test(await p.innerText("body")) && !/is for the project manager and HR/.test(await p.innerText("body")), `${e} blocked`); }
+    must((await api("emp@test.local", "GET", "/customer-feedback")).status === 403, "member got in");
+  });
+  await step("N6", "Sales sees the Completed and AMC and Out-of-scope pages", async () => {
+    const p = await as("ann@test.local");
+    await go(p, "/sales/completed"); must(/Completed projects and AMC/.test(await p.innerText("body")), "completed page");
+    await go(p, "/sales/out-of-scope"); must(/Out-of-scope requests/.test(await p.innerText("body")), "out-of-scope page");
+  });
+  await step("N7", "Project manager sees the out-of-budget list and the tracker; a coordinator does not", async () => {
+    const p = await as("pm@test.local");
+    await go(p, "/pmo/budget-watch"); must(/Over the limit/.test(await p.innerText("body")) && /Nearing the limit/.test(await p.innerText("body")), "budget list");
+    await go(p, "/pmo/tracker"); must(/Project tracker/.test(await p.innerText("body")) && /On Hold/.test(await p.innerText("body")), "tracker");
+    must((await api("pc@test.local", "GET", "/pmo/tracker")).status === 403, "coordinator got the tracker");
+  });
+  await step("N8", "HR sees performance figures with no rating; a team lead does not", async () => {
+    const p = await as("hr@test.local"); await go(p, "/hr-performance");
+    const t = await p.innerText("body"); must(/Performance figures/.test(t) && /Tasks done/i.test(t) && !/Rating/i.test(t.replace(/No rating is calculated/i, "")), "figures page");
+    must((await api("htmllead@test.local", "GET", "/hr/performance")).status === 403, "team lead got in");
   });
 
   fs.writeFileSync(`${OUT}/e2e_results.json`, JSON.stringify(results, null, 2));

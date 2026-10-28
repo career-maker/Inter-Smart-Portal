@@ -33,27 +33,35 @@ class AppreciationTest extends TestCase
         $member = User::factory()->create(['team_id' => $dev->id]);
 
         // a plain team member cannot nominate
-        $this->actingAs($member)->postJson('/api/appreciations', ['nominee_id' => $lead->id, 'title' => 'x', 'reason' => 'y'])->assertStatus(403);
+        $this->as($member)->postJson('/api/appreciations', ['nominee_id' => $lead->id, 'title' => 'x', 'reason' => 'y'])->assertStatus(403);
 
         // the team lead can, but not themselves
-        $this->actingAs($lead)->postJson('/api/appreciations', ['nominee_id' => $lead->id, 'title' => 'x', 'reason' => 'y'])->assertStatus(422);
-        $id = $this->actingAs($lead)->postJson('/api/appreciations', ['nominee_id' => $member->id, 'title' => 'Star of the month', 'reason' => 'Delivered early'])->assertCreated()->json('data.id');
+        $this->as($lead)->postJson('/api/appreciations', ['nominee_id' => $lead->id, 'title' => 'x', 'reason' => 'y'])->assertStatus(422);
+        $id = $this->as($lead)->postJson('/api/appreciations', ['nominee_id' => $member->id, 'title' => 'Star of the month', 'reason' => 'Delivered early'])->assertCreated()->json('data.id');
 
         // the nominator cannot approve; the member sees nothing
-        $this->actingAs($lead)->postJson("/api/appreciations/$id/decision", ['approve' => true])->assertStatus(403);
+        $this->as($lead)->postJson("/api/appreciations/$id/decision", ['approve' => true])->assertStatus(403);
 
         // reject needs a reason
-        $this->actingAs($hrUser)->postJson("/api/appreciations/$id/decision", ['approve' => false])->assertStatus(422);
+        $this->as($hrUser)->postJson("/api/appreciations/$id/decision", ['approve' => false])->assertStatus(422);
 
         // HR approves: Hall entry and announcement exist
-        $this->actingAs($hrUser)->postJson("/api/appreciations/$id/decision", ['approve' => true])->assertOk();
+        $this->as($hrUser)->postJson("/api/appreciations/$id/decision", ['approve' => true])->assertOk();
         $this->assertSame(1, Recognition::where('user_id', $member->id)->where('title', 'Star of the month')->count());
         $this->assertSame(1, Announcement::where('category', 'Appreciation')->count());
 
         // cannot be decided twice
-        $this->actingAs($manager)->postJson("/api/appreciations/$id/decision", ['approve' => true])->assertStatus(403);
+        $this->as($manager)->postJson("/api/appreciations/$id/decision", ['approve' => true])->assertStatus(403);
 
         // the project manager sees all, the nominator sees own
-        $this->actingAs($manager)->getJson('/api/appreciations')->assertOk()->assertJsonCount(1, 'data');
+        $this->as($manager)->getJson('/api/appreciations')->assertOk()->assertJsonCount(1, 'data');
+    }
+
+    /** Sign in with a real bearer token, like the other feature tests (CheckEmployeeStatus needs a personal access token). */
+    private function as(User $user): static
+    {
+        $this->app['auth']->forgetGuards();
+
+        return $this->withHeader('Authorization', 'Bearer ' . $user->createToken('t')->plainTextToken);
     }
 }

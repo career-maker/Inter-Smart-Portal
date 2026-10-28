@@ -26,6 +26,9 @@ class AppreciationController extends Controller
     {
         $user = $request->user();
         $approver = Access::appreciationApprover($user);
+        if (! $approver && ! Access::appreciationNominator($user)) {
+            return $this->refuse('Appreciation is for team leads, HR and the Project Office.');
+        }
         $q = Appreciation::with(['nominee:id,first_name,last_name', 'nominator:id,first_name,last_name'])->latest();
         if (! $approver) {
             $q->where('nominated_by', $user->id);

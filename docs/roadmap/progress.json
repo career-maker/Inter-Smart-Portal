@@ -1,7 +1,7 @@
 {
   "updated": "28 Oct 2026",
-  "headline": "Accounts, Sales, the Project Office and the UI screens are LIVE. Everything else built since is saved on a work branch, NOT released and NOT tested (per the owner, testing comes after all building): UX/Dev sprints, QA hand-off, corrections and changes, team inbox and feedback, go-live hand-over, and now (28 Oct) appreciation, meetings with calendar invites, customer feedback notes, Sales completed projects and AMC with expiry reminders, and the Sales out-of-scope reply. Also built: out-of-budget list with a near-limit view, a project tracker board, and HR performance figures (raw numbers, no rating formula). Everything the manager's answers asked for is now built; what remains is the one full test and the release. Existing modules are untouched.",
-  "overall_percent": 62,
+  "headline": "Accounts, Sales, the Project Office and the UI screens are LIVE. Everything else the manager asked for is now BUILT and saved on a work branch, NOT released and switched off: UX/Dev sprints, QA hand-off, corrections and changes, team inbox and feedback, go-live hand-over, appreciation, meetings with calendar invites, customer feedback notes, Sales completed projects and AMC reminders, the Sales out-of-scope reply, the out-of-budget list, a project tracker board, and HR performance figures (no rating formula). Tested on 28 Oct on a local copy: the full backend suite ran 228 tests with 0 new failures (the same 40 old ones still fail), the new migrations applied cleanly on MySQL, and the new screens passed 8 of 8 browser steps. The full 57-step browser run of the older screens has not been repeated since the QA fix. Next: that regression run, then one controlled release. Existing modules are untouched.",
+  "overall_percent": 88,
   "live_health": [
     "Website and login: working",
     "Database: working (backup taken before every live change)",
@@ -38,7 +38,7 @@
       "name": "Project Manager + Coordinator core",
       "weeks": "5",
       "status": "In progress",
-      "percent": 70,
+      "percent": 90,
       "delivers": "Accept project, department budgets, project tabs with payment lock, out-of-scope approval"
     },
     {
@@ -46,7 +46,7 @@
       "name": "UI / UX / Dev workflow",
       "weeks": "5",
       "status": "In progress",
-      "percent": 75,
+      "percent": 90,
       "delivers": "Pages and sections, sprints, effort approval, QA hand-off, corrections with budget"
     },
     {
@@ -54,7 +54,7 @@
       "name": "Team Lead + resource screens",
       "weeks": "3",
       "status": "In progress",
-      "percent": 50,
+      "percent": 90,
       "delivers": "Task inbox with priorities, team list, feedback, ratings"
     },
     {
@@ -62,7 +62,7 @@
       "name": "Dashboards + feedback",
       "weeks": "3",
       "status": "In progress",
-      "percent": 70,
+      "percent": 90,
       "delivers": "Dashboards for every role, monthly customer feedback, appreciation approval"
     },
     {
@@ -70,7 +70,7 @@
       "name": "HR performance + go-live",
       "weeks": "2",
       "status": "In progress",
-      "percent": 45,
+      "percent": 90,
       "delivers": "HR performance views, full testing, load test, rollout"
     }
   ],
@@ -157,22 +157,16 @@
     }
   ],
   "done_this_update": [
-    "Appreciation: team leads, HR and the Project Office nominate; the project manager or HR approves; approval puts it on the Hall page and posts a company announcement",
-    "Meetings (client and internal): date, attendees, minutes, follow-up actions, and an email calendar invite (.ics) to colleagues and clients",
-    "Customer feedback notes: project manager during a project, HR after go-live; questions are asked by phone, the portal records what was said; no effect on ratings",
-    "Sales: completed projects with go-live date, AMC start/renewal/amount and payment status; Sales is reminded 30 days before an AMC expires (uses the AMC records Accounts already keeps)",
-    "Sales answers out-of-scope requests: approve or reject with a reason, or request a meeting (creates a client meeting); shown as Action required with a notification",
-    "Out-of-budget list for project managers: projects over the department budgets, plus a separate list of projects at 90% or more",
-    "Project tracker board: projects by stage (Planning, Active, On Hold, Completed) with budget left; drag between Active and On Hold (asks the reason) or back",
-    "HR performance figures per person: tasks done on time, effort against estimate, QA bugs, monthly feedback scores. No rating is calculated: HR must approve a formula first",
-    "Automatic page budgets: the manager said no, budgets stay manual",
-    "All of the above are switched off by default and nothing was tested or released in this update"
+    "Full backend test run: 228 tests, no new failures; the new modules' tests all pass (one real bug found and fixed: a meeting request without a note crashed)",
+    "All 9 new database changes applied cleanly on MySQL (add-only)",
+    "Browser test for the new screens: appreciation, meetings, customer feedback, Sales AMC and out-of-scope pages, out-of-budget list, tracker and HR figures: 8 of 8 passed",
+    "Fix: the appreciation page now refuses people who cannot nominate or approve",
+    "The report's sheet table and test count now match the work built"
   ],
   "next": [
-    "Add browser steps for the new screens, then run the one full test (backend suite and the whole browser run) and fix what fails",
-    "Then merge, back up and release to the live server in one controlled step, and switch the new modules on one by one",
-    "HR approves a rating formula (optional, later); the performance page is ready for it",
-    "Owner questions: AMC reminder lead time (30 days), near-limit threshold (90%), tracker columns (project stages assumed), whether the Sales out-of-scope answer should gate the manager's decision"
+    "Repeat the older 57-step browser run on a fresh local database (needs the local database reset, which was not done in this session)",
+    "Then merge, back up and release to the live server in one controlled step (needs the server login from the owner), and switch the new modules on one by one",
+    "Owner questions: tracker columns (project stages assumed), AMC reminder 30 days, near-limit 90%, whether the Sales out-of-scope answer should gate the manager, HR rating formula"
   ],
   "capacity_answer": "The database will not break with 100+ users working at once. The live server is strong (24 processors, 40 GB memory). Improvements planned in Phase 0 (lighter background checks, rate limits, caching) give comfortable room for 150 to 300 users at the same time. A load test will confirm the exact number.",
   "risks": [
@@ -217,6 +211,10 @@
     "Require review before merging to main on GitHub?"
   ],
   "changelog": [
+    {
+      "date": "28 Oct 2026 (night)",
+      "text": "Local test run: 228 backend tests, no new failures; new screens passed 8 of 8 browser steps. Not released."
+    },
     {
       "date": "28 Oct 2026 (later)",
       "text": "Built (unreleased, untested, switched off): out-of-budget list, project tracker board, HR performance figures. All of the manager's answers are now built."

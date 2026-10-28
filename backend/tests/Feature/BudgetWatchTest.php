@@ -39,17 +39,25 @@ class BudgetWatchTest extends TestCase
         $mk('Near', 1000, 950);
         $mk('Fine', 1000, 500);
 
-        $this->actingAs($pc)->getJson('/api/pmo/budget-watch')->assertStatus(403);
+        $this->as($pc)->getJson('/api/pmo/budget-watch')->assertStatus(403);
 
-        $r = $this->actingAs($manager)->getJson('/api/pmo/budget-watch')->assertOk();
+        $r = $this->as($manager)->getJson('/api/pmo/budget-watch')->assertOk();
         $this->assertSame(['Over'], collect($r->json('over'))->pluck('name')->all());
         $this->assertSame(['Near'], collect($r->json('near'))->pluck('name')->all());
         $this->assertEquals(200, $r->json('over.0.overrun'));
 
         // tracker: manager only, lists every open project with the budget left
-        $this->actingAs($pc)->getJson('/api/pmo/tracker')->assertStatus(403);
-        $t = collect($this->actingAs($manager)->getJson('/api/pmo/tracker')->assertOk()->json('data'))->keyBy('name');
+        $this->as($pc)->getJson('/api/pmo/tracker')->assertStatus(403);
+        $t = collect($this->as($manager)->getJson('/api/pmo/tracker')->assertOk()->json('data'))->keyBy('name');
         $this->assertEquals(500, $t['Fine']['left']);
         $this->assertEquals(-200, $t['Over']['left']);
+    }
+
+    /** Sign in with a real bearer token, like the other feature tests (CheckEmployeeStatus needs a personal access token). */
+    private function as(User $user): static
+    {
+        $this->app['auth']->forgetGuards();
+
+        return $this->withHeader('Authorization', 'Bearer ' . $user->createToken('t')->plainTextToken);
     }
 }

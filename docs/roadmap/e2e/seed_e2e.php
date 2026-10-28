@@ -13,6 +13,7 @@ $acc = Team::create(['name' => 'Accounts', 'code' => 'ACCO-1']);
 $pmo = Team::create(['name' => 'PMO 1', 'code' => 'PMO-1']);
 Team::create(['name' => 'Design', 'code' => 'DESI-1']);
 Team::create(['name' => 'HTML', 'code' => 'HTML-1']);
+$hr = Team::create(['name' => 'HR', 'code' => 'HR-1']);
 $html = Team::where('name', 'HTML')->first();
 $design = Team::where('name', 'Design')->first();
 
@@ -34,10 +35,11 @@ $mk('Dina', 'designer@test.local', $design->id, 'Employee', 'E8');
 $design->update(['team_lead_id' => $uilead->id]);
 $htmllead = $mk('Hema', 'htmllead@test.local', $html->id, 'Employee', 'E9');
 $html->update(['team_lead_id' => $htmllead->id]);
+$mk('Hana', 'hr@test.local', $hr->id, 'Employee', 'E10');
 $sales->update(['team_lead_id' => $ann->id]);
 $pmo->update(['team_lead_id' => $pm->id]);
 
-foreach (['accounts', 'sales', 'pmo', 'workflow'] as $f) {
+foreach (['accounts', 'sales', 'pmo', 'workflow', 'appreciation', 'meetings', 'customer_feedback', 'hr_performance'] as $f) {
     Feature::set($f, true);
 }
 echo "seeded " . User::count() . " users, " . Team::count() . " teams\n";

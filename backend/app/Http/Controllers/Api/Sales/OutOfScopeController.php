@@ -67,7 +67,7 @@ class OutOfScopeController extends Controller
         if ($d['answer'] === 'meeting') {
             $meeting = app(MeetingController::class)->schedule($user, [
                 'kind' => 'client', 'title' => "Out-of-scope: {$project->name}", 'project_id' => $project->id,
-                'starts_at' => $d['starts_at'], 'ends_at' => $d['ends_at'], 'agenda' => $oos->description . ($d['reason'] ? "\n\nNote from Sales: {$d['reason']}" : ''),
+                'starts_at' => $d['starts_at'], 'ends_at' => $d['ends_at'], 'agenda' => $oos->description . (! empty($d['reason']) ? "\n\nNote from Sales: {$d['reason']}" : ''),
                 'attendee_ids' => $managers->pluck('id')->merge($coordinator->pluck('id'))->reject(fn ($id) => $id === $user->id)->unique()->values()->all(),
             ]);
             $oos->update(['sales_status' => 'Meeting requested', 'sales_reason' => $d['reason'] ?? null, 'sales_replied_by' => $user->id, 'sales_replied_at' => now(), 'sales_meeting_id' => $meeting->id]);
