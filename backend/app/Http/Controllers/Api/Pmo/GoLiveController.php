@@ -27,7 +27,7 @@ class GoLiveController extends Controller
         $data = $request->validate(['kind' => ['required', Rule::in(['installment', 'final'])], 'amount' => 'required|numeric|gt:0|max:100000000', 'due_date' => 'nullable|date', 'notes' => 'nullable|string|max:2000']);
 
         $payment = ProjectPayment::create($data + ['project_id' => $project->id, 'status' => 'Awaiting', 'requested_by' => $request->user()->id]);
-        $accounts = User::whereHas('team', fn ($q) => $q->where('name', 'like', 'accounts%'))->get();
+        $accounts = Access::usersWith('accounts');
         Notify::users($accounts, 'Payment requested', "\"{$project->name}\": the Project Office asks for a {$data['kind']} payment of " . number_format($data['amount'], 2) . '.', 'payment_requested', $project->id, $request->user());
 
         return response()->json(['data' => $payment], 201);

@@ -28,6 +28,7 @@ class AppreciationTest extends TestCase
         $manager = User::factory()->create(['team_id' => $pmo->id]);
         $pmo->update(['team_lead_id' => $manager->id]);
         $hrUser = User::factory()->create(['team_id' => $hr->id]);
+        \App\Support\Access::saveSetting('hr', [$hrUser->id], []); // HR is chosen by the Super Admin, not by team
         $lead = User::factory()->create(['team_id' => $dev->id]);
         $dev->update(['team_lead_id' => $lead->id]);
         $member = User::factory()->create(['team_id' => $dev->id]);

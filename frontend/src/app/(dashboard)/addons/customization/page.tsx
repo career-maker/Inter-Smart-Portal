@@ -39,6 +39,7 @@ import {
   Play,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
+import AccessSettingsCard from "@/components/settings/AccessSettingsCard";
 import { useCustomization } from "@/context/CustomizationContext";
 import { CustomizationSettings, DEFAULT_CUSTOMIZATION_SETTINGS, customizationApi, resolveCustomizationAssetUrl } from "@/services/customization";
 import { formatFriendlyErrorMessage } from "@/lib/errorUtils";
@@ -939,6 +940,7 @@ export default function CustomizationPage() {
 
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6 pb-24">
+      <AccessSettingsCard />
       {/* ── Page Header (Standard Dashboard Typography) ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800/80 pb-5">
         <div className="space-y-1">

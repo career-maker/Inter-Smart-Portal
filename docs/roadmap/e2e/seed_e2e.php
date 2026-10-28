@@ -35,7 +35,8 @@ $mk('Dina', 'designer@test.local', $design->id, 'Employee', 'E8');
 $design->update(['team_lead_id' => $uilead->id]);
 $htmllead = $mk('Hema', 'htmllead@test.local', $html->id, 'Employee', 'E9');
 $html->update(['team_lead_id' => $htmllead->id]);
-$mk('Hana', 'hr@test.local', $hr->id, 'Employee', 'E10');
+$hrUser = $mk('Hana', 'hr@intersmart.in', $hr->id, 'Employee', 'E10');
+\App\Support\Access::saveSetting('hr', [$hrUser->id], []);
 $sales->update(['team_lead_id' => $ann->id]);
 $pmo->update(['team_lead_id' => $pm->id]);
 

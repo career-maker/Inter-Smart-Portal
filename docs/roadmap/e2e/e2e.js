@@ -573,7 +573,7 @@ async function step(id, name, fn) {
   await step("N3", "HR approves it; it appears on the Hall and as an announcement", async () => {
     const mine = (await api("htmllead@test.local", "GET", "/appreciations/people")).json.data.find((x) => x.first_name === "Dina");
     await api("htmllead@test.local", "POST", "/appreciations", { nominee_id: mine.id, title: "Star of the month", reason: "Great designs" }); // keeps this step independent of N1
-    const p = await as("hr@test.local"); await go(p, "/appreciation");
+    const p = await as("hr@intersmart.in"); await go(p, "/appreciation");
     await act(p, () => p.locator('button:has-text("Approve")').first().click());
     await until(async () => {
       const rec = (await api("admin@test.local", "GET", "/recognitions")).json.data;
@@ -593,7 +593,7 @@ async function step(id, name, fn) {
     await until(async () => { const r = (await api("ann@test.local", "GET", "/meetings")).json.data; must(r.some((m) => m.title === "Kickoff with Acme"), "meeting missing"); });
   });
   await step("N5", "Project manager and HR can open customer feedback; a member cannot", async () => {
-    for (const e of ["pm@test.local", "hr@test.local"]) { const p = await as(e); await go(p, "/customer-feedback"); must(/Customer feedback/.test(await p.innerText("body")) && !/is for the project manager and HR/.test(await p.innerText("body")), `${e} blocked`); }
+    for (const e of ["pm@test.local", "hr@intersmart.in"]) { const p = await as(e); await go(p, "/customer-feedback"); must(/Customer feedback/.test(await p.innerText("body")) && !/is for the project manager and HR/.test(await p.innerText("body")), `${e} blocked`); }
     must((await api("emp@test.local", "GET", "/customer-feedback")).status === 403, "member got in");
   });
   await step("N6", "Sales sees the Completed and AMC and Out-of-scope pages", async () => {
@@ -608,7 +608,7 @@ async function step(id, name, fn) {
     must((await api("pc@test.local", "GET", "/pmo/tracker")).status === 403, "coordinator got the tracker");
   });
   await step("N8", "HR sees performance figures with no rating; a team lead does not", async () => {
-    const p = await as("hr@test.local"); await go(p, "/hr-performance");
+    const p = await as("hr@intersmart.in"); await go(p, "/hr-performance");
     const t = await p.innerText("body"); must(/Performance figures/.test(t) && /Tasks done/i.test(t) && !/Rating/i.test(t.replace(/No rating is calculated/i, "")), "figures page");
     must((await api("htmllead@test.local", "GET", "/hr/performance")).status === 403, "team lead got in");
   });

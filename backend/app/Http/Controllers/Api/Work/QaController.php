@@ -143,7 +143,7 @@ class QaController extends Controller
 
     private function canTest(User $user, QaReview $review): bool
     {
-        return $this->isQa($user) && ($review->assigned_to === $user->id || Team::where('team_lead_id', $user->id)->where('name', 'like', 'qa%')->exists());
+        return $this->isQa($user) && ($review->assigned_to === $user->id || Access::has('qa_lead', $user));
     }
 
     private function canFix(User $user, QaReview $review): bool

@@ -28,6 +28,7 @@ class CustomerFeedbackTest extends TestCase
         $manager = User::factory()->create(['team_id' => $pmo->id]);
         $pmo->update(['team_lead_id' => $manager->id]);
         $hrUser = User::factory()->create(['team_id' => $hr->id]);
+        \App\Support\Access::saveSetting('hr', [$hrUser->id], []); // HR is chosen by the Super Admin, not by team
         $member = User::factory()->create(['team_id' => $dev->id]);
         $admin = User::factory()->create();
         $admin->assignRole('Super Admin');

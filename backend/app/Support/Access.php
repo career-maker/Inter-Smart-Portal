@@ -2,79 +2,186 @@
 
 namespace App\Support;
 
+use App\Models\SystemSetting;
+use App\Models\Team;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 
 /**
- * Module access by department (team) membership. A person belongs to the module's team
- * (for example the "Accounts" team) or is a Super Admin. An explicit Spatie role of the
- * same name also works, so access can be granted without moving someone between teams.
+ * Module privileges. The portal's login roles are only Super Admin, Employee and Team Lead; everything else (Accounts, Sales, Project Office,
+ * project manager, HR, QA, system administrator ...) is a PRIVILEGE the Super Admin assigns in the Portal Customization add-on:
+ * to named people and/or to whole teams (setting `access.<key>` = {"users":[ids],"teams":[ids]}).
+ * Until the Super Admin saves a choice for a privilege, the old rule (see `legacy`) applies, so nothing changes by itself.
  */
 class Access
 {
-    public static function inTeam(?User $user, string $teamNameStart): bool
+    /** key => [label, what it unlocks]. Order is the order shown to the Super Admin. */
+    public const PRIVILEGES = [
+        'accounts' => ['Accounts', 'Accounts module: payments, budget increases, sales targets, AMC list'],
+        'sales' => ['Sales', 'Sales module: leads, inbox, create projects, completed projects and AMC'],
+        'sales_lead' => ['Sales lead (sees every salesperson)', 'Sees all leads and projects of all salespeople'],
+        'pmo' => ['Project Office (coordinator)', 'Project Office screens and being a project coordinator'],
+        'pmo_manager' => ['Project manager', 'Assign coordinators, budgets, hold, approve sprints and changes, out-of-budget list, tracker'],
+        'qa' => ['QA tester', 'QA queue and QA reviews'],
+        'qa_lead' => ['QA lead', 'Assigns and oversees QA reviews'],
+        'system_admin' => ['System administrator', 'Go-live requests: allocate servers and mark projects live'],
+        'hr' => ['HR', 'Approve appreciation, customer feedback after go-live, performance figures'],
+    ];
+
+    /** @return array<string,array{users:int[],teams:int[]}> the saved choices, keyed by privilege */
+    public static function settings(): array
+    {
+        return Cache::remember('access.settings', 60, function () {
+            $out = [];
+            foreach (SystemSetting::where('key', 'like', 'access.%')->get() as $row) {
+                $v = json_decode((string) $row->value, true) ?: [];
+                $out[substr($row->key, 7)] = ['users' => array_map('intval', $v['users'] ?? []), 'teams' => array_map('intval', $v['teams'] ?? [])];
+            }
+
+            return $out;
+        });
+    }
+
+    public static function saveSetting(string $key, array $users, array $teams): void
+    {
+        abort_unless(isset(self::PRIVILEGES[$key]), 422, 'Unknown privilege.');
+        SystemSetting::updateOrCreate(['key' => "access.{$key}"], ['value' => json_encode(['users' => array_values(array_unique(array_map('intval', $users))), 'teams' => array_values(array_unique(array_map('intval', $teams)))])]);
+        Cache::forget('access.settings');
+    }
+
+    public static function resetSetting(string $key): void
+    {
+        SystemSetting::where('key', "access.{$key}")->delete();
+        Cache::forget('access.settings');
+    }
+
+    /** Does this person hold the privilege (by the Super Admin's choice, or by the old rule if none was saved)? Super Admin is NOT implied here. */
+    public static function has(string $key, ?User $user): bool
+    {
+        if ($user === null) {
+            return false;
+        }
+        $cfg = self::settings()[$key] ?? null;
+        if ($cfg !== null) {
+            return in_array($user->id, $cfg['users'], true) || ($user->team_id !== null && in_array((int) $user->team_id, $cfg['teams'], true));
+        }
+
+        return self::legacy($key, $user);
+    }
+
+    /** Everyone holding the privilege (active people only). Super Admin is not added automatically. */
+    public static function usersWith(string $key)
+    {
+        $cfg = self::settings()[$key] ?? null;
+        if ($cfg !== null) {
+            return User::with('team')->where('status', 'Active')->where(fn ($q) => $q->whereIn('id', $cfg['users'])->orWhereIn('team_id', $cfg['teams']))->get();
+        }
+
+        return User::with('team')->where('status', 'Active')->get()->filter(fn ($u) => self::legacy($key, $u))->values();
+    }
+
+    /** The rule that applied before the Super Admin could assign privileges. */
+    private static function legacy(string $key, User $user): bool
+    {
+        $leads = fn (string $prefix) => Team::where('team_lead_id', $user->id)->where('name', 'like', $prefix . '%')->exists();
+
+        return match ($key) {
+            'accounts' => $user->hasRole('Accounts') || self::teamStarts($user, 'accounts'),
+            'sales' => self::teamStarts($user, 'sales'),
+            'sales_lead' => $leads('sales'),
+            'pmo' => self::teamStarts($user, 'pmo'),
+            'pmo_manager' => $leads('pmo'),
+            'qa' => self::teamStarts($user, 'qa'),
+            'qa_lead' => $leads('qa'),
+            'system_admin' => strtolower(trim((string) $user->designation)) === 'system administrator',
+            'hr' => strtolower((string) $user->email) === 'hr@intersmart.in',
+            default => false,
+        };
+    }
+
+    private static function teamStarts(?User $user, string $prefix): bool
     {
         $name = $user?->team?->name;
 
-        return $name !== null && str_starts_with(strtolower(trim($name)), strtolower($teamNameStart));
+        return $name !== null && str_starts_with(strtolower(trim($name)), strtolower($prefix));
     }
 
-    /** System administrators are people whose designation is "System Administrator" (there can be several), whatever their team. */
+    /** Department test. The names that are privileges (accounts, sales, pmo, qa) follow the Super Admin's assignment; any other name is a plain team-name match. */
+    public static function inTeam(?User $user, string $teamNameStart): bool
+    {
+        $k = strtolower($teamNameStart);
+
+        return isset(self::PRIVILEGES[$k]) ? self::has($k, $user) : self::teamStarts($user, $teamNameStart);
+    }
+
     public static function systemAdmin(?User $user): bool
     {
-        return $user !== null && strtolower(trim((string) $user->designation)) === 'system administrator';
+        return self::has('system_admin', $user);
     }
 
     public static function accounts(?User $user): bool
     {
-        return $user !== null
-            && ($user->hasAnyRole(['Super Admin', 'Accounts']) || self::inTeam($user, 'accounts'));
+        return $user !== null && ($user->hasRole('Super Admin') || self::has('accounts', $user));
     }
 
     public static function sales(?User $user): bool
     {
-        return $user !== null && ($user->hasRole('Super Admin') || self::inTeam($user, 'sales'));
+        return $user !== null && ($user->hasRole('Super Admin') || self::has('sales', $user));
     }
 
-    /** Super Admin and the lead of a Sales team see every salesperson's records; others see their own. */
+    /** Super Admin and Sales leads see every salesperson's records; others see their own. */
     public static function salesSeesAll(User $user): bool
     {
-        return $user->hasRole('Super Admin')
-            || \App\Models\Team::where('team_lead_id', $user->id)->where('name', 'like', 'sales%')->exists();
+        return $user->hasRole('Super Admin') || self::has('sales_lead', $user);
     }
 
-    /** Project Office: Super Admin or anyone in a PMO team (coordinators). */
+    /** Project Office: Super Admin or anyone given the Project Office privilege (coordinators). */
     public static function pmo(?User $user): bool
     {
-        return $user !== null && ($user->hasRole('Super Admin') || self::inTeam($user, 'pmo'));
+        return $user !== null && ($user->hasRole('Super Admin') || self::has('pmo', $user));
     }
 
-    /** Project manager powers (assign, budget, hold, approve): Super Admin or the lead of a PMO team. */
+    /** Project manager powers (assign, budget, hold, approve): Super Admin or anyone given the Project manager privilege. */
     public static function pmoManager(User $user): bool
     {
-        return $user->hasRole('Super Admin')
-            || \App\Models\Team::where('team_lead_id', $user->id)->where('name', 'like', 'pmo%')->exists();
+        return $user->hasRole('Super Admin') || self::has('pmo_manager', $user);
     }
 
-    /** Everyone with project-manager powers: Super Admins and the leads of PMO teams. */
+    /** Everyone with project-manager powers: Super Admins and the people given the Project manager privilege. */
     public static function pmoManagers()
     {
-        $leads = \App\Models\Team::where('name', 'like', 'pmo%')->pluck('team_lead_id')->filter();
-
-        return User::whereIn('id', $leads)
-            ->orWhereHas('roles', fn ($q) => $q->where('name', 'Super Admin'))
-            ->get();
+        return User::role('Super Admin')->get()->merge(self::usersWith('pmo_manager'))->unique('id')->values();
     }
 
-    /** HR: the HR role or a department whose name starts with "HR". */
+    public static function qa(?User $user): bool
+    {
+        return self::has('qa', $user);
+    }
+
+    /** Members of departments or holders of the privilege named by any of the given words (e.g. "accounts", "pmo", "qa"). */
+    public static function teamMembers(array $teamNameStarts)
+    {
+        $all = collect();
+        foreach ($teamNameStarts as $s) {
+            $k = strtolower($s);
+            $all = $all->merge(isset(self::PRIVILEGES[$k])
+                ? self::usersWith($k)
+                : User::with('team')->whereNotNull('team_id')->get()->filter(fn ($u) => self::teamStarts($u, $s)));
+        }
+
+        return $all->unique('id')->values();
+    }
+
+    /** HR: whoever the Super Admin assigned (default until then: the person with the email hr@intersmart.in). Not a login role. */
     public static function hr(?User $user): bool
     {
-        return $user !== null && ($user->hasRole('HR') || self::inTeam($user, 'hr'));
+        return self::has('hr', $user);
     }
 
     /** Appreciation: team leads (of any team), HR and PCs (Project Office members) may nominate. */
     public static function appreciationNominator(User $user): bool
     {
-        return self::hr($user) || self::pmo($user) || \App\Models\Team::where('team_lead_id', $user->id)->exists();
+        return self::hr($user) || self::pmo($user) || Team::where('team_lead_id', $user->id)->exists();
     }
 
     /** Appreciation is approved by project managers or HR. */
@@ -85,13 +192,6 @@ class Access
 
     public static function appreciationApprovers()
     {
-        return self::pmoManagers()->merge(self::teamMembers(['hr']))->unique('id');
-    }
-
-    /** Members of departments whose name starts with any of the given words (e.g. "PMO 1", "PMO 2"). */
-    public static function teamMembers(array $teamNameStarts)
-    {
-        return User::with('team')->whereNotNull('team_id')->get()
-            ->filter(fn ($u) => collect($teamNameStarts)->contains(fn ($s) => self::inTeam($u, $s)));
+        return self::pmoManagers()->merge(self::usersWith('hr'))->unique('id');
     }
 }

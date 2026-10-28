@@ -24,6 +24,7 @@ class HrPerformanceTest extends TestCase
         $hr = Team::create(['name' => 'HR']);
         $html = Team::create(['name' => 'HTML']);
         $hrUser = User::factory()->create(['team_id' => $hr->id]);
+        \App\Support\Access::saveSetting('hr', [$hrUser->id], []); // HR is chosen by the Super Admin, not by team
         $lead = User::factory()->create(['team_id' => $html->id]);
         $dev = User::factory()->create(['team_id' => $html->id]);
         $project = \App\Models\Project::create(['name' => 'Acme', 'status' => 'Active', 'start_date' => now()->toDateString(), 'created_by' => $lead->id]);

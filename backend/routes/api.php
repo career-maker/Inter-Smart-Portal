@@ -94,6 +94,9 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::get('settings', [\App\Http\Controllers\Api\SystemSettingController::class, 'index']);
         Route::post('settings', [\App\Http\Controllers\Api\SystemSettingController::class, 'store']);
         Route::get('audit-logs', [\App\Http\Controllers\Api\AuditLogController::class, 'index']);
+        Route::get('access-settings', [\App\Http\Controllers\Api\AccessSettingsController::class, 'show']);
+        Route::post('access-settings', [\App\Http\Controllers\Api\AccessSettingsController::class, 'update']);
+        Route::post('access-settings/reset', [\App\Http\Controllers\Api\AccessSettingsController::class, 'reset']);
 
         // Customization module (Super Admin only)
         Route::post('customization/settings', [\App\Http\Controllers\Api\CustomizationController::class, 'updateSettings']);
