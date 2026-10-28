@@ -21,6 +21,7 @@ class FeatureController extends Controller
             'sales' => Feature::enabled('sales') && Access::sales($request->user()),
             'pmo' => Feature::enabled('pmo') && Access::pmo($request->user()),
             'appreciation' => Feature::enabled('appreciation') && $request->user() && (Access::appreciationNominator($request->user()) || Access::appreciationApprover($request->user())),
+            'meetings' => Feature::enabled('meetings') && $request->user() !== null,
             'workflow' => Feature::enabled('workflow') && ($request->user() ? WorkAccess::hasAnyWork($request->user()) : false),
         ]);
     }

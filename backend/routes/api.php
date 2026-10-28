@@ -561,6 +561,21 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::post('{appreciation}/decision', [$ap, 'decide']);
     });
 
+    // Meetings: dark until module.meetings.enabled; then open to every signed-in person (organiser/attendee rules are in the controller).
+    Route::prefix('meetings')->middleware(['feature:meetings'])->group(function () {
+        $mt = \App\Http\Controllers\Api\Work\MeetingController::class;
+        Route::get('/', [$mt, 'index']);
+        Route::post('/', [$mt, 'store']);
+        Route::get('people', [$mt, 'people']);
+        Route::put('actions/{action}/toggle', [$mt, 'toggleAction']);
+        Route::get('{meeting}', [$mt, 'show']);
+        Route::put('{meeting}', [$mt, 'update']);
+        Route::post('{meeting}/minutes', [$mt, 'minutes']);
+        Route::post('{meeting}/cancel', [$mt, 'cancel']);
+        Route::post('{meeting}/actions', [$mt, 'addAction']);
+        Route::get('{meeting}/ics', [$mt, 'ics']);
+    });
+
     // Project Office (Phase 3): hidden (404) until module.pmo.enabled is switched on.
     Route::prefix('pmo')->middleware(['feature:pmo', 'pmo.access'])->group(function () {
         $pmo = \App\Http\Controllers\Api\Pmo\PmoProjectController::class;

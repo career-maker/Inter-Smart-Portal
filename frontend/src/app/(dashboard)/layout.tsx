@@ -214,6 +214,14 @@ const NAV_GROUPS: NavGroup[] = [
     items: [{ href: "/appreciation", label: "Nominations" }],
   },
   {
+    id: "meetings",
+    label: "Meetings",
+    shortLabel: "Meetings",
+    icon: Clock,
+    feature: "meetings", // per-person: GET /features is true for every signed-in person once switched on
+    items: [{ href: "/meetings", label: "All meetings" }],
+  },
+  {
     id: "pmo",
     label: "Project Office",
     shortLabel: "PMO",
