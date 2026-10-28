@@ -211,6 +211,10 @@
   "changelog": [
     {
       "date": "29 Oct 2026",
+      "text": "Notification links fixed (each opens its own module page). Released to live."
+    },
+    {
+      "date": "29 Oct 2026",
       "text": "Security fix: team leads can manage only their own team's projects. Old test failures reviewed: none is a live bug."
     },
     {
@@ -579,7 +583,8 @@
     "Vercel: the production site serves the new design; a full local production build passes (92 pages). A failed deployment seen in Vercel is most likely a branch preview of wip/phase4-slice2",
     "Performance: every screen answers in about 0.4 to 1.2 seconds from the server; log rotation switched on (the log had grown to 89 MB with debug lines from the biometric trace)",
     "Security fix released: any Team Lead could edit or archive any other team's project by knowing its ID. A Team Lead now manages only their own team's projects (verified on live: a Sales lead editing another team's project is refused)",
-    "The 36 remaining old test failures were reviewed: none is a live bug. They are outdated tests (an old leave column, the coordinator rule that any active employee may be a coordinator, tasks with several assignees being split into one task each by design, optional project start date, the biometric timeline tests using an old format, and attendance times being stored in UTC and converted for display, which was confirmed on live data)"
+    "The 36 remaining old test failures were reviewed: none is a live bug. They are outdated tests (an old leave column, the coordinator rule that any active employee may be a coordinator, tasks with several assignees being split into one task each by design, optional project start date, the biometric timeline tests using an old format, and attendance times being stored in UTC and converted for display, which was confirmed on live data)",
+    "Notification links fixed and live: Accounts, Sales, Project Office and department notifications used to open the general project-management page; they now open the person's own module page (verified on live: 0 notifications left on the old link). Menu labels renamed so 'Projects' no longer appears three times"
   ],
   "status_todo": [
     "A person follows the Test Workflows PDF on the live site (or a test copy) and ticks every step; report failures",
