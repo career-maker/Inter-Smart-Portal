@@ -211,6 +211,10 @@
   "changelog": [
     {
       "date": "29 Oct 2026",
+      "text": "Security fix: team leads can manage only their own team's projects. Old test failures reviewed: none is a live bug."
+    },
+    {
+      "date": "29 Oct 2026",
       "text": "Live test with 12 accounts: 48 of 51 checks passed first time, 2 bugs fixed and released, log rotation enabled."
     },
     {
@@ -573,7 +577,9 @@
     "Super Admin control (Add-ons > Portal Customization): on/off switch for every module, plus privileges for people and teams, including six separate Project Office powers (assign coordinator, department budgets, hold and resume, lock overrides, approvals, out-of-budget list and tracker) that follow 'Project manager' until set separately. PMO 1 and PMO 2 members are all project managers (project manager = coordinator in this company)",
     "LIVE TEST 29 Oct with 12 real staff accounts (admin, accounts, sales, sales lead, employee, PMO, UI member and lead, QA member and lead, system administrator, HR): all 12 log in; 25 screens checked for who can open them (every privilege opens exactly the right screens); 51 functional checks passed except two bugs, both fixed and released (a cancelled meeting's calendar file said CONFIRMED; customer feedback now checks permission before the form)",
     "Vercel: the production site serves the new design; a full local production build passes (92 pages). A failed deployment seen in Vercel is most likely a branch preview of wip/phase4-slice2",
-    "Performance: every screen answers in about 0.4 to 1.2 seconds from the server; log rotation switched on (the log had grown to 89 MB with debug lines from the biometric trace)"
+    "Performance: every screen answers in about 0.4 to 1.2 seconds from the server; log rotation switched on (the log had grown to 89 MB with debug lines from the biometric trace)",
+    "Security fix released: any Team Lead could edit or archive any other team's project by knowing its ID. A Team Lead now manages only their own team's projects (verified on live: a Sales lead editing another team's project is refused)",
+    "The 36 remaining old test failures were reviewed: none is a live bug. They are outdated tests (an old leave column, the coordinator rule that any active employee may be a coordinator, tasks with several assignees being split into one task each by design, optional project start date, the biometric timeline tests using an old format, and attendance times being stored in UTC and converted for display, which was confirmed on live data)"
   ],
   "status_todo": [
     "A person follows the Test Workflows PDF on the live site (or a test copy) and ticks every step; report failures",
@@ -582,10 +588,10 @@
     "HR rating: HR must approve which inputs and weights to use; the figures page is ready for it",
     "Tracker columns: built as project stages, waiting for the manager to confirm",
     "Confirm assumptions: AMC reminder 30 days, near-limit 90%, whether Sales's out-of-scope answer should block the manager's own decision",
-    "About 20 old biometric timeline tests still fail because their test data uses an old format (not a live bug); to be updated",
     "Owner: change the SSH password after everything is complete; still open: Google review count, old bug tracker, pilot or everyone at go-live",
     "Not tested on live in a browser: the page layouts (checked by build and type check only) and the full create-a-project-to-go-live walk-through (it would create real finance and PMO records and notify staff). A person can follow the Test Workflows PDF",
     "Speed: even the simplest request takes about 0.6 to 0.8 seconds; the cause is the shared host (not caching of routes, which saved only 10%). Ask the host about PHP opcache and CPU limits",
-    "SECURITY: the real Super Admin password and most of the staff passwords supplied for testing are short, guessable patterns. Set strong unique passwords for every account used in testing and do not share passwords in chat"
+    "SECURITY: the real Super Admin password and most of the staff passwords supplied for testing are short, guessable patterns. Set strong unique passwords for every account used in testing and do not share passwords in chat",
+    "Rewrite the 36 outdated tests to match today's rules (housekeeping, no effect on users)"
   ]
 }
