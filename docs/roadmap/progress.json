@@ -211,6 +211,10 @@
   "changelog": [
     {
       "date": "28 Oct 2026 (late)",
+      "text": "Privileges assignable by the Super Admin (released). HR set to hr@intersmart.in. Security headers added."
+    },
+    {
+      "date": "28 Oct 2026 (late)",
       "text": "All sheet modules switched on in the live system and verified. Four bugs fixed. Test Workflows PDF v2.0 covers every module."
     },
     {
@@ -555,7 +559,9 @@
     "Tested before release: 228 backend tests with no new failures; the new screens passed 8 of 8 browser steps; the first full browser run passed 42 steps with no failures before the local test server ran out of memory",
     "Bugs found and fixed: meeting request without a note crashed; appreciation page opened for people who cannot use it; the biometric processing command crashed when run for specific events; a disabled user could cause a server error in the login check",
     "Complete step-by-step test script for testers: Test Workflows PDF version 2.0 (102 steps across 16 sections)",
-    "Page budgets stay manual (manager's decision)"
+    "Page budgets stay manual (manager's decision)",
+    "Privileges: only Super Admin, Employee and Team Lead are login roles. Accounts, Sales, Sales lead, Project Office, project manager, QA, QA lead, system administrator and HR are assigned by the Super Admin (Add-ons > Portal Customization) to people or whole teams, with a reset to the old rule. HR is Nobby Pachat (hr@intersmart.in) now (released)",
+    "Security: the API now sends safe headers (nosniff, referrer policy, HSTS over https); sensitive files (.env, .git) are blocked; the server's bot protection (Imunify360) blocks automated probing"
   ],
   "status_todo": [
     "A person follows the Test Workflows PDF on the live site (or a test copy) and ticks every step; report failures",
@@ -565,6 +571,8 @@
     "Tracker columns: built as project stages, waiting for the manager to confirm",
     "Confirm assumptions: AMC reminder 30 days, near-limit 90%, whether Sales's out-of-scope answer should block the manager's own decision",
     "About 20 old biometric timeline tests still fail because their test data uses an old format (not a live bug); to be updated",
-    "Owner: change the SSH password after everything is complete; still open: Google review count, old bug tracker, pilot or everyone at go-live"
+    "Owner: change the SSH password after everything is complete; still open: Google review count, old bug tracker, pilot or everyone at go-live",
+    "Live testing of every screen as each kind of user could not be done with real staff accounts; a tester should follow the Test Workflows PDF (new section Q covers privileges)",
+    "Speed under real use was not measured (the bot protection blocks load testing from outside); watch the live site while testers work"
   ]
 }

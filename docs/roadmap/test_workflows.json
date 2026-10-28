@@ -1,5 +1,5 @@
 {
-  "version": "2.0",
+  "version": "2.1",
   "updated": "28 Oct 2026",
   "covers": "every module in the manager's sheet: Sales, Accounts, Project Office, UI, UX and Dev sprints, QA, corrections and changes, team inbox and feedback, go-live, appreciation, meetings, customer feedback, AMC, out-of-budget list, tracker and HR performance figures, plus a check that the older modules still work",
   "before_you_start": [
@@ -707,6 +707,62 @@
       ]
     },
     {
+      "id": "Q",
+      "title": "Q. Super Admin: who holds each privilege",
+      "status": "new",
+      "intro": "The portal's login roles are only Super Admin, Employee and Team Lead. Accounts, Sales, Project Office, project manager, QA, system administrator and HR are privileges the Super Admin assigns.",
+      "steps": [
+        {
+          "who": "Super Admin",
+          "where": "Add-ons > Portal Customization (top card 'Module privileges')",
+          "do": "Open the card and expand HR",
+          "expect": "Shows 'default rule' and the person with hr@intersmart.in (Nobby Pachat)"
+        },
+        {
+          "who": "Super Admin",
+          "where": "Same card, HR",
+          "do": "Tick a different person, Save",
+          "expect": "Shows 'set by you'. That person can now open Performance figures; Nobby no longer can"
+        },
+        {
+          "who": "Super Admin",
+          "where": "Same card, HR",
+          "do": "Click 'Back to default rule'",
+          "expect": "hr@intersmart.in is HR again"
+        },
+        {
+          "who": "Super Admin",
+          "where": "Same card, Accounts",
+          "do": "Tick one person from another team and Save",
+          "expect": "That person gets the Accounts menu; people who only had it from the Accounts team lose it"
+        },
+        {
+          "who": "Super Admin",
+          "where": "Same card, Sales",
+          "do": "Tick a whole team (the Teams list) and Save",
+          "expect": "Everyone in that team gets Sales"
+        },
+        {
+          "who": "Super Admin",
+          "where": "Same card, any privilege",
+          "do": "Save with nobody ticked",
+          "expect": "Only Super Admins have it (warning text says so)"
+        },
+        {
+          "who": "Employee or team lead",
+          "where": "Direct link to Portal Customization",
+          "do": "Open it",
+          "expect": "Refused: Super Admin only"
+        },
+        {
+          "who": "Super Admin",
+          "where": "Audit logs",
+          "do": "Look for the changes just made",
+          "expect": "Each change is listed with who made it"
+        }
+      ]
+    },
+    {
       "id": "H",
       "title": "H. Older modules still work (regression)",
       "status": "new",
@@ -752,6 +808,10 @@
     }
   ],
   "changelog": [
+    {
+      "date": "28 Oct 2026 (late)",
+      "text": "Version 2.1. New section Q: Super Admin assigns privileges. HR step names hr@intersmart.in."
+    },
     {
       "date": "28 Oct 2026",
       "text": "Version 2.0. Complete script for every module in the manager's sheet: new sections J to P, N extended."

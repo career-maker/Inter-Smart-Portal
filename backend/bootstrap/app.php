@@ -21,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Apply CORS middleware to all requests
         $middleware->append(\App\Http\Middleware\CorsMiddleware::class);
+        $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
 
         $middleware->api(append: [
             \App\Http\Middleware\CheckEmployeeStatus::class,

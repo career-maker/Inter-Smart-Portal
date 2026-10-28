@@ -228,6 +228,17 @@
         "Tasks done and on time, effort against estimate, QA bugs, monthly feedback scores",
         "Figures only: no rating until HR approves a formula"
       ]
+    },
+    {
+      "name": "Module privileges (Super Admin)",
+      "status": "live",
+      "who": "Super Admin",
+      "points": [
+        "Only three login roles: Super Admin, Employee, Team Lead",
+        "Accounts, Sales, Project Office, project manager, QA, system administrator and HR are assigned to people or whole teams",
+        "Reset any privilege to its old rule",
+        "HR is hr@intersmart.in until the Super Admin chooses otherwise"
+      ]
     }
   ],
   "coverage": [

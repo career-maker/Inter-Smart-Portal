@@ -128,3 +128,8 @@ Owner paused work. See `CHECKPOINT.md` section 2.0 for exactly how to resume: sl
 - Live Report republished to the same link (version 12), Test Workflows PDF v2.0 (13 pages, 102 steps).
 - Gotchas learned: use bearer tokens in feature tests (`as()` helper), not `actingAs`; an existing local MySQL (3306) and a leftover local stack (3100/8766/8765) may already be running; dropping databases and writing live flags needed explicit permission (granted by the owner in chat and then allowed); PHP `utf-8` heredocs in bash break on quotes: use script files; the owner's machine has little free memory, so run the browser test with nothing else open.
 - Open: HR rating formula, tracker columns, AMC 30 days and near-limit 90% confirmation, Sales answer gating the manager, real calendar-invite email test, ~20 stale biometric tests, rest of the browser regression, leftover local test DBs `intersmart_e2e` and `intersmart_e2e2`, change the SSH password after completion.
+
+### 2026-10-28 (night) privileges and live checks
+- Super-Admin-assignable privileges (see CHECKPOINT.md): HR is hr@intersmart.in by default; accounts, sales, pmo, pmo_manager, qa, system_admin, hr ... are assigned to people/teams in Add-ons > Portal Customization. 229 tests, 0 new failures. Released.
+- Security headers middleware. Live probes from outside are blocked by Imunify360 (good), so test from the server or by hand.
+- Owner rule: do not impersonate real staff accounts for testing, even briefly; use the Super Admin or a dedicated test account.
