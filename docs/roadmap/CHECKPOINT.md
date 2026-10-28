@@ -79,7 +79,21 @@ Steps to finish:
 2. **Slice 4: corrections and changes with budget approval.** Coordinator raises, team lead sets effort, project manager approves against the budget.
 3. Phase 5: team lead and resource inbox (start/end task, budget and date exceeded reasons, team list, the fixed feedback questions: attitude, attire, learning new things, on-time completion). Phase 6/7: HR performance views, appreciation approval, dashboards.
 
-## 3. Blocked on the manager (do not guess these)
+## 3. Manager's answers (received 28 Oct, via owner) and what is still open
+
+Build these next, in this order (HR rating module LAST, it is not automated):
+1. **Appreciation:** Team leads, HR and PCs can nominate. Project manager or HR approves. After approval it is shared in BOTH the Hall page and a company announcement.
+2. **Meetings:** all meetings (Sales client meeting requests and internal project meetings). Record date, attendees, minutes, follow-up actions. Calendar invite is wanted (email invite or .ics; list in the portal alone is not enough).
+3. **Customer feedback:** collected by the project manager during the project and by HR after go-live. The questions are asked over a call outside the system, so the portal only records the entry (who, when, notes/score); no client link or form. Does not feed the rating.
+4. **Page budgets:** NOT calculated from the sheet's effort-days tables; stay manual.
+5. **Sales completed projects and AMC:** Sales sees go-live date, AMC start and renewal date, AMC amount, payment status. Sales gets a reminder before an AMC expires (lead time not given: default 30 days, confirm).
+6. **Sales out-of-scope reply:** Sales can approve with a reason, reject with a reason, or request a meeting. "Action required" is not defined; default both a flag on the project and a notification (confirm).
+7. **Out-of-budget list:** projects over the limit only, plus a separate "nearing the limit" view (threshold not given: default 90%, confirm). Drag-and-drop tracker columns still unanswered.
+8. **HR performance views and rating (LAST):** owner says not automated; formula inputs (on-time completion, effort vs estimate, QA bugs, monthly feedback) not confirmed. Do not build a formula until HR approves.
+
+Still open: tracker columns; AMC reminder lead time; "action required" form; near-limit threshold; Google review count; keep or replace old bug tracker; pilot-first or all-at-once go-live.
+
+(Original blocked list, now mostly answered:)
 
 Sales document fields; budget-per-department formula (sections x animation level) and who may change it; rating formula (needs HR approval); customer feedback questions and who enters them; meetings (simple request/approve vs calendar invites); appreciation sharing and Google review count (manual or automatic); keep or replace the old bug tracker; pilot-first or all-at-once go-live. The list is also in `progress.json` under `decisions`.
 **Owner decisions pending:** approve the staging copy (sub-domain, DNS, certificate); require review before merging to `main` on GitHub; change the SSH password that was pasted in chat.
