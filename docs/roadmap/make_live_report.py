@@ -26,7 +26,7 @@ ST = {
     "pending": ("Planned", "var(--c-pending)"), "decision": ("Waiting for the manager", "var(--c-decision)"),
 }
 ORDER = ["live", "existing", "built", "pending", "decision"]
-TASK_CLASS = {"Done": "live", "In progress": "built", "Not started": "pending", "Needs approval": "decision", "Waiting for staging": "built",
+TASK_CLASS = {"Done": "live", "In progress": "built", "Built": "built", "Not started": "pending", "Needs approval": "decision", "Waiting for staging": "built",
               "Waiting for Phase 2": "pending", "Waiting for Phase 3": "pending", "Waiting for Phase 4": "pending"}
 chip = lambda key, label=None: f'<span class="chip c-{key}">{esc(label or ST[key][0])}</span>'
 

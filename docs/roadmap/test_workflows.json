@@ -1,6 +1,6 @@
 {
-  "version": "1.2",
-  "updated": "24 Oct 2026",
+  "version": "1.4",
+  "updated": "28 Oct 2026",
   "covers": "Accounts, Sales, Project Office and UI department work screens, plus a check that the older modules still work",
   "before_you_start": [
     "Use a dummy project called TEST - Demo Website, so real data stays clean. There is no delete for projects; finish by terminating the dummy ones.",
@@ -404,9 +404,87 @@
           "expect": "Alerts and recent activity widgets load"
         }
       ]
+    },
+    {
+      "id": "N",
+      "title": "N. Appreciation, meetings, feedback, AMC, Sales reply",
+      "status": "new",
+      "intro": "New and switched off until released. Switch on module.appreciation, meetings and customer_feedback first.",
+      "steps": [
+        {
+          "who": "Team lead",
+          "where": "Appreciation",
+          "do": "Nominate a colleague with a title and reason",
+          "expect": "Nomination appears as Pending; HR and the project manager are notified"
+        },
+        {
+          "who": "Team member",
+          "where": "Appreciation",
+          "do": "Open the page or try to nominate",
+          "expect": "Not available to a plain team member"
+        },
+        {
+          "who": "HR",
+          "where": "Appreciation",
+          "do": "Reject without a reason, then approve",
+          "expect": "Reject asks for a reason; approve shows it on the Hall page and posts an announcement; nominee and nominator are told"
+        },
+        {
+          "who": "Anyone",
+          "where": "Meetings",
+          "do": "Schedule a client meeting with a colleague and a client email",
+          "expect": "Invite emails with a calendar file go out; the colleague is notified"
+        },
+        {
+          "who": "Organiser",
+          "where": "Meetings",
+          "do": "Save minutes and add a follow-up for a colleague",
+          "expect": "Meeting becomes Done; the colleague can tick the follow-up off"
+        },
+        {
+          "who": "Outsider",
+          "where": "Meetings",
+          "do": "Open someone else's meeting",
+          "expect": "Refused"
+        },
+        {
+          "who": "Project manager",
+          "where": "Customer feedback",
+          "do": "Record feedback 'during project'; try 'after go-live'",
+          "expect": "During works; after go-live is refused"
+        },
+        {
+          "who": "HR",
+          "where": "Customer feedback",
+          "do": "Record feedback for a project not yet live, then a live one",
+          "expect": "Refused until the project is live, then saved"
+        },
+        {
+          "who": "Salesperson",
+          "where": "Sales > Completed and AMC",
+          "do": "Open the page; enter an AMC ending in 10 days",
+          "expect": "Live projects only; shows Expiring soon; reminder arrives once"
+        },
+        {
+          "who": "Project coordinator",
+          "where": "Project Office",
+          "do": "Raise an out-of-scope request",
+          "expect": "The salesperson is notified and sees Action required"
+        },
+        {
+          "who": "Salesperson",
+          "where": "Sales > Out-of-scope requests",
+          "do": "Approve without a reason, then with one; request a meeting on another",
+          "expect": "Reason is required; meeting creates a client meeting inviting the Project Office"
+        }
+      ]
     }
   ],
   "changelog": [
+    {
+      "date": "28 Oct 2026",
+      "text": "Version 1.4. New section N: appreciation, meetings, customer feedback, Sales AMC and the Sales out-of-scope reply (all built, not yet run)."
+    },
     {
       "date": "24 Oct 2026",
       "text": "Version 1.2. New section I: UI department work screens (pages, sections, status chain, page budgets)."
