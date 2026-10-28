@@ -107,7 +107,7 @@ Verdict given to manager: DB will not break at 100+ users; with Step 0 fixes exp
 1. **Never test or deploy in `~/public_html/backend`** on the server. Live = `~/public_html/api/Inter-Smart-Portal`.
 2. Never trust local `.env` or old docs for live facts; verify over SSH (read-only first).
 3. Before any live change: backup, preview, apply, check `/api/ping` and fake login; get owner approval. Production deploys and remote writes need the owner's permission rule; do not work around a block.
-4. Do not store passwords in files; the SSH password is not in this repo.
+4. Do not store passwords in the repo. The live SSH details are kept OUTSIDE the repo at `C:\Users\Abhiram P M\.claude\live-server\` (owner's choice, 28 Oct 2026); see CHECKPOINT.md rule 8.
 5. Do not run `config:cache`, `optimize` or `migrate` on live without a preview and backup.
 6. Add-only DB changes, feature flags, new roles only (see `EXECUTION_PLAN.md`).
 7. Commit messages end with the Claude co-author line; push only when asked. `main` pushes reach Vercel immediately; backend goes live only when someone pulls on the server.
@@ -117,3 +117,14 @@ Verdict given to manager: DB will not break at 100+ users; with Step 0 fixes exp
 ### Pause note (2026-10-24 night)
 Owner paused work. See `CHECKPOINT.md` section 2.0 for exactly how to resume: slice 2 (sprints) lives on branch `wip/phase4-slice2`, tested by 7 unit tests, final combined browser run still to do, not released. Local MySQL, PHP server, proxy and Next dev were all shut down; the local MySQL data folder was in the old session's scratch folder, so re-initialise it with the commands in `CHECKPOINT.md` section 5.
 10. **Live Report page** replaces per-change PDF updates: after each unit of work edit the three JSON files, run `make_live_report.py`, and republish `Live Report.html` (same path, link https://claude.ai/artifact/1YxcaJqixY6biuxQTmQ8K3). See `CHECKPOINT.md` rule 4.
+
+
+### 2026-10-28 session (manager's answers received; everything built, released, switched on)
+- Manager's answers (via owner) recorded in CHECKPOINT.md section 3: appreciation, meetings, customer feedback, AMC, out-of-scope reply, out-of-budget list, tracker, HR rating (last, not automated), page budgets stay manual.
+- Built (all add-only, behind flags): appreciation (nominate/approve, Hall + announcement), meetings (client and internal, minutes, follow-ups, .ics invites, start from a lead or an out-of-scope request), customer feedback notes (PM during, HR after go-live), Sales completed projects and AMC with a daily 30-day reminder (reuses Accounts' `amc_contracts`), Sales out-of-scope reply (approve/reject with reason or request meeting), out-of-budget list with near-limit (90%), project tracker board (stages assumed), HR performance figures (no rating formula).
+- Tests: full PHPUnit 228 tests, 0 new failures (39 old known); 7 new test files; browser section N (8 steps) passed; first full browser run passed 42 steps with 0 failures before the local Next server died of memory; second run killed for low memory (I4 to P not browser-verified).
+- Bugs fixed: meeting request without a note crashed; appreciation page open to non-users; `biometric:process --event-ids` returned nothing (TypeError); `CheckEmployeeStatus` called delete() on a TransientToken (500).
+- Released to live 28 Oct (verified backup, pull to ce24d9c5 then 80099dd8, 11 migrations, checks, then flags appreciation/meetings/customer_feedback/hr_performance switched on one by one). Live API routes are `/api/api/...`.
+- Live Report republished to the same link (version 12), Test Workflows PDF v2.0 (13 pages, 102 steps).
+- Gotchas learned: use bearer tokens in feature tests (`as()` helper), not `actingAs`; an existing local MySQL (3306) and a leftover local stack (3100/8766/8765) may already be running; dropping databases and writing live flags needed explicit permission (granted by the owner in chat and then allowed); PHP `utf-8` heredocs in bash break on quotes: use script files; the owner's machine has little free memory, so run the browser test with nothing else open.
+- Open: HR rating formula, tracker columns, AMC 30 days and near-limit 90% confirmation, Sales answer gating the manager, real calendar-invite email test, ~20 stale biometric tests, rest of the browser regression, leftover local test DBs `intersmart_e2e` and `intersmart_e2e2`, change the SSH password after completion.
