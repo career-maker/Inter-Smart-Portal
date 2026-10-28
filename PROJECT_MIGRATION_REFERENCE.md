@@ -176,7 +176,7 @@ Domain: workplace.intersmart.in
 Server IP: 173.249.159.38
 Port: Standard (80/443 via cPanel)
 cPanel Username: workplaceintersm
-cPanel Password: f5D0&gdUeU)*e{^v#2
+cPanel Password: (removed: kept outside the repo in the owner's local live-server folder)
 SSH Access: ssh workplaceintersm@173.249.159.38
 cPanel URL: https://workplace.intersmart.in:2083 or https://173.249.159.38:2083
 Quota: 30 GB

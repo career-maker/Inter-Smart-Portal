@@ -23,7 +23,7 @@ Office Version (New):
 Domain: workplace.intersmart.in
 IP: 173.249.159.38
 Username: workplaceintersm
-Password: f5D0&gdUeU)*e{^v#2
+Password: (removed: kept outside the repo in the owner's local live-server folder)
 Quota: 30 GB
 Package: smart30
 Contact: systemadmin@intersmart.in
@@ -33,7 +33,7 @@ Contact: systemadmin@intersmart.in
 - **URL:** https://workplace.intersmart.in:2083
 - **Or:** https://173.249.159.38:2083
 - **Username:** workplaceintersm
-- **Password:** f5D0&gdUeU)*e{^v#2
+- **Password:** (removed: kept outside the repo in the owner's local live-server folder)
 
 ---
 
