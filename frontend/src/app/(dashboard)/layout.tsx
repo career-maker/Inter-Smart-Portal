@@ -408,7 +408,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         fetchPendingCount();
       }
 
-      const interval = setInterval(fetchPendingCount, 60000);
+      const interval = setInterval(fetchPendingCount, 120000);
       return () => clearInterval(interval);
     }
   }, [user?.role, (user as any)?.is_approver, userPermissions?.is_approver, pathname]);

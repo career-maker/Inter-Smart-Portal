@@ -226,7 +226,7 @@ export function NotificationDropdown() {
     fetchUnread();
     let interval: NodeJS.Timeout | null = null;
     if (!isOpen) {
-      interval = setInterval(fetchUnread, 30000);
+      interval = setInterval(fetchUnread, 60000);
     }
     window.addEventListener('notifications-refresh', fetchUnread);
     return () => {

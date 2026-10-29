@@ -342,7 +342,7 @@ export function useChatPushNotifications() {
 
     if (!globalInterval) {
       checkUnread();
-      globalInterval = setInterval(checkUnread, 20000); // Efficient 20s polling interval
+      globalInterval = setInterval(checkUnread, 45000); // 45s: the host handles only a few requests per second
     }
 
     return () => {

@@ -203,6 +203,8 @@ class MeetingController extends Controller
         if ($to->isEmpty()) {
             return;
         }
+        // Sent after the response goes out, so a slow SMTP server never holds the page up.
+        dispatch(function () use ($m, $to, $method, $verb, $when) {
         try {
             EmailService::applySmtpConfig();
             $ics = $this->buildIcs($m, $method);
@@ -216,6 +218,7 @@ class MeetingController extends Controller
         } catch (\Throwable $e) {
             \Log::warning('Meeting invite email failed: ' . $e->getMessage());
         }
+        })->afterResponse();
     }
 
     private function buildIcs(Meeting $m, string $method): string
