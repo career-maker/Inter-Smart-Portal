@@ -19,6 +19,11 @@ When the owner says "continue": do section 0000-F below. Everything is committed
 - Decided NOT to do a broad token/typography redesign: measured, text already 12-14px, shell consistent. Do only if the owner names a concrete page/element.
 - Browser-tested on live as Super Admin (owner logged in): TA bill/chat/document images load via cookie and fail without it; policy PDF opens; pages render.
 
+### 0000-A2. Emoji pass (30 Oct, after the handover above)
+- Commits cc142d91 + 058aba64 replaced remaining decorative emoji with Lucide icons or plain text (chat push banner bell, notification bell, ChatWidget quick prompts, leaderboard ranks as #N, punch timeline dots, labels, tickers, community filter options). KEPT on purpose: emoji that are content (reaction pickers, chat/birthday emoji pickers, award/achievement icons chosen by admins, post reactions).
+- `pnpm run build` passes locally (NODE_OPTIONS=--max-old-space-size=3000). At the end of the session the live site still served the OLD frontend build 8+ minutes after the push (earlier pushes deployed in 1-2 min): check the Vercel dashboard (build log, or the Hobby plan daily deployment limit) and redeploy `main`; then verify with a text scan of the rendered pages for leftover emoji.
+- Owner also showed a mobile dashboard screenshot: the sticky "Apply Leave" bar overlaps the cards and the floating assistant sits on the bar; not fixed yet.
+
 ### 0000-B. Facts learned (keep)
 - Spatie roles on live are ONLY: Accounts, Employee, Super Admin, Team Lead. `hasRole('HR')`/`'Admin'` never match; `User::role('HR')` throws RoleDoesNotExist.
 - Live URLs: files at `https://workplace.intersmart.in/api/storage/<path>`; API at `/api/api/...`; `/storage/...` at the host root is a different app (500).
