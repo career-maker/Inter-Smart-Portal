@@ -1762,6 +1762,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                 <PieChart margin={{ top: 5, right: 0, bottom: 0, left: 0 }}>
                   <Pie
                     data={drawn}
+                    isAnimationActive={false}
                     cx="50%"
                     cy="72%"
                     startAngle={180}
