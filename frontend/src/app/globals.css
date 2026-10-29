@@ -4399,3 +4399,45 @@ select option,
 span.task-priority-badge {
   background-image: none !important;
 }
+
+/* ── Clickable controls show the hand cursor (Tailwind v4 preflight resets buttons to the arrow) ── */
+@layer base {
+  button:not(:disabled):not([aria-disabled="true"]),
+  [role="button"]:not([aria-disabled="true"]),
+  [role="tab"],
+  [role="menuitem"],
+  [role="option"],
+  summary,
+  select:not(:disabled),
+  label[for],
+  input:is([type="checkbox"], [type="radio"], [type="file"], [type="submit"], [type="button"], [type="range"]):not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+/* ── Every centred popup becomes a right-hand side panel (same as the birthday-wish popup), so nothing
+   overlaps the header or footer. Lightboxes (bg-black/80), loaders (flex-col) and the mobile sheet stay as they are. ── */
+.fixed.inset-0.items-center.justify-center:not(.flex-col):not([class*="bg-black/80"]):not([class*="bg-white/"]) {
+  align-items: stretch !important;
+  justify-content: flex-end !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  z-index: 99999 !important;
+}
+.fixed.inset-0.items-center.justify-center:not(.flex-col):not([class*="bg-black/80"]):not([class*="bg-white/"]) > :not(.absolute):not(.fixed) {
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  width: 100% !important;
+  max-width: 36rem !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  overflow-y: auto !important;
+  animation: sidePanelIn 0.25s ease-out;
+}
+.fixed.inset-0.items-center.justify-center:not(.flex-col):not([class*="bg-black/80"]):not([class*="bg-white/"]) > :is(.max-w-3xl, .max-w-4xl, .max-w-5xl, .max-w-6xl, .max-w-7xl):not(.absolute) {
+  max-width: min(56rem, 100vw) !important;
+}
+@keyframes sidePanelIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
