@@ -4488,3 +4488,12 @@ th {
 .dark [class*="shadow-"][class*="-600/"] {
   --tw-shadow-color: rgb(0 0 0 / 0.35) !important;
 }
+
+/* Welcome banner: drop the stacked decoration (purple swoosh, dot matrices, wave lines) and the script-font slogan. */
+.card-purple-swoosh, .card-dots, .card-dots2, .card-waves { display: none !important; }
+.card-tagline.cursive-slogan { font-family: var(--portal-font-family, "Proxima Nova", sans-serif) !important; font-style: italic; transform: none; color: #9fb0cc !important; text-align: right; }
+
+/* Page titles: one icon colour (the portal primary, editable in Customization) instead of a different hue per page. */
+h1 > svg {
+  color: var(--portal-primary-color, #56348f) !important;
+}

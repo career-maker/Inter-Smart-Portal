@@ -81,10 +81,9 @@ function WelcomeRolePill({ role }: { role?: string }) {
   }
 
   return (
-    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-[#2b1055]/80 border border-[#a855f7]/40 text-[#f3e8ff] shadow-[0_0_12px_rgba(168,85,247,0.25)] shrink-0 transition-transform duration-200 hover:scale-105 select-none">
-      <Users className="w-3.5 h-3.5 shrink-0 text-[#c084fc]" />
-      <span className="tracking-wider">{roleLabel}</span>
-      <span className="w-2 h-2 rounded-full bg-[#c084fc] shadow-[0_0_6px_rgba(192,132,252,0.9)] shrink-0 ml-0.5" />
+    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 border border-white/20 text-white">
+      <Users className="w-3.5 h-3.5 shrink-0 text-slate-200" />
+      <span>{roleLabel}</span>
     </span>
   );
 }
@@ -421,7 +420,7 @@ export default function DashboardPage() {
           <div className="flex items-start sm:items-center gap-3.5 sm:gap-6 min-w-0">
             {/* Avatar with Radiant Neon Gradient Ring & Green Online Status Dot from welcome_card.html */}
             <div className="relative shrink-0">
-              <div className="relative p-[5px] rounded-full bg-gradient-to-tr from-[#3f91ff] to-[#9b51ff] shadow-[0_8px_26px_rgba(65,95,190,0.24)]">
+              <div className="relative p-[5px] rounded-full bg-white/25">
                 <div className="w-18 h-18 sm:w-22 sm:h-22 rounded-full overflow-hidden bg-slate-900 border-[3px] border-[#070e1b]">
                   <PhotoAvatar
                     src={profile.profile_photo_path}
@@ -544,10 +543,9 @@ export default function DashboardPage() {
 
         {/* ── BOTTOM ROW: "GOOD TO SEE YOU BACK" BAR + Cursive Tagline (from welcome_card.html) ── */}
         <div className="flex items-center gap-4 relative z-10 pt-2 border-t border-slate-800/60">
-          <span className="text-[12px] sm:text-[13px] font-bold tracking-[3px] uppercase text-[#7b8ca8] whitespace-nowrap">
+          <span className="text-[12px] sm:text-[13px] font-semibold tracking-wide text-[#9fb0cc] whitespace-nowrap">
             GOOD TO SEE YOU BACK
           </span>
-          <div className="h-[2px] w-32 sm:w-60 bg-[#aab9d1] rounded-full" />
           <p className="hidden sm:block ml-auto shrink-0 card-tagline cursive-slogan !text-base leading-[1.15]">
             Stronger People<br />Brighter Tomorrows
           </p>
@@ -1613,7 +1611,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           <div className="flex items-start sm:items-center gap-3.5 sm:gap-6 min-w-0">
             {/* Avatar with Radiant Neon Gradient Ring & Green Online Status Dot from welcome_card.html */}
             <div className="relative shrink-0">
-              <div className="relative p-[5px] rounded-full bg-gradient-to-tr from-[#3f91ff] to-[#9b51ff] shadow-[0_8px_26px_rgba(65,95,190,0.24)]">
+              <div className="relative p-[5px] rounded-full bg-white/25">
                 <div className="w-18 h-18 sm:w-22 sm:h-22 rounded-full overflow-hidden bg-slate-900 border-[3px] border-[#070e1b]">
                   <PhotoAvatar
                     src={profile.profile_photo_path}
@@ -1668,7 +1666,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           <div className="z-10 shrink-0">
             <Link
               href="/leaves/approvals"
-              className="group flex flex-col justify-center bg-[#0b1220]/90 border border-amber-500/30 hover:border-amber-400/70 transition-all duration-300 rounded-2xl p-4 sm:p-5 shadow-[0_10px_30px_rgba(0,0,0,0.5),0_0_25px_rgba(245,158,11,0.08)] backdrop-blur-md cursor-pointer min-w-[190px]"
+              className="group flex flex-col justify-center bg-[#0b1220]/90 border border-amber-500/30 hover:border-amber-400/70 transition-all duration-300 rounded-2xl p-4 sm:p-5 shadow-lg backdrop-blur-md cursor-pointer min-w-[190px]"
             >
               <p className="text-xs font-black text-amber-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                 <Sparkles className="w-4 h-4 text-amber-400" />
@@ -1689,10 +1687,9 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
 
         {/* ── BOTTOM ROW: "GOOD TO SEE YOU BACK" BAR + Cursive Tagline (from welcome_card.html) ── */}
         <div className="flex items-center gap-4 relative z-10 pt-2 border-t border-slate-800/60">
-          <span className="text-[12px] sm:text-[13px] font-bold tracking-[3px] uppercase text-[#7b8ca8] whitespace-nowrap">
+          <span className="text-[12px] sm:text-[13px] font-semibold tracking-wide text-[#9fb0cc] whitespace-nowrap">
             GOOD TO SEE YOU BACK
           </span>
-          <div className="h-[2px] w-32 sm:w-60 bg-[#aab9d1] rounded-full" />
           <p className="hidden sm:block ml-auto shrink-0 card-tagline cursive-slogan !text-base leading-[1.15]">
             Stronger People<br />Brighter Tomorrows
           </p>
