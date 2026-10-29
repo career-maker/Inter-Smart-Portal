@@ -26,5 +26,18 @@ Route::get('uploads/customization/{filename}', [\App\Http\Controllers\Api\Custom
 Route::get('api/uploads/customization/{filename}', [\App\Http\Controllers\Api\CustomizationController::class, 'showAsset']);
 Route::get('api/api/uploads/customization/{filename}', [\App\Http\Controllers\Api\CustomizationController::class, 'showAsset']);
 
+// Private uploads. Apache hands every /api/storage/* request except the public media folders to Laravel
+// (see public/.htaccess), so the login check in showStorageFile applies to old links too. The shared
+// `token` cookie is read raw, so cookie encryption must be off for these routes.
+Route::withoutMiddleware([
+    \Illuminate\Cookie\Middleware\EncryptCookies::class,
+    \Illuminate\Session\Middleware\StartSession::class,
+    \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+    \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+])->group(function () {
+    Route::get('storage/{path}', [\App\Http\Controllers\Api\EmployeeController::class, 'showStorageFile'])->where('path', '.*');
+    Route::get('api/storage/{path}', [\App\Http\Controllers\Api\EmployeeController::class, 'showStorageFile'])->where('path', '.*');
+});
+
 // Fallback for all unmatched web requests
 Route::fallback([\App\Http\Controllers\Api\MaintenanceController::class, 'notFound']);

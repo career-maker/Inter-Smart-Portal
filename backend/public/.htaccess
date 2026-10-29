@@ -18,6 +18,11 @@
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
 
+    # Private uploads (chat, documents, policies, receipts, anything not in the public media list)
+    # must pass the login check in Laravel instead of being served straight from disk.
+    RewriteCond %{REQUEST_URI} !^/(api/)*storage/(profile-photos|announcements|community)/ [NC]
+    RewriteRule ^storage/ index.php [L]
+
     # Send Requests To Front Controller...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f

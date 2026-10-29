@@ -110,8 +110,10 @@ class EmployeeController extends Controller
         }
 
         $extension = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
-        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg', 'pdf', 'doc', 'docx', 'txt', 'xls', 'xlsx', 'csv'];
-        if (!in_array($extension, $allowedExtensions, true)) {
+        // Apache no longer serves the private folders directly, so every attachment type the upload
+        // forms accept (zip, video, ppt...) must open here. Refuse only anything that could run.
+        $blockedExtensions = ['php', 'php3', 'php4', 'php5', 'php7', 'php8', 'phtml', 'pht', 'phar', 'cgi', 'pl', 'py', 'sh', 'exe', 'bat', 'cmd', 'htaccess'];
+        if (in_array($extension, $blockedExtensions, true)) {
             abort(403);
         }
 
@@ -122,6 +124,10 @@ class EmployeeController extends Controller
             && in_array($extension, ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'], true);
 
         if (!$user && !$isPublicMedia) {
+            // A person clicking an e-mailed file link while signed out lands on the portal sign-in page.
+            if ($request->acceptsHtml()) {
+                return redirect()->away(rtrim(config('app.frontend_url'), '/') . '/login');
+            }
             return response()->json(['message' => 'Unauthenticated.'], 401);
         }
 
@@ -137,6 +143,11 @@ class EmployeeController extends Controller
         if ($extension === 'svg') {
             // An SVG opened directly could run script; sandbox it (still fine inside <img>).
             $headers['Content-Security-Policy'] = "default-src 'none'; style-src 'unsafe-inline'; sandbox";
+        }
+
+        if (in_array($extension, ['html', 'htm', 'xhtml', 'xml', 'js', 'mjs'], true)) {
+            // Never render uploaded markup or script inside the portal's origin.
+            $headers['Content-Disposition'] = 'attachment; filename="' . basename($fullPath) . '"';
         }
 
         return response()->file($fullPath, $headers);
