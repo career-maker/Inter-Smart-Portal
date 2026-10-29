@@ -267,21 +267,21 @@ class MaintenanceController extends Controller
 
     public function diagnoseSchema()
     {
-            $tables = [
-                'ta_requests' => \Illuminate\Support\Facades\Schema::hasTable('ta_requests'),
-                'ta_request_items' => \Illuminate\Support\Facades\Schema::hasTable('ta_request_items'),
-            ];
+        $tables = [
+            'ta_requests' => \Illuminate\Support\Facades\Schema::hasTable('ta_requests'),
+            'ta_request_items' => \Illuminate\Support\Facades\Schema::hasTable('ta_request_items'),
+        ];
 
-            $taColumns = $tables['ta_requests'] ? \Illuminate\Support\Facades\Schema::getColumnListing('ta_requests') : [];
-            $itemColumns = $tables['ta_request_items'] ? \Illuminate\Support\Facades\Schema::getColumnListing('ta_request_items') : [];
+        $taColumns = $tables['ta_requests'] ? \Illuminate\Support\Facades\Schema::getColumnListing('ta_requests') : [];
+        $itemColumns = $tables['ta_request_items'] ? \Illuminate\Support\Facades\Schema::getColumnListing('ta_request_items') : [];
 
-            return response()->json([
-                'tables_exist' => $tables,
-                'ta_requests_columns' => $taColumns,
-                'ta_request_items_columns' => $itemColumns,
-                'message' => $tables['ta_requests'] && $tables['ta_request_items']
-                    ? 'Database tables exist'
-                    : 'Database tables missing - run migrations'
-            ]);
+        return response()->json([
+            'tables_exist' => $tables,
+            'ta_requests_columns' => $taColumns,
+            'ta_request_items_columns' => $itemColumns,
+            'message' => $tables['ta_requests'] && $tables['ta_request_items']
+                ? 'Database tables exist'
+                : 'Database tables missing - run migrations'
+        ]);
     }
 }

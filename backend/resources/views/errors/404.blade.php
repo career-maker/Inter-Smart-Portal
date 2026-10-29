@@ -92,7 +92,7 @@
         <div class="content">
             <h3>Look like you're lost</h3>
             <p>The page you are looking for is not available!</p>
-            <a href="{{ config('app.frontend_url') ?: env('FRONTEND_URL', 'https://workplace.intersmart.in') }}" class="home-btn">
+            <a href="{{ config('app.frontend_url') ?: 'https://workplace.intersmart.in' }}" class="home-btn">
                 Go to Home
             </a>
         </div>
