@@ -1299,9 +1299,9 @@ export function CommunityFeed() {
             className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#56348f]"
           >
             <option value="all">All Types</option>
-            <option value="post">📝 Regular Posts</option>
-            <option value="poll">📊 Polls</option>
-            <option value="praise">🎖️ Praise & Shoutouts</option>
+            <option value="post">Regular Posts</option>
+            <option value="poll">Polls</option>
+            <option value="praise">Praise & Shoutouts</option>
           </select>
 
           {/* Year Filter */}
@@ -1475,7 +1475,7 @@ export function CommunityFeed() {
                         <div className="flex items-center gap-2 mt-1">
                           {post.poll_data?.badge && (
                             <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-full">
-                              🎖️ {post.poll_data.badge}
+                              {post.poll_data.badge}
                             </span>
                           )}
                           {post.poll_data?.project_name && (
