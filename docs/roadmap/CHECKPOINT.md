@@ -10,6 +10,12 @@ You are continuing the **Internal Software Plan** for the Intersmart Employee Po
 
 When the owner says "continue", do the NEXT list at the bottom of this section, in order. Everything here is committed; `main` == `wip/phase4-slice2` == live server (backend) at commit 0c64e83b or later.
 
+### A0. LATER SAME DAY (commit f5621ff4, on main and live backend)
+- Chrome extension works again; 7 pages seen rendered, findings in `docs/roadmap/ui-audit/FINDINGS.md`: shell already clean, so the broad token redesign was NOT started (owner asked for it after the fixes; still TODO, do per D/F above).
+- Fixed + deployed: spinners (attendance Time Clock, chat history, QA review panel); keyboard focus ring (globals.css, uses `--portal-primary-color`); S3 file links without `?token=` on same-site (shared cookie domain in `authCookies.ts`, `getStorageUrl`; `HrPolicyController::download` reads the cookie); S4 login lockout (8 failures/15 min per email+IP, tested live 8x401 then 429); S5 chat attachment membership check in `showStorageFile`.
+- NOT verified in a browser: a second `verify-tmp` token mint was blocked by the auto-mode classifier. Verify by signing in on www.workplace.intersmart.in once, then open a policy download and an announcement image; if images/policies break, revert `frontend/src/lib/utils.ts` + `authCookies.ts` (backend stays compatible).
+- Still open: P1 host limit, P4 websockets, F9 raw buttons audit, F10 test run, F11 test invite, F12 screen reader/mobile pass, F14 Gmail app password (owner), S4 two-factor, S5 other file types. Dashboard donut and community birthday strip were judged not defects.
+
 ### A. What was done this session (all LIVE, verified over HTTP)
 1. Boot-time: all `env()` calls in `app/` moved to `config/services.php`; every route closure moved to `app/Http/Controllers/Api/MaintenanceController.php`; `config:cache` + `route:cache` are ON in production (ping 0.68 s to 0.54 s). `live.py push` now re-runs both cache commands. Rollback: `php artisan optimize:clear`. After any `.env` or route change on the server run `php artisan config:cache && php artisan route:cache`.
 2. Heavy reads: leave self-heal allocation throttled to once per 10 min (`LeavePolicyEngine::selfHealCycleAllocation`, cache key `leave_alloc_selfheal`, cleared on Settings save); `/bugzilla/projects` returns `components_count` only (403 KB to 176 KB); `/dashboard` JSON cached 30 s per user (`dashboard:{id}`, cleared by model events in `AppServiceProvider` for that user's LeaveRequest/WfhRequest/Attendance).
