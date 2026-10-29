@@ -4441,3 +4441,10 @@ span.task-priority-badge {
   from { transform: translateX(100%); }
   to { transform: translateX(0); }
 }
+
+/* <main> is an isolated stacking context, so a popup inside it could never rise above the header or the bottom ticker.
+   While a popup is open, lift the whole <main> above them. */
+main:has(.fixed.inset-0.items-center.justify-center:not(.flex-col):not([class*="bg-black/80"]):not([class*="bg-white/"])),
+main:has([data-side-popup="true"]) {
+  z-index: 100000 !important;
+}
