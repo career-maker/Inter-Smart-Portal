@@ -68,6 +68,7 @@ class IssueController extends Controller
             'description'    => 'required|string',
             'related_module' => 'nullable|string|max:255',
             'attachment_link'=> 'nullable|url|max:2048',
+            'attachments.*'  => 'nullable|file|mimes:jpg,jpeg,png,gif,webp,heic,pdf,doc,docx,xls,xlsx,csv,txt,zip,ppt,pptx,mp4,mov|max:10240',
         ]);
 
         $superAdmin = User::role('Super Admin')->first();
@@ -119,6 +120,7 @@ class IssueController extends Controller
     {
         $validated = $request->validate([
             'comment' => 'required|string',
+            'attachments.*' => 'nullable|file|mimes:jpg,jpeg,png,gif,webp,heic,pdf,doc,docx,xls,xlsx,csv,txt,zip,ppt,pptx,mp4,mov|max:10240',
         ]);
 
         $issue = Issue::findOrFail($id);

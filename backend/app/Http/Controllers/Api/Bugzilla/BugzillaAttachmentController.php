@@ -28,7 +28,7 @@ class BugzillaAttachmentController extends Controller
         }
 
         $request->validate([
-            'file' => 'nullable|file|max:20480', // 20MB limit
+            'file' => 'nullable|file|mimes:jpg,jpeg,png,gif,webp,heic,pdf,doc,docx,xls,xlsx,csv,txt,zip,ppt,pptx,mp4,mov|max:20480', // 20MB limit
             'url' => 'nullable|string|max:1000',
             'url_title' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:255',

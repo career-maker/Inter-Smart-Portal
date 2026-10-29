@@ -184,7 +184,7 @@ class CustomizationController extends Controller
     public function uploadAsset(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|max:51200', // allow up to 50MB for videos
+            'file' => 'required|file|mimes:png,jpg,jpeg,gif,webp,ico,svg,mp4,webm,ogg,mov|max:51200', // allow up to 50MB for videos
             'type' => 'nullable|string|in:favicon,logo,welcome_banner,login_bg_video,welcome_banner_video',
         ]);
 

@@ -14,6 +14,21 @@ use Illuminate\Support\Facades\Storage;
 
 class EmployeeController extends Controller
 {
+    /**
+     * Team Leads and HR reach these routes too, so stop them from touching Super Admin accounts or handing out
+     * the Super Admin / HR roles. $adminOrHr = true also shuts out Team Leads (delete, password reset, enable/disable).
+     */
+    private function guardAccountChange(Request $request, ?User $target = null, ?string $newRole = null, bool $adminOrHr = false): void
+    {
+        $actor = $request->user();
+        if ($actor->hasRole('Super Admin')) {
+            return;
+        }
+        abort_if($adminOrHr && ! $actor->hasRole('HR'), 403, 'Only HR or the Super Admin can do this.');
+        abort_if($target && $target->hasRole('Super Admin'), 403, 'Only a Super Admin can change a Super Admin account.');
+        abort_if($newRole && in_array($newRole, ['Super Admin', 'HR'], true), 403, 'Only a Super Admin can give this role.');
+    }
+
     private function ensureEmergencyContactColumn(): void
     {
         try {
@@ -149,6 +164,7 @@ class EmployeeController extends Controller
 
     public function store(StoreEmployeeRequest $request)
     {
+        $this->guardAccountChange($request, null, $request->input('role'));
         $this->ensureEmergencyContactColumn();
         try {
             $data = $request->validated();
@@ -326,6 +342,7 @@ class EmployeeController extends Controller
         $this->ensureEmergencyContactColumn();
         $data = $request->validated();
         $role = $data['role'] ?? null;
+        $this->guardAccountChange($request, $employee, $role);
         unset($data['role']);
 
         if (array_key_exists('is_emergency_contact', $data)) {
@@ -409,8 +426,10 @@ class EmployeeController extends Controller
         return new EmployeeResource($employee->unsetRelation('team')->load(['team', 'roles']));
     }
 
-    public function destroy(User $employee)
+    public function destroy(Request $request, User $employee)
     {
+        $this->guardAccountChange($request, $employee, null, true);
+        abort_if($request->user()->id === $employee->id, 422, 'You cannot delete your own account.');
         // For actual production, consider soft deletes if there are related records
         $employee->delete();
         return response()->json(['message' => 'Employee deleted successfully.']);
@@ -418,6 +437,7 @@ class EmployeeController extends Controller
 
     public function updatePassword(Request $request, User $employee)
     {
+        $this->guardAccountChange($request, $employee, null, true);
         $request->validate([
             'password' => 'required|string|min:6|confirmed'
         ]);
@@ -431,6 +451,7 @@ class EmployeeController extends Controller
 
     public function updatePhoto(Request $request, User $employee)
     {
+        $this->guardAccountChange($request, $employee);
         $request->validate([
             'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
@@ -487,6 +508,7 @@ class EmployeeController extends Controller
 
     public function updatePhotoUrl(Request $request, User $employee)
     {
+        $this->guardAccountChange($request, $employee);
         $request->validate([
             'photo_url' => 'required|url|max:1000',
         ]);
@@ -501,6 +523,7 @@ class EmployeeController extends Controller
 
     public function updateStatus(Request $request, User $employee)
     {
+        $this->guardAccountChange($request, $employee, null, true);
         $request->validate([
             'status' => 'required|in:Active,Disabled'
         ]);
@@ -574,6 +597,7 @@ class EmployeeController extends Controller
 
     public function importCSV(Request $request)
     {
+        $this->guardAccountChange($request, null, null, true);
         $request->validate([
             'file' => 'required|file|mimes:csv,txt|max:5120'
         ]);
@@ -651,6 +675,9 @@ class EmployeeController extends Controller
 
                     $user = User::create($empData);
                     $role = trim($employee['role'] ?? 'Employee');
+                    if (in_array($role, ['Super Admin', 'HR'], true) && ! $request->user()->hasRole('Super Admin')) {
+                        $role = 'Employee'; // only a Super Admin can hand out these roles
+                    }
                     $user->assignRole($role);
 
                     \App\Models\LeaveBalance::firstOrCreate(
