@@ -490,6 +490,18 @@ export default function PmAddonsPage() {
             );
           })}
 
+          {isSuperAdmin && (
+            <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm p-6 space-y-3">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">Content Cleanup</h2>
+              <p className="text-xs text-slate-600 dark:text-slate-400">Find and delete anything users created: one item, many items, or everything from a user or department.</p>
+              <div className="flex justify-end">
+                <Link href="/addons/content-cleanup" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--portal-primary-color,#56348f)] hover:opacity-90 text-white text-[13px] font-semibold">
+                  <Settings2 className="w-4 h-4 text-white" /><span>Open Content Cleanup</span>
+                </Link>
+              </div>
+            </div>
+          )}
+
           {/* ── Storage & Data Retention Policy Add-on Card ── */}
           <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 transition-all shadow-sm p-6 space-y-5">
             <div className="flex items-start justify-between gap-4">
