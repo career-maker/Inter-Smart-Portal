@@ -1,0 +1,212 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Portal Audit Tracker</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one tracker, three tabs (security, load, functional); every item carries a Fixed / Remaining state. */
+:root{--bg:#f4f5f7;--surface:#fff;--fg:#14202e;--muted:#5a6878;--line:#d8dde4;--accent:#1f4e8c;
+--fixed:#17663f;--fixed-bg:#e1f3e8;--open:#9a3412;--open-bg:#fdeadb;--crit:#a31621;--crit-bg:#fbe3e5;--info:#4a5668;--info-bg:#e8ebf0;
+--sans:"IBM Plex Sans",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f151d;--surface:#18212c;--fg:#e6ebf1;--muted:#97a3b3;--line:#2a3544;--accent:#7fb0ee;
+--fixed:#6fd49b;--fixed-bg:#16301f;--open:#f3a56b;--open-bg:#3a2415;--crit:#ff8d97;--crit-bg:#3b1a1e;--info:#aab5c5;--info-bg:#232d3a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f151d;--surface:#18212c;--fg:#e6ebf1;--muted:#97a3b3;--line:#2a3544;--accent:#7fb0ee;
+--fixed:#6fd49b;--fixed-bg:#16301f;--open:#f3a56b;--open-bg:#3a2415;--crit:#ff8d97;--crit-bg:#3b1a1e;--info:#aab5c5;--info-bg:#232d3a;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 var(--sans);padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:980px;margin:0 auto}
+h1{font-size:26px;line-height:1.2;margin:0 0 4px;text-wrap:balance}
+.sub{color:var(--muted);margin:0 0 20px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:18px;flex-wrap:wrap}
+.tab{font:inherit;font-weight:500;background:none;border:0;border-bottom:3px solid transparent;color:var(--muted);padding:10px 14px;cursor:pointer}
+.tab[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--accent)}
+.tab:focus-visible,.f:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.tab .n{font-family:var(--mono);font-size:12px;margin-left:6px;color:var(--muted)}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px 14px}
+.stat b{display:block;font-family:var(--mono);font-size:24px;font-weight:500}
+.stat span{color:var(--muted);font-size:13px}
+.filters{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.f{font:inherit;font-size:13px;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:999px;padding:4px 12px;cursor:pointer}
+.f[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.note{background:var(--info-bg);color:var(--info);border-radius:6px;padding:10px 14px;margin:0 0 16px;font-size:14px}
+.item{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px 16px;margin-bottom:10px;min-width:0}
+.item header{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;margin-bottom:6px}
+.id{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.item h3{font-size:15.5px;margin:0;flex:1 1 260px;min-width:0}
+.chip{font-family:var(--mono);font-size:11.5px;font-weight:500;border-radius:4px;padding:2px 8px;white-space:nowrap}
+.chip.fixed{background:var(--fixed-bg);color:var(--fixed)}
+.chip.open{background:var(--open-bg);color:var(--open)}
+.chip.sev-critical{background:var(--crit-bg);color:var(--crit)}
+.chip.sev-high{background:var(--crit-bg);color:var(--crit)}
+.chip.sev-medium,.chip.sev-low,.chip.sev-info{background:var(--info-bg);color:var(--info)}
+.item p{margin:4px 0;color:var(--fg)}
+.item p.k{color:var(--muted);font-size:14px}
+.item p.k b{color:var(--fg);font-weight:600}
+.tbl{overflow-x:auto;margin:6px 0 16px}
+table{border-collapse:collapse;width:100%;min-width:520px;background:var(--surface);border:1px solid var(--line)}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);font-size:14px}
+th{font-weight:600;color:var(--muted);font-size:12.5px;text-transform:uppercase;letter-spacing:.04em}
+td.num{font-family:var(--mono)}
+.bad{color:var(--crit);font-weight:600}.good{color:var(--fixed);font-weight:600}
+h2{font-size:17px;margin:22px 0 8px}
+code{font-family:var(--mono);font-size:13px;background:var(--info-bg);padding:1px 5px;border-radius:3px}
+.foot{color:var(--muted);font-size:13px;margin-top:26px}
+</style>
+<div class="wrap">
+<h1>Portal Audit Tracker</h1>
+<p class="sub">Intersmart Employee Portal · workplace.intersmart.in · state at 29 Oct 2026 (late update). Each item is marked <b>Fixed</b> or <b>Remaining</b>; update the status here after each fix.</p>
+
+<div class="tabs" role="tablist">
+  <button class="tab" role="tab" id="t-security" aria-selected="true" data-tab="security">Security<span class="n" id="n-security"></span></button>
+  <button class="tab" role="tab" id="t-load" aria-selected="false" data-tab="load">Performance &amp; load<span class="n" id="n-load"></span></button>
+  <button class="tab" role="tab" id="t-functional" aria-selected="false" data-tab="functional">Functional &amp; UI<span class="n" id="n-functional"></span></button>
+</div>
+<div class="summary" id="summary"></div>
+<div class="filters" id="filters"></div>
+<div id="panel"></div>
+<p class="foot">Source-first review plus bounded checks on the live server. No staff accounts were touched; temporary test tokens were deleted after use.</p>
+</div>
+
+<script>
+var DATA = {
+security: {
+  note: "Partial audit. Covered: public and unauthenticated routes, file upload and download paths, login and token handling, employee account management, chat access, raw SQL and sorting patterns, CORS, debug settings. NOT yet covered: object-level access checks in the leave, TA, accounts, sales, PMO and work controllers, a dependency vulnerability scan, frontend XSS review, and security headers. This is not a clean bill of health for those areas.",
+  items: [
+    {id:"S1", sev:"critical", status:"fixed", title:"Any logged-in user could run code on the server through file uploads",
+     what:"Chat, bug and issue attachments accepted any file type, and uploaded files were served straight from the web folder. A harmless test file with a .php extension executed when opened (confirmed on the live server, then removed).",
+     fix:"Server rule now refuses script files in the upload folders (confirmed 403, images still load). The upload forms now accept only an allowlist of document, image, archive and video types (chat, bugs, issues, customization assets).",
+     left:"Existing uploads were checked: no script files are present."},
+    {id:"S2", sev:"critical", status:"fixed", title:"Team Leads could take over the Super Admin account",
+     what:"The employee routes are open to Team Leads. They could reset any user's password (including the Super Admin's), give anyone the Super Admin role, disable or delete accounts.",
+     fix:"New guard: only a Super Admin can change a Super Admin account or grant the Super Admin or HR role; password reset, delete and enable/disable are limited to the Super Admin; CSV import cannot create Super Admin or HR users. Checked on live with 9 role scenarios, all as intended.",
+     left:"Team Leads can still edit ordinary employee records. Confirm that is intended."},
+    {id:"S3", sev:"medium", status:"open", title:"Login token accepted in the web address for file downloads",
+     what:"Download links can carry <code>?token=</code>. Tokens in URLs end up in server logs, browser history and referrer headers.",
+     fix:"Replace with short-lived signed download links, or fetch files with the Authorization header."},
+    {id:"S4", sev:"medium", status:"open", title:"Long-lived tokens and weak brute-force limits",
+     what:"Tokens last 90 days. Login is limited to 10 tries a minute per email and address, with no lockout and no second factor.",
+     fix:"Shorten token life (for example 7 to 14 days with refresh), add a lockout after repeated failures, consider two-factor for admin accounts.",
+     left:"Done on 29 Oct: token life cut from 90 to 30 days (older sign-ins end at the next request, so some people sign in again once) and an hourly cap of 40 tries per email and address on top of 10 a minute. Not done: a true lockout and two-factor sign-in."},
+    {id:"S5", sev:"medium", status:"open", title:"Uploaded files are not checked per person",
+     what:"Any logged-in user who knows a file path under storage can open it (chat attachments, documents, receipts). Names are random, so this needs a leaked link, but there is no ownership check.",
+     fix:"Serve private files through a controller that checks the caller belongs to the chat, request or record. Add <code>X-Content-Type-Options: nosniff</code>; serve SVG as a download.",
+     left:"Done on 29 Oct: every served file now sends nosniff and SVG files are sandboxed (checked on live). Not done: the per-person ownership check, which needs a decision per file type so nothing legitimate is blocked."},
+    {id:"S6", sev:"low", status:"fixed", title:"Public opcache reset script",
+     what:"<code>public/oc-reset.php</code> is untracked and can be called by anyone; it only clears the PHP cache, but repeated calls slow the site.",
+     fix:"Now answers 403 to everyone except the server itself (kept for deploys). Original saved in the server backups folder."},
+    {id:"S7", sev:"low", status:"fixed", title:"Dead leave email approve and reject routes",
+     what:"Routes point to methods that do not exist, so they return a server error.",
+     fix:"Handlers built like the travel allowance ones: a signed link sends the approver to the approvals page to sign in and decide; the link never approves by itself."},
+    {id:"S8", sev:"info", status:"fixed", title:"Checked and found sound",
+     what:"Debug mode is off on live. CORS lists explicit origins. Sorting is allowlisted and no injectable raw SQL was found. Public photo and asset routes block path traversal. Travel allowance email links require signatures. Chat conversations check membership. Customization upload is Super Admin only.",
+     fix:"Nothing to change."}
+  ]},
+load: {
+  note: "Real HTTP test ran from the server itself with a temporary token (deleted afterwards): 10 mixed endpoints (chat, notifications, dashboard, community, attendance and others). Boot-time and heavy-read fixes (P2, P3) went live on 29 Oct late evening; the concurrency test was re-run afterwards (second table).",
+  tables: [
+   {h:"Server compute (in-process, as admin, before and after the 29 Oct fixes)", head:["Endpoint","Before","After"], rows:[["/leave-policy/employees","1.0 to 1.5 s (allocation on every view)","0.7 s first view, then no allocation for 10 min"],["/leave-balances","0.9 s","0.7 to 0.8 s first view, same throttle"],["/bugzilla/projects","0.8 s, 403 KB","0.3 s, 176 KB"],["/dashboard","about 0.3 s","0.3 s first call, repeat calls within 30 s served from cache"],["Per-request start-up (ping)","0.68 s","0.54 s (config and route cache on)"]]},
+   {h:"Real HTTP concurrency test, same method, before and after the fixes (from the server, 20 requests per user, 10 mixed read endpoints)", head:["Concurrent users","Before: outcome","Before: avg / p95","After: outcome","After: avg / p95"], rows:[["20","<span class='good'>all succeeded</span>","4.5 s / 6.2 s","<span class='good'>all 400 succeeded</span>","3.8 s / 5.3 s (5.1 req/s, was 4)"],["50","<span class='bad'>61% failed</span>","3.3 s / 8.6 s","<span class='bad'>69% failed</span> (503, 508, dropped)","2.3 s / 6.8 s"],["100","<span class='bad'>63% failed</span>","3.1 s / 8.5 s","<span class='bad'>75% failed</span> (503, 508, dropped)","2.0 s / 6.7 s"]]}
+  ],
+  items: [
+    {id:"P1", sev:"high", status:"open", title:"Hosting account cannot carry 100 simultaneous users",
+     what:"Failures are HTTP 508 and 503 and dropped connections: the CloudLinux account limit is reached at about 4 requests per second. Server compute is small; each request still pays about 0.5 s of Laravel start-up. Our SSH login is not root and has no WHM.",
+     fix:"Ask the host admin to raise the account limits (CPU 400% or more, entry processes 100 or more, memory 4 GB or more), or move the backend to a VPS with 2+ vCPU. Then re-run this test. Re-run after the code fixes (29 Oct, late): 20 users improved about 15% (3.8 s average) but 50 and 100 users still fail at the same hosting ceiling, so the limit is the host, not the code. The failure rate is not comparable run to run because the host cuts off requests once its quota is hit."},
+    {id:"P2", sev:"medium", status:"fixed", title:"Laravel start-up time",
+     what:"The code read <code>env()</code> in email, chat, Hubstaff and TA code and used route closures, so config and route caching would have broken mail and failed to build.",
+     fix:"All <code>env()</code> calls moved to config files, all route closures moved to one controller, and config and route caches are now ON in production (ping 0.68 s to 0.54 s). The release script keeps them on. Rollback is one command (<code>php artisan optimize:clear</code>).",
+     left:"After any <code>.env</code> or route change on the server, run <code>config:cache</code> and <code>route:cache</code> again."},
+    {id:"P3", sev:"medium", status:"fixed", title:"Heaviest reads",
+     what:"Dashboard, leave balances, bug projects (400 KB) and leave policy (ran an allocation on every view).",
+     fix:"Leave policy and leave balances now run the self-healing allocation at most once per 10 minutes (Settings save still runs it at once) and use one query instead of one per employee. Bug project list no longer ships every component row (403 KB to 176 KB; the screen only uses the count). Dashboard reply is cached 30 s per person and cleared at once when that person's own leave, WFH or attendance changes. Output compared old against new on the server: identical except the intended changes.",
+     left:"Other people's dashboards (for example a Team Lead's pending count) can lag up to 30 s after someone else acts."},
+    {id:"P4", sev:"low", status:"open", title:"Chat still polls",
+     what:"Chat uses repeated requests instead of a live connection.",
+     fix:"Websockets (Pusher or Reverb) once the host is upgraded."},
+    {id:"P5", sev:"high", status:"fixed", title:"Chat queries grew with every message",
+     what:"Each message poll loaded every message ever sent; each conversation list ran one count query per conversation; the online list scanned the token table on every call.",
+     fix:"Latest 200 messages only, one grouped unread query, online list cached for 20 s, index on token last-used time."},
+    {id:"P6", sev:"medium", status:"fixed", title:"Too many background requests per user",
+     what:"Chat badge every 20 s, notifications every 30 s, approvals every 60 s, side chats every 5 s, even in hidden tabs.",
+     fix:"Now 45 s, 60 s, 120 s and 8 s, with hidden tabs skipped. About 55% fewer background requests."},
+    {id:"P7", sev:"medium", status:"fixed", title:"Meeting invites made the page wait for mail",
+     what:"Invites were emailed one by one before the page answered.",
+     fix:"Mail now sends after the response is returned. Uses the same SMTP setup as leave and WFH. A real test invite has not been sent yet."}
+  ]},
+functional: {
+  note: "Per-role results from the earlier live walkthrough are summarised here only where they were recorded. A full written test run (PHPUnit and browser steps) has not been executed.",
+  items: [
+    {id:"F1", sev:"medium", status:"fixed", title:"Buttons showed no hand cursor",
+     what:"Clickable controls gave no hover cue.", fix:"Pointer cursor on buttons, tabs, menu items, selects, labels and checkboxes; checked on live."},
+    {id:"F2", sev:"medium", status:"fixed", title:"Centre popups overlapped the header and footer",
+     what:"Popups such as Award opened in the middle of the screen, under the header and ticker.",
+     fix:"All popups are right-hand side panels, lifted above the header; checked on live."},
+    {id:"F3", sev:"medium", status:"fixed", title:"Dark fields with dark text inside popups",
+     what:"Form fields were unreadable in light theme popups.", fix:"White fields with dark text, stronger borders on inputs, text areas and selects."},
+    {id:"F4", sev:"low", status:"fixed", title:"Payment status and headings wrapped to two lines",
+     what:"Status pills and table headings broke across lines.", fix:"No-wrap rule deployed.",
+     left:"Needs a visual re-check on the Accounts payment column and HR performance headings."},
+    {id:"F5", sev:"medium", status:"fixed", title:"Buttons gave no feedback during slow actions",
+     what:"Panels looked stale because saves took seconds with no sign of progress.", fix:"Shared buttons show a spinner and stay disabled while the action runs; checked on live."},
+    {id:"F6", sev:"medium", status:"fixed", title:"Content Cleanup add-on (Super Admin)",
+     what:"New module to delete any user-created content, singly or in bulk, filtered by user and department; every delete is written to the audit log.",
+     fix:"Built and deployed; single and selected delete tested.",
+     left:"Delete all that match a filter is not yet tested."},
+    {id:"F7", sev:"low", status:"fixed", title:"QA queue check with test data",
+     what:"Seeded test QA items to confirm the queue loads, then removed them at your request.", fix:"Confirmed working; test data removed."},
+    {id:"F8", sev:"low", status:"open", title:"Opening a panel shows nothing while it loads",
+     what:"Some panels (for example the QA review dialog) stay blank until data arrives.", fix:"Add a loading state."},
+    {id:"F9", sev:"low", status:"open", title:"Older pages use raw buttons",
+     what:"Some older screens do not use the shared button, so they have no spinner or double-click guard.", fix:"Audit and switch to the shared button."},
+    {id:"F10", sev:"medium", status:"open", title:"Automated tests not run",
+     what:"PHPUnit (about 40 known failures to compare against) and the browser test run have not been executed for the new modules or for the 29 Oct performance changes. The 29 Oct changes were checked by comparing old and new output on the server and by live endpoint checks.", fix:"Run both once and fix new failures."},
+    {id:"F11", sev:"medium", status:"open", title:"Meeting invitation email not sent as a test",
+     what:"The code path uses the same mail setup as leave and WFH. No real invite has been delivered.", fix:"Schedule one test meeting with a real mailbox and confirm the calendar file opens."},
+    {id:"F12", sev:"low", status:"open", title:"Accessibility and non-functional checks",
+     what:"No keyboard, screen reader or mobile-width audit has been done.", fix:"Run a pass on the main screens."},
+    {id:"F13", sev:"medium", status:"fixed", title:"Leave balances page always showed 0 leaves taken",
+     what:"The Casual, Sick and Total \"taken\" figures summed a column (<code>days_taken</code>) that does not exist on leave requests, so every employee showed 0 however much leave was approved. The employee's own balance view had the same fault.",
+     fix:"Both now use the same day count as the rest of the portal (actual leave days, else days) for approved, non-deleted requests, in one grouped query for the admin list. On live, the one approved sick day now shows.",
+     left:"Figures follow how each request stored its days (sandwich and half-day rules were applied at request time). Spot-check a few employees against their leave history."},
+    {id:"F14", sev:"high", status:"open", title:"Outgoing mail fails: Gmail rejects the SMTP login",
+     what:"The log shows meeting-invite mail from career@intersmart.in failing with <code>535 BadCredentials</code> on 28 Oct. Leave and WFH mail use the same account, so those emails are likely failing too.",
+     fix:"The owner re-enters the SMTP app password in the portal's Email Settings (or the server environment file). It is not stored by the assistant; then send one test mail."}
+  ]}
+};
+var state = {tab:"security", filter:"all"};
+var tabs = ["security","load","functional"];
+function counts(t){var c={fixed:0,open:0};DATA[t].items.forEach(function(i){c[i.status]++});return c}
+function render(){
+  var d = DATA[state.tab], c = counts(state.tab);
+  tabs.forEach(function(t){var cc=counts(t);document.getElementById("n-"+t).textContent=cc.open+" open";
+    var b=document.getElementById("t-"+t);b.setAttribute("aria-selected",String(t===state.tab));});
+  document.getElementById("summary").innerHTML =
+    '<div class="stat"><b>'+d.items.length+'</b><span>items</span></div>'+
+    '<div class="stat"><b style="color:var(--fixed)">'+c.fixed+'</b><span>fixed</span></div>'+
+    '<div class="stat"><b style="color:var(--open)">'+c.open+'</b><span>remaining</span></div>';
+  var f = [["all","All"],["open","Remaining"],["fixed","Fixed"]];
+  document.getElementById("filters").innerHTML = f.map(function(x){
+    return '<button class="f" data-filter="'+x[0]+'" aria-pressed="'+(state.filter===x[0])+'">'+x[1]+'</button>';}).join("");
+  var h = '<p class="note">'+d.note+'</p>';
+  (d.tables||[]).forEach(function(t){
+    h += '<h2>'+t.h+'</h2><div class="tbl"><table><tr>'+t.head.map(function(x){return '<th>'+x+'</th>'}).join("")+'</tr>'+
+      t.rows.map(function(r){return '<tr>'+r.map(function(x,i){return '<td'+(i>0?' class="num"':'')+'>'+x+'</td>'}).join("")+'</tr>'}).join("")+'</table></div>';
+  });
+  h += '<h2>'+(state.tab==="security"?"Findings":state.tab==="load"?"Findings and fixes":"Checks and fixes")+'</h2>';
+  d.items.filter(function(i){return state.filter==="all"||i.status===state.filter}).forEach(function(i){
+    h += '<article class="item"><header><span class="id">'+i.id+'</span><h3>'+i.title+'</h3>'+
+      '<span class="chip sev-'+i.sev+'">'+i.sev+'</span>'+
+      '<span class="chip '+i.status+'">'+(i.status==="fixed"?"FIXED":"REMAINING")+'</span></header>'+
+      '<p>'+i.what+'</p><p class="k"><b>'+(i.status==="fixed"?"Fix: ":"Needed: ")+'</b>'+i.fix+'</p>'+
+      (i.left?'<p class="k"><b>Still open: </b>'+i.left+'</p>':'')+'</article>';
+  });
+  document.getElementById("panel").innerHTML = h;
+}
+document.addEventListener("click",function(e){
+  var t=e.target.closest("[data-tab]"); if(t){state.tab=t.dataset.tab;state.filter="all";try{location.hash=state.tab}catch(x){}render();return}
+  var f=e.target.closest("[data-filter]"); if(f){state.filter=f.dataset.filter;render()}
+});
+function fromHash(){var h=(location.hash||"").replace("#","");if(tabs.indexOf(h)>-1){state.tab=h}}
+window.addEventListener("hashchange",function(){fromHash();render()});
+fromHash();render();
+</script>
+</body></html>

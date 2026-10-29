@@ -1,10 +1,53 @@
 # CHECKPOINT: read this first, then continue
 
-_Last updated: 2026-10-29 (section 00 is the newest state; section 0 below is older). Update this file and commit it after every unit of work (see "Standing rules")._
+_Last updated: 2026-10-29 late (section 000 is the newest: handover and NEXT list; then 00; section 0 below is older). Update this file and commit it after every unit of work (see "Standing rules")._
 
 You are continuing the **Internal Software Plan** for the Intersmart Employee Portal. The owner is a developer on Team QA; the manager's sheet is `SOURCE_Internal_software_plan.xlsx`. Work in small, tested, reversible slices. Never break the existing modules.
 
 **Read order for a new agent:** this file, then `PROGRESS.md` (history and gotchas), then `EXECUTION_PLAN.md` (rules and phase order), then `SOFTWARE_PLAN.md` (have vs build per role). `SERVER.md` has the live server layout.
+
+## 000. HANDOVER, END OF SESSION 29 Oct 2026 (READ THIS FIRST; it supersedes 00 where they differ)
+
+When the owner says "continue", do the NEXT list at the bottom of this section, in order. Everything here is committed; `main` == `wip/phase4-slice2` == live server (backend) at commit 0c64e83b or later.
+
+### A. What was done this session (all LIVE, verified over HTTP)
+1. Boot-time: all `env()` calls in `app/` moved to `config/services.php`; every route closure moved to `app/Http/Controllers/Api/MaintenanceController.php`; `config:cache` + `route:cache` are ON in production (ping 0.68 s to 0.54 s). `live.py push` now re-runs both cache commands. Rollback: `php artisan optimize:clear`. After any `.env` or route change on the server run `php artisan config:cache && php artisan route:cache`.
+2. Heavy reads: leave self-heal allocation throttled to once per 10 min (`LeavePolicyEngine::selfHealCycleAllocation`, cache key `leave_alloc_selfheal`, cleared on Settings save); `/bugzilla/projects` returns `components_count` only (403 KB to 176 KB); `/dashboard` JSON cached 30 s per user (`dashboard:{id}`, cleared by model events in `AppServiceProvider` for that user's LeaveRequest/WfhRequest/Attendance).
+3. BUG FIX: leave-balances "taken" used non-existent column `days_taken` (always 0); now `COALESCE(actual_leave_days, days, 0)` for Approved, non-deleted requests (admin list and own view).
+4. Load re-test (same method as before, from the server, token `verify-tmp`, deleted): 20 users 400/400 OK avg 3.8 s p95 5.3 s; 50 users 69% failed; 100 users 75% failed (503/508/dropped). Cause is the CloudLinux host limit, not code. NEXT for that: owner asks host admin to raise LVE limits (CPU 400%+, entry processes 100+, memory 4 GB+) or move to a VPS, then re-run.
+5. Security (live, commit 0c64e83b): login hourly cap (40/h per email+IP on top of 10/min); Sanctum token life 90 to 30 days (`config/sanctum.php`, so people signed in over 30 days must log in once); `nosniff` header on all served storage files and CSP sandbox on SVG (`EmployeeController::showStorageFile`); leave e-mail approve/reject routes now have handlers (signed link redirects to `/leaves/approvals?action=..&id=..`, never approves by itself); `backend/public/oc-reset.php` on the SERVER (untracked, not in git) now answers 403 unless the caller is the server itself (original at `~/backups/oc-reset.php.bak`).
+6. Earlier today (also live): security commit 518fef56 (script execution blocked in upload folders, upload allowlist, Team Leads/HR cannot escalate to Super Admin).
+
+### B. Reports (publish with the Artifact tool, same `file_path`, pass the `url`, read the URL first)
+- Audit tracker: https://claude.ai/artifact/VYUqnn1FpweRW6HemyCqre (version 4). Source file (scratchpad, may be gone): `...\scratchpad\audit.html`. If the file is gone: `Artifact action read` the URL, take the saved HTML path it prints, edit that and publish with `url`. Tabs: Security S1-S8, Performance P1-P7, Functional F1-F14. Update the status of an item after each fix.
+- Live Report: https://claude.ai/artifact/1YxcaJqixY6biuxQTmQ8K3 (version 20). Edit `docs/roadmap/progress.json` etc, run `python docs/roadmap/make_live_report.py`, publish `docs/roadmap/Live Report.html` with `url`.
+
+### C. Open items from the tracker
+- S3 token in `?token=` download URLs (`frontend/src/lib/utils.ts:13`, `EmployeeController::showStorageFile`, `HrPolicyController::download`): needs a front-end change (fetch with header or signed short-lived URL). Not done.
+- S4 left: real lockout and two-factor. S5 left: per-person ownership check on served files.
+- P1 host limit (above). P4 chat polling (websockets only after a bigger host).
+- F8 loading state when opening panels (e.g. QA ReviewDialog); F9 old raw `<button>` tags without spinner; F10 PHPUnit + browser run never executed for new modules (expect 40 known failures, 0 new; see section 177-ish "Local stack for testing"); F11 send one real meeting invite; F12 accessibility pass.
+- F14 HIGH: Gmail rejects SMTP login for career@intersmart.in (`535 BadCredentials`). The OWNER must re-enter the app password in the portal Email Settings (or server `.env`). The assistant never has or stores passwords. Then send one test mail. Leave/WFH/meeting mail depend on it.
+- Not ours: untracked `backend/public/uploads/` on the live server.
+- `leave_requests` has no `days_taken` column; other code uses `actual_leave_days`/`days`.
+
+### D. UI REDESIGN (owner's master prompt, NOT STARTED beyond audit)
+Owner's rules for this task: VISUAL ONLY. No change to text/content, routes, API calls, logic, permissions, JSX structure. Prefer CSS (tokens in `frontend/src/styles/theme-colors.css`, `portal-accent.css`, and `frontend/src/app/globals.css`). Do not add/remove features. Whatever colours are changed MUST also be added as options in the Super Admin Customization add-on (`frontend/src/app/(dashboard)/addons/customization/page.tsx`, 3154 lines; backend `CustomizationController`), so admins can still control them. Nothing may break. Owner decisions: (1) approach = "global tokens and shell first" (shared tokens, sidebar/header, buttons, inputs, tables, badges, card look, then page by page); (2) visual checks may use the LIVE site with a temporary Super Admin token (view only, no clicks that change data), overriding the older "no browser tests on live" rule for this task only; (3) frontend goes live via Vercel auto-deploy from `main`, so DO NOT merge CSS to `main` until it has been seen rendered; work on `wip/phase4-slice2`.
+Baseline: `docs/roadmap/ui-audit/ROUTES.md` has the 99-route inventory (all columns still "no") and counts: rounded-2xl/3xl 401, text-[9-11px] 804, uppercase 369, tracking-wider/widest 271, font-black/extrabold 151, backdrop-blur 164, shadow-xl/2xl 114, gradients 59, blur-3xl glows 11, inline style props 541; globals.css 4,472 lines with 373 `!important`. Most styling is Tailwind classes inside TSX, so CSS-only means overriding via the shared tokens / existing classes (avoid `[class*=...]` mass selectors unless unavoidable).
+BLOCKERS met this session: (a) local `next dev` crashes out of memory (PC had about 420 MB free virtual memory; close heavy apps first, `NODE_OPTIONS=--max-old-space-size=1500`); (b) the Chrome extension (`mcp__claude-in-chrome__*`) disconnected repeatedly; it worked once. Plan that avoids the memory problem: open the PRODUCTION frontend (`https://www.workplace.intersmart.in`) in the browser, set login state, inject candidate CSS with a `<style>` tag through `javascript_tool` (nothing saved), iterate, then copy the final CSS into the repo.
+How to log in for viewing: mint a token on the server (`python ~/.claude/live-server/live.py` helper: `live.TOKEN` snippet creates a Super Admin token named `verify-tmp`; run via `live.upload_and_run`), then in the page set `localStorage.token`, `localStorage['auth-storage']` = `{"state":{"user":{...from /api/profile...},"token":"<t>","isAuthenticated":true},"version":0}` and cookie `token=<t>` (see `frontend/src/store/auth.ts`, `lib/authCookies.ts`). ALWAYS delete the token afterwards (`live.DELETE`; `live.py push` also deletes all `verify-tmp`). Never write a token or password into any file.
+
+### E. Standing rules (unchanged)
+Backup before any live change (`live.py push` does it); add-only migrations; confirm with the owner before touching live data; no real staff tokens; no bulk probing from the PC (Imunify360); live API routes are `/api/api/...`; shell quirk: backslashes get mangled in bash heredocs, write Python/PHP helper scripts with the Write tool; there is no PHP on this PC (lint on the server with `git fetch` then `git show FETCH_HEAD:<file> | php -l`); end commits with the Co-Authored-By and Claude-Session lines given in the session reminder.
+
+### F. NEXT, in order, when the owner says "continue"
+1. Ask the owner (one line) to confirm Chrome is open with the extension connected and heavy apps closed. Call `tabs_context_mcp`; if it fails twice, stop and report (do not loop).
+2. Mint a `verify-tmp` Super Admin token, log in on the production frontend as described in D, take baseline screenshots (1440, 768, 390 wide) of: login, dashboard, employees, attendance, leaves, projects, community, chat, recognition leaderboard, addons/customization. Record findings per page in `docs/roadmap/ui-audit/FINDINGS.md`.
+3. Design the shared token layer first (typography scale, radius scale, shadow scale, spacing, restrained semantic colours) as CSS variables with the CURRENT values as defaults; add matching controls to the Customization add-on (backend setting keys + `portal-accent` variables) for every colour that changes; prototype with an injected `<style>`; when it looks right, put it in `theme-colors.css`/`globals.css`, `pnpm exec tsc --noEmit` and `pnpm build` where memory allows; commit to `wip/phase4-slice2` only.
+4. Work shell first (sidebar, header, ticker, chat widget overlap), then shared buttons/inputs/tables/badges/cards, then page by page; mark routes audited/improved/verified in `ROUTES.md` only after seeing them rendered. Content/text/behaviour must not change.
+5. Fix the remaining functional items (F8, F9, S3) with the smallest safe change, test, update the audit tracker.
+6. When the owner approves: merge to `main` (Vercel deploys the frontend), live backend deploy only if backend changed (`python ~/.claude/live-server/live.py push`), re-check ping/login/pages, update both reports and this file, delete any token.
+7. Always finish a unit of work by updating this section and the two reports, then commit and push.
 
 ## 00. STATE AT 29 Oct 2026 (newest; read this first)
 
