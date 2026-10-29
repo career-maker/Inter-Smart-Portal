@@ -1885,8 +1885,6 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center p-8 text-center relative overflow-hidden bg-gradient-to-tr from-purple-50/50 via-white to-white dark:from-purple-950/20 dark:via-slate-900 dark:to-slate-900">
             {/* Background Ambient Soft Circles matching design */}
-            <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-purple-200/30 dark:bg-purple-900/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-10 -left-10 w-72 h-72 bg-indigo-100/30 dark:bg-indigo-950/10 rounded-full blur-2xl pointer-events-none" />
 
             {/* Overlapping Chat Bubbles Illustration (Matching Screenshot 5) */}
             <div className="relative w-24 h-20 mb-5 flex items-center justify-center select-none z-10">

@@ -441,7 +441,6 @@ export default function GamePage() {
         </div>
 
         {/* Ambient decorative elements */}
-        <div className="absolute right-[-20px] bottom-[-20px] w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute right-12 top-1/2 -translate-y-1/2 hidden lg:block pointer-events-none opacity-20">
           <Gamepad2 className="w-56 h-56 text-white stroke-[1]" />
         </div>

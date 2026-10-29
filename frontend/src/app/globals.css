@@ -4476,3 +4476,15 @@ th {
   outline: 2px solid var(--portal-primary-color, #56348f);
   outline-offset: 2px;
 }
+
+/* Tinted "glow" shadows (shadow-amber-500/20 and similar) read as template styling: keep the elevation, drop the colour cast. */
+[class*="shadow-"][class*="-400/"],
+[class*="shadow-"][class*="-500/"],
+[class*="shadow-"][class*="-600/"] {
+  --tw-shadow-color: rgb(15 23 42 / 0.14) !important;
+}
+.dark [class*="shadow-"][class*="-400/"],
+.dark [class*="shadow-"][class*="-500/"],
+.dark [class*="shadow-"][class*="-600/"] {
+  --tw-shadow-color: rgb(0 0 0 / 0.35) !important;
+}

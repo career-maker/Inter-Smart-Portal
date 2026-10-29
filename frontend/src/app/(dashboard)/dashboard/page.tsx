@@ -1259,7 +1259,6 @@ export default function DashboardPage() {
               className="md:col-span-3 lg:col-span-2 group relative overflow-hidden rounded-md p-6 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm hover:shadow-md dark:hover:bg-slate-700 transition-all duration-300 border border-slate-200 dark:border-slate-700/60"
             >
               <div className="absolute -bottom-10 -left-10 w-6 h-6 rounded-full scale-0 group-hover:scale-[35] transition-transform duration-700 ease-out bg-indigo-50 z-0 dark:hidden" />
-              <div className="absolute top-0 right-0 w-32 h-32 bg-slate-100/50 dark:bg-white/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-slate-200/50 dark:group-hover:bg-white/10 transition-colors z-0"></div>
               <div className="relative z-10 flex items-center justify-between h-full">
                 <div className="space-y-1">
                   {(user?.role === "Super Admin" || user?.role === "Team Lead") && (
@@ -1373,12 +1372,13 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+      <div className="h-20 md:hidden" aria-hidden="true" />
       {/* Sticky floating mobile Apply Leave button */}
       {!isLeaveSummaryVisible && (
-        <div className="fixed bottom-4 left-4 right-4 z-40 md:hidden animate-in fade-in slide-in-from-bottom-5 duration-300">
+        <div className="fixed bottom-4 left-4 right-24 z-40 md:hidden animate-in fade-in slide-in-from-bottom-5 duration-300">
           <Link
             href="/leaves/apply"
-            className="w-full flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-bold py-3.5 px-6 rounded-md shadow-xl shadow-amber-500/20 active:scale-95 transition-all duration-150 border border-amber-400/30"
+            className="w-full flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-bold py-3.5 px-6 rounded-md shadow-md active:scale-95 transition-all duration-150 border border-amber-400/30"
           >
             <Plus className="w-5 h-5" />
             Apply Leave
@@ -2020,7 +2020,6 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
               href="/hall" 
               className="lg:col-span-2 group relative overflow-hidden rounded-md p-6 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm hover:shadow-md dark:hover:bg-slate-700 transition-all duration-300 border border-slate-200 dark:border-slate-700/60"
             >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-white/10 transition-colors"></div>
               <div className="relative z-10 flex items-center justify-between h-full">
                 <div className="space-y-1">
                   <span className="text-sm font-bold text-slate-900 dark:text-white relative z-10">View The Hall</span>
@@ -2288,7 +2287,6 @@ function QuickActionCard({ href, icon: Icon, title, color }: any) {
     <Link href={href}>
       <div className="bg-white dark:bg-slate-800 rounded-md p-5 h-full relative overflow-hidden shadow-sm dark:hover:bg-slate-700 hover:shadow-md border border-slate-200 dark:border-slate-700/60 transition-all duration-300 group flex flex-col items-start gap-3">
         <div className={`absolute -bottom-10 -left-10 w-6 h-6 rounded-full scale-0 group-hover:scale-[35] transition-transform duration-700 ease-out ${waveBg} z-0 dark:hidden`} />
-        <div className="absolute top-0 right-0 w-20 h-20 bg-white/[0.03] rounded-bl-full -mr-4 -mt-4 group-hover:bg-white/[0.06] transition-colors z-0" />
         <div className={`w-10 h-10 rounded-md ${accent} flex items-center justify-center shadow-sm group-hover:scale-90 transition-transform duration-300 relative z-10`}>
           <Icon className="w-5 h-5" />
         </div>
@@ -2650,7 +2648,6 @@ function MenuCard({ href, icon: Icon, title, subtitle, color, className = "" }: 
     <Link href={href} className={`block ${className}`}>
       <div className="bg-white dark:bg-slate-800 rounded-md p-5 h-full relative overflow-hidden shadow-sm hover:shadow-md dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700/60 transition-all duration-300 group">
         <div className={`absolute -bottom-10 -left-10 w-6 h-6 rounded-full scale-0 group-hover:scale-[35] transition-transform duration-700 ease-out ${waveBg} z-0 dark:hidden`} />
-        <div className="absolute top-0 right-0 w-20 h-20 bg-black/[0.02] dark:bg-white/[0.03] rounded-bl-full -mr-4 -mt-4 group-hover:bg-black/[0.04] dark:group-hover:bg-white/[0.06] transition-colors z-0" />
         <div className="relative z-10">
           <div className={`w-10 h-10 rounded-md ${accent} flex items-center justify-center mb-4 shadow-sm group-hover:scale-90 transition-transform duration-300`}>
             <Icon className="w-5 h-5" />
