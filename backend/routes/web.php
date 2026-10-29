@@ -30,6 +30,7 @@ Route::get('api/api/uploads/customization/{filename}', [\App\Http\Controllers\Ap
 // (see public/.htaccess), so the login check in showStorageFile applies to old links too. The shared
 // `token` cookie is read raw, so cookie encryption must be off for these routes.
 Route::withoutMiddleware([
+    \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
     \Illuminate\Cookie\Middleware\EncryptCookies::class,
     \Illuminate\Session\Middleware\StartSession::class,
     \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
