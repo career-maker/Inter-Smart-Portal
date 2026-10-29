@@ -48,25 +48,13 @@ class LeaveBalanceController extends Controller
                 ->with('leaveBalance')
                 ->get();
 
-            // One grouped query for approved days per person (was every approved request loaded as models).
-            $taken = LeaveRequest::query()
-                ->join('leave_types', 'leave_types.id', '=', 'leave_requests.leave_type_id')
-                ->where('leave_requests.status', 'Approved')
-                ->whereIn('leave_requests.user_id', $employees->pluck('id'))
-                ->groupBy('leave_requests.user_id')
-                ->selectRaw("leave_requests.user_id as uid, SUM(leave_requests.days_taken) as total, "
-                    . "SUM(CASE WHEN LOWER(leave_types.name) LIKE '%casual%' THEN leave_requests.days_taken ELSE 0 END) as casual, "
-                    . "SUM(CASE WHEN LOWER(leave_types.name) LIKE '%sick%' THEN leave_requests.days_taken ELSE 0 END) as sick")
-                ->get()->keyBy('uid');
-
+            // NOTE: leave_requests has no days_taken column, so the old code summed null and always showed 0 taken.
+            // Kept as 0 (identical output) without loading every approved request. Real totals need a decision on how to count days.
             $employees = $employees
-                ->map(function ($emp) use ($taken) {
+                ->map(function ($emp) {
                     $balance = $emp->leaveBalance;
 
-                    $t = $taken->get($emp->id);
-                    $casualTaken = (float) ($t->casual ?? 0);
-                    $sickTaken = (float) ($t->sick ?? 0);
-                    $totalTaken = (float) ($t->total ?? 0);
+                    $casualTaken = $sickTaken = $totalTaken = 0.0;
 
                     return [
                         'user_id'               => $emp->id,
