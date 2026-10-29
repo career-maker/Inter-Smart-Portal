@@ -48,13 +48,27 @@ class LeaveBalanceController extends Controller
                 ->with('leaveBalance')
                 ->get();
 
-            // NOTE: leave_requests has no days_taken column, so the old code summed null and always showed 0 taken.
-            // Kept as 0 (identical output) without loading every approved request. Real totals need a decision on how to count days.
+            // Approved days per person in one grouped query. Uses the same day count as the rest of the
+            // portal (actual_leave_days, else days). The old code summed a days_taken column that does not exist, so it showed 0.
+            $taken = LeaveRequest::query()
+                ->join('leave_types', 'leave_types.id', '=', 'leave_requests.leave_type_id')
+                ->where('leave_requests.status', 'Approved')
+                ->whereNull('leave_requests.deleted_at')
+                ->whereIn('leave_requests.user_id', $employees->pluck('id'))
+                ->groupBy('leave_requests.user_id')
+                ->selectRaw("leave_requests.user_id as uid, SUM(COALESCE(leave_requests.actual_leave_days, leave_requests.days, 0)) as total, "
+                    . "SUM(CASE WHEN LOWER(leave_types.name) LIKE '%casual%' THEN COALESCE(leave_requests.actual_leave_days, leave_requests.days, 0) ELSE 0 END) as casual, "
+                    . "SUM(CASE WHEN LOWER(leave_types.name) LIKE '%sick%' THEN COALESCE(leave_requests.actual_leave_days, leave_requests.days, 0) ELSE 0 END) as sick")
+                ->get()->keyBy('uid');
+
             $employees = $employees
-                ->map(function ($emp) {
+                ->map(function ($emp) use ($taken) {
                     $balance = $emp->leaveBalance;
 
-                    $casualTaken = $sickTaken = $totalTaken = 0.0;
+                    $t = $taken->get($emp->id);
+                    $casualTaken = (float) ($t->casual ?? 0);
+                    $sickTaken = (float) ($t->sick ?? 0);
+                    $totalTaken = (float) ($t->total ?? 0);
 
                     return [
                         'user_id'               => $emp->id,
@@ -80,18 +94,19 @@ class LeaveBalanceController extends Controller
         // Calculate total_leaves_taken from approved leave requests
         try {
             $user->load(['leaveRequests' => function ($q) {
-                $q->where('status', 'Approved')->with('leaveType');
+                $q->where('status', 'Approved')->whereNull('deleted_at')->with('leaveType');
             }]);
+            $daysOf = fn ($l) => (float) ($l->actual_leave_days ?? $l->days ?? 0);
 
             $casualTaken = (float) $user->leaveRequests->filter(function ($l) {
                 return str_contains(strtolower($l->leaveType->name ?? ''), 'casual');
-            })->sum('days_taken');
+            })->sum($daysOf);
 
             $sickTaken = (float) $user->leaveRequests->filter(function ($l) {
                 return str_contains(strtolower($l->leaveType->name ?? ''), 'sick');
-            })->sum('days_taken');
+            })->sum($daysOf);
 
-            $totalTaken = (float) $user->leaveRequests->sum('days_taken');
+            $totalTaken = (float) $user->leaveRequests->sum($daysOf);
         } catch (\Exception $e) {
             \Log::warning("Failed to sum leaves for user {$user->id}: " . $e->getMessage());
             $casualTaken = 0;
