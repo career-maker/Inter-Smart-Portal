@@ -4448,3 +4448,17 @@ main:has(.fixed.inset-0.items-center.justify-center:not(.flex-col):not([class*="
 main:has([data-side-popup="true"]) {
   z-index: 100000 !important;
 }
+
+/* Light theme: form fields inside popups/side panels must stay readable (some used dark fills with dark text). */
+html:not(.dark) :is(.fixed.inset-0.items-center.justify-center, [data-slot="dialog-content"]) :is(input, select, textarea):not([type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="file"]):is([class*="bg-slate-6"], [class*="bg-slate-7"], [class*="bg-slate-8"], [class*="bg-slate-9"], [class*="bg-[#"], [class*="bg-gray-7"], [class*="bg-gray-8"], [class*="bg-gray-9"]) {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+html:not(.dark) :is(.fixed.inset-0.items-center.justify-center, [data-slot="dialog-content"]) :is(input, textarea)::placeholder {
+  color: #64748b !important;
+  opacity: 1;
+}
+html:not(.dark) .fixed.inset-0.items-center.justify-center :is(.bg-slate-700, .bg-slate-800, .bg-slate-900):not(input, select, textarea, button, .absolute) {
+  color: #0f172a;
+}
