@@ -125,7 +125,13 @@ class EmployeeController extends Controller
             return response()->json(['message' => 'Unauthenticated.'], 401);
         }
 
-        return response()->file($fullPath);
+        $headers = ['X-Content-Type-Options' => 'nosniff'];
+        if ($extension === 'svg') {
+            // An SVG opened directly could run script; sandbox it (still fine inside <img>).
+            $headers['Content-Security-Policy'] = "default-src 'none'; style-src 'unsafe-inline'; sandbox";
+        }
+
+        return response()->file($fullPath, $headers);
     }
 
     public function index(Request $request)

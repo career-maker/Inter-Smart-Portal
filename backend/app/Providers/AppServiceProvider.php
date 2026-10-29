@@ -35,8 +35,10 @@ class AppServiceProvider extends ServiceProvider
             $model::deleted($forget);
         }
 
-        RateLimiter::for('login', fn (Request $request) =>
-            Limit::perMinute(10)->by(strtolower((string) $request->input('email')) . '|' . $request->ip())
-        );
+        // Per minute as before, plus an hourly cap so slow password guessing is also stopped.
+        RateLimiter::for('login', function (Request $request) {
+            $key = strtolower((string) $request->input('email')) . '|' . $request->ip();
+            return [Limit::perMinute(10)->by($key), Limit::perHour(40)->by($key . '|h')];
+        });
     }
 }

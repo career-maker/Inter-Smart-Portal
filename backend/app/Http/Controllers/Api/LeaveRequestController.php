@@ -1734,5 +1734,32 @@ class LeaveRequestController extends Controller
             \Log::error("Failed to refund leave balance: " . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
         }
     }
-}
 
+    /**
+     * Signed e-mail links (approve / reject). They never change anything themselves: the link is checked,
+     * then the person is sent to the approvals page where they sign in and decide.
+     */
+    public function emailApprove(Request $request, LeaveRequest $leaveRequest)
+    {
+        return $this->emailActionRedirect($request, $leaveRequest, 'approve');
+    }
+
+    public function emailReject(Request $request, LeaveRequest $leaveRequest)
+    {
+        return $this->emailActionRedirect($request, $leaveRequest, 'reject');
+    }
+
+    private function emailActionRedirect(Request $request, LeaveRequest $leaveRequest, string $action)
+    {
+        if (!$request->hasValidSignature()) {
+            return response()->json(['message' => 'Invalid or expired link'], 401);
+        }
+
+        $frontendUrl = config('app.frontend_url', 'https://www.workplace.intersmart.in');
+        if (str_contains($frontendUrl, 'vercel.app')) {
+            $frontendUrl = 'https://www.workplace.intersmart.in';
+        }
+
+        return redirect("{$frontendUrl}/leaves/approvals?action={$action}&id={$leaveRequest->id}");
+    }
+}
