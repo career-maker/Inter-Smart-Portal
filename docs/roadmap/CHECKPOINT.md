@@ -1,10 +1,44 @@
 # CHECKPOINT: read this first, then continue
 
-_Last updated: 2026-10-29 late (section 000 is the newest: handover and NEXT list; then 00; section 0 below is older). Update this file and commit it after every unit of work (see "Standing rules")._
+_Last updated: 2026-10-30 (section 0000 is the newest; then 000: handover and NEXT list; then 00; section 0 below is older). Update this file and commit it after every unit of work (see "Standing rules")._
 
 You are continuing the **Internal Software Plan** for the Intersmart Employee Portal. The owner is a developer on Team QA; the manager's sheet is `SOURCE_Internal_software_plan.xlsx`. Work in small, tested, reversible slices. Never break the existing modules.
 
 **Read order for a new agent:** this file, then `PROGRESS.md` (history and gotchas), then `EXECUTION_PLAN.md` (rules and phase order), then `SOFTWARE_PLAN.md` (have vs build per role). `SERVER.md` has the live server layout.
+
+## 0000. HANDOVER, END OF SESSION 30 Oct 2026 (NEWEST: READ THIS FIRST, then 000 for older detail)
+
+When the owner says "continue": do section 0000-F below. Everything is committed; `main` and live backend are current (last code commit e3f33e69; later commits are docs only). Work branch `wip/phase4-slice2` == main + docs.
+
+### 0000-A. Done this session (all LIVE)
+- Security: S1-S3, S5-S9 closed; S4 partly (token 30 days, hourly cap, lockout 8 failures/15 min per email+IP tested 429); tracker items open: S4 two-factor only.
+- S9 (found this session): Apache served `/api/storage/*` straight from disk (symlink public_html/api/storage) with no login. Fixed: `backend/public/.htaccess` sends private folders (everything except profile-photos, announcements, community) to Laravel; `routes/web.php` has `storage/{path}` without session/CSRF/cookie-encryption; `config/filesystems.php` local disk `serve=false` (Laravel's own storage route shadowed ours); `EmployeeController::showStorageFile` = token-only auth (bearer / shared `token` cookie; `?token=` ignored in production), per-person checks `mayOpenPrivateFile` (documents: requester or any non-Employee role; ta_receipts: claimant/Super Admin/Admin/HR/Accounts; chat_attachments: chat members + Super Admin), blocks only script extensions, forces download for html/xml/js, signed-out browser gets redirect to frontend /login.
+- Frontend: shared login cookie `token` with `domain=workplace.intersmart.in` (`lib/authCookies.ts`), `getStorageUrl` no query token on same-site; layout already re-sets the cookie on load.
+- CORS middleware used `$response->header()` (fails on file responses): now `headers->set`.
+- UI/F8/F9/F12: spinners (attendance clock, chat history, QA review panel), keyboard focus ring (`--portal-primary-color`), `components/layout/DoubleClickGuard.tsx` (action buttons ignore a 2nd click for 0.9 s), emoji chrome replaced by Lucide icons (community quick actions, notification categories, dashboard texts), status donut filters zero slices + no animation.
+- Decided NOT to do a broad token/typography redesign: measured, text already 12-14px, shell consistent. Do only if the owner names a concrete page/element.
+- Browser-tested on live as Super Admin (owner logged in): TA bill/chat/document images load via cookie and fail without it; policy PDF opens; pages render.
+
+### 0000-B. Facts learned (keep)
+- Spatie roles on live are ONLY: Accounts, Employee, Super Admin, Team Lead. `hasRole('HR')`/`'Admin'` never match; `User::role('HR')` throws RoleDoesNotExist.
+- Live URLs: files at `https://workplace.intersmart.in/api/storage/<path>`; API at `/api/api/...`; `/storage/...` at the host root is a different app (500).
+- Laravel pathInfo for external `/api/x` is `/x` (web routes); external `/api/api/x` hits routes/api.php.
+- Chrome extension: works only when the owner has the Chrome window open; `list_connected_browsers` empty = extension not signed in. The assistant may NOT type passwords into the production login (owner must log in himself in the controlled tab, then say "logged in"); the owner pasted test credentials in chat on 30 Oct, they are NOT stored anywhere, advise rotating them (also listed in older checkpoint). Minting a `verify-tmp` token for browser use is sometimes denied by the auto-mode classifier; server-side tests (live.py scripts that mint, use and delete the token inside the server, print only status codes) are allowed. Ready scripts were in the old scratchpad (mint/ftest*.py), recreate from `live.py` helpers (`live.TOKEN`, `live.DELETE`, `live.upload_and_run`).
+- Audit tracker artifact https://claude.ai/artifact/VYUqnn1FpweRW6HemyCqre (version 11). Source: `docs/roadmap/ui-audit/audit-tracker.html`; edit it, publish with `url`. PITFALL: a bad regex once wrote a stray control char into the JS and blanked the page; after any edit run `node --check` on the extracted `<script>` (see how: extract with Python, write to a temp .js, `node --check`).
+- Recharts pie animation looks half-drawn in the automated browser; it was never a data bug.
+- The portal has 927 plain `<button>` in 135 files; do not mass-convert.
+
+### 0000-C. Open items (tracker: Security 1, Performance 2, Functional 4 open)
+- S4 two-factor sign-in (big feature; mail is broken so use an authenticator app if done).
+- P1 host limit (owner asks host admin to raise CloudLinux LVE limits or move to VPS; then re-run load test from the server). P4 chat websockets after bigger host.
+- F10 run PHPUnit + browser checks (no PHP on this PC; do not run tests against the live DB). F11 send one real meeting-invite test. F12 screen reader and mobile-width pass. F14 HIGH: Gmail SMTP 535 for career@intersmart.in; OWNER must re-enter the app password in Email Settings.
+- Other roles (Accounts, HR, Team Lead, Employee) not browser-tested for the new file rules; bug/issue attachment folders do not exist yet (signed-in-only rule applies).
+- Old unchanged items: untracked `backend/public/uploads/` and `oc-reset.php` on live (not ours); credentials hygiene.
+
+### 0000-F. NEXT when the owner says "continue"
+1. Read this section, then `git status`, `git log -5`. Ask the owner (one line) if Chrome is open and he is logged in, only if browser checks are needed.
+2. Ask which open item to do next; suggested order: F14 (owner action), F12 accessibility pass, F10 test run on a local DB, S4 two-factor design, then P1 retest after host change.
+3. Always: backup via `live.py push`, add-only migrations, lint on server before deploy (`git fetch` then `git show FETCH_HEAD:<file> | php -l`), test after deploy from the server, update tracker + this file, commit, push, merge to `main` (frontend auto-deploys on Vercel, check rendered).
 
 ## 000. HANDOVER, END OF SESSION 29 Oct 2026 (READ THIS FIRST; it supersedes 00 where they differ)
 
