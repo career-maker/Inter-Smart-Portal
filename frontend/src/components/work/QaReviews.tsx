@@ -60,10 +60,20 @@ function ReviewDialog({ id, onClose, onChanged }: { id: number; onClose: () => v
   const [bug, setBug] = useState({ title: "", priority: "Medium", description: "" });
   const [note, setNote] = useState("");
 
-  const load = useCallback(async () => { const r = await api.get(`/work/qa/reviews/${id}`); setD(r.data); }, [id]);
+  const load = useCallback(async () => { try { const r = await api.get(`/work/qa/reviews/${id}`); setD(r.data); } catch (e: any) { alert(errMsg(e)); onClose(); } }, [id]);
   useEffect(() => { load(); }, [load]);
   const run = async (fn: () => Promise<any>) => { try { await fn(); await load(); onChanged(); } catch (e: any) { alert(errMsg(e)); } };
-  if (!d) return null;
+  if (!d) return (
+    <Dialog open onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader><DialogTitle className="text-lg">Loading review</DialogTitle></DialogHeader>
+        <div className="flex items-center justify-center gap-2 py-10 text-sm text-slate-500">
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" aria-hidden="true" />
+          Loading...
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
   const r = d.review;
 
   return (

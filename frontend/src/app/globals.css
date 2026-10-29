@@ -4470,3 +4470,9 @@ td [data-slot="badge"],
 th {
   white-space: nowrap;
 }
+
+/* Accessibility: visible keyboard focus on every interactive control (mouse clicks unaffected) */
+:where(a, button, [role="button"], [role="tab"], [role="menuitem"], summary, select, input, textarea):focus-visible {
+  outline: 2px solid var(--portal-primary-color, #56348f);
+  outline-offset: 2px;
+}

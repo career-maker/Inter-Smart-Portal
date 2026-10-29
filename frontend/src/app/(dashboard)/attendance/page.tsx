@@ -117,7 +117,7 @@ export default function AttendancePage() {
           </CardHeader>
           <CardContent className="pt-4">
             {isLoading ? (
-              <div className="text-center py-3 text-sm">Loading...</div>
+              <div className="flex items-center justify-center gap-2 py-3 text-sm"><span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" aria-hidden="true" />Loading...</div>
             ) : (
               <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between text-xs">

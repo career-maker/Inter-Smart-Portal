@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use App\Models\User;
 use App\Services\Email\EmailService;
@@ -17,13 +18,23 @@ class AuthController extends Controller
 {
     public function login(LoginRequest $request)
     {
+        // Lockout: 8 wrong passwords for this email from this address locks it for 15 minutes.
+        $lockKey = 'login-fail:' . strtolower($request->email) . '|' . $request->ip();
+        if (RateLimiter::tooManyAttempts($lockKey, 8)) {
+            return response()->json([
+                'message' => 'Too many failed attempts. Try again in ' . ceil(RateLimiter::availableIn($lockKey) / 60) . ' minute(s).'
+            ], 429);
+        }
+
         $user = User::whereRaw('LOWER(email) = ?', [strtolower($request->email)])->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
+            RateLimiter::hit($lockKey, 900);
             return response()->json([
                 'message' => 'Invalid credentials'
             ], 401);
         }
+        RateLimiter::clear($lockKey);
 
         if ($user->status !== 'Active') {
             return response()->json([

@@ -125,6 +125,14 @@ class EmployeeController extends Controller
             return response()->json(['message' => 'Unauthenticated.'], 401);
         }
 
+        // Chat attachments live under chat_attachments/{conversationId}/: only members of that chat
+        // (and Super Admin, who has the audit view) may open them.
+        if ($user && preg_match('#^chat_attachments/(\d+)/#', $normalizedPath, $m)
+            && !$user->hasRole('Super Admin')
+            && !\App\Models\ConversationParticipant::where('conversation_id', (int) $m[1])->where('user_id', $user->id)->exists()) {
+            abort(403);
+        }
+
         $headers = ['X-Content-Type-Options' => 'nosniff'];
         if ($extension === 'svg') {
             // An SVG opened directly could run script; sandbox it (still fine inside <img>).

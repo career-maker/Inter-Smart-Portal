@@ -1568,7 +1568,8 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
             {/* Google Chat Style Messages Stream (ONLY this section scrolls) */}
             <div ref={chatStreamRef} className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-5 custom-scrollbar space-y-3 overflow-x-hidden">
               {loadingMessages && messages.length === 0 ? (
-                <div className="flex items-center justify-center h-full text-xs text-slate-400">
+                <div className="flex items-center justify-center gap-2 h-full text-xs text-slate-400">
+                  <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" aria-hidden="true" />
                   Loading chat history...
                 </div>
               ) : messages.length === 0 ? (
