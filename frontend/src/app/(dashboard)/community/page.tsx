@@ -8,6 +8,10 @@ import {
   Palmtree,
   Sparkles,
   Link as LinkIcon,
+  ClipboardCheck,
+  BookOpen,
+  FileText,
+  Trophy,
 } from "lucide-react";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/auth";
@@ -250,35 +254,35 @@ function CommunityPageContent() {
                   {isSuperAdmin || currentUser?.role === "Team Lead" ? (
                     <Link
                       href="/leaves/approvals"
-                      className="block p-2 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded transition text-slate-700 dark:text-slate-300 hover:text-[#56348f] font-semibold"
+                      className="flex items-center gap-2 p-2 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded transition text-slate-700 dark:text-slate-300 hover:text-[#56348f] font-semibold"
                     >
-                      📋 Review Leave & WFH Approvals
+                      <ClipboardCheck className="w-4 h-4 shrink-0 text-slate-400" /> Review Leave & WFH Approvals
                     </Link>
                   ) : (
                     <Link
                       href="/leaves"
-                      className="block p-2 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded transition text-slate-700 dark:text-slate-300 hover:text-[#56348f]"
+                      className="flex items-center gap-2 p-2 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded transition text-slate-700 dark:text-slate-300 hover:text-[#56348f]"
                     >
-                      🏝️ Apply for Leave or WFH
+                      <Palmtree className="w-4 h-4 shrink-0 text-slate-400" /> Apply for Leave or WFH
                     </Link>
                   )}
                   <Link
                     href="/policies"
-                    className="block p-2 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded transition text-slate-700 dark:text-slate-300 hover:text-[#56348f]"
+                    className="flex items-center gap-2 p-2 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded transition text-slate-700 dark:text-slate-300 hover:text-[#56348f]"
                   >
-                    📖 Company HR Policies
+                    <BookOpen className="w-4 h-4 shrink-0 text-slate-400" /> Company HR Policies
                   </Link>
                   <Link
                     href="/documents"
-                    className="block p-2 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded transition text-slate-700 dark:text-slate-300 hover:text-[#56348f]"
+                    className="flex items-center gap-2 p-2 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded transition text-slate-700 dark:text-slate-300 hover:text-[#56348f]"
                   >
-                    📄 Request HR Documents
+                    <FileText className="w-4 h-4 shrink-0 text-slate-400" /> Request HR Documents
                   </Link>
                   <Link
                     href="/recognitions/leaderboard"
-                    className="block p-2 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded transition text-slate-700 dark:text-slate-300 hover:text-[#56348f]"
+                    className="flex items-center gap-2 p-2 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded transition text-slate-700 dark:text-slate-300 hover:text-[#56348f]"
                   >
-                    🏆 View Hall of Fame Leaderboard
+                    <Trophy className="w-4 h-4 shrink-0 text-slate-400" /> View Hall of Fame Leaderboard
                   </Link>
                 </div>
               </div>

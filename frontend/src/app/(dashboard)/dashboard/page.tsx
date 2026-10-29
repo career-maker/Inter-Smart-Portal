@@ -559,7 +559,7 @@ export default function DashboardPage() {
         <div className="bg-gradient-to-r from-rose-50 via-amber-50/60 to-purple-50 dark:from-rose-950/20 dark:via-amber-950/20 dark:to-purple-950/20 border border-rose-200/90 dark:border-rose-500/30 rounded-2xl p-4 flex items-center justify-between gap-4 animate-slideDown mb-6 shadow-xs">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-500/30 flex items-center justify-center text-lg shadow-2xs flex-shrink-0">
-              🎉
+              <Sparkles className="w-5 h-5 text-rose-500" />
             </div>
             <div className="min-w-0">
               <p className="text-[11px] font-bold uppercase tracking-wider text-rose-700 dark:text-rose-400 flex items-center gap-1.5">
@@ -966,7 +966,7 @@ export default function DashboardPage() {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-xs text-slate-500 dark:text-slate-400 text-center py-4">No pending approvals 🎉</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 text-center py-4">No pending approvals</p>
                   )}
                 </div>
               </div>
@@ -1079,7 +1079,7 @@ export default function DashboardPage() {
                           {filteredAnni.slice(0, 3).map((a: any, idx: number) => (
                             <div key={idx} className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900/50 rounded-md border border-slate-200/60 dark:border-slate-800">
                               <div>
-                                <p className="text-[13px] font-medium text-slate-900 dark:text-white">🎉 {a.name}</p>
+                                <p className="text-[13px] font-medium text-slate-900 dark:text-white">{a.name}</p>
                                 <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{a.years} Year{a.years !== 1 ? 's' : ''} at Inter Smart</p>
                               </div>
                               <span className="text-[11px] font-semibold bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300 px-2 py-0.5 rounded-full">
@@ -1313,7 +1313,7 @@ export default function DashboardPage() {
             {/* Probation notice */}
             {leave_metrics.is_in_probation && (
               <div className="bg-amber-500/10 border border-amber-500/30 rounded-md p-4 text-amber-300 text-sm space-y-1">
-                <p className="font-bold flex items-center gap-2">🔒 Currently Under Probation</p>
+                <p className="font-bold flex items-center gap-2">Currently Under Probation</p>
                 <p className="text-amber-300/80 text-xs">Paid leave benefits will become active on <strong className="text-amber-200">{new Date(leave_metrics.probation_end_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</strong>. All leaves during probation are treated as Unpaid (LOP).</p>
               </div>
             )}
@@ -1748,31 +1748,33 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
           </h2>
           {kpis?.total_employees ? (
             <div className="h-40 flex flex-col">
+              {(() => {
+                const slices = [
+                  { name: 'Checked In', value: kpis.present_today ?? 0, color: '#10B981' },
+                  { name: 'On Leave', value: kpis.on_leave_today ?? 0, color: '#3B82F6' },
+                  { name: 'WFH', value: kpis.wfh_today ?? 0, color: '#06B6D4' },
+                  { name: 'Not Checked In', value: Math.max(0, (kpis.total_employees ?? 0) - (kpis.present_today ?? 0) - (kpis.on_leave_today ?? 0) - (kpis.wfh_today ?? 0)), color: '#EF4444' },
+                ];
+                // Zero-size slices left a stray sliver when one group held everyone: draw only real slices, keep all four in the legend.
+                const drawn = slices.filter((x) => x.value > 0);
+                return (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart margin={{ top: 5, right: 0, bottom: 0, left: 0 }}>
                   <Pie
-                    data={[
-                      { name: 'Checked In', value: kpis.present_today ?? 0 },
-                      { name: 'On Leave', value: kpis.on_leave_today ?? 0 },
-                      { name: 'WFH', value: kpis.wfh_today ?? 0 },
-                      { name: 'Not Checked In', value: Math.max(0, (kpis.total_employees ?? 0) - (kpis.present_today ?? 0) - (kpis.on_leave_today ?? 0) - (kpis.wfh_today ?? 0)) }
-                    ]}
+                    data={drawn}
                     cx="50%"
                     cy="72%"
                     startAngle={180}
                     endAngle={0}
                     innerRadius={52}
                     outerRadius={75}
-                    paddingAngle={2}
+                    paddingAngle={drawn.length > 1 ? 2 : 0}
                     labelLine={false}
                     label={false}
                     fill="#8884d8"
                     dataKey="value"
                   >
-                    <Cell fill="#10B981" />
-                    <Cell fill="#3B82F6" />
-                    <Cell fill="#06B6D4" />
-                    <Cell fill="#EF4444" />
+                    {drawn.map((x) => <Cell key={x.name} fill={x.color} />)}
                   </Pie>
                   <Tooltip
                     formatter={(value) => `${value} employees`}
@@ -1780,9 +1782,25 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
                     itemStyle={{ color: '#ffffff', fontWeight: 500 }}
                     labelStyle={{ color: '#ffffff', fontWeight: 600 }}
                   />
-                  <Legend layout="horizontal" align="center" verticalAlign="bottom" formatter={(value) => <span className="text-slate-600 dark:text-slate-400 text-xs">{value}</span>} />
+                  <Legend
+                    layout="horizontal"
+                    align="center"
+                    verticalAlign="bottom"
+                    content={() => (
+                      <ul className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+                        {slices.map((x) => (
+                          <li key={x.name} className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400">
+                            <span className="inline-block h-2.5 w-2.5" style={{ backgroundColor: x.color }} />
+                            {x.name}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  />
                 </PieChart>
               </ResponsiveContainer>
+                );
+              })()}
             </div>
           ) : (
             <div className="h-40 flex items-center justify-center text-slate-500 dark:text-slate-400">No employee data available</div>
@@ -1911,7 +1929,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
               renderItem={(a) => (
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-bold text-slate-900 dark:text-white">🎉 {a.name}</p>
+                    <p className="text-sm font-bold text-slate-900 dark:text-white">{a.name}</p>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{a.years} Year{a.years !== 1 ? 's' : ''} with Inter Smart</p>
                   </div>
                   <div className="flex flex-col items-end gap-1 shrink-0">
@@ -2543,7 +2561,7 @@ function CelebrationCard({ recognition, firstName }: { recognition: any; firstNa
             }}
             className="mb-3"
           >
-            Congratulations, {firstName}! 🎊
+            Congratulations, {firstName}!
           </p>
 
           {/* Description */}
@@ -2571,7 +2589,7 @@ function CelebrationCard({ recognition, firstName }: { recognition: any; firstNa
               backdropFilter: 'blur(8px)',
             }}
           >
-            📅 Valid: {format(new Date(recognition.start_date), "dd MMM yyyy")} — {format(new Date(recognition.end_date), "dd MMM yyyy")}
+            Valid: {format(new Date(recognition.start_date), "dd MMM yyyy")} — {format(new Date(recognition.end_date), "dd MMM yyyy")}
           </div>
 
           {/* Mobile-only bottom animation */}

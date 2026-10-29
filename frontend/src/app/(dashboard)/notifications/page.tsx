@@ -5,7 +5,9 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Bell, CheckCheck, Loader2 } from "lucide-react";
+import { Bell, CheckCheck, Loader2, Palmtree, Home, Award, BarChart3, Heart, MessageSquare, Cake, User } from "lucide-react";
+
+const CATEGORY_ICONS: Record<string, React.ComponentType<{ className?: string }>> = { Palmtree, Home, Award, BarChart3, Heart, MessageSquare, Cake, User, Bell };
 import api from "@/services/api";
 import { useRouter } from "next/navigation";
 
@@ -68,30 +70,30 @@ function getNotificationCategory(notification: any) {
   const msg = (notification.data?.message || "").toLowerCase();
 
   if (type.includes("LeaveRequest") || title.includes("leave") || msg.includes("leave")) {
-    return { icon: "🌴", label: "Leave", bg: "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200/70 dark:border-emerald-800/40 text-emerald-600 dark:text-emerald-300" };
+    return { icon: "Palmtree", label: "Leave", bg: "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200/70 dark:border-emerald-800/40 text-emerald-600 dark:text-emerald-300" };
   }
   if (type.includes("WfhRequest") || title.includes("wfh") || msg.includes("wfh") || title.includes("home")) {
-    return { icon: "🏠", label: "WFH", bg: "bg-blue-50 dark:bg-blue-950/40 border-blue-200/70 dark:border-blue-800/40 text-blue-600 dark:text-blue-300" };
+    return { icon: "Home", label: "WFH", bg: "bg-blue-50 dark:bg-blue-950/40 border-blue-200/70 dark:border-blue-800/40 text-blue-600 dark:text-blue-300" };
   }
   if (type.includes("Praise") || title.includes("praise") || msg.includes("praised")) {
-    return { icon: "🎖️", label: "Praise", bg: "bg-amber-50 dark:bg-amber-950/40 border-amber-200/70 dark:border-amber-800/40 text-amber-600 dark:text-amber-300" };
+    return { icon: "Award", label: "Praise", bg: "bg-amber-50 dark:bg-amber-950/40 border-amber-200/70 dark:border-amber-800/40 text-amber-600 dark:text-amber-300" };
   }
   if (type.includes("Poll") || title.includes("poll") || msg.includes("poll")) {
-    return { icon: "📊", label: "Poll", bg: "bg-indigo-50 dark:bg-indigo-950/40 border-indigo-200/70 dark:border-indigo-800/40 text-indigo-600 dark:text-indigo-300" };
+    return { icon: "BarChart3", label: "Poll", bg: "bg-indigo-50 dark:bg-indigo-950/40 border-indigo-200/70 dark:border-indigo-800/40 text-indigo-600 dark:text-indigo-300" };
   }
   if (title.includes("reaction") || msg.includes("reacted")) {
-    return { icon: "❤️", label: "Reaction", bg: "bg-rose-50 dark:bg-rose-950/40 border-rose-200/70 dark:border-rose-800/40 text-rose-600 dark:text-rose-300" };
+    return { icon: "Heart", label: "Reaction", bg: "bg-rose-50 dark:bg-rose-950/40 border-rose-200/70 dark:border-rose-800/40 text-rose-600 dark:text-rose-300" };
   }
   if (title.includes("comment") || msg.includes("commented")) {
-    return { icon: "💬", label: "Comment", bg: "bg-purple-50 dark:bg-purple-950/40 border-purple-200/70 dark:border-purple-800/40 text-purple-600 dark:text-purple-300" };
+    return { icon: "MessageSquare", label: "Comment", bg: "bg-purple-50 dark:bg-purple-950/40 border-purple-200/70 dark:border-purple-800/40 text-purple-600 dark:text-purple-300" };
   }
   if (type.includes("Birthday") || title.includes("birthday")) {
-    return { icon: "🎂", label: "Birthday", bg: "bg-pink-50 dark:bg-pink-950/40 border-pink-200/70 dark:border-pink-800/40 text-pink-600 dark:text-pink-300" };
+    return { icon: "Cake", label: "Birthday", bg: "bg-pink-50 dark:bg-pink-950/40 border-pink-200/70 dark:border-pink-800/40 text-pink-600 dark:text-pink-300" };
   }
   if (type.includes("Profile") || title.includes("profile")) {
-    return { icon: "👤", label: "Profile", bg: "bg-sky-50 dark:bg-sky-950/40 border-sky-200/70 dark:border-sky-800/40 text-sky-600 dark:text-sky-300" };
+    return { icon: "User", label: "Profile", bg: "bg-sky-50 dark:bg-sky-950/40 border-sky-200/70 dark:border-sky-800/40 text-sky-600 dark:text-sky-300" };
   }
-  return { icon: "🔔", label: "Alert", bg: "bg-violet-50 dark:bg-violet-950/40 border-violet-200/70 dark:border-violet-800/40 text-[#56348f] dark:text-purple-300" };
+  return { icon: "Bell", label: "Alert", bg: "bg-violet-50 dark:bg-violet-950/40 border-violet-200/70 dark:border-violet-800/40 text-[#56348f] dark:text-purple-300" };
 }
 
 function formatRelativeTime(dateStr: string) {
@@ -270,7 +272,7 @@ export default function NotificationsPage() {
                     <div className="flex items-start gap-3.5 flex-1 min-w-0">
                       {/* Category Icon Badge */}
                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0 border ${cat.bg} shadow-2xs group-hover:scale-105 transition-transform`}>
-                        {cat.icon}
+                        {(() => { const Icon = CATEGORY_ICONS[cat.icon] || Bell; return <Icon className="w-4 h-4" />; })()}
                       </div>
 
                       <div className="flex-1 space-y-1 min-w-0">
