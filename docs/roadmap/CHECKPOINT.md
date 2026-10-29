@@ -1,10 +1,30 @@
 # CHECKPOINT: read this first, then continue
 
-_Last updated: 2026-10-28 (handover note in section 0). Update this file and commit it after every unit of work (see "Standing rules")._
+_Last updated: 2026-10-29 (section 00 is the newest state; section 0 below is older). Update this file and commit it after every unit of work (see "Standing rules")._
 
 You are continuing the **Internal Software Plan** for the Intersmart Employee Portal. The owner is a developer on Team QA; the manager's sheet is `SOURCE_Internal_software_plan.xlsx`. Work in small, tested, reversible slices. Never break the existing modules.
 
 **Read order for a new agent:** this file, then `PROGRESS.md` (history and gotchas), then `EXECUTION_PLAN.md` (rules and phase order), then `SOFTWARE_PLAN.md` (have vs build per role). `SERVER.md` has the live server layout.
+
+## 00. STATE AT 29 Oct 2026 (newest; read this first)
+
+Everything below is merged to `main`, pushed (Vercel deploys the frontend) and on the live server. Local `main`, `origin/main` and the live checkout were all at e80c829d; no pending migrations; `/api/ping` 200. Work branch `wip/phase4-slice2` equals `main`.
+
+Done since the 28 Oct handover (all live):
+- UI: pointer cursor on clickable controls, every popup is a right-hand side panel above header/ticker (global CSS in `globals.css`), readable form fields in popups, status pills/table headings no longer wrap, async buttons show a spinner and stay disabled (shared Button/Primary/Quiet).
+- Admin add-on **Content Cleanup** (`/addons/content-cleanup`, Super Admin only): delete any user-created content singly, selected, or all matching a user/department/search filter; written to the audit log. "Delete all matching" is untested.
+- Chat performance: grouped unread counts, message loads capped to the latest 200, online list cached 20 s, index on `personal_access_tokens.last_used_at` (migration `2026_10_29_000001`), side-chat poll 8 s and skipped when the tab is hidden. Background polling slowed: chat badge 45 s, notifications 60 s, approver counts 120 s.
+- Meeting invite mail now sent after the response (`dispatch(...)->afterResponse()`); failures only logged. Uses the same SMTP config as leave/WFH. No real invite has been sent as a test.
+- JMeter 5.6.3 is installed at `C:\Users\Abhiram P M\tools\apache-jmeter-5.6.3` (plan `tools\portal_read.jmx`, 125 endpoints in `tools\jm_endpoints.csv`); not used for the real runs.
+
+LOAD TEST RESULT (29 Oct, real HTTP from the server with a temporary `verify-tmp` token, deleted afterwards): 20 concurrent users all OK but avg 4.5 s (p95 6.2 s, about 4 req/s); 50 and 100 concurrent: 61-63% failed (HTTP 508/503/connection dropped). Cause: the cPanel account is on CloudLinux shared hosting (kernel `lve`); our SSH user is not root and has no WHM. Server compute per request is 10-150 ms, but every request pays 0.4-0.6 s of Laravel boot. In-process simulation of 100 users polling (no HTTP) ran 1,242 requests in 11 s with 0 errors.
+
+NEXT (target: 100 concurrent users without lag):
+1. Owner asks the hosting admin to raise the CloudLinux LVE limits for `workplaceintersm` (CPU 400%+, entry processes 100+, memory 4 GB+), or move the backend to a VPS with root. Then re-run the load test (curl with xargs -P at 20/50/100 from the server, token named `verify-tmp`, delete after).
+2. Cut Laravel boot time: move the `env()` calls in `app/` (ChatController, TARequestController, DocumentFulfilledMail, EmailService, HubstaffService) into config files, convert the `ping` closure route to a controller, then `config:cache` + `route:cache` in the deploy routine. Do NOT cache config before the env() calls are moved (mail would break).
+3. Heaviest reads to cache or slim: `/dashboard` (about 130-150 ms avg, p95 700 ms), `/bugzilla/projects` (400 KB), `/leave-balances` (0.9 s), `/leave-policy/employees` (runs an allocation on every view).
+4. Optional: chat over websockets instead of polling; move the frontend off Vercel only after the backend has a bigger server (frontend on Vercel adds no load to our server).
+5. Still open from before: visually re-check the Accounts payment-state column and HR performance headings; loading indicators when opening panels (QA ReviewDialog); audit raw `<button>` tags on old pages; add QA reviews as a Content Cleanup type; send one real meeting invite as a mail test; remove or explain untracked `backend/public/oc-reset.php` and `backend/public/uploads/` on the live server (not ours).
 
 ## 0. WHEN THE OWNER SAYS "CONTINUE" (written 2026-10-24, handover between accounts)
 
