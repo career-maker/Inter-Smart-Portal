@@ -24,6 +24,11 @@ When the owner says "continue": do section 0000-F below. Everything is committed
 - `pnpm run build` passes locally (NODE_OPTIONS=--max-old-space-size=3000). At the end of the session the live site still served the OLD frontend build 8+ minutes after the push (earlier pushes deployed in 1-2 min): check the Vercel dashboard (build log, or the Hobby plan daily deployment limit) and redeploy `main`; then verify with a text scan of the rendered pages for leftover emoji.
 - Owner also showed a mobile dashboard screenshot: the sticky "Apply Leave" bar overlaps the cards and the floating assistant sits on the bar; not fixed yet.
 
+### 0000-A3. AI-look cleanup (30 Oct, commits a2e4a7a0, 7216b549; LIVE, bundle-verified)
+- Removed: holiday card static confetti SVG + pop button, quick-action card corner circles and dashboard corner glows, login/chat/game blur blobs; tinted glow shadows neutralised in globals.css (`[class*="shadow-"][class*="-500/"]` rule); mobile Apply Leave bar now `right-24` (clears the assistant) with an end-of-page spacer; go-live page not-for-your-role state is a proper card. Emoji pass cc142d91/058aba64 also live.
+- Not verifiable here: real phone width (Chrome window cannot go below ~500 px) and the Employee/Team Lead dashboard that shows the Apply Leave bar. Ask the owner for a phone screenshot. Vercel builds sometimes lag 10+ minutes behind a push; check by fetching the page scripts and searching for a changed string.
+- Known UX: the My Work menu shows "Go-live requests" to everyone with the workflow feature; only System Administrator designation can use it (backend 403/404). Hiding the menu item needs a per-person flag from GET /features.
+
 ### 0000-B. Facts learned (keep)
 - Spatie roles on live are ONLY: Accounts, Employee, Super Admin, Team Lead. `hasRole('HR')`/`'Admin'` never match; `User::role('HR')` throws RoleDoesNotExist.
 - Live URLs: files at `https://workplace.intersmart.in/api/storage/<path>`; API at `/api/api/...`; `/storage/...` at the host root is a different app (500).
