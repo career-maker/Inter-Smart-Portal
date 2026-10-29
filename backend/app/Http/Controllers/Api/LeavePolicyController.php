@@ -116,12 +116,11 @@ class LeavePolicyController extends Controller
             });
         }
 
-        $employees = $query->orderBy('first_name')->get()->map(function ($emp) {
+        $settings = $this->engine->getSettings();
+        $employees = $query->orderBy('first_name')->get()->map(function ($emp) use ($settings) {
             $eligibility = $this->engine->isEmployeeEligibleForAutoAllocation($emp);
             $policy = $emp->employeeLeavePolicy;
             $balance = $emp->leaveBalance;
-            $settings = $this->engine->getSettings();
-
             $effectiveCL = $policy?->custom_monthly_cl !== null 
                 ? (float) $policy->custom_monthly_cl 
                 : (float) $settings->default_monthly_cl;

@@ -65,6 +65,7 @@ function SideChatWindow({ chat, onMinimize, onClose, currentUser }: any) {
     }).catch(err => console.error("Failed to fetch initial side chat msg", err));
 
     const interval = setInterval(() => {
+      if (document.visibilityState !== "visible") return;
       api.get(`/direct-chat/conversations/${chat.conversationId}/messages`).then(res => {
         setMessages(prev => {
           const newMsgs = res.data?.data || [];
@@ -76,7 +77,7 @@ function SideChatWindow({ chat, onMinimize, onClose, currentUser }: any) {
           return newMsgs;
         });
       }).catch(err => console.error("Failed to poll side chat msg", err));
-    }, 5000);
+    }, 8000);
 
     return () => clearInterval(interval);
   }, [chat.conversationId]);

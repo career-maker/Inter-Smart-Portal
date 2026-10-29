@@ -31,6 +31,11 @@ class DirectChatController extends Controller
      */
     private function getActiveUserIds(): array
     {
+        return \Illuminate\Support\Facades\Cache::remember('chat_active_user_ids', 20, fn () => $this->queryActiveUserIds());
+    }
+
+    private function queryActiveUserIds(): array
+    {
         try {
             $cutoff = Carbon::now()->subMinutes(2);
             $tokenUserIds = DB::table('personal_access_tokens')
@@ -170,7 +175,9 @@ class DirectChatController extends Controller
             ])
             ->get();
 
-        $conversations = $participants->map(function ($p) use ($user, $activeUserIds) {
+        $unreadByConv = $this->unreadCounts($user->id, $participants);
+
+        $conversations = $participants->map(function ($p) use ($user, $activeUserIds, $unreadByConv) {
             $conv = $p->conversation;
             if (!$conv) return null;
 
@@ -181,16 +188,7 @@ class DirectChatController extends Controller
 
             $otherUser = $otherParticipants->first();
 
-            // Calculate unread count for current user
-            $lastRead = $p->last_read_at;
-            $unreadQuery = ChatMessage::where('conversation_id', $conv->id)
-                ->where('sender_id', '!=', $user->id)
-                ->where('is_deleted', false);
-
-            if ($lastRead) {
-                $unreadQuery->where('created_at', '>', $lastRead);
-            }
-            $unreadCount = $unreadQuery->count();
+            $unreadCount = $unreadByConv[$conv->id] ?? 0;
 
             $latestMsg = $conv->latestMessage ? $this->formatMessage($conv->latestMessage) : null;
 
@@ -213,6 +211,27 @@ class DirectChatController extends Controller
             'status' => 'success',
             'data' => $conversations,
         ]);
+    }
+
+    /** Unread message count per conversation id for a user, in one query. */
+    private function unreadCounts(int $userId, $participants): array
+    {
+        if ($participants->isEmpty()) {
+            return [];
+        }
+        $q = ChatMessage::query()->where('sender_id', '!=', $userId)->where('is_deleted', false)
+            ->where(function ($w) use ($participants) {
+                foreach ($participants as $p) {
+                    $w->orWhere(function ($c) use ($p) {
+                        $c->where('conversation_id', $p->conversation_id);
+                        if ($p->last_read_at) {
+                            $c->where('created_at', '>', $p->last_read_at);
+                        }
+                    });
+                }
+            });
+
+        return $q->groupBy('conversation_id')->selectRaw('conversation_id, COUNT(*) as c')->pluck('c', 'conversation_id')->all();
     }
 
     /**
@@ -389,11 +408,17 @@ class DirectChatController extends Controller
             }
         }
 
+        // Polling sends after_id and gets only newer messages; a first load gets the latest 200.
+        $afterId = (int) $request->input('after_id', 0);
         $messages = ChatMessage::where('conversation_id', $conversation->id)
             ->where('is_deleted', false)
+            ->when($afterId > 0, fn ($q) => $q->where('id', '>', $afterId))
             ->with(['sender.team', 'attachments'])
-            ->orderBy('created_at', 'asc')
-            ->get();
+            ->orderByDesc('id')
+            ->limit($afterId > 0 ? 100 : 200)
+            ->get()
+            ->reverse()
+            ->values();
 
         $activeUserIds = $this->getActiveUserIds();
 
@@ -678,7 +703,11 @@ class DirectChatController extends Controller
         $latestUnreadConvId = null;
         $latestUnreadMsg = null;
 
+        $counts = $this->unreadCounts($user->id, $participants);
         foreach ($participants as $p) {
+            if (empty($counts[$p->conversation_id])) {
+                continue;
+            }
             $unreadQuery = ChatMessage::where('conversation_id', $p->conversation_id)
                 ->where('sender_id', '!=', $user->id)
                 ->where('is_deleted', false);
