@@ -1,5 +1,5 @@
 {
-  "updated": "28 Oct 2026",
+  "updated": "29 Oct 2026",
   "headline": "Every module in the manager's sheet is now built, released to the live server and switched ON (28 Oct 2026, verified on the live site). Nothing remains to build from the sheet except the HR rating formula, which HR must approve first (the performance page shows the raw figures). What is left is checking: a full browser walk-through of the older screens could not be completed on the test PC (it ran out of memory), so a human tester should follow the new Test Workflows PDF, and a few answers are needed from the manager.",
   "overall_percent": 95,
   "live_health": [
@@ -168,8 +168,16 @@
     "Get the manager's answers on the open points",
     "HR approves a rating formula, then it is built"
   ],
-  "capacity_answer": "The database will not break with 100+ users working at once. The live server is strong (24 processors, 40 GB memory). Improvements planned in Phase 0 (lighter background checks, rate limits, caching) give comfortable room for 150 to 300 users at the same time. A load test will confirm the exact number.",
+  "capacity_answer": "Measured on 29 Oct from the live server: 20 people working at once is fine (all requests succeed, average 3.8 s per page). At 50 and 100 at once the hosting account hits its limit and most requests fail (69% and 75%), so 100 simultaneous users is NOT supported yet. The cause is the shared-hosting account limits (CPU, processes), not the database or the code. Code fixes released today made each request about 20% lighter; the limits must be raised by the host (or the backend moved to a VPS) before the test is repeated.",
   "risks": [
+    {
+      "risk": "Hosting account cannot carry 50-100 people at once (measured 29 Oct)",
+      "action": "Ask the host to raise CPU / process limits, or move the backend to a VPS; then re-test"
+    },
+    {
+      "risk": "Outgoing email rejected by Gmail (bad app password)",
+      "action": "Owner re-enters the SMTP app password in Email Settings, then one test mail"
+    },
     {
       "risk": "Sessions and cache were in the database",
       "action": "Fixed on live 23 Oct"
@@ -185,10 +193,6 @@
     {
       "risk": "An old unused copy of the app and its old database remain on the server",
       "action": "Archive after owner approval"
-    },
-    {
-      "risk": "No safe place to load-test yet",
-      "action": "Staging copy needs approval"
     },
     {
       "risk": "Sales fields were built from the manager's sheet, not the Sales document",
@@ -209,6 +213,22 @@
     "Go-live: pilot team first, or everyone at once?"
   ],
   "changelog": [
+    {
+      "date": "29 Oct 2026",
+      "text": "Load test re-run after the speed fixes: 20 users all succeed (average 3.8 s, was 4.5 s); 50 and 100 users still fail at the hosting limit. Next step is raising the host limits."
+    },
+    {
+      "date": "29 Oct 2026",
+      "text": "Speed: faster start-up (settings and routes cached), leave policy and leave balances no longer re-run the allocation on every view, bug project list is less than half the size, dashboard answers cached for 30 seconds per person. Released to live; output compared old against new."
+    },
+    {
+      "date": "29 Oct 2026",
+      "text": "Bug fixed: the Leave Balances page always showed 0 leaves taken (it read a column that does not exist). It now shows the real approved days."
+    },
+    {
+      "date": "29 Oct 2026",
+      "text": "Found: outgoing mail from career@intersmart.in is rejected by Gmail (wrong app password). The owner must re-enter it in Email Settings; leave, WFH and meeting mail depend on it."
+    },
     {
       "date": "29 Oct 2026",
       "text": "Notification links fixed (each opens its own module page). Released to live."
