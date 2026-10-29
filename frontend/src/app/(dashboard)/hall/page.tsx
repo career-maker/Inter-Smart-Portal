@@ -86,7 +86,7 @@ export default function HallPage() {
           <p className="text-slate-600 dark:text-slate-300">Today's organization-wide employee availability.</p>
         {data.is_holiday && (
           <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300 rounded-full text-sm font-medium">
-            🎉 Today is a company holiday: {data.holiday_name}
+            Today is a company holiday: {data.holiday_name}
           </div>
         )}
       </div>

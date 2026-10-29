@@ -44,7 +44,7 @@ export default function SalesInboxPage() {
       </div>
 
       <div className="space-y-3">
-        {items.length === 0 && <p className="text-sm text-slate-500">Nothing waiting. 🎉</p>}
+        {items.length === 0 && <p className="text-sm text-slate-500">Nothing waiting.</p>}
         {items.map((a) => (
           <Card key={a.id}>
             <CardContent className="p-4 space-y-2">

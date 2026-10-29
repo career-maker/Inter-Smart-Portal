@@ -279,10 +279,10 @@ export function TAApplyModal({ isOpen, onClose, onSuccess }: TAApplyModalProps) 
                         onChange={(e) => handleItemChange(index, "category", e.target.value)}
                         className="w-full px-3 py-2 bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-purple-500/30 shadow-xs"
                       >
-                        <option value="Travel">🚗 Travel (Flight, Train, Cab)</option>
-                        <option value="Food">🍽️ Food & Meals</option>
-                        <option value="Accommodation">🏨 Hotel & Lodging</option>
-                        <option value="Other">💼 Other / Miscellaneous</option>
+                        <option value="Travel">Travel (Flight, Train, Cab)</option>
+                        <option value="Food">Food & Meals</option>
+                        <option value="Accommodation">Hotel & Lodging</option>
+                        <option value="Other">Other / Miscellaneous</option>
                       </select>
                     </div>
 

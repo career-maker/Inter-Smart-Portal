@@ -571,7 +571,7 @@ export function NetworkErrorWithGame({ onRetry, errorMessage, standalone = false
               const rank = idx + 1;
               const isUser = player.isCurrentUser;
               const medal =
-                rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : `#${rank}`;
+                `#${rank}`;
 
               return (
                 <div
@@ -625,7 +625,7 @@ export function NetworkErrorWithGame({ onRetry, errorMessage, standalone = false
                     )}
                     {rank === 1 && (
                       <p className="text-[10px] text-amber-600 dark:text-amber-400 font-semibold">
-                        🏆 Leader
+                        Leader
                       </p>
                     )}
                   </div>

@@ -211,7 +211,7 @@ export function AdminLeaveWfhModal({
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
-              🏖️ Mark Leave
+              Mark Leave
             </button>
             <button
               type="button"
@@ -225,7 +225,7 @@ export function AdminLeaveWfhModal({
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
-              🏠 Mark WFH
+              Mark WFH
             </button>
           </div>
 
@@ -367,7 +367,7 @@ export function AdminLeaveWfhModal({
 
             <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/80 rounded-xl p-2.5">
               <p className="text-[11px] text-amber-800 dark:text-amber-300 leading-relaxed">
-                <span className="font-bold">⚡ Direct Entry:</span> This record will be created in <span className="font-semibold text-emerald-600 dark:text-emerald-400">Approved</span> status immediately on behalf of the selected employee.
+                <span className="font-bold">Direct Entry:</span> This record will be created in <span className="font-semibold text-emerald-600 dark:text-emerald-400">Approved</span> status immediately on behalf of the selected employee.
               </p>
             </div>
 

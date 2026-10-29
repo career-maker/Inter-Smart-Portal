@@ -146,7 +146,7 @@ export function WorkplaceLeaderboard({
           const rank = idx + 1;
           const isUser = player.isCurrentUser;
           const medal =
-            rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : `#${rank}`;
+            `#${rank}`;
 
           return (
             <div

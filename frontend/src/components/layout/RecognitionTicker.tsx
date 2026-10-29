@@ -123,14 +123,14 @@ export function RecognitionTicker({ isDark = false, isSidebarCollapsed = true }:
                 <>
                   <Cake className="w-4 h-4 !text-white shrink-0" />
                   <span style={{ color: "#ffffff" }} className="!text-white">
-                    🎉 Happy Birthday <strong style={{ color: "#ffffff" }} className="!text-white font-bold uppercase">{item.user?.first_name} {item.user?.last_name}</strong>! Wishing you a wonderful day filled with joy! 🎂
+                    Happy Birthday <strong style={{ color: "#ffffff" }} className="!text-white font-bold uppercase">{item.user?.first_name} {item.user?.last_name}</strong>! Wishing you a wonderful day filled with joy! 🎂
                   </span>
                 </>
               ) : item.type === "announcement" ? (
                 <>
                   <Megaphone className="w-4 h-4 !text-white shrink-0" />
                   <span style={{ color: "#ffffff" }} className="!text-white">
-                    📢 <strong style={{ color: "#ffffff" }} className="!text-white font-bold">{item.title}</strong>: <span style={{ color: "#ffffff" }} className="!text-white">{item.content?.substring(0, 140)}{item.content?.length > 140 ? "..." : ""}</span>
+                    <strong style={{ color: "#ffffff" }} className="!text-white font-bold">{item.title}</strong>: <span style={{ color: "#ffffff" }} className="!text-white">{item.content?.substring(0, 140)}{item.content?.length > 140 ? "..." : ""}</span>
                   </span>
                 </>
               ) : (
@@ -156,14 +156,14 @@ export function RecognitionTicker({ isDark = false, isSidebarCollapsed = true }:
                 <>
                   <Cake className="w-4 h-4 !text-white shrink-0" />
                   <span style={{ color: "#ffffff" }} className="!text-white">
-                    🎉 Happy Birthday <strong style={{ color: "#ffffff" }} className="!text-white font-bold uppercase">{item.user?.first_name} {item.user?.last_name}</strong>! Wishing you a wonderful day filled with joy! 🎂
+                    Happy Birthday <strong style={{ color: "#ffffff" }} className="!text-white font-bold uppercase">{item.user?.first_name} {item.user?.last_name}</strong>! Wishing you a wonderful day filled with joy! 🎂
                   </span>
                 </>
               ) : item.type === "announcement" ? (
                 <>
                   <Megaphone className="w-4 h-4 !text-white shrink-0" />
                   <span style={{ color: "#ffffff" }} className="!text-white">
-                    📢 <strong style={{ color: "#ffffff" }} className="!text-white font-bold">{item.title}</strong>: <span style={{ color: "#ffffff" }} className="!text-white">{item.content?.substring(0, 140)}{item.content?.length > 140 ? "..." : ""}</span>
+                    <strong style={{ color: "#ffffff" }} className="!text-white font-bold">{item.title}</strong>: <span style={{ color: "#ffffff" }} className="!text-white">{item.content?.substring(0, 140)}{item.content?.length > 140 ? "..." : ""}</span>
                   </span>
                 </>
               ) : (

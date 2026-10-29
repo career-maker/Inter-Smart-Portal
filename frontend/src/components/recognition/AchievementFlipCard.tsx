@@ -88,7 +88,7 @@ export function AchievementFlipCard({ recognition, employeeName, firstName }: Ac
                 marginBottom: 6,
               }}>
                 <p style={{ fontSize: 8, color: "rgba(255,255,255,0.5)", textAlign: "center", margin: 0 }}>
-                  📅 {format(new Date(recognition.start_date), "dd MMM")} – {format(new Date(recognition.end_date), "dd MMM yy")}
+                  {format(new Date(recognition.start_date), "dd MMM")} – {format(new Date(recognition.end_date), "dd MMM yy")}
                 </p>
               </div>
               {/* Buttons */}

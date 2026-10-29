@@ -211,7 +211,7 @@ export default function AnnouncementsPage() {
       if (typeof errorMsg === "object") {
         displayMsg = Object.values(errorMsg).flat().join("\n");
       }
-      alert("❌ Error:\n" + displayMsg);
+      alert("Error:\n" + displayMsg);
     } finally {
       setActionLoading(false);
     }
@@ -224,7 +224,7 @@ export default function AnnouncementsPage() {
       await fetchAnnouncements();
     } catch (e: any) {
       const errorMsg = e.response?.data?.message || "Error deleting.";
-      alert("❌ Error: " + errorMsg);
+      alert("Error: " + errorMsg);
     }
   };
 

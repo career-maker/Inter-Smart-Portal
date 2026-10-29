@@ -352,7 +352,7 @@ export function NotificationDropdown() {
             {permissionStatus !== "granted" && (
               <div className="mb-4 px-3.5 py-2 bg-muted/50 rounded-lg flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="text-sm shrink-0">🔔</span>
+                  <Bell className="w-4 h-4 shrink-0 text-muted-foreground" />
                   <div className="min-w-0">
                     <p className="text-[11px] font-medium leading-tight">
                       Enable push notifications

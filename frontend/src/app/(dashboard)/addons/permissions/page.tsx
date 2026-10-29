@@ -335,7 +335,7 @@ export default function PermissionsManagementPage() {
         {/* Legend Pills */}
         <div className="flex items-center gap-2 text-[11px] shrink-0">
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 font-semibold text-slate-500">
-            ⚪ Off (No Access)
+            Off (No Access)
           </span>
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/60 border border-amber-300 text-amber-800 dark:text-amber-300 font-bold">
             <Crown className="w-3 h-3 text-amber-500" /> Leads Only

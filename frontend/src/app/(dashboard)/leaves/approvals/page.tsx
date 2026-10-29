@@ -1456,7 +1456,7 @@ export default function ApprovalsPage() {
                 {/* Validation Message */}
                 {overrideTotalDays > autoTotalDays && (
                   <div className="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs rounded-xl flex items-center gap-2">
-                    <span>⚠️ The sum of split days ({overrideTotalDays}) cannot exceed the total leave count for this date range ({autoTotalDays}).</span>
+                    <span>The sum of split days ({overrideTotalDays}) cannot exceed the total leave count for this date range ({autoTotalDays}).</span>
                   </div>
                 )}
               </div>

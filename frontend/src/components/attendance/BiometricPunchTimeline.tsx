@@ -43,13 +43,13 @@ export function BiometricPunchTimeline({
     return "bg-slate-100 text-slate-800 border border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700";
   };
 
-  const getStatusEmoji = (type: string) => {
+  const getStatusDot = (type: string) => {
     const typeUpper = type.toUpperCase();
-    if (typeUpper === "IN") return "🟢";
-    if (typeUpper === "OUT") return "🟡";
-    if (typeUpper === "BREAK_START") return "☕";
-    if (typeUpper === "BREAK_END") return "🔄";
-    return "❓";
+    if (typeUpper === "IN") return "bg-emerald-500";
+    if (typeUpper === "OUT") return "bg-amber-500";
+    if (typeUpper === "BREAK_START") return "bg-sky-500";
+    if (typeUpper === "BREAK_END") return "bg-indigo-500";
+    return "bg-slate-400";
   };
 
   const getTypeLabel = (type: string) => {
@@ -78,7 +78,7 @@ export function BiometricPunchTimeline({
               {getPunchIcon(punch.type)}
               <span className="text-xs font-bold">{getTypeLabel(punch.type)}</span>
               <span className="text-xs font-semibold">{formatTime(punch.time)}</span>
-              <span className="text-sm">{getStatusEmoji(punch.type)}</span>
+              <span className={`inline-block h-2.5 w-2.5 rounded-full ${getStatusDot(punch.type)}`} aria-hidden="true" />
             </div>
             {idx < punches.length - 1 && (
               <div className="text-slate-400 dark:text-slate-600">→</div>
@@ -87,7 +87,7 @@ export function BiometricPunchTimeline({
               <div className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-200 dark:border-emerald-700">
                 <div className="w-2 h-2 bg-emerald-600 dark:bg-emerald-400 rounded-full animate-pulse"></div>
                 <span className="text-xs font-bold">Working</span>
-                <span className="text-sm">💼</span>
+                
               </div>
             )}
           </div>

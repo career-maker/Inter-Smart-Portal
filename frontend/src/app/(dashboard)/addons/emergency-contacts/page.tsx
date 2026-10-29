@@ -1002,8 +1002,8 @@ export default function EmergencyContactsManagementPage() {
               </button>
 
               {/* Ambient festive accents */}
-              <div className="absolute top-2 left-6 opacity-20 text-2xl select-none">🛟</div>
-              <div className="absolute top-7 right-14 opacity-25 text-lg select-none">✨</div>
+              
+              
 
               <div className="flex items-center gap-3.5 pr-8">
                 <div

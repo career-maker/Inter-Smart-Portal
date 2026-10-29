@@ -3,7 +3,9 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { X, Send, Sparkles, AlertCircle, RotateCcw, Clock, CheckCircle2 } from "lucide-react";
+import { X, Send, Sparkles, AlertCircle, RotateCcw, Clock, CheckCircle2, Palmtree, BarChart3, Users, FolderOpen } from "lucide-react";
+
+const QUICK_ICONS: Record<string, React.ComponentType<{ className?: string }>> = { Palmtree, BarChart3, Users, Sparkles, FolderOpen };
 import api from "@/services/api";
 import { Portal } from "@/components/ui/portal";
 
@@ -15,11 +17,11 @@ interface Message {
 }
 
 const PRE_QUESTIONS = [
-  { text: "Who is on leave today?", icon: "🌴" },
-  { text: "What is my leave status & balance?", icon: "📊" },
-  { text: "Who are the team leads?", icon: "💼" },
-  { text: "When is our next company holiday?", icon: "🎉" },
-  { text: "What projects am I working on?", icon: "📁" },
+  { text: "Who is on leave today?", icon: "Palmtree" },
+  { text: "What is my leave status & balance?", icon: "BarChart3" },
+  { text: "Who are the team leads?", icon: "Users" },
+  { text: "When is our next company holiday?", icon: "Sparkles" },
+  { text: "What projects am I working on?", icon: "FolderOpen" },
 ];
 
 /**
@@ -435,7 +437,7 @@ export default function ChatWidget() {
                         onClick={() => handleSend(q.text)}
                         className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-white hover:bg-purple-50 text-slate-700 hover:text-[#56348f] border border-slate-200 hover:border-[#56348f]/40 rounded-full transition-all shadow-xs active:scale-95 cursor-pointer text-left"
                       >
-                        <span className="text-sm">{q.icon}</span>
+                        {(() => { const Icon = QUICK_ICONS[q.icon] || Sparkles; return <Icon className="w-4 h-4 shrink-0" />; })()}
                         <span>{q.text}</span>
                       </button>
                     ))}

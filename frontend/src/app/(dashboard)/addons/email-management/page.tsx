@@ -660,7 +660,7 @@ export default function EmailManagementPage() {
                             ? "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400"
                             : "bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400"
                         }`}>
-                          {smtp.has_password ? "🔒 Password is set" : "⚠️ No password configured"}
+                          {smtp.has_password ? "Password is set" : "No password configured"}
                         </span>
                       </div>
 

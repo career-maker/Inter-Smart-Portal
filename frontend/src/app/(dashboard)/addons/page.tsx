@@ -525,7 +525,7 @@ export default function PmAddonsPage() {
 
             <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
               <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-slate-200 space-y-1.5">
-                <p className="font-semibold">💾 Automatic Monthly Cleanup</p>
+                <p className="font-semibold">Automatic Monthly Cleanup</p>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">
                   Prune expired chat history and community posts while ensuring employee, attendance, and project data remains completely safe.
                 </p>

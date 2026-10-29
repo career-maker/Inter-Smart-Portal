@@ -116,7 +116,7 @@ export function LeaderboardWidget() {
                     className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900/50 rounded-md border border-slate-200/60 dark:border-slate-800 transition-colors"
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <span className="text-lg shrink-0">{rankStyle.icon}</span>
+                      <span className={`w-7 shrink-0 text-center text-sm font-bold tabular-nums ${rankStyle.text}`}>#{entry.rank}</span>
                       <RoyalAvatar
                         src={entry.profile_photo_path}
                         name={entry.name}
@@ -256,7 +256,7 @@ export function LeaderboardWidget() {
                 <div className="space-y-2.5">
                   <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-md border border-slate-200/60 dark:border-slate-750">
                     <div className="flex items-center gap-2 font-medium text-slate-900 dark:text-white text-sm">
-                      <span>👑</span>
+                      <Crown className="w-4 h-4 text-amber-500" />
                       <span>Hubstaff King / Top Tracked Hours</span>
                     </div>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
@@ -266,7 +266,7 @@ export function LeaderboardWidget() {
 
                   <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-md border border-slate-200/60 dark:border-slate-750">
                     <div className="flex items-center gap-2 font-medium text-slate-900 dark:text-white text-sm">
-                      <span>⭐</span>
+                      <Star className="w-4 h-4 text-amber-500" />
                       <span>Employee of the Month / Week</span>
                     </div>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
@@ -276,7 +276,7 @@ export function LeaderboardWidget() {
 
                   <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-md border border-slate-200/60 dark:border-slate-750">
                     <div className="flex items-center gap-2 font-medium text-slate-900 dark:text-white text-sm">
-                      <span>🏆</span>
+                      <Trophy className="w-4 h-4 text-amber-500" />
                       <span>QA Champion & Code Excellence</span>
                     </div>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">

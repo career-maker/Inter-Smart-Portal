@@ -33,7 +33,7 @@ export function MilestoneCelebrationsWidget({
 
   // Helper to format celebration dates
   const formatCelebrationDate = (dateStr?: string, daysRemaining?: number) => {
-    if (daysRemaining === 0) return "Today! 🎂";
+    if (daysRemaining === 0) return "Today!";
     if (!dateStr) return daysRemaining !== undefined ? `In ${daysRemaining}d` : "";
     try {
       const d = new Date(dateStr);
@@ -250,7 +250,7 @@ export function MilestoneCelebrationsWidget({
                             }
                             className="mt-2 w-full py-1 bg-[#56348f] hover:bg-purple-800 text-white text-[11px] font-bold rounded-lg shadow-2xs transition-colors cursor-pointer"
                           >
-                            Wish 🎉
+                            Wish
                           </button>
                         )}
                       </div>
@@ -310,7 +310,7 @@ export function MilestoneCelebrationsWidget({
                             }
                             className="mt-2 w-full py-1 bg-pink-600 hover:bg-pink-700 text-white text-[11px] font-bold rounded-lg shadow-2xs transition-colors cursor-pointer"
                           >
-                            Wish 🎊
+                            Wish
                           </button>
                         )}
                       </div>

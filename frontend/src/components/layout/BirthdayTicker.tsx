@@ -36,7 +36,7 @@ export function BirthdayTicker() {
   if (!birthdays || birthdays.length === 0) return null;
 
   const totalChars = birthdays.reduce((acc, person) => {
-    return acc + `🎉 Happy Birthday ${person.first_name} ${person.last_name}! Wishing you a wonderful day filled with joy and success! 🎂`.length;
+    return acc + `Happy Birthday ${person.first_name} ${person.last_name}! Wishing you a wonderful day filled with joy and success! 🎂`.length;
   }, 0);
   
   // Base speed (0.15 seconds per character). Minimum 20 seconds.
@@ -52,7 +52,7 @@ export function BirthdayTicker() {
           <div key={i} className="flex items-center gap-2 text-sm font-semibold tracking-wide">
             <Cake className="w-5 h-5 text-yellow-300 animate-bounce" />
             <span>
-              🎉 Happy Birthday <span className="text-yellow-200 font-bold uppercase">{person.first_name} {person.last_name}</span>! Wishing you a wonderful day filled with joy and success! 🎂
+              Happy Birthday <span className="text-yellow-200 font-bold uppercase">{person.first_name} {person.last_name}</span>! Wishing you a wonderful day filled with joy and success! 🎂
             </span>
           </div>
         ))}
@@ -61,7 +61,7 @@ export function BirthdayTicker() {
           <div key={`dup-${i}`} className="flex items-center gap-2 text-sm font-semibold tracking-wide" aria-hidden="true">
             <Cake className="w-5 h-5 text-yellow-300 animate-bounce" />
             <span>
-              🎉 Happy Birthday <span className="text-yellow-200 font-bold uppercase">{person.first_name} {person.last_name}</span>! Wishing you a wonderful day filled with joy and success! 🎂
+              Happy Birthday <span className="text-yellow-200 font-bold uppercase">{person.first_name} {person.last_name}</span>! Wishing you a wonderful day filled with joy and success! 🎂
             </span>
           </div>
         ))}

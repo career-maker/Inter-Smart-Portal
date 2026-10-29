@@ -660,7 +660,7 @@ export default function ApplyLeavePage() {
 
               {/* Info message */}
               <p className="text-xs text-slate-600 dark:text-slate-300 bg-blue-500/10 border border-blue-500/20 rounded-xl p-3.5 leading-relaxed">
-                📧 You&apos;ll receive an email notification once your request is reviewed by your Team Lead or Super Admin.
+                You&apos;ll receive an email notification once your request is reviewed by your Team Lead or Super Admin.
               </p>
             </div>
 

@@ -1304,7 +1304,7 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
         {/* Mobile Push Notification Alert Status (Mobile Only, Test Button Hidden) */}
         <div className="md:hidden px-3.5 py-2 bg-gradient-to-r from-purple-50 via-indigo-50 to-purple-50 dark:from-purple-950/40 dark:via-slate-800 dark:to-purple-950/40 border-b border-purple-100 dark:border-purple-900/40 flex items-center justify-between gap-2 shrink-0">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="text-base shrink-0">🔔</span>
+            <Bell className="w-5 h-5 shrink-0 text-purple-700 dark:text-purple-300" />
             <div className="min-w-0">
               <p className="text-[11.5px] font-bold text-purple-950 dark:text-purple-200 leading-tight truncate">
                 Mobile Push Alerts

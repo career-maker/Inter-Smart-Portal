@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import NextLink from "next/link";
-import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
+import { ChevronLeft, ChevronRight, CalendarDays, Sparkles } from "lucide-react";
 import { format, differenceInCalendarDays, parseISO } from "date-fns";
 import { useAuthStore } from "@/store/auth";
 
@@ -108,7 +108,7 @@ export function UpcomingHolidaysCard({ holidays = [], className = "" }: Upcoming
       const today = new Date();
       const diff = differenceInCalendarDays(holidayDate, today);
 
-      if (diff === 0) return "Today! 🎉";
+      if (diff === 0) return "Today!";
       if (diff === 1) return "Tomorrow";
       if (diff > 1) return `In ${diff} days`;
       return null;
@@ -224,7 +224,7 @@ export function UpcomingHolidaysCard({ holidays = [], className = "" }: Upcoming
                 isPopping ? "animate-celebration-wiggle" : ""
               }`}
             >
-              🎉
+              <Sparkles className="w-4 h-4" />
             </button>
 
             <NextLink
