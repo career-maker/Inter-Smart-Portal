@@ -33,6 +33,11 @@ When the owner says "continue": do section 0000-F below. Everything is committed
 - Probed ~25 routes with a DOM metric script (gradients, glow shadows, tiny text, tracked uppercase, infinite animations, emoji, overflow) and looked at ~20 pages: metrics are low everywhere. Fixed: welcome banner (hid `.card-purple-swoosh/.card-dots/.card-dots2/.card-waves`, plain role pill, no neon avatar ring, no glow on Pending card, script-font slogan replaced by italic body font), all `h1 > svg` use `--portal-primary-color`.
 - REMAINING DESIGN DEBT (not done, needs a shared component): page headers and container widths differ page to page (Project Directory is narrow with breadcrumb, TA Apply is a centred card, PMO/Sales/Work are full width with bare icon titles). A shared `PageHeader` + `PageContainer` and migrating ~90 pages is the real fix; ask the owner before starting. Technique that worked for the sweep: inject `window.probeRoutes` that loads each route in a hidden same-origin iframe and computes style metrics.
 
+### 0000-A5. LAST WORK OF 30 Oct (commit b699577b on main; frontend auto-deploys on Vercel)
+- Owner said "fix all" for the inconsistent page headers/widths. Done with global CSS in `globals.css` (end of file), prototyped on live pages first: every page root `main > .mx-auto[class*="max-w-"]` capped at 80rem with no own side padding; every `main h1` (not `.text-white`) 26px/700 (22px on phones); title icons 24px, colour `--portal-primary-color`. NOT done: a shared PageHeader/PageContainer component (CSS normalisation was chosen instead because it cannot break behaviour). Pages with no h1 (dashboard, chat, community, wfh, meetings, sales/completed, pmo/tracker, hr-performance and others) keep their own headers.
+- VERIFY FIRST THING NEXT SESSION: Vercel builds lag 5-15 min behind pushes. Fetch the site scripts and look for a changed string (e.g. `max-width:80rem` in CSS) or screenshot /project-management/projects (title must align with /pmo). Then look at 6-8 pages at desktop width for regressions from the CSS (wide tables, cards cut off, forms stretched). If anything looks wrong, remove the last block of globals.css (the "Page rhythm" block) and push.
+- Owner asked for the laptop to be shut down after saving; the new session starts cold: read this section 0000, then do 0000-F.
+
 ### 0000-B. Facts learned (keep)
 - Spatie roles on live are ONLY: Accounts, Employee, Super Admin, Team Lead. `hasRole('HR')`/`'Admin'` never match; `User::role('HR')` throws RoleDoesNotExist.
 - Live URLs: files at `https://workplace.intersmart.in/api/storage/<path>`; API at `/api/api/...`; `/storage/...` at the host root is a different app (500).
@@ -51,7 +56,7 @@ When the owner says "continue": do section 0000-F below. Everything is committed
 
 ### 0000-F. NEXT when the owner says "continue"
 1. Read this section, then `git status`, `git log -5`. Ask the owner (one line) if Chrome is open and he is logged in, only if browser checks are needed.
-2. Ask which open item to do next; suggested order: F14 (owner action), F12 accessibility pass, F10 test run on a local DB, S4 two-factor design, then P1 retest after host change.
+2. Run the VERIFY step in 0000-A5 (pages after the CSS normalisation), then ask which open item to do next; suggested order: F14 (owner action), F12 accessibility pass, F10 test run on a local DB, S4 two-factor design, then P1 retest after host change.
 3. Always: backup via `live.py push`, add-only migrations, lint on server before deploy (`git fetch` then `git show FETCH_HEAD:<file> | php -l`), test after deploy from the server, update tracker + this file, commit, push, merge to `main` (frontend auto-deploys on Vercel, check rendered).
 
 ## 000. HANDOVER, END OF SESSION 29 Oct 2026 (READ THIS FIRST; it supersedes 00 where they differ)
