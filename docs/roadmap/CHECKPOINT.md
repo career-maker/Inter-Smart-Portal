@@ -29,6 +29,10 @@ When the owner says "continue": do section 0000-F below. Everything is committed
 - Not verifiable here: real phone width (Chrome window cannot go below ~500 px) and the Employee/Team Lead dashboard that shows the Apply Leave bar. Ask the owner for a phone screenshot. Vercel builds sometimes lag 10+ minutes behind a push; check by fetching the page scripts and searching for a changed string.
 - Known UX: the My Work menu shows "Go-live requests" to everyone with the workflow feature; only System Administrator designation can use it (backend 403/404). Hiding the menu item needs a per-person flag from GET /features.
 
+### 0000-A4. Page sweep (30 Oct, commit 0ef196ac)
+- Probed ~25 routes with a DOM metric script (gradients, glow shadows, tiny text, tracked uppercase, infinite animations, emoji, overflow) and looked at ~20 pages: metrics are low everywhere. Fixed: welcome banner (hid `.card-purple-swoosh/.card-dots/.card-dots2/.card-waves`, plain role pill, no neon avatar ring, no glow on Pending card, script-font slogan replaced by italic body font), all `h1 > svg` use `--portal-primary-color`.
+- REMAINING DESIGN DEBT (not done, needs a shared component): page headers and container widths differ page to page (Project Directory is narrow with breadcrumb, TA Apply is a centred card, PMO/Sales/Work are full width with bare icon titles). A shared `PageHeader` + `PageContainer` and migrating ~90 pages is the real fix; ask the owner before starting. Technique that worked for the sweep: inject `window.probeRoutes` that loads each route in a hidden same-origin iframe and computes style metrics.
+
 ### 0000-B. Facts learned (keep)
 - Spatie roles on live are ONLY: Accounts, Employee, Super Admin, Team Lead. `hasRole('HR')`/`'Admin'` never match; `User::role('HR')` throws RoleDoesNotExist.
 - Live URLs: files at `https://workplace.intersmart.in/api/storage/<path>`; API at `/api/api/...`; `/storage/...` at the host root is a different app (500).
