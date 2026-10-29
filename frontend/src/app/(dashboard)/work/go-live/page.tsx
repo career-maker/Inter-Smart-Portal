@@ -18,7 +18,17 @@ export default function GoLivePage() {
   const load = useCallback(() => { api.get("/work/go-live").then((r) => setRows(r.data.data)).catch((e) => { if ([403, 404].includes(e?.response?.status)) setUnavailable(true); }); }, []);
   useEffect(() => { load(); }, [load]);
 
-  if (unavailable) return <p className="text-slate-600 dark:text-slate-300">Go-live requests are for people with the System Administrator designation.</p>;
+  if (unavailable) return (
+    <div className="space-y-6">
+      <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2"><Server className="h-7 w-7 text-amber-500" /> Go-live requests</h1>
+      <Card>
+        <CardContent className="py-10 text-center space-y-1">
+          <p className="font-semibold text-slate-900 dark:text-white">This page is not for your role</p>
+          <p className="text-sm text-slate-600 dark:text-slate-300">Go-live requests are for people with the System Administrator designation.</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
   if (!rows) return <div className="p-8 flex justify-center"><Loader2 className="h-6 w-6 animate-spin" /></div>;
 
   return (
