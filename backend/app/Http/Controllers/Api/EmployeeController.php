@@ -89,7 +89,7 @@ class EmployeeController extends Controller
         // Token-only auth (no session): this route also runs as a web route without cookie encryption or session.
         $user = null;
         {
-            $token = $request->bearerToken() ?: $request->query('token') ?: $request->cookie('token');
+            $token = $request->bearerToken() ?: (app()->isProduction() ? null : $request->query('token')) ?: $request->cookie('token');
             if ($token) {
                 $accessToken = \Laravel\Sanctum\PersonalAccessToken::findToken($token);
                 if ($accessToken && (!$accessToken->expires_at || $accessToken->expires_at->isFuture())) {
@@ -132,6 +132,11 @@ class EmployeeController extends Controller
             return response()->json(['message' => 'Unauthenticated.'], 401);
         }
 
+        // Per-person checks for private records. Roles that already see everyone's items in the portal keep access.
+        if ($user && !$this->mayOpenPrivateFile($user, $normalizedPath)) {
+            abort(403);
+        }
+
         // Chat attachments live under chat_attachments/{conversationId}/: only members of that chat
         // (and Super Admin, who has the audit view) may open them.
         if ($user && preg_match('#^chat_attachments/(\d+)/#', $normalizedPath, $m)
@@ -152,6 +157,43 @@ class EmployeeController extends Controller
         }
 
         return response()->file($fullPath, $headers);
+    }
+
+    /**
+     * documents/*: the requester, or any role that is not plain Employee (the document list already works that way).
+     * ta_receipts/*: the claimant, Super Admin, Admin, HR and Accounts.
+     * Everything else: any signed-in user (unchanged).
+     */
+    private function mayOpenPrivateFile($user, string $path): bool
+    {
+        if ($user->hasRole('Super Admin')) {
+            return true;
+        }
+
+        if (str_starts_with($path, 'documents/')) {
+            if (!$user->hasRole('Employee')) {
+                return true;
+            }
+            $ownerId = \Illuminate\Support\Facades\DB::table('document_uploads')
+                ->join('document_requests', 'document_requests.id', '=', 'document_uploads.document_request_id')
+                ->where('document_uploads.file_path', $path)
+                ->value('document_requests.user_id');
+            return $ownerId !== null && (int) $ownerId === (int) $user->id;
+        }
+
+        if (str_starts_with($path, 'ta_receipts/')) {
+            if ($user->hasAnyRole(['Admin', 'HR', 'Accounts'])) {
+                return true;
+            }
+            $like = '%/storage/' . str_replace(['%', '_'], ['\%', '\_'], $path);
+            return \Illuminate\Support\Facades\DB::table('ta_requests')
+                ->where('user_id', $user->id)
+                ->where(function ($q) use ($like) {
+                    $q->where('bill_link', 'like', $like)->orWhere('payment_receipt_link', 'like', $like);
+                })->exists();
+        }
+
+        return true;
     }
 
     public function index(Request $request)

@@ -77,7 +77,7 @@ class HrPolicyController extends Controller
     {
         // Authenticate user via Sanctum (bearer token header, query token, or cookie)
         $user = $request->user('sanctum');
-        $fileToken = $request->query('token') ?: $request->cookie('token');
+        $fileToken = (app()->isProduction() ? null : $request->query('token')) ?: $request->cookie('token');
         if (!$user && $fileToken) {
             $accessToken = \Laravel\Sanctum\PersonalAccessToken::findToken($fileToken);
             if ($accessToken && (!$accessToken->expires_at || $accessToken->expires_at->isFuture())) {
