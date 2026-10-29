@@ -56,14 +56,33 @@ export function Label({ children }: { children: React.ReactNode }) {
   return <label className="block mb-1 text-xs text-slate-500">{children}</label>;
 }
 
+/** Shared: an async onClick keeps the button disabled and shows "Working" until it settles. */
+function useAsyncClick(onClick?: React.MouseEventHandler<HTMLButtonElement>) {
+  const [pending, setPending] = React.useState(false);
+  const alive = React.useRef(true);
+  React.useEffect(() => () => { alive.current = false; }, []);
+  const handle = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (pending) return;
+    const r: any = onClick?.(e);
+    if (r && typeof r.then === "function") {
+      setPending(true);
+      const done = () => { if (alive.current) setPending(false); };
+      r.then(done, done);
+    }
+  };
+  return { pending, handle };
+}
+
 /** The one clear action of an area. */
-export function Primary({ children, ...p }: React.ButtonHTMLAttributes<HTMLButtonElement>) {
-  return <button {...p} className={cx("h-11 px-4 rounded-xl bg-[#1F5C4E] text-white text-sm font-medium hover:bg-[#184a3e] disabled:opacity-40 disabled:cursor-not-allowed", p.className)}>{children}</button>;
+export function Primary({ children, onClick, ...p }: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+  const { pending, handle } = useAsyncClick(onClick);
+  return <button {...p} onClick={onClick ? handle : undefined} disabled={p.disabled || pending} aria-busy={pending || undefined} className={cx("h-11 px-4 rounded-xl bg-[#1F5C4E] text-white text-sm font-medium hover:bg-[#184a3e] disabled:opacity-40 disabled:cursor-not-allowed", p.className)}>{pending ? "Working…" : children}</button>;
 }
 
 /** Secondary actions are plain text, never a second filled button. */
-export function Quiet({ children, ...p }: React.ButtonHTMLAttributes<HTMLButtonElement>) {
-  return <button {...p} className={cx("h-11 px-2 text-sm text-slate-600 dark:text-slate-300 underline-offset-4 hover:underline disabled:opacity-40", p.className)}>{children}</button>;
+export function Quiet({ children, onClick, ...p }: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+  const { pending, handle } = useAsyncClick(onClick);
+  return <button {...p} onClick={onClick ? handle : undefined} disabled={p.disabled || pending} aria-busy={pending || undefined} className={cx("h-11 px-2 text-sm text-slate-600 dark:text-slate-300 underline-offset-4 hover:underline disabled:opacity-40", p.className)}>{pending ? "Working…" : children}</button>;
 }
 
 export function Alert({ children }: { children: React.ReactNode }) {

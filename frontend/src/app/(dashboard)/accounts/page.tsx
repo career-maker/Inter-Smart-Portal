@@ -220,7 +220,7 @@ function ProjectDialog({ id, onClose, onChanged }: { id: number; onClose: () => 
             <div><Label>Reason (required)</Label><Input value={status.reason} onChange={(e) => setStatus({ ...status, reason: e.target.value })} /></div>
             <Button variant="outline" disabled={busy || !status.reason} onClick={() => {
               if (status.status === "Cancelled" && !confirm("Terminate this project?")) return;
-              run(async () => { await api.post(`/accounts/projects/${id}/status`, status); setStatus({ ...status, reason: "" }); });
+              return run(async () => { await api.post(`/accounts/projects/${id}/status`, status); setStatus({ ...status, reason: "" }); });
             }}>Apply</Button>
           </CardContent>
         </Card>

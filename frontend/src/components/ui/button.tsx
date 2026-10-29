@@ -1,3 +1,7 @@
+"use client"
+
+import * as React from "react"
+import { Loader2Icon } from "lucide-react"
 import { Button as ButtonPrimitive } from "@base-ui/react/button"
 import { cva, type VariantProps } from "class-variance-authority"
 
@@ -40,18 +44,42 @@ const buttonVariants = cva(
   }
 )
 
+/** An onClick that returns a promise (async handler) puts the button in a loading state until it settles. */
 function Button({
   className,
   variant = "default",
   size = "default",
+  onClick,
+  disabled,
+  children,
   ...props
 }: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+  const [pending, setPending] = React.useState(false)
+  const alive = React.useRef(true)
+  React.useEffect(() => () => { alive.current = false }, [])
+
+  const handleClick = (e: any) => {
+    if (pending) return
+    const r: any = (onClick as any)?.(e)
+    if (r && typeof r.then === "function") {
+      setPending(true)
+      const done = () => { if (alive.current) setPending(false) }
+      r.then(done, done)
+    }
+  }
+
   return (
     <ButtonPrimitive
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
+      onClick={onClick ? handleClick : undefined}
+      disabled={disabled || pending}
+      aria-busy={pending || undefined}
       {...props}
-    />
+    >
+      {pending && <Loader2Icon className="animate-spin" aria-hidden />}
+      {children}
+    </ButtonPrimitive>
   )
 }
 
