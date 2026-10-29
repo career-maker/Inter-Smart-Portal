@@ -36,7 +36,6 @@ Route::withoutMiddleware([
     \Illuminate\View\Middleware\ShareErrorsFromSession::class,
 ])->group(function () {
     Route::get('storage/{path}', [\App\Http\Controllers\Api\EmployeeController::class, 'showStorageFile'])->where('path', '.*');
-    Route::get('api/storage/{path}', [\App\Http\Controllers\Api\EmployeeController::class, 'showStorageFile'])->where('path', '.*');
 });
 
 // Fallback for all unmatched web requests

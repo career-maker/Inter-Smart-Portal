@@ -86,8 +86,9 @@ class EmployeeController extends Controller
     public function showStorageFile(Request $request, $path)
     {
         // Authenticate user via Sanctum (bearer token header, query token, or cookie)
-        $user = $request->user('sanctum');
-        if (!$user) {
+        // Token-only auth (no session): this route also runs as a web route without cookie encryption or session.
+        $user = null;
+        {
             $token = $request->bearerToken() ?: $request->query('token') ?: $request->cookie('token');
             if ($token) {
                 $accessToken = \Laravel\Sanctum\PersonalAccessToken::findToken($token);

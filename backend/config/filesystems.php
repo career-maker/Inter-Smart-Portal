@@ -33,7 +33,8 @@ return [
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),
-            'serve' => true,
+            // Off: Laravel's built-in storage/{path} route would shadow the portal's authenticated file route.
+            'serve' => false,
             'throw' => false,
             'report' => false,
         ],
