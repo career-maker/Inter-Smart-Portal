@@ -514,7 +514,7 @@ class HubstaffService
         }
 
         try {
-            $configuredTz = config('services.hubstaff.timezone', env('HUBSTAFF_TIMEZONE', 'Asia/Kolkata'));
+            $configuredTz = config('services.hubstaff.timezone');
             $tz = (!empty($configuredTz) && $configuredTz !== 'UTC') ? $configuredTz : 'Asia/Kolkata';
             $startStr = \Carbon\Carbon::parse($startDate, $tz)->toDateString();
             $stopStr = \Carbon\Carbon::parse($endDate, $tz)->toDateString();

@@ -36,7 +36,7 @@ class DocumentFulfilledMail extends Mailable
     public function content(): Content
     {
         $employeeName = "{$this->recipient->first_name} {$this->recipient->last_name}";
-        $frontendUrl = env('FRONTEND_URL', config('app.frontend_url', 'https://www.workplace.intersmart.in'));
+        $frontendUrl = config('app.frontend_url', 'https://www.workplace.intersmart.in');
         if (str_contains($frontendUrl, 'vercel.app')) {
             $frontendUrl = 'https://www.workplace.intersmart.in';
         }

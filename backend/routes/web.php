@@ -2,13 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return response()->view('errors.404', [], 404);
-});
+Route::get('/', [\App\Http\Controllers\Api\MaintenanceController::class, 'notFound']);
 
-Route::get('/ping', function () {
-    return response()->json(['status' => 'ok', 'timestamp' => now()->toIso8601String()]);
-});
+Route::get('/ping', [\App\Http\Controllers\Api\MaintenanceController::class, 'webPing']);
 
 // Biometric Agent Integration - supports direct cPanel access where /api/ alias strips the prefix
 Route::withoutMiddleware([
@@ -31,10 +27,4 @@ Route::get('api/uploads/customization/{filename}', [\App\Http\Controllers\Api\Cu
 Route::get('api/api/uploads/customization/{filename}', [\App\Http\Controllers\Api\CustomizationController::class, 'showAsset']);
 
 // Fallback for all unmatched web requests
-Route::fallback(function () {
-    if (request()->expectsJson()) {
-        return response()->json(['message' => 'Not Found'], 404);
-    }
-    return response()->view('errors.404', [], 404);
-});
-
+Route::fallback([\App\Http\Controllers\Api\MaintenanceController::class, 'notFound']);

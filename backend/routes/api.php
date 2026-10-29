@@ -4,9 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 
-Route::get('ping', function () {
-    return response()->json(['status' => 'alive']);
-});
+Route::get('ping', [\App\Http\Controllers\Api\MaintenanceController::class, 'ping']);
 
 Route::get('photos/{path}', [\App\Http\Controllers\Api\EmployeeController::class, 'showPhoto'])->where('path', '.*');
 Route::get('storage/{path}', [\App\Http\Controllers\Api\EmployeeController::class, 'showStorageFile'])->where('path', '.*');
@@ -132,226 +130,22 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::post('leave-requests/{leaveRequest}/confirm-lop', [\App\Http\Controllers\Api\LeaveRequestController::class, 'confirmLopConversion']);
         Route::post('leave-requests/{leaveRequest}/reject-lop', [\App\Http\Controllers\Api\LeaveRequestController::class, 'rejectLopConversion']);
         // Manual trigger for annual leave allocation (also runs automatically Jan 1 via cron)
-        Route::post('admin/run-annual-allocation', function (\Illuminate\Http\Request $request) {
-            $year = $request->input('year', now()->year);
-            \Illuminate\Support\Facades\Artisan::call('leave:annual-allocation', ['--year' => $year]);
-            $output = \Illuminate\Support\Facades\Artisan::output();
-            return response()->json(['message' => 'Annual allocation processed.', 'output' => $output]);
-        });
+        Route::post('admin/run-annual-allocation', [\App\Http\Controllers\Api\MaintenanceController::class, 'runAnnualAllocation']);
 
         // Protected Super Admin Database migration maintenance endpoint
-        Route::post('admin/run-migrations', function (\Illuminate\Http\Request $request) {
-            try {
-                \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-                $output = \Illuminate\Support\Facades\Artisan::output();
-
-                return response()->json([
-                    'message' => 'Migrations completed successfully',
-                    'output' => $output
-                ], 200);
-            } catch (\Exception $e) {
-                return response()->json([
-                    'message' => 'Migration failed: ' . $e->getMessage()
-                ], 500);
-            }
-        });
+        Route::post('admin/run-migrations', [\App\Http\Controllers\Api\MaintenanceController::class, 'runMigrations']);
 
         // Protected Super Admin Cache optimization maintenance endpoint
-        Route::post('admin/optimize-cache', function (\Illuminate\Http\Request $request) {
-            try {
-                \Illuminate\Support\Facades\Artisan::call('optimize');
-                $output = \Illuminate\Support\Facades\Artisan::output();
-
-                return response()->json([
-                    'message' => 'Cache optimization completed successfully',
-                    'output' => $output
-                ], 200);
-            } catch (\Exception $e) {
-                return response()->json([
-                    'message' => 'Optimization failed: ' . $e->getMessage()
-                ], 500);
-            }
-        });
+        Route::post('admin/optimize-cache', [\App\Http\Controllers\Api\MaintenanceController::class, 'optimizeCache']);
 
         // Fix timezone-corrupted attendance records
-        Route::post('admin/fix-attendance-timezone', function (\Illuminate\Http\Request $request) {
-            $date = $request->input('date');
-            $args = [];
-            if ($date) {
-                $args['--date'] = $date;
-            }
-            \Illuminate\Support\Facades\Artisan::call('attendance:fix-timezone-corruption', $args);
-            $output = \Illuminate\Support\Facades\Artisan::output();
-            return response()->json(['message' => 'Attendance timezone corruption fixed.', 'output' => $output]);
-        });
+        Route::post('admin/fix-attendance-timezone', [\App\Http\Controllers\Api\MaintenanceController::class, 'fixAttendanceTimezone']);
 
         // Ensure all required leave types exist (useful if migrations didn't run)
-        Route::post('admin/ensure-leave-types', function (\Illuminate\Http\Request $request) {
-            $types = [
-                'Sick Leave',
-                'Casual Leave',
-                'Half Day Sick Leave (Morning)',
-                'Half Day Sick Leave (Afternoon)',
-                'Half Day Casual Leave (Morning)',
-                'Half Day Casual Leave (Afternoon)',
-                'Work From Home',
-                'Work From Home (Morning)',
-                'Work From Home (Afternoon)',
-                'Half Day WFH (Morning)',
-                'Half Day WFH (Afternoon)'
-            ];
-
-            $created = [];
-            foreach ($types as $type) {
-                $lt = \App\Models\LeaveType::firstOrCreate(['name' => $type]);
-                $created[] = $lt->name;
-            }
-
-            return response()->json([
-                'message' => 'Leave types ensured.',
-                'types_created_or_verified' => $created,
-                'total' => count($created)
-            ], 201);
-        });
+        Route::post('admin/ensure-leave-types', [\App\Http\Controllers\Api\MaintenanceController::class, 'ensureLeaveTypes']);
 
         // Emergency: Ensure missing database columns exist for admin leave/WFH creation
-        Route::post('admin/ensure-database-columns', function (\Illuminate\Http\Request $request) {
-            $results = [];
-
-            // Ensure wfh_type_id and attachment_link columns exist in wfh_requests
-            if (!\Illuminate\Support\Facades\Schema::hasColumn('wfh_requests', 'wfh_type_id')) {
-                \Illuminate\Support\Facades\Schema::table('wfh_requests', function (\Illuminate\Database\Schema\Blueprint $table) {
-                    $table->foreignId('wfh_type_id')
-                        ->nullable()
-                        ->constrained('leave_types')
-                        ->onDelete('set null');
-                });
-                $results['wfh_type_id'] = 'created';
-            } else {
-                $results['wfh_type_id'] = 'already_exists';
-            }
-
-            if (!\Illuminate\Support\Facades\Schema::hasColumn('wfh_requests', 'attachment_link')) {
-                \Illuminate\Support\Facades\Schema::table('wfh_requests', function (\Illuminate\Database\Schema\Blueprint $table) {
-                    $table->string('attachment_link')->nullable();
-                });
-                $results['attachment_link'] = 'created';
-            } else {
-                $results['attachment_link'] = 'already_exists';
-            }
-
-            // Ensure tl_status, admin_status, approver_id columns exist in leave_requests
-            if (!\Illuminate\Support\Facades\Schema::hasColumn('leave_requests', 'tl_status')) {
-                \Illuminate\Support\Facades\Schema::table('leave_requests', function (\Illuminate\Database\Schema\Blueprint $table) {
-                    $table->string('tl_status')->default('Pending')->after('status');
-                });
-                $results['tl_status'] = 'created';
-            } else {
-                $results['tl_status'] = 'already_exists';
-            }
-
-            if (!\Illuminate\Support\Facades\Schema::hasColumn('leave_requests', 'admin_status')) {
-                \Illuminate\Support\Facades\Schema::table('leave_requests', function (\Illuminate\Database\Schema\Blueprint $table) {
-                    $table->string('admin_status')->default('Pending')->after('tl_status');
-                });
-                $results['admin_status'] = 'created';
-            } else {
-                $results['admin_status'] = 'already_exists';
-            }
-
-            if (!\Illuminate\Support\Facades\Schema::hasColumn('leave_requests', 'approver_id')) {
-                \Illuminate\Support\Facades\Schema::table('leave_requests', function (\Illuminate\Database\Schema\Blueprint $table) {
-                    $table->unsignedBigInteger('approver_id')->nullable()->after('approved_by');
-                });
-                $results['approver_id'] = 'created';
-            } else {
-                $results['approver_id'] = 'already_exists';
-            }
-
-            // Ensure issues table exists with all required columns
-            if (!\Illuminate\Support\Facades\Schema::hasTable('issues')) {
-                \Illuminate\Support\Facades\Schema::create('issues', function (\Illuminate\Database\Schema\Blueprint $table) {
-                    $table->id();
-                    $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-                    $table->string('title');
-                    $table->string('category');
-                    $table->string('priority');
-                    $table->text('description');
-                    $table->string('related_module')->nullable();
-                    $table->string('status')->default('Open');
-                    $table->unsignedBigInteger('assigned_to')->nullable();
-                    $table->foreign('assigned_to')->references('id')->on('users')->nullOnDelete();
-                    $table->timestamp('resolved_at')->nullable();
-                    $table->timestamps();
-                });
-                $results['issues_table'] = 'created';
-            } else {
-                $results['issues_table'] = 'already_exists';
-                // Ensure assigned_to column exists in existing issues table
-                if (!\Illuminate\Support\Facades\Schema::hasColumn('issues', 'assigned_to')) {
-                    \Illuminate\Support\Facades\Schema::table('issues', function (\Illuminate\Database\Schema\Blueprint $table) {
-                        $table->unsignedBigInteger('assigned_to')->nullable()->after('status');
-                        $table->foreign('assigned_to')->references('id')->on('users')->nullOnDelete();
-                    });
-                    $results['issues.assigned_to'] = 'created';
-                } else {
-                    $results['issues.assigned_to'] = 'already_exists';
-                }
-                // Ensure resolved_at column exists
-                if (!\Illuminate\Support\Facades\Schema::hasColumn('issues', 'resolved_at')) {
-                    \Illuminate\Support\Facades\Schema::table('issues', function (\Illuminate\Database\Schema\Blueprint $table) {
-                        $table->timestamp('resolved_at')->nullable()->after('assigned_to');
-                    });
-                    $results['issues.resolved_at'] = 'created';
-                } else {
-                    $results['issues.resolved_at'] = 'already_exists';
-                }
-                // Ensure attachment_link column exists
-                if (!\Illuminate\Support\Facades\Schema::hasColumn('issues', 'attachment_link')) {
-                    \Illuminate\Support\Facades\Schema::table('issues', function (\Illuminate\Database\Schema\Blueprint $table) {
-                        $table->string('attachment_link')->nullable();
-                    });
-                    $results['issues.attachment_link'] = 'created';
-                } else {
-                    $results['issues.attachment_link'] = 'already_exists';
-                }
-            }
-
-            // Ensure issue_comments table exists
-            if (!\Illuminate\Support\Facades\Schema::hasTable('issue_comments')) {
-                \Illuminate\Support\Facades\Schema::create('issue_comments', function (\Illuminate\Database\Schema\Blueprint $table) {
-                    $table->id();
-                    $table->foreignId('issue_id')->constrained()->cascadeOnDelete();
-                    $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-                    $table->text('comment');
-                    $table->timestamps();
-                });
-                $results['issue_comments_table'] = 'created';
-            } else {
-                $results['issue_comments_table'] = 'already_exists';
-            }
-
-            // Ensure issue_attachments table exists
-            if (!\Illuminate\Support\Facades\Schema::hasTable('issue_attachments')) {
-                \Illuminate\Support\Facades\Schema::create('issue_attachments', function (\Illuminate\Database\Schema\Blueprint $table) {
-                    $table->id();
-                    $table->foreignId('issue_id')->constrained()->cascadeOnDelete();
-                    $table->foreignId('issue_comment_id')->nullable()->constrained('issue_comments')->cascadeOnDelete();
-                    $table->string('file_path');
-                    $table->string('file_name');
-                    $table->string('file_type')->nullable();
-                    $table->timestamps();
-                });
-                $results['issue_attachments_table'] = 'created';
-            } else {
-                $results['issue_attachments_table'] = 'already_exists';
-            }
-
-            return response()->json([
-                'message' => 'Database columns checked and ensured.',
-                'results' => $results
-            ], 200);
-        });
+        Route::post('admin/ensure-database-columns', [\App\Http\Controllers\Api\MaintenanceController::class, 'ensureDatabaseColumns']);
     });
 
     // Employee Leave Routes
@@ -416,24 +210,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::post('{id}/cancel', [\App\Http\Controllers\Api\TARequestController::class, 'cancel']);
 
         // Diagnostic endpoint (Super Admin only)
-        Route::middleware('role:Super Admin')->get('diagnose/schema', function () {
-            $tables = [
-                'ta_requests' => \Illuminate\Support\Facades\Schema::hasTable('ta_requests'),
-                'ta_request_items' => \Illuminate\Support\Facades\Schema::hasTable('ta_request_items'),
-            ];
-
-            $taColumns = $tables['ta_requests'] ? \Illuminate\Support\Facades\Schema::getColumnListing('ta_requests') : [];
-            $itemColumns = $tables['ta_request_items'] ? \Illuminate\Support\Facades\Schema::getColumnListing('ta_request_items') : [];
-
-            return response()->json([
-                'tables_exist' => $tables,
-                'ta_requests_columns' => $taColumns,
-                'ta_request_items_columns' => $itemColumns,
-                'message' => $tables['ta_requests'] && $tables['ta_request_items']
-                    ? 'Database tables exist'
-                    : 'Database tables missing - run migrations'
-            ]);
-        });
+        Route::middleware('role:Super Admin')->get('diagnose/schema', [\App\Http\Controllers\Api\MaintenanceController::class, 'diagnoseSchema']);
 
         // Admin routes
         Route::middleware('role:Super Admin')->group(function () {
@@ -734,20 +511,7 @@ Route::post('/v1/biometric/ingest', [BiometricIngestionController::class, 'inges
     ->middleware(VerifyBiometricAgent::class);
 
 // System Scheduler Trigger
-Route::post('system/scheduler/run', function (\Illuminate\Http\Request $request) {
-    $secret = config('services.scheduler_secret');
-    if (empty($secret)) {
-        abort(500, 'Scheduler secret unconfigured');
-    }
-
-    if (!hash_equals($secret, $request->bearerToken() ?? '')) {
-        abort(401, 'Unauthorized');
-    }
-
-    \Illuminate\Support\Facades\Artisan::call('schedule:run');
-
-    return response()->json(['status' => 'scheduler_invoked']);
-})->middleware('throttle:5,1');
+Route::post('system/scheduler/run', [\App\Http\Controllers\Api\MaintenanceController::class, 'runScheduler'])->middleware('throttle:5,1');
 
 
 // ──────────────────────────────────────────────────────────────────────────

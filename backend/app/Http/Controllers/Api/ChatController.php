@@ -57,7 +57,7 @@ class ChatController extends Controller
         $systemPrompt = $this->buildSystemPrompt($user);
 
         // Connect to Cloud Gemini API or fallback to local Ollama
-        $apiKey = config('services.gemini.api_key') ?: env('GEMINI_API_KEY');
+        $apiKey = config('services.gemini.api_key');
 
         if ($apiKey) {
             // Build the contents array with chat history for Gemini
@@ -163,8 +163,8 @@ class ChatController extends Controller
         }
 
         // Fallback: Local Ollama
-        $url = env('OLLAMA_API_URL', 'http://127.0.0.1:11434');
-        $model = env('OLLAMA_MODEL', 'llama3.2');
+        $url = config('services.ollama.url');
+        $model = config('services.ollama.model');
 
         try {
             $response = Http::timeout(25)->post("{$url}/api/chat", [

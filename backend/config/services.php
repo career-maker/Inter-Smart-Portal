@@ -53,8 +53,22 @@ return [
         'personal_token' => env('HUBSTAFF_PERSONAL_TOKEN'),
         'access_token' => env('HUBSTAFF_ACCESS_TOKEN'),
         'org_id' => env('HUBSTAFF_ORG_ID', 546910),
+        'timezone' => env('HUBSTAFF_TIMEZONE', 'Asia/Kolkata'),
         'base_url' => env('HUBSTAFF_BASE_URL', 'https://api.hubstaff.com/v2'),
         'auth_url' => env('HUBSTAFF_AUTH_URL', 'https://account.hubstaff.com/access_tokens'),
+    ],
+
+    // Mail fallbacks used by EmailService when the DB SMTP setting is blank (was env() in app/).
+    'portal_mail' => [
+        'username'     => env('MAIL_USERNAME'),
+        'password'     => env('MAIL_PASSWORD'),
+        'from_address' => env('MAIL_FROM_ADDRESS', env('MAIL_USERNAME')),
+        'from_name'    => env('MAIL_FROM_NAME', 'Inter Smart Portal'),
+    ],
+
+    'ollama' => [
+        'url'   => env('OLLAMA_API_URL', 'http://127.0.0.1:11434'),
+        'model' => env('OLLAMA_MODEL', 'llama3.2'),
     ],
 
     'gemini' => [

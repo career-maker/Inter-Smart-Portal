@@ -34,13 +34,13 @@ class EmailService
                     'host'       => $smtp['host'] ?? 'smtp.gmail.com',
                     'port'       => (int)($smtp['port'] ?? 587),
                     'encryption' => ($smtp['encryption'] ?? 'tls') === 'none' ? null : ($smtp['encryption'] ?? 'tls'),
-                    'username'   => !empty($smtp['username']) ? $smtp['username'] : env('MAIL_USERNAME'),
-                    'password'   => !empty($smtp['password']) ? $smtp['password'] : env('MAIL_PASSWORD'),
+                    'username'   => !empty($smtp['username']) ? $smtp['username'] : config('services.portal_mail.username'),
+                    'password'   => !empty($smtp['password']) ? $smtp['password'] : config('services.portal_mail.password'),
                     'timeout'    => 15,
                 ]);
 
-                $fromAddr = !empty($smtp['from_address']) ? $smtp['from_address'] : env('MAIL_FROM_ADDRESS', env('MAIL_USERNAME'));
-                $fromName = !empty($smtp['from_name']) ? $smtp['from_name'] : env('MAIL_FROM_NAME', 'Inter Smart Portal');
+                $fromAddr = !empty($smtp['from_address']) ? $smtp['from_address'] : config('services.portal_mail.from_address');
+                $fromName = !empty($smtp['from_name']) ? $smtp['from_name'] : config('services.portal_mail.from_name');
 
                 Config::set('mail.from', [
                     'address' => $fromAddr,
@@ -500,7 +500,7 @@ class EmailService
      */
     public static function getFrontendUrl(): string
     {
-        $url = env('FRONTEND_URL') ?: config('app.frontend_url', 'https://www.workplace.intersmart.in');
+        $url = config('app.frontend_url') ?: 'https://www.workplace.intersmart.in';
         if (!$url || str_contains($url, 'vercel.app')) {
             $url = 'https://www.workplace.intersmart.in';
         }
@@ -590,7 +590,7 @@ class EmailService
                 return;
             }
 
-            $fromAddr = config('mail.from.address', env('MAIL_FROM_ADDRESS', 'career@intersmart.in'));
+            $fromAddr = config('mail.from.address', 'career@intersmart.in');
 
             // Send in BCC batches of 40 to avoid SMTP timeout or BCC limit
             $chunks = array_chunk($allEmployees, 40);
