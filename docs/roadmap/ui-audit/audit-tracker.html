@@ -54,7 +54,7 @@ code{font-family:var(--mono);font-size:13px;background:var(--info-bg);padding:1p
 </style>
 <div class="wrap">
 <h1>Portal Audit Tracker</h1>
-<p class="sub">Intersmart Employee Portal · workplace.intersmart.in · state at 29 Oct 2026 (late update). Each item is marked <b>Fixed</b> or <b>Remaining</b>; update the status here after each fix.</p>
+<p class="sub">Intersmart Employee Portal · workplace.intersmart.in · state at 30 Oct 2026. Each item is marked <b>Fixed</b> or <b>Remaining</b>; update the status here after each fix.</p>
 
 <div class="tabs" role="tablist">
   <button class="tab" role="tab" id="t-security" aria-selected="true" data-tab="security">Security<span class="n" id="n-security"></span></button>
@@ -162,8 +162,7 @@ functional: {
      what:"Some panels (for example the QA review dialog) stay blank until data arrives.", fix:"Spinner while loading added to the QA review panel, the attendance Time Clock card and chat history; a failed review load now reports the error and closes. Deployed 29 Oct late, not yet seen rendered."},
     {id:"F9", sev:"low", status:"fixed", title:"Older pages use raw buttons",
      what:"Some older screens do not use the shared button, so they have no spinner or double-click guard.", fix:"Audit and switch to the shared button.",
-     left:"Closed 30 Oct with a central guard: any action button (type submit, or wording such as Save, Submit, Approve, Delete, Send) ignores a second click within 0.9 s, on all 927 plain buttons, without editing them. A spinner still only appears on screens that use the shared button; converting every older screen one by one was judged too risky."}
-
+     left:"Closed 30 Oct with a central guard: any action button (type submit, or wording such as Save, Submit, Approve, Delete, Send) ignores a second click within 0.9 s, on all 927 plain buttons, without editing them. A spinner still only appears on screens that use the shared button; converting every older screen one by one was judged too risky."},
     {id:"F10", sev:"medium", status:"open", title:"Automated tests not run",
      what:"PHPUnit (about 40 known failures to compare against) and the browser test run have not been executed for the new modules or for the 29 Oct performance changes. The 29 Oct changes were checked by comparing old and new output on the server and by live endpoint checks.", fix:"Run both once and fix new failures."},
     {id:"F11", sev:"medium", status:"open", title:"Meeting invitation email not sent as a test",
