@@ -4497,3 +4497,20 @@ th {
 h1 > svg {
   color: var(--portal-primary-color, #56348f) !important;
 }
+
+/* Page rhythm: one content width and one title scale on every screen (pages used max-w-4xl..7xl, own padding, and h1 sizes from 18px to 36px). Prototyped on live pages before adding. */
+main > .mx-auto[class*="max-w-"] {
+  max-width: 80rem !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+main h1:not(.text-white) {
+  font-size: 1.625rem !important;
+  line-height: 2rem !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.01em !important;
+}
+@media (max-width: 640px) {
+  main h1:not(.text-white) { font-size: 1.375rem !important; line-height: 1.75rem !important; }
+}
+main h1 > svg { width: 1.5rem !important; height: 1.5rem !important; }
