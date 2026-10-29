@@ -66,6 +66,7 @@ class LeavePolicyController extends Controller
 
         $settings = LeavePolicySetting::current();
         $settings->update($validated);
+        \Illuminate\Support\Facades\Cache::forget(LeavePolicyEngine::SELF_HEAL_KEY);
 
         // Immediately evaluate and process current monthly cycle allocation under new settings
         try {
@@ -89,7 +90,7 @@ class LeavePolicyController extends Controller
     {
         // Self-healing: ensure active cycle allocation has run for all eligible employees
         try {
-            $this->engine->processMonthlyCycleAllocation();
+            $this->engine->selfHealCycleAllocation();
         } catch (\Throwable $e) {
             \Log::warning("Self-healing monthly allocation check failed in getEmployees: " . $e->getMessage());
         }

@@ -27,7 +27,7 @@ class LeaveBalanceController extends Controller
         try {
             $engine = app(\App\Services\LeavePolicyEngine::class);
             if ($user->hasRole('Super Admin') || strtolower($user->role ?? '') === 'super admin') {
-                $engine->processMonthlyCycleAllocation();
+                $engine->selfHealCycleAllocation();
             } else {
                 $engine->ensureEmployeeAllocatedForCurrentCycle($user);
             }
@@ -45,28 +45,28 @@ class LeaveBalanceController extends Controller
                     });
                 })
                 ->whereDoesntHave('roles', fn($q) => $q->where('name', 'Super Admin'))
-                ->with(['leaveBalance', 'leaveRequests' => function ($q) {
-                    $q->where('status', 'Approved')->with('leaveType');
-                }])
-                ->get()
-                ->map(function ($emp) {
+                ->with('leaveBalance')
+                ->get();
+
+            // One grouped query for approved days per person (was every approved request loaded as models).
+            $taken = LeaveRequest::query()
+                ->join('leave_types', 'leave_types.id', '=', 'leave_requests.leave_type_id')
+                ->where('leave_requests.status', 'Approved')
+                ->whereIn('leave_requests.user_id', $employees->pluck('id'))
+                ->groupBy('leave_requests.user_id')
+                ->selectRaw("leave_requests.user_id as uid, SUM(leave_requests.days_taken) as total, "
+                    . "SUM(CASE WHEN LOWER(leave_types.name) LIKE '%casual%' THEN leave_requests.days_taken ELSE 0 END) as casual, "
+                    . "SUM(CASE WHEN LOWER(leave_types.name) LIKE '%sick%' THEN leave_requests.days_taken ELSE 0 END) as sick")
+                ->get()->keyBy('uid');
+
+            $employees = $employees
+                ->map(function ($emp) use ($taken) {
                     $balance = $emp->leaveBalance;
 
-                    $casualTaken = 0;
-                    $sickTaken = 0;
-                    $totalTaken = 0;
-
-                    if ($emp->relationLoaded('leaveRequests')) {
-                        $casualTaken = (float) $emp->leaveRequests->filter(function ($l) {
-                            return str_contains(strtolower($l->leaveType->name ?? ''), 'casual');
-                        })->sum('days_taken');
-
-                        $sickTaken = (float) $emp->leaveRequests->filter(function ($l) {
-                            return str_contains(strtolower($l->leaveType->name ?? ''), 'sick');
-                        })->sum('days_taken');
-
-                        $totalTaken = (float) $emp->leaveRequests->sum('days_taken');
-                    }
+                    $t = $taken->get($emp->id);
+                    $casualTaken = (float) ($t->casual ?? 0);
+                    $sickTaken = (float) ($t->sick ?? 0);
+                    $totalTaken = (float) ($t->total ?? 0);
 
                     return [
                         'user_id'               => $emp->id,

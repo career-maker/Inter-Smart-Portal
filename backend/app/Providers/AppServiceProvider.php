@@ -28,6 +28,13 @@ class AppServiceProvider extends ServiceProvider
             Limit::perMinute(300)->by($request->user()?->id ?: $request->ip())
         );
 
+        // Own changes show on the dashboard immediately (see DashboardController::index).
+        foreach ([\App\Models\LeaveRequest::class, \App\Models\WfhRequest::class, \App\Models\Attendance::class] as $model) {
+            $forget = fn ($m) => $m->user_id && \Illuminate\Support\Facades\Cache::forget(\App\Http\Controllers\Api\DashboardController::cacheKey((int) $m->user_id));
+            $model::saved($forget);
+            $model::deleted($forget);
+        }
+
         RateLimiter::for('login', fn (Request $request) =>
             Limit::perMinute(10)->by(strtolower((string) $request->input('email')) . '|' . $request->ip())
         );

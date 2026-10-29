@@ -20,6 +20,21 @@ class DashboardController extends Controller
      */
     public function index(Request $request)
     {
+        // Short per-user cache: repeated opens/refreshes within 30 s reuse the answer. The owner's own
+        // leave/WFH/attendance changes clear it (AppServiceProvider), so people see their own actions at once.
+        // The JSON text is cached, so the reply is byte-for-byte what the uncached call returns.
+        $json = Cache::remember(self::cacheKey($request->user()->id), 30, fn () => $this->buildIndex($request)->getContent());
+
+        return response($json, 200, ['Content-Type' => 'application/json']);
+    }
+
+    public static function cacheKey(int $userId): string
+    {
+        return 'dashboard:' . $userId;
+    }
+
+    private function buildIndex(Request $request)
+    {
         $user = $request->user()->load(['team:id,name', 'roles:id,name']);
         
         // 1. User Profile & Service Duration

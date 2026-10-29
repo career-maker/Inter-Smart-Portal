@@ -25,8 +25,7 @@ class BugzillaProjectController extends Controller
             ->with([
                 'team:id,name,code',
                 'coordinator:id,first_name,last_name',
-                'bugzillaProject.defaultAssignee:id,first_name,last_name,email',
-                'bugzillaProject.components',
+                'bugzillaProject' => fn ($q) => $q->with('defaultAssignee:id,first_name,last_name,email')->withCount('components'),
             ])
             ->withCount([
                 'bugzillaBugs as bugs_count',
@@ -76,8 +75,9 @@ class BugzillaProjectController extends Controller
                     'coordinator' => $p->coordinator,
                 ],
                 'default_assignee' => $bz?->defaultAssignee,
-                'components' => $bz ? $bz->components : [],
-                'components_count' => $bz ? $bz->components->count() : 0,
+                // Full component rows are loaded on demand from /projects/{id}/components; the list only needs the count.
+                'components' => [],
+                'components_count' => (int) ($bz->components_count ?? 0),
                 'bugs_count' => (int) ($p->bugs_count ?? 0),
                 'open_bugs_count' => (int) ($p->open_bugs_count ?? 0),
                 'critical_bugs_count' => (int) ($p->critical_bugs_count ?? 0),

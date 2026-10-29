@@ -131,6 +131,20 @@ class LeavePolicyEngine
      * Process automatic monthly allocation for all active eligible employees.
      * Fully idempotent: will NOT allocate twice for the same cycle_key.
      */
+    /**
+     * Self-heal for page views: run the cycle allocation at most once per 10 minutes
+     * instead of on every admin page load. The cron and Settings save still run it directly.
+     */
+    public function selfHealCycleAllocation(): void
+    {
+        if (!\Illuminate\Support\Facades\Cache::add(self::SELF_HEAL_KEY, 1, 600)) {
+            return;
+        }
+        $this->processMonthlyCycleAllocation();
+    }
+
+    public const SELF_HEAL_KEY = 'leave_alloc_selfheal';
+
     public function processMonthlyCycleAllocation(?Carbon $asOfDate = null, bool $force = false): array
     {
         $d = $asOfDate ? $asOfDate->copy()->setTimezone('Asia/Kolkata') : Carbon::now('Asia/Kolkata');
@@ -149,6 +163,13 @@ class LeavePolicyEngine
             ->with(['leaveBalance', 'employeeLeavePolicy'])
             ->get();
 
+        // One query for who already has this cycle's allocation (was one exists() query per employee).
+        $allocatedIds = array_flip(
+            LeaveAllocationLedger::where('cycle_key', $cycleKey)
+                ->where('transaction_type', 'automatic_allocation')
+                ->pluck('user_id')->all()
+        );
+
         $allocatedCount = 0;
         $skippedProbationCount = 0;
         $skippedAlreadyAllocatedCount = 0;
@@ -163,10 +184,7 @@ class LeavePolicyEngine
             }
 
             // Check idempotency: check if allocation already exists for this user and cycle_key
-            $alreadyAllocated = LeaveAllocationLedger::where('user_id', $emp->id)
-                ->where('cycle_key', $cycleKey)
-                ->where('transaction_type', 'automatic_allocation')
-                ->exists();
+            $alreadyAllocated = isset($allocatedIds[$emp->id]);
 
             if ($alreadyAllocated && !$force) {
                 $skippedAlreadyAllocatedCount++;
