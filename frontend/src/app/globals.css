@@ -4462,3 +4462,11 @@ html:not(.dark) :is(.fixed.inset-0.items-center.justify-center, [data-slot="dial
 html:not(.dark) .fixed.inset-0.items-center.justify-center :is(.bg-slate-700, .bg-slate-800, .bg-slate-900):not(input, select, textarea, button, .absolute) {
   color: #0f172a;
 }
+
+/* Status pills and table headings stay on one line */
+td span[class*="rounded-full"],
+td span[class*="rounded-md"][class*="text-xs"],
+td [data-slot="badge"],
+th {
+  white-space: nowrap;
+}
