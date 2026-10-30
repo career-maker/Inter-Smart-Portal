@@ -10,6 +10,8 @@ use App\Support\Notify;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Symfony\Component\Mime\Part\Multipart\AlternativePart;
+use Symfony\Component\Mime\Part\TextPart;
 
 /**
  * Meetings, client and internal. Anyone can organise one. Organiser and attendees see it; the organiser (or a Super Admin)
@@ -212,8 +214,16 @@ class MeetingController extends Controller
             $body = view('emails.meeting-invite', ['meeting' => $m, 'verb' => $verb, 'when' => $when])->render();
             foreach ($to as $email) {
                 Mail::html($body, function ($msg) use ($email, $m, $ics, $method, $verb) {
-                    $msg->to($email)->subject("Meeting {$verb}: {$m->title}")
-                        ->attachData($ics, 'meeting.ics', ['mime' => 'text/calendar; charset=UTF-8; method=' . $method]);
+                    $msg->to($email)->subject("Meeting {$verb}: {$m->title}");
+                    // Gmail and Outlook only treat the mail as a real invitation (and add it to the calendar) when the
+                    // calendar data is a body alternative with its method set, not just an attachment.
+                    $cal = new TextPart($ics, 'utf-8', 'calendar', '8bit');
+                    $cal->getHeaders()->get('Content-Type')->setParameter('method', $method);
+                    $msg->getSymfonyMessage()->setBody(new AlternativePart(
+                        new TextPart("Meeting {$verb}: {$m->title}\nWhen: " . $m->starts_at->copy()->setTimezone('Asia/Kolkata')->format('d M Y, H:i') . " IST\nWhere: " . ($m->location ?: 'to be shared')),
+                        new TextPart($body, 'utf-8', 'html'),
+                        $cal
+                    ));
                 });
             }
         } catch (\Throwable $e) {
