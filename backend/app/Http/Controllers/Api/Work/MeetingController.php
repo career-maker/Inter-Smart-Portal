@@ -208,9 +208,10 @@ class MeetingController extends Controller
         try {
             EmailService::applySmtpConfig();
             $ics = $this->buildIcs($m, $method);
-            $body = "Meeting {$verb}: {$m->title}\nWhen: {$when}\nWhere: " . ($m->location ?: 'to be shared') . ($m->agenda ? "\n\nAgenda:\n{$m->agenda}" : '');
+            $m->loadMissing('organizer:id,first_name,last_name');
+            $body = view('emails.meeting-invite', ['meeting' => $m, 'verb' => $verb, 'when' => $when])->render();
             foreach ($to as $email) {
-                Mail::raw($body, function ($msg) use ($email, $m, $ics, $method, $verb) {
+                Mail::html($body, function ($msg) use ($email, $m, $ics, $method, $verb) {
                     $msg->to($email)->subject("Meeting {$verb}: {$m->title}")
                         ->attachData($ics, 'meeting.ics', ['mime' => 'text/calendar; method=' . $method]);
                 });
