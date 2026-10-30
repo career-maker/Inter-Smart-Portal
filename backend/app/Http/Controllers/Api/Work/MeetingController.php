@@ -218,7 +218,7 @@ class MeetingController extends Controller
                     // Gmail and Outlook only treat the mail as a real invitation (and add it to the calendar) when the
                     // calendar data is a body alternative with its method set, not just an attachment.
                     $cal = new TextPart($ics, 'utf-8', 'calendar', '8bit');
-                    $cal->getHeaders()->get('Content-Type')->setParameter('method', $method);
+                    $cal->getHeaders()->addParameterizedHeader('Content-Type', 'text/calendar', ['method' => $method]);
                     $msg->getSymfonyMessage()->setBody(new AlternativePart(
                         new TextPart("Meeting {$verb}: {$m->title}\nWhen: " . $m->starts_at->copy()->setTimezone('Asia/Kolkata')->format('d M Y, H:i') . " IST\nWhere: " . ($m->location ?: 'to be shared')),
                         new TextPart($body, 'utf-8', 'html'),
