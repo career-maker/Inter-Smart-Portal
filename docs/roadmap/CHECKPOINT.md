@@ -38,6 +38,16 @@ When the owner says "continue": do section 0000-F below. Everything is committed
 - VERIFY FIRST THING NEXT SESSION: Vercel builds lag 5-15 min behind pushes. Fetch the site scripts and look for a changed string (e.g. `max-width:80rem` in CSS) or screenshot /project-management/projects (title must align with /pmo). Then look at 6-8 pages at desktop width for regressions from the CSS (wide tables, cards cut off, forms stretched). If anything looks wrong, remove the last block of globals.css (the "Page rhythm" block) and push.
 - Owner asked for the laptop to be shut down after saving; the new session starts cold: read this section 0000, then do 0000-F.
 
+### 0000-A6. Meetings, chat and mail (30 Oct, later session; all LIVE or on main)
+- Chat polling (P4, improved not real-time): `SideChatsContainer` polls `after_id` only, every 4 s while active, 8 s then 20 s once quiet, instantly on tab focus and after a send. `DirectChatModule` polls every 6 s / 25 s / 40 s by quiet time. Real push still needs Pusher/Ably or a VPS with Reverb (owner chose smarter polling).
+- Meeting invite email: `backend/resources/views/emails/meeting-invite.blade.php` (HTML card, green header, red when cancelled, Join button when the location is a URL). `MeetingController::invite` sends it with `Mail::html`; the closure must list every variable it uses (a missing `$body` made every send fail with "Undefined variable $body" until fixed in the last commit).
+- Calendar data: `buildIcs` lists every invitee as ATTENDEE, has URL and the join link in DESCRIPTION. The mail body is a `multipart/alternative` (text, html, `text/calendar; method=REQUEST|CANCEL`) built with Symfony `AlternativePart`; the header is set with `addParameterizedHeader` (not `get()->setParameter`, the header does not exist yet). The .ics is no longer an attachment; `GET /meetings/{id}/ics` still serves it.
+- LIMIT: Google Calendar adds an invite on its own only if the recipient's setting "Add invitations to my calendar" allows it; otherwise they click Yes once. Adding events regardless needs the Google Calendar API (Workspace service account with domain-wide delegation, set up by the Workspace admin). Not built; offered to the owner.
+- Not yet confirmed by the owner: that the new invite mail arrives and shows the invite bar (last fix deployed, no live test mail sent by us).
+- Mail config: DB `email_settings.smtp_config` overrides `.env` MAIL_*; changing the password means updating both (the F14 fix). Owner should revoke and reissue the Gmail app password that was shared in chat.
+- Other 30 Oct changes: StaleTabGuard (reload after 30 min idle or chunk errors), searchable meeting people picker with chips, edit scheduled meetings (PUT /meetings/{id}), shared centred PageLoader in the clean-kit Spinner.
+- Host: PHP-FPM and OPcache now on (about 90 req/s on /api/ping, was 5). Ask admin to raise `opcache.max_accelerated_files` from 4000 to 20000 (app has about 6000 PHP files).
+
 ### 0000-B. Facts learned (keep)
 - Spatie roles on live are ONLY: Accounts, Employee, Super Admin, Team Lead. `hasRole('HR')`/`'Admin'` never match; `User::role('HR')` throws RoleDoesNotExist.
 - Live URLs: files at `https://workplace.intersmart.in/api/storage/<path>`; API at `/api/api/...`; `/storage/...` at the host root is a different app (500).
