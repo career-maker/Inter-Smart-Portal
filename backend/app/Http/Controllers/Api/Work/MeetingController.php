@@ -213,7 +213,7 @@ class MeetingController extends Controller
             $m->loadMissing('organizer:id,first_name,last_name');
             $body = view('emails.meeting-invite', ['meeting' => $m, 'verb' => $verb, 'when' => $when])->render();
             foreach ($to as $email) {
-                Mail::html($body, function ($msg) use ($email, $m, $ics, $method, $verb) {
+                Mail::html($body, function ($msg) use ($email, $m, $ics, $method, $verb, $body) {
                     $msg->to($email)->subject("Meeting {$verb}: {$m->title}");
                     // Gmail and Outlook only treat the mail as a real invitation (and add it to the calendar) when the
                     // calendar data is a body alternative with its method set, not just an attachment.
