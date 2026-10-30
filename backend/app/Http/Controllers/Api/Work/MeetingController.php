@@ -213,7 +213,7 @@ class MeetingController extends Controller
             foreach ($to as $email) {
                 Mail::html($body, function ($msg) use ($email, $m, $ics, $method, $verb) {
                     $msg->to($email)->subject("Meeting {$verb}: {$m->title}")
-                        ->attachData($ics, 'meeting.ics', ['mime' => 'text/calendar; method=' . $method]);
+                        ->attachData($ics, 'meeting.ics', ['mime' => 'text/calendar; charset=UTF-8; method=' . $method]);
                 });
             }
         } catch (\Throwable $e) {
@@ -227,6 +227,21 @@ class MeetingController extends Controller
         $esc = fn ($s) => str_replace(["\\", ';', ',', "\r\n", "\n"], ['\\\\', '\;', '\,', '\n', '\n'], (string) $s);
         $fmt = fn (Carbon $c) => $c->copy()->utc()->format('Ymd\THis\Z');
         $organizer = $m->organizer ?? $m->load('organizer')->organizer;
+        $m->loadMissing('attendees');
+        $link = preg_match('#^https?://#i', trim((string) $m->location)) ? trim($m->location) : null;
+        $desc = trim(($m->agenda ?: '') . ($link ? "
+
+Join: {$link}" : ''));
+        // One ATTENDEE per invitee: mail apps only treat the message as an invitation (and add it to the calendar) when the recipient is listed
+        $attendees = [];
+        foreach ($m->attendees as $a) {
+            if ($a->email) {
+                $attendees[] = 'ATTENDEE;CN=' . $esc("{$a->first_name} {$a->last_name}") . ';ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE:mailto:' . $a->email;
+            }
+        }
+        foreach ($m->external_emails ?? [] as $e) {
+            $attendees[] = 'ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE:mailto:' . $e;
+        }
         $lines = [
             'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Intersmart//Portal//EN', 'METHOD:' . $method,
             'BEGIN:VEVENT',
@@ -236,7 +251,9 @@ class MeetingController extends Controller
             'DTEND:' . $fmt($m->ends_at),
             'SUMMARY:' . $esc($m->title),
             'LOCATION:' . $esc($m->location),
-            'DESCRIPTION:' . $esc($m->agenda),
+            'DESCRIPTION:' . $esc($desc),
+            ...($link ? ['URL:' . $link] : []),
+            ...$attendees,
             'ORGANIZER;CN=' . $esc("{$organizer->first_name} {$organizer->last_name}") . ':mailto:' . $organizer->email,
             'SEQUENCE:' . max(0, $m->updated_at->timestamp - $m->created_at->timestamp), // grows with every change so calendars take the update
             'STATUS:' . ($method === 'CANCEL' ? 'CANCELLED' : 'CONFIRMED'),
