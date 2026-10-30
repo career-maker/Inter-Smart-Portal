@@ -28,6 +28,39 @@ export default function MeetingsPage() {
   );
 }
 
+/** Search box, click-to-toggle list (no Ctrl needed) and the chosen names shown as removable chips below. */
+function PeoplePicker({ people, ids, onChange }: { people: any[]; ids: number[]; onChange: (ids: number[]) => void }) {
+  const [q, setQ] = useState("");
+  const name = (p: any) => `${p.first_name} ${p.last_name}`.trim();
+  const shown = people.filter((p) => name(p).toLowerCase().includes(q.trim().toLowerCase()));
+  const toggle = (id: number) => onChange(ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]);
+  const chosen = people.filter((p) => ids.includes(p.id));
+  return (
+    <div>
+      <input className={field} placeholder="Search by name" value={q} onChange={(e) => setQ(e.target.value)} />
+      <div className="mt-2 max-h-40 overflow-y-auto rounded-xl border border-slate-300 dark:border-white/15">
+        {shown.length === 0 && <div className="px-3 py-2 text-sm text-slate-500">No one matches.</div>}
+        {shown.map((p) => (
+          <label key={p.id} className="flex cursor-pointer items-center gap-2 px-3 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-white/5">
+            <input type="checkbox" checked={ids.includes(p.id)} onChange={() => toggle(p.id)} />
+            {name(p)}
+          </label>
+        ))}
+      </div>
+      {chosen.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1.5" aria-label="Selected colleagues">
+          {chosen.map((p) => (
+            <span key={p.id} className="inline-flex items-center gap-1 rounded-full bg-[#1F5C4E]/10 px-2.5 py-1 text-xs font-medium text-[#1F5C4E] dark:bg-[#1F5C4E]/30 dark:text-emerald-200">
+              {name(p)}
+              <button type="button" onClick={() => toggle(p.id)} aria-label={`Remove ${name(p)}`} className="cursor-pointer text-sm leading-none hover:opacity-70">×</button>
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Schedule({ people, onSaved }: { people: any[]; onSaved: () => void }) {
   // opened from a Sales lead (?lead_id=&title=&email=): start a client meeting for that lead
   const q = typeof window === "undefined" ? new URLSearchParams() : new URLSearchParams(window.location.search);
@@ -63,10 +96,8 @@ function Schedule({ people, onSaved }: { people: any[]; onSaved: () => void }) {
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         <div>
-          <Label>Colleagues to invite, hold Ctrl to pick several</Label>
-          <select multiple className={`${field} h-32 py-2`} value={ids.map(String)} onChange={(e) => setIds(Array.from(e.target.selectedOptions).map((o) => Number(o.value)))}>
-            {people.map((p) => <option key={p.id} value={p.id}>{p.first_name} {p.last_name}</option>)}
-          </select>
+          <Label>Colleagues to invite</Label>
+          <PeoplePicker people={people} ids={ids} onChange={setIds} />
         </div>
         <div><Label>Client email addresses, separated by commas</Label><input className={field} value={f.emails} onChange={(e) => set("emails", e.target.value)} /></div>
       </div>
