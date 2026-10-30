@@ -61,22 +61,34 @@ function PeoplePicker({ people, ids, onChange }: { people: any[]; ids: number[];
   );
 }
 
+type Fields = { kind: string; title: string; start: string; end: string; location: string; agenda: string; emails: string };
+const EMPTY: Fields = { kind: "internal", title: "", start: "", end: "", location: "", agenda: "", emails: "" };
+// ISO (UTC) to the value a datetime-local input wants, in India time
+const toLocalInput = (iso: string) => new Date(iso).toLocaleString("sv-SE", { timeZone: "Asia/Kolkata" }).slice(0, 16).replace(" ", "T");
+
 function Schedule({ people, onSaved }: { people: any[]; onSaved: () => void }) {
   // opened from a Sales lead (?lead_id=&title=&email=): start a client meeting for that lead
   const q = typeof window === "undefined" ? new URLSearchParams() : new URLSearchParams(window.location.search);
   const leadId = q.get("lead_id");
-  const [f, setF] = useState({ kind: leadId ? "client" : "internal", title: q.get("title") || "", start: "", end: "", location: "", agenda: "", emails: q.get("email") || "" });
-  const [ids, setIds] = useState<number[]>([]);
+  const [n, setN] = useState(0); // bump to clear the form after saving
+  const initial: Fields = { ...EMPTY, kind: leadId ? "client" : "internal", title: q.get("title") || "", emails: q.get("email") || "" };
+  return <MeetingForm key={n} people={people} initial={initial} initialIds={[]} label="Schedule and send invites"
+    onSubmit={async (body) => { await api.post("/meetings", { ...body, lead_id: leadId ? Number(leadId) : null }); setN(n + 1); onSaved(); }} />;
+}
+
+/** The form used both to schedule a new meeting and to change a scheduled one. */
+function MeetingForm({ people, initial, initialIds, label, onSubmit, onCancel }: { people: any[]; initial: Fields; initialIds: number[]; label: string; onSubmit: (body: any) => Promise<void>; onCancel?: () => void }) {
+  const [f, setF] = useState<Fields>(initial);
+  const [ids, setIds] = useState<number[]>(initialIds);
   const [err, setErr] = useState<string | null>(null);
   const set = (k: string, v: string) => setF((p) => ({ ...p, [k]: v }));
   const save = async () => {
     setErr(null);
     try {
-      await api.post("/meetings", {
-        kind: f.kind, lead_id: leadId ? Number(leadId) : null, title: f.title, starts_at: f.start.replace("T", " "), ends_at: f.end.replace("T", " "), location: f.location || null, agenda: f.agenda || null,
+      await onSubmit({
+        kind: f.kind, title: f.title, starts_at: f.start.replace("T", " "), ends_at: f.end.replace("T", " "), location: f.location || null, agenda: f.agenda || null,
         attendee_ids: ids, external_emails: f.emails.split(/[\s,;]+/).filter(Boolean),
       });
-      setF({ kind: "internal", title: "", start: "", end: "", location: "", agenda: "", emails: "" }); setIds([]); onSaved();
     } catch (e: any) { setErr(errMsg(e)); }
   };
   return (
@@ -101,13 +113,17 @@ function Schedule({ people, onSaved }: { people: any[]; onSaved: () => void }) {
         </div>
         <div><Label>Client email addresses, separated by commas</Label><input className={field} value={f.emails} onChange={(e) => set("emails", e.target.value)} /></div>
       </div>
-      <Primary disabled={!f.title || !f.start || !f.end} onClick={save}>Schedule and send invites</Primary>
+      <div className="flex flex-wrap gap-2">
+        <Primary disabled={!f.title || !f.start || !f.end} onClick={save}>{label}</Primary>
+        {onCancel && <Quiet onClick={onCancel}>Close without saving</Quiet>}
+      </div>
     </Panel>
   );
 }
 
 function Item({ m, people, onDone }: { m: any; people: any[]; onDone: () => void }) {
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState(false);
   const [d, setD] = useState<any>(null);
   const [minutes, setMinutes] = useState("");
   const [text, setText] = useState("");
@@ -154,7 +170,18 @@ function Item({ m, people, onDone }: { m: any; people: any[]; onDone: () => void
               <Quiet disabled={!text} onClick={() => run(async () => { await api.post(`/meetings/${m.id}/actions`, { text, owner_id: owner ? Number(owner) : null }); setText(""); setOwner(""); })}>Add follow-up</Quiet>
             </div>
           </div>
-          {d.status === "Scheduled" && <Quiet onClick={() => run(() => api.post(`/meetings/${m.id}/cancel`))}>Cancel meeting</Quiet>}
+          {d.status === "Scheduled" && !editing && (
+            <div className="flex flex-wrap gap-2">
+              <Quiet onClick={() => setEditing(true)}>Change date, people or details</Quiet>
+              <Quiet onClick={() => run(() => api.post(`/meetings/${m.id}/cancel`))}>Cancel meeting</Quiet>
+            </div>
+          )}
+          {d.status === "Scheduled" && editing && (
+            <MeetingForm people={people} label="Save changes and resend invites" onCancel={() => setEditing(false)}
+              initial={{ kind: d.kind, title: d.title, start: toLocalInput(d.starts_at), end: toLocalInput(d.ends_at), location: d.location || "", agenda: d.agenda || "", emails: (d.external_emails || []).join(", ") }}
+              initialIds={d.attendees.map((a: any) => a.id)}
+              onSubmit={async (body) => { await api.put(`/meetings/${m.id}`, { ...body, lead_id: d.lead_id ?? null, project_id: d.project_id ?? null }); setEditing(false); await reload(); onDone(); }} />
+          )}
         </div>
       )}
     </div>
