@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { NotificationDropdown } from "@/components/layout/NotificationDropdown";
 import DoubleClickGuard from "@/components/layout/DoubleClickGuard";
+import StaleTabGuard from "@/components/layout/StaleTabGuard";
 import { RecognitionTicker } from "@/components/layout/RecognitionTicker";
 import { BookmarksDropdown } from "@/components/layout/BookmarksDropdown";
 import { CommandPalette } from "@/components/CommandPalette";
@@ -1286,6 +1287,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* ── FLASH MARQUEE (PINNED AT BOTTOM IN HEADER PURPLE WITH WHITE TEXT) ── */}
         <RecognitionTicker isDark={isDark} isSidebarCollapsed={isSidebarCollapsed} />
         <DoubleClickGuard />
+        <StaleTabGuard />
       </div>
 
       {/* ─────────────────────────────────────────────────────────────────────────────
