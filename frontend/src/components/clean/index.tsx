@@ -7,6 +7,7 @@
  * status = a 6px dot plus a word, rows 44px high, one clear primary action per area.
  */
 import * as React from "react";
+import { PageLoader } from "@/components/ui/PageLoader";
 
 export const ACCENT = "#1F5C4E";
 const cx = (...a: (string | false | undefined)[]) => a.filter(Boolean).join(" ");
@@ -90,7 +91,8 @@ export function Alert({ children }: { children: React.ReactNode }) {
 }
 
 export function Spinner() {
-  return <div className="p-8 text-sm text-slate-500">Loading</div>;
+  // same centred loader as the rest of the portal
+  return <PageLoader />;
 }
 
 export const money = (n: number | string) => Number(n || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 });
