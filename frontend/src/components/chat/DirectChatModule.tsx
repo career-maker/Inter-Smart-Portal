@@ -650,9 +650,9 @@ export function DirectChatModule({ initialConversationId }: { initialConversatio
 
       if (isCancelled) return;
 
-      // Adaptive delay: 10s if active chatting in last 45s, otherwise 25s idle delay
-      const isRecentlyActive = now - lastActivityTimeRef.current < 45000;
-      const nextDelay = isRecentlyActive ? 10000 : 25000;
+      // Adaptive delay: 6s while chatting (last 45s), 25s when quiet, 40s after 5 quiet minutes
+      const quietFor = now - lastActivityTimeRef.current;
+      const nextDelay = quietFor < 45000 ? 6000 : quietFor < 300000 ? 25000 : 40000;
 
       pollTimerRef.current = setTimeout(runPoll, nextDelay);
     };

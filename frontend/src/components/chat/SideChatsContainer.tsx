@@ -55,32 +55,60 @@ function SideChatWindow({ chat, onMinimize, onClose, currentUser }: any) {
   const [input, setInput] = useState("");
   const chatStreamRef = useRef<HTMLDivElement>(null);
 
+  const lastChangeRef = useRef(Date.now()); // last time a message was sent or arrived
+  const pollNowRef = useRef<() => void>(() => {});
+
   useEffect(() => {
-    // Initial fetch
-    api.get(`/direct-chat/conversations/${chat.conversationId}/messages`).then(res => {
-      setMessages(res.data?.data || []);
-      setTimeout(() => {
-        chatStreamRef.current?.scrollTo({ top: chatStreamRef.current.scrollHeight });
-      }, 50);
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let lastId = 0;
+    const scrollDown = () => setTimeout(() => chatStreamRef.current?.scrollTo({ top: chatStreamRef.current.scrollHeight }), 50);
+    const base = `/direct-chat/conversations/${chat.conversationId}/messages`;
+
+    // Initial fetch: latest messages
+    api.get(base).then(res => {
+      const list = res.data?.data || [];
+      lastId = list.reduce((m: number, x: any) => Math.max(m, Number(x.id) || 0), 0);
+      setMessages(list);
+      scrollDown();
     }).catch(err => console.error("Failed to fetch initial side chat msg", err));
 
-    const interval = setInterval(() => {
-      if (document.visibilityState !== "visible") return;
-      api.get(`/direct-chat/conversations/${chat.conversationId}/messages`).then(res => {
-        setMessages(prev => {
-          const newMsgs = res.data?.data || [];
-          if (newMsgs.length > prev.length) {
-            setTimeout(() => {
-              chatStreamRef.current?.scrollTo({ top: chatStreamRef.current.scrollHeight });
-            }, 50);
+    // Poll for newer messages only (after_id), quickly while the chat is active and slowly once it goes quiet
+    const delay = () => {
+      const quiet = Date.now() - lastChangeRef.current;
+      return quiet < 30_000 ? 4_000 : quiet < 180_000 ? 8_000 : 20_000;
+    };
+    const tick = async () => {
+      if (cancelled) return;
+      if (document.visibilityState === "visible") {
+        try {
+          const res = await api.get(base, { params: { after_id: lastId } });
+          const fresh: any[] = res.data?.data || [];
+          if (fresh.length && !cancelled) {
+            lastId = fresh.reduce((m, x) => Math.max(m, Number(x.id) || 0), lastId);
+            lastChangeRef.current = Date.now();
+            setMessages(prev => {
+              const known = new Set(prev.map(m => m.id));
+              const mine = new Set(fresh.filter(m => m.sender_id === currentUser?.id).map(m => m.message));
+              // a server copy replaces the temporary one shown while sending
+              const kept = prev.filter(m => !(typeof m.id === "string" && mine.has(m.message)));
+              return [...kept, ...fresh.filter(m => !known.has(m.id))];
+            });
+            scrollDown();
           }
-          return newMsgs;
-        });
-      }).catch(err => console.error("Failed to poll side chat msg", err));
-    }, 8000);
+        } catch (err) { console.error("Failed to poll side chat msg", err); }
+      }
+      if (!cancelled) timer = setTimeout(tick, delay());
+    };
+    pollNowRef.current = () => { if (timer) clearTimeout(timer); tick(); };
+    timer = setTimeout(tick, delay());
 
-    return () => clearInterval(interval);
-  }, [chat.conversationId]);
+    // Coming back to the tab: check straight away
+    const onVisible = () => { if (document.visibilityState === "visible") pollNowRef.current(); };
+    document.addEventListener("visibilitychange", onVisible);
+
+    return () => { cancelled = true; if (timer) clearTimeout(timer); document.removeEventListener("visibilitychange", onVisible); };
+  }, [chat.conversationId, currentUser?.id]);
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,6 +131,8 @@ function SideChatWindow({ chat, onMinimize, onClose, currentUser }: any) {
       await api.post(`/direct-chat/conversations/${chat.conversationId}/messages`, {
         message: tempMsg.message,
       });
+      lastChangeRef.current = Date.now();
+      pollNowRef.current(); // show the saved copy and any quick reply without waiting
     } catch (err) {
       console.error("Failed to send side chat msg", err);
     }
