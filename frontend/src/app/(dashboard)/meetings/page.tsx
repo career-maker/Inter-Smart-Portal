@@ -172,8 +172,8 @@ function Item({ m, people, onDone }: { m: any; people: any[]; onDone: () => void
           </div>
           {d.status === "Scheduled" && !editing && (
             <div className="flex flex-wrap gap-2">
-              <Quiet onClick={() => setEditing(true)}>Change date, people or details</Quiet>
-              <Quiet onClick={() => run(() => api.post(`/meetings/${m.id}/cancel`))}>Cancel meeting</Quiet>
+              <Primary onClick={() => setEditing(true)}>Change date, people or details</Primary>
+              <Primary className="bg-red-600! hover:bg-red-700!" onClick={() => run(() => api.post(`/meetings/${m.id}/cancel`))}>Cancel meeting</Primary>
             </div>
           )}
           {d.status === "Scheduled" && editing && (
