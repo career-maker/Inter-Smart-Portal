@@ -1524,7 +1524,7 @@ function SuperAdminDashboard({ data, user, time, greeting, leaveSummaryRef, isLe
   const paginatedActivity = activity_feed.slice((activityPage - 1) * activityPerPage, activityPage * activityPerPage);
 
   return (
-    <div className="space-y-6 max-w-[1600px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="space-y-6 w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* ─────────────────────────────────────────────────────────────────────────────
           SUPER ADMIN KEKA-STYLE WELCOME HERO BANNER (MATCHING ALL ROLES)
       ───────────────────────────────────────────────────────────────────────────── */}
