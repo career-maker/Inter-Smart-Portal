@@ -110,10 +110,10 @@ class TrackerController extends Controller
             $sub = $subs->get($r->id, collect());
             $ids = json_decode((string) $r->members, true) ?: [];
 
-            return (array) $r + [
+            return array_merge((array) $r, [
                 'members' => $ids, 'member_names' => collect($ids)->map(fn ($i) => $nm[$i]['name'] ?? null)->filter()->values(),
                 'subtasks' => $sub->values(), 'planned_hours' => (float) $sub->sum('hours'), 'qa_status' => $qa[$r->id] ?? null,
-            ];
+            ]);
         });
 
         $usedDays = match ($kind) {
