@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
@@ -8,6 +8,7 @@ import DeptTracker from "@/components/work/DeptTracker";
 import QaRequests from "@/components/work/QaRequests";
 import QaReviews from "@/components/work/QaReviews";
 import Changes from "@/components/work/Changes";
+import api from "@/services/api";
 
 // Tabs are added here as each department's work screens are built.
 const TABS = [{ key: "ui", label: "Design" }, { key: "frontend", label: "Frontend (HTML)" }, { key: "dev", label: "Dev" }, { key: "qa", label: "QA" }, { key: "changes", label: "Corrections and changes" }];
@@ -15,12 +16,15 @@ const TABS = [{ key: "ui", label: "Design" }, { key: "frontend", label: "Fronten
 export default function WorkProjectPage() {
   const id = useParams<{ id: string }>().id;
   const [tab, setTab] = useState("ui");
+  const [name, setName] = useState<string | null>(null);
+  useEffect(() => { api.get("/work/projects").then((r) => setName(r.data.data.find((p: any) => String(p.id) === String(id))?.name ?? null)).catch(() => {}); }, [id]);
 
   return (
     <div className="space-y-5">
       <div>
         <Link href="/work" className="text-sm text-slate-500 flex items-center gap-1 hover:underline"><ArrowLeft className="h-4 w-4" /> My Work</Link>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mt-1">Project work</h1>
+        <p className="text-xs font-medium uppercase tracking-wide text-slate-500 mt-2">Project work</p>
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">{name ?? "Project"}</h1>
       </div>
       <div className="flex flex-wrap gap-1 border-b border-slate-200 dark:border-slate-800">
         {TABS.map((t) => (

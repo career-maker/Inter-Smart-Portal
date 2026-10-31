@@ -128,6 +128,9 @@ function resolvePageName(pathname: string): string {
   if (segments[0] === "issues" && segments.length > 1) {
     return segments[1] === "new" ? "Raise Issue" : "Issue Details";
   }
+  if (segments[0] === "work" && segments[1] === "projects" && segments.length > 2) {
+    return "Project Work";
+  }
   if (segments[0] === "project-management" && segments[1] === "projects" && segments.length > 2) {
     return "Project Details";
   }
