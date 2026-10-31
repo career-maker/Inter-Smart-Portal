@@ -3,6 +3,7 @@
 import { SelectCompat } from "@/components/ui/SelectCompat";
 import { useEffect, useState, useCallback } from "react";
 import { Loader2 } from "lucide-react";
+import Link from "next/link";
 import api from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +22,12 @@ export default function QaReviews({ projectId }: { projectId?: string | number }
   const [rows, setRows] = useState<any[] | null>(null);
   const [locked, setLocked] = useState<string | null>(null);
   const [openId, setOpenId] = useState<number | null>(null);
+  const [reqs, setReqs] = useState<any>(null);
+  const loadReqs = useCallback(async () => {
+    if (!projectId) return;
+    try { const r = await api.get(`/work/projects/${projectId}/qa-requests`); setReqs(r.data); } catch { /* not on the work list */ }
+  }, [projectId]);
+  useEffect(() => { loadReqs(); window.addEventListener("qa-requests-changed", loadReqs); return () => window.removeEventListener("qa-requests-changed", loadReqs); }, [loadReqs]);
 
   const load = useCallback(async () => {
     try { const r = await api.get(projectId ? `/work/projects/${projectId}/qa` : "/work/qa/queue"); setRows(r.data.data); setLocked(null); }
@@ -47,7 +54,26 @@ export default function QaReviews({ projectId }: { projectId?: string | number }
                 <td className="p-3 text-right"><Button size="sm" variant="outline" onClick={() => setOpenId(r.id)}>Open</Button></td>
               </tr>
             ))}
-            {rows.length === 0 && <tr><td colSpan={6} className="p-6 text-center text-slate-500">{projectId ? "Nothing has been sent to QA on this project yet." : "The QA queue is empty."}</td></tr>}
+            {/* QA requests that have been assigned: the same task as on the Tasks page, so status and the other fields are shared */}
+            {projectId && (reqs?.data || []).filter((q: any) => q.task_id && q.task_status).map((q: any) => (
+              <tr key={`req-${q.id}`} className="border-b last:border-0 bg-slate-50/60 dark:bg-slate-900/30">
+                <td className="p-3 font-medium text-slate-900 dark:text-white">
+                  <Link className="underline decoration-dotted" href={`/project-management/tasks/${q.task_id}`}>{q.task_title}</Link>
+                  <div className="text-xs font-normal text-slate-500">QA request · {(q.task_assignees || []).join(", ") || "Not assigned"} · {q.task_start || "-"} to {q.task_due || "-"} · {q.task_priority}</div>
+                </td>
+                <td className="p-3">-</td>
+                <td className="p-3">
+                  {(reqs.can_assign || q.assigned_to === reqs.me)
+                    ? <SelectCompat className="min-w-[9rem] text-xs h-8" value={q.task_status} onChange={(e) => api.put(`/project-tasks/${q.task_id}`, { status: e.target.value }).then(() => { window.dispatchEvent(new Event("qa-requests-changed")); }).catch((err) => alert(errMsg(err)))}>
+                        {(reqs.task_statuses || []).map((st: string) => <option key={st} value={st}>{st}</option>)}
+                      </SelectCompat>
+                    : <span className="px-2 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">{q.task_status}</span>}
+                </td>
+                <td className="p-3">-</td>
+                <td className="p-3 text-right"><Button size="sm" variant="outline" href={`/project-management/tasks/${q.task_id}`}>Open</Button></td>
+              </tr>
+            ))}
+            {rows.length === 0 && !(projectId && (reqs?.data || []).some((q: any) => q.task_id && q.task_status)) && <tr><td colSpan={6} className="p-6 text-center text-slate-500">{projectId ? "Nothing has been sent to QA on this project yet." : "The QA queue is empty."}</td></tr>}
           </tbody>
         </table>
       </CardContent></Card>

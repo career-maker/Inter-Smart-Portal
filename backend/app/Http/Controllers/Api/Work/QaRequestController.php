@@ -51,8 +51,17 @@ class QaRequestController extends Controller
         $names = User::whereIn('id', $rows->pluck('requested_by')->merge($rows->pluck('assigned_to'))->filter()->unique())->get()->keyBy('id');
         $nm = fn ($id) => $id && $names->has($id) ? trim($names[$id]->first_name . ' ' . $names[$id]->last_name) : null;
 
+        // the live task behind each request: status, title, priority and dates come from the Tasks page
+        $tasks = ProjectTask::with('assignees:id,first_name,last_name')->whereIn('id', $rows->pluck('task_id')->filter())->get()->keyBy('id');
+        $taskInfo = fn ($r) => ($t = $tasks->get($r->task_id)) ? [
+            'task_status' => $t->status, 'task_title' => $t->title, 'task_priority' => $t->priority,
+            'task_start' => optional($t->start_date)->toDateString(), 'task_due' => optional($t->due_date)->toDateString(),
+            'task_assignees' => $t->assignees->map(fn ($a) => trim("{$a->first_name} {$a->last_name}"))->values(),
+        ] : [];
+
         return response()->json([
-            'data' => $rows->map(fn ($r) => (array) $r + ['requested_by_name' => $nm($r->requested_by), 'assigned_to_name' => $nm($r->assigned_to)]),
+            'task_statuses' => ProjectTask::STATUSES,
+            'data' => $rows->map(fn ($r) => (array) $r + $taskInfo($r) + ['requested_by_name' => $nm($r->requested_by), 'assigned_to_name' => $nm($r->assigned_to)]),
             'statuses' => self::STATUSES, 'can_assign' => $this->isQaLead($user), 'qa_members' => $this->qaMembers(), 'me' => $user->id,
         ]);
     }

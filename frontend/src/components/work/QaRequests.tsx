@@ -18,8 +18,8 @@ export default function QaRequests({ projectId }: { projectId: string | number }
   const startOf = (q: any) => dates[q.id]?.start ?? (String(q.start_date || "").slice(0, 10) || today);
   const endOf = (q: any) => dates[q.id]?.end ?? (String(q.end_date || "").slice(0, 10) || startOf(q));
   const load = useCallback(async () => { try { const r = await api.get(`/work/projects/${projectId}/qa-requests`); setD(r.data); } catch { /* not on the work list */ } }, [projectId]);
-  useEffect(() => { load(); }, [load]);
-  const run = async (fn: () => Promise<any>) => { try { await fn(); await load(); } catch (e: any) { alert(errMsg(e)); } };
+  useEffect(() => { load(); window.addEventListener("qa-requests-changed", load); return () => window.removeEventListener("qa-requests-changed", load); }, [load]);
+  const run = async (fn: () => Promise<any>) => { try { await fn(); await load(); window.dispatchEvent(new Event("qa-requests-changed")); } catch (e: any) { alert(errMsg(e)); } };
 
   if (!d || d.data.length === 0) return null;
   return (
