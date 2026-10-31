@@ -1,7 +1,7 @@
 "use client";
 
+import OpenLink from "@/components/OpenLink";
 import { useEffect, useState, useCallback } from "react";
-import Link from "next/link";
 import { ClipboardList, Search, Loader2 } from "lucide-react";
 import api from "@/services/api";
 import { Button } from "@/components/ui/button";
@@ -84,7 +84,7 @@ export default function PmoProjectsPage() {
                       {r.date_exceeded && <Badge className="bg-red-100 text-red-800">Date exceeded</Badge>}
                       {r.pending_out_of_scope > 0 && <Badge className="bg-amber-100 text-amber-800">{r.pending_out_of_scope} out of scope</Badge>}
                     </td>
-                    <td className="p-3 text-right"><Link href={`/pmo/projects/${r.id}`}><Button size="sm" variant="outline">Open</Button></Link></td>
+                    <td className="p-3 text-right"><OpenLink href={`/pmo/projects/${r.id}`} /></td>
                   </tr>
                 ))}
                 {rows.length === 0 && <tr><td colSpan={9} className="p-6 text-center text-slate-500">No projects here yet.</td></tr>}

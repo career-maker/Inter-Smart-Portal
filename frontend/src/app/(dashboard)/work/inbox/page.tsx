@@ -1,10 +1,9 @@
 "use client";
 
+import OpenLink from "@/components/OpenLink";
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { Inbox, Loader2 } from "lucide-react";
 import api from "@/services/api";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -41,7 +40,7 @@ export default function InboxPage() {
                     <td className="p-3 font-medium text-slate-900 dark:text-white">{r.title} <span className="text-xs text-slate-500">{r.kind}</span></td>
                     <td className="p-3">{r.action}</td>
                     <td className="p-3">{r.due ? <span className={r.overdue ? "text-red-600 font-semibold" : ""}>{r.due}{r.overdue && " (late)"}</span> : "-"}</td>
-                    <td className="p-3 text-right"><Link href={`/work/projects/${r.project_id}`}><Button size="sm" variant="outline">Open</Button></Link></td>
+                    <td className="p-3 text-right"><OpenLink href={`/work/projects/${r.project_id}`} /></td>
                   </tr>
                 ))}
                 {d.lead_todo.length === 0 && <tr><td colSpan={5} className="p-6 text-center text-slate-500">Nothing is waiting for you.</td></tr>}
@@ -62,7 +61,7 @@ export default function InboxPage() {
                   <td className="p-3"><Badge variant="outline">{r.status}</Badge></td>
                   <td className="p-3">{r.due ? <span className={r.overdue ? "text-red-600 font-semibold" : ""}>{r.due}{r.overdue && " (late)"}</span> : "-"}</td>
                   <td className="p-3"><span className={r.over_effort ? "text-red-600 font-semibold" : ""}>{days(r.spent_days)} / {days(r.effort_days)}</span></td>
-                  <td className="p-3 text-right"><Link href={`/work/projects/${r.project_id}`}><Button size="sm" variant="outline">Open</Button></Link></td>
+                  <td className="p-3 text-right"><OpenLink href={`/work/projects/${r.project_id}`} /></td>
                 </tr>
               ))}
               {d.mine.length === 0 && <tr><td colSpan={6} className="p-6 text-center text-slate-500">Nothing is assigned to you right now.</td></tr>}

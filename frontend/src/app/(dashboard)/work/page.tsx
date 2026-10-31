@@ -1,10 +1,10 @@
 "use client";
 
+import OpenLink from "@/components/OpenLink";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Layers, Loader2 } from "lucide-react";
 import api from "@/services/api";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -48,7 +48,7 @@ export default function MyWorkPage() {
                 <td className="p-3 font-medium text-slate-900 dark:text-white">{p.name}</td>
                 <td className="p-3"><Badge variant="outline">{p.status}</Badge></td>
                 <td className="p-3">{p.ui_pages ? `${p.ui_pages_done} of ${p.ui_pages} done` : "-"}</td>
-                <td className="p-3 text-right"><Link href={`/work/projects/${p.id}`}><Button size="sm" variant="outline">Open</Button></Link></td>
+                <td className="p-3 text-right"><OpenLink href={`/work/projects/${p.id}`} /></td>
               </tr>
             ))}
             {rows.length === 0 && <tr><td colSpan={4} className="p-6 text-center text-slate-500">No projects on your work list yet.</td></tr>}
