@@ -36,6 +36,7 @@ class QaRequestController extends Controller
     {
         $user = $request->user();
         abort_unless(WorkAccess::canWork($user, $project), 403, 'This project is not on your work list.');
+        self::releaseOrphans($project->id);
         // requests assigned before the Tasks page link existed get their task now
         foreach (DB::table('qa_requests')->where('project_id', $project->id)->whereNotNull('assigned_to')->whereNull('task_id')->where('status', '!=', 'Done')->get() as $old) {
             $start = now()->toDateString();
@@ -96,6 +97,24 @@ class QaRequestController extends Controller
         Notify::users(User::where('id', $d['assigned_to'])->get(), 'QA assigned to you', "\"{$project->name}\": please test \"{$q->title}\" ({$q->kind}).", 'qa_assigned', $q->project_id, $request->user());
 
         return response()->json(['data' => DB::table('qa_requests')->find($qaRequest)]);
+    }
+
+    /** The task of a QA request was deleted on the Tasks page: the request goes back to not assigned. */
+    public static function releaseTask(int $taskId): void
+    {
+        DB::table('qa_requests')->where('task_id', $taskId)->where('status', '!=', 'Done')
+            ->update(['assigned_to' => null, 'assigned_by' => null, 'task_id' => null, 'start_date' => null, 'end_date' => null, 'status' => 'Requested', 'updated_at' => now()]);
+    }
+
+    /** Requests whose task no longer exists (deleted, or removed some other way) are shown as not assigned. */
+    private static function releaseOrphans(int $projectId): void
+    {
+        $live = ProjectTask::where('project_id', $projectId)->pluck('id');
+        foreach (DB::table('qa_requests')->where('project_id', $projectId)->whereNotNull('task_id')->where('status', '!=', 'Done')->pluck('task_id', 'id') as $id => $taskId) {
+            if (! $live->contains($taskId)) {
+                self::releaseTask((int) $taskId);
+            }
+        }
     }
 
     /** The task on the Tasks page for this request: created on first assignment, moved to the new tester and dates after that. */

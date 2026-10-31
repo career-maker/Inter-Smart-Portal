@@ -195,5 +195,6 @@ class ProjectTaskService
     {
         $this->auditLogger->log($actor, 'pm.task.deleted', $task, $task->toArray(), [], $request);
         $task->delete();
+        \App\Http\Controllers\Api\Work\QaRequestController::releaseTask($task->id);
     }
 }
