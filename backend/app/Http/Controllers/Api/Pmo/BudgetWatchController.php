@@ -62,8 +62,10 @@ class BudgetWatchController extends Controller
     private function rows(bool $includeClosed = false): array
     {
         $alloc = ProjectBudgetAllocation::where('amount', '>', 0)->get()->groupBy('project_id');
-        $sprints = WorkSprint::whereIn('status', WorkSprint::OPEN_STATUSES)->whereIn('project_id', $alloc->keys())->selectRaw('project_id, team_id, sum(cost_estimate) as c')->groupBy('project_id', 'team_id')->get();
-        $changes = WorkChange::whereIn('status', WorkChange::COUNTED)->whereIn('project_id', $alloc->keys())->selectRaw('project_id, team_id, sum(cost_estimate) as c')->groupBy('project_id', 'team_id')->get();
+        // person-days: items of approved sprints plus approved corrections/changes
+        $sprints = \DB::table('sprint_items')->join('work_sprints', 'work_sprints.id', '=', 'sprint_items.sprint_id')->whereIn('work_sprints.status', WorkSprint::OPEN_STATUSES)->whereIn('work_sprints.project_id', $alloc->keys())
+            ->selectRaw('work_sprints.project_id, work_sprints.team_id, sum(sprint_items.effort_days) as c')->groupBy('work_sprints.project_id', 'work_sprints.team_id')->get();
+        $changes = WorkChange::whereIn('status', WorkChange::COUNTED)->whereIn('project_id', $alloc->keys())->selectRaw('project_id, team_id, sum(effort_days) as c')->groupBy('project_id', 'team_id')->get();
         $used = [];
         foreach ($sprints->concat($changes) as $r) {
             $used[$r->project_id][$r->team_id] = ($used[$r->project_id][$r->team_id] ?? 0) + (float) $r->c;

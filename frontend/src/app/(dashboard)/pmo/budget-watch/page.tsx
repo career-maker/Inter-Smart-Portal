@@ -31,10 +31,10 @@ function List({ title, rows, empty, tone }: { title: string; rows: any[]; empty:
             <Row className="border-b-0">
               <a href={`/pmo/projects/${r.id}`} className="font-medium text-slate-900 dark:text-white hover:underline">{r.name}</a>
               <Dot tone={tone}>{r.percent}%</Dot>
-              <span className="ml-auto text-slate-600 dark:text-slate-300">{money(r.used)} of {money(r.budget)}{r.overrun > 0 ? `, over by ${money(r.overrun)}` : ""}</span>
+              <span className="ml-auto text-slate-600 dark:text-slate-300">{money(r.used)} of {money(r.budget)} days{r.overrun > 0 ? `, over by ${money(r.overrun)}` : ""}</span>
             </Row>
             <ul className="px-4 pb-2 text-xs text-slate-500 flex gap-x-4 flex-wrap">
-              {r.departments.map((x: any) => <li key={x.team} className={x.over ? "text-red-700 dark:text-red-300" : ""}>{x.team}: {money(x.used)} of {money(x.budget)}</li>)}
+              {r.departments.map((x: any) => <li key={x.team} className={x.over ? "text-red-700 dark:text-red-300" : ""}>{x.team}: {money(x.used)} of {money(x.budget)} days</li>)}
             </ul>
           </div>
         ))}

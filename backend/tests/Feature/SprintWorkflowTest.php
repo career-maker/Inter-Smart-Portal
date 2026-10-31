@@ -144,8 +144,9 @@ class SprintWorkflowTest extends TestCase
 
     public function test_approval_is_checked_against_the_department_budget_and_over_budget_needs_confirmation(): void
     {
-        $a = $this->submitted(30000, 'First');
-        $b = $this->submitted(15000, 'Second');   // 30,000 + 15,000 > 40,000
+        ProjectBudgetAllocation::where('team_id', $this->html->id)->update(['amount' => 5]); // person-days
+        $a = $this->submitted(0, 'First');   // 3 days each (2 + 1)
+        $b = $this->submitted(0, 'Second');  // 3 + 3 > 5
         $this->as($this->manager)->postJson("/api/work/sprints/{$a}/decision", ['decision' => 'approve'])->assertOk();
 
         $this->as($this->manager)->postJson("/api/work/sprints/{$b}/decision", ['decision' => 'approve'])->assertStatus(422)->assertJsonPath('over_budget', true);
@@ -155,7 +156,7 @@ class SprintWorkflowTest extends TestCase
         $this->assertTrue($this->admin->notifications()->get()->pluck('data.event')->contains('sprint_over_budget'));
 
         $dept = collect($this->as($this->lead)->getJson("/api/work/projects/{$this->project->id}/sprints")->json('departments'))->first();
-        $this->assertEquals(45000, $dept['approved_cost']);
+        $this->assertEquals(6, $dept['approved_cost']); // person-days
     }
 
     public function test_dates_are_requested_by_the_coordinator_then_confirmed_by_the_team_lead(): void

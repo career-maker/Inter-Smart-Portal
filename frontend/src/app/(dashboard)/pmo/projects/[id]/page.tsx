@@ -228,7 +228,9 @@ function Budget({ d, meta, run, id }: any) {
   d.allocations.forEach((a: any) => { initial[a.team_id] = String(a.amount); });
   const [amounts, setAmounts] = useState<Record<number, string>>(initial);
   const contract = d.gate.payment.contract_value;
-  const limit = d.intake?.budget_cap != null ? Number(d.intake?.budget_cap) : contract;
+  const cur = d.intake?.currency || "INR";
+  const hasCap = d.intake?.budget_cap != null;
+  const limit = hasCap ? Number(d.intake?.budget_cap) : 0;
   const total = Object.values(amounts).reduce((s, v) => s + Number(v || 0), 0);
 
   const [reason, setReason] = useState("");
@@ -242,8 +244,8 @@ function Budget({ d, meta, run, id }: any) {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-3 gap-3 text-sm">
-        {[[d.intake?.budget_cap != null ? "Max budget cap (Sales)" : "Contract value", money(limit)], ["Allocated", money(total)], ["Unallocated", money(limit - total)]].map(([k, v]) => (
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+        {[["Project value", `${cur} ${money(d.intake?.budget ?? contract)}`], ["Max person-days (Sales cap)", hasCap ? money(limit) : "No cap set"], ["Allocated (person-days)", money(total)], ["Unallocated (person-days)", hasCap ? money(limit - total) : "-"]].map(([k, v]) => (
           <div key={k} className="rounded-xl border border-slate-200 dark:border-slate-700 px-3 py-2"><div className="text-xs text-slate-500">{k}</div><div className="font-semibold">{v}</div></div>
         ))}
       </div>
@@ -252,16 +254,16 @@ function Budget({ d, meta, run, id }: any) {
           <>
             <div className="grid sm:grid-cols-3 gap-3">
               {meta.departments.map((t: any) => (
-                <div key={t.id}><Label>{t.name}</Label><Input type="number" min="0" value={amounts[t.id] ?? ""} onChange={(e) => setAmounts({ ...amounts, [t.id]: e.target.value })} /></div>
+                <div key={t.id}><Label>{t.name} (person-days)</Label><Input type="number" min="0" step="0.5" value={amounts[t.id] ?? ""} onChange={(e) => setAmounts({ ...amounts, [t.id]: e.target.value })} /></div>
               ))}
             </div>
             {needReason && <div role="alert" className="rounded-lg border border-amber-300 bg-amber-50 text-amber-900 px-3 py-2 text-sm">{needReason}</div>}
             {needReason && <div><Label>Reason for the increase</Label><Input value={reason} onChange={(e) => setReason(e.target.value)} /></div>}
-            <Button onClick={() => save()}>Save department budgets</Button>
+            <Button onClick={() => save()}>Save department person-days</Button>
           </>
         ) : (
           d.allocations.length === 0 ? <p className="text-sm text-slate-500">No department budget yet.</p> :
-            d.allocations.map((a: any) => <div key={a.id} className="flex justify-between text-sm border-b py-1"><span>{a.team?.name}</span><span className="font-medium">{money(a.amount)}</span></div>)
+            d.allocations.map((a: any) => <div key={a.id} className="flex justify-between text-sm border-b py-1"><span>{a.team?.name}</span><span className="font-medium">{money(a.amount)} days</span></div>)
         )}
         {d.overrides.map((o: any) => (
           <p key={o.id} className="text-xs text-amber-700">Lock override ({o.type}): {o.reason}</p>

@@ -33,7 +33,8 @@ class BudgetWatchTest extends TestCase
 
         $mk = fn ($name, $budget, $cost) => tap(Project::create(['name' => $name, 'status' => 'Active', 'start_date' => now()->toDateString(), 'created_by' => $admin->id]), function ($p) use ($html, $budget, $cost, $admin) {
             ProjectBudgetAllocation::create(['project_id' => $p->id, 'team_id' => $html->id, 'amount' => $budget, 'allocated_by' => $admin->id]);
-            WorkSprint::create(['project_id' => $p->id, 'team_id' => $html->id, 'title' => 's', 'status' => 'Approved', 'cost_estimate' => $cost, 'created_by' => $admin->id]);
+            $s = WorkSprint::create(['project_id' => $p->id, 'team_id' => $html->id, 'title' => 's', 'status' => 'Approved', 'created_by' => $admin->id]);
+            \App\Models\SprintItem::create(['sprint_id' => $s->id, 'title' => 'i', 'effort_days' => $cost]); // person-days
         });
         $mk('Over', 1000, 1200);
         $mk('Near', 1000, 950);

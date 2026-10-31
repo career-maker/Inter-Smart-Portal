@@ -199,10 +199,10 @@ class SalesModuleTest extends TestCase
 
     public function test_sheet_answers_are_saved_and_only_sheet_values_are_accepted(): void
     {
-        $ok = $this->as($this->ravi)->postJson('/api/sales/projects', $this->intake(['budget_cap' => 120000, 'details' => ['project_type' => 'CMS_Word_Cust_10', 'online_chat' => 'Yes', 'poc_name' => 'Asha']]));
+        $ok = $this->as($this->ravi)->postJson('/api/sales/projects', $this->intake(['budget_cap' => 120, 'details' => ['project_type' => 'CMS_Word_Cust_10', 'online_chat' => 'Yes', 'poc_name' => 'Asha']]));
         $ok->assertCreated();
         $this->assertSame('Yes', \App\Models\ProjectIntake::first()->details['online_chat']);
-        $this->assertEquals(120000, \App\Models\ProjectIntake::first()->budget_cap);
+        $this->assertEquals(120, \App\Models\ProjectIntake::first()->budget_cap);
 
         $this->as($this->ravi)->postJson('/api/sales/projects', $this->intake(['name' => 'Other', 'details' => ['online_chat' => 'Maybe']]))
             ->assertStatus(422)->assertJsonPath('errors.details.0', '"Maybe" is not an allowed answer for online_chat.');

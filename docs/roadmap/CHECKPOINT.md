@@ -307,3 +307,6 @@ Sales document fields; budget-per-department formula (sections x animation level
 - `Role` access in this app is a single `user.role` string; module access is therefore by team name (`Access::inTeam`), not Spatie roles.
 - Live `.env`: `APP_ENV=production`, `APP_DEBUG=false`, cache and sessions use files, queue uses the database.
 - `public/oc-reset.php` and `public/uploads/` in the live repo folder are untracked on purpose; leave them.
+
+## Budget cap = person-days (31 Oct 2026)
+Sales `budget_cap` is the max PERSON-DAYS (1 day = 8h; 2 people share it, 50 days = 25 each), not money. `budget` stays the real value, with new `project_intake.currency` (INR/AED). Department allocations (`project_budget_allocations.amount`) are now person-days, split by PMO within the cap (no cap = no limit). Sprints/changes/budget-watch compare `effort_days` (sprint items + counted changes), not `cost_estimate`. Existing live allocations were money: re-enter them in days. Tests updated but NOT run (no local PHP); run before relying on them. Needs `migrate` on live.

@@ -81,7 +81,16 @@ class WorkAccess
         return self::canManageUi($user, $project) || self::isUiMember($user);
     }
 
-    /** Total budget the project manager gave the design department(s). */
+    /** Person-days already committed for a department: items of approved sprints plus approved corrections/changes. */
+    public static function usedDays(int $projectId, int $teamId, ?int $excludeSprintId = null): float
+    {
+        $sprints = \App\Models\SprintItem::whereIn('sprint_id', \App\Models\WorkSprint::where('project_id', $projectId)->where('team_id', $teamId)
+            ->whereIn('status', \App\Models\WorkSprint::OPEN_STATUSES)->when($excludeSprintId, fn ($q) => $q->where('id', '!=', $excludeSprintId))->select('id'))->sum('effort_days');
+
+        return (float) $sprints + (float) \App\Models\WorkChange::where('project_id', $projectId)->where('team_id', $teamId)->whereIn('status', \App\Models\WorkChange::COUNTED)->sum('effort_days');
+    }
+
+    /** Person-days the project manager gave the design department(s). */
     public static function uiBudgetCap(Project $project): float
     {
         return (float) ProjectBudgetAllocation::where('project_id', $project->id)->whereIn('team_id', self::uiTeamIds())->sum('amount');

@@ -23,7 +23,7 @@ const STATE_COLOR: Record<string, string> = {
 };
 const money = (n: number | string) => Number(n || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 });
 const errMsg = (e: any) => e?.response?.data?.message || "Something went wrong. Please try again.";
-const EMPTY = { name: "", client_name: "", client_email: "", client_phone: "", site_category: "CMS", cms_variant: "", platform: "WordPress", pages_count: "", quality_level: "Standard", budget: "", budget_cap: "", overview: "", lead_id: "", details: {} as Record<string, string> };
+const EMPTY = { name: "", client_name: "", client_email: "", client_phone: "", site_category: "CMS", cms_variant: "", platform: "WordPress", pages_count: "", quality_level: "Standard", budget: "", budget_cap: "", currency: "INR", overview: "", lead_id: "", details: {} as Record<string, string> };
 
 export default function SalesProjectsPage() {
   const [rows, setRows] = useState<any[]>([]);
@@ -90,8 +90,8 @@ export default function SalesProjectsPage() {
             <div><Label>Client</Label><Input value={form.client_name} onChange={(e) => setForm({ ...form, client_name: e.target.value })} /></div>
             <div><Label>Client email</Label><Input value={form.client_email} onChange={(e) => setForm({ ...form, client_email: e.target.value })} /></div>
             <div><Label>Client phone</Label><Input value={form.client_phone} onChange={(e) => setForm({ ...form, client_phone: e.target.value })} /></div>
-            <div><Label>Budget</Label><Input type="number" min="0" value={form.budget} onChange={(e) => setForm({ ...form, budget: e.target.value })} /></div>
-            <div><Label>Max budget cap (optional)</Label><Input type="number" min="0" value={form.budget_cap} onChange={(e) => setForm({ ...form, budget_cap: e.target.value })} /><p className="text-xs text-slate-500 mt-1">Project managers split the budget by hand and cannot go above this.</p></div>
+            <div><Label>Budget (project value)</Label><div className="flex gap-1"><select className="h-10 rounded-md border bg-transparent px-2 text-sm" value={form.currency} onChange={(e) => setForm({ ...form, currency: e.target.value })}><option>INR</option><option>AED</option></select><Input type="number" min="0" value={form.budget} onChange={(e) => setForm({ ...form, budget: e.target.value })} /></div></div>
+            <div><Label>Max budget cap (person-days)</Label><Input type="number" min="0" value={form.budget_cap} onChange={(e) => setForm({ ...form, budget_cap: e.target.value })} /><p className="text-xs text-slate-500 mt-1">Most days one person could work on this project (1 day = 8 hours). Two people share it: 50 days = 25 each. Project managers split it across departments and cannot go above it.</p></div>
             <div><Label>Type</Label>
               <select className="w-full h-10 rounded-md border bg-transparent px-2 text-sm" value={form.site_category} onChange={(e) => setForm({ ...form, site_category: e.target.value, platform: PLATFORMS[e.target.value][0], cms_variant: "" })}>
                 {CATEGORIES.map((c) => <option key={c}>{c}</option>)}

@@ -63,7 +63,7 @@ class PmoModuleTest extends TestCase
     private function salesProject(string $name = 'Acme Website'): int
     {
         return $this->as($this->sales)->postJson('/api/sales/projects', [
-            'name' => $name, 'client_name' => 'Acme', 'site_category' => 'CMS', 'platform' => 'WordPress', 'pages_count' => 10, 'budget' => 100000,
+            'name' => $name, 'client_name' => 'Acme', 'site_category' => 'CMS', 'platform' => 'WordPress', 'pages_count' => 10, 'budget' => 100000, 'currency' => 'AED', 'budget_cap' => 100,
         ])->assertCreated()->json('data.id');
     }
 
@@ -176,20 +176,20 @@ class PmoModuleTest extends TestCase
 
         $this->as($this->coordinator)->putJson("/api/pmo/projects/{$id}/budget", ['allocations' => []])->assertStatus(403);
 
-        $over = ['allocations' => [['team_id' => $this->design->id, 'amount' => 70000], ['team_id' => $this->html->id, 'amount' => 50000]]];
+        $over = ['allocations' => [['team_id' => $this->design->id, 'amount' => 70], ['team_id' => $this->html->id, 'amount' => 50]]]; // cap is 100 person-days
         $this->as($this->manager)->putJson("/api/pmo/projects/{$id}/budget", $over)->assertStatus(422)->assertJsonPath('over_contract', true);
 
-        $ok = ['allocations' => [['team_id' => $this->design->id, 'amount' => 60000], ['team_id' => $this->html->id, 'amount' => 40000]]];
+        $ok = ['allocations' => [['team_id' => $this->design->id, 'amount' => 60], ['team_id' => $this->html->id, 'amount' => 40]]];
         $this->as($this->manager)->putJson("/api/pmo/projects/{$id}/budget", $ok)->assertOk();
         $this->assertTrue($tabs()['ui']['enabled']);
-        $this->assertDatabaseHas('project_budget_allocations', ['project_id' => $id, 'team_id' => $this->design->id, 'amount' => 60000]);
+        $this->assertDatabaseHas('project_budget_allocations', ['project_id' => $id, 'team_id' => $this->design->id, 'amount' => 60]);
 
         // Confirmed over-allocation goes through and tells the Super Admin.
         $this->as($this->manager)->putJson("/api/pmo/projects/{$id}/budget", $over + ['reason' => 'Client added scope'])->assertOk();
         $this->assertTrue($this->admin->notifications()->get()->pluck('data.event')->contains('budget_over_contract'));
 
         // Zero removes a department.
-        $this->as($this->manager)->putJson("/api/pmo/projects/{$id}/budget", ['allocations' => [['team_id' => $this->design->id, 'amount' => 0], ['team_id' => $this->html->id, 'amount' => 100]]])->assertOk();
+        $this->as($this->manager)->putJson("/api/pmo/projects/{$id}/budget", ['allocations' => [['team_id' => $this->design->id, 'amount' => 0], ['team_id' => $this->html->id, 'amount' => 10]]])->assertOk();
         $this->assertDatabaseMissing('project_budget_allocations', ['project_id' => $id, 'team_id' => $this->design->id]);
     }
 

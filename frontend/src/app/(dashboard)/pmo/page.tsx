@@ -62,7 +62,7 @@ export default function PmoProjectsPage() {
               <thead>
                 <tr className="text-left text-slate-500 border-b">
                   <th className="p-3">Project</th><th className="p-3">Status</th><th className="p-3">Coordinator</th>
-                  <th className="p-3">Payment</th><th className="p-3 text-right">Contract</th><th className="p-3 text-right">Allocated</th>
+                  <th className="p-3">Payment</th><th className="p-3 text-right">Contract</th><th className="p-3 text-right">Allocated (days)</th>
                   <th className="p-3">Progress</th><th className="p-3">Flags</th><th className="p-3" />
                 </tr>
               </thead>

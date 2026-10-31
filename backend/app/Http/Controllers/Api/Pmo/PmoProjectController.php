@@ -187,20 +187,20 @@ class PmoProjectController extends Controller
         ]);
 
         $total = collect($data['allocations'])->sum('amount');
-        $contract = (float) (ProjectFinance::where('project_id', $project->id)->value('contract_value') ?? 0);
-        // Limit = the Sales max budget cap when set, else the contract value. The manager has full access: going over the limit,
-        // or raising a budget that was already set, is allowed but needs a written reason, which is audited and sent to the Super Admin.
+        // Allocations are PERSON-DAYS (8h each). Limit = the Sales max budget cap (person-days); no cap means no limit.
+        // The manager has full access: going over the limit, or raising a budget that was already set, is allowed but needs a
+        // written reason, which is audited and sent to the Super Admin.
         $cap = \App\Models\ProjectIntake::where('project_id', $project->id)->value('budget_cap');
-        $limit = $cap !== null ? (float) $cap : $contract;
-        $what = $cap !== null ? 'the maximum budget cap set by Sales' : 'the contract value';
+        $limit = $cap !== null ? (float) $cap : null;
+        $what = 'the maximum budget cap set by Sales';
         $previous = (float) ProjectBudgetAllocation::where('project_id', $project->id)->sum('amount');
-        $over = $total > $limit;
+        $over = $limit !== null && $total > $limit;
         $raised = $previous > 0 && $total > $previous;
         $reason = trim((string) ($data['reason'] ?? ''));
         if (($over || $raised) && $reason === '') {
             $msg = $over
-                ? 'Allocated ' . number_format($total, 2) . " is more than {$what} " . number_format($limit, 2) . '. Enter the reason for the increase.'
-                : 'You are raising the budget from ' . number_format($previous, 2) . ' to ' . number_format($total, 2) . '. Enter the reason for the increase.';
+                ? 'Allocated ' . number_format($total, 2) . " person-days is more than {$what} (" . number_format($limit, 2) . ' person-days). Enter the reason for the increase.'
+                : 'You are raising the person-days from ' . number_format($previous, 2) . ' to ' . number_format($total, 2) . '. Enter the reason for the increase.';
 
             return response()->json(['message' => $msg, 'errors' => ['reason' => [$msg]], 'over_contract' => $over, 'needs_reason' => true], 422);
         }
@@ -215,7 +215,7 @@ class PmoProjectController extends Controller
 
         $this->audit($request, $project, 'allocated department budget', ['total' => $total, 'previous' => $previous, 'limit' => $limit, 'reason' => $reason ?: null]);
         if ($over) {
-            Notify::users(User::role('Super Admin')->get(), 'Budget allocated over contract', "\"{$project->name}\": departments were given " . number_format($total, 2) . ' against ' . $what . ' ' . number_format($limit, 2) . ". Reason: {$reason}", 'budget_over_contract', $project->id, $request->user());
+            Notify::users(User::role('Super Admin')->get(), 'Person-days allocated over cap', "\"{$project->name}\": departments were given " . number_format($total, 2) . ' person-days against ' . $what . ' ' . number_format($limit, 2) . ". Reason: {$reason}", 'budget_over_contract', $project->id, $request->user());
         }
 
         return response()->json(['gate' => ProjectGate::state($project), 'allocations' => ProjectBudgetAllocation::with('team:id,name')->where('project_id', $project->id)->get()]);

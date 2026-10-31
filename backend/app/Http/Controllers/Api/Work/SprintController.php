@@ -154,7 +154,7 @@ class SprintController extends Controller
 
         $this->move($sprint, 'Submitted', $request->user(), null);
         $project = Project::find($sprint->project_id);
-        Notify::users(Access::pmoManagers(), 'Sprint needs approval', "\"{$project->name}\": sprint \"{$sprint->title}\" ({$items->sum('effort_days')} days, cost " . number_format((float) $sprint->cost_estimate, 2) . ') is waiting for your approval.', 'sprint_submitted', $project->id, $request->user());
+        Notify::users(Access::pmoManagers(), 'Sprint needs approval', "\"{$project->name}\": sprint \"{$sprint->title}\" ({$items->sum('effort_days')} days) is waiting for your approval.", 'sprint_submitted', $project->id, $request->user());
 
         return response()->json(['data' => $sprint->fresh()]);
     }
@@ -179,10 +179,10 @@ class SprintController extends Controller
         }
 
         $budget = (float) ProjectBudgetAllocation::where('project_id', $project->id)->where('team_id', $sprint->team_id)->sum('amount');
-        $total = $this->approvedCost($project->id, $sprint->team_id, $sprint->id) + (float) $sprint->cost_estimate;
+        $total = $this->approvedCost($project->id, $sprint->team_id, $sprint->id) + (float) $sprint->items()->sum('effort_days');
         $over = $total > $budget;
         if ($over && empty($data['allow_over_budget'])) {
-            $msg = 'Approved sprints would cost ' . number_format($total, 2) . ' but the department budget is ' . number_format($budget, 2) . '.';
+            $msg = 'Approved work would take ' . number_format($total, 2) . ' person-days but the department has ' . number_format($budget, 2) . '.';
 
             return response()->json(['message' => $msg . ' Confirm to go over.', 'errors' => ['decision' => [$msg]], 'over_budget' => true], 422);
         }
@@ -190,7 +190,7 @@ class SprintController extends Controller
         $sprint->update(['decided_by' => $request->user()->id, 'decided_at' => now(), 'decision_note' => $data['note'] ?? null]);
         $this->move($sprint, 'Approved', $request->user(), $data['note'] ?? null);
         if ($over) {
-            Notify::users(User::role('Super Admin')->get(), 'Sprint approved over budget', "\"{$project->name}\": department sprints now cost " . number_format($total, 2) . ' against a budget of ' . number_format($budget, 2) . '.', 'sprint_over_budget', $project->id, $request->user());
+            Notify::users(User::role('Super Admin')->get(), 'Sprint approved over budget', "\"{$project->name}\": department sprints now take " . number_format($total, 2) . ' person-days against ' . number_format($budget, 2) . '.', 'sprint_over_budget', $project->id, $request->user());
         }
         Notify::users($this->planners($sprint)->merge(User::where('id', $project->project_coordinator_id)->get()), 'Sprint approved', "\"{$project->name}\": sprint \"{$sprint->title}\" was approved. The coordinator can now ask for dates.", 'sprint_decided', $project->id, $request->user());
 
@@ -296,8 +296,7 @@ class SprintController extends Controller
 
     private function approvedCost(int $projectId, int $teamId, ?int $excludeId = null): float
     {
-        return (float) WorkSprint::where('project_id', $projectId)->where('team_id', $teamId)->whereIn('status', WorkSprint::OPEN_STATUSES)
-            ->when($excludeId, fn ($q) => $q->where('id', '!=', $excludeId))->sum('cost_estimate');
+        return WorkAccess::usedDays($projectId, $teamId, $excludeId); // person-days, not money
     }
 
     private function planners(WorkSprint $sprint)

@@ -70,9 +70,9 @@ class ChangeController extends Controller
     {
         abort_unless(WorkAccess::canManageSprint($request->user(), $change->team_id), 403, 'Only the department team lead can estimate this.');
         abort_unless(in_array($change->status, ['Requested', 'Estimated', 'Rejected'], true), 422, 'This item can no longer be estimated.');
-        $data = $request->validate(['effort_days' => 'required|numeric|gt:0|max:10000', 'cost_estimate' => 'required|numeric|min:0|max:100000000']);
+        $data = $request->validate(['effort_days' => 'required|numeric|gt:0|max:10000', 'cost_estimate' => 'nullable|numeric|min:0|max:100000000']);
 
-        $change->update($data + ['status' => 'Estimated', 'estimated_by' => $request->user()->id, 'decision_note' => null]);
+        $change->update($data + ['cost_estimate' => $data['cost_estimate'] ?? 0, 'status' => 'Estimated', 'estimated_by' => $request->user()->id, 'decision_note' => null]);
         $project = Project::findOrFail($change->project_id);
         Notify::users(Access::pmoManagers(), "{$change->kind} needs approval", "\"{$project->name}\": \"{$change->title}\" is estimated at {$this->days($change->effort_days)} day(s). Approve or reject it.", 'change_estimated', $project->id, $request->user());
 
@@ -98,17 +98,17 @@ class ChangeController extends Controller
         }
 
         $budget = $this->budget($project->id, $change->team_id);
-        $total = $this->used($project->id, $change->team_id) + (float) $change->cost_estimate;
+        $total = $this->used($project->id, $change->team_id) + (float) $change->effort_days;
         $over = $total > $budget;
         if ($over && empty($data['allow_over_budget'])) {
-            $msg = 'Approved work would cost ' . number_format($total, 2) . ' but the department budget is ' . number_format($budget, 2) . '.';
+            $msg = 'Approved work would take ' . number_format($total, 2) . ' person-days but the department has ' . number_format($budget, 2) . '.';
 
             return response()->json(['message' => $msg . ' Confirm to go over.', 'errors' => ['decision' => [$msg]], 'over_budget' => true], 422);
         }
 
         $change->update(['status' => 'Approved', 'decided_by' => $request->user()->id, 'decided_at' => now(), 'decision_note' => $data['note'] ?? null]);
         if ($over) {
-            Notify::users(User::role('Super Admin')->get(), "{$change->kind} approved over budget", "\"{$project->name}\": department work now costs " . number_format($total, 2) . ' against a budget of ' . number_format($budget, 2) . '.', 'change_over_budget', $project->id, $request->user());
+            Notify::users(User::role('Super Admin')->get(), "{$change->kind} approved over budget", "\"{$project->name}\": department work now takes " . number_format($total, 2) . ' person-days against ' . number_format($budget, 2) . '.', 'change_over_budget', $project->id, $request->user());
         }
         Notify::users($told, "{$change->kind} approved", "\"{$project->name}\": \"{$change->title}\" was approved. The team lead can assign it.", 'change_decided', $project->id, $request->user());
 
@@ -163,8 +163,7 @@ class ChangeController extends Controller
     /** Approved sprints plus approved changes for the department. */
     private function used(int $projectId, int $teamId): float
     {
-        return (float) WorkSprint::where('project_id', $projectId)->where('team_id', $teamId)->whereIn('status', WorkSprint::OPEN_STATUSES)->sum('cost_estimate')
-            + (float) WorkChange::where('project_id', $projectId)->where('team_id', $teamId)->whereIn('status', WorkChange::COUNTED)->sum('cost_estimate');
+        return WorkAccess::usedDays($projectId, $teamId);
     }
 
     private function days($n): string

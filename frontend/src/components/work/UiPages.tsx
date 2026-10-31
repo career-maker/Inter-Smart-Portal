@@ -42,7 +42,7 @@ export default function UiPages({ projectId }: { projectId: string | number }) {
     <div className="space-y-4">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
         {[["Pages", `${approved.length}${d.pages_allowed ? ` of ${d.pages_allowed} sold` : ""}`], ["Completed", `${done} of ${approved.length}`],
-          ["Design budget", money(d.budget.cap)], ["Left to give pages", money(d.budget.left)]].map(([k, v]) => (
+          ["Design person-days", money(d.budget.cap)], ["Left to give pages", money(d.budget.left)]].map(([k, v]) => (
           <div key={k} className="rounded-xl border border-slate-200 dark:border-slate-700 px-3 py-2"><div className="text-xs text-slate-500">{k}</div><div className="font-semibold">{v}</div></div>
         ))}
       </div>
@@ -63,7 +63,7 @@ export default function UiPages({ projectId }: { projectId: string | number }) {
 
       <Card><CardContent className="p-0 overflow-x-auto">
         <table className="w-full text-sm">
-          <thead><tr className="text-left text-slate-500 border-b"><th className="p-3">#</th><th className="p-3">Page</th><th className="p-3">Status</th><th className="p-3">Assigned to</th><th className="p-3">Sections</th><th className="p-3 text-right">Budget</th><th className="p-3" /></tr></thead>
+          <thead><tr className="text-left text-slate-500 border-b"><th className="p-3">#</th><th className="p-3">Page</th><th className="p-3">Status</th><th className="p-3">Assigned to</th><th className="p-3">Sections</th><th className="p-3 text-right">Days</th><th className="p-3" /></tr></thead>
           <tbody>
             {d.pages.map((p: any) => (
               <tr key={p.id} className="border-b last:border-0">
@@ -140,7 +140,7 @@ function PageDialog({ id, d, onClose, onChanged }: { id: number; d: any; onClose
                 <div className="col-span-2"><Label>Title</Label><Input value={edit.title} onChange={(e) => setEdit({ ...edit, title: e.target.value })} /></div>
                 <div><Label>Animation</Label><select className={SELECT} value={edit.animation_level} onChange={(e) => setEdit({ ...edit, animation_level: e.target.value })}>{d.animation_levels.map((a: string) => <option key={a}>{a}</option>)}</select></div>
                 <div><Label>Sections planned</Label><Input type="number" min="1" value={edit.est_sections} onChange={(e) => setEdit({ ...edit, est_sections: e.target.value })} /></div>
-                <div><Label>Budget</Label><Input type="number" min="0" value={edit.budget} onChange={(e) => setEdit({ ...edit, budget: e.target.value })} /></div>
+                <div><Label>Person-days</Label><Input type="number" min="0" step="0.5" value={edit.budget} onChange={(e) => setEdit({ ...edit, budget: e.target.value })} /></div>
                 <div><Label>Due date</Label><Input type="date" value={edit.due_date} onChange={(e) => setEdit({ ...edit, due_date: e.target.value })} /></div>
                 <div className="col-span-2"><Label>Figma link</Label><Input placeholder="https://" value={edit.figma_url} onChange={(e) => setEdit({ ...edit, figma_url: e.target.value })} /></div>
                 <div className="col-span-2"><Label>Assigned to</Label>

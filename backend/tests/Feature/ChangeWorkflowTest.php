@@ -50,7 +50,7 @@ class ChangeWorkflowTest extends TestCase
         $this->project = Project::create(['name' => 'Acme', 'status' => 'Active', 'start_date' => now()->toDateString(), 'created_by' => $admin->id, 'project_coordinator_id' => $this->coordinator->id]);
         ProjectFinance::create(['project_id' => $this->project->id, 'contract_value' => 100000]);
         ProjectPayment::create(['project_id' => $this->project->id, 'kind' => 'advance', 'amount' => 30000, 'status' => 'Approved']);
-        ProjectBudgetAllocation::create(['project_id' => $this->project->id, 'team_id' => $this->html->id, 'amount' => 5000]);
+        ProjectBudgetAllocation::create(['project_id' => $this->project->id, 'team_id' => $this->html->id, 'amount' => 5]);
     }
 
     private function as(User $user): static

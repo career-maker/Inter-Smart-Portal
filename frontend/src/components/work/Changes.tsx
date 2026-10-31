@@ -39,8 +39,8 @@ export default function Changes({ projectId }: { projectId: string | number }) {
         {d.departments.map((t: any) => (
           <div key={t.id} className="rounded-xl border border-slate-200 dark:border-slate-700 px-3 py-2">
             <div className="text-xs text-slate-500">{t.name}</div>
-            <div className="font-semibold">{money(t.left)} left</div>
-            <div className="text-xs text-slate-500">of {money(t.budget)} budget</div>
+            <div className="font-semibold">{money(t.left)} days left</div>
+            <div className="text-xs text-slate-500">of {money(t.budget)} person-days</div>
           </div>
         ))}
         {d.departments.length === 0 && <p className="text-slate-500">No department has a budget on this project yet.</p>}
@@ -70,7 +70,6 @@ export default function Changes({ projectId }: { projectId: string | number }) {
 
 function ChangeRow({ c, d, run }: { c: any; d: any; run: (fn: () => Promise<any>) => Promise<boolean> }) {
   const [effort, setEffort] = useState(c.effort_days > 0 ? String(c.effort_days) : "");
-  const [cost, setCost] = useState(c.cost_estimate > 0 ? String(c.cost_estimate) : "");
   const [note, setNote] = useState("");
   const [spent, setSpent] = useState(String(c.time_spent_days || ""));
   const [assignee, setAssignee] = useState(c.assigned_to ? String(c.assigned_to) : "");
@@ -88,13 +87,12 @@ function ChangeRow({ c, d, run }: { c: any; d: any; run: (fn: () => Promise<any>
         <span className={`ml-auto px-2 py-1 rounded-full text-xs font-semibold ${COLOR[c.status]}`}>{c.status}</span>
       </div>
       {c.description && <p className="text-slate-600 dark:text-slate-300">{c.description}</p>}
-      <p className="text-xs text-slate-500">Raised by {c.requested_by_name || "-"}{c.effort_days > 0 && <> · {c.effort_days} day(s), cost {money(c.cost_estimate)}</>}{c.assignee && <> · assigned to {c.assignee}</>}{c.time_spent_days > 0 && <> · {c.time_spent_days} day(s) spent</>}{c.decision_note && <> · note: {c.decision_note}</>}</p>
+      <p className="text-xs text-slate-500">Raised by {c.requested_by_name || "-"}{c.effort_days > 0 && <> · {c.effort_days} day(s)</>}{c.assignee && <> · assigned to {c.assignee}</>}{c.time_spent_days > 0 && <> · {c.time_spent_days} day(s) spent</>}{c.decision_note && <> · note: {c.decision_note}</>}</p>
 
       {c.can_estimate && (
         <div className="grid grid-cols-2 gap-2">
           <div><Label>Effort (days)</Label><Input inputMode="decimal" value={effort} onChange={(e) => setEffort(e.target.value)} /></div>
-          <div><Label>Cost</Label><Input inputMode="decimal" value={cost} onChange={(e) => setCost(e.target.value)} /></div>
-          <Button className="col-span-2" disabled={!effort || !cost} onClick={() => run(() => api.post(`/work/changes/${c.id}/estimate`, { effort_days: Number(effort), cost_estimate: Number(cost) }))}>Send for approval</Button>
+          <Button className="col-span-2" disabled={!effort} onClick={() => run(() => api.post(`/work/changes/${c.id}/estimate`, { effort_days: Number(effort) }))}>Send for approval</Button>
         </div>
       )}
 

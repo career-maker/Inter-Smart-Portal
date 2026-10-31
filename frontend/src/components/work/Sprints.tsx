@@ -24,7 +24,7 @@ export default function Sprints({ projectId }: { projectId: string | number }) {
   const [d, setD] = useState<any>(null);
   const [locked, setLocked] = useState<string | null>(null);
   const [openId, setOpenId] = useState<number | null>(null);
-  const [form, setForm] = useState({ team_id: "", title: "", cost_estimate: "" });
+  const [form, setForm] = useState({ team_id: "", title: "" });
 
   const load = useCallback(async () => {
     try { const r = await api.get(`/work/projects/${projectId}/sprints`); setD(r.data); setLocked(null); }
@@ -43,9 +43,9 @@ export default function Sprints({ projectId }: { projectId: string | number }) {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
         {d.departments.map((x: any) => (
           <div key={x.id} className="rounded-xl border border-slate-200 dark:border-slate-700 px-3 py-2">
-            <div className="text-xs text-slate-500">{x.name} budget</div>
+            <div className="text-xs text-slate-500">{x.name} person-days</div>
             <div className="font-semibold">{money(x.budget)}</div>
-            <div className="text-xs text-slate-500">Approved sprints {money(x.approved_cost)} · left {money(x.left)}</div>
+            <div className="text-xs text-slate-500">Approved work {money(x.approved_cost)} · left {money(x.left)}</div>
           </div>
         ))}
         {d.departments.length === 0 && <p className="col-span-4 text-sm text-slate-500">No UX or Dev department has a budget on this project yet.</p>}
@@ -56,17 +56,16 @@ export default function Sprints({ projectId }: { projectId: string | number }) {
           <CardContent className="pt-3 grid sm:grid-cols-4 gap-2 items-end">
             <div><Label>Department</Label><select className={SELECT} value={form.team_id} onChange={(e) => setForm({ ...form, team_id: e.target.value })}><option value="">Select</option>{planners.map((x: any) => <option key={x.id} value={x.id}>{x.name}</option>)}</select></div>
             <div><Label>Sprint title</Label><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></div>
-            <div><Label>Cost estimate</Label><Input type="number" min="0" value={form.cost_estimate} onChange={(e) => setForm({ ...form, cost_estimate: e.target.value })} /></div>
             <Button disabled={!form.team_id || !form.title} onClick={() => run(async () => {
-              const r = await api.post(`/work/projects/${projectId}/sprints`, { team_id: Number(form.team_id), title: form.title, cost_estimate: form.cost_estimate ? Number(form.cost_estimate) : 0 });
-              setForm({ team_id: "", title: "", cost_estimate: "" }); setOpenId(r.data.data.id);
+              const r = await api.post(`/work/projects/${projectId}/sprints`, { team_id: Number(form.team_id), title: form.title });
+              setForm({ team_id: "", title: "" }); setOpenId(r.data.data.id);
             })}>Create sprint</Button>
           </CardContent></Card>
       )}
 
       <Card><CardContent className="p-0 overflow-x-auto">
         <table className="w-full text-sm">
-          <thead><tr className="text-left text-slate-500 border-b"><th className="p-3">Sprint</th><th className="p-3">Department</th><th className="p-3">Status</th><th className="p-3 text-right">Effort</th><th className="p-3">Tasks</th><th className="p-3 text-right">Cost</th><th className="p-3">Dates</th><th className="p-3" /></tr></thead>
+          <thead><tr className="text-left text-slate-500 border-b"><th className="p-3">Sprint</th><th className="p-3">Department</th><th className="p-3">Status</th><th className="p-3 text-right">Effort</th><th className="p-3">Tasks</th><th className="p-3">Dates</th><th className="p-3" /></tr></thead>
           <tbody>
             {d.sprints.map((s: any) => (
               <tr key={s.id} className="border-b last:border-0">
@@ -75,7 +74,6 @@ export default function Sprints({ projectId }: { projectId: string | number }) {
                 <td className="p-3"><span className={`px-2 py-1 rounded-full text-xs font-semibold ${COLOR[s.status]}`}>{s.status}</span></td>
                 <td className="p-3 text-right">{num(s.effort_days)} d</td>
                 <td className="p-3">{s.items_approved} of {s.items_count} done</td>
-                <td className="p-3 text-right">{money(s.cost_estimate)}</td>
                 <td className="p-3">{s.start_date ? `${s.start_date} to ${s.end_date}` : s.requested_start ? `asked ${s.requested_start} to ${s.requested_end}` : "-"}</td>
                 <td className="p-3 text-right"><Button size="sm" variant="outline" onClick={() => setOpenId(s.id)}>Open</Button></td>
               </tr>
@@ -93,7 +91,6 @@ export default function Sprints({ projectId }: { projectId: string | number }) {
 function SprintDialog({ id, onClose, onChanged }: { id: number; onClose: () => void; onChanged: () => void }) {
   const [d, setD] = useState<any>(null);
   const [item, setItem] = useState({ title: "", effort_days: "", assigned_to: "" });
-  const [cost, setCost] = useState("");
   const [dates, setDates] = useState({ start: "", end: "" });
   const [note, setNote] = useState("");
 
@@ -103,7 +100,7 @@ function SprintDialog({ id, onClose, onChanged }: { id: number; onClose: () => v
     const r = await api.get(`/work/sprints/${id}`);
     setD(r.data);
     setReady((was) => {
-      if (!was || force) { setCost(String(r.data.sprint.cost_estimate ?? "")); setDates({ start: r.data.sprint.requested_start || "", end: r.data.sprint.requested_end || "" }); }
+      if (!was || force) { setDates({ start: r.data.sprint.requested_start || "", end: r.data.sprint.requested_end || "" }); }
       return true;
     });
   }, [id]);
@@ -136,7 +133,7 @@ function SprintDialog({ id, onClose, onChanged }: { id: number; onClose: () => v
         <div className="flex-1 min-h-0 overflow-y-auto px-6 py-4 space-y-4 [&_label]:block [&_label]:mb-1 [&_label]:text-xs [&_label]:text-slate-500 [&>*]:shrink-0">
 
           <div className="grid grid-cols-2 gap-3 text-sm">
-            {[["Effort planned", `${num(d.totals.effort_days)} days`], ["Time spent", `${num(d.totals.spent_days)} days`], ["Department budget", money(d.budget.department)], ["Left after other sprints", money(d.budget.left)]].map(([k, v]) => (
+            {[["Effort planned", `${num(d.totals.effort_days)} days`], ["Time spent", `${num(d.totals.spent_days)} days`], ["Department person-days", money(d.budget.department)], ["Left after other sprints", money(d.budget.left)]].map(([k, v]) => (
               <div key={k} className="rounded-xl border border-slate-200 dark:border-slate-700 px-3 py-2"><div className="text-xs text-slate-500">{k}</div><div className="font-semibold">{v}</div></div>
             ))}
           </div>
@@ -144,8 +141,6 @@ function SprintDialog({ id, onClose, onChanged }: { id: number; onClose: () => v
 
           {editable && (
             <Card><CardContent className="pt-5 grid grid-cols-3 gap-2 items-end">
-              <div className="col-span-2"><Label>Cost estimate (checked against the department budget)</Label><Input type="number" min="0" value={cost} onChange={(e) => setCost(e.target.value)} /></div>
-              <Button variant="outline" onClick={() => run(() => api.put(`/work/sprints/${id}`, { cost_estimate: Number(cost || 0) }))}>Save cost</Button>
             </CardContent></Card>
           )}
 

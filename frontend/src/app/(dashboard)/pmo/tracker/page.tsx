@@ -61,7 +61,7 @@ export default function TrackerPage() {
               {here.map((p: any) => (
                 <div key={p.id} draggable onDragStart={() => setDrag(p)} className="cursor-grab rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/40 p-4 space-y-1">
                   <a href={`/pmo/projects/${p.id}`} className="text-sm font-medium text-slate-900 dark:text-white hover:underline">{p.name}</a>
-                  <p className={`text-xs ${p.left < 0 ? "text-red-700 dark:text-red-300" : "text-slate-500"}`}>{p.budget > 0 ? `${money(p.left)} left of ${money(p.budget)}` : "No department budget yet"}</p>
+                  <p className={`text-xs ${p.left < 0 ? "text-red-700 dark:text-red-300" : "text-slate-500"}`}>{p.budget > 0 ? `${money(p.left)} days left of ${money(p.budget)}` : "No department person-days yet"}</p>
                 </div>
               ))}
             </div>

@@ -72,7 +72,8 @@ class SalesProjectController extends Controller
             'pages_count' => 'nullable|integer|min:1|max:10000',
             'quality_level' => ['nullable', Rule::in(['Basic', 'Standard', 'Premium'])],
             'budget' => 'required|numeric|min:0',
-            'budget_cap' => 'nullable|numeric|min:0|max:100000000',
+            'currency' => ['nullable', Rule::in(['INR', 'AED'])],
+            'budget_cap' => 'nullable|numeric|min:0|max:100000', // max person-days (8h each), not money
             'details' => 'nullable|array',
             'details.*' => 'nullable|string|max:2000',
             'overview' => 'nullable|string|max:5000',
@@ -107,7 +108,7 @@ class SalesProjectController extends Controller
                     'client_name' => $data['client_name'], 'client_email' => $data['client_email'] ?? null, 'client_phone' => $data['client_phone'] ?? null,
                     'site_category' => $data['site_category'], 'cms_variant' => $data['cms_variant'] ?? null, 'platform' => $data['platform'],
                     'pages_count' => $data['pages_count'] ?? null, 'quality_level' => $data['quality_level'] ?? null,
-                    'budget' => $data['budget'], 'budget_cap' => $data['budget_cap'] ?? null, 'overview' => $data['overview'] ?? null,
+                    'budget' => $data['budget'], 'currency' => $data['currency'] ?? 'INR', 'budget_cap' => $data['budget_cap'] ?? null, 'overview' => $data['overview'] ?? null,
                     'details' => $data['details'] ?? null,
                 ]);
                 $lead?->update(['status' => 'Won', 'converted_project_id' => $project->id]);
