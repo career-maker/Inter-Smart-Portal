@@ -168,6 +168,11 @@ class ProjectAuthorizationService
     /** Can $user edit planning fields (title, dates, effort, assignees, coordinator, ...) on this task? */
     public function canManageTask(User $user, ProjectTask $task): bool
     {
+        // whoever created the task (e.g. from a department table) can edit it
+        if ($task->created_by && $task->created_by === $user->id) {
+            return true;
+        }
+
         if (
             $user->hasRole('Super Admin') ||
             $user->hasRole('Admin') ||
@@ -272,7 +277,7 @@ class ProjectAuthorizationService
             return true;
         }
 
-        if ($actor->hasRole('Team Lead') || in_array(strtolower($actor->role ?? ''), ['team lead'], true) || \App\Models\Team::where('team_lead_id', $actor->id)->exists()) {
+        if ($task->created_by === $actor->id || $actor->hasRole('Team Lead') || in_array(strtolower($actor->role ?? ''), ['team lead'], true) || \App\Models\Team::where('team_lead_id', $actor->id)->exists()) {
             return $this->canManageTask($actor, $task)
                 && $targetUser->team_id !== null
                 && $targetUser->team_id === $actor->team_id;

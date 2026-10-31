@@ -34,6 +34,7 @@ import { ProjectTask } from "@/types/pm";
 import { TaskStatusBadge } from "@/components/project-management/TaskStatusBadge";
 import { TaskPriorityBadge } from "@/components/project-management/TaskPriorityBadge";
 import { TaskExecutionModal } from "@/components/project-management/TaskExecutionModal";
+import { EditTaskModal } from "@/components/project-management/EditTaskModal";
 import { TaskAssigneeModal } from "@/components/project-management/TaskAssigneeModal";
 import { TaskComments } from "@/components/project-management/TaskComments";
 
@@ -75,6 +76,7 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ id: stri
 
   const [isExecutionModalOpen, setIsExecutionModalOpen] = useState(false);
   const [isAssigneeModalOpen, setIsAssigneeModalOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   const fetchTaskDetails = useCallback(async (isManual = false) => {
     if (isManual) {
@@ -136,7 +138,7 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ id: stri
 
   const overdue = isTaskOverdue(task.due_date, task.status);
   const isAssignee = (task.assignees || []).some((a) => a.id === user?.id);
-  const canManage = isSuperAdmin || isTeamLead;
+  const canManage = isSuperAdmin || isTeamLead || (!!task.created_by && task.created_by === user?.id);
   const canUpdateExecution = canManage || isAssignee;
   const handleDeleteTask = async () => {
     if (!canManage || !task) return;
@@ -242,6 +244,14 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ id: stri
 
             {canManage && (
               <>
+                <button
+                  type="button"
+                  onClick={() => setIsEditOpen(true)}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs sm:text-sm font-semibold border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
+                >
+                  <Edit3 className="w-4 h-4" />
+                  <span>Edit task</span>
+                </button>
                 <button
                   type="button"
                   onClick={() => setIsAssigneeModalOpen(true)}
@@ -639,6 +649,8 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ id: stri
         onSuccess={(updated) => setTask(updated)}
         onDelete={() => router.push("/project-management/tasks")}
       />
+
+      <EditTaskModal isOpen={isEditOpen} onClose={() => setIsEditOpen(false)} task={task} onSuccess={(updated) => setTask(updated)} />
 
       <TaskAssigneeModal
         isOpen={isAssigneeModalOpen}

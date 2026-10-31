@@ -305,6 +305,19 @@ class ProjectTaskController extends Controller
         return response()->json(['message' => 'Task created successfully.', 'data' => $task->load(['assignees', 'catalogTask'])], 201);
     }
 
+    /** Phases a task of this project can be moved to. */
+    public function phases(Request $request, ProjectTask $task)
+    {
+        abort_unless($this->auth->canViewTask($request->user(), $task), 403);
+        $teamId = $task->project?->team_id ?? $task->team_id;
+        $list = ProjectSubPhase::availableForTeam($teamId)->get(['id', 'name']);
+        if ($task->sub_phase_id && ! $list->contains('id', $task->sub_phase_id)) {
+            $list = $list->concat(ProjectSubPhase::whereKey($task->sub_phase_id)->get(['id', 'name']));
+        }
+
+        return response()->json(['data' => $list->values()]);
+    }
+
     public function show(Request $request, ProjectTask $task)
     {
         $user = $request->user();
