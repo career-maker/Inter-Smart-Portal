@@ -12,6 +12,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Handover from "@/components/work/Handover";
+import UiPages from "@/components/work/UiPages";
+import Sprints from "@/components/work/Sprints";
+import QaReviews from "@/components/work/QaReviews";
+import Changes from "@/components/work/Changes";
 
 const money = (n: number | string) => Number(n || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 });
 const errMsg = (e: any) => e?.response?.data?.message || "Something went wrong. Please try again.";
@@ -77,13 +81,11 @@ export default function PmoProjectPage() {
       {current.enabled && tab === "business_analysis" && <BusinessAnalysis d={d} run={run} id={id} />}
       {current.enabled && tab === "resources" && <Resources d={d} run={run} id={id} />}
       {current.enabled && tab === "budget" && <Budget d={d} meta={meta} run={run} id={id} />}
-      {current.enabled && current.ready && ["ui", "ux", "dev", "qa", "bugs"].includes(tab) && (
-        <Card><CardContent className="p-4 text-sm space-y-2">
-          <p>The {current.label} work is done in the project work view, where the department team can also see it.</p>
-          <Link href={`/work/projects/${id}`}><Button>Open the work view</Button></Link>
-        </CardContent></Card>
-      )}
-      {current.enabled && !current.ready && (
+      {current.enabled && tab === "ui" && <UiPages projectId={id} />}
+      {current.enabled && (tab === "ux" || tab === "dev") && <Sprints projectId={id} />}
+      {current.enabled && tab === "qa" && <QaReviews projectId={id} />}
+      {current.enabled && tab === "bugs" && <Changes projectId={id} />}
+      {current.enabled && !current.ready && !["bugs"].includes(tab) && (
         <Card><CardContent className="p-4 text-sm text-slate-600 dark:text-slate-300">The {current.label} tab is open for this project. Its working screens arrive in the next phase.</CardContent></Card>
       )}
     </div>
