@@ -35,6 +35,12 @@ return [
         ],
     ],
 
+    // Meetings go straight onto Google Calendars when this is set (see App\Services\GoogleCalendar)
+    'google_calendar' => [
+        'credentials' => env('GOOGLE_CALENDAR_CREDENTIALS'), // absolute path to the service-account JSON key, outside the repo
+        'subject'     => env('GOOGLE_CALENDAR_SUBJECT'),     // Workspace user the events are created as; blank = the meeting's organiser
+    ],
+
     'supabase' => [
         'url'            => env('SUPABASE_URL'),           // e.g. https://xyz.supabase.co
         'service_key'    => env('SUPABASE_SERVICE_KEY'),   // service_role secret key

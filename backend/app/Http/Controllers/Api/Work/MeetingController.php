@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Meeting;
 use App\Models\MeetingAction;
 use App\Services\Email\EmailService;
+use App\Services\GoogleCalendar;
 use App\Support\Notify;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -207,6 +208,13 @@ class MeetingController extends Controller
         }
         // Sent after the response goes out, so a slow SMTP server never holds the page up.
         dispatch(function () use ($m, $to, $method, $verb, $when) {
+        if (GoogleCalendar::enabled()) {
+            try {
+                GoogleCalendar::sync($m, $method === 'CANCEL');
+            } catch (\Throwable $e) {
+                \Log::warning('Google Calendar sync failed: ' . $e->getMessage());
+            }
+        }
         try {
             EmailService::applySmtpConfig();
             $ics = $this->buildIcs($m, $method);
