@@ -95,9 +95,15 @@ export default function DeptTracker({ projectId, kind }: { projectId: string | n
     <div className="space-y-4">
       <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{TITLE[kind]}</h2>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
-        {cards.map(([k, v, bad]) => (
-          <div key={k} className="rounded-xl border border-slate-200 dark:border-slate-700 px-3 py-2"><div className="text-xs text-slate-500">{k}</div><div className={`font-semibold ${bad ? "text-red-600" : ""}`}>{v}</div></div>
-        ))}
+        {cards.map(([k, v, bad], i) => {
+          const c = ["#0780B7", "#00BDA1", "#FE586E"][i]; // blue, teal, coral from the portal palette
+          return (
+            <div key={k} className="rounded-[14px] border px-4 py-3" style={{ backgroundColor: `${c}14`, borderColor: `${c}55`, borderLeftWidth: 4, borderLeftColor: c }}>
+              <div className="text-xs font-medium" style={{ color: c }}>{k}</div>
+              <div className="text-base font-bold" style={{ color: bad ? "#C2334D" : c }}>{v}</div>
+            </div>
+          );
+        })}
       </div>
 
       {d.can_edit && (
