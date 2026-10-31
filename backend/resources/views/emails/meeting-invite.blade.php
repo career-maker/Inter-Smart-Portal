@@ -12,7 +12,7 @@
     @if($cancelled)
         This meeting has been cancelled. Please remove it from your calendar.
     @else
-        You are invited to a {{ $meeting->kind === 'client' ? 'client' : 'internal' }} meeting@if($meeting->organizer) organised by {{ $meeting->organizer->first_name }} {{ $meeting->organizer->last_name }}@endif. A calendar invite is attached; open it to add the meeting to your calendar.
+        You are invited to a {{ $meeting->kind === 'client' ? 'client' : 'internal' }} meeting{{ $meeting->organizer ? ' organised by ' . $meeting->organizer->first_name . ' ' . $meeting->organizer->last_name : '' }}. A calendar invite is attached; open it to add the meeting to your calendar.
     @endif
 </p>
 
