@@ -107,47 +107,47 @@ class CustomizationSetting extends Model
 
     public function getSidebarHoverColorAttribute($value): string
     {
-        return $value ?: ($this->extra_colors['sidebar_hover_color'] ?? '#138A80');
+        return $value ?: ($this->extra_colors['sidebar_hover_color'] ?? '#232C42');
     }
 
     public function getHoverColorAttribute($value): string
     {
-        return $value ?: ($this->extra_colors['hover_color'] ?? '#138A80');
+        return $value ?: ($this->extra_colors['hover_color'] ?? '#00A58C');
     }
 
     public function getActiveColorAttribute($value): string
     {
-        return $value ?: ($this->extra_colors['active_color'] ?? '#14A092');
+        return $value ?: ($this->extra_colors['active_color'] ?? '#276BFA');
     }
 
     public function getDarkTextColorAttribute($value): string
     {
-        return $value ?: ($this->extra_colors['dark_text_color'] ?? '#093E3A');
+        return $value ?: ($this->extra_colors['dark_text_color'] ?? '#161D2C');
     }
 
     public function getLightBgColorAttribute($value): string
     {
-        return $value ?: ($this->extra_colors['light_bg_color'] ?? '#E6F8F6');
+        return $value ?: ($this->extra_colors['light_bg_color'] ?? '#F5F7FC');
     }
 
     public function getCardBgColorAttribute($value): string
     {
-        return $value ?: ($this->extra_colors['card_bg_color'] ?? '#F2FCFB');
+        return $value ?: ($this->extra_colors['card_bg_color'] ?? '#FDFBFE');
     }
 
     public function getBorderColorAttribute($value): string
     {
-        return $value ?: ($this->extra_colors['border_color'] ?? '#CBEFEA');
+        return $value ?: ($this->extra_colors['border_color'] ?? '#E4E7F0');
     }
 
     public function getSidebarBgColorAttribute($value): string
     {
-        return $value ?: ($this->extra_colors['sidebar_bg_color'] ?? '#093E3A');
+        return $value ?: ($this->extra_colors['sidebar_bg_color'] ?? '#161D2C');
     }
 
     public function getSidebarActiveColorAttribute($value): string
     {
-        return $value ?: ($this->extra_colors['sidebar_active_color'] ?? '#14A092');
+        return $value ?: ($this->extra_colors['sidebar_active_color'] ?? '#276BFA');
     }
 
     public function getSubHeaderBgAttribute($value): string
@@ -163,28 +163,28 @@ class CustomizationSetting extends Model
     public static function defaults(): array
     {
         return [
-            'font_family'               => 'Proxima Nova',
-            'header_bg_color'           => '#0F766E',
+            'font_family'               => 'Poppins',
+            'header_bg_color'           => '#276BFA',
             'header_text_color'         => '#FFFFFF',
-            'sidebar_bg_color'          => '#093E3A',
+            'sidebar_bg_color'          => '#161D2C',
             'header_subtitle'           => 'PERFECTION AT ITS FINEST',
             'show_header_subtitle'      => true,
-            'sidebar_active_color'      => '#14A092',
-            'sidebar_hover_color'       => '#138A80',
-            'hover_color'               => '#138A80',
-            'active_color'              => '#14A092',
-            'dark_text_color'           => '#093E3A',
-            'light_bg_color'            => '#E6F8F6',
-            'card_bg_color'             => '#F2FCFB',
-            'border_color'              => '#CBEFEA',
+            'sidebar_active_color'      => '#276BFA',
+            'sidebar_hover_color'       => '#232C42',
+            'hover_color'               => '#00A58C',
+            'active_color'              => '#276BFA',
+            'dark_text_color'           => '#161D2C',
+            'light_bg_color'            => '#F5F7FC',
+            'card_bg_color'             => '#FDFBFE',
+            'border_color'              => '#E4E7F0',
             'card_elevation'            => 'subtle',
             'button_style'              => 'rounded',
             'density'                   => 'comfortable',
             'footer_copyright'          => '© 2026 Inter Smart. All rights reserved.',
-            'primary_color'             => '#0F766E',
-            'body_font_size'            => '12px',
+            'primary_color'             => '#00BDA1',
+            'body_font_size'            => '14px',
             'heading_scale'             => 'normal',
-            'description_font_size'     => '13px',
+            'description_font_size'     => '12px',
             'page_title_base'           => 'Inter Smart',
             'page_title_format'         => '{title} | {pagename}',
             'favicon_url'               => '/icon.png',
@@ -192,9 +192,9 @@ class CustomizationSetting extends Model
             'welcome_banner_url'        => '/welcome-banner-bg.jpg',
             'welcome_banner_media_type' => 'image',
             'login_bg_video_url'        => '/videos/login-bg.mp4',
-            'border_radius'             => '12px',
-            'sub_header_bg'             => '#ffffff',
-            'sub_header_active_color'   => '#0F766E',
+            'border_radius'             => '14px',
+            'sub_header_bg'             => '#FFFFFF',
+            'sub_header_active_color'   => '#276BFA',
             'login_heading'             => 'Sign in to your workplace',
             'login_subheading'          => 'Perfection at its finest. Workforce management portal',
             'title_separator'           => '|',

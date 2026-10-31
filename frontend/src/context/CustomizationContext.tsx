@@ -155,7 +155,7 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
     };
     root.style.setProperty("--portal-card-shadow", elevationMap[conf.card_elevation || "subtle"] || elevationMap.subtle);
 
-    const btnRadius = conf.button_style === "pill" ? "9999px" : conf.button_style === "sharp" ? "2px" : (conf.border_radius || "12px");
+    const btnRadius = conf.button_style === "pill" ? "9999px" : conf.button_style === "sharp" ? "2px" : "9px";
     root.style.setProperty("--portal-btn-radius", btnRadius);
 
     // 9. Dynamic Favicon Injection (Resolves backend upload paths & updates links in place without removing React 19 fiber nodes)

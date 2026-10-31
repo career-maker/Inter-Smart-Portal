@@ -92,6 +92,16 @@
   font-family: "Segoe Script", "Bradley Hand", 'Caveat', 'Dancing Script', cursive !important;
 }
 
+/* Brand action colours and text tones (new portal look). Primary buttons use --portal-primary-color. */
+:root {
+  --portal-secondary: #FE586E;   /* coral: secondary buttons */
+  --portal-tertiary: #0780B7;    /* blue: tertiary buttons */
+  --portal-accent: #FFCC61;      /* yellow: highlight / warning */
+  --portal-muted-text: #85858F;  /* secondary text */
+  --portal-card-radius: 14px;
+  --portal-button-radius: 9px;
+}
+
 /* Global Typography - Universal Font with Customization Fallback */
 @layer base {
   html, body, *, :root {
@@ -113,16 +123,16 @@
     color-scheme: light only !important;
     background-color: var(--portal-light-bg, #E6F8F6) !important;
     color: var(--portal-dark-text, #093E3A) !important;
-    font-size: var(--portal-body-size, 12px);
-    line-height: 18px;
+    font-size: var(--portal-body-size, 14px);
+    line-height: 22px;
   }
 
   button, [role="button"], a.btn, .btn {
     font-family: var(--portal-font-family, "Proxima Nova", sans-serif);
     font-style: normal;
-    font-size: var(--portal-body-size, 12px);
+    font-size: var(--portal-body-size, 14px);
     line-height: 20px;
-    font-weight: 400;
+    font-weight: 600;
     letter-spacing: normal;
   }
 
@@ -165,8 +175,8 @@
   font-style: normal !important;
   font-weight: 600 !important;
   color: rgb(15, 24, 36) !important;
-  font-size: calc(14px * var(--portal-heading-multiplier, 1)) !important;
-  line-height: 20px !important;
+  font-size: calc(16px * var(--portal-heading-multiplier, 1)) !important;
+  line-height: 24px !important;
   letter-spacing: normal !important;
 }
 
@@ -218,9 +228,9 @@ p.body-text {
 [class*="kpi-number"] {
   font-family: var(--portal-font-family, "Proxima Nova", sans-serif) !important;
   font-style: normal !important;
-  font-weight: 600 !important;
-  font-size: 28px !important;
-  line-height: 36px !important;
+  font-weight: 700 !important;
+  font-size: 40px !important;
+  line-height: 48px !important;
   letter-spacing: normal !important;
   color: rgb(15, 24, 36) !important;
 }
@@ -625,7 +635,7 @@ html:not(.dark) a[class*="bg-white"]:not([class*="text-white"]) {
   --secondary: var(--portal-light-bg, #E6F8F6);
   --secondary-foreground: var(--portal-dark-text, #093E3A);
   --muted: #F1F5F9;
-  --muted-foreground: #64748B;
+  --muted-foreground: var(--portal-muted-text, #85858F);
   --accent: var(--portal-active-color, #2563EB);
   --accent-foreground: #FFFFFF;
   --destructive: #EF4444;

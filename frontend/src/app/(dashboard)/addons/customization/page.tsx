@@ -46,10 +46,10 @@ import { CustomizationSettings, DEFAULT_CUSTOMIZATION_SETTINGS, customizationApi
 import { formatFriendlyErrorMessage } from "@/lib/errorUtils";
 
 const AVAILABLE_FONTS = [
-  { id: "Proxima Nova", name: "Proxima Nova (Default)", category: "Sans-serif", provider: "Built-in" },
+  { id: "Proxima Nova", name: "Proxima Nova (Previous)", category: "Sans-serif", provider: "Built-in" },
   { id: "Inter", name: "Inter", category: "Sans-serif", provider: "Google Fonts" },
   { id: "Outfit", name: "Outfit", category: "Geometric Sans", provider: "Google Fonts" },
-  { id: "Poppins", name: "Poppins", category: "Geometric Sans", provider: "Google Fonts" },
+  { id: "Poppins", name: "Poppins (Default)", category: "Geometric Sans", provider: "Google Fonts" },
   { id: "Plus Jakarta Sans", name: "Plus Jakarta Sans", category: "Modern Sans", provider: "Google Fonts" },
   { id: "Montserrat", name: "Montserrat", category: "Classic Sans", provider: "Google Fonts" },
   { id: "Roboto", name: "Roboto", category: "Neutral Sans", provider: "Google Fonts" },
@@ -167,9 +167,31 @@ export interface PalettePreset {
 
 export const PALETTE_PRESETS: PalettePreset[] = [
   {
+    id: "brand_new",
+    name: "Intersmart Brand (Default)",
+    tagline: "Brand blue header, teal buttons, light cards - pair with Poppins",
+    category: "corporate",
+    previewColors: ["#161D2C", "#276BFA", "#00BDA1", "#FE586E", "#F5F7FC"],
+    settings: {
+      sidebar_bg_color: "#161D2C",
+      sidebar_hover_color: "#232C42",
+      sidebar_active_color: "#276BFA",
+      header_bg_color: "#276BFA",
+      primary_color: "#00BDA1",
+      hover_color: "#00A58C",
+      active_color: "#276BFA",
+      dark_text_color: "#161D2C",
+      light_bg_color: "#F5F7FC",
+      card_bg_color: "#FDFBFE",
+      border_color: "#E4E7F0",
+      header_text_color: "#FFFFFF",
+      sub_header_active_color: "#276BFA",
+    },
+  },
+  {
     id: "default_current",
-    name: "Default (Current Style)",
-    tagline: "Balanced Teal & Emerald contrast - InterSmart standard",
+    name: "Previous Style (Teal)",
+    tagline: "Balanced Teal & Emerald contrast - the earlier InterSmart look",
     category: "green_teal",
     previewColors: ["#093E3A", "#0F766E", "#138A80", "#14A092", "#E6F8F6"],
     settings: {
