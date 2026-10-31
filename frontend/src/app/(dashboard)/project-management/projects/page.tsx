@@ -468,7 +468,7 @@ export default function ProjectsListPage() {
                     {/* Actions */}
                     <td className="py-3.5 px-4 text-right break-words whitespace-normal leading-tight">
                       <div className="flex items-center justify-end gap-2 flex-nowrap whitespace-nowrap">
-                        {!project.is_live && (
+                        {!project.is_live && project.can_make_live && (
                           <button
                             type="button"
                             onClick={() => {

@@ -141,7 +141,7 @@ export function ProjectStatusDrawer({
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
-              {project && !project.is_live && onOpenMarkLive && (
+              {project && !project.is_live && project.can_make_live && onOpenMarkLive && (
                 <button
                   type="button"
                   onClick={() => onOpenMarkLive(project)}
@@ -258,7 +258,7 @@ export function ProjectStatusDrawer({
                           </p>
                         </div>
 
-                        {!project.is_live && onOpenMarkLive && (
+                        {!project.is_live && project.can_make_live && onOpenMarkLive && (
                           <button
                             type="button"
                             onClick={() => onOpenMarkLive(project)}

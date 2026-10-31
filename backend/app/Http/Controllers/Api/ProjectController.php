@@ -82,6 +82,7 @@ class ProjectController extends Controller
                 'tasks as completed_tasks_count' => fn ($q) => $q->where('status', 'Completed'),
                 'tasks as active_tasks_count' => fn ($q) => $q->whereNotIn('status', ['Completed', 'Rejected', 'Forecast']),
             ])->orderBy('name', 'asc')->get();
+            $this->flagCanMakeLive($user, $items);
 
             return response()->json([
                 'data' => $items,
@@ -91,8 +92,7 @@ class ProjectController extends Controller
             ]);
         }
 
-        return response()->json(
-            $query->with([
+        $page = $query->with([
                 'team:id,name',
                 'coordinator:id,first_name,last_name,email',
                 'liveMarker:id,first_name,last_name',
@@ -100,8 +100,23 @@ class ProjectController extends Controller
                 'tasks',
                 'tasks as completed_tasks_count' => fn ($q) => $q->where('status', 'Completed'),
                 'tasks as active_tasks_count' => fn ($q) => $q->whereNotIn('status', ['Completed', 'Rejected', 'Forecast']),
-            ])->orderBy('created_at', 'desc')->paginate((int) $perPage)
-        );
+            ])->orderBy('created_at', 'desc')->paginate((int) $perPage);
+        $this->flagCanMakeLive($user, $page->getCollection());
+
+        return response()->json($page);
+    }
+
+    /** Same rule as markAsLive(), so the UI hides the button from people who would get a 403. */
+    private function canMakeLive($user, Project $project): bool
+    {
+        return $this->auth->canManageProject($user, $project) || $user->hasRole('Super Admin') || $user->hasRole('Admin');
+    }
+
+    private function flagCanMakeLive($user, $projects): void
+    {
+        foreach ($projects as $p) {
+            $p->setAttribute('can_make_live', $this->canMakeLive($user, $p));
+        }
     }
 
     public function store(StoreProjectRequest $request)
@@ -244,7 +259,7 @@ class ProjectController extends Controller
     {
         $user = $request->user();
 
-        if (!$this->auth->canManageProject($user, $project) && !$user->hasRole('Super Admin') && !$user->hasRole('Admin')) {
+        if (!$this->canMakeLive($user, $project)) {
             return response()->json(['message' => 'Unauthorized to mark this project as Made Live.'], 403);
         }
 
@@ -495,6 +510,8 @@ class ProjectController extends Controller
         }
 
         $totalMembersCount = count($hubstaffMembersList) > 0 ? count($hubstaffMembersList) : $project->members->count();
+
+        $project->setAttribute('can_make_live', $this->canMakeLive($user, $project));
 
         return response()->json([
             'data' => [

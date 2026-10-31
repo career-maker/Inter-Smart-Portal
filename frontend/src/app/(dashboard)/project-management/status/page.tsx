@@ -444,7 +444,7 @@ export default function ProjectStatusPage() {
                             <span className="whitespace-nowrap">View Status</span>
                           </button>
 
-                          {!p.is_live && (
+                          {!p.is_live && p.can_make_live && (
                             <button
                               type="button"
                               onClick={() => handleOpenMarkLiveModal(p)}
