@@ -21,7 +21,7 @@ class Access
         'sales' => ['Sales', 'Sales module: leads, inbox, create projects, completed projects and AMC'],
         'sales_lead' => ['Sales lead (sees every salesperson)', 'Sees all leads and projects of all salespeople'],
         'pmo' => ['Project Office (coordinator)', 'Project Office screens and being a project coordinator'],
-        'pmo_manager' => ['Project manager', 'Assign coordinators, budgets, hold, approve sprints and changes, out-of-budget list, tracker'],
+        'pmo_manager' => ['Project manager', 'See every project with its coordinator (filter by coordinator), assign the coordinator, allocate and update department budgets, hold and resume, approve sprints against the department budget'],
         'qa' => ['QA tester', 'QA queue and QA reviews'],
         'qa_lead' => ['QA lead', 'Assigns and oversees QA reviews'],
         'system_admin' => ['System administrator', 'Go-live requests: allocate servers and mark projects live'],
@@ -30,7 +30,7 @@ class Access
         'pmo_assign' => ['PMO power: assign the coordinator', 'Assign a coordinator to a project', 'pmo_manager'],
         'pmo_budget' => ['PMO power: department budgets', 'Set and raise the department budget split', 'pmo_manager'],
         'pmo_hold' => ['PMO power: hold and resume projects', 'Put a project on hold and resume it', 'pmo_manager'],
-        'pmo_override' => ['PMO power: lock overrides', 'Open a budget-locked tab anyway', 'pmo_manager'],
+        'pmo_override' => ['PMO power: lock overrides', 'Open a budget-locked tab anyway (not part of the project manager role; Super Admin, or give it here)'],
         'pmo_approve' => ['PMO power: approvals', 'Approve or reject sprints, corrections and changes, out-of-scope work and extra design pages', 'pmo_manager'],
         'pmo_budget_views' => ['PMO power: out-of-budget list and tracker', 'See the out-of-budget list and use the project tracker', 'pmo_manager'],
     ];

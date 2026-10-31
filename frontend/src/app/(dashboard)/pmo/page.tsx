@@ -23,16 +23,19 @@ export default function PmoProjectsPage() {
   const [state, setState] = useState("");
   const [search, setSearch] = useState("");
   const [all, setAll] = useState(false);
+  const [pcs, setPcs] = useState<any[]>([]);
+  const [pc, setPc] = useState("");
+  useEffect(() => { api.get("/pmo/meta").then((r) => setPcs(r.data.coordinators || [])).catch(() => {}); }, []);
 
   const load = useCallback(async () => {
     try {
-      const r = await api.get("/pmo/projects", { params: { payment_state: state || undefined, search: search || undefined, scope: all ? "all" : undefined } });
+      const r = await api.get("/pmo/projects", { params: { payment_state: state || undefined, search: search || undefined, coordinator_id: pc || undefined, scope: all ? "all" : undefined } });
       setRows(r.data.data);
       setUnavailable(false);
     } catch (e: any) {
       if ([403, 404].includes(e?.response?.status)) setUnavailable(true);
     } finally { setLoading(false); }
-  }, [state, search, all]);
+  }, [state, search, all, pc]);
   useEffect(() => { load(); }, [load]);
 
   if (unavailable) return <p className="text-slate-600 dark:text-slate-300">The Project Office is not switched on for your account.</p>;
@@ -48,6 +51,7 @@ export default function PmoProjectsPage() {
 
       <div className="flex flex-wrap gap-2 items-center">
         {["", ...STATES].map((s) => <Button key={s || "all"} size="sm" variant={state === s ? "default" : "outline"} onClick={() => setState(s)}>{s || "All"}</Button>)}
+        <select className="h-9 rounded-md border bg-transparent px-2 text-sm" value={pc} onChange={(e) => setPc(e.target.value)} aria-label="Filter by project coordinator"><option value="">All coordinators</option>{pcs.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select>
         <Button size="sm" variant={all ? "default" : "ghost"} onClick={() => setAll(!all)}>{all ? "Including older projects" : "New pipeline only"}</Button>
         <div className="relative ml-auto w-full sm:w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />

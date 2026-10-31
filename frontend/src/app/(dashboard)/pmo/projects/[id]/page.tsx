@@ -69,7 +69,7 @@ export default function PmoProjectPage() {
         <Card><CardContent className="p-4 space-y-2">
           <p className="text-sm text-slate-700 dark:text-slate-200 flex items-center gap-2"><Lock className="h-4 w-4" /> {current.locked_reason}</p>
           {d.is_super_admin && !g.payment.open && <OverrideForm label="Override payment lock (Super Admin)" onSubmit={(reason) => run(() => api.post(`/pmo/projects/${id}/overrides`, { type: "payment", reason }))} />}
-          {d.can_manage && g.payment.open && !g.budget.open && <OverrideForm label="Override budget lock (PMO)" onSubmit={(reason) => run(() => api.post(`/pmo/projects/${id}/overrides`, { type: "budget", reason }))} />}
+          {d.is_super_admin && !g.budget.open && <OverrideForm label="Override budget lock (Super Admin)" onSubmit={(reason) => run(() => api.post(`/pmo/projects/${id}/overrides`, { type: "budget", reason }))} />}
         </CardContent></Card>
       )}
 

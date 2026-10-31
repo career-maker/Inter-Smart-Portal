@@ -193,7 +193,9 @@ class PmoModuleTest extends TestCase
     {
         $id = $this->salesProject();
         $this->approveAdvance($id);
-        $this->as($this->manager)->postJson("/api/pmo/projects/{$id}/overrides", ['type' => 'budget', 'reason' => 'Budget follows next week'])->assertOk();
+        // Lock overrides are not a project manager power: the manager is refused, the Super Admin can.
+        $this->as($this->manager)->postJson("/api/pmo/projects/{$id}/overrides", ['type' => 'budget', 'reason' => 'Budget follows next week'])->assertForbidden();
+        $this->as($this->admin)->postJson("/api/pmo/projects/{$id}/overrides", ['type' => 'budget', 'reason' => 'Budget follows next week'])->assertOk();
 
         $tabs = collect($this->as($this->manager)->getJson("/api/pmo/projects/{$id}")->json('gate.tabs'))->keyBy('key');
         $this->assertTrue($tabs['dev']['enabled']);
